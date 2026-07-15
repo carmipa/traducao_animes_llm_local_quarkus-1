@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:23.865Z" hostname="DESKTOP-QDNQHL1" time="0.003">
+  <properties/>
+  <testcase name="naoSinalizaDialogoComEfeitoPontualETextoLongo()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="preservaKaraokeEmJaponesOuRomaji()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.001"/>
+  <testcase name="detectaKaraokeCruComTagsDeTiming()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="naoSinalizaFalaCurtaComPosicionamentoSimples()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="preservaRomajiSemMarcadorDeEstiloOuKanji()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="detectaLetreiroFrameAFramePorDensidadeTags()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="detectaSaidaDeTemplateKaraokePorLetra()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="naoSinalizaDialogoComum()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="temTagKaraokeSoDetectaTagsDeTimingCruas()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="naoPreservaLetraOcidentalEmEstiloMusical()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.001"/>
+  <testcase name="naoSinalizaNuloOuVazio()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <testcase name="permiteKaraokeEmInglesOuOutroIdiomaLatino()" classname="org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

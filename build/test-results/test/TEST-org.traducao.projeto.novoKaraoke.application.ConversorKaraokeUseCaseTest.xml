@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:22.974Z" hostname="DESKTOP-QDNQHL1" time="0.066">
+  <properties/>
+  <testcase name="kfxApenasSilabicoViraLinhaSimplesENaoArquivoGrande()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.014"/>
+  <testcase name="deduplicaRomajiEPtBrNoMesmoTempoELimpaTagsVisiveis()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.007"/>
+  <testcase name="processaAuxiliaresQuandoPastaTemApenasAuxiliares()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.005"/>
+  <testcase name="kfxComLayersDuplicadosPrefereLegendaOcidentalSimples()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.006"/>
+  <testcase name="preservaEventoCurtoSemCoberturaRealMesmoPertoDaLinhaPrincipal()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.006"/>
+  <testcase name="blocoKfxQueViraLinhaImplausivelEhPreservadoIntacto()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.005"/>
+  <testcase name="kfxLetraPorLetraContinuoEhCortadoPorFraseComEspacos()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.006"/>
+  <testcase name="arquivoSemMusicaEhCopiadoByteIdentico()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.004"/>
+  <testcase name="ignoraArquivosAuxiliaresQuandoHaEpisodiosPrincipais()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.007"/>
+  <testcase name="deduplicaCamadasComJanelasQuaseIdenticasENaoSoIguais()" classname="org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCaseTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

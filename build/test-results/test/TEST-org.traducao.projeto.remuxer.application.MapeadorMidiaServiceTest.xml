@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:23.570Z" hostname="DESKTOP-QDNQHL1" time="0.056">
+  <properties/>
+  <testcase name="pareiaPorArquivoUnicoQuandoHouverApenasUmDeCada(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.008"/>
+  <testcase name="bloqueiaUnicaLegendaForcedNoModoFilme(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.006"/>
+  <testcase name="priorizaLegendaCompletaSobreForced(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.009"/>
+  <testcase name="geraNomeFinalLimpoAPartirDaLegendaDoFilme(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.007"/>
+  <testcase name="pareiaCorretamenteVideosELegendasComNomesDeAnime(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.01"/>
+  <testcase name="bloqueiaPareamentoAmbiguoEmVezDeEscolherPrimeira(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.007"/>
+  <testcase name="naoConfundeEpisodio01Com010(Path)" classname="org.traducao.projeto.remuxer.application.MapeadorMidiaServiceTest" time="0.009"/>
+  <system-out><![CDATA[2026-07-15 11:59:23,574 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: Mobile_Suit_Gundam_Narrative_720p.mkv -> [Pinkusub]Gundam_Narrative_PT-BR.ass -> Gundam Narrative_PTBR.mkv
+2026-07-15 11:59:23,581 WARN  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) A �nica legenda dispon�vel � auxiliar (Forced/Signs/Songs) para Filme.mkv; o remux exige a faixa completa PT-BR.
+2026-07-15 11:59:23,588 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: Anime - S01E01.mkv -> Anime - S01E01_PT-BR_Full.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 11:59:23,596 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1].mkv -> Mobile Suit Gundam NT (Narrative).ass -> Mobile Suit Gundam NT (Narrative)_PTBR.mkv
+2026-07-15 11:59:23,605 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: 86-Eighty-Six-Eps01-Ptbr_PTBR.mkv -> [DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_PTBR_PT-BR.ass -> 86 - 01_PTBR.mkv
+2026-07-15 11:59:23,605 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: 86-Eighty-Six-Eps02-Ptbr_PTBR.mkv -> [DB]86_-_02_(Dual Audio_10bit_BD1080p_x265)_PTBR_PT-BR.ass -> 86 - 02_PTBR.mkv
+2026-07-15 11:59:23,612 WARN  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareamento amb�guo para Anime - S01E01.mkv: [Release A - S01E01_PT-BR.ass, Release B - S01E01_PT-BR.ass]. Mantenha apenas a legenda completa correta ou padronize os nomes.
+2026-07-15 11:59:23,621 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: Anime - S01E01.mkv -> Anime - S01E01_PT-BR.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 11:59:23,621 INFO  [org.traducao.projeto.remuxer.application.MapeadorMidiaService] (Test worker) Pareado com seguran�a: Anime - S01E010.mkv -> Anime - S01E010_PT-BR.ass -> Anime - S01E010_PTBR.mkv
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

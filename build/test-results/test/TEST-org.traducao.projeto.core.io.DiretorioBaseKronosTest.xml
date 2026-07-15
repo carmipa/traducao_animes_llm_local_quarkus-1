@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.core.io.DiretorioBaseKronosTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:22.873Z" hostname="DESKTOP-QDNQHL1" time="0.001">
+  <properties/>
+  <testcase name="semPropriedadeResolveContraDiretorioCorrente()" classname="org.traducao.projeto.core.io.DiretorioBaseKronosTest" time="0.001"/>
+  <testcase name="comPropriedadeRedirecionaParaBaseInformada()" classname="org.traducao.projeto.core.io.DiretorioBaseKronosTest" time="0.0"/>
+  <testcase name="propriedadeEmBrancoEquivaleAAusente()" classname="org.traducao.projeto.core.io.DiretorioBaseKronosTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
