@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:52.043Z" hostname="DESKTOP-QDNQHL1" time="0.437">
+  <properties/>
+  <testcase name="interrupcaoPreservaCheckpointJaConfirmadoNoDisco()" classname="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" time="0.021"/>
+  <testcase name="preencheEntradaVaziaDeixadaPelaLimpeza()" classname="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" time="0.415"/>
+  <system-out><![CDATA[Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-5061173271497250932\cache-interrupcao
+[ARQUIVO] ep.cache.json — 2 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/2] Evento 1 — Help!
+?[32m[CORRIGIDA 1/2] Evento 1 — Ajude!?[0m
+?[32m[OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-5061173271497250932\backups-interrupcao\ep.cache.json?[0m
+Resultado da correção Google: CANCELADO | corrigidas=1 pendentes=0 falhas=0
+Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-15549078104498065758\cache
+[ARQUIVO] ep.cache.json — 1 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/1] Evento 1 — Help!
+?[32m[CORRIGIDA 1/1] Evento 1 — Ajude!?[0m
+?[32m[OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-15549078104498065758\backups\ep.cache.json?[0m
+Resultado da correção Google: CONCLUIDO | corrigidas=1 pendentes=0 falhas=0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

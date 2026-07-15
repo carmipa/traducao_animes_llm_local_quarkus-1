@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.infrastructure.legenda.LeitorEscritorSrtTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:56.618Z" hostname="DESKTOP-QDNQHL1" time="0.011">
+  <properties/>
+  <testcase name="leSrtComIndiceTimestampsEMultilinha()" classname="org.traducao.projeto.traducao.infrastructure.legenda.LeitorEscritorSrtTest" time="0.002"/>
+  <testcase name="roundTripPreservaEstrutura()" classname="org.traducao.projeto.traducao.infrastructure.legenda.LeitorEscritorSrtTest" time="0.005"/>
+  <testcase name="escritaTrocaSoOTextoMantendoTempos()" classname="org.traducao.projeto.traducao.infrastructure.legenda.LeitorEscritorSrtTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

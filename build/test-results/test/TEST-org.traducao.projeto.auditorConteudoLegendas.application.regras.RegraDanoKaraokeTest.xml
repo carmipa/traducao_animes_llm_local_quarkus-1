@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.auditorConteudoLegendas.application.regras.RegraDanoKaraokeTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:51.778Z" hostname="DESKTOP-QDNQHL1" time="0.014">
+  <properties/>
+  <testcase name="avisaQuandoTagsDeKaraokeSomem()" classname="org.traducao.projeto.auditorConteudoLegendas.application.regras.RegraDanoKaraokeTest" time="0.005"/>
+  <testcase name="acusaCriticalQuandoRomajiProtegidoFoiAlterado()" classname="org.traducao.projeto.auditorConteudoLegendas.application.regras.RegraDanoKaraokeTest" time="0.003"/>
+  <testcase name="naoAcusaKaraokeInglesTraduzidoNormalmente()" classname="org.traducao.projeto.auditorConteudoLegendas.application.regras.RegraDanoKaraokeTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

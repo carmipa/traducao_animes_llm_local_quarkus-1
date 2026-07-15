@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.telemetria.IsolamentoArtefatosTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:52.832Z" hostname="DESKTOP-QDNQHL1" time="0.01">
+  <properties/>
+  <testcase name="finalizarOperacaoNaoGravaNosDiretoriosReais(Path)" classname="org.traducao.projeto.telemetria.IsolamentoArtefatosTest" time="0.009"/>
+  <system-out><![CDATA[2026-07-15 12:24:52,835 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Telemetria de opera��o registrada: Teste de Isolamento � detalhe (1 arquivos, 0 detectados, 0 corrigidos)
+2026-07-15 12:24:52,836 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Relat�rio textual salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-5234997969442401141\isolamento_20260715_122452.txt
+2026-07-15 12:24:52,836 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Relat�rio JSON salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-5234997969442401141\isolamento_20260715_122452.json
+2026-07-15 12:24:52,839 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) C�pia da telemetria unificada salva em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-5234997969442401141\telemetria_compartilhada.json
+2026-07-15 12:24:52,839 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Relat�rio e telemetria da opera��o persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-5234997969442401141
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
