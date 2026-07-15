@@ -24,7 +24,8 @@ import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
+import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -184,7 +185,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         DetectorTraducaoIdenticaService detectorIdentica = new DetectorTraducaoIdenticaService(gerenciador);
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
-        TelemetriaService telemetria = new TelemetriaService();
+        TelemetriaTraducaoPort telemetria = new TelemetriaTraducaoPort() {
+            @Override public void registrarTraducao(TelemetriaTraducao t) {}
+            @Override public void registrarAlucinacaoPrevenida() {}
+            @Override public void registrarRespostaTraducaoRejeitada() {}
+            @Override public void registrarFalhaTraducaoRecuperada() {}
+            @Override public void registrarFallbackMantido() {}
+        };
         // uiLogger chega por parâmetro: o cenário de cancelamento usa um logger
         // que desliga a barra de progresso (que, ativa, consumiria a interrupção).
 

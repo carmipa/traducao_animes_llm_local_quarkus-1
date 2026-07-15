@@ -42,6 +42,9 @@ public class TelemetriaService {
 
     private static final Logger log = LoggerFactory.getLogger(TelemetriaService.class);
     private static final String NOME_ARQUIVO_TELEMETRIA = "telemetria_compartilhada.json";
+    // Arquivo canônico PRÓPRIO da Tradução Local (D-Tel-4), lido em modo read-only
+    // por este agregador; escrito exclusivamente pelo adapter da fatia traducao.
+    private static final String NOME_ARQUIVO_TRADUCAO = "telemetria_traducao.json";
 
     // O histórico de operações é append-only e o JSON canônico inteiro é
     // regravado a cada registro; sem um teto, o custo de serialização e o
@@ -407,11 +410,18 @@ public class TelemetriaService {
         this.ultimoDiretorioCache = diretorioCache;
         int cacheCount = contarArquivosCache(diretorioCache);
 
-        int totalLinhas = this.bancoLlm.values().stream().mapToInt(l -> valorOuZero(l.totalLinhas())).sum();
-        int totalCacheHits = this.bancoLlm.values().stream().mapToInt(l -> valorOuZero(l.falasDoCache())).sum();
-        long tempoTotalMs = this.bancoLlm.values().stream().mapToLong(l -> l.tempoTotalMs() != null ? l.tempoTotalMs() : 0L).sum();
+        // Agregador CQRS read-only: consolida o histórico legado
+        // (telemetria_compartilhada.json, em memória) com a telemetria própria da
+        // Tradução Local (telemetria_traducao.json), lida por DTO próprio — sem
+        // importar classes do pacote traducao. O contrato é apenas o JSON.
+        TelemetriaTraducaoLeitura.Documento traducaoLocal = lerTelemetriaTraducao();
+        Map<String, LlmTelemetria> traducoes = mesclarTraducoes(traducaoLocal);
+
+        int totalLinhas = traducoes.values().stream().mapToInt(l -> valorOuZero(l.totalLinhas())).sum();
+        int totalCacheHits = traducoes.values().stream().mapToInt(l -> valorOuZero(l.falasDoCache())).sum();
+        long tempoTotalMs = traducoes.values().stream().mapToLong(l -> l.tempoTotalMs() != null ? l.tempoTotalMs() : 0L).sum();
         long tempoMedioPorLinhaMs = totalLinhas > 0 ? tempoTotalMs / totalLinhas : 0L;
-        int totalErros = this.bancoLlm.values().stream()
+        int totalErros = traducoes.values().stream()
             .mapToInt(l -> l.errosOcorridos() != null ? l.errosOcorridos().size() : 0)
             .sum();
 
@@ -439,30 +449,122 @@ public class TelemetriaService {
         long heapUsed = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long heapMax = Runtime.getRuntime().maxMemory();
 
-        List<OperacaoHistorico> historico = montarHistorico(bancoOperacoes, bancoLlm, bancoMidia);
+        List<OperacaoHistorico> historico = montarHistorico(bancoOperacoes, traducoes, bancoMidia);
         RevisaoLoreTelemetriaResumo revisaoLore = agregarRevisaoLore(bancoOperacoes);
 
         return new TelemetriaResumo(
             cacheCount,
-            bancoLlm.size(),
+            traducoes.size(),
             totalLinhas,
             tempoMedioPorLinhaMs,
             totalCacheHits,
             historico,
-            new ArrayList<>(bancoLlm.values()),
+            new ArrayList<>(traducoes.values()),
             bancoOperacoes,
             revisaoLore,
-            alucinacoesPrevenidas.get(),
+            alucinacoesPrevenidas.get() + traducaoLocal.alucinacoesPrevenidas(),
             totalErros,
             jvmCpu,
             jvmThreads,
             heapUsed,
             heapMax,
             arquivosSanitizados.get(),
-            respostasTraducaoRejeitadas.get(),
-            falhasTraducaoRecuperadas.get(),
-            fallbacksTraducaoMantidos.get()
+            respostasTraducaoRejeitadas.get() + traducaoLocal.respostasTraducaoRejeitadas(),
+            falhasTraducaoRecuperadas.get() + traducaoLocal.falhasTraducaoRecuperadas(),
+            fallbacksTraducaoMantidos.get() + traducaoLocal.fallbacksTraducaoMantidos()
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lê o arquivo canônico próprio da Tradução Local como
+     * agregador read-only, tolerando ausência, vazio e corrupção deterministicamente.
+     * <p>INVARIANTES DO DOMÍNIO: nunca escreve o arquivo; ilegível é tratado como
+     * vazio sem destruir o físico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ausente/ilegível devolve
+     * {@link TelemetriaTraducaoLeitura.Documento#vazio()}.
+     */
+    private TelemetriaTraducaoLeitura.Documento lerTelemetriaTraducao() {
+        Path arquivo = pastaTelemetria().resolve(NOME_ARQUIVO_TRADUCAO);
+        if (!Files.exists(arquivo)) {
+            return TelemetriaTraducaoLeitura.Documento.vazio();
+        }
+        try {
+            TelemetriaTraducaoLeitura.Documento doc =
+                objectMapper.readValue(arquivo.toFile(), TelemetriaTraducaoLeitura.Documento.class);
+            return doc != null ? doc : TelemetriaTraducaoLeitura.Documento.vazio();
+        } catch (IOException e) {
+            log.warn("Telemetria da Traducao Local ilegivel em {} (tratada como vazia, arquivo preservado): {}",
+                arquivo, e.getMessage());
+            return TelemetriaTraducaoLeitura.Documento.vazio();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: consolida o histórico legado com a telemetria própria
+     * da Tradução Local numa visão determinística por episódio.
+     * <p>INVARIANTES DO DOMÍNIO: para a mesma chave normalizada, o registro de
+     * {@code telemetria_traducao.json} SEMPRE vence o legado, independentemente da
+     * ordem física de leitura; dentro de uma mesma fonte vence o {@code registradoEm}
+     * mais recente e, em empate/ausência, a última ocorrência física.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fonte vazia contribui com zero entradas.
+     */
+    private Map<String, LlmTelemetria> mesclarTraducoes(TelemetriaTraducaoLeitura.Documento traducaoLocal) {
+        Map<String, LlmTelemetria> mescla = new LinkedHashMap<>();
+        // Fonte legado (compartilhada): dedup interna por mais-recente/última física.
+        for (LlmTelemetria l : bancoLlm.values()) {
+            acumularMaisRecente(mescla, normalizarEpisodio(l.nomeEpisodio()), l);
+        }
+        // Fonte própria: dedup interna e, ao final, precedência incondicional sobre o legado.
+        Map<String, LlmTelemetria> proprio = new LinkedHashMap<>();
+        if (traducaoLocal.registros() != null) {
+            for (TelemetriaTraducaoLeitura.Registro r : traducaoLocal.registros()) {
+                acumularMaisRecente(proprio, normalizarEpisodio(r.nomeEpisodio()), comAvisosLimitados(converter(r)));
+            }
+        }
+        mescla.putAll(proprio); // telemetria_traducao.json vence o legado por chave
+        return mescla;
+    }
+
+    private void acumularMaisRecente(Map<String, LlmTelemetria> mapa, String chave, LlmTelemetria atual) {
+        LlmTelemetria existente = mapa.get(chave);
+        if (existente == null || atualVence(atual.registradoEm(), existente.registradoEm())) {
+            mapa.put(chave, atual);
+        }
+    }
+
+    // Ordena por registradoEm quando ambos existem e diferem; caso contrário
+    // (empate ou ausência de timestamp) vence a última ocorrência física (atual).
+    private static boolean atualVence(String tsAtual, String tsExistente) {
+        if (tsAtual != null && tsExistente != null) {
+            int c = tsAtual.compareTo(tsExistente);
+            if (c != 0) {
+                return c > 0;
+            }
+        }
+        return true;
+    }
+
+    private static LlmTelemetria converter(TelemetriaTraducaoLeitura.Registro r) {
+        return new LlmTelemetria(
+            r.nomeEpisodio(), r.modeloLlm(), r.totalLinhas(), r.falasTraduzidas(),
+            r.falasDoCache(), r.tempoTotalMs(), r.errosOcorridos(), r.animeNome(),
+            r.temporada(), r.registradoEm(), r.loreNome(), r.statusFinal());
+    }
+
+    // Duplicação consciente da normalização proprietária da Tradução Local
+    // (org.traducao.projeto.traducao.domain.NormalizadorNomeEpisodio): o módulo de
+    // telemetria não pode importar o pacote traducao; ambos concordam pelo contrato.
+    static String normalizarEpisodio(String nomeEpisodio) {
+        if (nomeEpisodio == null || nomeEpisodio.isBlank()) {
+            return "";
+        }
+        String semDiretorio = nomeEpisodio.replace('\\', '/');
+        int barra = semDiretorio.lastIndexOf('/');
+        if (barra >= 0) {
+            semDiretorio = semDiretorio.substring(barra + 1);
+        }
+        String nfc = java.text.Normalizer.normalize(semDiretorio, java.text.Normalizer.Form.NFC);
+        return nfc.strip().replaceAll("\\s+", " ").toLowerCase(java.util.Locale.ROOT);
     }
 
     private List<OperacaoHistorico> montarHistorico(
