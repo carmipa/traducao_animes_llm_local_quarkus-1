@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.mapaProjeto.presentation.web;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,11 +14,16 @@ import java.nio.file.Path;
  * web, produzindo o relatório em markdown e a árvore no formato GitHub a partir
  * da raiz do projeto.
  *
+ * <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code mapaProjeto},
+ * sua funcionalidade proprietária, e por isso reside na camada de apresentação do
+ * próprio módulo. Não depende funcionalmente da Tradução Local (Opção 4); usa
+ * apenas o use case do próprio módulo e a raiz técnica neutra {@code core}.
+ *
  * <p>INVARIANTES DO DOMÍNIO: a raiz mapeada vem de
  * {@link DiretorioBaseKronos#base()} — em produção é o diretório de trabalho e,
  * sob a suíte de testes, a árvore descartável, evitando reescrever o mapa real;
- * nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
- * controller monolítico original.
+ * a rota {@code POST /api/mapa}, o status e os campos JSON de {@link MapaResponse}
+ * são contrato público preservado exatamente como antes da movimentação.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: a geração é síncrona; qualquer falha do use
  * case propaga como erro do endpoint, sem estado parcial retornado ao navegador.
