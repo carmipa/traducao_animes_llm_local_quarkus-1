@@ -1,4 +1,5 @@
 package org.traducao.projeto.traducao.presentation.web;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.event.Observes;

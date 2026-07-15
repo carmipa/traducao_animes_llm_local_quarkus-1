@@ -1,4 +1,5 @@
 package org.traducao.projeto.traducao.presentation.ui;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;

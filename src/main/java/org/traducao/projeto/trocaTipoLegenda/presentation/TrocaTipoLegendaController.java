@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.core.util.DuracaoUtil;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase;
 import org.traducao.projeto.trocaTipoLegenda.domain.ResultadoGeralAuditoria;
 import org.traducao.projeto.trocaTipoLegenda.domain.ResultadoTrocaFonte;

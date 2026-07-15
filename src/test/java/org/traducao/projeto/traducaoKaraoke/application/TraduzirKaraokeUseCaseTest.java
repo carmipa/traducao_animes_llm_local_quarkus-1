@@ -17,7 +17,7 @@ import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;
 

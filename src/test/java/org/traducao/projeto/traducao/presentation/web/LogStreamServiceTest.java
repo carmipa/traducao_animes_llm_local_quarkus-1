@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -41,19 +41,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li><b>Após D-Tel-4</b>: eliminadas as 5 arestas vivas de bytecode do grupo
  *       D-Tel (ProcessarArquivoUseCase/ProcessarEpisodioUseCase/TraducaoController →
  *       telemetria), pois esses consumidores passaram a usar a telemetria própria
- *       ({@code TelemetriaTraducaoPort}); o bytecode cai para <b>9</b> arestas
- *       funcionais. As 9 são somente os três controllers bloqueados para a C2 —
- *       das quais 3 ainda apontam para telemetria (TelemetriaController), toleradas
- *       nominalmente por ALLOW-TELEMETRIA-C2 até a C2.</li>
+ *       ({@code TelemetriaTraducaoPort}); o bytecode caiu para <b>9</b> arestas
+ *       funcionais — somente os três controllers bloqueados para a C2.</li>
+ *   <li><b>Após a FASE C2</b>: os três controllers (CorrecaoCacheController,
+ *       RevisaoLegendasController, TelemetriaController) foram movidos para suas
+ *       fatias proprietárias e o kernel técnico de apresentação (PipelineWebSupport,
+ *       OperacaoRequest, RespostaPadrao, AnsiCores, LogStreamService) foi extraído
+ *       para {@code core.presentation}. A Tradução Local passa a ter <b>ZERO</b>
+ *       arestas funcionais de saída; a exceção ALLOW-TELEMETRIA-C2 foi eliminada.</li>
  *   <li>O conjunto real de arestas funcionais de saída da Tradução Local deve ser
- *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (9 após D-Tel-4).</li>
+ *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (VAZIO após a C2).</li>
  *   <li><b>Regra dedicada revisaoLore</b>: nenhuma classe de {@code ..revisaoLore..}
  *       depende de {@code MistralPort}, {@code StatusLlm}, {@code LlmProperties},
  *       {@code JsonHttpClient}, {@code RecordsMistral}, {@code MistralClientAdapter}
  *       ou {@code GerenciadorContexto}.</li>
  *   <li><b>Regra blindada telemetria</b>: nenhuma classe de {@code ..traducao..}
- *       importa {@code ..telemetria..}, exceto as 3 arestas de {@code TelemetriaController}
- *       (ALLOW-TELEMETRIA-C2, removidas na C2).</li>
+ *       depende de {@code ..telemetria..} (ZERO — exceção C2 eliminada).</li>
+ *   <li><b>Independência do core</b>: nenhuma classe de {@code ..core..} depende de
+ *       qualquer fatia funcional; o core só pode usar JDK, bibliotecas técnicas e o
+ *       próprio {@code core}. Nenhuma allowlist {@code core → fatia} é permitida.</li>
  *   <li><b>Após D-Config</b>: a fronteira {@code config ⇄ traducao} é <b>zero nos
  *       dois sentidos</b>. As exceções nominais ALLOW-CONFIG-CLI
  *       ({@code TradutorCLI → config.ExecucaoCli}) e ALLOW-STARTUP-CLI
@@ -61,8 +67,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code TradutorCLI} não implementa mais {@code ExecucaoCli} e o modo TRADUZIR
  *       ganhou bootstrap próprio ({@code traducao.presentation.bootstrap.TraducaoStartup}),
  *       de modo que {@code config} não conhece nenhuma classe de {@code traducao}.</li>
- *   <li>{@code core} é congelado <b>por tipo</b>: só os cinco tipos de
- *       {@link #CORE_TIPOS_CONGELADOS} podem ser usados; nenhum sexto tipo de core entra.</li>
+ *   <li>{@code core} é congelado <b>por tipo</b>: só os dez tipos de
+ *       {@link #CORE_TIPOS_CONGELADOS} podem ser usados (5 técnicos + 5 do kernel Web
+ *       extraído na C2); nenhum décimo-primeiro tipo de core entra.</li>
  *   <li>Origem e destino são normalizados à respectiva classe de topo (um tipo
  *       aninhado pertence à mesma classe-alvo já catalogada). A granularidade
  *       permanece de <b>classe</b> exata — nunca de fatia.</li>
@@ -86,23 +93,14 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_CORE = "core";
     private static final String FATIA_CONFIG = "config";
 
-    // Origens (produção, em traducao)
+    // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
     private static final String MISTRAL_ADAPTER = RAIZ + ".traducao.infrastructure.adapters.MistralClientAdapter";
-    private static final String CORRECAO_CACHE_CONTROLLER = RAIZ + ".traducao.presentation.web.CorrecaoCacheController";
-    private static final String REVISAO_LEGENDAS_CONTROLLER = RAIZ + ".traducao.presentation.web.RevisaoLegendasController";
-    private static final String TELEMETRIA_CONTROLLER = RAIZ + ".traducao.presentation.web.TelemetriaController";
 
-    // Destinos (outras fatias)
-    private static final String T_TELEMETRIA_SERVICE = RAIZ + ".telemetria.TelemetriaService";
-    private static final String T_TELEMETRIA_RESUMO = RAIZ + ".telemetria.TelemetriaResumo";
-    private static final String T_TELEMETRIA_DATASET = RAIZ + ".telemetria.TelemetriaDatasetService";
-    private static final String T_CORRIGIR_COM_GOOGLE = RAIZ + ".raspagemCorrecao.application.CorrigirComGoogleUseCase";
-    private static final String T_REVISAR_CACHE = RAIZ + ".raspagemRevisao.application.RevisarCacheUseCase";
-    private static final String T_LIMPAR_CACHE = RAIZ + ".traducaoCorrige.application.LimparCacheUseCase";
-    private static final String T_RESULTADO_MANUTENCAO = RAIZ + ".traducaoCorrige.domain.ResultadoManutencaoCache";
-    private static final String T_RESULTADO_REVISAO_LEG = RAIZ + ".raspagemRevisao.application.ResultadoRevisaoLegendas";
-    private static final String T_REVISAR_LEGENDAS = RAIZ + ".raspagemRevisao.application.RevisarLegendasUseCase";
+    // FASE C2 CONCLUÍDA: os três controllers bloqueados (CorrecaoCacheController,
+    // RevisaoLegendasController, TelemetriaController) saíram de traducao para suas
+    // fatias proprietárias (traducaoCorrige / raspagemRevisao / telemetria .presentation.web).
+    // Com isso, as 9 arestas funcionais de saída foram ELIMINADAS e a allowlist ficou VAZIA.
 
     // Pacote da fatia Revisão de Lore e os tipos da Tradução Local que a stack
     // LLM própria dela NÃO pode importar (D-Lore).
@@ -117,51 +115,44 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"
     );
 
-    // Pacote do módulo de telemetria. Após D-Tel-4, nenhuma classe de traducao pode
-    // depender dele, EXCETO as 3 arestas do TelemetriaController (bloqueado até a C2).
+    // Pacote do módulo de telemetria. Após a FASE C2 (TelemetriaController movido para
+    // telemetria.presentation.web), NENHUMA classe de traducao depende de telemetria —
+    // a exceção nominal ALLOW-TELEMETRIA-C2 foi eliminada.
     private static final String PKG_TELEMETRIA = RAIZ + ".telemetria";
-    private static final Set<String> ALLOW_TELEMETRIA_C2 = Set.of(
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_RESUMO),
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_SERVICE),
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_DATASET)
-    );
 
     // D-Config CONCLUÍDA: as exceções nominais ALLOW-CONFIG-CLI (traducao → config)
     // e ALLOW-STARTUP-CLI (config → traducao) foram eliminadas juntas. A fronteira
     // config ⇄ traducao é agora ZERO nos dois sentidos (ver testes dedicados abaixo).
 
     /**
-     * Baseline exata: as 9 arestas funcionais reais no bytecode após D-Tel-4 (origem
-     * FQN → destino FQN). Autorização SEMPRE por aresta exata — nunca por nome de fatia.
+     * Baseline exata após a FASE C2: a Tradução Local possui <b>ZERO</b> arestas
+     * funcionais de saída para outras fatias. Os três controllers bloqueados foram
+     * movidos para suas fatias proprietárias; não há mais nenhuma dependência de
+     * saída de {@code traducao..} para código de outra fatia funcional.
      */
-    private static final Set<String> ARESTAS_FUNCIONAIS_ESPERADAS = Set.of(
-        // D-Tel vivo: ELIMINADA (D-Tel-4). As 5 arestas vivas de bytecode
-        //   (ProcessarArquivoUseCase -> {LlmTelemetria, TelemetriaService};
-        //    ProcessarEpisodioUseCase -> TelemetriaService;
-        //    TraducaoController -> {TelemetriaService, LlmTelemetria})
-        //   foram eliminadas: esses 3 consumidores passaram a usar a telemetria
-        //   PRÓPRIA (traducao.domain.ports.TelemetriaTraducaoPort). Baseline: 14 -> 9.
-        // D-Lore: ELIMINADA (revisarLore removido; revisaoLore com stack LLM própria).
-        // D-Ext: ELIMINADA (producers movidos para legendasExtracao.ExtracaoBeansConfig).
-        // Controllers bloqueados para C2 (9) — permanecem até a C2
-        aresta(CORRECAO_CACHE_CONTROLLER, T_CORRIGIR_COM_GOOGLE),  // 9
-        aresta(CORRECAO_CACHE_CONTROLLER, T_REVISAR_CACHE),        // 10
-        aresta(CORRECAO_CACHE_CONTROLLER, T_LIMPAR_CACHE),         // 11
-        aresta(CORRECAO_CACHE_CONTROLLER, T_RESULTADO_MANUTENCAO), // 12
-        aresta(REVISAO_LEGENDAS_CONTROLLER, T_RESULTADO_REVISAO_LEG), // 13
-        aresta(REVISAO_LEGENDAS_CONTROLLER, T_REVISAR_LEGENDAS),      // 14
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_RESUMO),   // 15
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_SERVICE),  // 16
-        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_DATASET)   // 17 (FQ no corpo)
-    );
+    private static final Set<String> ARESTAS_FUNCIONAIS_ESPERADAS = Set.of();
 
-    /** Superfície técnica de core congelada POR TIPO (nenhum sexto tipo pode entrar). */
+    // Fatia (primeiro segmento após org.traducao.projeto.) do pacote core.
+    private static final String FATIA_CORE_NOME = "core";
+
+    /**
+     * Superfície técnica de core congelada POR TIPO. Após a FASE C2, o kernel técnico
+     * de apresentação foi extraído para {@code core.presentation}: os cinco tipos
+     * originais somam-se às cinco classes-kernel Web movidas (PipelineWebSupport,
+     * OperacaoRequest, RespostaPadrao, AnsiCores, LogStreamService) — exatamente DEZ
+     * tipos congelados; nenhum décimo-primeiro tipo de core pode entrar.
+     */
     private static final Set<String> CORE_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".core.util.ArquivoAtomicoUtil",
         RAIZ + ".core.io.DiretorioBaseKronos",
         RAIZ + ".core.execucao.FilaExecucaoPipeline",
         RAIZ + ".core.util.DuracaoUtil",
-        RAIZ + ".core.exception.BasePipelineException"
+        RAIZ + ".core.exception.BasePipelineException",
+        RAIZ + ".core.presentation.web.PipelineWebSupport",
+        RAIZ + ".core.presentation.web.OperacaoRequest",
+        RAIZ + ".core.presentation.web.RespostaPadrao",
+        RAIZ + ".core.presentation.web.LogStreamService",
+        RAIZ + ".core.presentation.ui.AnsiCores"
     );
 
     private static JavaClasses classesProducao;
@@ -183,7 +174,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("Saídas funcionais da Tradução Local == 9 arestas exatas (após D-Tel-4; allowlist estrita)")
+    @DisplayName("Saídas funcionais da Tradução Local == ZERO arestas (FASE C2 concluída)")
     void saidasFuncionaisBatemComAllowlistExata() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -211,8 +202,8 @@ class FronteiraTraducaoArchTest {
         ausentes.removeAll(reais);
 
         assertTrue(inesperadas.isEmpty() && ausentes.isEmpty(),
-            () -> "Divergência na baseline exata de 9 arestas funcionais (após D-Tel-4).\n"
-                + "Arestas INESPERADAS (novas/destino trocado): " + inesperadas + "\n"
+            () -> "Após a FASE C2, a Tradução Local deve ter ZERO arestas funcionais de saída.\n"
+                + "Arestas INESPERADAS (bumerangue/saída remanescente): " + inesperadas + "\n"
                 + "Arestas ESPERADAS AUSENTES: " + ausentes);
     }
 
@@ -257,7 +248,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("core é congelado por tipo: somente os cinco tipos homologados")
+    @DisplayName("core é congelado por tipo: somente os dez tipos homologados (5 técnicos + 5 kernel Web da C2)")
     void coreCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposCoreUsados = new TreeSet<>();
@@ -279,7 +270,7 @@ class FronteiraTraducaoArchTest {
         assertFalse(tiposCoreUsados.isEmpty(),
             "Esperado uso técnico dos tipos de core congelados pela Tradução Local");
         assertTrue(violacoes.isEmpty(),
-            () -> "Tipo de core fora dos cinco homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
+            () -> "Tipo de core fora dos dez homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     @Test
@@ -308,7 +299,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("traducao não depende de telemetria (D-Tel-4), exceto as 3 arestas C2 do TelemetriaController")
+    @DisplayName("traducao não depende de telemetria (ZERO arestas — exceção C2 eliminada)")
     void traducaoNaoDependeDeTelemetria() {
         List<String> violacoes = new ArrayList<>();
         for (JavaClass classe : classesProducao) {
@@ -323,17 +314,41 @@ class FronteiraTraducaoArchTest {
                 if (!ehTelemetria) {
                     continue;
                 }
-                String aresta = aresta(origem, destino);
-                if (ALLOW_TELEMETRIA_C2.contains(aresta)) {
-                    continue; // débito C2 nominal: TelemetriaController sai da traducao na C2
-                }
-                violacoes.add(aresta);
+                violacoes.add(aresta(origem, destino));
             }
         }
         assertTrue(violacoes.isEmpty(),
-            () -> "Nenhuma classe de traducao pode importar telemetria (D-Tel-4). "
-                + "Exceção nominal apenas ALLOW-TELEMETRIA-C2 (TelemetriaController, removida na C2). Violações:\n"
+            () -> "Nenhuma classe de traducao pode depender de telemetria. Após a FASE C2 o "
+                + "TelemetriaController saiu para telemetria.presentation.web e a exceção "
+                + "ALLOW-TELEMETRIA-C2 foi eliminada. Violações:\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("core NÃO depende de nenhuma fatia funcional (independência do kernel — regra permanente)")
+    void coreNaoDependeDeFatiaFuncional() {
+        List<String> violacoes = new ArrayList<>();
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            boolean ehDoCore = pkg.equals(RAIZ + ".core") || pkg.startsWith(RAIZ + ".core.");
+            if (!ehDoCore) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String pkgDestino = dependencia.getTargetClass().getPackageName();
+                String fatia = fatiaDe(pkgDestino);
+                // Alvos permitidos: JDK / libs externas (fatia == null) e o próprio core.
+                if (fatia == null || fatia.equals(FATIA_CORE_NOME)) {
+                    continue;
+                }
+                violacoes.add(aresta(origem, topo(dependencia.getTargetClass().getName())));
+            }
+        }
+        assertTrue(violacoes.isEmpty(),
+            () -> "O core deve depender SOMENTE de JDK, bibliotecas técnicas e do próprio "
+                + "org.traducao.projeto.core. Nenhuma allowlist core → fatia funcional é permitida, "
+                + "nem temporária. Violações:\n" + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     private static String aresta(String origemFqn, String destinoFqn) {

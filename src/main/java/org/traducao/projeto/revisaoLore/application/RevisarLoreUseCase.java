@@ -25,7 +25,7 @@ import org.traducao.projeto.traducao.domain.legenda.EventoLegenda;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 
 import java.io.IOException;

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase;
 import org.traducao.projeto.traducaoKaraoke.domain.TraducaoKaraokeException;
 

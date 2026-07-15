@@ -7,7 +7,7 @@ import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
 

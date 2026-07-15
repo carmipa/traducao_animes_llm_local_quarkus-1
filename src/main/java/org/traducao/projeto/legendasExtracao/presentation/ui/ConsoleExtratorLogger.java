@@ -1,7 +1,7 @@
 package org.traducao.projeto.legendasExtracao.presentation.ui;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;

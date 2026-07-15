@@ -1,4 +1,7 @@
 package org.traducao.projeto.traducao.presentation.web;
+import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.core.presentation.web.OperacaoRequest;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package org.traducao.projeto.sistema.application;
 import io.quarkus.runtime.Quarkus;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 /**
  * Encerra a aplicação de forma ordenada a partir do botão "Sair" da UI.
