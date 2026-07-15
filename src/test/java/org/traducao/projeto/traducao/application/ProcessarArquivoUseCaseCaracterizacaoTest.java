@@ -157,10 +157,10 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     private ProcessarArquivoUseCase montar(FakeMistralPort llm) {
-        return montar(llm, new DetectorEfeitoKaraokeService());
+        return montar(llm, new ConsoleUILogger());
     }
 
-    private ProcessarArquivoUseCase montar(FakeMistralPort llm, DetectorEfeitoKaraokeService detectorKaraoke) {
+    private ProcessarArquivoUseCase montar(FakeMistralPort llm, ConsoleUILogger uiLogger) {
         LeitorLegendaAss leitorAss = new LeitorLegendaAss();
         EscritorLegendaAss escritorAss = new EscritorLegendaAss();
         LeitorLegendaSrt leitorSrt = new LeitorLegendaSrt();
@@ -171,10 +171,10 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         GerenciadorContexto gerenciador = new GerenciadorContexto(List.of(new ContextoTeste()));
         DetectorTraducaoIdenticaService detectorIdentica = new DetectorTraducaoIdenticaService(gerenciador);
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
-        ConsoleUILogger uiLogger = new ConsoleUILogger();
+        DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
         TelemetriaService telemetria = new TelemetriaService();
-        // detectorKaraoke chega por parâmetro: permite injetar a interrupção
-        // determinística no filtro isTraduzivel para o cenário de cancelamento.
+        // uiLogger chega por parâmetro: permite injetar a interrupção
+        // determinística logo após iniciarLotes, imediatamente antes do laço de lotes.
 
         TradutorProperties props = new TradutorProperties(
             raiz.resolve("entrada").toString(),
@@ -359,7 +359,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void cancelamentoEncerraSemPublicarNemChamarLlmPreservandoExistentes() throws Exception {
         FakeMistralPort llm = new FakeMistralPort();
-        DetectorEfeitoKaraokeService interruptor = new KaraokeQueInterrompe();
+        ConsoleUILogger interruptor = new UILoggerQueInterrompe();
         ProcessarArquivoUseCase uc = montar(llm, interruptor);
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
