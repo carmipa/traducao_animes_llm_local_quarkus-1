@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.ApiEndpointsTest" tests="31" skipped="0" failures="1" errors="0" timestamp="2026-07-15T15:13:53.653Z" hostname="DESKTOP-QDNQHL1" time="6.937">
+  <properties/>
+  <testcase name="auditoriaConteudoSemCaminhosRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="1.086"/>
+  <testcase name="traduzirComContextoInvalidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.435"/>
+  <testcase name="auditoriaConteudoModoOriginalAuditaArquivoUnico(Path)" classname="org.traducao.projeto.ApiEndpointsTest" time="0.108"/>
+  <testcase name="auditoriaConteudoAuditaArquivosAss(Path)" classname="org.traducao.projeto.ApiEndpointsTest" time="0.063"/>
+  <testcase name="curaTagsComContextoInvalidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.031"/>
+  <testcase name="revisarCacheComContextoInvalidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.026"/>
+  <testcase name="correcaoLegendasSemDiretoriosRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.022"/>
+  <testcase name="revisarLegendasSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.025"/>
+  <testcase name="auditoriaConteudoModoOriginalSemCaminhoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.014"/>
+  <testcase name="revisarLegendasConcordanciaHonraContextoDesconhecido()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.017"/>
+  <testcase name="revisarLegendasConcordanciaSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.02"/>
+  <testcase name="curaTagsSemTraduzidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.02"/>
+  <testcase name="extrairSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.023"/>
+  <testcase name="telemetriaExportarRetornaArquivoJson()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.044">
+    <failure message="java.lang.AssertionError: 1 expectation failed.&#10;Expected status code &lt;200&gt; but was &lt;404&gt;.&#10;" type="java.lang.AssertionError">java.lang.AssertionError: 1 expectation failed.
+Expected status code &lt;200&gt; but was &lt;404&gt;.
+
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:516)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:714)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:139)
+	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:344)
+	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:147)
+	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+	at org.traducao.projeto.ApiEndpointsTest.telemetriaExportarRetornaArquivoJson(ApiEndpointsTest.java:44)
+</failure>
+  </testcase>
+  <testcase name="remuxarSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.028"/>
+  <testcase name="sseStreamAceitaConexao()" classname="org.traducao.projeto.ApiEndpointsTest" time="3.002"/>
+  <testcase name="mapaGeraConteudo()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.029"/>
+  <testcase name="auditoriaConteudoArquivoInexistenteRetornaBadRequest(Path)" classname="org.traducao.projeto.ApiEndpointsTest" time="0.019"/>
+  <testcase name="revisarLoreIniciaComContextoValido()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.027"/>
+  <testcase name="telemetriaRetornaResumo()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.589"/>
+  <testcase name="listarContextosRevisaoLoreRetornaPromptsProprios()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.088"/>
+  <testcase name="revisarLegendasModoCachePastaInexistenteRetornaBadRequest(Path)" classname="org.traducao.projeto.ApiEndpointsTest" time="0.022"/>
+  <testcase name="revisarLoreSemContextoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.02"/>
+  <testcase name="metadataComCaminhoVazioRetorna404()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.03"/>
+  <testcase name="auditoriaConteudoModoDesconhecidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.011"/>
+  <testcase name="revisarLoreComContextoInvalidoRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.018"/>
+  <testcase name="corrigirCacheAceitaEntradaVazia()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.019"/>
+  <testcase name="corrigirScrapingIniciaComSucesso()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.02"/>
+  <testcase name="curaTagsSemDiretoriosRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.018"/>
+  <testcase name="analisarSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.02"/>
+  <testcase name="revisarLegendasGoogleHonraContextoDesconhecido()" classname="org.traducao.projeto.ApiEndpointsTest" time="0.013"/>
+  <system-out><![CDATA[2026-07-15 12:13:54,555 INFO  [org.traducao.projeto.traducao.presentation.web.DialogoArquivoController] (Test worker) Seletor nativo do Windows pre-aquecido e pronto
+
+==============================================================
+   SERVIDOR WEB INICIADO COM SUCESSO!
+   Acesse a interface visual em: ?[36mhttp://127.0.0.1:8099?[0m
+==============================================================
+
+2026-07-15 12:13:54,632 INFO  [io.quarkus] (Test worker) code-with-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 3.37.0) started in 3.363s. Listening on: http://127.0.0.1:51918
+2026-07-15 12:13:54,632 INFO  [io.quarkus] (Test worker) Profile test activated. 
+2026-07-15 12:13:54,632 INFO  [io.quarkus] (Test worker) Installed features: [cdi, config-yaml, mcp-server-http, rest, rest-jackson, smallrye-context-propagation, spring-boot-properties, spring-di, spring-web, vertx]
+2026-07-15 12:13:54,632 INFO  [io.quarkiverse.mcp.server] (executor-thread-1) MCP HTTP transport endpoints [streamable: http://127.0.0.1:-1/mcp, SSE: http://127.0.0.1:-1/mcp/sse]
+2026-07-15 12:13:56,209 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase] (executor-thread-1) Iniciando auditoria de arquivo unico (original): C:\Users\Paulo\AppData\Local\Temp\junit-8379780363343108634\solo_eng.ass
+
+=== Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-8379780363343108634\solo_eng.ass
+Formato : ASS
+2026-07-15 12:13:56,235 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.TelemetriaAuditoriaService] (executor-thread-1) Auditoria de conteudo limpa: solo_eng.ass (9 ms)
+[Auditoria Conteudo] Arquivo limpo: solo_eng.ass
+[Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-8379780363343108634\auditoria_conteudo_20260715_121356_232_1.json
+2026-07-15 12:13:56,236 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase] (executor-thread-1) Auditoria de arquivo unico (original) concluida em 9 ms � 0 anomalia(s), 6 regra(s)
+Regras executadas: 6
+Anomalias: 0
+Duracao: 9 ms
+?[36m[RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:13:56?[0m
+2026-07-15 12:13:56,309 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase] (executor-thread-1) Iniciando auditoria de conteudo: C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_eng.ass vs C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_pt.ass
+
+=== Auditoria de Conteudo de Legendas ===
+Original : C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_eng.ass
+Formato original: ASS
+Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_pt.ass
+Formato traduzido: ASS
+2026-07-15 12:13:56,316 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.TelemetriaAuditoriaService] (executor-thread-1) Auditoria de conteudo limpa: ep_pt.ass (6 ms)
+[Auditoria Conteudo] Arquivo limpo: ep_pt.ass
+[Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\auditoria_conteudo_20260715_121356_315_2.json
+2026-07-15 12:13:56,317 INFO  [org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase] (executor-thread-1) Auditoria de conteudo concluida em 6 ms � 0 anomalia(s), 18 regra(s)
+Regras executadas: 18
+Anomalias: 0
+Duracao: 6 ms
+?[36m[RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:13:56?[0m
+2026-07-15 12:13:56,549 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (executor-thread-1) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 12:13:56,549 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (executor-thread-1) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+Request method:	GET
+Request URI:	http://127.0.0.1:51918/api/telemetria/exportar
+Proxy:			<none>
+Request params:	<none>
+Query params:	<none>
+Form params:	<none>
+Path params:	<none>
+Headers:		Accept=*/*
+Cookies:		<none>
+Multiparts:		<none>
+Body:			<none>
+
+HTTP/1.1 404 Not Found
+content-length: 0
+2026-07-15 12:13:56,621 INFO  [org.traducao.projeto.remuxer.infrastructure.adapters.MkvmergeAdapter] (executor-thread-1) mkvmerge detectado em: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 12:13:59,649 INFO  [org.traducao.projeto.mapaProjeto.application.GeradorMapaProjetoUseCase] (executor-thread-1) Iniciando Gerador de Mapa do Projeto para: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests
+2026-07-15 12:13:59,652 INFO  [org.traducao.projeto.mapaProjeto.application.GeradorMapaProjetoUseCase] (executor-thread-1) Mapa estrutural do projeto salvo com sucesso em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\mapa_projeto.md
+
+?[31m========================================================================?[0m
+?[31m  [FALHOU] REVISAO DE LORE?[0m
+?[31m  LLM indisponivel para revisao de lore: Não foi possível conectar ao servidor LLM em http://127.0.0.1:1234/v1: null?[0m
+?[31m========================================================================
+?[0m
+?[36m[RELATÓRIO FINAL] Operação: Revisão de Lore (LLM) | Tempo total: 0,0s | Término: 12:13:59?[0m
+Iniciando limpeza segura de cache em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+2026-07-15 12:14:00,509 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (pipeline-fila-execucao) Iniciando limpeza segura de cache em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
