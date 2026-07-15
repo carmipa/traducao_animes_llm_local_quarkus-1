@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.traducao.projeto.raspagemRevisao.application.RevisarLegendasContextoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:23.563Z" hostname="DESKTOP-QDNQHL1" time="0.004">
-  <properties/>
-  <testcase name="provenienciaDoCacheVenceSelecaoManualIncompativel()" classname="org.traducao.projeto.raspagemRevisao.application.RevisarLegendasContextoTest" time="0.004"/>
-  <system-out><![CDATA[?[33m  [CONTEXTO] Seleção manual "danmachi" ignorada: a proveniência do cache exige "gundam_nt".?[0m
-?[36m  Contexto ativo: Gundam Narrative (fonte: proveniência do cache)?[0m
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

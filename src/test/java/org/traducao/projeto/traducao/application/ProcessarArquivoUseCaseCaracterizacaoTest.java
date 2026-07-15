@@ -13,6 +13,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
+import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -91,6 +93,15 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     private static final class FakeMistralPort implements MistralPort {
         private static final Pattern TOKEN = Pattern.compile("\\[\\[[^\\]]*\\]\\]");
         final AtomicInteger chamadas = new AtomicInteger();
+        private final boolean interromperNaPrimeira;
+
+        FakeMistralPort() {
+            this(false);
+        }
+
+        FakeMistralPort(boolean interromperNaPrimeira) {
+            this.interromperNaPrimeira = interromperNaPrimeira;
+        }
 
         @Override
         public TraducaoLote traduzir(Lote lote) {
@@ -99,10 +110,16 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         @Override
         public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
-            chamadas.incrementAndGet();
+            int chamada = chamadas.incrementAndGet();
             List<String> saida = lote.linhasOriginais().stream()
                 .map(FakeMistralPort::traduzirLinha)
                 .toList();
+            if (interromperNaPrimeira && chamada == 1) {
+                // Reproduz o clique em "Parar" logo após concluir o primeiro lote:
+                // marca a interrupção cooperativa, mas devolve a tradução válida do
+                // lote — o cancelamento é detectado pelo laço antes do próximo lote.
+                Thread.currentThread().interrupt();
+            }
             return new TraducaoLote(lote.idLote(), saida, true, null);
         }
 
@@ -173,8 +190,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
         TelemetriaService telemetria = new TelemetriaService();
-        // uiLogger chega por parâmetro: permite injetar a interrupção
-        // determinística logo após iniciarLotes, imediatamente antes do laço de lotes.
+        // uiLogger chega por parâmetro: o cenário de cancelamento usa um logger
+        // que desliga a barra de progresso (que, ativa, consumiria a interrupção).
 
         TradutorProperties props = new TradutorProperties(
             raiz.resolve("entrada").toString(),
@@ -308,107 +325,126 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: uma falha real de IO na publicação (a pasta de saída
-     * é, na verdade, um arquivo comum) não pode publicar uma legenda final inválida
-     * nem sobrescrever conteúdo existente; caracteriza o contrato de erro atual.
+     * PROPÓSITO DE NEGÓCIO: uma falha real na SUBSTITUIÇÃO ATÔMICA final (o caminho
+     * de destino já está ocupado por um diretório) não pode publicar uma legenda
+     * inválida, não pode destruir o que ocupa o destino e não pode deixar
+     * temporários órfãos; caracteriza o contrato de erro da publicação atômica.
      *
-     * <p>INVARIANTES DO DOMÍNIO: a falha vira {@link ArquivoLegendaException}; a
-     * entrada permanece intacta; nenhum {@code _PT-BR} é publicado; o cache não é
-     * gravado (a persistência ocorre depois da escrita e nunca é alcançada).
+     * <p>INVARIANTES DO DOMÍNIO: a falha vira {@link ArquivoLegendaException}; o
+     * temporário criado pelo escritor é sempre removido; o diretório que ocupa o
+     * destino permanece; a entrada permanece byte a byte intacta; o cache não é
+     * persistido (a gravação ocorre depois da publicação e nunca é alcançada).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer regressão que publique saída
-     * final, corrompa a entrada ou troque o tipo da exceção falha a suíte.
+     * final, deixe {@code .tmp} órfão, altere a entrada ou troque o tipo da
+     * exceção falha a suíte.
      */
     @Test
-    void falhaDeEscritaNaoPublicaSaidaFinalNemCorrompeEntrada() throws Exception {
+    void falhaNaPublicacaoAtomicaNaoPublicaNemDeixaTemporario() throws Exception {
         FakeMistralPort llm = new FakeMistralPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
-        // Ponto de falha determinístico e multiplataforma: o destino da publicação
-        // é diretorioSaida()/ep_PT-BR.ass; criar diretorioSaida como ARQUIVO faz o
-        // Files.createDirectories do escritor lançar IOException na publicação.
-        Path saidaComoArquivo = raiz.resolve("saida");
-        Files.createDirectories(saidaComoArquivo.getParent());
-        Files.writeString(saidaComoArquivo, "isto e um arquivo, nao uma pasta");
+        // raiz/saida é um diretório NORMAL; o ponto de falha é o move atômico final:
+        // o caminho de destino esperado (ep_PT-BR.ass) já está ocupado por um
+        // diretório, então o escritor cria/escreve o temporário e falha ao
+        // substituir o destino. Sem ACL, lock, antivírus, sleep ou privilégio.
+        Path pastaSaida = Files.createDirectories(raiz.resolve("saida"));
+        Path destinoOcupado = Files.createDirectory(pastaSaida.resolve("ep_PT-BR.ass"));
 
         assertThrows(ArquivoLegendaException.class, () -> uc.processar(entrada, false));
 
-        assertTrue(Files.isRegularFile(saidaComoArquivo), "saida continua sendo o arquivo original");
-        assertEquals("isto e um arquivo, nao uma pasta",
-            Files.readString(saidaComoArquivo, StandardCharsets.UTF_8), "conteudo existente intacto");
-        assertEquals(origemAntes, Files.readString(entrada, StandardCharsets.UTF_8), "entrada intacta");
+        assertTrue(Files.isDirectory(destinoOcupado), "o diretorio que ocupava o destino permanece intacto");
+        try (Stream<Path> itens = Files.list(pastaSaida)) {
+            boolean sobrouTemporario = itens.anyMatch(p -> {
+                String nome = p.getFileName().toString();
+                return Files.isRegularFile(p) && nome.startsWith("ep_PT-BR.ass") && nome.endsWith(".tmp");
+            });
+            assertFalse(sobrouTemporario, "nenhum temporario de publicacao pode permanecer em raiz/saida");
+        }
+        assertEquals(origemAntes, Files.readString(entrada, StandardCharsets.UTF_8), "entrada byte a byte intacta");
         assertFalse(Files.exists(raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json")),
-            "cache nao e gravado quando a publicacao falha antes da persistencia");
+            "cache nao e persistido quando a publicacao falha antes da gravacao do cache");
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: o cancelamento cooperativo (thread interrompida)
-     * encerra o processamento sem publicar saída final, sem chamar o LLM e sem
-     * tocar arquivos já existentes, caracterizando a semântica de "Parar" da UI.
+     * PROPÓSITO DE NEGÓCIO: o cancelamento cooperativo NO MEIO do processamento
+     * (após o primeiro lote concluir e antes do segundo) encerra o episódio como
+     * parcial, preservando no cache exatamente o progresso já traduzido e sem
+     * publicar a saída final — caracteriza a semântica de "Parar" da UI.
      *
-     * <p>INVARIANTES DO DOMÍNIO: a interrupção detectada no laço de lotes vira
-     * {@link TraducaoParcialException}; nenhum lote é enviado ao LLM; a saída
-     * final anterior permanece intacta e nada é publicado como parcial.
+     * <p>INVARIANTES DO DOMÍNIO: o próprio dublê da LLM dispara a interrupção após
+     * a primeira chamada; o laço detecta antes do segundo lote e lança
+     * {@link TraducaoParcialException}; exatamente uma chamada ao LLM ocorre; o
+     * segundo lote nunca é enviado; o cache parcial contém e só contém as falas do
+     * primeiro lote; nenhuma saída final {@code _PT-BR} é publicada; a entrada
+     * permanece intacta.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer publicação final, chamada extra
-     * ao LLM ou perda do arquivo existente falha a suíte. Determinístico: a
-     * interrupção é injetada ao final de {@code iniciarLotes} — após a leitura do
-     * cache e imediatamente antes do laço de lotes, sem sleep nem corrida.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer chamada extra ao LLM, publicação
+     * final, divergência de quantidade/conteúdo do cache parcial ou alteração da
+     * entrada falha a suíte. Determinístico: a interrupção é marcada pelo dublê
+     * (sem sleep nem corrida) e a barra de progresso é desligada para não consumir
+     * o flag antes da verificação do laço.
      */
     @Test
-    void cancelamentoEncerraSemPublicarNemChamarLlmPreservandoExistentes() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort();
-        ConsoleUILogger interruptor = new UILoggerQueInterrompe();
-        ProcessarArquivoUseCase uc = montar(llm, interruptor);
-        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+    void cancelamentoNoMeioPreservaProgressoParcialDoPrimeiroLote() throws Exception {
+        FakeMistralPort llm = new FakeMistralPort(true);
+        ProcessarArquivoUseCase uc = montar(llm, new ConsoleUILoggerSilencioso());
+        // 21 falas distintas e traduzíveis: com tamanhoLote=20, geram 2 lotes
+        // (20 + 1); o primeiro conclui, o segundo nunca é enviado.
+        String[] falas = new String[21];
+        for (int i = 0; i < falas.length; i++) {
+            falas[i] = String.format("Line %02d", i + 1);
+        }
+        Path entrada = escreverAss("ep.ass", falas);
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
-        // Saída final PT-BR pré-existente que NÃO pode ser sobrescrita pelo cancelamento.
-        Path finalPtBr = Files.createDirectories(raiz.resolve("saida")).resolve("ep_PT-BR.ass");
-        Files.writeString(finalPtBr, "VERSAO ANTERIOR PRESERVADA");
 
         try {
             assertThrows(TraducaoParcialException.class, () -> uc.processar(entrada, false));
         } finally {
-            // Limpa qualquer status de interrupção residual para não vazar aos demais
-            // testes. A preservação do flag após o cancelamento depende da barra de
-            // progresso do terminal (que pode consumir a interrupção) e, portanto, não
-            // é uma invariante estável — não é asserida aqui.
             Thread.interrupted();
         }
 
-        assertEquals(0, llm.chamadas.get(), "cancelamento antes do lote nao pode chamar o LLM");
-        assertEquals("VERSAO ANTERIOR PRESERVADA",
-            Files.readString(finalPtBr, StandardCharsets.UTF_8), "saida final anterior preservada");
-        assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.parcial.ass")),
-            "nada e publicado como parcial neste cancelamento sem progresso");
+        assertEquals(1, llm.chamadas.get(), "apenas o primeiro lote pode ser enviado ao LLM");
+        // Cache parcial: exatamente as 20 falas do primeiro lote (Line 01..Line 20),
+        // sem a fala do segundo lote (Line 21). Carregado com a mesma proveniência.
+        Path arquivoCache = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        assertTrue(Files.exists(arquivoCache), "o progresso parcial deve ter sido persistido no cache");
+        ProvenienciaCache prov = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "caracterizacao",
+            ProvenienciaCache.hashDe("Traduza fielmente para PT-BR."),
+            "modelo-teste", "en", "pt-BR");
+        var mapa = new CacheTraducaoService(new ObjectMapper()).carregar(arquivoCache, prov).mapa();
+        assertEquals(20, mapa.size(), "o cache parcial deve conter as 20 falas do primeiro lote");
+        for (int i = 1; i <= 20; i++) {
+            String chave = String.format("Line %02d", i);
+            assertTrue(mapa.containsKey(chave), "cache parcial deve conter " + chave);
+            assertEquals("fala traduzida", mapa.get(chave), "conteudo traduzido do primeiro lote");
+        }
+        assertFalse(mapa.containsKey("Line 21"), "a fala do segundo lote nao pode estar no cache");
+
+        assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
+            "nenhuma saida final pode ser publicada apos o cancelamento");
         assertEquals(origemAntes, Files.readString(entrada, StandardCharsets.UTF_8), "entrada intacta");
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: dublê do logger de progresso que dispara uma
-     * interrupção cooperativa logo após a barra de lotes ser iniciada,
-     * reproduzindo de forma determinística o clique em "Parar" imediatamente
-     * antes do laço de tradução dos lotes.
+     * PROPÓSITO DE NEGÓCIO: logger de progresso silencioso para os testes —
+     * desliga a barra de progresso de terceiros ({@code me.tongfei:progressbar}),
+     * que, quando ativa, consome o flag de interrupção da thread e impediria
+     * caracterizar o cancelamento cooperativo disparado pelo dublê da LLM.
      *
-     * <p>INVARIANTES DO DOMÍNIO: delega a inicialização real ao
-     * {@link ConsoleUILogger} e só então marca a interrupção, garantindo que o
-     * flag sobreviva até a verificação {@code isInterrupted()} do laço (a
-     * construção da barra de progresso consome interrupções pendentes).
+     * <p>INVARIANTES DO DOMÍNIO: nunca constrói a barra; os demais métodos do
+     * {@link ConsoleUILogger} passam a operar no ramo {@code pb == null}, sem
+     * qualquer interação capaz de consumir a interrupção.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; apenas marca o status de
-     * interrupção da thread corrente, uma única vez.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; a inicialização de lotes é um
+     * no-op deliberado.
      */
-    private static final class UILoggerQueInterrompe extends ConsoleUILogger {
-        private boolean interrompeu = false;
-
+    private static final class ConsoleUILoggerSilencioso extends ConsoleUILogger {
         @Override
         public synchronized void iniciarLotes(int totalLotes, String nomeEpisodio) {
-            super.iniciarLotes(totalLotes, nomeEpisodio);
-            if (!interrompeu) {
-                interrompeu = true;
-                Thread.currentThread().interrupt();
-            }
+            // no-op: não constrói a barra de progresso (evita consumir a interrupção).
         }
     }
 }
