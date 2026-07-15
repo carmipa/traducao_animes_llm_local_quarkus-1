@@ -33,15 +33,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       encontrou <b>15</b> arestas funcionais; o bytecode revelava <b>17</b> — as
  *       2 extras eram usos por FQN no corpo ({@code TraducaoController → LlmTelemetria}
  *       e {@code TelemetriaController → TelemetriaDatasetService}).</li>
- *   <li><b>Após D-Ext</b>: as 2 arestas {@code RestClientConfig → ExtratorVideoPort/
- *       ExtratorStrategy} foram eliminadas (producers movidos para
- *       {@code legendasExtracao.ExtracaoBeansConfig}); o bytecode cai para <b>15</b>
- *       arestas funcionais. Ao fim da FASE D o esperado é 8 imports / 9 arestas
- *       bytecode (só os três controllers C2).</li>
+ *   <li><b>Após D-Ext</b>: eliminadas as 2 arestas {@code RestClientConfig →
+ *       ExtratorVideoPort/ExtratorStrategy} (producers movidos para
+ *       {@code legendasExtracao.ExtracaoBeansConfig}).</li>
+ *   <li><b>Após D-Lore</b>: eliminada a aresta {@code MistralClientAdapter →
+ *       PromptRevisaoLore} ({@code revisarLore} removido de {@code MistralPort}/
+ *       {@code MistralClientAdapter}; a Revisão de Lore ganhou stack LLM própria);
+ *       o bytecode cai para <b>14</b> arestas funcionais. Ao fim da FASE D o
+ *       esperado é 8 imports / 9 arestas bytecode (só os três controllers C2).</li>
  *   <li>O conjunto real de arestas funcionais de saída da Tradução Local deve ser
- *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (15 após D-Ext).
+ *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (14 após D-Lore).
  *       Aparecer nova aresta, mudar o destino para outra classe da mesma fatia, ou
  *       trocar import por FQN reprova o teste.</li>
+ *   <li><b>Regra dedicada revisaoLore</b>: nenhuma classe de {@code ..revisaoLore..}
+ *       depende de {@code MistralPort}, {@code StatusLlm}, {@code LlmProperties},
+ *       {@code JsonHttpClient}, {@code RecordsMistral}, {@code MistralClientAdapter}
+ *       ou {@code GerenciadorContexto}. Demais entradas ficam para a FASE E.</li>
  *   <li>Aresta técnica temporária de saída para {@code config}: exatamente
  *       {@link #ALLOW_CONFIG_CLI} (removida em D-Config).</li>
  *   <li>Regra reversa: {@code config} depende de {@code traducao} apenas por
@@ -88,13 +95,25 @@ class FronteiraTraducaoArchTest {
     private static final String T_TELEMETRIA_SERVICE = RAIZ + ".telemetria.TelemetriaService";
     private static final String T_TELEMETRIA_RESUMO = RAIZ + ".telemetria.TelemetriaResumo";
     private static final String T_TELEMETRIA_DATASET = RAIZ + ".telemetria.TelemetriaDatasetService";
-    private static final String T_PROMPT_REVISAO_LORE = RAIZ + ".revisaoLore.application.PromptRevisaoLore";
     private static final String T_CORRIGIR_COM_GOOGLE = RAIZ + ".raspagemCorrecao.application.CorrigirComGoogleUseCase";
     private static final String T_REVISAR_CACHE = RAIZ + ".raspagemRevisao.application.RevisarCacheUseCase";
     private static final String T_LIMPAR_CACHE = RAIZ + ".traducaoCorrige.application.LimparCacheUseCase";
     private static final String T_RESULTADO_MANUTENCAO = RAIZ + ".traducaoCorrige.domain.ResultadoManutencaoCache";
     private static final String T_RESULTADO_REVISAO_LEG = RAIZ + ".raspagemRevisao.application.ResultadoRevisaoLegendas";
     private static final String T_REVISAR_LEGENDAS = RAIZ + ".raspagemRevisao.application.RevisarLegendasUseCase";
+
+    // Pacote da fatia Revisão de Lore e os tipos da Tradução Local que a stack
+    // LLM própria dela NÃO pode importar (D-Lore).
+    private static final String PKG_REVISAO_LORE = RAIZ + ".revisaoLore";
+    private static final Set<String> REVISAO_LORE_PROIBIDOS = Set.of(
+        RAIZ + ".traducao.domain.ports.MistralPort",
+        RAIZ + ".traducao.domain.StatusLlm",
+        RAIZ + ".traducao.infrastructure.config.LlmProperties",
+        RAIZ + ".traducao.infrastructure.http.JsonHttpClient",
+        RAIZ + ".traducao.infrastructure.dtos.RecordsMistral",
+        MISTRAL_ADAPTER,
+        RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"
+    );
 
     /** Aresta técnica temporária de saída para config (removida em D-Config). */
     private static final String ALLOW_CONFIG_CLI = CLASSE_TRADUTOR_CLI + " -> " + RAIZ + ".config.ExecucaoCli";
@@ -103,7 +122,7 @@ class FronteiraTraducaoArchTest {
     private static final String ALLOW_STARTUP_CLI = CLASSE_MODO_STARTUP + " -> " + CLASSE_TRADUTOR_CLI;
 
     /**
-     * Baseline exata: as 15 arestas funcionais reais no bytecode após D-Ext (origem
+     * Baseline exata: as 14 arestas funcionais reais no bytecode após D-Lore (origem
      * FQN → destino FQN). Autorização SEMPRE por aresta exata — nunca por nome de fatia.
      */
     private static final Set<String> ARESTAS_FUNCIONAIS_ESPERADAS = Set.of(
@@ -113,10 +132,10 @@ class FronteiraTraducaoArchTest {
         aresta(PROCESSAR_EPISODIO, T_TELEMETRIA_SERVICE),   // 3
         aresta(TRADUCAO_CONTROLLER, T_TELEMETRIA_SERVICE),  // 4
         aresta(TRADUCAO_CONTROLLER, T_LLM_TELEMETRIA),      // 5 (FQ no corpo)
-        // D-Lore (1) — removida em D-Lore
-        aresta(MISTRAL_ADAPTER, T_PROMPT_REVISAO_LORE),     // 6
-        // D-Ext: ELIMINADA (producers movidos para legendasExtracao.ExtracaoBeansConfig);
-        //        as 2 arestas RestClientConfig -> ExtratorVideoPort/ExtratorStrategy não existem mais.
+        // D-Lore: ELIMINADA (revisarLore removido de MistralPort/MistralClientAdapter;
+        //         revisaoLore ganhou stack LLM própria). A aresta
+        //         MistralClientAdapter -> PromptRevisaoLore não existe mais.
+        // D-Ext: ELIMINADA (producers movidos para legendasExtracao.ExtracaoBeansConfig).
         // Controllers bloqueados para C2 (9) — permanecem até a C2
         aresta(CORRECAO_CACHE_CONTROLLER, T_CORRIGIR_COM_GOOGLE),  // 9
         aresta(CORRECAO_CACHE_CONTROLLER, T_REVISAR_CACHE),        // 10
@@ -157,7 +176,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("Saídas funcionais da Tradução Local == 15 arestas exatas (após D-Ext; allowlist estrita)")
+    @DisplayName("Saídas funcionais da Tradução Local == 14 arestas exatas (após D-Lore; allowlist estrita)")
     void saidasFuncionaisBatemComAllowlistExata() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -185,7 +204,7 @@ class FronteiraTraducaoArchTest {
         ausentes.removeAll(reais);
 
         assertTrue(inesperadas.isEmpty() && ausentes.isEmpty(),
-            () -> "Divergência na baseline exata de 15 arestas funcionais (após D-Ext).\n"
+            () -> "Divergência na baseline exata de 14 arestas funcionais (após D-Lore).\n"
                 + "Arestas INESPERADAS (novas/destino trocado): " + inesperadas + "\n"
                 + "Arestas ESPERADAS AUSENTES: " + ausentes);
     }
@@ -252,6 +271,31 @@ class FronteiraTraducaoArchTest {
             "Esperado uso técnico dos tipos de core congelados pela Tradução Local");
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de core fora dos cinco homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("revisaoLore não depende da stack LLM/contexto da Tradução Local (D-Lore)")
+    void revisaoLoreNaoDependeDaStackLlmDeTraducao() {
+        List<String> violacoes = new ArrayList<>();
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            boolean ehRevisaoLore = pkg.equals(PKG_REVISAO_LORE) || pkg.startsWith(PKG_REVISAO_LORE + ".");
+            if (!ehRevisaoLore) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (REVISAO_LORE_PROIBIDOS.contains(destino)) {
+                    violacoes.add(origem + " -> " + destino);
+                }
+            }
+        }
+        assertTrue(violacoes.isEmpty(),
+            () -> "revisaoLore não pode importar a stack LLM/contexto da Tradução Local "
+                + "(MistralPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsMistral/MistralClientAdapter/"
+                + "GerenciadorContexto). As demais entradas ficam para a FASE E. Violações:\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     private static String aresta(String origemFqn, String destinoFqn) {

@@ -69,11 +69,6 @@ class TraduzirKaraokeUseCaseTest {
         public Optional<String> corrigirTraducao(String original, String traducao, String motivo) {
             return Optional.empty();
         }
-
-        @Override
-        public Optional<String> revisarLore(String prompt, String original, String traducao, List<String> problemas) {
-            return Optional.empty();
-        }
     }
 
     static class MockLogStream extends LogStreamService {

@@ -9,7 +9,6 @@ import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
-import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
 import org.traducao.projeto.traducao.contexto.RegrasConcordanciaPtBr;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
@@ -315,35 +314,6 @@ public class MistralClientAdapter implements MistralPort {
                 new Mensagem("user", promptUsuario)
             ),
             TEMPERATURA_CORRECAO_TRADUCAO,
-            propriedades.maxTokens()
-        );
-
-        return postarLinhaUnica(request, traducaoPtMascarada);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: revisa aderência à lore com o prompt especializado
-     * fornecido pelo módulo responsável pela obra.
-     * <p>INVARIANTES DO DOMÍNIO: preserva tags da tradução e usa somente a linha final.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve vazio sem alterar a legenda.
-     */
-    @Override
-    public Optional<String> revisarLore(
-        String promptSistemaRevisaoLore,
-        String originalInglesMascarado,
-        String traducaoPtMascarada,
-        List<String> problemasDetectados
-    ) {
-        String promptUsuario = PromptRevisaoLore.montarPromptUsuario(
-            originalInglesMascarado, traducaoPtMascarada, problemasDetectados);
-
-        ChatRequest request = new ChatRequest(
-            propriedades.model(),
-            List.of(
-                new Mensagem("system", promptSistemaRevisaoLore),
-                new Mensagem("user", promptUsuario)
-            ),
-            TEMPERATURA_REVISAO,
             propriedades.maxTokens()
         );
 
