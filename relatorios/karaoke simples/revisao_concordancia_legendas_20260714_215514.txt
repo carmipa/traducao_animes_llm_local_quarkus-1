@@ -1,0 +1,40 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\karaoke simples
+Duração: 8s
+Arquivos analisados: 13
+Falas auditadas: 4019
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 3
+Falas corrigidas via LLM: 0
+Falas pendentes: 3
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 207 | Estilo: Dialogue
+Resultado: LLM_REJEITADO_SEM_MELHORIA
+Problemas: Original usa 'he', mas sujeito da tradução é 'ela': "Ela é" | Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'
+Diagnóstico: Correção descartada: resposta LLM inválida ou sem melhoria.
+EN: He's a Federation pilot?
+PT anterior: Ela é bonita.
+Proposta: Ela é uma piloto da Federação?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 182 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Come on...!
+PT anterior: {\i1}Filho da puta!
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 263 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Our only answer to the torment we felt as the days passed...
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproximem deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Our only answer to the torment we felt as the days passed...
+Proposta: [[TAG0]]...me aproximem deles.

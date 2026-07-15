@@ -1,0 +1,76 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\legendas ptbr
+Duração: 7s
+Arquivos analisados: 13
+Falas auditadas: 4413
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 38
+Falas corrigidas via LLM: 5
+Falas pendentes: 33
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass
+Evento: -1 | Estilo: ARQUIVO
+Resultado: BLOQUEADO_RETRADUCAO_EM_MASSA
+Problemas: Falas iguais ao original acima do limite seguro
+Diagnóstico: 32 de 92 falas auditáveis
+EN: —
+PT anterior: —
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 250 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Expressão idiomática inválida; em PT-BR usa-se 'graças a Deus': "Graças ao Deus"
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: {\i1}Thank goodness.
+PT anterior: {\i1}Graças ao Deus.
+Proposta: {\i1}Graças a Deus.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 47 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: You son of a hitch!
+PT anterior: Filho da puta!
+Proposta: Filho da mãe!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 44 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Original menciona pai, mas a tradução usa mãe
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: Make sure my dad gets this info!
+PT anterior: Minha mãe precisa saber disso!
+Proposta: Meu pai precisa saber disso!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 212 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: You son of a...!
+PT anterior: Porra filho da puta!
+Proposta: Porra!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 150 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Diagnóstico: Resíduo gringo detectado: Mesmo que os Feds não sejam {\i1}tão{\i0} idiotas.
+EN: Even the Feds aren't {\i1}that{\i0} dumb.
+PT anterior: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Proposta: Mesmo que os Feds não sejam [[TAG0]]tão[[TAG1]] idiotas.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass
+Evento: 70 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fad(0,1354)}A mobile suit...
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: {\fad(0,1354)}A mobile suit...
+PT anterior: {\fad(0,1354)}A mobile suit...
+Proposta: {\fad(0,1354)}Um mobile suit...

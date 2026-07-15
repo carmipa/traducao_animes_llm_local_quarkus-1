@@ -1,0 +1,8 @@
+/* ==========================================================================
+   KRONOS CORE — CORREÇÃO CACHE
+   Pasta espelha correcao/correcao.js
+   Etapa 8 da modularização CSS
+   ========================================================================== */
+
+/* .correcao-actions (linha de botões) é compartilhada entre vários painéis
+   do pipeline e está definida em css/base.css */

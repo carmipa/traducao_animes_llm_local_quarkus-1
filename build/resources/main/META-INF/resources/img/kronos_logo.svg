@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Kronos">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="#0f172a" stroke="url(#g)" stroke-width="4"/>
+  <path d="M36 72 L60 32 L84 72 L72 72 L72 88 L48 88 L48 72 Z" fill="url(#g)"/>
+</svg>

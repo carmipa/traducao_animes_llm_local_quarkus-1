@@ -1,0 +1,89 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-spring-di'
+    implementation 'io.quarkus:quarkus-spring-web'
+    implementation 'io.quarkus:quarkus-spring-boot-properties'
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-config-yaml'
+
+    // Servidor MCP (Model Context Protocol) via transporte SSE/HTTP: expoe o
+    // pipeline do KRONOS como ferramentas para clientes MCP (ex.: Claude Code)
+    // no mesmo servidor web ja iniciado em modo dev (endpoint /mcp/sse).
+    implementation 'io.quarkiverse.mcp:quarkus-mcp-server-sse:1.13.1'
+
+    implementation 'org.springframework.boot:spring-boot-autoconfigure:3.3.0'
+
+    implementation 'me.tongfei:progressbar:0.10.1'
+
+    testImplementation 'io.quarkus:quarkus-junit'
+    testImplementation 'io.rest-assured:rest-assured'
+}
+
+group = 'org.traducao.projeto'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+test {
+    // O worker de teste do Gradle nasce com 512m; a suíte completa (com os
+    // @QuarkusTest subindo a aplicação) estoura o heap nesse padrão.
+    maxHeapSize = '1g'
+
+    // Redireciona a raiz dos artefatos operacionais do KRONOS (logs/,
+    // relatorios/, cache/, backups/) para uma árvore descartável sob build/
+    // (ignorada pelo Git) durante a suíte. Sem isto, os use cases que resolvem
+    // caminhos relativos ao CWD gravavam na árvore versionada real — origem
+    // dos relatorios/junit-* e da telemetria canônica alterada por testes.
+    // Ver DiretorioBaseKronos.
+    systemProperty 'kronos.dir.base',
+        layout.buildDirectory.dir('tmp/kronos-tests').get().asFile.absolutePath
+}
+
+quarkusDev {
+    // Alinha o charset do logger do Quarkus (JBoss LogManager) com o System.out
+    // UTF-8 do Application.java; sem isso o terminal/console-web.log mistura o
+    // codepage do console Windows com UTF-8 e os acentos viram mojibake.
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
+    // O compilador do LIVE-RELOAD não herda o options.encoding do compileJava:
+    // sem isto, literais com acento recompilados a quente corrompem (mojibake
+    // observado em 2026-07-09 num literal com "í" após hot-reload).
+    compilerArgs = ['-encoding', 'UTF-8']
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+sourceSets {
+    main {
+        resources {
+            exclude 'static/**'
+        }
+    }
+}
+
+processResources {
+    from('src/main/resources/static') {
+        into 'META-INF/resources'
+    }
+}

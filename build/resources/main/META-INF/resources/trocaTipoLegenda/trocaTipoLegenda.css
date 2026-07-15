@@ -1,0 +1,163 @@
+/* ==========================================================================
+   KRONOS CORE — TROCA TIPO LEGENDA
+   Pasta espelha trocaTipoLegenda/trocaTipoLegenda.{html,js}
+   Etapa 6 da modularização CSS
+   ========================================================================== */
+
+#panel-troca-tipo-legenda .card-header-com-stats{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+#panel-troca-tipo-legenda .stats-badges-container{
+    display: flex;
+    gap: 8px;
+}
+
+#panel-troca-tipo-legenda .resultado-tabela-container{
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #080b13;
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes{
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes th{
+    background-color: rgba(255, 255, 255, 0.02);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-family: var(--font-title);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes td{
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes tr:last-child td{
+    border-bottom: none;
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes tr.linha-auditoria-problema{
+    background-color: rgba(244, 63, 94, 0.03);
+}
+
+#panel-troca-tipo-legenda .tabela-auditoria-fontes tr.linha-auditoria-problema td{
+    border-bottom: 1px solid rgba(244, 63, 94, 0.15);
+}
+
+#panel-troca-tipo-legenda .td-arquivo-legenda{
+    font-family: var(--font-main);
+    font-weight: 500;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Alertas e avisos de risco */
+#panel-troca-tipo-legenda .aviso-risco-container{
+    display: flex;
+    gap: 16px;
+    background-color: rgba(244, 63, 94, 0.06);
+    border-left: 4px solid var(--accent-red);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+#panel-troca-tipo-legenda .aviso-risco-icon{
+    color: var(--accent-red);
+    font-size: 24px !important;
+}
+
+#panel-troca-tipo-legenda .aviso-risco-texto h4{
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+#panel-troca-tipo-legenda .aviso-risco-texto p{
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Container de mapeamentos */
+#panel-troca-tipo-legenda .mapeamentos-sugeridos-container{
+    margin-bottom: 24px;
+    background-color: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: 8px;
+}
+
+#panel-troca-tipo-legenda .mapeamentos-sugeridos-container h5{
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+#panel-troca-tipo-legenda .mapeamentos-lista{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+#panel-troca-tipo-legenda .mapeamentos-lista li{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-code);
+    font-size: 0.85rem;
+    background-color: #080b13;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    width: fit-content;
+}
+
+#panel-troca-tipo-legenda .fonte-antiga{
+    color: var(--accent-red);
+    text-decoration: line-through;
+}
+
+#panel-troca-tipo-legenda .seta-subst{
+    color: var(--text-muted);
+}
+
+#panel-troca-tipo-legenda .fonte-nova{
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+#panel-troca-tipo-legenda .nota-backup{
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}

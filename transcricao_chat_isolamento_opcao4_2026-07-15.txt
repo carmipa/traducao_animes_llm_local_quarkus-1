@@ -1,0 +1,2444 @@
+TRANSCRIÇÃO DO CHAT — ISOLAMENTO DA OPÇÃO 4 (TRADUÇÃO LOCAL)
+Thread: Avaliar instalação de 40 GB
+ID: 019f65bc-4399-75b3-9890-cd4b789b3f26
+Data da exportação: 2026-07-15
+
+Observação: contém as mensagens visíveis da conversa. Instruções internas, raciocínio oculto e saídas técnicas brutas de ferramentas não fazem parte da transcrição.
+
+[PAULO]
+eu que pensaei em forçar as trheds por conta do java 25 aproveitandoi o poder nos meus processadores locais e testandoa s tecnologias avançadas!
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, então multithreading não é uma sugestão do Gemini: é um objetivo seu do projeto — explorar Java 25 e medir quanto o hardware local consegue entregar. Vou preservar isso como uma fase técnica deliberada, depois do isolamento das responsabilidades, para que os testes de concorrência não fiquem misturados com a refatoração estrutural.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Perfeito, Paulo. Isso é uma decisão sua e já aparece no histórico do projeto: o tradutor Java 25 nasceu com a intenção de explorar Virtual Threads, concorrência estruturada e o hardware local. Portanto, não devemos eliminar essa meta.
+
+O ajuste correto é:
+
+1. Primeiro separar completamente as responsabilidades e remover estado compartilhado indevido.
+2. Depois introduzir concorrência controlada.
+3. Medir diferentes níveis de paralelismo no LM Studio e nos seus processadores.
+4. Manter a execução sequencial como baseline comparável e fallback seguro.
+
+Virtual Threads são adequadas principalmente para espera de HTTP e I/O. Trabalho realmente CPU-bound precisa de paralelismo limitado aos núcleos disponíveis. As requisições à LLM devem ser testadas com concorrência configurável, porque GPU, VRAM, contexto e modelo podem impor o gargalo antes do processador.
+
+Substitua no prompt anterior a proibição de paralelização por este bloco:
+
+```text
+============================================================
+OBJETIVO POSTERIOR — CONCORRÊNCIA COM JAVA 25
+============================================================
+
+Explorar as tecnologias avançadas do Java 25 e aproveitar o hardware local é uma
+decisão arquitetural explícita de Paulo, não uma sugestão externa.
+
+A separação de responsabilidades da Opção 4 deve preparar o módulo para uma
+segunda fase de concorrência e desempenho.
+
+Nesta primeira implementação estrutural:
+
+- não introduza multithreading junto com a movimentação das responsabilidades;
+- não elimine nem inviabilize a futura execução concorrente;
+- mantenha as etapas desacopladas e preferencialmente sem estado mutável;
+- torne contexto, proveniência e configuração imutáveis por job;
+- identifique quais classes são thread-safe;
+- identifique todo estado que atualmente impede paralelismo;
+- preserve IDs e ordem determinística de lotes e falas;
+- não mantenha contexto de lore dependente de variável global mutável;
+- não permita que caches de arquivos diferentes compartilhem estado mutável;
+- prepare interfaces adequadas para execução sequencial ou concorrente.
+
+O Plano Diretor deve incluir, como fase posterior e separada, um laboratório de
+concorrência Java 25.
+
+Esse laboratório deverá avaliar:
+
+1. Baseline completamente sequencial.
+
+2. Virtual Threads para operações bloqueantes:
+   - chamadas HTTP ao LM Studio;
+   - leitura e escrita de arquivos;
+   - espera de processos externos;
+   - tarefas que passam a maior parte do tempo aguardando I/O.
+
+3. Executor limitado para tarefas CPU-bound:
+   - parsing;
+   - classificação;
+   - validação;
+   - mascaramento e desmascaramento;
+   - reconstrução de documentos;
+   - regex e análise de textos.
+
+4. Concorrência configurável de requisições ao LM Studio:
+   - 1 requisição;
+   - 2 requisições;
+   - 4 requisições;
+   - outros valores somente quando justificados por medição.
+
+5. Concorrência por:
+   - lote dentro de um episódio;
+   - episódios independentes;
+   - arquivos independentes.
+
+6. Preservação obrigatória de:
+   - ordem original das falas;
+   - associação entre lote e resposta;
+   - lore congelado;
+   - proveniência;
+   - integridade das tags;
+   - cache atômico;
+   - retomada após falha;
+   - cancelamento e interrupção;
+   - telemetria correta;
+   - resultado determinístico.
+
+7. Backpressure e limites:
+   - máximo de requisições simultâneas;
+   - máximo de arquivos em processamento;
+   - máximo de lotes pendentes em memória;
+   - timeout;
+   - cancelamento;
+   - rejeição controlada;
+   - redução automática de concorrência quando necessário.
+
+8. Benchmark reproduzível contendo:
+   - modelo utilizado;
+   - tamanho do contexto;
+   - tamanho do lote;
+   - quantidade de requisições paralelas;
+   - CPU;
+   - GPU;
+   - RAM;
+   - VRAM;
+   - duração total;
+   - tokens por segundo;
+   - chamadas bem-sucedidas;
+   - retries;
+   - falhas;
+   - consumo máximo de memória.
+
+A concorrência só será promovida para o fluxo principal quando apresentar ganho
+mensurável sem reduzir a qualidade, a estabilidade ou a recuperabilidade.
+
+A configuração deve permitir voltar imediatamente para concorrência 1.
+
+Não presuma que mais threads significam mais desempenho. O objetivo é encontrar
+experimentalmente o ponto ideal para cada máquina e modelo local.
+```
+
+Assim preservamos integralmente sua proposta: a separação em muitas classes não é apenas organizacional. Ela também cria unidades independentes, imutáveis e testáveis que depois poderão ser executadas em paralelo com segurança usando Java 25.
+
+==========================================================================================
+
+[PAULO]
+sim - pois é o que falei as faculdades não ensinam isso e nos queremos aprender outra coisa o codigo todo tem de ser muito bem documentado!
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, esse passa a ser um objetivo formal da refatoração: o código da Opção 4 deve funcionar também como material de estudo de arquitetura, concorrência e comportamento da JVM, sem transformar os arquivos em comentários redundantes. Vou consolidar isso no prompt como documentação técnica obrigatória e verificável.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Exatamente, Paulo. O objetivo não é somente entregar uma aplicação funcionando: é transformar a Opção 4 em um laboratório legível de Java 25, arquitetura modular, memória, concorrência, tolerância a falhas e integração com LLM local.
+
+A auditoria encontrou 132 arquivos Java dentro de `traducao`, mas apenas 36 possuem atualmente os três pilares documentais completos. Portanto, a documentação precisa ser uma fase formal do trabalho.
+
+Acrescente este bloco ao prompt do Claude:
+
+```text
+============================================================
+CÓDIGO COMO MATERIAL DE ESTUDO
+============================================================
+
+A Opção 4 deve funcionar simultaneamente como software operacional e material
+técnico de estudo para Paulo.
+
+Todo o código do módulo `org.traducao.projeto.traducao` deve ser auditado quanto
+à documentação, inclusive arquivos que não precisarem de alteração funcional.
+
+A documentação deve permitir compreender:
+
+- por que cada classe existe;
+- qual responsabilidade pertence exclusivamente a ela;
+- onde ela entra no pipeline;
+- quais dados recebe e produz;
+- quais invariantes protege;
+- como reage a falhas;
+- se possui estado;
+- quem é proprietário desse estado;
+- se é thread-safe;
+- se pode executar concorrentemente;
+- se realiza I/O bloqueante;
+- se pode ser cancelada ou interrompida;
+- quais efeitos colaterais produz;
+- quais arquivos ou caches modifica;
+- quais exceções fazem parte do seu contrato.
+
+============================================================
+JAVADOC OBRIGATÓRIO
+============================================================
+
+Documente:
+
+- todas as classes;
+- interfaces;
+- records;
+- enums;
+- construtores;
+- métodos públicos;
+- métodos package-private;
+- métodos privados que contenham regra, decisão, transformação, I/O,
+  concorrência, recuperação ou comportamento não trivial.
+
+Toda documentação deve conter explicitamente:
+
+1. PROPÓSITO DE NEGÓCIO
+2. INVARIANTES DO DOMÍNIO
+3. COMPORTAMENTO EM CASO DE FALHA
+
+Exemplo estrutural:
+
+/**
+ * PROPÓSITO DE NEGÓCIO: prepara as falas ainda não traduzidas para envio ao
+ * modelo local, preservando a relação entre o texto original e os marcadores
+ * estruturais da legenda.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: a ordem das falas deve permanecer determinística;
+ * nenhuma tag ASS/SSA pode ser enviada diretamente ao modelo sem mascaramento;
+ * uma fala original deve possuir correspondência única com sua representação
+ * mascarada durante o job.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: uma falha de mascaramento interrompe a
+ * preparação antes de qualquer chamada ao LLM e lança
+ * {@code AlucinacaoDetectadaException}; nenhum cache é modificado.
+ */
+
+Além dos três pilares, use quando aplicável:
+
+- `@param` explicando o significado de negócio;
+- `@return` descrevendo resultado completo, parcial ou vazio;
+- `@throws` indicando precisamente quando cada exceção ocorre;
+- `@implNote` para decisões internas importantes;
+- `@apiNote` quando existir contrato para chamadores;
+- `@see` para relacionamentos arquiteturais relevantes.
+
+============================================================
+DOCUMENTAÇÃO DE CONCORRÊNCIA
+============================================================
+
+Toda classe envolvida em concorrência deve declarar:
+
+- modelo de execução utilizado;
+- Virtual Thread ou Platform Thread;
+- motivo da escolha;
+- executor responsável;
+- limite máximo de concorrência;
+- estado compartilhado;
+- mecanismo de sincronização;
+- garantia de visibilidade de memória;
+- política de ordenação;
+- comportamento de interrupção;
+- propagação de cancelamento;
+- timeout;
+- backpressure;
+- estratégia de recuperação.
+
+Exemplo:
+
+/**
+ * MODELO DE CONCORRÊNCIA: cada chamada bloqueante ao LM Studio pode executar em
+ * Virtual Thread, limitada pelo controlador de concorrência do job. A conclusão
+ * física pode ocorrer fora de ordem, mas os resultados são consolidados pelo
+ * identificador original do lote.
+ *
+ * <p>ESTADO COMPARTILHADO: esta classe não mantém contexto de lore mutável. O
+ * prompt e a proveniência são recebidos como objetos imutáveis por execução.
+ *
+ * <p>CANCELAMENTO: ao detectar interrupção, a operação restaura o sinal da
+ * thread, interrompe novas submissões e devolve somente o progresso já
+ * persistido de maneira atômica.
+ */
+
+============================================================
+DOCUMENTAÇÃO DE MEMÓRIA E DESEMPENHO
+============================================================
+
+Quando uma decisão tiver impacto em memória ou desempenho, explique:
+
+- quais estruturas são mantidas em memória;
+- duração e proprietário dessas estruturas;
+- por que foi escolhido List, Map, Set, record, array ou buffer;
+- quais dados são processados incrementalmente;
+- quais coleções possuem limite;
+- onde podem ocorrer alocações relevantes;
+- onde existe risco de retenção;
+- como cache e lotes limitam chamadas à LLM;
+- qual medição sustenta uma otimização.
+
+Não faça afirmações imprecisas como:
+
+- “esta variável fica obrigatoriamente na stack”;
+- “este método será certamente inline”;
+- “Virtual Thread deixa o processamento mais rápido”;
+- “esta estrutura produz zero alocação”;
+- “mais threads utilizam automaticamente toda a CPU”.
+
+Diferencie claramente:
+
+- concorrência;
+- paralelismo;
+- throughput;
+- latência;
+- CPU-bound;
+- I/O-bound;
+- espera pelo LM Studio;
+- processamento efetivo na GPU.
+
+============================================================
+QUALIDADE DOS COMENTÁRIOS
+============================================================
+
+Não documente sintaxe óbvia.
+
+Evite comentários como:
+
+- “incrementa contador”;
+- “cria uma lista”;
+- “retorna o resultado”;
+- “chama o método de tradução”.
+
+A documentação deve explicar decisões, contratos, riscos e consequências.
+
+Não escreva comentários linha por linha. Eles aumentam o ruído e envelhecem
+rapidamente.
+
+Não use documentação para justificar código confuso. Se a explicação for
+excessivamente difícil, revise primeiro a responsabilidade e o nome da classe.
+
+============================================================
+PROCESSO DE DOCUMENTAÇÃO
+============================================================
+
+A documentação deve ser aplicada em uma fase própria, após a separação
+estrutural estabilizar.
+
+Sequência:
+
+1. separar responsabilidades;
+2. garantir compilação;
+3. executar testes;
+4. documentar integralmente as classes estabilizadas;
+5. executar novamente os testes;
+6. executar a geração de Javadoc;
+7. corrigir links, referências, parâmetros e exceções inconsistentes;
+8. entregar um inventário de cobertura documental.
+
+O relatório final deve informar:
+
+- total de arquivos Java da Opção 4;
+- total de classes, records, interfaces e enums;
+- quantidade auditada;
+- quantidade documentada;
+- classes thread-safe;
+- classes deliberadamente não thread-safe;
+- operações bloqueantes;
+- pontos preparados para concorrência futura;
+- comando de validação do Javadoc;
+- resultado da suíte completa.
+```
+
+Assim, o código ensina engenharia de verdade: não apenas “o que esta linha faz”, mas por que a responsabilidade existe, quais limites ela protege e como se comporta diante de concorrência, interrupção, cache corrompido, resposta inválida da LLM e falha de disco.
+
+==========================================================================================
+
+[PAULO]
+
+# Files mentioned by the user:
+
+## PLANO DIRETOR — Isolamento da Opção 4 (Tradução Local) do KRONOS CORE Papel: So…: C:\Users\Paulo\.codex/attachments/72fedd4c-70d4-493f-bf11-9a72536ef07a/pasted-text.txt
+
+## My request for Codex:
+veja isso e arruma o prompt:
+
+o cloude ta querendo reaproveitrar codigos ele tem de saber explicitamente o que estamos fazendo!!!
+
+
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, vou revisar o plano do Claude procurando exatamente onde ele está propondo reutilização, `core` compartilhado, contratos cruzados ou migração de regras entre funcionalidades. Depois reescrevo o prompt com uma proibição inequívoca: cada opção possui sua própria implementação funcional, mesmo que isso resulte em centenas de classes.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Paulo, o Claude entendeu “monólito modular tradicional”, baseado em reutilização por módulos compartilhados. Isso não é o que estamos construindo.
+
+Os principais erros do plano dele foram:
+
+- Criar `core.legenda` para todos reaproveitarem.
+- Criar um módulo `contexto` compartilhado.
+- Criar um módulo `cacheLegenda` compartilhado.
+- Mover console, HTTP, logs e diálogos para o `core`.
+- Trocar imports de `traducao` por imports de novos módulos compartilhados.
+- Tratar duplicação entre opções como problema.
+- Declarar que a Tradução Local conversaria com “kernels neutros aprovados”.
+
+Isso apenas mudaria o endereço do acoplamento. A Opção 4 continuaria dependente de funcionalidades externas.
+
+As três decisões pendentes já estão resolvidas por você:
+
+- Modelo e I/O de legenda: implementação própria em cada opção.
+- Contexto e lore: implementação própria em cada opção.
+- Cache e proveniência: implementação própria em cada opção.
+
+Use este prompt corretivo no Claude:
+
+```text
+SEU PLANO DIRETOR FOI REJEITADO POR ERRO DE INTERPRETAÇÃO ARQUITETURAL.
+
+NÃO IMPLEMENTE NADA.
+
+Refaça integralmente o Plano Diretor com base nas regras abaixo.
+
+============================================================
+CORREÇÃO DA PREMISSA CENTRAL
+============================================================
+
+Você projetou um monólito modular tradicional baseado em reutilização de código
+por módulos compartilhados.
+
+Não é isso que Paulo está construindo.
+
+O objetivo não é substituir imports de `traducao` por imports de:
+
+- core.legenda;
+- contexto;
+- cacheLegenda;
+- console compartilhado;
+- cliente HTTP compartilhado;
+- módulo comum de lore;
+- módulo comum de cache;
+- qualquer outro kernel funcional reutilizável.
+
+Isso apenas deslocaria o acoplamento para outro endereço.
+
+A arquitetura definida por Paulo é composta por FATIAS VERTICAIS FUNCIONAIS
+COMPLETAMENTE AUTÔNOMAS.
+
+A Opção 4 — Tradução Local deve conversar funcionalmente somente com classes da
+própria Opção 4.
+
+============================================================
+REGRA CANÔNICA DE PROPRIEDADE
+============================================================
+
+Tudo o que a Tradução Local precisa para executar sua funcionalidade pertence à
+Tradução Local.
+
+Isso inclui sua própria implementação de:
+
+- modelo de legenda;
+- DocumentoLegenda;
+- EventoLegenda;
+- leitura ASS/SSA;
+- escrita ASS/SSA;
+- leitura SRT;
+- escrita SRT;
+- mascaramento e restauração de tags;
+- validação estrutural;
+- proteção de karaokê;
+- proteção contra alucinação;
+- cliente LLM;
+- porta do LLM;
+- DTOs HTTP do LLM;
+- configuração do LLM;
+- contexto e lore utilizados pela tradução;
+- cache de tradução;
+- schema do cache;
+- proveniência;
+- classificação do cache;
+- telemetria específica da Tradução Local;
+- apresentação web;
+- apresentação CLI;
+- console e mensagens da Tradução Local;
+- resolução de caminhos;
+- backup;
+- publicação atômica;
+- políticas de retry;
+- cancelamento;
+- concorrência;
+- resultados e status.
+
+Esses componentes não devem ser fornecidos para nenhuma outra opção.
+
+Se outra opção também precisa ler ASS, lidar com lore, acessar LLM, interpretar
+cache, mascarar tags ou mostrar mensagens, ela deve possuir sua própria
+implementação dentro do próprio módulo.
+
+============================================================
+DUPLICAÇÃO ENTRE OPÇÕES É ACEITA E INTENCIONAL
+============================================================
+
+Não tente eliminar duplicação entre opções funcionais.
+
+Nesta arquitetura, isolamento, legibilidade, experimentação e liberdade de
+evolução são mais importantes que reutilização.
+
+Duas opções podem possuir classes conceitualmente semelhantes, por exemplo:
+
+- duas representações diferentes de EventoLegenda;
+- dois leitores ASS;
+- dois mascaradores de tags;
+- dois clientes HTTP para LLM;
+- duas representações de proveniência;
+- duas regras de validação;
+- duas classes de cores do console;
+- duas políticas de cache.
+
+Isso não autoriza copiar código cegamente.
+
+Cada implementação deve:
+
+- pertencer ao seu contexto funcional;
+- utilizar nomes correspondentes à sua responsabilidade;
+- proteger as invariantes da própria opção;
+- possuir testes próprios;
+- possuir documentação própria;
+- poder evoluir sem alterar outra opção.
+
+É proibido criar uma abstração compartilhada apenas porque duas classes possuem
+código semelhante.
+
+A existência de código semelhante em duas opções não é justificativa suficiente
+para criar um módulo comum.
+
+============================================================
+CORE — LIMITE ABSOLUTO
+============================================================
+
+Não mova novas classes funcionais ou auxiliares para `core`.
+
+Os 12 imports técnicos atualmente existentes podem permanecer provisoriamente:
+
+- ArquivoAtomicoUtil;
+- DiretorioBaseKronos;
+- FilaExecucaoPipeline;
+- DuracaoUtil;
+- BasePipelineException.
+
+Não amplie essa lista durante esta refatoração.
+
+É expressamente proibido mover para `core`:
+
+- DocumentoLegenda;
+- EventoLegenda;
+- leitores ou escritores de legenda;
+- MascaradorTags;
+- AnsiCores;
+- ConsoleEntrada;
+- JsonHttpClient;
+- LogStreamService;
+- BrowserLauncher;
+- ConsoleRedirector;
+- DialogoArquivoController;
+- lore;
+- contexto;
+- cache;
+- proveniência;
+- telemetria funcional;
+- DTOs do LLM;
+- qualquer classe atualmente pertencente a uma opção.
+
+O `core` não pode virar um depósito de código reutilizável.
+
+============================================================
+DECISÕES DOS ANTIGOS BUCKETS 5A, 5B E 5C
+============================================================
+
+As decisões que você solicitou já foram tomadas por Paulo.
+
+5A — MODELO E I/O DE LEGENDA
+
+REJEITADO mover para `core.legenda`.
+
+`DocumentoLegenda`, `EventoLegenda`, leitores, escritores e mascaradores
+utilizados pela Tradução Local permanecem dentro de `traducao`.
+
+Outras opções devem possuir seus próprios modelos, leitores, escritores e
+mascaradores.
+
+5B — CONTEXTO E LORE
+
+REJEITADO criar módulo funcional compartilhado `contexto`.
+
+A Tradução Local deve possuir seu contexto imutável de execução e os dados de
+lore necessários à tradução.
+
+Se Revisão de Lore, Revisão de Legendas ou Correção precisarem de contexto, cada
+uma deve possuir a própria representação e implementação.
+
+Nenhuma delas pode importar o contexto interno da Tradução Local.
+
+5C — CACHE E PROVENIÊNCIA
+
+REJEITADO criar módulo compartilhado `cacheLegenda`.
+
+A Tradução Local possui seu cache, seus DTOs, seu schema, sua proveniência e sua
+política de reaproveitamento.
+
+Outras opções que manipulam arquivos JSON de cache devem possuir seus próprios
+DTOs, leitores, validadores e escritores.
+
+O arquivo JSON pode ser um formato persistido conhecido por mais de uma opção,
+mas as classes Java que o representam não serão compartilhadas.
+
+============================================================
+CONTROLLERS NO PACOTE ERRADO
+============================================================
+
+Os controllers de outras opções devem sair de
+`traducao.presentation.web` e ir para o módulo proprietário.
+
+Ao mover um controller:
+
+- não faça o módulo proprietário importar serviços da Tradução Local;
+- não redirecione o import para um novo módulo compartilhado;
+- forneça ao módulo proprietário suas próprias classes;
+- preserve integralmente rota, JSON, status HTTP e comportamento;
+- crie testes próprios no módulo proprietário.
+
+`traducao.presentation.web` deve conter exclusivamente endpoints da Tradução
+Local.
+
+============================================================
+TRATAMENTO DOS 173 IMPORTS EXTERNOS
+============================================================
+
+Para cada import externo de `org.traducao.projeto.traducao.*`, apresente uma
+decisão individual.
+
+As únicas decisões aceitas são:
+
+1. A classe consumidora recebe uma implementação própria em seu módulo.
+
+2. O comportamento não pertence à classe consumidora e o import é removido.
+
+3. O controller ou classe está no módulo errado e é movido integralmente para o
+   proprietário funcional.
+
+Não aceite:
+
+- promover para core;
+- criar módulo compartilhado;
+- criar biblioteca comum;
+- criar shared;
+- criar common;
+- criar kernel funcional;
+- criar contrato reutilizável entre opções;
+- manter import temporário como arquitetura final;
+- expor facade pública da Tradução Local;
+- tornar classe pública para facilitar acesso externo.
+
+O limite final de imports externos para `traducao` deve ser zero.
+
+============================================================
+TRATAMENTO DOS 27 IMPORTS FUNCIONAIS DE SAÍDA
+============================================================
+
+A Tradução Local também não pode importar funcionalidades de outros módulos.
+
+Para cada um dos 27 imports:
+
+- remover o controller estrangeiro do módulo `traducao`; ou
+- criar uma implementação interna específica da Tradução Local; ou
+- remover a dependência se ela não for responsabilidade da Opção 4.
+
+Casos obrigatórios:
+
+- A Tradução Local não importa `telemetria.TelemetriaService`.
+  Ela possui telemetria específica própria.
+
+- A Tradução Local não importa classes de `revisaoLore`.
+  Ela possui seu próprio modelo de contexto para tradução.
+
+- A Tradução Local não importa classes de `legendasExtracao`.
+  Controllers de extração pertencem à Extração.
+
+- A Tradução Local não importa `raspagemRevisao`,
+  `raspagemCorrecao`, `traducaoCorrige`, `remuxer`,
+  `analisadorMidia` ou `mapaProjeto`.
+
+O limite final de imports funcionais externos dentro de `traducao` deve ser zero.
+
+============================================================
+ARQUITETURA-ALVO DA OPÇÃO 4
+============================================================
+
+A árvore final deve existir integralmente sob:
+
+org.traducao.projeto.traducao
+
+Exemplo conceitual:
+
+traducao/
+├── presentation/
+│   ├── web/
+│   ├── cli/
+│   └── console/
+├── application/
+│   ├── preparacao/
+│   ├── selecao/
+│   ├── cache/
+│   ├── lotes/
+│   ├── traducao/
+│   ├── validacao/
+│   ├── consolidacao/
+│   ├── publicacao/
+│   ├── backup/
+│   ├── telemetria/
+│   └── concorrencia/
+├── domain/
+│   ├── legenda/
+│   ├── lote/
+│   ├── cache/
+│   ├── contexto/
+│   ├── proveniencia/
+│   ├── resultado/
+│   ├── status/
+│   ├── ports/
+│   └── exceptions/
+└── infrastructure/
+    ├── llm/
+    ├── http/
+    ├── cache/
+    ├── legenda/
+    │   ├── ass/
+    │   └── srt/
+    ├── arquivos/
+    ├── backup/
+    ├── telemetria/
+    └── config/
+
+Essa árvore é apenas uma orientação.
+
+Os nomes e pacotes finais devem surgir das responsabilidades reais do código.
+
+Não existe limite máximo de classes.
+
+Centenas de classes são aceitáveis quando cada uma possui responsabilidade única,
+nome preciso, contrato claro, testes próprios e documentação completa.
+
+============================================================
+PROCESSARARQUIVOUSECASE
+============================================================
+
+`ProcessarArquivoUseCase` deve terminar como orquestrador da Opção 4.
+
+Ele deve apenas:
+
+1. receber a solicitação;
+2. criar o contexto imutável da execução;
+3. chamar as etapas na ordem correta;
+4. coordenar sucesso, parcial, cancelamento e falha;
+5. devolver o resultado final.
+
+Ele não deve implementar diretamente:
+
+- leitura;
+- parsing;
+- seleção de eventos;
+- classificação do cache;
+- mascaramento;
+- montagem dos lotes;
+- chamada HTTP;
+- retry;
+- validação;
+- reconstrução;
+- escolha de caminho;
+- backup;
+- escrita;
+- persistência;
+- telemetria.
+
+Cada responsabilidade deve possuir uma classe proprietária.
+
+Não limite artificialmente a quantidade de linhas ou classes.
+
+============================================================
+JAVA 25 E CONCORRÊNCIA
+============================================================
+
+A arquitetura deve preparar a Tradução Local para experimentar:
+
+- Virtual Threads;
+- concorrência estruturada;
+- paralelismo de lotes;
+- paralelismo de episódios;
+- processamento CPU-bound limitado;
+- chamadas bloqueantes concorrentes ao LM Studio;
+- backpressure;
+- cancelamento;
+- interrupção;
+- medição de throughput.
+
+Não implemente concorrência misturada à primeira movimentação estrutural.
+
+Primeiro isole estado e responsabilidades.
+
+Depois apresente uma fase experimental separada, configurável e mensurável.
+
+============================================================
+DOCUMENTAÇÃO OBRIGATÓRIA
+============================================================
+
+Todo o código da Opção 4 deve funcionar como material técnico de estudo.
+
+Documente todas as classes, interfaces, records, enums, construtores e métodos
+não triviais com:
+
+1. PROPÓSITO DE NEGÓCIO
+2. INVARIANTES DO DOMÍNIO
+3. COMPORTAMENTO EM CASO DE FALHA
+
+Para concorrência, documente também:
+
+- modelo de thread;
+- estado compartilhado;
+- thread-safety;
+- interrupção;
+- cancelamento;
+- ordenação;
+- timeout;
+- backpressure.
+
+Para memória e desempenho, documente decisões reais e mensuráveis.
+
+Não escreva comentários óbvios linha por linha.
+
+============================================================
+O QUE VOCÊ DEVE ENTREGAR AGORA
+============================================================
+
+Refaça o Plano Diretor do zero.
+
+Não tente corrigir superficialmente o plano anterior.
+
+A nova entrega deve conter:
+
+1. reconhecimento explícito da arquitetura sem reutilização funcional;
+2. lista das propostas anteriores que foram descartadas;
+3. árvore final integralmente autocontida de `traducao`;
+4. destino individual dos 27 imports funcionais de saída;
+5. destino individual das 56 classes/173 imports externos;
+6. classes próprias que cada módulo consumidor precisará receber;
+7. separação completa das responsabilidades de `ProcessarArquivoUseCase`;
+8. plano incremental sem módulos compartilhados novos;
+9. testes de isolamento;
+10. documentação integral;
+11. preparação para concorrência Java 25;
+12. critério de conclusão com zero imports funcionais cruzados.
+
+PARE após entregar o novo Plano Diretor.
+
+Não altere arquivos.
+
+Não crie branch.
+
+Não faça commit.
+
+Não peça novamente decisão sobre core.legenda, contexto compartilhado ou
+cacheLegenda. Essas propostas foram definitivamente rejeitadas por Paulo.
+```
+
+O erro fundamental do plano anterior foi tentar maximizar reutilização. Sua arquitetura está buscando independência funcional e liberdade para estudar diferentes soluções em cada opção. Nela, repetição controlada entre módulos é aceitável; dependência cruzada não é.
+
+==========================================================================================
+
+[PAULO]
+seria interessante criarmos um novo repositorio par isso para testes e manter o atual né?
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, vou verificar o estado e o remoto do repositório atual antes de recomendar a estratégia. A decisão principal é preservar o Kronos funcional como referência e criar um laboratório independente sem perder o histórico Git.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Sim, Paulo. Para uma mudança tão radical e experimental, um novo repositório é a opção mais segura.
+
+O repositório atual permanece como Kronos funcional e referência de comportamento. O novo vira um laboratório para:
+
+- isolamento absoluto da Opção 4;
+- centenas de classes especializadas;
+- implementações funcionais próprias;
+- documentação integral;
+- Virtual Threads e concorrência Java 25;
+- benchmarks no hardware local;
+- experimentos que podem quebrar sem afetar o Kronos operacional.
+
+Minha recomendação:
+
+- Repositório atual: `traducao_animes_llm_local_quarkus`
+- Novo repositório: `kronos-traducao-local-java25-lab`
+- Diretório local: `G:\PROJETOS-OPEN\JAVA\kronos-traducao-local-java25-lab`
+- Visibilidade inicial: privado
+- Marco inicial: commit atual `93cebf1`
+- Tag inicial: `baseline-kronos-core-93cebf1`
+
+O novo repositório deve ser criado como clone completo, preservando o histórico Git. Não devemos copiar e colar os arquivos manualmente.
+
+A estratégia seria:
+
+1. Clonar o repositório atual em outro diretório.
+2. Preservar o remoto atual como `upstream`.
+3. Criar um repositório GitHub vazio para o laboratório.
+4. Configurar o laboratório como novo `origin`.
+5. Criar a tag da baseline.
+6. Confirmar que os 479 testes continuam verdes.
+7. Começar o isolamento somente no laboratório.
+8. Usar legendas sintéticas nos testes, sem depender da biblioteca real de animes.
+9. Manter o Kronos atual intocado.
+10. Depois dos experimentos, decidir conscientemente se a nova arquitetura será transplantada, incorporada gradualmente ou permanecerá como versão de estudo.
+
+A desvantagem é que correções feitas no Kronos atual não aparecerão automaticamente no laboratório. Isso pode ser controlado mantendo o repositório atual como `upstream` e trazendo apenas commits escolhidos.
+
+Eu prefiro um repositório separado a uma branch porque esse experimento altera princípios fundamentais: propriedade das classes, duplicação intencional, fronteiras dos módulos, documentação e concorrência. Uma branch longa acumularia uma divergência enorme dentro do repositório operacional.
+
+Nenhuma alteração foi realizada ainda. A criação do laboratório também deverá gerar uma decisão oficial no cérebro, registrando finalidade, baseline, relacionamento entre os dois repositórios e política de sincronização.
+
+==========================================================================================
+
+[PAULO]
+copiei completamente o projeto em um pasta backupt
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, isso já protege os arquivos atuais. Vou apenas verificar onde a cópia ficou e se ela preservou a pasta `.git`; essa diferença determina se temos somente um backup de arquivos ou um laboratório Git completo com histórico.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Perfeito, Paulo. Verifiquei a cópia:
+
+- Origem: 3.075 arquivos, 119,32 MB.
+- Backup: 3.075 arquivos, 119,32 MB.
+- A cópia está completa em conteúdo.
+- A pasta de backup não contém `.git`.
+
+Portanto, ela é um bom snapshot de segurança, mas ainda não é um repositório experimental com histórico.
+
+Minha recomendação:
+
+1. Manter `traducao_animes_llm_local_quarkus-backup` intocado como cópia de emergência.
+2. Manter o repositório atual como Kronos estável.
+3. Criar uma terceira pasta, por clone Git, para o laboratório:
+
+```text
+G:\PROJETOS-OPEN\JAVA\kronos-traducao-local-java25-lab
+```
+
+Assim teremos:
+
+```text
+traducao_animes_llm_local_quarkus
+→ Kronos atual e estável
+
+traducao_animes_llm_local_quarkus-backup
+→ snapshot físico imutável
+
+kronos-traducao-local-java25-lab
+→ laboratório Git com histórico, commits e testes experimentais
+```
+
+Não recomendo transformar diretamente o backup em laboratório, porque ele deixaria de ser uma cópia intocada. O clone Git também preservará todo o histórico até o commit `93cebf1`, ao contrário da cópia atual. Nenhuma alteração foi realizada.
+
+==========================================================================================
+
+[PAULO]
+
+# Files mentioned by the user:
+
+## Auditoria completa. Números confirmados e o 39 da auditoria inicial reconciliad…: C:\Users\Paulo\.codex/attachments/4638844d-333e-49d9-8099-ece409bd37b6/pasted-text.txt
+
+The attached pasted text file(s) contain the user's request. Read and act on that content.
+
+## My request for Codex:
+
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, vou ler a resposta anexada, confrontar com as regras que definimos para o laboratório e identificar se o Claude finalmente eliminou reutilização funcional ou se ainda deixou acoplamentos disfarçados. Não vou alterar arquivos.
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+A resposta anexada contém o plano antigo, o prompt corretivo e, depois, a nova proposta do Claude. A segunda proposta melhorou bastante: ela aceita duplicação deliberada e rejeita `core.legenda`, `contexto` compartilhado e `cacheLegenda`. Ainda estou verificando alguns pontos que podem recriar acoplamento por “composition root”, telemetria ou contexto de execução.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Paulo, o plano v2 finalmente entendeu a arquitetura: rejeitou módulos compartilhados, aceitou duplicação deliberada, congelou o `core` e determinou zero imports funcionais cruzados.
+
+Mas eu ainda não autorizaria a implementação. Há cinco bloqueios:
+
+1. O Claude auditou o repositório estável, não um laboratório separado.
+2. Log SSE e telemetria ficaram como decisões abertas; isso pode quebrar a interface.
+3. A “matriz completa” está agrupada por módulo, não relaciona individualmente as 56 classes consumidoras.
+4. A documentação foi limitada a código “criado ou alterado”, mas você determinou documentar toda a Opção 4.
+5. O `composition root` precisa de limites explícitos para não virar outro compartilhamento disfarçado.
+
+Use este complemento:
+
+```text
+O PLANO DIRETOR V2 ESTÁ CONCEITUALMENTE MAIS PRÓXIMO, MAS AINDA NÃO ESTÁ
+AUTORIZADO PARA IMPLEMENTAÇÃO.
+
+NÃO ALTERE ARQUIVOS.
+
+Produza uma versão 2.1 corrigindo obrigatoriamente os pontos abaixo.
+
+============================================================
+1. REPOSITÓRIO DE LABORATÓRIO OBRIGATÓRIO
+============================================================
+
+A implementação experimental não ocorrerá no repositório operacional:
+
+G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus
+
+Esse repositório deve permanecer intocado como referência funcional.
+
+Também não use a pasta:
+
+G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus-backup
+
+Ela é um snapshot físico sem `.git` e deve permanecer imutável.
+
+A implementação somente poderá começar depois da criação e validação de:
+
+G:\PROJETOS-OPEN\JAVA\kronos-traducao-local-java25-lab
+
+O laboratório deve:
+
+- preservar o histórico Git do projeto original;
+- partir exatamente do commit `93cebf1`;
+- possuir tag de baseline;
+- possuir remoto próprio;
+- manter o projeto original como remoto `upstream`, sem push acidental;
+- executar os 479 testes com zero falhas antes da primeira alteração;
+- usar fixtures sintéticas nos testes;
+- não modificar o repositório operacional nem o backup.
+
+Inclua no Plano 2.1 o procedimento de criação e validação do laboratório.
+
+Não execute esse procedimento ainda.
+
+============================================================
+2. LOGS, SSE E TELEMETRIA NÃO PODEM FICAR EM ABERTO
+============================================================
+
+O plano não pode dizer:
+
+- “se um console unificado for desejado”;
+- “se um painel global for necessário”;
+- “decisão a levantar depois”.
+
+Esses comportamentos já existem no Kronos e precisam de destino definido antes
+da implementação.
+
+Audite e registre exatamente:
+
+- endpoints atuais de logs;
+- endpoints SSE;
+- consumidores JavaScript;
+- canais utilizados por cada painel;
+- arquivos de log;
+- arquivo de telemetria;
+- formato JSON;
+- rotação;
+- TTL;
+- relatórios;
+- dataset;
+- comportamento de cancelamento;
+- comportamento após reconexão da interface.
+
+Defina a solução final sem serviço funcional compartilhado.
+
+Cada opção deve possuir:
+
+- seu próprio serviço de log;
+- seu próprio estado;
+- seu próprio canal SSE;
+- sua própria telemetria;
+- seu próprio modelo de telemetria;
+- sua própria persistência;
+- seus próprios testes.
+
+Se existir uma página global, ela deve pertencer exclusivamente ao shell da
+aplicação e agregar resultados externos sem fornecer classes Java funcionais
+para as opções importarem.
+
+O shell não pode:
+
+- conter regra de tradução;
+- conter regra de revisão;
+- receber contexto/lore;
+- manter cache funcional;
+- oferecer TelemetriaService comum;
+- fornecer LogStreamService comum;
+- ser importado pelas opções.
+
+Apresente uma tabela obrigatória:
+
+Comportamento atual | Proprietário atual | Proprietário futuro | Endpoint futuro |
+Arquivo futuro | Teste de regressão
+
+Nenhum contrato pode desaparecer silenciosamente.
+
+============================================================
+3. MATRIZ REAL DAS 56 CLASSES E DOS 173 IMPORTS
+============================================================
+
+A tabela agrupada por módulo é insuficiente para iniciar a implementação.
+
+Apresente cada classe consumidora individualmente.
+
+Para cada uma das 56 classes, informe:
+
+- caminho completo;
+- módulo proprietário;
+- cada import atual de `traducao`;
+- responsabilidade realmente utilizada;
+- decisão: REMOVER, MOVER ou IMPLEMENTAÇÃO PRÓPRIA;
+- classe local futura;
+- pacote futuro;
+- teste que comprovará equivalência;
+- incremento em que será corrigida.
+
+Não use expressões como:
+
+- “stack completo próprio”;
+- “idem”;
+- “várias classes”;
+- “classes que precisar”;
+- “e outras”.
+
+O plano precisa ser executável sem redescobrir o escopo durante a implementação.
+
+============================================================
+4. DOCUMENTAÇÃO DE TODA A OPÇÃO 4
+============================================================
+
+A obrigação não se limita a classes criadas ou alteradas.
+
+Todos os 132 arquivos Java atualmente localizados em `traducao` devem ser
+classificados.
+
+Para cada arquivo, informe:
+
+- pertence realmente à Opção 4;
+- será movido;
+- será decomposto;
+- permanecerá;
+- será removido;
+- possui os três pilares completos;
+- precisa de documentação;
+- possui estado mutável;
+- é thread-safe;
+- realiza I/O;
+- realiza chamada bloqueante;
+- participa de concorrência;
+- possui teste direto.
+
+Todo arquivo que permanecer na Opção 4 deverá possuir documentação adequada,
+mesmo que não sofra alteração funcional.
+
+A conclusão exige:
+
+- classes documentadas;
+- interfaces documentadas;
+- records documentados;
+- enums documentados;
+- construtores documentados;
+- métodos públicos documentados;
+- métodos package-private documentados;
+- métodos privados não triviais documentados;
+- `@param`, `@return` e `@throws` coerentes;
+- geração de Javadoc aprovada;
+- relatório de cobertura documental.
+
+Mantenha obrigatoriamente:
+
+1. PROPÓSITO DE NEGÓCIO
+2. INVARIANTES DO DOMÍNIO
+3. COMPORTAMENTO EM CASO DE FALHA
+
+============================================================
+5. LIMITE DO COMPOSITION ROOT
+============================================================
+
+O composition root não é uma exceção para reutilização funcional.
+
+Ele pode somente:
+
+- iniciar o Quarkus;
+- descobrir os pontos de entrada;
+- registrar endpoints;
+- montar dependências técnicas;
+- iniciar e encerrar a aplicação.
+
+Ele não pode:
+
+- traduzir;
+- revisar;
+- corrigir;
+- ler ou escrever legendas;
+- acessar lore;
+- interpretar cache;
+- validar respostas;
+- manter telemetria funcional;
+- fornecer serviços compartilhados;
+- conter política de execução de uma opção;
+- importar classes internas além do ponto de entrada público;
+- ser importado por qualquer opção.
+
+`ModoTraducaoEntryPoint` pode ser público somente como entrada da própria Opção
+4 para o bootstrap.
+
+Nenhuma outra opção pode importá-lo.
+
+O ponto de entrada deve receber e devolver DTOs próprios da Opção 4 ou valores
+técnicos mínimos. Ele não pode expor classes internas de application, domain ou
+infrastructure.
+
+Inclua teste arquitetural para essa restrição.
+
+============================================================
+6. PRESERVAÇÃO DE COMPORTAMENTO
+============================================================
+
+Não renomeie `ProcessarArquivoUseCase` durante a primeira separação.
+
+Primeiro decomponha internamente preservando:
+
+- nome da fachada;
+- endpoint;
+- JSON;
+- injeção;
+- testes;
+- comportamento;
+- mensagens;
+- nomes dos arquivos;
+- cache;
+- telemetria;
+- logs.
+
+Uma possível renomeação para `TraduzirArquivoUseCase` deverá ser uma decisão
+posterior e separada, não misturada à decomposição.
+
+Não altere simultaneamente estrutura e comportamento.
+
+============================================================
+7. SEQUÊNCIA OBRIGATÓRIA
+============================================================
+
+O Plano 2.1 deve separar:
+
+FASE A — criação e validação do laboratório;
+
+FASE B — testes de caracterização;
+
+FASE C — isolamento da Opção 4;
+
+FASE D — remoção dos consumidores externos;
+
+FASE E — documentação integral;
+
+FASE F — validação arquitetural com zero imports;
+
+FASE G — laboratório de concorrência Java 25.
+
+Não implemente Virtual Threads, StructuredTaskScope ou paralelismo antes de a
+Fase F estar integralmente verde.
+
+============================================================
+ENTREGA
+============================================================
+
+Entregue somente o Plano Diretor v2.1 e seus inventários.
+
+Não altere arquivos.
+
+Não crie o laboratório.
+
+Não crie branch.
+
+Não faça commit.
+
+Não execute movimentações.
+
+PARE depois da entrega e aguarde aprovação explícita de Paulo.
+```
+
+Com essas correções, o plano fica realmente fechado. O maior risco atual não é mais reutilização funcional; é o Claude começar uma migração gigantesca sem definir como logs, telemetria, interface e composição continuarão funcionando.
+
+==========================================================================================
+
+[PAULO]
+boqueei removendo tudo o que permitia commits
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, boa proteção para impedir que o Claude publique ou consolide alterações antes da aprovação. Vou apenas confirmar que o repositório original continua íntegro e limpo; bloquear commits não deve remover o histórico `.git` nem impedir consultas de auditoria.
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+A verificação encontrou um efeito importante: a pasta principal deixou de ser um repositório Git local — o diretório `.git` foi removido. Isso realmente bloqueia commits, mas também remove `git status`, histórico local, branches, tags e rollback. Os arquivos do projeto continuam lá; não vou restaurar nada sem sua autorização.
+
+==========================================================================================
+
+[PAULO]
+e nem precis pois tenho backup completo!
+
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Sim, Paulo. Nesse caso, não precisamos restaurar o `.git` agora.
+
+A proteção ficou assim:
+
+- Pasta atual: ambiente de auditoria sem capacidade de commit.
+- Pasta `-backup`: cópia completa dos arquivos.
+- GitHub: histórico oficial preservado até o commit `93cebf1`.
+- Claude: impossibilitado de criar commits acidentais nessa pasta.
+
+Quando decidirmos iniciar o laboratório, ele deverá ser criado por clone do GitHub, preservando o histórico. O backup permanece como segurança física adicional. Até lá, o Claude deve continuar somente na etapa de planejamento.
+
+==========================================================================================
+
+[PAULO]
+entao monta o prompt  completo agora com as decisoes do cloude e a questao do git para ele nao recuperar o git
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, vou consolidar tudo em um único prompt definitivo: arquitetura sem reutilização funcional, decisões aceitas do Plano v2, documentação integral, fases de concorrência Java 25 e bloqueio explícito contra restaurar, recriar, clonar ou inicializar Git nesta pasta.
+
+==========================================================================================
+
+[GPT/CODEX — RESPOSTA]
+Paulo, abaixo está o prompt definitivo para o Claude. Ele autoriza a implementação na pasta atual, trata essa pasta como laboratório sem Git, protege o backup e consolida todas as decisões arquiteturais.
+
+```text
+AJA EXCLUSIVAMENTE COMO SOFTWARE ARCHITECT E JAVA ENGINEER RESPONSÁVEL PELA
+IMPLEMENTAÇÃO DO ISOLAMENTO DA OPÇÃO 4 — TRADUÇÃO LOCAL DO KRONOS CORE.
+
+============================================================
+1. AMBIENTE AUTORIZADO
+============================================================
+
+PASTA EXPERIMENTAL AUTORIZADA:
+
+G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus
+
+Essa pasta é agora uma cópia de trabalho experimental deliberadamente sem Git.
+
+PASTA DE BACKUP — PROIBIDO ALTERAR:
+
+G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus-backup
+
+A pasta de backup contém a cópia completa de segurança do projeto e deve
+permanecer absolutamente imutável.
+
+CÉREBRO CANÔNICO — SOMENTE LEITURA:
+
+C:\cerebro_de_ia
+
+Consulte o cérebro antes de agir, especialmente:
+
+1. cerebro_de_ia\projetos\traducao-animes-projeto.md
+2. cerebro_de_ia\melhorias\kronos-traducao-proveniencia-cache-lore.md
+3. cerebro_de_ia\erros\2026-07-14-kronos-revalidacao-seletiva-cache-traducao.md
+4. cerebro_de_ia\erros\2026-07-14-kronos-chave-protecao-sobrescrita-traducao.md
+5. cerebro_de_ia\instrucoes\missao-ai-os-v2-1.md
+6. cerebro_de_ia\arquivo\Tradutor_Java25_SpringBoot.md
+7. cerebro_de_ia\arquivo\Tradutor_Java25_Implementacao.md
+
+Não modifique arquivos do cérebro nesta execução.
+
+============================================================
+2. PROIBIÇÃO ABSOLUTA DE GIT
+============================================================
+
+A ausência de `.git` na pasta experimental é deliberada e obrigatória.
+
+NÃO tente corrigir, restaurar ou contornar essa condição.
+
+É terminantemente proibido:
+
+- executar qualquer comando `git`;
+- executar qualquer comando `gh`;
+- executar `git init`;
+- executar `git clone`;
+- executar `git fetch`;
+- executar `git pull`;
+- executar `git checkout`;
+- executar `git restore`;
+- executar `git reset`;
+- executar `git commit`;
+- executar `git tag`;
+- executar `git push`;
+- criar branch;
+- configurar remoto;
+- acessar o GitHub para restaurar metadados;
+- copiar uma pasta `.git` de outro diretório;
+- copiar `.git` da pasta de backup;
+- baixar o repositório novamente;
+- recriar histórico;
+- criar repositório novo;
+- criar worktree;
+- gerar patches Git;
+- modificar `.gitignore` com objetivo de recuperar fluxo Git;
+- modificar `.githooks`;
+- executar automações de commit;
+- sugerir comandos Git no relatório final.
+
+Não verifique `git status`: a pasta não é e não deve voltar a ser um repositório.
+
+Se uma pasta `.git` aparecer durante a execução:
+
+1. interrompa imediatamente;
+2. não a utilize;
+3. não a apague;
+4. informe Paulo;
+5. aguarde instruções.
+
+A regra de commits automáticos não se aplica a esta pasta experimental.
+
+Nenhum arquivo do backup pode ser copiado sobre a pasta experimental sem
+autorização explícita de Paulo.
+
+============================================================
+3. ESTADO INICIAL E BASELINE
+============================================================
+
+Antes de alterar código:
+
+1. Confirme que `.git` não existe.
+2. Confirme que a pasta de backup existe.
+3. Não escreva na pasta de backup.
+4. Execute:
+
+   .\gradlew.bat test --no-daemon
+
+5. Confirme a baseline esperada:
+
+   - BUILD SUCCESSFUL;
+   - pelo menos 479 testes;
+   - zero falhas.
+
+6. Execute também:
+
+   .\gradlew.bat javadoc --no-daemon
+
+O Javadoc inicial pode revelar problemas preexistentes. Registre-os antes de
+alterar código.
+
+Se a suíte inicial falhar:
+
+- não implemente;
+- não tente restaurar arquivos pelo backup;
+- diagnostique somente;
+- entregue o erro a Paulo.
+
+============================================================
+4. MISSÃO ARQUITETURAL
+============================================================
+
+A Opção 4 — Tradução Local deve tornar-se uma fatia vertical funcional
+completamente autônoma.
+
+Pacote proprietário:
+
+org.traducao.projeto.traducao
+
+A Tradução Local conversa funcionalmente somente com classes da própria
+Tradução Local.
+
+Ela deve possuir sua própria implementação de tudo o que precisa para traduzir:
+
+- apresentação web;
+- apresentação CLI;
+- console;
+- modelos de legenda;
+- leitura ASS/SSA;
+- escrita ASS/SSA;
+- leitura SRT;
+- escrita SRT;
+- mascaramento de tags;
+- validação estrutural;
+- proteção contra alucinação;
+- proteção de karaokê;
+- configuração;
+- contexto;
+- lore;
+- cliente HTTP;
+- cliente LLM;
+- porta do LLM;
+- DTOs do LLM;
+- cache;
+- schema do cache;
+- proveniência;
+- classificação do cache;
+- telemetria;
+- logs;
+- SSE;
+- caminhos;
+- backup;
+- publicação;
+- retry;
+- cancelamento;
+- resultados;
+- status;
+- concorrência futura.
+
+============================================================
+5. REUTILIZAÇÃO FUNCIONAL PROIBIDA
+============================================================
+
+Não crie nem utilize:
+
+- `shared`;
+- `common`;
+- `core.legenda`;
+- módulo compartilhado de contexto;
+- módulo compartilhado de lore;
+- módulo compartilhado de cache;
+- módulo compartilhado de proveniência;
+- módulo compartilhado de telemetria;
+- módulo compartilhado de log;
+- módulo compartilhado de console;
+- módulo compartilhado de cliente HTTP;
+- biblioteca funcional comum;
+- facade funcional compartilhada;
+- contrato funcional reutilizável entre opções;
+- API pública da Tradução Local para outras opções.
+
+Não mova para `core`:
+
+- DocumentoLegenda;
+- EventoLegenda;
+- leitores;
+- escritores;
+- MascaradorTags;
+- AnsiCores;
+- ConsoleEntrada;
+- JsonHttpClient;
+- LogStreamService;
+- BrowserLauncher;
+- ConsoleRedirector;
+- DialogoArquivoController;
+- lore;
+- contexto;
+- cache;
+- proveniência;
+- telemetria;
+- DTOs do LLM;
+- regras ou serviços de qualquer opção.
+
+Os 12 imports técnicos atuais para `core` podem permanecer congelados:
+
+- ArquivoAtomicoUtil;
+- DiretorioBaseKronos;
+- FilaExecucaoPipeline;
+- DuracaoUtil;
+- BasePipelineException.
+
+Não aumente essa lista.
+
+============================================================
+6. DUPLICAÇÃO INTENCIONAL ENTRE OPÇÕES
+============================================================
+
+Duplicação funcional entre opções é aceita e intencional.
+
+Se outra opção também precisa:
+
+- ler ASS;
+- escrever ASS;
+- interpretar SRT;
+- mascarar tags;
+- validar traduções;
+- acessar LLM;
+- manipular cache;
+- interpretar proveniência;
+- carregar lore;
+- emitir log;
+- produzir telemetria;
+
+essa opção deve possuir sua própria implementação.
+
+Não substitua um import de `traducao` por import de outro módulo comum.
+
+Cada implementação própria deve possuir:
+
+- pacote proprietário;
+- nome correspondente ao contexto;
+- invariantes próprias;
+- testes próprios;
+- documentação própria;
+- liberdade para evoluir sem alterar outra opção.
+
+Não copie código cegamente.
+
+Uma cópia inicial mecânica só pode ser utilizada como etapa transitória quando,
+no mesmo incremento:
+
+- o pacote for alterado;
+- o nome for contextualizado;
+- a documentação for revisada;
+- as dependências cruzadas forem removidas;
+- os testes próprios forem criados;
+- a classe passar a pertencer integralmente ao novo módulo.
+
+============================================================
+7. DECISÕES DEFINITIVAS DO PLANO DIRETOR V2
+============================================================
+
+Estão aprovadas:
+
+1. Rejeitar `core.legenda`.
+2. Rejeitar contexto/lore compartilhado.
+3. Rejeitar `cacheLegenda`.
+4. Rejeitar promoção de auxiliares para `core`.
+5. Congelar os 12 imports técnicos existentes de `core`.
+6. Aceitar duplicação intencional.
+7. Remover todos os imports funcionais cruzados.
+8. Mover controllers estrangeiros para seus módulos proprietários.
+9. Manter a Tradução Local autocontida.
+10. Transformar `ProcessarArquivoUseCase` em orquestrador.
+11. Documentar integralmente a Opção 4.
+12. Preparar concorrência Java 25 somente após o isolamento.
+13. Manter execução sequencial como baseline e fallback.
+14. Não alterar estrutura e comportamento simultaneamente.
+15. Não restaurar Git.
+
+Não volte a pedir decisão sobre esses pontos.
+
+============================================================
+8. ARQUITETURA-ALVO DA OPÇÃO 4
+============================================================
+
+Tudo deve permanecer sob:
+
+org.traducao.projeto.traducao
+
+Estrutura conceitual:
+
+traducao/
+├── ModoTraducaoEntryPoint
+├── presentation/
+│   ├── web/
+│   ├── cli/
+│   └── console/
+├── application/
+│   ├── preparacao/
+│   ├── selecao/
+│   ├── cache/
+│   ├── lotes/
+│   ├── traducao/
+│   ├── validacao/
+│   ├── consolidacao/
+│   ├── publicacao/
+│   ├── backup/
+│   ├── telemetria/
+│   └── concorrencia/
+├── domain/
+│   ├── legenda/
+│   ├── lote/
+│   ├── cache/
+│   ├── contexto/
+│   ├── proveniencia/
+│   ├── resultado/
+│   ├── status/
+│   ├── ports/
+│   └── exceptions/
+└── infrastructure/
+    ├── llm/
+    ├── http/
+    ├── cache/
+    ├── contexto/
+    ├── legenda/
+    │   ├── ass/
+    │   └── srt/
+    ├── arquivos/
+    ├── backup/
+    ├── telemetria/
+    └── config/
+
+Essa árvore é orientação, não obrigação nominal.
+
+Os nomes finais devem surgir das responsabilidades reais.
+
+Não existe limite máximo de classes.
+
+Centenas de classes são aceitáveis.
+
+============================================================
+9. RESPONSABILIDADE ÚNICA
+============================================================
+
+Cada classe deve possuir:
+
+- uma responsabilidade única;
+- uma razão principal para mudar;
+- entrada claramente definida;
+- saída claramente definida;
+- efeitos colaterais explícitos;
+- dependências estritamente necessárias;
+- comportamento testável isoladamente;
+- proprietário funcional inequívoco.
+
+Não crie classes artificiais apenas para reduzir linhas.
+
+Não crie:
+
+- Helper genérico;
+- Utils genérico;
+- Manager genérico;
+- Common;
+- Shared;
+- Base abstrata sem necessidade real;
+- interface sem fronteira concreta;
+- padrão de projeto sem problema comprovado.
+
+Uma responsabilidade deve possuir um único proprietário.
+
+============================================================
+10. PROCESSARARQUIVOUSECASE
+============================================================
+
+Não renomeie `ProcessarArquivoUseCase` durante a primeira separação.
+
+Ele deve permanecer como fachada/orquestrador para preservar:
+
+- injeção;
+- controller;
+- testes;
+- contratos;
+- comportamento.
+
+Ao final da separação, deve somente:
+
+1. receber a solicitação;
+2. criar o contexto imutável;
+3. chamar etapas na ordem correta;
+4. coordenar sucesso, parcial, cancelamento e falha;
+5. devolver o resultado.
+
+Extraia responsabilidades reais para proprietários próprios:
+
+- identificação do formato;
+- leitura;
+- proveniência;
+- proteção contra retradução;
+- backup e reinício do cache;
+- frequência de letreiros;
+- seleção de eventos;
+- classificação do cache;
+- mascaramento;
+- montagem de lotes;
+- tradução de pendências;
+- recuperação parcial;
+- validação das respostas;
+- reconstrução do documento;
+- resolução do destino;
+- backup da saída;
+- publicação atômica;
+- persistência do cache;
+- telemetria;
+- montagem do resultado.
+
+Possível distribuição:
+
+application/preparacao/
+- LeituraDocumentoService
+- IdentificadorFormatoService
+
+application/selecao/
+- SeletorEventosTraduziveis
+- FrequenciaLetreiroService
+
+application/cache/
+- PlanejadorCacheService
+- ClassificadorEntradaCacheService
+- ReinicioCacheRetraducaoService
+
+application/lotes/
+- MascaramentoService
+- PreparadorLotesService
+
+application/traducao/
+- TradutorPendenciasService
+- ProcessarEpisodioUseCase
+- RecuperacaoParcialService
+
+application/validacao/
+- ValidadorRespostasService
+- ValidadorTraducaoService
+- DetectorTraducaoIdenticaService
+- DetectorEfeitoKaraokeService
+- ProtecaoLegendaAssService
+
+application/consolidacao/
+- ReconstrutorDocumentoService
+
+application/publicacao/
+- ResolvedorDestinoService
+- PublicadorRecuperavelService
+
+application/backup/
+- BackupTraducaoService
+- BackupCacheService
+
+application/telemetria/
+- TelemetriaTraducaoService
+
+Cada etapa deve receber e devolver objetos imutáveis quando apropriado.
+
+============================================================
+11. IMPORTS CRUZADOS
+============================================================
+
+Metas finais obrigatórias:
+
+- `traducao` → outro módulo funcional: zero imports.
+- outro módulo → `traducao.*`: zero imports.
+- imports de `traducao` para o `core` congelado: no máximo os 12 atuais.
+- nenhum controller estrangeiro em `traducao.presentation`.
+
+Para cada consumidor externo atual:
+
+1. remover o comportamento se não lhe pertencer;
+2. mover a classe para o módulo proprietário; ou
+3. fornecer implementação própria no módulo consumidor.
+
+Não redirecione dependências para módulos compartilhados.
+
+Crie teste arquitetural que varra `src/main/java` e falhe quando:
+
+- `traducao` importar outro módulo funcional;
+- outro módulo importar `traducao`;
+- `traducao` ampliar a lista congelada de imports do `core`;
+- controller de outra opção residir em `traducao.presentation`;
+- pacote `shared`, `common`, `core.legenda`, `cacheLegenda` ou contexto
+  compartilhado for criado.
+
+A allowlist inicial pode refletir a baseline, mas deve diminuir em cada fase até
+zero. Ela nunca pode crescer.
+
+============================================================
+12. CONTROLLERS E COMPOSITION ROOT
+============================================================
+
+Mova controllers estrangeiros para seus proprietários:
+
+- AnaliseMidiaController → analisadorMidia
+- ExtracaoLegendaController → legendasExtracao
+- RevisaoLegendasController → raspagemRevisao
+- RemuxerController → remuxer
+- MapaController → mapaProjeto
+- TelemetriaController → telemetria
+- TelemetriaStreamResource → telemetria
+
+`CorrecaoCacheController` agrega três opções. Decomponha os endpoints entre os
+módulos proprietários sem alterar rotas, JSON ou comportamento visível.
+
+`Application.java` deve sair de `traducao` e ficar no composition root da
+aplicação.
+
+O composition root pode somente:
+
+- iniciar o Quarkus;
+- descobrir os pontos de entrada;
+- montar dependências;
+- iniciar e encerrar a aplicação.
+
+Ele não pode:
+
+- conter regra funcional;
+- traduzir;
+- revisar;
+- corrigir;
+- ler legenda;
+- interpretar cache;
+- carregar lore;
+- manter telemetria funcional;
+- fornecer serviços comuns;
+- ser importado pelas opções.
+
+`ModoTraducaoEntryPoint` é o único ponto de entrada público específico da Opção
+4 para bootstrap/CLI.
+
+Nenhuma outra opção pode importá-lo.
+
+Para endpoints web, prefira descoberta do framework sem import manual pelo root.
+
+============================================================
+13. LOGS, SSE E TELEMETRIA
+============================================================
+
+Não deixe decisões abertas.
+
+A Tradução Local deve possuir:
+
+- LogStreamTraducaoService;
+- estado próprio;
+- canal SSE próprio;
+- telemetria própria;
+- modelo LlmTelemetria próprio;
+- persistência própria;
+- rotação própria;
+- testes próprios.
+
+Endpoint modular esperado:
+
+- `/api/traducao/logs`
+- `/api/traducao/telemetria`
+
+Atualize o JavaScript da Opção 4 para consumir seus endpoints próprios.
+
+Outras opções devem possuir seus próprios endpoints e implementações.
+
+O comportamento visual atual deve permanecer:
+
+- console recebe mensagens em tempo real;
+- reconexão não cria múltiplos EventSource;
+- cancelamento continua visível;
+- horários permanecem coerentes;
+- nenhuma mensagem operacional desaparece;
+- erros e pendências continuam representados.
+
+Persistência modular esperada:
+
+- `logs/traducao/`
+- `relatorios/traducao/`
+- `cache/traducao/`, quando aplicável.
+
+Nunca apague dados legados.
+
+Durante a migração:
+
+- leia formatos legados quando necessário;
+- não sobrescreva silenciosamente;
+- preserve arquivos anteriores;
+- registre avisos;
+- mantenha recuperabilidade.
+
+Se existir painel global, ele pertence ao shell de apresentação.
+
+O shell pode consultar endpoints ou ler artefatos de cada opção, mas:
+
+- não pode ser importado pelas opções;
+- não fornece TelemetriaService comum;
+- não fornece LogStreamService comum;
+- não conhece regras de negócio;
+- não conhece lore;
+- não interpreta tradução;
+- não modifica cache.
+
+============================================================
+14. COMPORTAMENTOS QUE NÃO PODEM REGREDIR
+============================================================
+
+Preserve:
+
+- endpoints existentes, salvo introdução modular acompanhada da atualização
+  correspondente no frontend;
+- contratos JSON;
+- interface visual;
+- fila única atual como baseline;
+- execução serial da LLM como fallback;
+- prompt congelado;
+- contexto obrigatório;
+- proveniência;
+- cache versionado;
+- cache legado;
+- preservação de cache corrompido;
+- invalidação por lore/modelo;
+- retry de resposta vazia;
+- proteção ASS/SSA;
+- suporte ASS, SSA e SRT;
+- timestamps;
+- ordem das falas;
+- tags;
+- escrita atômica;
+- cache incremental;
+- recuperação parcial;
+- bloqueio contra entrada traduzida;
+- `permitirRetraducao`;
+- backup obrigatório;
+- nomes finais e parciais;
+- status final;
+- relatórios;
+- telemetria;
+- cancelamento;
+- interrupção;
+- mensagens relevantes.
+
+Não implemente recursos funcionais novos durante a separação.
+
+Não altere prompts.
+
+Não altere modelo LLM.
+
+Não implemente chave por personagem/estilo nesta fase.
+
+============================================================
+15. DOCUMENTAÇÃO INTEGRAL
+============================================================
+
+Todo código da Opção 4 deve servir como material técnico de estudo.
+
+Audite todos os arquivos Java que permanecerem em `traducao`, não apenas os
+alterados funcionalmente.
+
+Documente:
+
+- classes;
+- interfaces;
+- records;
+- enums;
+- construtores;
+- métodos públicos;
+- métodos package-private;
+- métodos privados não triviais.
+
+Toda documentação deve conter explicitamente:
+
+1. PROPÓSITO DE NEGÓCIO
+2. INVARIANTES DO DOMÍNIO
+3. COMPORTAMENTO EM CASO DE FALHA
+
+Use quando aplicável:
+
+- `@param`;
+- `@return`;
+- `@throws`;
+- `@implNote`;
+- `@apiNote`;
+- `@see`.
+
+Documente também:
+
+- posição no pipeline;
+- proprietário do estado;
+- efeitos colaterais;
+- arquivos modificados;
+- I/O bloqueante;
+- thread-safety;
+- cancelamento;
+- interrupção;
+- ordenação;
+- timeout;
+- backpressure;
+- limites de memória;
+- duração das estruturas;
+- motivo de coleções e buffers.
+
+Não escreva comentários óbvios linha por linha.
+
+Não faça afirmações falsas sobre stack, heap, inlining ou “zero alocação”.
+
+Toda classe criada ou copiada para outro módulo também deve possuir os três
+pilares e testes próprios.
+
+Execute `javadoc` ao final de cada fase documental.
+
+============================================================
+16. JAVA 25 E CONCORRÊNCIA
+============================================================
+
+A exploração de Java 25 é objetivo formal de Paulo.
+
+Entretanto, concorrência somente começa depois de:
+
+- isolamento funcional completo;
+- zero imports cruzados;
+- testes de caracterização verdes;
+- documentação estrutural concluída;
+- estado mutável identificado;
+- contexto imutável por job;
+- baseline sequencial medida.
+
+A fase experimental poderá avaliar:
+
+- Virtual Threads para HTTP e I/O bloqueante;
+- Structured Concurrency;
+- lotes paralelos;
+- episódios paralelos;
+- arquivos paralelos;
+- executor limitado para CPU-bound;
+- backpressure;
+- timeout;
+- cancelamento;
+- interrupção;
+- ordenação determinística;
+- concorrência configurável do LM Studio.
+
+Teste níveis:
+
+- concorrência 1;
+- concorrência 2;
+- concorrência 4;
+- valores adicionais somente por medição.
+
+A configuração 1 permanece como fallback.
+
+Registre:
+
+- CPU;
+- GPU;
+- RAM;
+- VRAM;
+- modelo;
+- tamanho de contexto;
+- tamanho de lote;
+- concorrência;
+- duração;
+- throughput;
+- tokens por segundo;
+- retries;
+- erros;
+- cancelamentos;
+- integridade do resultado.
+
+Não presuma que mais threads significam mais desempenho.
+
+============================================================
+17. FASES DE EXECUÇÃO
+============================================================
+
+FASE A — Preflight sem Git
+
+- confirmar ausência de `.git`;
+- confirmar backup;
+- não tocar no backup;
+- executar testes;
+- executar Javadoc;
+- registrar baseline.
+
+FASE B — Testes de caracterização
+
+- ASS completo;
+- SRT completo;
+- cache válido;
+- cache divergente;
+- cache corrompido;
+- resposta parcial;
+- tags danificadas;
+- retradução protegida;
+- retradução liberada;
+- backup;
+- falha de escrita;
+- telemetria;
+- logs;
+- SSE;
+- cancelamento.
+
+FASE C — Composition root e controllers
+
+- mover bootstrap;
+- mover controllers;
+- preservar endpoints;
+- criar implementações próprias nos proprietários.
+
+FASE D — Isolamento da Opção 4
+
+- remover 27 imports funcionais de saída;
+- criar logs e telemetria próprios;
+- manter core congelado.
+
+FASE E — Remoção dos consumidores externos
+
+- eliminar os 173 imports;
+- fornecer implementações próprias;
+- testar cada módulo;
+- nenhuma abstração comum.
+
+FASE F — Decomposição do ProcessarArquivoUseCase
+
+- uma responsabilidade por incremento;
+- teste dirigido por responsabilidade;
+- fachada preservada.
+
+FASE G — Documentação integral
+
+- auditar toda Opção 4;
+- documentar três pilares;
+- validar Javadoc.
+
+FASE H — Isolamento arquitetural final
+
+- zero imports cruzados;
+- controllers corretos;
+- core congelado;
+- suíte completa verde.
+
+FASE I — Concorrência Java 25
+
+- medir baseline;
+- implementar atrás de configuração;
+- comparar níveis;
+- preservar fallback sequencial.
+
+============================================================
+18. DISCIPLINA DE EXECUÇÃO SEM COMMITS
+============================================================
+
+Como Git está proibido:
+
+- não mencione “commit por incremento”;
+- não tente criar checkpoints Git;
+- não tente recuperar histórico;
+- não use o backup como área de trabalho;
+- não sobrescreva a baseline física;
+- execute a suíte após cada incremento;
+- mantenha uma lista textual dos arquivos alterados;
+- informe imediatamente qualquer falha;
+- não avance para a fase seguinte com testes vermelhos.
+
+Ao final de cada fase, reporte:
+
+- arquivos criados;
+- arquivos alterados;
+- arquivos movidos;
+- arquivos removidos;
+- responsabilidades extraídas;
+- imports eliminados;
+- testes executados;
+- resultado;
+- pendências;
+- riscos descobertos.
+
+Se surgir dependência fora do escopo:
+
+1. pare;
+2. não improvise;
+3. não amplie o escopo;
+4. apresente a dependência a Paulo;
+5. aguarde decisão.
+
+============================================================
+19. CRITÉRIOS DE CONCLUSÃO
+============================================================
+
+A implementação estrutural estará concluída quando:
+
+- `.git` continuar inexistente;
+- backup permanecer intocado;
+- nenhum comando Git tiver sido usado;
+- `traducao` importar zero módulos funcionais;
+- nenhum módulo importar `traducao.*`;
+- os 12 imports técnicos de `core` não tiverem crescido;
+- nenhum shared/common/kernel funcional tiver sido criado;
+- controllers estiverem nos proprietários corretos;
+- `ProcessarArquivoUseCase` for um orquestrador;
+- cada responsabilidade tiver proprietário;
+- logs da Opção 4 forem próprios;
+- telemetria da Opção 4 for própria;
+- contratos e interface estiverem funcionais;
+- suíte completa tiver pelo menos 479 testes e zero falhas;
+- testes novos cobrirem responsabilidades extraídas;
+- Javadoc for gerado sem erro;
+- toda Opção 4 estiver documentada;
+- teste arquitetural estiver verde.
+
+A fase de concorrência estará concluída somente quando:
+
+- houver baseline sequencial;
+- concorrência for configurável;
+- fallback 1 funcionar;
+- ordenação e cache permanecerem íntegros;
+- cancelamento funcionar;
+- resultados forem reproduzíveis;
+- ganhos e perdas estiverem documentados por medição.
+
+============================================================
+20. AUTORIZAÇÃO E PARADA
+============================================================
+
+Você está autorizado a implementar as fases estruturais na pasta experimental,
+sem Git, respeitando rigorosamente a ordem definida.
+
+Não está autorizado a:
+
+- recuperar Git;
+- alterar o backup;
+- modificar o cérebro;
+- acessar ou alterar o GitHub;
+- criar repositório;
+- fazer commit;
+- fazer push;
+- ampliar o escopo;
+- inventar módulos compartilhados;
+- misturar concorrência com a primeira separação.
+
+Comece pela FASE A.
+
+Se a baseline estiver verde, prossiga para a FASE B.
+
+Não avance com testes vermelhos.
+
+Ao encontrar bloqueio real ou dependência nova, pare e informe Paulo.
+
+No relatório final, não forneça comandos Git.
+```
+
+Esse prompt transforma a pasta atual em laboratório controlado e torna a ausência do Git uma invariante verificável da própria execução. O backup permanece completamente fora do alcance do Claude.
+
+==========================================================================================
+
+[PAULO]
+gpt tu consegue copiar tudo desse chat e colocar num txt para mim
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, consigo. Vou gerar um `.txt` na pasta do projeto com a transcrição desta conversa, incluindo suas mensagens, minhas respostas e o conteúdo textual relevante dos anexos que analisamos. Não incluirei instruções internas do sistema nem saídas técnicas brutas de ferramentas.
+
+==========================================================================================
+
+[PAULO]
+me da o caminho onde ele esta para eu abri e copiar
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, vou salvá-lo na raiz do projeto. Assim que a gravação terminar, te passo o caminho completo e clicável.
+
+==========================================================================================
+
+[PAULO]
+
+# Files mentioned by the user:
+
+## Update Todos FASE A — Preflight sem Git: confirmar .git ausente, backup intacto…: C:\Users\Paulo\.codex/attachments/1ad0f780-8992-48ee-aeff-07ed52017d67/pasted-text.txt
+
+The attached pasted text file(s) contain the user's request. Read and act on that content.
+
+## My request for Codex:
+
+
+
+==========================================================================================
+
+[GPT/CODEX — ATUALIZAÇÃO]
+Paulo, recebi também esse novo anexo. Vou incorporá-lo à transcrição antes de salvar, para o TXT ficar completo até esta mensagem.
+
+==========================================================================================
+
+ANEXOS TEXTUAIS REFERENCIADOS NA CONVERSA
+
+1. C:\Users\Paulo\.codex\attachments\c8b066eb-10f8-426c-a97d-5e6d96b8a526\pasted-text.txt
+2. C:\Users\Paulo\.codex\attachments\72fedd4c-70d4-493f-bf11-9a72536ef07a\pasted-text.txt
+3. C:\Users\Paulo\.codex\attachments\4638844d-333e-49d9-8099-ece409bd37b6\pasted-text.txt
+4. C:\Users\Paulo\.codex\attachments\1ad0f780-8992-48ee-aeff-07ed52017d67\pasted-text.txt
+
+CONTEÚDO DO ANEXO MAIS RECENTE
+
+Update Todos
+
+FASE A — Preflight sem Git: confirmar .git ausente, backup intacto, baseline test + javadoc
+
+FASE B — Testes de caracterização (ASS/SRT, cache, parcial, tags, retradução, backup, telemetria, logs, SSE, cancelamento)
+
+FASE C — Composition root e mover controllers estrangeiros para os módulos proprietários
+
+FASE D — Isolamento da Opção 4: remover 27 imports funcionais de saída, logs/telemetria próprios
+
+FASE E — Remover os 173 imports externos: cada módulo recebe implementação própria
+
+FASE F — Decompor ProcessarArquivoUseCase em orquestrador + proprietários por responsabilidade
+
+FASE G — Documentação integral (3 pilares) de toda a Opção 4
+
+FASE H — Isolamento arquitetural final: teste arquitetural verde, zero imports cruzados
+
+FASE I — Concorrência Java 25 (atrás de configuração, fallback sequencial)
+Paro no boundary da FASE B para o relatório mandatório (§18), antes das primeiras movimentações estruturais irreversíveis da FASE C.
+
+RELATÓRIO — FASES A e B
+FASE A — Preflight sem Git ✅
+.git: confirmado inexistente na pasta experimental (verificado por filesystem, sem nenhum comando git). Não recriado, não contornado.
+Backup ...-quarkus-backup: confirmado existente e intocado. Nada copiado dele.
+Cérebro: consultado em leitura (projeto, melhorias, 2 erros de cache, missão AI-OS v2.1, os 2 arquivos Java25 arquivados). Não modificado.
+Baseline de testes (gradlew.bat test --no-daemon): BUILD SUCCESSFUL, 479 testes, 0 falhas.
+Baseline de Javadoc (gradlew.bat javadoc --no-daemon): FALHA preexistente — registrada, não corrigida:
+4 erros: TradutorCLI.java:31 ({@link Application#main}), TradutorProperties.java:70 (HTML malformado <subpasta> + mojibake de encoding), analisadorMidia/ClassificadorLegendaService.java:36 (módulo externo).
+100 warnings (no @param em records).
+3 dos 4 erros na Opção 4 → resolução na FASE G; 1 em módulo externo (analisadorMidia).
+FASE B — Testes de caracterização ✅
+Rede de segurança para a decomposição da FASE F. Mapeei o já coberto e preenchi a lacuna real: o fluxo end-to-end de ProcessarArquivoUseCase, que só tinha testes de métodos estáticos.
+
+Arquivos criados: 1
+
+src/test/java/.../traducao/application/ProcessarArquivoUseCaseCaracterizacaoTest.java (4 testes, LLM substituído por dublê determinístico, sem rede/LM Studio):
+ASS completo, cache-miss → CONCLUIDO, publica _PT-BR.ass, grava cache, 1 chamada ao LLM.
+Segunda execução, mesma proveniência → 0 chamadas ao LLM (cache incremental reaproveitado).
+SRT nativo completo → CONCLUIDO, publica _PT-BR.srt.
+Fala pendente (LLM devolve sem traduzir) → PARCIAL, publica só .parcial.ass, não sobrescreve a final, preserva o texto original da fala.
+Arquivos alterados/movidos/removidos: nenhum (fase puramente aditiva).
+
+Cobertura por cenário exigido (§17 FASE B):
+
+Cenário	Status	Onde
+ASS completo	✅ novo	Caracterizacao #1
+SRT completo	✅ novo	Caracterizacao #3
+cache válido / divergente / corrompido	✅ existente	CacheTraducaoServiceTest (+ migração)
+resposta parcial	✅ novo	Caracterizacao #4
+tags danificadas	✅ existente	MascaradorTagsTest / preservaEstruturaOriginal
+retradução protegida / liberada / backup	✅ existente	ProcessarArquivoUseCaseGuardTest (9)
+telemetria	✅ exercitada	novos testes + StatusLoteTraducaoTest + módulo telemetria
+logs / SSE	✅ existente	LogStreamServiceTest, ConsoleRedirectorTest
+Testes executados: suíte completa → BUILD SUCCESSFUL, 483 testes (479 + 4), 0 falhas.
+
+Pendências (residuais da FASE B)
+Dois cenários do §17 não têm caracterização end-to-end dedicada (existe tratamento no código, mas não teste direto):
+
+falha de escrita (publicação atômica falhando) — caminho de exceção existe (ArquivoLegendaException), sem teste que force o erro de IO;
+cancelamento end-to-end — ProcessarEpisodioUseCase trata Thread.isInterrupted() → TraducaoParcialException, sem teste que interrompa o fluxo completo.
+Recomendo adicioná-los no início da FASE F (quando as responsabilidades de publicação e concorrência ganharem donos próprios e ficarem mais fáceis de exercitar isoladamente), em vez de forçar agora um teste frágil de IO/thread.
+
+Riscos descobertos
+Javadoc quebrado na baseline (encoding mojibake em TradutorProperties.java): há caracteres não-UTF-8 no fonte; ao documentar na FASE G, tratar encoding para não propagar �.
+Acoplamento reverso confirmado: MistralClientAdapter → revisaoLore.PromptRevisaoLore (a Opção 4 importa a Revisão de Lore) — a FASE D precisa quebrar os dois sentidos.
+RestClientConfig dentro da Opção 4 produz beans de legendasExtracao (agregação de extratores) — nó de composição misturado; sai na FASE C/D.
+Próximo passo
+FASE C — movimentações estruturais irreversíveis (mover Application.java para o composition root; mover 7 controllers estrangeiros para seus módulos, criando implementações próprias nos donos). Como é o primeiro passo destrutivo e sem rede Git para reverter, paro aqui para tua confirmação, Paulo: sigo direto para a FASE C, ou queres que eu feche antes os dois residuais (falha de escrita / cancelamento) da FASE B?
+
+Nenhum arquivo de produção alterado. Nenhum comando Git executado. Backup e cérebro intactos.
+
