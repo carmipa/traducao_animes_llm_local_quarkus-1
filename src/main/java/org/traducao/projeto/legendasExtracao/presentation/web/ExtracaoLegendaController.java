@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.legendasExtracao.presentation.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,9 @@ import org.traducao.projeto.legendasExtracao.domain.FormatoLegenda;
 import org.traducao.projeto.legendasExtracao.domain.RelatorioExtracao;
 import org.traducao.projeto.legendasExtracao.domain.exceptions.FormatoLegendaInvalidoException;
 import org.traducao.projeto.legendasExtracao.presentation.ui.TabelaExtracaoRenderer;
+import org.traducao.projeto.traducao.presentation.web.ExtracaoRequest;
+import org.traducao.projeto.traducao.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.traducao.presentation.web.RespostaPadrao;
 
 import java.nio.file.Path;
 
@@ -20,10 +23,19 @@ import java.nio.file.Path;
  * validando o formato-alvo e enfileirando o processamento pesado que percorre a
  * pasta de vídeos e extrai as faixas de legenda no formato escolhido.
  *
+ * <p>Fronteira arquitetural: este endpoint pertence ao módulo
+ * {@code legendasExtracao} (Opção 2) e reside na sua camada de apresentação
+ * própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
+ * apenas o use case e os tipos do próprio módulo. As dependências
+ * {@link PipelineWebSupport}, {@link RespostaPadrao} e {@link ExtracaoRequest}
+ * são <b>glue técnico de apresentação</b> (fila única e contratos de transporte
+ * HTTP) hoje em {@code traducao.presentation.web}; é dívida técnica temporária
+ * reservada para saneamento na FASE E — não é acoplamento funcional.
+ *
  * <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
  * {@link PipelineWebSupport}; o formato é validado antes de enfileirar; caminhos
- * são normalizados; nenhuma URL, código HTTP ou nome de campo de DTO é alterado
- * em relação ao controller monolítico original.
+ * são normalizados; a rota {@code POST /api/extrair}, o status e os campos de DTO
+ * são contrato público preservado exatamente como antes da movimentação.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
  * retorna HTTP 400; falhas do job de background são registradas no log e no

@@ -2,9 +2,9 @@
  MAPA ESTRUTURAL DO PROJETO - TRACKER ANIMES
 ================================================================================
  Raiz do repositorio      : traducao_animes_llm_local_quarkus
- Pastas mapeadas          : 244
- Arquivos (na arvore)     : 495
- Arquivos-fonte indexados : 389  (.java: 389 | .py: 0)
+ Pastas mapeadas          : 241
+ Arquivos (na arvore)     : 516
+ Arquivos-fonte indexados : 413  (.java: 413 | .py: 0)
  Memoria viva do projeto  : CEREBRO_IA.md (na raiz do repositorio)
 
  Objetivo: mapa de contexto para LLMs navegarem os diretorios e
@@ -17,12 +17,6 @@
 traducao_animes_llm_local_quarkus/
 ├── .codex/
 │   └── config.toml
-├── .githooks/
-│   ├── pre-commit
-│   └── README.md
-├── .github/
-│   └── workflows/
-│       └── gradle-ci.yml
 ├── .vscode/
 │   └── settings.json
 ├── downloads/
@@ -44,7 +38,12 @@ traducao_animes_llm_local_quarkus/
 │   │   │           └── projeto/
 │   │   │               ├── analisadorMidia/
 │   │   │               │   ├── application/
-│   │   │               │   │   └── AnalisarMidiaUseCase.java
+│   │   │               │   │   ├── AnalisarMidiaUseCase.java
+│   │   │               │   │   ├── BarraProgressoAnalise.java
+│   │   │               │   │   ├── ClassificadorLegendaService.java
+│   │   │               │   │   ├── LocalizadorVideosService.java
+│   │   │               │   │   ├── RelatorioMidiaTextoFormatter.java
+│   │   │               │   │   └── TelemetriaMidiaMapper.java
 │   │   │               │   ├── domain/
 │   │   │               │   │   ├── exceptions/
 │   │   │               │   │   │   └── AnaliseStreamException.java
@@ -445,14 +444,30 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   │   ├── PastasExecucao.java
 │   │   │               │   │   │   └── TabelaTraducaoRenderer.java
 │   │   │               │   │   ├── web/
-│   │   │               │   │   │   ├── ApiController.java
+│   │   │               │   │   │   ├── AnaliseMidiaController.java
 │   │   │               │   │   │   ├── BrowserLauncher.java
 │   │   │               │   │   │   ├── ConsoleRedirector.java
+│   │   │               │   │   │   ├── ContextoResponse.java
+│   │   │               │   │   │   ├── CorrecaoCacheController.java
 │   │   │               │   │   │   ├── DialogoArquivoController.java
 │   │   │               │   │   │   ├── DocumentacaoController.java
+│   │   │               │   │   │   ├── ExtracaoLegendaController.java
+│   │   │               │   │   │   ├── ExtracaoRequest.java
+│   │   │               │   │   │   ├── LlmStatusResponse.java
 │   │   │               │   │   │   ├── LogStreamResource.java
 │   │   │               │   │   │   ├── LogStreamService.java
-│   │   │               │   │   │   └── TelemetriaStreamResource.java
+│   │   │               │   │   │   ├── MapaController.java
+│   │   │               │   │   │   ├── MapaResponse.java
+│   │   │               │   │   │   ├── OperacaoRequest.java
+│   │   │               │   │   │   ├── PipelineController.java
+│   │   │               │   │   │   ├── PipelineWebSupport.java
+│   │   │               │   │   │   ├── RemuxerController.java
+│   │   │               │   │   │   ├── RemuxRequest.java
+│   │   │               │   │   │   ├── RespostaPadrao.java
+│   │   │               │   │   │   ├── RevisaoLegendasController.java
+│   │   │               │   │   │   ├── TelemetriaController.java
+│   │   │               │   │   │   ├── TelemetriaStreamResource.java
+│   │   │               │   │   │   └── TraducaoController.java
 │   │   │               │   │   └── TradutorCLI.java
 │   │   │               │   └── Application.java
 │   │   │               ├── traducaoCorrige/
@@ -611,7 +626,10 @@ traducao_animes_llm_local_quarkus/
 │                   └── projeto/
 │                       ├── analisadorMidia/
 │                       │   ├── application/
-│                       │   │   └── AnalisarMidiaClassificacaoTest.java
+│                       │   │   ├── AnalisarMidiaClassificacaoTest.java
+│                       │   │   ├── AnalisarMidiaTelemetriaTest.java
+│                       │   │   ├── LocalizadorVideosServiceTest.java
+│                       │   │   └── TelemetriaMidiaMapperTest.java
 │                       │   ├── domain/
 │                       │   │   └── ResultadoAnaliseLoteSerializacaoTest.java
 │                       │   └── infrastructure/
@@ -655,8 +673,7 @@ traducao_animes_llm_local_quarkus/
 │                       │           └── MkvToolNixAdapterTest.java
 │                       ├── mapaProjeto/
 │                       │   └── application/
-│                       │       ├── GeradorMapaProjetoUseCaseTest.java
-│                       │       └── RegenerarMapaManualTmp.java
+│                       │       └── GeradorMapaProjetoUseCaseTest.java
 │                       ├── mcp/
 │                       │   └── KronosMcpToolsTest.java
 │                       ├── novoKaraoke/
@@ -709,6 +726,7 @@ traducao_animes_llm_local_quarkus/
 │                       │   ├── application/
 │                       │   │   ├── DetectorEfeitoKaraokeServiceTest.java
 │                       │   │   ├── DetectorTraducaoIdenticaServiceTest.java
+│                       │   │   ├── ProcessarArquivoUseCaseCaracterizacaoTest.java
 │                       │   │   ├── ProcessarArquivoUseCaseGuardTest.java
 │                       │   │   └── ValidadorTraducaoServiceTest.java
 │                       │   ├── domain/
@@ -742,7 +760,6 @@ traducao_animes_llm_local_quarkus/
 │                       ├── ApiEndpointsTest.java
 │                       └── WebInterfaceTest.java
 ├── .dockerignore
-├── .gitattributes
 ├── .gitignore
 ├── .mcp.json
 ├── build.gradle
@@ -753,7 +770,8 @@ traducao_animes_llm_local_quarkus/
 ├── iniciar-kronos-dev.cmd
 ├── mapa_projeto.md
 ├── README.md
-└── settings.gradle
+├── settings.gradle
+└── transcricao_chat_isolamento_opcao4_2026-07-15.txt
 
 --------------------------------------------------------------------------------
  2. TAXONOMIA DOS ARQUIVOS-FONTE (.java / .py)
@@ -761,9 +779,80 @@ traducao_animes_llm_local_quarkus/
 
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/application/
   - AnalisarMidiaUseCase.java
-      Classificação por traduzibilidade (o dado vital da análise): legenda de
-      TEXTO é extraível e traduzível; BITMAP/hardsub exige OCR e não entra no
-      pipeline de tradução direto. Baseado no tipoCurto de classificarLegenda().
+      PROPÓSITO DE NEGÓCIO: orquestra a auditoria técnica de um lote de vídeos
+      (Opção 1) — localiza os arquivos, executa o ffprobe, classifica as legendas,
+      coleta sucessos e falhas, alimenta o dataset permanente de telemetria e
+      devolve o resultado ESTRUTURADO ({@link ResultadoAnaliseLote}) que é a fonte
+      única da interface HTML e da exportação TXT manual.
+      
+      <p>INVARIANTES DO DOMÍNIO: nenhum relatório é gravado em disco; a telemetria é
+      persistida internamente e é um dataset permanente (acumula/deduplica). Uma
+      falha em um arquivo não aborta o lote; a barra de progresso é cosmética e
+      nunca aborta a análise. As responsabilidades técnicas (localização,
+      classificação, formatação textual, mapeamento de telemetria) são delegadas a
+      colaboradores dedicados; este use case apenas as coordena.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: lote vazio lança {@link AnalisadorException};
+      falha por arquivo vira {@link FalhaAnalise} no resultado; falhas de telemetria
+      são registradas sem interromper a análise.
+  - BarraProgressoAnalise.java
+      PROPÓSITO DE NEGÓCIO: encapsula a barra de progresso do console da análise de
+      mídia, isolando a dependência de UI e, sobretudo, a política de que a barra é
+      PURAMENTE COSMÉTICA — nunca pode abortar a análise do lote.
+      
+      <p>INVARIANTES DO DOMÍNIO: qualquer falha ao criar/avançar/fechar a barra
+      (ex.: terminal incompatível) é contida; após uma falha a barra se autodesativa
+      e a análise continua normalmente.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: nenhum método propaga exceção; falhas são
+      apenas registradas em log em nível WARN.
+  - ClassificadorLegendaService.java
+      PROPÓSITO DE NEGÓCIO: classifica tecnicamente cada faixa de legenda pelo dado
+      VITAL da Análise de Mídia — a traduzibilidade: legenda de TEXTO (ASS/SSA/SRT/
+      WebVTT/MOV_TEXT) é extraível e traduzível; BITMAP (PGS/VobSub/DVB) exige OCR;
+      ausência de faixa é RAW/hardsub. Decide se um episódio segue no pipeline de
+      tradução.
+      
+      <p>INVARIANTES DO DOMÍNIO: PGS e VobSub são bitmap (imagem), NÃO hardsub;
+      ausência de faixa softsub NÃO prova hardsub; uma faixa de texto tem prioridade
+      sobre bitmap no veredito de traduzibilidade do arquivo.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas de codec/formato caem em
+      "Desconhecido"/"DESCONHECIDO" sem exceção.
+  - LocalizadorVideosService.java
+      PROPÓSITO DE NEGÓCIO: localiza os arquivos de vídeo a auditar a partir de uma
+      entrada que pode ser um único arquivo ou uma pasta (varredura recursiva),
+      filtrando pelas extensões de contêiner suportadas.
+      
+      <p>INVARIANTES DO DOMÍNIO: só retorna arquivos regulares com extensão de vídeo
+      conhecida; a ordem é estável (alfabética) para tornar a análise determinística.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O ao varrer a pasta lança
+      {@link AnalisadorException} didática; entrada válida sem vídeos retorna lista
+      vazia (o orquestrador decide como reportar).
+  - RelatorioMidiaTextoFormatter.java
+      PROPÓSITO DE NEGÓCIO: produz o relatório textual da auditoria de uma mídia a
+      partir do resultado JÁ CLASSIFICADO (fonte única de verdade). Serve de base
+      para exibição/exportação textual sem reimplementar a classificação — evita
+      duas regras de formatação divergentes.
+      
+      <p>INVARIANTES DO DOMÍNIO: lê apenas o domínio estruturado
+      ({@link AuditoriaResultado}); não reexecuta ffprobe nem reclassifica; a
+      terminologia segue a do domínio (bitmap ≠ hardsub).
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: método puro sem I/O; listas vazias produzem
+      as seções vazias correspondentes, sem exceção.
+  - TelemetriaMidiaMapper.java
+      PROPÓSITO DE NEGÓCIO: converte o resultado técnico de uma mídia auditada em
+      um registro de telemetria anonimizado, alimentando o dataset permanente do
+      projeto (diagnóstico + melhoria futura).
+      
+      <p>INVARIANTES DO DOMÍNIO: o caminho é relativizado à entrada para preservar
+      privacidade (não grava caminhos pessoais absolutos); a telemetria carrega
+      apenas metadados técnicos, nunca falas ou conteúdo da legenda.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: se a relativização falhar, cai para o nome
+      simples do arquivo, sem lançar exceção.
 
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/domain/
   - AnalisadorException.java
@@ -802,8 +891,8 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/infrastructure/adapters/
   - FfprobeAdapter.java
       Executa ffprobe no vídeo e obtém o JSON com as informações gerais e faixas.
-      Parsing do Container
-      Parsing das faixas (streams)
+      Parsing do Container. Duração de fallback vinda dos streams: o
+      ffprobe às vezes reporta a duração nos streams mas não no format.
 
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/presentation/
   - AnalisadorMidiaCLI.java
@@ -2480,8 +2569,20 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: sem resultados, devolve string vazia; não lança.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/web/
-  - ApiController.java
-      (sem cabecalho explicativo)
+  - AnaliseMidiaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a análise de mídia (Opção 1) à interface web,
+      enfileirando o processamento pesado em segundo plano e publicando o relatório
+      estruturado no canal SSE {@code analise-relatorio} para renderização no
+      navegador.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; caminhos são normalizados antes do uso; nenhuma
+      URL, código HTTP, nome de campo de DTO ou canal SSE é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco retorna HTTP 400; falhas
+      do job de background são registradas no log e no console SSE, sem derrubar a
+      fila.
   - BrowserLauncher.java
       Abre o navegador apos a inicializacao do Quarkus quando {@code app.modo=WEB}.
   - ConsoleRedirector.java
@@ -2497,6 +2598,31 @@ traducao_animes_llm_local_quarkus/
       força a criação do bean na subida do Quarkus e também o protege da remoção de
       beans não-usados em build-time (beans com método {@code @Observes} nunca são
       removidos).
+  - ContextoResponse.java
+      PROPÓSITO DE NEGÓCIO: representa um contexto de tradução (obra/anime)
+      disponível para seleção na interface, com id técnico, nome de exibição e a
+      marcação de qual é o padrão.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pela SPA; {@code padrao} identifica de forma exclusiva o contexto
+      pré-selecionado.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
+      construção; a lista vazia é responsabilidade do gerenciador de contexto.
+  - CorrecaoCacheController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web os três modos de manutenção do
+      banco de cache de tradução — limpeza/auditoria local, preenchimento online de
+      lacunas via Google Translate e revisão gramatical via LLM local.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; o contexto informado, quando presente, é validado
+      antes de enfileirar; a revisão via LLM só prossegue com modelo carregado;
+      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: caminho de cache ou contexto inválido
+      retorna HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console
+      SSE, sem derrubar a fila.
   - DialogoArquivoController.java
       PROPÓSITO DE NEGÓCIO: disponibiliza aos formulários web do KRONOS um seletor
       nativo e responsivo para arquivos e pastas existentes no computador local.
@@ -2514,13 +2640,181 @@ traducao_animes_llm_local_quarkus/
       markdown no navegador (ver static/documentacao/documentacao.js). O README
       raiz é o índice canônico no GitHub; este endpoint espelha a mesma pasta
       docs/ dentro do próprio app, sem precisar sair dele.
+  - ExtracaoLegendaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a extração de legendas (Opção 2) à interface web,
+      validando o formato-alvo e enfileirando o processamento pesado que percorre a
+      pasta de vídeos e extrai as faixas de legenda no formato escolhido.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; o formato é validado antes de enfileirar; caminhos
+      são normalizados; nenhuma URL, código HTTP ou nome de campo de DTO é alterado
+      em relação ao controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
+      retorna HTTP 400; falhas do job de background são registradas no log e no
+      console SSE, sem derrubar a fila.
+  - ExtracaoRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
+      pasta de vídeos, pasta de saída e o formato-alvo escolhido na interface.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público; o
+      formato é validado contra {@code FormatoLegenda} antes do job entrar na fila.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido faz o
+      endpoint responder HTTP 400 antes de qualquer processamento.
+  - LlmStatusResponse.java
+      PROPÓSITO DE NEGÓCIO: informa ao card do painel inicial o estado ao vivo do
+      servidor LLM local (online, modelo carregado, nome do modelo e mensagem).
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pela SPA; o nome do modelo só é preenchido quando há modelo em
+      memória.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: quando a consulta ao servidor falha, o
+      endpoint constrói uma instância com {@code online=false} e a mensagem do erro.
   - LogStreamResource.java
       Endpoint SSE nativo do Quarkus (substitui SseEmitter do Spring MVC).
   - LogStreamService.java
       Gerencia conexoes SSE (JAX-RS) e despacha logs em tempo real para clientes web.
+  - MapaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a geração do mapa do projeto (Opção 7) à interface
+      web, produzindo o relatório em markdown e a árvore no formato GitHub a partir
+      da raiz do projeto.
+      
+      <p>INVARIANTES DO DOMÍNIO: a raiz mapeada vem de
+      {@link DiretorioBaseKronos#base()} — em produção é o diretório de trabalho e,
+      sob a suíte de testes, a árvore descartável, evitando reescrever o mapa real;
+      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: a geração é síncrona; qualquer falha do use
+      case propaga como erro do endpoint, sem estado parcial retornado ao navegador.
+  - MapaResponse.java
+      PROPÓSITO DE NEGÓCIO: entrega ao painel "Mapa do Projeto" o relatório em
+      markdown, a árvore no formato GitHub e o nome do projeto gerados pelo módulo
+      de mapeamento.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pela SPA; representam o resultado já pronto para renderização.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
+      construção; a ausência de conteúdo é responsabilidade do use case que o produz.
+  - OperacaoRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta os parâmetros comuns das operações do
+      pipeline (análise, tradução, correção e revisão) enviados pela SPA — pastas de
+      entrada/saída, contexto de lore selecionado e opções de sincronismo/revisão.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pelo front-end; caminhos são normalizados e o contexto é validado
+      pelos endpoints antes de qualquer job entrar na fila compartilhada.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes chegam como {@code null} e
+      cada endpoint decide o fallback seguro ou responde HTTP 400 antes de enfileirar.
+  - PipelineController.java
+      PROPÓSITO DE NEGÓCIO: expõe os endpoints de estado e controle do pipeline
+      local à interface web — heartbeat, parada cooperativa da fila, estado da fila,
+      status ao vivo do servidor LLM e a lista de contextos de tradução disponíveis.
+      
+      <p>INVARIANTES DO DOMÍNIO: compartilha a MESMA {@link FilaExecucaoPipeline}
+      (bean CDI) dos demais controllers; a parada é cooperativa e preserva o
+      progresso já salvo; nenhuma URL, código HTTP ou nome de campo de DTO é alterado
+      em relação ao controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: a consulta de status do LLM nunca propaga
+      exceção — falhas viram uma resposta {@code online=false} com a mensagem do
+      erro; os demais endpoints são consultas simples sem caminho de falha explícito.
+  - PipelineWebSupport.java
+      PROPÓSITO DE NEGÓCIO: concentra os utilitários compartilhados pelos
+      controllers web do pipeline — a normalização de caminhos digitados/colados na
+      interface e o enfileiramento padronizado de jobs pesados na fila única de
+      execução. Existe para que todos os endpoints entrem na MESMA fila e imprimam o
+      MESMO formato de relatório final, sem duplicar essa lógica em cada controller.
+      
+      <p>INVARIANTES DO DOMÍNIO: expõe a única {@link FilaExecucaoPipeline}
+      compartilhada (bean CDI) — jamais deve existir mais de uma instância de fila;
+      todo job pesado passa por {@link #submeterJobComRelatorio}, garantindo canal
+      SSE definido antes da execução e execução sequencial em segundo plano.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #normalizarCaminho(String)} devolve
+      {@code null} para entrada nula/vazia ou sintaxe de caminho inválida
+      ({@link InvalidPathException}), registrando aviso no log; o corpo submetido em
+      {@link #submeterJobComRelatorio} sempre imprime a linha de relatório final,
+      mesmo quando lança exceção, via bloco {@code finally}.
+  - RemuxerController.java
+      PROPÓSITO DE NEGÓCIO: expõe o Remuxer (mkvmerge) à interface web, agendando um
+      único lote de remux que combina vídeos e legendas traduzidas com política
+      explícita para as legendas originais.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
+      recusar concorrência; as pastas existem antes da aceitação; o offset fica na
+      faixa operacional de ±86.400.000 ms; nenhuma URL, código HTTP ou nome de campo
+      de DTO é alterado em relação ao controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada inválida retorna HTTP 400, fila
+      ocupada retorna HTTP 409 e falha do lote aparece no status final do console.
+  - RemuxRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta as opções exclusivas do Remuxer.
+      INVARIANTES DO DOMÍNIO: pasta de vídeo é obrigatória; offset e política de
+      faixas são validados pelo endpoint.
+      COMPORTAMENTO EM CASO DE FALHA: campos ausentes recebem fallback seguro ou
+      geram HTTP 400 antes de entrar na fila.
+  - RespostaPadrao.java
+      PROPÓSITO DE NEGÓCIO: envelope de resposta textual padrão da API web, usado
+      por praticamente todos os endpoints do pipeline para devolver ao navegador uma
+      mensagem legível (aceitação na fila, validação recusada ou heartbeat).
+      
+      <p>INVARIANTES DO DOMÍNIO: o nome do campo {@code mensagem} é contrato JSON
+      público consumido pela SPA; não pode ser renomeado sem quebrar o front-end.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
+      construção; {@code mensagem} pode ser vazia, mas nunca deve carregar dados
+      sensíveis, pois é ecoada diretamente na interface.
+  - RevisaoLegendasController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web a revisão das legendas traduzidas
+      (.ass) — via Google Translate com auditoria e via LLM local para concordância
+      PT-BR — usando cache e/ou legendas originais como referência.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; a pasta de entrada é obrigatória e validada; o modo
+      de referência e a pasta de cache são resolvidos e validados antes de
+      enfileirar; a revisão de concordância só prossegue com o LLM disponível;
+      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada/cache/contexto inválido retorna
+      HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console SSE, sem
+      derrubar a fila.
+  - TelemetriaController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web a telemetria acumulada do pipeline
+      — resumo consolidado para o painel, exportação segura do arquivo para download
+      e a publicação do dataset público sanitizado no repositório Git dedicado.
+      
+      <p>INVARIANTES DO DOMÍNIO: nenhuma URL, código HTTP ou nome de campo de DTO é
+      alterado em relação ao controller monolítico original; a exportação usa o
+      arquivo canônico e a publicação delega ao serviço de dataset já sanitizado.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
+      de leitura retorna 500; falha na publicação do dataset retorna 500 com a
+      mensagem do erro no corpo padrão.
   - TelemetriaStreamResource.java
       Endpoint Server-Sent Events (SSE) reativo para streaming da telemetria da KRONOS em tempo real.
       Rota mapeada especificamente para evitar colisões com o Controller Spring.
+  - TraducaoController.java
+      PROPÓSITO DE NEGÓCIO: expõe a tradução local via LLM (Opção 3) à interface
+      web, verificando a disponibilidade do servidor LLM, configurando as pastas de
+      execução, aplicando o contexto de lore selecionado e traduzindo em lote os
+      arquivos de legenda encontrados.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; contexto de lore é obrigatório e validado (sem
+      fallback silencioso); apenas extensões suportadas ({@code .ass/.ssa/.srt})
+      são traduzidas; nenhuma URL, código HTTP ou nome de campo de DTO é alterado em
+      relação ao controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou contexto ausente/
+      inválido retorna HTTP 400; falhas por arquivo são contabilizadas, registradas
+      na telemetria e reportadas no console SSE, sem derrubar a fila.
 
 [PASTA] src/main/java/org/traducao/projeto/trocaTipoLegenda/application/
   - AuditoriaFontesService.java
@@ -2557,6 +2851,27 @@ traducao_animes_llm_local_quarkus/
       Cobre o dado VITAL da análise: a classificação do tipo de legenda (codec →
       tipo) e o veredicto de traduzibilidade (texto = traduzível; bitmap = OCR;
       nenhuma = RAW/hardsub). Decide se um episódio segue no pipeline de tradução.
+      A lógica vive em {@link ClassificadorLegendaService} (extraído do use case).
+  - AnalisarMidiaTelemetriaTest.java
+      PROPÓSITO DE NEGÓCIO: garante que a Análise de Mídia (Opção 1) trata a
+      telemetria como dataset PERMANENTE — mídias de lotes anteriores não são
+      apagadas ao analisar um novo lote, reanalisar a mesma mídia deduplica em vez
+      de duplicar, e nenhuma pasta {@code relatorios/} é criada junto dos vídeos.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa um {@link FfprobeAdapter} falso (sem ffprobe
+      real) e um {@link TelemetriaService} próprio; a suíte roda com
+      {@code kronos.dir.base} redirecionado, então a telemetria vai para a árvore
+      descartável e a leitura do JSON canônico reflete apenas este teste.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: qualquer perda de histórico, duplicação
+      indevida ou criação de pasta junto da mídia dispara asserção JUnit.
+  - LocalizadorVideosServiceTest.java
+      Cobre o localizador de vídeos: varredura recursiva por extensão, arquivo
+      único e falha de I/O. Componente extraído do AnalisarMidiaUseCase (Etapa 8).
+  - TelemetriaMidiaMapperTest.java
+      Cobre o mapeador de telemetria de mídia: extração de metadados técnicos e a
+      INVARIANTE de privacidade (caminho relativizado, sem raiz absoluta pessoal).
+      Componente extraído do AnalisarMidiaUseCase (Etapa 8).
 
 [PASTA] src/test/java/org/traducao/projeto/analisadorMidia/domain/
   - ResultadoAnaliseLoteSerializacaoTest.java
@@ -2687,9 +3002,6 @@ traducao_animes_llm_local_quarkus/
       não tem nenhuma checagem prévia que intercepte esse caso. Isso o torna o
       único, entre as lacunas de exceção corrigidas nesta auditoria, em que a
       falha real é reproduzível de forma determinística e portátil num teste.
-  - RegenerarMapaManualTmp.java
-      Regenerador one-off do mapa_projeto.md real com os filtros da Etapa 3.
-      TEMPORÁRIO: removido logo após a regeneração; não faz parte da suíte.
 
 [PASTA] src/test/java/org/traducao/projeto/mcp/
   - KronosMcpToolsTest.java
@@ -2933,6 +3245,8 @@ traducao_animes_llm_local_quarkus/
       <p>INVARIANTES DO DOMÍNIO: hesitação e pontuação não descaracterizam nomes;
       palavras conversacionais inglesas continuam pendentes.
       <p>COMPORTAMENTO EM CASO DE FALHA: falso nome ou falso inglês reprova o teste.
+  - ProcessarArquivoUseCaseCaracterizacaoTest.java
+      (sem cabecalho explicativo)
   - ProcessarArquivoUseCaseGuardTest.java
       PROPÓSITO DE NEGÓCIO: protege por regressão as decisões que impedem o tradutor
       de publicar linhas ASS suspeitas ou substituir uma legenda sem autorização.

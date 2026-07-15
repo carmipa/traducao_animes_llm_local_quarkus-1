@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.remuxer.presentation.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,9 @@ import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.traducao.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.traducao.presentation.web.RemuxRequest;
+import org.traducao.projeto.traducao.presentation.web.RespostaPadrao;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,11 +26,21 @@ import java.util.stream.Stream;
  * único lote de remux que combina vídeos e legendas traduzidas com política
  * explícita para as legendas originais.
  *
+ * <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code remuxer}
+ * (Opção 12) e reside na sua camada de apresentação própria. Não importa nenhuma
+ * regra funcional da Tradução Local (Opção 4): usa o use case do próprio módulo e
+ * a fila técnica neutra {@code core}. As dependências {@link PipelineWebSupport},
+ * {@link RespostaPadrao}, {@link RemuxRequest} e {@link AnsiCores} são <b>glue
+ * técnico de apresentação</b> (fila única, transporte HTTP, cores de console)
+ * hoje em {@code traducao.presentation}; é dívida técnica temporária reservada
+ * para saneamento na FASE E — não é acoplamento funcional.
+ *
  * <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
  * {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
  * recusar concorrência; as pastas existem antes da aceitação; o offset fica na
- * faixa operacional de ±86.400.000 ms; nenhuma URL, código HTTP ou nome de campo
- * de DTO é alterado em relação ao controller monolítico original.
+ * faixa operacional de ±86.400.000 ms; a rota {@code POST /api/remuxar}, os
+ * status (200/400/409) e os campos de DTO são contrato público preservado
+ * exatamente como antes da movimentação.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: entrada inválida retorna HTTP 400, fila
  * ocupada retorna HTTP 409 e falha do lote aparece no status final do console.
