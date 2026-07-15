@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:26.988Z" hostname="DESKTOP-QDNQHL1" time="0.026">
+  <properties/>
+  <testcase name="naoBloqueiaDialogoNormalComTagSimples()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="selecionaSaidaConformeChaveDeProtecao()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="bloqueiaTituloVetorialDuplicadoAntesDoLlm()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="bloqueiaLetraSoltaComClipGiganteAntesDoLlm()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="detectaSilabaDeEfeitoInfladaParaFrase()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="detectaSaidaDeLlmEmLinhaAssPesadaCurta()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.002"/>
+  <testcase name="naoBloqueiaTituloSimplesComPosETransformacao()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.001"/>
+  <testcase name="criaBackupExclusivoAntesDaSobrescrita()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.006"/>
+  <testcase name="retraducaoLiberadaArquivaERetiraCacheAnteriorDoUso()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.006"/>
+  <testcase name="detectaCaminhoDeLegendaJaTraduzida()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseGuardTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

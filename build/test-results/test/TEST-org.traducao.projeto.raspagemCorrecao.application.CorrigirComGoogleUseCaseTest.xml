@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:23.040Z" hostname="DESKTOP-QDNQHL1" time="0.434">
+  <properties/>
+  <testcase name="interrupcaoPreservaCheckpointJaConfirmadoNoDisco()" classname="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" time="0.02"/>
+  <testcase name="preencheEntradaVaziaDeixadaPelaLimpeza()" classname="org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCaseTest" time="0.414"/>
+  <system-out><![CDATA[Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-12578888899861144964\cache-interrupcao
+[ARQUIVO] ep.cache.json — 2 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/2] Evento 1 — Help!
+?[32m[CORRIGIDA 1/2] Evento 1 — Ajude!?[0m
+?[32m[OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-12578888899861144964\backups-interrupcao\ep.cache.json?[0m
+Resultado da correção Google: CANCELADO | corrigidas=1 pendentes=0 falhas=0
+Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-9570525660556073529\cache
+[ARQUIVO] ep.cache.json — 1 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/1] Evento 1 — Help!
+?[32m[CORRIGIDA 1/1] Evento 1 — Ajude!?[0m
+2026-07-15 11:59:23,316 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Telemetria de opera��o registrada: Corre��o Google (cache) � status=CONCLUIDO_COM_PENDENCIAS; pendentes=9; falhas=0 (14 arquivos, 9 detectados, 0 corrigidos)
+2026-07-15 11:59:23,318 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio textual salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\correcao_google_cache_20260715_115923.txt
+2026-07-15 11:59:23,318 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio JSON salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\correcao_google_cache_20260715_115923.json
+2026-07-15 11:59:23,319 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) C�pia da telemetria unificada salva em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\telemetria_compartilhada.json
+2026-07-15 11:59:23,320 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio e telemetria da opera��o persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache
+Resultado da correção Google: CONCLUIDO_COM_PENDENCIAS | corrigidas=0 pendentes=9 falhas=0
+?[33m[ATENÇÃO] CORREÇÃO ONLINE VIA GOOGLE TRANSLATE — status=CONCLUIDO_COM_PENDENCIAS, arquivos=14, alterados=0, corrigidos=0, pendentes=9, falhas=0?[0m
+?[36m[RELATÓRIO FINAL] Operação: Correção via Google Translate | Tempo total: 5,3s | Término: 11:59:23?[0m
+?[32m[OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-9570525660556073529\backups\ep.cache.json?[0m
+Resultado da correção Google: CONCLUIDO | corrigidas=1 pendentes=0 falhas=0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

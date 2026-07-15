@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:27.128Z" hostname="DESKTOP-QDNQHL1" time="0.004">
+  <properties/>
+  <testcase name="letraJaEmPortuguesNaoRetraduz()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.001"/>
+  <testcase name="romajiPuroEmEstiloGenericoEPreservado()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="letraPortuguesaSemAcentosReconhecidaPorPalavrasFortes()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.001"/>
+  <testcase name="estiloAbreviadoRomPreservaOriginal()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="estiloInglesTraduz()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="escritaJaponesaSemprePreservada()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="dialogoComumNaoEMusica()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="estiloGenericoComGramaticaInglesaTraduz()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="refraoOriginalEmInglesSilabavelEPreservadoNoDesempate()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="estiloRomajiSemprePreservaMesmoComInglesNoMeio()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="silabaKfxCruaEPreservadaComoEfeito()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="linhaSoDeTagsEmEstiloDeMusicaEEfeito()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <testcase name="estiloGenericoComParticulasRomajiPreservaMesmoComIngles()" classname="org.traducao.projeto.traducaoKaraoke.application.ClassificadorLetraKaraokeServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

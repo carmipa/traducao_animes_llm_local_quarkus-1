@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCaseTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:27.162Z" hostname="DESKTOP-QDNQHL1" time="0.056">
+  <properties/>
+  <testcase name="aplicarSubstituicaoComBackupERelatorio(Path)" classname="org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCaseTest" time="0.029"/>
+  <testcase name="escanearEIdentificarProblemasNoLote(Path)" classname="org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCaseTest" time="0.007"/>
+  <testcase name="aplicarSubstituicaoContaCadaEstiloProblematico(Path)" classname="org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCaseTest" time="0.018"/>
+  <system-out><![CDATA[?[36m
+=== Iniciando Substituição em Lote de Fontes ASS ===?[0m
+2026-07-15 11:59:27,166 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.166451700Z | +00:00] 
+=== Iniciando Substitui��o em Lote de Fontes ASS ===
+Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-17444908511887201839
+2026-07-15 11:59:27,167 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.166451700Z | +00:00] Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-17444908511887201839
+Diretório de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-18427468896551633128\backups\troca_tipo_legenda_20260715_115927
+2026-07-15 11:59:27,168 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.167448600Z | +00:00] Diret�rio de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-18427468896551633128\backups\troca_tipo_legenda_20260715_115927
+  -> No arquivo: legenda1.ass estilo [Dialogue] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 11:59:27,170 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.170447100Z | +00:00]   -> No arquivo: legenda1.ass estilo [Dialogue] substitu�do: .VnBook-Antiqua -> Arial
+?[32m  [SUCESSO] Arquivo legenda1.ass atualizado!?[0m
+2026-07-15 11:59:27,171 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.171447600Z | +00:00]   [SUCESSO] Arquivo legenda1.ass atualizado!
+Arquivo legenda2.ass [OK] - Sem fontes legadas problemáticas. Pulando.
+2026-07-15 11:59:27,172 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.171447600Z | +00:00] Arquivo legenda2.ass [OK] - Sem fontes legadas problem�ticas. Pulando.
+?[32m
+========================================================================?[0m
+2026-07-15 11:59:27,172 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.172448800Z | +00:00] 
+========================================================================
+?[32m  [SUCESSO] OPERAÇÃO DE SUBSTITUIÇÃO DE FONTES FINALIZADA!?[0m
+2026-07-15 11:59:27,173 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.172448800Z | +00:00]   [SUCESSO] OPERA��O DE SUBSTITUI��O DE FONTES FINALIZADA!
+?[32m========================================================================?[0m
+2026-07-15 11:59:27,173 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.173448300Z | +00:00] ========================================================================
+  • Arquivos analisados  : 2
+2026-07-15 11:59:27,174 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.173448300Z | +00:00]   � Arquivos analisados  : 2
+  • Arquivos alterados   : 1
+2026-07-15 11:59:27,174 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.174448500Z | +00:00]   � Arquivos alterados   : 1
+  • Substituições feitas : 1
+2026-07-15 11:59:27,174 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.174954Z | +00:00]   � Substitui��es feitas : 1
+  • Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-18427468896551633128\backups\troca_tipo_legenda_20260715_115927
+2026-07-15 11:59:27,174 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.174954Z | +00:00]   � Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-18427468896551633128\backups\troca_tipo_legenda_20260715_115927
+?[32m========================================================================?[0m
+2026-07-15 11:59:27,176 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.174954Z | +00:00] ========================================================================
+Relatórios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-17444908511887201839
+2026-07-15 11:59:27,178 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.177987300Z | +00:00] Relat�rios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-17444908511887201839
+?[36m
+=== Iniciando Substituição em Lote de Fontes ASS ===?[0m
+2026-07-15 11:59:27,203 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.202527300Z | +00:00] 
+=== Iniciando Substitui��o em Lote de Fontes ASS ===
+Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-6309140881664737996
+2026-07-15 11:59:27,203 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.203527500Z | +00:00] Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-6309140881664737996
+Diretório de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-4158123067917300474\backups\troca_tipo_legenda_20260715_115927
+2026-07-15 11:59:27,205 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.204528Z | +00:00] Diret�rio de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-4158123067917300474\backups\troca_tipo_legenda_20260715_115927
+  -> No arquivo: legenda-multi.ass estilo [Dialogue] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 11:59:27,207 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.207545400Z | +00:00]   -> No arquivo: legenda-multi.ass estilo [Dialogue] substitu�do: .VnBook-Antiqua -> Arial
+  -> No arquivo: legenda-multi.ass estilo [Title] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 11:59:27,207 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.207545400Z | +00:00]   -> No arquivo: legenda-multi.ass estilo [Title] substitu�do: .VnBook-Antiqua -> Arial
+?[32m  [SUCESSO] Arquivo legenda-multi.ass atualizado!?[0m
+2026-07-15 11:59:27,208 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.208546600Z | +00:00]   [SUCESSO] Arquivo legenda-multi.ass atualizado!
+?[32m
+========================================================================?[0m
+2026-07-15 11:59:27,208 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.208546600Z | +00:00] 
+========================================================================
+?[32m  [SUCESSO] OPERAÇÃO DE SUBSTITUIÇÃO DE FONTES FINALIZADA!?[0m
+2026-07-15 11:59:27,209 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.208546600Z | +00:00]   [SUCESSO] OPERA��O DE SUBSTITUI��O DE FONTES FINALIZADA!
+?[32m========================================================================?[0m
+2026-07-15 11:59:27,209 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.209545700Z | +00:00] ========================================================================
+  • Arquivos analisados  : 1
+2026-07-15 11:59:27,210 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.209545700Z | +00:00]   � Arquivos analisados  : 1
+  • Arquivos alterados   : 1
+2026-07-15 11:59:27,210 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.210545600Z | +00:00]   � Arquivos alterados   : 1
+  • Substituições feitas : 2
+2026-07-15 11:59:27,211 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.210545600Z | +00:00]   � Substitui��es feitas : 2
+  • Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-4158123067917300474\backups\troca_tipo_legenda_20260715_115927
+2026-07-15 11:59:27,211 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.211548700Z | +00:00]   � Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-4158123067917300474\backups\troca_tipo_legenda_20260715_115927
+?[32m========================================================================?[0m
+2026-07-15 11:59:27,212 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.211548700Z | +00:00] ========================================================================
+Relatórios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-6309140881664737996
+2026-07-15 11:59:27,214 INFO  [org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase] (Test worker) [UTC 2026-07-15T14:59:27.214053400Z | +00:00] Relat�rios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-6309140881664737996
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
