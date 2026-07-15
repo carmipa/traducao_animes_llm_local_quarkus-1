@@ -28,9 +28,9 @@ import java.util.stream.Stream;
  * Ponto de entrada da CLI: varre a pasta de entrada por arquivos .ass/.ssa
  * e traduz cada um sequencialmente.
  * <p>
- * Se {@code tradutor.diretorio-entrada} estiver vazio, o {@link Application#main}
- * pede os caminhos via {@link ConsoleEntrada}
- * antes do Spring subir.
+ * O bootstrap da aplicação é implícito, administrado pelo Quarkus/CDI — não há
+ * classe {@code main} própria. Quando {@code tradutor.diretorio-entrada} não é
+ * informado por configuração, os caminhos são pedidos via {@link ConsoleEntrada}.
  * <p>
  * Arquivos são processados um por vez de propósito: todos compartilham o
  * mesmo LLM local (GPU única). Lotes dentro de cada episódio também são
@@ -173,7 +173,7 @@ public class TradutorCLI implements ExecucaoCli {
         String cache = propriedades.diretorioCache();
 
         if (entrada == null || entrada.isBlank()) {
-            log.error("Pasta de entrada nao configurada (deveria ter sido lida no Application.main)");
+            log.error("Pasta de entrada nao configurada (informe tradutor.diretorio-entrada por configuracao ou os caminhos no console)");
             ConsoleEntrada.imprimirErroSaida();
             return false;
         }
