@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaServiceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:52.854Z" hostname="DESKTOP-QDNQHL1" time="0.001">
-  <properties/>
-  <testcase name="preservaNomesSimplesGaguejadosESequenciais()" classname="org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaServiceTest" time="0.0"/>
-  <testcase name="naoConfundePalavraInglesaComNome()" classname="org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaServiceTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
