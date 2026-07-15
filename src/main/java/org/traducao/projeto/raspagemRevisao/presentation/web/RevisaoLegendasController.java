@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.raspagemRevisao.presentation.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,12 +7,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.web.OperacaoRequest;
+import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemRevisao.application.ResultadoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
 import java.util.Optional;

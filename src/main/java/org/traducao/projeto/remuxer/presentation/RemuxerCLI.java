@@ -7,7 +7,7 @@ import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.remuxer.presentation.ui.ConsoleRemuxerLogger;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleEntrada;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 

@@ -1,4 +1,5 @@
 package org.traducao.projeto.traducao.presentation.ui;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.io.BufferedReader;
 import java.io.IOException;

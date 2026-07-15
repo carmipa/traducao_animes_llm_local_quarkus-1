@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCase;
 import org.traducao.projeto.novoKaraoke.domain.NovoKaraokeException;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.nio.file.Paths;
 import java.util.Map;

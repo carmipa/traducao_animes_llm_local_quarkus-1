@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.traducao.projeto.renomearArquivos.domain.OperacaoRenomeacao;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;

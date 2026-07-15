@@ -15,7 +15,7 @@ import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
 import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;

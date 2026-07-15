@@ -9,7 +9,7 @@ import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
 import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
 import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
