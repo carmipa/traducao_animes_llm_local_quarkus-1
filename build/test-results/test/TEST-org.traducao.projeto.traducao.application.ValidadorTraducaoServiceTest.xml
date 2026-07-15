@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:56.540Z" hostname="DESKTOP-QDNQHL1" time="0.004">
+  <properties/>
+  <testcase name="rejeitaPreambuloDepoisDeTagAss()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.001"/>
+  <testcase name="rejeitaRotuloTraducaoNoInicio()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.001"/>
+  <testcase name="rejeitaFedsComoResiduoIngles()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <testcase name="aceitaFalaComPalavraTraducaoNoMeio()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <testcase name="aceitaComentarioAssEmInglesDentroDeChaves()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.001"/>
+  <testcase name="rejeitaResiduosReaisDoGundamNarrative()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <testcase name="aceitaFalaLimpaEmPortugues()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <testcase name="rejeitaResiduoInglesEmFalaMista()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <testcase name="rejeitaMarcadorErroTraducaoLegado()" classname="org.traducao.projeto.traducao.application.ValidadorTraducaoServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

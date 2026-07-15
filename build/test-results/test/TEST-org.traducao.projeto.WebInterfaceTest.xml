@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.WebInterfaceTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:46.434Z" hostname="DESKTOP-QDNQHL1" time="1.019">
+  <properties/>
+  <testcase name="indexContemAuditorConteudoModulo()" classname="org.traducao.projeto.WebInterfaceTest" time="0.412"/>
+  <testcase name="traducaoKaraokeHtmlEJsDisponiveis()" classname="org.traducao.projeto.WebInterfaceTest" time="0.075"/>
+  <testcase name="appJsDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.021"/>
+  <testcase name="logoDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.046"/>
+  <testcase name="internacionalizacaoAutomaticaDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.13"/>
+  <testcase name="cssDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.019"/>
+  <testcase name="indexSidebarComEstruturaNavMenuValida()" classname="org.traducao.projeto.WebInterfaceTest" time="0.059"/>
+  <testcase name="auditorConteudoHtmlDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.02"/>
+  <testcase name="modulosJsDisponiveis()" classname="org.traducao.projeto.WebInterfaceTest" time="0.152"/>
+  <testcase name="indexContemRevisaoLore()" classname="org.traducao.projeto.WebInterfaceTest" time="0.03"/>
+  <testcase name="indexHtmlDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.026"/>
+  <testcase name="revisaoLoreHtmlDisponivel()" classname="org.traducao.projeto.WebInterfaceTest" time="0.017"/>
+  <system-out><![CDATA[2026-07-15 12:24:46,666 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Telemetria de opera��o registrada: Limpeza de Cache � status=CONCLUIDO; falhas=0 (14 arquivos, 9 detectados, 0 corrigidos)
+2026-07-15 12:24:46,668 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio textual salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\limpeza_cache_20260715_122446.txt
+2026-07-15 12:24:46,668 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio JSON salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\limpeza_cache_20260715_122446.json
+2026-07-15 12:24:46,670 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) C�pia da telemetria unificada salva em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\telemetria_compartilhada.json
+2026-07-15 12:24:46,670 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio e telemetria da opera��o persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache
+Resultado da limpeza: CONCLUIDO | arquivos=14 alterados=0 falhas=0
+2026-07-15 12:24:46,671 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (pipeline-fila-execucao) Resultado da limpeza: CONCLUIDO | arquivos=14 alterados=0 falhas=0
+?[32m[SUCESSO] LIMPEZA E AUDITORIA DE CACHE — status=CONCLUIDO, arquivos=14, alterados=0, corrigidos=0, pendentes=0, falhas=0?[0m
+?[36m[RELATÓRIO FINAL] Operação: Limpeza e Auditoria de Cache | Tempo total: 0,4s | Término: 12:24:46?[0m
+Iniciando correção online do cache via Google Translate: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+[ARQUIVO] [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/2] Evento 478 — Banchi 18, Metis.
+?[33m[PENDENTE 1/2] Evento 478 — SEM_ALTERACAO?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

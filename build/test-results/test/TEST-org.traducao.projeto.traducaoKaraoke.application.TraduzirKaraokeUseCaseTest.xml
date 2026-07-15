@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCaseTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:56.658Z" hostname="DESKTOP-QDNQHL1" time="0.024">
+  <properties/>
+  <testcase name="aplicarTraduzCamadaInglesaEPreservaRomajiEDialogo()" classname="org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCaseTest" time="0.01"/>
+  <testcase name="reexecucaoReaproveitaCacheSemChamarLlmDeNovo()" classname="org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCaseTest" time="0.012"/>
+  <testcase name="simularClassificaSemChamarLlmESemGravar()" classname="org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCaseTest" time="0.002"/>
+  <system-out><![CDATA[2026-07-15 12:24:56,666 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\test_traducao_karaoke12833158245352463454\cache\karaoke\Anime Teste - S01E01.cache.json (1 entradas)
+2026-07-15 12:24:56,674 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\test_traducao_karaoke1390740085274263640\cache\karaoke\Anime Teste - S01E01.cache.json (1 entradas)
+2026-07-15 12:24:56,675 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache carregado de C:\Users\Paulo\AppData\Local\Temp\test_traducao_karaoke1390740085274263640\cache\karaoke\Anime Teste - S01E01.cache.json (1 entradas reaproveitaveis)
+2026-07-15 12:24:56,678 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\test_traducao_karaoke1390740085274263640\cache\karaoke\Anime Teste - S01E01.cache.json (1 entradas)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

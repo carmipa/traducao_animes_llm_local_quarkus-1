@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:52.815Z" hostname="DESKTOP-QDNQHL1" time="0.003">
+  <properties/>
+  <testcase name="bloqueiaPatenteEmInglesForaDaLore()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.001"/>
+  <testcase name="aceitaInsercaoPequenaDeNomePresenteNoOriginal()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.0"/>
+  <testcase name="aceitaTrocaLocalPorTermoCanonicoComprovado()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.0"/>
+  <testcase name="bloqueiaReescritaAmplaDaFala()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.001"/>
+  <testcase name="bloqueiaTrocaDeSinonimo()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.0"/>
+  <testcase name="bloqueiaPsychoFrameCorrompido()" classname="org.traducao.projeto.revisaoLore.application.ValidadorCandidatoLoreServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

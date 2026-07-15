@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:51.755Z" hostname="DESKTOP-QDNQHL1" time="0.012">
+  <properties/>
+  <testcase name="parseiaContainerVideoAudioELegendaAss()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="jsonMalformadoViraAnalisadorException()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.002"/>
+  <testcase name="leCapitulosAnexosEFlagsDeDisposition()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="legendaPgsSemIdiomaCaiEmDesconhecido()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="mapeiaFormatoECodecDasTrilhasDeLegendaDeTextoEBitmap()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.0"/>
+  <testcase name="duracaoDisponivelSomenteNaTagDurationDaTrilha()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.0"/>
+  <testcase name="falhaDoFfprobeViraAnalisadorException()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.0"/>
+  <testcase name="semLegendaResultaEmListaVaziaE8BitsEmPixFmt()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="containerComDuracaoValidaNaoEhSobrescritoPeloFallback()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="streamsAusenteNaoQuebra()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.001"/>
+  <testcase name="jsonIncompletoSemFormatNemStreamsNaoQuebra()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.0"/>
+  <testcase name="duracaoAusenteNoContainerUsaFallbackDaTrilhaDeVideo()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.0"/>
+  <testcase name="valoresNumericosAusentesOuInvalidosCaemEmDefaultSemNPE()" classname="org.traducao.projeto.analisadorMidia.infrastructure.adapters.FfprobeAdapterTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
