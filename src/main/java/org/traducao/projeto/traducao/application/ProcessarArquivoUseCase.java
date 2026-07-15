@@ -26,8 +26,8 @@ import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
-import org.traducao.projeto.telemetria.LlmTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
+import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,7 +78,7 @@ public class ProcessarArquivoUseCase {
     private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
     private final PastasExecucao pastasExecucao;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaTraducaoPort telemetriaTraducao;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
     private final GerenciadorContexto gerenciadorContexto;
@@ -97,7 +97,7 @@ public class ProcessarArquivoUseCase {
         LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
         PastasExecucao pastasExecucao,
-        TelemetriaService telemetriaService,
+        TelemetriaTraducaoPort telemetriaTraducao,
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
         GerenciadorContexto gerenciadorContexto
@@ -115,7 +115,7 @@ public class ProcessarArquivoUseCase {
         this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
         this.pastasExecucao = pastasExecucao;
-        this.telemetriaService = telemetriaService;
+        this.telemetriaTraducao = telemetriaTraducao;
         this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
         this.gerenciadorContexto = gerenciadorContexto;
@@ -256,7 +256,7 @@ public class ProcessarArquivoUseCase {
                     String motivo = motivoFalhaFinal(parcial.getKey(), parcial.getValue());
                     parciaisValidadas.put(parcial.getKey(), motivo == null ? parcial.getValue() : "");
                     if (motivo != null) {
-                        telemetriaService.registrarFallbackMantido();
+                        telemetriaTraducao.registrarFallbackMantido();
                     }
                 }
 
@@ -298,7 +298,7 @@ public class ProcessarArquivoUseCase {
             // sincronia da legenda seja preservada durante a revisão.
             traducoesValidadas.put(original, "");
             falhasDistintas.add(original);
-            telemetriaService.registrarFallbackMantido();
+            telemetriaTraducao.registrarFallbackMantido();
             String aviso = "Fala pendente após tentativas do LLM: " + motivoFalha + ". Original: " + original;
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
@@ -355,7 +355,7 @@ public class ProcessarArquivoUseCase {
         uiLogger.registrarFalasNovas(traducoesNovasValidas);
         StatusArquivoTraducao status = avisos.isEmpty() && falhasDistintas.isEmpty()
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
-        telemetriaService.registrarTraducao(new LlmTelemetria(
+        telemetriaTraducao.registrarTraducao(new TelemetriaTraducao(
             arquivoEntrada.getFileName().toString(),
             llmPropriedades.model(),
             eventosTraduziveis.size(),
@@ -462,7 +462,7 @@ public class ProcessarArquivoUseCase {
         try {
             String traduzido = mascarador.desmascarar(traduzidoMascarado, tags);
             if (protecaoAss.respostaSuspeita(original, traduzido)) {
-                telemetriaService.registrarAlucinacaoPrevenida();
+                telemetriaTraducao.registrarAlucinacaoPrevenida();
                 log.warn("LLM contaminou linha ASS pesada — mantendo original. Original: \"{}\" Traduzido: \"{}\"",
                     original, traduzido);
                 uiLogger.log("[ WARN ] Linha ASS pesada contaminada pelo LLM — mantida sem tradução (revise manualmente): " + original);
@@ -471,7 +471,7 @@ public class ProcessarArquivoUseCase {
             }
             return traduzido;
         } catch (AlucinacaoDetectadaException e) {
-            telemetriaService.registrarAlucinacaoPrevenida();
+            telemetriaTraducao.registrarAlucinacaoPrevenida();
             log.warn("Tags corrompidas pelo LLM nesta fala — mantendo o texto original sem tradução. Motivo: {}. Original: \"{}\"",
                 e.getMessage(), original);
             uiLogger.log("[ WARN ] Tags corrompidas pelo LLM — fala mantida sem tradução (revise manualmente): " + original);

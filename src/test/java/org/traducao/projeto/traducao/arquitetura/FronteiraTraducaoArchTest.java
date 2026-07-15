@@ -37,18 +37,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       ExtratorVideoPort/ExtratorStrategy} (producers movidos para
  *       {@code legendasExtracao.ExtracaoBeansConfig}).</li>
  *   <li><b>Após D-Lore</b>: eliminada a aresta {@code MistralClientAdapter →
- *       PromptRevisaoLore} ({@code revisarLore} removido de {@code MistralPort}/
- *       {@code MistralClientAdapter}; a Revisão de Lore ganhou stack LLM própria);
- *       o bytecode cai para <b>14</b> arestas funcionais. Ao fim da FASE D o
- *       esperado é 8 imports / 9 arestas bytecode (só os três controllers C2).</li>
+ *       PromptRevisaoLore} (Revisão de Lore com stack LLM própria).</li>
+ *   <li><b>Após D-Tel-4</b>: eliminadas as 5 arestas vivas de bytecode do grupo
+ *       D-Tel (ProcessarArquivoUseCase/ProcessarEpisodioUseCase/TraducaoController →
+ *       telemetria), pois esses consumidores passaram a usar a telemetria própria
+ *       ({@code TelemetriaTraducaoPort}); o bytecode cai para <b>9</b> arestas
+ *       funcionais. As 9 são somente os três controllers bloqueados para a C2 —
+ *       das quais 3 ainda apontam para telemetria (TelemetriaController), toleradas
+ *       nominalmente por ALLOW-TELEMETRIA-C2 até a C2.</li>
  *   <li>O conjunto real de arestas funcionais de saída da Tradução Local deve ser
- *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (14 após D-Lore).
- *       Aparecer nova aresta, mudar o destino para outra classe da mesma fatia, ou
- *       trocar import por FQN reprova o teste.</li>
+ *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (9 após D-Tel-4).</li>
  *   <li><b>Regra dedicada revisaoLore</b>: nenhuma classe de {@code ..revisaoLore..}
  *       depende de {@code MistralPort}, {@code StatusLlm}, {@code LlmProperties},
  *       {@code JsonHttpClient}, {@code RecordsMistral}, {@code MistralClientAdapter}
- *       ou {@code GerenciadorContexto}. Demais entradas ficam para a FASE E.</li>
+ *       ou {@code GerenciadorContexto}.</li>
+ *   <li><b>Regra blindada telemetria</b>: nenhuma classe de {@code ..traducao..}
+ *       importa {@code ..telemetria..}, exceto as 3 arestas de {@code TelemetriaController}
+ *       (ALLOW-TELEMETRIA-C2, removidas na C2).</li>
  *   <li>Aresta técnica temporária de saída para {@code config}: exatamente
  *       {@link #ALLOW_CONFIG_CLI} (removida em D-Config).</li>
  *   <li>Regra reversa: {@code config} depende de {@code traducao} apenas por
@@ -83,15 +88,12 @@ class FronteiraTraducaoArchTest {
 
     // Origens (produção, em traducao)
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
-    private static final String PROCESSAR_EPISODIO = RAIZ + ".traducao.application.ProcessarEpisodioUseCase";
-    private static final String TRADUCAO_CONTROLLER = RAIZ + ".traducao.presentation.web.TraducaoController";
     private static final String MISTRAL_ADAPTER = RAIZ + ".traducao.infrastructure.adapters.MistralClientAdapter";
     private static final String CORRECAO_CACHE_CONTROLLER = RAIZ + ".traducao.presentation.web.CorrecaoCacheController";
     private static final String REVISAO_LEGENDAS_CONTROLLER = RAIZ + ".traducao.presentation.web.RevisaoLegendasController";
     private static final String TELEMETRIA_CONTROLLER = RAIZ + ".traducao.presentation.web.TelemetriaController";
 
     // Destinos (outras fatias)
-    private static final String T_LLM_TELEMETRIA = RAIZ + ".telemetria.LlmTelemetria";
     private static final String T_TELEMETRIA_SERVICE = RAIZ + ".telemetria.TelemetriaService";
     private static final String T_TELEMETRIA_RESUMO = RAIZ + ".telemetria.TelemetriaResumo";
     private static final String T_TELEMETRIA_DATASET = RAIZ + ".telemetria.TelemetriaDatasetService";
@@ -115,6 +117,15 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"
     );
 
+    // Pacote do módulo de telemetria. Após D-Tel-4, nenhuma classe de traducao pode
+    // depender dele, EXCETO as 3 arestas do TelemetriaController (bloqueado até a C2).
+    private static final String PKG_TELEMETRIA = RAIZ + ".telemetria";
+    private static final Set<String> ALLOW_TELEMETRIA_C2 = Set.of(
+        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_RESUMO),
+        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_SERVICE),
+        aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_DATASET)
+    );
+
     /** Aresta técnica temporária de saída para config (removida em D-Config). */
     private static final String ALLOW_CONFIG_CLI = CLASSE_TRADUTOR_CLI + " -> " + RAIZ + ".config.ExecucaoCli";
 
@@ -122,19 +133,17 @@ class FronteiraTraducaoArchTest {
     private static final String ALLOW_STARTUP_CLI = CLASSE_MODO_STARTUP + " -> " + CLASSE_TRADUTOR_CLI;
 
     /**
-     * Baseline exata: as 14 arestas funcionais reais no bytecode após D-Lore (origem
+     * Baseline exata: as 9 arestas funcionais reais no bytecode após D-Tel-4 (origem
      * FQN → destino FQN). Autorização SEMPRE por aresta exata — nunca por nome de fatia.
      */
     private static final Set<String> ARESTAS_FUNCIONAIS_ESPERADAS = Set.of(
-        // D-Tel vivo (5) — removidas em D-Tel-4
-        aresta(PROCESSAR_ARQUIVO, T_LLM_TELEMETRIA),        // 1
-        aresta(PROCESSAR_ARQUIVO, T_TELEMETRIA_SERVICE),    // 2
-        aresta(PROCESSAR_EPISODIO, T_TELEMETRIA_SERVICE),   // 3
-        aresta(TRADUCAO_CONTROLLER, T_TELEMETRIA_SERVICE),  // 4
-        aresta(TRADUCAO_CONTROLLER, T_LLM_TELEMETRIA),      // 5 (FQ no corpo)
-        // D-Lore: ELIMINADA (revisarLore removido de MistralPort/MistralClientAdapter;
-        //         revisaoLore ganhou stack LLM própria). A aresta
-        //         MistralClientAdapter -> PromptRevisaoLore não existe mais.
+        // D-Tel vivo: ELIMINADA (D-Tel-4). As 5 arestas vivas de bytecode
+        //   (ProcessarArquivoUseCase -> {LlmTelemetria, TelemetriaService};
+        //    ProcessarEpisodioUseCase -> TelemetriaService;
+        //    TraducaoController -> {TelemetriaService, LlmTelemetria})
+        //   foram eliminadas: esses 3 consumidores passaram a usar a telemetria
+        //   PRÓPRIA (traducao.domain.ports.TelemetriaTraducaoPort). Baseline: 14 -> 9.
+        // D-Lore: ELIMINADA (revisarLore removido; revisaoLore com stack LLM própria).
         // D-Ext: ELIMINADA (producers movidos para legendasExtracao.ExtracaoBeansConfig).
         // Controllers bloqueados para C2 (9) — permanecem até a C2
         aresta(CORRECAO_CACHE_CONTROLLER, T_CORRIGIR_COM_GOOGLE),  // 9
@@ -176,7 +185,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("Saídas funcionais da Tradução Local == 14 arestas exatas (após D-Lore; allowlist estrita)")
+    @DisplayName("Saídas funcionais da Tradução Local == 9 arestas exatas (após D-Tel-4; allowlist estrita)")
     void saidasFuncionaisBatemComAllowlistExata() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -204,7 +213,7 @@ class FronteiraTraducaoArchTest {
         ausentes.removeAll(reais);
 
         assertTrue(inesperadas.isEmpty() && ausentes.isEmpty(),
-            () -> "Divergência na baseline exata de 14 arestas funcionais (após D-Lore).\n"
+            () -> "Divergência na baseline exata de 9 arestas funcionais (após D-Tel-4).\n"
                 + "Arestas INESPERADAS (novas/destino trocado): " + inesperadas + "\n"
                 + "Arestas ESPERADAS AUSENTES: " + ausentes);
     }
@@ -295,6 +304,35 @@ class FronteiraTraducaoArchTest {
             () -> "revisaoLore não pode importar a stack LLM/contexto da Tradução Local "
                 + "(MistralPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsMistral/MistralClientAdapter/"
                 + "GerenciadorContexto). As demais entradas ficam para a FASE E. Violações:\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("traducao não depende de telemetria (D-Tel-4), exceto as 3 arestas C2 do TelemetriaController")
+    void traducaoNaoDependeDeTelemetria() {
+        List<String> violacoes = new ArrayList<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                String pkg = dependencia.getTargetClass().getPackageName();
+                boolean ehTelemetria = pkg.equals(PKG_TELEMETRIA) || pkg.startsWith(PKG_TELEMETRIA + ".");
+                if (!ehTelemetria) {
+                    continue;
+                }
+                String aresta = aresta(origem, destino);
+                if (ALLOW_TELEMETRIA_C2.contains(aresta)) {
+                    continue; // débito C2 nominal: TelemetriaController sai da traducao na C2
+                }
+                violacoes.add(aresta);
+            }
+        }
+        assertTrue(violacoes.isEmpty(),
+            () -> "Nenhuma classe de traducao pode importar telemetria (D-Tel-4). "
+                + "Exceção nominal apenas ALLOW-TELEMETRIA-C2 (TelemetriaController, removida na C2). Violações:\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
