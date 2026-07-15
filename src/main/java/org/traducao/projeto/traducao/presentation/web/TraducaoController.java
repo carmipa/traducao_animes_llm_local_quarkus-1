@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
+import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
@@ -51,7 +52,7 @@ public class TraducaoController {
     private final GerenciadorContexto gerenciadorContexto;
     private final PastasExecucao pastasExecucao;
     private final TradutorProperties propriedades;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaTraducaoPort telemetriaTraducao;
 
     public TraducaoController(
             PipelineWebSupport pipelineWebSupport,
@@ -60,14 +61,14 @@ public class TraducaoController {
             GerenciadorContexto gerenciadorContexto,
             PastasExecucao pastasExecucao,
             TradutorProperties propriedades,
-            TelemetriaService telemetriaService) {
+            TelemetriaTraducaoPort telemetriaTraducao) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.processarArquivoUseCase = processarArquivoUseCase;
         this.mistralPort = mistralPort;
         this.gerenciadorContexto = gerenciadorContexto;
         this.pastasExecucao = pastasExecucao;
         this.propriedades = propriedades;
-        this.telemetriaService = telemetriaService;
+        this.telemetriaTraducao = telemetriaTraducao;
     }
 
     /**
@@ -218,7 +219,7 @@ public class TraducaoController {
         Path pai = arquivo.getParent();
         String anime = (pai != null && pai.getParent() != null && pai.getParent().getFileName() != null)
             ? pai.getParent().getFileName().toString() : "Desconhecido";
-        telemetriaService.registrarTraducao(new org.traducao.projeto.telemetria.LlmTelemetria(
+        telemetriaTraducao.registrarTraducao(new TelemetriaTraducao(
             nome, null, 0, 0, 0, 0L,
             java.util.List.of(motivo != null ? motivo : status.getRotulo()),
             anime, "Temporada Única", java.time.Instant.now().toString(),

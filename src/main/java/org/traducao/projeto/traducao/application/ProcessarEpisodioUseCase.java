@@ -12,7 +12,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class ProcessarEpisodioUseCase {
     private final MistralPort mistralPort;
     private final ValidadorTraducaoService validador;
     private final ConsoleUILogger uiLogger;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaTraducaoPort telemetriaTraducao;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe tradução, validação, acompanhamento visual e
@@ -54,12 +54,12 @@ public class ProcessarEpisodioUseCase {
         MistralPort mistralPort,
         ValidadorTraducaoService validador,
         ConsoleUILogger uiLogger,
-        TelemetriaService telemetriaService
+        TelemetriaTraducaoPort telemetriaTraducao
     ) {
         this.mistralPort = mistralPort;
         this.validador = validador;
         this.uiLogger = uiLogger;
-        this.telemetriaService = telemetriaService;
+        this.telemetriaTraducao = telemetriaTraducao;
     }
 
     public List<TraducaoLote> processarEpisodio(List<Lote> lotes) throws InterruptedException, ExecutionException {
@@ -186,13 +186,13 @@ public class ProcessarEpisodioUseCase {
                     Math.min(tentativa - 1, TEMPERATURA_POR_TENTATIVA.length - 1)];
                 List<String> traducao = traduzirERevalidarBruto(lote, temperatura, promptSistemaCongelado);
                 if (houveRespostaRejeitada) {
-                    telemetriaService.registrarFalhaTraducaoRecuperada();
+                    telemetriaTraducao.registrarFalhaTraducaoRecuperada();
                 }
                 return traducao;
             } catch (DivergenciaLinhasException | AlucinacaoDetectadaException e) {
                 ultimaFalha = e;
                 houveRespostaRejeitada = true;
-                telemetriaService.registrarRespostaTraducaoRejeitada();
+                telemetriaTraducao.registrarRespostaTraducaoRejeitada();
             }
         }
 
