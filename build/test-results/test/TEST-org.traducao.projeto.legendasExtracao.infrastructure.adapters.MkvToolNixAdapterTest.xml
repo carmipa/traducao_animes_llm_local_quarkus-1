@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:22.959Z" hostname="DESKTOP-QDNQHL1" time="0.005">
+  <properties/>
+  <testcase name="jsonInvalidoViraExtratorException()" classname="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" time="0.001"/>
+  <testcase name="identificaSomenteFaixasDeLegendaComSuasPropriedades()" classname="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" time="0.001"/>
+  <testcase name="suportaApenasMkvEWebm()" classname="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" time="0.001"/>
+  <testcase name="semLegendasRetornaListaVazia()" classname="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" time="0.0"/>
+  <testcase name="idiomaAusenteCaiEmUnd()" classname="org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapterTest" time="0.0"/>
+  <system-out><![CDATA[2026-07-15 11:59:22,959 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 11:59:22,959 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+2026-07-15 11:59:22,960 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 11:59:22,961 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+2026-07-15 11:59:22,962 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 11:59:22,962 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+2026-07-15 11:59:22,962 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 11:59:22,962 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+2026-07-15 11:59:22,964 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvmerge.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvmerge.exe
+2026-07-15 11:59:22,964 INFO  [org.traducao.projeto.legendasExtracao.infrastructure.adapters.MkvToolNixAdapter] (Test worker) mkvextract.exe detectado no caminho padr�o: C:\Program Files\MKVToolNix\mkvextract.exe
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

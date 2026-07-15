@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.ApiControllerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:10.745Z" hostname="DESKTOP-QDNQHL1" time="2.508">
+  <properties/>
+  <testcase name="statusRetornaOnline()" classname="org.traducao.projeto.ApiControllerTest" time="1.366"/>
+  <testcase name="contextosRetornaListaNaoVazia()" classname="org.traducao.projeto.ApiControllerTest" time="0.059"/>
+  <testcase name="traduzirSemEntradaRetornaBadRequest()" classname="org.traducao.projeto.ApiControllerTest" time="0.1"/>
+  <system-out><![CDATA[2026-07-15 11:59:11,635 INFO  [org.traducao.projeto.traducao.presentation.web.DialogoArquivoController] (Test worker) Seletor nativo do Windows pre-aquecido e pronto
+
+==============================================================
+   SERVIDOR WEB INICIADO COM SUCESSO!
+   Acesse a interface visual em: ?[36mhttp://127.0.0.1:8099?[0m
+==============================================================
+
+2026-07-15 11:59:11,707 INFO  [io.quarkus] (Test worker) code-with-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 3.37.0) started in 3.830s. Listening on: http://127.0.0.1:63666
+2026-07-15 11:59:11,707 INFO  [io.quarkus] (Test worker) Profile test activated. 
+2026-07-15 11:59:11,707 INFO  [io.quarkus] (Test worker) Installed features: [cdi, config-yaml, mcp-server-http, rest, rest-jackson, smallrye-context-propagation, spring-boot-properties, spring-di, spring-web, vertx]
+2026-07-15 11:59:11,708 INFO  [io.quarkiverse.mcp.server] (executor-thread-1) MCP HTTP transport endpoints [streamable: http://127.0.0.1:-1/mcp, SSE: http://127.0.0.1:-1/mcp/sse]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

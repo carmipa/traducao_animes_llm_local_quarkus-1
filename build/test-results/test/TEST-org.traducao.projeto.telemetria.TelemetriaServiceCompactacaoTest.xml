@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.telemetria.TelemetriaServiceCompactacaoTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:23.862Z" hostname="DESKTOP-QDNQHL1" time="0.002">
+  <properties/>
+  <testcase name="avisosNulosNaoQuebramCompactacao()" classname="org.traducao.projeto.telemetria.TelemetriaServiceCompactacaoTest" time="0.0"/>
+  <testcase name="compactacaoEIdempotente()" classname="org.traducao.projeto.telemetria.TelemetriaServiceCompactacaoTest" time="0.001"/>
+  <testcase name="episodioComAvisosDemaisEncolheParaAmostraComResumo()" classname="org.traducao.projeto.telemetria.TelemetriaServiceCompactacaoTest" time="0.001"/>
+  <testcase name="episodioComPoucosAvisosPassaIntacto()" classname="org.traducao.projeto.telemetria.TelemetriaServiceCompactacaoTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

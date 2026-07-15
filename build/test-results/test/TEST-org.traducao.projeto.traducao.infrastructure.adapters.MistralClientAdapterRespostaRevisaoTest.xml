@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.infrastructure.adapters.MistralClientAdapterRespostaRevisaoTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:27.020Z" hostname="DESKTOP-QDNQHL1" time="0.003">
+  <properties/>
+  <testcase name="selecionaUltimaLinhaUtilSemTags()" classname="org.traducao.projeto.traducao.infrastructure.adapters.MistralClientAdapterRespostaRevisaoTest" time="0.002"/>
+  <testcase name="rejeitaRespostaQuePerdeMarcador()" classname="org.traducao.projeto.traducao.infrastructure.adapters.MistralClientAdapterRespostaRevisaoTest" time="0.0"/>
+  <testcase name="removeCercaMarkdown()" classname="org.traducao.projeto.traducao.infrastructure.adapters.MistralClientAdapterRespostaRevisaoTest" time="0.0"/>
+  <testcase name="removeRaciocinioEPrefixoPreservandoTags()" classname="org.traducao.projeto.traducao.infrastructure.adapters.MistralClientAdapterRespostaRevisaoTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
