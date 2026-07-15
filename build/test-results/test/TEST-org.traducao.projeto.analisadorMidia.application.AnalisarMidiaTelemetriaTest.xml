@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.analisadorMidia.application.AnalisarMidiaTelemetriaTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:49.558Z" hostname="DESKTOP-QDNQHL1" time="2.16">
+  <properties/>
+  <testcase name="novoLoteNaoApagaHistoricoEReanaliseDeduplicaSemCriarPasta(Path, Path)" classname="org.traducao.projeto.analisadorMidia.application.AnalisarMidiaTelemetriaTest" time="2.16"/>
+  <system-out><![CDATA[2026-07-15 12:24:49,644 INFO  [org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase] (Test worker) Iniciando auditoria t�cnica para 1 arquivo(s) de v�deo.
+[ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+[ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3.cache.json — 1 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/1] Evento 150 — Even the Feds aren't {\i1}that{\i0} dumb.
+2026-07-15 12:24:49,896 WARN  [org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper] (pipeline-fila-execucao) Google Translate perdeu a tag ASS {\i0}; mantendo texto original.
+?[33m[PENDENTE 1/1] Evento 150 — TAG_CORROMPIDA?[0m
+[ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+[ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/2] Evento 66 — {\i1}98! 97!
+2026-07-15 12:24:50,395 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Telemetria de opera��o registrada: Analise de Midia � Analisados: 1 | Falhas: 0 (1 arquivos, 1 detectados, 0 corrigidos)
+2026-07-15 12:24:50,406 INFO  [org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase] (Test worker) Iniciando auditoria t�cnica para 1 arquivo(s) de v�deo.
+?[33m[PENDENTE 1/2] Evento 66 — SEM_ALTERACAO?[0m
+[CORRIGINDO 2/2] Evento 158 — Rob... Sally... Mike...
+?[33m[PENDENTE 2/2] Evento 158 — SEM_ALTERACAO?[0m
+2026-07-15 12:24:51,040 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Telemetria de opera��o registrada: Analise de Midia � Analisados: 1 | Falhas: 0 (1 arquivos, 1 detectados, 0 corrigidos)
+2026-07-15 12:24:51,048 INFO  [org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase] (Test worker) Iniciando auditoria t�cnica para 1 arquivo(s) de v�deo.
+[ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3.cache.json — 1 entrada(s) pendente(s) para correção.
+[CORRIGINDO 1/1] Evento 70 — {\fad(0,1354)}A mobile suit...
+?[33m[PENDENTE 1/1] Evento 70 — SEM_ALTERACAO?[0m
+2026-07-15 12:24:51,708 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (Test worker) Telemetria de opera��o registrada: Analise de Midia � Analisados: 1 | Falhas: 0 (1 arquivos, 1 detectados, 0 corrigidos)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

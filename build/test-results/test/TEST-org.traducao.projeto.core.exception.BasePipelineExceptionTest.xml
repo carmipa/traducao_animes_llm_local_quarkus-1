@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.core.exception.BasePipelineExceptionTest" tests="62" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:51.801Z" hostname="DESKTOP-QDNQHL1" time="0.063">
+  <properties/>
+  <testcase name="[1] org.traducao.projeto.mapaProjeto.domain.exceptions.MapaProjetoException: falha no mapa do projeto" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.004"/>
+  <testcase name="[2] org.traducao.projeto.traducaoCorrige.domain.exceptions.CorretorCacheException: falha no corretor de cache" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[3] org.traducao.projeto.raspagemCorrecao.domain.exceptions.RaspagemCorrecaoException: falha na correção via Google" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[4] org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException: falha na revisão de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[5] org.traducao.projeto.remuxer.domain.RemuxerException: falha no remuxer" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[6] org.traducao.projeto.remuxer.domain.MkvToolNixNaoEncontradoException: mkvmerge não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[7] org.traducao.projeto.analisadorMidia.domain.exceptions.AnaliseStreamException: falha ao analisar stream" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[8] org.traducao.projeto.analisadorMidia.domain.AnalisadorException: falha no analisador de mídia" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[9] org.traducao.projeto.legendasExtracao.domain.ExtratorException: falha no extrator de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[10] org.traducao.projeto.legendasExtracao.domain.exceptions.FormatoLegendaInvalidoException: formato de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[11] org.traducao.projeto.apiDadosAnime.domain.exceptions.ApiDadosAnimeException: falha ao obter metadata" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[12] org.traducao.projeto.apiDadosAnime.domain.exceptions.AnimeNaoEncontradoException: anime não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[13] org.traducao.projeto.traducao.domain.exceptions.ContextoNaoEncontradoException: contexto não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[14] org.traducao.projeto.traducao.domain.exceptions.LmStudioOfflineException: LM Studio offline" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[15] org.traducao.projeto.traducao.domain.exceptions.TradutorException: falha no tradutor" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[16] org.traducao.projeto.traducao.domain.exceptions.LlmFalhaComunicacaoException: falha de comunicação com o LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[17] org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException: resposta vazia do LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[18] org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException: arquivo de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[19] org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException: alucinação detectada" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[20] org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException: divergência de linhas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="cadaInstanciaTemErrorIdUnico()" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[1] org.traducao.projeto.mapaProjeto.domain.exceptions.MapaProjetoException: falha no mapa do projeto" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[2] org.traducao.projeto.traducaoCorrige.domain.exceptions.CorretorCacheException: falha no corretor de cache" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[3] org.traducao.projeto.raspagemCorrecao.domain.exceptions.RaspagemCorrecaoException: falha na correção via Google" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[4] org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException: falha na revisão de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[5] org.traducao.projeto.remuxer.domain.RemuxerException: falha no remuxer" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[6] org.traducao.projeto.remuxer.domain.MkvToolNixNaoEncontradoException: mkvmerge não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[7] org.traducao.projeto.analisadorMidia.domain.exceptions.AnaliseStreamException: falha ao analisar stream" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[8] org.traducao.projeto.analisadorMidia.domain.AnalisadorException: falha no analisador de mídia" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[9] org.traducao.projeto.legendasExtracao.domain.ExtratorException: falha no extrator de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[10] org.traducao.projeto.legendasExtracao.domain.exceptions.FormatoLegendaInvalidoException: formato de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[11] org.traducao.projeto.apiDadosAnime.domain.exceptions.ApiDadosAnimeException: falha ao obter metadata" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[12] org.traducao.projeto.apiDadosAnime.domain.exceptions.AnimeNaoEncontradoException: anime não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[13] org.traducao.projeto.traducao.domain.exceptions.ContextoNaoEncontradoException: contexto não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[14] org.traducao.projeto.traducao.domain.exceptions.LmStudioOfflineException: LM Studio offline" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[15] org.traducao.projeto.traducao.domain.exceptions.TradutorException: falha no tradutor" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[16] org.traducao.projeto.traducao.domain.exceptions.LlmFalhaComunicacaoException: falha de comunicação com o LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[17] org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException: resposta vazia do LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[18] org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException: arquivo de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[19] org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException: alucinação detectada" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[20] org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException: divergência de linhas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="propagaACauseQuandoFornecida()" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[1] org.traducao.projeto.mapaProjeto.domain.exceptions.MapaProjetoException: falha no mapa do projeto" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[2] org.traducao.projeto.traducaoCorrige.domain.exceptions.CorretorCacheException: falha no corretor de cache" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[3] org.traducao.projeto.raspagemCorrecao.domain.exceptions.RaspagemCorrecaoException: falha na correção via Google" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[4] org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException: falha na revisão de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[5] org.traducao.projeto.remuxer.domain.RemuxerException: falha no remuxer" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[6] org.traducao.projeto.remuxer.domain.MkvToolNixNaoEncontradoException: mkvmerge não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[7] org.traducao.projeto.analisadorMidia.domain.exceptions.AnaliseStreamException: falha ao analisar stream" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[8] org.traducao.projeto.analisadorMidia.domain.AnalisadorException: falha no analisador de mídia" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[9] org.traducao.projeto.legendasExtracao.domain.ExtratorException: falha no extrator de legendas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[10] org.traducao.projeto.legendasExtracao.domain.exceptions.FormatoLegendaInvalidoException: formato de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[11] org.traducao.projeto.apiDadosAnime.domain.exceptions.ApiDadosAnimeException: falha ao obter metadata" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[12] org.traducao.projeto.apiDadosAnime.domain.exceptions.AnimeNaoEncontradoException: anime não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[13] org.traducao.projeto.traducao.domain.exceptions.ContextoNaoEncontradoException: contexto não encontrado" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.001"/>
+  <testcase name="[14] org.traducao.projeto.traducao.domain.exceptions.LmStudioOfflineException: LM Studio offline" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[15] org.traducao.projeto.traducao.domain.exceptions.TradutorException: falha no tradutor" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[16] org.traducao.projeto.traducao.domain.exceptions.LlmFalhaComunicacaoException: falha de comunicação com o LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[17] org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException: resposta vazia do LLM" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[18] org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException: arquivo de legenda inválido" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[19] org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException: alucinação detectada" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <testcase name="[20] org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException: divergência de linhas" classname="org.traducao.projeto.core.exception.BasePipelineExceptionTest" time="0.0"/>
+  <system-out><![CDATA[2026-07-15 12:24:51,849 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Telemetria de opera��o registrada: Corre��o Google (cache) � status=CONCLUIDO_COM_PENDENCIAS; pendentes=9; falhas=0 (14 arquivos, 9 detectados, 0 corrigidos)
+2026-07-15 12:24:51,850 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio textual salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\correcao_google_cache_20260715_122451.txt
+2026-07-15 12:24:51,850 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio JSON salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\correcao_google_cache_20260715_122451.json
+2026-07-15 12:24:51,853 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) C�pia da telemetria unificada salva em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache\telemetria_compartilhada.json
+2026-07-15 12:24:51,853 INFO  [org.traducao.projeto.telemetria.TelemetriaService] (pipeline-fila-execucao) Relat�rio e telemetria da opera��o persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\cache
+Resultado da correção Google: CONCLUIDO_COM_PENDENCIAS | corrigidas=0 pendentes=9 falhas=0
+?[33m[ATENÇÃO] CORREÇÃO ONLINE VIA GOOGLE TRANSLATE — status=CONCLUIDO_COM_PENDENCIAS, arquivos=14, alterados=0, corrigidos=0, pendentes=9, falhas=0?[0m
+?[36m[RELATÓRIO FINAL] Operação: Correção via Google Translate | Tempo total: 5,2s | Término: 12:24:51?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

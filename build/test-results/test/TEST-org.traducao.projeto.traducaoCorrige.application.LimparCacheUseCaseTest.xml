@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCaseTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:56.632Z" hostname="DESKTOP-QDNQHL1" time="0.021">
+  <properties/>
+  <testcase name="cacheLegadoSemContextoFalhaSemModificar()" classname="org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCaseTest" time="0.007"/>
+  <testcase name="limpaVersionadoPreservandoLoreEProveniencia()" classname="org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCaseTest" time="0.014"/>
+  <system-out><![CDATA[Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-9636656889703690338\cache-legado
+2026-07-15 12:24:56,633 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-9636656889703690338\cache-legado
+2026-07-15 12:24:56,634 ERROR [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) Falha ao limpar cache C:\Users\Paulo\AppData\Local\Temp\junit-9636656889703690338\cache-legado\ep.cache.json: Cache legado sem proveni�ncia: selecione a Obra / Contexto para processar ep.cache.json
+Resultado da limpeza: CONCLUIDO_COM_FALHAS | arquivos=1 alterados=0 falhas=1
+2026-07-15 12:24:56,636 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) Resultado da limpeza: CONCLUIDO_COM_FALHAS | arquivos=1 alterados=0 falhas=1
+Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\cache
+2026-07-15 12:24:56,642 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\cache
+?[32m[OK] ep.cache.json: 1 entrada(s) invalidadas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\backups\anime\ep.cache.json?[0m
+2026-07-15 12:24:56,647 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) ?[32m[OK] ep.cache.json: 1 entrada(s) invalidadas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\backups\anime\ep.cache.json?[0m
+Resultado da limpeza: CONCLUIDO | arquivos=1 alterados=1 falhas=0
+2026-07-15 12:24:56,648 INFO  [org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase] (Test worker) Resultado da limpeza: CONCLUIDO | arquivos=1 alterados=1 falhas=0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

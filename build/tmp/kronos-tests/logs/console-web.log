@@ -1,43 +1,430 @@
-2026-07-15 12:13:54.562 [console] ==============================================================
-2026-07-15 12:13:54.564 [console]    SERVIDOR WEB INICIADO COM SUCESSO!
-2026-07-15 12:13:54.564 [console]    Acesse a interface visual em: http://127.0.0.1:8099
-2026-07-15 12:13:54.564 [console] ==============================================================
-2026-07-15 12:13:56.210 [auditor-conteudo] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
-2026-07-15 12:13:56.211 [auditor-conteudo] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-8379780363343108634\solo_eng.ass
-2026-07-15 12:13:56.211 [auditor-conteudo] Formato : ASS
-2026-07-15 12:13:56.235 [auditor-conteudo] [Auditoria Conteudo] Arquivo limpo: solo_eng.ass
-2026-07-15 12:13:56.236 [auditor-conteudo] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-8379780363343108634\auditoria_conteudo_20260715_121356_232_1.json
-2026-07-15 12:13:56.237 [auditor-conteudo] Regras executadas: 6
-2026-07-15 12:13:56.237 [auditor-conteudo] Anomalias: 0
-2026-07-15 12:13:56.237 [auditor-conteudo] Duracao: 9 ms
-2026-07-15 12:13:56.239 [auditor-conteudo] [RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:13:56
-2026-07-15 12:13:56.309 [auditor-conteudo] === Auditoria de Conteudo de Legendas ===
-2026-07-15 12:13:56.310 [auditor-conteudo] Original : C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_eng.ass
-2026-07-15 12:13:56.310 [auditor-conteudo] Formato original: ASS
-2026-07-15 12:13:56.311 [auditor-conteudo] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\ep_pt.ass
-2026-07-15 12:13:56.311 [auditor-conteudo] Formato traduzido: ASS
-2026-07-15 12:13:56.316 [auditor-conteudo] [Auditoria Conteudo] Arquivo limpo: ep_pt.ass
-2026-07-15 12:13:56.317 [auditor-conteudo] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-340253897794675514\auditoria_conteudo_20260715_121356_315_2.json
-2026-07-15 12:13:56.317 [auditor-conteudo] Regras executadas: 18
-2026-07-15 12:13:56.318 [auditor-conteudo] Anomalias: 0
-2026-07-15 12:13:56.318 [auditor-conteudo] Duracao: 6 ms
-2026-07-15 12:13:56.319 [auditor-conteudo] [RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:13:56
-2026-07-15 12:13:56.587 [console] Request method:	GET
-2026-07-15 12:13:56.588 [console] Request URI:	http://127.0.0.1:51918/api/telemetria/exportar
-2026-07-15 12:13:56.588 [console] Proxy:			<none>
-2026-07-15 12:13:56.589 [console] Request params:	<none>
-2026-07-15 12:13:56.589 [console] Query params:	<none>
-2026-07-15 12:13:56.589 [console] Form params:	<none>
-2026-07-15 12:13:56.590 [console] Path params:	<none>
-2026-07-15 12:13:56.590 [console] Headers:		Accept=*/*
-2026-07-15 12:13:56.591 [console] Cookies:		<none>
-2026-07-15 12:13:56.591 [console] Multiparts:		<none>
-2026-07-15 12:13:56.591 [console] Body:			<none>
-2026-07-15 12:13:56.593 [console] HTTP/1.1 404 Not Found
-2026-07-15 12:13:56.594 [console] content-length: 0
-2026-07-15 12:13:59.734 [revisao-lore] ========================================================================
-2026-07-15 12:13:59.736 [revisao-lore]   [FALHOU] REVISAO DE LORE
-2026-07-15 12:13:59.736 [revisao-lore]   LLM indisponivel para revisao de lore: Não foi possível conectar ao servidor LLM em http://127.0.0.1:1234/v1: null
-2026-07-15 12:13:59.737 [revisao-lore] ========================================================================
-2026-07-15 12:13:59.737 [revisao-lore] [RELATÓRIO FINAL] Operação: Revisão de Lore (LLM) | Tempo total: 0,0s | Término: 12:13:59
-2026-07-15 12:14:00.509 [correcao] Iniciando limpeza segura de cache em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+2026-07-15 12:24:40.324 [console] ==============================================================
+2026-07-15 12:24:40.325 [console]    SERVIDOR WEB INICIADO COM SUCESSO!
+2026-07-15 12:24:40.326 [console]    Acesse a interface visual em: http://127.0.0.1:8099
+2026-07-15 12:24:40.326 [console] ==============================================================
+2026-07-15 12:24:42.077 [auditor-conteudo] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:42.077 [auditor-conteudo] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-764025298262166734\solo_eng.ass
+2026-07-15 12:24:42.078 [auditor-conteudo] Formato : ASS
+2026-07-15 12:24:42.094 [auditor-conteudo] [Auditoria Conteudo] Arquivo limpo: solo_eng.ass
+2026-07-15 12:24:42.095 [auditor-conteudo] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-764025298262166734\auditoria_conteudo_20260715_122442_093_1.json
+2026-07-15 12:24:42.096 [auditor-conteudo] Regras executadas: 6
+2026-07-15 12:24:42.096 [auditor-conteudo] Anomalias: 0
+2026-07-15 12:24:42.096 [auditor-conteudo] Duracao: 8 ms
+2026-07-15 12:24:42.098 [auditor-conteudo] [RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:24:42
+2026-07-15 12:24:42.155 [auditor-conteudo] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:42.156 [auditor-conteudo] Original : C:\Users\Paulo\AppData\Local\Temp\junit-15347153203591934121\ep_eng.ass
+2026-07-15 12:24:42.156 [auditor-conteudo] Formato original: ASS
+2026-07-15 12:24:42.157 [auditor-conteudo] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-15347153203591934121\ep_pt.ass
+2026-07-15 12:24:42.157 [auditor-conteudo] Formato traduzido: ASS
+2026-07-15 12:24:42.162 [auditor-conteudo] [Auditoria Conteudo] Arquivo limpo: ep_pt.ass
+2026-07-15 12:24:42.162 [auditor-conteudo] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-15347153203591934121\auditoria_conteudo_20260715_122442_161_2.json
+2026-07-15 12:24:42.163 [auditor-conteudo] Regras executadas: 18
+2026-07-15 12:24:42.163 [auditor-conteudo] Anomalias: 0
+2026-07-15 12:24:42.164 [auditor-conteudo] Duracao: 6 ms
+2026-07-15 12:24:42.164 [auditor-conteudo] [RELATÓRIO FINAL] Operação: Análise de Conteúdo de Legendas | Tempo total: 0,0s | Término: 12:24:42
+2026-07-15 12:24:45.567 [revisao-lore] ========================================================================
+2026-07-15 12:24:45.568 [revisao-lore]   [FALHOU] REVISAO DE LORE
+2026-07-15 12:24:45.568 [revisao-lore]   LLM indisponivel para revisao de lore: Não foi possível conectar ao servidor LLM em http://127.0.0.1:1234/v1: null
+2026-07-15 12:24:45.569 [revisao-lore] ========================================================================
+2026-07-15 12:24:45.570 [revisao-lore] [RELATÓRIO FINAL] Operação: Revisão de Lore (LLM) | Tempo total: 0,0s | Término: 12:24:45
+2026-07-15 12:24:46.301 [correcao] Iniciando limpeza segura de cache em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+2026-07-15 12:24:46.671 [correcao] Resultado da limpeza: CONCLUIDO | arquivos=14 alterados=0 falhas=0
+2026-07-15 12:24:46.672 [correcao] [SUCESSO] LIMPEZA E AUDITORIA DE CACHE — status=CONCLUIDO, arquivos=14, alterados=0, corrigidos=0, pendentes=0, falhas=0
+2026-07-15 12:24:46.674 [correcao] [RELATÓRIO FINAL] Operação: Limpeza e Auditoria de Cache | Tempo total: 0,4s | Término: 12:24:46
+2026-07-15 12:24:46.674 [correcao] Iniciando correção online do cache via Google Translate: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\cache
+2026-07-15 12:24:46.720 [correcao] [ARQUIVO] [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:46.735 [correcao] [CORRIGINDO 1/2] Evento 478 — Banchi 18, Metis.
+2026-07-15 12:24:47.220 [correcao] [PENDENTE 1/2] Evento 478 — SEM_ALTERACAO
+2026-07-15 12:24:47.471 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.472 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-807968397314257861\o.ass
+2026-07-15 12:24:47.472 [console] Formato original: ASS
+2026-07-15 12:24:47.473 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-807968397314257861\t.ass
+2026-07-15 12:24:47.474 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.477 [console] [Auditoria Conteudo] Arquivo limpo: t.ass
+2026-07-15 12:24:47.477 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-807968397314257861\auditoria_conteudo_20260715_122447_476_3.json
+2026-07-15 12:24:47.478 [console] Regras executadas: 18
+2026-07-15 12:24:47.478 [console] Anomalias: 0
+2026-07-15 12:24:47.479 [console] Duracao: 5 ms
+2026-07-15 12:24:47.486 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.487 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-12653911700500862532\o.ass
+2026-07-15 12:24:47.487 [console] Formato original: ASS
+2026-07-15 12:24:47.488 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-12653911700500862532\t.ass
+2026-07-15 12:24:47.488 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.494 [console] [Auditoria Conteudo] 2 anomalia(s) em t.ass
+2026-07-15 12:24:47.494 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — Quantidade de diálogos difere — original: 2, traduzido: 3. Há fala(s) perdida(s) ou inventada(s).
+2026-07-15 12:24:47.496 [console]   [ERROR] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) presente(s) só no traduzido — índice(s): [2]
+2026-07-15 12:24:47.496 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-12653911700500862532\auditoria_conteudo_20260715_122447_493_4.json
+2026-07-15 12:24:47.497 [console] Regras executadas: 18
+2026-07-15 12:24:47.497 [console] Anomalias: 2
+2026-07-15 12:24:47.498 [console] Duracao: 5 ms
+2026-07-15 12:24:47.504 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.504 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\o.ass
+2026-07-15 12:24:47.504 [console] Formato original: ASS
+2026-07-15 12:24:47.505 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\t.ass
+2026-07-15 12:24:47.505 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.509 [console] [Auditoria Conteudo] Arquivo limpo: t.ass
+2026-07-15 12:24:47.509 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\auditoria_conteudo_20260715_122447_508_5.json
+2026-07-15 12:24:47.510 [console] Regras executadas: 18
+2026-07-15 12:24:47.510 [console] Anomalias: 0
+2026-07-15 12:24:47.511 [console] Duracao: 4 ms
+2026-07-15 12:24:47.511 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.512 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\o.ass
+2026-07-15 12:24:47.512 [console] Formato original: ASS
+2026-07-15 12:24:47.512 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\t.ass
+2026-07-15 12:24:47.513 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.520 [console] [Auditoria Conteudo] Arquivo limpo: t.ass
+2026-07-15 12:24:47.521 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-9172235545692172838\auditoria_conteudo_20260715_122447_515_6.json
+2026-07-15 12:24:47.521 [console] Regras executadas: 18
+2026-07-15 12:24:47.522 [console] Anomalias: 0
+2026-07-15 12:24:47.522 [console] Duracao: 4 ms
+2026-07-15 12:24:47.529 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.530 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-6928861913446116133\o.srt
+2026-07-15 12:24:47.530 [console] Formato original: SRT
+2026-07-15 12:24:47.531 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-6928861913446116133\t.srt
+2026-07-15 12:24:47.531 [console] Formato traduzido: SRT
+2026-07-15 12:24:47.534 [console] [Auditoria Conteudo] 3 anomalia(s) em t.srt
+2026-07-15 12:24:47.534 [console]   [CRITICAL] Integridade de Parsing — [original] Índice de bloco SRT duplicado: "1". Blocos com o mesmo número tornam o pareamento ambíguo.
+2026-07-15 12:24:47.536 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — Índices de diálogo duplicados no original (pareamento ambíguo): [1]
+2026-07-15 12:24:47.536 [console]   [ERROR] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) presente(s) só no traduzido — índice(s): [2]
+2026-07-15 12:24:47.537 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-6928861913446116133\auditoria_conteudo_20260715_122447_534_7.json
+2026-07-15 12:24:47.537 [console] Regras executadas: 18
+2026-07-15 12:24:47.538 [console] Anomalias: 3
+2026-07-15 12:24:47.538 [console] Duracao: 4 ms
+2026-07-15 12:24:47.543 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.544 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-8987368793252229072\o.ass
+2026-07-15 12:24:47.544 [console] Formato original: ASS
+2026-07-15 12:24:47.545 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-8987368793252229072\t.srt
+2026-07-15 12:24:47.545 [console] Formato traduzido: SRT
+2026-07-15 12:24:47.548 [console] [Auditoria Conteudo] 1 anomalia(s) em t.srt
+2026-07-15 12:24:47.549 [console]   [CRITICAL] Formatos Incompatíveis para Comparação — Comparação por índice entre formatos diferentes (ASS ↔ SRT) não é confiável: o índice ASS é posicional e o SRT é o número do bloco. As regras comparativas foram puladas.
+2026-07-15 12:24:47.549 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-8987368793252229072\auditoria_conteudo_20260715_122447_547_8.json
+2026-07-15 12:24:47.550 [console] Regras executadas: 12
+2026-07-15 12:24:47.550 [console] Anomalias: 1
+2026-07-15 12:24:47.551 [console] Duracao: 4 ms
+2026-07-15 12:24:47.555 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.556 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-6310734445351116953\o.ass
+2026-07-15 12:24:47.556 [console] Formato original: ASS
+2026-07-15 12:24:47.557 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-6310734445351116953\t.ass
+2026-07-15 12:24:47.557 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.560 [console] [Auditoria Conteudo] 2 anomalia(s) em t.ass
+2026-07-15 12:24:47.560 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — Quantidade de diálogos difere — original: 3, traduzido: 2. Há fala(s) perdida(s) ou inventada(s).
+2026-07-15 12:24:47.561 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) do original sem correspondente no traduzido — índice(s): [2]
+2026-07-15 12:24:47.561 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-6310734445351116953\auditoria_conteudo_20260715_122447_559_9.json
+2026-07-15 12:24:47.562 [console] Regras executadas: 18
+2026-07-15 12:24:47.562 [console] Anomalias: 2
+2026-07-15 12:24:47.563 [console] Duracao: 4 ms
+2026-07-15 12:24:47.567 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.567 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-5196161633199832403\a.srt
+2026-07-15 12:24:47.568 [console] Formato : SRT
+2026-07-15 12:24:47.570 [console] [Auditoria Conteudo] 1 anomalia(s) em a.srt
+2026-07-15 12:24:47.571 [console]   [CRITICAL] Timestamp Inválido ou Ilegível — Linha de tempo SRT sem a seta '-->' válida entre início e fim.
+2026-07-15 12:24:47.571 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-5196161633199832403\auditoria_conteudo_20260715_122447_570_10.json
+2026-07-15 12:24:47.572 [console] Regras executadas: 6
+2026-07-15 12:24:47.572 [console] Anomalias: 1
+2026-07-15 12:24:47.572 [console] Duracao: 2 ms
+2026-07-15 12:24:47.577 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.577 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-10267944361998976742\o.ass
+2026-07-15 12:24:47.578 [console] Formato original: ASS
+2026-07-15 12:24:47.578 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-10267944361998976742\t.ass
+2026-07-15 12:24:47.579 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.581 [console] [Auditoria Conteudo] Arquivo limpo: t.ass
+2026-07-15 12:24:47.582 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-10267944361998976742\auditoria_conteudo_20260715_122447_581_11.json
+2026-07-15 12:24:47.583 [console] Regras executadas: 18
+2026-07-15 12:24:47.584 [console] Anomalias: 0
+2026-07-15 12:24:47.584 [console] Duracao: 3 ms
+2026-07-15 12:24:47.588 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.589 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-3760944008007225252\a.srt
+2026-07-15 12:24:47.589 [console] Formato : SRT
+2026-07-15 12:24:47.592 [console] [Auditoria Conteudo] 1 anomalia(s) em a.srt
+2026-07-15 12:24:47.592 [console]   [ERROR] Integridade de Parsing — [original] Bloco SRT truncado no fim do arquivo (índice "2" sem linha de tempo). O leitor descartaria o bloco.
+2026-07-15 12:24:47.592 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-3760944008007225252\auditoria_conteudo_20260715_122447_591_12.json
+2026-07-15 12:24:47.593 [console] Regras executadas: 6
+2026-07-15 12:24:47.593 [console] Anomalias: 1
+2026-07-15 12:24:47.594 [console] Duracao: 2 ms
+2026-07-15 12:24:47.601 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.601 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-2447641753727542184\o.ass
+2026-07-15 12:24:47.601 [console] Formato original: ASS
+2026-07-15 12:24:47.602 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-2447641753727542184\t.ass
+2026-07-15 12:24:47.603 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.606 [console] [Auditoria Conteudo] 3 anomalia(s) em t.ass
+2026-07-15 12:24:47.607 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) do original sem correspondente no traduzido — índice(s): [0]
+2026-07-15 12:24:47.607 [console]   [ERROR] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) presente(s) só no traduzido — índice(s): [1]
+2026-07-15 12:24:47.608 [console]   [WARNING] Integridade do Pareamento (falas ausentes/extras/deslocadas) — Índice 0 muda de tipo — original: Dialogue, traduzido: Comment (deslocamento de pareamento).
+2026-07-15 12:24:47.608 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-2447641753727542184\auditoria_conteudo_20260715_122447_605_13.json
+2026-07-15 12:24:47.609 [console] Regras executadas: 18
+2026-07-15 12:24:47.609 [console] Anomalias: 3
+2026-07-15 12:24:47.610 [console] Duracao: 5 ms
+2026-07-15 12:24:47.615 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.615 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-8247753231754328076\o.ass
+2026-07-15 12:24:47.616 [console] Formato original: ASS
+2026-07-15 12:24:47.616 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-8247753231754328076\t.ass
+2026-07-15 12:24:47.617 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.620 [console] [Auditoria Conteudo] 3 anomalia(s) em t.ass
+2026-07-15 12:24:47.621 [console]   [CRITICAL] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) do original sem correspondente no traduzido — índice(s): [2]
+2026-07-15 12:24:47.621 [console]   [ERROR] Integridade do Pareamento (falas ausentes/extras/deslocadas) — 1 fala(s) presente(s) só no traduzido — índice(s): [0]
+2026-07-15 12:24:47.622 [console]   [WARNING] Integridade do Pareamento (falas ausentes/extras/deslocadas) — Índice 0 muda de tipo — original: Comment, traduzido: Dialogue (deslocamento de pareamento).
+2026-07-15 12:24:47.622 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-8247753231754328076\auditoria_conteudo_20260715_122447_619_14.json
+2026-07-15 12:24:47.623 [console] Regras executadas: 18
+2026-07-15 12:24:47.623 [console] Anomalias: 3
+2026-07-15 12:24:47.624 [console] Duracao: 4 ms
+2026-07-15 12:24:47.630 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.631 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-6536669531927672534\o.ass
+2026-07-15 12:24:47.631 [console] Formato original: ASS
+2026-07-15 12:24:47.632 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-6536669531927672534\t.ass
+2026-07-15 12:24:47.632 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.635 [console] [Auditoria Conteudo] 1 anomalia(s) em t.ass
+2026-07-15 12:24:47.635 [console]   [CRITICAL] Bloco de Override ASS Não Fechado — Bloco de override '{...}' aberto e não fechado corretamente. O player pode exibir as tags como texto ou descartar a linha.
+2026-07-15 12:24:47.637 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-6536669531927672534\auditoria_conteudo_20260715_122447_634_15.json
+2026-07-15 12:24:47.637 [console] Regras executadas: 18
+2026-07-15 12:24:47.638 [console] Anomalias: 1
+2026-07-15 12:24:47.639 [console] Duracao: 4 ms
+2026-07-15 12:24:47.646 [correcao] [CORRIGINDO 2/2] Evento 1015 — Fransson!
+2026-07-15 12:24:47.650 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.651 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-3962162769223572119\a.ass
+2026-07-15 12:24:47.651 [console] Formato : ASS
+2026-07-15 12:24:47.653 [console] [Auditoria Conteudo] 1 anomalia(s) em a.ass
+2026-07-15 12:24:47.653 [console]   [CRITICAL] Integridade de Parsing — [original] Linha Dialogue ASS malformada (campos de menos para o Format de 10 colunas): "Dialogue: 0,0:00:01.00,Default,,texto". O leitor a ignora silenciosamente.
+2026-07-15 12:24:47.654 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-3962162769223572119\auditoria_conteudo_20260715_122447_653_16.json
+2026-07-15 12:24:47.654 [console] Regras executadas: 6
+2026-07-15 12:24:47.655 [console] Anomalias: 1
+2026-07-15 12:24:47.655 [console] Duracao: 2 ms
+2026-07-15 12:24:47.679 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.680 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-10924418676196741162\solo_limpo.ass
+2026-07-15 12:24:47.680 [console] Formato : ASS
+2026-07-15 12:24:47.682 [console] [Auditoria Conteudo] Arquivo limpo: solo_limpo.ass
+2026-07-15 12:24:47.682 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-10924418676196741162\auditoria_conteudo_20260715_122447_682_17.json
+2026-07-15 12:24:47.683 [console] Regras executadas: 6
+2026-07-15 12:24:47.683 [console] Anomalias: 0
+2026-07-15 12:24:47.684 [console] Duracao: 2 ms
+2026-07-15 12:24:47.689 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.689 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-7251025226683159871\solo_eng.ass
+2026-07-15 12:24:47.690 [console] Formato : ASS
+2026-07-15 12:24:47.692 [console] [Auditoria Conteudo] 2 anomalia(s) em solo_eng.ass
+2026-07-15 12:24:47.697 [console]   [ERROR] Timestamp Inválido ou Ilegível — Fim (3000 ms) menor ou igual ao início (5000 ms). A linha tem duração inválida e não será exibida.
+2026-07-15 12:24:47.698 [console]   [CRITICAL] Bloco de Override ASS Não Fechado — Bloco de override '{...}' aberto e não fechado corretamente. O player pode exibir as tags como texto ou descartar a linha.
+2026-07-15 12:24:47.698 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-7251025226683159871\auditoria_conteudo_20260715_122447_692_18.json
+2026-07-15 12:24:47.699 [console] Regras executadas: 6
+2026-07-15 12:24:47.699 [console] Anomalias: 2
+2026-07-15 12:24:47.699 [console] Duracao: 2 ms
+2026-07-15 12:24:47.706 [console] === Auditoria de Conteudo de Legendas (arquivo unico: traduzido) ===
+2026-07-15 12:24:47.706 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-8685126612622128516\solo_karaoke.ass
+2026-07-15 12:24:47.707 [console] Formato : ASS
+2026-07-15 12:24:47.709 [console] [Auditoria Conteudo] Arquivo limpo: solo_karaoke.ass
+2026-07-15 12:24:47.709 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-8685126612622128516\auditoria_conteudo_20260715_122447_708_19.json
+2026-07-15 12:24:47.710 [console] Regras executadas: 6
+2026-07-15 12:24:47.710 [console] Anomalias: 0
+2026-07-15 12:24:47.711 [console] Duracao: 2 ms
+2026-07-15 12:24:47.716 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.716 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-1317622250026386238\ep04_eng.srt
+2026-07-15 12:24:47.717 [console] Formato original: SRT
+2026-07-15 12:24:47.717 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-1317622250026386238\ep04_pt.srt
+2026-07-15 12:24:47.717 [console] Formato traduzido: SRT
+2026-07-15 12:24:47.720 [console] [Auditoria Conteudo] Arquivo limpo: ep04_pt.srt
+2026-07-15 12:24:47.721 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-1317622250026386238\auditoria_conteudo_20260715_122447_720_20.json
+2026-07-15 12:24:47.721 [console] Regras executadas: 18
+2026-07-15 12:24:47.722 [console] Anomalias: 0
+2026-07-15 12:24:47.722 [console] Duracao: 3 ms
+2026-07-15 12:24:47.727 [console] === Auditoria de Conteudo de Legendas (arquivo unico: original) ===
+2026-07-15 12:24:47.727 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-5327711859752034208\solo_colisao.ass
+2026-07-15 12:24:47.727 [console] Formato : ASS
+2026-07-15 12:24:47.730 [console] [Auditoria Conteudo] 1 anomalia(s) em solo_colisao.ass
+2026-07-15 12:24:47.730 [console]   [WARNING] Sobreposição de Tempo Entre Diálogos — Este diálogo começa em 3000 ms, antes de a fala anterior de mesmo estilo e camada terminar em 5000 ms. As linhas se sobrepõem na tela.
+2026-07-15 12:24:47.730 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-5327711859752034208\auditoria_conteudo_20260715_122447_729_21.json
+2026-07-15 12:24:47.731 [console] Regras executadas: 6
+2026-07-15 12:24:47.731 [console] Anomalias: 1
+2026-07-15 12:24:47.732 [console] Duracao: 1 ms
+2026-07-15 12:24:47.741 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.741 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-17047882011037187813\ep02_eng.ass
+2026-07-15 12:24:47.741 [console] Formato original: ASS
+2026-07-15 12:24:47.742 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-17047882011037187813\ep02_pt.ass
+2026-07-15 12:24:47.742 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.744 [console] [Auditoria Conteudo] 2 anomalia(s) em ep02_pt.ass
+2026-07-15 12:24:47.745 [console]   [WARNING] Quebras de Linha Excessivas (\N) — Linha com 4 quebras de linha (\N). Excesso de quebras costuma indicar formatação quebrada ou alucinação de IA.
+2026-07-15 12:24:47.745 [console]   [CRITICAL] Alucinação de Quebra de Linha (\N) — A tradução inseriu 4 quebras de linha onde o original tinha 0. Isso destrói o posicionamento (\pos).
+2026-07-15 12:24:47.746 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-17047882011037187813\auditoria_conteudo_20260715_122447_744_22.json
+2026-07-15 12:24:47.746 [console] Regras executadas: 18
+2026-07-15 12:24:47.747 [console] Anomalias: 2
+2026-07-15 12:24:47.747 [console] Duracao: 2 ms
+2026-07-15 12:24:47.748 [correcao] [PENDENTE 2/2] Evento 1015 — SEM_ALTERACAO
+2026-07-15 12:24:47.754 [console] === Auditoria de Conteudo de Legendas ===
+2026-07-15 12:24:47.754 [console] Original : C:\Users\Paulo\AppData\Local\Temp\junit-3874434942262659354\ep01_eng.ass
+2026-07-15 12:24:47.754 [console] Formato original: ASS
+2026-07-15 12:24:47.754 [console] Traduzido: C:\Users\Paulo\AppData\Local\Temp\junit-3874434942262659354\ep01_pt.ass
+2026-07-15 12:24:47.755 [console] Formato traduzido: ASS
+2026-07-15 12:24:47.757 [console] [Auditoria Conteudo] Arquivo limpo: ep01_pt.ass
+2026-07-15 12:24:47.758 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-3874434942262659354\auditoria_conteudo_20260715_122447_757_23.json
+2026-07-15 12:24:47.759 [console] Regras executadas: 18
+2026-07-15 12:24:47.759 [console] Anomalias: 0
+2026-07-15 12:24:47.760 [console] Duracao: 3 ms
+2026-07-15 12:24:47.764 [console] === Auditoria de Conteudo de Legendas (arquivo unico: traduzido) ===
+2026-07-15 12:24:47.765 [console] Arquivo : C:\Users\Paulo\AppData\Local\Temp\junit-18299467027325238089\solo_pt.ass
+2026-07-15 12:24:47.765 [console] Formato : ASS
+2026-07-15 12:24:47.767 [console] [Auditoria Conteudo] 2 anomalia(s) em solo_pt.ass
+2026-07-15 12:24:47.767 [console]   [ERROR] Timestamp Inválido ou Ilegível — Fim (3000 ms) menor ou igual ao início (5000 ms). A linha tem duração inválida e não será exibida.
+2026-07-15 12:24:47.768 [console]   [CRITICAL] Bloco de Override ASS Não Fechado — Bloco de override '{...}' aberto e não fechado corretamente. O player pode exibir as tags como texto ou descartar a linha.
+2026-07-15 12:24:47.768 [console] [Auditoria Conteudo] Relatorio JSON: C:\Users\Paulo\AppData\Local\Temp\junit-18299467027325238089\auditoria_conteudo_20260715_122447_766_24.json
+2026-07-15 12:24:47.769 [console] Regras executadas: 6
+2026-07-15 12:24:47.769 [console] Anomalias: 2
+2026-07-15 12:24:47.770 [console] Duracao: 2 ms
+2026-07-15 12:24:47.843 [console] Iniciando revisão de legendas traduzidas em: C:\Users\Paulo\AppData\Local\Temp\junit-5773634505232182381\pt
+2026-07-15 12:24:47.844 [console] Originais EN: .ass em C:\Users\Paulo\AppData\Local\Temp\junit-5773634505232182381\pt (se existir) + cache/ em C:\Users\Paulo\AppData\Local\Temp\junit-5773634505232182381\cache
+2026-07-15 12:24:47.845 [console] Analisando legenda: show_PT-BR.ass
+2026-07-15 12:24:47.849 [console]   Contexto ativo: DanMachi (Geral) (fonte: proveniência do cache)
+2026-07-15 12:24:47.850 [console]   Cache carregado: show_ENG.cache.json (1 entradas EN)
+2026-07-15 12:24:47.851 [console]   Cache corrigido é mais novo que a legenda; sincronizando traduções antes da revisão.
+2026-07-15 12:24:47.852 [console]   [CACHE] Evento 0 sincronizado com a correção da Opção 5.
+2026-07-15 12:24:47.858 [console]   [OK] sincronizadas=1, revisadas=0. Salvo em: show_PT-BR.ass
+2026-07-15 12:24:47.859 [console]   Backup anterior: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\backups\revisao-legendas\revisao_20260715_122447_844\show_PT-BR.ass
+2026-07-15 12:24:47.859 [console] Arquivos analisados: 1
+2026-07-15 12:24:47.860 [console] Falas auditadas: 1
+2026-07-15 12:24:47.860 [console] Falas sem referência segura no cache: 0
+2026-07-15 12:24:47.861 [console] Falas sem original EN (ignoradas): 0
+2026-07-15 12:24:47.861 [console] Falas com problemas detectados: 0
+2026-07-15 12:24:47.862 [console] Falas ainda pendentes: 0
+2026-07-15 12:24:47.862 [console] Falas corrigidas via Google e salvas: 0
+2026-07-15 12:24:47.867 [console] Relatório salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\pt
+2026-07-15 12:24:47.875 [console] Iniciando revisão de legendas traduzidas em: C:\Users\Paulo\AppData\Local\Temp\junit-3697972702789088177\pt
+2026-07-15 12:24:47.876 [console] Originais EN: .ass em C:\Users\Paulo\AppData\Local\Temp\junit-3697972702789088177\pt (se existir) + cache/ em C:\Users\Paulo\AppData\Local\Temp\junit-3697972702789088177\cache
+2026-07-15 12:24:47.876 [console] Analisando legenda: MY_SHOW_S01E05_PT-BR.ass
+2026-07-15 12:24:47.878 [console]   Contexto ativo: DanMachi (Geral) (fonte: proveniência do cache)
+2026-07-15 12:24:47.879 [console]   Cache carregado: OTHER_SHOW_S01E05_ENG.cache.json (1 entradas EN)
+2026-07-15 12:24:47.880 [console]   [BLOQUEADO] Modo Cache: o cache resolvido (OTHER_SHOW_S01E05_ENG.cache.json) não corresponde com segurança a nenhuma das 1 fala(s) de MY_SHOW_S01E05_PT-BR.ass (índice/estilo/proveniência/texto divergem). Arquivo não revisado.
+2026-07-15 12:24:47.880 [console] Arquivos analisados: 1
+2026-07-15 12:24:47.880 [console] Falas auditadas: 0
+2026-07-15 12:24:47.881 [console] Falas sem referência segura no cache: 0
+2026-07-15 12:24:47.881 [console] Falas sem original EN (ignoradas): 0
+2026-07-15 12:24:47.882 [console] Falas com problemas detectados: 1
+2026-07-15 12:24:47.882 [console] Falas ainda pendentes: 1
+2026-07-15 12:24:47.882 [console] Falas corrigidas via Google e salvas: 0
+2026-07-15 12:24:47.887 [console] Relatório salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\pt
+2026-07-15 12:24:47.893 [console] Iniciando revisão de legendas traduzidas em: C:\Users\Paulo\AppData\Local\Temp\junit-13800160249126197543\pt
+2026-07-15 12:24:47.894 [console] Originais EN: .ass em C:\Users\Paulo\AppData\Local\Temp\junit-13800160249126197543\pt (se existir) + cache/ em C:\Users\Paulo\AppData\Local\Temp\junit-13800160249126197543\cache
+2026-07-15 12:24:47.894 [console] Analisando legenda: showA_PT-BR.ass
+2026-07-15 12:24:47.896 [console]   [BLOQUEADO] Modo Cache: nenhum cache correspondente encontrado para showA_PT-BR.ass em C:\Users\Paulo\AppData\Local\Temp\junit-13800160249126197543\cache (esperado algo como showA_ENG.cache.json). Arquivo não revisado.
+2026-07-15 12:24:47.896 [console] Arquivos analisados: 1
+2026-07-15 12:24:47.897 [console] Falas auditadas: 0
+2026-07-15 12:24:47.897 [console] Falas sem referência segura no cache: 0
+2026-07-15 12:24:47.897 [console] Falas sem original EN (ignoradas): 0
+2026-07-15 12:24:47.898 [console] Falas com problemas detectados: 1
+2026-07-15 12:24:47.898 [console] Falas ainda pendentes: 1
+2026-07-15 12:24:47.898 [console] Falas corrigidas via Google e salvas: 0
+2026-07-15 12:24:47.904 [console] Relatório salvo em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\pt
+2026-07-15 12:24:48.158 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.172 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.190 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.209 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.235 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.258 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:48.261 [correcao] [CORRIGINDO 1/2] Evento 72 — E-Eledore...
+2026-07-15 12:24:48.343 [correcao] [PENDENTE 1/2] Evento 72 — SEM_ALTERACAO
+2026-07-15 12:24:48.745 [correcao] [CORRIGINDO 2/2] Evento 144 — Maria?
+2026-07-15 12:24:48.835 [correcao] [PENDENTE 2/2] Evento 144 — SEM_ALTERACAO
+2026-07-15 12:24:49.258 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:49.282 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3.cache.json — 1 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:49.288 [correcao] [CORRIGINDO 1/1] Evento 177 — Aina? Aina... Aina!
+2026-07-15 12:24:49.374 [correcao] [PENDENTE 1/1] Evento 177 — SEM_ALTERACAO
+2026-07-15 12:24:49.530 [console] marcador-console-redirector-d64397bc-aa06-464f-8417-12fcb1800e98
+2026-07-15 12:24:49.787 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:49.810 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3.cache.json — 1 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:49.816 [correcao] [CORRIGINDO 1/1] Evento 150 — Even the Feds aren't {\i1}that{\i0} dumb.
+2026-07-15 12:24:49.898 [correcao] [PENDENTE 1/1] Evento 150 — TAG_CORROMPIDA
+2026-07-15 12:24:50.315 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3.cache.json — 0 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:50.332 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:50.334 [correcao] [CORRIGINDO 1/2] Evento 66 — {\i1}98! 97!
+2026-07-15 12:24:50.421 [correcao] [PENDENTE 1/2] Evento 66 — SEM_ALTERACAO
+2026-07-15 12:24:50.826 [correcao] [CORRIGINDO 2/2] Evento 158 — Rob... Sally... Mike...
+2026-07-15 12:24:50.918 [correcao] [PENDENTE 2/2] Evento 158 — SEM_ALTERACAO
+2026-07-15 12:24:51.331 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3.cache.json — 1 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:51.333 [correcao] [CORRIGINDO 1/1] Evento 70 — {\fad(0,1354)}A mobile suit...
+2026-07-15 12:24:51.428 [correcao] [PENDENTE 1/1] Evento 70 — SEM_ALTERACAO
+2026-07-15 12:24:51.854 [correcao] Resultado da correção Google: CONCLUIDO_COM_PENDENCIAS | corrigidas=0 pendentes=9 falhas=0
+2026-07-15 12:24:51.854 [correcao] [ATENÇÃO] CORREÇÃO ONLINE VIA GOOGLE TRANSLATE — status=CONCLUIDO_COM_PENDENCIAS, arquivos=14, alterados=0, corrigidos=0, pendentes=9, falhas=0
+2026-07-15 12:24:51.854 [correcao] [RELATÓRIO FINAL] Operação: Correção via Google Translate | Tempo total: 5,2s | Término: 12:24:51
+2026-07-15 12:24:51.878 [console] === Iniciando Correcao de Legendas ===
+2026-07-15 12:24:51.878 [console] Pasta original/ref: C:\Users\Paulo\AppData\Local\Temp\junit-5963216380482550892
+2026-07-15 12:24:51.879 [console] Pasta traduzida/alvo: C:\Users\Paulo\AppData\Local\Temp\junit-5963216380482550892
+2026-07-15 12:24:51.879 [console] Correcao de traducao via LLM ativa (contexto: Teste)
+2026-07-15 12:24:51.882 [console] [OK] episodio_PT-BR.ass (sem alteracao)
+2026-07-15 12:24:51.883 [console] Relatorio JSON salvo em: C:\Users\Paulo\AppData\Local\Temp\junit-5963216380482550892\relatorio-fake.json
+2026-07-15 12:24:51.884 [console] Correcao de legendas concluida: 0 arquivo(s) curado(s) (0 fala(s)), 0 fala(s) corrigida(s) via LLM, 1 ja perfeito(s), 0 fala(s) sem traducao.
+2026-07-15 12:24:51.889 [console] === Iniciando Correcao de Legendas ===
+2026-07-15 12:24:51.889 [console] Pasta original/ref: C:\Users\Paulo\AppData\Local\Temp\junit-8503039754621995283
+2026-07-15 12:24:51.890 [console] Pasta traduzida/alvo: C:\Users\Paulo\AppData\Local\Temp\junit-8503039754621995283
+2026-07-15 12:24:51.890 [console] Correcao de traducao via LLM ativa (contexto: Teste)
+2026-07-15 12:24:51.892 [console] Fala 1: karaokê japonês/romaji restaurado da legenda original.
+2026-07-15 12:24:51.897 [console] [Corrigido] episodio_PT-BR.ass (1 tags restauradas, 0 corrigidas via LLM)
+2026-07-15 12:24:51.898 [console] Relatorio JSON salvo em: C:\Users\Paulo\AppData\Local\Temp\junit-8503039754621995283\relatorio-fake.json
+2026-07-15 12:24:51.898 [console] Correcao de legendas concluida: 1 arquivo(s) curado(s) (1 fala(s)), 0 fala(s) corrigida(s) via LLM, 0 ja perfeito(s), 0 fala(s) sem traducao.
+2026-07-15 12:24:52.050 [console] Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-5061173271497250932\cache-interrupcao
+2026-07-15 12:24:52.053 [console] [ARQUIVO] ep.cache.json — 2 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:52.054 [console] [CORRIGINDO 1/2] Evento 1 — Help!
+2026-07-15 12:24:52.060 [console] [CORRIGIDA 1/2] Evento 1 — Ajude!
+2026-07-15 12:24:52.060 [console] [OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-5061173271497250932\backups-interrupcao\ep.cache.json
+2026-07-15 12:24:52.061 [console] Resultado da correção Google: CANCELADO | corrigidas=1 pendentes=0 falhas=0
+2026-07-15 12:24:52.068 [console] Iniciando correção online do cache via Google Translate: C:\Users\Paulo\AppData\Local\Temp\junit-15549078104498065758\cache
+2026-07-15 12:24:52.070 [console] [ARQUIVO] ep.cache.json — 1 entrada(s) pendente(s) para correção.
+2026-07-15 12:24:52.070 [console] [CORRIGINDO 1/1] Evento 1 — Help!
+2026-07-15 12:24:52.073 [console] [CORRIGIDA 1/1] Evento 1 — Ajude!
+2026-07-15 12:24:52.476 [console] [OK] ep.cache.json: 1 entrada(s) corrigidas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-15549078104498065758\backups\ep.cache.json
+2026-07-15 12:24:52.476 [console] Resultado da correção Google: CONCLUIDO | corrigidas=1 pendentes=0 falhas=0
+2026-07-15 12:24:52.559 [console]   [CONTEXTO] Seleção manual "danmachi" ignorada: a proveniência do cache exige "gundam_nt".
+2026-07-15 12:24:52.560 [console]   Contexto ativo: Gundam Narrative (fonte: proveniência do cache)
+2026-07-15 12:24:52.622 [console] [12:24:52] [INFO   ] Vídeos=1 | Legendas=1 | Pareados=1 | Sem legenda=0 | Ambíguos=0
+2026-07-15 12:24:52.622 [console] [12:24:52] [INFO   ] Política de faixas: preservar legendas originais e adicionar PT-BR como padrão.
+2026-07-15 12:24:52.623 [console] [12:24:52] [INFO   ] [REMUX 1/1] Anime - S01E01.mkv + Anime - S01E01_PT-BR.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.625 [console] [12:24:52] [SUCESSO] [OK 1/1] MKV validado: Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.632 [console] [12:24:52] [INFO   ] Vídeos=1 | Legendas=1 | Pareados=1 | Sem legenda=0 | Ambíguos=0
+2026-07-15 12:24:52.632 [console] [12:24:52] [INFO   ] Política de faixas: remover legendas originais e manter somente a nova PT-BR.
+2026-07-15 12:24:52.633 [console] [12:24:52] [INFO   ] [REMUX 1/1] Anime - S01E01.mkv + Anime - S01E01_PT-BR.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.633 [console] [12:24:52] [ERRO   ] [LEGENDA INVÁLIDA] Anime - S01E01_PT-BR.ass — Conteúdo extraído não corresponde ao formato ASS: C:\Users\Paulo\AppData\Local\Temp\junit-16936928965615641896\legendas\Anime - S01E01_PT-BR.ass
+2026-07-15 12:24:52.645 [console] [12:24:52] [INFO   ] Vídeos=1 | Legendas=1 | Pareados=1 | Sem legenda=0 | Ambíguos=0
+2026-07-15 12:24:52.645 [console] [12:24:52] [INFO   ] Política de faixas: remover legendas originais e manter somente a nova PT-BR.
+2026-07-15 12:24:52.646 [console] [12:24:52] [INFO   ] [REMUX 1/1] Anime - S01E01.mkv + Anime - S01E01_PT-BR.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.647 [console] [12:24:52] [AVISO  ] [PRESERVADO] preservado: C:\Users\Paulo\AppData\Local\Temp\junit-10320752304161009463\videos\mkv_final_ptbr\Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.656 [console] [12:24:52] [INFO   ] Vídeos=1 | Legendas=1 | Pareados=1 | Sem legenda=0 | Ambíguos=0
+2026-07-15 12:24:52.656 [console] [12:24:52] [INFO   ] Política de faixas: remover legendas originais e manter somente a nova PT-BR.
+2026-07-15 12:24:52.657 [console] [12:24:52] [INFO   ] [REMUX 1/1] Anime - S01E01.mkv + Anime - S01E01_PT-BR.ass -> Anime - S01E01_PTBR.mkv
+2026-07-15 12:24:52.657 [console] [12:24:52] [AVISO  ] Remux cancelado durante Anime - S01E01.mkv; parcial descartado.
+2026-07-15 12:24:53.518 [console] [K[ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:54.177 [console] [K[ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:54.833 [console] [K[ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:55.488 [console] [K[ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:55.489 [console] [ WARN ] Fala pendente após tentativas do LLM: modelo devolveu o texto original sem tradução. Original: KEEPME stays
+2026-07-15 12:24:56.133 [console] [K[ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:56.501 [console] [ OK ] Lote 1 traduzido com sucesso.
+2026-07-15 12:24:56.501 [console] [ STOP ] Tradução interrompida pelo usuário — salvando progresso parcial.
+2026-07-15 12:24:56.633 [console] Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-9636656889703690338\cache-legado
+2026-07-15 12:24:56.635 [console] Resultado da limpeza: CONCLUIDO_COM_FALHAS | arquivos=1 alterados=0 falhas=1
+2026-07-15 12:24:56.642 [console] Iniciando limpeza segura de cache em: C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\cache
+2026-07-15 12:24:56.647 [console] [OK] ep.cache.json: 1 entrada(s) invalidadas; backup em C:\Users\Paulo\AppData\Local\Temp\junit-18373733954548376540\backups\anime\ep.cache.json
+2026-07-15 12:24:56.647 [console] Resultado da limpeza: CONCLUIDO | arquivos=1 alterados=1 falhas=0
+2026-07-15 12:24:56.690 [console] === Iniciando Substituição em Lote de Fontes ASS ===
+2026-07-15 12:24:56.690 [console] Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-13522096444855667501
+2026-07-15 12:24:56.692 [console] Diretório de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-2452402370459916744\backups\troca_tipo_legenda_20260715_122456
+2026-07-15 12:24:56.694 [console]   -> No arquivo: legenda1.ass estilo [Dialogue] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 12:24:56.695 [console]   [SUCESSO] Arquivo legenda1.ass atualizado!
+2026-07-15 12:24:56.695 [console] Arquivo legenda2.ass [OK] - Sem fontes legadas problemáticas. Pulando.
+2026-07-15 12:24:56.696 [console] ========================================================================
+2026-07-15 12:24:56.696 [console]   [SUCESSO] OPERAÇÃO DE SUBSTITUIÇÃO DE FONTES FINALIZADA!
+2026-07-15 12:24:56.697 [console] ========================================================================
+2026-07-15 12:24:56.697 [console]   • Arquivos analisados  : 2
+2026-07-15 12:24:56.698 [console]   • Arquivos alterados   : 1
+2026-07-15 12:24:56.698 [console]   • Substituições feitas : 1
+2026-07-15 12:24:56.699 [console]   • Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-2452402370459916744\backups\troca_tipo_legenda_20260715_122456
+2026-07-15 12:24:56.699 [console] ========================================================================
+2026-07-15 12:24:56.702 [console] Relatórios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-13522096444855667501
+2026-07-15 12:24:56.724 [console] === Iniciando Substituição em Lote de Fontes ASS ===
+2026-07-15 12:24:56.724 [console] Pasta alvo: C:\Users\Paulo\AppData\Local\Temp\junit-3154300095618119854
+2026-07-15 12:24:56.726 [console] Diretório de backup criado com sucesso: C:\Users\Paulo\AppData\Local\Temp\junit-15505103066192685616\backups\troca_tipo_legenda_20260715_122456
+2026-07-15 12:24:56.728 [console]   -> No arquivo: legenda-multi.ass estilo [Dialogue] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 12:24:56.729 [console]   -> No arquivo: legenda-multi.ass estilo [Title] substituído: .VnBook-Antiqua -> Arial
+2026-07-15 12:24:56.729 [console]   [SUCESSO] Arquivo legenda-multi.ass atualizado!
+2026-07-15 12:24:56.730 [console] ========================================================================
+2026-07-15 12:24:56.730 [console]   [SUCESSO] OPERAÇÃO DE SUBSTITUIÇÃO DE FONTES FINALIZADA!
+2026-07-15 12:24:56.730 [console] ========================================================================
+2026-07-15 12:24:56.731 [console]   • Arquivos analisados  : 1
+2026-07-15 12:24:56.732 [console]   • Arquivos alterados   : 1
+2026-07-15 12:24:56.732 [console]   • Substituições feitas : 2
+2026-07-15 12:24:56.733 [console]   • Pasta de Backup      : C:\Users\Paulo\AppData\Local\Temp\junit-15505103066192685616\backups\troca_tipo_legenda_20260715_122456
+2026-07-15 12:24:56.733 [console] ========================================================================
+2026-07-15 12:24:56.735 [console] Relatórios persistidos em: G:\PROJETOS-OPEN\JAVA\traducao_animes_llm_local_quarkus\build\tmp\kronos-tests\relatorios\junit-3154300095618119854

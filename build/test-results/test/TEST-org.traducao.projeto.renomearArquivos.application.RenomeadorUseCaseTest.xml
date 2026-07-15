@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-07-15T15:24:52.683Z" hostname="DESKTOP-QDNQHL1" time="0.101">
+  <properties/>
+  <testcase name="filmeUnicoComAnoNaoViraEpisodio()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.006"/>
+  <testcase name="normalizaBarraEditorialSemCriarSubdiretorio()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.002"/>
+  <testcase name="testSimularRenomeacao()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.002"/>
+  <testcase name="testAplicarRenomeacaoEBackup()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.009"/>
+  <testcase name="rejeitaManifestoComCaminhoForaDaPasta()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.013"/>
+  <testcase name="renomeiaLegendasExtraidasComSufixoDeTrackEIdioma()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.004"/>
+  <testcase name="reverterUsaManifestoSalvoDentroDoProjeto()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.014"/>
+  <testcase name="ignoraMultiplosVideosSemEpisodioParaEvitarColisaoDeFilmes()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.002"/>
+  <testcase name="renomeiaFilmeUnicoSemEpisodioParaNomePadrao()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.002"/>
+  <testcase name="simulaNomesDeTrackerComUnderlineSemConfundirTitulo86ComEpisodio()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.009"/>
+  <testcase name="normalizaPontuacaoWindowsDoNomePadrao()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.002"/>
+  <testcase name="ignoraEspeciaisCreditlessSemNumeracaoDeEpisodio()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.003"/>
+  <testcase name="rejeitaNomePadraoComTraversal()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.001"/>
+  <testcase name="renomeiaVideosELegendasIgnorandoOutrosArquivos()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.004"/>
+  <testcase name="preservaDuasLegendasQueGerariamOMesmoNome()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.003"/>
+  <testcase name="bloqueiaOperacaoConcorrenteNaMesmaPasta()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.003"/>
+  <testcase name="reversaoParcialPodeSerRetomadaEAutolimpaManifesto()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.015"/>
+  <testcase name="renomeiaFilmeUnicoComLegendaUnicaParaNomePadrao()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.003"/>
+  <testcase name="usaTemporadaInformadaNoNomeEpisodico()" classname="org.traducao.projeto.renomearArquivos.application.RenomeadorUseCaseTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
