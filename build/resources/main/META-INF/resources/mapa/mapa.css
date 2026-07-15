@@ -1,0 +1,28 @@
+/* ==========================================================================
+   KRONOS CORE — MAPA DO PROJETO
+   Pasta espelha mapa/mapa.js
+   Etapa 7 da modularização CSS
+   ========================================================================== */
+
+#panel-mapa .mapa-controls {
+    margin-top: 4px;
+}
+
+/* O mapa é texto de relatório (árvore ASCII + taxonomia) injetado via
+   textContent. Sem pre-wrap o navegador colapsa as quebras de linha e tudo
+   vira um bloco único; preservar as quebras deixa o relatório em linhas e
+   melhora também o Copiar. */
+#viewer-mapa {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    tab-size: 4;
+}
+
+/* Os botões de exportação ficam desabilitados enquanto não há mapa gerado. */
+#btn-exportar-mapa:disabled,
+#btn-exportar-arvore-github:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}

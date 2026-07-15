@@ -1,0 +1,103 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\legendas ptbr
+Duração: 17s
+Arquivos analisados: 13
+Falas auditadas: 4413
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 41
+Falas corrigidas via LLM: 3
+Falas pendentes: 38
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass
+Evento: -1 | Estilo: ARQUIVO
+Resultado: BLOQUEADO_RETRADUCAO_EM_MASSA
+Problemas: Falas iguais ao original acima do limite seguro
+Diagnóstico: 32 de 92 falas auditáveis
+EN: —
+PT anterior: —
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 250 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Artigo/pronome demonstrativo feminino antes de substantivo masculino: "a Deus"
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}Thank goodness.
+PT anterior: {\i1}Graças a Deus.
+Proposta: {\i1}Graças ao Deus.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 47 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original: "mãe"
+Diagnóstico: Correção validada e persistida.
+EN: You son of a hitch!
+PT anterior: Filho da mãe!
+Proposta: Filho da puta!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 72 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): E-Eledore...
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: E-Eledore...
+PT anterior: E-Eledore...
+Proposta: Desculpe, mas como um modelo de linguagem, eu não tenho acesso às legendas específicas que você mencionou. Por favor, forneça-me mais informações ou o contexto exato para que eu possa ajudar melhor.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 144 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Fala não traduzida (idêntica ao original em inglês): Maria?
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: Maria?
+PT anterior: Maria?
+Proposta: Maria?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 44 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original: "mãe"
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: Make sure my dad gets this info!
+PT anterior: Minha mãe precisa saber disso!
+Proposta: Minha mãe precisa saber disso!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 150 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Even the Feds aren't {\i1}that{\i0} dumb. | Fala não traduzida (idêntica ao original em inglês): Even the Feds aren't {\i1}that{\i0} dumb.
+Diagnóstico: Correção validada e persistida.
+EN: Even the Feds aren't {\i1}that{\i0} dumb.
+PT anterior: Even the Feds aren't {\i1}that{\i0} dumb.
+Proposta: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 158 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Fala não traduzida (idêntica ao original em inglês): Rob... Sally... Mike...
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: Rob... Sally... Mike...
+PT anterior: Rob... Sally... Mike...
+Proposta: Rob... Sally... Mike...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass
+Evento: 70 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fad(0,1354)}A mobile suit...
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: {\fad(0,1354)}A mobile suit...
+PT anterior: {\fad(0,1354)}A mobile suit...
+Proposta: [[TAG0]]Um mobile suit...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass
+Evento: 231 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Substantivo feminino com adjetivo/particípio masculino: "garota seu"
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: And Aina even gave that girl her\Nown name to encourage her.
+PT anterior: E Aina até deu àquela garota seu próprio nome\Npara encorajá-la.
+Proposta: —

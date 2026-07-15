@@ -1,0 +1,118 @@
+{
+  "tipo" : "revisao_lore",
+  "operacao" : {
+    "tipo" : "Revisao de Lore (.ass LLM)",
+    "detalhe" : "G:\\PROJETOS-OPEN\\JAVA\\traducao_animes_llm_local_quarkus\\cache | promptRevisaoLore=DanMachi - Revisao de Lore",
+    "tempoTotalMs" : 55,
+    "arquivosProcessados" : 0,
+    "itensDetectados" : 0,
+    "itensCorrigidos" : 0,
+    "registradoEm" : "2026-07-13T21:59:18.519178700Z"
+  },
+  "contexto" : {
+    "id" : "danmachi",
+    "nome" : "DanMachi - Revisao de Lore"
+  },
+  "pastas" : {
+    "originalEn" : "G:\\PROJETOS-OPEN\\JAVA\\traducao_animes_llm_local_quarkus\\cache",
+    "traduzidaPtBr" : "G:\\PROJETOS-OPEN\\JAVA\\traducao_animes_llm_local_quarkus\\cache"
+  },
+  "modo" : "apenas_sinalizadas",
+  "metricas" : {
+    "status" : "SEM_ARQUIVOS",
+    "duracaoMs" : 55,
+    "duracaoFormatada" : "0s",
+    "arquivosAnalisados" : 0,
+    "arquivosAlterados" : 0,
+    "falasAuditadas" : 0,
+    "falasSinalizadas" : 0,
+    "falasCorrigidas" : 0,
+    "falasSemAlteracao" : 0,
+    "falasSemResposta" : 0,
+    "falasDescartadas" : 0,
+    "falasPendentes" : 0,
+    "totalErros" : 1
+  },
+  "erros" : [ "Nenhum arquivo .ass encontrado na pasta original; revisao de lore sem trabalho real." ],
+  "eventos" : [ {
+    "instante" : "2026-07-13T21:59:18.503162800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.501156700Z | +00.047s] \n=== Revisao de Lore (nomes, locais e terminologia) ==="
+  }, {
+    "instante" : "2026-07-13T21:59:18.504164200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.503162800Z | +00.049s] Inicio UTC: 2026-07-13T21:59:18.503162800Z"
+  }, {
+    "instante" : "2026-07-13T21:59:18.504164200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.504164200Z | +00.050s] Pasta original (EN): G:\\PROJETOS-OPEN\\JAVA\\traducao_animes_llm_local_quarkus\\cache"
+  }, {
+    "instante" : "2026-07-13T21:59:18.505164400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.505164400Z | +00.051s] Pasta traduzida (PT-BR): G:\\PROJETOS-OPEN\\JAVA\\traducao_animes_llm_local_quarkus\\cache"
+  }, {
+    "instante" : "2026-07-13T21:59:18.506163500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.505164400Z | +00.051s] Prompt de revisao de lore ativo: DanMachi - Revisao de Lore (danmachi)"
+  }, {
+    "instante" : "2026-07-13T21:59:18.507170400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.506163500Z | +00.052s] Modo: revisar apenas falas sinalizadas pela heuristica"
+  }, {
+    "instante" : "2026-07-13T21:59:18.508168900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.508168900Z | +00.054s] Arquivos .ass encontrados na pasta original: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.509168400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.509168400Z | +00.055s]   [Aviso] Nenhum arquivo .ass encontrado na pasta original; revisao de lore sem trabalho real."
+  }, {
+    "instante" : "2026-07-13T21:59:18.511169600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.510170Z | +00.056s] Arquivos analisados: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.511169600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.511169600Z | +00.057s] Arquivos alterados: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.512175Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.511169600Z | +00.057s] Falas auditadas: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.513175700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.512175Z | +00.058s] Falas sinalizadas (heuristica/LLM): 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.513175700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.513175700Z | +00.059s] Falas corrigidas: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.514174800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.513175700Z | +00.059s] Falas ja conformes: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.515176200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.514174800Z | +00.060s] Falas sem resposta do LLM: 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.515176200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.515176200Z | +00.061s] Falas descartadas (travas): 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.516174500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.516174500Z | +00.062s] Falas pendentes (sinalizadas sem correcao): 0"
+  }, {
+    "instante" : "2026-07-13T21:59:18.517179800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.516174500Z | +00.062s] Status: Sem arquivos"
+  }, {
+    "instante" : "2026-07-13T21:59:18.518179200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.517179800Z | +00.063s] \nRevisao de lore concluida com 1 aviso(s)/erro(s)."
+  }, {
+    "instante" : "2026-07-13T21:59:18.519178700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-13T21:59:18.518179200Z | +00.064s]   - Nenhum arquivo .ass encontrado na pasta original; revisao de lore sem trabalho real."
+  } ]
+}

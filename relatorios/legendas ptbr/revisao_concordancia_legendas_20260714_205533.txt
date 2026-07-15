@@ -1,0 +1,31 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\legendas ptbr
+Duração: 8s
+Arquivos analisados: 13
+Falas auditadas: 4413
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 33
+Falas corrigidas via LLM: 0
+Falas pendentes: 33
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass
+Evento: -1 | Estilo: ARQUIVO
+Resultado: BLOQUEADO_RETRADUCAO_EM_MASSA
+Problemas: Falas iguais ao original acima do limite seguro
+Diagnóstico: 32 de 92 falas auditáveis
+EN: —
+PT anterior: —
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 150 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Diagnóstico: Resíduo gringo detectado: Mesmo que os Feds não sejam {\i1}tão{\i0} idiotas.
+EN: Even the Feds aren't {\i1}that{\i0} dumb.
+PT anterior: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Proposta: Mesmo que os Feds não sejam [[TAG0]]tão[[TAG1]] idiotas.

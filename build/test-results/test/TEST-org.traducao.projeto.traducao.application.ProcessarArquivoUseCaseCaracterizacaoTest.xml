@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" tests="6" skipped="0" failures="1" errors="0" timestamp="2026-07-15T14:51:58.294Z" hostname="DESKTOP-QDNQHL1" time="3.444">
+  <properties/>
+  <testcase name="assFluxoCompletoCacheMissConcluido()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.808"/>
+  <testcase name="assSegundaExecucaoReutilizaCacheSemChamarLlm()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.561"/>
+  <testcase name="cancelamentoEncerraSemPublicarNemChamarLlmPreservandoExistentes()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.531">
+    <failure message="org.opentest4j.AssertionFailedError: Expected org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException to be thrown, but nothing was thrown." type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: Expected org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException to be thrown, but nothing was thrown.
+	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3234)
+	at org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest.cancelamentoEncerraSemPublicarNemChamarLlmPreservandoExistentes(ProcessarArquivoUseCaseCaracterizacaoTest.java:372)
+</failure>
+  </testcase>
+  <testcase name="srtFluxoCompletoConcluido()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.503"/>
+  <testcase name="assLinhaNaoTraduzidaGeraParcial()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.519"/>
+  <testcase name="falhaDeEscritaNaoPublicaSaidaFinalNemCorrompeEntrada()" classname="org.traducao.projeto.traducao.application.ProcessarArquivoUseCaseCaracterizacaoTest" time="0.508"/>
+  <system-out><![CDATA[2026-07-15 11:51:58,429 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-8699356665253652944\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:51:58,440 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:51:58,440 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:51:59,016 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:51:59,019 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+2026-07-15 11:51:59,059 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-8699356665253652944\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:51:59,086 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Arquivo traduzido salvo em C:\Users\Paulo\AppData\Local\Temp\junit-8699356665253652944\saida\ep_PT-BR.ass (cache em C:\Users\Paulo\AppData\Local\Temp\junit-8699356665253652944\cache\AnimeTeste\ep.cache.json)
+2026-07-15 11:51:59,119 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:51:59,120 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:51:59,120 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:51:59,621 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:51:59,621 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+2026-07-15 11:51:59,627 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:51:59,630 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Arquivo traduzido salvo em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\saida\ep_PT-BR.ass (cache em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\cache\AnimeTeste\ep.cache.json)
+2026-07-15 11:51:59,631 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:51:59,661 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache carregado de C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\cache\AnimeTeste\ep.cache.json (2 entradas reaproveitaveis, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:51:59,662 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:51:59,662 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 0 pendente(s) de tradu��o
+2026-07-15 11:51:59,666 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:51:59,669 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Arquivo traduzido salvo em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\saida\ep_PT-BR.ass (cache em C:\Users\Paulo\AppData\Local\Temp\junit-12970757188352697368\cache\AnimeTeste\ep.cache.json)
+2026-07-15 11:51:59,680 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-15712271691275187455\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:51:59,680 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:51:59,681 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:52:00,188 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:52:00,189 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+2026-07-15 11:52:00,195 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-15712271691275187455\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:52:00,196 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Arquivo traduzido salvo em C:\Users\Paulo\AppData\Local\Temp\junit-15712271691275187455\saida\ep_PT-BR.ass (cache em C:\Users\Paulo\AppData\Local\Temp\junit-15712271691275187455\cache\AnimeTeste\ep.cache.json)
+2026-07-15 11:52:00,211 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-3731093954428460411\AnimeTeste\legendas_originais\ep.srt
+2026-07-15 11:52:00,212 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.srt
+2026-07-15 11:52:00,212 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:52:00,697 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:52:00,697 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+2026-07-15 11:52:00,702 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-3731093954428460411\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:52:00,705 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Arquivo traduzido salvo em C:\Users\Paulo\AppData\Local\Temp\junit-3731093954428460411\saida\ep_PT-BR.srt (cache em C:\Users\Paulo\AppData\Local\Temp\junit-3731093954428460411\cache\AnimeTeste\ep.cache.json)
+2026-07-15 11:52:00,714 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-3770046485612819291\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:52:00,714 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:52:00,715 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:52:01,214 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:52:01,215 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+2026-07-15 11:52:01,216 WARN  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Fala pendente ap�s tentativas do LLM: modelo devolveu o texto original sem tradu��o. Original: KEEPME stays
+?[33m[ WARN ] Fala pendente após tentativas do LLM: modelo devolveu o texto original sem tradução. Original: KEEPME stays?[0m
+2026-07-15 11:52:01,222 INFO  [org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService] (Test worker) Cache de traducao salvo em C:\Users\Paulo\AppData\Local\Temp\junit-3770046485612819291\cache\AnimeTeste\ep.cache.json (2 entradas, contexto caracterizacao, modelo modelo-teste)
+2026-07-15 11:52:01,224 WARN  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Tradu��o parcial salva em C:\Users\Paulo\AppData\Local\Temp\junit-3770046485612819291\saida\ep_PT-BR.parcial.ass: 1 fala(s) distinta(s) continuam pendentes; sa�da final C:\Users\Paulo\AppData\Local\Temp\junit-3770046485612819291\saida\ep_PT-BR.ass n�o foi sobrescrita.
+2026-07-15 11:52:01,234 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) Lendo arquivo de legenda: C:\Users\Paulo\AppData\Local\Temp\junit-2206355057000204755\AnimeTeste\legendas_originais\ep.ass
+2026-07-15 11:52:01,235 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 2 fala(s) traduz�vel(eis) encontrada(s) em ep.ass
+2026-07-15 11:52:01,235 INFO  [org.traducao.projeto.traducao.application.ProcessarArquivoUseCase] (Test worker) 0 fala(s) distinta(s) reaproveitada(s) do cache, 0 suspeita(s), 2 pendente(s) de tradu��o
+2026-07-15 11:52:01,732 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Iniciando processamento de 1 lote(s) de forma sequencial (preservando LM Studio/GPU)
+?[K?[32m[ OK ] Lote 1 traduzido com sucesso.?[0m
+2026-07-15 11:52:01,732 INFO  [org.traducao.projeto.traducao.application.ProcessarEpisodioUseCase] (Test worker) Processamento conclu�do: 1 lote(s) traduzido(s) com sucesso
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

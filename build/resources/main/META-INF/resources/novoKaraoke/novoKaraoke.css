@@ -1,0 +1,9 @@
+/* Estilos próprios do painel Karaokê Simples (KFX → legenda limpa). */
+
+#panel-novo-karaoke .card-desc strong {
+    color: var(--accent-green, #4caf50);
+}
+
+#panel-novo-karaoke .console-body {
+    min-height: 220px;
+}

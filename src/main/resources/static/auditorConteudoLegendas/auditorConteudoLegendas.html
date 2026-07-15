@@ -1,0 +1,99 @@
+<!-- Card 1 — Entrada: caminhos dos arquivos original e traduzido -->
+<div class="glass-card">
+    <h2 class="auditor-card-titulo"><span class="material-symbols-outlined auditor-titulo-icone">fact_check</span>Análise de Conteúdo de Legendas</h2>
+    <p class="card-desc">Auditoria profunda de arquivos de legenda para encontrar alucinações de IA, efeitos visuais vazados e formatação quebrada.</p>
+
+    <!-- Abas de modo: Ambas (comparativa) · Só Original (EN) · Só Traduzida (PT-BR) -->
+    <div class="auditor-modo-tabs" role="tablist" aria-label="Modo de análise">
+        <button type="button" class="auditor-modo-tab ativo" role="tab" aria-selected="true" data-modo="AMBAS">
+            <span class="material-symbols-outlined">compare_arrows</span>Ambas (comparar)
+        </button>
+        <button type="button" class="auditor-modo-tab" role="tab" aria-selected="false" data-modo="ORIGINAL">
+            <span class="material-symbols-outlined">description</span>Só Original (EN)
+        </button>
+        <button type="button" class="auditor-modo-tab" role="tab" aria-selected="false" data-modo="TRADUZIDO">
+            <span class="material-symbols-outlined">translate</span>Só Traduzida (PT-BR)
+        </button>
+    </div>
+    <p class="card-desc auditor-modo-desc" id="auditor-modo-desc">Compara o arquivo original com o traduzido e roda as regras de par (quebras, estilos, karaokê, efeitos, metadados).</p>
+
+    <form id="form-auditor-conteudo" class="standard-form">
+        <div class="form-group auditor-campo-original">
+            <label for="auditor-original">Legenda Original — Inglês (EN) · ASS/SSA/SRT: <span class="help-icon" data-tooltip="O arquivo de legenda original (inglês) usado como referência. O formato detectado será exibido no relatório.">?</span></label>
+            <div class="input-with-button">
+                <input type="text" id="auditor-original" autocomplete="off" spellcheck="false" placeholder="Caminho da legenda em inglês">
+                <button type="button" class="btn-procurar" data-target="auditor-original" data-type="arquivo"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+            </div>
+        </div>
+        <div class="form-group auditor-campo-traduzido">
+            <label for="auditor-traduzido">Legenda Traduzida — PT-BR · ASS/SSA/SRT: <span class="help-icon" data-tooltip="O arquivo gerado pelo LLM (português). O relatório identifica seu formato e analisa possíveis danos estruturais.">?</span></label>
+            <div class="input-with-button">
+                <input type="text" id="auditor-traduzido" autocomplete="off" spellcheck="false" placeholder="Caminho da legenda em PT-BR">
+                <button type="button" class="btn-procurar" data-target="auditor-traduzido" data-type="arquivo"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+            </div>
+        </div>
+        <div class="correcao-actions">
+            <button type="submit" class="btn btn-primary btn-purple" data-tooltip="Executa o motor de regras de auditoria de conteúdo">
+                <span>Executar Auditoria</span>
+                <span class="material-symbols-outlined btn-icon">policy</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-auditor-conteudo" id="btn-limpar-auditor" data-tooltip="Limpa os campos e o relatório exibido">
+                <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                <span>Limpar Campos</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Card 2 — Relatório de Anomalias: resumo, filtros por severidade e lista de cards -->
+<div class="glass-card auditor-relatorio-card">
+    <div class="console-header">
+        <h3 class="auditor-relatorio-titulo">Relatório de Anomalias</h3>
+        <div class="console-actions auditor-export-actions">
+            <button type="button" class="btn btn-secondary btn-exportar-auditor" id="btn-exportar-auditor-md" data-tooltip="Exporta o relatório em Markdown (.md) — formato didático para revisão">
+                <span class="material-symbols-outlined btn-icon">download</span>
+                <span>Exportar .md</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-exportar-auditor" id="btn-exportar-auditor-json" data-tooltip="Exporta o relatório em JSON (formato técnico)">
+                <span class="material-symbols-outlined btn-icon">data_object</span>
+                <span>Exportar JSON</span>
+            </button>
+            <span class="status-badge" id="auditor-status-badge">Aguardando...</span>
+        </div>
+    </div>
+
+    <!-- Faixa de resumo (arquivo + formato original/traduzido / regras / duração) — preenchida via JS -->
+    <div id="auditor-resumo" class="auditor-resumo hidden" aria-live="polite"></div>
+
+    <!-- Chips de filtro por severidade com contagem — preenchidos via JS após a auditoria -->
+    <div id="auditor-filtros" class="auditor-filtros hidden" role="group" aria-label="Filtrar anomalias por severidade"></div>
+
+    <!-- Estado "limpo": só aparece quando NÃO há nenhuma anomalia -->
+    <div id="auditor-alerta-limpo" class="auditor-alerta-limpo hidden" role="status">
+        <span class="material-symbols-outlined">verified</span>
+        <div>
+            <strong>Arquivo limpo</strong>
+            <p id="auditor-alerta-limpo-msg">Nenhuma anomalia detectada. O traduzido passou em todas as regras de auditoria.</p>
+        </div>
+    </div>
+
+    <!-- Lista de cards de anomalia (cada anomalia é um card fechado) -->
+    <div id="auditor-anomalias-lista" class="auditor-anomalias-lista">
+        <div class="auditor-lista-vazia">Nenhuma auditoria realizada ainda. Execute a auditoria para ver o relatório aqui.</div>
+    </div>
+</div>
+
+<!-- Card 3 — Logs da Auditoria: console dark com ações -->
+<div class="glass-card console-card">
+    <div class="console-header">
+        <h3>Logs da Auditoria</h3>
+        <div class="console-actions">
+            <button class="btn-toggle-console" data-target="console-auditor-conteudo" data-tooltip="Alternar altura expandida do console"><span class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
+            <button class="btn-copy-console" data-target="console-auditor-conteudo" data-tooltip="Copiar conteúdo do console"><span class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>
+            <button class="btn-clear-console" data-target="console-auditor-conteudo"><span class="material-symbols-outlined console-action-icon">mop</span>Limpar</button>
+        </div>
+    </div>
+    <div class="console-body" id="console-auditor-conteudo">
+        <div class="system-message">Aguardando execução...</div>
+    </div>
+</div>

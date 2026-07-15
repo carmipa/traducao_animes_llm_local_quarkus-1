@@ -1,0 +1,21 @@
+/* ==========================================================================
+   KRONOS CORE — CORREÇÃO DE KARAOKE (CURA)
+   Pasta espelha cura/cura.js
+   Etapa 8 da modularização CSS
+   ========================================================================== */
+
+#panel-cura .cura-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    #panel-cura .cura-actions {
+        flex-direction: column;
+    }
+    #panel-cura .cura-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
