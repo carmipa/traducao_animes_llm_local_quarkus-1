@@ -1,4 +1,0 @@
-# Configurações locais privadas (IGNORADAS NO GIT via .gitignore)
-# Cole a chave real do TMDB abaixo; este arquivo não será enviado ao Git.
-tmdb:
-  api-key: "4f47ba115da7b18bc5c806d116402d26"

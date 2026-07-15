@@ -1,0 +1,22 @@
+# --- Artefatos gerados de build (nunca versionar) ---
+.gradle/
+build/
+bin/
+
+# --- Ferramentas e configuração local ---
+.codex/
+.mcp.json
+
+# --- Configuração local da aplicação (contém chaves/credenciais) ---
+# Ignora o arquivo real, mas preserva o template .example versionável.
+application-local.yml
+**/application-local.yml
+!application-local.yml.example
+!**/application-local.yml.example
+
+# --- Arquivos temporários ---
+*.tmp
+*.bak
+*~
+.DS_Store
+Thumbs.db
