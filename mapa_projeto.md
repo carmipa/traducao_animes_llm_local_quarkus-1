@@ -2,9 +2,9 @@
  MAPA ESTRUTURAL DO PROJETO - TRACKER ANIMES
 ================================================================================
  Raiz do repositorio      : traducao_animes_llm_local_quarkus
- Pastas mapeadas          : 241
- Arquivos (na arvore)     : 516
- Arquivos-fonte indexados : 413  (.java: 413 | .py: 0)
+ Pastas mapeadas          : 247
+ Arquivos (na arvore)     : 515
+ Arquivos-fonte indexados : 412  (.java: 412 | .py: 0)
  Memoria viva do projeto  : CEREBRO_IA.md (na raiz do repositorio)
 
  Objetivo: mapa de contexto para LLMs navegarem os diretorios e
@@ -63,6 +63,8 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   └── presentation/
 │   │   │               │       ├── ui/
 │   │   │               │       │   └── ConsoleAnalisadorLogger.java
+│   │   │               │       ├── web/
+│   │   │               │       │   └── AnaliseMidiaController.java
 │   │   │               │       └── AnalisadorMidiaCLI.java
 │   │   │               ├── apiDadosAnime/
 │   │   │               │   ├── application/
@@ -174,6 +176,8 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │       ├── ui/
 │   │   │               │       │   ├── ConsoleExtratorLogger.java
 │   │   │               │       │   └── TabelaExtracaoRenderer.java
+│   │   │               │       ├── web/
+│   │   │               │       │   └── ExtracaoLegendaController.java
 │   │   │               │       └── ExtratorCLI.java
 │   │   │               ├── mapaProjeto/
 │   │   │               │   ├── application/
@@ -183,6 +187,9 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── exceptions/
 │   │   │               │   │       └── MapaProjetoException.java
 │   │   │               │   └── presentation/
+│   │   │               │       ├── web/
+│   │   │               │       │   ├── MapaController.java
+│   │   │               │       │   └── MapaResponse.java
 │   │   │               │       └── MapaProjetoCLI.java
 │   │   │               ├── mcp/
 │   │   │               │   └── KronosMcpTools.java
@@ -246,6 +253,8 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   └── presentation/
 │   │   │               │       ├── ui/
 │   │   │               │       │   └── ConsoleRemuxerLogger.java
+│   │   │               │       ├── web/
+│   │   │               │       │   └── RemuxerController.java
 │   │   │               │       └── RemuxerCLI.java
 │   │   │               ├── renomearArquivos/
 │   │   │               │   ├── application/
@@ -301,6 +310,9 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   └── presentation/
 │   │   │               │       └── SistemaController.java
 │   │   │               ├── telemetria/
+│   │   │               │   ├── presentation/
+│   │   │               │   │   └── web/
+│   │   │               │   │       └── TelemetriaStreamResource.java
 │   │   │               │   ├── AmbienteExecucaoDataset.java
 │   │   │               │   ├── AmbienteExecucaoDatasetService.java
 │   │   │               │   ├── LlmTelemetria.java
@@ -436,40 +448,33 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │       ├── LeitorLegendaAss.java
 │   │   │               │   │       ├── LeitorLegendaSrt.java
 │   │   │               │   │       └── MascaradorTags.java
-│   │   │               │   ├── presentation/
-│   │   │               │   │   ├── ui/
-│   │   │               │   │   │   ├── AnsiCores.java
-│   │   │               │   │   │   ├── ConsoleEntrada.java
-│   │   │               │   │   │   ├── ConsoleUILogger.java
-│   │   │               │   │   │   ├── PastasExecucao.java
-│   │   │               │   │   │   └── TabelaTraducaoRenderer.java
-│   │   │               │   │   ├── web/
-│   │   │               │   │   │   ├── AnaliseMidiaController.java
-│   │   │               │   │   │   ├── BrowserLauncher.java
-│   │   │               │   │   │   ├── ConsoleRedirector.java
-│   │   │               │   │   │   ├── ContextoResponse.java
-│   │   │               │   │   │   ├── CorrecaoCacheController.java
-│   │   │               │   │   │   ├── DialogoArquivoController.java
-│   │   │               │   │   │   ├── DocumentacaoController.java
-│   │   │               │   │   │   ├── ExtracaoLegendaController.java
-│   │   │               │   │   │   ├── ExtracaoRequest.java
-│   │   │               │   │   │   ├── LlmStatusResponse.java
-│   │   │               │   │   │   ├── LogStreamResource.java
-│   │   │               │   │   │   ├── LogStreamService.java
-│   │   │               │   │   │   ├── MapaController.java
-│   │   │               │   │   │   ├── MapaResponse.java
-│   │   │               │   │   │   ├── OperacaoRequest.java
-│   │   │               │   │   │   ├── PipelineController.java
-│   │   │               │   │   │   ├── PipelineWebSupport.java
-│   │   │               │   │   │   ├── RemuxerController.java
-│   │   │               │   │   │   ├── RemuxRequest.java
-│   │   │               │   │   │   ├── RespostaPadrao.java
-│   │   │               │   │   │   ├── RevisaoLegendasController.java
-│   │   │               │   │   │   ├── TelemetriaController.java
-│   │   │               │   │   │   ├── TelemetriaStreamResource.java
-│   │   │               │   │   │   └── TraducaoController.java
-│   │   │               │   │   └── TradutorCLI.java
-│   │   │               │   └── Application.java
+│   │   │               │   └── presentation/
+│   │   │               │       ├── ui/
+│   │   │               │       │   ├── AnsiCores.java
+│   │   │               │       │   ├── ConsoleEntrada.java
+│   │   │               │       │   ├── ConsoleUILogger.java
+│   │   │               │       │   ├── PastasExecucao.java
+│   │   │               │       │   └── TabelaTraducaoRenderer.java
+│   │   │               │       ├── web/
+│   │   │               │       │   ├── BrowserLauncher.java
+│   │   │               │       │   ├── ConsoleRedirector.java
+│   │   │               │       │   ├── ContextoResponse.java
+│   │   │               │       │   ├── CorrecaoCacheController.java
+│   │   │               │       │   ├── DialogoArquivoController.java
+│   │   │               │       │   ├── DocumentacaoController.java
+│   │   │               │       │   ├── ExtracaoRequest.java
+│   │   │               │       │   ├── LlmStatusResponse.java
+│   │   │               │       │   ├── LogStreamResource.java
+│   │   │               │       │   ├── LogStreamService.java
+│   │   │               │       │   ├── OperacaoRequest.java
+│   │   │               │       │   ├── PipelineController.java
+│   │   │               │       │   ├── PipelineWebSupport.java
+│   │   │               │       │   ├── RemuxRequest.java
+│   │   │               │       │   ├── RespostaPadrao.java
+│   │   │               │       │   ├── RevisaoLegendasController.java
+│   │   │               │       │   ├── TelemetriaController.java
+│   │   │               │       │   └── TraducaoController.java
+│   │   │               │       └── TradutorCLI.java
 │   │   │               ├── traducaoCorrige/
 │   │   │               │   ├── application/
 │   │   │               │   │   ├── ClassificadorEntradaCacheService.java
@@ -901,6 +906,29 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/presentation/ui/
   - ConsoleAnalisadorLogger.java
       (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/analisadorMidia/presentation/web/
+  - AnaliseMidiaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a análise de mídia (Opção 1) à interface web,
+      enfileirando o processamento pesado em segundo plano e publicando o relatório
+      estruturado no canal SSE {@code analise-relatorio} para renderização no
+      navegador.
+      
+      <p>Fronteira arquitetural: este endpoint pertence ao módulo
+      {@code analisadorMidia} (Opção 1) e reside na sua camada de apresentação
+      própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
+      apenas o use case do próprio módulo. As dependências
+      {@link PipelineWebSupport}, {@link LogStreamService}, {@link RespostaPadrao} e
+      {@link OperacaoRequest} são <b>glue técnico de apresentação</b> (fila única,
+      SSE de logs, contratos de transporte HTTP) hoje localizado em
+      {@code traducao.presentation.web}; é dívida técnica temporária cujo saneamento
+      está reservado para a FASE E — não representa acoplamento funcional.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport} e o MESMO canal SSE; caminhos são normalizados antes
+      do uso; a rota {@code POST /api/analisar}, o status, os campos de DTO e o canal
+      SSE {@code analise-relatorio} são contrato público preservado exatamente como
+      antes da movimentação.
 
 [PASTA] src/main/java/org/traducao/projeto/apiDadosAnime/application/
   - ObterMetadataAnimeUseCase.java
@@ -1421,6 +1449,28 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: sem itens, devolve string vazia (o chamador
       simplesmente não imprime). Não lança.
 
+[PASTA] src/main/java/org/traducao/projeto/legendasExtracao/presentation/web/
+  - ExtracaoLegendaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a extração de legendas (Opção 2) à interface web,
+      validando o formato-alvo e enfileirando o processamento pesado que percorre a
+      pasta de vídeos e extrai as faixas de legenda no formato escolhido.
+      
+      <p>Fronteira arquitetural: este endpoint pertence ao módulo
+      {@code legendasExtracao} (Opção 2) e reside na sua camada de apresentação
+      própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
+      apenas o use case e os tipos do próprio módulo. As dependências
+      {@link PipelineWebSupport}, {@link RespostaPadrao} e {@link ExtracaoRequest}
+      são <b>glue técnico de apresentação</b> (fila única e contratos de transporte
+      HTTP) hoje em {@code traducao.presentation.web}; é dívida técnica temporária
+      reservada para saneamento na FASE E — não é acoplamento funcional.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; o formato é validado antes de enfileirar; caminhos
+      são normalizados; a rota {@code POST /api/extrair}, o status e os campos de DTO
+      são contrato público preservado exatamente como antes da movimentação.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
+
 [PASTA] src/main/java/org/traducao/projeto/mapaProjeto/application/
   - GeradorMapaProjetoUseCase.java
       Pastas que não representam arquitetura/código-fonte e por isso são podadas
@@ -1440,6 +1490,36 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/mapaProjeto/presentation/
   - MapaProjetoCLI.java
       Determina a raiz a ser mapeada
+
+[PASTA] src/main/java/org/traducao/projeto/mapaProjeto/presentation/web/
+  - MapaController.java
+      PROPÓSITO DE NEGÓCIO: expõe a geração do mapa do projeto (Opção 7) à interface
+      web, produzindo o relatório em markdown e a árvore no formato GitHub a partir
+      da raiz do projeto.
+      
+      <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code mapaProjeto},
+      sua funcionalidade proprietária, e por isso reside na camada de apresentação do
+      próprio módulo. Não depende funcionalmente da Tradução Local (Opção 4); usa
+      apenas o use case do próprio módulo e a raiz técnica neutra {@code core}.
+      
+      <p>INVARIANTES DO DOMÍNIO: a raiz mapeada vem de
+      {@link DiretorioBaseKronos#base()} — em produção é o diretório de trabalho e,
+      sob a suíte de testes, a árvore descartável, evitando reescrever o mapa real;
+      a rota {@code POST /api/mapa}, o status e os campos JSON de {@link MapaResponse}
+      são contrato público preservado exatamente como antes da movimentação.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: a geração é síncrona; qualquer falha do use
+      case propaga como erro do endpoint, sem estado parcial retornado ao navegador.
+  - MapaResponse.java
+      PROPÓSITO DE NEGÓCIO: entrega ao painel "Mapa do Projeto" o relatório em
+      markdown, a árvore no formato GitHub e o nome do projeto gerados pelo módulo
+      de mapeamento.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pela SPA; representam o resultado já pronto para renderização.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
+      construção; a ausência de conteúdo é responsabilidade do use case que o produz.
 
 [PASTA] src/main/java/org/traducao/projeto/mcp/
   - KronosMcpTools.java
@@ -1749,6 +1829,25 @@ traducao_animes_llm_local_quarkus/
       (mais fácil de ler em blocos de texto maiores) — INFO/DEBUG ficam sem cor.
       Exemplo: [10:20:30] [INFO   ] Mensagem...
 
+[PASTA] src/main/java/org/traducao/projeto/remuxer/presentation/web/
+  - RemuxerController.java
+      PROPÓSITO DE NEGÓCIO: expõe o Remuxer (mkvmerge) à interface web, agendando um
+      único lote de remux que combina vídeos e legendas traduzidas com política
+      explícita para as legendas originais.
+      
+      <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code remuxer}
+      (Opção 12) e reside na sua camada de apresentação própria. Não importa nenhuma
+      regra funcional da Tradução Local (Opção 4): usa o use case do próprio módulo e
+      a fila técnica neutra {@code core}. As dependências {@link PipelineWebSupport},
+      {@link RespostaPadrao}, {@link RemuxRequest} e {@link AnsiCores} são <b>glue
+      técnico de apresentação</b> (fila única, transporte HTTP, cores de console)
+      hoje em {@code traducao.presentation}; é dívida técnica temporária reservada
+      para saneamento na FASE E — não é acoplamento funcional.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
+      recusar concorrência; as pastas existem antes da aceitação; o offset fica na
+
 [PASTA] src/main/java/org/traducao/projeto/renomearArquivos/application/
   - OperacaoRenomeacaoEmAndamentoException.java
       PROPÓSITO DE NEGÓCIO: impede duas operações de renomeação concorrentes na
@@ -2006,6 +2105,26 @@ traducao_animes_llm_local_quarkus/
   - TelemetriaService.java
       (sem cabecalho explicativo)
 
+[PASTA] src/main/java/org/traducao/projeto/telemetria/presentation/web/
+  - TelemetriaStreamResource.java
+      PROPÓSITO DE NEGÓCIO: canal Server-Sent Events (SSE) reativo que transmite a
+      telemetria acumulada da KRONOS ao painel web em tempo real, conforme os
+      episódios são processados.
+      
+      <p>Fronteira arquitetural: pertence ao módulo {@code telemetria}, dono da
+      funcionalidade, e reside na sua camada de apresentação própria. Depende apenas
+      do {@link TelemetriaService} do próprio módulo — sem qualquer dependência
+      funcional da Tradução Local (Opção 4).
+      
+      <p>INVARIANTES DO DOMÍNIO: a rota {@code GET /api/telemetria/stream} e o tipo
+      {@code text/event-stream} são contrato público preservado exatamente como antes
+      da movimentação; a rota é distinta das rotas Spring MVC para evitar colisão de
+      endpoints (JAX-RS/SSE nativo do Quarkus).
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: o registro do {@code SseEventSink} é delegado
+      ao serviço de telemetria; o encerramento/erro da conexão é gerido pelo runtime
+      SSE, sem afetar o processamento em andamento.
+
 [PASTA] src/main/java/org/traducao/projeto/traducaoCorrige/application/
   - ClassificadorEntradaCacheService.java
       PROPÓSITO DE NEGÓCIO: aplica ao menu Correção do Cache a mesma decisão de
@@ -2139,11 +2258,6 @@ traducao_animes_llm_local_quarkus/
   - TraducaoKaraokeRequest.java
       Corpo das requisições do painel Tradução de Karaokê: a pasta com as
       legendas .ass e a obra (contexto de lore) selecionada na UI.
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/
-  - Application.java
-      Utilitarios de inicializacao compartilhados entre modos CLI.
-      O Quarkus e o container principal; nao ha {@code SpringApplication.run} aqui.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/application/
   - DetectorEfeitoKaraokeService.java
@@ -2528,16 +2642,19 @@ traducao_animes_llm_local_quarkus/
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/
   - TradutorCLI.java
-      Ponto de entrada da CLI: varre a pasta de entrada por arquivos .ass/.ssa
-      e traduz cada um sequencialmente.
-      <p>
-      Se {@code tradutor.diretorio-entrada} estiver vazio, o {@link Application#main}
-      pede os caminhos via {@link ConsoleEntrada}
-      antes do Spring subir.
-      <p>
-      Arquivos são processados um por vez de propósito: todos compartilham o
-      mesmo LLM local (GPU única). Lotes dentro de cada episódio também são
-      sequenciais (ver {@code ProcessarEpisodioUseCase}).
+      Entrada de linha de comando da Tradução Local (Opção 4). Varre a pasta de
+      entrada por arquivos {@code .ass}/{@code .ssa} e traduz cada um sequencialmente.
+      
+      <h2>Propósito de negócio</h2>
+      Representa a interface CLI da Tradução Local: recebe e valida a configuração
+      necessária para iniciar o processamento e coordena somente a apresentação CLI
+      da Opção 4. Não é o bootstrap global da aplicação — apenas orquestra a leitura
+      da pasta de entrada e a delegação de cada arquivo ao caso de uso de tradução.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A pasta de entrada deve estar configurada e válida antes de iniciar.</li>
+      <li>A execução respeita as validações e a fila já existentes; nenhum valor é
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/ui/
   - AnsiCores.java
@@ -2569,20 +2686,6 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: sem resultados, devolve string vazia; não lança.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/web/
-  - AnaliseMidiaController.java
-      PROPÓSITO DE NEGÓCIO: expõe a análise de mídia (Opção 1) à interface web,
-      enfileirando o processamento pesado em segundo plano e publicando o relatório
-      estruturado no canal SSE {@code analise-relatorio} para renderização no
-      navegador.
-      
-      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
-      {@link PipelineWebSupport}; caminhos são normalizados antes do uso; nenhuma
-      URL, código HTTP, nome de campo de DTO ou canal SSE é alterado em relação ao
-      controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco retorna HTTP 400; falhas
-      do job de background são registradas no log e no console SSE, sem derrubar a
-      fila.
   - BrowserLauncher.java
       Abre o navegador apos a inicializacao do Quarkus quando {@code app.modo=WEB}.
   - ConsoleRedirector.java
@@ -2640,19 +2743,6 @@ traducao_animes_llm_local_quarkus/
       markdown no navegador (ver static/documentacao/documentacao.js). O README
       raiz é o índice canônico no GitHub; este endpoint espelha a mesma pasta
       docs/ dentro do próprio app, sem precisar sair dele.
-  - ExtracaoLegendaController.java
-      PROPÓSITO DE NEGÓCIO: expõe a extração de legendas (Opção 2) à interface web,
-      validando o formato-alvo e enfileirando o processamento pesado que percorre a
-      pasta de vídeos e extrai as faixas de legenda no formato escolhido.
-      
-      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
-      {@link PipelineWebSupport}; o formato é validado antes de enfileirar; caminhos
-      são normalizados; nenhuma URL, código HTTP ou nome de campo de DTO é alterado
-      em relação ao controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
-      retorna HTTP 400; falhas do job de background são registradas no log e no
-      console SSE, sem derrubar a fila.
   - ExtracaoRequest.java
       PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
       pasta de vídeos, pasta de saída e o formato-alvo escolhido na interface.
@@ -2676,29 +2766,6 @@ traducao_animes_llm_local_quarkus/
       Endpoint SSE nativo do Quarkus (substitui SseEmitter do Spring MVC).
   - LogStreamService.java
       Gerencia conexoes SSE (JAX-RS) e despacha logs em tempo real para clientes web.
-  - MapaController.java
-      PROPÓSITO DE NEGÓCIO: expõe a geração do mapa do projeto (Opção 7) à interface
-      web, produzindo o relatório em markdown e a árvore no formato GitHub a partir
-      da raiz do projeto.
-      
-      <p>INVARIANTES DO DOMÍNIO: a raiz mapeada vem de
-      {@link DiretorioBaseKronos#base()} — em produção é o diretório de trabalho e,
-      sob a suíte de testes, a árvore descartável, evitando reescrever o mapa real;
-      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
-      controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: a geração é síncrona; qualquer falha do use
-      case propaga como erro do endpoint, sem estado parcial retornado ao navegador.
-  - MapaResponse.java
-      PROPÓSITO DE NEGÓCIO: entrega ao painel "Mapa do Projeto" o relatório em
-      markdown, a árvore no formato GitHub e o nome do projeto gerados pelo módulo
-      de mapeamento.
-      
-      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
-      consumido pela SPA; representam o resultado já pronto para renderização.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
-      construção; a ausência de conteúdo é responsabilidade do use case que o produz.
   - OperacaoRequest.java
       PROPÓSITO DE NEGÓCIO: transporta os parâmetros comuns das operações do
       pipeline (análise, tradução, correção e revisão) enviados pela SPA — pastas de
@@ -2740,19 +2807,6 @@ traducao_animes_llm_local_quarkus/
       ({@link InvalidPathException}), registrando aviso no log; o corpo submetido em
       {@link #submeterJobComRelatorio} sempre imprime a linha de relatório final,
       mesmo quando lança exceção, via bloco {@code finally}.
-  - RemuxerController.java
-      PROPÓSITO DE NEGÓCIO: expõe o Remuxer (mkvmerge) à interface web, agendando um
-      único lote de remux que combina vídeos e legendas traduzidas com política
-      explícita para as legendas originais.
-      
-      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
-      {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
-      recusar concorrência; as pastas existem antes da aceitação; o offset fica na
-      faixa operacional de ±86.400.000 ms; nenhuma URL, código HTTP ou nome de campo
-      de DTO é alterado em relação ao controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada inválida retorna HTTP 400, fila
-      ocupada retorna HTTP 409 e falha do lote aparece no status final do console.
   - RemuxRequest.java
       PROPÓSITO DE NEGÓCIO: transporta as opções exclusivas do Remuxer.
       INVARIANTES DO DOMÍNIO: pasta de vídeo é obrigatória; offset e política de
@@ -2797,9 +2851,6 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
       de leitura retorna 500; falha na publicação do dataset retorna 500 com a
       mensagem do erro no corpo padrão.
-  - TelemetriaStreamResource.java
-      Endpoint Server-Sent Events (SSE) reativo para streaming da telemetria da KRONOS em tempo real.
-      Rota mapeada especificamente para evitar colisões com o Controller Spring.
   - TraducaoController.java
       PROPÓSITO DE NEGÓCIO: expõe a tradução local via LLM (Opção 3) à interface
       web, verificando a disponibilidade do servidor LLM, configurando as pastas de
