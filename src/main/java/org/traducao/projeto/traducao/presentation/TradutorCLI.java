@@ -2,7 +2,6 @@ package org.traducao.projeto.traducao.presentation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
@@ -62,7 +61,7 @@ import java.util.stream.Stream;
  */
 @Component
 @ConditionalOnProperty(name = "app.modo", havingValue = "TRADUZIR", matchIfMissing = true)
-public class TradutorCLI implements ExecucaoCli {
+public class TradutorCLI {
 
     private static final Logger log = LoggerFactory.getLogger(TradutorCLI.class);
     private static final Set<String> EXTENSOES_SUPORTADAS = Set.of(".ass", ".ssa");
@@ -87,7 +86,23 @@ public class TradutorCLI implements ExecucaoCli {
         this.mistralPort = mistralPort;
     }
 
-    @Override
+    /**
+     * PROPÓSITO DE NEGÓCIO: executa a varredura da pasta de entrada e traduz cada
+     * legenda {@code .ass}/{@code .ssa} sequencialmente. É o ponto de entrada da CLI
+     * da Tradução Local, agora disparado pelo bootstrap próprio do slice
+     * ({@code TraducaoStartup}) — não mais por um contrato compartilhado da fatia
+     * {@code config}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pasta de entrada configurada e válida antes de
+     * iniciar; LLM local disponível; processamento estritamente sequencial (GPU única).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: configuração ausente/inválida, pasta
+     * inexistente ou LLM indisponível interrompem o fluxo de forma controlada
+     * (retorno sem processar); falha em um arquivo individual é registrada e não
+     * aborta os demais.
+     *
+     * @throws Exception em falha não recuperável do fluxo de tradução
+     */
     public void executar() throws Exception {
         if (!resolverPastas()) {
             return;

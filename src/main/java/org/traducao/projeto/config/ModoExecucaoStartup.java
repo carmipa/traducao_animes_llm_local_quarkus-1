@@ -15,11 +15,13 @@ import org.traducao.projeto.raspagemCorrecao.CorretorRaspagemCLI;
 import org.traducao.projeto.raspagemRevisao.RevisorLegendasCLI;
 import org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI;
 import org.traducao.projeto.remuxer.presentation.RemuxerCLI;
-import org.traducao.projeto.traducao.presentation.TradutorCLI;
 import org.traducao.projeto.traducaoCorrige.CorretorCacheCLI;
 
 /**
- * Dispara o modo CLI configurado em {@code app.modo}. No modo WEB nenhuma CLI e executada.
+ * Dispara o modo CLI configurado em {@code app.modo}. No modo WEB nenhuma CLI e
+ * executada. O modo {@code TRADUZIR} possui ciclo de vida proprio na fatia Traducao
+ * Local ({@code traducao.presentation.bootstrap.TraducaoStartup}) e nao e roteado
+ * aqui — por isso este dispatcher nao conhece nenhuma classe de {@code traducao}.
  */
 @ApplicationScoped
 public class ModoExecucaoStartup {
@@ -29,7 +31,6 @@ public class ModoExecucaoStartup {
     @ConfigProperty(name = "app.modo", defaultValue = "WEB")
     String modo;
 
-    @Inject Instance<TradutorCLI> tradutorCli;
     @Inject Instance<ExtratorCLI> extratorCli;
     @Inject Instance<CorretorCacheCLI> corretorCacheCli;
     @Inject Instance<CorretorRaspagemCLI> corretorRaspagemCli;
@@ -40,7 +41,9 @@ public class ModoExecucaoStartup {
     @Inject Instance<MapaProjetoCLI> mapaProjetoCli;
 
     void onStart(@Observes StartupEvent event) {
-        if ("WEB".equalsIgnoreCase(modo)) {
+        if ("WEB".equalsIgnoreCase(modo) || "TRADUZIR".equalsIgnoreCase(modo)) {
+            // WEB: nenhuma CLI. TRADUZIR: ciclo de vida proprio na fatia Traducao
+            // Local (TraducaoStartup); nao e roteado por este dispatcher compartilhado.
             return;
         }
 
@@ -61,7 +64,6 @@ public class ModoExecucaoStartup {
 
     private ExecucaoCli resolverModo(String modoAtual) {
         return switch (modoAtual.toUpperCase()) {
-            case "TRADUZIR" -> tradutorCli.get();
             case "EXTRAIR" -> extratorCli.get();
             case "CORRIGIR_CACHE" -> corretorCacheCli.get();
             case "RASPAGEM_CORRECAO" -> corretorRaspagemCli.get();

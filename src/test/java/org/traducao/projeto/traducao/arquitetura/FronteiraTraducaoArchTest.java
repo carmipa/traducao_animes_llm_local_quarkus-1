@@ -54,10 +54,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li><b>Regra blindada telemetria</b>: nenhuma classe de {@code ..traducao..}
  *       importa {@code ..telemetria..}, exceto as 3 arestas de {@code TelemetriaController}
  *       (ALLOW-TELEMETRIA-C2, removidas na C2).</li>
- *   <li>Aresta técnica temporária de saída para {@code config}: exatamente
- *       {@link #ALLOW_CONFIG_CLI} (removida em D-Config).</li>
- *   <li>Regra reversa: {@code config} depende de {@code traducao} apenas por
- *       {@link #ALLOW_STARTUP_CLI} (removida em D-Config, junto de ALLOW-CONFIG-CLI).</li>
+ *   <li><b>Após D-Config</b>: a fronteira {@code config ⇄ traducao} é <b>zero nos
+ *       dois sentidos</b>. As exceções nominais ALLOW-CONFIG-CLI
+ *       ({@code TradutorCLI → config.ExecucaoCli}) e ALLOW-STARTUP-CLI
+ *       ({@code ModoExecucaoStartup → TradutorCLI}) foram eliminadas juntas: a
+ *       {@code TradutorCLI} não implementa mais {@code ExecucaoCli} e o modo TRADUZIR
+ *       ganhou bootstrap próprio ({@code traducao.presentation.bootstrap.TraducaoStartup}),
+ *       de modo que {@code config} não conhece nenhuma classe de {@code traducao}.</li>
  *   <li>{@code core} é congelado <b>por tipo</b>: só os cinco tipos de
  *       {@link #CORE_TIPOS_CONGELADOS} podem ser usados; nenhum sexto tipo de core entra.</li>
  *   <li>Origem e destino são normalizados à respectiva classe de topo (um tipo
@@ -82,9 +85,6 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_TRADUCAO = "traducao";
     private static final String FATIA_CORE = "core";
     private static final String FATIA_CONFIG = "config";
-
-    private static final String CLASSE_TRADUTOR_CLI = RAIZ + ".traducao.presentation.TradutorCLI";
-    private static final String CLASSE_MODO_STARTUP = RAIZ + ".config.ModoExecucaoStartup";
 
     // Origens (produção, em traducao)
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -126,11 +126,9 @@ class FronteiraTraducaoArchTest {
         aresta(TELEMETRIA_CONTROLLER, T_TELEMETRIA_DATASET)
     );
 
-    /** Aresta técnica temporária de saída para config (removida em D-Config). */
-    private static final String ALLOW_CONFIG_CLI = CLASSE_TRADUTOR_CLI + " -> " + RAIZ + ".config.ExecucaoCli";
-
-    /** Aresta reversa temporária config → traducao (removida em D-Config). */
-    private static final String ALLOW_STARTUP_CLI = CLASSE_MODO_STARTUP + " -> " + CLASSE_TRADUTOR_CLI;
+    // D-Config CONCLUÍDA: as exceções nominais ALLOW-CONFIG-CLI (traducao → config)
+    // e ALLOW-STARTUP-CLI (config → traducao) foram eliminadas juntas. A fronteira
+    // config ⇄ traducao é agora ZERO nos dois sentidos (ver testes dedicados abaixo).
 
     /**
      * Baseline exata: as 9 arestas funcionais reais no bytecode após D-Tel-4 (origem
@@ -219,8 +217,8 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("Saída da Tradução Local para config == somente ALLOW-CONFIG-CLI")
-    void saidaParaConfigApenasAllowConfigCli() {
+    @DisplayName("Saída da Tradução Local para config == ZERO arestas (D-Config concluída)")
+    void saidaParaConfigEhZero() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
             if (!ehDaTraducao(classe)) {
@@ -233,13 +231,14 @@ class FronteiraTraducaoArchTest {
                 }
             }
         }
-        assertTrue(reais.equals(Set.of(ALLOW_CONFIG_CLI)),
-            () -> "Saída traducao→config deve ser somente ALLOW-CONFIG-CLI. Encontrado: " + reais);
+        assertTrue(reais.isEmpty(),
+            () -> "Após D-Config nenhuma classe de traducao pode depender de config "
+                + "(ALLOW-CONFIG-CLI eliminada). Encontrado: " + reais);
     }
 
     @Test
-    @DisplayName("config depende de traducao somente por ALLOW-STARTUP-CLI (regra reversa exata)")
-    void configNaoDependeDeTraducaoExcetoStartupCli() {
+    @DisplayName("config não depende de traducao (regra reversa exata: ZERO arestas, D-Config concluída)")
+    void configNaoDependeDeTraducao() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
             if (!ehDoConfig(classe)) {
@@ -252,8 +251,9 @@ class FronteiraTraducaoArchTest {
                 }
             }
         }
-        assertTrue(reais.equals(Set.of(ALLOW_STARTUP_CLI)),
-            () -> "Reversa config→traducao deve ser somente ALLOW-STARTUP-CLI. Encontrado: " + reais);
+        assertTrue(reais.isEmpty(),
+            () -> "Após D-Config a fatia config não pode depender de traducao "
+                + "(ALLOW-STARTUP-CLI eliminada; TRADUZIR tem bootstrap próprio). Encontrado: " + reais);
     }
 
     @Test
