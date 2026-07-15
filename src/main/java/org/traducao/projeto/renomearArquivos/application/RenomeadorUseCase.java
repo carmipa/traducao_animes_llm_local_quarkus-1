@@ -10,7 +10,7 @@ import org.traducao.projeto.core.util.DuracaoUtil;
 import org.traducao.projeto.renomearArquivos.domain.OperacaoRenomeacao;
 import org.traducao.projeto.renomearArquivos.domain.ResultadoRenomeacao;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

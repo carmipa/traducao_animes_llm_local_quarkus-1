@@ -13,8 +13,8 @@ import org.traducao.projeto.legendasExtracao.domain.RelatorioExtracao;
 import org.traducao.projeto.legendasExtracao.domain.exceptions.FormatoLegendaInvalidoException;
 import org.traducao.projeto.legendasExtracao.presentation.ui.TabelaExtracaoRenderer;
 import org.traducao.projeto.traducao.presentation.web.ExtracaoRequest;
-import org.traducao.projeto.traducao.presentation.web.PipelineWebSupport;
-import org.traducao.projeto.traducao.presentation.web.RespostaPadrao;
+import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 
 import java.nio.file.Path;
 

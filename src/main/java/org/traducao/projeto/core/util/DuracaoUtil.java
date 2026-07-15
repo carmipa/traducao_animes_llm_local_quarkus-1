@@ -19,11 +19,11 @@ public final class DuracaoUtil {
      * qualquer módulo, termina com o mesmo resumo de nome + tempo + hora.
      */
     public static String linhaRelatorioFinal(String nomeOperacao, long inicioMs) {
-        return org.traducao.projeto.traducao.presentation.ui.AnsiCores.CYAN
+        return org.traducao.projeto.core.presentation.ui.AnsiCores.CYAN
             + "[RELATÓRIO FINAL] Operação: " + nomeOperacao
             + " | Tempo total: " + formatar(System.currentTimeMillis() - inicioMs)
             + " | Término: " + java.time.LocalTime.now().format(FORMATO_HORA)
-            + org.traducao.projeto.traducao.presentation.ui.AnsiCores.RESET;
+            + org.traducao.projeto.core.presentation.ui.AnsiCores.RESET;
     }
 
     public static String formatar(long duracaoMs) {

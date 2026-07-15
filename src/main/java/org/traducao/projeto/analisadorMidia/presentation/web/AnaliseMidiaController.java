@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase;
 import org.traducao.projeto.analisadorMidia.domain.ResultadoAnaliseLote;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
-import org.traducao.projeto.traducao.presentation.web.OperacaoRequest;
-import org.traducao.projeto.traducao.presentation.web.PipelineWebSupport;
-import org.traducao.projeto.traducao.presentation.web.RespostaPadrao;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.OperacaoRequest;
+import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 
 import java.nio.file.Path;
 

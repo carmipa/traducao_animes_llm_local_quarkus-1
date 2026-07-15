@@ -11,7 +11,7 @@ import org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoU
 import org.traducao.projeto.auditorConteudoLegendas.domain.AuditoriaException;
 import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 @Path("/api/auditoria-conteudo")
 @Produces(MediaType.APPLICATION_JSON)

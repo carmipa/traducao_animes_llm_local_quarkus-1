@@ -1,4 +1,6 @@
 package org.traducao.projeto.traducao.presentation.web;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,7 @@ import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.util.List;
 

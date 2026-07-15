@@ -11,7 +11,7 @@ import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaLegendaResultado;
 import org.traducao.projeto.trocaTipoLegenda.domain.EntradaAuditoriaTrocaFonte;

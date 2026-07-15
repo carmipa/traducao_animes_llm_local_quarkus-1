@@ -1,5 +1,6 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.telemetria.presentation.web;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.telemetria.TelemetriaResumo;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +22,10 @@ import java.nio.file.Path;
  * e a publicação do dataset público sanitizado no repositório Git dedicado.
  *
  * <p>INVARIANTES DO DOMÍNIO: nenhuma URL, código HTTP ou nome de campo de DTO é
- * alterado em relação ao controller monolítico original; a exportação usa o
+ * alterado em relação ao controller monolítico original; a pasta de cache é lida
+ * diretamente da configuração {@code tradutor.diretorio-cache} (mesma chave e
+ * default {@code cache} usados antes por {@code TradutorProperties.diretorioCache()},
+ * preservando o fallback local para valor nulo/em branco); a exportação usa o
  * arquivo canônico e a publicação delega ao serviço de dataset já sanitizado.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
@@ -34,17 +38,17 @@ public class TelemetriaController {
 
     private static final Logger log = LoggerFactory.getLogger(TelemetriaController.class);
 
+    @ConfigProperty(name = "tradutor.diretorio-cache", defaultValue = "cache")
+    String diretorioCache;
+
     private final TelemetriaService telemetriaService;
     private final org.traducao.projeto.telemetria.TelemetriaDatasetService telemetriaDatasetService;
-    private final TradutorProperties propriedades;
 
     public TelemetriaController(
             TelemetriaService telemetriaService,
-            org.traducao.projeto.telemetria.TelemetriaDatasetService telemetriaDatasetService,
-            TradutorProperties propriedades) {
+            org.traducao.projeto.telemetria.TelemetriaDatasetService telemetriaDatasetService) {
         this.telemetriaService = telemetriaService;
         this.telemetriaDatasetService = telemetriaDatasetService;
-        this.propriedades = propriedades;
     }
 
     /**
@@ -54,9 +58,9 @@ public class TelemetriaController {
      */
     @GetMapping("/telemetria")
     public ResponseEntity<TelemetriaResumo> obterTelemetria() {
-        Path diretorioCache = Path.of(propriedades.diretorioCache() != null && !propriedades.diretorioCache().isBlank()
-                ? propriedades.diretorioCache() : "cache");
-        return ResponseEntity.ok(telemetriaService.gerarResumo(diretorioCache));
+        Path pastaCache = Path.of(diretorioCache != null && !diretorioCache.isBlank()
+                ? diretorioCache : "cache");
+        return ResponseEntity.ok(telemetriaService.gerarResumo(pastaCache));
     }
 
     /**

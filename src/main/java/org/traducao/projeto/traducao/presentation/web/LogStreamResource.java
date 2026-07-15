@@ -1,4 +1,5 @@
 package org.traducao.projeto.traducao.presentation.web;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

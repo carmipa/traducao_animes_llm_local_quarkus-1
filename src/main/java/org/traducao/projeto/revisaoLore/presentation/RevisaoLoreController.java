@@ -13,8 +13,8 @@ import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.exceptions.RevisaoLoreException;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.core.util.DuracaoUtil;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
-import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.nio.file.Path;
 import java.util.List;

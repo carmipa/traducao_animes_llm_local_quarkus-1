@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.mapaProjeto.application.GeradorMapaProjetoUseCase;
 import org.traducao.projeto.mapaProjeto.application.MapeadorDiretorioUseCase;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.traducao.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
 
