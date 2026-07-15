@@ -29,6 +29,11 @@ dependencies {
 
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
+
+    // FASE D0 — harness de fitness arquitetural (Camada estatica). Artefato
+    // plain (nao o archunit-junit5): usado com JUnit 5 comum + ClassFileImporter.
+    // A primeira execucao prova a leitura de bytecode Java 25 (class file major 69).
+    testImplementation 'com.tngtech.archunit:archunit:1.4.2'
 }
 
 group = 'org.traducao.projeto'
