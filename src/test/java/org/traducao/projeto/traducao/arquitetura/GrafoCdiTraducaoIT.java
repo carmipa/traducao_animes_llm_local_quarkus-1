@@ -1,6 +1,8 @@
 package org.traducao.projeto.traducao.arquitetura;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -74,6 +76,44 @@ class GrafoCdiTraducaoIT {
         assertNotNull(objectMapper, "ObjectMapper deve ser injetável");
         assertEquals("{\"k\":1}", objectMapper.writeValueAsString(Map.of("k", 1)),
             "Serialização default esperada do ObjectMapper resolvido");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (D-Obj, caracterização read-only): revela EXATAMENTE qual
+     * {@link ObjectMapper} o Arc entrega hoje aos beans da Tradução Local — o produzido
+     * por {@code RestClientConfig.objectMapper()} ({@code new ObjectMapper()} default)
+     * ou o gerenciado pelo {@code quarkus-jackson}. É a mesma instância injetada por
+     * construtor em {@code MistralClientAdapter}, {@code TelemetriaTraducaoAdapter},
+     * {@code CacheTraducaoService} e {@code CacheManutencaoService} (bean único).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: caracteriza sem alterar produção; fixa o baseline de
+     * módulos registrados e das features que divergem entre o mapper default e o do
+     * Quarkus ({@code FAIL_ON_UNKNOWN_PROPERTIES}, {@code WRITE_DATES_AS_TIMESTAMPS}).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o perfil resolvido divergir do baseline
+     * documentado, a suíte reprova — sinalizando que o mapper efetivo mudou.
+     */
+    @Test
+    @DisplayName("D-Obj: caracteriza o perfil do ObjectMapper efetivamente resolvido pelo Arc")
+    void caracterizaObjectMapperResolvido() {
+        var modulos = objectMapper.getRegisteredModuleIds();
+        boolean falhaEmDesconhecido = objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        boolean datasComoTimestamp = objectMapper.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        System.out.println("[D-OBJ] Classe do mapper resolvido: " + objectMapper.getClass().getName());
+        System.out.println("[D-OBJ] Módulos registrados: " + modulos);
+        System.out.println("[D-OBJ] FAIL_ON_UNKNOWN_PROPERTIES = " + falhaEmDesconhecido);
+        System.out.println("[D-OBJ] WRITE_DATES_AS_TIMESTAMPS  = " + datasComoTimestamp);
+
+        // Baseline HIPÓTESE (a confirmar na execução): o @Bean de RestClientConfig
+        // é um new ObjectMapper() default e sobrepõe o @DefaultBean do quarkus-jackson.
+        // Perfil default do Jackson: sem módulos e ambas as features HABILITADAS.
+        assertTrue(modulos.isEmpty(),
+            "Baseline: mapper default de RestClientConfig não registra módulos. Encontrado: " + modulos);
+        assertTrue(falhaEmDesconhecido,
+            "Baseline: FAIL_ON_UNKNOWN_PROPERTIES habilitado (default Jackson, não o do Quarkus)");
+        assertTrue(datasComoTimestamp,
+            "Baseline: WRITE_DATES_AS_TIMESTAMPS habilitado (default Jackson, não o do Quarkus)");
     }
 
     @Test
