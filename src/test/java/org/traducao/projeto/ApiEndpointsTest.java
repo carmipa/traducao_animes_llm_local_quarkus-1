@@ -4,7 +4,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.auditorConteudoLegendas.support.AssAuditoriaFixtures;
+import org.traducao.projeto.telemetria.TelemetriaService;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -36,13 +38,85 @@ class ApiEndpointsTest {
             .body("revisaoLore.totalSessoes", greaterThanOrEqualTo(0));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: comprova que, havendo telemetria canônica gravada, o
+     * endpoint de exportação entrega o arquivo para download — o caminho positivo
+     * usado pelo botão "Exportar" do painel.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o teste semeia ele mesmo o arquivo canônico
+     * (resolvido por {@link TelemetriaService#resolverArquivoTelemetriaCanonico()}),
+     * sem depender de ordem nem de telemetria residual de outro teste; a resposta
+     * deve ser 200, JSON, com {@code Content-Disposition} de anexo e corpo idêntico
+     * ao conteúdo semeado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer divergência de status, tipo,
+     * cabeçalho de download ou corpo falha a suíte. O estado anterior do arquivo
+     * canônico é sempre restaurado no {@code finally} (conteúdo original recolocado
+     * ou, se não existia, apenas o arquivo semeado é removido), sem apagar
+     * diretórios compartilhados.
+     */
     @Test
-    void telemetriaExportarRetornaArquivoJson() {
-        given()
-            .when().get("/api/telemetria/exportar")
-            .then()
-            .statusCode(200)
-            .contentType(containsString("json"));
+    void telemetriaExportarRetornaArquivoJson() throws Exception {
+        Path arquivoCanonico = TelemetriaService.resolverArquivoTelemetriaCanonico();
+        byte[] conteudoAnterior = Files.exists(arquivoCanonico)
+            ? Files.readAllBytes(arquivoCanonico) : null;
+        String jsonSemeado = "{\"schema\":\"telemetria\",\"episodios\":[],\"origem\":\"ApiEndpointsTest\"}";
+        try {
+            Files.createDirectories(arquivoCanonico.getParent());
+            Files.writeString(arquivoCanonico, jsonSemeado, StandardCharsets.UTF_8);
+
+            byte[] corpo = given()
+                .when().get("/api/telemetria/exportar")
+                .then()
+                .statusCode(200)
+                .contentType(containsString("json"))
+                .header("Content-Disposition", containsString("attachment"))
+                .header("Content-Disposition", containsString("kronos_telemetria_segura.json"))
+                .extract().asByteArray();
+
+            assertEquals(jsonSemeado, new String(corpo, StandardCharsets.UTF_8),
+                "o corpo exportado deve ser exatamente o arquivo canonico semeado");
+        } finally {
+            if (conteudoAnterior != null) {
+                Files.write(arquivoCanonico, conteudoAnterior);
+            } else {
+                Files.deleteIfExists(arquivoCanonico);
+            }
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: comprova o contrato de erro do endpoint de exportação —
+     * sem telemetria canônica gravada, o download responde 404 em vez de entregar
+     * um arquivo inexistente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o teste garante a ausência do arquivo canônico
+     * antes da chamada, de forma determinística e independente de ordem; o contrato
+     * atual do controller (404 quando o arquivo não existe) é preservado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer status diferente de 404 falha a
+     * suíte. O estado anterior do arquivo canônico é sempre restaurado no
+     * {@code finally}, recriando o diretório-pai apenas quando havia conteúdo a
+     * recolocar, sem apagar diretórios compartilhados.
+     */
+    @Test
+    void telemetriaExportarSemArquivoCanonicoRetorna404() throws Exception {
+        Path arquivoCanonico = TelemetriaService.resolverArquivoTelemetriaCanonico();
+        byte[] conteudoAnterior = Files.exists(arquivoCanonico)
+            ? Files.readAllBytes(arquivoCanonico) : null;
+        try {
+            Files.deleteIfExists(arquivoCanonico);
+
+            given()
+                .when().get("/api/telemetria/exportar")
+                .then()
+                .statusCode(404);
+        } finally {
+            if (conteudoAnterior != null) {
+                Files.createDirectories(arquivoCanonico.getParent());
+                Files.write(arquivoCanonico, conteudoAnterior);
+            }
+        }
     }
 
     @Test
