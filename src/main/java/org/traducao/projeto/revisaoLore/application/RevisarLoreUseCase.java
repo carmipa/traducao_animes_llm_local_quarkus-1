@@ -18,10 +18,10 @@ import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
-import org.traducao.projeto.traducao.domain.StatusLlm;
+import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLoreLlm;
+import org.traducao.projeto.revisaoLore.domain.ports.RevisorLoreLlmPort;
 import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
 import org.traducao.projeto.traducao.domain.legenda.EventoLegenda;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
@@ -82,7 +82,7 @@ public class RevisarLoreUseCase {
     private final MascaradorTags mascarador;
     private final DetectorTermosLoreService detector;
     private final ValidadorTraducaoService validador;
-    private final MistralPort mistralPort;
+    private final RevisorLoreLlmPort revisorLoreLlm;
     private final GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore;
     private final TelemetriaService telemetriaService;
     private final RevisaoLoreLogPersistencia logPersistencia;
@@ -137,7 +137,7 @@ public class RevisarLoreUseCase {
         MascaradorTags mascarador,
         DetectorTermosLoreService detector,
         ValidadorTraducaoService validador,
-        MistralPort mistralPort,
+        RevisorLoreLlmPort revisorLoreLlm,
         GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore,
         TelemetriaService telemetriaService,
         RevisaoLoreLogPersistencia logPersistencia,
@@ -151,7 +151,7 @@ public class RevisarLoreUseCase {
         this.mascarador = mascarador;
         this.detector = detector;
         this.validador = validador;
-        this.mistralPort = mistralPort;
+        this.revisorLoreLlm = revisorLoreLlm;
         this.gerenciadorPromptRevisaoLore = gerenciadorPromptRevisaoLore;
         this.telemetriaService = telemetriaService;
         this.logPersistencia = logPersistencia;
@@ -179,7 +179,7 @@ public class RevisarLoreUseCase {
 
         validarEntrada(pastaOriginal, pastaTraduzida, contextoId);
 
-        StatusLlm status = mistralPort.verificarDisponibilidade();
+        StatusRevisaoLoreLlm status = revisorLoreLlm.verificarDisponibilidade();
         if (!status.modeloCarregado()) {
             throw new RevisaoLoreException("LLM indisponivel para revisao de lore: " + status.mensagem());
         }
@@ -578,7 +578,7 @@ public class RevisarLoreUseCase {
                 sessao.out(AnsiCores.YELLOW + marcadorFala + " enviada ao LLM | motivos: "
                     + formatarMotivos(deteccao.motivos()) + AnsiCores.RESET);
 
-                Optional<String> revisadaOpt = mistralPort.revisarLore(
+                Optional<String> revisadaOpt = revisorLoreLlm.revisar(
                     promptSistemaRevisaoLore,
                     mascaraEn.texto(),
                     mascaraPt.texto(),
