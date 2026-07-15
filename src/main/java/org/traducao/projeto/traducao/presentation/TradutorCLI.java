@@ -25,16 +25,40 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Ponto de entrada da CLI: varre a pasta de entrada por arquivos .ass/.ssa
- * e traduz cada um sequencialmente.
- * <p>
- * O bootstrap da aplicação é implícito, administrado pelo Quarkus/CDI — não há
- * classe {@code main} própria. Quando {@code tradutor.diretorio-entrada} não é
- * informado por configuração, os caminhos são pedidos via {@link ConsoleEntrada}.
- * <p>
- * Arquivos são processados um por vez de propósito: todos compartilham o
- * mesmo LLM local (GPU única). Lotes dentro de cada episódio também são
- * sequenciais (ver {@code ProcessarEpisodioUseCase}).
+ * Entrada de linha de comando da Tradução Local (Opção 4). Varre a pasta de
+ * entrada por arquivos {@code .ass}/{@code .ssa} e traduz cada um sequencialmente.
+ *
+ * <h2>Propósito de negócio</h2>
+ * Representa a interface CLI da Tradução Local: recebe e valida a configuração
+ * necessária para iniciar o processamento e coordena somente a apresentação CLI
+ * da Opção 4. Não é o bootstrap global da aplicação — apenas orquestra a leitura
+ * da pasta de entrada e a delegação de cada arquivo ao caso de uso de tradução.
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>A pasta de entrada deve estar configurada e válida antes de iniciar.</li>
+ *   <li>A execução respeita as validações e a fila já existentes; nenhum valor é
+ *       inventado ou assumido silenciosamente.</li>
+ *   <li>Não pressupõe a existência de {@code Application.main()}: o bootstrap da
+ *       aplicação é implícito e administrado pelo Quarkus/CDI.</li>
+ *   <li>Nenhuma configuração da Tradução Local é promovida para um Composition
+ *       Root artificial.</li>
+ *   <li>Arquivos são processados um por vez de propósito: todos compartilham o
+ *       mesmo LLM local (GPU única). Lotes dentro de cada episódio também são
+ *       sequenciais (ver {@code ProcessarEpisodioUseCase}).</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * <ul>
+ *   <li>Configuração ausente ou inválida impede o início seguro do processamento
+ *       e é sinalizada via {@link ConsoleEntrada} (os caminhos podem ser pedidos
+ *       ao operador quando {@code tradutor.diretorio-entrada} não é informado).</li>
+ *   <li>Falhas de LLM indisponível, pasta inexistente ou I/O interrompem o fluxo
+ *       de forma controlada, sem alterar exceções nem códigos de retorno atuais.</li>
+ *   <li>Falha em um arquivo individual ({@code TraducaoParcialException},
+ *       {@code TradutorException} ou erro genérico) é registrada pelo mecanismo
+ *       já existente e não aborta o processamento dos demais arquivos.</li>
+ * </ul>
  */
 @Component
 @ConditionalOnProperty(name = "app.modo", havingValue = "TRADUZIR", matchIfMissing = true)
