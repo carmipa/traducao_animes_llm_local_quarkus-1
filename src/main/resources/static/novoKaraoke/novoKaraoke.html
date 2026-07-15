@@ -1,0 +1,58 @@
+                    <div class="glass-card">
+                        <h2>Karaokê Simples (KFX → Legenda Limpa)</h2>
+                        <p class="card-desc">Converta karaokê de fansub (milhares de eventos por sílaba/frame) em legendas simples: uma linha limpa por frase da música, no <strong>mesmo tempo</strong> do efeito original. Os arquivos de entrada nunca são alterados — a saída vai para a pasta de destino que você escolher, com manifesto de auditoria e telemetria próprios.</p>
+
+                        <div class="anime-meta-banner hidden" id="meta-banner-novo-karaoke"></div>
+
+                        <form id="form-novo-karaoke" class="standard-form">
+                            <div class="form-group">
+                                <label for="novo-karaoke-contexto">Obra / Contexto: <span class="help-icon" data-tooltip="Selecione a obra para carregar capa e metadados via API.">?</span></label>
+                                <select id="novo-karaoke-contexto">
+                                    <option value="" disabled selected>Carregando contextos...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="novo-karaoke-entrada">Pasta das Legendas (.ass) para Simplificar: <span class="help-icon" data-tooltip="Selecione a pasta da etapa atual que você quer limpar. Se já traduziu, use legendas-ptbr; se ainda não traduziu, a saída continuará no idioma de entrada.">?</span></label>
+                                <div class="input-with-button">
+                                    <input type="text" id="novo-karaoke-entrada" placeholder="Ex: C:\animes\86\legendas-ptbr" required>
+                                    <button type="button" class="btn-procurar" data-target="novo-karaoke-entrada" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="novo-karaoke-saida">Pasta de Destino (Legendas Simplificadas): <span class="help-icon" data-tooltip="Pasta onde as legendas convertidas serão gravadas. Deve ser DIFERENTE da entrada — os arquivos lidos são preservados para auditoria.">?</span></label>
+                                <div class="input-with-button">
+                                    <input type="text" id="novo-karaoke-saida" placeholder="Ex: C:\animes\86\legendas-ptbr-karaoke-simples" required>
+                                    <button type="button" class="btn-procurar" data-target="novo-karaoke-saida" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                                </div>
+                            </div>
+
+                            <div class="correcao-actions">
+                                <button type="button" class="btn btn-secondary btn-yellow" id="btn-novo-karaoke-simular" data-tooltip="Analisa e mostra linha a linha o que seria trocado, sem gravar nenhum arquivo (Dry-Run).">
+                                    <span class="material-symbols-outlined btn-icon">science</span>
+                                    <span>Simular (Dry-Run)</span>
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-green" id="btn-novo-karaoke-aplicar" data-tooltip="Grava as legendas convertidas na pasta de destino. Originais intocados; manifesto de auditoria salvo em logs/novo-karaoke.">
+                                    <span class="material-symbols-outlined btn-icon">music_off</span>
+                                    <span>Converter Karaokê</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-novo-karaoke" data-tooltip="Limpa todos os campos e oculta o cartão do anime">
+                                    <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                                    <span>Limpar Campos</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card console-card">
+                        <div class="console-header">
+                            <h3>Log de Conversão (linha a linha)</h3>
+                            <div class="console-actions">
+                                <button class="btn-toggle-console" data-target="console-novo-karaoke" data-tooltip="Alternar altura expandida do console"><span class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
+                                <button class="btn-copy-console" data-target="console-novo-karaoke" data-tooltip="Copiar conteúdo do console"><span class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>
+                                <button class="btn-clear-console" data-target="console-novo-karaoke"><span class="material-symbols-outlined console-action-icon">mop</span>Limpar</button>
+                            </div>
+                        </div>
+                        <div class="console-body" id="console-novo-karaoke">
+                            <div class="system-message">Aguardando execução...</div>
+                        </div>
+                    </div>

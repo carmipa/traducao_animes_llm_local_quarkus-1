@@ -1,0 +1,229 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\karaoke simples
+Duração: 33s
+Arquivos analisados: 13
+Falas auditadas: 4019
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 25
+Falas corrigidas via LLM: 11
+Falas pendentes: 14
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 186 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original indica feminino, mas participio/adjetivo predicativo está no masculino
+Diagnóstico: Correção validada e persistida.
+EN: A... A girl?
+PT anterior: Voce é louco?
+Proposta: Você é louca?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 188 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original usa 'she', mas sujeito da tradução é 'ele': "Ele será" | Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'
+Diagnóstico: Correção validada e persistida.
+EN: She's pretty.
+PT anterior: Ele será o alvo de gozação da base.
+Proposta: Ela será o alvo de gozação da base.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 207 | Estilo: Dialogue
+Resultado: LLM_REJEITADO_SEM_MELHORIA
+Problemas: Original usa 'he', mas sujeito da tradução é 'ela': "Ela é" | Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'
+Diagnóstico: Correção descartada: resposta LLM inválida ou sem melhoria.
+EN: He's a Federation pilot?
+PT anterior: Ela é bonita.
+Proposta: Ela é uma piloto da Federação?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 210 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original indica personagem/falante masculino ('he'), mas predicado está no feminino | Original indica masculino, mas participio/adjetivo predicativo está no feminino
+Diagnóstico: Correção validada e persistida.
+EN: He's wandering around over there!\NAll right, then!
+PT anterior: Ouvi dizer que a unidade de teste foi perdida... \N Porque você fez isso?
+Proposta: Ele está vagando por aí! \N Tudo bem, então!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 274 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...esses ventos jamais apagarão o sonho que brilha. Oh, não!
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...those winds can never erase the dream that shines. Oh, no!
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...esses ventos jamais apagarão o sonho que brilha. Oh, não!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 27 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original indica feminino, mas participio/adjetivo predicativo está no masculino
+Diagnóstico: Correção validada e persistida.
+EN: Your goddess?
+PT anterior: Parece que está pronto.
+Proposta: Parece que ela está pronta.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 402 | Estilo: Karaoke Simples
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\fad(100,100)\blur1\bord0\an9}Now, let's have a pleasant dream.
+PT anterior: Sou Kyou made no so many days
+Proposta: Agora, vamos ter um sonho agradável.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 323 | Estilo: Karaoke Simples
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: Sou Kyou made no so many days
+Proposta: Aguente firme! Não deixe escapar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 216 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproxime deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...me aproxime deles.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 34 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original: "senhor"
+Diagnóstico: Correção validada e persistida.
+EN: ...even if that girl comes after us,\Nwe don't have to fight her!
+PT anterior: Sim, senhor.
+Proposta: Mesmo que aquela garota venha atrás de nós, não precisamos lutar contra ela!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 171 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: I'll treat you when my song's\Nroyalties come in!
+PT anterior: Mesmo que os Feds não sejam {\i1}tão{\i0} burros.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 182 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Come on...!
+PT anterior: {\i1}Filho da puta!
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 272 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproxime deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...me aproxime deles.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 258 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: I was watching you as you were watching the sun rise.
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]Aquelas asas de anjo feridas, e tão docemente...
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Those wounded angel wings, and gently...
+PT anterior: I was watching you as you were watching the sun rise.
+Proposta: [[TAG0]]Aquelas asas de anjo feridas, e tão docemente...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 260 | Estilo: Karaoke Simples
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: When we counted the things we didn't have enough of...
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Tenshi no Hane Sotto Daite
+PT anterior: When we counted the things we didn't have enough of...
+Proposta: Quando contamos as coisas de que não tínhamos suficiente...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 262 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: ...and our voices grew louder as we laughed.
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...aproxime-os de mim.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...pull them close to me.
+PT anterior: ...and our voices grew louder as we laughed.
+Proposta: [[TAG0]]...aproxime-os de mim.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 263 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Our only answer to the torment we felt as the days passed...
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...trazê-los para perto de mim.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Our only answer to the torment we felt as the days passed...
+Proposta: [[TAG0]]...trazê-los para perto de mim.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 264 | Estilo: Karaoke Simples
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: ...was for the both of us to walk on.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Daite Agetai
+PT anterior: ...was for the both of us to walk on.
+Proposta: ...era para que ambos caminhássemos juntos.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 266 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: ...taught us what warmth really is.
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]Nascido num canto do céu infinito de azul...
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Newborn in a corner of the endless blue sky...
+PT anterior: ...taught us what warmth really is.
+Proposta: [[TAG0]]Nascido num canto do céu infinito de azul...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 270 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: ...even tears don't matter.
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]O sonho ainda existe, mesmo que agora seja pequeno...
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+PT anterior: ...even tears don't matter.
+Proposta: [[TAG0]]O sonho ainda existe, mesmo que agora seja pequeno...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 275 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: So the two of us in the future...
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]Não importa o quão fortes eles possam soprar...
+EN: {\fad(100,100)\blur1\bord0}No matter how strong they may blow...
+PT anterior: So the two of us in the future...
+Proposta: [[TAG0]]Não importa o quão fortes eles possam soprar...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 276 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado (contração): ...won't laugh at us here now...
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]Não riem de nós aqui agora
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Koori Tsuku you na
+PT anterior: ...won't laugh at us here now...
+Proposta: [[TAG0]]Não riem de nós aqui agora
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 279 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Now, let's have a pleasant dream.
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...ou quão frios eles possam ser...
+EN: {\fad(100,100)\blur1\bord0}...or how icy they may be...
+PT anterior: Now, let's have a pleasant dream.
+Proposta: [[TAG0]]...ou quão frios eles possam ser...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass
+Evento: 293 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original indica feminino, mas participio/adjetivo predicativo está no masculino
+Diagnóstico: Correção validada e persistida.
+EN: {=3}{\fscx100\fscy100\blur0.8\fs60\c&H010101&\pos(452,444)}THE 08TH MS TEAM
+PT anterior: {\fad(0,2440)}Sim. Eu acho que você está certo.
+Proposta: {\fad(0,2440)}Sim. Eu acho que você está certa.
