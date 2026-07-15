@@ -114,9 +114,8 @@ class FronteiraTraducaoArchTest {
         aresta(TRADUCAO_CONTROLLER, T_LLM_TELEMETRIA),      // 5 (FQ no corpo)
         // D-Lore (1) — removida em D-Lore
         aresta(MISTRAL_ADAPTER, T_PROMPT_REVISAO_LORE),     // 6
-        // D-Ext (2) — removidas em D-Ext
-        aresta(REST_CLIENT_CONFIG, T_EXTRATOR_VIDEO_PORT),  // 7
-        aresta(REST_CLIENT_CONFIG, T_EXTRATOR_STRATEGY),    // 8
+        // D-Ext: ELIMINADA (producers movidos para legendasExtracao.ExtracaoBeansConfig);
+        //        as 2 arestas RestClientConfig -> ExtratorVideoPort/ExtratorStrategy não existem mais.
         // Controllers bloqueados para C2 (9) — permanecem até a C2
         aresta(CORRECAO_CACHE_CONTROLLER, T_CORRIGIR_COM_GOOGLE),  // 9
         aresta(CORRECAO_CACHE_CONTROLLER, T_REVISAR_CACHE),        // 10
