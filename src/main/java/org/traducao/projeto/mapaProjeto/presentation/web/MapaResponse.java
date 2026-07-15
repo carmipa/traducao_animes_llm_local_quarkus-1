@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.mapaProjeto.presentation.web;
 
 /**
  * PROPÓSITO DE NEGÓCIO: entrega ao painel "Mapa do Projeto" o relatório em
