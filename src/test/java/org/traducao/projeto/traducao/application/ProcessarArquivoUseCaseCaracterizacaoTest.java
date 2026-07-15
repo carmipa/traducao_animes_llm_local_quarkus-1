@@ -160,11 +160,6 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         public Optional<String> corrigirTraducao(String o, String t, String m) {
             return Optional.empty();
         }
-
-        @Override
-        public Optional<String> revisarLore(String s, String o, String t, List<String> p) {
-            return Optional.empty();
-        }
     }
 
     private static final class ContextoTeste implements ProvedorContexto {
