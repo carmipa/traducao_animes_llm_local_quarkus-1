@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.traducao.projeto.traducao.presentation.web.ConsoleRedirectorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-07-15T14:59:20.919Z" hostname="DESKTOP-QDNQHL1" time="0.011">
-  <properties/>
-  <testcase name="systemOutEstaRedirecionadoParaOArquivoDeLogDoConsoleWeb()" classname="org.traducao.projeto.traducao.presentation.web.ConsoleRedirectorTest" time="0.01"/>
-  <system-out><![CDATA[marcador-console-redirector-2db2850f-c972-4c26-984c-517c5477ea2b
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
