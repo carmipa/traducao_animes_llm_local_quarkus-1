@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.analisadorMidia.presentation.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase;
 import org.traducao.projeto.analisadorMidia.domain.ResultadoAnaliseLote;
+import org.traducao.projeto.traducao.presentation.web.LogStreamService;
+import org.traducao.projeto.traducao.presentation.web.OperacaoRequest;
+import org.traducao.projeto.traducao.presentation.web.PipelineWebSupport;
+import org.traducao.projeto.traducao.presentation.web.RespostaPadrao;
 
 import java.nio.file.Path;
 
@@ -19,10 +23,21 @@ import java.nio.file.Path;
  * estruturado no canal SSE {@code analise-relatorio} para renderização no
  * navegador.
  *
+ * <p>Fronteira arquitetural: este endpoint pertence ao módulo
+ * {@code analisadorMidia} (Opção 1) e reside na sua camada de apresentação
+ * própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
+ * apenas o use case do próprio módulo. As dependências
+ * {@link PipelineWebSupport}, {@link LogStreamService}, {@link RespostaPadrao} e
+ * {@link OperacaoRequest} são <b>glue técnico de apresentação</b> (fila única,
+ * SSE de logs, contratos de transporte HTTP) hoje localizado em
+ * {@code traducao.presentation.web}; é dívida técnica temporária cujo saneamento
+ * está reservado para a FASE E — não representa acoplamento funcional.
+ *
  * <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
- * {@link PipelineWebSupport}; caminhos são normalizados antes do uso; nenhuma
- * URL, código HTTP, nome de campo de DTO ou canal SSE é alterado em relação ao
- * controller monolítico original.
+ * {@link PipelineWebSupport} e o MESMO canal SSE; caminhos são normalizados antes
+ * do uso; a rota {@code POST /api/analisar}, o status, os campos de DTO e o canal
+ * SSE {@code analise-relatorio} são contrato público preservado exatamente como
+ * antes da movimentação.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco retorna HTTP 400; falhas
  * do job de background são registradas no log e no console SSE, sem derrubar a
