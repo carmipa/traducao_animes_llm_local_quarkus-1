@@ -29,15 +29,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li><b>Baseline dupla</b>: a auditoria por import textual encontrou
- *       <b>15</b> arestas funcionais; o bytecode revela <b>17</b> — as 2 extras
- *       são usos por FQN no corpo ({@code TraducaoController → LlmTelemetria} e
- *       {@code TelemetriaController → TelemetriaDatasetService}). Ao fim da FASE D
- *       o esperado é 8 imports / 9 arestas bytecode (só os três controllers C2).</li>
+ *   <li><b>Baseline dupla (histórico D0)</b>: a auditoria por import textual
+ *       encontrou <b>15</b> arestas funcionais; o bytecode revelava <b>17</b> — as
+ *       2 extras eram usos por FQN no corpo ({@code TraducaoController → LlmTelemetria}
+ *       e {@code TelemetriaController → TelemetriaDatasetService}).</li>
+ *   <li><b>Após D-Ext</b>: as 2 arestas {@code RestClientConfig → ExtratorVideoPort/
+ *       ExtratorStrategy} foram eliminadas (producers movidos para
+ *       {@code legendasExtracao.ExtracaoBeansConfig}); o bytecode cai para <b>15</b>
+ *       arestas funcionais. Ao fim da FASE D o esperado é 8 imports / 9 arestas
+ *       bytecode (só os três controllers C2).</li>
  *   <li>O conjunto real de arestas funcionais de saída da Tradução Local deve ser
- *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (17). Aparecer nova
- *       aresta, mudar o destino para outra classe da mesma fatia, ou trocar import
- *       por FQN reprova o teste.</li>
+ *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (15 após D-Ext).
+ *       Aparecer nova aresta, mudar o destino para outra classe da mesma fatia, ou
+ *       trocar import por FQN reprova o teste.</li>
  *   <li>Aresta técnica temporária de saída para {@code config}: exatamente
  *       {@link #ALLOW_CONFIG_CLI} (removida em D-Config).</li>
  *   <li>Regra reversa: {@code config} depende de {@code traducao} apenas por
@@ -75,7 +79,6 @@ class FronteiraTraducaoArchTest {
     private static final String PROCESSAR_EPISODIO = RAIZ + ".traducao.application.ProcessarEpisodioUseCase";
     private static final String TRADUCAO_CONTROLLER = RAIZ + ".traducao.presentation.web.TraducaoController";
     private static final String MISTRAL_ADAPTER = RAIZ + ".traducao.infrastructure.adapters.MistralClientAdapter";
-    private static final String REST_CLIENT_CONFIG = RAIZ + ".traducao.infrastructure.config.RestClientConfig";
     private static final String CORRECAO_CACHE_CONTROLLER = RAIZ + ".traducao.presentation.web.CorrecaoCacheController";
     private static final String REVISAO_LEGENDAS_CONTROLLER = RAIZ + ".traducao.presentation.web.RevisaoLegendasController";
     private static final String TELEMETRIA_CONTROLLER = RAIZ + ".traducao.presentation.web.TelemetriaController";
@@ -86,8 +89,6 @@ class FronteiraTraducaoArchTest {
     private static final String T_TELEMETRIA_RESUMO = RAIZ + ".telemetria.TelemetriaResumo";
     private static final String T_TELEMETRIA_DATASET = RAIZ + ".telemetria.TelemetriaDatasetService";
     private static final String T_PROMPT_REVISAO_LORE = RAIZ + ".revisaoLore.application.PromptRevisaoLore";
-    private static final String T_EXTRATOR_VIDEO_PORT = RAIZ + ".legendasExtracao.domain.ports.ExtratorVideoPort";
-    private static final String T_EXTRATOR_STRATEGY = RAIZ + ".legendasExtracao.application.strategy.ExtratorStrategy";
     private static final String T_CORRIGIR_COM_GOOGLE = RAIZ + ".raspagemCorrecao.application.CorrigirComGoogleUseCase";
     private static final String T_REVISAR_CACHE = RAIZ + ".raspagemRevisao.application.RevisarCacheUseCase";
     private static final String T_LIMPAR_CACHE = RAIZ + ".traducaoCorrige.application.LimparCacheUseCase";
@@ -102,8 +103,8 @@ class FronteiraTraducaoArchTest {
     private static final String ALLOW_STARTUP_CLI = CLASSE_MODO_STARTUP + " -> " + CLASSE_TRADUTOR_CLI;
 
     /**
-     * Baseline exata: as 17 arestas funcionais reais no bytecode (origem FQN → destino FQN).
-     * Autorização SEMPRE por aresta exata — nunca por nome de fatia.
+     * Baseline exata: as 15 arestas funcionais reais no bytecode após D-Ext (origem
+     * FQN → destino FQN). Autorização SEMPRE por aresta exata — nunca por nome de fatia.
      */
     private static final Set<String> ARESTAS_FUNCIONAIS_ESPERADAS = Set.of(
         // D-Tel vivo (5) — removidas em D-Tel-4
@@ -156,7 +157,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("Saídas funcionais da Tradução Local == 17 arestas exatas (allowlist estrita por aresta)")
+    @DisplayName("Saídas funcionais da Tradução Local == 15 arestas exatas (após D-Ext; allowlist estrita)")
     void saidasFuncionaisBatemComAllowlistExata() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -184,7 +185,7 @@ class FronteiraTraducaoArchTest {
         ausentes.removeAll(reais);
 
         assertTrue(inesperadas.isEmpty() && ausentes.isEmpty(),
-            () -> "Divergência na baseline exata de 17 arestas funcionais.\n"
+            () -> "Divergência na baseline exata de 15 arestas funcionais (após D-Ext).\n"
                 + "Arestas INESPERADAS (novas/destino trocado): " + inesperadas + "\n"
                 + "Arestas ESPERADAS AUSENTES: " + ausentes);
     }
