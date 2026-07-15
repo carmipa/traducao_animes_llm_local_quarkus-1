@@ -10,6 +10,7 @@ import org.traducao.projeto.config.ModoExecucaoStartup;
 import org.traducao.projeto.legendasExtracao.application.strategy.ExtratorStrategy;
 import org.traducao.projeto.legendasExtracao.domain.ports.ExtratorVideoPort;
 import org.traducao.projeto.traducao.presentation.TradutorCLI;
+import org.traducao.projeto.traducao.presentation.bootstrap.TraducaoStartup;
 
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code ExtrairLegendaUseCase}).</li>
  *   <li>O dispatcher compartilhado {@link ModoExecucaoStartup} é sempre resolvível.
  *       {@link TradutorCLI} — condicional a {@code app.modo=TRADUZIR} com
- *       {@code matchIfMissing=true} — é ativado no ambiente de teste, documentando
- *       que a CLI da Tradução Local hoje é criada por CDI junto do dispatcher.</li>
+ *       {@code matchIfMissing=true} — é ativado no ambiente de teste. Após D-Config,
+ *       o ciclo de vida do modo TRADUZIR pertence ao observador próprio
+ *       {@link org.traducao.projeto.traducao.presentation.bootstrap.TraducaoStartup},
+ *       também resolvível — o dispatcher não conhece mais a Tradução Local.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -62,6 +65,9 @@ class GrafoCdiTraducaoIT {
     @Inject
     Instance<ModoExecucaoStartup> modoExecucaoStartup;
 
+    @Inject
+    Instance<TraducaoStartup> traducaoStartup;
+
     @Test
     @DisplayName("ObjectMapper é resolvido sem ambiguidade impeditiva no baseline")
     void objectMapperResolvidoSemAmbiguidade() throws Exception {
@@ -80,11 +86,14 @@ class GrafoCdiTraducaoIT {
     }
 
     @Test
-    @DisplayName("Dispatcher do modo TRADUZIR: baseline do grafo CDI")
+    @DisplayName("Bootstrap do modo TRADUZIR: dispatcher compartilhado e observador próprio coexistem")
     void dispatcherModoTraduzirBaseline() {
         assertTrue(modoExecucaoStartup.isResolvable(),
-            "ModoExecucaoStartup (dispatcher compartilhado dos modos CLI) deve existir");
+            "ModoExecucaoStartup (dispatcher compartilhado dos demais modos CLI) deve existir");
         assertTrue(tradutorCli.isResolvable(),
-            "Baseline atual: TradutorCLI (condicional a TRADUZIR, matchIfMissing=true) é criado por CDI no ambiente de teste");
+            "TradutorCLI (condicional a TRADUZIR, matchIfMissing=true) é criado por CDI no ambiente de teste");
+        assertTrue(traducaoStartup.isResolvable(),
+            "Após D-Config, o ciclo de vida do modo TRADUZIR pertence ao observador próprio "
+                + "TraducaoStartup (fatia Tradução Local), que deve ser resolvível no container");
     }
 }
