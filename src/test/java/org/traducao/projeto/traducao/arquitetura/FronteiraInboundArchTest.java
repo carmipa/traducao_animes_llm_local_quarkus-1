@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-<<<<<<< HEAD
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -20,16 +19,11 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-=======
-import java.util.Set;
-import java.util.TreeSet;
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPOSITO DE NEGOCIO: congela a fronteira funcional INBOUND da fatia vertical
-<<<<<<< HEAD
  * Traducao Local (org.traducao.projeto.traducao) — dependencias outra-fatia ->
  * traducao. Contraparte do fitness OUTBOUND (FronteiraTraducaoArchTest); as regras
  * da C2 permanecem separadas la.
@@ -57,30 +51,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer aresta inesperada ou esperada ausente
  * reprova o teste, listando o desvio exato.
-=======
- * Traducao Local ({@code org.traducao.projeto.traducao}) — todas as dependencias
- * {@code outra-fatia -> traducao..}. E a contraparte do fitness OUTBOUND
- * (FronteiraTraducaoArchTest), com o MESMO rigor: baseline estrita por aresta
- * exata (FQN de origem -> FQN de destino, normalizados a classe de topo), lida do
- * bytecode, NUNCA por nome de fatia. As regras da C2 (OUTBOUND, config, core,
- * telemetria, revisaoLore) permanecem separadas na sua propria classe.
- *
- * <h2>Invariantes do dominio</h2>
- * <ul>
- *   <li>O conjunto real de arestas INBOUND deve ser EXATAMENTE
- *       {@link #INBOUND_ESPERADAS}. Baseline auditada da FASE E: 150 arestas;
- *       apos E1: <b>148</b>.</li>
- *   <li>A FASE E encolhe esta allowlist subfase a subfase. E1 removeu exatamente 2
- *       arestas (RemuxerController -> RemuxRequest e ExtracaoLegendaController ->
- *       ExtracaoRequest), pois esses records foram movidos para as fatias
- *       proprietarias (remuxer / legendasExtracao .presentation.web), virando
- *       dependencias intra-fatia.</li>
- * </ul>
- *
- * <h2>Comportamento em caso de falha</h2>
- * Qualquer aresta inesperada (nova entrada) ou esperada ausente (removida fora do
- * escopo da subfase corrente) reprova o teste, listando exatamente o desvio.
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
  */
 class FronteiraInboundArchTest {
 
@@ -89,7 +59,6 @@ class FronteiraInboundArchTest {
     private static final String FATIA_TRADUCAO = "traducao";
     private static final String PKG_TRADUCAO = RAIZ + ".traducao";
 
-<<<<<<< HEAD
     private static final String GENERICA_AUDITOR = aresta(
         RAIZ + ".auditorConteudoLegendas.application.AuditorConteudoUseCase",
         RAIZ + ".traducao.domain.legenda.EventoLegenda");
@@ -102,10 +71,6 @@ class FronteiraInboundArchTest {
 
     /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 148 apos E1. */
     private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of(
-=======
-    /** Baseline estrita INBOUND (outras fatias -> traducao), por aresta exata. */
-    private static final Set<String> INBOUND_ESPERADAS = Set.of(
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.presentation.ui.ConsoleEntrada"),
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.presentation.ui.PastasExecucao"),
@@ -253,18 +218,11 @@ class FronteiraInboundArchTest {
         aresta("org.traducao.projeto.traducaoKaraoke.presentation.TraducaoKaraokeController", "org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto"),
         aresta("org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase", "org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda"),
         aresta("org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss"),
-<<<<<<< HEAD
         aresta("org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss")
     );
 
     private static final String ALVO_INBOUND = RAIZ + ".traducao.";
 
-=======
-        aresta("org.traducao.projeto.trocaTipoLegenda.application.TrocaTipoLegendaUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss"),
-        aresta("__SENTINELA_NUNCA_EXISTE__", "__SENTINELA__") // marcador; removido logo abaixo
-    );
-
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -275,21 +233,12 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-<<<<<<< HEAD
     @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 147")
     void inboundBytecodeBateComBaseline() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
             if (ehDaTraducao(classe)) {
                 continue;
-=======
-    @DisplayName("Entradas funcionais (outras fatias -> Traducao Local) == baseline estrita da FASE E")
-    void inboundBateComBaselineExata() {
-        Set<String> reais = new TreeSet<>();
-        for (JavaClass classe : classesProducao) {
-            if (ehDaTraducao(classe)) {
-                continue; // origem deve estar FORA de traducao
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
             }
             String origem = topo(classe.getName());
             for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
@@ -299,7 +248,6 @@ class FronteiraInboundArchTest {
             }
         }
 
-<<<<<<< HEAD
         Set<String> esperadasBytecode = new TreeSet<>(INBOUND_TEXTUAL_ESPERADAS);
         esperadasBytecode.remove(CATCH_ONLY_CORRECAO);
         esperadasBytecode.remove(CATCH_ONLY_RASPAGEM);
@@ -385,21 +333,6 @@ class FronteiraInboundArchTest {
             rel = rel.substring(0, rel.length() - ".java".length());
         }
         return rel;
-=======
-        Set<String> esperadas = new TreeSet<>(INBOUND_ESPERADAS);
-        esperadas.remove(aresta("__SENTINELA_NUNCA_EXISTE__", "__SENTINELA__"));
-
-        Set<String> inesperadas = new TreeSet<>(reais);
-        inesperadas.removeAll(esperadas);
-        Set<String> ausentes = new TreeSet<>(esperadas);
-        ausentes.removeAll(reais);
-
-        assertTrue(inesperadas.isEmpty() && ausentes.isEmpty(),
-            () -> "Divergencia na baseline INBOUND da FASE E. Esperado=" + esperadas.size()
-                + " Real=" + reais.size() + "\n"
-                + "Arestas INESPERADAS (novas): " + inesperadas + "\n"
-                + "Arestas ESPERADAS AUSENTES: " + ausentes);
->>>>>>> 5672edadd41cc9be1f49a1857ec764b93573b037
     }
 
     private static String aresta(String origemFqn, String destinoFqn) {
