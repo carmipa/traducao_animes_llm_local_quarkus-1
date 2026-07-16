@@ -8,6 +8,7 @@ import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
+import org.traducao.projeto.legenda.domain.ExcecaoLegenda;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.core.presentation.ui.ConsoleEntrada;
@@ -160,6 +161,14 @@ public class TradutorCLI {
                 falha++;
                 arquivosComFalha.add(arquivo.getFileName().toString() + " (parcial: " + salvas + " salvas)");
             } catch (TradutorException e) {
+                log.error("Falha crítica ao processar {}: {}", arquivo.getFileName(), e.getMessage());
+                uiLogger.log("[ FAIL ] Falha em " + arquivo.getFileName() + ": " + e.getMessage());
+                falha++;
+                arquivosComFalha.add(arquivo.getFileName().toString());
+            } catch (ExcecaoLegenda e) {
+                // ArquivoLegendaException/EntradaJaTraduzidaException migraram para a raiz
+                // ExcecaoLegenda (modulo legenda) e nao sao mais TradutorException; este ramo
+                // preserva exatamente o mesmo tratamento do ramo TradutorException acima.
                 log.error("Falha crítica ao processar {}: {}", arquivo.getFileName(), e.getMessage());
                 uiLogger.log("[ FAIL ] Falha em " + arquivo.getFileName() + ": " + e.getMessage());
                 falha++;

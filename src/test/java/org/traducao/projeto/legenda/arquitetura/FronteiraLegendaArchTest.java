@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>E3c: {@code PoliticaEstiloMusical}.</li>
  *   <li>E5a: {@code DocumentoLegenda} e {@code EventoLegenda} (modelo puro, movido de
  *       {@code traducao.domain.legenda}).</li>
+ *   <li>E5b: {@code ExcecaoLegenda} (raiz das falhas do módulo) e
+ *       {@code ArquivoLegendaException}, ambos dependendo apenas de
+ *       {@code core.exception.BasePipelineException} — aresta {@code legenda -> core}
+ *       legítima, sem {@code legenda -> traducao}.</li>
  * </ul>
  *
  * <h2>Invariantes do domínio</h2>

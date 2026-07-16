@@ -8,7 +8,7 @@ import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException;
+import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;

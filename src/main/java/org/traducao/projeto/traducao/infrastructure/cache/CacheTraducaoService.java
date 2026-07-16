@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.util.ArquivoAtomicoUtil;
-import org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException;
+import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 
 import java.io.IOException;
 import java.nio.file.Files;
