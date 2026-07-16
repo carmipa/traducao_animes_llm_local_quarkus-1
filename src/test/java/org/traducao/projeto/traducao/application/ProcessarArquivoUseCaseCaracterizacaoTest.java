@@ -11,7 +11,7 @@ import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
-import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;

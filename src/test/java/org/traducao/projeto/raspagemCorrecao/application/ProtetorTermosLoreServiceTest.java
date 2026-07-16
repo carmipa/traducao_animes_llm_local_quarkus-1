@@ -1,7 +1,7 @@
 package org.traducao.projeto.raspagemCorrecao.application;
 
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.traducao.contexto.gundam.ContextoGundamNT;
+import org.traducao.projeto.contexto.lore.gundam.ContextoGundamNT;
 
 import java.util.List;
 import java.util.Set;

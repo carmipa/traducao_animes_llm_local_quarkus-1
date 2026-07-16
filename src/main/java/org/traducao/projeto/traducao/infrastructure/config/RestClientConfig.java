@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 /**
  * PROPÓSITO DE NEGÓCIO: fornece os beans técnicos de suporte à injeção CDI/Quarkus
