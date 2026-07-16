@@ -1,18 +1,18 @@
 package org.traducao.projeto.remuxer.presentation;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.remuxer.presentation.ui.ConsoleRemuxerLogger;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.presentation.ui.ConsoleEntrada;
-import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * PROPÓSITO DE NEGÓCIO: oferece execução local por terminal da mesma etapa de
@@ -30,15 +30,16 @@ public class RemuxerCLI implements ExecucaoCli {
 
     private final RemuxarLoteUseCase remuxarLoteUseCase;
     private final ConsoleRemuxerLogger logger;
-    private final PastasExecucao pastasExecucao;
-    private final TradutorProperties propriedades;
 
-    public RemuxerCLI(RemuxarLoteUseCase remuxarLoteUseCase, ConsoleRemuxerLogger logger,
-                       PastasExecucao pastasExecucao, TradutorProperties propriedades) {
+    @ConfigProperty(name = "tradutor.diretorio-entrada")
+    Optional<String> diretorioEntrada;
+
+    @ConfigProperty(name = "tradutor.diretorio-saida")
+    Optional<String> diretorioSaida;
+
+    public RemuxerCLI(RemuxarLoteUseCase remuxarLoteUseCase, ConsoleRemuxerLogger logger) {
         this.remuxarLoteUseCase = remuxarLoteUseCase;
         this.logger = logger;
-        this.pastasExecucao = pastasExecucao;
-        this.propriedades = propriedades;
     }
 
     /**
@@ -52,15 +53,14 @@ public class RemuxerCLI implements ExecucaoCli {
     public void executar() {
         logger.cabecalho("PROCESSAMENTO MULTIPLEXAR EM SEGUNDO PLANO");
 
-        if (propriedades.diretorioEntrada() == null || propriedades.diretorioEntrada().isBlank()) {
+        Path pastaVideos = resolverEntrada(diretorioEntrada);
+        if (pastaVideos == null) {
             logger.erro("Pasta de vídeos não configurada.");
             ConsoleEntrada.imprimirErroSaida();
             return;
         }
-        pastasExecucao.configurar(propriedades.diretorioEntrada(), propriedades.diretorioSaida(), propriedades.diretorioCache(), propriedades);
 
-        Path pastaVideos = pastasExecucao.diretorioEntrada();
-        Path pastaLegendas = pastasExecucao.diretorioSaida(); // No remuxer, o que era saída virou legendas
+        Path pastaLegendas = resolverDiretorioSaida(pastaVideos, diretorioSaida); // No remuxer, o que era saída virou legendas
 
         if (!Files.isDirectory(pastaVideos)) {
             logger.erro("Pasta de vídeos não existe ou não é um diretório: " + pastaVideos);
@@ -102,5 +102,39 @@ public class RemuxerCLI implements ExecucaoCli {
         } else {
             logger.erro("Esteira encerrada sem sucesso completo: " + relatorio.getStatusFinal());
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: normaliza a pasta de vídeos configurada exatamente como o
+     * fluxo legado fazia (via {@code PastasExecucao}), aplicando {@code trim}.
+     * <p>INVARIANTES DO DOMÍNIO: ausente, vazia ou só com espaços ⇒ {@code null}
+     * (entrada inválida); valor útil ⇒ {@code Path.of(valor.trim())}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: retorno {@code null} sinaliza entrada não
+     * configurada, encerrando a execução sem exceção.
+     */
+    static Path resolverEntrada(Optional<String> diretorioEntrada) {
+        return diretorioEntrada
+            .filter(valor -> !valor.isBlank())
+            .map(valor -> Path.of(valor.trim()))
+            .orElse(null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: resolve a pasta de legendas PTBR do remux reproduzindo,
+     * como duplicação consciente e autorizada na E4b, a política legada
+     * {@code TradutorProperties.resolverDiretorioSaida()} que o remuxer herdava:
+     * usa a saída explícita quando informada, senão cai no fallback
+     * {@code entrada/traducao_ptbr}.
+     * <p>INVARIANTES DO DOMÍNIO: saída ausente, vazia ou só com espaços ⇒
+     * {@code pastaVideos.resolve("traducao_ptbr")}; saída útil ⇒
+     * {@code Path.of(valor.trim())}. A normalização por {@code trim} é preservada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca devolve {@code null} — sempre há uma
+     * pasta de legendas resolvida (explícita ou fallback).
+     */
+    static Path resolverDiretorioSaida(Path pastaVideos, Optional<String> diretorioSaida) {
+        return diretorioSaida
+            .filter(valor -> !valor.isBlank())
+            .map(valor -> Path.of(valor.trim()))
+            .orElseGet(() -> pastaVideos.resolve("traducao_ptbr"));
     }
 }
