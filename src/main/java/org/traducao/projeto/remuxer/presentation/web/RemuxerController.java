@@ -12,7 +12,6 @@ import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
-import org.traducao.projeto.traducao.presentation.web.RemuxRequest;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 
 import java.io.IOException;

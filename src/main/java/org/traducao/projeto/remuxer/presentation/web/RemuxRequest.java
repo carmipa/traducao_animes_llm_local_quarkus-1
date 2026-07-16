@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.remuxer.presentation.web;
 
 /**
  * PROPÓSITO DE NEGÓCIO: transporta as opções exclusivas do Remuxer.
