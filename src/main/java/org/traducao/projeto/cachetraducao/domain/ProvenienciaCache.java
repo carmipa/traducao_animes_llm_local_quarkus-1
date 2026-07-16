@@ -12,14 +12,18 @@ import java.util.Objects;
  * foi feita e impedir que uma melhoria de lore reuse silenciosamente traduções
  * antigas.
  *
- * <p>INVARIANTES DO DOMÍNIO: duas proveniências só são "a mesma" se contextoId,
- * contextoHash, modeloLlm e os dois idiomas baterem. O hash é derivado do prompt
- * de sistema ativo (SHA-256), então qualquer mudança de lore/regra muda o hash.
+ * <p>INVARIANTES DO DOMÍNIO: duas proveniências só são "a mesma" se os SEIS campos
+ * baterem por igualdade exata — schemaVersion, contextoId, contextoHash, modeloLlm,
+ * idiomaOrigem e idiomaDestino. O hash é derivado do prompt de sistema ativo
+ * (SHA-256), então qualquer mudança de lore/regra muda o hash. A versão de schema
+ * NÃO é normalizada: um objeto sem o campo é materializado com {@code 0} e, como
+ * {@code 0 != SCHEMA_ATUAL}, é tratado como incompatível — nunca reutilizado.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #hashDe(String)} nunca lança — se o
  * algoritmo SHA-256 faltar (não deve, é padrão da JVM), cai para o hashCode em
  * hexadecimal como último recurso. {@link #mesmaProveniencia} trata nulo como
- * "diferente".
+ * "diferente"; versão ausente/{@code 0} ou divergente de {@code SCHEMA_ATUAL}
+ * reprova a compatibilidade e leva ao arquivamento da geração anterior.
  *
  * @param schemaVersion versão do schema do documento de cache persistido
  * @param contextoId identificador do lore/contexto usado na geração
@@ -42,7 +46,8 @@ public record ProvenienciaCache(
         if (outra == null) {
             return false;
         }
-        return Objects.equals(contextoId, outra.contextoId)
+        return schemaVersion == outra.schemaVersion()
+            && Objects.equals(contextoId, outra.contextoId)
             && Objects.equals(contextoHash, outra.contextoHash)
             && Objects.equals(modeloLlm, outra.modeloLlm)
             && Objects.equals(idiomaOrigem, outra.idiomaOrigem)
