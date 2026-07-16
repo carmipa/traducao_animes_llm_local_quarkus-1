@@ -58,6 +58,14 @@ extrator:
 tmdb:
   api-key: dummy_key
 
+# Config HTTP propria da fatia apiDadosAnime (timeouts do cliente das APIs de
+# metadados de anime: AniList/Jikan/TMDB). Isolada de tradutor.llm; valores
+# efetivos preservados (E4a).
+api-dados-anime:
+  http:
+    connect-timeout: 5s
+    read-timeout: 180s
+
 # Repositório dedicado do dataset público de telemetria (botão "Publicar
 # Dataset" no painel de Telemetria). Nome na convenção da comunidade:
 # [NomeDoSistema]-telemetry-dataset. O repositório remoto precisa existir no

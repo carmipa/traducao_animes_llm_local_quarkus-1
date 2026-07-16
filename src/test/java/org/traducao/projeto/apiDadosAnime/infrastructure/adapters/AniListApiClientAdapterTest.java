@@ -23,7 +23,7 @@ class AniListApiClientAdapterTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final AniListApiClientAdapter adapter = new AniListApiClientAdapter(
-        (org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient) null, mapper);
+        (org.traducao.projeto.core.infrastructure.http.JsonHttpClient) null, mapper);
 
     /**
      * PROPÓSITO DE NEGÓCIO: confirma que uma obra encontrada produz os dados e a

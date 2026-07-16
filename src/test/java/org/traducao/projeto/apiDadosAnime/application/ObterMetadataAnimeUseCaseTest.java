@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
 import org.traducao.projeto.apiDadosAnime.infrastructure.adapters.AniListApiClientAdapter;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
+import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -114,7 +114,7 @@ class ObterMetadataAnimeUseCaseTest {
          * <p>COMPORTAMENTO EM CASO DE FALHA: erro de construção reprova o teste.
          */
         AniListContador() {
-            super(new LlmProperties(), new ObjectMapper());
+            super(new ApiDadosAnimeHttpProperties(), new ObjectMapper());
         }
 
         /**
