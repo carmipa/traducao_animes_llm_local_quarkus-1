@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.cache;
+package org.traducao.projeto.cachetraducao.domain;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -20,6 +20,13 @@ import java.util.Objects;
  * algoritmo SHA-256 faltar (não deve, é padrão da JVM), cai para o hashCode em
  * hexadecimal como último recurso. {@link #mesmaProveniencia} trata nulo como
  * "diferente".
+ *
+ * @param schemaVersion versão do schema do documento de cache persistido
+ * @param contextoId identificador do lore/contexto usado na geração
+ * @param contextoHash hash SHA-256 do prompt de sistema ativo
+ * @param modeloLlm identificador do modelo LLM que gerou as traduções
+ * @param idiomaOrigem código do idioma de origem
+ * @param idiomaDestino código do idioma de destino
  */
 public record ProvenienciaCache(
     int schemaVersion,

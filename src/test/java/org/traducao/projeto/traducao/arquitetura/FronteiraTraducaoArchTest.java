@@ -94,6 +94,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_CORE = "core";
     private static final String FATIA_CONFIG = "config";
     private static final String FATIA_LEGENDA = "legenda";
+    private static final String FATIA_CACHETRADUCAO = "cachetraducao";
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -189,6 +190,21 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".legenda.infrastructure.EscritorLegendaSrt"
     );
 
+    /**
+     * Superfície do peer {@code cachetraducao} (E6) congelada POR TIPO, SEPARADA de
+     * {@link #LEGENDA_TIPOS_CONGELADOS}. A Tradução Local só pode depender nominalmente
+     * destes tipos do peer de cache; qualquer tipo extra reprova até autorização explícita
+     * (sem liberação genérica do pacote {@code cachetraducao}). Contém apenas os tipos que
+     * a fatia {@code traducao} consome de fato (via {@code ProcessarArquivoUseCase});
+     * {@code CacheDocumento} e {@code CacheManutencaoService} não entram por não serem
+     * consumidos diretamente pela fatia {@code traducao}.
+     */
+    private static final Set<String> CACHE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".cachetraducao.infrastructure.CacheTraducaoService",
+        RAIZ + ".cachetraducao.domain.EntradaCache",
+        RAIZ + ".cachetraducao.domain.ProvenienciaCache"
+    );
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -223,8 +239,9 @@ class FronteiraTraducaoArchTest {
                 String destino = topo(dependencia.getTargetClass().getName());
                 String fatia = fatiaDe(dependencia.getTargetClass().getPackageName());
                 if (fatia == null || fatia.equals(FATIA_TRADUCAO) || fatia.equals(FATIA_CORE)
-                    || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)) {
-                    continue; // core, config, legenda (módulo peer) e interno tratados em testes próprios
+                    || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)
+                    || fatia.equals(FATIA_CACHETRADUCAO)) {
+                    continue; // core, config, legenda e cachetraducao (peers) e interno tratados em testes próprios
                 }
                 reais.add(aresta(origem, destino));
             }
@@ -331,6 +348,33 @@ class FronteiraTraducaoArchTest {
             "Esperado uso do módulo legenda pela Tradução Local (E3c: PoliticaEstiloMusical)");
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de legenda fora dos homologados (LEGENDA_TIPOS_CONGELADOS):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("cachetraducao é congelado por tipo: Tradução Local só usa os tipos homologados do peer (E6)")
+    void cacheTraducaoCongeladoPorTipo() {
+        List<String> violacoes = new ArrayList<>();
+        Set<String> tiposCacheUsados = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (FATIA_CACHETRADUCAO.equals(fatiaDe(dependencia.getTargetClass().getPackageName()))) {
+                    tiposCacheUsados.add(destino);
+                    if (!CACHE_TRADUCAO_TIPOS_CONGELADOS.contains(destino)) {
+                        violacoes.add(origem + " -> " + destino);
+                    }
+                }
+            }
+        }
+        assertFalse(tiposCacheUsados.isEmpty(),
+            "Esperado uso do peer cachetraducao pela Tradução Local (E6: CacheTraducaoService/EntradaCache/ProvenienciaCache)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Tipo de cachetraducao fora dos homologados (CACHE_TRADUCAO_TIPOS_CONGELADOS):\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 

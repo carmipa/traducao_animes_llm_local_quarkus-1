@@ -1,0 +1,28 @@
+{
+  "proveniencia": {
+    "schemaVersion": 1,
+    "contextoId": "gundam-08th-ms-team",
+    "contextoHash": "9f2c1a7b4e6d8f0a2c4e6b8d0f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f70",
+    "modeloLlm": "mistral-small",
+    "idiomaOrigem": "en",
+    "idiomaDestino": "pt-br"
+  },
+  "entradas": [
+    {
+      "indice": 0,
+      "estilo": "Default",
+      "original": "Federation forces, retreat!",
+      "traduzido": "Forças da Federação, recuar!",
+      "idiomaOriginal": "en",
+      "idiomaTraduzido": "pt-br"
+    },
+    {
+      "indice": 1,
+      "estilo": "Default",
+      "original": "This is Shiro Amada.",
+      "traduzido": "Aqui é Shiro Amada.",
+      "idiomaOriginal": "en",
+      "idiomaTraduzido": "pt-br"
+    }
+  ]
+}
