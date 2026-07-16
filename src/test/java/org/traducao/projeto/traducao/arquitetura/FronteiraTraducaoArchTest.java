@@ -433,14 +433,7 @@ class FronteiraTraducaoArchTest {
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de contexto fora dos homologados (CONTEXTO_TIPOS_CONGELADOS):\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
-        // Igualdade EXATA (E7b): a allowlist não pode conter entrada obsoleta que a
-        // Tradução Local deixou de consumir — a fitness reprova tanto tipo novo inesperado
-        // (violacoes acima) quanto tipo congelado que não aparece mais no uso real.
-        Set<String> obsoletos = new TreeSet<>(CONTEXTO_TIPOS_CONGELADOS);
-        obsoletos.removeAll(tiposContextoUsados);
-        assertTrue(obsoletos.isEmpty(),
-            () -> "Tipo em CONTEXTO_TIPOS_CONGELADOS não é mais consumido pela Tradução Local (entrada obsoleta):\n"
-                + String.join("\n", obsoletos));
+        // Igualdade EXATA (E7b): cobre tipos inesperados (violacoes) e entradas obsoletas na allowlist.
         assertEquals(new TreeSet<>(CONTEXTO_TIPOS_CONGELADOS), tiposContextoUsados,
             "CONTEXTO_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos de contexto consumidos por traducao");
     }
