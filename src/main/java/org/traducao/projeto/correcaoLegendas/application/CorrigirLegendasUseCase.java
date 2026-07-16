@@ -18,7 +18,7 @@ import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class CorrigirLegendasUseCase {
     private final TelemetriaService telemetriaService;
     private final CorrecaoLegendasLogPersistencia logPersistencia;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
-    private final TradutorProperties propriedades;
+    private final PoliticaEstiloMusical politicaEstiloMusical;
     private final MascaradorTags mascarador;
     private final ProtecaoLegendaAssService protecaoAss;
 
@@ -62,7 +62,7 @@ public class CorrigirLegendasUseCase {
         TelemetriaService telemetriaService,
         CorrecaoLegendasLogPersistencia logPersistencia,
         DetectorEfeitoKaraokeService detectorKaraoke,
-        TradutorProperties propriedades,
+        PoliticaEstiloMusical politicaEstiloMusical,
         MascaradorTags mascarador,
         ProtecaoLegendaAssService protecaoAss
     ) {
@@ -74,7 +74,7 @@ public class CorrigirLegendasUseCase {
         this.telemetriaService = telemetriaService;
         this.logPersistencia = logPersistencia;
         this.detectorKaraoke = detectorKaraoke;
-        this.propriedades = propriedades;
+        this.politicaEstiloMusical = politicaEstiloMusical;
         this.mascarador = mascarador;
         this.protecaoAss = protecaoAss;
     }
@@ -385,7 +385,7 @@ public class CorrigirLegendasUseCase {
             return true;
         }
         if (evento.estilo() != null
-            && propriedades.estiloIgnorado(evento.estilo())
+            && politicaEstiloMusical.estiloIgnorado(evento.estilo())
             && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
             return true;
         }

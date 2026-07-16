@@ -26,7 +26,7 @@ import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -87,7 +87,7 @@ public class RevisarLoreUseCase {
     private final TelemetriaService telemetriaService;
     private final RevisaoLoreLogPersistencia logPersistencia;
     private final RevisaoLoreAuditoriaCache auditoriaCache;
-    private final TradutorProperties propriedades;
+    private final PoliticaEstiloMusical politicaEstiloMusical;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
 
@@ -142,7 +142,7 @@ public class RevisarLoreUseCase {
         TelemetriaService telemetriaService,
         RevisaoLoreLogPersistencia logPersistencia,
         RevisaoLoreAuditoriaCache auditoriaCache,
-        TradutorProperties propriedades,
+        PoliticaEstiloMusical politicaEstiloMusical,
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss
     ) {
@@ -156,7 +156,7 @@ public class RevisarLoreUseCase {
         this.telemetriaService = telemetriaService;
         this.logPersistencia = logPersistencia;
         this.auditoriaCache = auditoriaCache;
-        this.propriedades = propriedades;
+        this.politicaEstiloMusical = politicaEstiloMusical;
         this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
     }
@@ -1051,7 +1051,7 @@ public class RevisarLoreUseCase {
         }
 
         String textoOriginal = original.texto();
-        if (propriedades.estiloIgnorado(original.estilo())) {
+        if (politicaEstiloMusical.estiloIgnorado(original.estilo())) {
             return false;
         }
         if (PADRAO_DESENHO_VETORIAL.matcher(textoOriginal).find()) {

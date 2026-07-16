@@ -16,7 +16,7 @@ import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService;
@@ -69,7 +69,7 @@ class RevisarCacheUseCaseTest {
         MistralStub mistral = new MistralStub(contexto);
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
             new DetectorTraducaoIdenticaService(contexto), new ValidadorTraducaoService(),
-            new TradutorProperties(), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
+            new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
             new ContextoManutencaoCacheService(contexto), new DetectorConcordanciaService(), mistral,
