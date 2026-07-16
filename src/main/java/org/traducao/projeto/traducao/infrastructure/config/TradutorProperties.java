@@ -90,27 +90,5 @@ public class TradutorProperties {
         }
         return Path.of(avo.getFileName().toString(), pai.getFileName().toString());
     }
-
-    private static final java.util.regex.Pattern PALAVRAS_CHAVE_MUSICA =
-        java.util.regex.Pattern.compile("(?i)\\b(song|music|karaoke|romaji|opening|ending|theme|insert|op|ed|sing)\\b");
-
-    public boolean estiloIgnorado(String estilo) {
-        if (estilo == null || estilo.isBlank()) {
-            return false;
-        }
-        // 1. Check da lista explícita configurada no application.yml
-        if (estilosIgnorados.stream().anyMatch(e -> e.equalsIgnoreCase(estilo))) {
-            return true;
-        }
-        // 2. Check heurístico de palavras-chave comuns de músicas e karaokês
-        String est = estilo.toLowerCase();
-        if (est.contains("song") || est.contains("music") || est.contains("karaoke")
-            || est.contains("romaji") || est.contains("opening") || est.contains("ending")
-            || est.contains("theme") || est.contains("insert") || est.contains("sing")) {
-            return true;
-        }
-        // Check de limites de palavras para abreviações curtas como OP, ED, OP1, ED2, etc.
-        return PALAVRAS_CHAVE_MUSICA.matcher(estilo).find();
-    }
 }
 

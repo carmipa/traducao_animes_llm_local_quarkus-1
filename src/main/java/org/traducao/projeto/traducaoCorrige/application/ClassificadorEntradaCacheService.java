@@ -7,7 +7,7 @@ import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 
 /**
  * PROPÓSITO DE NEGÓCIO: aplica ao menu Correção do Cache a mesma decisão de
@@ -47,7 +47,7 @@ public class ClassificadorEntradaCacheService {
 
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final ValidadorTraducaoService validador;
-    private final TradutorProperties propriedades;
+    private final PoliticaEstiloMusical politicaEstiloMusical;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
 
@@ -59,13 +59,13 @@ public class ClassificadorEntradaCacheService {
     public ClassificadorEntradaCacheService(
         DetectorTraducaoIdenticaService detectorIdentica,
         ValidadorTraducaoService validador,
-        TradutorProperties propriedades,
+        PoliticaEstiloMusical politicaEstiloMusical,
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss
     ) {
         this.detectorIdentica = detectorIdentica;
         this.validador = validador;
-        this.propriedades = propriedades;
+        this.politicaEstiloMusical = politicaEstiloMusical;
         this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
     }
@@ -87,7 +87,7 @@ public class ClassificadorEntradaCacheService {
         if (original == null || original.isBlank()) {
             return new Classificacao(Status.IGNORADA, "Entrada sem texto original");
         }
-        if (estilo != null && propriedades.estiloIgnorado(estilo)
+        if (estilo != null && politicaEstiloMusical.estiloIgnorado(estilo)
             && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(estilo, original)) {
             return new Classificacao(Status.PROTEGIDA, "Estilo protegido");
         }

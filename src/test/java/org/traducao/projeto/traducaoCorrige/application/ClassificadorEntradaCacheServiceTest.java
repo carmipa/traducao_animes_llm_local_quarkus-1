@@ -9,7 +9,7 @@ import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.contexto.ContextoPrompt;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 
 import java.util.List;
@@ -33,7 +33,7 @@ class ClassificadorEntradaCacheServiceTest {
     private final ClassificadorEntradaCacheService service = new ClassificadorEntradaCacheService(
         new DetectorTraducaoIdenticaService(contexto),
         new ValidadorTraducaoService(),
-        new TradutorProperties(),
+        new PoliticaEstiloMusical(List.of("Song JP")),
         new DetectorEfeitoKaraokeService(),
         new ProtecaoLegendaAssService()
     );

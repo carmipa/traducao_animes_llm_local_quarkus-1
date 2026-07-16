@@ -93,6 +93,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_TRADUCAO = "traducao";
     private static final String FATIA_CORE = "core";
     private static final String FATIA_CONFIG = "config";
+    private static final String FATIA_LEGENDA = "legenda";
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -158,6 +159,15 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".core.presentation.ui.ConsoleEntrada"
     );
 
+    /**
+     * Superfície do módulo peer {@code legenda} congelada POR TIPO (E3c). A Tradução
+     * Local só pode depender nominalmente destes tipos; qualquer segundo tipo reprova
+     * até autorização explícita (sem flexibilização genérica do pacote legenda).
+     */
+    private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".legenda.domain.PoliticaEstiloMusical"
+    );
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -192,8 +202,8 @@ class FronteiraTraducaoArchTest {
                 String destino = topo(dependencia.getTargetClass().getName());
                 String fatia = fatiaDe(dependencia.getTargetClass().getPackageName());
                 if (fatia == null || fatia.equals(FATIA_TRADUCAO) || fatia.equals(FATIA_CORE)
-                    || fatia.equals(FATIA_CONFIG)) {
-                    continue; // core, config e interno tratados em testes próprios
+                    || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)) {
+                    continue; // core, config, legenda (módulo peer) e interno tratados em testes próprios
                 }
                 reais.add(aresta(origem, destino));
             }
@@ -274,6 +284,33 @@ class FronteiraTraducaoArchTest {
             "Esperado uso técnico dos tipos de core congelados pela Tradução Local");
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de core fora dos onze homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c)")
+    void legendaCongeladoPorTipo() {
+        List<String> violacoes = new ArrayList<>();
+        Set<String> tiposLegendaUsados = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (FATIA_LEGENDA.equals(fatiaDe(dependencia.getTargetClass().getPackageName()))) {
+                    tiposLegendaUsados.add(destino);
+                    if (!LEGENDA_TIPOS_CONGELADOS.contains(destino)) {
+                        violacoes.add(origem + " -> " + destino);
+                    }
+                }
+            }
+        }
+        assertFalse(tiposLegendaUsados.isEmpty(),
+            "Esperado uso do módulo legenda pela Tradução Local (E3c: PoliticaEstiloMusical)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Tipo de legenda fora dos homologados (LEGENDA_TIPOS_CONGELADOS):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     @Test

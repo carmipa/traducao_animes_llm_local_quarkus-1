@@ -13,7 +13,7 @@ import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.contexto.ContextoPrompt;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
@@ -51,7 +51,7 @@ class LimparCacheUseCaseTest {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
             new DetectorTraducaoIdenticaService(contexto), new ValidadorTraducaoService(),
-            new TradutorProperties(), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
+            new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         auditoria = new AuditoriaStub(mapper);
         useCase = new LimparCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,

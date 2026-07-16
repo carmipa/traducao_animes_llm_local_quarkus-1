@@ -19,6 +19,7 @@ import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaSrt;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
@@ -75,6 +76,7 @@ public class ProcessarArquivoUseCase {
     private final ValidadorTraducaoService validador;
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final TradutorProperties propriedades;
+    private final PoliticaEstiloMusical politicaEstiloMusical;
     private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
     private final PastasExecucao pastasExecucao;
@@ -94,6 +96,7 @@ public class ProcessarArquivoUseCase {
         ValidadorTraducaoService validador,
         DetectorTraducaoIdenticaService detectorIdentica,
         TradutorProperties propriedades,
+        PoliticaEstiloMusical politicaEstiloMusical,
         LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
         PastasExecucao pastasExecucao,
@@ -112,6 +115,7 @@ public class ProcessarArquivoUseCase {
         this.validador = validador;
         this.detectorIdentica = detectorIdentica;
         this.propriedades = propriedades;
+        this.politicaEstiloMusical = politicaEstiloMusical;
         this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
         this.pastasExecucao = pastasExecucao;
@@ -523,7 +527,7 @@ public class ProcessarArquivoUseCase {
             return false;
         }
         String texto = evento.texto();
-        if (propriedades.estiloIgnorado(evento.estilo())
+        if (politicaEstiloMusical.estiloIgnorado(evento.estilo())
             && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
             return false;
         }

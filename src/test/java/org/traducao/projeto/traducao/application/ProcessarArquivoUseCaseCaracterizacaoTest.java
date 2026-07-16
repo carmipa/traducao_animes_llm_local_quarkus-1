@@ -16,6 +16,7 @@ import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
 import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaSrt;
@@ -211,7 +212,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, mascarador, cache,
-            episodio, validador, detectorIdentica, props, llmProps, uiLogger,
+            episodio, validador, detectorIdentica, props, new PoliticaEstiloMusical(List.of()), llmProps, uiLogger,
             pastas, telemetria, detectorKaraoke, protecao, gerenciador);
     }
 
