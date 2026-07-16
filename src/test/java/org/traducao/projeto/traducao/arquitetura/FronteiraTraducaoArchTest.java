@@ -168,12 +168,18 @@ class FronteiraTraducaoArchTest {
      *   <li>E3c: {@code PoliticaEstiloMusical} (política de estilo musical).</li>
      *   <li>E5a: {@code DocumentoLegenda} e {@code EventoLegenda} (modelo puro de legenda,
      *       movido de {@code traducao.domain.legenda}).</li>
+     *   <li>E5b: {@code ExcecaoLegenda} (raiz das falhas do módulo) e
+     *       {@code ArquivoLegendaException} (falha de I/O de legenda), movidos de
+     *       {@code traducao.domain.exceptions}. {@code EntradaJaTraduzidaException}
+     *       permanece em {@code traducao} e NÃO entra neste conjunto.</li>
      * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".legenda.domain.PoliticaEstiloMusical",
         RAIZ + ".legenda.domain.DocumentoLegenda",
-        RAIZ + ".legenda.domain.EventoLegenda"
+        RAIZ + ".legenda.domain.EventoLegenda",
+        RAIZ + ".legenda.domain.ExcecaoLegenda",
+        RAIZ + ".legenda.domain.ArquivoLegendaException"
     );
 
     private static JavaClasses classesProducao;
@@ -295,7 +301,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c: PoliticaEstiloMusical; E5a: DocumentoLegenda, EventoLegenda)")
+    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c: PoliticaEstiloMusical; E5a: DocumentoLegenda, EventoLegenda; E5b: ExcecaoLegenda, ArquivoLegendaException)")
     void legendaCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposLegendaUsados = new TreeSet<>();

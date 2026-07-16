@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducao.infrastructure.legenda;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.traducao.domain.exceptions.ArquivoLegendaException;
+import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 
