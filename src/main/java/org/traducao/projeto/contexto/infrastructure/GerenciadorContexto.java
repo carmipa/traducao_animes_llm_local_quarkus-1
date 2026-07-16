@@ -40,10 +40,6 @@ public class GerenciadorContexto {
     private final List<ProvedorContexto> provedores;
     private final ProvedorContexto provedorPadrao;
 
-    // Mutado pela thread única do executor de background (ApiController) e lido
-    // pela mesma thread ao montar o prompt do LLM (MistralClientAdapter). O
-    // volatile aqui é uma garantia defensiva de visibilidade, não uma alegação
-    // de que múltiplas threads concorrem por este campo.
     private volatile ProvedorContexto provedorAtivo;
 
     public GerenciadorContexto(List<ProvedorContexto> provedores) {
