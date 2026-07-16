@@ -5,9 +5,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheDocumento;
-import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
-import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
+import org.traducao.projeto.cachetraducao.domain.CacheDocumento;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -3,7 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 
 import java.util.List;
 import java.util.Set;

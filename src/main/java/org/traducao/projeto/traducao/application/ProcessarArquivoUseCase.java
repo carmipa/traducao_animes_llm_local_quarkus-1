@@ -13,9 +13,9 @@ import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaExcepti
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
-import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
-import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;

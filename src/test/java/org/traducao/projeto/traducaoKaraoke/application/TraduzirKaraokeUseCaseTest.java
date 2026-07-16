@@ -12,7 +12,7 @@ import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;

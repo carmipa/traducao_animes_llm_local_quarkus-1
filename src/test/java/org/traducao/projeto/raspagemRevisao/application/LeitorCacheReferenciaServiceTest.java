@@ -3,7 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

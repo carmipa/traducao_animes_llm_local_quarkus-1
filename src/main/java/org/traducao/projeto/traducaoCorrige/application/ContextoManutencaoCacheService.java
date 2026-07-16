@@ -1,8 +1,8 @@
 package org.traducao.projeto.traducaoCorrige.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
-import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 
 /**
