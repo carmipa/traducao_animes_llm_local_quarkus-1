@@ -5,7 +5,7 @@ import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreServi
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 import java.nio.file.Path;
 import java.util.List;

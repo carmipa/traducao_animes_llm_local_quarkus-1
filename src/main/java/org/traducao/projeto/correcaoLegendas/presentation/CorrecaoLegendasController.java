@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.correcaoLegendas.application.CorrigirLegendasUseCase;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.core.util.DuracaoUtil;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.nio.file.InvalidPathException;

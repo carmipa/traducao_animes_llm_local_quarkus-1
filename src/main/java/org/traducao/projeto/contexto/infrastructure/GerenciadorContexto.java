@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.contexto;
+package org.traducao.projeto.contexto.infrastructure;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
@@ -11,6 +11,27 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * PROPÓSITO DE NEGÓCIO: agrega todos os provedores de contexto/lore descobertos por
+ * CDI e mantém qual está ATIVO, servindo o prompt de sistema, a lore crua, o id de
+ * proveniência e os termos protegidos para a tradução em curso. É o ponto único pelo
+ * qual as fatias funcionais (tradução, correção, revisão, karaokê) selecionam e
+ * consultam a obra ativa — agora residente no módulo compartilhado {@code contexto}
+ * (peer), consumível por qualquer fatia sem acoplamento reverso.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: os provedores são ordenados por nome de exibição
+ * (case-insensitive) e seus ids são únicos (falha na construção se houver duplicata);
+ * o contexto padrão é {@code danmachi} (ou o primeiro, se ausente); {@code provedorAtivo}
+ * nunca cai silenciosamente no padrão quando um id explícito não existe. O campo
+ * {@code provedorAtivo} é {@code volatile} para visibilidade entre a thread do executor
+ * de background e a leitura ao montar o prompt — não é uma alegação de isolamento por job.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #definirContextoAtivo(String)} lança
+ * {@link ContextoNaoEncontradoException} para um id não vazio desconhecido (impede
+ * traduzir com a lore errada silenciosamente); ids nulos/vazios mantêm o ativo atual;
+ * ids duplicados no registro lançam {@link IllegalStateException} na construção;
+ * {@link #obterPromptAtivo()} devolve um prompt genérico quando não há ativo.
+ */
 @Component
 public class GerenciadorContexto {
 

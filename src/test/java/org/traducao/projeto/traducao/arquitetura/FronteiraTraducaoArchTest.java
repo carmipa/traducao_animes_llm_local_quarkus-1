@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -115,7 +116,7 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
         RAIZ + ".traducao.infrastructure.dtos.RecordsMistral",
         MISTRAL_ADAPTER,
-        RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"
+        RAIZ + ".contexto.infrastructure.GerenciadorContexto"
     );
 
     // Pacote do módulo de telemetria. Após a FASE C2 (TelemetriaController movido para
@@ -207,28 +208,31 @@ class FronteiraTraducaoArchTest {
     );
 
     /**
-     * Superfície do peer {@code contexto} (E7a) congelada POR TIPO, SEPARADA dos demais
-     * peers. A Tradução Local só pode depender nominalmente destes tipos do módulo de
-     * contexto/lore; qualquer tipo extra reprova até autorização explícita (sem liberação
-     * genérica do pacote {@code contexto}). Contém apenas os tipos que a fatia
-     * {@code traducao} consome de fato:
+     * Superfície do peer {@code contexto} congelada POR TIPO (medida na E7b), SEPARADA dos
+     * demais peers. A Tradução Local só pode depender nominalmente destes tipos; qualquer
+     * tipo extra reprova até autorização explícita (sem liberação genérica do pacote
+     * {@code contexto}). É EXATA: {@link #contextoCongeladoPorTipo()} exige igualdade
+     * {@code tiposContextoUsados == CONTEXTO_TIPOS_CONGELADOS}, reprovando tanto tipo novo
+     * inesperado quanto entrada obsoleta sobrando na allowlist. Conteúdo medido pós-E7b:
      * <ul>
-     *   <li>{@code ProvedorContexto}: porta agregada por {@code RestClientConfig} e recebida
-     *       por {@code GerenciadorContexto} (que permanece em {@code traducao} na E7a).</li>
-     *   <li>{@code ContextoPrompt}: {@code GerenciadorContexto.obterLoreAtiva()}.</li>
+     *   <li>{@code GerenciadorContexto} (infrastructure): consumido por 5 classes de
+     *       {@code traducao} (DetectorTraducaoIdenticaService, ProcessarArquivoUseCase,
+     *       MistralClientAdapter, PipelineController, TraducaoController) — migrou do
+     *       {@code traducao} para o peer na E7b.</li>
+     *   <li>{@code ProvedorContexto}: {@code PipelineController.getProvedores()}
+     *       (lambda {@code p -> new ContextoResponse(p.getId()...)}).</li>
      *   <li>{@code RegrasConcordanciaPtBr}: {@code MistralClientAdapter} (bloco de tradução
      *       e prompt de revisão de concordância).</li>
-     *   <li>{@code ContextoNaoEncontradoException}: lançada por {@code GerenciadorContexto}.</li>
      * </ul>
-     * As 56 classes de lore ({@code contexto.lore..}), as três agregadoras Macross e a raiz
-     * {@code ExcecaoContexto} NÃO entram: são descobertas por CDI (via {@code ProvedorContexto})
-     * ou não são referenciadas diretamente pela fatia {@code traducao}.
+     * SAÍRAM na E7b (deixaram de ser consumidos diretamente por {@code traducao}, pois só o
+     * manager os usava): {@code ContextoPrompt} (obterLoreAtiva) e
+     * {@code ContextoNaoEncontradoException} (lançada pelo manager). As 56 lores, as três
+     * agregadoras Macross, {@code ExcecaoContexto} e {@code ContextoBeansConfig} NÃO entram.
      */
     private static final Set<String> CONTEXTO_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".contexto.infrastructure.GerenciadorContexto",
         RAIZ + ".contexto.domain.ProvedorContexto",
-        RAIZ + ".contexto.domain.ContextoPrompt",
-        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr",
-        RAIZ + ".contexto.domain.ContextoNaoEncontradoException"
+        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr"
     );
 
     private static JavaClasses classesProducao;
@@ -405,7 +409,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("contexto é congelado por tipo: Tradução Local só usa os tipos homologados do peer (E7a)")
+    @DisplayName("contexto é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente os tipos homologados do peer (E7b)")
     void contextoCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposContextoUsados = new TreeSet<>();
@@ -425,10 +429,20 @@ class FronteiraTraducaoArchTest {
             }
         }
         assertFalse(tiposContextoUsados.isEmpty(),
-            "Esperado uso do peer contexto pela Tradução Local (E7a: ProvedorContexto/ContextoPrompt/RegrasConcordanciaPtBr/ContextoNaoEncontradoException)");
+            "Esperado uso do peer contexto pela Tradução Local (E7b: GerenciadorContexto/ProvedorContexto/RegrasConcordanciaPtBr)");
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de contexto fora dos homologados (CONTEXTO_TIPOS_CONGELADOS):\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
+        // Igualdade EXATA (E7b): a allowlist não pode conter entrada obsoleta que a
+        // Tradução Local deixou de consumir — a fitness reprova tanto tipo novo inesperado
+        // (violacoes acima) quanto tipo congelado que não aparece mais no uso real.
+        Set<String> obsoletos = new TreeSet<>(CONTEXTO_TIPOS_CONGELADOS);
+        obsoletos.removeAll(tiposContextoUsados);
+        assertTrue(obsoletos.isEmpty(),
+            () -> "Tipo em CONTEXTO_TIPOS_CONGELADOS não é mais consumido pela Tradução Local (entrada obsoleta):\n"
+                + String.join("\n", obsoletos));
+        assertEquals(new TreeSet<>(CONTEXTO_TIPOS_CONGELADOS), tiposContextoUsados,
+            "CONTEXTO_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos de contexto consumidos por traducao");
     }
 
     @Test

@@ -57,6 +57,7 @@ class FronteiraContextoArchTest {
     private static final String PKG_CONTEXTO = RAIZ + ".contexto";
     private static final String PKG_CONTEXTO_DOMAIN = RAIZ + ".contexto.domain";
     private static final String PKG_CONTEXTO_LORE = RAIZ + ".contexto.lore";
+    private static final String PKG_CONTEXTO_INFRA = RAIZ + ".contexto.infrastructure";
 
     private static JavaClasses classesProducao;
 
@@ -151,39 +152,43 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("nenhuma classe de contexto reside em infrastructure na E7a")
-    void nenhumaClasseEmInfrastructure() {
-        List<String> emInfra = new ArrayList<>();
+    @DisplayName("contexto.infrastructure é congelado NOMINALMENTE (E7b): exatamente GerenciadorContexto e ContextoBeansConfig")
+    void infraestruturaCongeladaNominalmente() {
+        TreeSet<String> infra = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
             if (!ehDoContexto(classe)) {
                 continue;
             }
-            if (classe.getPackageName().contains(".infrastructure")) {
-                emInfra.add(topo(classe.getName()));
+            String pkg = classe.getPackageName();
+            String nome = topo(classe.getName());
+            if (nome.contains("$")) {
+                continue;
+            }
+            if (pkg.equals(PKG_CONTEXTO_INFRA) || pkg.startsWith(PKG_CONTEXTO_INFRA + ".")) {
+                infra.add(nome.substring(nome.lastIndexOf('.') + 1));
             }
         }
-        assertTrue(emInfra.isEmpty(),
-            () -> "Na E7a nenhuma classe de contexto pode estar em infrastructure (o GerenciadorContexto "
-                + "permanece em traducao e só migra na E7b):\n" + String.join("\n", new TreeSet<>(emInfra)));
+        assertEquals(new TreeSet<>(List.of("ContextoBeansConfig", "GerenciadorContexto")), infra,
+            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto e ContextoBeansConfig "
+                + "(sem liberação genérica de infrastructure; qualquer terceira classe reprova). Encontrado: " + infra);
     }
 
     @Test
-    @DisplayName("GerenciadorContexto NÃO entrou no peer contexto (é tipo da E7b) e segue em traducao")
-    void gerenciadorContextoAindaNaoEstaNoPeer() {
-        boolean gerenciadorNoContexto = classesProducao.stream()
-            .anyMatch(c -> c.getName().equals(RAIZ + ".contexto.infrastructure.GerenciadorContexto")
-                || (c.getPackageName().startsWith(PKG_CONTEXTO + ".")
-                    && c.getSimpleName().equals("GerenciadorContexto")));
-        assertFalse(gerenciadorNoContexto,
-            "GerenciadorContexto é tipo da E7b e NÃO pode estar no peer contexto na E7a");
+    @DisplayName("GerenciadorContexto migrou para o peer contexto.infrastructure (E7b) e NÃO está mais em traducao")
+    void gerenciadorContextoMigradoParaOPeer() {
+        boolean gerenciadorNoPeer = classesProducao.stream()
+            .anyMatch(c -> c.getName().equals(RAIZ + ".contexto.infrastructure.GerenciadorContexto"));
+        assertTrue(gerenciadorNoPeer,
+            "GerenciadorContexto deve estar em contexto.infrastructure após a E7b");
         boolean gerenciadorEmTraducao = classesProducao.stream()
-            .anyMatch(c -> c.getName().equals(RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"));
-        assertTrue(gerenciadorEmTraducao,
-            "GerenciadorContexto deve permanecer em traducao.infrastructure.contexto na E7a");
+            .anyMatch(c -> c.getSimpleName().equals("GerenciadorContexto")
+                && c.getPackageName().startsWith(RAIZ + ".traducao"));
+        assertFalse(gerenciadorEmTraducao,
+            "GerenciadorContexto NÃO pode mais residir em traducao após a E7b");
     }
 
     @Test
-    @DisplayName("estrutura homologada E7a: 5 tipos em domain e 56 lores em contexto.lore")
+    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 56 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;

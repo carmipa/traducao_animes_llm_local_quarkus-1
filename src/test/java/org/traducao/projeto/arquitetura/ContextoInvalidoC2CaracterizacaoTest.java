@@ -7,7 +7,7 @@ import org.traducao.projeto.core.presentation.web.OperacaoRequest;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController;
 
 import java.nio.file.Path;
