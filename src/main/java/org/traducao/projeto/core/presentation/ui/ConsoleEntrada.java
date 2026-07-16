@@ -1,5 +1,4 @@
-package org.traducao.projeto.traducao.presentation.ui;
-import org.traducao.projeto.core.presentation.ui.AnsiCores;
+package org.traducao.projeto.core.presentation.ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,6 +6,29 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+/**
+ * PROPÓSITO DE NEGÓCIO: prompt interativo de console do pipeline KRONOS. Coleta,
+ * pelo terminal, o modo de operação e as pastas de entrada/saída e imprime a dica
+ * de recuperação quando o console falha. É um utilitário técnico de apresentação
+ * neutro (I/O de console), sem qualquer conceito de tradução/legenda/LLM — por isso
+ * reside no {@code core.presentation.ui} compartilhado, ao lado do {@code AnsiCores}.
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>NUNCA fecha {@code System.in}: o leitor estático é envolvido uma única vez e
+ *       mantido aberto durante todo o ciclo de vida do processo.</li>
+ *   <li>Charset fixo UTF-8 no {@code InputStreamReader}; os textos do prompt usam
+ *       apenas ASCII para blindar o console do Windows (cp1252 vs UTF-8).</li>
+ *   <li>Zero dependência de fatia funcional: só depende do JDK e do {@code AnsiCores}
+ *       do próprio core.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * EOF / {@code stdin} fechado, ou caminho obrigatório vazio, resultam em
+ * {@link Optional#empty()}. Uma {@link IOException} de leitura é capturada, sinalizada
+ * em vermelho e também devolve {@link Optional#empty()}. Opção de modo inválida recai
+ * no fluxo padrão WEB.
+ */
 public final class ConsoleEntrada {
 
     private static final BufferedReader LEITOR = new BufferedReader(
@@ -76,7 +98,7 @@ public final class ConsoleEntrada {
             return Optional.empty();
         }
     }
-    
+
     private static Optional<CaminhosPastas> solicitarPastasTraducao(String modo) throws IOException {
         String entrada = lerObrigatorio(
             AnsiCores.colorir(">>> Pasta com as legendas ORIGINAIS em INGLÊS (.ass/.ssa): ", AnsiCores.GREEN, true)
@@ -92,7 +114,7 @@ public final class ConsoleEntrada {
         imprimir(AnsiCores.colorir("Pastas OK. Subindo o tradutor...", AnsiCores.GREEN, true));
         return Optional.of(new CaminhosPastas(modo, entrada, saida, null));
     }
-    
+
     private static Optional<CaminhosPastas> solicitarPastasRemuxer(String modo) throws IOException {
         String entrada = lerObrigatorio(
             AnsiCores.colorir(">>> Pasta com os arquivos de VÍDEO ORIGINAIS (.mkv): ", AnsiCores.GREEN, true)
@@ -226,4 +248,3 @@ public final class ConsoleEntrada {
         System.out.flush();
     }
 }
-

@@ -7,7 +7,7 @@ import org.traducao.projeto.analisadorMidia.application.AnalisarMidiaUseCase;
 import org.traducao.projeto.analisadorMidia.domain.AuditoriaResultado;
 import org.traducao.projeto.analisadorMidia.presentation.ui.ConsoleAnalisadorLogger;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.traducao.presentation.ui.ConsoleEntrada;
+import org.traducao.projeto.core.presentation.ui.ConsoleEntrada;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Files;
