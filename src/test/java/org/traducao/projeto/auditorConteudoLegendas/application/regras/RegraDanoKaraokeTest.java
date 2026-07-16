@@ -5,7 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 
 import java.io.IOException;
 import java.nio.file.Files;

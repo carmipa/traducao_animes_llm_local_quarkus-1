@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.legenda;
+package org.traducao.projeto.legenda.infrastructure;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;

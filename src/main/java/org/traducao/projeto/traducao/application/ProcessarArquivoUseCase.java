@@ -20,10 +20,10 @@ import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
-import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaSrt;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt;
+import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
