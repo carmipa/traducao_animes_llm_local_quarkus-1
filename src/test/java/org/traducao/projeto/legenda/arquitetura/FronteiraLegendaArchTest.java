@@ -17,8 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do módulo peer compartilhado
- * {@code legenda}, nascido na subfase E3c com {@code PoliticaEstiloMusical}. Garante
- * que o módulo é consumível por qualquer fatia funcional sem criar acoplamento reverso.
+ * {@code legenda}. Garante que o módulo é consumível por qualquer fatia funcional sem
+ * criar acoplamento reverso. Evolução da superfície do módulo:
+ * <ul>
+ *   <li>E3c: {@code PoliticaEstiloMusical}.</li>
+ *   <li>E5a: {@code DocumentoLegenda} e {@code EventoLegenda} (modelo puro, movido de
+ *       {@code traducao.domain.legenda}).</li>
+ * </ul>
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>

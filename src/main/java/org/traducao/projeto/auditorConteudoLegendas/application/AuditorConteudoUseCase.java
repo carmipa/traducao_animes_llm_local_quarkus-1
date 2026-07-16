@@ -11,7 +11,7 @@ import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaArquivoUnico;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
-import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
+import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt;
 
