@@ -5,10 +5,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.mapaProjeto.application.GeradorMapaProjetoUseCase;
 import org.traducao.projeto.mapaProjeto.application.MapeadorDiretorioUseCase;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(name = "app.modo", havingValue = "MAPEAR")
@@ -16,14 +17,15 @@ public class MapaProjetoCLI implements ExecucaoCli {
 
     private final MapeadorDiretorioUseCase mapeadorDiretorioUseCase;
     private final GeradorMapaProjetoUseCase geradorMapaProjetoUseCase;
-    private final TradutorProperties propriedades;
+
+    // E3b: chave crua; ausência/branco tratados pelo fallback de domínio local (user.dir).
+    @ConfigProperty(name = "tradutor.diretorio-entrada")
+    Optional<String> diretorioEntrada;
 
     public MapaProjetoCLI(MapeadorDiretorioUseCase mapeadorDiretorioUseCase,
-                           GeradorMapaProjetoUseCase geradorMapaProjetoUseCase,
-                           TradutorProperties propriedades) {
+                           GeradorMapaProjetoUseCase geradorMapaProjetoUseCase) {
         this.mapeadorDiretorioUseCase = mapeadorDiretorioUseCase;
         this.geradorMapaProjetoUseCase = geradorMapaProjetoUseCase;
-        this.propriedades = propriedades;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class MapaProjetoCLI implements ExecucaoCli {
         System.out.flush();
 
         // Determina a raiz a ser mapeada
-        String entrada = propriedades.diretorioEntrada();
+        String entrada = diretorioEntrada.orElse(null);
         if (entrada == null || entrada.isBlank()) {
             entrada = System.getProperty("user.dir");
         }

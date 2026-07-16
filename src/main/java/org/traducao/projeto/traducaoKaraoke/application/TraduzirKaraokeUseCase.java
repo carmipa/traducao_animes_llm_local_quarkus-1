@@ -16,7 +16,7 @@ import org.traducao.projeto.traducao.domain.legenda.EventoLegenda;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
 import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -99,8 +100,15 @@ public class TraduzirKaraokeUseCase {
     @Inject
     TraducaoKaraokePersistencia persistencia;
 
-    @Inject
-    TradutorProperties propriedades;
+    @ConfigProperty(name = "tradutor.idioma-original")
+    Optional<String> idiomaOriginal;
+
+    @ConfigProperty(name = "tradutor.idioma-traduzido")
+    Optional<String> idiomaTraduzido;
+
+    // E3b/Opção A: ausência e vazio colapsam em "cache"; branco de idioma cai no default via filtro isBlank.
+    @ConfigProperty(name = "tradutor.diretorio-cache")
+    Optional<String> diretorioCache;
 
     // Sequencial dos lotes enviados ao LLM numa execução (1 linha por lote).
     private int sequencialLote;
@@ -339,7 +347,8 @@ public class TraduzirKaraokeUseCase {
             if (traduzido != null) {
                 porOriginal.putIfAbsent(evento.texto(), new EntradaCache(
                     evento.indice(), evento.estilo(), evento.texto(), traduzido,
-                    propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
+                    idiomaOriginal.filter(s -> !s.isBlank()).orElse("en"),
+                    idiomaTraduzido.filter(s -> !s.isBlank()).orElse("pt-br")));
             }
         }
         cacheService.salvar(arquivoCache, new ArrayList<>(porOriginal.values()));
@@ -436,10 +445,8 @@ public class TraduzirKaraokeUseCase {
     private Path resolverArquivoCache(Path arquivo) {
         String nome = arquivo.getFileName().toString();
         String base = nome.replaceFirst("(?i)\\.(ass|ssa)$", "");
-        String diretorioCache = propriedades != null && propriedades.diretorioCache() != null
-            ? propriedades.diretorioCache()
-            : "cache";
-        return Path.of(diretorioCache, SUBPASTA_CACHE, base + ".cache.json");
+        String dirCache = diretorioCache.orElse("cache");
+        return Path.of(dirCache, SUBPASTA_CACHE, base + ".cache.json");
     }
 
     private static String visivelResumido(String texto) {

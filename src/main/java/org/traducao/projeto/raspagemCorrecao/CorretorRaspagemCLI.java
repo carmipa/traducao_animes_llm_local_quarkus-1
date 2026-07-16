@@ -4,10 +4,11 @@ import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCase;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * CommandLineRunner que realiza a tradução das falas residuais pendentes em inglês
@@ -18,11 +19,13 @@ import java.nio.file.Path;
 @ConditionalOnProperty(name = "app.modo", havingValue = "RASPAGEM_CORRECAO")
 public class CorretorRaspagemCLI implements ExecucaoCli {
 
-    private final TradutorProperties propriedades;
     private final CorrigirComGoogleUseCase corrigirComGoogleUseCase;
 
-    public CorretorRaspagemCLI(TradutorProperties propriedades, CorrigirComGoogleUseCase corrigirComGoogleUseCase) {
-        this.propriedades = propriedades;
+    // E3b: chave crua; ausência/branco tratados pelo fallback de domínio local ("cache").
+    @ConfigProperty(name = "tradutor.diretorio-entrada")
+    Optional<String> diretorioEntrada;
+
+    public CorretorRaspagemCLI(CorrigirComGoogleUseCase corrigirComGoogleUseCase) {
         this.corrigirComGoogleUseCase = corrigirComGoogleUseCase;
     }
 
@@ -32,7 +35,7 @@ public class CorretorRaspagemCLI implements ExecucaoCli {
         System.out.println(AnsiCores.CYAN + "      CORRETOR DE CACHE VIA GOOGLE TRANSLATE (RASPAGEM)   " + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "==========================================================" + AnsiCores.RESET);
 
-        String entradaUsuario = propriedades.diretorioEntrada();
+        String entradaUsuario = diretorioEntrada.orElse(null);
         Path diretorioCache = Path.of(entradaUsuario != null && !entradaUsuario.isBlank() ? entradaUsuario : "cache");
 
         corrigirComGoogleUseCase.executar(diretorioCache);
