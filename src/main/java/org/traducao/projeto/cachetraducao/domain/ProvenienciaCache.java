@@ -16,14 +16,15 @@ import java.util.Objects;
  * baterem por igualdade exata — schemaVersion, contextoId, contextoHash, modeloLlm,
  * idiomaOrigem e idiomaDestino. O hash é derivado do prompt de sistema ativo
  * (SHA-256), então qualquer mudança de lore/regra muda o hash. A versão de schema
- * NÃO é normalizada: um objeto sem o campo é materializado com {@code 0} e, como
- * {@code 0 != SCHEMA_ATUAL}, é tratado como incompatível — nunca reutilizado.
+ * NÃO é normalizada: quando comparada à proveniência atual do pipeline, carimbada
+ * com {@code SCHEMA_ATUAL}, uma versão ausente/{@code 0} ou divergente reprova a
+ * compatibilidade e nunca é reutilizada.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #hashDe(String)} nunca lança — se o
  * algoritmo SHA-256 faltar (não deve, é padrão da JVM), cai para o hashCode em
  * hexadecimal como último recurso. {@link #mesmaProveniencia} trata nulo como
- * "diferente"; versão ausente/{@code 0} ou divergente de {@code SCHEMA_ATUAL}
- * reprova a compatibilidade e leva ao arquivamento da geração anterior.
+ * "diferente"; no fluxo automático, versão ausente/{@code 0} materializada no cache
+ * diverge de {@code SCHEMA_ATUAL} e leva ao arquivamento da geração anterior.
  *
  * @param schemaVersion versão do schema do documento de cache persistido
  * @param contextoId identificador do lore/contexto usado na geração
@@ -42,6 +43,20 @@ public record ProvenienciaCache(
 ) {
     public static final int SCHEMA_ATUAL = 1;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: determina se a proveniência armazenada coincide
+     * exatamente com a proveniência atual fornecida pelo pipeline, autorizando (ou
+     * não) o reaproveitamento das traduções em cache sem rechamar o LLM.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara exatamente os seis campos (schemaVersion,
+     * contextoId, contextoHash, modeloLlm, idiomaOrigem, idiomaDestino); o chamador
+     * do fluxo automático deve fornecer a proveniência atual carimbada com
+     * {@link #SCHEMA_ATUAL}; nenhuma normalização de schema é realizada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} retorna {@code false}; no fluxo
+     * automático, um schema ausente/{@code 0} materializado no cache diverge de
+     * {@link #SCHEMA_ATUAL} e causa o arquivamento pelo {@code CacheTraducaoService}.
+     */
     public boolean mesmaProveniencia(ProvenienciaCache outra) {
         if (outra == null) {
             return false;
