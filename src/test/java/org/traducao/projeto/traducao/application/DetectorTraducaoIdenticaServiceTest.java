@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 import java.util.List;
 

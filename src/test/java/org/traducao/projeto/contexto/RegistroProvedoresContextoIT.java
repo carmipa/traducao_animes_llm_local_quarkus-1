@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.contexto.domain.ContextoNaoEncontradoException;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 import java.io.InputStream;
 import java.util.Comparator;
@@ -23,16 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * PROPÓSITO DE NEGÓCIO: caracteriza a descoberta CDI dos provedores de contexto após a
- * E7a, provando que mover os {@code @Component} para {@code contexto.lore} NÃO alterou o
- * conjunto injetado nem a seleção pelo {@code GerenciadorContexto} (que permanece em
- * {@code traducao}). As 3 classes agregadoras Macross sem {@code @Component} continuam
- * fora do registro, mantendo exatamente 53 provedores.
+ * PROPÓSITO DE NEGÓCIO: caracteriza a descoberta e resolução CDI dos provedores de
+ * contexto após a E7b, provando que mover o {@code GerenciadorContexto} e o producer
+ * {@code todosProvedoresContexto} para o peer {@code contexto} NÃO alterou o conjunto
+ * injetado, a resolução do manager, a ordenação nem a seleção. O manager agora reside em
+ * {@code contexto.infrastructure} e a lista é produzida por
+ * {@code contexto.infrastructure.config.ContextoBeansConfig}. As 3 classes agregadoras
+ * Macross sem {@code @Component} continuam fora do registro, mantendo exatamente 53 provedores.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>Exatamente 53 provedores CDI; nenhum id nulo/vazio; nenhum id duplicado.</li>
- *   <li>A lista ordenada de ids é idêntica ao baseline pré-move
+ *   <li>{@code GerenciadorContexto} resolve sem ambiguidade e a {@code List<ProvedorContexto>}
+ *       resolve pelo producer sem duplicação (o manager e a injeção direta veem os mesmos 53).</li>
+ *   <li>A lista ordenada de ids é idêntica ao baseline
  *       ({@code /contexto/manifesto-lore.properties}).</li>
  *   <li>Ids canônicos de Danmachi, Gundam e Macross presentes.</li>
  *   <li>O {@code GerenciadorContexto} recebe os 53 provedores e seleciona um id conhecido;
@@ -40,11 +44,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Qualquer divergência de contagem, id duplicado/ausente ou falha de seleção reprova o
- * teste — sinal de que a extração quebrou a descoberta CDI.
+ * Qualquer divergência de contagem, id duplicado/ausente, ambiguidade/duplicação de bean
+ * ou falha de seleção reprova o teste — sinal de que a migração quebrou a resolução CDI.
  */
 @QuarkusTest
-@DisplayName("E7a: registro CDI dos provedores de contexto (53, sem duplicatas, seleção viva)")
+@DisplayName("E7b: registro e resolução CDI dos provedores de contexto (53, sem ambiguidade/duplicação, seleção viva)")
 class RegistroProvedoresContextoIT {
 
     private static final String MANIFESTO = "/contexto/manifesto-lore.properties";
@@ -107,5 +111,26 @@ class RegistroProvedoresContextoIT {
         assertThrows(ContextoNaoEncontradoException.class,
             () -> gerenciador.definirContextoAtivo("inexistente_zzz"),
             "id desconhecido deve lançar ContextoNaoEncontradoException");
+    }
+
+    @Test
+    @DisplayName("resolução CDI sem ambiguidade (manager único) nem duplicação (producer único alimenta os 53)")
+    void resolucaoCdiSemAmbiguidadeNemDuplicacao() {
+        // Ambiguidade de bean falharia no deploy do @QuarkusTest; a injeção bem-sucedida
+        // do manager único já prova resolução sem ambiguidade.
+        assertNotNull(gerenciador, "GerenciadorContexto deve resolver como bean único (sem ambiguidade)");
+        assertNotNull(provedores, "List<ProvedorContexto> deve resolver pelo producer");
+        // O manager e a injeção direta devem ver EXATAMENTE o mesmo conjunto de 53 — prova de
+        // que há um único producer alimentando ambos, sem duplicação de provedores.
+        assertEquals(53, provedores.size(), "injeção direta deve resolver 53 provedores pelo producer");
+        assertEquals(provedores.size(), gerenciador.getProvedores().size(),
+            "manager e injeção direta devem ver o mesmo número de provedores (producer único, sem duplicação)");
+        Set<String> idsManager = gerenciador.getProvedores().stream()
+            .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(53, idsManager.size(), "manager não pode ter ids duplicados (producer sem duplicação)");
+        Set<String> idsInjecao = provedores.stream()
+            .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(idsInjecao, idsManager,
+            "o conjunto de ids visto pelo manager deve ser idêntico ao da injeção direta");
     }
 }

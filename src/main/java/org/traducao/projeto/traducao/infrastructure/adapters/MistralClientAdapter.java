@@ -11,7 +11,7 @@ import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.contexto.domain.RegrasConcordanciaPtBr;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.dtos.RecordsMistral.*;
 import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 import org.traducao.projeto.core.infrastructure.http.JsonHttpClient.HttpClientException;
