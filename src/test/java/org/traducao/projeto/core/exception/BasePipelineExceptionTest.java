@@ -16,7 +16,7 @@ import org.traducao.projeto.remuxer.domain.MkvToolNixNaoEncontradoException;
 import org.traducao.projeto.remuxer.domain.RemuxerException;
 import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
-import org.traducao.projeto.traducao.domain.exceptions.ContextoNaoEncontradoException;
+import org.traducao.projeto.contexto.domain.ContextoNaoEncontradoException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
 import org.traducao.projeto.traducao.domain.exceptions.LlmFalhaComunicacaoException;
 import org.traducao.projeto.traducao.domain.exceptions.LmStudioOfflineException;

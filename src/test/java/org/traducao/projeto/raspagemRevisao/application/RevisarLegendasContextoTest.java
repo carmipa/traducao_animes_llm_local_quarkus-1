@@ -2,8 +2,8 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
-import org.traducao.projeto.traducao.contexto.ContextoPrompt;
-import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.ContextoPrompt;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 

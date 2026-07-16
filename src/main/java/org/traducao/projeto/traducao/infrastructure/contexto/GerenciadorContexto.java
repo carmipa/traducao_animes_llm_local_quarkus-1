@@ -1,9 +1,9 @@
 package org.traducao.projeto.traducao.infrastructure.contexto;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.traducao.contexto.ContextoPrompt;
-import org.traducao.projeto.traducao.domain.exceptions.ContextoNaoEncontradoException;
-import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.ContextoPrompt;
+import org.traducao.projeto.contexto.domain.ContextoNaoEncontradoException;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 import java.util.Comparator;
 import java.util.List;

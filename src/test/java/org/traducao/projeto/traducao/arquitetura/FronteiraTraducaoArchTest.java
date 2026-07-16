@@ -95,6 +95,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_CONFIG = "config";
     private static final String FATIA_LEGENDA = "legenda";
     private static final String FATIA_CACHETRADUCAO = "cachetraducao";
+    private static final String FATIA_CONTEXTO = "contexto";
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -205,6 +206,31 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".cachetraducao.domain.ProvenienciaCache"
     );
 
+    /**
+     * Superfície do peer {@code contexto} (E7a) congelada POR TIPO, SEPARADA dos demais
+     * peers. A Tradução Local só pode depender nominalmente destes tipos do módulo de
+     * contexto/lore; qualquer tipo extra reprova até autorização explícita (sem liberação
+     * genérica do pacote {@code contexto}). Contém apenas os tipos que a fatia
+     * {@code traducao} consome de fato:
+     * <ul>
+     *   <li>{@code ProvedorContexto}: porta agregada por {@code RestClientConfig} e recebida
+     *       por {@code GerenciadorContexto} (que permanece em {@code traducao} na E7a).</li>
+     *   <li>{@code ContextoPrompt}: {@code GerenciadorContexto.obterLoreAtiva()}.</li>
+     *   <li>{@code RegrasConcordanciaPtBr}: {@code MistralClientAdapter} (bloco de tradução
+     *       e prompt de revisão de concordância).</li>
+     *   <li>{@code ContextoNaoEncontradoException}: lançada por {@code GerenciadorContexto}.</li>
+     * </ul>
+     * As 56 classes de lore ({@code contexto.lore..}), as três agregadoras Macross e a raiz
+     * {@code ExcecaoContexto} NÃO entram: são descobertas por CDI (via {@code ProvedorContexto})
+     * ou não são referenciadas diretamente pela fatia {@code traducao}.
+     */
+    private static final Set<String> CONTEXTO_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".contexto.domain.ProvedorContexto",
+        RAIZ + ".contexto.domain.ContextoPrompt",
+        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr",
+        RAIZ + ".contexto.domain.ContextoNaoEncontradoException"
+    );
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -240,8 +266,8 @@ class FronteiraTraducaoArchTest {
                 String fatia = fatiaDe(dependencia.getTargetClass().getPackageName());
                 if (fatia == null || fatia.equals(FATIA_TRADUCAO) || fatia.equals(FATIA_CORE)
                     || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)
-                    || fatia.equals(FATIA_CACHETRADUCAO)) {
-                    continue; // core, config, legenda e cachetraducao (peers) e interno tratados em testes próprios
+                    || fatia.equals(FATIA_CACHETRADUCAO) || fatia.equals(FATIA_CONTEXTO)) {
+                    continue; // core, config, legenda, cachetraducao e contexto (peers) e interno tratados em testes próprios
                 }
                 reais.add(aresta(origem, destino));
             }
@@ -375,6 +401,33 @@ class FronteiraTraducaoArchTest {
             "Esperado uso do peer cachetraducao pela Tradução Local (E6: CacheTraducaoService/EntradaCache/ProvenienciaCache)");
         assertTrue(violacoes.isEmpty(),
             () -> "Tipo de cachetraducao fora dos homologados (CACHE_TRADUCAO_TIPOS_CONGELADOS):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    @Test
+    @DisplayName("contexto é congelado por tipo: Tradução Local só usa os tipos homologados do peer (E7a)")
+    void contextoCongeladoPorTipo() {
+        List<String> violacoes = new ArrayList<>();
+        Set<String> tiposContextoUsados = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (FATIA_CONTEXTO.equals(fatiaDe(dependencia.getTargetClass().getPackageName()))) {
+                    tiposContextoUsados.add(destino);
+                    if (!CONTEXTO_TIPOS_CONGELADOS.contains(destino)) {
+                        violacoes.add(origem + " -> " + destino);
+                    }
+                }
+            }
+        }
+        assertFalse(tiposContextoUsados.isEmpty(),
+            "Esperado uso do peer contexto pela Tradução Local (E7a: ProvedorContexto/ContextoPrompt/RegrasConcordanciaPtBr/ContextoNaoEncontradoException)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Tipo de contexto fora dos homologados (CONTEXTO_TIPOS_CONGELADOS):\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
