@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.cache;
+package org.traducao.projeto.cachetraducao.infrastructure;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.util.ArquivoAtomicoUtil;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
+import org.traducao.projeto.cachetraducao.domain.CacheDocumento;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,17 +21,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Persiste, por arquivo de legenda, o par (texto original em ingles -> texto
- * traduzido) em JSON. Serve a dois propositos: (1) permitir que o usuario
- * revise/corrija falhas de traducao manualmente editando o JSON e (2) evitar
- * chamar o LLM de novo para falas ja traduzidas em uma execucao anterior -
- * uma correcao manual no cache e respeitada na proxima execucao.
+ * PROPÓSITO DE NEGÓCIO: persiste, por arquivo de legenda, o par (texto original →
+ * texto traduzido) em JSON, no formato versionado {@link CacheDocumento}. Serve para
+ * (1) permitir revisão/correção manual do cache editando o JSON e (2) evitar chamar o
+ * LLM de novo para falas já traduzidas numa execução anterior.
  *
- * <p>Formato versionado ({@link CacheDocumento}): o cache carrega a
- * {@link ProvenienciaCache} (lore/hash/modelo/idiomas) que o gerou. Ao carregar,
- * uma proveniencia divergente NAO e reutilizada — a geracao anterior e arquivada
- * e o episodio e retraduzido com o lore atual. Um JSON ilegivel e preservado
- * (renomeado {@code .corrompido_<ts>.json}) em vez de ignorado e sobrescrito.
+ * <p>INVARIANTES DO DOMÍNIO: cada arquivo carrega a {@link ProvenienciaCache}
+ * (lore/hash/modelo/idiomas) que o gerou; uma proveniência divergente NÃO é reutilizada
+ * — a geração anterior é arquivada e o episódio é retraduzido com o lore atual. A
+ * escrita é atômica (temporário + {@code ArquivoAtomicoUtil}); a leitura aceita tanto o
+ * documento versionado quanto a lista JSON histórica.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: um JSON ilegível é preservado (renomeado
+ * {@code .corrompido_<ts>.json}) em vez de ignorado/sobrescrito; falha de gravação
+ * propaga {@link ArquivoLegendaException} sem deixar o destino truncado.
  */
 @Component
 public class CacheTraducaoService {

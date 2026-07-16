@@ -3,7 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;

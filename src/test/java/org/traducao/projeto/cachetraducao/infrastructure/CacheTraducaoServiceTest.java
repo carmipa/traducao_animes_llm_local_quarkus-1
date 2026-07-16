@@ -1,8 +1,10 @@
-package org.traducao.projeto.traducao.infrastructure.cache;
+package org.traducao.projeto.cachetraducao.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 
 import java.io.IOException;
 import java.nio.file.Files;

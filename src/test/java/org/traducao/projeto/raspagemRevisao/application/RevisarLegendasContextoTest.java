@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.traducao.contexto.ContextoPrompt;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
-import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 
 import java.nio.file.Path;

@@ -3,9 +3,9 @@ package org.traducao.projeto.raspagemRevisao.application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
-import org.traducao.projeto.traducao.infrastructure.cache.EntradaCache;
-import org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 
 import java.io.IOException;
 import java.nio.file.Files;

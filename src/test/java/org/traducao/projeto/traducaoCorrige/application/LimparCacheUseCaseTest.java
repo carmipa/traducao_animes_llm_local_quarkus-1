@@ -12,7 +12,7 @@ import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.contexto.ContextoPrompt;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
-import org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService;
+import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
