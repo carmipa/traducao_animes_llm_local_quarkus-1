@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.presentation.web;
+package org.traducao.projeto.legendasExtracao.presentation.web;
 
 /**
  * PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
