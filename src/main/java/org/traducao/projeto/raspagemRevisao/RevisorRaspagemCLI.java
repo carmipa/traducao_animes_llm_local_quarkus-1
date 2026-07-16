@@ -6,10 +6,11 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Revisa falas já traduzidas no cache, corrigindo concordância de gênero,
@@ -20,16 +21,17 @@ import java.nio.file.Path;
 @ConditionalOnProperty(name = "app.modo", havingValue = "RASPAGEM_REVISAO")
 public class RevisorRaspagemCLI implements ExecucaoCli {
 
-    private final TradutorProperties propriedades;
     private final RevisarCacheUseCase revisarCacheUseCase;
     private final MistralPort mistralPort;
 
+    // E3b: chave crua; ausência/branco tratados pelo fallback de domínio local ("cache").
+    @ConfigProperty(name = "tradutor.diretorio-entrada")
+    Optional<String> diretorioEntrada;
+
     public RevisorRaspagemCLI(
-        TradutorProperties propriedades,
         RevisarCacheUseCase revisarCacheUseCase,
         MistralPort mistralPort
     ) {
-        this.propriedades = propriedades;
         this.revisarCacheUseCase = revisarCacheUseCase;
         this.mistralPort = mistralPort;
     }
@@ -48,7 +50,7 @@ public class RevisorRaspagemCLI implements ExecucaoCli {
         }
         System.out.println(AnsiCores.GREEN + "[OK] " + status.mensagem() + AnsiCores.RESET);
 
-        String entradaUsuario = propriedades.diretorioEntrada();
+        String entradaUsuario = diretorioEntrada.orElse(null);
         Path diretorioCache = Path.of(
             entradaUsuario != null && !entradaUsuario.isBlank() ? entradaUsuario : "cache");
 
