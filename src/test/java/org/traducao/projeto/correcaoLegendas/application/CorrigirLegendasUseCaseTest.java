@@ -10,7 +10,7 @@ import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
@@ -54,7 +54,7 @@ class CorrigirLegendasUseCaseTest {
             new TelemetriaFake(),
             new LogPersistenciaFake(),
             new DetectorEfeitoKaraokeService(),
-            new TradutorProperties(),
+            new PoliticaEstiloMusical(List.of("Song JP")),
             new MascaradorTags(),
             new ProtecaoLegendaAssService()
         );
@@ -93,7 +93,7 @@ class CorrigirLegendasUseCaseTest {
             new TelemetriaFake(),
             new LogPersistenciaFake(),
             new DetectorEfeitoKaraokeService(),
-            new TradutorProperties(),
+            new PoliticaEstiloMusical(List.of("Song JP")),
             new MascaradorTags(),
             new ProtecaoLegendaAssService()
         );
