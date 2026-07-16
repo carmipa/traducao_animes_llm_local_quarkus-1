@@ -9,7 +9,7 @@ import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
-import org.traducao.projeto.traducao.contexto.RegrasConcordanciaPtBr;
+import org.traducao.projeto.contexto.domain.RegrasConcordanciaPtBr;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.dtos.RecordsMistral.*;
