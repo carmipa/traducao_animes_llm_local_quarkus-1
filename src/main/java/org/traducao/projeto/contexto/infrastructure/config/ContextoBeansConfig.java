@@ -26,6 +26,13 @@ import java.util.List;
 @Configuration
 public class ContextoBeansConfig {
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: expõe todas as implementações CDI de {@link ProvedorContexto}
+     * ao {@code GerenciadorContexto}.
+     * <p>INVARIANTES DO DOMÍNIO: agrega todas as instâncias descobertas, na ordem do
+     * container, sem ordenação própria.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem implementações, devolve lista vazia (não nula).
+     */
     @Bean
     public List<ProvedorContexto> todosProvedoresContexto(Instance<ProvedorContexto> instancias) {
         List<ProvedorContexto> list = new ArrayList<>();

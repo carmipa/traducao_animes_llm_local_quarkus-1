@@ -19,34 +19,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
- * {@code contexto}, nascido na subfase E7a com o domínio de contexto/lore de tradução
- * (porta {@code ProvedorContexto}, utilitário {@code ContextoPrompt}, constantes
- * {@code RegrasConcordanciaPtBr}, hierarquia {@code ExcecaoContexto}/
- * {@code ContextoNaoEncontradoException} e as 56 classes de lore por obra). Garante que
- * o peer é consumível por qualquer fatia funcional sem criar acoplamento reverso.
+ * {@code contexto} (E7a domínio/lore + E7b infrastructure). Garante que o peer é
+ * consumível por qualquer fatia funcional sem acoplamento reverso.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>{@code contexto} NÃO depende de {@code traducao} nem de qualquer outra fatia
- *       funcional (LLM, cache, apresentação inclusos): só JDK/libs técnicas, {@code core}
- *       (base de exceção) e o próprio {@code contexto}.</li>
- *   <li>{@code contexto.domain} é puro: não depende de {@code infrastructure} nem de
- *       framework (Quarkus/CDI/MicroProfile/Spring/Jackson). {@code ContextoPrompt} tem
- *       cache estático interno — pureza aqui é de DEPENDÊNCIAS, não ausência de estado.</li>
- *   <li>{@code contexto.lore} depende somente de {@code contexto.domain}, JDK e da
- *       anotação Spring {@code @Component} — nunca de {@code core}, {@code infrastructure}
- *       ou outra fatia.</li>
- *   <li>Nenhuma lore reside em {@code infrastructure}; na E7a não existe
- *       {@code contexto.infrastructure} (o {@code GerenciadorContexto} permanece em
- *       {@code traducao} e só migra na E7b).</li>
- *   <li>{@code contexto.domain} contém exatamente os cinco tipos homologados e
- *       {@code contexto.lore} agrega as 56 classes de lore.</li>
+ *   <li>{@code contexto} NÃO depende de {@code traducao} nem de outra fatia funcional:
+ *       só JDK/libs técnicas, {@code core} e o próprio {@code contexto}.</li>
+ *   <li>{@code contexto.domain} é puro: sem {@code contexto.infrastructure} nem framework.</li>
+ *   <li>{@code contexto.lore} depende somente de {@code contexto.domain}, JDK e Spring
+ *       {@code @Component} — nunca de {@code core}, {@code infrastructure} ou outra fatia.</li>
+ *   <li>{@code contexto.infrastructure} é congelado nominalmente: exatamente
+ *       {@code GerenciadorContexto} e {@code ContextoBeansConfig}.</li>
+ *   <li>{@code contexto.domain} contém os cinco tipos homologados;
+ *       {@code contexto.lore} agrega 56 classes.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Qualquer dependência proibida, tipo fora do pacote correto ou entrada antecipada de
- * um tipo de E7b/E8 (ex.: {@code GerenciadorContexto} no peer) reprova o teste, listando
- * a aresta/desvio exato.
+ * Qualquer dependência proibida, tipo fora do pacote correto ou terceira classe em
+ * infrastructure reprova o teste, listando a aresta/desvio exato.
  */
 class FronteiraContextoArchTest {
 
@@ -106,7 +97,8 @@ class FronteiraContextoArchTest {
             for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
                 String destinoPkg = dependencia.getTargetClass().getPackageName();
                 String destino = dependencia.getTargetClass().getName();
-                boolean infraContexto = destinoPkg.contains(".infrastructure");
+                boolean infraContexto = destinoPkg.equals(PKG_CONTEXTO_INFRA)
+                    || destinoPkg.startsWith(PKG_CONTEXTO_INFRA + ".");
                 boolean framework = destino.startsWith("jakarta.")
                     || destino.startsWith("io.quarkus")
                     || destino.startsWith("io.smallrye")
@@ -137,9 +129,13 @@ class FronteiraContextoArchTest {
             for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
                 String destinoPkg = dependencia.getTargetClass().getPackageName();
                 String fatia = fatiaDe(destinoPkg);
-                // Permitidos: JDK/libs (null, inclui a anotação Spring) e o próprio contexto
-                // (domain ou lore). Proíbe core, traducao e qualquer outra fatia.
-                boolean permitido = fatia == null || fatia.equals(FATIA_CONTEXTO);
+                // Permitidos: JDK/libs (null, inclui Spring) e contexto.domain / contexto.lore.
+                // Proíbe core, traducao, contexto.infrastructure e qualquer outra fatia.
+                boolean permitido = fatia == null
+                    || destinoPkg.equals(PKG_CONTEXTO_DOMAIN)
+                    || destinoPkg.startsWith(PKG_CONTEXTO_DOMAIN + ".")
+                    || destinoPkg.equals(PKG_CONTEXTO_LORE)
+                    || destinoPkg.startsWith(PKG_CONTEXTO_LORE + ".");
                 if (permitido) {
                     continue;
                 }
@@ -174,12 +170,9 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("GerenciadorContexto migrou para o peer contexto.infrastructure (E7b) e NÃO está mais em traducao")
+    @DisplayName("GerenciadorContexto NÃO está mais em traducao (E7b)")
     void gerenciadorContextoMigradoParaOPeer() {
-        boolean gerenciadorNoPeer = classesProducao.stream()
-            .anyMatch(c -> c.getName().equals(RAIZ + ".contexto.infrastructure.GerenciadorContexto"));
-        assertTrue(gerenciadorNoPeer,
-            "GerenciadorContexto deve estar em contexto.infrastructure após a E7b");
+        // Presença no peer já é coberta por infraestruturaCongeladaNominalmente().
         boolean gerenciadorEmTraducao = classesProducao.stream()
             .anyMatch(c -> c.getSimpleName().equals("GerenciadorContexto")
                 && c.getPackageName().startsWith(RAIZ + ".traducao"));
