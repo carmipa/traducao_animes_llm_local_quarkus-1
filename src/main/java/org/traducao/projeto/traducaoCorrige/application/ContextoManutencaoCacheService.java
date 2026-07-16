@@ -3,7 +3,7 @@ package org.traducao.projeto.traducaoCorrige.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 /**
  * PROPÓSITO DE NEGÓCIO: garante que cada arquivo da pasta cache seja analisado

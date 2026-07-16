@@ -17,7 +17,7 @@ import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;

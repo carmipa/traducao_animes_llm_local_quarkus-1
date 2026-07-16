@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 import java.util.Locale;
 import java.util.Set;
