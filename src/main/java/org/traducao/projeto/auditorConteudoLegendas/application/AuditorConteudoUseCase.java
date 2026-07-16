@@ -12,8 +12,8 @@ import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaArquivo
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

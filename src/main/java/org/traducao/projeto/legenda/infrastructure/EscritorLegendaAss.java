@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.legenda;
+package org.traducao.projeto.legenda.infrastructure;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.util.ArquivoAtomicoUtil;
@@ -12,9 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Reconstroi o arquivo .ass a partir do {@link DocumentoLegenda}, repetindo o
- * cabecalho original e as linhas nao traduziveis byte a byte, e so trocando o
- * campo Text dos eventos Dialogue pela versao traduzida.
+ * PROPÓSITO DE NEGÓCIO: reconstrói o arquivo {@code .ass} a partir de um
+ * {@link DocumentoLegenda}, repetindo o cabeçalho original e as linhas não
+ * traduzíveis byte a byte, e trocando apenas o campo Text dos eventos
+ * {@code Dialogue} pela versão traduzida. É o par de saída do {@link LeitorLegendaAss}.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: o EOL e o BOM do documento original são reproduzidos na
+ * saída; a escrita é atômica — grava em arquivo temporário e substitui o destino via
+ * {@link org.traducao.projeto.core.util.ArquivoAtomicoUtil#substituirAtomico}.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de escrita lança
+ * {@link ArquivoLegendaException}, sem deixar o arquivo de destino truncado (a
+ * substituição atômica só ocorre após a gravação completa do temporário).
  */
 @Component
 public class EscritorLegendaAss {

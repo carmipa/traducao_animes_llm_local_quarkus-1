@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.legenda;
+package org.traducao.projeto.legenda.infrastructure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +20,19 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Le arquivos .ass/.ssa preservando byte a byte tudo que nao for o campo Text
- * dos eventos Dialogue (estilos, timestamps, secoes de metadados). So o campo
- * Text e exposto para traducao; o resto e reconstruido identico pelo
+ * PROPÓSITO DE NEGÓCIO: lê arquivos {@code .ass}/{@code .ssa} para um
+ * {@link DocumentoLegenda}, preservando byte a byte tudo que não for o campo Text
+ * dos eventos {@code Dialogue} (estilos, timestamps, seções de metadados). Só o campo
+ * Text é exposto para tradução; o resto é reconstruído idêntico pelo
  * {@link EscritorLegendaAss}.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: o cabeçalho, o EOL e o BOM originais são guardados no
+ * documento para reescrita fiel; cada evento é mapeado para um {@link EventoLegenda}
+ * conforme a ordem das colunas declarada na linha {@code Format:} da seção
+ * {@code [Events]}.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de leitura, arquivo ilegível ou
+ * seção {@code [Events]} sem linha {@code Format:} lançam {@link ArquivoLegendaException}.
  */
 @Component
 public class LeitorLegendaAss {

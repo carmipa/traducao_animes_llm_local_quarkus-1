@@ -172,6 +172,9 @@ class FronteiraTraducaoArchTest {
      *       {@code ArquivoLegendaException} (falha de I/O de legenda), movidos de
      *       {@code traducao.domain.exceptions}. {@code EntradaJaTraduzidaException}
      *       permanece em {@code traducao} e NÃO entra neste conjunto.</li>
+     *   <li>E5c: {@code LeitorLegendaAss/Srt} e {@code EscritorLegendaAss/Srt} (I/O de
+     *       legenda), movidos de {@code traducao.infrastructure.legenda} para
+     *       {@code legenda.infrastructure}. {@code MascaradorTags} permanece em traducao.</li>
      * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
@@ -179,7 +182,11 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".legenda.domain.DocumentoLegenda",
         RAIZ + ".legenda.domain.EventoLegenda",
         RAIZ + ".legenda.domain.ExcecaoLegenda",
-        RAIZ + ".legenda.domain.ArquivoLegendaException"
+        RAIZ + ".legenda.domain.ArquivoLegendaException",
+        RAIZ + ".legenda.infrastructure.LeitorLegendaAss",
+        RAIZ + ".legenda.infrastructure.LeitorLegendaSrt",
+        RAIZ + ".legenda.infrastructure.EscritorLegendaAss",
+        RAIZ + ".legenda.infrastructure.EscritorLegendaSrt"
     );
 
     private static JavaClasses classesProducao;
@@ -301,7 +308,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c: PoliticaEstiloMusical; E5a: DocumentoLegenda, EventoLegenda; E5b: ExcecaoLegenda, ArquivoLegendaException)")
+    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c/E5a/E5b + E5c: Leitor/Escritor Ass/Srt)")
     void legendaCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposLegendaUsados = new TreeSet<>();
