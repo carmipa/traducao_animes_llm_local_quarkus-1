@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
-import org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient;
+import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
+import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +24,8 @@ public class JikanApiClientAdapter {
     private final JsonHttpClient httpClient;
     private final ObjectMapper mapper;
 
-    public JikanApiClientAdapter(LlmProperties llmProperties, ObjectMapper mapper) {
-        this.httpClient = new JsonHttpClient(llmProperties, JIKAN_BASE_URL, mapper);
+    public JikanApiClientAdapter(ApiDadosAnimeHttpProperties http, ObjectMapper mapper) {
+        this.httpClient = new JsonHttpClient(http.connectTimeout(), http.readTimeout(), JIKAN_BASE_URL, mapper);
         this.mapper = mapper;
     }
 

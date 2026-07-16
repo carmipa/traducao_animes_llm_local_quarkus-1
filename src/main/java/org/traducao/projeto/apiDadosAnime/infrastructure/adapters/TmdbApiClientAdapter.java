@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
-import org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient;
+import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
+import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -28,10 +28,10 @@ public class TmdbApiClientAdapter {
     private final String apiKey;
 
     public TmdbApiClientAdapter(
-            LlmProperties llmProperties,
+            ApiDadosAnimeHttpProperties http,
             ObjectMapper mapper,
             @Value("${tmdb.api-key:}") String apiKey) {
-        this.httpClient = new JsonHttpClient(llmProperties, TMDB_BASE_URL, mapper);
+        this.httpClient = new JsonHttpClient(http.connectTimeout(), http.readTimeout(), TMDB_BASE_URL, mapper);
         this.mapper = mapper;
         this.apiKey = apiKey != null ? apiKey.trim() : "";
     }

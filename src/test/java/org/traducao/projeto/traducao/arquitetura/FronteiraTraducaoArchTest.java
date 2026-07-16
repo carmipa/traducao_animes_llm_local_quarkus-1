@@ -67,10 +67,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code TradutorCLI} não implementa mais {@code ExecucaoCli} e o modo TRADUZIR
  *       ganhou bootstrap próprio ({@code traducao.presentation.bootstrap.TraducaoStartup}),
  *       de modo que {@code config} não conhece nenhuma classe de {@code traducao}.</li>
- *   <li>{@code core} é congelado <b>por tipo</b>: só os onze tipos de
+ *   <li>{@code core} é congelado <b>por tipo</b>: só os doze tipos de
  *       {@link #CORE_TIPOS_CONGELADOS} podem ser usados (5 técnicos + 5 do kernel Web
- *       extraído na C2 + 1 da UI de console migrada na E2); nenhum décimo-segundo tipo
- *       de core entra.</li>
+ *       extraído na C2 + 1 da UI de console migrada na E2 + 1 cliente HTTP da E4a);
+ *       nenhum décimo-terceiro tipo de core entra.</li>
  *   <li>Origem e destino são normalizados à respectiva classe de topo (um tipo
  *       aninhado pertence à mesma classe-alvo já catalogada). A granularidade
  *       permanece de <b>classe</b> exata — nunca de fatia.</li>
@@ -111,7 +111,6 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".traducao.domain.ports.MistralPort",
         RAIZ + ".traducao.domain.StatusLlm",
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
-        RAIZ + ".traducao.infrastructure.http.JsonHttpClient",
         RAIZ + ".traducao.infrastructure.dtos.RecordsMistral",
         MISTRAL_ADAPTER,
         RAIZ + ".traducao.infrastructure.contexto.GerenciadorContexto"
@@ -141,9 +140,10 @@ class FronteiraTraducaoArchTest {
      * Superfície técnica de core congelada POR TIPO. Após a FASE C2, o kernel técnico
      * de apresentação foi extraído para {@code core.presentation}: os cinco tipos
      * originais somam-se às cinco classes-kernel Web movidas (PipelineWebSupport,
-     * OperacaoRequest, RespostaPadrao, AnsiCores, LogStreamService) e ao ConsoleEntrada
-     * migrado na E2 (core.presentation.ui) — exatamente ONZE tipos congelados; nenhum
-     * décimo-segundo tipo de core pode entrar.
+     * OperacaoRequest, RespostaPadrao, AnsiCores, LogStreamService), ao ConsoleEntrada
+     * migrado na E2 (core.presentation.ui) e ao JsonHttpClient neutralizado na E4a
+     * (core.infrastructure.http) — exatamente DOZE tipos congelados; nenhum
+     * décimo-terceiro tipo de core pode entrar.
      */
     private static final Set<String> CORE_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".core.util.ArquivoAtomicoUtil",
@@ -156,7 +156,8 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".core.presentation.web.RespostaPadrao",
         RAIZ + ".core.presentation.web.LogStreamService",
         RAIZ + ".core.presentation.ui.AnsiCores",
-        RAIZ + ".core.presentation.ui.ConsoleEntrada"
+        RAIZ + ".core.presentation.ui.ConsoleEntrada",
+        RAIZ + ".core.infrastructure.http.JsonHttpClient"
     );
 
     /**
@@ -261,7 +262,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("core é congelado por tipo: somente os onze tipos homologados (5 técnicos + 5 kernel Web da C2 + 1 UI de console da E2)")
+    @DisplayName("core é congelado por tipo: somente os doze tipos homologados (5 técnicos + 5 kernel Web da C2 + 1 UI de console da E2 + 1 cliente HTTP da E4a)")
     void coreCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposCoreUsados = new TreeSet<>();
@@ -283,7 +284,7 @@ class FronteiraTraducaoArchTest {
         assertFalse(tiposCoreUsados.isEmpty(),
             "Esperado uso técnico dos tipos de core congelados pela Tradução Local");
         assertTrue(violacoes.isEmpty(),
-            () -> "Tipo de core fora dos onze homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
+            () -> "Tipo de core fora dos doze homologados:\n" + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     @Test

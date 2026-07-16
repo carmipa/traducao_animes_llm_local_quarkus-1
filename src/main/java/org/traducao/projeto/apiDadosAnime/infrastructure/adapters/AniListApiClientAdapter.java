@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
-import org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient;
+import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
+import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +58,8 @@ public class AniListApiClientAdapter {
      * pois sem cliente válido o adapter não pode cumprir sua responsabilidade.
      */
     @Autowired
-    public AniListApiClientAdapter(LlmProperties propriedades, ObjectMapper mapper) {
-        this(new JsonHttpClient(propriedades, ANILIST_BASE_URL, mapper), mapper);
+    public AniListApiClientAdapter(ApiDadosAnimeHttpProperties http, ObjectMapper mapper) {
+        this(new JsonHttpClient(http.connectTimeout(), http.readTimeout(), ANILIST_BASE_URL, mapper), mapper);
     }
 
     /**

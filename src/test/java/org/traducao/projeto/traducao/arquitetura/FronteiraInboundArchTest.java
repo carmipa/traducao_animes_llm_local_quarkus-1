@@ -30,15 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
  * <ul>
- *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134. Mesmo
+ *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128. Mesmo
  *       rigor do OUTBOUND; fonte de verdade da fronteira.</li>
- *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b = 139, pos-E3c =
- *       135. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
+ *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b = 139, pos-E3c = 135, pos-E4a =
+ *       129. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
  *       inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
  *       registra no grafo).</li>
  * </ul>
  *
- * <p>POR QUE 134 (bytecode) vs 135 (texto):
+ * <p>POR QUE 128 (bytecode) vs 129 (texto):
  * <ul>
  *   <li>+1 no bytecode: {@link #GENERICA_AUDITOR} (AuditorConteudoUseCase ->
  *       EventoLegenda) e visivel via tipo de retorno generico
@@ -69,16 +69,10 @@ class FronteiraInboundArchTest {
         RAIZ + ".raspagemRevisao.application.RevisarLegendasUseCase",
         RAIZ + ".traducao.domain.exceptions.AlucinacaoDetectadaException");
 
-    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 135 apos E3c. */
+    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 129 apos E4a. */
     private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of(
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.presentation.ui.PastasExecucao"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.AniListApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.config.LlmProperties"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.AniListApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.JikanApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.config.LlmProperties"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.JikanApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.TmdbApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.config.LlmProperties"),
-        aresta("org.traducao.projeto.apiDadosAnime.infrastructure.adapters.TmdbApiClientAdapter", "org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient"),
         aresta("org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase", "org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda"),
         aresta("org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss"),
         aresta("org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaSrt"),
@@ -220,7 +214,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 134")
+    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 128")
     void inboundBytecodeBateComBaseline() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -251,7 +245,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 135 (inclui catch-only)")
+    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 129 (inclui catch-only)")
     void inboundTextualBateComInventario() {
         Set<String> reais = coletarImportsInboundDoFonte();
         Set<String> inesperadas = new TreeSet<>(reais);
