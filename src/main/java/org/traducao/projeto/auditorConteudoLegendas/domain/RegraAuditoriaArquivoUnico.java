@@ -1,6 +1,6 @@
 package org.traducao.projeto.auditorConteudoLegendas.domain;
 
-import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
+import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 
 import java.util.List;
 
