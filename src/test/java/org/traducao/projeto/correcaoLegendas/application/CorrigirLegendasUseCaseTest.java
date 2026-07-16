@@ -12,8 +12,8 @@ import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.ports.ProvedorContexto;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
-import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
 
 import java.io.IOException;

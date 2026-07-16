@@ -27,6 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code ArquivoLegendaException}, ambos dependendo apenas de
  *       {@code core.exception.BasePipelineException} — aresta {@code legenda -> core}
  *       legítima, sem {@code legenda -> traducao}.</li>
+ *   <li>E5c: {@code LeitorLegendaAss/Srt} e {@code EscritorLegendaAss/Srt} em
+ *       {@code legenda.infrastructure}, dependendo apenas de {@code legenda.domain},
+ *       JDK/libs técnicas e (escritores) {@code core.util.ArquivoAtomicoUtil} —
+ *       {@code legenda -> core} legítima.</li>
  * </ul>
  *
  * <h2>Invariantes do domínio</h2>

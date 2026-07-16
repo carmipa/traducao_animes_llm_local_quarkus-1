@@ -13,8 +13,8 @@ import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaExcept
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
-import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
