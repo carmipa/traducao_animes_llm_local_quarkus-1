@@ -13,8 +13,8 @@ import org.traducao.projeto.traducao.contexto.RegrasConcordanciaPtBr;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.dtos.RecordsMistral.*;
-import org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient;
-import org.traducao.projeto.traducao.infrastructure.http.JsonHttpClient.HttpClientException;
+import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
+import org.traducao.projeto.core.infrastructure.http.JsonHttpClient.HttpClientException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -49,7 +49,7 @@ public class MistralClientAdapter implements MistralPort {
         this.propriedades = propriedades;
         this.gerenciadorContexto = gerenciadorContexto;
         this.objectMapper = mapper;
-        this.httpClient = new JsonHttpClient(propriedades, propriedades.baseUrl(), mapper);
+        this.httpClient = new JsonHttpClient(propriedades.connectTimeout(), propriedades.readTimeout(), propriedades.baseUrl(), mapper);
     }
 
     @Override

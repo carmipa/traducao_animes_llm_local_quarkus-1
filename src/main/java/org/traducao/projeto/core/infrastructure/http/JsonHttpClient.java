@@ -1,7 +1,6 @@
-package org.traducao.projeto.traducao.infrastructure.http;
+package org.traducao.projeto.core.infrastructure.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +11,22 @@ import java.net.http.HttpTimeoutException;
 import java.time.Duration;
 
 /**
- * Cliente HTTP JSON baseado em {@link HttpClient} do JDK (sem Spring RestClient).
+ * PROPÓSITO DE NEGÓCIO: cliente HTTP JSON genérico baseado no {@link HttpClient} do JDK
+ * (sem Spring RestClient), técnico e neutro — reutilizável por qualquer fatia. Recebe os
+ * timeouts como {@link Duration} explícitos e a base URL por parâmetro; não conhece LLM,
+ * anime, autenticação nem fatia funcional (kernel {@code core.infrastructure.http}).
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>Connect timeout no builder do {@code HttpClient}; read timeout por requisição.</li>
+ *   <li>{@code baseUrl} normalizada (sem barra final) e usada em {@code get/getString/post};
+ *       {@code getAbsolute} usa a URL completa recebida.</li>
+ *   <li>Nenhuma dependência de fatia funcional; só JDK + Jackson (técnico).</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Status HTTP &ge; 400 lança {@link HttpClientException} com o código e o corpo.
+ * {@link #isErroRedeOuTimeout(Throwable)} classifica timeout/conexão/host desconhecido.
  */
 public class JsonHttpClient {
 
@@ -34,12 +48,12 @@ public class JsonHttpClient {
     private final Duration readTimeout;
     private final ObjectMapper objectMapper;
 
-    public JsonHttpClient(LlmProperties propriedades, String baseUrl, ObjectMapper objectMapper) {
+    public JsonHttpClient(Duration connectTimeout, Duration readTimeout, String baseUrl, ObjectMapper objectMapper) {
         this.httpClient = HttpClient.newBuilder()
-            .connectTimeout(propriedades.connectTimeout())
+            .connectTimeout(connectTimeout)
             .build();
         this.baseUrl = normalizarBaseUrl(baseUrl);
-        this.readTimeout = propriedades.readTimeout();
+        this.readTimeout = readTimeout;
         this.objectMapper = objectMapper;
     }
 
