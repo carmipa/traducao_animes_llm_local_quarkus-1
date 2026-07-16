@@ -248,4 +248,4 @@ public class ContextoGundam0083 implements ProvedorContexto {
     public String obterPromptSistema() {
         return PROMPT;
     }
-}
+}
