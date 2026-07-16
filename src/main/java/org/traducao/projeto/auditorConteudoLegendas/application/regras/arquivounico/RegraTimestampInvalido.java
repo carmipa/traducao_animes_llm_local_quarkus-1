@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaArquivoUnico;
 import org.traducao.projeto.auditorConteudoLegendas.domain.TempoEventoUtil;
-import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
-import org.traducao.projeto.traducao.domain.legenda.EventoLegenda;
+import org.traducao.projeto.legenda.domain.DocumentoLegenda;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
 
 import java.util.ArrayList;
 import java.util.List;

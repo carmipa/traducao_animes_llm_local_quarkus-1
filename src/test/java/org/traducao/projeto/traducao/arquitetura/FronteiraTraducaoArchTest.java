@@ -161,12 +161,19 @@ class FronteiraTraducaoArchTest {
     );
 
     /**
-     * Superfície do módulo peer {@code legenda} congelada POR TIPO (E3c). A Tradução
-     * Local só pode depender nominalmente destes tipos; qualquer segundo tipo reprova
-     * até autorização explícita (sem flexibilização genérica do pacote legenda).
+     * Superfície do módulo peer {@code legenda} congelada POR TIPO. A Tradução Local só
+     * pode depender nominalmente destes tipos; qualquer tipo extra reprova até autorização
+     * explícita (sem flexibilização genérica do pacote legenda).
+     * <ul>
+     *   <li>E3c: {@code PoliticaEstiloMusical} (política de estilo musical).</li>
+     *   <li>E5a: {@code DocumentoLegenda} e {@code EventoLegenda} (modelo puro de legenda,
+     *       movido de {@code traducao.domain.legenda}).</li>
+     * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
-        RAIZ + ".legenda.domain.PoliticaEstiloMusical"
+        RAIZ + ".legenda.domain.PoliticaEstiloMusical",
+        RAIZ + ".legenda.domain.DocumentoLegenda",
+        RAIZ + ".legenda.domain.EventoLegenda"
     );
 
     private static JavaClasses classesProducao;
@@ -288,7 +295,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c)")
+    @DisplayName("legenda é congelado por tipo: Tradução Local só usa os tipos homologados do módulo (E3c: PoliticaEstiloMusical; E5a: DocumentoLegenda, EventoLegenda)")
     void legendaCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposLegendaUsados = new TreeSet<>();

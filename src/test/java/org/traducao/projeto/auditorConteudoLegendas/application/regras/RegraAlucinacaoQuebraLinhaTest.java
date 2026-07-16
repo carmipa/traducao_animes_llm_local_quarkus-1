@@ -2,8 +2,8 @@ package org.traducao.projeto.auditorConteudoLegendas.application.regras;
 
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
-import org.traducao.projeto.traducao.domain.legenda.DocumentoLegenda;
-import org.traducao.projeto.traducao.domain.legenda.EventoLegenda;
+import org.traducao.projeto.legenda.domain.DocumentoLegenda;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
 
 import java.util.List;
 
