@@ -13,7 +13,6 @@ import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
@@ -104,8 +103,6 @@ class TraduzirKaraokeUseCaseTest {
         escreverLegenda(pastaEntrada.resolve(NOME_ARQUIVO));
 
         mistralFake = new MistralPortFake();
-        TradutorProperties props = new TradutorProperties();
-        props.setDiretorioCache(tempDir.resolve("cache").toString());
 
         useCase = new TraduzirKaraokeUseCase();
         useCase.leitor = new LeitorLegendaAss();
@@ -119,7 +116,9 @@ class TraduzirKaraokeUseCaseTest {
         useCase.logStream = new MockLogStream();
         useCase.telemetriaService = new MockTelemetria();
         useCase.persistencia = new MockPersistencia();
-        useCase.propriedades = props;
+        useCase.idiomaOriginal = Optional.empty();
+        useCase.idiomaTraduzido = Optional.empty();
+        useCase.diretorioCache = Optional.of(tempDir.resolve("cache").toString());
     }
 
     @AfterEach

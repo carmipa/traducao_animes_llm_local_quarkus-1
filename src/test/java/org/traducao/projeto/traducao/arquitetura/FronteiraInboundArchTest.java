@@ -30,15 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
  * <ul>
- *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144. Mesmo
+ *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138. Mesmo
  *       rigor do OUTBOUND; fonte de verdade da fronteira.</li>
- *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 =
- *       145. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
+ *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b =
+ *       139. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
  *       inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
  *       registra no grafo).</li>
  * </ul>
  *
- * <p>POR QUE 144 (bytecode) vs 145 (texto):
+ * <p>POR QUE 138 (bytecode) vs 139 (texto):
  * <ul>
  *   <li>+1 no bytecode: {@link #GENERICA_AUDITOR} (AuditorConteudoUseCase ->
  *       EventoLegenda) e visivel via tipo de retorno generico
@@ -69,7 +69,7 @@ class FronteiraInboundArchTest {
         RAIZ + ".raspagemRevisao.application.RevisarLegendasUseCase",
         RAIZ + ".traducao.domain.exceptions.AlucinacaoDetectadaException");
 
-    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 145 apos E2. */
+    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 139 apos E3b. */
     private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of(
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI", "org.traducao.projeto.traducao.presentation.ui.PastasExecucao"),
@@ -128,15 +128,11 @@ class FronteiraInboundArchTest {
         aresta("org.traducao.projeto.correcaoLegendas.presentation.CorrecaoLegendasController", "org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto"),
         aresta("org.traducao.projeto.legendasExtracao.presentation.ExtratorCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.legendasExtracao.presentation.ExtratorCLI", "org.traducao.projeto.traducao.presentation.ui.PastasExecucao"),
-        aresta("org.traducao.projeto.mapaProjeto.presentation.MapaProjetoCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCase", "org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService"),
-        aresta("org.traducao.projeto.raspagemCorrecao.CorretorRaspagemCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCase", "org.traducao.projeto.traducao.infrastructure.cache.CacheManutencaoService"),
         aresta("org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCase", "org.traducao.projeto.traducao.infrastructure.cache.ProvenienciaCache"),
-        aresta("org.traducao.projeto.raspagemRevisao.RevisorLegendasCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.StatusLlm"),
         aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.raspagemRevisao.application.AuditorProblemasLegendaService", "org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService"),
         aresta("org.traducao.projeto.raspagemRevisao.application.AuditorProblemasLegendaService", "org.traducao.projeto.traducao.application.ValidadorTraducaoService"),
         aresta("org.traducao.projeto.raspagemRevisao.application.AuditorProblemasLegendaService", "org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException"),
@@ -181,7 +177,6 @@ class FronteiraInboundArchTest {
         aresta("org.traducao.projeto.revisaoLore.application.RevisarLoreUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss"),
         aresta("org.traducao.projeto.revisaoLore.application.RevisarLoreUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss"),
         aresta("org.traducao.projeto.revisaoLore.application.RevisarLoreUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags"),
-        aresta("org.traducao.projeto.traducaoCorrige.CorretorCacheCLI", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService", "org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService"),
         aresta("org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService", "org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService"),
         aresta("org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService", "org.traducao.projeto.traducao.application.ProtecaoLegendaAssService"),
@@ -207,7 +202,6 @@ class FronteiraInboundArchTest {
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.cache.CacheTraducaoService"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.cache.EntradaCache"),
-        aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.config.TradutorProperties"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.contexto.GerenciadorContexto"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.EscritorLegendaAss"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.infrastructure.legenda.LeitorLegendaAss"),
@@ -230,7 +224,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 144")
+    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 138")
     void inboundBytecodeBateComBaseline() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -261,7 +255,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 145 (inclui catch-only)")
+    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 139 (inclui catch-only)")
     void inboundTextualBateComInventario() {
         Set<String> reais = coletarImportsInboundDoFonte();
         Set<String> inesperadas = new TreeSet<>(reais);

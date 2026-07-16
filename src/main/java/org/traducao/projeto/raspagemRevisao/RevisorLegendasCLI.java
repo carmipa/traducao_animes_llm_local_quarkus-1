@@ -4,7 +4,7 @@ import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase;
-import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.nio.file.Path;
@@ -18,11 +18,13 @@ import java.util.Optional;
 @ConditionalOnProperty(name = "app.modo", havingValue = "RASPAGEM_REVISAO_LEGENDAS")
 public class RevisorLegendasCLI implements ExecucaoCli {
 
-    private final TradutorProperties propriedades;
     private final RevisarLegendasUseCase revisarLegendasUseCase;
 
-    public RevisorLegendasCLI(TradutorProperties propriedades, RevisarLegendasUseCase revisarLegendasUseCase) {
-        this.propriedades = propriedades;
+    // E3b: chave crua; ausência/branco tratados pelo fallback de domínio local (erro+return).
+    @ConfigProperty(name = "tradutor.diretorio-entrada")
+    Optional<String> diretorioEntrada;
+
+    public RevisorLegendasCLI(RevisarLegendasUseCase revisarLegendasUseCase) {
         this.revisarLegendasUseCase = revisarLegendasUseCase;
     }
 
@@ -32,7 +34,7 @@ public class RevisorLegendasCLI implements ExecucaoCli {
         System.out.println(AnsiCores.CYAN + "  REVISÃO DE LEGENDAS TRADUZIDAS (GOOGLE + AUDITORIA PT)   " + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "==========================================================" + AnsiCores.RESET);
 
-        String pastaPt = propriedades.diretorioEntrada();
+        String pastaPt = diretorioEntrada.orElse(null);
 
         if (pastaPt == null || pastaPt.isBlank()) {
             System.out.println(AnsiCores.RED + "Informe a pasta de legendas traduzidas (entrada)." + AnsiCores.RESET);
