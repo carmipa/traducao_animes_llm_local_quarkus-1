@@ -10,7 +10,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.traducao.presentation.ui.ConsoleEntrada;
+import org.traducao.projeto.core.presentation.ui.ConsoleEntrada;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
