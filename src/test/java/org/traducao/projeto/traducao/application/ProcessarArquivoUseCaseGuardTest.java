@@ -42,11 +42,11 @@ class ProcessarArquivoUseCaseGuardTest {
         Path finalPtBr = Path.of("episodio_PT-BR.ass");
 
         assertEquals(finalPtBr,
-            ProcessarArquivoUseCase.selecionarArquivoSaida(finalPtBr, false, false));
+            new ResolvedorSaidaLegenda().selecionar(finalPtBr, false, false));
         assertEquals(Path.of("episodio_PT-BR.parcial.ass"),
-            ProcessarArquivoUseCase.selecionarArquivoSaida(finalPtBr, true, false));
+            new ResolvedorSaidaLegenda().selecionar(finalPtBr, true, false));
         assertEquals(finalPtBr,
-            ProcessarArquivoUseCase.selecionarArquivoSaida(finalPtBr, true, true));
+            new ResolvedorSaidaLegenda().selecionar(finalPtBr, true, true));
     }
 
     /**

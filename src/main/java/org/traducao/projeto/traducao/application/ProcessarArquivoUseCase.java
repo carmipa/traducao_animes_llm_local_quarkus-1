@@ -88,6 +88,7 @@ public class ProcessarArquivoUseCase {
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
     private final GerenciadorContexto gerenciadorContexto;
+    private final ResolvedorSaidaLegenda resolvedorSaida;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -107,7 +108,8 @@ public class ProcessarArquivoUseCase {
         TelemetriaTraducaoPort telemetriaTraducao,
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
-        GerenciadorContexto gerenciadorContexto
+        GerenciadorContexto gerenciadorContexto,
+        ResolvedorSaidaLegenda resolvedorSaida
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -127,6 +129,7 @@ public class ProcessarArquivoUseCase {
         this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
         this.gerenciadorContexto = gerenciadorContexto;
+        this.resolvedorSaida = resolvedorSaida;
     }
 
     /**
@@ -337,8 +340,8 @@ public class ProcessarArquivoUseCase {
         DocumentoLegenda documentoFinal = new DocumentoLegenda(
             documento.cabecalho(), eventosFinais, documento.quebraDeLinha(), documento.comBom());
 
-        Path arquivoSaidaFinal = resolverArquivoSaida(arquivoEntrada);
-        Path arquivoSaida = selecionarArquivoSaida(
+        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
+        Path arquivoSaida = resolvedorSaida.selecionar(
             arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
         Path backupSobrescrita = null;
         if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
@@ -674,55 +677,6 @@ public class ProcessarArquivoUseCase {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");
     }
 
-    private static String extensaoLegenda(String nome) {
-        String lower = nome.toLowerCase();
-        if (lower.endsWith(".srt")) {
-            return ".srt";
-        }
-        return lower.endsWith(".ssa") ? ".ssa" : ".ass";
-    }
-
-    private Path resolverArquivoSaida(Path entrada) {
-        String nome = entrada.getFileName().toString();
-        String extensao = extensaoLegenda(nome);
-        String base = nome.substring(0, nome.length() - extensao.length());
-        String baseSemSufixoIngles = base.replaceFirst("(?i)_ENG$", "");
-        return pastasExecucao.diretorioSaida().resolve(baseSemSufixoIngles + "_PT-BR" + extensao);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: diferencia visualmente uma legenda ainda incompleta
-     * do artefato PT-BR final usado no remux.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: preserva pasta e extensão e acrescenta o sufixo
-     * {@code .parcial} antes da extensão.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: caminho sem extensão reconhecida ainda
-     * recebe o sufixo calculado a partir da convenção ASS/SRT do módulo.
-     */
-    private static Path resolverArquivoParcial(Path arquivoFinal) {
-        String nome = arquivoFinal.getFileName().toString();
-        String extensao = extensaoLegenda(nome);
-        String base = nome.substring(0, nome.length() - extensao.length());
-        return arquivoFinal.resolveSibling(base + ".parcial" + extensao);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: decide se uma retomada publica diretamente a saída
-     * PT-BR final ou mantém o resultado incompleto isolado como arquivo parcial.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: sem pendências, sempre publica a saída final;
-     * com pendências, só publica a saída final quando a proteção foi liberada
-     * explicitamente, mantendo o comportamento seguro como padrão.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não acessa disco nem lança exceção;
-     * retorna deterministicamente um caminho final ou com sufixo {@code .parcial}.
-     */
-    static Path selecionarArquivoSaida(Path arquivoFinal, boolean temPendencias, boolean protecaoLiberada) {
-        return !temPendencias || protecaoLiberada
-            ? arquivoFinal : resolverArquivoParcial(arquivoFinal);
-    }
-
     /**
      * PROPÓSITO DE NEGÓCIO: preserva a versão PT-BR atualmente publicada antes
      * de uma substituição autorizada, permitindo recuperação após uma revisão ruim.
@@ -784,7 +738,7 @@ public class ProcessarArquivoUseCase {
 
     private Path resolverArquivoCache(Path entrada) {
         String nome = entrada.getFileName().toString();
-        String extensao = extensaoLegenda(nome);
+        String extensao = resolvedorSaida.extensaoLegenda(nome);
         String base = nome.substring(0, nome.length() - extensao.length());
         String animeNome = animeAPartirDoArquivo(entrada);
         return pastasExecucao.diretorioCache().resolve(animeNome).resolve(base + ".cache.json");
