@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,6 +73,24 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
     @TempDir
     Path raiz;
+
+    private final TelemetriaCaptor telemetriaCaptor = new TelemetriaCaptor();
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: captura o último registro de telemetria emitido pelo fluxo, para a
+     * caracterização assertar os campos observáveis em vez de descartá-los em um no-op.
+     * <p>INVARIANTES DO DOMÍNIO: guarda a referência do último {@link TelemetriaTraducao}; os
+     * demais sinais são no-op.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; sem registro, {@code ultima} permanece nula.
+     */
+    private static final class TelemetriaCaptor implements TelemetriaTraducaoPort {
+        TelemetriaTraducao ultima;
+        @Override public void registrarTraducao(TelemetriaTraducao t) { ultima = t; }
+        @Override public void registrarAlucinacaoPrevenida() { /* não exercitado */ }
+        @Override public void registrarRespostaTraducaoRejeitada() { /* não exercitado */ }
+        @Override public void registrarFalhaTraducaoRecuperada() { /* não exercitado */ }
+        @Override public void registrarFallbackMantido() { /* não exercitado */ }
+    }
 
     private static final String CABECALHO_ASS = """
         [Script Info]
@@ -193,13 +212,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(gerenciador));
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
-        TelemetriaTraducaoPort telemetria = new TelemetriaTraducaoPort() {
-            @Override public void registrarTraducao(TelemetriaTraducao t) {}
-            @Override public void registrarAlucinacaoPrevenida() {}
-            @Override public void registrarRespostaTraducaoRejeitada() {}
-            @Override public void registrarFalhaTraducaoRecuperada() {}
-            @Override public void registrarFallbackMantido() {}
-        };
+        TelemetriaTraducaoPort telemetria = telemetriaCaptor;
         // uiLogger chega por parâmetro: o cenário de cancelamento usa um logger
         // que desliga a barra de progresso (que, ativa, consumiria a interrupção).
 
@@ -286,6 +299,17 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertFalse(conteudo.contains("Hello there"), "texto original nao deve permanecer");
         assertEquals(1, llm.chamadas.get(), "um lote deve ter sido enviado ao LLM");
         assertTrue(Files.exists(saida.getParent()));
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertNotNull(tel, "a telemetria do episódio deve ter sido registrada");
+        assertEquals("CONCLUIDO", tel.statusFinal());
+        assertEquals("ep.ass", tel.nomeEpisodio());
+        assertEquals("modelo-teste", tel.modeloLlm());
+        assertEquals(2, tel.totalLinhas(), "duas falas traduzíveis");
+        assertEquals(2, tel.falasTraduzidas(), "ambas traduzidas de novo (cache-miss)");
+        assertEquals(0, tel.falasDoCache(), "nenhuma fala veio do cache");
+        assertEquals("AnimeTeste", tel.animeNome());
+        assertTrue(tel.errosOcorridos().isEmpty(), "cenário concluído não tem avisos");
     }
 
     /**
@@ -345,6 +369,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertFalse(Files.exists(finalPtBr), "saida final nao pode ser publicada com pendencia");
         String conteudo = Files.readString(parcial, StandardCharsets.UTF_8);
         assertTrue(conteudo.contains("KEEPME stays"), "fala pendente mantem o texto original");
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertNotNull(tel, "a telemetria do episódio parcial deve ter sido registrada");
+        assertEquals("PARCIAL", tel.statusFinal());
+        assertEquals(2, tel.totalLinhas(), "duas falas traduzíveis");
+        assertEquals(1, tel.falasTraduzidas(), "só 'Hello there' foi traduzida; KEEPME ficou pendente");
+        assertFalse(tel.errosOcorridos().isEmpty(), "cenário parcial deve registrar avisos");
     }
 
     /**
