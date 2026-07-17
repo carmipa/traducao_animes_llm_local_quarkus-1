@@ -23,10 +23,8 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
-import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
-import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
@@ -66,8 +64,6 @@ public class ProcessarArquivoUseCase {
     private final MascaradorTags mascarador;
     private final CacheTraducaoService cacheService;
     private final ProcessarEpisodioUseCase processarEpisodioUseCase;
-    private final ValidadorTraducaoService validador;
-    private final DetectorTraducaoIdenticaService detectorIdentica;
     private final TradutorProperties propriedades;
     private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
@@ -79,6 +75,7 @@ public class ProcessarArquivoUseCase {
     private final ResolvedorCacheTraducao resolvedorCache;
     private final PoliticaBackupTraducao politicaBackup;
     private final SeletorEventosTraduziveis seletorEventos;
+    private final AvaliadorTraducaoCache avaliadorCache;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -88,8 +85,6 @@ public class ProcessarArquivoUseCase {
         MascaradorTags mascarador,
         CacheTraducaoService cacheService,
         ProcessarEpisodioUseCase processarEpisodioUseCase,
-        ValidadorTraducaoService validador,
-        DetectorTraducaoIdenticaService detectorIdentica,
         TradutorProperties propriedades,
         LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
@@ -100,7 +95,8 @@ public class ProcessarArquivoUseCase {
         ResolvedorSaidaLegenda resolvedorSaida,
         ResolvedorCacheTraducao resolvedorCache,
         PoliticaBackupTraducao politicaBackup,
-        SeletorEventosTraduziveis seletorEventos
+        SeletorEventosTraduziveis seletorEventos,
+        AvaliadorTraducaoCache avaliadorCache
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -109,8 +105,6 @@ public class ProcessarArquivoUseCase {
         this.mascarador = mascarador;
         this.cacheService = cacheService;
         this.processarEpisodioUseCase = processarEpisodioUseCase;
-        this.validador = validador;
-        this.detectorIdentica = detectorIdentica;
         this.propriedades = propriedades;
         this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
@@ -122,6 +116,7 @@ public class ProcessarArquivoUseCase {
         this.resolvedorCache = resolvedorCache;
         this.politicaBackup = politicaBackup;
         this.seletorEventos = seletorEventos;
+        this.avaliadorCache = avaliadorCache;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -201,7 +196,7 @@ public class ProcessarArquivoUseCase {
         int cacheSuspeito = 0;
         for (String textoOriginal : textosTraduziveisDistintos) {
             String cacheado = cacheExistente.get(textoOriginal);
-            if (cacheado != null && isCacheReaproveitavel(textoOriginal, cacheado)) {
+            if (cacheado != null && avaliadorCache.isCacheReaproveitavel(textoOriginal, cacheado)) {
                 cacheReaproveitavel.put(textoOriginal, cacheado);
             } else {
                 if (cacheado != null) {
@@ -225,7 +220,7 @@ public class ProcessarArquivoUseCase {
                 combinadasParciais.putAll(traducoesParciais);
                 Map<String, String> parciaisValidadas = new HashMap<>();
                 for (Map.Entry<String, String> parcial : combinadasParciais.entrySet()) {
-                    String motivo = motivoFalhaFinal(parcial.getKey(), parcial.getValue());
+                    String motivo = avaliadorCache.motivoFalhaFinal(parcial.getKey(), parcial.getValue());
                     parciaisValidadas.put(parcial.getKey(), motivo == null ? parcial.getValue() : "");
                     if (motivo != null) {
                         telemetriaTraducao.registrarFallbackMantido();
@@ -259,7 +254,7 @@ public class ProcessarArquivoUseCase {
         for (Map.Entry<String, String> traducao : traducoesCombinadas.entrySet()) {
             String original = traducao.getKey();
             String traduzido = traducao.getValue();
-            String motivoFalha = motivoFalhaFinal(original, traduzido);
+            String motivoFalha = avaliadorCache.motivoFalhaFinal(original, traduzido);
             if (motivoFalha == null) {
                 traducoesValidadas.put(original, traduzido);
                 continue;
@@ -452,58 +447,6 @@ public class ProcessarArquivoUseCase {
         }
     }
 
-    private boolean isCacheReaproveitavel(String original, String traduzido) {
-        if (traduzido == null || traduzido.isBlank()) {
-            return false;
-        }
-        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
-            log.warn("Cache ignorado porque as tags divergem do original: {}", traduzido);
-            return false;
-        }
-        if (normalizarParaComparacao(original).equals(normalizarParaComparacao(traduzido))) {
-            return detectorIdentica.deveManterIdentico(original);
-        }
-        try {
-            validador.validarFala(traduzido);
-            return true;
-        } catch (AlucinacaoDetectadaException e) {
-            log.warn("Cache ignorado porque parece conter fala ainda nao traduzida: {}", traduzido);
-            return false;
-        }
-    }
-
-    private String normalizarParaComparacao(String texto) {
-        return texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: decide se o resultado final pode entrar no banco
-     * bilíngue como uma tradução reaproveitável ou deve permanecer pendente.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: fallback idêntico só é aceito para nome, sigla,
-     * número ou termo protegido pela lore; vazio e resíduo gringo nunca são
-     * contabilizados como tradução concluída.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve uma justificativa legível; uma
-     * tradução válida devolve {@code null}.
-     */
-    private String motivoFalhaFinal(String original, String traduzido) {
-        if (traduzido == null || traduzido.isBlank()) {
-            return "resposta vazia";
-        }
-        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
-            return "tags ASS/SSA ou quebras de linha divergentes do original";
-        }
-        if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
-            return "modelo devolveu o texto original sem tradução";
-        }
-        try {
-            validador.validarFala(traduzido);
-            return null;
-        } catch (AlucinacaoDetectadaException e) {
-            return e.getMessage();
-        }
-    }
 
     private static boolean ehSrt(Path arquivo) {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");

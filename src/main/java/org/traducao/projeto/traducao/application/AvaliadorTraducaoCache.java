@@ -1,0 +1,123 @@
+package org.traducao.projeto.traducao.application;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: avalia a QUALIDADE de uma tradução para o banco bilíngue — decide
+ * se uma entrada de cache pode ser reaproveitada e se um resultado final é uma tradução
+ * válida ou deve permanecer pendente —, isolando essa política da orquestração de
+ * {@link ProcessarArquivoUseCase} (FASE F, R5).
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>Cache só é reaproveitado quando preserva a estrutura de tags do original e passa
+ *       na validação; uma tradução idêntica ao original só vale se a lore mandar mantê-la
+ *       (nome, sigla, número, termo protegido).</li>
+ *   <li>Vazio, tags divergentes e resíduo em inglês nunca contam como tradução concluída.</li>
+ *   <li>A normalização de comparação colapsa espaços em branco para casar variações
+ *       triviais sem alterar o texto persistido.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * {@link #isCacheReaproveitavel} devolve {@code false} quando a validação acusa fala não
+ * traduzida (via {@link AlucinacaoDetectadaException}); {@link #motivoFalhaFinal} devolve
+ * uma justificativa legível e {@code null} para uma tradução válida. Nenhum método lança.
+ */
+@Component
+public class AvaliadorTraducaoCache {
+
+    private static final Logger log = LoggerFactory.getLogger(AvaliadorTraducaoCache.class);
+
+    private final MascaradorTags mascarador;
+    private final DetectorTraducaoIdenticaService detectorIdentica;
+    private final ValidadorTraducaoService validador;
+
+    public AvaliadorTraducaoCache(
+        MascaradorTags mascarador,
+        DetectorTraducaoIdenticaService detectorIdentica,
+        ValidadorTraducaoService validador
+    ) {
+        this.mascarador = mascarador;
+        this.detectorIdentica = detectorIdentica;
+        this.validador = validador;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se uma tradução já em cache pode ser reusada sem
+     * reenviar a fala ao LLM, economizando chamadas ao modelo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: rejeita vazio e tags divergentes; tradução idêntica ao
+     * original só é reusada quando a lore manda mantê-la; caso contrário exige passar na
+     * validação de resíduo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala que a validação acusa como ainda não
+     * traduzida ({@link AlucinacaoDetectadaException}) devolve {@code false}.
+     */
+    public boolean isCacheReaproveitavel(String original, String traduzido) {
+        if (traduzido == null || traduzido.isBlank()) {
+            return false;
+        }
+        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
+            log.warn("Cache ignorado porque as tags divergem do original: {}", traduzido);
+            return false;
+        }
+        if (normalizarParaComparacao(original).equals(normalizarParaComparacao(traduzido))) {
+            return detectorIdentica.deveManterIdentico(original);
+        }
+        try {
+            validador.validarFala(traduzido);
+            return true;
+        } catch (AlucinacaoDetectadaException e) {
+            log.warn("Cache ignorado porque parece conter fala ainda nao traduzida: {}", traduzido);
+            return false;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: normaliza espaços em branco para comparar original e tradução
+     * sem que diferenças triviais de espaçamento escondam uma fala não traduzida.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: colapsa sequências de espaço em um único e apara as
+     * pontas; o texto normalizado é só para comparação, nunca persistido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto {@code null} vira string vazia.
+     */
+    private String normalizarParaComparacao(String texto) {
+        return texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se o resultado final pode entrar no banco bilíngue como
+     * uma tradução reaproveitável ou deve permanecer pendente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: fallback idêntico só é aceito para nome, sigla, número ou
+     * termo protegido pela lore; vazio e resíduo gringo nunca são contabilizados como
+     * tradução concluída.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve uma justificativa legível; uma tradução
+     * válida devolve {@code null}.
+     */
+    public String motivoFalhaFinal(String original, String traduzido) {
+        if (traduzido == null || traduzido.isBlank()) {
+            return "resposta vazia";
+        }
+        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
+            return "tags ASS/SSA ou quebras de linha divergentes do original";
+        }
+        if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
+            return "modelo devolveu o texto original sem tradução";
+        }
+        try {
+            validador.validarFala(traduzido);
+            return null;
+        } catch (AlucinacaoDetectadaException e) {
+            return e.getMessage();
+        }
+    }
+}
