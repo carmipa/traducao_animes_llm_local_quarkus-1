@@ -97,6 +97,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_LEGENDA = "legenda";
     private static final String FATIA_CACHETRADUCAO = "cachetraducao";
     private static final String FATIA_CONTEXTO = "contexto";
+    private static final String FATIA_QUALIDADETRADUCAO = "qualidadeTraducao";
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -177,7 +178,8 @@ class FronteiraTraducaoArchTest {
      *       permanece em {@code traducao} e NÃO entra neste conjunto.</li>
      *   <li>E5c: {@code LeitorLegendaAss/Srt} e {@code EscritorLegendaAss/Srt} (I/O de
      *       legenda), movidos de {@code traducao.infrastructure.legenda} para
-     *       {@code legenda.infrastructure}. {@code MascaradorTags} permanece em traducao.</li>
+     *       {@code legenda.infrastructure}. {@code MascaradorTags} saiu de traducao na E8b
+     *       para o peer {@code qualidadeTraducao} (ver {@link #QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}).</li>
      *   <li>E8a: {@code DetectorEfeitoKaraokeService} (regra única música/karaokê),
      *       movido de {@code traducao.application} para {@code legenda.application};
      *       consumido pela Tradução Local via {@code ProcessarArquivoUseCase}.</li>
@@ -239,6 +241,28 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".contexto.domain.RegrasConcordanciaPtBr"
     );
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: superfície do peer {@code qualidadeTraducao} (E8b) congelada
+     * POR TIPO com igualdade EXATA, SEPARADA dos demais peers. A Tradução Local só pode
+     * depender nominalmente destes tipos; qualquer tipo extra reprova até autorização
+     * explícita (sem liberação genérica do pacote {@code qualidadeTraducao}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: contém apenas os tipos que a fatia {@code traducao}
+     * consome de fato (medido): {@code MascaradorTags} (via {@code ProcessarArquivoUseCase})
+     * e {@code AlucinacaoDetectadaException} (via {@code ProcessarArquivoUseCase} e
+     * {@code ValidadorTraducaoService}). {@code ExcecaoQualidadeTraducao} NÃO entra por ser
+     * base interna da exceção, sem consumo direto medido. O nested {@code MascaradorTags$Mascarado}
+     * é normalizado ao proprietário {@code MascaradorTags}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #qualidadeTraducaoCongeladoPorTipo()} exige
+     * igualdade {@code tiposUsados == QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}, reprovando tanto
+     * tipo novo inesperado quanto entrada obsoleta na allowlist.
+     */
+    private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".qualidadeTraducao.application.MascaradorTags",
+        RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException"
+    );
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -274,8 +298,9 @@ class FronteiraTraducaoArchTest {
                 String fatia = fatiaDe(dependencia.getTargetClass().getPackageName());
                 if (fatia == null || fatia.equals(FATIA_TRADUCAO) || fatia.equals(FATIA_CORE)
                     || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)
-                    || fatia.equals(FATIA_CACHETRADUCAO) || fatia.equals(FATIA_CONTEXTO)) {
-                    continue; // core, config, legenda, cachetraducao e contexto (peers) e interno tratados em testes próprios
+                    || fatia.equals(FATIA_CACHETRADUCAO) || fatia.equals(FATIA_CONTEXTO)
+                    || fatia.equals(FATIA_QUALIDADETRADUCAO)) {
+                    continue; // core, config, legenda, cachetraducao, contexto e qualidadeTraducao (peers) e interno tratados em testes próprios
                 }
                 reais.add(aresta(origem, destino));
             }
@@ -440,6 +465,49 @@ class FronteiraTraducaoArchTest {
         // Igualdade EXATA (E7b): cobre tipos inesperados (violacoes) e entradas obsoletas na allowlist.
         assertEquals(new TreeSet<>(CONTEXTO_TIPOS_CONGELADOS), tiposContextoUsados,
             "CONTEXTO_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos de contexto consumidos por traducao");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela por tipo, com igualdade EXATA, a superfície do peer
+     * {@code qualidadeTraducao} consumida pela Tradução Local (E8b) — garante que a
+     * extração de {@code MascaradorTags} e {@code AlucinacaoDetectadaException} não abriu
+     * dependência não homologada nem deixou entrada obsoleta na allowlist.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os tipos de {@code qualidadeTraducao} consumidos por
+     * {@code traducao} são normalizados à classe de topo (nested {@code MascaradorTags$Mascarado}
+     * vira {@code MascaradorTags}) e devem ser EXATAMENTE
+     * {@link #QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: um tipo fora do conjunto (violação) ou o conjunto
+     * medido diferente do congelado (tipo novo ou entrada obsoleta) reprova o teste.
+     */
+    @Test
+    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente MascaradorTags e AlucinacaoDetectadaException (E8b)")
+    void qualidadeTraducaoCongeladoPorTipo() {
+        List<String> violacoes = new ArrayList<>();
+        Set<String> tiposQualidadeUsados = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (FATIA_QUALIDADETRADUCAO.equals(fatiaDe(dependencia.getTargetClass().getPackageName()))) {
+                    tiposQualidadeUsados.add(destino);
+                    if (!QUALIDADE_TRADUCAO_TIPOS_CONGELADOS.contains(destino)) {
+                        violacoes.add(origem + " -> " + destino);
+                    }
+                }
+            }
+        }
+        assertFalse(tiposQualidadeUsados.isEmpty(),
+            "Esperado uso do peer qualidadeTraducao pela Tradução Local (E8b: MascaradorTags/AlucinacaoDetectadaException)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Tipo de qualidadeTraducao fora dos homologados (QUALIDADE_TRADUCAO_TIPOS_CONGELADOS):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+        assertEquals(new TreeSet<>(QUALIDADE_TRADUCAO_TIPOS_CONGELADOS), tiposQualidadeUsados,
+            "QUALIDADE_TRADUCAO_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos consumidos por traducao");
     }
 
     @Test

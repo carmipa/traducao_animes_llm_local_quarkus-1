@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.legenda.domain.ExcecaoLegenda;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
@@ -100,7 +101,9 @@ public class TradutorCLI {
      * <p>COMPORTAMENTO EM CASO DE FALHA: configuração ausente/inválida, pasta
      * inexistente ou LLM indisponível interrompem o fluxo de forma controlada
      * (retorno sem processar); falha em um arquivo individual é registrada e não
-     * aborta os demais.
+     * aborta os demais. Desde a E8b, o ramo crítico captura
+     * {@code TradutorException | AlucinacaoDetectadaException} — a alucinação passou
+     * ao peer {@code qualidadeTraducao} e o multi-catch preserva o mesmo tratamento.
      *
      * @throws Exception em falha não recuperável do fluxo de tradução
      */
@@ -160,7 +163,10 @@ public class TradutorCLI {
                 uiLogger.log("[ PARCIAL ] " + arquivo.getFileName() + " (Salvas: " + salvas + " antes de abortar)");
                 falha++;
                 arquivosComFalha.add(arquivo.getFileName().toString() + " (parcial: " + salvas + " salvas)");
-            } catch (TradutorException e) {
+            } catch (TradutorException | AlucinacaoDetectadaException e) {
+                // AlucinacaoDetectadaException migrou para o peer qualidadeTraducao na E8b e
+                // deixou de ser TradutorException; o multi-catch preserva exatamente o
+                // tratamento crítico que ela recebia por herança antes do reparenting.
                 log.error("Falha crítica ao processar {}: {}", arquivo.getFileName(), e.getMessage());
                 uiLogger.log("[ FAIL ] Falha em " + arquivo.getFileName() + ": " + e.getMessage());
                 falha++;

@@ -6,7 +6,7 @@ import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 
 /**

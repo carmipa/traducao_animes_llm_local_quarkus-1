@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 
 import java.util.regex.Pattern;
 

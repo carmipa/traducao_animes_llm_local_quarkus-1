@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.infrastructure.legenda;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.junit.jupiter.api.Test;
 
