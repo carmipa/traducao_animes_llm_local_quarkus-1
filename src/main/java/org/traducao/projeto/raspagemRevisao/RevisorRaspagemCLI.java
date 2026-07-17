@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class RevisorRaspagemCLI implements ExecucaoCli {
 
     private final RevisarCacheUseCase revisarCacheUseCase;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
 
     // E3b: chave crua; ausência/branco tratados pelo fallback de domínio local ("cache").
     @ConfigProperty(name = "tradutor.diretorio-entrada")
@@ -30,10 +30,10 @@ public class RevisorRaspagemCLI implements ExecucaoCli {
 
     public RevisorRaspagemCLI(
         RevisarCacheUseCase revisarCacheUseCase,
-        MistralPort mistralPort
+        LlmPort llmPort
     ) {
         this.revisarCacheUseCase = revisarCacheUseCase;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class RevisorRaspagemCLI implements ExecucaoCli {
         System.out.println(AnsiCores.CYAN + "   REVISÃO GRAMATICAL DO CACHE (CONCORDÂNCIA PT-BR / LLM)  " + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "==========================================================" + AnsiCores.RESET);
 
-        StatusLlm status = mistralPort.verificarDisponibilidade();
+        StatusLlm status = llmPort.verificarDisponibilidade();
         if (!status.modeloCarregado()) {
             System.out.println(AnsiCores.RED + "[FAIL] " + status.mensagem() + AnsiCores.RESET);
             System.out.println("Inicie o servidor LLM local e carregue o modelo antes de revisar.");

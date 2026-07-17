@@ -14,7 +14,7 @@ import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
@@ -67,13 +67,13 @@ class RevisarCacheUseCaseTest {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(
             new ContextoTeste("danmachi", "DanMachi", "Bell Cranel"),
             new ContextoTeste("gundam", "Gundam", "Amuro Ray")));
-        MistralStub mistral = new MistralStub(contexto);
+        LlmStub llm = new LlmStub(contexto);
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
             new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
-            new ContextoManutencaoCacheService(contexto), new DetectorConcordanciaService(), mistral,
+            new ContextoManutencaoCacheService(contexto), new DetectorConcordanciaService(), llm,
             new ValidadorTraducaoService(), new MascaradorTags(), new ProtecaoLegendaAssService(),
             new AuditoriaStub(mapper), new TelemetriaStub());
 
@@ -94,7 +94,7 @@ class RevisarCacheUseCaseTest {
             System.setOut(saidaAnterior);
         }
 
-        assertEquals(List.of("danmachi", "gundam"), mistral.contextosUsados);
+        assertEquals(List.of("danmachi", "gundam"), llm.contextosUsados);
         assertEquals("ela está cansada.", mapper.readTree(danmachi.toFile()).path("entradas").get(0).path("traduzido").asText());
         assertEquals("ele está cansado.", mapper.readTree(gundam.toFile()).path("entradas").get(0).path("traduzido").asText());
         assertEquals(2, resultado.itensCorrigidos());
@@ -117,10 +117,10 @@ class RevisarCacheUseCaseTest {
         Files.writeString(arquivo, json);
     }
 
-    private static final class MistralStub implements MistralPort {
+    private static final class LlmStub implements LlmPort {
         private final GerenciadorContexto contexto;
         private final List<String> contextosUsados = new ArrayList<>();
-        MistralStub(GerenciadorContexto contexto) { this.contexto = contexto; }
+        LlmStub(GerenciadorContexto contexto) { this.contexto = contexto; }
         @Override public TraducaoLote traduzir(Lote lote) { return null; }
         @Override public StatusLlm verificarDisponibilidade() { return new StatusLlm(true, true, "fake carregado"); }
         @Override public Optional<String> revisarConcordancia(String original, String traducao, List<String> problemas) {

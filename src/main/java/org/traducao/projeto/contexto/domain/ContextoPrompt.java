@@ -28,7 +28,7 @@ public final class ContextoPrompt {
     // prompt completo para que outros usos (ex.: revisao de concordancia) nao
     // precisem reenviar o prompt de traducao inteiro - que ja inclui lore +
     // RegrasConcordanciaPtBr.BLOCO_TRADUCAO + regras de saida - como se fosse
-    // so a lore, o que estourava o contexto do LLM (ver MistralClientAdapter).
+    // so a lore, o que estourava o contexto do LLM (ver LlmClientAdapter).
     private static final Map<String, String> LORE_POR_PROMPT = new ConcurrentHashMap<>();
 
     private ContextoPrompt() {

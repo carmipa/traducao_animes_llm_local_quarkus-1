@@ -173,7 +173,7 @@ public class CorrigirLegendasUseCase {
     }
 
     /**
-     * Define o contexto ativo (lore/system prompt) usado pelo MistralPort quando
+     * Define o contexto ativo (lore/system prompt) usado pelo LlmPort quando
      * a correção via LLM está habilitada. Sem contextoId, a correção permanece
      * 100% estrutural/regex (sem chamadas ao LLM).
      */

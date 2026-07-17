@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
@@ -42,17 +42,17 @@ public class PipelineController {
     // garante execução sequencial em segundo plano e impede que outro endpoint
     // troque o contexto/modelo LLM no meio de um job em andamento.
     private final FilaExecucaoPipeline filaExecucao;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final GerenciadorContexto gerenciadorContexto;
     private final LlmProperties llmProperties;
 
     public PipelineController(
             FilaExecucaoPipeline filaExecucao,
-            MistralPort mistralPort,
+            LlmPort llmPort,
             GerenciadorContexto gerenciadorContexto,
             LlmProperties llmProperties) {
         this.filaExecucao = filaExecucao;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.gerenciadorContexto = gerenciadorContexto;
         this.llmProperties = llmProperties;
     }
@@ -98,13 +98,13 @@ public class PipelineController {
     /**
      * Status ao vivo do servidor LLM local (LM Studio) para o card do painel
      * inicial: informa se está online, se há modelo carregado em memória e qual
-     * é ({@link MistralPort#verificarDisponibilidade()} já adota o modelo ativo
+     * é ({@link LlmPort#verificarDisponibilidade()} já adota o modelo ativo
      * em {@link LlmProperties#model()} quando o detecta).
      */
     @GetMapping("/llm/status")
     public ResponseEntity<LlmStatusResponse> statusLlm() {
         try {
-            StatusLlm status = mistralPort.verificarDisponibilidade();
+            StatusLlm status = llmPort.verificarDisponibilidade();
             String modelo = status.modeloCarregado() ? llmProperties.model() : null;
             return ResponseEntity.ok(new LlmStatusResponse(
                 status.servidorOnline(), status.modeloCarregado(), modelo, status.mensagem()));

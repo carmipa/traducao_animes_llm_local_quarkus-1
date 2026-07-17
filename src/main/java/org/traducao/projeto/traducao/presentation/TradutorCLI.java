@@ -10,7 +10,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.legenda.domain.ExcecaoLegenda;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.core.presentation.ui.ConsoleEntrada;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
@@ -72,20 +72,20 @@ public class TradutorCLI {
     private final ConsoleUILogger uiLogger;
     private final TradutorProperties propriedades;
     private final PastasExecucao pastasExecucao;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
 
     public TradutorCLI(
         ProcessarArquivoUseCase processarArquivoUseCase,
         ConsoleUILogger uiLogger,
         TradutorProperties propriedades,
         PastasExecucao pastasExecucao,
-        MistralPort mistralPort
+        LlmPort llmPort
     ) {
         this.processarArquivoUseCase = processarArquivoUseCase;
         this.uiLogger = uiLogger;
         this.propriedades = propriedades;
         this.pastasExecucao = pastasExecucao;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
     }
 
     /**
@@ -210,7 +210,7 @@ public class TradutorCLI {
 
     private boolean verificarLlmDisponivel() {
         uiLogger.log("Verificando se o servidor LLM local esta online e com o modelo carregado em memoria...");
-        StatusLlm status = mistralPort.verificarDisponibilidade();
+        StatusLlm status = llmPort.verificarDisponibilidade();
         if (!status.modeloCarregado()) {
             uiLogger.log("[ FAIL ] " + status.mensagem());
             uiLogger.log("[ FAIL ] Abortando: inicie o servidor LLM local (ex: LM Studio), carregue o modelo "

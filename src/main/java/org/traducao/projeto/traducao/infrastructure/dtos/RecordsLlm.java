@@ -3,7 +3,7 @@ package org.traducao.projeto.traducao.infrastructure.dtos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-public class RecordsMistral {
+public class RecordsLlm {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Mensagem(String role, String content) {}
 

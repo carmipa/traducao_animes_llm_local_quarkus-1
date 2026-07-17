@@ -14,7 +14,7 @@ import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCase;
 import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
@@ -47,7 +47,7 @@ public class CorrecaoCacheController {
     private final CorrigirComGoogleUseCase corrigirComGoogleUseCase;
     private final RevisarCacheUseCase revisarCacheUseCase;
     private final GerenciadorContexto gerenciadorContexto;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
 
     public CorrecaoCacheController(
             PipelineWebSupport pipelineWebSupport,
@@ -55,13 +55,13 @@ public class CorrecaoCacheController {
             CorrigirComGoogleUseCase corrigirComGoogleUseCase,
             RevisarCacheUseCase revisarCacheUseCase,
             GerenciadorContexto gerenciadorContexto,
-            MistralPort mistralPort) {
+            LlmPort llmPort) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.limparCacheUseCase = limparCacheUseCase;
         this.corrigirComGoogleUseCase = corrigirComGoogleUseCase;
         this.revisarCacheUseCase = revisarCacheUseCase;
         this.gerenciadorContexto = gerenciadorContexto;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
     }
 
     /**
@@ -148,7 +148,7 @@ public class CorrecaoCacheController {
 
         pipelineWebSupport.submeterJobComRelatorio("correcao", "Revisão Gramatical do Cache (LLM)", () -> {
             try {
-                StatusLlm status = mistralPort.verificarDisponibilidade();
+                StatusLlm status = llmPort.verificarDisponibilidade();
                 if (!status.modeloCarregado()) {
                     System.out.println("\u001B[31m[FAIL] LLM indisponível para revisão: "
                         + status.mensagem() + "\u001B[0m");
