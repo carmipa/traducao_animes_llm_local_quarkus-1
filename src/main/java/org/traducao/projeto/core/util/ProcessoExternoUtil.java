@@ -1,5 +1,8 @@
 package org.traducao.projeto.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -34,10 +37,17 @@ import java.util.concurrent.TimeoutException;
  */
 public final class ProcessoExternoUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(ProcessoExternoUtil.class);
+
     // Virtual threads: a drenagem de stdout/stderr é I/O puro e efêmera. Nomeadas para
     // diagnóstico; sempre daemon por natureza (não seguram a JVM viva).
     private static final ThreadFactory FABRICA_DRENAGEM =
         Thread.ofVirtual().name("processo-externo-drain-", 0).factory();
+
+    // Espera curta e explícita pela confirmação do término após destroyForcibly. Curta
+    // porque um kill do SO é quase imediato; limitada para nunca travar o pipeline caso
+    // o SO demore a recolher o processo.
+    private static final Duration ESPERA_ENCERRAMENTO = Duration.ofSeconds(2);
 
     private ProcessoExternoUtil() {}
 
@@ -79,7 +89,7 @@ public final class ProcessoExternoUtil {
 
             boolean terminou = processo.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
             if (!terminou) {
-                processo.destroyForcibly();
+                encerrarForcadamenteEAguardar(processo);
                 throw new TimeoutException("Processo excedeu o tempo limite de " + timeout.toSeconds()
                         + "s e foi encerrado: " + String.join(" ", comando));
             }
@@ -89,9 +99,38 @@ public final class ProcessoExternoUtil {
             return new Resultado(processo.exitValue(), stdout, stderr);
         } finally {
             pool.shutdownNow();
-            if (processo.isAlive()) {
-                processo.destroyForcibly();
+            encerrarForcadamenteEAguardar(processo);
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que um processo externo estourado ou abandonado seja de
+     * fato encerrado antes do método retornar, em vez de só disparar o kill e seguir — evita
+     * que um ffmpeg/mkvmerge órfão continue consumindo CPU/disco depois do timeout.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: se ainda vivo, chama {@code destroyForcibly()} e aguarda a
+     * confirmação do término por um limite curto e explícito
+     * ({@link #ESPERA_ENCERRAMENTO}), nunca indefinidamente; não altera stdout/stderr nem o
+     * código de saída; não introduz concorrência no LLM.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o SO não confirmar o término dentro do limite,
+     * registra um aviso e retorna assim mesmo (o kill já foi enviado e o SO conclui de forma
+     * assíncrona), sem prender o pipeline; uma interrupção durante a espera restaura o flag de
+     * interrupção da thread e encerra a espera imediatamente.
+     */
+    private static void encerrarForcadamenteEAguardar(Process processo) {
+        if (!processo.isAlive()) {
+            return;
+        }
+        processo.destroyForcibly();
+        try {
+            boolean encerrou = processo.waitFor(ESPERA_ENCERRAMENTO.toMillis(), TimeUnit.MILLISECONDS);
+            if (!encerrou) {
+                log.warn("Processo externo não confirmou o término {} ms após destroyForcibly; "
+                    + "o SO concluirá o encerramento de forma assíncrona.", ESPERA_ENCERRAMENTO.toMillis());
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
