@@ -17,7 +17,7 @@ O núcleo do pipeline: traduz cada fala de uma legenda `.ass`/`.ssa` do inglês 
 | Classe | Papel |
 |--------|-------|
 | `ProcessarArquivoUseCase` (`application`) | Orquestra: lê o `.ass`, separa falas por lote, consulta o cache, envia pendências ao LLM, escreve o `.ass` traduzido |
-| `MistralClientAdapter` (`infrastructure/adapters`) | Implementa `MistralPort` — cliente HTTP OpenAI-compatible para o LM Studio (apesar do nome, funciona com qualquer modelo servido pelo LM Studio, não só Mistral) |
+| `LlmClientAdapter` (`infrastructure/adapters`) | Implementa `LlmPort` — cliente HTTP OpenAI-compatible para o LM Studio (funciona com qualquer modelo servido pelo LM Studio) |
 | `CacheTraducaoService` / `EntradaCache` (`infrastructure/cache`) | Persistência do par original↔traduzido por arquivo de legenda |
 | `GerenciadorContexto` / `ProvedorContexto` (`contexto/`, `infrastructure/contexto`) | Sistema de lore por anime — ver [Contextos & Lore](09-contextos-lore.md) |
 | `LeitorLegendaAss` / `EscritorLegendaAss` (`infrastructure/legenda`) | Parser/escritor do formato `.ass` — preserva timestamps e formatação **byte a byte**, só troca o campo `Text` |
@@ -43,7 +43,7 @@ sequenceDiagram
     participant Leitor as LeitorLegendaAss
     participant Cache as CacheTraducaoService
     participant Mask as MascaradorTags
-    participant LLM as MistralClientAdapter
+    participant LLM as LlmClientAdapter
     participant Escritor as EscritorLegendaAss
 
     Op->>API: POST /api/traduzir {entrada, contextoId}
@@ -98,7 +98,7 @@ Antes de enviar ao LLM, o `MascaradorTags` substitui blocos `{...}` por marcador
 
 ## Modelo "coringa": `tradutor.llm.model: "current"`
 
-O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"current"`, nunca o id fixo de um modelo (ex. `"mistralai/mistral-nemo-instruct-2407"`). Ao iniciar cada operação, `MistralClientAdapter.verificarDisponibilidade()` consulta o LM Studio para descobrir **qual modelo está de fato carregado em memória** (via a API estendida `/api/v0/models`, que expõe o campo `state: "loaded"`) e adapta o valor em runtime. Isso permite trocar o modelo ativo direto na UI/CLI do LM Studio (`lms load`) sem tocar no `application.yml` nem recompilar — e evita que o app dispare um **auto-load de uma segunda instância de modelo** ao mandar uma requisição para um id que não bate com o que está carregado (ver detalhes técnicos em [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente)).
+O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"current"`, nunca o id fixo de um modelo (ex. `"mistralai/mistral-nemo-instruct-2407"`). Ao iniciar cada operação, `LlmClientAdapter.verificarDisponibilidade()` consulta o LM Studio para descobrir **qual modelo está de fato carregado em memória** (via a API estendida `/api/v0/models`, que expõe o campo `state: "loaded"`) e adapta o valor em runtime. Isso permite trocar o modelo ativo direto na UI/CLI do LM Studio (`lms load`) sem tocar no `application.yml` nem recompilar — e evita que o app dispare um **auto-load de uma segunda instância de modelo** ao mandar uma requisição para um id que não bate com o que está carregado (ver detalhes técnicos em [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente)).
 
 ---
 

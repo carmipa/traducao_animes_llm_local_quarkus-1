@@ -16,8 +16,8 @@ O desenho segue **Arquitetura Hexagonal (Ports & Adapters)** por módulo: cada p
 |--------|-------------------|----------|
 | `presentation/` | Controllers REST (Spring-style) e telas CLI legadas | `ApiController`, `AnalisadorMidiaCLI` |
 | `application/` | Casos de uso — orquestram domínio e adapters | `ProcessarArquivoUseCase`, `ExtrairLegendaUseCase` |
-| `domain/` | Modelos, portas (interfaces), exceções de negócio | `MistralPort`, `AuditoriaResultado`, `LegendaInfo` |
-| `infrastructure/` | Implementações concretas das portas | `MistralClientAdapter`, `MkvmergeAdapter`, `FfprobeAdapter` |
+| `domain/` | Modelos, portas (interfaces), exceções de negócio | `LlmPort`, `AuditoriaResultado`, `LegendaInfo` |
+| `infrastructure/` | Implementações concretas das portas | `LlmClientAdapter`, `MkvmergeAdapter`, `FfprobeAdapter` |
 
 A aplicação roda **100% localmente** (`quarkus.http.host=127.0.0.1`) — não expõe nenhuma porta na rede, e a única dependência de rede externa opcional é para metadados de anime (Jikan/TMDB) e correção via Google Translate (scraping da API pública, não a API paga).
 
@@ -75,7 +75,7 @@ graph TB
     subgraph ADAPT["🔌 Adapters (infrastructure/)"]
         AD_FF["FfprobeAdapter"]
         AD_MK["MkvToolNixAdapter<br/>(mkvmerge/mkvextract)"]
-        AD_LLM["MistralClientAdapter<br/>(OpenAI-compatible)"]
+        AD_LLM["LlmClientAdapter<br/>(OpenAI-compatible)"]
         AD_GT["GoogleTranslateScraper"]
         AD_MX["MkvmergeAdapter (remux)"]
         AD_JK["JikanApiClientAdapter"]
@@ -184,7 +184,7 @@ sequenceDiagram
     participant UC as ProcessarArquivoUseCase
     participant Cache as CacheTraducaoService
     participant Ctx as GerenciadorContexto
-    participant LLM as MistralClientAdapter
+    participant LLM as LlmClientAdapter
     participant LMS as LM Studio (GPU local)
 
     Op->>UI: Informa pasta + contexto (ex: "gundam-narrative")
@@ -220,7 +220,7 @@ org.traducao.projeto/
 ├── legendasExtracao/      ← Extração de faixas de legenda (ASS/SRT/PGS) via mkvextract/ffmpeg
 ├── traducao/               ← Núcleo: tradução LLM, cache, contextos/lore, HTTP client LM Studio
 │   ├── contexto/           ← 56+ providers de lore por anime/temporada
-│   ├── infrastructure/     ← MistralClientAdapter, CacheTraducaoService, http/, config/
+│   ├── infrastructure/     ← LlmClientAdapter, CacheTraducaoService, http/, config/
 │   └── presentation/web/   ← ApiController (a maioria dos endpoints REST vive aqui)
 ├── raspagemCorrecao/       ← Correção de cache via Google Translate (scraping)
 ├── raspagemRevisao/        ← Revisão de legendas .ass finais (Google ou LLM) + detector de concordância PT-BR
