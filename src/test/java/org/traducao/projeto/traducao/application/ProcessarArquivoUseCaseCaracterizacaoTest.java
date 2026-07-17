@@ -221,11 +221,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ResolvedorCacheTraducao resolvedorCache =
             new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
         PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
+        SeletorEventosTraduziveis seletorEventos =
+            new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, mascarador, cache,
-            episodio, validador, detectorIdentica, props, new PoliticaEstiloMusical(List.of()), llmProps, uiLogger,
-            pastas, telemetria, detectorKaraoke, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup);
+            episodio, validador, detectorIdentica, props, llmProps, uiLogger,
+            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {

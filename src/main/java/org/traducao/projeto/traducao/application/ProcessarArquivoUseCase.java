@@ -8,7 +8,6 @@ import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
@@ -20,7 +19,6 @@ import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
@@ -61,12 +59,6 @@ public class ProcessarArquivoUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessarArquivoUseCase.class);
 
-    // Um letreiro/título animado quadro a quadro reaparece muitas vezes com o
-    // mesmo texto visível (só a tag de efeito muda a cada quadro). Abaixo
-    // disso é mais provável ser só uma fala com efeito visual pontual (ex.:
-    // duas camadas contorno+preenchimento de uma mesma linha de encerramento).
-    private static final int LIMIAR_REPETICAO_LETREIRO = 5;
-
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final LeitorLegendaSrt leitorSrt;
@@ -77,17 +69,16 @@ public class ProcessarArquivoUseCase {
     private final ValidadorTraducaoService validador;
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final TradutorProperties propriedades;
-    private final PoliticaEstiloMusical politicaEstiloMusical;
     private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
     private final PastasExecucao pastasExecucao;
     private final TelemetriaTraducaoPort telemetriaTraducao;
-    private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
     private final GerenciadorContexto gerenciadorContexto;
     private final ResolvedorSaidaLegenda resolvedorSaida;
     private final ResolvedorCacheTraducao resolvedorCache;
     private final PoliticaBackupTraducao politicaBackup;
+    private final SeletorEventosTraduziveis seletorEventos;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -100,17 +91,16 @@ public class ProcessarArquivoUseCase {
         ValidadorTraducaoService validador,
         DetectorTraducaoIdenticaService detectorIdentica,
         TradutorProperties propriedades,
-        PoliticaEstiloMusical politicaEstiloMusical,
         LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
         PastasExecucao pastasExecucao,
         TelemetriaTraducaoPort telemetriaTraducao,
-        DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
         GerenciadorContexto gerenciadorContexto,
         ResolvedorSaidaLegenda resolvedorSaida,
         ResolvedorCacheTraducao resolvedorCache,
-        PoliticaBackupTraducao politicaBackup
+        PoliticaBackupTraducao politicaBackup,
+        SeletorEventosTraduziveis seletorEventos
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -122,17 +112,16 @@ public class ProcessarArquivoUseCase {
         this.validador = validador;
         this.detectorIdentica = detectorIdentica;
         this.propriedades = propriedades;
-        this.politicaEstiloMusical = politicaEstiloMusical;
         this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
         this.pastasExecucao = pastasExecucao;
         this.telemetriaTraducao = telemetriaTraducao;
-        this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
         this.gerenciadorContexto = gerenciadorContexto;
         this.resolvedorSaida = resolvedorSaida;
         this.resolvedorCache = resolvedorCache;
         this.politicaBackup = politicaBackup;
+        this.seletorEventos = seletorEventos;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -198,9 +187,9 @@ public class ProcessarArquivoUseCase {
             avisos.add(aviso);
         }
 
-        Map<String, Long> frequenciaTextoLimpo = calcularFrequenciaTextoLimpo(documento);
+        Map<String, Long> frequenciaTextoLimpo = seletorEventos.calcularFrequenciaTextoLimpo(documento);
         List<EventoLegenda> eventosTraduziveis = documento.eventos().stream()
-            .filter(evento -> isTraduzivel(evento, frequenciaTextoLimpo))
+            .filter(evento -> seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo))
             .toList();
         log.info("{} fala(s) traduzível(eis) encontrada(s) em {}", eventosTraduziveis.size(), arquivoEntrada.getFileName());
 
@@ -245,7 +234,7 @@ public class ProcessarArquivoUseCase {
 
                 List<EntradaCache> entradasCacheParcial = new ArrayList<>();
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (isTraduzivel(evento, frequenciaTextoLimpo)) {
+                    if (seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo)) {
                         String txtFinal = parciaisValidadas.get(evento.texto());
                         if (txtFinal != null) {
                             entradasCacheParcial.add(new EntradaCache(
@@ -291,7 +280,7 @@ public class ProcessarArquivoUseCase {
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
         List<EntradaCache> entradasCache = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!isTraduzivel(evento, frequenciaTextoLimpo)) {
+            if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo)) {
                 eventosFinais.add(evento);
                 continue;
             }
@@ -461,104 +450,6 @@ public class ProcessarArquivoUseCase {
             avisos.add("Fala mantida sem tradução (tags corrompidas pelo LLM): " + original);
             return original;
         }
-    }
-
-    // Os delegates estáticos abaixo existiam sobre os métodos estáticos package-private
-    // de ProtecaoLegendaAssService, acessíveis enquanto as duas classes dividiam o pacote
-    // traducao.application. Na E8b/E8c o serviço migrou para o peer qualidadeTraducao e
-    // esses estáticos deixaram de ser alcançáveis: o contrato público do peer são os
-    // métodos de instância. Como o serviço é stateless (só constantes static final), uma
-    // única instância reaproveitada preserva exatamente o comportamento anterior.
-    private static final ProtecaoLegendaAssService PROTECAO_ASS_ESTATICA = new ProtecaoLegendaAssService();
-
-    static boolean respostaAssPesadaSuspeita(String original, String traduzido) {
-        return PROTECAO_ASS_ESTATICA.respostaSuspeita(original, traduzido);
-    }
-
-    private static String extrairTextoVisivelAss(String texto) {
-        return PROTECAO_ASS_ESTATICA.textoVisivel(texto);
-    }
-
-    static boolean deveBloquearAntesDoLlm(String estilo, String texto, long repeticoesTextoVisivel) {
-        return PROTECAO_ASS_ESTATICA.deveBloquearLinhaAntesDoLlm(estilo, texto, repeticoesTextoVisivel);
-    }
-
-    static boolean caminhoPareceLegendaTraduzida(Path arquivoEntrada) {
-        return PROTECAO_ASS_ESTATICA.caminhoPareceTraduzido(arquivoEntrada);
-    }
-
-    /**
-     * Conta, por texto "limpo" (sem tags de override ASS), quantas vezes ele
-     * aparece entre as falas de diálogo do documento. Um letreiro/título
-     * animado quadro a quadro reaproveita o mesmo texto visível dezenas ou
-     * milhares de vezes (só a tag de efeito muda); uma fala normal — mesmo
-     * com duas camadas de estilo (contorno+preenchimento) ou repetida em
-     * momentos diferentes do episódio — nunca chega perto desse volume.
-     */
-    private Map<String, Long> calcularFrequenciaTextoLimpo(DocumentoLegenda documento) {
-        Map<String, Long> frequencia = new HashMap<>();
-        for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo() || !evento.temTexto()) {
-                continue;
-            }
-            String textoLimpo = extrairTextoVisivelAss(evento.texto());
-            if (!textoLimpo.isEmpty()) {
-                frequencia.merge(textoLimpo, 1L, Long::sum);
-            }
-        }
-        return frequencia;
-    }
-
-    private boolean isTraduzivel(EventoLegenda evento, Map<String, Long> frequenciaTextoLimpo) {
-        if (!evento.isDialogo() || !evento.temTexto()) {
-            return false;
-        }
-        String texto = evento.texto();
-        if (politicaEstiloMusical.estiloIgnorado(evento.estilo())
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
-            return false;
-        }
-
-        // Blindagem contra karaokê cru (\k, \kf, \ko). Só as tags de timing:
-        // a detecção agressiva de pós-template (eEfeitoKaraoke) pegaria também
-        // letreiros/títulos com \t e texto curto, que aqui DEVEM ser traduzidos
-        // — o caso karaokê pós-template é coberto pela heurística de letreiro
-        // animado logo abaixo (que exige repetição).
-        if (detectorKaraoke.devePreservarKaraokeOriginal(evento.estilo(), texto)) {
-            return false;
-        }
-
-        // 1. Blindagem Contra Lixo Vetorial Absoluto (modo de desenho \p1, \p2, ... do Aegisub)
-        if (protecaoAss.temDesenhoVetorial(texto)) {
-            return false;
-        }
-
-        String textoLimpo = extrairTextoVisivelAss(texto);
-        if (textoLimpo.isEmpty()) {
-            return false;
-        }
-        long repeticoes = frequenciaTextoLimpo.getOrDefault(textoLimpo, 1L);
-        if (protecaoAss.deveBloquearLinhaAntesDoLlm(evento.estilo(), texto, repeticoes)) {
-            log.debug("Bloqueando evento de typesetting de alto risco antes do LLM. Repetido {}x. Estilo: {} Texto: {}",
-                repeticoes, evento.estilo(), textoLimpo);
-            return false;
-        }
-
-        // 2. Blindagem Contra Typesetting Dinâmico (letreiros/títulos animados quadro a quadro):
-        // tag de efeito pesada + pouco texto visível + o mesmo texto repetido muitas vezes no
-        // arquivo. A repetição é o sinal decisivo: sem ela, uma fala isolada com efeito visual
-        // (ex.: a camada de contorno de uma legenda de encerramento) seria descartada por engano.
-        boolean temTagDeAnimacao = texto.contains("\\clip") || texto.contains("\\move")
-            || texto.contains("\\pos") || texto.contains("\\fad") || texto.contains("\\t(");
-        if (temTagDeAnimacao && texto.length() > 40 && textoLimpo.length() * 3 < texto.length()) {
-            if (repeticoes >= LIMIAR_REPETICAO_LETREIRO) {
-                log.debug("Bloqueando evento suspeito de letreiro animado (repetido {}x). Estilo: {} Texto: {}",
-                    repeticoes, evento.estilo(), textoLimpo);
-                return false;
-            }
-        }
-
-        return mascarador.contemTextoTraduzivel(texto);
     }
 
     private boolean isCacheReaproveitavel(String original, String traduzido) {

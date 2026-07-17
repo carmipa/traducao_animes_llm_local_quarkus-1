@@ -2,6 +2,7 @@ package org.traducao.projeto.traducao.application;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -102,7 +103,7 @@ class ProcessarArquivoUseCaseGuardTest {
         String traduzido = "Saída: {=68}{\\pos(1192,40)\\1c&H00B2BA&\\3c&HB2BABB&"
             + "\\t(0,253,\\blur4\\bord4)\\t(253,758,\\blur0.6\\bord0)}";
 
-        assertTrue(ProcessarArquivoUseCase.respostaAssPesadaSuspeita(original, traduzido));
+        assertTrue(new ProtecaoLegendaAssService().respostaSuspeita(original, traduzido));
     }
 
     @Test
@@ -112,7 +113,7 @@ class ProcessarArquivoUseCaseGuardTest {
         String traduzido = "{\\pos(1214,40)\\1c&H00B2BA&\\3c&HB2BABB&"
             + "\\t(0,30,\\blur4\\bord4)\\t(30,90,\\blur0.6\\bord0)}[ininteligível]";
 
-        assertTrue(ProcessarArquivoUseCase.respostaAssPesadaSuspeita(original, traduzido));
+        assertTrue(new ProtecaoLegendaAssService().respostaSuspeita(original, traduzido));
     }
 
     @Test
@@ -120,7 +121,7 @@ class ProcessarArquivoUseCaseGuardTest {
         String original = "{\\i1}I will protect everyone.{\\i0}";
         String traduzido = "{\\i1}Eu vou proteger todos.{\\i0}";
 
-        assertFalse(ProcessarArquivoUseCase.respostaAssPesadaSuspeita(original, traduzido));
+        assertFalse(new ProtecaoLegendaAssService().respostaSuspeita(original, traduzido));
     }
 
     @Test
@@ -133,7 +134,7 @@ class ProcessarArquivoUseCaseGuardTest {
             + "928 351 928 356 931 358 936 361 941 365 942 366 942 369 942 373 "
             + "940 374 937 374 934 374 932 373 931 367)}S";
 
-        assertTrue(ProcessarArquivoUseCase.deveBloquearAntesDoLlm("Default", linha, 1));
+        assertTrue(new ProtecaoLegendaAssService().deveBloquearLinhaAntesDoLlm("Default", linha, 1));
     }
 
     @Test
@@ -146,23 +147,23 @@ class ProcessarArquivoUseCaseGuardTest {
             + "1394 803 1393 804 1391 804 l 1391 806 1409 806 c)\\pos(1475.5,819.5)"
             + "\\blur0.5\\t(3899,0,1,\\alpha&HFF&)}Einherjar";
 
-        assertTrue(ProcessarArquivoUseCase.deveBloquearAntesDoLlm("Ep Title", linha, 2));
+        assertTrue(new ProtecaoLegendaAssService().deveBloquearLinhaAntesDoLlm("Ep Title", linha, 2));
     }
 
     @Test
     void naoBloqueiaTituloSimplesComPosETransformacao() {
         String linha = "{\\pos(1565.5,822.5)\\c&H000000&\\blur0.7\\t(4188,0,1,\\1a&HFF&)}Prologue";
 
-        assertFalse(ProcessarArquivoUseCase.deveBloquearAntesDoLlm("Ep Title", linha, 1));
+        assertFalse(new ProtecaoLegendaAssService().deveBloquearLinhaAntesDoLlm("Ep Title", linha, 1));
     }
 
     @Test
     void detectaCaminhoDeLegendaJaTraduzida() {
-        assertTrue(ProcessarArquivoUseCase.caminhoPareceLegendaTraduzida(
+        assertTrue(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
             Path.of("C:\\animes\\DanMachi\\legendas_ptbr\\episodio_PT-BR.ass")));
-        assertTrue(ProcessarArquivoUseCase.caminhoPareceLegendaTraduzida(
+        assertTrue(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
             Path.of("C:\\animes\\DanMachi\\traducao_ptbr\\episodio.ass")));
-        assertFalse(ProcessarArquivoUseCase.caminhoPareceLegendaTraduzida(
+        assertFalse(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
             Path.of("C:\\animes\\DanMachi\\legendas_eng\\episodio_ENG.ass")));
     }
 }
