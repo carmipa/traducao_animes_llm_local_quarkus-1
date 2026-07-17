@@ -63,7 +63,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         final AtomicInteger chamadas = new AtomicInteger();
         ProcessarArquivoAlucina() {
             super(null, null, null, null, null, null, null, null, null, null,
-                  null, null, null, null, null, null, null, null, null);
+                  null, null, null, null, null, null, null, null);
         }
         @Override
         public Path processar(Path arquivoEntrada) {
