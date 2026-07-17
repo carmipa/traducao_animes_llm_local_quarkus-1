@@ -251,8 +251,19 @@ public class GeradorMapaProjetoUseCase {
     }
 
     /**
-     * Agrupa os arquivos por pasta (relativa à raiz) e produz, por arquivo, uma
-     * entrada em linhas: nome do arquivo e a descrição extraída do cabeçalho.
+     * PROPÓSITO DE NEGÓCIO: agrupa os arquivos-fonte por pasta (relativa à raiz) e
+     * produz, por arquivo, a entrada da taxonomia — nome do arquivo e a descrição
+     * extraída do cabeçalho —, montando o corpo navegável do mapa de contexto para LLMs.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a indentação de seis espaços é preservada SOMENTE em
+     * linhas documentais com conteúdo; linhas documentais vazias viram linhas
+     * realmente vazias, nunca linhas compostas apenas por whitespace. Por isso o
+     * artefato gerado nunca contém linha que satisfaça {@code ^\\s+$}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: quando o cabeçalho está ausente ou não pôde
+     * ser lido, registra o marcador {@code (sem cabecalho explicativo)} — comportamento
+     * inalterado. Método sem escrita em disco; a persistência do mapa ocorre em
+     * {@link #executar}.
      */
     private List<String> montarTaxonomia(Path raiz, List<Path> fontes) {
         // LinkedHashMap preserva a ordem alfabética já ordenada em `fontes`.
@@ -271,7 +282,8 @@ public class GeradorMapaProjetoUseCase {
                 String doc = extrairComentarioTopo(arq);
                 if (doc != null && !doc.isBlank()) {
                     for (String linhaDoc : doc.split("\\R")) {
-                        linhas.add("      " + linhaDoc.strip());
+                        String linhaLimpa = linhaDoc.strip();
+                        linhas.add(linhaLimpa.isEmpty() ? "" : "      " + linhaLimpa);
                     }
                 } else {
                     linhas.add("      (sem cabecalho explicativo)");
