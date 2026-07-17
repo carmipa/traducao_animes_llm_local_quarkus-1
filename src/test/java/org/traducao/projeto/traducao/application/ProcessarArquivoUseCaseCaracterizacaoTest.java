@@ -23,6 +23,8 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
+import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -186,7 +188,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         CacheTraducaoService cache = new CacheTraducaoService(new ObjectMapper());
         ValidadorTraducaoService validador = new ValidadorTraducaoService();
         GerenciadorContexto gerenciador = new GerenciadorContexto(List.of(new ContextoTeste()));
-        DetectorTraducaoIdenticaService detectorIdentica = new DetectorTraducaoIdenticaService(gerenciador);
+        DetectorTraducaoIdenticaService detectorIdentica =
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(gerenciador));
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
         TelemetriaTraducaoPort telemetria = new TelemetriaTraducaoPort() {

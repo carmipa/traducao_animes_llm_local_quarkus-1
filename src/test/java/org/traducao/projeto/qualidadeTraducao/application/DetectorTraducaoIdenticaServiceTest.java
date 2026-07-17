@@ -1,9 +1,9 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,8 +17,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class DetectorTraducaoIdenticaServiceTest {
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: fake de {@link LoreAtivaPort} fiel ao estado que o detector
+     * enxergava antes da E8c.1 com {@code new GerenciadorContexto(List.of())} — nenhum
+     * provedor de contexto, logo nenhum termo protegido e a lore neutra do prompt padrão.
+     * <p>INVARIANTES DO DOMÍNIO: reproduz exatamente os retornos daquele cenário para que
+     * a inversão de dependência não altere o comportamento observado nestes casos.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; retornos fixos e determinísticos.
+     */
+    private static final class LoreAtivaVazia implements LoreAtivaPort {
+        @Override
+        public Set<String> termosProtegidosAtivos() {
+            return Set.of();
+        }
+
+        @Override
+        public String obterLoreAtiva() {
+            return "Voce e um tradutor especialista. Traduza fielmente.";
+        }
+    }
+
     private final DetectorTraducaoIdenticaService detector =
-        new DetectorTraducaoIdenticaService(new GerenciadorContexto(List.of()));
+        new DetectorTraducaoIdenticaService(new LoreAtivaVazia());
 
     /**
      * PROPÓSITO DE NEGÓCIO: cobre os nomes que o Nemo recebeu indevidamente na execução real.

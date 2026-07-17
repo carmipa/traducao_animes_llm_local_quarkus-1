@@ -19,9 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
  * {@code qualidadeTraducao} — extraído na E8b ({@code MascaradorTags} em application,
- * {@code ExcecaoQualidadeTraducao} + {@code AlucinacaoDetectadaException} em domain) e
+ * {@code ExcecaoQualidadeTraducao} + {@code AlucinacaoDetectadaException} em domain),
  * ampliado na E8c ({@code ValidadorTraducaoService} + {@code ProtecaoLegendaAssService}
- * em application). Garante que o peer é consumível por qualquer fatia funcional sem
+ * em application) e na E8c.1 ({@code DetectorTraducaoIdenticaService} em application e a
+ * porta {@code LoreAtivaPort} em domain, que inverte o antigo acoplamento a
+ * {@code contexto}). Garante que o peer é consumível por qualquer fatia funcional sem
  * acoplamento reverso.
  *
  * <h2>Invariantes do domínio</h2>
@@ -29,15 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>{@code qualidadeTraducao} só depende de JDK/libs técnicas, {@code core} e do
  *       próprio {@code qualidadeTraducao} — nunca de {@code traducao} nem de outra fatia
  *       funcional, nem de outro peer ({@code legenda}, {@code cachetraducao},
- *       {@code contexto}, {@code llm}).</li>
- *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os cinco proprietários
- *       top-level ({@code qualidadeTraducao.application.MascaradorTags},
+ *       {@code contexto}, {@code llm}). Em particular o detector, que antes dependia de
+ *       {@code contexto.infrastructure.GerenciadorContexto}, agora depende só da porta
+ *       {@code LoreAtivaPort} do próprio peer.</li>
+ *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os sete proprietários
+ *       top-level ({@code qualidadeTraducao.application.DetectorTraducaoIdenticaService},
+ *       {@code qualidadeTraducao.application.MascaradorTags},
  *       {@code qualidadeTraducao.application.ProtecaoLegendaAssService},
  *       {@code qualidadeTraducao.application.ValidadorTraducaoService},
+ *       {@code qualidadeTraducao.domain.AlucinacaoDetectadaException},
  *       {@code qualidadeTraducao.domain.ExcecaoQualidadeTraducao},
- *       {@code qualidadeTraducao.domain.AlucinacaoDetectadaException}); o nested
+ *       {@code qualidadeTraducao.domain.LoreAtivaPort}); o nested
  *       {@code MascaradorTags$Mascarado} normaliza para o FQN de {@code MascaradorTags} e
- *       NÃO conta como sexto top-level. Congelar por FQN (não por simple name) impede
+ *       NÃO conta como oitavo top-level. Congelar por FQN (não por simple name) impede
  *       que uma classe mude de pacote/camada mantendo o mesmo nome sem reprovar.</li>
  *   <li>{@code qualidadeTraducao.domain} é puro: só JDK e {@code core}; sem application,
  *       infrastructure ou framework.</li>
@@ -95,7 +101,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os cinco proprietários top-level do peer qualidadeTraducao")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os sete proprietários top-level do peer qualidadeTraducao")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -109,13 +115,15 @@ class FronteiraQualidadeTraducaoArchTest {
             topLevelsFqn.add(topo(classe.getName()));
         }
         assertEquals(new TreeSet<>(List.of(
+                PKG_QT_APPLICATION + ".DetectorTraducaoIdenticaService",
                 PKG_QT_APPLICATION + ".MascaradorTags",
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
                 PKG_QT_APPLICATION + ".ValidadorTraducaoService",
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
-                PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os cinco proprietários top-level homologados, por FQN "
-                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um sexto top-level). "
+                PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
+                PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
+            "qualidadeTraducao deve conter EXATAMENTE os sete proprietários top-level homologados, por FQN "
+                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um oitavo top-level). "
                 + "Encontrado: " + topLevelsFqn);
     }
 

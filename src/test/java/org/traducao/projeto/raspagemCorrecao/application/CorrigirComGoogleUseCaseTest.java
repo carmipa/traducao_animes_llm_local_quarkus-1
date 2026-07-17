@@ -8,7 +8,8 @@ import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
-import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
@@ -49,7 +50,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(contexto), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
@@ -85,7 +86,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(contexto), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups-interrupcao"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(

@@ -6,7 +6,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
-import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
@@ -68,7 +69,7 @@ class RevisarCacheUseCaseTest {
             new ContextoTeste("gundam", "Gundam", "Amuro Ray")));
         MistralStub mistral = new MistralStub(contexto);
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(contexto), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
