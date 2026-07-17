@@ -16,7 +16,7 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
