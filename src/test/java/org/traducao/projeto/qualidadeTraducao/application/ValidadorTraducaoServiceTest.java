@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;

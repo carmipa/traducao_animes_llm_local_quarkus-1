@@ -18,9 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
- * {@code qualidadeTraducao} extraído na E8b ({@code MascaradorTags} em application,
- * {@code ExcecaoQualidadeTraducao} + {@code AlucinacaoDetectadaException} em domain).
- * Garante que o peer é consumível por qualquer fatia funcional sem acoplamento reverso.
+ * {@code qualidadeTraducao} — extraído na E8b ({@code MascaradorTags} em application,
+ * {@code ExcecaoQualidadeTraducao} + {@code AlucinacaoDetectadaException} em domain) e
+ * ampliado na E8c ({@code ValidadorTraducaoService} + {@code ProtecaoLegendaAssService}
+ * em application). Garante que o peer é consumível por qualquer fatia funcional sem
+ * acoplamento reverso.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
@@ -28,12 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       próprio {@code qualidadeTraducao} — nunca de {@code traducao} nem de outra fatia
  *       funcional, nem de outro peer ({@code legenda}, {@code cachetraducao},
  *       {@code contexto}, {@code llm}).</li>
- *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os três proprietários
+ *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os cinco proprietários
  *       top-level ({@code qualidadeTraducao.application.MascaradorTags},
+ *       {@code qualidadeTraducao.application.ProtecaoLegendaAssService},
+ *       {@code qualidadeTraducao.application.ValidadorTraducaoService},
  *       {@code qualidadeTraducao.domain.ExcecaoQualidadeTraducao},
  *       {@code qualidadeTraducao.domain.AlucinacaoDetectadaException}); o nested
  *       {@code MascaradorTags$Mascarado} normaliza para o FQN de {@code MascaradorTags} e
- *       NÃO conta como quarto top-level. Congelar por FQN (não por simple name) impede
+ *       NÃO conta como sexto top-level. Congelar por FQN (não por simple name) impede
  *       que uma classe mude de pacote/camada mantendo o mesmo nome sem reprovar.</li>
  *   <li>{@code qualidadeTraducao.domain} é puro: só JDK e {@code core}; sem application,
  *       infrastructure ou framework.</li>
@@ -91,7 +95,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os três proprietários top-level do peer qualidadeTraducao")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os cinco proprietários top-level do peer qualidadeTraducao")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -106,10 +110,12 @@ class FronteiraQualidadeTraducaoArchTest {
         }
         assertEquals(new TreeSet<>(List.of(
                 PKG_QT_APPLICATION + ".MascaradorTags",
+                PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
+                PKG_QT_APPLICATION + ".ValidadorTraducaoService",
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os três proprietários top-level homologados, por FQN "
-                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um quarto top-level). "
+            "qualidadeTraducao deve conter EXATAMENTE os cinco proprietários top-level homologados, por FQN "
+                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um sexto top-level). "
                 + "Encontrado: " + topLevelsFqn);
     }
 
@@ -166,7 +172,7 @@ class FronteiraQualidadeTraducaoArchTest {
             }
         }
         assertTrue(!existeInfra,
-            "qualidadeTraducao NÃO deve ter pacote infrastructure nesta fase (E8b)");
+            "qualidadeTraducao NÃO deve ter pacote infrastructure nesta fase (E8b/E8c)");
         assertTrue(violacoes.isEmpty(),
             () -> "qualidadeTraducao.application não pode depender de infrastructure:\n"
                 + String.join("\n", new TreeSet<>(violacoes)));

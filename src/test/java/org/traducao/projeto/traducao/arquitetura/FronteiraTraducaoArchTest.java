@@ -242,17 +242,18 @@ class FronteiraTraducaoArchTest {
     );
 
     /**
-     * PROPÓSITO DE NEGÓCIO: superfície do peer {@code qualidadeTraducao} (E8b) congelada
+     * PROPÓSITO DE NEGÓCIO: superfície do peer {@code qualidadeTraducao} (E8b/E8c) congelada
      * POR TIPO com igualdade EXATA, SEPARADA dos demais peers. A Tradução Local só pode
      * depender nominalmente destes tipos; qualquer tipo extra reprova até autorização
      * explícita (sem liberação genérica do pacote {@code qualidadeTraducao}).
      *
      * <p>INVARIANTES DO DOMÍNIO: contém apenas os tipos que a fatia {@code traducao}
-     * consome de fato (medido): {@code MascaradorTags} (via {@code ProcessarArquivoUseCase})
-     * e {@code AlucinacaoDetectadaException} (via {@code ProcessarArquivoUseCase} e
-     * {@code ValidadorTraducaoService}). {@code ExcecaoQualidadeTraducao} NÃO entra por ser
-     * base interna da exceção, sem consumo direto medido. O nested {@code MascaradorTags$Mascarado}
-     * é normalizado ao proprietário {@code MascaradorTags}.
+     * consome de fato (medido): {@code MascaradorTags} e {@code AlucinacaoDetectadaException}
+     * desde a E8b; {@code ValidadorTraducaoService} (via {@code ProcessarArquivoUseCase} e
+     * {@code ProcessarEpisodioUseCase}) e {@code ProtecaoLegendaAssService} (via
+     * {@code ProcessarArquivoUseCase}) desde a E8c. {@code ExcecaoQualidadeTraducao} NÃO entra
+     * por ser base interna da exceção, sem consumo direto medido. O nested
+     * {@code MascaradorTags$Mascarado} é normalizado ao proprietário {@code MascaradorTags}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #qualidadeTraducaoCongeladoPorTipo()} exige
      * igualdade {@code tiposUsados == QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}, reprovando tanto
@@ -260,6 +261,8 @@ class FronteiraTraducaoArchTest {
      */
     private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
+        RAIZ + ".qualidadeTraducao.application.ProtecaoLegendaAssService",
+        RAIZ + ".qualidadeTraducao.application.ValidadorTraducaoService",
         RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException"
     );
 
@@ -482,7 +485,7 @@ class FronteiraTraducaoArchTest {
      * medido diferente do congelado (tipo novo ou entrada obsoleta) reprova o teste.
      */
     @Test
-    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente MascaradorTags e AlucinacaoDetectadaException (E8b)")
+    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente MascaradorTags, AlucinacaoDetectadaException (E8b), ValidadorTraducaoService e ProtecaoLegendaAssService (E8c)")
     void qualidadeTraducaoCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposQualidadeUsados = new TreeSet<>();
