@@ -11,7 +11,7 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
@@ -37,10 +37,10 @@ class TraduzirKaraokeUseCaseTest {
     private Path tempDir;
     private Path pastaEntrada;
     private TraduzirKaraokeUseCase useCase;
-    private MistralPortFake mistralFake;
+    private LlmPortFake llmFake;
 
     /** Traduções fixas com contador de chamadas para provar reuso de cache e dry-run sem LLM. */
-    static class MistralPortFake implements MistralPort {
+    static class LlmPortFake implements LlmPort {
         int chamadasTraduzir = 0;
         private final Map<String, String> respostas = Map.of(
             "Even if the world ends tomorrow", "Mesmo que o mundo acabe amanhã"
@@ -102,7 +102,7 @@ class TraduzirKaraokeUseCaseTest {
         pastaEntrada = Files.createDirectories(tempDir.resolve("legendas"));
         escreverLegenda(pastaEntrada.resolve(NOME_ARQUIVO));
 
-        mistralFake = new MistralPortFake();
+        llmFake = new LlmPortFake();
 
         useCase = new TraduzirKaraokeUseCase();
         useCase.leitor = new LeitorLegendaAss();
@@ -110,7 +110,7 @@ class TraduzirKaraokeUseCaseTest {
         useCase.mascarador = new MascaradorTags();
         useCase.validador = new ValidadorTraducaoService();
         useCase.cacheService = new CacheTraducaoService(new ObjectMapper());
-        useCase.mistralPort = mistralFake;
+        useCase.llmPort = llmFake;
         useCase.gerenciadorContexto = null; // sem CDI: o use case tolera ausência em teste
         useCase.classificador = new ClassificadorLetraKaraokeService(new DetectorEfeitoKaraokeService());
         useCase.logStream = new MockLogStream();
@@ -174,10 +174,10 @@ class TraduzirKaraokeUseCaseTest {
     @Test
     void reexecucaoReaproveitaCacheSemChamarLlmDeNovo() {
         useCase.aplicar(pastaEntrada, null);
-        assertEquals(1, mistralFake.chamadasTraduzir);
+        assertEquals(1, llmFake.chamadasTraduzir);
 
         List<ResultadoTraducaoKaraoke> segunda = useCase.aplicar(pastaEntrada, null);
-        assertEquals(1, mistralFake.chamadasTraduzir, "segunda execução deve vir 100% do cache");
+        assertEquals(1, llmFake.chamadasTraduzir, "segunda execução deve vir 100% do cache");
         assertEquals(1, segunda.getFirst().reaproveitadasCache());
         assertEquals(0, segunda.getFirst().traduzidas());
     }
@@ -186,7 +186,7 @@ class TraduzirKaraokeUseCaseTest {
     void simularClassificaSemChamarLlmESemGravar() {
         List<ResultadoTraducaoKaraoke> resultados = useCase.simular(pastaEntrada, null);
 
-        assertEquals(0, mistralFake.chamadasTraduzir, "dry-run nunca chama o LLM");
+        assertEquals(0, llmFake.chamadasTraduzir, "dry-run nunca chama o LLM");
         Path pastaDestino = TraduzirKaraokeUseCase.resolverPastaSaida(pastaEntrada);
         assertFalse(Files.exists(pastaDestino), "dry-run não pode criar a pasta de destino");
 

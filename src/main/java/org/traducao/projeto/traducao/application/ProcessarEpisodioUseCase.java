@@ -10,7 +10,7 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
@@ -36,7 +36,7 @@ public class ProcessarEpisodioUseCase {
     // de recuperacao antes de desistir da fala.
     private static final Double[] TEMPERATURA_POR_TENTATIVA = {null, 0.5, 0.7};
 
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final ValidadorTraducaoService validador;
     private final ConsoleUILogger uiLogger;
     private final TelemetriaTraducaoPort telemetriaTraducao;
@@ -52,12 +52,12 @@ public class ProcessarEpisodioUseCase {
      * caso de uso pelo contêiner.
      */
     public ProcessarEpisodioUseCase(
-        MistralPort mistralPort,
+        LlmPort llmPort,
         ValidadorTraducaoService validador,
         ConsoleUILogger uiLogger,
         TelemetriaTraducaoPort telemetriaTraducao
     ) {
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.validador = validador;
         this.uiLogger = uiLogger;
         this.telemetriaTraducao = telemetriaTraducao;
@@ -111,7 +111,7 @@ public class ProcessarEpisodioUseCase {
      * PROPÓSITO DE NEGÓCIO: traduz e valida um lote tolerando alucinações de contagem
      * de linhas e resíduo/preâmbulo — em vez de abortar o episódio por um único lote
      * problemático, a divisão/retry isola o trecho ruim. Só uma falha de comunicação
-     * real (HTTP/timeout, esgotadas as tentativas do {@link MistralPort}) aborta.
+     * real (HTTP/timeout, esgotadas as tentativas do {@link LlmPort}) aborta.
      *
      * <p>INVARIANTES DO DOMÍNIO: toda saída passa por {@code traduzirComDivisao} antes
      * de ser devolvida como sucesso; o {@code MDC} do lote é sempre limpo no {@code finally}.
@@ -216,7 +216,7 @@ public class ProcessarEpisodioUseCase {
     }
 
     private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
-        TraducaoLote resultado = mistralPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado);
+        TraducaoLote resultado = llmPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado);
 
         if (!resultado.sucesso() || resultado.linhasTraduzidas() == null) {
             throw new TradutorException("Lote " + lote.idLote() + " falhou na comunicação: " + resultado.mensagemErro());

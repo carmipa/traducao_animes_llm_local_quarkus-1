@@ -7,7 +7,7 @@ import org.traducao.projeto.traducao.domain.TraducaoLote;
 import java.util.List;
 import java.util.Optional;
 
-public interface MistralPort {
+public interface LlmPort {
     TraducaoLote traduzir(Lote lote);
 
     /**

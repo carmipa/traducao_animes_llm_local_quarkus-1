@@ -11,7 +11,7 @@ import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
@@ -52,7 +52,7 @@ public class RevisarCacheUseCase {
     private final ClassificadorEntradaCacheService classificador;
     private final ContextoManutencaoCacheService contextoService;
     private final DetectorConcordanciaService detector;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final ValidadorTraducaoService validador;
     private final MascaradorTags mascaradorTags;
     private final ProtecaoLegendaAssService protecaoAss;
@@ -69,7 +69,7 @@ public class RevisarCacheUseCase {
         ClassificadorEntradaCacheService classificador,
         ContextoManutencaoCacheService contextoService,
         DetectorConcordanciaService detector,
-        MistralPort mistralPort,
+        LlmPort llmPort,
         ValidadorTraducaoService validador,
         MascaradorTags mascaradorTags,
         ProtecaoLegendaAssService protecaoAss,
@@ -80,7 +80,7 @@ public class RevisarCacheUseCase {
         this.classificador = classificador;
         this.contextoService = contextoService;
         this.detector = detector;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.validador = validador;
         this.mascaradorTags = mascaradorTags;
         this.protecaoAss = protecaoAss;
@@ -277,8 +277,8 @@ public class RevisarCacheUseCase {
         MascaradorTags.Mascarado mascTraduzido = mascaradorTags.mascarar(traduzido);
         boolean temResiduo = motivos.stream().anyMatch(m -> m.contains("Resíduo gringo"));
         Optional<String> resposta = temResiduo
-            ? mistralPort.corrigirTraducao(mascOriginal.texto(), mascTraduzido.texto(), String.join(", ", motivos))
-            : mistralPort.revisarConcordancia(mascOriginal.texto(), mascTraduzido.texto(), motivos);
+            ? llmPort.corrigirTraducao(mascOriginal.texto(), mascTraduzido.texto(), String.join(", ", motivos))
+            : llmPort.revisarConcordancia(mascOriginal.texto(), mascTraduzido.texto(), motivos);
         if (resposta.isEmpty()) {
             return TentativaRevisao.pendente("O LLM não retornou uma proposta válida.");
         }

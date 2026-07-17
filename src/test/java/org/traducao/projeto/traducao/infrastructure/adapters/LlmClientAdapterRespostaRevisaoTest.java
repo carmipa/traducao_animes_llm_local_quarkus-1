@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * <p>COMPORTAMENTO EM CASO DE FALHA: resposta incompatível produz texto vazio,
  * obrigando o cliente a tentar novamente em vez de publicar estrutura quebrada.
  */
-class MistralClientAdapterRespostaRevisaoTest {
+class LlmClientAdapterRespostaRevisaoTest {
 
     /**
      * PROPÓSITO DE NEGÓCIO: aceita a fala final após o bloco de raciocínio do modelo.
@@ -30,7 +30,7 @@ class MistralClientAdapterRespostaRevisaoTest {
             Tradução corrigida: Os federais não são [[TAG0]]tão[[TAG1]] burros.
             """;
 
-        String normalizada = MistralClientAdapter.normalizarLinhaUnica(
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
             resposta, List.of("[[TAG0]]", "[[TAG1]]"));
 
         assertEquals("Os federais não são [[TAG0]]tão[[TAG1]] burros.", normalizada);
@@ -43,7 +43,7 @@ class MistralClientAdapterRespostaRevisaoTest {
      */
     @Test
     void removeCercaMarkdown() {
-        String normalizada = MistralClientAdapter.normalizarLinhaUnica(
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
             "```text\nUma unidade móvel...\n```", List.of());
 
         assertEquals("Uma unidade móvel...", normalizada);
@@ -56,7 +56,7 @@ class MistralClientAdapterRespostaRevisaoTest {
      */
     @Test
     void selecionaUltimaLinhaUtilSemTags() {
-        String normalizada = MistralClientAdapter.normalizarLinhaUnica(
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
             "Segue a revisão solicitada:\nGraças a Deus.", List.of());
 
         assertEquals("Graças a Deus.", normalizada);
@@ -69,7 +69,7 @@ class MistralClientAdapterRespostaRevisaoTest {
      */
     @Test
     void rejeitaRespostaQuePerdeMarcador() {
-        String normalizada = MistralClientAdapter.normalizarLinhaUnica(
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
             "Os federais não são tão burros.", List.of("[[TAG0]]", "[[TAG1]]"));
 
         assertEquals("", normalizada);

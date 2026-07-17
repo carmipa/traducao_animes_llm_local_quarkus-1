@@ -13,7 +13,7 @@ import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -83,7 +83,7 @@ public class TraduzirKaraokeUseCase {
     CacheTraducaoService cacheService;
 
     @Inject
-    MistralPort mistralPort;
+    LlmPort llmPort;
 
     @Inject
     GerenciadorContexto gerenciadorContexto;
@@ -148,7 +148,7 @@ public class TraduzirKaraokeUseCase {
         logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
 
         if (gravar) {
-            StatusLlm status = mistralPort.verificarDisponibilidade();
+            StatusLlm status = llmPort.verificarDisponibilidade();
             if (status == null || !status.modeloCarregado()) {
                 throw new TraducaoKaraokeException("Servidor LLM indisponível: "
                     + (status != null ? status.mensagem() : "sem resposta"));
@@ -307,7 +307,7 @@ public class TraduzirKaraokeUseCase {
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
         TraducaoLote resposta;
         try {
-            resposta = mistralPort.traduzir(new Lote(++sequencialLote, List.of(mascarado.texto())));
+            resposta = llmPort.traduzir(new Lote(++sequencialLote, List.of(mascarado.texto())));
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; linha mantida sem tradução: " + original);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha (mantida no idioma original): " + e.getMessage());

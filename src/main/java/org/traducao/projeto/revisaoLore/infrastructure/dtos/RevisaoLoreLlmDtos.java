@@ -8,7 +8,7 @@ import java.util.List;
  * PROPÓSITO DE NEGÓCIO: DTOs próprios da Revisão de Lore para o protocolo
  * OpenAI-compatible do LLM local (chat/completions e catálogo de modelos).
  * Duplicação consciente dos records equivalentes da Tradução Local, para manter
- * a fatia autônoma — nenhuma dependência de {@code RecordsMistral}.
+ * a fatia autônoma — nenhuma dependência de {@code RecordsLlm}.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
