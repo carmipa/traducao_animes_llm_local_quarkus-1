@@ -28,10 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       próprio {@code qualidadeTraducao} — nunca de {@code traducao} nem de outra fatia
  *       funcional, nem de outro peer ({@code legenda}, {@code cachetraducao},
  *       {@code contexto}, {@code llm}).</li>
- *   <li>Inventário nominal EXATO: exatamente três proprietários top-level
- *       ({@code MascaradorTags}, {@code ExcecaoQualidadeTraducao},
- *       {@code AlucinacaoDetectadaException}); o nested {@code MascaradorTags$Mascarado} é
- *       normalizado ao seu proprietário e NÃO conta como quarto top-level.</li>
+ *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os três proprietários
+ *       top-level ({@code qualidadeTraducao.application.MascaradorTags},
+ *       {@code qualidadeTraducao.domain.ExcecaoQualidadeTraducao},
+ *       {@code qualidadeTraducao.domain.AlucinacaoDetectadaException}); o nested
+ *       {@code MascaradorTags$Mascarado} normaliza para o FQN de {@code MascaradorTags} e
+ *       NÃO conta como quarto top-level. Congelar por FQN (não por simple name) impede
+ *       que uma classe mude de pacote/camada mantendo o mesmo nome sem reprovar.</li>
  *   <li>{@code qualidadeTraducao.domain} é puro: só JDK e {@code core}; sem application,
  *       infrastructure ou framework.</li>
  *   <li>{@code qualidadeTraducao.application} depende de domain/core/JDK/Spring técnico;
@@ -88,24 +91,26 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO: exatamente MascaradorTags, ExcecaoQualidadeTraducao e AlucinacaoDetectadaException")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os três proprietários top-level do peer qualidadeTraducao")
     void inventarioNominalExato() {
-        TreeSet<String> topLevels = new TreeSet<>();
+        TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
             if (!ehDoQualidade(classe)) {
                 continue;
             }
-            String nome = classe.getName();
-            // Normaliza nested ($) ao proprietário top-level: MascaradorTags$Mascarado -> MascaradorTags.
-            if (nome.contains("$")) {
-                continue;
-            }
-            topLevels.add(nome.substring(nome.lastIndexOf('.') + 1));
+            // Normaliza o nested ($) ao FQN do proprietário top-level:
+            // ...qualidadeTraducao.application.MascaradorTags$Mascarado ->
+            // ...qualidadeTraducao.application.MascaradorTags. Congela FQN COMPLETO
+            // (não simple name): mudar de pacote/camada mantendo o mesmo nome reprova.
+            topLevelsFqn.add(topo(classe.getName()));
         }
         assertEquals(new TreeSet<>(List.of(
-                "AlucinacaoDetectadaException", "ExcecaoQualidadeTraducao", "MascaradorTags")), topLevels,
-            "qualidadeTraducao deve conter EXATAMENTE os três proprietários top-level homologados "
-                + "(o nested Mascarado pertence a MascaradorTags e não é um quarto top-level). Encontrado: " + topLevels);
+                PKG_QT_APPLICATION + ".MascaradorTags",
+                PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
+                PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao")), topLevelsFqn,
+            "qualidadeTraducao deve conter EXATAMENTE os três proprietários top-level homologados, por FQN "
+                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um quarto top-level). "
+                + "Encontrado: " + topLevelsFqn);
     }
 
     @Test
