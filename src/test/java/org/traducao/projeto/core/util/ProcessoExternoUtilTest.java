@@ -8,11 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -154,20 +160,21 @@ class ProcessoExternoUtilTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: prova que o timeout não só sinaliza, mas de fato ENCERRA o
-     * processo-filho — a garantia de que um ffmpeg/mkvmerge travado não fica órfão consumindo
-     * recursos após o {@link TimeoutException}.
+     * PROPÓSITO DE NEGÓCIO: prova que {@link ProcessoExternoUtil#executar} AGUARDA o
+     * encerramento do processo-filho antes de retornar — não basta disparar o kill e seguir.
+     * Distingue "kill solicitado" de "término confirmado".
      *
-     * <p>INVARIANTES DO DOMÍNIO: o filho grava o próprio PID em arquivo antes de dormir; após
-     * o timeout, o PID observado via {@link ProcessHandle} não pode estar mais vivo. A
-     * verificação é determinística (arquivo + polling com prazo total estrito), sem usar
-     * {@code sleep} como sincronização.
+     * <p>INVARIANTES DO DOMÍNIO: executar roda numa thread separada; o PID do filho é lido
+     * enquanto executar ainda está bloqueado; assim que executar termina (por
+     * {@link TimeoutException}), o processo JÁ deve estar morto — verificação imediata, SEM
+     * janela de tolerância posterior nem busy-wait. A implementação antiga (só
+     * {@code destroyForcibly} e retorno) não garante isso.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: PID não gravado no prazo, ou processo ainda vivo no
-     * prazo de observação, reprova o teste.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: processo ainda vivo no instante do retorno reprova o
+     * teste; recursos são liberados no {@code finally}.
      */
     @Test
-    void timeoutEncerraDeFatoOProcessoFilho(@TempDir Path tempDir) throws Exception {
+    void timeoutAguardaEncerramentoAntesDeRetornar(@TempDir Path tempDir) throws Exception {
         Path fonte = tempDir.resolve("ProcessoPid.java");
         Path arquivoPid = tempDir.resolve("pid.txt");
         Files.writeString(fonte,
@@ -175,23 +182,88 @@ class ProcessoExternoUtilTest {
             + " public static void main(String[] a) throws Exception {"
             + "  java.nio.file.Files.writeString(java.nio.file.Path.of(a[0]),"
             + "    String.valueOf(ProcessHandle.current().pid()));"
-            + "  Thread.sleep(30000); } }");
+            + "  Thread.sleep(60000); } }");
         List<String> cmd = List.of(javaBin(), fonte.toString(), arquivoPid.toString());
 
-        assertThrows(TimeoutException.class,
-            () -> ProcessoExternoUtil.executar(cmd, Duration.ofMillis(1500)));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> futuro = executor.submit(() -> ProcessoExternoUtil.executar(cmd, Duration.ofMillis(2000)));
 
-        long pid = lerPidComPrazo(arquivoPid, Duration.ofSeconds(5));
-        assertFalse(processoVivoComPrazo(pid, Duration.ofSeconds(5)),
-            "o processo-filho deveria ter sido encerrado à força após o timeout");
+            // PID lido ENQUANTO executar ainda está bloqueado no processo (antes do retorno).
+            long pid = lerPidComPrazo(arquivoPid, Duration.ofSeconds(15));
+
+            // Sincronização determinística pelo término de executar (não por sleep/janela).
+            ExecutionException ee = assertThrows(ExecutionException.class,
+                () -> futuro.get(30, TimeUnit.SECONDS));
+            assertInstanceOf(TimeoutException.class, ee.getCause(),
+                "o estouro de tempo deve emergir como TimeoutException");
+
+            // Imediatamente após o retorno: o método aguardou, então o filho não pode seguir vivo.
+            assertFalse(processoVivo(pid),
+                "executar() deve aguardar o encerramento; o filho não pode continuar vivo ao retornar");
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que uma interrupção da thread chamadora durante
+     * {@link ProcessoExternoUtil#executar} PROPAGA {@link InterruptedException} ao chamador
+     * (não vira {@link TimeoutException}), dando ao cancelamento precedência sobre o timeout.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: executar roda numa thread com timeout longo (30s) para ficar
+     * bloqueado na espera do processo; interrompida a thread, executar sai por
+     * {@link InterruptedException}; o processo-filho é limpo pelo {@code finally} da própria
+     * {@code executar}. Determinístico, sem {@code sleep} como sincronização.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: exceção capturada de tipo diferente de
+     * {@link InterruptedException}, ou processo-filho ainda vivo, reprova o teste.
+     */
+    @Test
+    void interrupcaoDuranteEsperaPropagaInterruptedException(@TempDir Path tempDir) throws Exception {
+        Path fonte = tempDir.resolve("ProcessoPid.java");
+        Path arquivoPid = tempDir.resolve("pid.txt");
+        Files.writeString(fonte,
+            "public class ProcessoPid {"
+            + " public static void main(String[] a) throws Exception {"
+            + "  java.nio.file.Files.writeString(java.nio.file.Path.of(a[0]),"
+            + "    String.valueOf(ProcessHandle.current().pid()));"
+            + "  Thread.sleep(60000); } }");
+        List<String> cmd = List.of(javaBin(), fonte.toString(), arquivoPid.toString());
+
+        AtomicReference<Throwable> capturado = new AtomicReference<>();
+        Thread worker = new Thread(() -> {
+            try {
+                ProcessoExternoUtil.executar(cmd, Duration.ofSeconds(30));
+            } catch (Throwable t) {
+                capturado.set(t);
+            }
+        }, "processo-externo-interrupcao-teste");
+        worker.setDaemon(true);
+        worker.start();
+        try {
+            long pid = lerPidComPrazo(arquivoPid, Duration.ofSeconds(15));
+
+            worker.interrupt();
+            worker.join(10_000);
+            assertFalse(worker.isAlive(), "a thread do executar deveria ter encerrado após a interrupção");
+            assertInstanceOf(InterruptedException.class, capturado.get(),
+                "a interrupção deve propagar InterruptedException, não TimeoutException");
+            assertFalse(processoVivo(pid),
+                "o processo-filho deve ser encerrado pela limpeza de executar()");
+        } finally {
+            worker.interrupt();
+            worker.join(5_000);
+        }
     }
 
     /**
      * PROPÓSITO DE NEGÓCIO: lê o PID que o processo-filho gravou, tolerando a janela entre o
      * spawn e a primeira escrita do arquivo.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só observa; faz busy-wait com {@link Thread#onSpinWait()} até
-     * um prazo total estrito, sem {@code sleep} como sincronização.
+     * <p>INVARIANTES DO DOMÍNIO: só observa, com poll de intervalo curto e prazo total estrito;
+     * o pequeno {@code sleep} é apenas espaçamento do poll (não sincronização principal, que é
+     * o término de {@code executar}) e não queima um núcleo como um busy-wait faria.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: esgotado o prazo sem PID legível, lança
      * {@link AssertionError}.
@@ -205,31 +277,22 @@ class ProcessoExternoUtilTest {
                     return Long.parseLong(texto);
                 }
             }
-            Thread.onSpinWait();
+            Thread.sleep(10);
         }
         throw new AssertionError("processo-filho não gravou o PID dentro do prazo de observação");
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: observa se um PID ainda corresponde a um processo vivo, dentro de
-     * um prazo total estrito.
+     * PROPÓSITO DE NEGÓCIO: observa, num único instante, se um PID ainda corresponde a um
+     * processo vivo — sem prazo de tolerância, para provar que o encerramento já ocorreu.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só observa via {@link ProcessHandle}; PID ausente ou não vivo
-     * conta como encerrado; busy-wait com {@link Thread#onSpinWait()}, sem {@code sleep}.
+     * <p>INVARIANTES DO DOMÍNIO: consulta única via {@link ProcessHandle}; PID ausente conta
+     * como encerrado; não espera, não faz poll.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: se ainda vivo ao fim do prazo, devolve {@code true}
-     * para o teste reprovar.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code true} apenas se o processo estiver
+     * efetivamente vivo no instante da consulta.
      */
-    private static boolean processoVivoComPrazo(long pid, Duration prazo) {
-        long fim = System.nanoTime() + prazo.toNanos();
-        while (System.nanoTime() < fim) {
-            Optional<ProcessHandle> handle = ProcessHandle.of(pid);
-            if (handle.isEmpty() || !handle.get().isAlive()) {
-                return false;
-            }
-            Thread.onSpinWait();
-        }
-        Optional<ProcessHandle> handle = ProcessHandle.of(pid);
-        return handle.isPresent() && handle.get().isAlive();
+    private static boolean processoVivo(long pid) {
+        return ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false);
     }
 }
