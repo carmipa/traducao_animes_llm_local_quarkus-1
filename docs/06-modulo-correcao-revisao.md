@@ -57,14 +57,14 @@ graph TD
 
 ## Fluxo 3 — Revisão de concordância PT-BR via LLM (`raspagemRevisao`)
 
-O fluxo mais sofisticado. `DetectorConcordanciaService` é **100% regex/heurística, sem LLM** — cruza pronomes do original (`he/she/him/her`) com artigos/substantivos/particípios/pronomes da tradução, procurando incompatibilidade de gênero (ex.: original usa `"her"` mas a tradução tem `"dele"`). Só os casos com suspeita real são enviados ao LLM (`MistralPort.revisarConcordancia()`), que recebe a lore do contexto ativo e decide a correção — economizando chamadas ao modelo.
+O fluxo mais sofisticado. `DetectorConcordanciaService` é **100% regex/heurística, sem LLM** — cruza pronomes do original (`he/she/him/her`) com artigos/substantivos/particípios/pronomes da tradução, procurando incompatibilidade de gênero (ex.: original usa `"her"` mas a tradução tem `"dele"`). Só os casos com suspeita real são enviados ao LLM (`LlmPort.revisarConcordancia()`), que recebe a lore do contexto ativo e decide a correção — economizando chamadas ao modelo.
 
 ```mermaid
 sequenceDiagram
     participant UC as RevisarCacheUseCase / RevisarLegendasUseCase
     participant Det as DetectorConcordanciaService
     participant Aud as AuditorProblemasLegendaService
-    participant LLM as MistralPort
+    participant LLM as LlmPort
 
     UC->>Aud: auditar(original, traducao)
     Aud->>Det: detectarConcordancia(original, traducao)
