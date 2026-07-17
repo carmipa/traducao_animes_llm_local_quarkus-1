@@ -2,7 +2,7 @@ package org.traducao.projeto.novoKaraoke.application;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.nio.charset.StandardCharsets;

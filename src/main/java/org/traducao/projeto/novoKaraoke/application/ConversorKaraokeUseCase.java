@@ -11,7 +11,7 @@ import org.traducao.projeto.novoKaraoke.domain.ResultadoConversaoKaraoke;
 import org.traducao.projeto.core.util.DuracaoUtil;
 import org.traducao.projeto.novoKaraoke.infrastructure.NovoKaraokePersistencia;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.io.IOException;

@@ -1,12 +1,17 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.legenda.application;
 
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
 /**
- * Reconhece eventos que são efeito de karaokê/música, e não fala de diálogo.
- * Cobre as duas formas em que o karaokê aparece nos arquivos .ass:
+ * PROPÓSITO DE NEGÓCIO: reconhece se um evento .ass/.ssa é efeito de
+ * karaokê/música (e não fala de diálogo), para que nenhuma fatia funcional
+ * (tradução, revisão, correção) mexa em música — responsabilidade exclusiva do
+ * fluxo de karaokê. É a regra única compartilhada, agora residente no peer
+ * {@code legenda}, consumível por qualquer fatia sem acoplamento reverso.
+ *
+ * <p>Cobre as duas formas em que o karaokê aparece nos arquivos .ass:
  * <ul>
  *   <li>Karaokê "cru": tags de timing {@code \k}, {@code \kf}, {@code \ko}
  *       por sílaba, como sai do fansub antes de aplicar template.</li>
@@ -15,9 +20,19 @@ import java.util.regex.Pattern;
  *       transformações animadas ({@code \t(...)}, {@code \frx}, {@code \fad},
  *       {@code \pos}) e quase nenhum texto visível.</li>
  * </ul>
- * Regra única compartilhada pelos módulos de tradução, revisão e correção —
- * nenhum deles deve mexer em música; isso é responsabilidade do módulo de
- * karaokê.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: distingue música de diálogo pela assinatura de tags
+ * e pela densidade de texto visível; preserva letra em japonês/romaji (kana/kanji
+ * ou estilo marcado como japonês) para nunca destruí-la, enquanto karaokê/música
+ * em idiomas latinos com texto traduzível pode seguir para tradução. Em caso de
+ * dúvida o viés é preservar: deixar uma linha de música sem traduzir custa menos
+ * que corromper romaji. A classe é sem estado (stateless) e depende apenas de
+ * JDK e Spring.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas ou em branco devolvem
+ * {@code false} (não classificam o evento como música/karaokê) e nenhum método
+ * lança — cada consulta é uma decisão booleana determinística sobre o
+ * texto/estilo fornecido.
  */
 @Service
 public class DetectorEfeitoKaraokeService {

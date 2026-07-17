@@ -31,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code legenda.infrastructure}, dependendo apenas de {@code legenda.domain},
  *       JDK/libs técnicas e (escritores) {@code core.util.ArquivoAtomicoUtil} —
  *       {@code legenda -> core} legítima.</li>
+ *   <li>E8a: {@code DetectorEfeitoKaraokeService} (regra única música/karaokê) em
+ *       {@code legenda.application}, movido de {@code traducao.application}. Nova
+ *       fronteira da camada {@code application}: não depende de
+ *       {@code legenda.infrastructure} nem de fatia funcional.</li>
  * </ul>
  *
  * <h2>Invariantes do domínio</h2>
@@ -53,6 +57,8 @@ class FronteiraLegendaArchTest {
     private static final String FATIA_CORE = "core";
     private static final String PKG_LEGENDA = RAIZ + ".legenda";
     private static final String PKG_LEGENDA_DOMAIN = RAIZ + ".legenda.domain";
+    private static final String PKG_LEGENDA_APPLICATION = RAIZ + ".legenda.application";
+    private static final String PKG_LEGENDA_INFRA = RAIZ + ".legenda.infrastructure";
 
     private static JavaClasses classesProducao;
 
@@ -114,6 +120,55 @@ class FronteiraLegendaArchTest {
         }
         assertTrue(violacoes.isEmpty(),
             () -> "legenda.domain deve permanecer puro (sem infrastructure/framework):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela a camada {@code legenda.application} introduzida na
+     * E8a, garantindo que serviços de aplicação compartilhados do peer (ex.:
+     * {@code DetectorEfeitoKaraokeService}) permaneçam consumíveis por qualquer fatia
+     * sem criar acoplamento reverso nem depender da infraestrutura do próprio peer.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code legenda.application} NÃO pode depender de
+     * {@code legenda.infrastructure} nem de {@code traducao}/qualquer fatia funcional;
+     * permanecem permitidas dependências de JDK, bibliotecas técnicas, {@code core},
+     * {@code legenda.domain} e do próprio {@code legenda.application}. A anotação Spring
+     * já existente ({@code @Service}) NÃO é proibida nesta fase.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dependência proibida
+     * ({@code legenda.application -> legenda.infrastructure} ou {@code -> fatia funcional})
+     * reprova o teste, listando a aresta exata.
+     */
+    @Test
+    @DisplayName("legenda.application (E8a) não depende de legenda.infrastructure nem de fatia funcional")
+    void legendaApplicationNaoDependeDeInfraNemDeFatia() {
+        List<String> violacoes = new ArrayList<>();
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            boolean ehApplication = pkg.equals(PKG_LEGENDA_APPLICATION)
+                || pkg.startsWith(PKG_LEGENDA_APPLICATION + ".");
+            if (!ehApplication) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destinoPkg = dependencia.getTargetClass().getPackageName();
+                String destino = dependencia.getTargetClass().getName();
+                boolean infraLegenda = destinoPkg.equals(PKG_LEGENDA_INFRA)
+                    || destinoPkg.startsWith(PKG_LEGENDA_INFRA + ".");
+                String fatia = fatiaDe(destinoPkg);
+                // Permitidos: JDK/libs técnicas/Spring (fatia == null), core e o próprio
+                // legenda (domain/application) — EXCETO legenda.infrastructure.
+                boolean permitido = !infraLegenda
+                    && (fatia == null || fatia.equals(FATIA_LEGENDA) || fatia.equals(FATIA_CORE));
+                if (!permitido) {
+                    violacoes.add(origem + " -> " + topo(destino));
+                }
+            }
+        }
+        assertTrue(violacoes.isEmpty(),
+            () -> "legenda.application não pode depender de legenda.infrastructure nem de fatia "
+                + "funcional (só JDK/técnico/Spring, core, legenda.domain e o próprio application):\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 

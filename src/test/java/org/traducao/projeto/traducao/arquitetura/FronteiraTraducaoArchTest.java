@@ -178,6 +178,9 @@ class FronteiraTraducaoArchTest {
      *   <li>E5c: {@code LeitorLegendaAss/Srt} e {@code EscritorLegendaAss/Srt} (I/O de
      *       legenda), movidos de {@code traducao.infrastructure.legenda} para
      *       {@code legenda.infrastructure}. {@code MascaradorTags} permanece em traducao.</li>
+     *   <li>E8a: {@code DetectorEfeitoKaraokeService} (regra única música/karaokê),
+     *       movido de {@code traducao.application} para {@code legenda.application};
+     *       consumido pela Tradução Local via {@code ProcessarArquivoUseCase}.</li>
      * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
@@ -189,7 +192,8 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".legenda.infrastructure.LeitorLegendaAss",
         RAIZ + ".legenda.infrastructure.LeitorLegendaSrt",
         RAIZ + ".legenda.infrastructure.EscritorLegendaAss",
-        RAIZ + ".legenda.infrastructure.EscritorLegendaSrt"
+        RAIZ + ".legenda.infrastructure.EscritorLegendaSrt",
+        RAIZ + ".legenda.application.DetectorEfeitoKaraokeService"
     );
 
     /**
