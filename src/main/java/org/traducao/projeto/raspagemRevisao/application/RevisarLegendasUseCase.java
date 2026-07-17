@@ -10,7 +10,7 @@ import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoExc
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;

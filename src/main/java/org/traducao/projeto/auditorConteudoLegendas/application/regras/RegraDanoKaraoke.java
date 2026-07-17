@@ -3,7 +3,7 @@ package org.traducao.projeto.auditorConteudoLegendas.application.regras;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaConteudo;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 

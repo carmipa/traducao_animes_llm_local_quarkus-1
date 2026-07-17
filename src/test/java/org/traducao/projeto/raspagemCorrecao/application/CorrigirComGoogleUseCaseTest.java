@@ -7,7 +7,7 @@ import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScrap
 import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
