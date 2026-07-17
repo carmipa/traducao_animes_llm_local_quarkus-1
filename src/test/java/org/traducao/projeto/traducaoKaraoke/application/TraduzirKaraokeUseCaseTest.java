@@ -15,7 +15,7 @@ import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;

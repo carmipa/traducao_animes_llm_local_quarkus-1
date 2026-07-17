@@ -6,7 +6,7 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
@@ -107,11 +107,20 @@ public class ProcessarEpisodioUseCase {
     }
 
     /**
-     * Traduz e valida um lote, tolerando alucinações de contagem de linhas e
-     * resíduo/preâmbulo: em vez de abortar o episódio inteiro por causa de um
-     * único lote problemático, divide-o recursivamente em partes menores e
-     * tenta de novo. Só uma falha de comunicação real (HTTP/timeout, já
-     * esgotadas as tentativas do {@link MistralPort}) aborta o episódio.
+     * PROPÓSITO DE NEGÓCIO: traduz e valida um lote tolerando alucinações de contagem
+     * de linhas e resíduo/preâmbulo — em vez de abortar o episódio por um único lote
+     * problemático, a divisão/retry isola o trecho ruim. Só uma falha de comunicação
+     * real (HTTP/timeout, esgotadas as tentativas do {@link MistralPort}) aborta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: toda saída passa por {@code traduzirComDivisao} antes
+     * de ser devolvida como sucesso; o {@code MDC} do lote é sempre limpo no {@code finally}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: uma falha crítica é logada e repropagada. O
+     * catch trata tanto {@link TradutorException} quanto
+     * {@link org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException}
+     * — desde a E8b a alucinação pertence ao peer {@code qualidadeTraducao} e não é mais
+     * {@code TradutorException}; o multi-catch preserva a captura defensiva anterior
+     * (embora, no fluxo normal, a alucinação seja absorvida antes por divisão/retry/fallback).
      */
     private TraducaoLote traduzirEValidar(Lote lote, String promptSistemaCongelado) {
         MDC.put(MDC_LOTE_ID, String.valueOf(lote.idLote()));
@@ -123,7 +132,7 @@ public class ProcessarEpisodioUseCase {
             uiLogger.passoConcluido(1);
 
             return new TraducaoLote(lote.idLote(), traduzidas, true, null);
-        } catch (TradutorException e) {
+        } catch (TradutorException | AlucinacaoDetectadaException e) {
             log.error("Falha crítica no lote {}: {}", lote.idLote(), e.getMessage());
             uiLogger.log("[ FAIL ] ERRO CRÍTICO no Lote " + lote.idLote() + ": " + e.getMessage());
             throw e;
