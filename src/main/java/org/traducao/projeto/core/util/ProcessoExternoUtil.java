@@ -25,20 +25,24 @@ import java.util.concurrent.TimeoutException;
  *       {@link ProcessBuilder}, em que o filho bloqueia escrevendo num pipe cujo buffer do
  *       SO enche enquanto o pai ainda lê o outro fluxo.</li>
  *   <li>O {@code timeout} recebido limita a espera pelo término normal; ao estourá-lo, o
- *       processo é morto com {@code destroyForcibly} e o método AGUARDA a confirmação do
- *       encerramento por um limite curto e explícito ({@code ESPERA_ENCERRAMENTO} = 2s), em
- *       vez de só disparar o kill e retornar — nenhum processo-filho fica órfão.</li>
+ *       encerramento forçado é SOLICITADO ({@code destroyForcibly}) e o método AGUARDA a
+ *       CONFIRMAÇÃO do término por um limite curto e explícito ({@code ESPERA_ENCERRAMENTO} =
+ *       2s), em vez de só disparar o kill e retornar. Kill solicitado não é término
+ *       confirmado: se o SO não confirmar dentro do limite, o método retorna assim mesmo
+ *       (best-effort), sem garantir de forma absoluta que nenhum filho sobreviveu.</li>
  *   <li>A drenagem é I/O puro: roda em Virtual Threads (Java 21+), sem manter um pool de
  *       threads de plataforma por invocação nem competir com a GPU/LLM sequencial.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
  * Falha de spawn ou de leitura vira {@link IOException}. Estourar o {@code timeout} lança
- * {@link TimeoutException} depois do encerramento forçado aguardado. Se o SO não confirmar o
- * término dentro do limite curto de espera, o método registra um aviso e retorna assim mesmo
- * (o kill já foi enviado; o SO conclui de forma assíncrona), sem prender o pipeline. Uma
- * interrupção da thread chamadora propaga {@link InterruptedException} e, se ocorrer durante a
- * espera pelo encerramento, o flag de interrupção é restaurado.
+ * {@link TimeoutException} depois de SOLICITAR o encerramento forçado e aguardar (best-effort)
+ * a confirmação do término; se o SO não confirmar dentro do limite curto de espera, o método
+ * registra um aviso e retorna assim mesmo, sem prender o pipeline (kill solicitado, término
+ * não confirmado). Uma interrupção da thread chamadora propaga {@link InterruptedException};
+ * se ocorrer durante a espera pelo encerramento, o cancelamento tem PRECEDÊNCIA sobre um
+ * {@link TimeoutException} ainda não entregue. Só na limpeza final a interrupção é absorvida
+ * restaurando o flag, para não mascarar a exceção ou o resultado já em curso.
  */
 public final class ProcessoExternoUtil {
 
@@ -77,11 +81,13 @@ public final class ProcessoExternoUtil {
      *
      * <p>INVARIANTES DO DOMÍNIO: stdout e stderr são drenados concorrentemente em Virtual
      * Threads; com {@code mesclarErro=true}, stderr vai para stdout e o stderr devolvido é
-     * vazio; o processo é sempre morto se ainda estiver vivo ao final.
+     * vazio; se o processo ainda estiver vivo ao final, o encerramento forçado é solicitado e a
+     * confirmação do término aguardada (best-effort).
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: falha ao ler um fluxo vira {@link IOException};
-     * exceder o {@code timeout} lança {@link TimeoutException} depois de {@code destroyForcibly};
-     * interrupção propaga {@link InterruptedException}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha ao ler um fluxo vira {@link IOException}; exceder
+     * o {@code timeout} lança {@link TimeoutException} depois de solicitar o encerramento
+     * forçado e aguardar (best-effort) a confirmação; uma interrupção durante a espera propaga
+     * {@link InterruptedException}, com precedência sobre o timeout ainda não entregue.
      */
     public static Resultado executar(List<String> comando, Duration timeout, boolean mesclarErro)
             throws IOException, InterruptedException, TimeoutException {
