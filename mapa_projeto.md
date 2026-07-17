@@ -2,9 +2,9 @@
  MAPA ESTRUTURAL DO PROJETO - TRACKER ANIMES
 ================================================================================
  Raiz do repositorio      : traducao_animes_llm_local_quarkus
- Pastas mapeadas          : 247
- Arquivos (na arvore)     : 515
- Arquivos-fonte indexados : 412  (.java: 412 | .py: 0)
+ Pastas mapeadas          : 312
+ Arquivos (na arvore)     : 590
+ Arquivos-fonte indexados : 485  (.java: 485 | .py: 0)
  Memoria viva do projeto  : CEREBRO_IA.md (na raiz do repositorio)
 
  Objetivo: mapa de contexto para LLMs navegarem os diretorios e
@@ -19,8 +19,6 @@ traducao_animes_llm_local_quarkus/
 │   └── config.toml
 ├── .vscode/
 │   └── settings.json
-├── downloads/
-│   └── plano-mapas-saas.html
 ├── gradle/
 │   └── wrapper/
 │       ├── gradle-wrapper.jar
@@ -76,10 +74,12 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── model/
 │   │   │               │   │       └── AnimeMetadata.java
 │   │   │               │   ├── infrastructure/
-│   │   │               │   │   └── adapters/
-│   │   │               │   │       ├── AniListApiClientAdapter.java
-│   │   │               │   │       ├── JikanApiClientAdapter.java
-│   │   │               │   │       └── TmdbApiClientAdapter.java
+│   │   │               │   │   ├── adapters/
+│   │   │               │   │   │   ├── AniListApiClientAdapter.java
+│   │   │               │   │   │   ├── JikanApiClientAdapter.java
+│   │   │               │   │   │   └── TmdbApiClientAdapter.java
+│   │   │               │   │   └── config/
+│   │   │               │   │       └── ApiDadosAnimeHttpProperties.java
 │   │   │               │   └── presentation/
 │   │   │               │       └── web/
 │   │   │               │           └── AnimeMetadataController.java
@@ -115,10 +115,100 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── AuditoriaConteudoPersistencia.java
 │   │   │               │   └── presentation/
 │   │   │               │       └── AuditorConteudoController.java
+│   │   │               ├── cachetraducao/
+│   │   │               │   ├── domain/
+│   │   │               │   │   ├── CacheDocumento.java
+│   │   │               │   │   ├── EntradaCache.java
+│   │   │               │   │   └── ProvenienciaCache.java
+│   │   │               │   └── infrastructure/
+│   │   │               │       ├── CacheManutencaoService.java
+│   │   │               │       └── CacheTraducaoService.java
 │   │   │               ├── config/
 │   │   │               │   ├── AppConfig.java
 │   │   │               │   ├── ExecucaoCli.java
 │   │   │               │   └── ModoExecucaoStartup.java
+│   │   │               ├── contexto/
+│   │   │               │   ├── domain/
+│   │   │               │   │   ├── ContextoNaoEncontradoException.java
+│   │   │               │   │   ├── ContextoPrompt.java
+│   │   │               │   │   ├── ExcecaoContexto.java
+│   │   │               │   │   ├── ProvedorContexto.java
+│   │   │               │   │   └── RegrasConcordanciaPtBr.java
+│   │   │               │   ├── infrastructure/
+│   │   │               │   │   ├── config/
+│   │   │               │   │   │   └── ContextoBeansConfig.java
+│   │   │               │   │   └── GerenciadorContexto.java
+│   │   │               │   └── lore/
+│   │   │               │       ├── danmachi/
+│   │   │               │       │   ├── ContextoDanMachi.java
+│   │   │               │       │   ├── ContextoDanMachiOrion.java
+│   │   │               │       │   ├── ContextoDanMachiS1.java
+│   │   │               │       │   ├── ContextoDanMachiS2.java
+│   │   │               │       │   ├── ContextoDanMachiS3.java
+│   │   │               │       │   ├── ContextoDanMachiS4.java
+│   │   │               │       │   ├── ContextoDanMachiS5.java
+│   │   │               │       │   └── ContextoDanMachiSwordOratoria.java
+│   │   │               │       ├── eightsix/
+│   │   │               │       │   └── Contexto86.java
+│   │   │               │       ├── evangelion/
+│   │   │               │       │   ├── ContextoEvangelion111.java
+│   │   │               │       │   ├── ContextoEvangelion222.java
+│   │   │               │       │   ├── ContextoEvangelion3010.java
+│   │   │               │       │   ├── ContextoEvangelion333.java
+│   │   │               │       │   └── ContextoEvangelionTV.java
+│   │   │               │       ├── guiltycrown/
+│   │   │               │       │   └── ContextoGuiltyCrown.java
+│   │   │               │       ├── gundam/
+│   │   │               │       │   ├── chars/
+│   │   │               │       │   │   └── ContextoCharsCounterattack.java
+│   │   │               │       │   ├── msteam/
+│   │   │               │       │   │   └── ContextoGundam08thMSTeam.java
+│   │   │               │       │   ├── reconguista/
+│   │   │               │       │   │   └── ContextoGundamReconguista.java
+│   │   │               │       │   ├── stardust/
+│   │   │               │       │   │   └── ContextoGundam0083.java
+│   │   │               │       │   ├── warInpocket/
+│   │   │               │       │   │   └── ContextoWarInPocket.java
+│   │   │               │       │   ├── zeta/
+│   │   │               │       │   │   └── ContextoGundamZeta.java
+│   │   │               │       │   ├── zz/
+│   │   │               │       │   │   └── ContextoGundamZZ.java
+│   │   │               │       │   ├── ContextoGundam0079.java
+│   │   │               │       │   ├── ContextoGundamF91.java
+│   │   │               │       │   ├── ContextoGundamHathaway.java
+│   │   │               │       │   ├── ContextoGundamNT.java
+│   │   │               │       │   ├── ContextoGundamOrigin.java
+│   │   │               │       │   ├── ContextoGundamSEED.java
+│   │   │               │       │   ├── ContextoGundamSEEDAstray.java
+│   │   │               │       │   ├── ContextoGundamSEEDDestiny.java
+│   │   │               │       │   ├── ContextoGundamSEEDFreedom.java
+│   │   │               │       │   ├── ContextoGundamSEEDStargazer.java
+│   │   │               │       │   ├── ContextoGundamUnicorn.java
+│   │   │               │       │   └── ContextoGundamVictory.java
+│   │   │               │       ├── macross/
+│   │   │               │       │   ├── ContextoMacross2.java
+│   │   │               │       │   ├── ContextoMacross7.java
+│   │   │               │       │   ├── ContextoMacross7Encore.java
+│   │   │               │       │   ├── ContextoMacross7Filme.java
+│   │   │               │       │   ├── ContextoMacross7Filmes.java
+│   │   │               │       │   ├── ContextoMacrossAnime.java
+│   │   │               │       │   ├── ContextoMacrossDelta.java
+│   │   │               │       │   ├── ContextoMacrossDeltaFilme1.java
+│   │   │               │       │   ├── ContextoMacrossDeltaFilme2.java
+│   │   │               │       │   ├── ContextoMacrossDeltaFilmes.java
+│   │   │               │       │   ├── ContextoMacrossDynamite7.java
+│   │   │               │       │   ├── ContextoMacrossDYRL.java
+│   │   │               │       │   ├── ContextoMacrossFilme1.java
+│   │   │               │       │   ├── ContextoMacrossFilme2.java
+│   │   │               │       │   ├── ContextoMacrossFrontier.java
+│   │   │               │       │   ├── ContextoMacrossFrontierFilme1.java
+│   │   │               │       │   ├── ContextoMacrossFrontierFilme2.java
+│   │   │               │       │   ├── ContextoMacrossFrontierFilmes.java
+│   │   │               │       │   ├── ContextoMacrossPlus.java
+│   │   │               │       │   └── ContextoMacrossZero.java
+│   │   │               │       └── sidonia/
+│   │   │               │           ├── ContextoKnightsOfSidonia.java
+│   │   │               │           └── ContextoSidoniaFilme.java
 │   │   │               ├── core/
 │   │   │               │   ├── exception/
 │   │   │               │   │   ├── web/
@@ -126,8 +216,20 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── BasePipelineException.java
 │   │   │               │   ├── execucao/
 │   │   │               │   │   └── FilaExecucaoPipeline.java
+│   │   │               │   ├── infrastructure/
+│   │   │               │   │   └── http/
+│   │   │               │   │       └── JsonHttpClient.java
 │   │   │               │   ├── io/
 │   │   │               │   │   └── DiretorioBaseKronos.java
+│   │   │               │   ├── presentation/
+│   │   │               │   │   ├── ui/
+│   │   │               │   │   │   ├── AnsiCores.java
+│   │   │               │   │   │   └── ConsoleEntrada.java
+│   │   │               │   │   └── web/
+│   │   │               │   │       ├── LogStreamService.java
+│   │   │               │   │       ├── OperacaoRequest.java
+│   │   │               │   │       ├── PipelineWebSupport.java
+│   │   │               │   │       └── RespostaPadrao.java
 │   │   │               │   └── util/
 │   │   │               │       ├── ArquivoAtomicoUtil.java
 │   │   │               │       ├── DuracaoUtil.java
@@ -145,6 +247,22 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── CorrecaoLegendasLogPersistencia.java
 │   │   │               │   └── presentation/
 │   │   │               │       └── CorrecaoLegendasController.java
+│   │   │               ├── legenda/
+│   │   │               │   ├── application/
+│   │   │               │   │   └── DetectorEfeitoKaraokeService.java
+│   │   │               │   ├── domain/
+│   │   │               │   │   ├── ArquivoLegendaException.java
+│   │   │               │   │   ├── DocumentoLegenda.java
+│   │   │               │   │   ├── EventoLegenda.java
+│   │   │               │   │   ├── ExcecaoLegenda.java
+│   │   │               │   │   └── PoliticaEstiloMusical.java
+│   │   │               │   └── infrastructure/
+│   │   │               │       ├── config/
+│   │   │               │       │   └── PoliticaEstiloMusicalProducer.java
+│   │   │               │       ├── EscritorLegendaAss.java
+│   │   │               │       ├── EscritorLegendaSrt.java
+│   │   │               │       ├── LeitorLegendaAss.java
+│   │   │               │       └── LeitorLegendaSrt.java
 │   │   │               ├── legendasExtracao/
 │   │   │               │   ├── application/
 │   │   │               │   │   ├── strategy/
@@ -171,14 +289,22 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   │   ├── FfmpegAdapter.java
 │   │   │               │   │   │   └── MkvToolNixAdapter.java
 │   │   │               │   │   └── config/
+│   │   │               │   │       ├── ExtracaoBeansConfig.java
 │   │   │               │   │       └── ExtratorProperties.java
 │   │   │               │   └── presentation/
 │   │   │               │       ├── ui/
 │   │   │               │       │   ├── ConsoleExtratorLogger.java
 │   │   │               │       │   └── TabelaExtracaoRenderer.java
 │   │   │               │       ├── web/
-│   │   │               │       │   └── ExtracaoLegendaController.java
+│   │   │               │       │   ├── ExtracaoLegendaController.java
+│   │   │               │       │   └── ExtracaoRequest.java
 │   │   │               │       └── ExtratorCLI.java
+│   │   │               ├── llm/
+│   │   │               │   └── domain/
+│   │   │               │       ├── LlmPort.java
+│   │   │               │       ├── Lote.java
+│   │   │               │       ├── StatusLlm.java
+│   │   │               │       └── TraducaoLote.java
 │   │   │               ├── mapaProjeto/
 │   │   │               │   ├── application/
 │   │   │               │   │   ├── GeradorMapaProjetoUseCase.java
@@ -206,6 +332,16 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   └── presentation/
 │   │   │               │       ├── NovoKaraokeController.java
 │   │   │               │       └── NovoKaraokeRequest.java
+│   │   │               ├── qualidadeTraducao/
+│   │   │               │   ├── application/
+│   │   │               │   │   ├── DetectorTraducaoIdenticaService.java
+│   │   │               │   │   ├── MascaradorTags.java
+│   │   │               │   │   ├── ProtecaoLegendaAssService.java
+│   │   │               │   │   └── ValidadorTraducaoService.java
+│   │   │               │   └── domain/
+│   │   │               │       ├── AlucinacaoDetectadaException.java
+│   │   │               │       ├── ExcecaoQualidadeTraducao.java
+│   │   │               │       └── LoreAtivaPort.java
 │   │   │               ├── raspagemCorrecao/
 │   │   │               │   ├── application/
 │   │   │               │   │   ├── CorrigirComGoogleUseCase.java
@@ -232,6 +368,9 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   ├── exceptions/
 │   │   │               │   │   │   └── RaspagemRevisaoException.java
 │   │   │               │   │   └── ResultadoDeteccaoConcordancia.java
+│   │   │               │   ├── presentation/
+│   │   │               │   │   └── web/
+│   │   │               │   │       └── RevisaoLegendasController.java
 │   │   │               │   ├── RevisorLegendasCLI.java
 │   │   │               │   └── RevisorRaspagemCLI.java
 │   │   │               ├── remuxer/
@@ -254,7 +393,8 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │       ├── ui/
 │   │   │               │       │   └── ConsoleRemuxerLogger.java
 │   │   │               │       ├── web/
-│   │   │               │       │   └── RemuxerController.java
+│   │   │               │       │   ├── RemuxerController.java
+│   │   │               │       │   └── RemuxRequest.java
 │   │   │               │       └── RemuxerCLI.java
 │   │   │               ├── renomearArquivos/
 │   │   │               │   ├── application/
@@ -292,14 +432,25 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   ├── exceptions/
 │   │   │               │   │   │   └── RevisaoLoreException.java
 │   │   │               │   │   ├── ports/
-│   │   │               │   │   │   └── ProvedorPromptRevisaoLore.java
+│   │   │               │   │   │   ├── ProvedorPromptRevisaoLore.java
+│   │   │               │   │   │   └── RevisorLoreLlmPort.java
 │   │   │               │   │   ├── EntradaAuditoriaRevisaoLore.java
 │   │   │               │   │   ├── LogEventoRevisaoLore.java
 │   │   │               │   │   ├── ResultadoDeteccaoLore.java
 │   │   │               │   │   ├── ResultadoRevisaoLore.java
 │   │   │               │   │   ├── RevisaoLoreRelatorioJson.java
-│   │   │               │   │   └── StatusRevisaoLore.java
+│   │   │               │   │   ├── StatusRevisaoLore.java
+│   │   │               │   │   └── StatusRevisaoLoreLlm.java
 │   │   │               │   ├── infrastructure/
+│   │   │               │   │   ├── adapters/
+│   │   │               │   │   │   ├── NormalizadorRespostaRevisaoLore.java
+│   │   │               │   │   │   └── RevisorLoreLlmAdapter.java
+│   │   │               │   │   ├── config/
+│   │   │               │   │   │   └── RevisaoLoreLlmProperties.java
+│   │   │               │   │   ├── dtos/
+│   │   │               │   │   │   └── RevisaoLoreLlmDtos.java
+│   │   │               │   │   ├── http/
+│   │   │               │   │   │   └── RevisaoLoreHttpClient.java
 │   │   │               │   │   ├── RevisaoLoreAuditoriaCache.java
 │   │   │               │   │   └── RevisaoLoreLogPersistencia.java
 │   │   │               │   └── presentation/
@@ -312,6 +463,7 @@ traducao_animes_llm_local_quarkus/
 │   │   │               ├── telemetria/
 │   │   │               │   ├── presentation/
 │   │   │               │   │   └── web/
+│   │   │               │   │       ├── TelemetriaController.java
 │   │   │               │   │       └── TelemetriaStreamResource.java
 │   │   │               │   ├── AmbienteExecucaoDataset.java
 │   │   │               │   ├── AmbienteExecucaoDatasetService.java
@@ -323,93 +475,14 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   ├── TelemetriaDatasetProperties.java
 │   │   │               │   ├── TelemetriaDatasetService.java
 │   │   │               │   ├── TelemetriaResumo.java
-│   │   │               │   └── TelemetriaService.java
+│   │   │               │   ├── TelemetriaService.java
+│   │   │               │   └── TelemetriaTraducaoLeitura.java
 │   │   │               ├── traducao/
 │   │   │               │   ├── application/
-│   │   │               │   │   ├── DetectorEfeitoKaraokeService.java
-│   │   │               │   │   ├── DetectorTraducaoIdenticaService.java
 │   │   │               │   │   ├── ProcessarArquivoUseCase.java
-│   │   │               │   │   ├── ProcessarEpisodioUseCase.java
-│   │   │               │   │   ├── ProtecaoLegendaAssService.java
-│   │   │               │   │   └── ValidadorTraducaoService.java
-│   │   │               │   ├── contexto/
-│   │   │               │   │   ├── danmachi/
-│   │   │               │   │   │   ├── ContextoDanMachi.java
-│   │   │               │   │   │   ├── ContextoDanMachiOrion.java
-│   │   │               │   │   │   ├── ContextoDanMachiS1.java
-│   │   │               │   │   │   ├── ContextoDanMachiS2.java
-│   │   │               │   │   │   ├── ContextoDanMachiS3.java
-│   │   │               │   │   │   ├── ContextoDanMachiS4.java
-│   │   │               │   │   │   ├── ContextoDanMachiS5.java
-│   │   │               │   │   │   └── ContextoDanMachiSwordOratoria.java
-│   │   │               │   │   ├── eightsix/
-│   │   │               │   │   │   └── Contexto86.java
-│   │   │               │   │   ├── evangelion/
-│   │   │               │   │   │   ├── ContextoEvangelion111.java
-│   │   │               │   │   │   ├── ContextoEvangelion222.java
-│   │   │               │   │   │   ├── ContextoEvangelion3010.java
-│   │   │               │   │   │   ├── ContextoEvangelion333.java
-│   │   │               │   │   │   └── ContextoEvangelionTV.java
-│   │   │               │   │   ├── guiltycrown/
-│   │   │               │   │   │   └── ContextoGuiltyCrown.java
-│   │   │               │   │   ├── gundam/
-│   │   │               │   │   │   ├── chars/
-│   │   │               │   │   │   │   └── ContextoCharsCounterattack.java
-│   │   │               │   │   │   ├── msteam/
-│   │   │               │   │   │   │   └── ContextoGundam08thMSTeam.java
-│   │   │               │   │   │   ├── reconguista/
-│   │   │               │   │   │   │   └── ContextoGundamReconguista.java
-│   │   │               │   │   │   ├── stardust/
-│   │   │               │   │   │   │   └── ContextoGundam0083.java
-│   │   │               │   │   │   ├── warInpocket/
-│   │   │               │   │   │   │   └── ContextoWarInPocket.java
-│   │   │               │   │   │   ├── zeta/
-│   │   │               │   │   │   │   └── ContextoGundamZeta.java
-│   │   │               │   │   │   ├── zz/
-│   │   │               │   │   │   │   └── ContextoGundamZZ.java
-│   │   │               │   │   │   ├── ContextoGundam0079.java
-│   │   │               │   │   │   ├── ContextoGundamF91.java
-│   │   │               │   │   │   ├── ContextoGundamHathaway.java
-│   │   │               │   │   │   ├── ContextoGundamNT.java
-│   │   │               │   │   │   ├── ContextoGundamOrigin.java
-│   │   │               │   │   │   ├── ContextoGundamSEED.java
-│   │   │               │   │   │   ├── ContextoGundamSEEDAstray.java
-│   │   │               │   │   │   ├── ContextoGundamSEEDDestiny.java
-│   │   │               │   │   │   ├── ContextoGundamSEEDFreedom.java
-│   │   │               │   │   │   ├── ContextoGundamSEEDStargazer.java
-│   │   │               │   │   │   ├── ContextoGundamUnicorn.java
-│   │   │               │   │   │   └── ContextoGundamVictory.java
-│   │   │               │   │   ├── macross/
-│   │   │               │   │   │   ├── ContextoMacross2.java
-│   │   │               │   │   │   ├── ContextoMacross7.java
-│   │   │               │   │   │   ├── ContextoMacross7Encore.java
-│   │   │               │   │   │   ├── ContextoMacross7Filme.java
-│   │   │               │   │   │   ├── ContextoMacross7Filmes.java
-│   │   │               │   │   │   ├── ContextoMacrossAnime.java
-│   │   │               │   │   │   ├── ContextoMacrossDelta.java
-│   │   │               │   │   │   ├── ContextoMacrossDeltaFilme1.java
-│   │   │               │   │   │   ├── ContextoMacrossDeltaFilme2.java
-│   │   │               │   │   │   ├── ContextoMacrossDeltaFilmes.java
-│   │   │               │   │   │   ├── ContextoMacrossDynamite7.java
-│   │   │               │   │   │   ├── ContextoMacrossDYRL.java
-│   │   │               │   │   │   ├── ContextoMacrossFilme1.java
-│   │   │               │   │   │   ├── ContextoMacrossFilme2.java
-│   │   │               │   │   │   ├── ContextoMacrossFrontier.java
-│   │   │               │   │   │   ├── ContextoMacrossFrontierFilme1.java
-│   │   │               │   │   │   ├── ContextoMacrossFrontierFilme2.java
-│   │   │               │   │   │   ├── ContextoMacrossFrontierFilmes.java
-│   │   │               │   │   │   ├── ContextoMacrossPlus.java
-│   │   │               │   │   │   └── ContextoMacrossZero.java
-│   │   │               │   │   ├── sidonia/
-│   │   │               │   │   │   ├── ContextoKnightsOfSidonia.java
-│   │   │               │   │   │   └── ContextoSidoniaFilme.java
-│   │   │               │   │   ├── ContextoPrompt.java
-│   │   │               │   │   └── RegrasConcordanciaPtBr.java
+│   │   │               │   │   └── ProcessarEpisodioUseCase.java
 │   │   │               │   ├── domain/
 │   │   │               │   │   ├── exceptions/
-│   │   │               │   │   │   ├── AlucinacaoDetectadaException.java
-│   │   │               │   │   │   ├── ArquivoLegendaException.java
-│   │   │               │   │   │   ├── ContextoNaoEncontradoException.java
 │   │   │               │   │   │   ├── DivergenciaLinhasException.java
 │   │   │               │   │   │   ├── EntradaJaTraduzidaException.java
 │   │   │               │   │   │   ├── LlmFalhaComunicacaoException.java
@@ -418,40 +491,31 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   │   ├── TraducaoParcialException.java
 │   │   │               │   │   │   └── TradutorException.java
 │   │   │               │   │   ├── legenda/
-│   │   │               │   │   │   ├── DocumentoLegenda.java
-│   │   │               │   │   │   └── EventoLegenda.java
 │   │   │               │   │   ├── ports/
-│   │   │               │   │   │   ├── MistralPort.java
-│   │   │               │   │   │   └── ProvedorContexto.java
-│   │   │               │   │   ├── Lote.java
+│   │   │               │   │   │   └── TelemetriaTraducaoPort.java
+│   │   │               │   │   ├── NormalizadorNomeEpisodio.java
 │   │   │               │   │   ├── ResultadoTraducaoArquivo.java
 │   │   │               │   │   ├── StatusArquivoTraducao.java
-│   │   │               │   │   ├── StatusLlm.java
 │   │   │               │   │   ├── StatusLoteTraducao.java
-│   │   │               │   │   └── TraducaoLote.java
+│   │   │               │   │   ├── TelemetriaTraducao.java
+│   │   │               │   │   └── TelemetriaTraducaoDocumento.java
 │   │   │               │   ├── infrastructure/
 │   │   │               │   │   ├── adapters/
-│   │   │               │   │   │   └── MistralClientAdapter.java
+│   │   │               │   │   │   ├── LlmClientAdapter.java
+│   │   │               │   │   │   └── LoreAtivaContextoAdapter.java
 │   │   │               │   │   ├── config/
 │   │   │               │   │   │   ├── LlmProperties.java
 │   │   │               │   │   │   ├── RestClientConfig.java
 │   │   │               │   │   │   └── TradutorProperties.java
-│   │   │               │   │   ├── contexto/
-│   │   │               │   │   │   └── GerenciadorContexto.java
 │   │   │               │   │   ├── dtos/
-│   │   │               │   │   │   └── RecordsMistral.java
-│   │   │               │   │   ├── http/
-│   │   │               │   │   │   └── JsonHttpClient.java
-│   │   │               │   │   └── legenda/
-│   │   │               │   │       ├── EscritorLegendaAss.java
-│   │   │               │   │       ├── EscritorLegendaSrt.java
-│   │   │               │   │       ├── LeitorLegendaAss.java
-│   │   │               │   │       ├── LeitorLegendaSrt.java
-│   │   │               │   │       └── MascaradorTags.java
+│   │   │               │   │   │   └── RecordsLlm.java
+│   │   │               │   │   ├── legenda/
+│   │   │               │   │   └── telemetria/
+│   │   │               │   │       └── TelemetriaTraducaoAdapter.java
 │   │   │               │   └── presentation/
+│   │   │               │       ├── bootstrap/
+│   │   │               │       │   └── TraducaoStartup.java
 │   │   │               │       ├── ui/
-│   │   │               │       │   ├── AnsiCores.java
-│   │   │               │       │   ├── ConsoleEntrada.java
 │   │   │               │       │   ├── ConsoleUILogger.java
 │   │   │               │       │   ├── PastasExecucao.java
 │   │   │               │       │   └── TabelaTraducaoRenderer.java
@@ -459,20 +523,11 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │       │   ├── BrowserLauncher.java
 │   │   │               │       │   ├── ConsoleRedirector.java
 │   │   │               │       │   ├── ContextoResponse.java
-│   │   │               │       │   ├── CorrecaoCacheController.java
 │   │   │               │       │   ├── DialogoArquivoController.java
 │   │   │               │       │   ├── DocumentacaoController.java
-│   │   │               │       │   ├── ExtracaoRequest.java
 │   │   │               │       │   ├── LlmStatusResponse.java
 │   │   │               │       │   ├── LogStreamResource.java
-│   │   │               │       │   ├── LogStreamService.java
-│   │   │               │       │   ├── OperacaoRequest.java
 │   │   │               │       │   ├── PipelineController.java
-│   │   │               │       │   ├── PipelineWebSupport.java
-│   │   │               │       │   ├── RemuxRequest.java
-│   │   │               │       │   ├── RespostaPadrao.java
-│   │   │               │       │   ├── RevisaoLegendasController.java
-│   │   │               │       │   ├── TelemetriaController.java
 │   │   │               │       │   └── TraducaoController.java
 │   │   │               │       └── TradutorCLI.java
 │   │   │               ├── traducaoCorrige/
@@ -487,6 +542,9 @@ traducao_animes_llm_local_quarkus/
 │   │   │               │   │   └── ResultadoManutencaoCache.java
 │   │   │               │   ├── infrastructure/
 │   │   │               │   │   └── CorrecaoCacheAuditoria.java
+│   │   │               │   ├── presentation/
+│   │   │               │   │   └── web/
+│   │   │               │   │       └── CorrecaoCacheController.java
 │   │   │               │   └── CorretorCacheCLI.java
 │   │   │               ├── traducaoKaraoke/
 │   │   │               │   ├── application/
@@ -625,145 +683,226 @@ traducao_animes_llm_local_quarkus/
 │   │       ├── application.properties
 │   │       └── application.yml
 │   └── test/
-│       └── java/
-│           └── org/
-│               └── traducao/
-│                   └── projeto/
-│                       ├── analisadorMidia/
-│                       │   ├── application/
-│                       │   │   ├── AnalisarMidiaClassificacaoTest.java
-│                       │   │   ├── AnalisarMidiaTelemetriaTest.java
-│                       │   │   ├── LocalizadorVideosServiceTest.java
-│                       │   │   └── TelemetriaMidiaMapperTest.java
-│                       │   ├── domain/
-│                       │   │   └── ResultadoAnaliseLoteSerializacaoTest.java
-│                       │   └── infrastructure/
-│                       │       └── adapters/
-│                       │           └── FfprobeAdapterTest.java
-│                       ├── apiDadosAnime/
-│                       │   ├── application/
-│                       │   │   └── ObterMetadataAnimeUseCaseTest.java
-│                       │   └── infrastructure/
-│                       │       └── adapters/
-│                       │           └── AniListApiClientAdapterTest.java
-│                       ├── auditorConteudoLegendas/
-│                       │   ├── application/
-│                       │   │   ├── regras/
-│                       │   │   │   ├── RegraAlucinacaoQuebraLinhaTest.java
-│                       │   │   │   ├── RegraDanoKaraokeTest.java
-│                       │   │   │   ├── RegraEfeitoVazadoTest.java
-│                       │   │   │   ├── RegraMetadadosAssTest.java
-│                       │   │   │   └── RegraSincroniaEstilosTest.java
-│                       │   │   ├── AuditorConteudoIntegridadeTest.java
-│                       │   │   └── AuditorConteudoUseCaseTest.java
-│                       │   └── support/
-│                       │       └── AssAuditoriaFixtures.java
-│                       ├── core/
-│                       │   ├── exception/
-│                       │   │   └── BasePipelineExceptionTest.java
-│                       │   ├── execucao/
-│                       │   │   └── FilaExecucaoPipelineTest.java
-│                       │   └── io/
-│                       │       └── DiretorioBaseKronosTest.java
-│                       ├── correcaoLegendas/
-│                       │   └── application/
-│                       │       └── CorrigirLegendasUseCaseTest.java
-│                       ├── legendasExtracao/
-│                       │   ├── application/
-│                       │   │   ├── ExtrairLegendaUseCaseTest.java
-│                       │   │   └── ValidadorSaidaExtracaoTest.java
-│                       │   └── infrastructure/
-│                       │       └── adapters/
-│                       │           ├── FfmpegAdapterTest.java
-│                       │           └── MkvToolNixAdapterTest.java
-│                       ├── mapaProjeto/
-│                       │   └── application/
-│                       │       └── GeradorMapaProjetoUseCaseTest.java
-│                       ├── mcp/
-│                       │   └── KronosMcpToolsTest.java
-│                       ├── novoKaraoke/
-│                       │   └── application/
-│                       │       └── ConversorKaraokeUseCaseTest.java
-│                       ├── raspagemCorrecao/
-│                       │   ├── application/
-│                       │   │   ├── CorrigirComGoogleUseCaseTest.java
-│                       │   │   └── ProtetorTermosLoreServiceTest.java
-│                       │   └── infrastructure/
-│                       │       └── GoogleTranslateScraperTest.java
-│                       ├── raspagemRevisao/
-│                       │   └── application/
-│                       │       ├── CorretorDeterministicoConcordanciaServiceTest.java
-│                       │       ├── DetectorConcordanciaServiceTest.java
-│                       │       ├── LeitorCacheReferenciaServiceTest.java
-│                       │       ├── ResultadoRevisaoLegendasTest.java
-│                       │       ├── RevisarCacheUseCaseTest.java
-│                       │       ├── RevisarLegendasCacheIntegracaoTest.java
-│                       │       ├── RevisarLegendasCacheSeguroTest.java
-│                       │       ├── RevisarLegendasContextoTest.java
-│                       │       ├── RevisarLegendasProtecaoMassaTest.java
-│                       │       └── SincronizadorLegendaCacheServiceTest.java
-│                       ├── remuxer/
-│                       │   ├── application/
-│                       │   │   ├── MapeadorMidiaServiceTest.java
-│                       │   │   └── RemuxarLoteUseCaseTest.java
-│                       │   └── infrastructure/
-│                       │       └── adapters/
-│                       │           └── MkvmergeAdapterTest.java
-│                       ├── renomearArquivos/
-│                       │   └── application/
-│                       │       └── RenomeadorUseCaseTest.java
-│                       ├── revisaoLore/
-│                       │   ├── application/
-│                       │   │   ├── DetectorTermosLoreServiceTest.java
-│                       │   │   ├── RevisarLoreUseCaseTest.java
-│                       │   │   └── ValidadorCandidatoLoreServiceTest.java
-│                       │   ├── contexto/
-│                       │   │   └── ContextosRevisaoLoreCatalogoTest.java
-│                       │   └── infrastructure/
-│                       │       └── RevisaoLoreAuditoriaCacheTest.java
-│                       ├── telemetria/
-│                       │   ├── IsolamentoArtefatosTest.java
-│                       │   ├── TelemetriaDatasetPropertiesTest.java
-│                       │   ├── TelemetriaDatasetServiceTest.java
-│                       │   ├── TelemetriaServiceCompactacaoTest.java
-│                       │   └── TelemetriaServiceRevisaoLoreTest.java
-│                       ├── traducao/
-│                       │   ├── application/
-│                       │   │   ├── DetectorEfeitoKaraokeServiceTest.java
-│                       │   │   ├── DetectorTraducaoIdenticaServiceTest.java
-│                       │   │   ├── ProcessarArquivoUseCaseCaracterizacaoTest.java
-│                       │   │   ├── ProcessarArquivoUseCaseGuardTest.java
-│                       │   │   └── ValidadorTraducaoServiceTest.java
-│                       │   ├── domain/
-│                       │   │   └── StatusLoteTraducaoTest.java
-│                       │   ├── infrastructure/
-│                       │   │   ├── adapters/
-│                       │   │   │   └── MistralClientAdapterRespostaRevisaoTest.java
-│                       │   │   └── legenda/
-│                       │   │       ├── EscritorLegendaAssTest.java
-│                       │   │       ├── LeitorEscritorSrtTest.java
-│                       │   │       └── MascaradorTagsTest.java
-│                       │   └── presentation/
-│                       │       └── web/
-│                       │           ├── ConsoleRedirectorTest.java
-│                       │           └── LogStreamServiceTest.java
-│                       ├── traducaoCorrige/
-│                       │   ├── application/
-│                       │   │   ├── ClassificadorEntradaCacheServiceTest.java
-│                       │   │   └── LimparCacheUseCaseTest.java
-│                       │   └── domain/
-│                       │       └── ResultadoManutencaoCacheTest.java
-│                       ├── traducaoKaraoke/
-│                       │   └── application/
-│                       │       ├── ClassificadorLetraKaraokeServiceTest.java
-│                       │       └── TraduzirKaraokeUseCaseTest.java
-│                       ├── trocaTipoLegenda/
-│                       │   └── application/
-│                       │       ├── AuditoriaFontesServiceTest.java
-│                       │       └── TrocaTipoLegendaUseCaseTest.java
-│                       ├── ApiControllerTest.java
-│                       ├── ApiEndpointsTest.java
-│                       └── WebInterfaceTest.java
+│       ├── java/
+│       │   └── org/
+│       │       └── traducao/
+│       │           └── projeto/
+│       │               ├── analisadorMidia/
+│       │               │   ├── application/
+│       │               │   │   ├── AnalisarMidiaClassificacaoTest.java
+│       │               │   │   ├── AnalisarMidiaTelemetriaTest.java
+│       │               │   │   ├── LocalizadorVideosServiceTest.java
+│       │               │   │   └── TelemetriaMidiaMapperTest.java
+│       │               │   ├── domain/
+│       │               │   │   └── ResultadoAnaliseLoteSerializacaoTest.java
+│       │               │   ├── infrastructure/
+│       │               │   │   └── adapters/
+│       │               │   │       └── FfprobeAdapterTest.java
+│       │               │   └── presentation/
+│       │               │       └── AnalisadorMidiaCLITest.java
+│       │               ├── apiDadosAnime/
+│       │               │   ├── application/
+│       │               │   │   └── ObterMetadataAnimeUseCaseTest.java
+│       │               │   └── infrastructure/
+│       │               │       ├── adapters/
+│       │               │       │   └── AniListApiClientAdapterTest.java
+│       │               │       └── config/
+│       │               │           └── ApiDadosAnimeHttpPropertiesIT.java
+│       │               ├── arquitetura/
+│       │               │   ├── ContextoInvalidoC2CaracterizacaoTest.java
+│       │               │   └── ContratoJsonRecordsE1Test.java
+│       │               ├── auditorConteudoLegendas/
+│       │               │   ├── application/
+│       │               │   │   ├── regras/
+│       │               │   │   │   ├── RegraAlucinacaoQuebraLinhaTest.java
+│       │               │   │   │   ├── RegraDanoKaraokeTest.java
+│       │               │   │   │   ├── RegraEfeitoVazadoTest.java
+│       │               │   │   │   ├── RegraMetadadosAssTest.java
+│       │               │   │   │   └── RegraSincroniaEstilosTest.java
+│       │               │   │   ├── AuditorConteudoIntegridadeTest.java
+│       │               │   │   └── AuditorConteudoUseCaseTest.java
+│       │               │   └── support/
+│       │               │       └── AssAuditoriaFixtures.java
+│       │               ├── cachetraducao/
+│       │               │   ├── arquitetura/
+│       │               │   │   └── FronteiraCacheTraducaoArchTest.java
+│       │               │   ├── domain/
+│       │               │   │   └── ProvenienciaCacheTest.java
+│       │               │   └── infrastructure/
+│       │               │       ├── CacheManutencaoServiceTest.java
+│       │               │       ├── CacheTraducaoServiceTest.java
+│       │               │       └── CompatibilidadeCacheJsonLegadoTest.java
+│       │               ├── config/
+│       │               │   └── ModoExecucaoDispatcherTest.java
+│       │               ├── contexto/
+│       │               │   ├── arquitetura/
+│       │               │   │   └── FronteiraContextoArchTest.java
+│       │               │   ├── domain/
+│       │               │   │   └── HierarquiaExcecaoContextoTest.java
+│       │               │   ├── ProtecaoConteudoLoreTest.java
+│       │               │   └── RegistroProvedoresContextoIT.java
+│       │               ├── core/
+│       │               │   ├── exception/
+│       │               │   │   └── BasePipelineExceptionTest.java
+│       │               │   ├── execucao/
+│       │               │   │   └── FilaExecucaoPipelineTest.java
+│       │               │   ├── io/
+│       │               │   │   └── DiretorioBaseKronosTest.java
+│       │               │   └── presentation/
+│       │               │       └── ui/
+│       │               │           └── ConsoleEntradaCaracterizacaoTest.java
+│       │               ├── correcaoLegendas/
+│       │               │   └── application/
+│       │               │       └── CorrigirLegendasUseCaseTest.java
+│       │               ├── legenda/
+│       │               │   ├── application/
+│       │               │   │   └── DetectorEfeitoKaraokeServiceTest.java
+│       │               │   ├── arquitetura/
+│       │               │   │   └── FronteiraLegendaArchTest.java
+│       │               │   ├── domain/
+│       │               │   │   ├── HierarquiaExcecaoLegendaTest.java
+│       │               │   │   └── PoliticaEstiloMusicalTest.java
+│       │               │   └── infrastructure/
+│       │               │       ├── config/
+│       │               │       │   └── PoliticaEstiloMusicalProducerIT.java
+│       │               │       ├── EscritorLegendaAssTest.java
+│       │               │       └── LeitorEscritorSrtTest.java
+│       │               ├── legendasExtracao/
+│       │               │   ├── application/
+│       │               │   │   ├── ExtrairLegendaUseCaseTest.java
+│       │               │   │   └── ValidadorSaidaExtracaoTest.java
+│       │               │   ├── infrastructure/
+│       │               │   │   ├── adapters/
+│       │               │   │   │   ├── FfmpegAdapterTest.java
+│       │               │   │   │   └── MkvToolNixAdapterTest.java
+│       │               │   │   └── config/
+│       │               │   │       └── ExtratoresInjecaoIT.java
+│       │               │   └── presentation/
+│       │               │       └── ExtratorCLITest.java
+│       │               ├── llm/
+│       │               │   └── arquitetura/
+│       │               │       └── FronteiraLlmArchTest.java
+│       │               ├── mapaProjeto/
+│       │               │   └── application/
+│       │               │       └── GeradorMapaProjetoUseCaseTest.java
+│       │               ├── mcp/
+│       │               │   └── KronosMcpToolsTest.java
+│       │               ├── novoKaraoke/
+│       │               │   └── application/
+│       │               │       └── ConversorKaraokeUseCaseTest.java
+│       │               ├── qualidadeTraducao/
+│       │               │   ├── application/
+│       │               │   │   ├── DetectorTraducaoIdenticaServiceTest.java
+│       │               │   │   ├── MascaradorTagsTest.java
+│       │               │   │   └── ValidadorTraducaoServiceTest.java
+│       │               │   ├── arquitetura/
+│       │               │   │   └── FronteiraQualidadeTraducaoArchTest.java
+│       │               │   └── domain/
+│       │               │       └── HierarquiaExcecaoQualidadeTraducaoTest.java
+│       │               ├── raspagemCorrecao/
+│       │               │   ├── application/
+│       │               │   │   ├── CorrigirComGoogleUseCaseTest.java
+│       │               │   │   └── ProtetorTermosLoreServiceTest.java
+│       │               │   └── infrastructure/
+│       │               │       └── GoogleTranslateScraperTest.java
+│       │               ├── raspagemRevisao/
+│       │               │   └── application/
+│       │               │       ├── CorretorDeterministicoConcordanciaServiceTest.java
+│       │               │       ├── DetectorConcordanciaServiceTest.java
+│       │               │       ├── LeitorCacheReferenciaServiceTest.java
+│       │               │       ├── ResultadoRevisaoLegendasTest.java
+│       │               │       ├── RevisarCacheUseCaseTest.java
+│       │               │       ├── RevisarLegendasCacheIntegracaoTest.java
+│       │               │       ├── RevisarLegendasCacheSeguroTest.java
+│       │               │       ├── RevisarLegendasContextoTest.java
+│       │               │       ├── RevisarLegendasProtecaoMassaTest.java
+│       │               │       └── SincronizadorLegendaCacheServiceTest.java
+│       │               ├── remuxer/
+│       │               │   ├── application/
+│       │               │   │   ├── MapeadorMidiaServiceTest.java
+│       │               │   │   └── RemuxarLoteUseCaseTest.java
+│       │               │   ├── infrastructure/
+│       │               │   │   └── adapters/
+│       │               │   │       └── MkvmergeAdapterTest.java
+│       │               │   └── presentation/
+│       │               │       └── RemuxerCLITest.java
+│       │               ├── renomearArquivos/
+│       │               │   └── application/
+│       │               │       └── RenomeadorUseCaseTest.java
+│       │               ├── revisaoLore/
+│       │               │   ├── application/
+│       │               │   │   ├── DetectorTermosLoreServiceTest.java
+│       │               │   │   ├── RevisarLoreUseCaseRevisorFakeIT.java
+│       │               │   │   ├── RevisarLoreUseCaseTest.java
+│       │               │   │   └── ValidadorCandidatoLoreServiceTest.java
+│       │               │   ├── contexto/
+│       │               │   │   └── ContextosRevisaoLoreCatalogoTest.java
+│       │               │   └── infrastructure/
+│       │               │       ├── adapters/
+│       │               │       │   ├── NormalizadorRespostaRevisaoLoreTest.java
+│       │               │       │   ├── RevisorLoreLlmAdapterCaracterizacaoTest.java
+│       │               │       │   ├── RevisorLoreLlmCdiIT.java
+│       │               │       │   ├── RevisorLoreLlmDisponibilidadeTest.java
+│       │               │       │   └── ServidorLlmDeTeste.java
+│       │               │       └── RevisaoLoreAuditoriaCacheTest.java
+│       │               ├── telemetria/
+│       │               │   ├── IsolamentoArtefatosTest.java
+│       │               │   ├── TelemetriaConsolidacaoTest.java
+│       │               │   ├── TelemetriaDatasetPropertiesTest.java
+│       │               │   ├── TelemetriaDatasetServiceTest.java
+│       │               │   ├── TelemetriaServiceCompactacaoTest.java
+│       │               │   └── TelemetriaServiceRevisaoLoreTest.java
+│       │               ├── traducao/
+│       │               │   ├── application/
+│       │               │   │   ├── ProcessarArquivoUseCaseCaracterizacaoTest.java
+│       │               │   │   ├── ProcessarArquivoUseCaseGuardTest.java
+│       │               │   │   └── ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest.java
+│       │               │   ├── arquitetura/
+│       │               │   │   ├── FronteiraInboundArchTest.java
+│       │               │   │   ├── FronteiraTraducaoArchTest.java
+│       │               │   │   └── GrafoCdiTraducaoIT.java
+│       │               │   ├── domain/
+│       │               │   │   ├── NormalizadorNomeEpisodioTest.java
+│       │               │   │   └── StatusLoteTraducaoTest.java
+│       │               │   ├── infrastructure/
+│       │               │   │   ├── adapters/
+│       │               │   │   │   ├── LlmClientAdapterRespostaRevisaoTest.java
+│       │               │   │   │   └── LoreAtivaContextoAdapterTest.java
+│       │               │   │   ├── config/
+│       │               │   │   │   ├── ConfiguracaoSimplesE3bIT.java
+│       │               │   │   │   ├── ParidadeBindingEstilosIT.java
+│       │               │   │   │   ├── ParidadeBindingVazioIT.java
+│       │               │   │   │   └── ParidadeResolucaoCaminhoE4bTest.java
+│       │               │   │   ├── legenda/
+│       │               │   │   └── telemetria/
+│       │               │   │       └── TelemetriaTraducaoAdapterTest.java
+│       │               │   └── presentation/
+│       │               │       ├── web/
+│       │               │       │   ├── ConsoleRedirectorTest.java
+│       │               │       │   └── LogStreamServiceTest.java
+│       │               │       └── TradutorCLIAlucinacaoCaracterizacaoTest.java
+│       │               ├── traducaoCorrige/
+│       │               │   ├── application/
+│       │               │   │   ├── ClassificadorEntradaCacheServiceTest.java
+│       │               │   │   └── LimparCacheUseCaseTest.java
+│       │               │   └── domain/
+│       │               │       └── ResultadoManutencaoCacheTest.java
+│       │               ├── traducaoKaraoke/
+│       │               │   └── application/
+│       │               │       ├── ClassificadorLetraKaraokeServiceTest.java
+│       │               │       └── TraduzirKaraokeUseCaseTest.java
+│       │               ├── trocaTipoLegenda/
+│       │               │   └── application/
+│       │               │       ├── AuditoriaFontesServiceTest.java
+│       │               │       └── TrocaTipoLegendaUseCaseTest.java
+│       │               ├── ApiControllerTest.java
+│       │               ├── ApiEndpointsTest.java
+│       │               └── WebInterfaceTest.java
+│       └── resources/
+│           ├── cachetraducao/
+│           │   └── legado.cache.json
+│           └── contexto/
+│               └── manifesto-lore.properties
 ├── .dockerignore
 ├── .gitignore
 ├── .mcp.json
@@ -775,6 +914,7 @@ traducao_animes_llm_local_quarkus/
 ├── iniciar-kronos-dev.cmd
 ├── mapa_projeto.md
 ├── README.md
+├── relatorio_diretorio_vps.txt
 ├── settings.gradle
 └── transcricao_chat_isolamento_opcao4_2026-07-15.txt
 
@@ -901,7 +1041,18 @@ traducao_animes_llm_local_quarkus/
 
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/presentation/
   - AnalisadorMidiaCLI.java
-      (sem cabecalho explicativo)
+      PROPÓSITO DE NEGÓCIO: oferece execução local por terminal da esteira de auditoria
+      e análise técnica de mídia da fatia {@code analisadorMidia}, resolvendo os caminhos
+      de que precisa (entrada obrigatória e saída opcional) a partir da própria
+      configuração, sem depender da configuração ou do estado da fatia {@code traducao}.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa {@code tradutor.diretorio-entrada} e
+      {@code tradutor.diretorio-saida}; saída ausente/vazia/blank significa "sem pasta de
+      saída" (nunca aplica o fallback {@code traducao_ptbr}); não injeta cache.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada não configurada ou caminho inexistente
+      encerram o fluxo sem produzir auditoria; exceções durante o processamento são
+      reportadas sem mascarar a causa.
 
 [PASTA] src/main/java/org/traducao/projeto/analisadorMidia/presentation/ui/
   - ConsoleAnalisadorLogger.java
@@ -965,6 +1116,22 @@ traducao_animes_llm_local_quarkus/
       (sem cabecalho explicativo)
   - TmdbApiClientAdapter.java
       (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/apiDadosAnime/infrastructure/config/
+  - ApiDadosAnimeHttpProperties.java
+      PROPÓSITO DE NEGÓCIO: configuração HTTP própria da fatia {@code apiDadosAnime} —
+      timeouts do cliente para as APIs públicas de metadados de anime (AniList/Jikan/TMDB).
+      Isola a fatia da stack de LLM da Tradução Local ({@code tradutor.llm}), preservando
+      exatamente os valores efetivos herdados (subfase E4a).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Defaults efetivos: connect {@code 5s}, read {@code 180s}.</li>
+      <li>Sem dependência de {@code LlmProperties} nem de qualquer tipo de {@code traducao}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Valores nulos no binding são ignorados pelos setters, mantendo os defaults {@code 5s/180s}.
 
 [PASTA] src/main/java/org/traducao/projeto/apiDadosAnime/presentation/web/
   - AnimeMetadataController.java
@@ -1191,13 +1358,545 @@ traducao_animes_llm_local_quarkus/
       {@link AuditoriaException} → 400 com a mensagem de domínio; erro inesperado
       → 500.
 
+[PASTA] src/main/java/org/traducao/projeto/cachetraducao/domain/
+  - CacheDocumento.java
+      PROPÓSITO DE NEGÓCIO: Formato persistido do cache de tradução versionado — um
+      cabeçalho de {@link ProvenienciaCache} seguido das entradas. Substitui a lista
+      pura de {@link EntradaCache} para que cada arquivo de cache carregue a origem
+      (lore/modelo) que o gerou.
+      
+      <p>INVARIANTES DO DOMÍNIO: {@code proveniencia} descreve TODAS as entradas do
+      documento (um arquivo de cache = uma geração/proveniência). Entradas de
+      proveniências diferentes nunca convivem no mesmo documento.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; a leitura de um JSON que
+      não seja este objeto (ex.: lista pura do formato antigo) falha na
+      desserialização e é tratada pelo {@code CacheTraducaoService} como formato
+      legado ou corrompido.
+      
+      @param proveniencia origem (lore/hash/modelo/idiomas) que gerou TODAS as entradas
+      @param entradas linhas do cache de tradução deste documento
+  - EntradaCache.java
+      PROPÓSITO DE NEGÓCIO: modelo persistido de uma linha do cache de tradução — o
+      texto original e sua tradução, com o índice, o estilo e o par de idiomas a que
+      pertencem. É a unidade que o cache de tradução grava e relê para evitar retraduzir
+      a mesma fala. NÃO é um modelo genérico de legenda.
+      
+      <p>INVARIANTES DO DOMÍNIO: {@code record} imutável; a ordem e os nomes dos
+      componentes ({@code indice, estilo, original, traduzido, idiomaOriginal,
+      idiomaTraduzido}) compõem o schema JSON persistido e não podem mudar sem quebrar a
+      compatibilidade dos arquivos {@code .cache.json} existentes.
+      
+      <p>COMPORTAMENTO EM CASO DE LIMITE: não há validação — qualquer valor, inclusive
+      {@code null} nos campos de texto, é aceito; a coerência é responsabilidade de quem
+      grava/lê o cache.
+      
+      @param indice posição ordinal da fala na legenda
+      @param estilo nome do estilo ASS da fala
+      @param original texto original (idioma de origem)
+      @param traduzido texto traduzido (idioma de destino)
+      @param idiomaOriginal código do idioma de origem
+      @param idiomaTraduzido código do idioma de destino
+  - ProvenienciaCache.java
+      PROPÓSITO DE NEGÓCIO: Carimba cada cache de tradução com a origem que o
+      produziu — qual lore/contexto, qual hash do prompt de sistema, qual modelo e
+      qual par de idiomas. É o que permite provar com o que uma tradução em cache
+      foi feita e impedir que uma melhoria de lore reuse silenciosamente traduções
+      antigas.
+      
+      <p>INVARIANTES DO DOMÍNIO: duas proveniências só são "a mesma" se os SEIS campos
+      baterem por igualdade exata — schemaVersion, contextoId, contextoHash, modeloLlm,
+      idiomaOrigem e idiomaDestino. O hash é derivado do prompt de sistema ativo
+      (SHA-256), então qualquer mudança de lore/regra muda o hash. A versão de schema
+      NÃO é normalizada: quando comparada à proveniência atual do pipeline, carimbada
+      com {@code SCHEMA_ATUAL}, uma versão ausente/{@code 0} ou divergente reprova a
+      compatibilidade e nunca é reutilizada.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #hashDe(String)} nunca lança — se o
+      algoritmo SHA-256 faltar (não deve, é padrão da JVM), cai para o hashCode em
+      hexadecimal como último recurso. {@link #mesmaProveniencia} trata nulo como
+      "diferente"; no fluxo automático, versão ausente/{@code 0} materializada no cache
+      diverge de {@code SCHEMA_ATUAL} e leva ao arquivamento da geração anterior.
+      
+      @param schemaVersion versão do schema do documento de cache persistido
+      @param contextoId identificador do lore/contexto usado na geração
+      @param contextoHash hash SHA-256 do prompt de sistema ativo
+      @param modeloLlm identificador do modelo LLM que gerou as traduções
+      @param idiomaOrigem código do idioma de origem
+      @param idiomaDestino código do idioma de destino
+
+[PASTA] src/main/java/org/traducao/projeto/cachetraducao/infrastructure/
+  - CacheManutencaoService.java
+      PROPÓSITO DE NEGÓCIO: fornece uma porta única e segura para os módulos que
+      corrigem os arquivos persistentes da pasta {@code cache}, aceitando tanto a
+      lista JSON histórica quanto o documento versionado com proveniência.
+      
+      <p>INVARIANTES DO DOMÍNIO: campos desconhecidos e o formato original são
+      preservados; um cache só é substituído depois de backup, serialização em
+      temporário e validação estrutural; a proveniência nunca é removida.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link IOException} sem substituir o
+      arquivo original. O temporário é removido e o backup permanece disponível em
+      {@code backups/correcao-cache/}.
+  - CacheTraducaoService.java
+      PROPÓSITO DE NEGÓCIO: persiste, por arquivo de legenda, o par (texto original →
+      texto traduzido) em JSON, no formato versionado {@link CacheDocumento}. Serve para
+      (1) permitir revisão/correção manual do cache editando o JSON e (2) evitar chamar o
+      LLM de novo para falas já traduzidas numa execução anterior.
+      
+      <p>INVARIANTES DO DOMÍNIO: cada arquivo carrega a {@link ProvenienciaCache}
+      (lore/hash/modelo/idiomas) que o gerou; uma proveniência divergente NÃO é reutilizada
+      — a geração anterior é arquivada e o episódio é retraduzido com o lore atual. A
+      escrita é atômica (temporário + {@code ArquivoAtomicoUtil}); a leitura aceita tanto o
+      documento versionado quanto a lista JSON histórica.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: um JSON ilegível é preservado (renomeado
+      {@code .corrompido_<ts>.json}) em vez de ignorado/sobrescrito; falha de gravação
+      propaga {@link ArquivoLegendaException} sem deixar o destino truncado.
+
 [PASTA] src/main/java/org/traducao/projeto/config/
   - AppConfig.java
       (sem cabecalho explicativo)
   - ExecucaoCli.java
       Contrato para modos de execucao em linha de comando (substituto do CommandLineRunner do Spring Boot).
   - ModoExecucaoStartup.java
-      Dispara o modo CLI configurado em {@code app.modo}. No modo WEB nenhuma CLI e executada.
+      Dispara o modo CLI configurado em {@code app.modo}. No modo WEB nenhuma CLI e
+      executada. O modo {@code TRADUZIR} possui ciclo de vida proprio na fatia Traducao
+      Local ({@code traducao.presentation.bootstrap.TraducaoStartup}) e nao e roteado
+      aqui — por isso este dispatcher nao conhece nenhuma classe de {@code traducao}.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/domain/
+  - ContextoNaoEncontradoException.java
+      PROPÓSITO DE NEGÓCIO: sinaliza que um id de contexto/lore selecionado na UI não
+      corresponde a nenhum provedor registrado. Impede que um anime seja traduzido com
+      a lore errada silenciosamente — cair no contexto padrão sem aviso esconderia o
+      erro de seleção do operador.
+      
+      <p>INVARIANTES DO DOMÍNIO: pertence ao módulo compartilhado {@code contexto} e
+      estende {@link ExcecaoContexto} (deixou de ser {@code TradutorException} na E7a),
+      portanto continua sendo {@code BasePipelineException}; mensagem preservada
+      (lista os contextos disponíveis). Só é lançada por quem resolve o contexto ativo
+      a partir de um id explícito não vazio.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: propaga como {@code RuntimeException} não
+      verificada; é convertida em resposta HTTP estruturada pelo
+      {@code BasePipelineExceptionMapper} (comum a toda a família) e pode ser capturada
+      por qualquer bloco que trate {@link ExcecaoContexto} ou {@code BasePipelineException}.
+  - ContextoPrompt.java
+      PROPÓSITO DE NEGÓCIO: monta o prompt de sistema completo de tradução a partir da
+      lore de cada obra (juntando prioridades, {@link RegrasConcordanciaPtBr} e regras de
+      saída) e mantém, por trás de cada prompt, a lore "crua" correspondente — para que
+      usos pontuais (ex.: revisão de concordância) recuperem só a lore sem reenviar o
+      prompt inteiro ao LLM.
+      
+      <p>INVARIANTES DO DOMÍNIO: utilitário de domínio autocontido — sem I/O, sem
+      configuração e sem dependência funcional externa —, porém com estado estático
+      interno ({@code LORE_POR_PROMPT}, um cache prompt→lore). A ordem/estrutura do
+      template e o mapeamento prompt→lore fazem parte do contrato e não podem mudar sem
+      quebrar a recuperação da lore. Classe final, construtor privado.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #obterLore(String)} devolve o próprio
+      argumento quando o prompt não foi registrado (nunca lança); {@link #montar(String,
+      String)} propaga {@code NullPointerException} se {@code lore} for nulo (via
+      {@code strip()}).
+  - ExcecaoContexto.java
+      PROPÓSITO DE NEGÓCIO: raiz da hierarquia de exceções pertencentes ao módulo
+      compartilhado {@code contexto} — falhas ligadas à seleção e ao uso de um
+      contexto/lore de tradução. NÃO representa falhas gerais de tradução nem do LLM
+      (essas vivem sob {@code TradutorException}, na fatia {@code traducao}) nem falhas
+      de legenda (sob {@code ExcecaoLegenda}); é a base específica das falhas do
+      domínio de contexto, consumível por qualquer fatia.
+      
+      <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
+      {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
+      canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
+      infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
+      {@code BasePipelineExceptionMapper}, comum a toda a família.
+      
+      <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
+      verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
+      estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
+      {@code ExcecaoContexto} ou uma de suas subclasses.
+  - ProvedorContexto.java
+      PROPÓSITO DE NEGÓCIO: contrato de um provedor de contexto/lore de tradução — cada
+      obra (Gundam, Macross, Danmachi...) implementa esta interface para fornecer o
+      prompt de sistema do LLM, o rótulo de UI e os termos que não devem ser traduzidos.
+      É o ponto de extensão do módulo compartilhado {@code contexto}: novas obras entram
+      apenas adicionando implementações {@code @Component}, sem tocar em quem consome.
+      
+      <p>INVARIANTES DO DOMÍNIO: interface pura (só depende do JDK); {@link #getId()} é o
+      identificador único e estável usado para seleção e para carimbar a proveniência do
+      cache; {@link #obterPromptSistema()} devolve o prompt completo já montado; termos
+      protegidos são um conjunto imutável (por padrão vazio). Nenhum método realiza I/O.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: os métodos não lançam por contrato; um provedor
+      mal formado (id nulo/duplicado) é rejeitado por quem agrega os provedores
+      ({@code GerenciadorContexto}), não por esta interface.
+  - RegrasConcordanciaPtBr.java
+      PROPÓSITO DE NEGÓCIO: bloco fixo de regras de concordância de gênero, pronomes,
+      tratamentos e verbos, aplicável a qualquer obra — o inglês não marca gênero em
+      adjetivos/particípios e usa "you" genérico, o que leva o LLM a masculinizar tudo.
+      É injetado no prompt de tradução ({@link ContextoPrompt#montar}) e reaproveitado
+      no prompt de revisão de concordância.
+      
+      <p>INVARIANTES DO DOMÍNIO: constantes/textos imutáveis; {@code BLOCO_TRADUCAO} e o
+      template de {@link #montarPromptRevisao(String)} são conteúdo de negócio congelado
+      — espaçamento, quebras de linha e pontuação fazem parte do contrato do prompt e não
+      podem ser reformatados. Classe final, construtor privado, sem estado mutável.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #montarPromptRevisao(String)} trata
+      {@code null}/branco como "(sem lore adicional)" e nunca lança.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/infrastructure/config/
+  - ContextoBeansConfig.java
+      PROPÓSITO DE NEGÓCIO: reúne, para o módulo compartilhado {@code contexto}, todas as
+      implementações CDI de {@link ProvedorContexto} numa única lista consumível pelo
+      {@code GerenciadorContexto}. Extraído de {@code traducao.infrastructure.config.RestClientConfig}
+      na E7b para que a agregação dos provedores pertença ao próprio peer, e não à fatia
+      de tradução (mesmo padrão de {@code legendasExtracao.infrastructure.config.ExtracaoBeansConfig}).
+      
+      <p>INVARIANTES DO DOMÍNIO: agrega TODAS as implementações descobertas via
+      {@link Instance}, na ordem de iteração fornecida pelo container, sem impor ordenação
+      própria (a ordenação por nome de exibição é responsabilidade do {@code GerenciadorContexto}).
+      Não conhece classes de nenhuma fatia funcional.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: quando não há nenhum provedor registrado,
+      {@link #todosProvedoresContexto(Instance)} devolve uma lista vazia (nunca nula).
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/infrastructure/
+  - GerenciadorContexto.java
+      PROPÓSITO DE NEGÓCIO: agrega todos os provedores de contexto/lore descobertos por
+      CDI e mantém qual está ATIVO, servindo o prompt de sistema, a lore crua, o id de
+      proveniência e os termos protegidos para a tradução em curso. É o ponto único pelo
+      qual as fatias funcionais (tradução, correção, revisão, karaokê) selecionam e
+      consultam a obra ativa — agora residente no módulo compartilhado {@code contexto}
+      (peer), consumível por qualquer fatia sem acoplamento reverso.
+      
+      <p>INVARIANTES DO DOMÍNIO: os provedores são ordenados por nome de exibição
+      (case-insensitive) e seus ids são únicos (falha na construção se houver duplicata);
+      o contexto padrão é {@code danmachi} (ou o primeiro, se ausente); {@code provedorAtivo}
+      nunca cai silenciosamente no padrão quando um id explícito não existe. O campo
+      {@code provedorAtivo} é {@code volatile} para visibilidade entre a thread do executor
+      de background e a leitura ao montar o prompt — não é uma alegação de isolamento por job.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #definirContextoAtivo(String)} lança
+      {@link ContextoNaoEncontradoException} para um id não vazio desconhecido (impede
+      traduzir com a lore errada silenciosamente); ids nulos/vazios mantêm o ativo atual;
+      ids duplicados no registro lançam {@link IllegalStateException} na construção;
+      {@link #obterPromptAtivo()} devolve um prompt genérico quando não há ativo.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/danmachi/
+  - ContextoDanMachi.java
+      PROPÓSITO DE NEGÓCIO: lore geral de DanMachi (contexto padrão) cobrindo termos
+      de mundo, nomes principais e regras de tradução para qualquer arco.
+      
+      <p>INVARIANTES DO DOMÍNIO: Liliruca Arde; Syr Flova; Mikoto Yamato; Familia/Falna/Dungeon.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiOrion.java
+      PROPÓSITO DE NEGÓCIO: lore do filme Arrow of the Orion — correção de grafia
+      Liliruca e elenco do filme.
+      
+      <p>INVARIANTES DO DOMÍNIO: Liliruca Arde (nunca Liriruca/Lilisuka); Artemis;
+      nomes oficiais do filme.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiS1.java
+      PROPÓSITO DE NEGÓCIO: lore da 1ª temporada de DanMachi (arco inicial em Orario /
+      Minotaur / formação da Hestia Familia) para o LLM e o detector de tradução idêntica.
+      
+      <p>INVARIANTES DO DOMÍNIO: nomes oficiais EN/JP-romanizados; Liliruca Arde (não
+      "Lilisuka"); ordem ocidental Mikoto Yamato; termos Familia/Falna/Dungeon protegidos.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiS2.java
+      PROPÓSITO DE NEGÓCIO: lore da 2ª temporada de DanMachi (arco Ishtar / War Game /
+      Haruhime) para tradução fiel de nomes e termos.
+      
+      <p>INVARIANTES DO DOMÍNIO: Liliruca Arde; Haruhime Sanjouno; Ishtar Familia;
+      Pleasure Quarter; não traduzir Bell como "sino".
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiS3.java
+      PROPÓSITO DE NEGÓCIO: lore da 3ª temporada de DanMachi (arco Xenos) para
+      preservar nomes de monstros inteligentes e facções.
+      
+      <p>INVARIANTES DO DOMÍNIO: Xenos, Wiene, Fels, Dix Perdix, Asterius; Liliruca Arde.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiS4.java
+      PROPÓSITO DE NEGÓCIO: lore da 4ª temporada de DanMachi (Deep Floors / Labyrinth).
+      
+      <p>INVARIANTES DO DOMÍNIO: Rivira, Juggernaut, Ryuu Lion; Liliruca Arde;
+      Mikoto Yamato (ordem ocidental).
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiS5.java
+      PROPÓSITO DE NEGÓCIO: lore da 5ª temporada de DanMachi (arco Freya / Goddess of
+      Fertility) com grafia canônica Syr Flova.
+      
+      <p>INVARIANTES DO DOMÍNIO: Syr Flova (nunca "Flover"); Folkvangr; Charm divino;
+      nomes da Freya Familia.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoDanMachiSwordOratoria.java
+      PROPÓSITO DE NEGÓCIO: lore de Sword Oratoria (spin-off Loki Familia / Ais).
+      
+      <p>INVARIANTES DO DOMÍNIO: nomes oficiais da Loki Familia; Ais = Sword Princess;
+      Lefiya, Finn, Riveria, Gareth, Tiona, Tione, Bete.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/eightsix/
+  - Contexto86.java
+      PROPÓSITO DE NEGÓCIO: lore de 86 — Eighty-Six (segregação estatal, guerra psicológica).
+      
+      <p>INVARIANTES DO DOMÍNIO: Shin ≠ canela; Alba/Colorata/Pig; Handler/Processor;
+      Para-RAID; Legion e unidades em latim/alemão.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/evangelion/
+  - ContextoEvangelion111.java
+      PROPÓSITO DE NEGÓCIO: lore de Evangelion 1.11 (Rebuild 1.0).
+      
+      <p>INVARIANTES DO DOMÍNIO: continuidade Rebuild; Sachiel/Shamshel/Ramiel; NERV.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoEvangelion222.java
+      PROPÓSITO DE NEGÓCIO: lore de Evangelion 2.22 (Rebuild 2.0) com Asuka Shikinami.
+      
+      <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
+      Near Third Impact; Unit-03 / Bardiel.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoEvangelion3010.java
+      PROPÓSITO DE NEGÓCIO: lore de Evangelion 3.0+1.0 — Village-3 / Additional Impact.
+      
+      <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
+      Village-3; Golgotha Object; não usar "Asuka Langley" incompleto.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoEvangelion333.java
+      PROPÓSITO DE NEGÓCIO: lore de Evangelion 3.33 (Rebuild 3.0) — WILLE / Wunder.
+      
+      <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
+      WILLE; AAA Wunder; Unit-13.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoEvangelionTV.java
+      PROPÓSITO DE NEGÓCIO: lore da série TV clássica Neon Genesis Evangelion.
+      
+      <p>INVARIANTES DO DOMÍNIO: Asuka Langley Soryu (TV, não Shikinami); NERV; SEELE;
+      Angels; Human Instrumentality Project.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/guiltycrown/
+  - ContextoGuiltyCrown.java
+      PROPÓSITO DE NEGÓCIO: lore de Guilty Crown (biologia distópica + Voids).
+      
+      <p>INVARIANTES DO DOMÍNIO: Funeral Parlor ≠ Undertaker; Void Genome; Lost Christmas;
+      Apocalypse Virus; Endlave; Crystallization.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/chars/
+  - ContextoCharsCounterattack.java
+      PROPÓSITO DE NEGÓCIO: lore de Char's Counterattack (UC 0093 / Axis Shock).
+      
+      <p>INVARIANTES DO DOMÍNIO: Amuro Ray; Char Aznable; Nu Gundam; Sazabi;
+      Londo Bell; Axis; psycho-frame.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/
+  - ContextoGundam0079.java
+      PROPÓSITO DE NEGÓCIO: lore UC 0079 com núcleo conceitual militar (Minovsky, MS/MA, Newtype).
+      
+      <p>INVARIANTES DO DOMÍNIO: Newtype ≠ "Novo Tipo"; Mobile Suit ≠ Mobile Armor;
+      Spacenoid/Earthnoid; Minovsky Particles; Principality of Zeon vs Earth Federation.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamF91.java
+      (sem cabecalho explicativo)
+  - ContextoGundamHathaway.java
+      (sem cabecalho explicativo)
+  - ContextoGundamNT.java
+      PROPÓSITO DE NEGÓCIO: lore de Gundam NT (Narrative) calibrada no artefato real
+      (legendas EN/PT do BD em C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT).
+      
+      <p>INVARIANTES DO DOMÍNIO: Newtype/Cyber-Newtype/Oldtype; Spacenoid; Mobile Suit
+      vs Mobile Armor; Phenex; Shezarr; Metis/Banchi 18/Fransson; Minovsky vs psycho-waves.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamOrigin.java
+      (sem cabecalho explicativo)
+  - ContextoGundamSEED.java
+      PROPÓSITO DE NEGÓCIO: lore de Gundam SEED (série CE 71) — sem misturar Destiny.
+      
+      <p>INVARIANTES DO DOMÍNIO: elenco SEED apenas; Shinn Asuka pertence a Destiny;
+      Coordinator/Natural; Freedom/Justice/Strike.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamSEEDAstray.java
+      (sem cabecalho explicativo)
+  - ContextoGundamSEEDDestiny.java
+      PROPÓSITO DE NEGÓCIO: lore de Gundam SEED Destiny — elenco e mecha da sequela.
+      
+      <p>INVARIANTES DO DOMÍNIO: Shinn Asuka; Minerva; Destiny/Impulse/Strike Freedom;
+      Gilbert Durandal; LOGOS.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamSEEDFreedom.java
+      PROPÓSITO DE NEGÓCIO: lore do filme Gundam SEED FREEDOM.
+      
+      <p>INVARIANTES DO DOMÍNIO: Rising Freedom; Immortal Justice; Mighty Strike Freedom;
+      Kingdom of Foundation; Orphee Lam Tao; Agnes Giebenrath.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamSEEDStargazer.java
+      (sem cabecalho explicativo)
+  - ContextoGundamUnicorn.java
+      PROPÓSITO DE NEGÓCIO: lore de Gundam Unicorn (UC 0096) com núcleo UC completo.
+      
+      <p>INVARIANTES DO DOMÍNIO: Laplace's Box; Unicorn/Banshee; Newtype/Spacenoid;
+      Mobile Suit vs Armor; Psycho-Frame; Sleeves.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoGundamVictory.java
+      (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/msteam/
+  - ContextoGundam08thMSTeam.java
+      PROPÓSITO DE NEGÓCIO: lore de The 08th MS Team (OVA UC 0079 — guerra terrestre).
+      
+      <p>INVARIANTES DO DOMÍNIO: Shiro Amada; Aina Sahalin; Ez-8; Apsalus; Eledore;
+      realismo anti-guerra.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/reconguista/
+  - ContextoGundamReconguista.java
+      (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/stardust/
+  - ContextoGundam0083.java
+      (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/warInpocket/
+  - ContextoWarInPocket.java
+      (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/zeta/
+  - ContextoGundamZeta.java
+      PROPÓSITO DE NEGÓCIO: lore de Zeta Gundam (Gryps Conflict / UC 0087).
+      
+      <p>INVARIANTES DO DOMÍNIO: Kamille Bidan (masculino); AEUG; Titans; Quattro Bajeena.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/zz/
+  - ContextoGundamZZ.java
+      PROPÓSITO DE NEGÓCIO: lore de Mobile Suit Gundam ZZ (UC 0088 / Neo Zeon).
+      
+      <p>INVARIANTES DO DOMÍNIO: Judau Ashta; Haman Karn; Glemy Toto; ZZ Gundam;
+      Axis/Neo Zeon; Shangri-La.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/macross/
+  - ContextoMacross2.java
+      PROPÓSITO DE NEGÓCIO: lore de Macross II: Lovers Again para tradução fiel de
+      nomes, Marduk/Emulator e mecha da continuidade alternativa.
+      
+      <p>INVARIANTES DO DOMÍNIO: Hibiki Kanzaki; Ishtar; Silvie Gena; Marduk;
+      Emulator; Minmay Attack; VF-2SS.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacross7.java
+      PROPÓSITO DE NEGÓCIO: lore enriquecida de Macross 7 (série TV) / Fire Bomber.
+      
+      <p>INVARIANTES DO DOMÍNIO: Basara Nekki; Fire Bomber; Protodeviln; Sound Force;
+      VF-19 Custom Fire Valkyrie.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacross7Encore.java
+      (sem cabecalho explicativo)
+  - ContextoMacross7Filme.java
+      (sem cabecalho explicativo)
+  - ContextoMacross7Filmes.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossAnime.java
+      PROPÓSITO DE NEGÓCIO: lore clássica de Macross (cânone JP — tríade música/mecha/geopolítica).
+      
+      <p>INVARIANTES DO DOMÍNIO: Valkyrie/VF; Fighter/GERWALK/Battroid; Overtechnology;
+      Deculture; Zentradi; proibir léxico Robotech (Veritech).
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacrossDelta.java
+      PROPÓSITO DE NEGÓCIO: lore de Macross Delta (série TV) com termos protegidos.
+      
+      <p>INVARIANTES DO DOMÍNIO: Walküre; Windermere; Var Syndrome; elenco oficial.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacrossDeltaFilme1.java
+      PROPÓSITO DE NEGÓCIO: lore do filme Macross Delta — Passionate Walküre
+      (Gekijou no Walküre), alinhada à fila ativa de tradução.
+      
+      <p>INVARIANTES DO DOMÍNIO: Walküre; Windermere; Var Syndrome; mesmos nomes
+      canônicos da série Delta.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacrossDeltaFilme2.java
+      PROPÓSITO DE NEGÓCIO: lore do filme Macross Delta 2 — Absolute Live!!!!!!
+      
+      <p>INVARIANTES DO DOMÍNIO: Heimdall; Yami_Q_Ray; VF-31AX Kairos-Plus; Max Jenius;
+      continuidade pós-série (não confundir com Passionate Walküre).
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacrossDeltaFilmes.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossDynamite7.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossDYRL.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossFilme1.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossFilme2.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossFrontier.java
+      PROPÓSITO DE NEGÓCIO: lore enriquecida de Macross Frontier (série TV).
+      
+      <p>INVARIANTES DO DOMÍNIO: Klan Klang; SMS; Vajra; Sheryl Nome; Ranka Lee;
+      Macross Frontier fleet.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoMacrossFrontierFilme1.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossFrontierFilme2.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossFrontierFilmes.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossPlus.java
+      (sem cabecalho explicativo)
+  - ContextoMacrossZero.java
+      (sem cabecalho explicativo)
+
+[PASTA] src/main/java/org/traducao/projeto/contexto/lore/sidonia/
+  - ContextoKnightsOfSidonia.java
+      PROPÓSITO DE NEGÓCIO: lore da série Knights of Sidonia.
+      
+      <p>INVARIANTES DO DOMÍNIO: Izana Shinatose; Gauna; Garde; Ena; Heigus.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+  - ContextoSidoniaFilme.java
+      PROPÓSITO DE NEGÓCIO: lore do filme Sidonia — corrige Izana Shinatose.
+      
+      <p>INVARIANTES DO DOMÍNIO: Izana Shinatose (nunca Shinoshinari); Nagate; Tsumugi;
+      Gauna/Garde.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/core/exception/
   - BasePipelineException.java
@@ -1222,6 +1921,25 @@ traducao_animes_llm_local_quarkus/
       controller tinha seu próprio executor (ou rodava na thread HTTP), dois jobs
       podiam rodar em paralelo e um trocava a lore/modelo no meio do outro — além
       de disputarem a GPU do LM Studio, que atende uma inferência por vez.
+
+[PASTA] src/main/java/org/traducao/projeto/core/infrastructure/http/
+  - JsonHttpClient.java
+      PROPÓSITO DE NEGÓCIO: cliente HTTP JSON genérico baseado no {@link HttpClient} do JDK
+      (sem Spring RestClient), técnico e neutro — reutilizável por qualquer fatia. Recebe os
+      timeouts como {@link Duration} explícitos e a base URL por parâmetro; não conhece LLM,
+      anime, autenticação nem fatia funcional (kernel {@code core.infrastructure.http}).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Connect timeout no builder do {@code HttpClient}; read timeout por requisição.</li>
+      <li>{@code baseUrl} normalizada (sem barra final) e usada em {@code get/getString/post};
+      {@code getAbsolute} usa a URL completa recebida.</li>
+      <li>Nenhuma dependência de fatia funcional; só JDK + Jackson (técnico).</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Status HTTP &ge; 400 lança {@link HttpClientException} com o código e o corpo.
+      {@link #isErroRedeOuTimeout(Throwable)} classifica timeout/conexão/host desconhecido.
 
 [PASTA] src/main/java/org/traducao/projeto/core/io/
   - DiretorioBaseKronos.java
@@ -1249,6 +1967,77 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: não lança exceção própria. Se a property
       contiver um caminho sintaticamente inválido, a exceção de {@link Path#of}
       propaga ao chamador; com property ausente/branca cai no diretório corrente.
+
+[PASTA] src/main/java/org/traducao/projeto/core/presentation/ui/
+  - AnsiCores.java
+      Cores ANSI compartilhadas entre o prompt interativo e os loggers de console do
+      projeto. Usar apenas caracteres ASCII nos textos do prompt evita problemas de
+      encoding no console do Windows (cp1252 vs UTF-8).
+  - ConsoleEntrada.java
+      PROPÓSITO DE NEGÓCIO: prompt interativo de console do pipeline KRONOS. Coleta,
+      pelo terminal, o modo de operação e as pastas de entrada/saída e imprime a dica
+      de recuperação quando o console falha. É um utilitário técnico de apresentação
+      neutro (I/O de console), sem qualquer conceito de tradução/legenda/LLM — por isso
+      reside no {@code core.presentation.ui} compartilhado, ao lado do {@code AnsiCores}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>NUNCA fecha {@code System.in}: o leitor estático é envolvido uma única vez e
+      mantido aberto durante todo o ciclo de vida do processo.</li>
+      <li>Charset fixo UTF-8 no {@code InputStreamReader}; os textos do prompt usam
+      apenas ASCII para blindar o console do Windows (cp1252 vs UTF-8).</li>
+      <li>Zero dependência de fatia funcional: só depende do JDK e do {@code AnsiCores}
+      do próprio core.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      EOF / {@code stdin} fechado, ou caminho obrigatório vazio, resultam em
+      {@link Optional#empty()}. Uma {@link IOException} de leitura é capturada, sinalizada
+      em vermelho e também devolve {@link Optional#empty()}. Opção de modo inválida recai
+      no fluxo padrão WEB.
+
+[PASTA] src/main/java/org/traducao/projeto/core/presentation/web/
+  - LogStreamService.java
+      Gerencia conexoes SSE (JAX-RS) e despacha logs em tempo real para clientes web.
+  - OperacaoRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta os parâmetros comuns das operações do
+      pipeline (análise, tradução, correção e revisão) enviados pela SPA — pastas de
+      entrada/saída, contexto de lore selecionado e opções de sincronismo/revisão.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
+      consumido pelo front-end; caminhos são normalizados e o contexto é validado
+      pelos endpoints antes de qualquer job entrar na fila compartilhada.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes chegam como {@code null} e
+      cada endpoint decide o fallback seguro ou responde HTTP 400 antes de enfileirar.
+  - PipelineWebSupport.java
+      PROPÓSITO DE NEGÓCIO: concentra os utilitários compartilhados pelos
+      controllers web do pipeline — a normalização de caminhos digitados/colados na
+      interface e o enfileiramento padronizado de jobs pesados na fila única de
+      execução. Existe para que todos os endpoints entrem na MESMA fila e imprimam o
+      MESMO formato de relatório final, sem duplicar essa lógica em cada controller.
+      
+      <p>INVARIANTES DO DOMÍNIO: expõe a única {@link FilaExecucaoPipeline}
+      compartilhada (bean CDI) — jamais deve existir mais de uma instância de fila;
+      todo job pesado passa por {@link #submeterJobComRelatorio}, garantindo canal
+      SSE definido antes da execução e execução sequencial em segundo plano.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #normalizarCaminho(String)} devolve
+      {@code null} para entrada nula/vazia ou sintaxe de caminho inválida
+      ({@link InvalidPathException}), registrando aviso no log; o corpo submetido em
+      {@link #submeterJobComRelatorio} sempre imprime a linha de relatório final,
+      mesmo quando lança exceção, via bloco {@code finally}.
+  - RespostaPadrao.java
+      PROPÓSITO DE NEGÓCIO: envelope de resposta textual padrão da API web, usado
+      por praticamente todos os endpoints do pipeline para devolver ao navegador uma
+      mensagem legível (aceitação na fila, validação recusada ou heartbeat).
+      
+      <p>INVARIANTES DO DOMÍNIO: o nome do campo {@code mensagem} é contrato JSON
+      público consumido pela SPA; não pode ser renomeado sem quebrar o front-end.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
+      construção; {@code mensagem} pode ser vazia, mas nunca deve carregar dados
+      sensíveis, pois é ecoada diretamente na interface.
 
 [PASTA] src/main/java/org/traducao/projeto/core/util/
   - ArquivoAtomicoUtil.java
@@ -1425,12 +2214,44 @@ traducao_animes_llm_local_quarkus/
       (sem cabecalho explicativo)
 
 [PASTA] src/main/java/org/traducao/projeto/legendasExtracao/infrastructure/config/
+  - ExtracaoBeansConfig.java
+      PROPÓSITO DE NEGÓCIO: reúne, dentro da própria fatia de Extração de Legendas,
+      a composição CDI dos adaptadores de vídeo e das strategies de formato. Entrega
+      a {@code ExtrairLegendaUseCase} a coleção completa de implementações
+      registradas, para que a escolha do extrator (por contêiner) e da strategy (por
+      formato) seja feita em tempo de execução sem a fatia conhecer as classes
+      concretas. A composição pertence à fatia dona da extração — não à Tradução Local.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Cada coleção agrega TODAS as implementações CDI disponíveis do respectivo
+      tipo, via {@link Instance}, preservando a ordem natural de descoberta do
+      container — nenhuma ordenação, prioridade ou sorting é imposto.</li>
+      <li>As listas são novas instâncias mutáveis desacopladas do {@link Instance}.</li>
+      <li>A semântica é idêntica à anterior (Spring DI integrado ao Quarkus): apenas
+      o LOCAL da composição mudou para a fatia proprietária.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Se nenhuma implementação de um dos tipos estiver registrada, a coleção
+      correspondente é retornada vazia (nunca nula); o consumidor decide como tratar
+      a ausência de extrator/strategy compatível.
   - ExtratorProperties.java
       (sem cabecalho explicativo)
 
 [PASTA] src/main/java/org/traducao/projeto/legendasExtracao/presentation/
   - ExtratorCLI.java
-      (sem cabecalho explicativo)
+      PROPÓSITO DE NEGÓCIO: oferece execução local por terminal da esteira de extração
+      de softsubs (vídeo ➔ legenda) da fatia {@code legendasExtracao}, resolvendo o
+      único caminho de que precisa — a pasta de vídeos de entrada — a partir da própria
+      configuração, sem depender da configuração ou do estado da fatia {@code traducao}.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa exclusivamente {@code tradutor.diretorio-entrada};
+      não injeta diretório de saída nem de cache; entrada ausente, vazia ou só com
+      espaços é rejeitada antes de qualquer processamento.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada não configurada encerra sem processar
+      (imprime instrução de saída); pasta inexistente encerra sem produzir extração.
 
 [PASTA] src/main/java/org/traducao/projeto/legendasExtracao/presentation/ui/
   - ConsoleExtratorLogger.java
@@ -1470,6 +2291,313 @@ traducao_animes_llm_local_quarkus/
       são contrato público preservado exatamente como antes da movimentação.
       
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
+      retorna HTTP 400; falhas do job de background são registradas no log e no
+  - ExtracaoRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
+      pasta de vídeos, pasta de saída e o formato-alvo escolhido na interface.
+      
+      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público; o
+      formato é validado contra {@code FormatoLegenda} antes do job entrar na fila.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido faz o
+      endpoint responder HTTP 400 antes de qualquer processamento.
+
+[PASTA] src/main/java/org/traducao/projeto/legenda/application/
+  - DetectorEfeitoKaraokeService.java
+      PROPÓSITO DE NEGÓCIO: reconhece se um evento .ass/.ssa é efeito de
+      karaokê/música (e não fala de diálogo), para que nenhuma fatia funcional
+      (tradução, revisão, correção) mexa em música — responsabilidade exclusiva do
+      fluxo de karaokê. É a regra única compartilhada, agora residente no peer
+      {@code legenda}, consumível por qualquer fatia sem acoplamento reverso.
+      
+      <p>Cobre as duas formas em que o karaokê aparece nos arquivos .ass:
+      <ul>
+      <li>Karaokê "cru": tags de timing {@code \k}, {@code \kf}, {@code \ko}
+      por sílaba, como sai do fansub antes de aplicar template.</li>
+      <li>Saída do Kara Templater do Aegisub: as tags {@code \k} são consumidas
+      na aplicação do template e viram uma linha por sílaba/letra com
+      transformações animadas ({@code \t(...)}, {@code \frx}, {@code \fad},
+      {@code \pos}) e quase nenhum texto visível.</li>
+      </ul>
+      
+      <p>INVARIANTES DO DOMÍNIO: distingue música de diálogo pela assinatura de tags
+      e pela densidade de texto visível; preserva letra em japonês/romaji (kana/kanji
+      ou estilo marcado como japonês) para nunca destruí-la, enquanto karaokê/música
+      em idiomas latinos com texto traduzível pode seguir para tradução. Em caso de
+      dúvida o viés é preservar: deixar uma linha de música sem traduzir custa menos
+      que corromper romaji. A classe é sem estado (stateless) e depende apenas de
+      JDK e Spring.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas ou em branco devolvem
+      {@code false} (não classificam o evento como música/karaokê) e nenhum método
+      lança — cada consulta é uma decisão booleana determinística sobre o
+      texto/estilo fornecido.
+
+[PASTA] src/main/java/org/traducao/projeto/legenda/domain/
+  - ArquivoLegendaException.java
+      PROPÓSITO DE NEGÓCIO: sinaliza falha ao ler ou escrever um arquivo de legenda
+      (I/O, formato inválido, seção ausente) dentro do módulo compartilhado
+      {@code legenda}. É a exceção de I/O de legenda que leitores e escritores lançam
+      e que os fluxos consumidores tratam como falha de arquivo.
+      
+      <p>INVARIANTES DO DOMÍNIO: estende {@link ExcecaoLegenda} (raiz do módulo legenda),
+      portanto é {@code BasePipelineException} e NÃO é {@code TradutorException}. Preserva
+      os dois construtores canônicos (mensagem; mensagem+causa); não adiciona estado nem
+      lógica.
+      
+      <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
+      verificada; é mapeada para resposta HTTP pelo {@code BasePipelineExceptionMapper} e
+      pode ser capturada por blocos que tratem {@link ExcecaoLegenda} (ou este tipo).
+  - DocumentoLegenda.java
+      PROPÓSITO DE NEGÓCIO: representa, como dado imutável do módulo compartilhado
+      {@code legenda}, uma legenda inteira já parseada — o cabeçalho bruto, a sequência
+      ordenada de eventos ({@link EventoLegenda}) e os metadados de serialização
+      (marca de quebra de linha e presença de BOM) necessários para reescrever o arquivo
+      fielmente.
+      
+      <p>INVARIANTES DO DOMÍNIO: é um {@code record} — os quatro componentes são fixados
+      na construção e expostos pelos acessores; igualdade e hash derivam de todos eles.
+      A imutabilidade é rasa: a referência da lista {@code eventos} é armazenada como
+      recebida (não há cópia defensiva). Não há validação: qualquer valor, inclusive
+      {@code null} em qualquer componente, é aceito.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: o próprio record não lança nem sanitiza nada;
+      entradas inválidas (ex.: {@code eventos} nulo) só se manifestam quando um consumidor
+      as percorre. Nenhuma responsabilidade de I/O, parsing ou tradução vive aqui.
+      
+      @param cabecalho bloco bruto de cabeçalho da legenda, preservado para reescrita fiel
+      @param eventos sequência ordenada de eventos (linhas) da legenda
+      @param quebraDeLinha marca de quebra de linha original do arquivo, usada na serialização
+      @param comBom indica se o arquivo original tinha BOM, a ser reproduzido na escrita
+  - EventoLegenda.java
+      PROPÓSITO DE NEGÓCIO: representa, como dado imutável do módulo compartilhado
+      {@code legenda}, um único evento (linha) de uma legenda — seu índice de ordem, o
+      tipo de linha (ex.: {@code Dialogue}), o estilo, o prefixo estrutural e o texto
+      visível — servindo de unidade que leitores, escritores e regras percorrem.
+      
+      <p>INVARIANTES DO DOMÍNIO: é um {@code record} — os cinco componentes são fixados na
+      construção; igualdade e hash derivam de todos eles. Não há validação: qualquer valor,
+      inclusive {@code null} em {@code texto} ou nos demais campos de texto, é aceito.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: o record não lança nem sanitiza; consultas sobre
+      campos nulos são tratadas pelos próprios métodos ({@link #temTexto()} devolve
+      {@code false} para {@code texto} nulo). Nenhuma responsabilidade de I/O ou tradução
+      vive aqui.
+      
+      @param indice posição ordinal do evento dentro da legenda
+      @param tipoLinha tipo da linha (ex.: {@code Dialogue}), base de {@link #isDialogo()}
+      @param estilo nome do estilo associado ao evento
+      @param prefixo prefixo estrutural da linha, preservado na reescrita
+      @param texto texto visível do evento; pode ser {@code null}
+  - ExcecaoLegenda.java
+      PROPÓSITO DE NEGÓCIO: raiz da hierarquia de exceções pertencentes ao módulo
+      compartilhado {@code legenda} — falhas ligadas a arquivos e conteúdo de legenda.
+      NÃO representa falhas gerais de tradução nem do LLM (essas vivem sob
+      {@code TradutorException}, na fatia {@code traducao}); é a base específica das
+      falhas do domínio de legenda, consumível por qualquer fatia.
+      
+      <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
+      {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
+      canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
+      infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
+      {@code BasePipelineExceptionMapper}, comum a toda a família.
+      
+      <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
+      verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
+      estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
+      {@code ExcecaoLegenda} ou uma de suas subclasses.
+  - PoliticaEstiloMusical.java
+      PROPÓSITO DE NEGÓCIO: política de IDENTIFICAÇÃO de estilos ASS potencialmente
+      MUSICAIS/preserváveis (letra japonesa, romaji, karaokê, aberturas/encerramentos),
+      usada EM CONJUNTO com o detector de conteúdo do pipeline. A subfase E3c apenas
+      transfere o PROPRIETÁRIO desta regra — antes em
+      {@code TradutorProperties.estiloIgnorado} — para o módulo compartilhado
+      {@code legenda}, SEM alterar o comportamento funcional do fluxo.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Sinaliza um estilo quando ele está na lista configurada
+      ({@code tradutor.estilos-ignorados}, comparação case-insensitive) OU quando é
+      reconhecido pelas heurísticas/regex de palavras musicais já existentes.</li>
+      <li>Esta política, SOZINHA, NÃO decide se uma linha será enviada ao LLM. A decisão
+      final de preservação considera TAMBÉM o conteúdo da linha, avaliado pelo
+      {@code DetectorEfeitoKaraokeService} (ex.: {@code eKaraokeOuMusicaTraduzivel},
+      {@code devePreservarKaraokeOriginal}), que permanece o proprietário dessa parte.</li>
+      <li>Letras japonesas e romaji protegidos devem permanecer INTACTOS; a versão em
+      INGLÊS que acompanha o karaokê PODE continuar traduzível quando o detector
+      assim determinar.</li>
+      <li>Guarda uma cópia IMUTÁVEL da lista recebida, preservando ordem, case,
+      duplicatas e elementos vazios — sem trim, dedup ou normalização.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Estilo {@code null} ou em branco retorna {@code false} (não identificado como musical).
+      Um retorno {@code false} significa apenas "não identificado como estilo musical por
+      esta política" — NÃO significa, por si só, "diálogo padrão" nem "linha traduzível".
+
+[PASTA] src/main/java/org/traducao/projeto/legenda/infrastructure/config/
+  - PoliticaEstiloMusicalProducer.java
+      PROPÓSITO DE NEGÓCIO: ponte técnica (CDI) que lê a lista configurada de estilos
+      musicais preserváveis e produz a política de domínio pura {@link PoliticaEstiloMusical}.
+      Isola o Quarkus/MicroProfile Config na borda de infraestrutura do módulo {@code legenda},
+      mantendo o domínio livre de framework.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Chave lida: {@code tradutor.estilos-ignorados} (mantida nesta subfase — sem rename).</li>
+      <li>Produz um bean de PSEUDO-ESCOPO {@code @Singleton}: {@link PoliticaEstiloMusical}
+      é {@code final} e não admite proxy de escopo normal.</li>
+      <li>Fallback {@code ["Song JP"]} quando a chave está ausente (Optional.empty).</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha / caracterização de binding (E3c)</h2>
+      Chave ausente → política construída com o fallback {@code ["Song JP"]}, idêntico ao
+      binding histórico do {@code TradutorProperties}. Caracterização comprovada: sob string
+      vazia ({@code ""}), Spring e SmallRye COLAPSAM em ausente (ambos → {@code ["Song JP"]}) —
+      paridade preservada. A sequência YAML vazia ({@code []}) NÃO foi caracterizada e não
+      deve ser assumida como estado distinto.
+
+[PASTA] src/main/java/org/traducao/projeto/legenda/infrastructure/
+  - EscritorLegendaAss.java
+      PROPÓSITO DE NEGÓCIO: reconstrói o arquivo {@code .ass} a partir de um
+      {@link DocumentoLegenda}, repetindo o cabeçalho original e as linhas não
+      traduzíveis byte a byte, e trocando apenas o campo Text dos eventos
+      {@code Dialogue} pela versão traduzida. É o par de saída do {@link LeitorLegendaAss}.
+      
+      <p>INVARIANTES DO DOMÍNIO: o EOL e o BOM do documento original são reproduzidos na
+      saída; a escrita é atômica — grava em arquivo temporário e substitui o destino via
+      {@link org.traducao.projeto.core.util.ArquivoAtomicoUtil#substituirAtomico}.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de escrita lança
+      {@link ArquivoLegendaException}, sem deixar o arquivo de destino truncado (a
+      substituição atômica só ocorre após a gravação completa do temporário).
+  - EscritorLegendaSrt.java
+      PROPÓSITO DE NEGÓCIO: Reescreve um .srt a partir do {@link DocumentoLegenda},
+      preservando numeração e timestamps (guardados no índice e no {@code prefixo}
+      do evento) e trocando apenas o texto pela versão traduzida. É o par de saída
+      do {@link LeitorLegendaSrt}.
+      
+      <p>INVARIANTES DO DOMÍNIO: cada evento vira um bloco SRT válido (índice, linha
+      de tempo, texto, linha em branco de separação); as marcas {@code \N} de quebra
+      interna voltam a ser quebras reais no EOL do documento; escrita atômica.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: erro de IO → {@link ArquivoLegendaException},
+      sem deixar arquivo truncado (grava em temporário e move atomicamente).
+  - LeitorLegendaAss.java
+      PROPÓSITO DE NEGÓCIO: lê arquivos {@code .ass}/{@code .ssa} para um
+      {@link DocumentoLegenda}, preservando byte a byte tudo que não for o campo Text
+      dos eventos {@code Dialogue} (estilos, timestamps, seções de metadados). Só o campo
+      Text é exposto para tradução; o resto é reconstruído idêntico pelo
+      {@link EscritorLegendaAss}.
+      
+      <p>INVARIANTES DO DOMÍNIO: o cabeçalho, o EOL e o BOM originais são guardados no
+      documento para reescrita fiel; cada evento é mapeado para um {@link EventoLegenda}
+      conforme a ordem das colunas declarada na linha {@code Format:} da seção
+      {@code [Events]}.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de leitura, arquivo ilegível ou
+      seção {@code [Events]} sem linha {@code Format:} lançam {@link ArquivoLegendaException}.
+  - LeitorLegendaSrt.java
+      PROPÓSITO DE NEGÓCIO: Lê legendas SubRip (.srt) para o mesmo
+      {@link DocumentoLegenda} usado pelo ASS, para que o pipeline de tradução
+      (cache, máscara de tags, validação) opere sobre SRT sem convertê-lo para ASS.
+      Numeração e timestamps ficam no {@code prefixo} do evento (a linha de tempo) e
+      no índice; só o texto é traduzido. Quebras internas viram {@code \N} (convenção
+      ASS), que o {@link EscritorLegendaSrt} devolve para quebras reais.
+      
+      <p>INVARIANTES DO DOMÍNIO: cada bloco SRT (índice + "start --> end" + texto)
+      vira um {@link EventoLegenda} {@code Dialogue} de estilo "Default"; o EOL e o
+      BOM originais são preservados no documento.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura do arquivo →
+      {@link ArquivoLegendaException}. Blocos malformados (índice não numérico) são
+      tolerados: o índice cai para a posição sequencial.
+
+[PASTA] src/main/java/org/traducao/projeto/llm/domain/
+  - LlmPort.java
+      PROPÓSITO DE NEGÓCIO: contrato genérico de saída para o modelo de linguagem local
+      (servido, por exemplo, via LM Studio). É a porta pela qual qualquer fatia funcional
+      pede tradução de um lote, revisão de concordância, correção de uma fala ou a checagem
+      de disponibilidade do servidor — sem conhecer o cliente HTTP concreto nem o modelo.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Contrato puro de domínio: depende apenas de JDK e dos tipos do próprio peer
+      {@code llm} ({@link Lote}, {@link TraducaoLote}, {@link StatusLlm}); não conhece
+      framework, HTTP, contexto nem qualquer fatia funcional.</li>
+      <li>A tradução opera sobre um {@link Lote} e devolve um {@link TraducaoLote} que
+      preserva o {@code idLote}; as variantes de temperatura e de prompt congelado
+      apenas refinam a mesma operação.</li>
+      <li>As revisões pontuais retornam {@link Optional}, distinguindo "sem correção
+      aplicável" de uma string vazia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      A implementação concreta ({@code traducao.infrastructure.adapters.LlmClientAdapter})
+      define o tratamento de rede/timeout. No contrato, {@code revisarConcordancia} e
+      {@code corrigirTraducao} devolvem {@link Optional#empty()} quando o LLM falha ou a
+      resposta é inválida, de modo que o chamador preserve a tradução anterior.
+  - Lote.java
+      PROPÓSITO DE NEGÓCIO: unidade de trabalho enviada ao LLM — um conjunto de linhas
+      originais a traduzir de uma vez, identificado para que a resposta possa ser
+      correlacionada de volta ao pedido.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code idLote} identifica o lote e é preservado no {@link TraducaoLote} de resposta.</li>
+      <li>{@code linhasOriginais} é a sequência a traduzir, na ordem em que deve ser devolvida.</li>
+      <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Não valida os argumentos; é um portador de dados. A ausência ou o formato inválido de
+      linhas é tratado pela implementação da porta, não por este tipo.
+      
+      @param idLote identificador do lote, ecoado na resposta
+      @param linhasOriginais linhas originais a traduzir, na ordem de saída esperada
+  - StatusLlm.java
+      PROPÓSITO DE NEGÓCIO: resultado da checagem de disponibilidade do servidor LLM local
+      (ex.: LM Studio) feita no início da execução, antes de traduzir qualquer episódio — para
+      falhar cedo, com mensagem clara, em vez de descobrir a indisponibilidade após vários
+      timeouts no meio do trabalho.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code servidorOnline} e {@code modeloCarregado} são sinais independentes: o
+      servidor pode estar de pé sem o modelo configurado carregado.</li>
+      <li>{@code mensagem} descreve o estado para exibição ao operador.</li>
+      <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      É o próprio veículo do estado de falha: servidor offline ou modelo ausente são
+      representados pelos flags e pela {@code mensagem}, não por exceção.
+      
+      @param servidorOnline {@code true} se o servidor LLM respondeu
+      @param modeloCarregado {@code true} se o modelo configurado está carregado em memória
+      @param mensagem descrição do estado para o operador
+  - TraducaoLote.java
+      PROPÓSITO DE NEGÓCIO: resultado da tradução de um {@link Lote} pelo LLM — as linhas
+      traduzidas mais o desfecho (sucesso ou falha com diagnóstico), para que o pipeline
+      decida entre publicar, retentar ou preservar o original.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code idLote} espelha o do {@link Lote} de origem, correlacionando pedido e resposta.</li>
+      <li>{@code linhasTraduzidas} corresponde às linhas originais na mesma ordem.</li>
+      <li>{@code sucesso} indica se a tradução é utilizável; {@code mensagemErro} traz o
+      diagnóstico quando não é.</li>
+      <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Em falha, {@code sucesso} é {@code false} e {@code mensagemErro} descreve a causa; o
+      chamador é quem decide preservar a tradução anterior. Este tipo não lança.
+      
+      @param idLote identificador do lote, herdado do {@link Lote} de origem
+      @param linhasTraduzidas linhas traduzidas, na ordem das originais
+      @param sucesso {@code true} se a tradução é utilizável
+      @param mensagemErro diagnóstico quando {@code sucesso} é {@code false}
 
 [PASTA] src/main/java/org/traducao/projeto/mapaProjeto/application/
   - GeradorMapaProjetoUseCase.java
@@ -1489,6 +2617,7 @@ traducao_animes_llm_local_quarkus/
 
 [PASTA] src/main/java/org/traducao/projeto/mapaProjeto/presentation/
   - MapaProjetoCLI.java
+      E3b: chave crua; ausência/branco tratados pelo fallback de domínio local (user.dir).
       Determina a raiz a ser mapeada
 
 [PASTA] src/main/java/org/traducao/projeto/mapaProjeto/presentation/web/
@@ -1590,6 +2719,139 @@ traducao_animes_llm_local_quarkus/
   - NovoKaraokeRequest.java
       Requisição da conversão de karaokê: pasta das legendas .ass de origem e a
       pasta de destino (obrigatoriamente diferente — o original é preservado).
+
+[PASTA] src/main/java/org/traducao/projeto/qualidadeTraducao/application/
+  - DetectorTraducaoIdenticaService.java
+      PROPÓSITO DE NEGÓCIO: decide se uma fala pode legitimamente permanecer idêntica ao
+      original (nomes próprios, números, siglas, termos de lore) ou se a igualdade é sinal
+      de que o LLM simplesmente devolveu a fala sem traduzir. Impede que manutenção ou
+      retomada do cache apague nomes canônicos e, simultaneamente, não aceite frases
+      inglesas como tradução. Além da lista global fixa, consulta os termos protegidos e a
+      lore do contexto ATIVO através da porta {@link LoreAtivaPort}, para que um termo novo
+      anexado ao contexto selecionado seja protegido sem editar este detector — e sem que o
+      peer {@code qualidadeTraducao} dependa da fatia {@code contexto}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A lore ativa (via porta) é a fonte dos termos protegidos; expressões
+      conversacionais comuns continuam exigindo tradução.</li>
+      <li>A precedência das verificações é preservada: limpeza de tags, gagueira e
+      pontuação; caso de caractere único; palavra única; então lore ativa e, por fim,
+      heurística de capitalização.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Texto sem evidência suficiente é preservado para evitar uma decisão destrutiva; a
+      porta não lança, então lore/termos ausentes apenas recaem nas heurísticas globais.
+  - MascaradorTags.java
+      PROPÓSITO DE NEGÓCIO: protege a INTEGRIDADE da formatação da legenda ao redor da
+      tradução. Isola tags ASS/SSA (ex: {@code {\i1}}, {@code {\pos(...)}}) e códigos de
+      quebra ({@code \N}, {@code \n}, {@code \h}) do texto, trocando-os por marcadores
+      {@code [[TAGn]]} que o LLM é instruído a preservar literalmente — sem isso o modelo
+      tende a "traduzir" ou descartar as tags, corrompendo a legenda renderizada. Regra
+      de qualidade compartilhada, residente no peer {@code qualidadeTraducao}.
+      
+      <p>INVARIANTES DO DOMÍNIO: quantidade, conteúdo e ordem das tags do original são
+      preservados na desmascaração; cada tag vira exatamente um marcador {@code [[TAGn]]}
+      sequencial; a classe é sem estado (stateless), só JDK + Spring.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: se o texto retornado pelo LLM perdeu, duplicou
+      ou inventou marcadores, {@link #desmascarar(String, List)} lança
+      {@link AlucinacaoDetectadaException} em vez de gravar formatação corrompida;
+      verificações estruturais nulas/divergentes devolvem {@code false}.
+  - ProtecaoLegendaAssService.java
+      PROPÓSITO DE NEGÓCIO: blindagens compartilhadas para linhas ASS/SSA antes e depois
+      de chamadas a IA/serviços externos. Centraliza os casos perigosos encontrados em
+      fansubs — clips vetoriais longos, letras soltas pós-template e preâmbulos alucinados
+      — para que typesetting pesado não seja enviado ao LLM nem sobrescrito por uma
+      resposta que destruiria o efeito visual original.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Só o texto VISÍVEL decide: blocos {@code {...}} de override/comentário ASS são
+      removidos para a inspeção e o texto recebido nunca é modificado.</li>
+      <li>Bloqueio antes do LLM exige conjunção de sinais (tags pesadas + alta densidade
+      de tags + texto curto): uma fala normal com duas camadas de estilo nunca é
+      bloqueada só por ter tags.</li>
+      <li>Serviço stateless — só constantes {@code static final}. Qualquer instância é
+      intercambiável, o que sustenta tanto a injeção Spring quanto o reuso estático
+      pelos chamadores.</li>
+      <li>Contrato público do peer são os métodos de INSTÂNCIA; os estáticos permanecem
+      package-private como detalhe interno de implementação.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Nenhum método lança: entrada {@code null} degrada para o lado seguro — {@code false}
+      nas heurísticas de suspeita/bloqueio (não intervir) e {@code ""} na extração de texto
+      visível. Texto sem conteúdo visível é bloqueado antes do LLM, evitando gastar chamada
+      em linha puramente decorativa.
+  - ValidadorTraducaoService.java
+      PROPÓSITO DE NEGÓCIO: impede que textos parcialmente traduzidos, respostas
+      rotuladas ou conteúdo em idioma indevido cheguem às legendas e ao cache.
+      <p>INVARIANTES DO DOMÍNIO: comentários ASS não visíveis são ignorados, nomes
+      próprios conhecidos não viram falso positivo e resíduos visíveis inequívocos
+      sempre bloqueiam a proposta.
+      <p>COMPORTAMENTO EM CASO DE FALHA: lança
+      {@link AlucinacaoDetectadaException} com diagnóstico e o chamador preserva a
+      tradução anterior.
+
+[PASTA] src/main/java/org/traducao/projeto/qualidadeTraducao/domain/
+  - AlucinacaoDetectadaException.java
+      PROPÓSITO DE NEGÓCIO: sinaliza que o LLM alucinou de forma que compromete a
+      INTEGRIDADE da legenda — corrupção/perda dos marcadores de formatação
+      ({@code [[TAGn]]}) ou fala rejeitada pelo validador de qualidade. Impede que uma
+      saída corrompida seja publicada como se fosse tradução válida. Pertence ao peer
+      compartilhado {@code qualidadeTraducao}, consumível por qualquer fatia.
+      
+      <p>INVARIANTES DO DOMÍNIO: é subclasse de {@link ExcecaoQualidadeTraducao} (logo de
+      {@code BasePipelineException}) — a partir da E8b NÃO é mais {@code TradutorException};
+      carrega apenas a mensagem descritiva da alucinação, sem estado próprio.
+      
+      <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
+      verificada; nos fluxos de tradução é normalmente absorvida pela divisão/retry/fallback,
+      e os sítios que antes a capturavam via {@code TradutorException} preservam o
+      tratamento por captura explícita ({@code catch (... | AlucinacaoDetectadaException)}).
+  - ExcecaoQualidadeTraducao.java
+      PROPÓSITO DE NEGÓCIO: raiz da hierarquia de exceções do módulo compartilhado
+      {@code qualidadeTraducao} — falhas ligadas à QUALIDADE do texto traduzido
+      (alucinação, corrupção de marcadores de formatação) detectadas por regras
+      consumíveis por qualquer fatia. NÃO representa falhas gerais de tradução/LLM
+      (essas vivem sob {@code TradutorException}, na fatia {@code traducao}), de legenda
+      (sob {@code ExcecaoLegenda}) nem de contexto (sob {@code ExcecaoContexto}).
+      
+      <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
+      {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
+      canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
+      infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
+      {@code BasePipelineExceptionMapper}, comum a toda a família.
+      
+      <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
+      verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
+      estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
+      {@code ExcecaoQualidadeTraducao} ou uma de suas subclasses.
+  - LoreAtivaPort.java
+      PROPÓSITO DE NEGÓCIO: porta de saída pela qual o peer {@code qualidadeTraducao}
+      obtém a terminologia e a lore da obra atualmente selecionada, para decidir se uma
+      fala idêntica ao original é um termo canônico legítimo (nome, facção, patente) ou
+      uma tradução que o LLM simplesmente não fez. Inverte a dependência que antes ligava
+      o detector diretamente ao {@code contexto}: o peer declara o contrato de que precisa
+      e a fatia que possui o contexto fornece a implementação.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Contrato mínimo: exatamente as duas leituras que o detector consome — nada de
+      escrita, seleção de contexto ou exposição do prompt de tradução completo.</li>
+      <li>É a lore do contexto ATIVO no momento da consulta; trocar o contexto ativo muda
+      o que estes métodos retornam, sem que o consumidor precise ser reconfigurado.</li>
+      <li>Pertence ao domínio do peer: depende apenas de JDK, para não reintroduzir
+      acoplamento a {@code contexto} nem a qualquer outra fatia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Nenhum método lança: a ausência de contexto ativo é um estado normal, não um erro.
+      {@link #termosProtegidosAtivos()} degrada para conjunto vazio e {@link #obterLoreAtiva()}
+      para a lore neutra que a implementação adotar — o detector, diante de qualquer um dos
+      dois, apenas deixa de reconhecer termos de lore e recai nas heurísticas globais.
 
 [PASTA] src/main/java/org/traducao/projeto/raspagemCorrecao/application/
   - CorrigirComGoogleUseCase.java
@@ -1727,6 +2989,23 @@ traducao_animes_llm_local_quarkus/
   - ResultadoDeteccaoConcordancia.java
       (sem cabecalho explicativo)
 
+[PASTA] src/main/java/org/traducao/projeto/raspagemRevisao/presentation/web/
+  - RevisaoLegendasController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web a revisão das legendas traduzidas
+      (.ass) — via Google Translate com auditoria e via LLM local para concordância
+      PT-BR — usando cache e/ou legendas originais como referência.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; a pasta de entrada é obrigatória e validada; o modo
+      de referência e a pasta de cache são resolvidos e validados antes de
+      enfileirar; a revisão de concordância só prossegue com o LLM disponível;
+      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: entrada/cache/contexto inválido retorna
+      HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console SSE, sem
+      derrubar a fila.
+
 [PASTA] src/main/java/org/traducao/projeto/raspagemRevisao/
   - RevisorLegendasCLI.java
       Revisa arquivos .ass/.ssa já traduzidos, detecta resíduos em inglês e erros
@@ -1847,6 +3126,13 @@ traducao_animes_llm_local_quarkus/
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
       recusar concorrência; as pastas existem antes da aceitação; o offset fica na
+      faixa operacional de ±86.400.000 ms; a rota {@code POST /api/remuxar}, os
+  - RemuxRequest.java
+      PROPÓSITO DE NEGÓCIO: transporta as opções exclusivas do Remuxer.
+      INVARIANTES DO DOMÍNIO: pasta de vídeo é obrigatória; offset e política de
+      faixas são validados pelo endpoint.
+      COMPORTAMENTO EM CASO DE FALHA: campos ausentes recebem fallback seguro ou
+      geram HTTP 400 antes de entrar na fila.
 
 [PASTA] src/main/java/org/traducao/projeto/renomearArquivos/application/
   - OperacaoRenomeacaoEmAndamentoException.java
@@ -1997,6 +3283,22 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: fornece o texto exibido nos banners e relatórios.
       <p>INVARIANTES DO DOMÍNIO: retorna sempre o rótulo da própria constante.
       <p>COMPORTAMENTO EM CASO DE FALHA: nunca retorna nulo.
+  - StatusRevisaoLoreLlm.java
+      PROPÓSITO DE NEGÓCIO: representa o resultado da verificação de disponibilidade
+      do servidor LLM local usado exclusivamente pela Revisão de Lore, antes de
+      iniciar uma sessão. Permite abortar cedo, com mensagem clara, quando o modelo
+      não está carregado — em vez de descobrir isso só no meio da revisão.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code modeloCarregado == true} implica {@code servidorOnline == true}.</li>
+      <li>{@code mensagem} descreve o estado de forma legível ao operador.</li>
+      <li>Tipo próprio da fatia Revisão de Lore — não reutiliza o status da Tradução Local.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Servidor inacessível é representado por {@code servidorOnline == false} e
+      {@code modeloCarregado == false}, com a causa técnica na {@code mensagem}.
 
 [PASTA] src/main/java/org/traducao/projeto/revisaoLore/domain/exceptions/
   - RevisaoLoreException.java
@@ -2005,6 +3307,121 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/revisaoLore/domain/ports/
   - ProvedorPromptRevisaoLore.java
       (sem cabecalho explicativo)
+  - RevisorLoreLlmPort.java
+      PROPÓSITO DE NEGÓCIO: porta LLM própria da Revisão de Lore. Abstrai a única
+      interação com o modelo local de que a fatia precisa — verificar disponibilidade
+      e revisar terminologia/nomes de lore de uma fala já traduzida —, mantendo a
+      Revisão de Lore independente da stack LLM da Tradução Local.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@link #revisar} preserva integralmente os marcadores estruturais
+      {@code [[TAGn]]} presentes na tradução; resposta que perca algum marcador
+      nunca é publicada.</li>
+      <li>A revisão usa o prompt de sistema de lore fornecido pelo chamador e o
+      prompt de usuário próprio da fatia — nenhuma responsabilidade de tradução
+      de lotes ou correção gramatical pertence a esta porta.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      {@link #revisar} devolve {@link Optional#empty()} quando o LLM falha, a resposta
+      é inválida ou nenhuma linha preserva os marcadores — cabendo ao caso de uso
+      manter a tradução atual. {@link #verificarDisponibilidade} nunca lança: reporta
+      indisponibilidade via {@link StatusRevisaoLoreLlm}.
+
+[PASTA] src/main/java/org/traducao/projeto/revisaoLore/infrastructure/adapters/
+  - NormalizadorRespostaRevisaoLore.java
+      PROPÓSITO DE NEGÓCIO: extrai a fala revisada final das respostas do LLM de
+      lore, que podem vir com raciocínio ({@code <think>}), cerca Markdown ou um
+      rótulo antes do texto. Responsabilidade separada do adapter, própria da
+      Revisão de Lore — não reutiliza o normalizador da Tradução Local.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Quando a tradução possui marcadores {@code [[TAGn]]}, apenas uma linha que
+      preserve TODOS eles pode ser escolhida; explicações nunca são concatenadas
+      ao texto da legenda.</li>
+      <li>A lista de marcadores preserva ordem e elimina duplicações.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Sem linha utilizável que preserve os marcadores esperados, devolve texto vazio,
+      permitindo nova tentativa sem publicar conteúdo estruturalmente incompleto.
+  - RevisorLoreLlmAdapter.java
+      PROPÓSITO DE NEGÓCIO: adapter LLM próprio da Revisão de Lore. Implementa a
+      única interação com o modelo local de que a fatia precisa — checar
+      disponibilidade e revisar a terminologia de lore de uma fala —, replicando o
+      comportamento efetivo anterior (antes exposto por {@code LlmPort.revisarLore})
+      sem depender da stack LLM da Tradução Local.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A revisão usa o prompt de sistema de lore recebido e o prompt de usuário
+      de {@link PromptRevisaoLore}, com temperatura fixa de revisão (0.15).</li>
+      <li>No máximo {@value #MAX_TENTATIVAS_REVISAO} tentativas; erro HTTP permanente
+      (4xx exceto 408/429) não é repetido.</li>
+      <li>Só publica uma linha que preserve todos os marcadores {@code [[TAGn]]}.</li>
+      <li>Nenhuma responsabilidade de tradução de lotes ou correção gramatical vive aqui.</li>
+      </ul>
+
+[PASTA] src/main/java/org/traducao/projeto/revisaoLore/infrastructure/config/
+  - RevisaoLoreLlmProperties.java
+      PROPÓSITO DE NEGÓCIO: configuração própria do cliente LLM da Revisão de Lore,
+      sob o namespace {@code revisao-lore.llm}, independente do namespace
+      {@code tradutor.llm} da Tradução Local. Os defaults reproduzem o comportamento
+      efetivo atual (mesmos base-url, model "current", max-tokens, timeouts).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Namespace exclusivo {@code revisao-lore.llm}; nunca reutiliza {@code tradutor.llm}.</li>
+      <li>{@code model} pode ser resolvido em runtime para o modelo efetivamente
+      carregado (ver {@code verificarDisponibilidade} do adapter), como no fluxo atual.</li>
+      <li>{@code pausaEntreTentativas} preserva o equivalente operacional de 2s entre
+      tentativas de revisão.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Valores ausentes ou inválidos caem para os defaults equivalentes ao efetivo
+      atual, garantindo timeouts e modelo estáveis mesmo sem configuração explícita.
+
+[PASTA] src/main/java/org/traducao/projeto/revisaoLore/infrastructure/dtos/
+  - RevisaoLoreLlmDtos.java
+      PROPÓSITO DE NEGÓCIO: DTOs próprios da Revisão de Lore para o protocolo
+      OpenAI-compatible do LLM local (chat/completions e catálogo de modelos).
+      Duplicação consciente dos records equivalentes da Tradução Local, para manter
+      a fatia autônoma — nenhuma dependência de {@code RecordsLlm}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Campos desconhecidos são ignorados na desserialização ({@code ignoreUnknown = true}).</li>
+      <li>{@code ModeloDisponivelV0} carrega o {@code state} da API estendida da LM Studio.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Estruturas ausentes desserializam como {@code null}, tratado pelo adapter como
+      resposta inválida.
+
+[PASTA] src/main/java/org/traducao/projeto/revisaoLore/infrastructure/http/
+  - RevisaoLoreHttpClient.java
+      PROPÓSITO DE NEGÓCIO: cliente HTTP JSON próprio da Revisão de Lore, baseado no
+      {@link HttpClient} do JDK. Cobre exatamente o necessário para falar com o LLM
+      local: {@code GET} relativo, {@code GET} absoluto (API estendida da LM Studio)
+      e {@code POST} JSON. Duplicação técnica consciente — não depende do cliente
+      HTTP da Tradução Local.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code connect-timeout} e {@code read-timeout} próprios da fatia são
+      aplicados a cada requisição.</li>
+      <li>Respostas com status {@code >= 400} viram {@link HttpClientException}
+      preservando o código HTTP para a política de retry do adapter.</li>
+      <li>A interrupção da thread é propagada: {@code send} do JDK lança
+      {@link InterruptedException}, repassada ao chamador sem ser engolida aqui.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Erros de rede/timeout propagam a exceção original de {@link HttpClient}; erros
+      HTTP viram {@link HttpClientException}. Nenhum estado é mantido entre chamadas.
 
 [PASTA] src/main/java/org/traducao/projeto/revisaoLore/infrastructure/
   - RevisaoLoreAuditoriaCache.java
@@ -2104,8 +3521,40 @@ traducao_animes_llm_local_quarkus/
       consumido pelo painel "Telemetria" da interface web.
   - TelemetriaService.java
       (sem cabecalho explicativo)
+  - TelemetriaTraducaoLeitura.java
+      PROPÓSITO DE NEGÓCIO: DTO de LEITURA próprio do módulo de telemetria para
+      interpretar o arquivo canônico da Tradução Local ({@code telemetria_traducao.json}).
+      Permite ao Painel Unificado consolidar a telemetria da tradução como agregador
+      CQRS read-only, SEM importar as classes de domínio do pacote {@code traducao} — o
+      contrato entre os módulos é exclusivamente o JSON no filesystem.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Espelha o schema do arquivo por estrutura, ignorando campos desconhecidos,
+      para tolerar evolução do {@code schemaVersion} sem quebrar a leitura.</li>
+      <li>É estritamente de leitura: o módulo de telemetria nunca escreve este arquivo.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Estruturas ausentes desserializam como {@code null}/vazias; o agregador trata um
+      documento ausente, vazio ou ilegível como conjunto vazio, sem destruir o arquivo.
 
 [PASTA] src/main/java/org/traducao/projeto/telemetria/presentation/web/
+  - TelemetriaController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web a telemetria acumulada do pipeline
+      — resumo consolidado para o painel, exportação segura do arquivo para download
+      e a publicação do dataset público sanitizado no repositório Git dedicado.
+      
+      <p>INVARIANTES DO DOMÍNIO: nenhuma URL, código HTTP ou nome de campo de DTO é
+      alterado em relação ao controller monolítico original; a pasta de cache é lida
+      diretamente da configuração {@code tradutor.diretorio-cache} (mesma chave e
+      default {@code cache} usados antes por {@code TradutorProperties.diretorioCache()},
+      preservando o fallback local para valor nulo/em branco); a exportação usa o
+      arquivo canônico e a publicação delega ao serviço de dataset já sanitizado.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
+      de leitura retorna 500; falha na publicação do dataset retorna 500 com a
+      mensagem do erro no corpo padrão.
   - TelemetriaStreamResource.java
       PROPÓSITO DE NEGÓCIO: canal Server-Sent Events (SSE) reativo que transmite a
       telemetria acumulada da KRONOS ao painel web em tempo real, conforme os
@@ -2204,6 +3653,22 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: emite warning e não derruba a operação que
       já preserva o cache por backup e escrita atômica.
 
+[PASTA] src/main/java/org/traducao/projeto/traducaoCorrige/presentation/web/
+  - CorrecaoCacheController.java
+      PROPÓSITO DE NEGÓCIO: expõe à interface web os três modos de manutenção do
+      banco de cache de tradução — limpeza/auditoria local, preenchimento online de
+      lacunas via Google Translate e revisão gramatical via LLM local.
+      
+      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
+      {@link PipelineWebSupport}; o contexto informado, quando presente, é validado
+      antes de enfileirar; a revisão via LLM só prossegue com modelo carregado;
+      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
+      controller monolítico original.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: caminho de cache ou contexto inválido
+      retorna HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console
+      SSE, sem derrubar a fila.
+
 [PASTA] src/main/java/org/traducao/projeto/traducaoKaraoke/application/
   - ClassificadorLetraKaraokeService.java
       Decide o destino de cada evento de música: preservar (letra original),
@@ -2260,34 +3725,6 @@ traducao_animes_llm_local_quarkus/
       legendas .ass e a obra (contexto de lore) selecionada na UI.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/application/
-  - DetectorEfeitoKaraokeService.java
-      Reconhece eventos que são efeito de karaokê/música, e não fala de diálogo.
-      Cobre as duas formas em que o karaokê aparece nos arquivos .ass:
-      <ul>
-      <li>Karaokê "cru": tags de timing {@code \k}, {@code \kf}, {@code \ko}
-      por sílaba, como sai do fansub antes de aplicar template.</li>
-      <li>Saída do Kara Templater do Aegisub: as tags {@code \k} são consumidas
-      na aplicação do template e viram uma linha por sílaba/letra com
-      transformações animadas ({@code \t(...)}, {@code \frx}, {@code \fad},
-      {@code \pos}) e quase nenhum texto visível.</li>
-      </ul>
-      Regra única compartilhada pelos módulos de tradução, revisão e correção —
-      nenhum deles deve mexer em música; isso é responsabilidade do módulo de
-      karaokê.
-  - DetectorTraducaoIdenticaService.java
-      Decide se uma fala pode legitimamente permanecer idêntica ao original (nomes
-      próprios, números, siglas, termos de lore) ou se a igualdade é sinal de que o
-      LLM simplesmente devolveu a fala sem traduzir. Além da lista global fixa,
-      consulta os termos protegidos do lore ATIVO ({@link GerenciadorContexto}),
-      para que um termo novo anexado ao contexto selecionado seja protegido sem
-      precisar editar este detector.
-      
-      <p>PROPÓSITO DE NEGÓCIO: impedir que manutenção ou retomada do cache apague
-      nomes canônicos e, simultaneamente, não aceite frases inglesas como tradução.
-      <p>INVARIANTES DO DOMÍNIO: a lore ativa é a fonte dos termos protegidos;
-      expressões conversacionais comuns continuam exigindo tradução.
-      <p>COMPORTAMENTO EM CASO DE FALHA: texto sem evidência suficiente é preservado
-      para evitar uma decisão destrutiva.
   - ProcessarArquivoUseCase.java
       (sem cabecalho explicativo)
   - ProcessarEpisodioUseCase.java
@@ -2297,193 +3734,23 @@ traducao_animes_llm_local_quarkus/
       Repetir a mesma requisicao com a mesma temperatura tende a reproduzir a
       mesma alucinacao; subir a temperatura muda a amostragem e da chance real
       de recuperacao antes de desistir da fala.
-  - ProtecaoLegendaAssService.java
-      Blindagens compartilhadas para linhas ASS/SSA antes e depois de chamadas a
-      IA/serviços externos. Centraliza os casos perigosos encontrados em fansubs:
-      clips vetoriais longos, letras soltas pós-template e preâmbulos alucinados.
-  - ValidadorTraducaoService.java
-      PROPÓSITO DE NEGÓCIO: impede que textos parcialmente traduzidos, respostas
-      rotuladas ou conteúdo em idioma indevido cheguem às legendas e ao cache.
-      <p>INVARIANTES DO DOMÍNIO: comentários ASS não visíveis são ignorados, nomes
-      próprios conhecidos não viram falso positivo e resíduos visíveis inequívocos
-      sempre bloqueiam a proposta.
-      <p>COMPORTAMENTO EM CASO DE FALHA: lança
-      {@link AlucinacaoDetectadaException} com diagnóstico e o chamador preserva a
-      tradução anterior.
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/
-  - ContextoPrompt.java
-      Cada ContextoXxx monta seu PROMPT uma unica vez (campo static final), na
-      inicializacao da classe; este mapa guarda a lore "crua" por traz de cada
-      prompt completo para que outros usos (ex.: revisao de concordancia) nao
-      precisem reenviar o prompt de traducao inteiro - que ja inclui lore +
-      RegrasConcordanciaPtBr.BLOCO_TRADUCAO + regras de saida - como se fosse
-      so a lore, o que estourava o contexto do LLM (ver MistralClientAdapter).
-  - RegrasConcordanciaPtBr.java
-      Regras de concordância de gênero, pronomes, tratamentos e verbos aplicáveis a
-      qualquer obra — o inglês não marca gênero em adjetivos/participios e usa
-      "you" genérico, o que leva o LLM a masculinizar tudo.
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/danmachi/
-  - ContextoDanMachi.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiOrion.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiS1.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiS2.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiS3.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiS4.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiS5.java
-      (sem cabecalho explicativo)
-  - ContextoDanMachiSwordOratoria.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/eightsix/
-  - Contexto86.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/evangelion/
-  - ContextoEvangelion111.java
-      (sem cabecalho explicativo)
-  - ContextoEvangelion222.java
-      (sem cabecalho explicativo)
-  - ContextoEvangelion3010.java
-      (sem cabecalho explicativo)
-  - ContextoEvangelion333.java
-      (sem cabecalho explicativo)
-  - ContextoEvangelionTV.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/guiltycrown/
-  - ContextoGuiltyCrown.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/chars/
-  - ContextoCharsCounterattack.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/
-  - ContextoGundam0079.java
-      (sem cabecalho explicativo)
-  - ContextoGundamF91.java
-      (sem cabecalho explicativo)
-  - ContextoGundamHathaway.java
-      (sem cabecalho explicativo)
-  - ContextoGundamNT.java
-      (sem cabecalho explicativo)
-  - ContextoGundamOrigin.java
-      (sem cabecalho explicativo)
-  - ContextoGundamSEED.java
-      (sem cabecalho explicativo)
-  - ContextoGundamSEEDAstray.java
-      (sem cabecalho explicativo)
-  - ContextoGundamSEEDDestiny.java
-      (sem cabecalho explicativo)
-  - ContextoGundamSEEDFreedom.java
-      (sem cabecalho explicativo)
-  - ContextoGundamSEEDStargazer.java
-      (sem cabecalho explicativo)
-  - ContextoGundamUnicorn.java
-      (sem cabecalho explicativo)
-  - ContextoGundamVictory.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/msteam/
-  - ContextoGundam08thMSTeam.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/reconguista/
-  - ContextoGundamReconguista.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/stardust/
-  - ContextoGundam0083.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/warInpocket/
-  - ContextoWarInPocket.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/zeta/
-  - ContextoGundamZeta.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/gundam/zz/
-  - ContextoGundamZZ.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/macross/
-  - ContextoMacross2.java
-      (sem cabecalho explicativo)
-  - ContextoMacross7.java
-      (sem cabecalho explicativo)
-  - ContextoMacross7Encore.java
-      (sem cabecalho explicativo)
-  - ContextoMacross7Filme.java
-      (sem cabecalho explicativo)
-  - ContextoMacross7Filmes.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossAnime.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDelta.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDeltaFilme1.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDeltaFilme2.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDeltaFilmes.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDynamite7.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossDYRL.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFilme1.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFilme2.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFrontier.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFrontierFilme1.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFrontierFilme2.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossFrontierFilmes.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossPlus.java
-      (sem cabecalho explicativo)
-  - ContextoMacrossZero.java
-      (sem cabecalho explicativo)
-
-[PASTA] src/main/java/org/traducao/projeto/traducao/contexto/sidonia/
-  - ContextoKnightsOfSidonia.java
-      (sem cabecalho explicativo)
-  - ContextoSidoniaFilme.java
-      (sem cabecalho explicativo)
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/domain/exceptions/
-  - AlucinacaoDetectadaException.java
-      (sem cabecalho explicativo)
-  - ArquivoLegendaException.java
-      (sem cabecalho explicativo)
-  - ContextoNaoEncontradoException.java
-      (sem cabecalho explicativo)
   - DivergenciaLinhasException.java
       (sem cabecalho explicativo)
   - EntradaJaTraduzidaException.java
       PROPÓSITO DE NEGÓCIO: Sinaliza que a entrada aparenta já estar em PT-BR e a
       retradução não foi confirmada — o arquivo é bloqueado para não retraduzir e
-      sobrescrever trabalho bom.
+      sobrescrever trabalho bom. É regra específica do fluxo de tradução e por isso
+      permanece na fatia {@code traducao}.
       
       <p>INVARIANTES DO DOMÍNIO: só lançada quando a heurística de caminho já
       traduzido dispara e {@code permitirRetraducao} é falso.
       
       <p>COMPORTAMENTO EM CASO DE FALHA: é a própria sinalização; herda de
-      {@link ArquivoLegendaException} para o lote registrar o arquivo como
-      BLOQUEADO e seguir para o próximo.
+      {@link ArquivoLegendaException} (módulo {@code legenda}) para o lote registrar o
+      arquivo como BLOQUEADO e seguir para o próximo; a captura específica em
+      {@code TraducaoController} permanece válida.
   - LlmFalhaComunicacaoException.java
       (sem cabecalho explicativo)
   - LmStudioOfflineException.java
@@ -2496,15 +3763,25 @@ traducao_animes_llm_local_quarkus/
   - TradutorException.java
       (sem cabecalho explicativo)
 
-[PASTA] src/main/java/org/traducao/projeto/traducao/domain/legenda/
-  - DocumentoLegenda.java
-      (sem cabecalho explicativo)
-  - EventoLegenda.java
-      (sem cabecalho explicativo)
-
 [PASTA] src/main/java/org/traducao/projeto/traducao/domain/
-  - Lote.java
-      (sem cabecalho explicativo)
+  - NormalizadorNomeEpisodio.java
+      PROPÓSITO DE NEGÓCIO: proprietário ÚNICO, dentro da Tradução Local, da
+      normalização do nome de episódio usada como chave de deduplicação da telemetria
+      própria. Garante que o mesmo episódio — apesar de variações inócuas de caixa,
+      espaços, forma Unicode ou diretório — projete uma única entrada consolidada.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Considera apenas o nome do arquivo (descarta diretórios), aparando e
+      colapsando espaços, normalizando Unicode para NFC e reduzindo a caixa.</li>
+      <li>É CONSERVADORA: mantém a extensão e os números intactos — {@code ep1} e
+      {@code ep11}, ou {@code .ass} e {@code .srt}, permanecem distintos.</li>
+      <li>Determinística e idempotente: {@code normalizar(normalizar(x)) == normalizar(x)}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Entrada {@code null} ou em branco devolve string vazia, chave estável para
+      registros sem nome.
   - ResultadoTraducaoArquivo.java
       PROPÓSITO DE NEGÓCIO: Resultado por arquivo da tradução — o que a tabela da UI
       mostra (Arquivo | Lore | Falas | Cache | Traduzidas | Avisos | Status) e o que
@@ -2527,9 +3804,6 @@ traducao_animes_llm_local_quarkus/
       retradução não foi confirmada.
       
       <p>COMPORTAMENTO EM CASO DE FALHA: enum puro; rótulo sempre não-nulo.
-  - StatusLlm.java
-      Resultado da checagem de disponibilidade do servidor LLM local (ex: LM Studio)
-      feita no início da execução, antes de começar a traduzir qualquer episódio.
   - StatusLoteTraducao.java
       PROPÓSITO DE NEGÓCIO: Desfecho do LOTE de tradução (vários arquivos), para a
       UI/telemetria pararem de mostrar "sucesso" quando houve arquivos com falha.
@@ -2541,104 +3815,165 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #consolidar(List)} nunca lança; lote
       vazio devolve {@code FALHOU}.
-  - TraducaoLote.java
-      (sem cabecalho explicativo)
+  - TelemetriaTraducao.java
+      PROPÓSITO DE NEGÓCIO: registro individual de telemetria da Tradução Local por
+      episódio — a unidade que a fatia grava no seu arquivo canônico próprio
+      ({@code logs/telemetria_traducao.json}), preservando proveniência (lore),
+      modelo, volume, origem das falas, desfecho, avisos e timestamp.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Modelo de dados próprio da Tradução Local — não reutiliza tipos do módulo
+      de telemetria; o contrato entre os módulos é apenas o JSON no filesystem.</li>
+      <li>{@code nomeEpisodio} identifica o episódio; a chave de deduplicação é a
+      forma normalizada por {@link NormalizadorNomeEpisodio}.</li>
+      <li>{@code registradoEm} é o timestamp UTC ISO-8601 da atualização, usado como
+      critério de precedência dentro da mesma fonte.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Campos ausentes são serializados como {@code null}; a ausência de nome resolve
+      para a chave vazia na deduplicação.
+  - TelemetriaTraducaoDocumento.java
+      PROPÓSITO DE NEGÓCIO: raiz do arquivo canônico próprio da telemetria da
+      Tradução Local. Projeta o ESTADO FINAL consolidado por episódio (não é
+      append-only) mais os quatro contadores persistentes da fatia, com um
+      {@code schemaVersion} explícito para evolução do contrato de arquivo.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code registros} contém no máximo uma entrada por episódio (chave
+      normalizada por {@link NormalizadorNomeEpisodio}); o mais recente vence.</li>
+      <li>Os quatro contadores representam SOMENTE os incrementos da Tradução Local
+      após a adoção deste arquivo (iniciam em zero) — nunca copiam o legado —,
+      para que a agregação com {@code telemetria_compartilhada.json} não
+      sobreponha eventos já contados.</li>
+      <li>{@code schemaVersion} identifica a versão do contrato de arquivo (ex.: "1.0").</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Documento ausente ou ilegível é tratado pelos leitores como vazio (versão nula,
+      lista vazia, contadores zero), sem destruir o arquivo físico.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/domain/ports/
-  - MistralPort.java
-      Variante com temperatura explícita, usada nas retentativas de uma fala
-      isolada: repetir a MESMA requisição com a mesma temperatura tende a
-      reproduzir a mesma alucinação; subir a temperatura muda a amostragem e
-      dá chance real de recuperação. {@code null} usa a temperatura configurada.
-      Variante que recebe o prompt de sistema CONGELADO no início do job. Assim,
-      uma troca de contexto (lore) no estado global não pode vazar para o meio da
-      tradução de um episódio. {@code null} usa o prompt do contexto ativo.
-      Verifica, antes de iniciar a tradução, se o servidor LLM local está
-      online e se o modelo configurado está efetivamente carregado em
-      memória — evita descobrir isso só depois de várias tentativas/timeouts
-      já no meio da tradução do primeiro episódio.
-  - ProvedorContexto.java
-      Retorna o ID único para seleção via UI.
-      Retorna o nome amigável para exibição no combo box da UI.
-      Retorna o prompt de sistema completo para o LLM, com regras gerais e lore especifico da midia.
-      Termos desta obra que NÃO devem ser traduzidos (nomes próprios, facções,
-      patentes, lugares, mecha). Por padrão vazio; cada contexto pode
-      sobrescrever para que o detector de "tradução idêntica" proteja o lore
-      selecionado, em vez de depender só da lista global fixa no detector.
+  - TelemetriaTraducaoPort.java
+      PROPÓSITO DE NEGÓCIO: porta de telemetria própria da Tradução Local. Substitui
+      o acoplamento anterior ao {@code telemetria.TelemetriaService}, permitindo que
+      o pipeline registre traduções e incrementos de qualidade sem importar o módulo
+      de telemetria — a integração passa a ser apenas o arquivo canônico próprio.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Cada registro/incremento é persistido de forma atômica e sincronizada
+      (dentro da JVM), como uma única alteração lógica coerente.</li>
+      <li>Os contadores são acumuladores da Tradução Local a partir da adoção do
+      arquivo próprio (iniciam em zero).</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Falha de I/O ao persistir é registrada; o estado em memória permanece coerente
+      e a próxima escrita bem-sucedida projeta o estado consolidado.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/adapters/
-  - MistralClientAdapter.java
+  - LlmClientAdapter.java
       (sem cabecalho explicativo)
+  - LoreAtivaContextoAdapter.java
+      PROPÓSITO DE NEGÓCIO: liga o contrato {@link LoreAtivaPort}, exigido pelo peer
+      {@code qualidadeTraducao}, à fonte real de contexto do sistema, o
+      {@link GerenciadorContexto}. É o único ponto de composição dessa inversão: o peer
+      permanece ignorante do {@code contexto} e a fatia {@code traducao} assume a ligação.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Adapter puro de delegação: repassa cada chamada ao {@link GerenciadorContexto}
+      sem normalizar, filtrar, corrigir ou reinterpretar o retorno.</li>
+      <li>Único adapter da porta; não há implementação concorrente em {@code contexto},
+      em {@code qualidadeTraducao.infrastructure} nem por fatia.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Não adiciona tratamento próprio: o comportamento observável é exatamente o do
+      {@link GerenciadorContexto} — que não lança e degrada para conjunto vazio / lore
+      neutra quando não há contexto ativo.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/config/
   - LlmProperties.java
       (sem cabecalho explicativo)
   - RestClientConfig.java
-      Beans de agregacao e suporte para injecao CDI/Quarkus.
+      PROPÓSITO DE NEGÓCIO: fornece o bean técnico {@link ObjectMapper} de serialização
+      usado internamente pela Tradução Local. A agregação dos provedores de contexto
+      ({@code todosProvedoresContexto}) foi movida na E7b para o peer proprietário
+      ({@code contexto.infrastructure.config.ContextoBeansConfig}); a composição dos
+      extratores de vídeo/strategies pertence a {@code legendasExtracao.infrastructure.config.ExtracaoBeansConfig}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>O {@link ObjectMapper} é criado com configuração default (sem módulos
+      ou features customizadas).</li>
+      <li>Esta config não conhece classes de outras fatias funcionais nem do peer contexto.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      A serialização default do {@link ObjectMapper} propaga as exceções de Jackson ao chamador.
   - TradutorProperties.java
       (sem cabecalho explicativo)
 
-[PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/contexto/
-  - GerenciadorContexto.java
-      Mutado pela thread única do executor de background (ApiController) e lido
-      pela mesma thread ao montar o prompt do LLM (MistralClientAdapter). O
-      volatile aqui é uma garantia defensiva de visibilidade, não uma alegação
-      de que múltiplas threads concorrem por este campo.
-
 [PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/dtos/
-  - RecordsMistral.java
+  - RecordsLlm.java
       Shape da API estendida da LM Studio ({@code /api/v0/models}, fora do
       prefixo {@code /v1}), que — diferente do endpoint OpenAI-compatible
       {@code /v1/models} — informa o campo {@code state} ("loaded" /
       "not-loaded"), permitindo saber com certeza qual modelo está de fato
       carregado em memória.
 
-[PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/http/
-  - JsonHttpClient.java
-      Cliente HTTP JSON baseado em {@link HttpClient} do JDK (sem Spring RestClient).
+[PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/telemetria/
+  - TelemetriaTraducaoAdapter.java
+      PROPÓSITO DE NEGÓCIO: única escritora do arquivo canônico próprio da telemetria
+      da Tradução Local ({@code logs/telemetria_traducao.json}). Projeta, por episódio,
+      o estado final consolidado das traduções e mantém os quatro contadores da fatia,
+      isolando a Tradução Local do módulo de telemetria (o painel apenas lê este arquivo).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Deduplicação por nome de episódio normalizado ({@link NormalizadorNomeEpisodio});
+      o registro mais recente substitui o anterior — nunca append-only.</li>
+      <li>Os quatro contadores iniciam em zero e acumulam SOMENTE eventos da Tradução
+      Local após a adoção deste arquivo; jamais copiam valores do legado.</li>
+      <li>Cada mutação persiste o documento inteiro (registros + contadores) como uma
+      ÚNICA alteração lógica, via escrita atômica (temporário no mesmo diretório +
+      movimentação segura).</li>
+      <li>Sincronização de escopo JVM: as mutações são {@code synchronized}. Não há
+      coordenação entre processos — assume-se uma única instância escrevendo o arquivo.</li>
 
-[PASTA] src/main/java/org/traducao/projeto/traducao/infrastructure/legenda/
-  - EscritorLegendaAss.java
-      Reconstroi o arquivo .ass a partir do {@link DocumentoLegenda}, repetindo o
-      cabecalho original e as linhas nao traduziveis byte a byte, e so trocando o
-      campo Text dos eventos Dialogue pela versao traduzida.
-  - EscritorLegendaSrt.java
-      PROPÓSITO DE NEGÓCIO: Reescreve um .srt a partir do {@link DocumentoLegenda},
-      preservando numeração e timestamps (guardados no índice e no {@code prefixo}
-      do evento) e trocando apenas o texto pela versão traduzida. É o par de saída
-      do {@link LeitorLegendaSrt}.
+[PASTA] src/main/java/org/traducao/projeto/traducao/presentation/bootstrap/
+  - TraducaoStartup.java
+      PROPÓSITO DE NEGÓCIO: é o ponto de partida (bootstrap) próprio da fatia vertical
+      Tradução Local. Observa a subida do Quarkus e, quando o operador seleciona o modo
+      {@code TRADUZIR}, dispara a CLI de tradução ({@link TradutorCLI}). Substitui o
+      roteamento que antes vinha do dispatcher compartilhado {@code config.ModoExecucaoStartup},
+      de modo que o ciclo de vida do modo TRADUZIR pertença exclusivamente à Tradução
+      Local — sem que a fatia {@code config} conheça qualquer classe de {@code traducao}.
+      Segue o mesmo molde dos demais observadores de {@code StartupEvent} já existentes
+      no slice ({@code BrowserLauncher}, {@code ConsoleRedirector}).
       
-      <p>INVARIANTES DO DOMÍNIO: cada evento vira um bloco SRT válido (índice, linha
-      de tempo, texto, linha em branco de separação); as marcas {@code \N} de quebra
-      interna voltam a ser quebras reais no EOL do documento; escrita atômica.
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Age única e exclusivamente quando {@code app.modo == TRADUZIR}
+      (case-insensitive); em qualquer outro modo (WEB ou demais CLIs) retorna
+      sem efeito, preservando a exclusividade mútua com o dispatcher compartilhado.</li>
+      <li>Não é o bootstrap global da aplicação: o container é iniciado implicitamente
+      pelo Quarkus/CDI. Nenhum {@code Application.main()}, {@code @QuarkusMain} ou
+      Composition Root artificial é introduzido.</li>
+      <li>Delega integralmente a lógica de tradução a {@link TradutorCLI}; não duplica
+      nem antecipa qualquer regra de negócio da tradução.</li>
+      </ul>
       
-      <p>COMPORTAMENTO EM CASO DE FALHA: erro de IO → {@link ArquivoLegendaException},
-      sem deixar arquivo truncado (grava em temporário e move atomicamente).
-  - LeitorLegendaAss.java
-      Le arquivos .ass/.ssa preservando byte a byte tudo que nao for o campo Text
-      dos eventos Dialogue (estilos, timestamps, secoes de metadados). So o campo
-      Text e exposto para traducao; o resto e reconstruido identico pelo
-      {@link EscritorLegendaAss}.
-  - LeitorLegendaSrt.java
-      PROPÓSITO DE NEGÓCIO: Lê legendas SubRip (.srt) para o mesmo
-      {@link DocumentoLegenda} usado pelo ASS, para que o pipeline de tradução
-      (cache, máscara de tags, validação) opere sobre SRT sem convertê-lo para ASS.
-      Numeração e timestamps ficam no {@code prefixo} do evento (a linha de tempo) e
-      no índice; só o texto é traduzido. Quebras internas viram {@code \N} (convenção
-      ASS), que o {@link EscritorLegendaSrt} devolve para quebras reais.
-      
-      <p>INVARIANTES DO DOMÍNIO: cada bloco SRT (índice + "start --> end" + texto)
-      vira um {@link EventoLegenda} {@code Dialogue} de estilo "Default"; o EOL e o
-      BOM originais são preservados no documento.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura do arquivo →
-      {@link ArquivoLegendaException}. Blocos malformados (índice não numérico) são
-      tolerados: o índice cai para a posição sequencial.
-  - MascaradorTags.java
-      Isola tags de formatação ASS/SSA (ex: {\i1}, {\pos(...)}) e códigos de quebra
-      (\N, \n, \h) do texto antes de enviar ao LLM, trocando-os por marcadores
-      [[TAGn]] que o modelo é instruído a preservar literalmente. Sem isso o LLM
-      tende a "traduzir" ou descartar as tags, corrompendo a legenda renderizada.
+      <h2>Comportamento em caso de falha</h2>
+      <ul>
+      <li>Se o modo for TRADUZIR mas {@link TradutorCLI} não estiver disponível no
+      contexto CDI, lança {@link IllegalStateException} — falha explícita de
+      inicialização, jamais silenciosa.</li>
+      <li>Qualquer exceção lançada por {@link TradutorCLI#executar()} é registrada e
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/
   - TradutorCLI.java
@@ -2654,16 +3989,8 @@ traducao_animes_llm_local_quarkus/
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A pasta de entrada deve estar configurada e válida antes de iniciar.</li>
-      <li>A execução respeita as validações e a fila já existentes; nenhum valor é
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/ui/
-  - AnsiCores.java
-      Cores ANSI compartilhadas entre o prompt interativo e o {@link ConsoleUILogger}.
-      Usar apenas caracteres ASCII nos textos do prompt evita problemas de encoding
-      no console do Windows (cp1252 vs UTF-8).
-  - ConsoleEntrada.java
-      Numeração segue a ordem natural do pipeline: primeiro auditar a
-      mídia, depois extrair/traduzir/corrigir a legenda e por fim remuxar.
   - ConsoleUILogger.java
       Wrapper thread-safe em torno da barra de progresso (estilo tqdm). Todo
       acesso a {@code pb} e sincronizado porque mensagens podem chegar
@@ -2712,20 +4039,6 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
       construção; a lista vazia é responsabilidade do gerenciador de contexto.
-  - CorrecaoCacheController.java
-      PROPÓSITO DE NEGÓCIO: expõe à interface web os três modos de manutenção do
-      banco de cache de tradução — limpeza/auditoria local, preenchimento online de
-      lacunas via Google Translate e revisão gramatical via LLM local.
-      
-      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
-      {@link PipelineWebSupport}; o contexto informado, quando presente, é validado
-      antes de enfileirar; a revisão via LLM só prossegue com modelo carregado;
-      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
-      controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: caminho de cache ou contexto inválido
-      retorna HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console
-      SSE, sem derrubar a fila.
   - DialogoArquivoController.java
       PROPÓSITO DE NEGÓCIO: disponibiliza aos formulários web do KRONOS um seletor
       nativo e responsivo para arquivos e pastas existentes no computador local.
@@ -2743,15 +4056,6 @@ traducao_animes_llm_local_quarkus/
       markdown no navegador (ver static/documentacao/documentacao.js). O README
       raiz é o índice canônico no GitHub; este endpoint espelha a mesma pasta
       docs/ dentro do próprio app, sem precisar sair dele.
-  - ExtracaoRequest.java
-      PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
-      pasta de vídeos, pasta de saída e o formato-alvo escolhido na interface.
-      
-      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público; o
-      formato é validado contra {@code FormatoLegenda} antes do job entrar na fila.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido faz o
-      endpoint responder HTTP 400 antes de qualquer processamento.
   - LlmStatusResponse.java
       PROPÓSITO DE NEGÓCIO: informa ao card do painel inicial o estado ao vivo do
       servidor LLM local (online, modelo carregado, nome do modelo e mensagem).
@@ -2764,19 +4068,6 @@ traducao_animes_llm_local_quarkus/
       endpoint constrói uma instância com {@code online=false} e a mensagem do erro.
   - LogStreamResource.java
       Endpoint SSE nativo do Quarkus (substitui SseEmitter do Spring MVC).
-  - LogStreamService.java
-      Gerencia conexoes SSE (JAX-RS) e despacha logs em tempo real para clientes web.
-  - OperacaoRequest.java
-      PROPÓSITO DE NEGÓCIO: transporta os parâmetros comuns das operações do
-      pipeline (análise, tradução, correção e revisão) enviados pela SPA — pastas de
-      entrada/saída, contexto de lore selecionado e opções de sincronismo/revisão.
-      
-      <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
-      consumido pelo front-end; caminhos são normalizados e o contexto é validado
-      pelos endpoints antes de qualquer job entrar na fila compartilhada.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes chegam como {@code null} e
-      cada endpoint decide o fallback seguro ou responde HTTP 400 antes de enfileirar.
   - PipelineController.java
       PROPÓSITO DE NEGÓCIO: expõe os endpoints de estado e controle do pipeline
       local à interface web — heartbeat, parada cooperativa da fila, estado da fila,
@@ -2790,67 +4081,6 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: a consulta de status do LLM nunca propaga
       exceção — falhas viram uma resposta {@code online=false} com a mensagem do
       erro; os demais endpoints são consultas simples sem caminho de falha explícito.
-  - PipelineWebSupport.java
-      PROPÓSITO DE NEGÓCIO: concentra os utilitários compartilhados pelos
-      controllers web do pipeline — a normalização de caminhos digitados/colados na
-      interface e o enfileiramento padronizado de jobs pesados na fila única de
-      execução. Existe para que todos os endpoints entrem na MESMA fila e imprimam o
-      MESMO formato de relatório final, sem duplicar essa lógica em cada controller.
-      
-      <p>INVARIANTES DO DOMÍNIO: expõe a única {@link FilaExecucaoPipeline}
-      compartilhada (bean CDI) — jamais deve existir mais de uma instância de fila;
-      todo job pesado passa por {@link #submeterJobComRelatorio}, garantindo canal
-      SSE definido antes da execução e execução sequencial em segundo plano.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: {@link #normalizarCaminho(String)} devolve
-      {@code null} para entrada nula/vazia ou sintaxe de caminho inválida
-      ({@link InvalidPathException}), registrando aviso no log; o corpo submetido em
-      {@link #submeterJobComRelatorio} sempre imprime a linha de relatório final,
-      mesmo quando lança exceção, via bloco {@code finally}.
-  - RemuxRequest.java
-      PROPÓSITO DE NEGÓCIO: transporta as opções exclusivas do Remuxer.
-      INVARIANTES DO DOMÍNIO: pasta de vídeo é obrigatória; offset e política de
-      faixas são validados pelo endpoint.
-      COMPORTAMENTO EM CASO DE FALHA: campos ausentes recebem fallback seguro ou
-      geram HTTP 400 antes de entrar na fila.
-  - RespostaPadrao.java
-      PROPÓSITO DE NEGÓCIO: envelope de resposta textual padrão da API web, usado
-      por praticamente todos os endpoints do pipeline para devolver ao navegador uma
-      mensagem legível (aceitação na fila, validação recusada ou heartbeat).
-      
-      <p>INVARIANTES DO DOMÍNIO: o nome do campo {@code mensagem} é contrato JSON
-      público consumido pela SPA; não pode ser renomeado sem quebrar o front-end.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
-      construção; {@code mensagem} pode ser vazia, mas nunca deve carregar dados
-      sensíveis, pois é ecoada diretamente na interface.
-  - RevisaoLegendasController.java
-      PROPÓSITO DE NEGÓCIO: expõe à interface web a revisão das legendas traduzidas
-      (.ass) — via Google Translate com auditoria e via LLM local para concordância
-      PT-BR — usando cache e/ou legendas originais como referência.
-      
-      <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
-      {@link PipelineWebSupport}; a pasta de entrada é obrigatória e validada; o modo
-      de referência e a pasta de cache são resolvidos e validados antes de
-      enfileirar; a revisão de concordância só prossegue com o LLM disponível;
-      nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
-      controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada/cache/contexto inválido retorna
-      HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console SSE, sem
-      derrubar a fila.
-  - TelemetriaController.java
-      PROPÓSITO DE NEGÓCIO: expõe à interface web a telemetria acumulada do pipeline
-      — resumo consolidado para o painel, exportação segura do arquivo para download
-      e a publicação do dataset público sanitizado no repositório Git dedicado.
-      
-      <p>INVARIANTES DO DOMÍNIO: nenhuma URL, código HTTP ou nome de campo de DTO é
-      alterado em relação ao controller monolítico original; a exportação usa o
-      arquivo canônico e a publicação delega ao serviço de dataset já sanitizado.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
-      de leitura retorna 500; falha na publicação do dataset retorna 500 com a
-      mensagem do erro no corpo padrão.
   - TraducaoController.java
       PROPÓSITO DE NEGÓCIO: expõe a tradução local via LLM (Opção 3) à interface
       web, verificando a disponibilidade do servidor LLM, configurando as pastas de
@@ -2862,10 +4092,6 @@ traducao_animes_llm_local_quarkus/
       fallback silencioso); apenas extensões suportadas ({@code .ass/.ssa/.srt})
       são traduzidas; nenhuma URL, código HTTP ou nome de campo de DTO é alterado em
       relação ao controller monolítico original.
-      
-      <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou contexto ausente/
-      inválido retorna HTTP 400; falhas por arquivo são contabilizadas, registradas
-      na telemetria e reportadas no console SSE, sem derrubar a fila.
 
 [PASTA] src/main/java/org/traducao/projeto/trocaTipoLegenda/application/
   - AuditoriaFontesService.java
@@ -2936,6 +4162,25 @@ traducao_animes_llm_local_quarkus/
       seam de processo externo ({@code executarFfprobeJson}) por JSON canônico e
       verifica container, faixas de vídeo/áudio/legenda e casos-limite.
 
+[PASTA] src/test/java/org/traducao/projeto/analisadorMidia/presentation/
+  - AnalisadorMidiaCLITest.java
+      PROPÓSITO DE NEGÓCIO: prova que o {@link AnalisadorMidiaCLI}, após a E4b, resolve
+      entrada e saída exclusivamente a partir de {@code tradutor.diretorio-entrada} e
+      {@code tradutor.diretorio-saida}, preservando o comportamento legado — inclusive a
+      saída OPCIONAL que resulta em {@code null} quando não informada (sem o fallback
+      {@code traducao_ptbr}, exclusivo do remux) — sem depender de {@code TradutorProperties}
+      ou {@code PastasExecucao}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Entrada ausente/vazia/blank ⇒ {@code null} (inválida); útil ⇒ {@code Path.of(trim)}.</li>
+      <li>Saída ausente/vazia/blank ⇒ {@code null} (sem pasta de saída); útil ⇒ {@code Path.of(trim)}.</li>
+      <li>A saída NUNCA cai em {@code traducao_ptbr}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência na normalização ou o surgimento indevido de fallback reprova o teste.
+
 [PASTA] src/test/java/org/traducao/projeto/
   - ApiControllerTest.java
       (sem cabecalho explicativo)
@@ -2960,6 +4205,59 @@ traducao_animes_llm_local_quarkus/
       <p>
       COMPORTAMENTO EM CASO DE FALHA: qualquer mudança incompatível no mapeamento
       reprova a suíte antes de produzir banners vazios em execução.
+
+[PASTA] src/test/java/org/traducao/projeto/apiDadosAnime/infrastructure/config/
+  - ApiDadosAnimeHttpPropertiesIT.java
+      PROPÓSITO DE NEGÓCIO: gate/caracterização da subfase E4a — prova, no binding REAL
+      do {@code application.yml}, que os timeouts efetivos hoje usados pelos adapters de
+      {@code apiDadosAnime} (via {@code LlmProperties}) são {@code 5s/180s}, e que a nova
+      config própria ({@code ApiDadosAnimeHttpProperties}) resolve os MESMOS valores —
+      comprovando paridade antes de neutralizar/mover o cliente HTTP.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Valores efetivos ATUAIS de {@code LlmProperties}: connect {@code 5s}, read {@code 180s}.</li>
+      <li>Nova config {@code ApiDadosAnimeHttpProperties}: os MESMOS pares.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência reprova o teste — sinal de gate (não prosseguir com a migração).
+
+[PASTA] src/test/java/org/traducao/projeto/arquitetura/
+  - ContextoInvalidoC2CaracterizacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza que a FASE C2 (mover os controllers de correção
+      e revisão para suas fatias proprietárias) preservou integralmente a validação
+      síncrona de contexto — um {@code contextoId} inexistente continua retornando
+      HTTP 400, sem enfileirar trabalho e sem iniciar processamento assíncrono.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Um {@code GerenciadorContexto} sem provedores reprova qualquer id
+      ({@code existeContexto} → false), simulando um contexto desconhecido.</li>
+      <li>O {@code PipelineWebSupport} é espionado: se {@code submeterJobComRelatorio}
+      for chamado, houve enfileiramento/processamento — o que reprova o teste.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer resposta diferente de 400 ou qualquer enfileiramento reprova a suíte,
+      sinalizando regressão da validação síncrona.
+  - ContratoJsonRecordsE1Test.java
+      PROPÓSITO DE NEGÓCIO: congela o contrato JSON público dos dois DTOs de request
+      movidos na Subfase E1 ({@code RemuxRequest} e {@code ExtracaoRequest}). A mudança
+      de pacote (traducao → fatias proprietárias) NÃO pode alterar a serialização/
+      desserialização consumida pela SPA: nomes de campos, tipos e ausência de campos
+      extras permanecem idênticos.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code RemuxRequest} expõe exatamente {@code entrada, saida, syncOffsetMs,
+      preservarLegendasOriginais}.</li>
+      <li>{@code ExtracaoRequest} expõe exatamente {@code entrada, saida, formato}.</li>
+      <li>Round-trip (objeto → JSON → objeto) preserva todos os valores.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer campo renomeado, removido, extra ou com tipo divergente reprova a suíte.
 
 [PASTA] src/test/java/org/traducao/projeto/auditorConteudoLegendas/application/
   - AuditorConteudoIntegridadeTest.java
@@ -2996,6 +4294,192 @@ traducao_animes_llm_local_quarkus/
   - AssAuditoriaFixtures.java
       (sem cabecalho explicativo)
 
+[PASTA] src/test/java/org/traducao/projeto/cachetraducao/arquitetura/
+  - FronteiraCacheTraducaoArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
+      {@code cachetraducao}, nascido na subfase E6 com o bloco de cache de tradução
+      (modelos {@code EntradaCache}/{@code ProvenienciaCache}/{@code CacheDocumento} e
+      serviços {@code CacheTraducaoService}/{@code CacheManutencaoService}). Garante que o
+      peer é consumível por qualquer fatia funcional sem criar acoplamento reverso.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code cachetraducao} NÃO depende de {@code traducao} nem de qualquer fatia
+      funcional (contexto, LLM, apresentação inclusos).</li>
+      <li>{@code cachetraducao} só pode depender de JDK/bibliotecas técnicas, do
+      {@code core}, do módulo {@code legenda} e do próprio {@code cachetraducao}.</li>
+      <li>{@code cachetraducao.domain} é puro: não depende de {@code cachetraducao.infrastructure}
+      nem de framework (Quarkus/CDI/MicroProfile/Spring/Jackson).</li>
+      <li>Os três modelos permanecem em {@code domain}; os dois serviços em {@code infrastructure}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer dependência proibida ou tipo fora do pacote correto reprova o teste,
+      listando a aresta/desvio exato.
+
+[PASTA] src/test/java/org/traducao/projeto/cachetraducao/domain/
+  - ProvenienciaCacheTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a regra de compatibilidade de proveniência do
+      cache de tradução, garantindo que uma tradução só é reutilizada quando os SEIS
+      campos canônicos batem exatamente — incluindo {@code schemaVersion}, cuja omissão
+      histórica permitia reutilizar cache de schema desconhecido.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Igualdade exata dos seis campos (schemaVersion, contextoId, contextoHash,
+      modeloLlm, idiomaOrigem, idiomaDestino) autoriza a reutilização.</li>
+      <li>Diferença isolada em qualquer um dos seis campos torna incompatível.</li>
+      <li>{@code schemaVersion} 0 (valor materializado quando o campo está ausente no
+      JSON) nunca é considerado igual ao {@code SCHEMA_ATUAL}: sem normalização.</li>
+      <li>Comparar com {@code null} é sempre "diferente".</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer regressão que volte a ignorar {@code schemaVersion} ou a normalizar 0 para
+      a versão atual reprova estes testes.
+
+[PASTA] src/test/java/org/traducao/projeto/cachetraducao/infrastructure/
+  - CacheManutencaoServiceTest.java
+      PROPÓSITO DE NEGÓCIO: prova que a manutenção da pasta cache preserva formato,
+      proveniência, extensões futuras e uma cópia restaurável antes de salvar.
+      
+      <p>INVARIANTES DO DOMÍNIO: cobre lista legada e documento versionado; nenhuma
+      estrutura inválida é aceita para escrita.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: o teste exige {@link IOException} e
+      confirma que o original não foi alterado.
+  - CacheTraducaoServiceTest.java
+      Cobre o cache versionado por proveniência: reuso só quando lore/modelo batem,
+      invalidação + arquivamento quando divergem, migração do formato antigo e
+      preservação (não sobrescrita) de cache corrompido.
+  - CompatibilidadeCacheJsonLegadoTest.java
+      PROPÓSITO DE NEGÓCIO: gate de compatibilidade retroativa da E6. Prova que um
+      arquivo {@code .cache.json} produzido ANTES da extração do peer {@code cachetraducao}
+      continua legível pelos tipos pós-move, sem depender de nenhum FQN antigo — garantindo
+      que a migração de pacote NÃO quebra os caches já persistidos no disco dos usuários.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A fixture é textual e estável ({@code src/test/resources/cachetraducao/legado.cache.json}),
+      NÃO gerada pelas classes pós-move — caracteriza o schema histórico.</li>
+      <li>Desserialização por campos (sem tipagem polimórfica): o JSON não carrega
+      {@code @class}/discriminador, logo o nome do pacote é irrelevante para a leitura.</li>
+      <li>Regravação mantém o mesmo schema (chaves/valores), comparado estruturalmente
+      (não por igualdade textual de espaços/ordem).</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer campo ausente/divergente ou schema alterado na regravação reprova o teste —
+      sinal de que a E6 quebrou a compatibilidade do cache.
+
+[PASTA] src/test/java/org/traducao/projeto/config/
+  - ModoExecucaoDispatcherTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza o contrato do dispatcher compartilhado
+      {@link ModoExecucaoStartup} após a extração do modo TRADUZIR (D-Config). Fixa que
+      o modo TRADUZIR deixou de ser roteado aqui — passando a ser tratado como um
+      short-circuit, e nunca como "modo desconhecido" — sem afetar o roteamento dos
+      demais modos nem a rejeição de modos inválidos.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code WEB} e {@code TRADUZIR} retornam sem efeito (nenhuma CLI roteada por
+      este dispatcher; TRADUZIR tem ciclo de vida próprio em {@code traducao}).</li>
+      <li>Um modo inválido continua sendo rejeitado com {@link IllegalStateException}.</li>
+      <li>Estes três caminhos (WEB, TRADUZIR, inválido) nunca chamam {@code .get()} nos
+      beans injetados — por isso a caracterização dispensa cabeamento CDI.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer regressão (TRADUZIR voltando a ser tratado como desconhecido, ou modo
+      inválido deixando de lançar) reprova a suíte.
+
+[PASTA] src/test/java/org/traducao/projeto/contexto/arquitetura/
+  - FronteiraContextoArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
+      {@code contexto} (E7a domínio/lore + E7b infrastructure). Garante que o peer é
+      consumível por qualquer fatia funcional sem acoplamento reverso.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code contexto} NÃO depende de {@code traducao} nem de outra fatia funcional:
+      só JDK/libs técnicas, {@code core} e o próprio {@code contexto}.</li>
+      <li>{@code contexto.domain} é puro: sem {@code contexto.infrastructure} nem framework.</li>
+      <li>{@code contexto.lore} depende somente de {@code contexto.domain}, JDK e Spring
+      {@code @Component} — nunca de {@code core}, {@code infrastructure} ou outra fatia.</li>
+      <li>{@code contexto.infrastructure} é congelado nominalmente: exatamente
+      {@code GerenciadorContexto} e {@code ContextoBeansConfig}.</li>
+      <li>{@code contexto.domain} contém os cinco tipos homologados;
+      {@code contexto.lore} agrega 56 classes.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer dependência proibida, tipo fora do pacote correto ou terceira classe em
+      infrastructure reprova o teste, listando a aresta/desvio exato.
+
+[PASTA] src/test/java/org/traducao/projeto/contexto/domain/
+  - HierarquiaExcecaoContextoTest.java
+      PROPÓSITO DE NEGÓCIO: congela a hierarquia de exceções extraída na E7a —
+      {@code ExcecaoContexto} (raiz do módulo {@code contexto}) com
+      {@code ContextoNaoEncontradoException} sob ela, ambas movidas de {@code traducao}
+      e reparentadas para deixarem de ser {@code TradutorException}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Construtores preservam mensagem e causa.</li>
+      <li>{@code ExcecaoContexto} IS-A {@code BasePipelineException}.</li>
+      <li>{@code ContextoNaoEncontradoException} IS-A {@code ExcecaoContexto} (logo IS-A
+      {@code BasePipelineException}).</li>
+      <li>Prova NEGATIVA: {@code ContextoNaoEncontradoException} não é mais
+      {@code TradutorException}. Como o fluxo desta exceção NÃO alcança o
+      {@code catch (TradutorException)} do {@code TradutorCLI} (só é lançada por
+      {@code GerenciadorContexto.definirContextoAtivo}, fora do caminho do CLI), a
+      E7a não precisou de {@code catch (ExcecaoContexto)} no CLI.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
+      garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
+      {@code BasePipelineException}) continua cobrindo toda a família.
+
+[PASTA] src/test/java/org/traducao/projeto/contexto/
+  - ProtecaoConteudoLoreTest.java
+      PROPÓSITO DE NEGÓCIO: gate de conteúdo da E7a. Prova que a extração do peer
+      {@code contexto} NÃO alterou nenhum prompt, nome de exibição, id ou termo protegido
+      das 53 lores descobertas por CDI — comparando o estado vivo pós-move com o manifesto
+      determinístico capturado ANTES do move ({@code /contexto/manifesto-lore.properties}).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>O manifesto é pequeno/legível: {@code count}, {@code ids} (ordenados por id),
+      {@code aggregate} e uma linha {@code id.<id>=<hash>} por provedor.</li>
+      <li>A entrada do hash por provedor, em ordem estável e UTF-8, é
+      {@code id + " " + nomeExibicao + " " + promptSistema + " " + termosProtegidos ordenados},
+      com os {@code \r} removidos (normalização de line-ending). Os prompts são montados
+      em COMPILE-TIME a partir de text blocks; conforme a fonte seja consultada com CRLF
+      (Windows/{@code autocrlf}) ou LF, a compilação pode reter ou não o {@code \r}. Como
+      {@code \r} não é conteúdo de lore, removê-lo torna o gate determinístico entre
+      checkouts — sem afetar a detecção de qualquer mudança textual real.</li>
+      <li>O agregado é o SHA-256 da concatenação {@code id\thash\n} na ordem por id.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+  - RegistroProvedoresContextoIT.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a descoberta e resolução CDI dos provedores de
+      contexto após a E7b, provando que mover o {@code GerenciadorContexto} e o producer
+      {@code todosProvedoresContexto} para o peer {@code contexto} NÃO alterou o conjunto
+      injetado, a resolução do manager, a ordenação nem a seleção. O manager agora reside em
+      {@code contexto.infrastructure} e a lista é produzida por
+      {@code contexto.infrastructure.config.ContextoBeansConfig}. As 3 classes agregadoras
+      Macross sem {@code @Component} continuam fora do registro, mantendo exatamente 53 provedores.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Exatamente 53 provedores CDI; nenhum id nulo/vazio; nenhum id duplicado.</li>
+      <li>{@code GerenciadorContexto} resolve sem ambiguidade e a {@code List<ProvedorContexto>}
+      resolve pelo producer sem duplicação (o manager e a injeção direta veem os mesmos 53).</li>
+      <li>A lista ordenada de ids é idêntica ao baseline
+      ({@code /contexto/manifesto-lore.properties}).</li>
+
 [PASTA] src/test/java/org/traducao/projeto/core/exception/
   - BasePipelineExceptionTest.java
       (sem cabecalho explicativo)
@@ -3019,6 +4503,30 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: asserções JUnit falham se a resolução
       divergir do contrato.
+
+[PASTA] src/test/java/org/traducao/projeto/core/presentation/ui/
+  - ConsoleEntradaCaracterizacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a saída atual de
+      {@link ConsoleEntrada#imprimirErroSaida()} — o único método efetivamente
+      consumido pelas fatias CLI — para blindar a subfase E2 (movimentação de
+      {@code ConsoleEntrada} para o {@code core.presentation.ui}). Prova que o move
+      é puramente de pacote: mensagens, cores ANSI e enquadramento por linhas em
+      branco permanecem byte a byte idênticos.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A saída é exatamente: linha em branco, a mensagem de erro em VERMELHO/negrito,
+      a dica de recuperação em AMARELO e uma linha em branco final — cada uma via
+      {@code println}, com {@link System#lineSeparator()}.</li>
+      <li>O esperado é reconstruído a partir do próprio {@link AnsiCores}, garantindo
+      que qualquer troca de mensagem, cor ou ordem reprove o teste.</li>
+      <li>O {@code System.out} original é SEMPRE restaurado (via {@link AfterEach}),
+      nunca deixando o stream substituído vazar para outros testes.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência na saída capturada reprova com {@code assertEquals},
+      exibindo o esperado versus o real.
 
 [PASTA] src/test/java/org/traducao/projeto/correcaoLegendas/application/
   - CorrigirLegendasUseCaseTest.java
@@ -3044,6 +4552,158 @@ traducao_animes_llm_local_quarkus/
       {@code mkvmerge --identify}, sem MKVToolNix real: substitui o seam de processo
       externo ({@code executarIdentificacao}) por saída canônica.
 
+[PASTA] src/test/java/org/traducao/projeto/legendasExtracao/infrastructure/config/
+  - ExtratoresInjecaoIT.java
+      PROPÓSITO DE NEGÓCIO: caracteriza — antes e depois da subfase D-Ext — a
+      composição CDI dos extratores de vídeo e das strategies de formato, que hoje é
+      montada por producers de coleção. Congela o contrato de agregação consumido por
+      {@code ExtrairLegendaUseCase} para que a mudança do LOCAL dos producers (de
+      {@code traducao.RestClientConfig} para a config própria de {@code legendasExtracao})
+      não altere quem é injetado nem a resolução por extensão/formato.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code List<ExtratorVideoPort>} contém exatamente {@link MkvToolNixAdapter}
+      e {@link FfmpegAdapter}, sem duplicatas nem implementações inesperadas.</li>
+      <li>{@code List<ExtratorStrategy>} contém exatamente {@link ExtratorAssStrategy},
+      {@link ExtratorSrtStrategy} e {@link ExtratorPgsStrategy}, idem.</li>
+      <li>Cada formato (ASS/SRT/PGS) tem exatamente uma strategy compatível; cada
+      extensão de contêiner conhecida (.mkv/.mp4) tem exatamente um adapter
+      compatível; extensão desconhecida não tem adapter compatível.</li>
+      <li>Comparações por CONJUNTO/tipo, nunca por ordem de lista.</li>
+      </ul>
+
+[PASTA] src/test/java/org/traducao/projeto/legendasExtracao/presentation/
+  - ExtratorCLITest.java
+      PROPÓSITO DE NEGÓCIO: prova que o {@link ExtratorCLI}, após a E4b, resolve a pasta
+      de vídeos exclusivamente a partir de {@code tradutor.diretorio-entrada}, com a mesma
+      normalização por {@code trim} do fluxo legado, sem qualquer dependência de
+      {@code TradutorProperties} ou {@code PastasExecucao}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Entrada ausente, vazia ou só com espaços ⇒ {@code null} (inválida).</li>
+      <li>Entrada útil ⇒ {@code Path.of(valor.trim())}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência na normalização reprova o teste.
+
+[PASTA] src/test/java/org/traducao/projeto/legenda/application/
+  - DetectorEfeitoKaraokeServiceTest.java
+      Linha real que escapou da revisão: letra "I" afogada em transformações.
+      Linha com \pos e fscx/fscy onde o texto visível é curto em relação às tags.
+
+[PASTA] src/test/java/org/traducao/projeto/legenda/arquitetura/
+  - FronteiraLegendaArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do módulo peer compartilhado
+      {@code legenda}. Garante que o módulo é consumível por qualquer fatia funcional sem
+      criar acoplamento reverso. Evolução da superfície do módulo:
+      <ul>
+      <li>E3c: {@code PoliticaEstiloMusical}.</li>
+      <li>E5a: {@code DocumentoLegenda} e {@code EventoLegenda} (modelo puro, movido de
+      {@code traducao.domain.legenda}).</li>
+      <li>E5b: {@code ExcecaoLegenda} (raiz das falhas do módulo) e
+      {@code ArquivoLegendaException}, ambos dependendo apenas de
+      {@code core.exception.BasePipelineException} — aresta {@code legenda -> core}
+      legítima, sem {@code legenda -> traducao}.</li>
+      <li>E5c: {@code LeitorLegendaAss/Srt} e {@code EscritorLegendaAss/Srt} em
+      {@code legenda.infrastructure}, dependendo apenas de {@code legenda.domain},
+      JDK/libs técnicas e (escritores) {@code core.util.ArquivoAtomicoUtil} —
+      {@code legenda -> core} legítima.</li>
+      <li>E8a: {@code DetectorEfeitoKaraokeService} (regra única música/karaokê) em
+      {@code legenda.application}, movido de {@code traducao.application}. Nova
+      fronteira da camada {@code application}: não depende de
+      {@code legenda.infrastructure} nem de fatia funcional.</li>
+      </ul>
+      
+      <h2>Invariantes do domínio</h2>
+
+[PASTA] src/test/java/org/traducao/projeto/legenda/domain/
+  - HierarquiaExcecaoLegendaTest.java
+      PROPÓSITO DE NEGÓCIO: congela a hierarquia de exceções extraída na E5b —
+      {@code ExcecaoLegenda} (raiz do módulo {@code legenda}) e
+      {@code ArquivoLegendaException} sob ela, com {@code EntradaJaTraduzidaException}
+      permanecendo em {@code traducao} mas reparentada para a hierarquia de legenda.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Construtores preservam mensagem e causa.</li>
+      <li>{@code ArquivoLegendaException} IS-A {@code ExcecaoLegenda} IS-A {@code BasePipelineException}.</li>
+      <li>{@code EntradaJaTraduzidaException} IS-A {@code ArquivoLegendaException} (logo IS-A
+      {@code ExcecaoLegenda} e {@code BasePipelineException}).</li>
+      <li>Provas NEGATIVAS: nenhuma das duas é mais {@code TradutorException} — é exatamente
+      por isso que o {@code TradutorCLI} precisou de um {@code catch (ExcecaoLegenda)}
+      equivalente ao ramo {@code TradutorException}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
+      garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
+      {@code BasePipelineException}) continua cobrindo toda a família.
+  - PoliticaEstiloMusicalTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a regra pura {@link PoliticaEstiloMusical#estiloIgnorado(String)}
+      herdada de {@code TradutorProperties.estiloIgnorado} — lista configurada + heurísticas
+      + regex de fronteira de palavra — travando o comportamento HISTÓRICO exato após o move
+      para o módulo {@code legenda}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Match de lista é case-insensitive; heurística e regex idênticas ao comportamento anterior.</li>
+      <li>{@code null}/blank → {@code false}; a política não decide sozinha o envio ao LLM.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Divergência de qualquer caso reprova, sinalizando quebra da regra migrada.
+
+[PASTA] src/test/java/org/traducao/projeto/legenda/infrastructure/config/
+  - PoliticaEstiloMusicalProducerIT.java
+      PROPÓSITO DE NEGÓCIO: prova o WIRING do {@link PoliticaEstiloMusicalProducer} — o bean
+      {@code @Singleton} {@link PoliticaEstiloMusical} é produzido e injeta a lista real do
+      {@code application.yml} ({@code tradutor.estilos-ignorados}), não apenas o fallback.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Um estilo presente APENAS na lista do yml (ex.: "Mobile Suit Gundam", sem palavra-chave
+      musical) é reconhecido — prova de que a lista completa foi injetada, não o fallback.</li>
+      <li>A heurística/regex continuam valendo; um estilo comum não é ignorado.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Falha de produção/injeção do bean, ou lista incorreta, reprova o teste.
+
+[PASTA] src/test/java/org/traducao/projeto/legenda/infrastructure/
+  - EscritorLegendaAssTest.java
+      (sem cabecalho explicativo)
+  - LeitorEscritorSrtTest.java
+      Cobre a leitura/escrita nativa de SRT: preservação de índice e timestamps,
+      quebra interna via \N, round-trip e troca apenas do texto (o pipeline traduz
+      só o texto, mantendo tempos).
+
+[PASTA] src/test/java/org/traducao/projeto/llm/arquitetura/
+  - FronteiraLlmArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer de topo {@code llm} extraído na
+      E8d — o contrato genérico do modelo de linguagem ({@code LlmPort}) e seus records
+      ({@code Lote}, {@code TraducaoLote}, {@code StatusLlm}), todos em {@code llm.domain}.
+      Garante que o peer é consumível por qualquer fatia funcional sem acoplamento reverso e
+      sem arrastar framework, cliente HTTP ou qualquer biblioteca externa.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Allowlist POSITIVA de destinos: {@code llm} só pode depender de pacotes do JDK
+      ({@code java.}), do próprio {@code org.traducao.projeto.llm} e de
+      {@code org.traducao.projeto.core} (se houver consumo real). Qualquer outro pacote
+      — outra fatia, outro peer, framework (Spring/Quarkus/Jackson), cliente HTTP ou
+      qualquer biblioteca externa — é violação. NÃO se admite um destino só porque não
+      pertence a uma fatia conhecida.</li>
+      <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os quatro proprietários
+      top-level ({@code llm.domain.LlmPort}, {@code llm.domain.Lote},
+      {@code llm.domain.TraducaoLote}, {@code llm.domain.StatusLlm}). Congelar por FQN
+      (não por simple name) impede que uma classe mude de pacote/camada mantendo o mesmo
+      nome sem reprovar.</li>
+      <li>Estrutura: todos os quatro tipos ficam em {@code llm.domain}; NÃO existe
+      {@code llm.infrastructure} nem {@code llm.application}; não há adapter nem
+
 [PASTA] src/test/java/org/traducao/projeto/mapaProjeto/application/
   - GeradorMapaProjetoUseCaseTest.java
       {@code Files.list} (usado por {@code executar}, diferente de
@@ -3065,6 +4725,73 @@ traducao_animes_llm_local_quarkus/
   - ConversorKaraokeUseCaseTest.java
       (sem cabecalho explicativo)
 
+[PASTA] src/test/java/org/traducao/projeto/qualidadeTraducao/application/
+  - DetectorTraducaoIdenticaServiceTest.java
+      PROPÓSITO DE NEGÓCIO: impede que nomes próprios legítimos sejam enviados ao
+      revisor apenas porque são idênticos no inglês e no PT-BR.
+      <p>INVARIANTES DO DOMÍNIO: hesitação e pontuação não descaracterizam nomes;
+      palavras conversacionais inglesas continuam pendentes.
+      <p>COMPORTAMENTO EM CASO DE FALHA: falso nome ou falso inglês reprova o teste.
+  - MascaradorTagsTest.java
+      PROPÓSITO DE NEGÓCIO: garante que cache reutilizado não danifique estilo,
+      posicionamento nem quebras estruturais das legendas ASS/SSA.
+      
+      <p>INVARIANTES DO DOMÍNIO: somente o texto visível pode mudar; perda, criação,
+      alteração ou reordenação de tags invalida a tradução armazenada.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: cada divergência produz uma asserção falsa
+      explícita, impedindo regressões que aceitariam cache estruturalmente corrompido.
+  - ValidadorTraducaoServiceTest.java
+      Caso real (Gundam Narrative): LLM rotulou a resposta em vez de só traduzir.
+      Caso real (G-Reconguista): marcador do pipeline Python antigo na legenda final.
+
+[PASTA] src/test/java/org/traducao/projeto/qualidadeTraducao/arquitetura/
+  - FronteiraQualidadeTraducaoArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
+      {@code qualidadeTraducao} — extraído na E8b ({@code MascaradorTags} em application,
+      {@code ExcecaoQualidadeTraducao} + {@code AlucinacaoDetectadaException} em domain),
+      ampliado na E8c ({@code ValidadorTraducaoService} + {@code ProtecaoLegendaAssService}
+      em application) e na E8c.1 ({@code DetectorTraducaoIdenticaService} em application e a
+      porta {@code LoreAtivaPort} em domain, que inverte o antigo acoplamento a
+      {@code contexto}). Garante que o peer é consumível por qualquer fatia funcional sem
+      acoplamento reverso.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code qualidadeTraducao} só depende de JDK/libs técnicas, {@code core} e do
+      próprio {@code qualidadeTraducao} — nunca de {@code traducao} nem de outra fatia
+      funcional, nem de outro peer ({@code legenda}, {@code cachetraducao},
+      {@code contexto}, {@code llm}). Em particular o detector, que antes dependia de
+      {@code contexto.infrastructure.GerenciadorContexto}, agora depende só da porta
+      {@code LoreAtivaPort} do próprio peer.</li>
+      <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os sete proprietários
+      top-level ({@code qualidadeTraducao.application.DetectorTraducaoIdenticaService},
+      {@code qualidadeTraducao.application.MascaradorTags},
+      {@code qualidadeTraducao.application.ProtecaoLegendaAssService},
+
+[PASTA] src/test/java/org/traducao/projeto/qualidadeTraducao/domain/
+  - HierarquiaExcecaoQualidadeTraducaoTest.java
+      PROPÓSITO DE NEGÓCIO: congela a hierarquia de exceções extraída na E8b —
+      {@code ExcecaoQualidadeTraducao} (raiz do peer {@code qualidadeTraducao}) com
+      {@code AlucinacaoDetectadaException} sob ela, movidas de {@code traducao} e
+      reparentadas para deixarem de ser {@code TradutorException}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>{@code ExcecaoQualidadeTraducao} IS-A {@code BasePipelineException}.</li>
+      <li>{@code AlucinacaoDetectadaException} IS-A {@code ExcecaoQualidadeTraducao} (logo
+      IS-A {@code BasePipelineException}).</li>
+      <li>Prova NEGATIVA: {@code AlucinacaoDetectadaException} NÃO é mais
+      {@code TradutorException} — por isso os sítios que a capturavam por herança
+      (ProcessarEpisodioUseCase, TradutorCLI) passaram a multi-catch explícito na E8b.</li>
+      <li>Construtores preservam mensagem (e causa, na base).</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
+      garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
+      {@code BasePipelineException}) continua cobrindo toda a família.
+
 [PASTA] src/test/java/org/traducao/projeto/raspagemCorrecao/application/
   - CorrigirComGoogleUseCaseTest.java
       PROPÓSITO DE NEGÓCIO: prova a regressão central do menu — uma entrada vazia
@@ -3074,7 +4801,6 @@ traducao_animes_llm_local_quarkus/
       projeto; cache versionado e proveniência permanecem intactos.
       
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer ausência de tradução aplicada ou
-      alteração do envelope falha o teste.
   - ProtetorTermosLoreServiceTest.java
       PROPÓSITO DE NEGÓCIO: prova que a contingência online preserva terminologia
       oficial declarada na lore em vez de produzir traduções literais destrutivas.
@@ -3180,6 +4906,24 @@ traducao_animes_llm_local_quarkus/
       INVARIANTES DO DOMÍNIO: runner externo não chega a ser chamado.
       COMPORTAMENTO EM CASO DE FALHA: conteúdo original deve permanecer idêntico.
 
+[PASTA] src/test/java/org/traducao/projeto/remuxer/presentation/
+  - RemuxerCLITest.java
+      PROPÓSITO DE NEGÓCIO: prova que o {@link RemuxerCLI}, após a E4b, resolve a pasta de
+      legendas PTBR reproduzindo fielmente — como duplicação consciente e autorizada — a
+      política legada {@code TradutorProperties.resolverDiretorioSaida()}: saída explícita
+      quando informada, senão o fallback {@code entrada/traducao_ptbr}, com {@code trim}
+      preservado e sem depender de {@code TradutorProperties} ou {@code PastasExecucao}.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Saída ausente/vazia/blank ⇒ {@code pastaVideos.resolve("traducao_ptbr")}.</li>
+      <li>Saída útil ⇒ {@code Path.of(valor.trim())}.</li>
+      <li>A resolução da saída nunca devolve {@code null}.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência do fallback ou da normalização reprova o teste.
+
 [PASTA] src/test/java/org/traducao/projeto/renomearArquivos/application/
   - RenomeadorUseCaseTest.java
       PROPÓSITO DE NEGÓCIO: impede que testes temporários contaminem o dataset
@@ -3193,6 +4937,14 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: aceita títulos e conceitos oficialmente localizados.
       <p>INVARIANTES DO DOMÍNIO: Terra, Século Universal e Princesa são PT-BR.
       <p>COMPORTAMENTO EM CASO DE FALHA: falso positivo reprova o teste.
+  - RevisarLoreUseCaseRevisorFakeIT.java
+      PROPÓSITO DE NEGÓCIO: prova que o {@code RevisarLoreUseCase} está integrado à
+      porta LLM própria da Revisão de Lore — usando um fake da {@link RevisorLoreLlmPort} —,
+      validando o portão de disponibilidade sem depender do LM Studio real.
+      <p>INVARIANTES DO DOMÍNIO: o {@code GerenciadorPromptRevisaoLore} real (com os
+      contextos registrados) valida o contexto; a porta fake decide a disponibilidade.
+      <p>COMPORTAMENTO EM CASO DE FALHA: LLM indisponível deve abortar a sessão com
+      {@link RevisaoLoreException} antes de qualquer processamento de arquivo.
   - RevisarLoreUseCaseTest.java
       PROPÓSITO DE NEGÓCIO: protege as fronteiras de segurança e os desfechos da
       opção 7 contra regressões.
@@ -3207,6 +4959,50 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/test/java/org/traducao/projeto/revisaoLore/contexto/
   - ContextosRevisaoLoreCatalogoTest.java
       (sem cabecalho explicativo)
+
+[PASTA] src/test/java/org/traducao/projeto/revisaoLore/infrastructure/adapters/
+  - NormalizadorRespostaRevisaoLoreTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a normalização das respostas do LLM de lore,
+      garantindo a paridade com o comportamento efetivo anterior — remoção de
+      raciocínio, cerca Markdown e rótulos, seleção de uma única linha e preservação
+      dos marcadores {@code [[TAGn]]}.
+      <p>INVARIANTES DO DOMÍNIO: nenhuma rede; apenas lógica de string pura.
+      <p>COMPORTAMENTO EM CASO DE FALHA: divergência de normalização reprova a suíte.
+  - RevisorLoreLlmAdapterCaracterizacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a stack LLM própria da Revisão de Lore contra
+      um servidor HTTP local, garantindo paridade com o comportamento efetivo anterior
+      (payload, normalização, respostas inválidas e política de retry) sem depender do
+      LM Studio real.
+      <p>INVARIANTES DO DOMÍNIO: nenhuma rede externa; pausas de retry reduzidas para
+      determinismo.
+      <p>COMPORTAMENTO EM CASO DE FALHA: desvio de payload/normalização/retry reprova a suíte.
+  - RevisorLoreLlmCdiIT.java
+      PROPÓSITO DE NEGÓCIO: prova, com o container Arc real, que a stack LLM própria
+      da Revisão de Lore está cabeada por CDI e que o {@code RevisarLoreUseCase} passou
+      a depender da porta própria — não mais da {@code LlmPort} da Tradução Local.
+      <p>INVARIANTES DO DOMÍNIO: {@link RevisorLoreLlmPort} resolve para
+      {@link RevisorLoreLlmAdapter}; as propriedades próprias refletem os defaults efetivos.
+      <p>COMPORTAMENTO EM CASO DE FALHA: bean ausente ou default divergente reprova a suíte.
+  - RevisorLoreLlmDisponibilidadeTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a verificação de disponibilidade do LLM da
+      Revisão de Lore — API estendida {@code /api/v0/models}, preferência pelo modelo
+      configurado, fallback para {@code /v1/models}, catálogo vazio, modelo ausente e
+      servidor inacessível — sem depender do LM Studio real.
+      <p>INVARIANTES DO DOMÍNIO: nenhuma rede externa; servidor HTTP local determinístico.
+      <p>COMPORTAMENTO EM CASO DE FALHA: divergência de status reprova a suíte.
+  - ServidorLlmDeTeste.java
+      PROPÓSITO DE NEGÓCIO: servidor HTTP local determinístico que emula o endpoint
+      OpenAI-compatible do LLM (LM Studio) para caracterizar a stack de Revisão de
+      Lore sem depender de rede externa ou do LM Studio real.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Roteia {@code /v1/chat/completions}, {@code /v1/models} e {@code /api/v0/models}.</li>
+      <li>Conta chamadas ao chat e captura cada corpo recebido, para asserção de payload e retry.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Sem resposta de chat enfileirada, repete a última configurada; encerra a porta ao fechar.
 
 [PASTA] src/test/java/org/traducao/projeto/revisaoLore/infrastructure/
   - RevisaoLoreAuditoriaCacheTest.java
@@ -3229,6 +5025,14 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer escrita real dispara asserção
       JUnit, sinalizando regressão do isolamento.
+  - TelemetriaConsolidacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza o agregador CQRS read-only do Painel Unificado,
+      consolidando o histórico legado ({@code telemetria_compartilhada.json}) com a
+      telemetria própria da Tradução Local ({@code telemetria_traducao.json}) de forma
+      determinística e sem sobrepor contadores.
+      <p>INVARIANTES DO DOMÍNIO: raiz isolada em {@code @TempDir}; o novo arquivo vence
+      o legado por chave; contadores somados sem overlap; sem importar o pacote traducao.
+      <p>COMPORTAMENTO EM CASO DE FALHA: divergência ou exceção reprova a suíte.
   - TelemetriaDatasetPropertiesTest.java
       PROPÓSITO DE NEGÓCIO: valida a configuração segura da publicação do dataset.
       
@@ -3287,15 +5091,6 @@ traducao_animes_llm_local_quarkus/
       (sem cabecalho explicativo)
 
 [PASTA] src/test/java/org/traducao/projeto/traducao/application/
-  - DetectorEfeitoKaraokeServiceTest.java
-      Linha real que escapou da revisão: letra "I" afogada em transformações.
-      Linha com \pos e fscx/fscy onde o texto visível é curto em relação às tags.
-  - DetectorTraducaoIdenticaServiceTest.java
-      PROPÓSITO DE NEGÓCIO: impede que nomes próprios legítimos sejam enviados ao
-      revisor apenas porque são idênticos no inglês e no PT-BR.
-      <p>INVARIANTES DO DOMÍNIO: hesitação e pontuação não descaracterizam nomes;
-      palavras conversacionais inglesas continuam pendentes.
-      <p>COMPORTAMENTO EM CASO DE FALHA: falso nome ou falso inglês reprova o teste.
   - ProcessarArquivoUseCaseCaracterizacaoTest.java
       (sem cabecalho explicativo)
   - ProcessarArquivoUseCaseGuardTest.java
@@ -3307,17 +5102,93 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer desvio interrompe a suíte antes de
       o comportamento inseguro alcançar arquivos reais.
-  - ValidadorTraducaoServiceTest.java
-      Caso real (Gundam Narrative): LLM rotulou a resposta em vez de só traduzir.
-      Caso real (G-Reconguista): marcador do pipeline Python antigo na legenda final.
+  - ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza o comportamento REALMENTE observável do
+      {@link ProcessarEpisodioUseCase} quando o LLM devolve uma fala isolada que o
+      validador rejeita como alucinação — travando o contrato antes da E8b para que a
+      extração de {@code AlucinacaoDetectadaException} para o peer {@code qualidadeTraducao}
+      não altere o fluxo em silêncio.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A resposta rejeitada dispara nova tentativa da fala isolada (retry com
+      temperatura variável), não a propagação imediata da exceção.</li>
+      <li>Cada rejeição é contabilizada em {@code registrarRespostaTraducaoRejeitada}.</li>
+      <li>Esgotadas as tentativas, o fallback mantém a fala ORIGINAL — sem sucesso
+      falso: {@code registrarFalhaTraducaoRecuperada} nunca é chamado.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Este teste NÃO afirma que a exceção alcança o catch externo de
+
+[PASTA] src/test/java/org/traducao/projeto/traducao/arquitetura/
+  - FronteiraInboundArchTest.java
+      PROPOSITO DE NEGOCIO: congela a fronteira funcional INBOUND da fatia vertical
+      Traducao Local (org.traducao.projeto.traducao) — dependencias outra-fatia ->
+      traducao. Contraparte do fitness OUTBOUND (FronteiraTraducaoArchTest); as regras
+      da C2 permanecem separadas la.
+      
+      <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
+      <ul>
+      <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13, pos-E8d = 0. Mesmo
+      rigor do OUTBOUND; fonte de verdade da fronteira.</li>
+      <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b = 139, pos-E3c = 135, pos-E4a =
+      129, pos-E4b = 123, pos-E5a = 85, pos-E5c = 73, pos-E6 = 57, pos-E7b = 49, pos-E8a = 41, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13, pos-E8d = 0. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
+      inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
+      registra no grafo).</li>
+      </ul>
+      
+      <p>Nota E7b: as oito arestas outras-fatias -> {@code GerenciadorContexto} sairam do
+      INBOUND (55->47 bytecode / 57->49 texto) porque o manager migrou para o peer de topo
+  - FronteiraTraducaoArchTest.java
+      PROPÓSITO DE NEGÓCIO: congela a fronteira funcional da fatia vertical Tradução
+      Local ({@code org.traducao.projeto.traducao}). É a Camada A (estática, por
+      bytecode) do harness de fitness da FASE D: prova, a cada build, que a Tradução
+      Local só depende de outras fatias por meio de uma allowlist **estrita por
+      aresta exata** (FQN de origem → FQN de destino), que encolhe subfase a subfase
+      até restar somente o débito dos três controllers bloqueados para a C2. Analisa
+      dependências no bytecode, alcançando o que o import textual não mostra
+      (usos totalmente qualificados no corpo, campos, construtores, herança, genéricos).
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li><b>Baseline dupla (histórico D0)</b>: a auditoria por import textual
+      encontrou <b>15</b> arestas funcionais; o bytecode revelava <b>17</b> — as
+      2 extras eram usos por FQN no corpo ({@code TraducaoController → LlmTelemetria}
+      e {@code TelemetriaController → TelemetriaDatasetService}).</li>
+      <li><b>Após D-Ext</b>: eliminadas as 2 arestas {@code RestClientConfig →
+      ExtratorVideoPort/ExtratorStrategy} (producers movidos para
+      {@code legendasExtracao.ExtracaoBeansConfig}).</li>
+      <li><b>Após D-Lore</b>: eliminada a aresta {@code LlmClientAdapter →
+  - GrafoCdiTraducaoIT.java
+      PROPÓSITO DE NEGÓCIO: Camada B (runtime CDI) do harness de fitness da FASE D.
+      Sobe o container Arc com {@code @QuarkusTest} e caracteriza — sem alterar
+      produção — o grafo de injeção que a análise estática não alcança: o
+      {@link ObjectMapper} efetivamente resolvido, as coleções agregadas de extração
+      e o dispatcher do modo CLI. Fixa o baseline homologado antes das subfases D.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Existe exatamente um {@link ObjectMapper} injetável (sem ambiguidade
+      impeditiva no baseline).</li>
+      <li>Os producers de {@code List<ExtratorVideoPort>} e {@code List<ExtratorStrategy>}
+      resolvem coleções não vazias (mesmo contrato consumido por
+      {@code ExtrairLegendaUseCase}).</li>
 
 [PASTA] src/test/java/org/traducao/projeto/traducao/domain/
+  - NormalizadorNomeEpisodioTest.java
+      PROPÓSITO DE NEGÓCIO: fixa a semântica da normalização proprietária da chave de
+      episódio (proprietário único da Tradução Local), cobrindo espaços, caixa,
+      Unicode, extensão, números e nomes semelhantes.
+      <p>INVARIANTES DO DOMÍNIO: normalização conservadora e determinística; não funde
+      episódios distintos.
+      <p>COMPORTAMENTO EM CASO DE FALHA: divergência reprova a suíte.
   - StatusLoteTraducaoTest.java
       Cobre a consolidação do status do lote a partir dos status por arquivo —
       o núcleo do fix "não mostrar sucesso quando houve falhas".
 
 [PASTA] src/test/java/org/traducao/projeto/traducao/infrastructure/adapters/
-  - MistralClientAdapterRespostaRevisaoTest.java
+  - LlmClientAdapterRespostaRevisaoTest.java
       PROPÓSITO DE NEGÓCIO: garante que respostas do Tower/Mistral com raciocínio
       ou formatação auxiliar entreguem somente a fala final à revisão de legendas.
       
@@ -3326,23 +5197,111 @@ traducao_animes_llm_local_quarkus/
       
       <p>COMPORTAMENTO EM CASO DE FALHA: resposta incompatível produz texto vazio,
       obrigando o cliente a tentar novamente em vez de publicar estrutura quebrada.
+  - LoreAtivaContextoAdapterTest.java
+      PROPÓSITO DE NEGÓCIO: prova que {@link LoreAtivaContextoAdapter} é uma delegação pura
+      ao {@link GerenciadorContexto} — o único ponto de composição que liga a porta
+      {@code LoreAtivaPort} do peer de qualidade à fonte real de contexto, sem alterar o que
+      o gerenciador entrega.
+      
+      <p>INVARIANTES DO DOMÍNIO: para qualquer estado do gerenciador (sem contexto ou com
+      contexto ativo) a saída do adapter é IGUAL à do gerenciador — mesmos termos, mesma
+      lore, sem normalização, filtragem ou substituição.
+      
+      <p>COMPORTAMENTO EM CASO DE FALHA: qualquer divergência entre adapter e gerenciador
+      reprova o teste. A comparação é sempre contra a saída do próprio gerenciador, de modo
+      que o teste não congela o fallback interno do {@link ContextoPrompt} como regra.
 
-[PASTA] src/test/java/org/traducao/projeto/traducao/infrastructure/legenda/
-  - EscritorLegendaAssTest.java
-      (sem cabecalho explicativo)
-  - LeitorEscritorSrtTest.java
-      Cobre a leitura/escrita nativa de SRT: preservação de índice e timestamps,
-      quebra interna via \N, round-trip e troca apenas do texto (o pipeline traduz
-      só o texto, mantendo tempos).
-  - MascaradorTagsTest.java
-      PROPÓSITO DE NEGÓCIO: garante que cache reutilizado não danifique estilo,
-      posicionamento nem quebras estruturais das legendas ASS/SSA.
+[PASTA] src/test/java/org/traducao/projeto/traducao/infrastructure/config/
+  - ConfiguracaoSimplesE3bIT.java
+      PROPÓSITO DE NEGÓCIO: caracteriza a resolução das quatro chaves de valor simples
+      migradas na subfase E3b (tradutor.diretorio-entrada, tradutor.idioma-original,
+      tradutor.idioma-traduzido, tradutor.diretorio-cache) via {@code @ConfigProperty}
+      {@code Optional<String>}, blindando o novo acoplamento antes de remover
+      {@code TradutorProperties} dos seis consumidores.
       
-      <p>INVARIANTES DO DOMÍNIO: somente o texto visível pode mudar; perda, criação,
-      alteração ou reordenação de tags invalida a tradução armazenada.
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Chave presente → {@code Optional.of(valor)}; a sobrescrita de perfil vence o
+      {@code application.yml} (prova de override).</li>
+      <li>Chave ausente ou vazia ("") → {@code Optional.empty()} (SmallRye colapsa valor
+      vazio), e o fallback de domínio local (.orElse) aplica o default.</li>
+      <li>Valor só com espaços → o filtro {@code !isBlank()} força o default de domínio
+      (idioma/entrada), sem depender de trimming do SmallRye.</li>
+      <li>Nenhum {@code defaultValue} é usado na injeção; o default é sempre do consumidor.</li>
+      </ul>
       
-      <p>COMPORTAMENTO EM CASO DE FALHA: cada divergência produz uma asserção falsa
-      explícita, impedindo regressões que aceitariam cache estruturalmente corrompido.
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência na resolução ou no fallback reprova o teste, sinalizando a
+      quebra de paridade com o comportamento pré-E3b.
+  - ParidadeBindingEstilosIT.java
+      PASSO 1 da E3c — caracterizacao de paridade de binding (cenarios PREENCHIDO e AUSENTE).
+      Observa o comportamento REAL de dois bindings sobre a MESMA chave
+      {@code tradutor.estilos-ignorados}:
+      <ul>
+      <li>Spring {@code @ConfigurationProperties} (TradutorProperties.estilosIgnorados());</li>
+      <li>SmallRye {@code @ConfigProperty Optional<List<String>>} + fallback do futuro produtor.</li>
+      </ul>
+      O cenario LISTA VAZIA EXPLICITA fica em {@code ParidadeBindingVazioIT} (perfil dedicado).
+  - ParidadeBindingVazioIT.java
+      PASSO 1 da E3c — cenario LISTA VAZIA EXPLICITA. Perfil de teste sobrescreve
+      {@code tradutor.estilos-ignorados} para vazio e OBSERVA o que cada binding produz,
+      para o gate de divergencia (decisao 6: ausente != vazia).
+      
+      <p>Este teste NAO afirma um resultado esperado rigido: ele IMPRIME e registra o
+      estado real de ambos os bindings para ratificacao. As assercoes apenas travam a
+      comparacao Spring-vs-SmallRye (se divergirem, o gate dispara com evidencia).
+  - ParidadeResolucaoCaminhoE4bTest.java
+      PROPÓSITO DE NEGÓCIO: gate de paridade da subfase E4b. Congela, ANTES de destacar
+      os três CLIs externos (Extrator/Analisador/Remuxer) de {@code PastasExecucao} e
+      {@code TradutorProperties}, o comportamento legado de resolução do diretório de
+      saída que esses CLIs herdam hoje — de modo que a lógica inline que passará a viver
+      em cada CLI possa ser provada equivalente.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>A normalização por {@code trim} da entrada e da saída ocorre em
+      {@link PastasExecucao#configurar(String, String, String, TradutorProperties)},
+      NÃO em {@link TradutorProperties#resolverDiretorioSaida()} (que apenas decide
+      passthrough vs. fallback sobre valores já aparados).</li>
+      <li>Composto legado (o que o CLI enxerga): saída ausente/vazia/blank ⇒
+      {@code Path.of(entrada.trim()).resolve("traducao_ptbr")}; saída válida ⇒
+      {@code Path.of(saida.trim())}.</li>
+      <li>Nenhum dos três CLIs lê o diretório de cache de volta; a política de cache
+      não entra nesta paridade.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Qualquer divergência entre o composto legado e a fórmula esperada reprova o teste —
+      sinal de gate: NÃO prosseguir com a migração dos CLIs.
+
+[PASTA] src/test/java/org/traducao/projeto/traducao/infrastructure/telemetria/
+  - TelemetriaTraducaoAdapterTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza o adapter que grava a telemetria própria da
+      Tradução Local — deduplicação por episódio normalizado (mais recente vence),
+      persistência dos quatro contadores e preservação de arquivo corrompido.
+      <p>INVARIANTES DO DOMÍNIO: raiz operacional isolada em {@code @TempDir}; nenhuma
+      rede; escrita atômica.
+      <p>COMPORTAMENTO EM CASO DE FALHA: divergência reprova a suíte.
+
+[PASTA] src/test/java/org/traducao/projeto/traducao/presentation/
+  - TradutorCLIAlucinacaoCaracterizacaoTest.java
+      PROPÓSITO DE NEGÓCIO: caracteriza o tratamento que o {@link TradutorCLI} dá a uma
+      {@code AlucinacaoDetectadaException} lançada ao processar um arquivo — hoje herdado
+      do {@code catch (TradutorException)}. Trava o contrato antes da E8b: mensagem de
+      falha, contagem, lista de arquivos com falha e continuidade do lote.
+      
+      <h2>Invariantes do domínio</h2>
+      <ul>
+      <li>Uma falha por alucinação num arquivo é contabilizada como falha e não aborta
+      o processamento dos demais (continuidade do lote).</li>
+      <li>A mensagem exibida usa o formato do ramo crítico ("[ FAIL ] Falha em X: msg"),
+      preservando a mensagem original da exceção.</li>
+      <li>O relatório final reflete 0 sucessos, N falhas e lista os arquivos com falha.</li>
+      </ul>
+      
+      <h2>Comportamento em caso de falha</h2>
+      Após o reparenting da E8b, {@code AlucinacaoDetectadaException} deixa de ser
+      {@code TradutorException}; o multi-catch {@code (TradutorException | AlucinacaoDetectadaException)}
 
 [PASTA] src/test/java/org/traducao/projeto/traducao/presentation/web/
   - ConsoleRedirectorTest.java
