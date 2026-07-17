@@ -34,10 +34,8 @@ import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -89,6 +87,7 @@ public class ProcessarArquivoUseCase {
     private final GerenciadorContexto gerenciadorContexto;
     private final ResolvedorSaidaLegenda resolvedorSaida;
     private final ResolvedorCacheTraducao resolvedorCache;
+    private final PoliticaBackupTraducao politicaBackup;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -110,7 +109,8 @@ public class ProcessarArquivoUseCase {
         ProtecaoLegendaAssService protecaoAss,
         GerenciadorContexto gerenciadorContexto,
         ResolvedorSaidaLegenda resolvedorSaida,
-        ResolvedorCacheTraducao resolvedorCache
+        ResolvedorCacheTraducao resolvedorCache,
+        PoliticaBackupTraducao politicaBackup
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -132,6 +132,7 @@ public class ProcessarArquivoUseCase {
         this.gerenciadorContexto = gerenciadorContexto;
         this.resolvedorSaida = resolvedorSaida;
         this.resolvedorCache = resolvedorCache;
+        this.politicaBackup = politicaBackup;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -162,15 +163,7 @@ public class ProcessarArquivoUseCase {
         Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada);
         ProvenienciaCache proveniencia = resolvedorCache.provenienciaAtual();
         if (permitirRetraducao && Files.exists(arquivoCache)) {
-            Path raizBackupCache = Path.of("backups", "traducao-cache").toAbsolutePath().normalize();
-            try {
-                Path backupCache = arquivarCacheParaRetraducao(arquivoCache, raizBackupCache);
-                log.warn("Retradução liberada: cache anterior removido do uso e preservado em {}", backupCache);
-                uiLogger.log("[ CACHE REINICIADO ] Geração anterior preservada em: " + backupCache);
-            } catch (IOException e) {
-                throw new ArquivoLegendaException(
-                    "Falha ao preservar e reiniciar o cache antes da retradução: " + arquivoCache, e);
-            }
+            politicaBackup.arquivarCacheAntesDaRetraducao(arquivoCache);
         }
         // Congela o prompt de sistema no início do arquivo: se o contexto global
         // mudar (troca de lore) enquanto este episódio traduz, o prompt já capturado
@@ -262,7 +255,7 @@ public class ProcessarArquivoUseCase {
                     }
                 }
                 if (!entradasCacheParcial.isEmpty()) {
-                    salvarCacheDaExecucao(
+                    politicaBackup.salvarCacheDaExecucao(
                         arquivoCache, proveniencia, entradasCacheParcial, permitirRetraducao);
                 }
             }
@@ -324,14 +317,14 @@ public class ProcessarArquivoUseCase {
             arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
         Path backupSobrescrita = null;
         if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
-            backupSobrescrita = criarBackupAntesSobrescrita(arquivoSaidaFinal);
+            backupSobrescrita = politicaBackup.criarBackupAntesSobrescrita(arquivoSaidaFinal);
         }
         if (ehSrt) {
             escritorSrt.escrever(arquivoSaida, documentoFinal);
         } else {
             escritor.escrever(arquivoSaida, documentoFinal);
         }
-        salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
+        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
 
         long tempoTotalMs = System.currentTimeMillis() - inicioMs;
         String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);
@@ -621,98 +614,9 @@ public class ProcessarArquivoUseCase {
         }
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: promove a nova geração validada do cache da obra
-     * selecionada sem perder a versão que sustentava a legenda anterior.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: a liberação explícita exige backup do cache
-     * existente antes da substituição; sem liberação permanece a gravação
-     * atômica normal; caches de outros episódios ou obras não são acessados.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: falha no backup ou na gravação lança
-     * {@link ArquivoLegendaException}; o destino anterior permanece recuperável
-     * e a legenda final não prossegue como se o cache tivesse sido atualizado.
-     */
-    private void salvarCacheDaExecucao(
-            Path arquivoCache,
-            ProvenienciaCache proveniencia,
-            List<EntradaCache> entradas,
-            boolean preservarAnterior) {
-        if (preservarAnterior && Files.exists(arquivoCache)) {
-            Path raizBackup = Path.of("backups", "traducao-cache").toAbsolutePath().normalize();
-            try {
-                Path backup = copiarParaBackupExclusivo(arquivoCache, raizBackup);
-                log.info("Backup do cache anterior criado em {}", backup);
-                uiLogger.log("[ BACKUP CACHE ] Geração anterior preservada em: " + backup);
-            } catch (IOException e) {
-                throw new ArquivoLegendaException(
-                    "Falha ao criar backup obrigatório antes de atualizar o cache: " + arquivoCache, e);
-            }
-        }
-        cacheService.salvar(arquivoCache, proveniencia, entradas);
-    }
-
     private static boolean ehSrt(Path arquivo) {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: preserva a versão PT-BR atualmente publicada antes
-     * de uma substituição autorizada, permitindo recuperação após uma revisão ruim.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: cada substituição recebe uma pasta exclusiva em
-     * {@code backups/traducao}; o arquivo original é copiado com seus atributos e
-     * nunca é alterado antes de o backup terminar com sucesso.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link ArquivoLegendaException} e
-     * impede a escrita da nova saída final, mantendo intacta a versão anterior.
-     */
-    private Path criarBackupAntesSobrescrita(Path arquivoFinal) {
-        Path raizBackup = Path.of("backups", "traducao").toAbsolutePath().normalize();
-        try {
-            Path backup = copiarParaBackupExclusivo(arquivoFinal, raizBackup);
-            log.info("Backup da tradução final criado em {}", backup);
-            uiLogger.log("[ BACKUP ] Tradução anterior preservada em: " + backup);
-            return backup;
-        } catch (IOException e) {
-            throw new ArquivoLegendaException(
-                "Falha ao criar backup obrigatório antes de sobrescrever: " + arquivoFinal, e);
-        }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: copia uma tradução publicada para uma pasta exclusiva
-     * de histórico antes que uma nova versão ocupe o mesmo caminho final.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: cria um diretório novo por operação, preserva os
-     * atributos do arquivo e nunca substitui um backup anterior.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; o chamador
-     * converte a falha em bloqueio da sobrescrita.
-     */
-    static Path copiarParaBackupExclusivo(Path arquivoFinal, Path raizBackup) throws IOException {
-        Files.createDirectories(raizBackup);
-        Path pastaBackup = Files.createTempDirectory(raizBackup, "sobrescrita_");
-        Path backup = pastaBackup.resolve(arquivoFinal.getFileName()).normalize();
-        return Files.copy(arquivoFinal, backup, StandardCopyOption.COPY_ATTRIBUTES);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: inicia uma retradução integral do episódio sem
-     * depender de heurísticas para decidir se o cache antigo ainda é confiável.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: somente o arquivo de cache resolvido para o
-     * episódio atual é retirado de uso; uma cópia fiel deve existir no diretório
-     * de backup antes da remoção; caches de outras obras nunca são tocados.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; se a cópia
-     * ou a remoção falhar, o processamento é abortado e não começa uma geração
-     * nova fingindo que o cache anterior foi reiniciado.
-     */
-    static Path arquivarCacheParaRetraducao(Path arquivoCache, Path raizBackup) throws IOException {
-        Path backup = copiarParaBackupExclusivo(arquivoCache, raizBackup);
-        Files.delete(arquivoCache);
-        return backup;
-    }
 
 }
