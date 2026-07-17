@@ -48,6 +48,21 @@ public class ResolvedorCacheTraducao {
     private final LlmProperties llmPropriedades;
     private final TradutorProperties propriedades;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta as fontes que compõem a identidade de cache do episódio —
+     * diretórios, extensão do formato, contexto/lore ativo, modelo e idiomas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     *
+     * @param pastasExecucao raiz de cache/saída resolvidas para a execução
+     * @param resolvedorSaida provê a extensão canônica do formato de legenda
+     * @param gerenciadorContexto fonte do contexto/lore e do prompt ativos
+     * @param llmPropriedades configuração de onde vem o modelo efetivamente ativo
+     * @param propriedades idiomas de origem/destino do carimbo de proveniência
+     */
     public ResolvedorCacheTraducao(
         PastasExecucao pastasExecucao,
         ResolvedorSaidaLegenda resolvedorSaida,

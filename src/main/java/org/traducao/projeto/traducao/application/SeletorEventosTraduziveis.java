@@ -52,6 +52,20 @@ public class SeletorEventosTraduziveis {
     private final ProtecaoLegendaAssService protecaoAss;
     private final MascaradorTags mascarador;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta as blindagens que decidem a elegibilidade de uma fala —
+     * política de estilo musical, detector de karaokê, proteção ASS e mascarador.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     *
+     * @param politicaEstiloMusical define quais estilos musicais são, por padrão, ignorados
+     * @param detectorKaraoke reconhece karaokê cru e música traduzível
+     * @param protecaoAss extrai texto visível e bloqueia typesetting de alto risco
+     * @param mascarador decide, ao final, se há texto realmente traduzível
+     */
     public SeletorEventosTraduziveis(
         PoliticaEstiloMusical politicaEstiloMusical,
         DetectorEfeitoKaraokeService detectorKaraoke,

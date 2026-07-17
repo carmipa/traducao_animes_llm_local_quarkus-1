@@ -25,9 +25,11 @@ import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaExceptio
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * {@link #isCacheReaproveitavel} devolve {@code false} quando a validação acusa fala não
- * traduzida (via {@link AlucinacaoDetectadaException}); {@link #motivoFalhaFinal} devolve
- * uma justificativa legível e {@code null} para uma tradução válida. Nenhum método lança.
+ * A {@link AlucinacaoDetectadaException} lançada pela VALIDAÇÃO é o canal esperado e é convertida
+ * em resultado de domínio: {@link #isCacheReaproveitavel} vira {@code false} e
+ * {@link #motivoFalhaFinal} vira o motivo legível (uma tradução válida devolve {@code null}).
+ * Qualquer OUTRA falha inesperada das dependências (ex.: {@link NullPointerException}) NÃO é
+ * ocultada — propaga para o chamador em vez de mascarar um problema real.
  */
 @Component
 public class AvaliadorTraducaoCache {
@@ -38,6 +40,20 @@ public class AvaliadorTraducaoCache {
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final ValidadorTraducaoService validador;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta as blindagens de qualidade — estrutura de tags, decisão de
+     * identidade legítima e validação de resíduo — que sustentam a política de reuso e a
+     * validação final.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     *
+     * @param mascarador preserva/compara a estrutura de tags entre original e tradução
+     * @param detectorIdentica decide quando uma fala idêntica ao original é legítima
+     * @param validador acusa resíduo gringo/preâmbulo lançando {@link AlucinacaoDetectadaException}
+     */
     public AvaliadorTraducaoCache(
         MascaradorTags mascarador,
         DetectorTraducaoIdenticaService detectorIdentica,

@@ -45,6 +45,18 @@ public class PoliticaBackupTraducao {
     private final CacheTraducaoService cacheService;
     private final ConsoleUILogger uiLogger;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta o serviço de cache (para a gravação com backup) e o logger da
+     * UI (para sinalizar ao operador cada preservação de geração anterior).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     *
+     * @param cacheService serviço proprietário da persistência do cache
+     * @param uiLogger canal de mensagens operacionais acompanhado pelo operador
+     */
     public PoliticaBackupTraducao(CacheTraducaoService cacheService, ConsoleUILogger uiLogger) {
         this.cacheService = cacheService;
         this.uiLogger = uiLogger;
