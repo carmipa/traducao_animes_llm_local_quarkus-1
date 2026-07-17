@@ -14,7 +14,6 @@ import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
-import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
@@ -23,7 +22,6 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
-import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
 import java.nio.file.Files;
@@ -58,7 +56,6 @@ public class ProcessarArquivoUseCase {
     private final EscritorLegendaSrt escritorSrt;
     private final CacheTraducaoService cacheService;
     private final TradutorProperties propriedades;
-    private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
     private final PastasExecucao pastasExecucao;
     private final TelemetriaTraducaoPort telemetriaTraducao;
@@ -70,6 +67,7 @@ public class ProcessarArquivoUseCase {
     private final SeletorEventosTraduziveis seletorEventos;
     private final AvaliadorTraducaoCache avaliadorCache;
     private final TradutorLotesService tradutorLotes;
+    private final MontadorTelemetriaTraducao montadorTelemetria;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -78,7 +76,6 @@ public class ProcessarArquivoUseCase {
         EscritorLegendaSrt escritorSrt,
         CacheTraducaoService cacheService,
         TradutorProperties propriedades,
-        LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
         PastasExecucao pastasExecucao,
         TelemetriaTraducaoPort telemetriaTraducao,
@@ -89,7 +86,8 @@ public class ProcessarArquivoUseCase {
         PoliticaBackupTraducao politicaBackup,
         SeletorEventosTraduziveis seletorEventos,
         AvaliadorTraducaoCache avaliadorCache,
-        TradutorLotesService tradutorLotes
+        TradutorLotesService tradutorLotes,
+        MontadorTelemetriaTraducao montadorTelemetria
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -97,7 +95,6 @@ public class ProcessarArquivoUseCase {
         this.escritorSrt = escritorSrt;
         this.cacheService = cacheService;
         this.propriedades = propriedades;
-        this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
         this.pastasExecucao = pastasExecucao;
         this.telemetriaTraducao = telemetriaTraducao;
@@ -109,6 +106,7 @@ public class ProcessarArquivoUseCase {
         this.seletorEventos = seletorEventos;
         this.avaliadorCache = avaliadorCache;
         this.tradutorLotes = tradutorLotes;
+        this.montadorTelemetria = montadorTelemetria;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -314,20 +312,9 @@ public class ProcessarArquivoUseCase {
         uiLogger.registrarFalasNovas(traducoesNovasValidas);
         StatusArquivoTraducao status = avisos.isEmpty() && falhasDistintas.isEmpty()
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
-        telemetriaTraducao.registrarTraducao(new TelemetriaTraducao(
-            arquivoEntrada.getFileName().toString(),
-            llmPropriedades.model(),
-            eventosTraduziveis.size(),
-            traducoesNovasValidas,
-            cacheReaproveitavel.size(),
-            tempoTotalMs,
-            List.copyOf(avisos),
-            animeNome,
-            resolvedorCache.temporadaAPartirDoNome(animeNome),
-            java.time.Instant.now().toString(),
-            loreNome,
-            status.name()
-        ));
+        telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
+            arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,
+            cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status));
 
         if (status == StatusArquivoTraducao.PARCIAL) {
             if (permitirRetraducao) {
