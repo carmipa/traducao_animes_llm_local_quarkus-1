@@ -8,11 +8,11 @@ import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.contexto.domain.RegrasConcordanciaPtBr;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
-import org.traducao.projeto.traducao.infrastructure.dtos.RecordsMistral.*;
+import org.traducao.projeto.traducao.infrastructure.dtos.RecordsLlm.*;
 import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 import org.traducao.projeto.core.infrastructure.http.JsonHttpClient.HttpClientException;
 
@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class MistralClientAdapter implements MistralPort {
+public class LlmClientAdapter implements LlmPort {
 
-    private static final Logger log = LoggerFactory.getLogger(MistralClientAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(LlmClientAdapter.class);
 
     private static final int MAX_TENTATIVAS = 3;
     private static final int MAX_TENTATIVAS_REVISAO = 2;
@@ -45,7 +45,7 @@ public class MistralClientAdapter implements MistralPort {
     private final GerenciadorContexto gerenciadorContexto;
     private final ObjectMapper objectMapper;
 
-    public MistralClientAdapter(LlmProperties propriedades, GerenciadorContexto gerenciadorContexto, ObjectMapper mapper) {
+    public LlmClientAdapter(LlmProperties propriedades, GerenciadorContexto gerenciadorContexto, ObjectMapper mapper) {
         this.propriedades = propriedades;
         this.gerenciadorContexto = gerenciadorContexto;
         this.objectMapper = mapper;

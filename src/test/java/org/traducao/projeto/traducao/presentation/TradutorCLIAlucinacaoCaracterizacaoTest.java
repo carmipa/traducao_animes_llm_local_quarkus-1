@@ -6,7 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -50,7 +50,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
     }
 
     /** LLM disponível — só precisa passar pela verificação inicial do CLI. */
-    private static final class MistralDisponivel implements MistralPort {
+    private static final class LlmDisponivel implements LlmPort {
         @Override public org.traducao.projeto.traducao.domain.TraducaoLote traduzir(
             org.traducao.projeto.traducao.domain.Lote lote) { return null; }
         @Override public StatusLlm verificarDisponibilidade() { return new StatusLlm(true, true, "modelo carregado"); }
@@ -84,7 +84,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
             entrada.toString(), entrada.toString(), entrada.toString(), 20, List.of(), "en", "pt-BR");
         PastasExecucao pastas = new PastasExecucao();
 
-        TradutorCLI cli = new TradutorCLI(processar, uiLogger, props, pastas, new MistralDisponivel());
+        TradutorCLI cli = new TradutorCLI(processar, uiLogger, props, pastas, new LlmDisponivel());
         cli.executar();
 
         // Continuidade do lote: os DOIS arquivos foram processados apesar da falha no primeiro.

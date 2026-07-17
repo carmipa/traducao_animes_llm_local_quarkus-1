@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 
 import java.util.Optional;
@@ -12,18 +12,18 @@ import java.util.Optional;
 @Service
 public class CorretorTraducaoLlmService {
 
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final ValidadorTraducaoService validador;
     private final ProtecaoLegendaAssService protecaoAss;
 
     public CorretorTraducaoLlmService(
-        MistralPort mistralPort,
+        LlmPort llmPort,
         MascaradorTags mascaradorTags,
         ValidadorTraducaoService validador,
         ProtecaoLegendaAssService protecaoAss
     ) {
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.validador = validador;
         this.protecaoAss = protecaoAss;
@@ -46,7 +46,7 @@ public class CorretorTraducaoLlmService {
         MascaradorTags.Mascarado mascOriginal = mascaradorTags.mascarar(originalEn != null ? originalEn : "");
         MascaradorTags.Mascarado mascTraduzido = mascaradorTags.mascarar(traduzidoAtual);
 
-        Optional<String> resposta = mistralPort.corrigirTraducao(
+        Optional<String> resposta = llmPort.corrigirTraducao(
             mascOriginal.texto(),
             mascTraduzido.texto(),
             motivo

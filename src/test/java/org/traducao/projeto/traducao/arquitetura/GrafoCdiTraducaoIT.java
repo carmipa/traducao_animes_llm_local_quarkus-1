@@ -83,7 +83,7 @@ class GrafoCdiTraducaoIT {
      * {@link ObjectMapper} o Arc entrega hoje aos beans da Tradução Local — o produzido
      * por {@code RestClientConfig.objectMapper()} ({@code new ObjectMapper()} default)
      * ou o gerenciado pelo {@code quarkus-jackson}. É a mesma instância injetada por
-     * construtor em {@code MistralClientAdapter}, {@code TelemetriaTraducaoAdapter},
+     * construtor em {@code LlmClientAdapter}, {@code TelemetriaTraducaoAdapter},
      * {@code CacheTraducaoService} e {@code CacheManutencaoService} (bean único).
      *
      * <p>INVARIANTES DO DOMÍNIO: caracteriza sem alterar produção; fixa o baseline de

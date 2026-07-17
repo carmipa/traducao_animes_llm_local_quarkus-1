@@ -16,7 +16,7 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
@@ -82,7 +82,7 @@ public class RevisarLegendasUseCase {
     private final ValidadorTraducaoService validador;
     private final LeitorCacheReferenciaService leitorCache;
     private final SincronizadorLegendaCacheService sincronizadorCache;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final GerenciadorContexto gerenciadorContexto;
     private final TelemetriaService telemetriaService;
@@ -111,7 +111,7 @@ public class RevisarLegendasUseCase {
         ValidadorTraducaoService validador,
         LeitorCacheReferenciaService leitorCache,
         SincronizadorLegendaCacheService sincronizadorCache,
-        MistralPort mistralPort,
+        LlmPort llmPort,
         MascaradorTags mascaradorTags,
         GerenciadorContexto gerenciadorContexto,
         TelemetriaService telemetriaService,
@@ -129,7 +129,7 @@ public class RevisarLegendasUseCase {
         this.validador = validador;
         this.leitorCache = leitorCache;
         this.sincronizadorCache = sincronizadorCache;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.gerenciadorContexto = gerenciadorContexto;
         this.telemetriaService = telemetriaService;
@@ -1504,13 +1504,13 @@ public class RevisarLegendasUseCase {
         Optional<String> resposta;
 
         if (precisaRetraducaoCompleta) {
-            resposta = mistralPort.corrigirTraducao(
+            resposta = llmPort.corrigirTraducao(
                 mascOriginal.texto(),
                 mascTraduzido.texto(),
                 String.join(", ", motivos)
             );
         } else {
-            resposta = mistralPort.revisarConcordancia(
+            resposta = llmPort.revisarConcordancia(
                 mascOriginal.texto(),
                 mascTraduzido.texto(),
                 motivos

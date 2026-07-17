@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * PROPÓSITO DE NEGÓCIO: prova, com o container Arc real, que a stack LLM própria
  * da Revisão de Lore está cabeada por CDI e que o {@code RevisarLoreUseCase} passou
- * a depender da porta própria — não mais da {@code MistralPort} da Tradução Local.
+ * a depender da porta própria — não mais da {@code LlmPort} da Tradução Local.
  * <p>INVARIANTES DO DOMÍNIO: {@link RevisorLoreLlmPort} resolve para
  * {@link RevisorLoreLlmAdapter}; as propriedades próprias refletem os defaults efetivos.
  * <p>COMPORTAMENTO EM CASO DE FALHA: bean ausente ou default divergente reprova a suíte.

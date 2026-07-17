@@ -8,7 +8,7 @@ import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 
@@ -59,7 +59,7 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
     }
 
     /** Fake de LLM: sempre devolve UMA linha "traduzida" com sucesso; a rejeição vem do validador. */
-    private static final class MistralSempreUmaLinha implements MistralPort {
+    private static final class LlmSempreUmaLinha implements LlmPort {
         @Override public TraducaoLote traduzir(Lote lote) {
             return new TraducaoLote(lote.idLote(), List.of("resposta-do-llm"), true, null);
         }
@@ -81,7 +81,7 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
         };
 
         ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
-            new MistralSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria);
+            new LlmSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria);
 
         List<TraducaoLote> resultado = useCase.processarEpisodio(List.of(new Lote(1, List.of("KEEPME"))), null);
 

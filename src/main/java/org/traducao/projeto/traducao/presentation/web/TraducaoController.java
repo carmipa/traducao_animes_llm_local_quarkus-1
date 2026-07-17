@@ -14,7 +14,7 @@ import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -51,7 +51,7 @@ public class TraducaoController {
 
     private final PipelineWebSupport pipelineWebSupport;
     private final ProcessarArquivoUseCase processarArquivoUseCase;
-    private final MistralPort mistralPort;
+    private final LlmPort llmPort;
     private final GerenciadorContexto gerenciadorContexto;
     private final PastasExecucao pastasExecucao;
     private final TradutorProperties propriedades;
@@ -60,14 +60,14 @@ public class TraducaoController {
     public TraducaoController(
             PipelineWebSupport pipelineWebSupport,
             ProcessarArquivoUseCase processarArquivoUseCase,
-            MistralPort mistralPort,
+            LlmPort llmPort,
             GerenciadorContexto gerenciadorContexto,
             PastasExecucao pastasExecucao,
             TradutorProperties propriedades,
             TelemetriaTraducaoPort telemetriaTraducao) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.processarArquivoUseCase = processarArquivoUseCase;
-        this.mistralPort = mistralPort;
+        this.llmPort = llmPort;
         this.gerenciadorContexto = gerenciadorContexto;
         this.pastasExecucao = pastasExecucao;
         this.propriedades = propriedades;
@@ -107,7 +107,7 @@ public class TraducaoController {
 
                 // Verifica LLM
                 System.out.println("Verificando se o servidor LLM local está online...");
-                StatusLlm status = mistralPort.verificarDisponibilidade();
+                StatusLlm status = llmPort.verificarDisponibilidade();
                 if (!status.modeloCarregado()) {
                     System.out.println("\u001B[31m[FAIL] Servidor LLM indisponível: " + status.mensagem() + "\u001B[0m");
                     return;

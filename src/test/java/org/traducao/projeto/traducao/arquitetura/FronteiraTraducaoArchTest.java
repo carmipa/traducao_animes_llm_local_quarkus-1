@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li><b>Após D-Ext</b>: eliminadas as 2 arestas {@code RestClientConfig →
  *       ExtratorVideoPort/ExtratorStrategy} (producers movidos para
  *       {@code legendasExtracao.ExtracaoBeansConfig}).</li>
- *   <li><b>Após D-Lore</b>: eliminada a aresta {@code MistralClientAdapter →
+ *   <li><b>Após D-Lore</b>: eliminada a aresta {@code LlmClientAdapter →
  *       PromptRevisaoLore} (Revisão de Lore com stack LLM própria).</li>
  *   <li><b>Após D-Tel-4</b>: eliminadas as 5 arestas vivas de bytecode do grupo
  *       D-Tel (ProcessarArquivoUseCase/ProcessarEpisodioUseCase/TraducaoController →
@@ -53,8 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>O conjunto real de arestas funcionais de saída da Tradução Local deve ser
  *       <b>exatamente</b> {@link #ARESTAS_FUNCIONAIS_ESPERADAS} (VAZIO após a C2).</li>
  *   <li><b>Regra dedicada revisaoLore</b>: nenhuma classe de {@code ..revisaoLore..}
- *       depende de {@code MistralPort}, {@code StatusLlm}, {@code LlmProperties},
- *       {@code JsonHttpClient}, {@code RecordsMistral}, {@code MistralClientAdapter}
+ *       depende de {@code LlmPort}, {@code StatusLlm}, {@code LlmProperties},
+ *       {@code JsonHttpClient}, {@code RecordsLlm}, {@code LlmClientAdapter}
  *       ou {@code GerenciadorContexto}.</li>
  *   <li><b>Regra blindada telemetria</b>: nenhuma classe de {@code ..traducao..}
  *       depende de {@code ..telemetria..} (ZERO — exceção C2 eliminada).</li>
@@ -101,7 +101,7 @@ class FronteiraTraducaoArchTest {
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
-    private static final String MISTRAL_ADAPTER = RAIZ + ".traducao.infrastructure.adapters.MistralClientAdapter";
+    private static final String LLM_ADAPTER = RAIZ + ".traducao.infrastructure.adapters.LlmClientAdapter";
 
     // FASE C2 CONCLUÍDA: os três controllers bloqueados (CorrecaoCacheController,
     // RevisaoLegendasController, TelemetriaController) saíram de traducao para suas
@@ -112,11 +112,11 @@ class FronteiraTraducaoArchTest {
     // LLM própria dela NÃO pode importar (D-Lore).
     private static final String PKG_REVISAO_LORE = RAIZ + ".revisaoLore";
     private static final Set<String> REVISAO_LORE_PROIBIDOS = Set.of(
-        RAIZ + ".traducao.domain.ports.MistralPort",
+        RAIZ + ".traducao.domain.ports.LlmPort",
         RAIZ + ".traducao.domain.StatusLlm",
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
-        RAIZ + ".traducao.infrastructure.dtos.RecordsMistral",
-        MISTRAL_ADAPTER,
+        RAIZ + ".traducao.infrastructure.dtos.RecordsLlm",
+        LLM_ADAPTER,
         RAIZ + ".contexto.infrastructure.GerenciadorContexto"
     );
 
@@ -222,7 +222,7 @@ class FronteiraTraducaoArchTest {
      * inesperado quanto entrada obsoleta sobrando na allowlist. Conteúdo medido pós-E7b:
      * <ul>
      *   <li>{@code GerenciadorContexto} (infrastructure): consumido por classes de
-     *       {@code traducao} (ProcessarArquivoUseCase, MistralClientAdapter, controllers e,
+     *       {@code traducao} (ProcessarArquivoUseCase, LlmClientAdapter, controllers e,
      *       desde a E8c.1, {@code LoreAtivaContextoAdapter}) — migrou do {@code traducao} para
      *       o peer na E7b. Na E8c.1 o {@code DetectorTraducaoIdenticaService} deixou de
      *       consumi-lo diretamente (saiu para {@code qualidadeTraducao} e passou a depender da
@@ -230,7 +230,7 @@ class FronteiraTraducaoArchTest {
      *       {@code GerenciadorContexto} permanece consumido por traducao e no congelamento.</li>
      *   <li>{@code ProvedorContexto}: {@code PipelineController.getProvedores()}
      *       (lambda {@code p -> new ContextoResponse(p.getId()...)}).</li>
-     *   <li>{@code RegrasConcordanciaPtBr}: {@code MistralClientAdapter} (bloco de tradução
+     *   <li>{@code RegrasConcordanciaPtBr}: {@code LlmClientAdapter} (bloco de tradução
      *       e prompt de revisão de concordância).</li>
      * </ul>
      * SAÍRAM na E7b (deixaram de ser consumidos diretamente por {@code traducao}, pois só o
@@ -541,7 +541,7 @@ class FronteiraTraducaoArchTest {
         }
         assertTrue(violacoes.isEmpty(),
             () -> "revisaoLore não pode importar a stack LLM/contexto da Tradução Local "
-                + "(MistralPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsMistral/MistralClientAdapter/"
+                + "(LlmPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsLlm/LlmClientAdapter/"
                 + "GerenciadorContexto). As demais entradas ficam para a FASE E. Violações:\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }

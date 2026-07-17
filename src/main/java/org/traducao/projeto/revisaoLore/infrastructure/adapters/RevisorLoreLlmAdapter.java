@@ -25,7 +25,7 @@ import java.util.Optional;
  * PROPÓSITO DE NEGÓCIO: adapter LLM próprio da Revisão de Lore. Implementa a
  * única interação com o modelo local de que a fatia precisa — checar
  * disponibilidade e revisar a terminologia de lore de uma fala —, replicando o
- * comportamento efetivo anterior (antes exposto por {@code MistralPort.revisarLore})
+ * comportamento efetivo anterior (antes exposto por {@code LlmPort.revisarLore})
  * sem depender da stack LLM da Tradução Local.
  *
  * <h2>Invariantes do domínio</h2>

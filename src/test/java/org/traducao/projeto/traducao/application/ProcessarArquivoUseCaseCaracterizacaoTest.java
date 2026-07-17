@@ -11,7 +11,7 @@ import org.traducao.projeto.traducao.domain.TraducaoLote;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
-import org.traducao.projeto.traducao.domain.ports.MistralPort;
+import org.traducao.projeto.traducao.domain.ports.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
@@ -97,16 +97,16 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: nunca falha por rede; as respostas são
      * puramente locais e reprodutíveis.
      */
-    private static final class FakeMistralPort implements MistralPort {
+    private static final class FakeLlmPort implements LlmPort {
         private static final Pattern TOKEN = Pattern.compile("\\[\\[[^\\]]*\\]\\]");
         final AtomicInteger chamadas = new AtomicInteger();
         private final boolean interromperNaPrimeira;
 
-        FakeMistralPort() {
+        FakeLlmPort() {
             this(false);
         }
 
-        FakeMistralPort(boolean interromperNaPrimeira) {
+        FakeLlmPort(boolean interromperNaPrimeira) {
             this.interromperNaPrimeira = interromperNaPrimeira;
         }
 
@@ -119,7 +119,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
             int chamada = chamadas.incrementAndGet();
             List<String> saida = lote.linhasOriginais().stream()
-                .map(FakeMistralPort::traduzirLinha)
+                .map(FakeLlmPort::traduzirLinha)
                 .toList();
             if (interromperNaPrimeira && chamada == 1) {
                 // Reproduz o clique em "Parar" logo após concluir o primeiro lote:
@@ -175,11 +175,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override public String obterPromptSistema() { return "Traduza fielmente para PT-BR."; }
     }
 
-    private ProcessarArquivoUseCase montar(FakeMistralPort llm) {
+    private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }
 
-    private ProcessarArquivoUseCase montar(FakeMistralPort llm, ConsoleUILogger uiLogger) {
+    private ProcessarArquivoUseCase montar(FakeLlmPort llm, ConsoleUILogger uiLogger) {
         LeitorLegendaAss leitorAss = new LeitorLegendaAss();
         EscritorLegendaAss escritorAss = new EscritorLegendaAss();
         LeitorLegendaSrt leitorSrt = new LeitorLegendaSrt();
@@ -258,7 +258,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     @Test
     void assFluxoCompletoCacheMissConcluido() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort();
+        FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
 
@@ -282,11 +282,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     void assSegundaExecucaoReutilizaCacheSemChamarLlm() throws Exception {
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
 
-        FakeMistralPort primeira = new FakeMistralPort();
+        FakeLlmPort primeira = new FakeLlmPort();
         montar(primeira).processar(entrada, false);
         assertEquals(1, primeira.chamadas.get());
 
-        FakeMistralPort segunda = new FakeMistralPort();
+        FakeLlmPort segunda = new FakeLlmPort();
         ResultadoTraducaoArquivo r = montar(segunda).processar(entrada, false);
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
@@ -299,7 +299,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     @Test
     void srtFluxoCompletoConcluido() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort();
+        FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverSrt("ep.srt", "Hello there", "How are you");
 
@@ -318,7 +318,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     @Test
     void assLinhaNaoTraduzidaGeraParcial() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort();
+        FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
@@ -350,7 +350,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     @Test
     void falhaNaPublicacaoAtomicaNaoPublicaNemDeixaTemporario() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort();
+        FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
@@ -397,7 +397,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     @Test
     void cancelamentoNoMeioPreservaProgressoParcialDoPrimeiroLote() throws Exception {
-        FakeMistralPort llm = new FakeMistralPort(true);
+        FakeLlmPort llm = new FakeLlmPort(true);
         ProcessarArquivoUseCase uc = montar(llm, new ConsoleUILoggerSilencioso());
         // 21 falas distintas e traduzíveis: com tamanhoLote=20, geram 2 lotes
         // (20 + 1); o primeiro conclui, o segundo nunca é enviado.
