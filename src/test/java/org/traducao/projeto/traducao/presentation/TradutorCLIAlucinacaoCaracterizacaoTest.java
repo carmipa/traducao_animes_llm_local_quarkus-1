@@ -4,9 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
-import org.traducao.projeto.traducao.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -51,8 +51,8 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
 
     /** LLM disponível — só precisa passar pela verificação inicial do CLI. */
     private static final class LlmDisponivel implements LlmPort {
-        @Override public org.traducao.projeto.traducao.domain.TraducaoLote traduzir(
-            org.traducao.projeto.traducao.domain.Lote lote) { return null; }
+        @Override public org.traducao.projeto.llm.domain.TraducaoLote traduzir(
+            org.traducao.projeto.llm.domain.Lote lote) { return null; }
         @Override public StatusLlm verificarDisponibilidade() { return new StatusLlm(true, true, "modelo carregado"); }
         @Override public Optional<String> revisarConcordancia(String a, String b, List<String> c) { return Optional.empty(); }
         @Override public Optional<String> corrigirTraducao(String a, String b, String c) { return Optional.empty(); }

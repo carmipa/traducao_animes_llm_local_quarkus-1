@@ -13,8 +13,8 @@ import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemRevisao.application.ResultadoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase;
-import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
 import java.nio.file.Path;

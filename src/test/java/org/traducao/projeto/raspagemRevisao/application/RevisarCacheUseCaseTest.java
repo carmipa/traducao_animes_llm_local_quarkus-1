@@ -11,10 +11,10 @@ import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAd
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
-import org.traducao.projeto.traducao.domain.Lote;
-import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.TraducaoLote;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.Lote;
+import org.traducao.projeto.llm.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.TraducaoLote;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;

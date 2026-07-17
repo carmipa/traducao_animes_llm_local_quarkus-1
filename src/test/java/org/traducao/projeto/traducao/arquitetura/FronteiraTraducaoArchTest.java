@@ -98,6 +98,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_CACHETRADUCAO = "cachetraducao";
     private static final String FATIA_CONTEXTO = "contexto";
     private static final String FATIA_QUALIDADETRADUCAO = "qualidadeTraducao";
+    private static final String FATIA_LLM = "llm";
 
     // Origens (produção, em traducao) ainda referenciadas pelos testes.
     private static final String PROCESSAR_ARQUIVO = RAIZ + ".traducao.application.ProcessarArquivoUseCase";
@@ -108,12 +109,15 @@ class FronteiraTraducaoArchTest {
     // fatias proprietárias (traducaoCorrige / raspagemRevisao / telemetria .presentation.web).
     // Com isso, as 9 arestas funcionais de saída foram ELIMINADAS e a allowlist ficou VAZIA.
 
-    // Pacote da fatia Revisão de Lore e os tipos da Tradução Local que a stack
-    // LLM própria dela NÃO pode importar (D-Lore).
+    // Pacote da fatia Revisão de Lore e os tipos que a stack LLM própria dela NÃO pode
+    // importar (D-Lore). Após a E8d, o contrato do LLM e seus records vivem no peer
+    // {@code llm.domain}; a proibição acompanha os novos FQNs para continuar impedindo que
+    // revisaoLore volte a acoplar-se à stack LLM compartilhada (porta, status, properties,
+    // DTOs, adapter concreto e o gerenciador de contexto).
     private static final String PKG_REVISAO_LORE = RAIZ + ".revisaoLore";
     private static final Set<String> REVISAO_LORE_PROIBIDOS = Set.of(
-        RAIZ + ".traducao.domain.ports.LlmPort",
-        RAIZ + ".traducao.domain.StatusLlm",
+        RAIZ + ".llm.domain.LlmPort",
+        RAIZ + ".llm.domain.StatusLlm",
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
         RAIZ + ".traducao.infrastructure.dtos.RecordsLlm",
         LLM_ADAPTER,
@@ -274,6 +278,29 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".qualidadeTraducao.domain.LoreAtivaPort"
     );
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: superfície do peer de topo {@code llm} (E8d) congelada POR TIPO
+     * com igualdade EXATA, SEPARADA dos demais peers. A Tradução Local só pode depender
+     * nominalmente destes tipos; qualquer tipo extra reprova até autorização explícita (sem
+     * liberação genérica do pacote {@code llm}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: contém apenas os tipos que a fatia {@code traducao} consome
+     * de fato (medido) — o contrato {@code LlmPort} e seus records {@code Lote},
+     * {@code TraducaoLote} e {@code StatusLlm} — via {@code LlmClientAdapter} (ponto de
+     * composição), use cases e presentation. O adapter permanece em
+     * {@code traducao.infrastructure}; por isso traducao consome o peer {@code llm}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #llmCongeladoPorTipo()} exige igualdade
+     * {@code tiposUsados == LLM_TIPOS_CONGELADOS}, reprovando tanto tipo novo inesperado
+     * quanto entrada obsoleta na allowlist.
+     */
+    private static final Set<String> LLM_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".llm.domain.LlmPort",
+        RAIZ + ".llm.domain.Lote",
+        RAIZ + ".llm.domain.StatusLlm",
+        RAIZ + ".llm.domain.TraducaoLote"
+    );
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -310,7 +337,7 @@ class FronteiraTraducaoArchTest {
                 if (fatia == null || fatia.equals(FATIA_TRADUCAO) || fatia.equals(FATIA_CORE)
                     || fatia.equals(FATIA_CONFIG) || fatia.equals(FATIA_LEGENDA)
                     || fatia.equals(FATIA_CACHETRADUCAO) || fatia.equals(FATIA_CONTEXTO)
-                    || fatia.equals(FATIA_QUALIDADETRADUCAO)) {
+                    || fatia.equals(FATIA_QUALIDADETRADUCAO) || fatia.equals(FATIA_LLM)) {
                     continue; // core, config, legenda, cachetraducao, contexto e qualidadeTraducao (peers) e interno tratados em testes próprios
                 }
                 reais.add(aresta(origem, destino));
@@ -519,6 +546,48 @@ class FronteiraTraducaoArchTest {
                 + String.join("\n", new TreeSet<>(violacoes)));
         assertEquals(new TreeSet<>(QUALIDADE_TRADUCAO_TIPOS_CONGELADOS), tiposQualidadeUsados,
             "QUALIDADE_TRADUCAO_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos consumidos por traducao");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que a Tradução Local consome do peer {@code llm} EXATAMENTE
+     * os tipos homologados em {@link #LLM_TIPOS_CONGELADOS} — o contrato do LLM extraído na
+     * E8d — sem liberação genérica do pacote.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: varre toda a fatia {@code traducao} (inclusive
+     * infrastructure), normaliza classes aninhadas ao top-level proprietário e mede os tipos
+     * de {@code llm} realmente consumidos. O adapter {@code LlmClientAdapter}, em
+     * {@code traducao.infrastructure}, é o principal consumidor (ponto de composição).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reprova por tipo inesperado, por entrada obsoleta ou
+     * por qualquer divergência da igualdade EXATA {@code tiposUsados == LLM_TIPOS_CONGELADOS}.
+     */
+    @Test
+    @DisplayName("llm é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente LlmPort, Lote, TraducaoLote e StatusLlm (E8d)")
+    void llmCongeladoPorTipo() {
+        List<String> violacoes = new ArrayList<>();
+        Set<String> tiposLlmUsados = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (FATIA_LLM.equals(fatiaDe(dependencia.getTargetClass().getPackageName()))) {
+                    tiposLlmUsados.add(destino);
+                    if (!LLM_TIPOS_CONGELADOS.contains(destino)) {
+                        violacoes.add(origem + " -> " + destino);
+                    }
+                }
+            }
+        }
+        assertFalse(tiposLlmUsados.isEmpty(),
+            "Esperado uso do peer llm pela Tradução Local (E8d: LlmPort/Lote/TraducaoLote/StatusLlm via LlmClientAdapter)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Tipo de llm fora dos homologados (LLM_TIPOS_CONGELADOS):\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
+        assertEquals(new TreeSet<>(LLM_TIPOS_CONGELADOS), tiposLlmUsados,
+            "LLM_TIPOS_CONGELADOS deve ser EXATAMENTE igual ao conjunto de tipos de llm consumidos por traducao");
     }
 
     @Test

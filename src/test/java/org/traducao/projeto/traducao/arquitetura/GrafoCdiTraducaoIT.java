@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.traducao.projeto.config.ModoExecucaoStartup;
 import org.traducao.projeto.legendasExtracao.application.strategy.ExtratorStrategy;
 import org.traducao.projeto.legendasExtracao.domain.ports.ExtratorVideoPort;
+import org.traducao.projeto.llm.domain.LlmPort;
+import org.traducao.projeto.traducao.infrastructure.adapters.LlmClientAdapter;
 import org.traducao.projeto.traducao.presentation.TradutorCLI;
 import org.traducao.projeto.traducao.presentation.bootstrap.TraducaoStartup;
 
@@ -70,6 +72,9 @@ class GrafoCdiTraducaoIT {
     @Inject
     Instance<TraducaoStartup> traducaoStartup;
 
+    @Inject
+    Instance<LlmPort> llmPort;
+
     @Test
     @DisplayName("ObjectMapper é resolvido sem ambiguidade impeditiva no baseline")
     void objectMapperResolvidoSemAmbiguidade() throws Exception {
@@ -125,8 +130,23 @@ class GrafoCdiTraducaoIT {
         assertFalse(extratoresStrategy.isEmpty(), "Esperado ao menos um ExtratorStrategy registrado");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: caracteriza, em runtime CDI, o bootstrap do modo TRADUZIR e o
+     * PONTO DE COMPOSIÇÃO da E8d — o contrato {@link LlmPort} (peer {@code llm}) é resolvido
+     * por um único bean de produção, o {@link LlmClientAdapter}, que permanece em
+     * {@code traducao.infrastructure}. Assim a extração do contrato para o peer {@code llm}
+     * não quebra a injeção: a fatia que possui o adapter continua fornecendo a implementação.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: dispatcher compartilhado e observador próprio coexistem;
+     * {@link LlmPort} é resolvível sem ambiguidade ({@code isResolvable()} exige bean único),
+     * {@code get()} não é nulo e a implementação resolvida é {@link LlmClientAdapter}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ambiguidade, ausência de bean ou implementação
+     * inesperada reprovam. A verificação da implementação usa {@code instanceof}, tolerando
+     * proxy CDI (subclasse gerada), em vez de igualdade rígida de {@code getClass()}.
+     */
     @Test
-    @DisplayName("Bootstrap do modo TRADUZIR: dispatcher compartilhado e observador próprio coexistem")
+    @DisplayName("Bootstrap do modo TRADUZIR e ponto de composição E8d: LlmPort resolve como LlmClientAdapter (bean único)")
     void dispatcherModoTraduzirBaseline() {
         assertTrue(modoExecucaoStartup.isResolvable(),
             "ModoExecucaoStartup (dispatcher compartilhado dos demais modos CLI) deve existir");
@@ -135,5 +155,15 @@ class GrafoCdiTraducaoIT {
         assertTrue(traducaoStartup.isResolvable(),
             "Após D-Config, o ciclo de vida do modo TRADUZIR pertence ao observador próprio "
                 + "TraducaoStartup (fatia Tradução Local), que deve ser resolvível no container");
+
+        // Ponto de composição E8d: LlmPort (peer llm) resolve, sem ambiguidade, para o
+        // único bean de produção LlmClientAdapter, que fica em traducao.infrastructure.
+        assertTrue(llmPort.isResolvable(),
+            "LlmPort (peer llm) deve resolver como bean ÚNICO — sem ambiguidade — no container");
+        LlmPort implementacaoResolvida = llmPort.get();
+        assertNotNull(implementacaoResolvida, "LlmPort resolvido não pode ser null");
+        assertTrue(implementacaoResolvida instanceof LlmClientAdapter,
+            "A implementação de produção de LlmPort deve ser LlmClientAdapter (instanceof tolera proxy CDI). "
+                + "Encontrado: " + implementacaoResolvida.getClass().getName());
     }
 }

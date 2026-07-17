@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
  * <ul>
- *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13. Mesmo
+ *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13, pos-E8d = 0. Mesmo
  *       rigor do OUTBOUND; fonte de verdade da fronteira.</li>
  *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b = 139, pos-E3c = 135, pos-E4a =
- *       129, pos-E4b = 123, pos-E5a = 85, pos-E5c = 73, pos-E6 = 57, pos-E7b = 49, pos-E8a = 41, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
+ *       129, pos-E4b = 123, pos-E5a = 85, pos-E5c = 73, pos-E6 = 57, pos-E7b = 49, pos-E8a = 41, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13, pos-E8d = 0. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
  *       inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
  *       registra no grafo).</li>
  * </ul>
@@ -73,6 +73,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code GerenciadorContexto} e assume, dentro de traducao, a dependencia de contexto que
  * era do detector. Nenhuma das duas era catch-only, entao bytecode e texto seguem iguais.
  *
+ * <p>Nota E8d: as treze arestas outras-fatias -> contrato do LLM sairam do INBOUND
+ * (13->0 bytecode e texto), ZERANDO a fronteira de entrada da fatia traducao. Os quatro
+ * tipos ({@code LlmPort} com 7 arestas, {@code StatusLlm} com 4, {@code Lote} com 1 e
+ * {@code TraducaoLote} com 1) migraram para o peer de topo {@code llm.domain}; os
+ * consumidores (correcaoLegendas, raspagemRevisao x3, traducaoCorrige, traducaoKaraoke)
+ * passaram a apontar para {@code llm}, nao mais para {@code traducao}. O adapter concreto
+ * {@code LlmClientAdapter} permanece em {@code traducao.infrastructure} (ponto de
+ * composicao) implementando {@code llm.domain.LlmPort}. Marco: traducao deixa de possuir
+ * qualquer dependencia de entrada — allowlist VAZIA, igualdade exata 0/0.
+ *
  * <p>Nota E5a (historica): a aresta generica AuditorConteudoUseCase -> EventoLegenda
  * (antes {@code GENERICA_AUDITOR}, visivel so no bytecode via DocumentoLegenda.eventos())
  * deixou de existir na fronteira de traducao — ambos os modelos migraram para o
@@ -88,22 +98,12 @@ class FronteiraInboundArchTest {
     private static final String FATIA_TRADUCAO = "traducao";
     private static final String PKG_TRADUCAO = RAIZ + ".traducao";
 
-    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 13 apos E8c.1. */
-    private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of(
-        aresta("org.traducao.projeto.correcaoLegendas.application.CorretorTraducaoLlmService", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.StatusLlm"),
-        aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController", "org.traducao.projeto.traducao.domain.StatusLlm"),
-        aresta("org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController", "org.traducao.projeto.traducao.domain.StatusLlm"),
-        aresta("org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController", "org.traducao.projeto.traducao.domain.ports.LlmPort"),
-        aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.Lote"),
-        aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.StatusLlm"),
-        aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.TraducaoLote"),
-        aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.ports.LlmPort")
-    );
+    /**
+     * Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. VAZIO apos a E8d:
+     * a fatia traducao deixou de possuir qualquer dependencia de entrada proveniente de
+     * outras fatias. Qualquer nova aresta outra-fatia -> traducao passa a reprovar.
+     */
+    private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of();
 
     private static final String ALVO_INBOUND = RAIZ + ".traducao.";
 
@@ -117,7 +117,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 13")
+    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 0")
     void inboundBytecodeBateComBaseline() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -147,7 +147,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 13")
+    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 0")
     void inboundTextualBateComInventario() {
         Set<String> reais = coletarImportsInboundDoFonte();
         Set<String> inesperadas = new TreeSet<>(reais);

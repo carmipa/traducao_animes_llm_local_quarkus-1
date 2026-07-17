@@ -1,6 +1,6 @@
 package org.traducao.projeto.traducao.domain.exceptions;
 
-import org.traducao.projeto.traducao.domain.TraducaoLote;
+import org.traducao.projeto.llm.domain.TraducaoLote;
 import java.util.List;
 import java.util.Map;
 

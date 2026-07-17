@@ -27,7 +27,7 @@ tradutor:
     # "current" e proposital: usar o id exato do modelo aqui faz o LM Studio
     # abrir uma segunda instancia via auto-load (JIT) toda vez que o valor nao
     # bate com a instancia ja carregada. O app adapta em runtime para o que
-    # estiver carregado (ver MistralClientAdapter.verificarDisponibilidade).
+    # estiver carregado (ver LlmClientAdapter.verificarDisponibilidade).
     # Troque o modelo pela UI/lms do LM Studio, nao aqui.
     model: "current"
     temperature: 0.3
