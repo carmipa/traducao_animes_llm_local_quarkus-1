@@ -220,7 +220,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, mascarador, cache,
             episodio, validador, detectorIdentica, props, new PoliticaEstiloMusical(List.of()), llmProps, uiLogger,
-            pastas, telemetria, detectorKaraoke, protecao, gerenciador);
+            pastas, telemetria, detectorKaraoke, protecao, gerenciador, new ResolvedorSaidaLegenda());
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
