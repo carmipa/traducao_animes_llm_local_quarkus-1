@@ -24,9 +24,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -194,5 +198,99 @@ class TraduzirKaraokeUseCaseTest {
         assertEquals(1, r.preservadasOriginalJapones());
         assertEquals(1, r.paraTraduzir());
         assertEquals(0, r.traduzidas());
+    }
+
+    /** LLM fake que bloqueia na PRIMEIRA chamada até ser liberado, registrando os ids de lote. */
+    static class LlmPortBloqueante implements LlmPort {
+        final List<Integer> idsObservados = Collections.synchronizedList(new ArrayList<>());
+        final CountDownLatch primeiraChamadaIniciou = new CountDownLatch(1);
+        final CountDownLatch liberar = new CountDownLatch(1);
+        private volatile boolean primeira = true;
+
+        @Override
+        public TraducaoLote traduzir(Lote lote) {
+            idsObservados.add(lote.idLote());
+            if (primeira) {
+                primeira = false;
+                primeiraChamadaIniciou.countDown();
+                try {
+                    liberar.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            return new TraducaoLote(lote.idLote(), List.of("Tradução simulada"), true, null);
+        }
+
+        @Override
+        public StatusLlm verificarDisponibilidade() {
+            return new StatusLlm(true, true, "modelo de teste carregado");
+        }
+
+        @Override
+        public Optional<String> revisarConcordancia(String original, String traducao, List<String> problemas) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<String> corrigirTraducao(String original, String traducao, String motivo) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que o contador de lotes é isolado por execução — o defeito
+     * corrigido na FASE I.3 permitia que um {@code simular} concorrente (fora da fila)
+     * resetasse o contador de um {@code aplicar} em curso (na fila), corrompendo os ids de lote.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa a MESMA instância singleton; o LLM bloqueia a 1ª chamada
+     * do {@code aplicar} via {@link CountDownLatch} enquanto {@code simular} roda na mesma
+     * instância; os ids observados pelo LLM devem ser exatamente {@code [1, 2]} — {@code simular}
+     * não perturba o contador nem chama o LLM nem grava saída. Determinístico, sem {@code sleep}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: na implementação antiga (campo de instância
+     * {@code sequencialLote}) o {@code simular} zera o contador e o 2º lote reaparece como id 1,
+     * reprovando a asserção {@code [1, 2]}; com o contador local atual, passa.
+     */
+    @Test
+    void contadorDeLotesIsoladoEntreSimularEAplicarConcorrentes() throws Exception {
+        escreverLegendaDuasLinhasInglesas(pastaEntrada.resolve(NOME_ARQUIVO));
+        LlmPortBloqueante fake = new LlmPortBloqueante();
+        useCase.llmPort = fake;
+
+        Thread aplicador = new Thread(() -> useCase.aplicar(pastaEntrada, null), "aplicar-karaoke-teste");
+        aplicador.start();
+
+        assertTrue(fake.primeiraChamadaIniciou.await(10, TimeUnit.SECONDS),
+            "a primeira chamada ao LLM do aplicar deveria ter iniciado");
+
+        int chamadasAntes = fake.idsObservados.size();
+        List<ResultadoTraducaoKaraoke> simulacao = useCase.simular(pastaEntrada, null);
+        int chamadasDepois = fake.idsObservados.size();
+
+        assertEquals(1, chamadasAntes, "apenas a 1ª chamada do aplicar deve estar em curso");
+        assertEquals(chamadasAntes, chamadasDepois, "simular não pode chamar o LLM");
+        assertNull(simulacao.getFirst().arquivoDestino(), "simular não pode gravar saída");
+
+        fake.liberar.countDown();
+        aplicador.join(10_000);
+        assertFalse(aplicador.isAlive(), "aplicar deveria ter concluído");
+
+        assertEquals(List.of(1, 2), List.copyOf(fake.idsObservados),
+            "os ids de lote observados pelo LLM devem ser exatamente [1, 2]; "
+            + "simular concorrente não pode reiniciar o contador do aplicar");
+    }
+
+    private void escreverLegendaDuasLinhasInglesas(Path destino) throws IOException {
+        String conteudo = String.join("\r\n",
+            "[Script Info]",
+            "Title: Teste",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:01:00.00,0:01:05.00,OP - English,,0,0,0,,The night sky is calling me",
+            "Dialogue: 0,0:01:06.00,0:01:10.00,OP - English,,0,0,0,,Hold my hand and never let go",
+            "");
+        Files.writeString(destino, conteudo, StandardCharsets.UTF_8);
     }
 }
