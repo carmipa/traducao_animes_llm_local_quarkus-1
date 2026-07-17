@@ -45,7 +45,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 
 /**
  * PROPÓSITO DE NEGÓCIO: orquestra a tradução de uma legenda, reaproveitando o
@@ -89,6 +88,7 @@ public class ProcessarArquivoUseCase {
     private final ProtecaoLegendaAssService protecaoAss;
     private final GerenciadorContexto gerenciadorContexto;
     private final ResolvedorSaidaLegenda resolvedorSaida;
+    private final ResolvedorCacheTraducao resolvedorCache;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -109,7 +109,8 @@ public class ProcessarArquivoUseCase {
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
         GerenciadorContexto gerenciadorContexto,
-        ResolvedorSaidaLegenda resolvedorSaida
+        ResolvedorSaidaLegenda resolvedorSaida,
+        ResolvedorCacheTraducao resolvedorCache
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -130,29 +131,7 @@ public class ProcessarArquivoUseCase {
         this.protecaoAss = protecaoAss;
         this.gerenciadorContexto = gerenciadorContexto;
         this.resolvedorSaida = resolvedorSaida;
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: Carimbo de origem da tradução em cache — qual lore,
-     * hash do prompt de sistema, modelo e idiomas estão em vigor nesta execução.
-     * É o que impede o cache de reusar traduções feitas com um lore diferente.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: o hash reflete o prompt ativo inteiro; qualquer
-     * mudança de lore/regra o altera e invalida o cache antigo.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; se não houver contexto ativo,
-     * {@code contextoId} vem nulo e o {@code hashDe} do prompt padrão ainda é
-     * calculado — a comparação de proveniência trata nulos como divergência.
-     */
-    private ProvenienciaCache provenienciaAtual() {
-        return new ProvenienciaCache(
-            ProvenienciaCache.SCHEMA_ATUAL,
-            gerenciadorContexto.obterIdContextoAtivo(),
-            ProvenienciaCache.hashDe(gerenciadorContexto.obterPromptAtivo()),
-            llmPropriedades.model(),
-            propriedades.idiomaOriginal(),
-            propriedades.idiomaTraduzido()
-        );
+        this.resolvedorCache = resolvedorCache;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -180,8 +159,8 @@ public class ProcessarArquivoUseCase {
         log.info("Lendo arquivo de legenda: {}", arquivoEntrada);
         DocumentoLegenda documento = ehSrt ? leitorSrt.ler(arquivoEntrada) : leitor.ler(arquivoEntrada);
 
-        Path arquivoCache = resolverArquivoCache(arquivoEntrada);
-        ProvenienciaCache proveniencia = provenienciaAtual();
+        Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada);
+        ProvenienciaCache proveniencia = resolvedorCache.provenienciaAtual();
         if (permitirRetraducao && Files.exists(arquivoCache)) {
             Path raizBackupCache = Path.of("backups", "traducao-cache").toAbsolutePath().normalize();
             try {
@@ -355,7 +334,7 @@ public class ProcessarArquivoUseCase {
         salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
 
         long tempoTotalMs = System.currentTimeMillis() - inicioMs;
-        String animeNome = animeAPartirDoArquivo(arquivoEntrada);
+        String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);
         String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
         int traducoesNovasValidas = (int) traducoesNovas.entrySet().stream()
             .filter(e -> {
@@ -375,7 +354,7 @@ public class ProcessarArquivoUseCase {
             tempoTotalMs,
             List.copyOf(avisos),
             animeNome,
-            temporadaAPartirDoNome(animeNome),
+            resolvedorCache.temporadaAPartirDoNome(animeNome),
             java.time.Instant.now().toString(),
             loreNome,
             status.name()
@@ -736,46 +715,4 @@ public class ProcessarArquivoUseCase {
         return backup;
     }
 
-    private Path resolverArquivoCache(Path entrada) {
-        String nome = entrada.getFileName().toString();
-        String extensao = resolvedorSaida.extensaoLegenda(nome);
-        String base = nome.substring(0, nome.length() - extensao.length());
-        String animeNome = animeAPartirDoArquivo(entrada);
-        return pastasExecucao.diretorioCache().resolve(animeNome).resolve(base + ".cache.json");
-    }
-
-    /**
-     * Deriva o nome do anime a partir da pasta-avó do arquivo de legenda
-     * (arquivo dentro de "&lt;AnimeFolder&gt;/legendas_originais/arquivo.ass"),
-     * mesma convenção de duas pastas acima já usada por
-     * {@code TradutorProperties.resolverDiretorioCache()} para nomear o cache.
-     */
-    private String animeAPartirDoArquivo(Path arquivoEntrada) {
-        Path pastaEntrada = arquivoEntrada.getParent();
-        Path pastaAnime = pastaEntrada != null ? pastaEntrada.getParent() : null;
-        if (pastaAnime != null && pastaAnime.getFileName() != null) {
-            return pastaAnime.getFileName().toString();
-        }
-        if (pastaEntrada != null && pastaEntrada.getFileName() != null) {
-            return pastaEntrada.getFileName().toString();
-        }
-        return "Desconhecido";
-    }
-
-    private static final Pattern PADRAO_TEMPORADA = Pattern.compile("(?i)(?:season|temporada|\\bs)\\s*0*(\\d{1,2})\\b");
-
-    /**
-     * Extrai um marcador de temporada (ex.: "Season 04", "S04") do nome da
-     * pasta do anime, quando presente. Sem marcador, agrupa como temporada única.
-     */
-    private String temporadaAPartirDoNome(String animeNome) {
-        if (animeNome == null) {
-            return "Temporada Única";
-        }
-        var matcher = PADRAO_TEMPORADA.matcher(animeNome);
-        if (matcher.find()) {
-            return "Temporada " + Integer.parseInt(matcher.group(1));
-        }
-        return "Temporada Única";
-    }
 }

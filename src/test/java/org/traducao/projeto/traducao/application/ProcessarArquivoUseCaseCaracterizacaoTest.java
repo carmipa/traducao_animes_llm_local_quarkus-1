@@ -217,10 +217,14 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarEpisodioUseCase episodio =
             new ProcessarEpisodioUseCase(llm, validador, uiLogger, telemetria);
 
+        ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
+        ResolvedorCacheTraducao resolvedorCache =
+            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
+
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, mascarador, cache,
             episodio, validador, detectorIdentica, props, new PoliticaEstiloMusical(List.of()), llmProps, uiLogger,
-            pastas, telemetria, detectorKaraoke, protecao, gerenciador, new ResolvedorSaidaLegenda());
+            pastas, telemetria, detectorKaraoke, protecao, gerenciador, resolvedorSaida, resolvedorCache);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -487,7 +491,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         String letreiro = "{\\clip(0,0,300,300)\\t(0,1000,\\frx360)\\pos(20,20)}Hi";
         Path entrada = escreverAss("ep.ass", letreiro, letreiro, letreiro, letreiro, letreiro);
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        uc.processar(entrada, false);
 
         assertEquals(0, llm.chamadas.get(), "letreiro animado repetido nao deve ir ao LLM");
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
@@ -522,7 +526,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             List.of(new EntradaCache(0, "Default", "Hello there", "Hello there", "en", "pt-BR")));
 
         FakeLlmPort llm = new FakeLlmPort();
-        ResultadoTraducaoArquivo r = montar(llm).processar(entrada, false);
+        montar(llm).processar(entrada, false);
 
         assertEquals(1, llm.chamadas.get(),
             "fala em cache que aparenta nao-traduzida deve ser reenviada ao LLM");
