@@ -9,6 +9,7 @@ import org.traducao.projeto.mapaProjeto.domain.exceptions.MapaProjetoException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -118,5 +119,52 @@ class GeradorMapaProjetoUseCaseTest {
         assertFalse(GeradorMapaProjetoUseCase.deveIgnorar("src"));
         assertFalse(GeradorMapaProjetoUseCase.deveIgnorar("Servico.java"));
         assertFalse(GeradorMapaProjetoUseCase.deveIgnorar("application.properties"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que a taxonomia do mapa preserva a legibilidade
+     * do cabeçalho (indentação nas linhas com conteúdo) sem poluir o artefato com
+     * linhas compostas apenas por espaços — ruído que inchava o diff e atrapalhava a
+     * leitura por humanos e LLMs.
+     * <p>INVARIANTES DO DOMÍNIO: para um Javadoc com linha em branco no meio, o mapa
+     * gerado (a) mantém o conteúdo documental, (b) não contém NENHUMA linha que
+     * satisfaça {@code ^\s+$} (só-whitespace) e (c) ainda admite linhas realmente
+     * vazias como separadores legítimos.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se {@code montarTaxonomia} voltar a emitir
+     * indentação em linha documental vazia, a asserção de {@code ^\s+$} reprova,
+     * apontando a regressão na origem do gerador.
+     */
+    @Test
+    void executarNaoEmiteLinhasCompostasSoPorWhitespace(@TempDir Path raiz) throws IOException {
+        Path pacote = raiz.resolve("src").resolve("main").resolve("java").resolve("app");
+        Files.createDirectories(pacote);
+        // Javadoc multilinha com uma LINHA EM BRANCO entre blocos — o gatilho do defeito.
+        Files.writeString(pacote.resolve("Servico.java"),
+            "package app;\n"
+                + "/**\n"
+                + " * Primeira linha de conteudo do cabecalho.\n"
+                + " *\n"
+                + " * Segunda linha apos uma linha vazia.\n"
+                + " */\n"
+                + "public class Servico {}\n");
+
+        geradorMapaProjetoUseCase.executar(raiz);
+
+        Path destino = raiz.resolve("mapa_projeto.md");
+        List<String> linhasMapa = Files.readAllLines(destino);
+
+        // (a) conteúdo documental continua presente
+        assertTrue(linhasMapa.stream().anyMatch(l -> l.contains("Primeira linha de conteudo do cabecalho.")),
+            "a primeira linha do cabeçalho deveria aparecer na taxonomia");
+        assertTrue(linhasMapa.stream().anyMatch(l -> l.contains("Segunda linha apos uma linha vazia.")),
+            "a linha após a vazia deveria aparecer na taxonomia");
+
+        // (b) nenhuma linha composta APENAS por whitespace
+        assertFalse(linhasMapa.stream().anyMatch(l -> l.matches("\\s+")),
+            "o mapa não pode conter nenhuma linha composta somente por whitespace (^\\s+$)");
+
+        // (c) linhas realmente vazias continuam possíveis (separadores legítimos)
+        assertTrue(linhasMapa.stream().anyMatch(l -> l.isEmpty()),
+            "linhas vazias legítimas devem continuar existindo no mapa");
     }
 }
