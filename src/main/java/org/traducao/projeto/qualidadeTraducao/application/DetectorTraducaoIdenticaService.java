@@ -1,26 +1,34 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Decide se uma fala pode legitimamente permanecer idêntica ao original (nomes
- * próprios, números, siglas, termos de lore) ou se a igualdade é sinal de que o
- * LLM simplesmente devolveu a fala sem traduzir. Além da lista global fixa,
- * consulta os termos protegidos do lore ATIVO ({@link GerenciadorContexto}),
- * para que um termo novo anexado ao contexto selecionado seja protegido sem
- * precisar editar este detector.
+ * PROPÓSITO DE NEGÓCIO: decide se uma fala pode legitimamente permanecer idêntica ao
+ * original (nomes próprios, números, siglas, termos de lore) ou se a igualdade é sinal
+ * de que o LLM simplesmente devolveu a fala sem traduzir. Impede que manutenção ou
+ * retomada do cache apague nomes canônicos e, simultaneamente, não aceite frases
+ * inglesas como tradução. Além da lista global fixa, consulta os termos protegidos e a
+ * lore do contexto ATIVO através da porta {@link LoreAtivaPort}, para que um termo novo
+ * anexado ao contexto selecionado seja protegido sem editar este detector — e sem que o
+ * peer {@code qualidadeTraducao} dependa da fatia {@code contexto}.
  *
- * <p>PROPÓSITO DE NEGÓCIO: impedir que manutenção ou retomada do cache apague
- * nomes canônicos e, simultaneamente, não aceite frases inglesas como tradução.
- * <p>INVARIANTES DO DOMÍNIO: a lore ativa é a fonte dos termos protegidos;
- * expressões conversacionais comuns continuam exigindo tradução.
- * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem evidência suficiente é preservado
- * para evitar uma decisão destrutiva.
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>A lore ativa (via porta) é a fonte dos termos protegidos; expressões
+ *       conversacionais comuns continuam exigindo tradução.</li>
+ *   <li>A precedência das verificações é preservada: limpeza de tags, gagueira e
+ *       pontuação; caso de caractere único; palavra única; então lore ativa e, por fim,
+ *       heurística de capitalização.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Texto sem evidência suficiente é preservado para evitar uma decisão destrutiva; a
+ * porta não lança, então lore/termos ausentes apenas recaem nas heurísticas globais.
  */
 @Service
 public class DetectorTraducaoIdenticaService {
@@ -29,10 +37,19 @@ public class DetectorTraducaoIdenticaService {
     private static final Pattern PADRAO_GAGUEIRA_NOME = Pattern.compile(
         "(?iu)(?<![\\p{L}\\p{N}])([\\p{L}])-(?=\\1[\\p{L}])");
 
-    private final GerenciadorContexto gerenciadorContexto;
+    private final LoreAtivaPort loreAtiva;
 
-    public DetectorTraducaoIdenticaService(GerenciadorContexto gerenciadorContexto) {
-        this.gerenciadorContexto = gerenciadorContexto;
+    /**
+     * PROPÓSITO DE NEGÓCIO: recebe a porta de lore ativa que substitui o acoplamento
+     * direto ao gerenciador de contexto, mantendo o detector dentro do peer de qualidade.
+     * <p>INVARIANTES DO DOMÍNIO: guarda a porta recebida; não a substitui nem cria
+     * implementação própria.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida o argumento; injeção CDI garante o bean.
+     *
+     * @param loreAtiva porta de acesso aos termos protegidos e à lore do contexto ativo
+     */
+    public DetectorTraducaoIdenticaService(LoreAtivaPort loreAtiva) {
+        this.loreAtiva = loreAtiva;
     }
 
     private static final Set<String> PALAVRAS_INGLES_COMUNS = Set.of(
@@ -86,13 +103,9 @@ public class DetectorTraducaoIdenticaService {
     }
 
     /**
-     * true se o termo (já em minúsculas) constar dos termos protegidos do lore
-     * atualmente selecionado — permite proteger nomes/facções do contexto ativo
-     * sem depender só da lista global fixa neste detector.
-     */
-    /**
      * PROPÓSITO DE NEGÓCIO: reconhece nomes e terminologia diretamente na lore
-     * ativa, eliminando listas hardcoded específicas de DanMachi/Gundam.
+     * ativa (via {@link LoreAtivaPort}), eliminando listas hardcoded específicas de
+     * DanMachi/Gundam e permitindo proteger nomes/facções do contexto selecionado.
      *
      * <p>INVARIANTES DO DOMÍNIO: comparação exige termo inteiro; termos
      * declarados explicitamente pelo provedor continuam tendo prioridade.
@@ -100,12 +113,12 @@ public class DetectorTraducaoIdenticaService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lore vazia ou termo vazio retorna falso.
      */
     private boolean termoDoLoreAtivo(String termoMinusculo) {
-        for (String termo : gerenciadorContexto.termosProtegidosAtivos()) {
+        for (String termo : loreAtiva.termosProtegidosAtivos()) {
             if (termo != null && termo.toLowerCase(Locale.ROOT).equals(termoMinusculo)) {
                 return true;
             }
         }
-        String lore = gerenciadorContexto.obterLoreAtiva();
+        String lore = loreAtiva.obterLoreAtiva();
         if (lore == null || lore.isBlank() || termoMinusculo == null || termoMinusculo.isBlank()) {
             return false;
         }

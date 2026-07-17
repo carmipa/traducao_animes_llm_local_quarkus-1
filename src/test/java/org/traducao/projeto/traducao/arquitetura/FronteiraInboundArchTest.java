@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
  * <ul>
- *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15. Mesmo
+ *   <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13. Mesmo
  *       rigor do OUTBOUND; fonte de verdade da fronteira.</li>
  *   <li>Inventario textual complementar (imports do fonte): pre-E1 = 150, pos-E1 = 148, pos-E2 = 145, pos-E3b = 139, pos-E3c = 135, pos-E4a =
- *       129, pos-E4b = 123, pos-E5a = 85, pos-E5c = 73, pos-E6 = 57, pos-E7b = 49, pos-E8a = 41, pos-E8b = 28, pos-E8c = 15. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
+ *       129, pos-E4b = 123, pos-E5a = 85, pos-E5c = 73, pos-E6 = 57, pos-E7b = 49, pos-E8a = 41, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13. Impede o surgimento silencioso de novos imports outra-fatia -> traducao,
  *       inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
  *       registra no grafo).</li>
  * </ul>
@@ -61,9 +61,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code ProtecaoLegendaAssService} (6) sairam do INBOUND (28->15 bytecode e texto)
  * porque ambos migraram para {@code qualidadeTraducao.application}. Como a lacuna
  * bytecode-vs-texto ja estava fechada na E8b e nenhuma das treze era catch-only, os dois
- * numeros continuam coincidindo. {@code DetectorTraducaoIdenticaService} permanece em
- * traducao por depender de {@code contexto} (tratado na E8c.1 por inversao de
- * dependencia), e suas duas arestas seguem no inventario.
+ * numeros continuam coincidindo. {@code DetectorTraducaoIdenticaService} permanecia em
+ * traducao por depender de {@code contexto}; foi tratado na E8c.1 (abaixo).
+ *
+ * <p>Nota E8c.1: as duas arestas outras-fatias -> {@code DetectorTraducaoIdenticaService}
+ * (AuditorProblemasLegendaService e ClassificadorEntradaCacheService) sairam do INBOUND
+ * (15->13 bytecode e texto) porque o detector migrou para {@code qualidadeTraducao.application}.
+ * O acoplamento a {@code contexto} foi invertido: o detector passou a depender da porta
+ * {@code qualidadeTraducao.domain.LoreAtivaPort}, cujo unico adapter
+ * ({@code traducao.infrastructure.adapters.LoreAtivaContextoAdapter}) delega ao
+ * {@code GerenciadorContexto} e assume, dentro de traducao, a dependencia de contexto que
+ * era do detector. Nenhuma das duas era catch-only, entao bytecode e texto seguem iguais.
  *
  * <p>Nota E5a (historica): a aresta generica AuditorConteudoUseCase -> EventoLegenda
  * (antes {@code GENERICA_AUDITOR}, visivel so no bytecode via DocumentoLegenda.eventos())
@@ -80,17 +88,15 @@ class FronteiraInboundArchTest {
     private static final String FATIA_TRADUCAO = "traducao";
     private static final String PKG_TRADUCAO = RAIZ + ".traducao";
 
-    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 15 apos E8c. */
+    /** Inventario TEXTUAL (imports do fonte) INBOUND, por aresta exata. 13 apos E8c.1. */
     private static final Set<String> INBOUND_TEXTUAL_ESPERADAS = Set.of(
         aresta("org.traducao.projeto.correcaoLegendas.application.CorretorTraducaoLlmService", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
         aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.StatusLlm"),
         aresta("org.traducao.projeto.raspagemRevisao.RevisorRaspagemCLI", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
-        aresta("org.traducao.projeto.raspagemRevisao.application.AuditorProblemasLegendaService", "org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService"),
         aresta("org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
         aresta("org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
         aresta("org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController", "org.traducao.projeto.traducao.domain.StatusLlm"),
         aresta("org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
-        aresta("org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService", "org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService"),
         aresta("org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController", "org.traducao.projeto.traducao.domain.StatusLlm"),
         aresta("org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController", "org.traducao.projeto.traducao.domain.ports.MistralPort"),
         aresta("org.traducao.projeto.traducaoKaraoke.application.TraduzirKaraokeUseCase", "org.traducao.projeto.traducao.domain.Lote"),
@@ -111,7 +117,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 15")
+    @DisplayName("Fitness principal (ArchUnit/bytecode): outras-fatias -> Traducao Local == 13")
     void inboundBytecodeBateComBaseline() {
         Set<String> reais = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -141,7 +147,7 @@ class FronteiraInboundArchTest {
     }
 
     @Test
-    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 15")
+    @DisplayName("Inventario textual complementar (imports do fonte): outras-fatias -> traducao == 13")
     void inboundTextualBateComInventario() {
         Set<String> reais = coletarImportsInboundDoFonte();
         Set<String> inesperadas = new TreeSet<>(reais);
