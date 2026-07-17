@@ -221,10 +221,13 @@ class FronteiraTraducaoArchTest {
      * {@code tiposContextoUsados == CONTEXTO_TIPOS_CONGELADOS}, reprovando tanto tipo novo
      * inesperado quanto entrada obsoleta sobrando na allowlist. Conteúdo medido pós-E7b:
      * <ul>
-     *   <li>{@code GerenciadorContexto} (infrastructure): consumido por 5 classes de
-     *       {@code traducao} (DetectorTraducaoIdenticaService, ProcessarArquivoUseCase,
-     *       MistralClientAdapter, PipelineController, TraducaoController) — migrou do
-     *       {@code traducao} para o peer na E7b.</li>
+     *   <li>{@code GerenciadorContexto} (infrastructure): consumido por classes de
+     *       {@code traducao} (ProcessarArquivoUseCase, MistralClientAdapter, controllers e,
+     *       desde a E8c.1, {@code LoreAtivaContextoAdapter}) — migrou do {@code traducao} para
+     *       o peer na E7b. Na E8c.1 o {@code DetectorTraducaoIdenticaService} deixou de
+     *       consumi-lo diretamente (saiu para {@code qualidadeTraducao} e passou a depender da
+     *       porta {@code LoreAtivaPort}); o adapter assumiu essa dependência, então o tipo
+     *       {@code GerenciadorContexto} permanece consumido por traducao e no congelamento.</li>
      *   <li>{@code ProvedorContexto}: {@code PipelineController.getProvedores()}
      *       (lambda {@code p -> new ContextoResponse(p.getId()...)}).</li>
      *   <li>{@code RegrasConcordanciaPtBr}: {@code MistralClientAdapter} (bloco de tradução
@@ -242,28 +245,33 @@ class FronteiraTraducaoArchTest {
     );
 
     /**
-     * PROPÓSITO DE NEGÓCIO: superfície do peer {@code qualidadeTraducao} (E8b/E8c) congelada
-     * POR TIPO com igualdade EXATA, SEPARADA dos demais peers. A Tradução Local só pode
-     * depender nominalmente destes tipos; qualquer tipo extra reprova até autorização
+     * PROPÓSITO DE NEGÓCIO: superfície do peer {@code qualidadeTraducao} (E8b/E8c/E8c.1)
+     * congelada POR TIPO com igualdade EXATA, SEPARADA dos demais peers. A Tradução Local só
+     * pode depender nominalmente destes tipos; qualquer tipo extra reprova até autorização
      * explícita (sem liberação genérica do pacote {@code qualidadeTraducao}).
      *
      * <p>INVARIANTES DO DOMÍNIO: contém apenas os tipos que a fatia {@code traducao}
      * consome de fato (medido): {@code MascaradorTags} e {@code AlucinacaoDetectadaException}
      * desde a E8b; {@code ValidadorTraducaoService} (via {@code ProcessarArquivoUseCase} e
      * {@code ProcessarEpisodioUseCase}) e {@code ProtecaoLegendaAssService} (via
-     * {@code ProcessarArquivoUseCase}) desde a E8c. {@code ExcecaoQualidadeTraducao} NÃO entra
-     * por ser base interna da exceção, sem consumo direto medido. O nested
-     * {@code MascaradorTags$Mascarado} é normalizado ao proprietário {@code MascaradorTags}.
+     * {@code ProcessarArquivoUseCase}) desde a E8c; {@code DetectorTraducaoIdenticaService}
+     * (via {@code ProcessarArquivoUseCase}) e {@code LoreAtivaPort} (implementada pelo
+     * {@code LoreAtivaContextoAdapter} em {@code traducao.infrastructure}) desde a E8c.1.
+     * {@code ExcecaoQualidadeTraducao} NÃO entra por ser base interna da exceção, sem consumo
+     * direto medido. O nested {@code MascaradorTags$Mascarado} é normalizado ao proprietário
+     * {@code MascaradorTags}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #qualidadeTraducaoCongeladoPorTipo()} exige
      * igualdade {@code tiposUsados == QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}, reprovando tanto
      * tipo novo inesperado quanto entrada obsoleta na allowlist.
      */
     private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
+        RAIZ + ".qualidadeTraducao.application.DetectorTraducaoIdenticaService",
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
         RAIZ + ".qualidadeTraducao.application.ProtecaoLegendaAssService",
         RAIZ + ".qualidadeTraducao.application.ValidadorTraducaoService",
-        RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException"
+        RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException",
+        RAIZ + ".qualidadeTraducao.domain.LoreAtivaPort"
     );
 
     private static JavaClasses classesProducao;
@@ -485,7 +493,7 @@ class FronteiraTraducaoArchTest {
      * medido diferente do congelado (tipo novo ou entrada obsoleta) reprova o teste.
      */
     @Test
-    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente MascaradorTags, AlucinacaoDetectadaException (E8b), ValidadorTraducaoService e ProtecaoLegendaAssService (E8c)")
+    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: MascaradorTags, AlucinacaoDetectadaException (E8b), ValidadorTraducaoService, ProtecaoLegendaAssService (E8c), DetectorTraducaoIdenticaService e LoreAtivaPort (E8c.1)")
     void qualidadeTraducaoCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposQualidadeUsados = new TreeSet<>();

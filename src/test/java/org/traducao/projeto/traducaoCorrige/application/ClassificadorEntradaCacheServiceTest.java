@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
-import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
+import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
@@ -31,7 +32,7 @@ class ClassificadorEntradaCacheServiceTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
     private final ClassificadorEntradaCacheService service = new ClassificadorEntradaCacheService(
-        new DetectorTraducaoIdenticaService(contexto),
+        new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)),
         new ValidadorTraducaoService(),
         new PoliticaEstiloMusical(List.of("Song JP")),
         new DetectorEfeitoKaraokeService(),
