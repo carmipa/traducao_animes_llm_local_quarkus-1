@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
@@ -110,9 +111,6 @@ public class TraduzirKaraokeUseCase {
     @ConfigProperty(name = "tradutor.diretorio-cache")
     Optional<String> diretorioCache;
 
-    // Sequencial dos lotes enviados ao LLM numa execução (1 linha por lote).
-    private int sequencialLote;
-
     public List<ResultadoTraducaoKaraoke> simular(Path pastaOrigem, String contextoId) {
         return executar(pastaOrigem, contextoId, false);
     }
@@ -157,7 +155,10 @@ public class TraduzirKaraokeUseCase {
             ativarContexto(contextoId);
         }
 
-        sequencialLote = 0;
+        // Contador de lotes local à execução: um use case @ApplicationScoped é
+        // singleton, então um campo de instância seria compartilhado entre
+        // execuções concorrentes (simular fora da fila + aplicar na fila).
+        AtomicInteger sequencialLote = new AtomicInteger();
         List<ResultadoTraducaoKaraoke> resultados = new ArrayList<>();
         int falhas = 0;
         for (Path arquivo : arquivos) {
@@ -166,7 +167,7 @@ public class TraduzirKaraokeUseCase {
                 break;
             }
             try {
-                resultados.add(processarArquivo(arquivo, pastaDestino, gravar));
+                resultados.add(processarArquivo(arquivo, pastaDestino, gravar, sequencialLote));
             } catch (Exception e) {
                 falhas++;
                 log.error("Falha ao processar {}", arquivo, e);
@@ -194,7 +195,8 @@ public class TraduzirKaraokeUseCase {
         return resultados;
     }
 
-    private ResultadoTraducaoKaraoke processarArquivo(Path arquivo, Path pastaDestino, boolean gravar) {
+    private ResultadoTraducaoKaraoke processarArquivo(Path arquivo, Path pastaDestino, boolean gravar,
+                                                      AtomicInteger sequencialLote) {
         String nome = arquivo.getFileName().toString();
         logStream.publicarLog(CANAL_LOG, "");
         logStream.publicarLog(CANAL_LOG, ">> " + nome);
@@ -254,7 +256,7 @@ public class TraduzirKaraokeUseCase {
                                 semTraducao++;
                                 continue;
                             }
-                            traduzido = traduzirViaLlm(original, avisos);
+                            traduzido = traduzirViaLlm(original, avisos, sequencialLote);
                         }
                     }
                     if (traduzido == null) {
@@ -301,13 +303,15 @@ public class TraduzirKaraokeUseCase {
 
     /**
      * Uma linha por lote (letra de música é curta e o lote unitário é o padrão
-     * do projeto). Qualquer falha/alucinação mantém a linha original.
+     * do projeto). Qualquer falha/alucinação mantém a linha original. O
+     * {@code sequencialLote} é local à execução (ver {@link #executar}), evitando
+     * estado compartilhado entre execuções concorrentes deste bean singleton.
      */
-    private String traduzirViaLlm(String original, List<String> avisos) {
+    private String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote) {
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
         TraducaoLote resposta;
         try {
-            resposta = llmPort.traduzir(new Lote(++sequencialLote, List.of(mascarado.texto())));
+            resposta = llmPort.traduzir(new Lote(sequencialLote.incrementAndGet(), List.of(mascarado.texto())));
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; linha mantida sem tradução: " + original);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha (mantida no idioma original): " + e.getMessage());
