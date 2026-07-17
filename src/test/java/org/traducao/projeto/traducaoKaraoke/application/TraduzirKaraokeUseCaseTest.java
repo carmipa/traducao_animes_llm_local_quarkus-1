@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
-import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;

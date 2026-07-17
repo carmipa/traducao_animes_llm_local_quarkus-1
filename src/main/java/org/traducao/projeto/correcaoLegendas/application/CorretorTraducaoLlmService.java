@@ -1,8 +1,8 @@
 package org.traducao.projeto.correcaoLegendas.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
-import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;

@@ -3,7 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
-import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 
 import java.util.ArrayList;

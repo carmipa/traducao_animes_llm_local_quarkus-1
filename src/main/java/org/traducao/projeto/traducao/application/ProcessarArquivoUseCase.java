@@ -26,6 +26,8 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
@@ -485,20 +487,28 @@ public class ProcessarArquivoUseCase {
         }
     }
 
+    // Os delegates estáticos abaixo existiam sobre os métodos estáticos package-private
+    // de ProtecaoLegendaAssService, acessíveis enquanto as duas classes dividiam o pacote
+    // traducao.application. Na E8b/E8c o serviço migrou para o peer qualidadeTraducao e
+    // esses estáticos deixaram de ser alcançáveis: o contrato público do peer são os
+    // métodos de instância. Como o serviço é stateless (só constantes static final), uma
+    // única instância reaproveitada preserva exatamente o comportamento anterior.
+    private static final ProtecaoLegendaAssService PROTECAO_ASS_ESTATICA = new ProtecaoLegendaAssService();
+
     static boolean respostaAssPesadaSuspeita(String original, String traduzido) {
-        return ProtecaoLegendaAssService.respostaAssPesadaSuspeita(original, traduzido);
+        return PROTECAO_ASS_ESTATICA.respostaSuspeita(original, traduzido);
     }
 
     private static String extrairTextoVisivelAss(String texto) {
-        return ProtecaoLegendaAssService.extrairTextoVisivelAss(texto);
+        return PROTECAO_ASS_ESTATICA.textoVisivel(texto);
     }
 
     static boolean deveBloquearAntesDoLlm(String estilo, String texto, long repeticoesTextoVisivel) {
-        return ProtecaoLegendaAssService.deveBloquearAntesDoLlm(estilo, texto, repeticoesTextoVisivel);
+        return PROTECAO_ASS_ESTATICA.deveBloquearLinhaAntesDoLlm(estilo, texto, repeticoesTextoVisivel);
     }
 
     static boolean caminhoPareceLegendaTraduzida(Path arquivoEntrada) {
-        return ProtecaoLegendaAssService.caminhoPareceLegendaTraduzida(arquivoEntrada);
+        return PROTECAO_ASS_ESTATICA.caminhoPareceTraduzido(arquivoEntrada);
     }
 
     /**

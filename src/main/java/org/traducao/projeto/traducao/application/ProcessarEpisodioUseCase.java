@@ -6,6 +6,7 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
