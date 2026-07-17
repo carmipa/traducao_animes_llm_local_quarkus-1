@@ -119,6 +119,20 @@ public class TraduzirKaraokeUseCase {
         return executar(pastaOrigem, contextoId, true);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: motor único da tradução de karaokê, compartilhado por
+     * {@code simular} (dry-run, read-only) e {@code aplicar} (grava e chama o LLM) — lista as
+     * legendas, classifica cada linha e produz o resumo por arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o modo {@code gravar} verifica o LLM, ativa o contexto
+     * (lore) e escreve saída/cache; a simulação não toca estado global nem a GPU/LLM. O
+     * contador de lotes ({@code sequencialLote}) é local a esta execução, nunca campo de
+     * instância, para não ser perturbado por uma execução concorrente deste bean singleton.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta inexistente lança
+     * {@link TraducaoKaraokeException}; falha por arquivo é contabilizada e não interrompe os
+     * demais; interrupção cooperativa entre arquivos preserva o que já foi gravado.
+     */
     private List<ResultadoTraducaoKaraoke> executar(Path pastaOrigem, String contextoId, boolean gravar) {
         long inicioMs = System.currentTimeMillis();
         String modo = gravar ? "Tradução" : "Simulação (Dry-Run)";
@@ -195,6 +209,20 @@ public class TraduzirKaraokeUseCase {
         return resultados;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: processa uma legenda .ass — preserva letra original/japonesa e
+     * KFX, reaproveita cache e (só em modo gravar) traduz a camada inglesa via LLM, montando
+     * o resumo de classificação do arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o arquivo de entrada nunca é alterado; falas repetidas gastam
+     * uma só tradução (dedup por texto original); em dry-run nenhuma linha vai ao LLM e nada é
+     * gravado. O {@code sequencialLote} recebido é o contador local da execução, repassado ao
+     * LLM para numerar os lotes desta run.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha/alucinação do LLM numa linha mantém o texto
+     * original e registra aviso, sem derrubar o arquivo; interrupção cooperativa encerra no
+     * próximo ponto seguro preservando o que já foi resolvido.
+     */
     private ResultadoTraducaoKaraoke processarArquivo(Path arquivo, Path pastaDestino, boolean gravar,
                                                       AtomicInteger sequencialLote) {
         String nome = arquivo.getFileName().toString();
@@ -302,10 +330,18 @@ public class TraduzirKaraokeUseCase {
     }
 
     /**
-     * Uma linha por lote (letra de música é curta e o lote unitário é o padrão
-     * do projeto). Qualquer falha/alucinação mantém a linha original. O
-     * {@code sequencialLote} é local à execução (ver {@link #executar}), evitando
-     * estado compartilhado entre execuções concorrentes deste bean singleton.
+     * PROPÓSITO DE NEGÓCIO: traduz uma única linha de letra via LLM (uma linha por lote — a
+     * letra é curta e o lote unitário é o padrão do projeto), mascarando as tags antes e
+     * restaurando-as depois.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o {@code sequencialLote} é o contador LOCAL da execução (ver
+     * {@link #executar}), incrementado atomicamente para numerar o lote; nunca é campo de
+     * instância, evitando estado compartilhado entre execuções concorrentes deste bean
+     * singleton. A saída passa por desmascaramento e validação antes de ser aceita.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de comunicação, resposta inválida ou
+     * {@link AlucinacaoDetectadaException} devolve {@code null} (mantém a linha original) e
+     * registra um aviso — nunca propaga para derrubar o arquivo.
      */
     private String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote) {
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
