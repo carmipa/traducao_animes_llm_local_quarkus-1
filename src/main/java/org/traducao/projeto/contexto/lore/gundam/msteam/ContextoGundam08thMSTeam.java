@@ -4,6 +4,16 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.Set;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: lore de The 08th MS Team (OVA UC 0079 — guerra terrestre).
+ *
+ * <p>INVARIANTES DO DOMÍNIO: Shiro Amada; Aina Sahalin; Ez-8; Apsalus; Eledore;
+ * realismo anti-guerra.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+ */
 @Component
 public class ContextoGundam08thMSTeam implements ProvedorContexto {
 
@@ -41,7 +51,8 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
         - Sobrevivência vs ideologia (principalmente entre civis e guerrilheiros locais).
 
         === Regras Específicas de Tradução ===
-        - Manter sempre em inglês ou forma oficial: mobile suit, mobile armor, Earth Federation, Principality of Zeon, Gundam Ez8, Ground Gundam/Gundam Ground Type, Gouf Custom, Apsalus, Miller's Report, One Year War, Universal Century, U.C., Newtype, Minovsky particles, beam rifle, beam saber, mega particle cannon, Jaburo.
+        - Manter sempre em inglês ou forma oficial: mobile suit, mobile armor, Earth Federation, Principality of Zeon, Gundam Ez8, Ground Gundam/Gundam Ground Type, Gouf Custom, Apsalus, Miller's Report, One Year War, Universal Century, U.C., Newtype (NUNCA "Novo Tipo"), Oldtype, Spacenoid, Earthnoid, Minovsky particles, Mega Particle Cannon, beam rifle, beam saber, mega particle cannon, Jaburo.
+        - Apsalus e Mobile Armor (nao Mobile Suit). Ground Gundam / Ez-8 / GM Ground Type sao Mobile Suits.
         - Comunicação por rádio: curta, clara, técnica e militar ("Alvo avistado", "Contato inimigo à frente", "Danos no lado direito", "Recuar para ponto de extração", "Munição em 30%").
         - Tom das legendas: maduro, sóbrio, imersivo e emocional quando necessário. Evitar gírias brasileiras modernas ("mano", "tá ligado", "crush", etc.).
         - Gênero: Manter rigorosamente a concordância (Shiro, Ginias, Norris, Sanders, Eledore, Michel, Kojima, Ryer = masculino | Aina, Karen, Kiki, Alice, B.B. = feminino).
@@ -52,17 +63,32 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
     private static final String PROMPT = ContextoPrompt.montar("Mobile Suit Gundam: The 08th MS Team", LORE);
 
     @Override
-    public String getId() { 
-        return "gundam_08ms"; 
+    public String getId() {
+        return "gundam_08ms";
     }
-    
+
     @Override
-    public String getNomeExibicao() { 
-        return "Mobile Suit Gundam: The 08th MS Team"; 
+    public String getNomeExibicao() {
+        return "Mobile Suit Gundam: The 08th MS Team";
     }
-    
+
     @Override
-    public String obterPromptSistema() { 
-        return PROMPT; 
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: protege nomes e unidades da 08th MS Team.
+     * <p>INVARIANTES DO DOMÍNIO: Eledore/Ez-8/Apsalus canônicos.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
+     */
+    @Override
+    public Set<String> termosProtegidos() {
+        return Set.of(
+            "Shiro Amada", "Aina Sahalin", "Karen Joshua", "Terry Sanders Jr.",
+            "Eledore Massis", "Michel Ninorich", "Kiki Rosita", "Ginias Sahalin",
+            "Norris Packard", "Gundam Ez8", "Apsalus", "Gouf Custom", "08th MS Team",
+            "Newtype", "Minovsky", "Mobile Suit", "Mobile Armor", "Spacenoid"
+        );
     }
 }

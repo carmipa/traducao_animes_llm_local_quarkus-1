@@ -4,10 +4,62 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.Set;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: lore da 3ª temporada de DanMachi (arco Xenos) para
+ * preservar nomes de monstros inteligentes e facções.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: Xenos, Wiene, Fels, Dix Perdix, Asterius; Liliruca Arde.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+ */
 @Component
 public class ContextoDanMachiS3 implements ProvedorContexto {
-    private static final String PROMPT = ContextoPrompt.montar("DanMachi (Season 3)", "- Obra: DanMachi Season 3 (Xenos Arc).\n- Personagens: Bell Cranel, Hestia, Wiene, Fels, Dix, Asterius.");
-    @Override public String getId() { return "danmachi_s3"; }
-    @Override public String getNomeExibicao() { return "DanMachi (Season 3)"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+
+    private static final String LORE = """
+        - Obra: Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 3 (DanMachi III) — Xenos Arc.
+        - Premissa: Bell encontra Wiene e os Xenos (monstros inteligentes) sob Orario; conflito com
+          aventureiros caçadores e a Ikelos Familia; revelações sobre Asterius e o Dungeon.
+        - Locais: Orario, Dungeon, Knossos, Rua Daedalus, Under Orario / base Xenos.
+        - Grupos: Hestia Familia, Xenos, Hermes Familia, Ikelos Familia, Ganesha Familia, Guilda.
+        - Personagens (gênero): Bell Cranel (m), Hestia (f), Wiene (f), Fels (ambíguo/capuz — tratar
+          conforme o original; frequentemente neutro/"eles" evita erro), Dix Perdix (m),
+          Asterius (m), Liliruca Arde / Lili (f), Welf Crozzo (m), Mikoto Yamato (f),
+          Haruhime Sanjouno (f), Ais Wallenstein (f), Ouranos (m), Lyd (m), Ray (f), Gros (m).
+        - Termos: Xenos, Knossos, Dungeon, Familia, Falna, Status, Irregular, Monster Rex.
+        - Regras: Xenos não traduzir como "alienígenas" genéricos quando for o nome do grupo;
+          Wiene/Asterius/Fels mantêm grafia; Bell ≠ "sino"; Liliruca ≠ "Lilisuka".
+        - Tom: moralmente cinza, empatia com os Xenos, tensão e perseguição.
+        """;
+
+    private static final String PROMPT = ContextoPrompt.montar("DanMachi (Season 3)", LORE);
+
+    @Override
+    public String getId() {
+        return "danmachi_s3";
+    }
+
+    @Override
+    public String getNomeExibicao() {
+        return "DanMachi (Season 3)";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: protege nomes do arco Xenos.
+     * <p>INVARIANTES DO DOMÍNIO: só artefatos confirmados da temporada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
+     */
+    @Override
+    public Set<String> termosProtegidos() {
+        return Set.of(
+            "Bell Cranel", "Hestia", "Wiene", "Fels", "Dix Perdix", "Asterius",
+            "Liliruca Arde", "Xenos", "Knossos", "Orario", "Dungeon", "Ouranos"
+        );
+    }
 }
