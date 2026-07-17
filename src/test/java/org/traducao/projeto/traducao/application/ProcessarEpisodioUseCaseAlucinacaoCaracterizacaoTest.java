@@ -6,6 +6,7 @@ import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.core.util.DuracaoUtil;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.domain.Lote;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
