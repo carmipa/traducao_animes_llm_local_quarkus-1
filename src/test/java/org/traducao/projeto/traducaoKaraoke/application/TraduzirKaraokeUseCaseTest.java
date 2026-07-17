@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -200,7 +201,18 @@ class TraduzirKaraokeUseCaseTest {
         assertEquals(0, r.traduzidas());
     }
 
-    /** LLM fake que bloqueia na PRIMEIRA chamada até ser liberado, registrando os ids de lote. */
+    /**
+     * PROPÓSITO DE NEGÓCIO: dublê de LLM que bloqueia na PRIMEIRA chamada até ser liberado,
+     * registrando os ids de lote observados — permite prender o {@code aplicar} num ponto
+     * conhecido para provar o isolamento do contador contra um {@code simular} concorrente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: registra todo id de lote recebido (lista sincronizada);
+     * sinaliza {@code primeiraChamadaIniciou} e aguarda {@code liberar} apenas na 1ª chamada;
+     * as demais respondem imediatamente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: interrompido durante a espera, restaura o flag de
+     * interrupção e devolve a tradução simulada, sem travar a thread indefinidamente.
+     */
     static class LlmPortBloqueante implements LlmPort {
         final List<Integer> idsObservados = Collections.synchronizedList(new ArrayList<>());
         final CountDownLatch primeiraChamadaIniciou = new CountDownLatch(1);
@@ -258,29 +270,58 @@ class TraduzirKaraokeUseCaseTest {
         LlmPortBloqueante fake = new LlmPortBloqueante();
         useCase.llmPort = fake;
 
-        Thread aplicador = new Thread(() -> useCase.aplicar(pastaEntrada, null), "aplicar-karaoke-teste");
+        AtomicReference<Throwable> falhaAplicador = new AtomicReference<>();
+        Thread aplicador = new Thread(() -> {
+            try {
+                useCase.aplicar(pastaEntrada, null);
+            } catch (Throwable t) {
+                falhaAplicador.set(t);
+            }
+        }, "aplicar-karaoke-teste");
+        aplicador.setDaemon(true);
         aplicador.start();
 
-        assertTrue(fake.primeiraChamadaIniciou.await(10, TimeUnit.SECONDS),
-            "a primeira chamada ao LLM do aplicar deveria ter iniciado");
+        // O finally SEMPRE libera o aplicador — se qualquer assertiva falhar antes, a thread
+        // presa no LLM não pode ficar bloqueada indefinidamente.
+        try {
+            assertTrue(fake.primeiraChamadaIniciou.await(10, TimeUnit.SECONDS),
+                "a primeira chamada ao LLM do aplicar deveria ter iniciado");
 
-        int chamadasAntes = fake.idsObservados.size();
-        List<ResultadoTraducaoKaraoke> simulacao = useCase.simular(pastaEntrada, null);
-        int chamadasDepois = fake.idsObservados.size();
+            int chamadasAntes = fake.idsObservados.size();
+            List<ResultadoTraducaoKaraoke> simulacao = useCase.simular(pastaEntrada, null);
+            int chamadasDepois = fake.idsObservados.size();
 
-        assertEquals(1, chamadasAntes, "apenas a 1ª chamada do aplicar deve estar em curso");
-        assertEquals(chamadasAntes, chamadasDepois, "simular não pode chamar o LLM");
-        assertNull(simulacao.getFirst().arquivoDestino(), "simular não pode gravar saída");
+            assertEquals(1, chamadasAntes, "apenas a 1ª chamada do aplicar deve estar em curso");
+            assertEquals(chamadasAntes, chamadasDepois, "simular não pode chamar o LLM");
+            assertNull(simulacao.getFirst().arquivoDestino(), "simular não pode gravar saída");
+        } finally {
+            fake.liberar.countDown();
+        }
 
-        fake.liberar.countDown();
         aplicador.join(10_000);
-        assertFalse(aplicador.isAlive(), "aplicar deveria ter concluído");
+        if (aplicador.isAlive()) {
+            aplicador.interrupt();
+            aplicador.join(5_000);
+        }
+        assertFalse(aplicador.isAlive(), "aplicar deveria ter concluído (nenhuma thread sobrevive ao teste)");
+        assertNull(falhaAplicador.get(), "aplicar não deveria lançar exceção");
 
         assertEquals(List.of(1, 2), List.copyOf(fake.idsObservados),
             "os ids de lote observados pelo LLM devem ser exatamente [1, 2]; "
             + "simular concorrente não pode reiniciar o contador do aplicar");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: escreve uma legenda de teste com DUAS linhas inglesas traduzíveis e
+     * distintas, para que o {@code aplicar} gere exatamente dois lotes de LLM (ids 1 e 2) e
+     * exponha a corrida do contador.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as duas falas usam estilo de camada inglesa e textos
+     * diferentes, garantindo duas chamadas distintas ao LLM (sem dedup) na ordem do arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de I/O ao escrever propaga {@link IOException} e
+     * interrompe o teste.
+     */
     private void escreverLegendaDuasLinhasInglesas(Path destino) throws IOException {
         String conteudo = String.join("\r\n",
             "[Script Info]",
