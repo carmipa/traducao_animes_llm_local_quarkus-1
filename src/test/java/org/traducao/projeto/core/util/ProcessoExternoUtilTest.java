@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -149,5 +151,85 @@ class ProcessoExternoUtilTest {
 
         assertThrows(TimeoutException.class,
             () -> ProcessoExternoUtil.executar(cmd, Duration.ofMillis(1500)));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que o timeout não só sinaliza, mas de fato ENCERRA o
+     * processo-filho — a garantia de que um ffmpeg/mkvmerge travado não fica órfão consumindo
+     * recursos após o {@link TimeoutException}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o filho grava o próprio PID em arquivo antes de dormir; após
+     * o timeout, o PID observado via {@link ProcessHandle} não pode estar mais vivo. A
+     * verificação é determinística (arquivo + polling com prazo total estrito), sem usar
+     * {@code sleep} como sincronização.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: PID não gravado no prazo, ou processo ainda vivo no
+     * prazo de observação, reprova o teste.
+     */
+    @Test
+    void timeoutEncerraDeFatoOProcessoFilho(@TempDir Path tempDir) throws Exception {
+        Path fonte = tempDir.resolve("ProcessoPid.java");
+        Path arquivoPid = tempDir.resolve("pid.txt");
+        Files.writeString(fonte,
+            "public class ProcessoPid {"
+            + " public static void main(String[] a) throws Exception {"
+            + "  java.nio.file.Files.writeString(java.nio.file.Path.of(a[0]),"
+            + "    String.valueOf(ProcessHandle.current().pid()));"
+            + "  Thread.sleep(30000); } }");
+        List<String> cmd = List.of(javaBin(), fonte.toString(), arquivoPid.toString());
+
+        assertThrows(TimeoutException.class,
+            () -> ProcessoExternoUtil.executar(cmd, Duration.ofMillis(1500)));
+
+        long pid = lerPidComPrazo(arquivoPid, Duration.ofSeconds(5));
+        assertFalse(processoVivoComPrazo(pid, Duration.ofSeconds(5)),
+            "o processo-filho deveria ter sido encerrado à força após o timeout");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lê o PID que o processo-filho gravou, tolerando a janela entre o
+     * spawn e a primeira escrita do arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só observa; faz busy-wait com {@link Thread#onSpinWait()} até
+     * um prazo total estrito, sem {@code sleep} como sincronização.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: esgotado o prazo sem PID legível, lança
+     * {@link AssertionError}.
+     */
+    private static long lerPidComPrazo(Path arquivoPid, Duration prazo) throws Exception {
+        long fim = System.nanoTime() + prazo.toNanos();
+        while (System.nanoTime() < fim) {
+            if (Files.exists(arquivoPid)) {
+                String texto = Files.readString(arquivoPid).trim();
+                if (!texto.isEmpty()) {
+                    return Long.parseLong(texto);
+                }
+            }
+            Thread.onSpinWait();
+        }
+        throw new AssertionError("processo-filho não gravou o PID dentro do prazo de observação");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: observa se um PID ainda corresponde a um processo vivo, dentro de
+     * um prazo total estrito.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só observa via {@link ProcessHandle}; PID ausente ou não vivo
+     * conta como encerrado; busy-wait com {@link Thread#onSpinWait()}, sem {@code sleep}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se ainda vivo ao fim do prazo, devolve {@code true}
+     * para o teste reprovar.
+     */
+    private static boolean processoVivoComPrazo(long pid, Duration prazo) {
+        long fim = System.nanoTime() + prazo.toNanos();
+        while (System.nanoTime() < fim) {
+            Optional<ProcessHandle> handle = ProcessHandle.of(pid);
+            if (handle.isEmpty() || !handle.get().isAlive()) {
+                return false;
+            }
+            Thread.onSpinWait();
+        }
+        Optional<ProcessHandle> handle = ProcessHandle.of(pid);
+        return handle.isPresent() && handle.get().isAlive();
     }
 }
