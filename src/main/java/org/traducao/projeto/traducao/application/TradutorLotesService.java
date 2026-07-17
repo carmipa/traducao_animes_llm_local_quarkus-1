@@ -54,6 +54,22 @@ public class TradutorLotesService {
     private final ProtecaoLegendaAssService protecaoAss;
     private final TelemetriaTraducaoPort telemetriaTraducao;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta as peças do coração do fluxo — mascaramento, tamanho de lote,
+     * progresso da UI, execução do episódio, proteção ASS e telemetria.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     *
+     * @param mascarador mascara/desmascara as tags ao redor do texto enviado ao LLM
+     * @param propriedades fornece o tamanho de lote da fatia
+     * @param uiLogger barra de progresso e mensagens do episódio
+     * @param processarEpisodioUseCase executa a tradução dos lotes (sequencial, GPU única)
+     * @param protecaoAss detecta resposta suspeita em linha ASS pesada
+     * @param telemetriaTraducao contabiliza alucinações prevenidas
+     */
     public TradutorLotesService(
         MascaradorTags mascarador,
         TradutorProperties propriedades,
