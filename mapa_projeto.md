@@ -3,7 +3,7 @@
 ================================================================================
  Raiz do repositorio      : traducao_animes_llm_local_quarkus
  Pastas mapeadas          : 312
- Arquivos (na arvore)     : 590
+ Arquivos (na arvore)     : 589
  Arquivos-fonte indexados : 485  (.java: 485 | .py: 0)
  Memoria viva do projeto  : CEREBRO_IA.md (na raiz do repositorio)
 
@@ -915,8 +915,7 @@ traducao_animes_llm_local_quarkus/
 ├── mapa_projeto.md
 ├── README.md
 ├── relatorio_diretorio_vps.txt
-├── settings.gradle
-└── transcricao_chat_isolamento_opcao4_2026-07-15.txt
+└── settings.gradle
 
 --------------------------------------------------------------------------------
  2. TAXONOMIA DOS ARQUIVOS-FONTE (.java / .py)
@@ -929,14 +928,14 @@ traducao_animes_llm_local_quarkus/
       coleta sucessos e falhas, alimenta o dataset permanente de telemetria e
       devolve o resultado ESTRUTURADO ({@link ResultadoAnaliseLote}) que é a fonte
       única da interface HTML e da exportação TXT manual.
-      
+
       <p>INVARIANTES DO DOMÍNIO: nenhum relatório é gravado em disco; a telemetria é
       persistida internamente e é um dataset permanente (acumula/deduplica). Uma
       falha em um arquivo não aborta o lote; a barra de progresso é cosmética e
       nunca aborta a análise. As responsabilidades técnicas (localização,
       classificação, formatação textual, mapeamento de telemetria) são delegadas a
       colaboradores dedicados; este use case apenas as coordena.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: lote vazio lança {@link AnalisadorException};
       falha por arquivo vira {@link FalhaAnalise} no resultado; falhas de telemetria
       são registradas sem interromper a análise.
@@ -944,11 +943,11 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: encapsula a barra de progresso do console da análise de
       mídia, isolando a dependência de UI e, sobretudo, a política de que a barra é
       PURAMENTE COSMÉTICA — nunca pode abortar a análise do lote.
-      
+
       <p>INVARIANTES DO DOMÍNIO: qualquer falha ao criar/avançar/fechar a barra
       (ex.: terminal incompatível) é contida; após uma falha a barra se autodesativa
       e a análise continua normalmente.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: nenhum método propaga exceção; falhas são
       apenas registradas em log em nível WARN.
   - ClassificadorLegendaService.java
@@ -957,21 +956,21 @@ traducao_animes_llm_local_quarkus/
       WebVTT/MOV_TEXT) é extraível e traduzível; BITMAP (PGS/VobSub/DVB) exige OCR;
       ausência de faixa é RAW/hardsub. Decide se um episódio segue no pipeline de
       tradução.
-      
+
       <p>INVARIANTES DO DOMÍNIO: PGS e VobSub são bitmap (imagem), NÃO hardsub;
       ausência de faixa softsub NÃO prova hardsub; uma faixa de texto tem prioridade
       sobre bitmap no veredito de traduzibilidade do arquivo.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas de codec/formato caem em
       "Desconhecido"/"DESCONHECIDO" sem exceção.
   - LocalizadorVideosService.java
       PROPÓSITO DE NEGÓCIO: localiza os arquivos de vídeo a auditar a partir de uma
       entrada que pode ser um único arquivo ou uma pasta (varredura recursiva),
       filtrando pelas extensões de contêiner suportadas.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só retorna arquivos regulares com extensão de vídeo
       conhecida; a ordem é estável (alfabética) para tornar a análise determinística.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O ao varrer a pasta lança
       {@link AnalisadorException} didática; entrada válida sem vídeos retorna lista
       vazia (o orquestrador decide como reportar).
@@ -980,22 +979,22 @@ traducao_animes_llm_local_quarkus/
       partir do resultado JÁ CLASSIFICADO (fonte única de verdade). Serve de base
       para exibição/exportação textual sem reimplementar a classificação — evita
       duas regras de formatação divergentes.
-      
+
       <p>INVARIANTES DO DOMÍNIO: lê apenas o domínio estruturado
       ({@link AuditoriaResultado}); não reexecuta ffprobe nem reclassifica; a
       terminologia segue a do domínio (bitmap ≠ hardsub).
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: método puro sem I/O; listas vazias produzem
       as seções vazias correspondentes, sem exceção.
   - TelemetriaMidiaMapper.java
       PROPÓSITO DE NEGÓCIO: converte o resultado técnico de uma mídia auditada em
       um registro de telemetria anonimizado, alimentando o dataset permanente do
       projeto (diagnóstico + melhoria futura).
-      
+
       <p>INVARIANTES DO DOMÍNIO: o caminho é relativizado à entrada para preservar
       privacidade (não grava caminhos pessoais absolutos); a telemetria carrega
       apenas metadados técnicos, nunca falas ou conteúdo da legenda.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: se a relativização falhar, cai para o nome
       simples do arquivo, sem lançar exceção.
 
@@ -1045,11 +1044,11 @@ traducao_animes_llm_local_quarkus/
       e análise técnica de mídia da fatia {@code analisadorMidia}, resolvendo os caminhos
       de que precisa (entrada obrigatória e saída opcional) a partir da própria
       configuração, sem depender da configuração ou do estado da fatia {@code traducao}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa {@code tradutor.diretorio-entrada} e
       {@code tradutor.diretorio-saida}; saída ausente/vazia/blank significa "sem pasta de
       saída" (nunca aplica o fallback {@code traducao_ptbr}); não injeta cache.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada não configurada ou caminho inexistente
       encerram o fluxo sem produzir auditoria; exceções durante o processamento são
       reportadas sem mascarar a causa.
@@ -1064,7 +1063,7 @@ traducao_animes_llm_local_quarkus/
       enfileirando o processamento pesado em segundo plano e publicando o relatório
       estruturado no canal SSE {@code analise-relatorio} para renderização no
       navegador.
-      
+
       <p>Fronteira arquitetural: este endpoint pertence ao módulo
       {@code analisadorMidia} (Opção 1) e reside na sua camada de apresentação
       própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
@@ -1074,7 +1073,7 @@ traducao_animes_llm_local_quarkus/
       SSE de logs, contratos de transporte HTTP) hoje localizado em
       {@code traducao.presentation.web}; é dívida técnica temporária cujo saneamento
       está reservado para a FASE E — não representa acoplamento funcional.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport} e o MESMO canal SSE; caminhos são normalizados antes
       do uso; a rota {@code POST /api/analisar}, o status, os campos de DTO e o canal
@@ -1123,13 +1122,13 @@ traducao_animes_llm_local_quarkus/
       timeouts do cliente para as APIs públicas de metadados de anime (AniList/Jikan/TMDB).
       Isola a fatia da stack de LLM da Tradução Local ({@code tradutor.llm}), preservando
       exatamente os valores efetivos herdados (subfase E4a).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Defaults efetivos: connect {@code 5s}, read {@code 180s}.</li>
       <li>Sem dependência de {@code LlmProperties} nem de qualquer tipo de {@code traducao}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Valores nulos no binding são ignorados pelos setters, mantendo os defaults {@code 5s/180s}.
 
@@ -1159,11 +1158,11 @@ traducao_animes_llm_local_quarkus/
       leitores tolerantes escondem — bloco SRT truncado, índice SRT não numérico e
       linha Dialogue/Comment ASS malformada. Sem isso, uma linha que deveria ser
       auditada era silenciosamente descartada e o arquivo saía "limpo".
-      
+
       <p>INVARIANTES DO DOMÍNIO: é 100% leitura e nunca altera os leitores de legenda
       compartilhados pelo pipeline; reporta apenas o que só é visível no texto cru.
       A validação de sintaxe de tempo fica com {@code RegraTimestampInvalido}.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ilegível gera uma anomalia crítica em
       vez de exceção; formato desconhecido devolve lista vazia.
 
@@ -1173,22 +1172,22 @@ traducao_animes_llm_local_quarkus/
       linha com tags de animação pesada (\t, \move, \clip, \fad) normalmente é um
       efeito visual curto; se ela carrega texto visível longo, é forte indício de
       que uma sentença completa vazou para dentro de um evento de efeito.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com texto e com tag de
       animação pesada são avaliados; o alerta exige texto visível acima de
       {@value #LIMITE_TEXTO_VISIVEL} caracteres para evitar ruído.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: eventos sem tags de animação ou sem texto
       são ignorados; a regra nunca lança.
   - RegraEventoDialogoVazio.java
       PROPÓSITO DE NEGÓCIO: encontra eventos de diálogo que ficaram sem texto visível
       (só tags, quebras ou espaços). Numa tradução, isso costuma indicar uma fala
       perdida; num original, uma linha inútil que polui o tempo de exibição.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} são avaliados; o texto
       visível é o que sobra após remover blocos {@code {...}}, {@code \N}, {@code \h}
       e espaços.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: eventos que não são diálogo ou sem campo de
       texto são ignorados; a regra nunca lança.
   - RegraQuebrasLinhaExcessivas.java
@@ -1196,10 +1195,10 @@ traducao_animes_llm_local_quarkus/
       numa mesma fala. Sem arquivo de referência não dá para comparar com o original,
       então esta é a heurística de "formatação quebrada / alucinação" para arquivo
       único — muitas quebras costumam destruir posicionamento e legibilidade.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com texto entram; o
       limite mínimo para alerta é {@value #LIMITE_QUEBRAS} quebras na mesma linha.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo é ignorado; a regra nunca lança.
   - RegraSobreposicaoTempo.java
       PROPÓSITO DE NEGÓCIO: detecta diálogos que se sobrepõem no tempo — uma fala que
@@ -1207,12 +1206,12 @@ traducao_animes_llm_local_quarkus/
       colidem na tela. Karaokê, placas, efeitos, estilos diferentes e camadas
       diferentes se sobrepõem por design e são ignorados para evitar milhares de
       falsos positivos.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só entram eventos {@code Dialogue} de "diálogo comum"
       (sem tags de karaokê, sem estilo de música, sem tags de posicionamento/efeito e
       sem campo Effect preenchido); a colisão só é reportada entre eventos do MESMO
       estilo e da MESMA camada (Layer), pois eles compartilham a mesma posição visual.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: eventos sem tempo interpretável ou de duração
       inválida são ignorados (a duração inválida é tratada pela
       {@code RegraTimestampInvalido}); a régua de karaokê/música é a mesma do resto do
@@ -1222,21 +1221,21 @@ traducao_animes_llm_local_quarkus/
       nunca fechados numa única legenda. Uma chave desbalanceada faz o player exibir
       as tags como texto ou ignorar a linha inteira — dano estrutural que independe
       de arquivo de referência.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com texto são avaliados;
       a contagem considera aninhamento inválido ({@code {} dentro de {}}) como
       malformação.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo/sem chaves não gera anomalia;
       cada evento é avaliado isoladamente e nunca lança.
   - RegraTimestampInvalido.java
       PROPÓSITO DE NEGÓCIO: sinaliza eventos cujo instante de fim é anterior ou igual
       ao de início. Uma linha com duração zero ou negativa não aparece na tela e
       costuma indicar corrupção de timestamps na legenda.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com tempo legível são
       avaliados; a comparação usa milissegundos absolutos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: evento sem tempo interpretável é ignorado
       (a regra {@link RegraTagOverrideNaoFechada} e as demais cobrem outros danos).
 
@@ -1254,12 +1253,12 @@ traducao_animes_llm_local_quarkus/
       conjunto de falas antes de qualquer regra confiar no pareamento por índice.
       Sem ela, uma fala apagada, uma fala inventada ou um deslocamento por
       Comentário passavam despercebidos e o arquivo era declarado "limpo".
-      
+
       <p>INVARIANTES DO DOMÍNIO: detecta divergência de contagem de diálogos, índices
       de diálogo ausentes no traduzido, índices extras no traduzido, índices
       duplicados (pareamento ambíguo) e mudança de tipo (Dialogue↔Comment) no mesmo
       índice. Qualquer uma dessas anomalias impede o resultado "limpo".
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: opera só em memória; documentos válidos e
       equivalentes não geram anomalia. Só é executada entre formatos comparáveis
       (o caso de uso bloqueia ASS↔SRT antes de chegar aqui).
@@ -1284,11 +1283,11 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: identifica qual escopo de análise de legenda o usuário
       escolheu nas abas do painel — auditar só o arquivo original (EN), só o
       traduzido (PT-BR) ou comparar os dois.
-      
+
       <p>INVARIANTES DO DOMÍNIO: {@link #AMBAS} exige os dois arquivos e executa as
       regras comparativas; {@link #ORIGINAL} e {@link #TRADUZIDO} exigem apenas um
       arquivo e executam as regras de arquivo único.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #porNome(String)} devolve
       {@link #AMBAS} para valor ausente ou desconhecido, preservando o comportamento
       histórico do endpoint (compatível com chamadas que não enviam o campo).
@@ -1301,12 +1300,12 @@ traducao_animes_llm_local_quarkus/
       legenda (só original ou só traduzido), sem depender de um par de comparação.
       Sustenta as abas "Só Original" e "Só Traduzida" do painel de Análise de
       Conteúdo, onde não existe artefato de referência.
-      
+
       <p>INVARIANTES DO DOMÍNIO: implementações são de responsabilidade única e não
       alteram o documento recebido; a auditoria é 100% leitura. Estas regras vivem
       numa hierarquia separada da comparativa {@link RegraAuditoriaConteudo} para
       que os dois conjuntos sejam injetados e contados de forma independente.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: uma regra que não consiga avaliar um evento
       (ex.: timestamp ilegível) deve ignorá-lo silenciosamente e nunca lançar; a
       ausência de anomalias é representada por lista vazia.
@@ -1316,23 +1315,23 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: representa o resultado exibido e exportado pela
       Análise de Legenda, incluindo a identificação inequívoca dos artefatos
       comparados e de seus formatos.
-      
+
       <p>INVARIANTES DO DOMÍNIO: arquivo e formato original sempre pertencem ao
       mesmo artefato; arquivo e formato traduzido seguem a mesma regra; anomalias
       são acumuladas sem alterar os metadados de entrada.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: esta classe não executa I/O; dados
       inválidos precisam ser rejeitados pelo caso de uso antes de sua criação.
   - TempoEventoUtil.java
       PROPÓSITO DE NEGÓCIO: interpreta e DIAGNOSTICA os instantes de início e fim de
       um evento de legenda, para que a auditoria distinga um timestamp válido de um
       corrompido em vez de simplesmente ignorá-lo.
-      
+
       <p>INVARIANTES DO DOMÍNIO: o tempo é lido do campo {@code prefixo} preservado
       pelos leitores — ASS guarda {@code Dialogue: Layer,Início,Fim,...} e SRT guarda
       a linha {@code hh:mm:ss,mmm --> hh:mm:ss,mmm}. Valores são milissegundos desde
       0; minutos e segundos válidos ficam em 0–59.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; um prefixo ilegível, incompleto
       ou fora do intervalo é reportado com o {@link StatusTempo} correspondente.
 
@@ -1340,11 +1339,11 @@ traducao_animes_llm_local_quarkus/
   - AuditoriaConteudoPersistencia.java
       PROPÓSITO DE NEGÓCIO: grava cada relatório de auditoria como um arquivo JSON
       imutável e único, para que execuções não sobrescrevam umas às outras.
-      
+
       <p>INVARIANTES DO DOMÍNIO: o nome combina timestamp em milissegundos com um
       contador atômico; a gravação usa {@code CREATE_NEW} para nunca substituir um
       relatório existente; a pasta de destino é decidida pelo chamador.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: colisão de nome tenta o próximo contador;
       esgotadas as tentativas, lança {@link IOException} sem sobrescrever nada.
 
@@ -1364,16 +1363,16 @@ traducao_animes_llm_local_quarkus/
       cabeçalho de {@link ProvenienciaCache} seguido das entradas. Substitui a lista
       pura de {@link EntradaCache} para que cada arquivo de cache carregue a origem
       (lore/modelo) que o gerou.
-      
+
       <p>INVARIANTES DO DOMÍNIO: {@code proveniencia} descreve TODAS as entradas do
       documento (um arquivo de cache = uma geração/proveniência). Entradas de
       proveniências diferentes nunca convivem no mesmo documento.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; a leitura de um JSON que
       não seja este objeto (ex.: lista pura do formato antigo) falha na
       desserialização e é tratada pelo {@code CacheTraducaoService} como formato
       legado ou corrompido.
-      
+
       @param proveniencia origem (lore/hash/modelo/idiomas) que gerou TODAS as entradas
       @param entradas linhas do cache de tradução deste documento
   - EntradaCache.java
@@ -1381,16 +1380,16 @@ traducao_animes_llm_local_quarkus/
       texto original e sua tradução, com o índice, o estilo e o par de idiomas a que
       pertencem. É a unidade que o cache de tradução grava e relê para evitar retraduzir
       a mesma fala. NÃO é um modelo genérico de legenda.
-      
+
       <p>INVARIANTES DO DOMÍNIO: {@code record} imutável; a ordem e os nomes dos
       componentes ({@code indice, estilo, original, traduzido, idiomaOriginal,
       idiomaTraduzido}) compõem o schema JSON persistido e não podem mudar sem quebrar a
       compatibilidade dos arquivos {@code .cache.json} existentes.
-      
+
       <p>COMPORTAMENTO EM CASO DE LIMITE: não há validação — qualquer valor, inclusive
       {@code null} nos campos de texto, é aceito; a coerência é responsabilidade de quem
       grava/lê o cache.
-      
+
       @param indice posição ordinal da fala na legenda
       @param estilo nome do estilo ASS da fala
       @param original texto original (idioma de origem)
@@ -1403,7 +1402,7 @@ traducao_animes_llm_local_quarkus/
       qual par de idiomas. É o que permite provar com o que uma tradução em cache
       foi feita e impedir que uma melhoria de lore reuse silenciosamente traduções
       antigas.
-      
+
       <p>INVARIANTES DO DOMÍNIO: duas proveniências só são "a mesma" se os SEIS campos
       baterem por igualdade exata — schemaVersion, contextoId, contextoHash, modeloLlm,
       idiomaOrigem e idiomaDestino. O hash é derivado do prompt de sistema ativo
@@ -1411,13 +1410,13 @@ traducao_animes_llm_local_quarkus/
       NÃO é normalizada: quando comparada à proveniência atual do pipeline, carimbada
       com {@code SCHEMA_ATUAL}, uma versão ausente/{@code 0} ou divergente reprova a
       compatibilidade e nunca é reutilizada.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #hashDe(String)} nunca lança — se o
       algoritmo SHA-256 faltar (não deve, é padrão da JVM), cai para o hashCode em
       hexadecimal como último recurso. {@link #mesmaProveniencia} trata nulo como
       "diferente"; no fluxo automático, versão ausente/{@code 0} materializada no cache
       diverge de {@code SCHEMA_ATUAL} e leva ao arquivamento da geração anterior.
-      
+
       @param schemaVersion versão do schema do documento de cache persistido
       @param contextoId identificador do lore/contexto usado na geração
       @param contextoHash hash SHA-256 do prompt de sistema ativo
@@ -1430,11 +1429,11 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: fornece uma porta única e segura para os módulos que
       corrigem os arquivos persistentes da pasta {@code cache}, aceitando tanto a
       lista JSON histórica quanto o documento versionado com proveniência.
-      
+
       <p>INVARIANTES DO DOMÍNIO: campos desconhecidos e o formato original são
       preservados; um cache só é substituído depois de backup, serialização em
       temporário e validação estrutural; a proveniência nunca é removida.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link IOException} sem substituir o
       arquivo original. O temporário é removido e o backup permanece disponível em
       {@code backups/correcao-cache/}.
@@ -1443,13 +1442,13 @@ traducao_animes_llm_local_quarkus/
       texto traduzido) em JSON, no formato versionado {@link CacheDocumento}. Serve para
       (1) permitir revisão/correção manual do cache editando o JSON e (2) evitar chamar o
       LLM de novo para falas já traduzidas numa execução anterior.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada arquivo carrega a {@link ProvenienciaCache}
       (lore/hash/modelo/idiomas) que o gerou; uma proveniência divergente NÃO é reutilizada
       — a geração anterior é arquivada e o episódio é retraduzido com o lore atual. A
       escrita é atômica (temporário + {@code ArquivoAtomicoUtil}); a leitura aceita tanto o
       documento versionado quanto a lista JSON histórica.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: um JSON ilegível é preservado (renomeado
       {@code .corrompido_<ts>.json}) em vez de ignorado/sobrescrito; falha de gravação
       propaga {@link ArquivoLegendaException} sem deixar o destino truncado.
@@ -1471,13 +1470,13 @@ traducao_animes_llm_local_quarkus/
       corresponde a nenhum provedor registrado. Impede que um anime seja traduzido com
       a lore errada silenciosamente — cair no contexto padrão sem aviso esconderia o
       erro de seleção do operador.
-      
+
       <p>INVARIANTES DO DOMÍNIO: pertence ao módulo compartilhado {@code contexto} e
       estende {@link ExcecaoContexto} (deixou de ser {@code TradutorException} na E7a),
       portanto continua sendo {@code BasePipelineException}; mensagem preservada
       (lista os contextos disponíveis). Só é lançada por quem resolve o contexto ativo
       a partir de um id explícito não vazio.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: propaga como {@code RuntimeException} não
       verificada; é convertida em resposta HTTP estruturada pelo
       {@code BasePipelineExceptionMapper} (comum a toda a família) e pode ser capturada
@@ -1488,13 +1487,13 @@ traducao_animes_llm_local_quarkus/
       saída) e mantém, por trás de cada prompt, a lore "crua" correspondente — para que
       usos pontuais (ex.: revisão de concordância) recuperem só a lore sem reenviar o
       prompt inteiro ao LLM.
-      
+
       <p>INVARIANTES DO DOMÍNIO: utilitário de domínio autocontido — sem I/O, sem
       configuração e sem dependência funcional externa —, porém com estado estático
       interno ({@code LORE_POR_PROMPT}, um cache prompt→lore). A ordem/estrutura do
       template e o mapeamento prompt→lore fazem parte do contrato e não podem mudar sem
       quebrar a recuperação da lore. Classe final, construtor privado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #obterLore(String)} devolve o próprio
       argumento quando o prompt não foi registrado (nunca lança); {@link #montar(String,
       String)} propaga {@code NullPointerException} se {@code lore} for nulo (via
@@ -1506,13 +1505,13 @@ traducao_animes_llm_local_quarkus/
       (essas vivem sob {@code TradutorException}, na fatia {@code traducao}) nem falhas
       de legenda (sob {@code ExcecaoLegenda}); é a base específica das falhas do
       domínio de contexto, consumível por qualquer fatia.
-      
+
       <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
       {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
       canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
       infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
       {@code BasePipelineExceptionMapper}, comum a toda a família.
-      
+
       <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
       verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
       estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
@@ -1523,12 +1522,12 @@ traducao_animes_llm_local_quarkus/
       prompt de sistema do LLM, o rótulo de UI e os termos que não devem ser traduzidos.
       É o ponto de extensão do módulo compartilhado {@code contexto}: novas obras entram
       apenas adicionando implementações {@code @Component}, sem tocar em quem consome.
-      
+
       <p>INVARIANTES DO DOMÍNIO: interface pura (só depende do JDK); {@link #getId()} é o
       identificador único e estável usado para seleção e para carimbar a proveniência do
       cache; {@link #obterPromptSistema()} devolve o prompt completo já montado; termos
       protegidos são um conjunto imutável (por padrão vazio). Nenhum método realiza I/O.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: os métodos não lançam por contrato; um provedor
       mal formado (id nulo/duplicado) é rejeitado por quem agrega os provedores
       ({@code GerenciadorContexto}), não por esta interface.
@@ -1538,12 +1537,12 @@ traducao_animes_llm_local_quarkus/
       adjetivos/particípios e usa "you" genérico, o que leva o LLM a masculinizar tudo.
       É injetado no prompt de tradução ({@link ContextoPrompt#montar}) e reaproveitado
       no prompt de revisão de concordância.
-      
+
       <p>INVARIANTES DO DOMÍNIO: constantes/textos imutáveis; {@code BLOCO_TRADUCAO} e o
       template de {@link #montarPromptRevisao(String)} são conteúdo de negócio congelado
       — espaçamento, quebras de linha e pontuação fazem parte do contrato do prompt e não
       podem ser reformatados. Classe final, construtor privado, sem estado mutável.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #montarPromptRevisao(String)} trata
       {@code null}/branco como "(sem lore adicional)" e nunca lança.
 
@@ -1554,12 +1553,12 @@ traducao_animes_llm_local_quarkus/
       {@code GerenciadorContexto}. Extraído de {@code traducao.infrastructure.config.RestClientConfig}
       na E7b para que a agregação dos provedores pertença ao próprio peer, e não à fatia
       de tradução (mesmo padrão de {@code legendasExtracao.infrastructure.config.ExtracaoBeansConfig}).
-      
+
       <p>INVARIANTES DO DOMÍNIO: agrega TODAS as implementações descobertas via
       {@link Instance}, na ordem de iteração fornecida pelo container, sem impor ordenação
       própria (a ordenação por nome de exibição é responsabilidade do {@code GerenciadorContexto}).
       Não conhece classes de nenhuma fatia funcional.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: quando não há nenhum provedor registrado,
       {@link #todosProvedoresContexto(Instance)} devolve uma lista vazia (nunca nula).
 
@@ -1571,14 +1570,14 @@ traducao_animes_llm_local_quarkus/
       qual as fatias funcionais (tradução, correção, revisão, karaokê) selecionam e
       consultam a obra ativa — agora residente no módulo compartilhado {@code contexto}
       (peer), consumível por qualquer fatia sem acoplamento reverso.
-      
+
       <p>INVARIANTES DO DOMÍNIO: os provedores são ordenados por nome de exibição
       (case-insensitive) e seus ids são únicos (falha na construção se houver duplicata);
       o contexto padrão é {@code danmachi} (ou o primeiro, se ausente); {@code provedorAtivo}
       nunca cai silenciosamente no padrão quando um id explícito não existe. O campo
       {@code provedorAtivo} é {@code volatile} para visibilidade entre a thread do executor
       de background e a leitura ao montar o prompt — não é uma alegação de isolamento por job.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #definirContextoAtivo(String)} lança
       {@link ContextoNaoEncontradoException} para um id não vazio desconhecido (impede
       traduzir com a lore errada silenciosamente); ids nulos/vazios mantêm o ativo atual;
@@ -1589,134 +1588,134 @@ traducao_animes_llm_local_quarkus/
   - ContextoDanMachi.java
       PROPÓSITO DE NEGÓCIO: lore geral de DanMachi (contexto padrão) cobrindo termos
       de mundo, nomes principais e regras de tradução para qualquer arco.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Liliruca Arde; Syr Flova; Mikoto Yamato; Familia/Falna/Dungeon.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiOrion.java
       PROPÓSITO DE NEGÓCIO: lore do filme Arrow of the Orion — correção de grafia
       Liliruca e elenco do filme.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Liliruca Arde (nunca Liriruca/Lilisuka); Artemis;
       nomes oficiais do filme.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiS1.java
       PROPÓSITO DE NEGÓCIO: lore da 1ª temporada de DanMachi (arco inicial em Orario /
       Minotaur / formação da Hestia Familia) para o LLM e o detector de tradução idêntica.
-      
+
       <p>INVARIANTES DO DOMÍNIO: nomes oficiais EN/JP-romanizados; Liliruca Arde (não
       "Lilisuka"); ordem ocidental Mikoto Yamato; termos Familia/Falna/Dungeon protegidos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiS2.java
       PROPÓSITO DE NEGÓCIO: lore da 2ª temporada de DanMachi (arco Ishtar / War Game /
       Haruhime) para tradução fiel de nomes e termos.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Liliruca Arde; Haruhime Sanjouno; Ishtar Familia;
       Pleasure Quarter; não traduzir Bell como "sino".
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiS3.java
       PROPÓSITO DE NEGÓCIO: lore da 3ª temporada de DanMachi (arco Xenos) para
       preservar nomes de monstros inteligentes e facções.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Xenos, Wiene, Fels, Dix Perdix, Asterius; Liliruca Arde.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiS4.java
       PROPÓSITO DE NEGÓCIO: lore da 4ª temporada de DanMachi (Deep Floors / Labyrinth).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Rivira, Juggernaut, Ryuu Lion; Liliruca Arde;
       Mikoto Yamato (ordem ocidental).
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiS5.java
       PROPÓSITO DE NEGÓCIO: lore da 5ª temporada de DanMachi (arco Freya / Goddess of
       Fertility) com grafia canônica Syr Flova.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Syr Flova (nunca "Flover"); Folkvangr; Charm divino;
       nomes da Freya Familia.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoDanMachiSwordOratoria.java
       PROPÓSITO DE NEGÓCIO: lore de Sword Oratoria (spin-off Loki Familia / Ais).
-      
+
       <p>INVARIANTES DO DOMÍNIO: nomes oficiais da Loki Familia; Ais = Sword Princess;
       Lefiya, Finn, Riveria, Gareth, Tiona, Tione, Bete.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/eightsix/
   - Contexto86.java
       PROPÓSITO DE NEGÓCIO: lore de 86 — Eighty-Six (segregação estatal, guerra psicológica).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Shin ≠ canela; Alba/Colorata/Pig; Handler/Processor;
       Para-RAID; Legion e unidades em latim/alemão.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/evangelion/
   - ContextoEvangelion111.java
       PROPÓSITO DE NEGÓCIO: lore de Evangelion 1.11 (Rebuild 1.0).
-      
+
       <p>INVARIANTES DO DOMÍNIO: continuidade Rebuild; Sachiel/Shamshel/Ramiel; NERV.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoEvangelion222.java
       PROPÓSITO DE NEGÓCIO: lore de Evangelion 2.22 (Rebuild 2.0) com Asuka Shikinami.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
       Near Third Impact; Unit-03 / Bardiel.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoEvangelion3010.java
       PROPÓSITO DE NEGÓCIO: lore de Evangelion 3.0+1.0 — Village-3 / Additional Impact.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
       Village-3; Golgotha Object; não usar "Asuka Langley" incompleto.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoEvangelion333.java
       PROPÓSITO DE NEGÓCIO: lore de Evangelion 3.33 (Rebuild 3.0) — WILLE / Wunder.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Asuka Shikinami Langley; Mari Illustrious Makinami;
       WILLE; AAA Wunder; Unit-13.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoEvangelionTV.java
       PROPÓSITO DE NEGÓCIO: lore da série TV clássica Neon Genesis Evangelion.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Asuka Langley Soryu (TV, não Shikinami); NERV; SEELE;
       Angels; Human Instrumentality Project.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/guiltycrown/
   - ContextoGuiltyCrown.java
       PROPÓSITO DE NEGÓCIO: lore de Guilty Crown (biologia distópica + Voids).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Funeral Parlor ≠ Undertaker; Void Genome; Lost Christmas;
       Apocalypse Virus; Endlave; Crystallization.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/chars/
   - ContextoCharsCounterattack.java
       PROPÓSITO DE NEGÓCIO: lore de Char's Counterattack (UC 0093 / Axis Shock).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Amuro Ray; Char Aznable; Nu Gundam; Sazabi;
       Londo Bell; Axis; psycho-frame.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/
   - ContextoGundam0079.java
       PROPÓSITO DE NEGÓCIO: lore UC 0079 com núcleo conceitual militar (Minovsky, MS/MA, Newtype).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Newtype ≠ "Novo Tipo"; Mobile Suit ≠ Mobile Armor;
       Spacenoid/Earthnoid; Minovsky Particles; Principality of Zeon vs Earth Federation.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamF91.java
       (sem cabecalho explicativo)
@@ -1725,44 +1724,44 @@ traducao_animes_llm_local_quarkus/
   - ContextoGundamNT.java
       PROPÓSITO DE NEGÓCIO: lore de Gundam NT (Narrative) calibrada no artefato real
       (legendas EN/PT do BD em C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Newtype/Cyber-Newtype/Oldtype; Spacenoid; Mobile Suit
       vs Mobile Armor; Phenex; Shezarr; Metis/Banchi 18/Fransson; Minovsky vs psycho-waves.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamOrigin.java
       (sem cabecalho explicativo)
   - ContextoGundamSEED.java
       PROPÓSITO DE NEGÓCIO: lore de Gundam SEED (série CE 71) — sem misturar Destiny.
-      
+
       <p>INVARIANTES DO DOMÍNIO: elenco SEED apenas; Shinn Asuka pertence a Destiny;
       Coordinator/Natural; Freedom/Justice/Strike.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamSEEDAstray.java
       (sem cabecalho explicativo)
   - ContextoGundamSEEDDestiny.java
       PROPÓSITO DE NEGÓCIO: lore de Gundam SEED Destiny — elenco e mecha da sequela.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Shinn Asuka; Minerva; Destiny/Impulse/Strike Freedom;
       Gilbert Durandal; LOGOS.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamSEEDFreedom.java
       PROPÓSITO DE NEGÓCIO: lore do filme Gundam SEED FREEDOM.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Rising Freedom; Immortal Justice; Mighty Strike Freedom;
       Kingdom of Foundation; Orphee Lam Tao; Agnes Giebenrath.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamSEEDStargazer.java
       (sem cabecalho explicativo)
   - ContextoGundamUnicorn.java
       PROPÓSITO DE NEGÓCIO: lore de Gundam Unicorn (UC 0096) com núcleo UC completo.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Laplace's Box; Unicorn/Banshee; Newtype/Spacenoid;
       Mobile Suit vs Armor; Psycho-Frame; Sleeves.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoGundamVictory.java
       (sem cabecalho explicativo)
@@ -1770,10 +1769,10 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/msteam/
   - ContextoGundam08thMSTeam.java
       PROPÓSITO DE NEGÓCIO: lore de The 08th MS Team (OVA UC 0079 — guerra terrestre).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Shiro Amada; Aina Sahalin; Ez-8; Apsalus; Eledore;
       realismo anti-guerra.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/reconguista/
@@ -1791,35 +1790,35 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/zeta/
   - ContextoGundamZeta.java
       PROPÓSITO DE NEGÓCIO: lore de Zeta Gundam (Gryps Conflict / UC 0087).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Kamille Bidan (masculino); AEUG; Titans; Quattro Bajeena.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/gundam/zz/
   - ContextoGundamZZ.java
       PROPÓSITO DE NEGÓCIO: lore de Mobile Suit Gundam ZZ (UC 0088 / Neo Zeon).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Judau Ashta; Haman Karn; Glemy Toto; ZZ Gundam;
       Axis/Neo Zeon; Shangri-La.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/macross/
   - ContextoMacross2.java
       PROPÓSITO DE NEGÓCIO: lore de Macross II: Lovers Again para tradução fiel de
       nomes, Marduk/Emulator e mecha da continuidade alternativa.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Hibiki Kanzaki; Ishtar; Silvie Gena; Marduk;
       Emulator; Minmay Attack; VF-2SS.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacross7.java
       PROPÓSITO DE NEGÓCIO: lore enriquecida de Macross 7 (série TV) / Fire Bomber.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Basara Nekki; Fire Bomber; Protodeviln; Sound Force;
       VF-19 Custom Fire Valkyrie.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacross7Encore.java
       (sem cabecalho explicativo)
@@ -1829,31 +1828,31 @@ traducao_animes_llm_local_quarkus/
       (sem cabecalho explicativo)
   - ContextoMacrossAnime.java
       PROPÓSITO DE NEGÓCIO: lore clássica de Macross (cânone JP — tríade música/mecha/geopolítica).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Valkyrie/VF; Fighter/GERWALK/Battroid; Overtechnology;
       Deculture; Zentradi; proibir léxico Robotech (Veritech).
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacrossDelta.java
       PROPÓSITO DE NEGÓCIO: lore de Macross Delta (série TV) com termos protegidos.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Walküre; Windermere; Var Syndrome; elenco oficial.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacrossDeltaFilme1.java
       PROPÓSITO DE NEGÓCIO: lore do filme Macross Delta — Passionate Walküre
       (Gekijou no Walküre), alinhada à fila ativa de tradução.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Walküre; Windermere; Var Syndrome; mesmos nomes
       canônicos da série Delta.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacrossDeltaFilme2.java
       PROPÓSITO DE NEGÓCIO: lore do filme Macross Delta 2 — Absolute Live!!!!!!
-      
+
       <p>INVARIANTES DO DOMÍNIO: Heimdall; Yami_Q_Ray; VF-31AX Kairos-Plus; Max Jenius;
       continuidade pós-série (não confundir com Passionate Walküre).
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacrossDeltaFilmes.java
       (sem cabecalho explicativo)
@@ -1867,10 +1866,10 @@ traducao_animes_llm_local_quarkus/
       (sem cabecalho explicativo)
   - ContextoMacrossFrontier.java
       PROPÓSITO DE NEGÓCIO: lore enriquecida de Macross Frontier (série TV).
-      
+
       <p>INVARIANTES DO DOMÍNIO: Klan Klang; SMS; Vajra; Sheryl Nome; Ranka Lee;
       Macross Frontier fleet.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoMacrossFrontierFilme1.java
       (sem cabecalho explicativo)
@@ -1886,16 +1885,16 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/contexto/lore/sidonia/
   - ContextoKnightsOfSidonia.java
       PROPÓSITO DE NEGÓCIO: lore da série Knights of Sidonia.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Izana Shinatose; Gauna; Garde; Ena; Heigus.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
   - ContextoSidoniaFilme.java
       PROPÓSITO DE NEGÓCIO: lore do filme Sidonia — corrige Izana Shinatose.
-      
+
       <p>INVARIANTES DO DOMÍNIO: Izana Shinatose (nunca Shinoshinari); Nagate; Tsumugi;
       Gauna/Garde.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
 
 [PASTA] src/main/java/org/traducao/projeto/core/exception/
@@ -1928,7 +1927,7 @@ traducao_animes_llm_local_quarkus/
       (sem Spring RestClient), técnico e neutro — reutilizável por qualquer fatia. Recebe os
       timeouts como {@link Duration} explícitos e a base URL por parâmetro; não conhece LLM,
       anime, autenticação nem fatia funcional (kernel {@code core.infrastructure.http}).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Connect timeout no builder do {@code HttpClient}; read timeout por requisição.</li>
@@ -1936,7 +1935,7 @@ traducao_animes_llm_local_quarkus/
       {@code getAbsolute} usa a URL completa recebida.</li>
       <li>Nenhuma dependência de fatia funcional; só JDK + Jackson (técnico).</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Status HTTP &ge; 400 lança {@link HttpClientException} com o código e o corpo.
       {@link #isErroRedeOuTimeout(Throwable)} classifica timeout/conexão/host desconhecido.
@@ -1952,7 +1951,7 @@ traducao_animes_llm_local_quarkus/
       configurada no {@code build.gradle}) para uma árvore descartável em
       {@code build/tmp/kronos-tests}, impedindo que os testes contaminem os
       diretórios operacionais reais versionados pelo Git.
-      
+
       <p>INVARIANTES DO DOMÍNIO:
       <ul>
       <li>Quando {@code kronos.dir.base} está ausente ou em branco, a raiz é o
@@ -1963,7 +1962,7 @@ traducao_animes_llm_local_quarkus/
       estático, para que o valor definido no lançamento da JVM de teste valha
       inclusive para constantes resolvidas em tempo de carga de classe.</li>
       </ul>
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: não lança exceção própria. Se a property
       contiver um caminho sintaticamente inválido, a exceção de {@link Path#of}
       propaga ao chamador; com property ausente/branca cai no diretório corrente.
@@ -1979,7 +1978,7 @@ traducao_animes_llm_local_quarkus/
       de recuperação quando o console falha. É um utilitário técnico de apresentação
       neutro (I/O de console), sem qualquer conceito de tradução/legenda/LLM — por isso
       reside no {@code core.presentation.ui} compartilhado, ao lado do {@code AnsiCores}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>NUNCA fecha {@code System.in}: o leitor estático é envolvido uma única vez e
@@ -1989,7 +1988,7 @@ traducao_animes_llm_local_quarkus/
       <li>Zero dependência de fatia funcional: só depende do JDK e do {@code AnsiCores}
       do próprio core.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       EOF / {@code stdin} fechado, ou caminho obrigatório vazio, resultam em
       {@link Optional#empty()}. Uma {@link IOException} de leitura é capturada, sinalizada
@@ -2003,11 +2002,11 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: transporta os parâmetros comuns das operações do
       pipeline (análise, tradução, correção e revisão) enviados pela SPA — pastas de
       entrada/saída, contexto de lore selecionado e opções de sincronismo/revisão.
-      
+
       <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
       consumido pelo front-end; caminhos são normalizados e o contexto é validado
       pelos endpoints antes de qualquer job entrar na fila compartilhada.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes chegam como {@code null} e
       cada endpoint decide o fallback seguro ou responde HTTP 400 antes de enfileirar.
   - PipelineWebSupport.java
@@ -2016,12 +2015,12 @@ traducao_animes_llm_local_quarkus/
       interface e o enfileiramento padronizado de jobs pesados na fila única de
       execução. Existe para que todos os endpoints entrem na MESMA fila e imprimam o
       MESMO formato de relatório final, sem duplicar essa lógica em cada controller.
-      
+
       <p>INVARIANTES DO DOMÍNIO: expõe a única {@link FilaExecucaoPipeline}
       compartilhada (bean CDI) — jamais deve existir mais de uma instância de fila;
       todo job pesado passa por {@link #submeterJobComRelatorio}, garantindo canal
       SSE definido antes da execução e execução sequencial em segundo plano.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #normalizarCaminho(String)} devolve
       {@code null} para entrada nula/vazia ou sintaxe de caminho inválida
       ({@link InvalidPathException}), registrando aviso no log; o corpo submetido em
@@ -2031,10 +2030,10 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: envelope de resposta textual padrão da API web, usado
       por praticamente todos os endpoints do pipeline para devolver ao navegador uma
       mensagem legível (aceitação na fila, validação recusada ou heartbeat).
-      
+
       <p>INVARIANTES DO DOMÍNIO: o nome do campo {@code mensagem} é contrato JSON
       público consumido pela SPA; não pode ser renomeado sem quebrar o front-end.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
       construção; {@code mensagem} pode ser vazia, mas nunca deve carregar dados
       sensíveis, pois é ecoada diretamente na interface.
@@ -2042,7 +2041,7 @@ traducao_animes_llm_local_quarkus/
 [PASTA] src/main/java/org/traducao/projeto/core/util/
   - ArquivoAtomicoUtil.java
       Substituição atômica de arquivo (temporário -&gt; destino) tolerante ao Windows.
-      
+
       <p>No Windows, o move atômico ({@code MoveFileEx}) falha com
       {@link AccessDeniedException} quando o arquivo de destino está momentaneamente
       aberto por outro processo sem compartilhamento de exclusão — tipicamente
@@ -2105,25 +2104,25 @@ traducao_animes_llm_local_quarkus/
       timestamps, estilos e conteúdo. Delega a leitura do contêiner aos adaptadores
       ({@link ExtratorVideoPort}) e a escolha da faixa às strategies
       ({@link ExtratorStrategy}).
-      
+
       <p>INVARIANTES DO DOMÍNIO: extrai exatamente o formato pedido, sem fallback
       para outro; nunca sobrescreve arquivo de saída existente; só publica resultado
       validado (existe, não-vazio, formato correto); cada vídeo gera um item no
       relatório e é contabilizado na telemetria.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: falhas por vídeo são isoladas — o item vira
   - ValidadorSaidaExtracao.java
       PROPÓSITO DE NEGÓCIO: Garante que o arquivo recém-extraído é uma legenda de
       verdade no formato pedido — não um arquivo vazio nem uma faixa de outro tipo
       gravada por engano. É a blindagem que separa "extração concluída" de "arquivo
       criado", exigida para nunca entregar lixo ao módulo de tradução.
-      
+
       <p>INVARIANTES DO DOMÍNIO: um arquivo só é válido se (1) existe, (2) tem
       tamanho maior que zero e (3) seu conteúdo bate com a assinatura do formato:
       ASS contém marcador de seção/{@code Dialogue:}; SRT contém a seta de
       timestamp {@code -->}; PGS começa com o magic {@code PG} (0x50 0x47). A
       verificação lê apenas o início do arquivo (amostra), nunca o carrega inteiro.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link ExtratorException} com a razão
       específica (inexistente / vazio / formato divergente / erro de leitura). Não
       remove o arquivo — o cleanup do parcial é responsabilidade do use case.
@@ -2144,10 +2143,10 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: Sinaliza que a ferramenta externa (mkvextract/ffmpeg)
       estourou o tempo limite durante a extração, para o use case contabilizar
       timeouts separadamente das demais falhas na telemetria e na tabela de resultado.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só deve ser lançada em caso de {@code TimeoutException}
       real do processo externo — nunca reaproveitada para erros genéricos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: é ela própria a falha; herda de
       {@link ExtratorException} para continuar sendo capturada por quem trata a
       hierarquia genérica, mas permite {@code catch} específico antes.
@@ -2165,12 +2164,12 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: Linha da tabela de resultado da extração — o que Paulo vê
       por vídeo (Vídeo | Formato | Track | Arquivo gerado | Status). É o registro
       granular que o relatório agregado ({@link RelatorioExtracao}) não expunha antes.
-      
+
       <p>INVARIANTES DO DOMÍNIO: {@code video}, {@code formato} e {@code status}
       nunca são nulos. {@code trackId} e {@code arquivoGerado} são nulos justamente
       quando não houve faixa/arquivo (ex.: {@link StatusExtracao#FAIXA_NAO_ENCONTRADA}),
       e a UI os renderiza como "—".
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; as fábricas não validam e
       não lançam — o chamador é responsável por passar dados coerentes com o status.
   - RelatorioExtracao.java
@@ -2178,13 +2177,13 @@ traducao_animes_llm_local_quarkus/
       os contadores agregados (para o resumo e a telemetria) quanto a lista granular
       por vídeo ({@link ItemExtracao}, que alimenta a tabela da UI). É o objeto que o
       use case devolve à camada de apresentação.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada vídeo processado incrementa {@code arquivosDetectados}
       e adiciona exatamente um item; a soma de extraídas + sem-faixa + já-existentes +
       falhas + timeouts nunca ultrapassa os vídeos detectados. {@code timeouts} é
       contado à parte de {@code falhasInesperadas}. A lista de itens é exposta como
       cópia imutável.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: mutador simples, não lança. Contadores
       começam em zero; a lista de itens começa vazia.
   - StatusExtracao.java
@@ -2192,11 +2191,11 @@ traducao_animes_llm_local_quarkus/
       de um único vídeo, para a UI e a telemetria distinguirem "não tinha a faixa"
       de "falhou de verdade" de "já existia" — informação que Paulo usa para decidir
       se reprocessa, troca de formato ou ignora o item.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada vídeo processado termina em exatamente um
       status. {@link #JA_EXISTE} nunca sobrescreve arquivo; {@link #TIMEOUT} é
       sempre separado de {@link #FALHA} para a telemetria contabilizá-los à parte.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: enum puro, não lança. O rótulo é sempre
       não-nulo (definido no construtor).
 
@@ -2221,7 +2220,7 @@ traducao_animes_llm_local_quarkus/
       registradas, para que a escolha do extrator (por contêiner) e da strategy (por
       formato) seja feita em tempo de execução sem a fatia conhecer as classes
       concretas. A composição pertence à fatia dona da extração — não à Tradução Local.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Cada coleção agrega TODAS as implementações CDI disponíveis do respectivo
@@ -2231,7 +2230,7 @@ traducao_animes_llm_local_quarkus/
       <li>A semântica é idêntica à anterior (Spring DI integrado ao Quarkus): apenas
       o LOCAL da composição mudou para a fatia proprietária.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Se nenhuma implementação de um dos tipos estiver registrada, a coleção
       correspondente é retornada vazia (nunca nula); o consumidor decide como tratar
@@ -2245,11 +2244,11 @@ traducao_animes_llm_local_quarkus/
       de softsubs (vídeo ➔ legenda) da fatia {@code legendasExtracao}, resolvendo o
       único caminho de que precisa — a pasta de vídeos de entrada — a partir da própria
       configuração, sem depender da configuração ou do estado da fatia {@code traducao}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa exclusivamente {@code tradutor.diretorio-entrada};
       não injeta diretório de saída nem de cache; entrada ausente, vazia ou só com
       espaços é rejeitada antes de qualquer processamento.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada não configurada encerra sem processar
       (imprime instrução de saída); pasta inexistente encerra sem produzir extração.
 
@@ -2262,11 +2261,11 @@ traducao_animes_llm_local_quarkus/
       (Vídeo | Formato | Track | Arquivo gerado | Status) que aparece nos consoles
       da UI web e do CLI, dando a Paulo a visão por vídeo — inclusive qual Track ID
       foi extraído — que os contadores agregados não mostravam.
-      
+
       <p>INVARIANTES DO DOMÍNIO: colunas com largura ajustada ao maior valor;
       campos ausentes ({@code trackId}/{@code arquivoGerado} nulos) viram "—". Só de
       apresentação — não decide nada sobre a extração.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem itens, devolve string vazia (o chamador
       simplesmente não imprime). Não lança.
 
@@ -2275,7 +2274,7 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe a extração de legendas (Opção 2) à interface web,
       validando o formato-alvo e enfileirando o processamento pesado que percorre a
       pasta de vídeos e extrai as faixas de legenda no formato escolhido.
-      
+
       <p>Fronteira arquitetural: este endpoint pertence ao módulo
       {@code legendasExtracao} (Opção 2) e reside na sua camada de apresentação
       própria. Não importa nenhuma regra funcional da Tradução Local (Opção 4): usa
@@ -2284,21 +2283,21 @@ traducao_animes_llm_local_quarkus/
       são <b>glue técnico de apresentação</b> (fila única e contratos de transporte
       HTTP) hoje em {@code traducao.presentation.web}; é dívida técnica temporária
       reservada para saneamento na FASE E — não é acoplamento funcional.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport}; o formato é validado antes de enfileirar; caminhos
       são normalizados; a rota {@code POST /api/extrair}, o status e os campos de DTO
       são contrato público preservado exatamente como antes da movimentação.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido
       retorna HTTP 400; falhas do job de background são registradas no log e no
   - ExtracaoRequest.java
       PROPÓSITO DE NEGÓCIO: transporta os parâmetros da extração de legendas —
       pasta de vídeos, pasta de saída e o formato-alvo escolhido na interface.
-      
+
       <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público; o
       formato é validado contra {@code FormatoLegenda} antes do job entrar na fila.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou formato inválido faz o
       endpoint responder HTTP 400 antes de qualquer processamento.
 
@@ -2309,7 +2308,7 @@ traducao_animes_llm_local_quarkus/
       (tradução, revisão, correção) mexa em música — responsabilidade exclusiva do
       fluxo de karaokê. É a regra única compartilhada, agora residente no peer
       {@code legenda}, consumível por qualquer fatia sem acoplamento reverso.
-      
+
       <p>Cobre as duas formas em que o karaokê aparece nos arquivos .ass:
       <ul>
       <li>Karaokê "cru": tags de timing {@code \k}, {@code \kf}, {@code \ko}
@@ -2319,7 +2318,7 @@ traducao_animes_llm_local_quarkus/
       transformações animadas ({@code \t(...)}, {@code \frx}, {@code \fad},
       {@code \pos}) e quase nenhum texto visível.</li>
       </ul>
-      
+
       <p>INVARIANTES DO DOMÍNIO: distingue música de diálogo pela assinatura de tags
       e pela densidade de texto visível; preserva letra em japonês/romaji (kana/kanji
       ou estilo marcado como japonês) para nunca destruí-la, enquanto karaokê/música
@@ -2327,7 +2326,7 @@ traducao_animes_llm_local_quarkus/
       dúvida o viés é preservar: deixar uma linha de música sem traduzir custa menos
       que corromper romaji. A classe é sem estado (stateless) e depende apenas de
       JDK e Spring.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas ou em branco devolvem
       {@code false} (não classificam o evento como música/karaokê) e nenhum método
       lança — cada consulta é uma decisão booleana determinística sobre o
@@ -2339,12 +2338,12 @@ traducao_animes_llm_local_quarkus/
       (I/O, formato inválido, seção ausente) dentro do módulo compartilhado
       {@code legenda}. É a exceção de I/O de legenda que leitores e escritores lançam
       e que os fluxos consumidores tratam como falha de arquivo.
-      
+
       <p>INVARIANTES DO DOMÍNIO: estende {@link ExcecaoLegenda} (raiz do módulo legenda),
       portanto é {@code BasePipelineException} e NÃO é {@code TradutorException}. Preserva
       os dois construtores canônicos (mensagem; mensagem+causa); não adiciona estado nem
       lógica.
-      
+
       <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
       verificada; é mapeada para resposta HTTP pelo {@code BasePipelineExceptionMapper} e
       pode ser capturada por blocos que tratem {@link ExcecaoLegenda} (ou este tipo).
@@ -2354,17 +2353,17 @@ traducao_animes_llm_local_quarkus/
       ordenada de eventos ({@link EventoLegenda}) e os metadados de serialização
       (marca de quebra de linha e presença de BOM) necessários para reescrever o arquivo
       fielmente.
-      
+
       <p>INVARIANTES DO DOMÍNIO: é um {@code record} — os quatro componentes são fixados
       na construção e expostos pelos acessores; igualdade e hash derivam de todos eles.
       A imutabilidade é rasa: a referência da lista {@code eventos} é armazenada como
       recebida (não há cópia defensiva). Não há validação: qualquer valor, inclusive
       {@code null} em qualquer componente, é aceito.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o próprio record não lança nem sanitiza nada;
       entradas inválidas (ex.: {@code eventos} nulo) só se manifestam quando um consumidor
       as percorre. Nenhuma responsabilidade de I/O, parsing ou tradução vive aqui.
-      
+
       @param cabecalho bloco bruto de cabeçalho da legenda, preservado para reescrita fiel
       @param eventos sequência ordenada de eventos (linhas) da legenda
       @param quebraDeLinha marca de quebra de linha original do arquivo, usada na serialização
@@ -2374,16 +2373,16 @@ traducao_animes_llm_local_quarkus/
       {@code legenda}, um único evento (linha) de uma legenda — seu índice de ordem, o
       tipo de linha (ex.: {@code Dialogue}), o estilo, o prefixo estrutural e o texto
       visível — servindo de unidade que leitores, escritores e regras percorrem.
-      
+
       <p>INVARIANTES DO DOMÍNIO: é um {@code record} — os cinco componentes são fixados na
       construção; igualdade e hash derivam de todos eles. Não há validação: qualquer valor,
       inclusive {@code null} em {@code texto} ou nos demais campos de texto, é aceito.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o record não lança nem sanitiza; consultas sobre
       campos nulos são tratadas pelos próprios métodos ({@link #temTexto()} devolve
       {@code false} para {@code texto} nulo). Nenhuma responsabilidade de I/O ou tradução
       vive aqui.
-      
+
       @param indice posição ordinal do evento dentro da legenda
       @param tipoLinha tipo da linha (ex.: {@code Dialogue}), base de {@link #isDialogo()}
       @param estilo nome do estilo associado ao evento
@@ -2395,13 +2394,13 @@ traducao_animes_llm_local_quarkus/
       NÃO representa falhas gerais de tradução nem do LLM (essas vivem sob
       {@code TradutorException}, na fatia {@code traducao}); é a base específica das
       falhas do domínio de legenda, consumível por qualquer fatia.
-      
+
       <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
       {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
       canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
       infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
       {@code BasePipelineExceptionMapper}, comum a toda a família.
-      
+
       <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
       verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
       estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
@@ -2413,7 +2412,7 @@ traducao_animes_llm_local_quarkus/
       transfere o PROPRIETÁRIO desta regra — antes em
       {@code TradutorProperties.estiloIgnorado} — para o módulo compartilhado
       {@code legenda}, SEM alterar o comportamento funcional do fluxo.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Sinaliza um estilo quando ele está na lista configurada
@@ -2429,7 +2428,7 @@ traducao_animes_llm_local_quarkus/
       <li>Guarda uma cópia IMUTÁVEL da lista recebida, preservando ordem, case,
       duplicatas e elementos vazios — sem trim, dedup ou normalização.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Estilo {@code null} ou em branco retorna {@code false} (não identificado como musical).
       Um retorno {@code false} significa apenas "não identificado como estilo musical por
@@ -2441,7 +2440,7 @@ traducao_animes_llm_local_quarkus/
       musicais preserváveis e produz a política de domínio pura {@link PoliticaEstiloMusical}.
       Isola o Quarkus/MicroProfile Config na borda de infraestrutura do módulo {@code legenda},
       mantendo o domínio livre de framework.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Chave lida: {@code tradutor.estilos-ignorados} (mantida nesta subfase — sem rename).</li>
@@ -2449,7 +2448,7 @@ traducao_animes_llm_local_quarkus/
       é {@code final} e não admite proxy de escopo normal.</li>
       <li>Fallback {@code ["Song JP"]} quando a chave está ausente (Optional.empty).</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha / caracterização de binding (E3c)</h2>
       Chave ausente → política construída com o fallback {@code ["Song JP"]}, idêntico ao
       binding histórico do {@code TradutorProperties}. Caracterização comprovada: sob string
@@ -2463,11 +2462,11 @@ traducao_animes_llm_local_quarkus/
       {@link DocumentoLegenda}, repetindo o cabeçalho original e as linhas não
       traduzíveis byte a byte, e trocando apenas o campo Text dos eventos
       {@code Dialogue} pela versão traduzida. É o par de saída do {@link LeitorLegendaAss}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: o EOL e o BOM do documento original são reproduzidos na
       saída; a escrita é atômica — grava em arquivo temporário e substitui o destino via
       {@link org.traducao.projeto.core.util.ArquivoAtomicoUtil#substituirAtomico}.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de escrita lança
       {@link ArquivoLegendaException}, sem deixar o arquivo de destino truncado (a
       substituição atômica só ocorre após a gravação completa do temporário).
@@ -2476,11 +2475,11 @@ traducao_animes_llm_local_quarkus/
       preservando numeração e timestamps (guardados no índice e no {@code prefixo}
       do evento) e trocando apenas o texto pela versão traduzida. É o par de saída
       do {@link LeitorLegendaSrt}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada evento vira um bloco SRT válido (índice, linha
       de tempo, texto, linha em branco de separação); as marcas {@code \N} de quebra
       interna voltam a ser quebras reais no EOL do documento; escrita atômica.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erro de IO → {@link ArquivoLegendaException},
       sem deixar arquivo truncado (grava em temporário e move atomicamente).
   - LeitorLegendaAss.java
@@ -2489,12 +2488,12 @@ traducao_animes_llm_local_quarkus/
       dos eventos {@code Dialogue} (estilos, timestamps, seções de metadados). Só o campo
       Text é exposto para tradução; o resto é reconstruído idêntico pelo
       {@link EscritorLegendaAss}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: o cabeçalho, o EOL e o BOM originais são guardados no
       documento para reescrita fiel; cada evento é mapeado para um {@link EventoLegenda}
       conforme a ordem das colunas declarada na linha {@code Format:} da seção
       {@code [Events]}.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O de leitura, arquivo ilegível ou
       seção {@code [Events]} sem linha {@code Format:} lançam {@link ArquivoLegendaException}.
   - LeitorLegendaSrt.java
@@ -2504,11 +2503,11 @@ traducao_animes_llm_local_quarkus/
       Numeração e timestamps ficam no {@code prefixo} do evento (a linha de tempo) e
       no índice; só o texto é traduzido. Quebras internas viram {@code \N} (convenção
       ASS), que o {@link EscritorLegendaSrt} devolve para quebras reais.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada bloco SRT (índice + "start --> end" + texto)
       vira um {@link EventoLegenda} {@code Dialogue} de estilo "Default"; o EOL e o
       BOM originais são preservados no documento.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura do arquivo →
       {@link ArquivoLegendaException}. Blocos malformados (índice não numérico) são
       tolerados: o índice cai para a posição sequencial.
@@ -2519,7 +2518,7 @@ traducao_animes_llm_local_quarkus/
       (servido, por exemplo, via LM Studio). É a porta pela qual qualquer fatia funcional
       pede tradução de um lote, revisão de concordância, correção de uma fala ou a checagem
       de disponibilidade do servidor — sem conhecer o cliente HTTP concreto nem o modelo.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Contrato puro de domínio: depende apenas de JDK e dos tipos do próprio peer
@@ -2531,7 +2530,7 @@ traducao_animes_llm_local_quarkus/
       <li>As revisões pontuais retornam {@link Optional}, distinguindo "sem correção
       aplicável" de uma string vazia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       A implementação concreta ({@code traducao.infrastructure.adapters.LlmClientAdapter})
       define o tratamento de rede/timeout. No contrato, {@code revisarConcordancia} e
@@ -2541,18 +2540,18 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: unidade de trabalho enviada ao LLM — um conjunto de linhas
       originais a traduzir de uma vez, identificado para que a resposta possa ser
       correlacionada de volta ao pedido.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code idLote} identifica o lote e é preservado no {@link TraducaoLote} de resposta.</li>
       <li>{@code linhasOriginais} é a sequência a traduzir, na ordem em que deve ser devolvida.</li>
       <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Não valida os argumentos; é um portador de dados. A ausência ou o formato inválido de
       linhas é tratado pela implementação da porta, não por este tipo.
-      
+
       @param idLote identificador do lote, ecoado na resposta
       @param linhasOriginais linhas originais a traduzir, na ordem de saída esperada
   - StatusLlm.java
@@ -2560,7 +2559,7 @@ traducao_animes_llm_local_quarkus/
       (ex.: LM Studio) feita no início da execução, antes de traduzir qualquer episódio — para
       falhar cedo, com mensagem clara, em vez de descobrir a indisponibilidade após vários
       timeouts no meio do trabalho.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code servidorOnline} e {@code modeloCarregado} são sinais independentes: o
@@ -2568,11 +2567,11 @@ traducao_animes_llm_local_quarkus/
       <li>{@code mensagem} descreve o estado para exibição ao operador.</li>
       <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       É o próprio veículo do estado de falha: servidor offline ou modelo ausente são
       representados pelos flags e pela {@code mensagem}, não por exceção.
-      
+
       @param servidorOnline {@code true} se o servidor LLM respondeu
       @param modeloCarregado {@code true} se o modelo configurado está carregado em memória
       @param mensagem descrição do estado para o operador
@@ -2580,7 +2579,7 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: resultado da tradução de um {@link Lote} pelo LLM — as linhas
       traduzidas mais o desfecho (sucesso ou falha com diagnóstico), para que o pipeline
       decida entre publicar, retentar ou preservar o original.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code idLote} espelha o do {@link Lote} de origem, correlacionando pedido e resposta.</li>
@@ -2589,11 +2588,11 @@ traducao_animes_llm_local_quarkus/
       diagnóstico quando não é.</li>
       <li>Record imutável de domínio: só JDK, sem dependência de framework ou fatia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Em falha, {@code sucesso} é {@code false} e {@code mensagemErro} descreve a causa; o
       chamador é quem decide preservar a tradução anterior. Este tipo não lança.
-      
+
       @param idLote identificador do lote, herdado do {@link Lote} de origem
       @param linhasTraduzidas linhas traduzidas, na ordem das originais
       @param sucesso {@code true} se a tradução é utilizável
@@ -2625,28 +2624,28 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe a geração do mapa do projeto (Opção 7) à interface
       web, produzindo o relatório em markdown e a árvore no formato GitHub a partir
       da raiz do projeto.
-      
+
       <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code mapaProjeto},
       sua funcionalidade proprietária, e por isso reside na camada de apresentação do
       próprio módulo. Não depende funcionalmente da Tradução Local (Opção 4); usa
       apenas o use case do próprio módulo e a raiz técnica neutra {@code core}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: a raiz mapeada vem de
       {@link DiretorioBaseKronos#base()} — em produção é o diretório de trabalho e,
       sob a suíte de testes, a árvore descartável, evitando reescrever o mapa real;
       a rota {@code POST /api/mapa}, o status e os campos JSON de {@link MapaResponse}
       são contrato público preservado exatamente como antes da movimentação.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: a geração é síncrona; qualquer falha do use
       case propaga como erro do endpoint, sem estado parcial retornado ao navegador.
   - MapaResponse.java
       PROPÓSITO DE NEGÓCIO: entrega ao painel "Mapa do Projeto" o relatório em
       markdown, a árvore no formato GitHub e o nome do projeto gerados pelo módulo
       de mapeamento.
-      
+
       <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
       consumido pela SPA; representam o resultado já pronto para renderização.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
       construção; a ausência de conteúdo é responsabilidade do use case que o produz.
 
@@ -2679,7 +2678,7 @@ traducao_animes_llm_local_quarkus/
       byte a byte. A conversão de karaokê NUNCA reescreve eventos que decide
       manter — ela reemite {@link #linhaCrua()} — para garantir que diálogo,
       placas e blocos preservados saiam idênticos ao arquivo de origem.
-      
+
       @param linhaCrua  linha original completa, exatamente como lida do arquivo
       @param camada     campo Layer
       @param inicio     campo Start (mantido como texto para não perder precisão)
@@ -2691,7 +2690,7 @@ traducao_animes_llm_local_quarkus/
       O tempo é herdado literalmente dos eventos de origem: {@code inicioCs} é o
       menor início e {@code fimCs} o maior fim do grupo — nenhum deslocamento é
       introduzido, a legenda simples ocupa exatamente a janela do efeito original.
-      
+
       @param texto            texto visível da linha (sem tags)
       @param inicioCs         menor início do grupo, em centésimos
       @param fimCs            maior fim do grupo, em centésimos
@@ -2730,7 +2729,7 @@ traducao_animes_llm_local_quarkus/
       lore do contexto ATIVO através da porta {@link LoreAtivaPort}, para que um termo novo
       anexado ao contexto selecionado seja protegido sem editar este detector — e sem que o
       peer {@code qualidadeTraducao} dependa da fatia {@code contexto}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A lore ativa (via porta) é a fonte dos termos protegidos; expressões
@@ -2739,7 +2738,7 @@ traducao_animes_llm_local_quarkus/
       pontuação; caso de caractere único; palavra única; então lore ativa e, por fim,
       heurística de capitalização.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Texto sem evidência suficiente é preservado para evitar uma decisão destrutiva; a
       porta não lança, então lore/termos ausentes apenas recaem nas heurísticas globais.
@@ -2750,11 +2749,11 @@ traducao_animes_llm_local_quarkus/
       {@code [[TAGn]]} que o LLM é instruído a preservar literalmente — sem isso o modelo
       tende a "traduzir" ou descartar as tags, corrompendo a legenda renderizada. Regra
       de qualidade compartilhada, residente no peer {@code qualidadeTraducao}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: quantidade, conteúdo e ordem das tags do original são
       preservados na desmascaração; cada tag vira exatamente um marcador {@code [[TAGn]]}
       sequencial; a classe é sem estado (stateless), só JDK + Spring.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: se o texto retornado pelo LLM perdeu, duplicou
       ou inventou marcadores, {@link #desmascarar(String, List)} lança
       {@link AlucinacaoDetectadaException} em vez de gravar formatação corrompida;
@@ -2765,7 +2764,7 @@ traducao_animes_llm_local_quarkus/
       fansubs — clips vetoriais longos, letras soltas pós-template e preâmbulos alucinados
       — para que typesetting pesado não seja enviado ao LLM nem sobrescrito por uma
       resposta que destruiria o efeito visual original.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Só o texto VISÍVEL decide: blocos {@code {...}} de override/comentário ASS são
@@ -2779,7 +2778,7 @@ traducao_animes_llm_local_quarkus/
       <li>Contrato público do peer são os métodos de INSTÂNCIA; os estáticos permanecem
       package-private como detalhe interno de implementação.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Nenhum método lança: entrada {@code null} degrada para o lado seguro — {@code false}
       nas heurísticas de suspeita/bloqueio (não intervir) e {@code ""} na extração de texto
@@ -2802,11 +2801,11 @@ traducao_animes_llm_local_quarkus/
       ({@code [[TAGn]]}) ou fala rejeitada pelo validador de qualidade. Impede que uma
       saída corrompida seja publicada como se fosse tradução válida. Pertence ao peer
       compartilhado {@code qualidadeTraducao}, consumível por qualquer fatia.
-      
+
       <p>INVARIANTES DO DOMÍNIO: é subclasse de {@link ExcecaoQualidadeTraducao} (logo de
       {@code BasePipelineException}) — a partir da E8b NÃO é mais {@code TradutorException};
       carrega apenas a mensagem descritiva da alucinação, sem estado próprio.
-      
+
       <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
       verificada; nos fluxos de tradução é normalmente absorvida pela divisão/retry/fallback,
       e os sítios que antes a capturavam via {@code TradutorException} preservam o
@@ -2818,13 +2817,13 @@ traducao_animes_llm_local_quarkus/
       consumíveis por qualquer fatia. NÃO representa falhas gerais de tradução/LLM
       (essas vivem sob {@code TradutorException}, na fatia {@code traducao}), de legenda
       (sob {@code ExcecaoLegenda}) nem de contexto (sob {@code ExcecaoContexto}).
-      
+
       <p>INVARIANTES DO DOMÍNIO: estende {@code BasePipelineException} (core), herdando
       {@code errorId} e {@code timestamp}; é concreta e oferece apenas os dois construtores
       canônicos (mensagem; mensagem+causa). Não declara estado próprio, código de
       infraestrutura nem status HTTP — o mapeamento HTTP é responsabilidade única do
       {@code BasePipelineExceptionMapper}, comum a toda a família.
-      
+
       <p>COMPORTAMENTO EM CASO DE PROPAGAÇÃO: propaga como {@code RuntimeException} não
       verificada; por ser {@code BasePipelineException}, é convertida em resposta HTTP
       estruturada pelo mapper e pode ser capturada por qualquer bloco que trate
@@ -2836,7 +2835,7 @@ traducao_animes_llm_local_quarkus/
       uma tradução que o LLM simplesmente não fez. Inverte a dependência que antes ligava
       o detector diretamente ao {@code contexto}: o peer declara o contrato de que precisa
       e a fatia que possui o contexto fornece a implementação.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Contrato mínimo: exatamente as duas leituras que o detector consome — nada de
@@ -2846,7 +2845,7 @@ traducao_animes_llm_local_quarkus/
       <li>Pertence ao domínio do peer: depende apenas de JDK, para não reintroduzir
       acoplamento a {@code contexto} nem a qualquer outra fatia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Nenhum método lança: a ausência de contexto ativo é um estado normal, não um erro.
       {@link #termosProtegidosAtivos()} degrada para conjunto vazio e {@link #obterLoreAtiva()}
@@ -2857,21 +2856,21 @@ traducao_animes_llm_local_quarkus/
   - CorrigirComGoogleUseCase.java
       PROPÓSITO DE NEGÓCIO: preenche por contingência online as lacunas e falhas do
       banco de tradução que a Tradução Local não pode reutilizar.
-      
+
       <p>INVARIANTES DO DOMÍNIO: somente candidatos do classificador canônico são
       enviados ao Google; nomes/termos protegidos vêm da lore do próprio cache;
       tags e efeitos protegidos não são tocados; toda gravação tem backup e troca
       atômica.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: falhas de rede permanecem pendentes no
       cache, são auditadas e não impedem salvar correções válidas já obtidas.
   - ProtetorTermosLoreService.java
       PROPÓSITO DE NEGÓCIO: impede que a contingência Google traduza literalmente
       nomes e terminologia que a lore manda manter na forma oficial.
-      
+
       <p>INVARIANTES DO DOMÍNIO: termos maiores são mascarados antes dos menores;
       a grafia encontrada no original é restaurada; marcadores nunca podem sobrar.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: restauração incompleta devolve
       {@code null}, fazendo o chamador manter a entrada pendente.
 
@@ -2923,46 +2922,46 @@ traducao_animes_llm_local_quarkus/
   - CorretorDeterministicoConcordanciaService.java
       PROPÓSITO DE NEGÓCIO: corrige localmente contradições linguísticas inequívocas
       antes de consultar um LLM, preservando tom, lore e restante da fala.
-      
+
       <p>INVARIANTES DO DOMÍNIO: somente relações explícitas no original, expressões
       canônicas e incidentes já comprovados recebem substituição determinística;
       contexto ambíguo nunca é reescrito.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada ausente ou regra não comprovada
       devolve {@link Optional#empty()} e mantém a tradução atual.
   - DetectorConcordanciaService.java
       PROPÓSITO DE NEGÓCIO: detecta erros objetivos de gênero e concordância que
       tornam uma legenda em português incoerente com a fala original.
-      
+
       <p>INVARIANTES DO DOMÍNIO: somente evidências presentes na própria entrada
       podem gerar suspeita; primeira e segunda pessoas sem identificação do falante
       não autorizam inferência de gênero; tags ASS não interferem na análise.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: texto traduzido ausente é tratado como
       limpo por este detector e permanece sob responsabilidade dos validadores de
       tradução pendente.
   - LeitorCacheReferenciaService.java
       PROPÓSITO DE NEGÓCIO: entrega à Revisão de Legendas as referências EN/PT do
       cache produzido pela Tradução Local e atualizado pela Correção de Cache.
-      
+
       <p>INVARIANTES DO DOMÍNIO: aceita o formato legado e o envelope versionado;
       a leitura é somente consulta e não remove proveniência nem campos futuros.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: arquivo inexistente devolve lista vazia;
       JSON inválido ou entrada incompatível lança {@link IOException} ao chamador.
   - ResultadoRevisaoLegendas.java
       PROPÓSITO DE NEGÓCIO: comunica ao painel o desfecho real da Opção 6, separando
       correções aplicadas de problemas que ainda exigem atenção.
-      
+
       <p>INVARIANTES DO DOMÍNIO: pendências nunca produzem status de conclusão
       integral; contadores negativos são normalizados para zero.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: ausência de arquivos gera status
       {@code SEM_ARQUIVOS}; o record não lança exceções por contagem inválida.
   - RevisarCacheUseCase.java
       PROPÓSITO DE NEGÓCIO: revisa concordância, gênero e resíduos em traduções
       válidas já persistidas, usando a lore vinculada a cada arquivo da pasta cache.
-      
+
       <p>INVARIANTES DO DOMÍNIO: entradas vazias/inválidas ficam para tradução ou
       contingência, não para revisão; uma pasta com vários animes nunca compartilha
       a mesma lore por engano; tags, karaokê e linhas gráficas são preservados;
@@ -2972,12 +2971,12 @@ traducao_animes_llm_local_quarkus/
   - SincronizadorLegendaCacheService.java
       PROPÓSITO DE NEGÓCIO: materializa no ASS/SSA as correções confirmadas pela
       Opção 5 antes de a Opção 6 iniciar sua auditoria linguística.
-      
+
       <p>INVARIANTES DO DOMÍNIO: sincroniza somente por índice existente, somente
       tradução não vazia e nunca modifica cabeçalho, tempos, estilos ou linhas não
       dialogadas. Uma fala que regrediu exatamente ao original EN pode ser
       recuperada mesmo quando o timestamp do cache é anterior ao ASS.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: cache vazio devolve o documento original;
       sem autorização temporal, somente regressões exatas ao original são reparadas.
 
@@ -2994,14 +2993,14 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe à interface web a revisão das legendas traduzidas
       (.ass) — via Google Translate com auditoria e via LLM local para concordância
       PT-BR — usando cache e/ou legendas originais como referência.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport}; a pasta de entrada é obrigatória e validada; o modo
       de referência e a pasta de cache são resolvidos e validados antes de
       enfileirar; a revisão de concordância só prossegue com o LLM disponível;
       nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
       controller monolítico original.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: entrada/cache/contexto inválido retorna
       HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console SSE, sem
       derrubar a fila.
@@ -3019,21 +3018,21 @@ traducao_animes_llm_local_quarkus/
   - MapeadorMidiaService.java
       PROPÓSITO DE NEGÓCIO: pareia vídeos MKV e legendas finais de forma
       determinística, gerando nomes de saída limpos para a etapa de remux.
-      
+
       <p>INVARIANTES DO DOMÍNIO: uma legenda não atende dois vídeos; episódio 01
       nunca casa por prefixo com 010; empates de mesma prioridade são reportados
       como ambíguos; destinos não colidem.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: pastas ilegíveis lançam
       {@link RemuxerException}; ausência ou ambiguidade vira aviso sem tarefa.
   - RemuxarLoteUseCase.java
       PROPÓSITO DE NEGÓCIO: orquestra o remux em lote, da validação das entradas à
       telemetria final, sem reencodar vídeo/áudio.
-      
+
       <p>INVARIANTES DO DOMÍNIO: somente legenda textual válida chega ao mkvmerge;
       cada sucesso representa temporário validado e publicado; cancelamento é
       observado entre arquivos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o lote preserva sucessos anteriores,
       classifica falhas/pendências e sempre tenta registrar status final no dataset.
 
@@ -3043,21 +3042,21 @@ traducao_animes_llm_local_quarkus/
   - PlanoRemux.java
       PROPÓSITO DE NEGÓCIO: representa o pareamento auditável entre vídeos e
       legendas antes de qualquer chamada ao mkvmerge.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada legenda participa de no máximo uma tarefa;
       cada destino é único; ambiguidades e ausências nunca viram pareamentos
       silenciosos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: problemas de conteúdo são devolvidos como
       avisos e contadores; falhas de leitura da pasta lançam {@link RemuxerException}.
   - RelatorioRemux.java
       PROPÓSITO DE NEGÓCIO: consolida o resultado real de um lote de remux para a
       interface, CLI e dataset de telemetria.
-      
+
       <p>INVARIANTES DO DOMÍNIO: sucesso conta somente MKV validado e promovido ao
       nome final; ausência, ambiguidade e destino existente são pendências; falhas
       técnicas nunca resultam em status de sucesso.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: contadores preservam progresso parcial e o
       status final distingue falha, pendência, cancelamento e lote vazio.
   - RemuxerException.java
@@ -3067,10 +3066,10 @@ traducao_animes_llm_local_quarkus/
   - SaidaRemuxJaExisteException.java
       PROPÓSITO DE NEGÓCIO: sinaliza que um MKV final já existe e deve ser
       preservado, impedindo sobrescrita ou remoção acidental.
-      
+
       <p>INVARIANTES DO DOMÍNIO: é lançada antes de criar processo ou arquivo
       temporário para o remux atual.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o caso de uso registra o item como pendente
       seguro e mantém o destino existente intacto.
 
@@ -3078,11 +3077,11 @@ traducao_animes_llm_local_quarkus/
   - MkvmergeAdapter.java
       PROPÓSITO DE NEGÓCIO: executa o mkvmerge sem reencodar, valida o container
       produzido e publica o MKV final sem arriscar um destino já existente.
-      
+
       <p>INVARIANTES DO DOMÍNIO: mkvmerge escreve somente em temporário; o nome final
       nasce por move sem {@code REPLACE_EXISTING}; falha/cancelamento remove
       apenas o temporário desta execução.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: destino existente gera exceção específica;
       timeout, interrupção, saída inválida ou I/O geram {@link RemuxerException} e
       preservam qualquer MKV final anterior.
@@ -3095,10 +3094,10 @@ traducao_animes_llm_local_quarkus/
   - RemuxerCLI.java
       PROPÓSITO DE NEGÓCIO: oferece execução local por terminal da mesma etapa de
       remux usada na interface web.
-      
+
       <p>INVARIANTES DO DOMÍNIO: valida pastas antes do lote e imprime o status real
       consolidado, sem anunciar sucesso quando existem pendências ou falhas.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: configuração/pasta inválida encerra sem
       criar saída; falhas do lote permanecem no relatório final.
 
@@ -3113,7 +3112,7 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe o Remuxer (mkvmerge) à interface web, agendando um
       único lote de remux que combina vídeos e legendas traduzidas com política
       explícita para as legendas originais.
-      
+
       <p>Fronteira arquitetural: este endpoint pertence ao módulo {@code remuxer}
       (Opção 12) e reside na sua camada de apresentação própria. Não importa nenhuma
       regra funcional da Tradução Local (Opção 4): usa o use case do próprio módulo e
@@ -3122,7 +3121,7 @@ traducao_animes_llm_local_quarkus/
       técnico de apresentação</b> (fila única, transporte HTTP, cores de console)
       hoje em {@code traducao.presentation}; é dívida técnica temporária reservada
       para saneamento na FASE E — não é acoplamento funcional.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport} e consulta a MESMA {@link FilaExecucaoPipeline} para
       recusar concorrência; as pastas existem antes da aceitação; o offset fica na
@@ -3138,10 +3137,10 @@ traducao_animes_llm_local_quarkus/
   - OperacaoRenomeacaoEmAndamentoException.java
       PROPÓSITO DE NEGÓCIO: impede duas operações de renomeação concorrentes na
       mesma pasta de mídia, evitando corridas e manifestos inconsistentes.
-      
+
       <p>INVARIANTES DO DOMÍNIO: uma pasta normalizada admite no máximo uma
       simulação, aplicação ou reversão por vez.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: é lançada antes de qualquer alteração em
       disco e convertida pelo controller em HTTP 409.
   - RenomeadorUseCase.java
@@ -3153,11 +3152,11 @@ traducao_animes_llm_local_quarkus/
   - ResultadoRenomeacao.java
       PROPÓSITO DE NEGÓCIO: representa o resultado verificável de uma simulação,
       aplicação ou reversão de nomes para que a interface exiba o estado real.
-      
+
       <p>INVARIANTES DO DOMÍNIO: contadores nunca são negativos; {@code itens}
       contém somente mapeamentos pertencentes à pasta processada; o status não
       pode anunciar sucesso quando existem falhas ou pendências.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: operações recusadas antes da execução são
       respondidas pelo controller como erro HTTP; falhas durante um lote retornam
       status {@code CONCLUIDO_COM_FALHAS} e preservam o manifesto de reversão.
@@ -3166,19 +3165,19 @@ traducao_animes_llm_local_quarkus/
   - RenomearArquivosController.java
       PROPÓSITO DE NEGÓCIO: expõe simulação, aplicação e reversão da opção 13 com
       resposta somente depois que o status real da operação estiver disponível.
-      
+
       <p>INVARIANTES DO DOMÍNIO: entradas inválidas retornam 400, concorrência na
       mesma pasta retorna 409 e nenhuma resposta antecipada anuncia falso sucesso.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erros esperados viram JSON didático; falhas
       inesperadas são registradas e retornam HTTP 500 sem expor stack trace.
   - RenomearArquivosRequest.java
       PROPÓSITO DE NEGÓCIO: transporta pasta, nome base e temporada escolhidos no
       painel da opção 13.
-      
+
       <p>INVARIANTES DO DOMÍNIO: validação efetiva permanece no backend; temporada
       nula permite inferência pelo nome e compatibilidade com clientes antigos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes são recusados ou recebem
       fallback seguro pelo caso de uso, nunca usados diretamente em movimentação.
 
@@ -3204,11 +3203,11 @@ traducao_animes_llm_local_quarkus/
   - ValidadorCandidatoLoreService.java
       PROPÓSITO DE NEGÓCIO: impede que a revisão de lore use uma suspeita
       terminológica como autorização para retraduzir ou reescrever toda a fala.
-      
+
       <p>INVARIANTES DO DOMÍNIO: uma alteração automática deve ser pequena e o
       trecho canônico introduzido precisa existir tanto no original inglês quanto
       na lore ativa; texto comum fora desse recorte permanece intocado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: devolve o motivo da rejeição e o chamador
       mantém integralmente a legenda PT-BR anterior.
 
@@ -3268,12 +3267,12 @@ traducao_animes_llm_local_quarkus/
       saber, num relance no console/relatório, se o job realmente concluiu, se
       concluiu deixando pendências, se foi cancelado, se falhou ou se nem havia
       arquivos para processar.
-      
+
       <p>INVARIANTES DO DOMÍNIO: exatamente um status descreve cada execução. Só
       {@link #FALHOU} pode acompanhar uma exceção propagada; os demais representam
       retornos normais do use case. {@link #CONCLUIDO} exige zero erros e zero falas
       pendentes.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: é um enum imutável; não dispara exceções.
       O rótulo textual nunca é nulo.
       PROPÓSITO DE NEGÓCIO: associa cada estado técnico a um rótulo humano.
@@ -3288,14 +3287,14 @@ traducao_animes_llm_local_quarkus/
       do servidor LLM local usado exclusivamente pela Revisão de Lore, antes de
       iniciar uma sessão. Permite abortar cedo, com mensagem clara, quando o modelo
       não está carregado — em vez de descobrir isso só no meio da revisão.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code modeloCarregado == true} implica {@code servidorOnline == true}.</li>
       <li>{@code mensagem} descreve o estado de forma legível ao operador.</li>
       <li>Tipo próprio da fatia Revisão de Lore — não reutiliza o status da Tradução Local.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Servidor inacessível é representado por {@code servidorOnline == false} e
       {@code modeloCarregado == false}, com a causa técnica na {@code mensagem}.
@@ -3312,7 +3311,7 @@ traducao_animes_llm_local_quarkus/
       interação com o modelo local de que a fatia precisa — verificar disponibilidade
       e revisar terminologia/nomes de lore de uma fala já traduzida —, mantendo a
       Revisão de Lore independente da stack LLM da Tradução Local.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@link #revisar} preserva integralmente os marcadores estruturais
@@ -3322,7 +3321,7 @@ traducao_animes_llm_local_quarkus/
       prompt de usuário próprio da fatia — nenhuma responsabilidade de tradução
       de lotes ou correção gramatical pertence a esta porta.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       {@link #revisar} devolve {@link Optional#empty()} quando o LLM falha, a resposta
       é inválida ou nenhuma linha preserva os marcadores — cabendo ao caso de uso
@@ -3335,7 +3334,7 @@ traducao_animes_llm_local_quarkus/
       lore, que podem vir com raciocínio ({@code <think>}), cerca Markdown ou um
       rótulo antes do texto. Responsabilidade separada do adapter, própria da
       Revisão de Lore — não reutiliza o normalizador da Tradução Local.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Quando a tradução possui marcadores {@code [[TAGn]]}, apenas uma linha que
@@ -3343,7 +3342,7 @@ traducao_animes_llm_local_quarkus/
       ao texto da legenda.</li>
       <li>A lista de marcadores preserva ordem e elimina duplicações.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Sem linha utilizável que preserve os marcadores esperados, devolve texto vazio,
       permitindo nova tentativa sem publicar conteúdo estruturalmente incompleto.
@@ -3353,7 +3352,7 @@ traducao_animes_llm_local_quarkus/
       disponibilidade e revisar a terminologia de lore de uma fala —, replicando o
       comportamento efetivo anterior (antes exposto por {@code LlmPort.revisarLore})
       sem depender da stack LLM da Tradução Local.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A revisão usa o prompt de sistema de lore recebido e o prompt de usuário
@@ -3370,7 +3369,7 @@ traducao_animes_llm_local_quarkus/
       sob o namespace {@code revisao-lore.llm}, independente do namespace
       {@code tradutor.llm} da Tradução Local. Os defaults reproduzem o comportamento
       efetivo atual (mesmos base-url, model "current", max-tokens, timeouts).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Namespace exclusivo {@code revisao-lore.llm}; nunca reutiliza {@code tradutor.llm}.</li>
@@ -3379,7 +3378,7 @@ traducao_animes_llm_local_quarkus/
       <li>{@code pausaEntreTentativas} preserva o equivalente operacional de 2s entre
       tentativas de revisão.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Valores ausentes ou inválidos caem para os defaults equivalentes ao efetivo
       atual, garantindo timeouts e modelo estáveis mesmo sem configuração explícita.
@@ -3390,13 +3389,13 @@ traducao_animes_llm_local_quarkus/
       OpenAI-compatible do LLM local (chat/completions e catálogo de modelos).
       Duplicação consciente dos records equivalentes da Tradução Local, para manter
       a fatia autônoma — nenhuma dependência de {@code RecordsLlm}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Campos desconhecidos são ignorados na desserialização ({@code ignoreUnknown = true}).</li>
       <li>{@code ModeloDisponivelV0} carrega o {@code state} da API estendida da LM Studio.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Estruturas ausentes desserializam como {@code null}, tratado pelo adapter como
       resposta inválida.
@@ -3408,7 +3407,7 @@ traducao_animes_llm_local_quarkus/
       local: {@code GET} relativo, {@code GET} absoluto (API estendida da LM Studio)
       e {@code POST} JSON. Duplicação técnica consciente — não depende do cliente
       HTTP da Tradução Local.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code connect-timeout} e {@code read-timeout} próprios da fatia são
@@ -3418,7 +3417,7 @@ traducao_animes_llm_local_quarkus/
       <li>A interrupção da thread é propagada: {@code send} do JDK lança
       {@link InterruptedException}, repassada ao chamador sem ser engolida aqui.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Erros de rede/timeout propagam a exceção original de {@link HttpClient}; erros
       HTTP viram {@link HttpClientException}. Nenhum estado é mantido entre chamadas.
@@ -3458,21 +3457,21 @@ traducao_animes_llm_local_quarkus/
   - AmbienteExecucaoDataset.java
       PROPÓSITO DE NEGÓCIO: representa uma fotografia sanitizada e coerente do
       hardware da máquina que gerou o snapshot público de telemetria.
-      
+
       <p>INVARIANTES DO DOMÍNIO: todos os componentes pertencem à mesma máquina e
       são detectados automaticamente; não inclui usuário, hostname, IP, serial,
       MAC, caminhos ou identificadores de hardware.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: campos indisponíveis ficam nulos e a lista
       de GPUs fica vazia, sem recorrer a valores manuais de outra máquina.
   - AmbienteExecucaoDatasetService.java
       PROPÓSITO DE NEGÓCIO: detecta metadados publicáveis do computador que está
       gerando o dataset para que benchmarks não misturem hardware de máquinas.
-      
+
       <p>INVARIANTES DO DOMÍNIO: CPU, GPUs e RAM vêm da mesma coleta local; valores
       manuais nunca substituem a detecção; em sistemas híbridos, uma GPU dedicada
       é priorizada como principal e todas as GPUs são preservadas na lista.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: tenta um fallback seguro da JVM e deixa
       campos não detectáveis vazios, sem reutilizar configuração de outro host.
   - LlmTelemetria.java
@@ -3491,10 +3490,10 @@ traducao_animes_llm_local_quarkus/
   - TelemetriaDatasetProperties.java
       PROPÓSITO DE NEGÓCIO: configura a publicação do dataset público e a coleta
       sanitizada do hardware local que contextualiza os benchmarks.
-      
+
       <p>INVARIANTES DO DOMÍNIO: hardware publicado é sempre detectado na máquina
       atual; não existe override manual de CPU, GPU ou RAM capaz de misturar hosts.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: propriedades ausentes usam padrões seguros;
       a detecção pode cair para dados limitados da JVM, sem inventar componentes.
   - TelemetriaDatasetService.java
@@ -3513,7 +3512,7 @@ traducao_animes_llm_local_quarkus/
       contagem), nada de caminhos de máquina (o campo {@code detalhe} das
       operações é descartado e nomes de episódio perdem qualquer diretório); o
       ambiente de hardware pertence integralmente à máquina publicadora.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: erros de geração, Git ou rede interrompem a
       publicação com {@link IOException}, preservando o snapshot anterior.
   - TelemetriaResumo.java
@@ -3527,14 +3526,14 @@ traducao_animes_llm_local_quarkus/
       Permite ao Painel Unificado consolidar a telemetria da tradução como agregador
       CQRS read-only, SEM importar as classes de domínio do pacote {@code traducao} — o
       contrato entre os módulos é exclusivamente o JSON no filesystem.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Espelha o schema do arquivo por estrutura, ignorando campos desconhecidos,
       para tolerar evolução do {@code schemaVersion} sem quebrar a leitura.</li>
       <li>É estritamente de leitura: o módulo de telemetria nunca escreve este arquivo.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Estruturas ausentes desserializam como {@code null}/vazias; o agregador trata um
       documento ausente, vazio ou ilegível como conjunto vazio, sem destruir o arquivo.
@@ -3544,14 +3543,14 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe à interface web a telemetria acumulada do pipeline
       — resumo consolidado para o painel, exportação segura do arquivo para download
       e a publicação do dataset público sanitizado no repositório Git dedicado.
-      
+
       <p>INVARIANTES DO DOMÍNIO: nenhuma URL, código HTTP ou nome de campo de DTO é
       alterado em relação ao controller monolítico original; a pasta de cache é lida
       diretamente da configuração {@code tradutor.diretorio-cache} (mesma chave e
       default {@code cache} usados antes por {@code TradutorProperties.diretorioCache()},
       preservando o fallback local para valor nulo/em branco); a exportação usa o
       arquivo canônico e a publicação delega ao serviço de dataset já sanitizado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: exportação sem arquivo retorna 404 e falha
       de leitura retorna 500; falha na publicação do dataset retorna 500 com a
       mensagem do erro no corpo padrão.
@@ -3559,17 +3558,17 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: canal Server-Sent Events (SSE) reativo que transmite a
       telemetria acumulada da KRONOS ao painel web em tempo real, conforme os
       episódios são processados.
-      
+
       <p>Fronteira arquitetural: pertence ao módulo {@code telemetria}, dono da
       funcionalidade, e reside na sua camada de apresentação própria. Depende apenas
       do {@link TelemetriaService} do próprio módulo — sem qualquer dependência
       funcional da Tradução Local (Opção 4).
-      
+
       <p>INVARIANTES DO DOMÍNIO: a rota {@code GET /api/telemetria/stream} e o tipo
       {@code text/event-stream} são contrato público preservado exatamente como antes
       da movimentação; a rota é distinta das rotas Spring MVC para evitar colisão de
       endpoints (JAX-RS/SSE nativo do Quarkus).
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o registro do {@code SseEventSink} é delegado
       ao serviço de telemetria; o encerramento/erro da conexão é gerido pelo runtime
       SSE, sem afetar o processamento em andamento.
@@ -3579,33 +3578,33 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: aplica ao menu Correção do Cache a mesma decisão de
       validade usada pela Tradução Local, distinguindo falha real de nome, sigla,
       número, termo de lore, karaokê ou efeito que deve permanecer intocado.
-      
+
       <p>INVARIANTES DO DOMÍNIO: entrada protegida nunca é enviada ao Google/LLM;
       tradução idêntica autorizada pela lore é válida; vazio, fallback não
       autorizado e resposta rejeitada pelo validador são candidatos à correção.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: campos ausentes são classificados como
       {@code IGNORADA}; exceções do validador viram {@code INVALIDA} com motivo.
   - ContextoManutencaoCacheService.java
       PROPÓSITO DE NEGÓCIO: garante que cada arquivo da pasta cache seja analisado
       com a lore da obra que realmente o originou, mesmo quando a raiz contém
       caches de vários animes.
-      
+
       <p>INVARIANTES DO DOMÍNIO: a proveniência versionada tem prioridade; contexto
       manual serve somente como fallback para cache legado; contexto desconhecido
       nunca cai silenciosamente no padrão.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link IllegalArgumentException} e o
       arquivo é contabilizado como falha sem ser modificado.
   - LimparCacheUseCase.java
       PROPÓSITO DE NEGÓCIO: limpa do banco persistente apenas traduções comprovadas
       como fallback ou inválidas, deixando-as vazias para serem refeitas pela
       Tradução Local sem apagar nomes e termos legitimamente preservados pela lore.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cache versionado/legado é preservado; linhas
       protegidas não mudam; cada arquivo alterado recebe backup e escrita atômica;
       cache vazio já representa trabalho pendente e não é regravado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: a falha é contabilizada e auditada por
       arquivo, o original permanece no disco e o lote termina com status
       {@code CONCLUIDO_COM_FALHAS}.
@@ -3620,21 +3619,21 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: registra cada decisão que alterou ou tentou reparar uma
       tradução persistida, formando dataset auditável para descobrir falhas e
       aperfeiçoar o pipeline.
-      
+
       <p>INVARIANTES DO DOMÍNIO: o registro é append-only e contém antes/depois,
       operação, resultado, motivo, lore e arquivo de origem.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; a infraestrutura de
       persistência registra warning sem interromper a correção principal.
   - ResultadoManutencaoCache.java
       PROPÓSITO DE NEGÓCIO: resume de forma verificável o resultado de uma operação
       sobre a pasta de cache para que console, API, relatório e telemetria não
       anunciem sucesso quando arquivos falharam.
-      
+
       <p>INVARIANTES DO DOMÍNIO: contadores nunca são negativos; uma execução com
       falhas ou pendências não possuem status {@code CONCLUIDO}; cancelamento tem
       precedência sobre os demais estados.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; entradas negativas são
       normalizadas para zero pelo construtor compacto.
 
@@ -3646,10 +3645,10 @@ traducao_animes_llm_local_quarkus/
   - CorrecaoCacheAuditoria.java
       PROPÓSITO DE NEGÓCIO: persiste em JSONL o histórico granular do menu Correção
       do Cache para auditoria, recuperação e uso como dataset de melhoria.
-      
+
       <p>INVARIANTES DO DOMÍNIO: arquivo canônico fica no projeto, em
       {@code cache/auditoria}; registros existentes nunca são reescritos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: emite warning e não derruba a operação que
       já preserva o cache por backup e escrita atômica.
 
@@ -3658,13 +3657,13 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe à interface web os três modos de manutenção do
       banco de cache de tradução — limpeza/auditoria local, preenchimento online de
       lacunas via Google Translate e revisão gramatical via LLM local.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport}; o contexto informado, quando presente, é validado
       antes de enfileirar; a revisão via LLM só prossegue com modelo carregado;
       nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
       controller monolítico original.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: caminho de cache ou contexto inválido
       retorna HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console
       SSE, sem derrubar a fila.
@@ -3743,10 +3742,10 @@ traducao_animes_llm_local_quarkus/
       retradução não foi confirmada — o arquivo é bloqueado para não retraduzir e
       sobrescrever trabalho bom. É regra específica do fluxo de tradução e por isso
       permanece na fatia {@code traducao}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: só lançada quando a heurística de caminho já
       traduzido dispara e {@code permitirRetraducao} é falso.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: é a própria sinalização; herda de
       {@link ArquivoLegendaException} (módulo {@code legenda}) para o lote registrar o
       arquivo como BLOQUEADO e seguir para o próximo; a captura específica em
@@ -3769,7 +3768,7 @@ traducao_animes_llm_local_quarkus/
       normalização do nome de episódio usada como chave de deduplicação da telemetria
       própria. Garante que o mesmo episódio — apesar de variações inócuas de caixa,
       espaços, forma Unicode ou diretório — projete uma única entrada consolidada.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Considera apenas o nome do arquivo (descarta diretórios), aparando e
@@ -3778,7 +3777,7 @@ traducao_animes_llm_local_quarkus/
       {@code ep11}, ou {@code .ass} e {@code .srt}, permanecem distintos.</li>
       <li>Determinística e idempotente: {@code normalizar(normalizar(x)) == normalizar(x)}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Entrada {@code null} ou em branco devolve string vazia, chave estável para
       registros sem nome.
@@ -3787,32 +3786,32 @@ traducao_animes_llm_local_quarkus/
       mostra (Arquivo | Lore | Falas | Cache | Traduzidas | Avisos | Status) e o que
       consolida o status do lote. Substitui o retorno "só o Path", que escondia se o
       arquivo concluiu, falhou ou foi bloqueado.
-      
+
       <p>INVARIANTES DO DOMÍNIO: {@code arquivo} e {@code status} nunca nulos;
       {@code arquivoSaida} é nulo quando o arquivo não gerou saída (falha/bloqueio);
       as contagens são zero nesses casos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: record imutável; as fábricas não lançam.
   - StatusArquivoTraducao.java
       PROPÓSITO DE NEGÓCIO: Desfecho da tradução de um único arquivo de legenda,
       para a tabela por arquivo e a telemetria distinguirem sucesso limpo, sucesso
       com ressalvas, falha e bloqueio (entrada já traduzida).
-      
+
       <p>INVARIANTES DO DOMÍNIO: cada arquivo processado recebe exatamente um status.
       {@code PARCIAL} = traduziu mas houve avisos (falas mantidas sem tradução para
       revisão); {@code BLOQUEADO} = entrada aparentava já estar em PT-BR e a
       retradução não foi confirmada.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: enum puro; rótulo sempre não-nulo.
   - StatusLoteTraducao.java
       PROPÓSITO DE NEGÓCIO: Desfecho do LOTE de tradução (vários arquivos), para a
       UI/telemetria pararem de mostrar "sucesso" quando houve arquivos com falha.
-      
+
       <p>INVARIANTES DO DOMÍNIO: derivado dos status por arquivo — todos concluídos
       (com ou sem ressalvas) → {@code CONCLUIDO}; nenhum concluído → {@code FALHOU};
       mistura → {@code CONCLUIDO_COM_FALHAS}. {@code CANCELADO} é reservado para
       interrupção explícita do usuário.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: {@link #consolidar(List)} nunca lança; lote
       vazio devolve {@code FALHOU}.
   - TelemetriaTraducao.java
@@ -3820,7 +3819,7 @@ traducao_animes_llm_local_quarkus/
       episódio — a unidade que a fatia grava no seu arquivo canônico próprio
       ({@code logs/telemetria_traducao.json}), preservando proveniência (lore),
       modelo, volume, origem das falas, desfecho, avisos e timestamp.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Modelo de dados próprio da Tradução Local — não reutiliza tipos do módulo
@@ -3830,7 +3829,7 @@ traducao_animes_llm_local_quarkus/
       <li>{@code registradoEm} é o timestamp UTC ISO-8601 da atualização, usado como
       critério de precedência dentro da mesma fonte.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Campos ausentes são serializados como {@code null}; a ausência de nome resolve
       para a chave vazia na deduplicação.
@@ -3839,7 +3838,7 @@ traducao_animes_llm_local_quarkus/
       Tradução Local. Projeta o ESTADO FINAL consolidado por episódio (não é
       append-only) mais os quatro contadores persistentes da fatia, com um
       {@code schemaVersion} explícito para evolução do contrato de arquivo.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code registros} contém no máximo uma entrada por episódio (chave
@@ -3850,7 +3849,7 @@ traducao_animes_llm_local_quarkus/
       sobreponha eventos já contados.</li>
       <li>{@code schemaVersion} identifica a versão do contrato de arquivo (ex.: "1.0").</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Documento ausente ou ilegível é tratado pelos leitores como vazio (versão nula,
       lista vazia, contadores zero), sem destruir o arquivo físico.
@@ -3861,7 +3860,7 @@ traducao_animes_llm_local_quarkus/
       o acoplamento anterior ao {@code telemetria.TelemetriaService}, permitindo que
       o pipeline registre traduções e incrementos de qualidade sem importar o módulo
       de telemetria — a integração passa a ser apenas o arquivo canônico próprio.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Cada registro/incremento é persistido de forma atômica e sincronizada
@@ -3869,7 +3868,7 @@ traducao_animes_llm_local_quarkus/
       <li>Os contadores são acumuladores da Tradução Local a partir da adoção do
       arquivo próprio (iniciam em zero).</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Falha de I/O ao persistir é registrada; o estado em memória permanece coerente
       e a próxima escrita bem-sucedida projeta o estado consolidado.
@@ -3882,7 +3881,7 @@ traducao_animes_llm_local_quarkus/
       {@code qualidadeTraducao}, à fonte real de contexto do sistema, o
       {@link GerenciadorContexto}. É o único ponto de composição dessa inversão: o peer
       permanece ignorante do {@code contexto} e a fatia {@code traducao} assume a ligação.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Adapter puro de delegação: repassa cada chamada ao {@link GerenciadorContexto}
@@ -3890,7 +3889,7 @@ traducao_animes_llm_local_quarkus/
       <li>Único adapter da porta; não há implementação concorrente em {@code contexto},
       em {@code qualidadeTraducao.infrastructure} nem por fatia.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Não adiciona tratamento próprio: o comportamento observável é exatamente o do
       {@link GerenciadorContexto} — que não lança e degrada para conjunto vazio / lore
@@ -3905,14 +3904,14 @@ traducao_animes_llm_local_quarkus/
       ({@code todosProvedoresContexto}) foi movida na E7b para o peer proprietário
       ({@code contexto.infrastructure.config.ContextoBeansConfig}); a composição dos
       extratores de vídeo/strategies pertence a {@code legendasExtracao.infrastructure.config.ExtracaoBeansConfig}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>O {@link ObjectMapper} é criado com configuração default (sem módulos
       ou features customizadas).</li>
       <li>Esta config não conhece classes de outras fatias funcionais nem do peer contexto.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       A serialização default do {@link ObjectMapper} propaga as exceções de Jackson ao chamador.
   - TradutorProperties.java
@@ -3932,7 +3931,7 @@ traducao_animes_llm_local_quarkus/
       da Tradução Local ({@code logs/telemetria_traducao.json}). Projeta, por episódio,
       o estado final consolidado das traduções e mantém os quatro contadores da fatia,
       isolando a Tradução Local do módulo de telemetria (o painel apenas lê este arquivo).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Deduplicação por nome de episódio normalizado ({@link NormalizadorNomeEpisodio});
@@ -3955,7 +3954,7 @@ traducao_animes_llm_local_quarkus/
       Local — sem que a fatia {@code config} conheça qualquer classe de {@code traducao}.
       Segue o mesmo molde dos demais observadores de {@code StartupEvent} já existentes
       no slice ({@code BrowserLauncher}, {@code ConsoleRedirector}).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Age única e exclusivamente quando {@code app.modo == TRADUZIR}
@@ -3967,7 +3966,7 @@ traducao_animes_llm_local_quarkus/
       <li>Delega integralmente a lógica de tradução a {@link TradutorCLI}; não duplica
       nem antecipa qualquer regra de negócio da tradução.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       <ul>
       <li>Se o modo for TRADUZIR mas {@link TradutorCLI} não estiver disponível no
@@ -3979,13 +3978,13 @@ traducao_animes_llm_local_quarkus/
   - TradutorCLI.java
       Entrada de linha de comando da Tradução Local (Opção 4). Varre a pasta de
       entrada por arquivos {@code .ass}/{@code .ssa} e traduz cada um sequencialmente.
-      
+
       <h2>Propósito de negócio</h2>
       Representa a interface CLI da Tradução Local: recebe e valida a configuração
       necessária para iniciar o processamento e coordena somente a apresentação CLI
       da Opção 4. Não é o bootstrap global da aplicação — apenas orquestra a leitura
       da pasta de entrada e a delegação de cada arquivo ao caso de uso de tradução.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A pasta de entrada deve estar configurada e válida antes de iniciar.</li>
@@ -4006,10 +4005,10 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: Monta a tabela por arquivo do lote de tradução
       (Arquivo | Lore | Falas | Cache | Traduzidas | Avisos | Status) para o console
       da UI, dando a Paulo a visão granular que o "sucesso" agregado escondia.
-      
+
       <p>INVARIANTES DO DOMÍNIO: larguras ajustadas ao maior valor; só de
       apresentação — não decide nada sobre a tradução.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sem resultados, devolve string vazia; não lança.
 
 [PASTA] src/main/java/org/traducao/projeto/traducao/presentation/web/
@@ -4032,11 +4031,11 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: representa um contexto de tradução (obra/anime)
       disponível para seleção na interface, com id técnico, nome de exibição e a
       marcação de qual é o padrão.
-      
+
       <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
       consumido pela SPA; {@code padrao} identifica de forma exclusiva o contexto
       pré-selecionado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: sendo um record imutável, não há falha de
       construção; a lista vazia é responsabilidade do gerenciador de contexto.
   - DialogoArquivoController.java
@@ -4059,11 +4058,11 @@ traducao_animes_llm_local_quarkus/
   - LlmStatusResponse.java
       PROPÓSITO DE NEGÓCIO: informa ao card do painel inicial o estado ao vivo do
       servidor LLM local (online, modelo carregado, nome do modelo e mensagem).
-      
+
       <p>INVARIANTES DO DOMÍNIO: os nomes dos campos são contrato JSON público
       consumido pela SPA; o nome do modelo só é preenchido quando há modelo em
       memória.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: quando a consulta ao servidor falha, o
       endpoint constrói uma instância com {@code online=false} e a mensagem do erro.
   - LogStreamResource.java
@@ -4072,12 +4071,12 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: expõe os endpoints de estado e controle do pipeline
       local à interface web — heartbeat, parada cooperativa da fila, estado da fila,
       status ao vivo do servidor LLM e a lista de contextos de tradução disponíveis.
-      
+
       <p>INVARIANTES DO DOMÍNIO: compartilha a MESMA {@link FilaExecucaoPipeline}
       (bean CDI) dos demais controllers; a parada é cooperativa e preserva o
       progresso já salvo; nenhuma URL, código HTTP ou nome de campo de DTO é alterado
       em relação ao controller monolítico original.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: a consulta de status do LLM nunca propaga
       exceção — falhas viram uma resposta {@code online=false} com a mensagem do
       erro; os demais endpoints são consultas simples sem caminho de falha explícito.
@@ -4086,7 +4085,7 @@ traducao_animes_llm_local_quarkus/
       web, verificando a disponibilidade do servidor LLM, configurando as pastas de
       execução, aplicando o contexto de lore selecionado e traduzindo em lote os
       arquivos de legenda encontrados.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
       {@link PipelineWebSupport}; contexto de lore é obrigatório e validado (sem
       fallback silencioso); apenas extensões suportadas ({@code .ass/.ssa/.srt})
@@ -4134,12 +4133,12 @@ traducao_animes_llm_local_quarkus/
       telemetria como dataset PERMANENTE — mídias de lotes anteriores não são
       apagadas ao analisar um novo lote, reanalisar a mesma mídia deduplica em vez
       de duplicar, e nenhuma pasta {@code relatorios/} é criada junto dos vídeos.
-      
+
       <p>INVARIANTES DO DOMÍNIO: usa um {@link FfprobeAdapter} falso (sem ffprobe
       real) e um {@link TelemetriaService} próprio; a suíte roda com
       {@code kronos.dir.base} redirecionado, então a telemetria vai para a árvore
       descartável e a leitura do JSON canônico reflete apenas este teste.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer perda de histórico, duplicação
       indevida ou criação de pasta junto da mídia dispara asserção JUnit.
   - LocalizadorVideosServiceTest.java
@@ -4170,14 +4169,14 @@ traducao_animes_llm_local_quarkus/
       saída OPCIONAL que resulta em {@code null} quando não informada (sem o fallback
       {@code traducao_ptbr}, exclusivo do remux) — sem depender de {@code TradutorProperties}
       ou {@code PastasExecucao}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Entrada ausente/vazia/blank ⇒ {@code null} (inválida); útil ⇒ {@code Path.of(trim)}.</li>
       <li>Saída ausente/vazia/blank ⇒ {@code null} (sem pasta de saída); útil ⇒ {@code Path.of(trim)}.</li>
       <li>A saída NUNCA cai em {@code traducao_ptbr}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência na normalização ou o surgimento indevido de fallback reprova o teste.
 
@@ -4213,13 +4212,13 @@ traducao_animes_llm_local_quarkus/
       {@code apiDadosAnime} (via {@code LlmProperties}) são {@code 5s/180s}, e que a nova
       config própria ({@code ApiDadosAnimeHttpProperties}) resolve os MESMOS valores —
       comprovando paridade antes de neutralizar/mover o cliente HTTP.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Valores efetivos ATUAIS de {@code LlmProperties}: connect {@code 5s}, read {@code 180s}.</li>
       <li>Nova config {@code ApiDadosAnimeHttpProperties}: os MESMOS pares.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência reprova o teste — sinal de gate (não prosseguir com a migração).
 
@@ -4229,7 +4228,7 @@ traducao_animes_llm_local_quarkus/
       e revisão para suas fatias proprietárias) preservou integralmente a validação
       síncrona de contexto — um {@code contextoId} inexistente continua retornando
       HTTP 400, sem enfileirar trabalho e sem iniciar processamento assíncrono.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Um {@code GerenciadorContexto} sem provedores reprova qualquer id
@@ -4237,7 +4236,7 @@ traducao_animes_llm_local_quarkus/
       <li>O {@code PipelineWebSupport} é espionado: se {@code submeterJobComRelatorio}
       for chamado, houve enfileiramento/processamento — o que reprova o teste.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer resposta diferente de 400 ou qualquer enfileiramento reprova a suíte,
       sinalizando regressão da validação síncrona.
@@ -4247,7 +4246,7 @@ traducao_animes_llm_local_quarkus/
       de pacote (traducao → fatias proprietárias) NÃO pode alterar a serialização/
       desserialização consumida pela SPA: nomes de campos, tipos e ausência de campos
       extras permanecem idênticos.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code RemuxRequest} expõe exatamente {@code entrada, saida, syncOffsetMs,
@@ -4255,7 +4254,7 @@ traducao_animes_llm_local_quarkus/
       <li>{@code ExtracaoRequest} expõe exatamente {@code entrada, saida, formato}.</li>
       <li>Round-trip (objeto → JSON → objeto) preserva todos os valores.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer campo renomeado, removido, extra ou com tipo divergente reprova a suíte.
 
@@ -4301,7 +4300,7 @@ traducao_animes_llm_local_quarkus/
       (modelos {@code EntradaCache}/{@code ProvenienciaCache}/{@code CacheDocumento} e
       serviços {@code CacheTraducaoService}/{@code CacheManutencaoService}). Garante que o
       peer é consumível por qualquer fatia funcional sem criar acoplamento reverso.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code cachetraducao} NÃO depende de {@code traducao} nem de qualquer fatia
@@ -4312,7 +4311,7 @@ traducao_animes_llm_local_quarkus/
       nem de framework (Quarkus/CDI/MicroProfile/Spring/Jackson).</li>
       <li>Os três modelos permanecem em {@code domain}; os dois serviços em {@code infrastructure}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer dependência proibida ou tipo fora do pacote correto reprova o teste,
       listando a aresta/desvio exato.
@@ -4323,7 +4322,7 @@ traducao_animes_llm_local_quarkus/
       cache de tradução, garantindo que uma tradução só é reutilizada quando os SEIS
       campos canônicos batem exatamente — incluindo {@code schemaVersion}, cuja omissão
       histórica permitia reutilizar cache de schema desconhecido.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Igualdade exata dos seis campos (schemaVersion, contextoId, contextoHash,
@@ -4333,7 +4332,7 @@ traducao_animes_llm_local_quarkus/
       JSON) nunca é considerado igual ao {@code SCHEMA_ATUAL}: sem normalização.</li>
       <li>Comparar com {@code null} é sempre "diferente".</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer regressão que volte a ignorar {@code schemaVersion} ou a normalizar 0 para
       a versão atual reprova estes testes.
@@ -4342,10 +4341,10 @@ traducao_animes_llm_local_quarkus/
   - CacheManutencaoServiceTest.java
       PROPÓSITO DE NEGÓCIO: prova que a manutenção da pasta cache preserva formato,
       proveniência, extensões futuras e uma cópia restaurável antes de salvar.
-      
+
       <p>INVARIANTES DO DOMÍNIO: cobre lista legada e documento versionado; nenhuma
       estrutura inválida é aceita para escrita.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o teste exige {@link IOException} e
       confirma que o original não foi alterado.
   - CacheTraducaoServiceTest.java
@@ -4357,7 +4356,7 @@ traducao_animes_llm_local_quarkus/
       arquivo {@code .cache.json} produzido ANTES da extração do peer {@code cachetraducao}
       continua legível pelos tipos pós-move, sem depender de nenhum FQN antigo — garantindo
       que a migração de pacote NÃO quebra os caches já persistidos no disco dos usuários.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A fixture é textual e estável ({@code src/test/resources/cachetraducao/legado.cache.json}),
@@ -4367,7 +4366,7 @@ traducao_animes_llm_local_quarkus/
       <li>Regravação mantém o mesmo schema (chaves/valores), comparado estruturalmente
       (não por igualdade textual de espaços/ordem).</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer campo ausente/divergente ou schema alterado na regravação reprova o teste —
       sinal de que a E6 quebrou a compatibilidade do cache.
@@ -4379,7 +4378,7 @@ traducao_animes_llm_local_quarkus/
       o modo TRADUZIR deixou de ser roteado aqui — passando a ser tratado como um
       short-circuit, e nunca como "modo desconhecido" — sem afetar o roteamento dos
       demais modos nem a rejeição de modos inválidos.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code WEB} e {@code TRADUZIR} retornam sem efeito (nenhuma CLI roteada por
@@ -4388,7 +4387,7 @@ traducao_animes_llm_local_quarkus/
       <li>Estes três caminhos (WEB, TRADUZIR, inválido) nunca chamam {@code .get()} nos
       beans injetados — por isso a caracterização dispensa cabeamento CDI.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer regressão (TRADUZIR voltando a ser tratado como desconhecido, ou modo
       inválido deixando de lançar) reprova a suíte.
@@ -4398,7 +4397,7 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: congela a INDEPENDÊNCIA do peer compartilhado
       {@code contexto} (E7a domínio/lore + E7b infrastructure). Garante que o peer é
       consumível por qualquer fatia funcional sem acoplamento reverso.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code contexto} NÃO depende de {@code traducao} nem de outra fatia funcional:
@@ -4411,7 +4410,7 @@ traducao_animes_llm_local_quarkus/
       <li>{@code contexto.domain} contém os cinco tipos homologados;
       {@code contexto.lore} agrega 56 classes.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer dependência proibida, tipo fora do pacote correto ou terceira classe em
       infrastructure reprova o teste, listando a aresta/desvio exato.
@@ -4422,7 +4421,7 @@ traducao_animes_llm_local_quarkus/
       {@code ExcecaoContexto} (raiz do módulo {@code contexto}) com
       {@code ContextoNaoEncontradoException} sob ela, ambas movidas de {@code traducao}
       e reparentadas para deixarem de ser {@code TradutorException}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Construtores preservam mensagem e causa.</li>
@@ -4435,7 +4434,7 @@ traducao_animes_llm_local_quarkus/
       {@code GerenciadorContexto.definirContextoAtivo}, fora do caminho do CLI), a
       E7a não precisou de {@code catch (ExcecaoContexto)} no CLI.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
       garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
@@ -4447,7 +4446,7 @@ traducao_animes_llm_local_quarkus/
       {@code contexto} NÃO alterou nenhum prompt, nome de exibição, id ou termo protegido
       das 53 lores descobertas por CDI — comparando o estado vivo pós-move com o manifesto
       determinístico capturado ANTES do move ({@code /contexto/manifesto-lore.properties}).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>O manifesto é pequeno/legível: {@code count}, {@code ids} (ordenados por id),
@@ -4461,7 +4460,7 @@ traducao_animes_llm_local_quarkus/
       checkouts — sem afetar a detecção de qualquer mudança textual real.</li>
       <li>O agregado é o SHA-256 da concatenação {@code id\thash\n} na ordem por id.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
   - RegistroProvedoresContextoIT.java
       PROPÓSITO DE NEGÓCIO: caracteriza a descoberta e resolução CDI dos provedores de
@@ -4471,7 +4470,7 @@ traducao_animes_llm_local_quarkus/
       {@code contexto.infrastructure} e a lista é produzida por
       {@code contexto.infrastructure.config.ContextoBeansConfig}. As 3 classes agregadoras
       Macross sem {@code @Component} continuam fora do registro, mantendo exatamente 53 provedores.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Exatamente 53 provedores CDI; nenhum id nulo/vazio; nenhum id duplicado.</li>
@@ -4497,10 +4496,10 @@ traducao_animes_llm_local_quarkus/
       comportamento de produção (raiz = diretório corrente) e redireciona quando a
       system property {@code kronos.dir.base} está definida — o mecanismo que
       impede a suíte de contaminar os diretórios operacionais reais.
-      
+
       <p>INVARIANTES DO DOMÍNIO: salva e restaura o valor original da property para
       não afetar os demais testes do mesmo JVM.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: asserções JUnit falham se a resolução
       divergir do contrato.
 
@@ -4512,7 +4511,7 @@ traducao_animes_llm_local_quarkus/
       {@code ConsoleEntrada} para o {@code core.presentation.ui}). Prova que o move
       é puramente de pacote: mensagens, cores ANSI e enquadramento por linhas em
       branco permanecem byte a byte idênticos.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A saída é exatamente: linha em branco, a mensagem de erro em VERMELHO/negrito,
@@ -4523,7 +4522,7 @@ traducao_animes_llm_local_quarkus/
       <li>O {@code System.out} original é SEMPRE restaurado (via {@link AfterEach}),
       nunca deixando o stream substituído vazar para outros testes.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência na saída capturada reprova com {@code assertEquals},
       exibindo o esperado versus o real.
@@ -4560,7 +4559,7 @@ traducao_animes_llm_local_quarkus/
       {@code ExtrairLegendaUseCase} para que a mudança do LOCAL dos producers (de
       {@code traducao.RestClientConfig} para a config própria de {@code legendasExtracao})
       não altere quem é injetado nem a resolução por extensão/formato.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code List<ExtratorVideoPort>} contém exatamente {@link MkvToolNixAdapter}
@@ -4579,13 +4578,13 @@ traducao_animes_llm_local_quarkus/
       de vídeos exclusivamente a partir de {@code tradutor.diretorio-entrada}, com a mesma
       normalização por {@code trim} do fluxo legado, sem qualquer dependência de
       {@code TradutorProperties} ou {@code PastasExecucao}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Entrada ausente, vazia ou só com espaços ⇒ {@code null} (inválida).</li>
       <li>Entrada útil ⇒ {@code Path.of(valor.trim())}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência na normalização reprova o teste.
 
@@ -4616,7 +4615,7 @@ traducao_animes_llm_local_quarkus/
       fronteira da camada {@code application}: não depende de
       {@code legenda.infrastructure} nem de fatia funcional.</li>
       </ul>
-      
+
       <h2>Invariantes do domínio</h2>
 
 [PASTA] src/test/java/org/traducao/projeto/legenda/domain/
@@ -4625,7 +4624,7 @@ traducao_animes_llm_local_quarkus/
       {@code ExcecaoLegenda} (raiz do módulo {@code legenda}) e
       {@code ArquivoLegendaException} sob ela, com {@code EntradaJaTraduzidaException}
       permanecendo em {@code traducao} mas reparentada para a hierarquia de legenda.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Construtores preservam mensagem e causa.</li>
@@ -4636,7 +4635,7 @@ traducao_animes_llm_local_quarkus/
       por isso que o {@code TradutorCLI} precisou de um {@code catch (ExcecaoLegenda)}
       equivalente ao ramo {@code TradutorException}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
       garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
@@ -4646,13 +4645,13 @@ traducao_animes_llm_local_quarkus/
       herdada de {@code TradutorProperties.estiloIgnorado} — lista configurada + heurísticas
       + regex de fronteira de palavra — travando o comportamento HISTÓRICO exato após o move
       para o módulo {@code legenda}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Match de lista é case-insensitive; heurística e regex idênticas ao comportamento anterior.</li>
       <li>{@code null}/blank → {@code false}; a política não decide sozinha o envio ao LLM.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Divergência de qualquer caso reprova, sinalizando quebra da regra migrada.
 
@@ -4661,14 +4660,14 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: prova o WIRING do {@link PoliticaEstiloMusicalProducer} — o bean
       {@code @Singleton} {@link PoliticaEstiloMusical} é produzido e injeta a lista real do
       {@code application.yml} ({@code tradutor.estilos-ignorados}), não apenas o fallback.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Um estilo presente APENAS na lista do yml (ex.: "Mobile Suit Gundam", sem palavra-chave
       musical) é reconhecido — prova de que a lista completa foi injetada, não o fallback.</li>
       <li>A heurística/regex continuam valendo; um estilo comum não é ignorado.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Falha de produção/injeção do bean, ou lista incorreta, reprova o teste.
 
@@ -4687,7 +4686,7 @@ traducao_animes_llm_local_quarkus/
       ({@code Lote}, {@code TraducaoLote}, {@code StatusLlm}), todos em {@code llm.domain}.
       Garante que o peer é consumível por qualquer fatia funcional sem acoplamento reverso e
       sem arrastar framework, cliente HTTP ou qualquer biblioteca externa.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Allowlist POSITIVA de destinos: {@code llm} só pode depender de pacotes do JDK
@@ -4735,10 +4734,10 @@ traducao_animes_llm_local_quarkus/
   - MascaradorTagsTest.java
       PROPÓSITO DE NEGÓCIO: garante que cache reutilizado não danifique estilo,
       posicionamento nem quebras estruturais das legendas ASS/SSA.
-      
+
       <p>INVARIANTES DO DOMÍNIO: somente o texto visível pode mudar; perda, criação,
       alteração ou reordenação de tags invalida a tradução armazenada.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: cada divergência produz uma asserção falsa
       explícita, impedindo regressões que aceitariam cache estruturalmente corrompido.
   - ValidadorTraducaoServiceTest.java
@@ -4755,7 +4754,7 @@ traducao_animes_llm_local_quarkus/
       porta {@code LoreAtivaPort} em domain, que inverte o antigo acoplamento a
       {@code contexto}). Garante que o peer é consumível por qualquer fatia funcional sem
       acoplamento reverso.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code qualidadeTraducao} só depende de JDK/libs técnicas, {@code core} e do
@@ -4775,7 +4774,7 @@ traducao_animes_llm_local_quarkus/
       {@code ExcecaoQualidadeTraducao} (raiz do peer {@code qualidadeTraducao}) com
       {@code AlucinacaoDetectadaException} sob ela, movidas de {@code traducao} e
       reparentadas para deixarem de ser {@code TradutorException}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>{@code ExcecaoQualidadeTraducao} IS-A {@code BasePipelineException}.</li>
@@ -4786,7 +4785,7 @@ traducao_animes_llm_local_quarkus/
       (ProcessarEpisodioUseCase, TradutorCLI) passaram a multi-catch explícito na E8b.</li>
       <li>Construtores preservam mensagem (e causa, na base).</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer regressão da hierarquia (positiva ou negativa) reprova o teste — também é a
       garantia de que o {@code BasePipelineExceptionMapper} (genérico sobre
@@ -4796,18 +4795,18 @@ traducao_animes_llm_local_quarkus/
   - CorrigirComGoogleUseCaseTest.java
       PROPÓSITO DE NEGÓCIO: prova a regressão central do menu — uma entrada vazia
       produzida pela limpeza precisa ser preenchida pela contingência Google.
-      
+
       <p>INVARIANTES DO DOMÍNIO: teste não acessa a internet nem grava telemetria no
       projeto; cache versionado e proveniência permanecem intactos.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer ausência de tradução aplicada ou
   - ProtetorTermosLoreServiceTest.java
       PROPÓSITO DE NEGÓCIO: prova que a contingência online preserva terminologia
       oficial declarada na lore em vez de produzir traduções literais destrutivas.
-      
+
       <p>INVARIANTES DO DOMÍNIO: termos explícitos e regra “Manter sempre” são
       protegidos; marcador perdido invalida a resposta.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer termo alterado ou marcador aceito
       indevidamente reprova o teste.
 
@@ -4827,26 +4826,26 @@ traducao_animes_llm_local_quarkus/
   - DetectorConcordanciaServiceTest.java
       PROPÓSITO DE NEGÓCIO: comprova que a revisão automática encontra divergências
       objetivas de gênero sem reescrever falas corretas por inferência do falante.
-      
+
       <p>INVARIANTES DO DOMÍNIO: evidência explícita continua detectável; `I/you`
       e palavras polissêmicas como `cara` não produzem falso positivo.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer regressão reprova o teste antes
       que uma proposta indevida alcance o cache operacional.
   - LeitorCacheReferenciaServiceTest.java
       PROPÓSITO DE NEGÓCIO: prova que a Opção 6 consome tanto caches históricos
       quanto o formato versionado atualmente produzido pelas Opções 4 e 5.
-      
+
       <p>INVARIANTES DO DOMÍNIO: índice, original e tradução permanecem idênticos
       ao JSON e a proveniência não interfere na leitura das entradas.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: incompatibilidade de schema reprova o teste.
   - ResultadoRevisaoLegendasTest.java
       PROPÓSITO DE NEGÓCIO: garante que o painel da Opção 6 diferencie conclusão
       integral de uma execução estável que ainda deixou falas sem solução.
-      
+
       <p>INVARIANTES DO DOMÍNIO: qualquer pendência impede banner verde.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: status divergente reprova o teste.
   - RevisarCacheUseCaseTest.java
       (sem cabecalho explicativo)
@@ -4869,9 +4868,9 @@ traducao_animes_llm_local_quarkus/
   - RevisarLegendasContextoTest.java
       PROPÓSITO DE NEGÓCIO: prova que a Opção 6 não revisa uma obra usando a lore
       selecionada por engano na interface quando o cache conhece sua proveniência.
-      
+
       <p>INVARIANTES DO DOMÍNIO: contexto versionado vence fallback manual.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: ativação de DanMachi para cache Gundam
       reprova o teste antes que uma legenda real seja modificada.
   - RevisarLegendasProtecaoMassaTest.java
@@ -4883,10 +4882,10 @@ traducao_animes_llm_local_quarkus/
   - SincronizadorLegendaCacheServiceTest.java
       PROPÓSITO DE NEGÓCIO: prova que as correções da Opção 5 chegam à Opção 6 sem
       apagar pendências que o Google não conseguiu resolver.
-      
+
       <p>INVARIANTES DO DOMÍNIO: índice liga cache e diálogo; vazio é sempre
       preservação, nunca comando de exclusão.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: mudança indevida no texto reprova o teste.
 
 [PASTA] src/test/java/org/traducao/projeto/remuxer/application/
@@ -4913,14 +4912,14 @@ traducao_animes_llm_local_quarkus/
       política legada {@code TradutorProperties.resolverDiretorioSaida()}: saída explícita
       quando informada, senão o fallback {@code entrada/traducao_ptbr}, com {@code trim}
       preservado e sem depender de {@code TradutorProperties} ou {@code PastasExecucao}.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Saída ausente/vazia/blank ⇒ {@code pastaVideos.resolve("traducao_ptbr")}.</li>
       <li>Saída útil ⇒ {@code Path.of(valor.trim())}.</li>
       <li>A resolução da saída nunca devolve {@code null}.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência do fallback ou da normalização reprova o teste.
 
@@ -4994,13 +4993,13 @@ traducao_animes_llm_local_quarkus/
       PROPÓSITO DE NEGÓCIO: servidor HTTP local determinístico que emula o endpoint
       OpenAI-compatible do LLM (LM Studio) para caracterizar a stack de Revisão de
       Lore sem depender de rede externa ou do LM Studio real.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Roteia {@code /v1/chat/completions}, {@code /v1/models} e {@code /api/v0/models}.</li>
       <li>Conta chamadas ao chat e captura cada corpo recebido, para asserção de payload e retry.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Sem resposta de chat enfileirada, repete a última configurada; encerra a porta ao fechar.
 
@@ -5016,13 +5015,13 @@ traducao_animes_llm_local_quarkus/
       operacionais versionados ({@code relatorios/}, {@code logs/}) e sim na árvore
       descartável redirecionada por {@link DiretorioBaseKronos}. É o guard que
       impede a reaparição dos resíduos {@code relatorios/junit-*}.
-      
+
       <p>INVARIANTES DO DOMÍNIO: a suíte roda com {@code kronos.dir.base} apontando
       para {@code build/tmp/kronos-tests} (ver build.gradle), portanto os caminhos
       relativos crus ({@code Path.of("relatorios")}, {@code Path.of("logs")})
       continuam apontando para os diretórios reais e servem de referência do que
       NÃO pode ser tocado.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer escrita real dispara asserção
       JUnit, sinalizando regressão do isolamento.
   - TelemetriaConsolidacaoTest.java
@@ -5035,10 +5034,10 @@ traducao_animes_llm_local_quarkus/
       <p>COMPORTAMENTO EM CASO DE FALHA: divergência ou exceção reprova a suíte.
   - TelemetriaDatasetPropertiesTest.java
       PROPÓSITO DE NEGÓCIO: valida a configuração segura da publicação do dataset.
-      
+
       <p>INVARIANTES DO DOMÍNIO: ambiente e detecção automática permanecem ativos,
       sem propriedade manual de GPU capaz de misturar máquinas.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: configuração divergente impede a suíte de
       integração de aprovar o empacotamento da aplicação.
   - TelemetriaDatasetServiceTest.java
@@ -5057,19 +5056,19 @@ traducao_animes_llm_local_quarkus/
   - ClassificadorEntradaCacheServiceTest.java
       PROPÓSITO DE NEGÓCIO: cobre a fronteira que impede o menu de apagar termos
       legítimos da lore e garante que lacunas/fallbacks reais sejam reparáveis.
-      
+
       <p>INVARIANTES DO DOMÍNIO: a decisão deriva da lore ativa e não de uma lista
       fixa de um anime; expressões inglesas em Title Case continuam sendo falhas.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: cada cenário retorna status explícito, sem
       depender de exceção ou igualdade ambígua.
   - LimparCacheUseCaseTest.java
       PROPÓSITO DE NEGÓCIO: testa o fluxo completo de limpeza sobre a pasta cache,
       incluindo proveniência, lore, backup, auditoria e formato versionado.
-      
+
       <p>INVARIANTES DO DOMÍNIO: fallback inglês é invalidado, termo de lore é
       preservado e cache legado sem seleção não sofre alteração destrutiva.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: o resultado acusa falha e o arquivo
       original permanece byte a byte igual.
 
@@ -5077,10 +5076,10 @@ traducao_animes_llm_local_quarkus/
   - ResultadoManutencaoCacheTest.java
       PROPÓSITO DE NEGÓCIO: garante que o painel diferencie conclusão integral de
       uma execução tecnicamente estável que ainda deixou itens sem correção.
-      
+
       <p>INVARIANTES DO DOMÍNIO: itens detectados e não corrigidos são pendências,
       não sucesso completo nem falha técnica.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: status ou contagem divergente reprova o teste.
 
 [PASTA] src/test/java/org/traducao/projeto/traducaoKaraoke/application/
@@ -5096,10 +5095,10 @@ traducao_animes_llm_local_quarkus/
   - ProcessarArquivoUseCaseGuardTest.java
       PROPÓSITO DE NEGÓCIO: protege por regressão as decisões que impedem o tradutor
       de publicar linhas ASS suspeitas ou substituir uma legenda sem autorização.
-      
+
       <p>INVARIANTES DO DOMÍNIO: entradas protegidas permanecem bloqueadas, a chave
       de liberação escolhe o destino correto e toda sobrescrita preserva um backup.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer desvio interrompe a suíte antes de
       o comportamento inseguro alcançar arquivos reais.
   - ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest.java
@@ -5108,7 +5107,7 @@ traducao_animes_llm_local_quarkus/
       validador rejeita como alucinação — travando o contrato antes da E8b para que a
       extração de {@code AlucinacaoDetectadaException} para o peer {@code qualidadeTraducao}
       não altere o fluxo em silêncio.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A resposta rejeitada dispara nova tentativa da fala isolada (retry com
@@ -5117,7 +5116,7 @@ traducao_animes_llm_local_quarkus/
       <li>Esgotadas as tentativas, o fallback mantém a fala ORIGINAL — sem sucesso
       falso: {@code registrarFalhaTraducaoRecuperada} nunca é chamado.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Este teste NÃO afirma que a exceção alcança o catch externo de
 
@@ -5127,7 +5126,7 @@ traducao_animes_llm_local_quarkus/
       Traducao Local (org.traducao.projeto.traducao) — dependencias outra-fatia ->
       traducao. Contraparte do fitness OUTBOUND (FronteiraTraducaoArchTest); as regras
       da C2 permanecem separadas la.
-      
+
       <p>DUAS MEDIDAS COMPLEMENTARES (baseline auditada da FASE E):
       <ul>
       <li>Fitness principal (ArchUnit/bytecode): pre-E1 = 149, pos-E1 = 147, pos-E2 = 144, pos-E3b = 138, pos-E3c = 134, pos-E4a = 128, pos-E4b = 122, pos-E5a = 83, pos-E5c = 71, pos-E6 = 55, pos-E7b = 47, pos-E8a = 39, pos-E8b = 28, pos-E8c = 15, pos-E8c1 = 13, pos-E8d = 0. Mesmo
@@ -5137,7 +5136,7 @@ traducao_animes_llm_local_quarkus/
       inclusive tipos usados apenas em clausulas catch (que o ArchUnit 1.4.2 nao
       registra no grafo).</li>
       </ul>
-      
+
       <p>Nota E7b: as oito arestas outras-fatias -> {@code GerenciadorContexto} sairam do
       INBOUND (55->47 bytecode / 57->49 texto) porque o manager migrou para o peer de topo
   - FronteiraTraducaoArchTest.java
@@ -5149,7 +5148,7 @@ traducao_animes_llm_local_quarkus/
       até restar somente o débito dos três controllers bloqueados para a C2. Analisa
       dependências no bytecode, alcançando o que o import textual não mostra
       (usos totalmente qualificados no corpo, campos, construtores, herança, genéricos).
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li><b>Baseline dupla (histórico D0)</b>: a auditoria por import textual
@@ -5166,7 +5165,7 @@ traducao_animes_llm_local_quarkus/
       produção — o grafo de injeção que a análise estática não alcança: o
       {@link ObjectMapper} efetivamente resolvido, as coleções agregadas de extração
       e o dispatcher do modo CLI. Fixa o baseline homologado antes das subfases D.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Existe exatamente um {@link ObjectMapper} injetável (sem ambiguidade
@@ -5191,10 +5190,10 @@ traducao_animes_llm_local_quarkus/
   - LlmClientAdapterRespostaRevisaoTest.java
       PROPÓSITO DE NEGÓCIO: garante que respostas do Tower/Mistral com raciocínio
       ou formatação auxiliar entreguem somente a fala final à revisão de legendas.
-      
+
       <p>INVARIANTES DO DOMÍNIO: todos os marcadores ASS esperados permanecem na
       saída e explicações do modelo nunca entram na legenda.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: resposta incompatível produz texto vazio,
       obrigando o cliente a tentar novamente em vez de publicar estrutura quebrada.
   - LoreAtivaContextoAdapterTest.java
@@ -5202,11 +5201,11 @@ traducao_animes_llm_local_quarkus/
       ao {@link GerenciadorContexto} — o único ponto de composição que liga a porta
       {@code LoreAtivaPort} do peer de qualidade à fonte real de contexto, sem alterar o que
       o gerenciador entrega.
-      
+
       <p>INVARIANTES DO DOMÍNIO: para qualquer estado do gerenciador (sem contexto ou com
       contexto ativo) a saída do adapter é IGUAL à do gerenciador — mesmos termos, mesma
       lore, sem normalização, filtragem ou substituição.
-      
+
       <p>COMPORTAMENTO EM CASO DE FALHA: qualquer divergência entre adapter e gerenciador
       reprova o teste. A comparação é sempre contra a saída do próprio gerenciador, de modo
       que o teste não congela o fallback interno do {@link ContextoPrompt} como regra.
@@ -5218,7 +5217,7 @@ traducao_animes_llm_local_quarkus/
       tradutor.idioma-traduzido, tradutor.diretorio-cache) via {@code @ConfigProperty}
       {@code Optional<String>}, blindando o novo acoplamento antes de remover
       {@code TradutorProperties} dos seis consumidores.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Chave presente → {@code Optional.of(valor)}; a sobrescrita de perfil vence o
@@ -5229,7 +5228,7 @@ traducao_animes_llm_local_quarkus/
       (idioma/entrada), sem depender de trimming do SmallRye.</li>
       <li>Nenhum {@code defaultValue} é usado na injeção; o default é sempre do consumidor.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência na resolução ou no fallback reprova o teste, sinalizando a
       quebra de paridade com o comportamento pré-E3b.
@@ -5246,7 +5245,7 @@ traducao_animes_llm_local_quarkus/
       PASSO 1 da E3c — cenario LISTA VAZIA EXPLICITA. Perfil de teste sobrescreve
       {@code tradutor.estilos-ignorados} para vazio e OBSERVA o que cada binding produz,
       para o gate de divergencia (decisao 6: ausente != vazia).
-      
+
       <p>Este teste NAO afirma um resultado esperado rigido: ele IMPRIME e registra o
       estado real de ambos os bindings para ratificacao. As assercoes apenas travam a
       comparacao Spring-vs-SmallRye (se divergirem, o gate dispara com evidencia).
@@ -5256,7 +5255,7 @@ traducao_animes_llm_local_quarkus/
       {@code TradutorProperties}, o comportamento legado de resolução do diretório de
       saída que esses CLIs herdam hoje — de modo que a lógica inline que passará a viver
       em cada CLI possa ser provada equivalente.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>A normalização por {@code trim} da entrada e da saída ocorre em
@@ -5269,7 +5268,7 @@ traducao_animes_llm_local_quarkus/
       <li>Nenhum dos três CLIs lê o diretório de cache de volta; a política de cache
       não entra nesta paridade.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Qualquer divergência entre o composto legado e a fórmula esperada reprova o teste —
       sinal de gate: NÃO prosseguir com a migração dos CLIs.
@@ -5289,7 +5288,7 @@ traducao_animes_llm_local_quarkus/
       {@code AlucinacaoDetectadaException} lançada ao processar um arquivo — hoje herdado
       do {@code catch (TradutorException)}. Trava o contrato antes da E8b: mensagem de
       falha, contagem, lista de arquivos com falha e continuidade do lote.
-      
+
       <h2>Invariantes do domínio</h2>
       <ul>
       <li>Uma falha por alucinação num arquivo é contabilizada como falha e não aborta
@@ -5298,7 +5297,7 @@ traducao_animes_llm_local_quarkus/
       preservando a mensagem original da exceção.</li>
       <li>O relatório final reflete 0 sucessos, N falhas e lista os arquivos com falha.</li>
       </ul>
-      
+
       <h2>Comportamento em caso de falha</h2>
       Após o reparenting da E8b, {@code AlucinacaoDetectadaException} deixa de ser
       {@code TradutorException}; o multi-catch {@code (TradutorException | AlucinacaoDetectadaException)}
