@@ -94,9 +94,12 @@ public final class ProcessoExternoUtil {
 
             boolean terminou = processo.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
             if (!terminou) {
+                // Se a interrupção chegar aqui, encerrarForcadamenteEAguardar propaga
+                // InterruptedException e o TimeoutException abaixo NÃO é lançado — o
+                // cancelamento tem precedência sobre um timeout ainda não entregue.
                 encerrarForcadamenteEAguardar(processo);
                 throw new TimeoutException("Processo excedeu o tempo limite de " + timeout.toSeconds()
-                        + "s e foi encerrado: " + String.join(" ", comando));
+                        + "s; encerramento forçado solicitado: " + String.join(" ", comando));
             }
 
             byte[] stdout = lerResultado(stdoutFuture);
@@ -104,38 +107,41 @@ public final class ProcessoExternoUtil {
             return new Resultado(processo.exitValue(), stdout, stderr);
         } finally {
             pool.shutdownNow();
-            encerrarForcadamenteEAguardar(processo);
+            // Limpeza: solicita e aguarda o encerramento sem MASCARAR a exceção/retorno já em
+            // curso. Aqui a interrupção só restaura o flag (não pode sobrepor o que propaga).
+            try {
+                encerrarForcadamenteEAguardar(processo);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: garante que um processo externo estourado ou abandonado seja de
-     * fato encerrado antes do método retornar, em vez de só disparar o kill e seguir — evita
-     * que um ffmpeg/mkvmerge órfão continue consumindo CPU/disco depois do timeout.
+     * PROPÓSITO DE NEGÓCIO: solicita o encerramento forçado de um processo externo estourado
+     * ou abandonado e AGUARDA a confirmação do término antes de retornar, para não deixar um
+     * ffmpeg/mkvmerge consumindo recursos após o kill.
      *
-     * <p>INVARIANTES DO DOMÍNIO: se ainda vivo, chama {@code destroyForcibly()} e aguarda a
-     * confirmação do término por um limite curto e explícito
+     * <p>INVARIANTES DO DOMÍNIO: se ainda vivo, chama {@code destroyForcibly()} (kill
+     * SOLICITADO) e aguarda a CONFIRMAÇÃO do término por um limite curto e explícito
      * ({@link #ESPERA_ENCERRAMENTO}), nunca indefinidamente; não altera stdout/stderr nem o
      * código de saída; não introduz concorrência no LLM.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: se o SO não confirmar o término dentro do limite,
-     * registra um aviso e retorna assim mesmo (o kill já foi enviado e o SO conclui de forma
-     * assíncrona), sem prender o pipeline; uma interrupção durante a espera restaura o flag de
-     * interrupção da thread e encerra a espera imediatamente.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o SO não confirmar o término dentro do limite, o
+     * kill permanece solicitado, porém não confirmado — registra um aviso e retorna assim
+     * mesmo, sem prender o pipeline. Uma interrupção durante a espera PROPAGA
+     * {@link InterruptedException} ao chamador, dando ao cancelamento precedência sobre um
+     * {@link TimeoutException} ainda não entregue.
      */
-    private static void encerrarForcadamenteEAguardar(Process processo) {
+    private static void encerrarForcadamenteEAguardar(Process processo) throws InterruptedException {
         if (!processo.isAlive()) {
             return;
         }
         processo.destroyForcibly();
-        try {
-            boolean encerrou = processo.waitFor(ESPERA_ENCERRAMENTO.toMillis(), TimeUnit.MILLISECONDS);
-            if (!encerrou) {
-                log.warn("Processo externo não confirmou o término {} ms após destroyForcibly; "
-                    + "o SO concluirá o encerramento de forma assíncrona.", ESPERA_ENCERRAMENTO.toMillis());
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        boolean confirmado = processo.waitFor(ESPERA_ENCERRAMENTO.toMillis(), TimeUnit.MILLISECONDS);
+        if (!confirmado) {
+            log.warn("Kill solicitado, mas o processo externo não confirmou o término {} ms depois; "
+                + "o SO pode concluir o encerramento de forma assíncrona.", ESPERA_ENCERRAMENTO.toMillis());
         }
     }
 
