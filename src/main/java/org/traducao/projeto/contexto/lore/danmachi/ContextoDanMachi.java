@@ -4,6 +4,16 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.Set;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: lore geral de DanMachi (contexto padrão) cobrindo termos
+ * de mundo, nomes principais e regras de tradução para qualquer arco.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: Liliruca Arde; Syr Flova; Mikoto Yamato; Familia/Falna/Dungeon.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+ */
 @Component
 public class ContextoDanMachi implements ProvedorContexto {
 
@@ -38,5 +48,20 @@ public class ContextoDanMachi implements ProvedorContexto {
     @Override
     public String obterPromptSistema() {
         return PROMPT;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: protege o núcleo canônico da lore geral DanMachi.
+     * <p>INVARIANTES DO DOMÍNIO: grafias alinhadas às temporadas enriquecidas.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
+     */
+    @Override
+    public Set<String> termosProtegidos() {
+        return Set.of(
+            "Bell Cranel", "Hestia", "Ais Wallenstein", "Liliruca Arde", "Lili",
+            "Welf Crozzo", "Mikoto Yamato", "Haruhime Sanjouno", "Ryuu Lion",
+            "Syr Flova", "Freya", "Ottar", "Orario", "Dungeon", "Falna", "Familia",
+            "Hestia Knife", "Firebolt", "Argonaut"
+        );
     }
 }
