@@ -3,11 +3,8 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
-import org.traducao.projeto.llm.domain.TraducaoLote;
-import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
@@ -23,7 +20,6 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
-import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -34,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +56,7 @@ public class ProcessarArquivoUseCase {
     private final EscritorLegendaAss escritor;
     private final LeitorLegendaSrt leitorSrt;
     private final EscritorLegendaSrt escritorSrt;
-    private final MascaradorTags mascarador;
     private final CacheTraducaoService cacheService;
-    private final ProcessarEpisodioUseCase processarEpisodioUseCase;
     private final TradutorProperties propriedades;
     private final LlmProperties llmPropriedades;
     private final ConsoleUILogger uiLogger;
@@ -76,15 +69,14 @@ public class ProcessarArquivoUseCase {
     private final PoliticaBackupTraducao politicaBackup;
     private final SeletorEventosTraduziveis seletorEventos;
     private final AvaliadorTraducaoCache avaliadorCache;
+    private final TradutorLotesService tradutorLotes;
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
         EscritorLegendaAss escritor,
         LeitorLegendaSrt leitorSrt,
         EscritorLegendaSrt escritorSrt,
-        MascaradorTags mascarador,
         CacheTraducaoService cacheService,
-        ProcessarEpisodioUseCase processarEpisodioUseCase,
         TradutorProperties propriedades,
         LlmProperties llmPropriedades,
         ConsoleUILogger uiLogger,
@@ -96,15 +88,14 @@ public class ProcessarArquivoUseCase {
         ResolvedorCacheTraducao resolvedorCache,
         PoliticaBackupTraducao politicaBackup,
         SeletorEventosTraduziveis seletorEventos,
-        AvaliadorTraducaoCache avaliadorCache
+        AvaliadorTraducaoCache avaliadorCache,
+        TradutorLotesService tradutorLotes
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.leitorSrt = leitorSrt;
         this.escritorSrt = escritorSrt;
-        this.mascarador = mascarador;
         this.cacheService = cacheService;
-        this.processarEpisodioUseCase = processarEpisodioUseCase;
         this.propriedades = propriedades;
         this.llmPropriedades = llmPropriedades;
         this.uiLogger = uiLogger;
@@ -117,6 +108,7 @@ public class ProcessarArquivoUseCase {
         this.politicaBackup = politicaBackup;
         this.seletorEventos = seletorEventos;
         this.avaliadorCache = avaliadorCache;
+        this.tradutorLotes = tradutorLotes;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -211,7 +203,7 @@ public class ProcessarArquivoUseCase {
 
         Map<String, String> traducoesNovas;
         try {
-            traducoesNovas = traduzirPendentes(textosPendentes, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
+            traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
         } catch (TraducaoParcialException e) {
             Map<String, String> traducoesParciais = e.getDicionarioParcial();
             if (traducoesParciais != null && !traducoesParciais.isEmpty()) {
@@ -354,98 +346,6 @@ public class ProcessarArquivoUseCase {
             avisos.size(), status);
     }
 
-    private Map<String, String> traduzirPendentes(
-            LinkedHashSet<String> textosPendentes, String nomeArquivo, List<String> avisos, String promptCongelado)
-            throws InterruptedException, ExecutionException {
-        if (textosPendentes.isEmpty()) {
-            return Map.of();
-        }
-
-        Map<String, List<String>> tagsPorTexto = new LinkedHashMap<>();
-        Map<String, String> textoMascaradoPorOriginal = new LinkedHashMap<>();
-        for (String original : textosPendentes) {
-            MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
-            tagsPorTexto.put(original, mascarado.tags());
-            textoMascaradoPorOriginal.put(original, mascarado.texto());
-        }
-
-        List<String> textosPendentesOrdenados = new ArrayList<>(textosPendentes);
-        int tamanhoLote = propriedades.tamanhoLote();
-
-        List<List<String>> chunksOriginais = new ArrayList<>();
-        List<Lote> lotes = new ArrayList<>();
-        for (int i = 0; i < textosPendentesOrdenados.size(); i += tamanhoLote) {
-            List<String> chunkOriginais = textosPendentesOrdenados.subList(i, Math.min(i + tamanhoLote, textosPendentesOrdenados.size()));
-            List<String> chunkMascarados = chunkOriginais.stream().map(textoMascaradoPorOriginal::get).toList();
-            chunksOriginais.add(chunkOriginais);
-            lotes.add(new Lote(lotes.size() + 1, chunkMascarados));
-        }
-
-        uiLogger.iniciarLotes(lotes.size(), nomeArquivo);
-        List<TraducaoLote> resultados;
-        try {
-            resultados = processarEpisodioUseCase.processarEpisodio(lotes, promptCongelado);
-        } catch (TraducaoParcialException e) {
-            Map<String, String> traducoesParciais = new HashMap<>();
-            if (e.getLotesSalvos() != null) {
-                for (TraducaoLote tl : e.getLotesSalvos()) {
-                    int k = tl.idLote() - 1; 
-                    List<String> chunkOriginais = chunksOriginais.get(k);
-                    List<String> traduzidoMascaradoLinhas = tl.linhasTraduzidas();
-                    if (traduzidoMascaradoLinhas != null && chunkOriginais.size() == traduzidoMascaradoLinhas.size()) {
-                        for (int j = 0; j < chunkOriginais.size(); j++) {
-                            String original = chunkOriginais.get(j);
-                            String traduzidoMascarado = traduzidoMascaradoLinhas.get(j);
-                            traducoesParciais.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
-                        }
-                    }
-                }
-            }
-            throw new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
-        } finally {
-            uiLogger.finalizar();
-        }
-
-        Map<String, String> traducoesNovas = new HashMap<>();
-        for (int k = 0; k < lotes.size(); k++) {
-            List<String> chunkOriginais = chunksOriginais.get(k);
-            List<String> traduzidoMascaradoLinhas = resultados.get(k).linhasTraduzidas();
-            for (int j = 0; j < chunkOriginais.size(); j++) {
-                String original = chunkOriginais.get(j);
-                String traduzidoMascarado = traduzidoMascaradoLinhas.get(j);
-                traducoesNovas.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
-            }
-        }
-        return traducoesNovas;
-    }
-
-    /**
-     * Restaura as tags numa fala traduzida; se o LLM corrompeu/perdeu marcadores
-     * [[TAGn]] (alucinação isolada numa única fala), não derruba o lote/episódio
-     * inteiro por causa disso: mantém o texto original (sem tradução) só para essa
-     * fala e sinaliza para revisão manual no cache.
-     */
-    private String desmascararComFallback(String original, String traduzidoMascarado, List<String> tags, List<String> avisos) {
-        try {
-            String traduzido = mascarador.desmascarar(traduzidoMascarado, tags);
-            if (protecaoAss.respostaSuspeita(original, traduzido)) {
-                telemetriaTraducao.registrarAlucinacaoPrevenida();
-                log.warn("LLM contaminou linha ASS pesada — mantendo original. Original: \"{}\" Traduzido: \"{}\"",
-                    original, traduzido);
-                uiLogger.log("[ WARN ] Linha ASS pesada contaminada pelo LLM — mantida sem tradução (revise manualmente): " + original);
-                avisos.add("Linha ASS pesada mantida sem tradução por resposta suspeita do LLM: " + original);
-                return original;
-            }
-            return traduzido;
-        } catch (AlucinacaoDetectadaException e) {
-            telemetriaTraducao.registrarAlucinacaoPrevenida();
-            log.warn("Tags corrompidas pelo LLM nesta fala — mantendo o texto original sem tradução. Motivo: {}. Original: \"{}\"",
-                e.getMessage(), original);
-            uiLogger.log("[ WARN ] Tags corrompidas pelo LLM — fala mantida sem tradução (revise manualmente): " + original);
-            avisos.add("Fala mantida sem tradução (tags corrompidas pelo LLM): " + original);
-            return original;
-        }
-    }
 
 
     private static boolean ehSrt(Path arquivo) {
