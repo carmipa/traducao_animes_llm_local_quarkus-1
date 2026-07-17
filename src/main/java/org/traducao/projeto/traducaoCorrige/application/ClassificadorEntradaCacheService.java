@@ -2,7 +2,7 @@ package org.traducao.projeto.traducaoCorrige.application;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.application.ValidadorTraducaoService;

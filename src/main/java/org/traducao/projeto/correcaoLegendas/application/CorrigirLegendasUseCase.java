@@ -16,7 +16,7 @@ import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;

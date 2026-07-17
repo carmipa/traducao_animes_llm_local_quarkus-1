@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducaoKaraoke.application;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
 
 import java.util.Locale;

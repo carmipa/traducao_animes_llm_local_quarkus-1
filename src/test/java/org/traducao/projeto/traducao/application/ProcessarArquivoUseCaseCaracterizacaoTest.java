@@ -8,6 +8,7 @@ import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TraducaoLote;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.MistralPort;

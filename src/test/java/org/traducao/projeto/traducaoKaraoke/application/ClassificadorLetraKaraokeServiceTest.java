@@ -2,7 +2,7 @@ package org.traducao.projeto.traducaoKaraoke.application;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.traducao.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
