@@ -2,13 +2,13 @@ package org.traducao.projeto.traducao.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.traducao.domain.Lote;
-import org.traducao.projeto.traducao.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.Lote;
+import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
-import org.traducao.projeto.traducao.domain.TraducaoLote;
+import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 

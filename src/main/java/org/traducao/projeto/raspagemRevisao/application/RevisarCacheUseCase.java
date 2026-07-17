@@ -11,7 +11,7 @@ import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;

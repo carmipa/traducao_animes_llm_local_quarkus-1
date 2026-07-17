@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 
 import java.util.Optional;

@@ -4,8 +4,8 @@ import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
-import org.traducao.projeto.traducao.domain.StatusLlm;
-import org.traducao.projeto.traducao.domain.ports.LlmPort;
+import org.traducao.projeto.llm.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
