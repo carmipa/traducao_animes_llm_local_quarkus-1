@@ -14,6 +14,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
+import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
@@ -435,6 +436,99 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
             "nenhuma saida final pode ser publicada apos o cancelamento");
         assertEquals(origemAntes, Files.readString(entrada, StandardCharsets.UTF_8), "entrada intacta");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F0/R4 — elegibilidade): um evento que é puro desenho
+     * vetorial ({@code \p1} do Aegisub) nunca é considerado traduzível — não é
+     * enviado ao LLM e permanece idêntico na saída. Fixa a blindagem de
+     * elegibilidade antes de extrair {@code isTraduzivel} para um colaborador.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: com o desenho como único evento, nenhum lote é
+     * enviado (LLM chamado zero vezes), o status é {@code CONCLUIDO} e o comando de
+     * desenho continua byte a byte na saída publicada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer regressão que envie o desenho ao
+     * LLM ou o altere na saída falha a suíte.
+     */
+    @Test
+    void desenhoVetorialNaoEhTraduzidoNemEnviadoAoLlm() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        String desenho = "{\\p1}m 5 5 l 40 5 l 40 40 l 5 40{\\p0}";
+        Path entrada = escreverAss("ep.ass", desenho);
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
+        assertEquals(0, llm.chamadas.get(), "desenho vetorial nunca deve ir ao LLM");
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.readString(saida, StandardCharsets.UTF_8).contains("m 5 5 l 40 5"),
+            "o desenho vetorial deve permanecer intacto na saida");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F0/R4 — elegibilidade): um letreiro/título animado
+     * quadro a quadro (tag de efeito pesada + pouco texto visível + o mesmo texto
+     * repetido muitas vezes) é blindado antes do LLM. Fixa a heurística de
+     * repetição antes de extrair {@code isTraduzivel}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: cinco ocorrências idênticas (>= limiar de
+     * repetição) do letreiro não geram nenhuma chamada ao LLM e o texto visível
+     * original permanece na saída, sem marcador de tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se a heurística deixar de bloquear, o LLM
+     * é chamado e "fala traduzida" aparece na saída — a suíte falha.
+     */
+    @Test
+    void letreiroAnimadoRepetidoNaoEhTraduzido() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        String letreiro = "{\\clip(0,0,300,300)\\t(0,1000,\\frx360)\\pos(20,20)}Hi";
+        Path entrada = escreverAss("ep.ass", letreiro, letreiro, letreiro, letreiro, letreiro);
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(0, llm.chamadas.get(), "letreiro animado repetido nao deve ir ao LLM");
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        assertFalse(conteudo.contains("fala traduzida"), "nenhuma fala traduzida deve aparecer");
+        assertTrue(conteudo.contains("Hi"), "o texto original do letreiro deve permanecer");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F0/R5 — reuso de cache): uma entrada de cache cujo
+     * "traduzido" é o próprio original em inglês (aparência de fala não traduzida)
+     * NÃO pode ser reaproveitada — deve ser reenviada ao LLM. Fixa a política de
+     * reuso antes de extrair {@code isCacheReaproveitavel}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: com o cache semeado apontando "Hello there" para
+     * ele mesmo, a execução ainda assim chama o LLM uma vez e publica a tradução
+     * ("fala traduzida"), em vez de reusar o conteúdo suspeito.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o cache suspeito for reaproveitado, o
+     * LLM não é chamado e a saída mantém o inglês — a suíte falha.
+     */
+    @Test
+    void cacheComFalaAparentandoNaoTraduzidaNaoEhReaproveitado() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there");
+        Path cachePath = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        Files.createDirectories(cachePath.getParent());
+        ProvenienciaCache prov = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "caracterizacao",
+            ProvenienciaCache.hashDe("Traduza fielmente para PT-BR."),
+            "modelo-teste", "en", "pt-BR");
+        new CacheTraducaoService(new ObjectMapper()).salvar(cachePath, prov,
+            List.of(new EntradaCache(0, "Default", "Hello there", "Hello there", "en", "pt-BR")));
+
+        FakeLlmPort llm = new FakeLlmPort();
+        ResultadoTraducaoArquivo r = montar(llm).processar(entrada, false);
+
+        assertEquals(1, llm.chamadas.get(),
+            "fala em cache que aparenta nao-traduzida deve ser reenviada ao LLM");
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.readString(saida, StandardCharsets.UTF_8).contains("fala traduzida"),
+            "a saida deve conter a retraducao, nao o cache suspeito");
     }
 
     /**
