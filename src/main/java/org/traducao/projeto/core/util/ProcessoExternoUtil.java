@@ -24,16 +24,21 @@ import java.util.concurrent.TimeoutException;
  *   <li>stdout e stderr são drenados concorrentemente — evita o deadlock clássico do
  *       {@link ProcessBuilder}, em que o filho bloqueia escrevendo num pipe cujo buffer do
  *       SO enche enquanto o pai ainda lê o outro fluxo.</li>
- *   <li>Um processo que excede o timeout é morto com {@code destroyForcibly}, em vez de
- *       prender o pipeline indefinidamente.</li>
+ *   <li>O {@code timeout} recebido limita a espera pelo término normal; ao estourá-lo, o
+ *       processo é morto com {@code destroyForcibly} e o método AGUARDA a confirmação do
+ *       encerramento por um limite curto e explícito ({@code ESPERA_ENCERRAMENTO} = 2s), em
+ *       vez de só disparar o kill e retornar — nenhum processo-filho fica órfão.</li>
  *   <li>A drenagem é I/O puro: roda em Virtual Threads (Java 21+), sem manter um pool de
  *       threads de plataforma por invocação nem competir com a GPU/LLM sequencial.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Falha de spawn ou de leitura vira {@link IOException}; estouro do limite lança
- * {@link TimeoutException} após matar o processo; interrupção da thread chamadora propaga
- * {@link InterruptedException}.
+ * Falha de spawn ou de leitura vira {@link IOException}. Estourar o {@code timeout} lança
+ * {@link TimeoutException} depois do encerramento forçado aguardado. Se o SO não confirmar o
+ * término dentro do limite curto de espera, o método registra um aviso e retorna assim mesmo
+ * (o kill já foi enviado; o SO conclui de forma assíncrona), sem prender o pipeline. Uma
+ * interrupção da thread chamadora propaga {@link InterruptedException} e, se ocorrer durante a
+ * espera pelo encerramento, o flag de interrupção é restaurado.
  */
 public final class ProcessoExternoUtil {
 
