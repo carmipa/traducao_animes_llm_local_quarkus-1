@@ -64,7 +64,7 @@ class ProcessarArquivoUseCaseGuardTest {
         Path publicado = Files.writeString(pastaTemporaria.resolve("episodio_PT-BR.ass"), "versao anterior");
         Path raizBackup = pastaTemporaria.resolve("backups");
 
-        Path backup = ProcessarArquivoUseCase.copiarParaBackupExclusivo(publicado, raizBackup);
+        Path backup = PoliticaBackupTraducao.copiarParaBackupExclusivo(publicado, raizBackup);
 
         assertTrue(Files.exists(backup));
         assertTrue(backup.startsWith(raizBackup));
@@ -88,7 +88,7 @@ class ProcessarArquivoUseCaseGuardTest {
         Files.writeString(cache, "cache antigo");
         Path raizBackup = pastaTemporaria.resolve("backups-cache");
 
-        Path backup = ProcessarArquivoUseCase.arquivarCacheParaRetraducao(cache, raizBackup);
+        Path backup = PoliticaBackupTraducao.arquivarCacheParaRetraducao(cache, raizBackup);
 
         assertFalse(Files.exists(cache));
         assertTrue(Files.exists(backup));

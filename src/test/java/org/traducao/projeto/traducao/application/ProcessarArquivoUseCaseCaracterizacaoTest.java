@@ -220,11 +220,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
         ResolvedorCacheTraducao resolvedorCache =
             new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
+        PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, mascarador, cache,
             episodio, validador, detectorIdentica, props, new PoliticaEstiloMusical(List.of()), llmProps, uiLogger,
-            pastas, telemetria, detectorKaraoke, protecao, gerenciador, resolvedorSaida, resolvedorCache);
+            pastas, telemetria, detectorKaraoke, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
