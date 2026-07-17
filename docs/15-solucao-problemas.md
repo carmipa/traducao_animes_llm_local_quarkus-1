@@ -40,7 +40,7 @@
 
 **Causa raiz (histórica, já corrigida):** `/v1/models` (endpoint OpenAI-compatible) lista **todo o catálogo de modelos baixados**, não só o que está carregado em memória — não há garantia de ordenação por estado de carregamento. Uma versão anterior do adapter assumia que o primeiro item da lista era o modelo ativo; se essa suposição falhasse, o app enviava uma requisição de tradução para um id diferente do carregado, e o LM Studio fazia **auto-load (JIT)** desse outro modelo para atender o pedido.
 
-**Correção aplicada:** `MistralClientAdapter` agora consulta a API estendida da LM Studio (`GET /api/v0/models`, fora do prefixo `/v1`), que expõe explicitamente o campo `state: "loaded"`/`"not-loaded"` por modelo — a fonte de verdade real. O catálogo `/v1/models` só é usado como fallback de melhor esforço se essa API não estiver disponível (ex.: servidor não é LM Studio).
+**Correção aplicada:** `LlmClientAdapter` agora consulta a API estendida da LM Studio (`GET /api/v0/models`, fora do prefixo `/v1`), que expõe explicitamente o campo `state: "loaded"`/`"not-loaded"` por modelo — a fonte de verdade real. O catálogo `/v1/models` só é usado como fallback de melhor esforço se essa API não estiver disponível (ex.: servidor não é LM Studio).
 
 **Se ainda acontecer:**
 1. Confirme que `tradutor.llm.model` em `application.yml` está como `"current"` (nunca um id fixo — ver [Configuração](14-configuracao.md)).

@@ -42,7 +42,7 @@ sequenceDiagram
     participant UC as RevisarLoreUseCase
     participant Det as DetectorTermosLoreService
     participant Mask as MascaradorTags
-    participant LLM as MistralPort
+    participant LLM as RevisorLoreLlmPort
     participant Val as ValidadorTraducaoService
 
     UC->>UC: casa arquivo original (EN) com par traduzido<br/>(_PT-BR.ass / _PTBR.ass / mesmo nome)

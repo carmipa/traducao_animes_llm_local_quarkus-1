@@ -69,7 +69,7 @@ sequenceDiagram
     participant API as TraducaoKaraokeController
     participant Fila as FilaExecucaoPipeline
     participant UC as TraduzirKaraokeUseCase
-    participant LLM as MistralClientAdapter
+    participant LLM as LlmClientAdapter
 
     Op->>UI: Obra (lore) + pasta das legendas
     UI->>API: POST /api/traducao-karaoke/simular
