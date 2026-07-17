@@ -9,7 +9,7 @@ import org.traducao.projeto.correcaoLegendas.domain.ResultadoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
@@ -19,7 +19,7 @@ import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
-import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 
 import java.io.IOException;
 import java.nio.file.Files;

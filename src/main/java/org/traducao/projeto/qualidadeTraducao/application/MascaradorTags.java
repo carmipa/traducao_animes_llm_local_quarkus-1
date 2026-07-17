@@ -1,7 +1,7 @@
-package org.traducao.projeto.traducao.infrastructure.legenda;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,10 +11,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Isola tags de formatação ASS/SSA (ex: {\i1}, {\pos(...)}) e códigos de quebra
- * (\N, \n, \h) do texto antes de enviar ao LLM, trocando-os por marcadores
- * [[TAGn]] que o modelo é instruído a preservar literalmente. Sem isso o LLM
- * tende a "traduzir" ou descartar as tags, corrompendo a legenda renderizada.
+ * PROPÓSITO DE NEGÓCIO: protege a INTEGRIDADE da formatação da legenda ao redor da
+ * tradução. Isola tags ASS/SSA (ex: {@code {\i1}}, {@code {\pos(...)}}) e códigos de
+ * quebra ({@code \N}, {@code \n}, {@code \h}) do texto, trocando-os por marcadores
+ * {@code [[TAGn]]} que o LLM é instruído a preservar literalmente — sem isso o modelo
+ * tende a "traduzir" ou descartar as tags, corrompendo a legenda renderizada. Regra
+ * de qualidade compartilhada, residente no peer {@code qualidadeTraducao}.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: quantidade, conteúdo e ordem das tags do original são
+ * preservados na desmascaração; cada tag vira exatamente um marcador {@code [[TAGn]]}
+ * sequencial; a classe é sem estado (stateless), só JDK + Spring.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: se o texto retornado pelo LLM perdeu, duplicou
+ * ou inventou marcadores, {@link #desmascarar(String, List)} lança
+ * {@link AlucinacaoDetectadaException} em vez de gravar formatação corrompida;
+ * verificações estruturais nulas/divergentes devolvem {@code false}.
  */
 @Component
 public class MascaradorTags {
@@ -24,6 +35,22 @@ public class MascaradorTags {
     private static final Pattern PADRAO_MODO_DESENHO = Pattern.compile(
         "\\{[^}]*\\\\p[1-9]\\d*[^}]*}", Pattern.CASE_INSENSITIVE);
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: transporta o resultado do mascaramento — o texto pronto
+     * para o LLM (com marcadores no lugar das tags) e a lista ordenada das tags
+     * originais para posterior restauração.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code tags} está na ordem exata em que os marcadores
+     * {@code [[TAG0]]..[[TAGn]]} aparecem em {@code texto}; ambos são imutáveis do ponto
+     * de vista do contrato (o registro não copia defensivamente a lista).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: é um portador de dados puro; não valida — a
+     * coerência entre {@code texto} e {@code tags} é garantida por quem o cria
+     * ({@link #mascarar(String)}).
+     *
+     * @param texto texto com as tags substituídas por marcadores {@code [[TAGn]]}
+     * @param tags tags originais, na ordem dos marcadores
+     */
     public record Mascarado(String texto, List<String> tags) {}
 
     /**
@@ -44,6 +71,17 @@ public class MascaradorTags {
         return mascarar(original).tags().equals(mascarar(traduzido).tags());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: prepara uma fala para o LLM substituindo cada tag/quebra
+     * estrutural por um marcador {@code [[TAGn]]}, de modo que o modelo traduza só o
+     * texto visível sem tocar na formatação.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os marcadores são numerados sequencialmente a partir
+     * de 0, na ordem de ocorrência; o texto fora das tags é preservado sem alteração.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: para um texto sem tags, devolve o próprio texto
+     * e uma lista de tags vazia; não lança para entradas bem-formadas.
+     */
     public Mascarado mascarar(String textoOriginal) {
         List<String> tags = new ArrayList<>();
         Matcher matcher = PADRAO_TAG.matcher(textoOriginal);
@@ -100,8 +138,16 @@ public class MascaradorTags {
     }
 
     /**
-     * Restaura as tags originais nos marcadores [[TAGn]]. Se o LLM perdeu,
-     * duplicou ou inventou marcadores, falha alto em vez de gravar uma
+     * PROPÓSITO DE NEGÓCIO: reconstrói a fala traduzida devolvendo cada tag original
+     * ao lugar do respectivo marcador {@code [[TAGn]]}, produzindo a legenda final com
+     * formatação intacta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o conjunto de marcadores presentes no texto traduzido
+     * deve ser exatamente {@code {0..tags.size()-1}} — mesma quantidade e mesmos índices
+     * do mascaramento; cada marcador é substituído pela tag de mesmo índice.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o LLM perdeu, duplicou ou inventou
+     * marcadores, lança {@link AlucinacaoDetectadaException} em vez de gravar uma
      * legenda com formatação corrompida.
      */
     public String desmascarar(String textoTraduzidoMascarado, List<String> tags) {

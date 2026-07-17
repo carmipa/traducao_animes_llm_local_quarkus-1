@@ -24,7 +24,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-import org.traducao.projeto.traducao.infrastructure.legenda.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 

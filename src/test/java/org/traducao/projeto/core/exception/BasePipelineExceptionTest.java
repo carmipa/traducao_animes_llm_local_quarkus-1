@@ -14,7 +14,7 @@ import org.traducao.projeto.raspagemCorrecao.domain.exceptions.RaspagemCorrecaoE
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.remuxer.domain.MkvToolNixNaoEncontradoException;
 import org.traducao.projeto.remuxer.domain.RemuxerException;
-import org.traducao.projeto.traducao.domain.exceptions.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.contexto.domain.ContextoNaoEncontradoException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
