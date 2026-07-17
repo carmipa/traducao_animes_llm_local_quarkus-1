@@ -21,15 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * E8d — o contrato genérico do modelo de linguagem ({@code LlmPort}) e seus records
  * ({@code Lote}, {@code TraducaoLote}, {@code StatusLlm}), todos em {@code llm.domain}.
  * Garante que o peer é consumível por qualquer fatia funcional sem acoplamento reverso e
- * sem arrastar framework, HTTP ou o cliente concreto.
+ * sem arrastar framework, cliente HTTP ou qualquer biblioteca externa.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>{@code llm} só depende de JDK e, se houver consumo real e justificado,
- *       {@code core} — nunca de {@code traducao} nem de outra fatia funcional, nem de outro
- *       peer ({@code legenda}, {@code cachetraducao}, {@code contexto},
- *       {@code qualidadeTraducao}), nem de framework (Spring/Quarkus/Jackson), cliente HTTP
- *       ou infraestrutura concreta.</li>
+ *   <li>Allowlist POSITIVA de destinos: {@code llm} só pode depender de pacotes do JDK
+ *       ({@code java.}), do próprio {@code org.traducao.projeto.llm} e de
+ *       {@code org.traducao.projeto.core} (se houver consumo real). Qualquer outro pacote
+ *       — outra fatia, outro peer, framework (Spring/Quarkus/Jackson), cliente HTTP ou
+ *       qualquer biblioteca externa — é violação. NÃO se admite um destino só porque não
+ *       pertence a uma fatia conhecida.</li>
  *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os quatro proprietários
  *       top-level ({@code llm.domain.LlmPort}, {@code llm.domain.Lote},
  *       {@code llm.domain.TraducaoLote}, {@code llm.domain.StatusLlm}). Congelar por FQN
@@ -42,17 +43,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Qualquer dependência proibida, tipo fora do inventário ou pacote não-domain sob
- * {@code llm} reprova o teste, listando o desvio exato.
+ * Qualquer dependência fora da allowlist positiva (JDK/llm/core), tipo fora do inventário
+ * ou pacote não-domain sob {@code llm} reprova o teste, listando o desvio exato.
  */
 class FronteiraLlmArchTest {
 
     private static final String RAIZ = "org.traducao.projeto";
-    private static final String PREFIXO = RAIZ + ".";
-    private static final String FATIA_LLM = "llm";
-    private static final String FATIA_CORE = "core";
     private static final String PKG_LLM = RAIZ + ".llm";
     private static final String PKG_LLM_DOMAIN = RAIZ + ".llm.domain";
+    private static final String PKG_CORE = RAIZ + ".core";
 
     private static JavaClasses classesProducao;
 
@@ -64,16 +63,19 @@ class FronteiraLlmArchTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: garante que o peer llm é fonte, nunca consumidor de fatia —
-     * pode ser importado por qualquer uma sem criar acoplamento reverso.
-     * <p>INVARIANTES DO DOMÍNIO: só JDK, libs técnicas, core e o próprio llm são destinos
-     * permitidos.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer aresta para traducao/fatia/outro peer
-     * reprova, listando origem -> destino.
+     * PROPÓSITO DE NEGÓCIO: garante que o peer llm é fonte, nunca consumidor — pode ser
+     * importado por qualquer fatia sem criar acoplamento reverso e sem herdar dependências
+     * externas.
+     * <p>INVARIANTES DO DOMÍNIO: allowlist POSITIVA — só JDK ({@code java.}), o próprio
+     * {@code llm} e {@code core} são destinos permitidos. Qualquer outro pacote (fatia,
+     * peer, framework, cliente HTTP, biblioteca externa) é violação, mesmo que não pertença
+     * a uma fatia conhecida.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer aresta fora de JDK/llm/core reprova,
+     * listando origem -> destino.
      */
     @Test
-    @DisplayName("llm NÃO depende de fatia funcional nem de outro peer (só JDK, técnico, core e o próprio)")
-    void llmNaoDependeDeFatiaNemDeOutroPeer() {
+    @DisplayName("llm só depende de JDK, do próprio llm e de core (allowlist positiva; sem fatia/peer/framework/lib externa)")
+    void llmSoDependeDeJdkLlmECore() {
         List<String> violacoes = new ArrayList<>();
         for (JavaClass classe : classesProducao) {
             if (!ehDoLlm(classe)) {
@@ -81,18 +83,17 @@ class FronteiraLlmArchTest {
             }
             String origem = topo(classe.getName());
             for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
-                String fatia = fatiaDe(dependencia.getTargetClass().getPackageName());
-                // Permitidos: JDK/libs (null), o próprio llm e core.
-                if (fatia == null || fatia.equals(FATIA_LLM) || fatia.equals(FATIA_CORE)) {
+                String destinoPkg = dependencia.getTargetClass().getPackageName();
+                if (pacotePermitidoNoLlm(destinoPkg)) {
                     continue;
                 }
                 violacoes.add(origem + " -> " + topo(dependencia.getTargetClass().getName()));
             }
         }
         assertTrue(violacoes.isEmpty(),
-            () -> "O peer llm só pode depender de JDK, libs técnicas, core e do próprio llm. "
-                + "Nenhuma dependência para traducao/fatia funcional nem para outro peer "
-                + "(legenda/cachetraducao/contexto/qualidadeTraducao) é permitida.\n"
+            () -> "O peer llm só pode depender de JDK (java.), do próprio llm e de core. "
+                + "Qualquer outro destino — fatia funcional, outro peer, framework, cliente HTTP "
+                + "ou biblioteca externa — é proibido, ainda que não pertença a uma fatia conhecida.\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
@@ -124,15 +125,16 @@ class FronteiraLlmArchTest {
 
     /**
      * PROPÓSITO DE NEGÓCIO: mantém o peer como domínio puro — sem framework, HTTP ou
-     * infraestrutura — para que qualquer fatia possa consumi-lo sem herdar dependências
+     * biblioteca externa — para que qualquer fatia possa consumi-lo sem herdar dependências
      * técnicas.
-     * <p>INVARIANTES DO DOMÍNIO: {@code llm.domain} só pode depender de JDK e core; nada de
-     * jakarta/quarkus/smallrye/microprofile/spring/jackson/cliente HTTP.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dependência técnica ou de outra fatia
-     * reprova, listando origem -> destino.
+     * <p>INVARIANTES DO DOMÍNIO: allowlist POSITIVA — {@code llm.domain} só pode depender de
+     * JDK ({@code java.}), do próprio {@code llm} e de {@code core}. Qualquer outro pacote é
+     * violação, inclusive frameworks e bibliotecas externas que não pertencem a uma fatia.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dependência fora de JDK/llm/core reprova,
+     * listando origem -> destino.
      */
     @Test
-    @DisplayName("llm.domain é puro: só JDK e core (sem framework/HTTP/infraestrutura)")
+    @DisplayName("llm.domain é puro: só JDK, o próprio llm e core (allowlist positiva; sem framework/HTTP/lib externa)")
     void domainEhPuro() {
         List<String> violacoes = new ArrayList<>();
         for (JavaClass classe : classesProducao) {
@@ -143,23 +145,15 @@ class FronteiraLlmArchTest {
             String origem = topo(classe.getName());
             for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
                 String destinoPkg = dependencia.getTargetClass().getPackageName();
-                String destino = dependencia.getTargetClass().getName();
-                String fatia = fatiaDe(destinoPkg);
-                boolean naoLlm = !(destinoPkg.equals(PKG_LLM) || destinoPkg.startsWith(PKG_LLM + "."));
-                boolean permitido = fatia == null || fatia.equals(FATIA_CORE) || !naoLlm;
-                boolean tecnicoProibido = destino.startsWith("jakarta.")
-                    || destino.startsWith("io.quarkus")
-                    || destino.startsWith("io.smallrye")
-                    || destino.startsWith("org.eclipse.microprofile")
-                    || destino.startsWith("org.springframework")
-                    || destino.startsWith("com.fasterxml.jackson");
-                if (!permitido || tecnicoProibido) {
-                    violacoes.add(origem + " -> " + topo(destino));
+                if (pacotePermitidoNoLlm(destinoPkg)) {
+                    continue;
                 }
+                violacoes.add(origem + " -> " + topo(dependencia.getTargetClass().getName()));
             }
         }
         assertTrue(violacoes.isEmpty(),
-            () -> "llm.domain deve permanecer puro (só JDK e core; sem framework/HTTP/infraestrutura):\n"
+            () -> "llm.domain deve permanecer puro: só JDK (java.), o próprio llm e core. "
+                + "Framework, cliente HTTP ou qualquer biblioteca externa é proibido.\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
@@ -190,6 +184,22 @@ class FronteiraLlmArchTest {
                 + String.join("\n", new TreeSet<>(foraDoDomain)));
     }
 
+    /**
+     * Allowlist POSITIVA de pacotes de destino permitidos para o peer llm: JDK ({@code java.}),
+     * o próprio {@code llm} e {@code core}. Diferente de uma verificação por fatia, NÃO admite
+     * um destino apenas por ele não pertencer a uma fatia conhecida — bibliotecas externas
+     * (commons, guava, clientes HTTP, etc.) são explicitamente proibidas.
+     */
+    private static boolean pacotePermitidoNoLlm(String destinoPkg) {
+        if (destinoPkg == null) {
+            return false;
+        }
+        boolean ehJdk = destinoPkg.equals("java") || destinoPkg.startsWith("java.");
+        boolean ehLlm = destinoPkg.equals(PKG_LLM) || destinoPkg.startsWith(PKG_LLM + ".");
+        boolean ehCore = destinoPkg.equals(PKG_CORE) || destinoPkg.startsWith(PKG_CORE + ".");
+        return ehJdk || ehLlm || ehCore;
+    }
+
     private static boolean ehDoLlm(JavaClass classe) {
         String pkg = classe.getPackageName();
         return pkg.equals(PKG_LLM) || pkg.startsWith(PKG_LLM + ".");
@@ -198,14 +208,5 @@ class FronteiraLlmArchTest {
     private static String topo(String nomeCompleto) {
         int cifrao = nomeCompleto.indexOf('$');
         return cifrao < 0 ? nomeCompleto : nomeCompleto.substring(0, cifrao);
-    }
-
-    private static String fatiaDe(String pkg) {
-        if (pkg == null || !pkg.startsWith(PREFIXO)) {
-            return null;
-        }
-        String resto = pkg.substring(PREFIXO.length());
-        int ponto = resto.indexOf('.');
-        return ponto < 0 ? resto : resto.substring(0, ponto);
     }
 }
