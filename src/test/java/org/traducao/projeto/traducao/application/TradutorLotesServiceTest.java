@@ -90,7 +90,8 @@ class TradutorLotesServiceTest {
 
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
                                          FakeUiLogger ui, FakeProtecao protecao, FakeTelemetria telemetria) {
-        return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria);
+        return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria,
+            new IsoladorQuebraDialogo());
     }
 
     /**
@@ -243,6 +244,65 @@ class TradutorLotesServiceTest {
         assertEquals(2, linhasEnviadas, "sem dedup, as duas camadas vao ao LLM");
         assertEquals("T:{\\clip(0,10)}A flower", r.get("{\\clip(0,10)}A flower"));
         assertEquals("T:{\\clip(0,20)}A flower", r.get("{\\clip(0,20)}A flower"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: um cancelamento no meio propaga TraducaoParcialException reconstruída
+     * com o dicionário parcial já DESMASCARADO, e a barra de progresso é finalizada mesmo na falha.
+     * <p>INVARIANTES DO DOMÍNIO: o dicionário reconstruído mapeia original→desmascarado; a exceção
+     * de nível de arquivo não carrega lotes; {@code finalizar()} roda no bloco finally.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário mascarado, lotes preservados ou barra não
+     * finalizada reprova.
+     */
+    /**
+     * PROPÓSITO DE NEGÓCIO (rede de segurança do módulo de isolamento de \N): uma fala de
+     * diálogo com quebra {@code \N} NO MEIO da frase — hoje mascarada como {@code [[TAGn]]}
+     * mid-sentence — não pode mais virar pendente só porque o LLM não reposiciona o marcador
+     * na ordem PT. Isolando o {@code \N} antes de mascarar, o modelo traduz a frase limpa e a
+     * quebra é reinserida depois.
+     * <p>INVARIANTES DO DOMÍNIO: LLM que "traduz" mas dropa o marcador mid-sentence (falha real
+     * observada nas 122 falas-eco) deve resultar em TRADUÇÃO com {@code \N} reinserido, não no
+     * original mantido; só diálogo (fora de {@code textosDeduplicaveis}).
+     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do fix): o desmascaramento reprova por marcador
+     * perdido e a fala é mantida em inglês — este teste falha, caracterizando o bug.
+     */
+    @Test
+    void dialogoComQuebraNoMeioEhTraduzidoAoInvesDeManterOriginal() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        // Simula o LLM que traduz o texto visível mas descarta o marcador mid-sentence.
+        ep.tradutor = l -> l.linhasOriginais().stream()
+            .map(s -> "PT:" + s.replaceAll("\\[\\[TAG\\d+]]", "")).toList();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+
+        String original = "Why do we have to put up \\Nwith this";
+        Map<String, String> r = s.traduzirPendentes(pendentes(original), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        String traduzido = r.get(original);
+        assertTrue(traduzido.startsWith("PT:"),
+            "a fala de diálogo com \\N no meio deve ser TRADUZIDA, não mantida em inglês: " + traduzido);
+        assertTrue(traduzido.contains("\\N"),
+            "a quebra de linha \\N deve ser reinserida na tradução: " + traduzido);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o módulo de isolamento é gated a diálogo e a {@code \N} mid-sentence;
+     * uma camada musical deduplicável com {@code \N} NÃO é tocada (segue mascarada como hoje).
+     * <p>INVARIANTES DO DOMÍNIO: fala em {@code textosDeduplicaveis} preserva o comportamento antigo.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: isolar \N fora do diálogo reprova.
+     */
+    @Test
+    void quebraEmCamadaMusicalDeduplicavelNaoEhIsolada() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        String verso = "A flower \\Nblooms";
+        LinkedHashSet<String> pend = pendentes(verso);
+        Set<String> dedup = Set.of(verso);
+
+        s.traduzirPendentes(pend, dedup, "ep.ass", new ArrayList<>(), null);
+
+        String enviadoAoLlm = ep.lotesRecebidos.get(0).linhasOriginais().get(0);
+        assertTrue(enviadoAoLlm.contains("[[TAG0]]"),
+            "camada musical deduplicável deve manter o \\N mascarado como marcador: " + enviadoAoLlm);
     }
 
     /**
