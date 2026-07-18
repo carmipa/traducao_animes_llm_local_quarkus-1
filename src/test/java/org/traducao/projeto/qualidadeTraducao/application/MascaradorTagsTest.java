@@ -19,6 +19,24 @@ class MascaradorTagsTest {
 
     private final MascaradorTags mascarador = new MascaradorTags();
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: valida a checagem de marcadores no texto MASCARADO, usada
+     * dentro do retry para rejeitar resposta com {@code [[TAGn]]} corrompido.
+     * <p>INVARIANTES DO DOMÍNIO: preservado só quando o multiconjunto de marcadores bate;
+     * perder, duplicar ou inventar marcador reprova; nulo é falso.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer divergência aceita reprova.
+     */
+    @Test
+    void marcadoresPreservadosDetectaPerdaDuplicacaoEInvencao() {
+        assertTrue(mascarador.marcadoresPreservados("[[TAG0]]A flower", "[[TAG0]]Uma flor"));
+        assertFalse(mascarador.marcadoresPreservados("[[TAG0]]A flower", "Uma flor"), "marcador perdido");
+        assertFalse(mascarador.marcadoresPreservados("[[TAG0]]A flower", "[[TAG0]][[TAG0]]Uma flor"), "marcador duplicado");
+        assertFalse(mascarador.marcadoresPreservados("[[TAG0]]A flower", "[[TAG0]]Uma flor[[TAG1]]"), "marcador inventado");
+        assertFalse(mascarador.marcadoresPreservados("[[TAG0]]x", null), "nulo é falso");
+        assertTrue(mascarador.marcadoresPreservados("[[TAG1]]x[[TAG0]]y", "[[TAG0]]a[[TAG1]]b"),
+            "ordem diferente com o mesmo conjunto é preservado");
+    }
+
     @Test
     void aceitaTraducaoQuePreservaTagsEQuebras() {
         String original = "{\\i1}We have to leave.\\NNow!{\\i0}";
