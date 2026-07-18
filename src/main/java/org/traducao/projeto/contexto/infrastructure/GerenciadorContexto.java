@@ -127,6 +127,14 @@ public class GerenciadorContexto {
         return this.provedorAtivo != null ? this.provedorAtivo.termosProtegidos() : java.util.Set.of();
     }
 
+    /**
+     * Mapa forma-ruim → termo canônico do contexto ativo, para o reforço determinístico
+     * de terminologia pós-tradução. Sem contexto ativo, devolve mapa vazio (no-op).
+     */
+    public Map<String, String> correcoesTerminologiaAtiva() {
+        return this.provedorAtivo != null ? this.provedorAtivo.correcoesTerminologia() : Map.of();
+    }
+
     private ProvedorContexto encontrarProvedorPadrao() {
         return provedores.stream()
                 .filter(p -> ID_CONTEXTO_PADRAO.equals(p.getId()))

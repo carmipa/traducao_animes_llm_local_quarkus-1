@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -89,6 +90,24 @@ public class Contexto86 implements ProvedorContexto {
             "Eighty-Six", "Handler", "Processor", "Para-RAID", "Legion", "Juggernaut",
             "Spearhead", "Alba", "Colorata", "Ameise", "Dinosauria", "Morpho",
             "Feldress", "Reginleif", "Undertaker"
+        );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico de terminologia — formas-ruim que o LLM
+     * produziu ao traduzir termos de mundo que a lore manda manter em inglês (medidas nas
+     * duas temporadas de 86). Restauradas SÓ quando o original contém o termo canônico.
+     * <p>INVARIANTES DO DOMÍNIO: chave = forma-ruim em PT; valor = grafia canônica oficial.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return Map.of(
+            "Legião", "Legion",
+            "Handler Um", "Handler One",
+            "Processador", "Processor",
+            "Cavaleiro da Morte", "Undertaker",
+            "Coveiro", "Undertaker"
         );
     }
 }

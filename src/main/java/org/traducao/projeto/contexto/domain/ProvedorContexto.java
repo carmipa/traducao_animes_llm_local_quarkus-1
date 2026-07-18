@@ -1,5 +1,6 @@
 package org.traducao.projeto.contexto.domain;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,5 +43,18 @@ public interface ProvedorContexto {
      */
     default Set<String> termosProtegidos() {
         return Set.of();
+    }
+
+    /**
+     * Mapa forma-ruim → termo canônico para REFORÇO DETERMINÍSTICO de terminologia
+     * pós-tradução: quando o LLM traduz um termo de mundo que a lore manda manter no
+     * original (ex.: {@code "Legião" → "Legion"}), este mapa permite restaurar a grafia
+     * oficial SEM depender do modelo. Por padrão vazio; cada obra sobrescreve com as
+     * traduções indevidas observadas. A chave é a forma-ruim (em PT); o valor é o termo
+     * canônico a restaurar. A restauração só ocorre quando o ORIGINAL contém o termo
+     * canônico — nunca altera uma tradução legítima que não veio dele.
+     */
+    default Map<String, String> correcoesTerminologia() {
+        return Map.of();
     }
 }

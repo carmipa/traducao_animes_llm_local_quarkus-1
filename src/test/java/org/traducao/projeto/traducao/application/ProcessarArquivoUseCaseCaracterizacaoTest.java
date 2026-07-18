@@ -200,6 +200,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override public String getId() { return "caracterizacao"; }
         @Override public String getNomeExibicao() { return "Caracterizacao"; }
         @Override public String obterPromptSistema() { return "Traduza fielmente para PT-BR."; }
+        // Reforço determinístico: a saída fixa do dublê ("fala traduzida") é tratada como
+        // forma-ruim de "Legion" — só dispara quando o ORIGINAL contém "Legion", então os
+        // demais cenários (originais sem "Legion") permanecem no-op.
+        @Override public java.util.Map<String, String> correcoesTerminologia() {
+            return java.util.Map.of("fala traduzida", "Legion");
+        }
     }
 
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
@@ -248,6 +254,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         TradutorLotesService tradutorLotes =
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
                 new IsoladorQuebraDialogo());
+        EnforcadorTermosLore enforcadorTermos = new EnforcadorTermosLore();
         MontadorTelemetriaTraducao montadorTelemetria =
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
         ClassificadorPendenciaTelemetria classificadorPendencia =
@@ -258,7 +265,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
-            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle);
+            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
+            enforcadorTermos);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -396,6 +404,33 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertEquals("DIALOGO", p.categoria());
         assertEquals("ECO", p.causaRaiz());
         assertEquals(1, p.quantidade());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (reforço de terminologia): quando o original contém um termo
+     * canônico da lore ("Legion") e o modelo o traduziu (forma-ruim), o reforço
+     * determinístico restaura a grafia oficial na saída publicada — sem depender do LLM.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o mapa da lore ativa só age quando o original tem o termo
+     * canônico; a saída final traz "Legion", não a forma-ruim.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do wire): a saída manteria a forma-ruim.
+     */
+    @Test
+    void reforcoDeterministicoRestauraTermoCanonicoNaSaida() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        // Original com o termo canônico "Legion"; o dublê traduz para "fala traduzida",
+        // que o mapa do ContextoTeste restaura para "Legion".
+        Path entrada = escreverAss("ep.ass", "The Legion attacks at dawn");
+
+        uc.processar(entrada, false);
+
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(saida), "saída final deve existir");
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        assertTrue(conteudo.contains("Legion"), "o termo canônico deve ser restaurado na saída");
+        assertFalse(conteudo.contains("fala traduzida"), "a forma-ruim não pode permanecer");
     }
 
     /**
