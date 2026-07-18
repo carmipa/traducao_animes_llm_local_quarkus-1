@@ -138,6 +138,36 @@ public class MascaradorTags {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: verifica, AINDA no texto mascarado, se a tradução do LLM
+     * preservou exatamente os marcadores {@code [[TAGn]]} do original — usado dentro do
+     * retry para rejeitar uma resposta com marcador corrompido ANTES do desmascaramento,
+     * dando ao modelo nova chance (temperatura diferente) em vez de já manter o original.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara o multiconjunto de índices de marcadores do
+     * original mascarado com o do traduzido mascarado; perder, duplicar ou inventar
+     * qualquer marcador reprova. Não desmascara nem altera texto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer argumento nulo devolve {@code false}
+     * (trata como não preservado, forçando nova tentativa/fallback).
+     */
+    public boolean marcadoresPreservados(String mascaradoOriginal, String mascaradoTraduzido) {
+        if (mascaradoOriginal == null || mascaradoTraduzido == null) {
+            return false;
+        }
+        return indicesMarcadores(mascaradoOriginal).equals(indicesMarcadores(mascaradoTraduzido));
+    }
+
+    private List<Integer> indicesMarcadores(String texto) {
+        List<Integer> indices = new ArrayList<>();
+        Matcher matcher = PADRAO_PLACEHOLDER.matcher(texto);
+        while (matcher.find()) {
+            indices.add(Integer.parseInt(matcher.group(1)));
+        }
+        indices.sort(null);
+        return indices;
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: reconstrói a fala traduzida devolvendo cada tag original
      * ao lugar do respectivo marcador {@code [[TAGn]]}, produzindo a legenda final com
      * formatação intacta.
