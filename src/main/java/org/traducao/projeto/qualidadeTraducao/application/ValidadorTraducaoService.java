@@ -74,6 +74,30 @@ public class ValidadorTraducaoService {
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
 
+    // Recusa/meta-resposta do LLM: em vez de traduzir, o modelo devolve uma
+    // desculpa, um pedido de mais contexto ou fala SOBRE a tarefa de tradução, e
+    // esse texto ia direto para a legenda (bug histórico do software antigo:
+    // "Eh?" -> "Desculpe, mas não recebi nenhuma linha para traduzir. Por favor,
+    // forneça-me as linhas...", "No, sir!" -> "Sem tradução.", "Dunno" -> "não
+    // tenho contexto para traduzir a linha..."). Ancorado na META-referência à
+    // tradução — NUNCA em "por favor"/"desculpe"/"não posso" sozinhos, que são
+    // diálogo legítimo comum em anime (validado contra 88 recusas reais x 125
+    // falas legítimas com "por favor" no cache do Gundam 08th MS Team).
+    private static final Pattern PADRAO_RECUSA_META = Pattern.compile(
+        "(?:sem\\s+tradu[çc][ãa]o\\b"
+            + "|n[ãa]o\\s+(?:recebi|tenho\\s+acesso|tenho\\s+como\\s+saber|tenho\\s+contexto|tenho\\s+informa)"
+            + "|forne\\S*\\s+.{0,40}?(?:linha|contexto|informa|texto|t[íi]tulo)"
+            + "|preciso\\s+de\\s+mais\\s+(?:contexto|informa)"
+            + "|(?:linha|texto|frase)s?\\s+(?:para\\s+|que\\s+.{0,20}?)?traduzir"
+            + "|traduzir\\s+(?:a\\s+linha|a\\s+frase|o\\s+texto|isso|este)"
+            + "|nenhuma\\s+tradu[çc][ãa]o\\s+encontrada"
+            + "|--\\s*tradu[çc][ãa]o|^traduzir\\s*:"
+            + "|n[ãa]o\\s+precisa\\s+ser\\s+retrabalhada|a\\s+tradu[çc][ãa]o\\s+(?:atual\\s+)?[ée]\\s+correta"
+            + "|as\\s+an\\s+ai|i\\s+(?:cannot|can'?t|am\\s+unable)\\b"
+            + "|provide\\s+more\\s+(?:context|info)|don'?t\\s+have\\s+.{0,20}context)",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
+    );
+
     // Palavras do PADRAO_RESIDUO que também são nomes próprios comuns em
     // anime/mangá (ex.: o personagem "Will"). Uma ocorrência Capitalizada
     // dessas palavras numa frase PT-BR é quase sempre nome, não resíduo —
@@ -119,6 +143,10 @@ public class ValidadorTraducaoService {
 
         if (PADRAO_PREAMBULO.matcher(visivel).find()) {
             throw new AlucinacaoDetectadaException("Preâmbulo detectado: " + textoTraduzido);
+        }
+
+        if (PADRAO_RECUSA_META.matcher(visivel).find()) {
+            throw new AlucinacaoDetectadaException("Recusa/meta-resposta do LLM detectada: " + textoTraduzido);
         }
 
         // Marcador de falha do pipeline Python antigo encontrado em legendas
