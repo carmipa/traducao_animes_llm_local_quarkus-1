@@ -52,7 +52,7 @@ class TelemetriaTraducaoAdapterTest {
 
     private static TelemetriaTraducao registro(String nome, String modelo, int totalLinhas, String registradoEm) {
         return new TelemetriaTraducao(nome, modelo, totalLinhas, totalLinhas, 0, 100L,
-            List.of(), "Anime", "Temporada Única", registradoEm, "lore", "CONCLUIDO");
+            List.of(), "Anime", "Temporada Única", registradoEm, "lore", "CONCLUIDO", List.of());
     }
 
     private TelemetriaTraducaoDocumento lerArquivo() throws IOException {
@@ -71,7 +71,24 @@ class TelemetriaTraducaoAdapterTest {
         assertEquals(1, doc.registros().size(), "Um único episódio consolidado");
         assertEquals("modeloB", doc.registros().get(0).modeloLlm());
         assertEquals(20, doc.registros().get(0).totalLinhas());
-        assertEquals("1.0", doc.schemaVersion());
+        assertEquals("1.1", doc.schemaVersion());
+    }
+
+    @Test
+    @DisplayName("O KPI estruturado pendenciasPorCausa persiste e relê (schema 1.1)")
+    void persistePendenciasPorCausa() throws IOException {
+        TelemetriaTraducaoAdapter adapter = new TelemetriaTraducaoAdapter(mapper);
+        adapter.registrarTraducao(new TelemetriaTraducao(
+            "ep05.ass", "modeloX", 100, 80, 0, 500L, List.of(), "Anime", "Temporada Única",
+            "2026-01-05T00:00:00Z", "lore", "PARCIAL",
+            List.of(new org.traducao.projeto.traducao.domain.ResumoPendencia("DIALOGO", "MARCADORES_CORROMPIDOS", 7),
+                    new org.traducao.projeto.traducao.domain.ResumoPendencia("DIALOGO", "ECO", 3))));
+
+        var pendencias = lerArquivo().registros().get(0).pendenciasPorCausa();
+        assertEquals(2, pendencias.size());
+        assertEquals(7, pendencias.stream()
+            .filter(p -> p.categoria().equals("DIALOGO") && p.causaRaiz().equals("MARCADORES_CORROMPIDOS"))
+            .findFirst().orElseThrow().quantidade());
     }
 
     @Test

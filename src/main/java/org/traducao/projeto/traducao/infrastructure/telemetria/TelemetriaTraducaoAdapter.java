@@ -50,7 +50,9 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
 
     private static final Logger log = LoggerFactory.getLogger(TelemetriaTraducaoAdapter.class);
 
-    private static final String SCHEMA_VERSION = "1.0";
+    // 1.1: acrescenta pendenciasPorCausa (KPI estruturado) a cada registro; aditivo e
+    // retrocompatível — arquivos 1.0 sao lidos com o campo ausente como null.
+    private static final String SCHEMA_VERSION = "1.1";
     private static final String NOME_ARQUIVO = "telemetria_traducao.json";
     private static final String SUBPASTA = "logs";
 
