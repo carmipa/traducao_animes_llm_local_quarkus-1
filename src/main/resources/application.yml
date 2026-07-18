@@ -22,6 +22,12 @@ tradutor:
   # Chaves de idioma gravadas no cache JSON (par original -> traduzido).
   idioma-original: "en"
   idioma-traduzido: "pt-br"
+  # Fallback online de ULTIMO RECURSO (Google Translate) para as falas de dialogo
+  # que o LLM local nao conseguiu traduzir. OPT-IN, desligado por padrao: quando
+  # false o pipeline e 100% local. Quando true, apenas as pendencias desta execucao
+  # vao ao provedor externo, ja validadas pela mesma checagem canonica do LLM.
+  fallback-online:
+    ativo: false
   llm:
     base-url: "http://127.0.0.1:1234/v1"
     # "current" e proposital: usar o id exato do modelo aqui faz o LM Studio
