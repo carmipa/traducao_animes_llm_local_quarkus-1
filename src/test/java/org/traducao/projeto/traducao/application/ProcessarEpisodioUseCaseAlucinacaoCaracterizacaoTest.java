@@ -6,6 +6,7 @@ import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.llm.domain.TraducaoLote;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.llm.domain.LlmPort;
@@ -81,7 +82,7 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
         };
 
         ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
-            new LlmSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria);
+            new LlmSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria, new MascaradorTags());
 
         List<TraducaoLote> resultado = useCase.processarEpisodio(List.of(new Lote(1, List.of("KEEPME"))), null);
 
@@ -97,5 +98,38 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
             "manter o original NÃO é recuperação — não pode registrar falha recuperada");
         assertTrue(resultado.getFirst().sucesso(),
             "o lote encerra sem abortar o episódio (marcador transitório convertido em parcial adiante)");
+    }
+
+    /** LLM que corrompe o marcador na 1ª tentativa e o preserva a partir da 2ª. */
+    private static final class LlmCorrompeMarcadorPrimeiraVez implements LlmPort {
+        int chamadas = 0;
+        @Override public TraducaoLote traduzir(Lote lote) {
+            chamadas++;
+            String mascarado = lote.linhasOriginais().getFirst();
+            String saida = chamadas == 1
+                ? mascarado.replace("[[TAG0]]", "")     // dropa o marcador (corrompe)
+                : mascarado.replace("Hello", "Ola");     // preserva o marcador, "traduz"
+            return new TraducaoLote(lote.idLote(), List.of(saida), true, null);
+        }
+        @Override public StatusLlm verificarDisponibilidade() { return new StatusLlm(true, true, "ok"); }
+        @Override public Optional<String> revisarConcordancia(String a, String b, List<String> c) { return Optional.empty(); }
+        @Override public Optional<String> corrigirTraducao(String a, String b, String c) { return Optional.empty(); }
+    }
+
+    @Test
+    @DisplayName("marcador [[TAGn]] corrompido na 1ª tentativa é rejeitado e recuperado no retry")
+    void marcadorCorrompidoNaPrimeiraTentativaEhRecuperadoNoRetry() throws InterruptedException, ExecutionException {
+        TelemetriaFake telemetria = new TelemetriaFake();
+        ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
+            new LlmCorrompeMarcadorPrimeiraVez(), new ValidadorTraducaoService(),
+            new ConsoleUILogger(), telemetria, new MascaradorTags());
+
+        List<TraducaoLote> resultado = useCase.processarEpisodio(
+            List.of(new Lote(1, List.of("[[TAG0]]Hello"))), null);
+
+        assertEquals(List.of("[[TAG0]]Ola"), resultado.getFirst().linhasTraduzidas(),
+            "a 2ª tentativa, com marcador preservado, deve ser aceita — não pode virar pendente");
+        assertEquals(1, telemetria.rejeitadas.get(), "a 1ª tentativa (marcador corrompido) é rejeitada");
+        assertEquals(1, telemetria.recuperadas.get(), "recuperação no retry é contabilizada");
     }
 }

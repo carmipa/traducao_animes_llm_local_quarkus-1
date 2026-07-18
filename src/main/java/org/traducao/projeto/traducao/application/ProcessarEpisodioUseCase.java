@@ -6,6 +6,7 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.TraducaoLote;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
@@ -40,6 +41,7 @@ public class ProcessarEpisodioUseCase {
     private final ValidadorTraducaoService validador;
     private final ConsoleUILogger uiLogger;
     private final TelemetriaTraducaoPort telemetriaTraducao;
+    private final MascaradorTags mascarador;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe tradução, validação, acompanhamento visual e
@@ -55,12 +57,14 @@ public class ProcessarEpisodioUseCase {
         LlmPort llmPort,
         ValidadorTraducaoService validador,
         ConsoleUILogger uiLogger,
-        TelemetriaTraducaoPort telemetriaTraducao
+        TelemetriaTraducaoPort telemetriaTraducao,
+        MascaradorTags mascarador
     ) {
         this.llmPort = llmPort;
         this.validador = validador;
         this.uiLogger = uiLogger;
         this.telemetriaTraducao = telemetriaTraducao;
+        this.mascarador = mascarador;
     }
 
     public List<TraducaoLote> processarEpisodio(List<Lote> lotes) throws InterruptedException, ExecutionException {
@@ -229,10 +233,20 @@ public class ProcessarEpisodioUseCase {
                     + ". Provável alucinação do LLM fundindo ou quebrando falas, o que desalinharia a legenda.");
         }
 
-        for (String fala : resultado.linhasTraduzidas()) {
-            validador.validarFala(fala);
+        // Integridade dos marcadores DENTRO da tentativa: se o LLM perdeu/duplicou/
+        // inventou um [[TAGn]], rejeita AQUI (AlucinacaoDetectadaException) para que o
+        // retry tente de novo com outra temperatura, em vez de deixar a corrupção só
+        // ser detectada no desmascaramento (fora do retry) e a fala virar pendente.
+        List<String> mascaradoOriginal = lote.linhasOriginais();
+        List<String> traduzido = resultado.linhasTraduzidas();
+        for (int i = 0; i < traduzido.size(); i++) {
+            if (!mascarador.marcadoresPreservados(mascaradoOriginal.get(i), traduzido.get(i))) {
+                throw new AlucinacaoDetectadaException(
+                    "Marcadores [[TAGn]] corrompidos pelo LLM na tentativa: " + traduzido.get(i));
+            }
+            validador.validarFala(traduzido.get(i));
         }
 
-        return resultado.linhasTraduzidas();
+        return traduzido;
     }
 }
