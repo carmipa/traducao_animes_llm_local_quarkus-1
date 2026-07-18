@@ -54,6 +54,7 @@ public class TradutorLotesService {
     private final ProcessarEpisodioUseCase processarEpisodioUseCase;
     private final ProtecaoLegendaAssService protecaoAss;
     private final TelemetriaTraducaoPort telemetriaTraducao;
+    private final IsoladorQuebraDialogo isoladorQuebra;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as peças do coração do fluxo — mascaramento, tamanho de lote,
@@ -70,6 +71,7 @@ public class TradutorLotesService {
      * @param processarEpisodioUseCase executa a tradução dos lotes (sequencial, GPU única)
      * @param protecaoAss detecta resposta suspeita em linha ASS pesada
      * @param telemetriaTraducao contabiliza alucinações prevenidas
+     * @param isoladorQuebra isola o {@code \N} mid-sentence do diálogo antes do LLM e o reaplica depois
      */
     public TradutorLotesService(
         MascaradorTags mascarador,
@@ -77,7 +79,8 @@ public class TradutorLotesService {
         ConsoleUILogger uiLogger,
         ProcessarEpisodioUseCase processarEpisodioUseCase,
         ProtecaoLegendaAssService protecaoAss,
-        TelemetriaTraducaoPort telemetriaTraducao
+        TelemetriaTraducaoPort telemetriaTraducao,
+        IsoladorQuebraDialogo isoladorQuebra
     ) {
         this.mascarador = mascarador;
         this.propriedades = propriedades;
@@ -85,6 +88,7 @@ public class TradutorLotesService {
         this.processarEpisodioUseCase = processarEpisodioUseCase;
         this.protecaoAss = protecaoAss;
         this.telemetriaTraducao = telemetriaTraducao;
+        this.isoladorQuebra = isoladorQuebra;
     }
 
     /**
@@ -108,8 +112,21 @@ public class TradutorLotesService {
 
         Map<String, List<String>> tagsPorTexto = new LinkedHashMap<>();
         Map<String, String> textoMascaradoPorOriginal = new LinkedHashMap<>();
+        Map<String, Integer> quebrasPorOriginal = new LinkedHashMap<>();
         for (String original : textosPendentes) {
-            MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
+            // Diálogo (fora do subconjunto deduplicável): isola o \N mid-sentence ANTES de
+            // mascarar, para o LLM traduzir a frase inteira sem marcador no meio; a quebra é
+            // reaplicada na tradução em desmascararComFallback. Música/karaokê/KFX (dedupláveis)
+            // seguem com o \N mascarado como [[TAGn]] pelo caminho antigo, intactos.
+            String textoParaMascarar = original;
+            if (!textosDeduplicaveis.contains(original)) {
+                IsoladorQuebraDialogo.FalaIsolada isolada = isoladorQuebra.isolar(original);
+                if (isolada.quebras() > 0) {
+                    textoParaMascarar = isolada.textoSemQuebra();
+                    quebrasPorOriginal.put(original, isolada.quebras());
+                }
+            }
+            MascaradorTags.Mascarado mascarado = mascarador.mascarar(textoParaMascarar);
             tagsPorTexto.put(original, mascarado.tags());
             textoMascaradoPorOriginal.put(original, mascarado.texto());
         }
@@ -156,7 +173,7 @@ public class TradutorLotesService {
                 coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes, mascaradoPorRepresentante);
             }
             Map<String, String> traducoesParciais = expandirParaCamadas(
-                textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, avisos);
+                textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, quebrasPorOriginal, avisos);
             throw new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
         } finally {
             uiLogger.finalizar();
@@ -165,7 +182,7 @@ public class TradutorLotesService {
         Map<String, String> mascaradoPorRepresentante = new HashMap<>();
         coletarMascaradoPorRepresentante(resultados, chunksRepresentantes, mascaradoPorRepresentante);
         return expandirParaCamadas(
-            textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, avisos);
+            textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, quebrasPorOriginal, avisos);
     }
 
     /**
@@ -210,7 +227,8 @@ public class TradutorLotesService {
      */
     private Map<String, String> expandirParaCamadas(
             LinkedHashSet<String> textosPendentes, Map<String, String> representanteDeOriginal,
-            Map<String, String> mascaradoPorRepresentante, Map<String, List<String>> tagsPorTexto, List<String> avisos) {
+            Map<String, String> mascaradoPorRepresentante, Map<String, List<String>> tagsPorTexto,
+            Map<String, Integer> quebrasPorOriginal, List<String> avisos) {
         Map<String, String> traducoes = new HashMap<>();
         for (String original : textosPendentes) {
             String rep = representanteDeOriginal.get(original);
@@ -218,7 +236,9 @@ public class TradutorLotesService {
             if (traduzidoMascarado == null) {
                 continue;
             }
-            traducoes.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
+            traducoes.put(original, desmascararComFallback(
+                original, traduzidoMascarado, tagsPorTexto.get(original),
+                quebrasPorOriginal.getOrDefault(original, 0), avisos));
         }
         return traducoes;
     }
@@ -233,10 +253,11 @@ public class TradutorLotesService {
      * para o laço de lotes.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: em {@link AlucinacaoDetectadaException} ou resposta
-     * suspeita devolve o texto original e acrescenta um aviso; caso contrário devolve a fala
-     * traduzida.
+     * suspeita devolve o texto original (que já contém suas quebras) e acrescenta um aviso;
+     * caso contrário devolve a fala traduzida com o {@code \N} isolado reaplicado.
      */
-    private String desmascararComFallback(String original, String traduzidoMascarado, List<String> tags, List<String> avisos) {
+    private String desmascararComFallback(String original, String traduzidoMascarado, List<String> tags,
+            int quebrasIsoladas, List<String> avisos) {
         try {
             String traduzido = mascarador.desmascarar(traduzidoMascarado, tags);
             if (protecaoAss.respostaSuspeita(original, traduzido)) {
@@ -247,7 +268,7 @@ public class TradutorLotesService {
                 avisos.add("Linha ASS pesada mantida sem tradução por resposta suspeita do LLM: " + original);
                 return original;
             }
-            return traduzido;
+            return isoladorQuebra.reaplicar(traduzido, quebrasIsoladas);
         } catch (AlucinacaoDetectadaException e) {
             telemetriaTraducao.registrarAlucinacaoPrevenida();
             log.warn("Tags corrompidas pelo LLM nesta fala — mantendo o texto original sem tradução. Motivo: {}. Original: \"{}\"",

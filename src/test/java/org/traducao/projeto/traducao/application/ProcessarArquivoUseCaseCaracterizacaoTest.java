@@ -239,7 +239,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         AvaliadorTraducaoCache avaliadorCache =
             new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador);
         TradutorLotesService tradutorLotes =
-            new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria);
+            new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
+                new IsoladorQuebraDialogo());
         MontadorTelemetriaTraducao montadorTelemetria =
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
         ClassificadorPendenciaTelemetria classificadorPendencia =
