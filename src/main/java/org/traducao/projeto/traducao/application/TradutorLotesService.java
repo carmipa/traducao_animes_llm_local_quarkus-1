@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -98,7 +99,8 @@ public class TradutorLotesService {
      * já desmascarado; a barra de progresso é sempre finalizada.
      */
     public Map<String, String> traduzirPendentes(
-            LinkedHashSet<String> textosPendentes, String nomeArquivo, List<String> avisos, String promptCongelado)
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            String nomeArquivo, List<String> avisos, String promptCongelado)
             throws InterruptedException, ExecutionException {
         if (textosPendentes.isEmpty()) {
             return Map.of();
@@ -112,15 +114,35 @@ public class TradutorLotesService {
             textoMascaradoPorOriginal.put(original, mascarado.texto());
         }
 
-        List<String> textosPendentesOrdenados = new ArrayList<>(textosPendentes);
-        int tamanhoLote = propriedades.tamanhoLote();
+        // Dedup por texto MASCARADO no subconjunto deduplicável (camadas musicais):
+        // cada texto mascarado distinto é traduzido UMA vez (o 1º original é o
+        // "representante"); as demais camadas reaproveitam a tradução mascarada,
+        // desmascarando com as PRÓPRIAS tags. Diálogo (fora do subconjunto) nunca
+        // deduplica — comportamento antigo intacto. Como a chave é o mascarado (mesmo
+        // texto E mesma estrutura de tags), nenhuma tradução muda.
+        Map<String, String> representantePorMascarado = new LinkedHashMap<>();
+        List<String> representantes = new ArrayList<>();
+        Map<String, String> representanteDeOriginal = new LinkedHashMap<>();
+        for (String original : textosPendentes) {
+            String rep = original;
+            if (textosDeduplicaveis.contains(original)) {
+                String masc = textoMascaradoPorOriginal.get(original);
+                String existente = representantePorMascarado.putIfAbsent(masc, original);
+                rep = existente != null ? existente : original;
+            }
+            representanteDeOriginal.put(original, rep);
+            if (rep.equals(original)) {
+                representantes.add(original);
+            }
+        }
 
-        List<List<String>> chunksOriginais = new ArrayList<>();
+        int tamanhoLote = propriedades.tamanhoLote();
+        List<List<String>> chunksRepresentantes = new ArrayList<>();
         List<Lote> lotes = new ArrayList<>();
-        for (int i = 0; i < textosPendentesOrdenados.size(); i += tamanhoLote) {
-            List<String> chunkOriginais = textosPendentesOrdenados.subList(i, Math.min(i + tamanhoLote, textosPendentesOrdenados.size()));
-            List<String> chunkMascarados = chunkOriginais.stream().map(textoMascaradoPorOriginal::get).toList();
-            chunksOriginais.add(chunkOriginais);
+        for (int i = 0; i < representantes.size(); i += tamanhoLote) {
+            List<String> chunkReps = representantes.subList(i, Math.min(i + tamanhoLote, representantes.size()));
+            List<String> chunkMascarados = chunkReps.stream().map(textoMascaradoPorOriginal::get).toList();
+            chunksRepresentantes.add(chunkReps);
             lotes.add(new Lote(lotes.size() + 1, chunkMascarados));
         }
 
@@ -129,37 +151,76 @@ public class TradutorLotesService {
         try {
             resultados = processarEpisodioUseCase.processarEpisodio(lotes, promptCongelado);
         } catch (TraducaoParcialException e) {
-            Map<String, String> traducoesParciais = new HashMap<>();
+            Map<String, String> mascaradoPorRepresentante = new HashMap<>();
             if (e.getLotesSalvos() != null) {
-                for (TraducaoLote tl : e.getLotesSalvos()) {
-                    int k = tl.idLote() - 1;
-                    List<String> chunkOriginais = chunksOriginais.get(k);
-                    List<String> traduzidoMascaradoLinhas = tl.linhasTraduzidas();
-                    if (traduzidoMascaradoLinhas != null && chunkOriginais.size() == traduzidoMascaradoLinhas.size()) {
-                        for (int j = 0; j < chunkOriginais.size(); j++) {
-                            String original = chunkOriginais.get(j);
-                            String traduzidoMascarado = traduzidoMascaradoLinhas.get(j);
-                            traducoesParciais.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
-                        }
-                    }
-                }
+                coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes, mascaradoPorRepresentante);
             }
+            Map<String, String> traducoesParciais = expandirParaCamadas(
+                textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, avisos);
             throw new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
         } finally {
             uiLogger.finalizar();
         }
 
-        Map<String, String> traducoesNovas = new HashMap<>();
-        for (int k = 0; k < lotes.size(); k++) {
-            List<String> chunkOriginais = chunksOriginais.get(k);
-            List<String> traduzidoMascaradoLinhas = resultados.get(k).linhasTraduzidas();
-            for (int j = 0; j < chunkOriginais.size(); j++) {
-                String original = chunkOriginais.get(j);
-                String traduzidoMascarado = traduzidoMascaradoLinhas.get(j);
-                traducoesNovas.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
+        Map<String, String> mascaradoPorRepresentante = new HashMap<>();
+        coletarMascaradoPorRepresentante(resultados, chunksRepresentantes, mascaradoPorRepresentante);
+        return expandirParaCamadas(
+            textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, avisos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: coleta a tradução mascarada de cada representante a partir
+     * dos lotes devolvidos pelo episódio (completos ou salvos numa parcial).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: casa cada lote ao seu chunk de representantes pelo id;
+     * ignora lote fora de faixa ou com contagem de linhas divergente (defensivo).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: um lote inconsistente é apenas ignorado — seus
+     * representantes ficam sem tradução e as camadas correspondentes serão puladas.
+     */
+    private void coletarMascaradoPorRepresentante(
+            List<TraducaoLote> lotes, List<List<String>> chunksRepresentantes, Map<String, String> destino) {
+        for (TraducaoLote tl : lotes) {
+            int k = tl.idLote() - 1;
+            if (k < 0 || k >= chunksRepresentantes.size()) {
+                continue;
+            }
+            List<String> chunkReps = chunksRepresentantes.get(k);
+            List<String> linhas = tl.linhasTraduzidas();
+            if (linhas == null || linhas.size() != chunkReps.size()) {
+                continue;
+            }
+            for (int j = 0; j < chunkReps.size(); j++) {
+                destino.put(chunkReps.get(j), linhas.get(j));
             }
         }
-        return traducoesNovas;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reaplica a tradução mascarada do representante a TODAS as
+     * camadas que compartilham aquele texto mascarado, desmascarando com as tags de cada
+     * uma — de forma que um verso musical traduzido uma vez chegue a todas as suas camadas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: cada camada é desmascarada com as suas próprias tags
+     * ({@code tagsPorTexto}); marcador corrompido cai no fallback por camada (mantém o
+     * original só naquela). Camada cujo representante não foi traduzido (parcial) é omitida.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #desmascararComFallback} absorve alucinação
+     * de tags e resposta suspeita mantendo o original; nada escapa para o laço.
+     */
+    private Map<String, String> expandirParaCamadas(
+            LinkedHashSet<String> textosPendentes, Map<String, String> representanteDeOriginal,
+            Map<String, String> mascaradoPorRepresentante, Map<String, List<String>> tagsPorTexto, List<String> avisos) {
+        Map<String, String> traducoes = new HashMap<>();
+        for (String original : textosPendentes) {
+            String rep = representanteDeOriginal.get(original);
+            String traduzidoMascarado = mascaradoPorRepresentante.get(rep);
+            if (traduzidoMascarado == null) {
+                continue;
+            }
+            traducoes.put(original, desmascararComFallback(original, traduzidoMascarado, tagsPorTexto.get(original), avisos));
+        }
+        return traducoes;
     }
 
     /**

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,7 +103,7 @@ class TradutorLotesServiceTest {
         FakeEpisodio ep = new FakeEpisodio();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        Map<String, String> r = s.traduzirPendentes(pendentes(), "ep.ass", new ArrayList<>(), null);
+        Map<String, String> r = s.traduzirPendentes(pendentes(), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertTrue(r.isEmpty());
         assertEquals(0, ep.chamadas, "episódio não pode ser chamado sem pendências");
@@ -120,7 +121,7 @@ class TradutorLotesServiceTest {
         FakeEpisodio ep = new FakeEpisodio();
         TradutorLotesService s = servico(props(2), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("A", "B", "C"), "ep.ass", new ArrayList<>(), null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("A", "B", "C"), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertEquals("T:A", r.get("A"));
         assertEquals("T:B", r.get("B"));
@@ -141,7 +142,7 @@ class TradutorLotesServiceTest {
         ep.tradutor = l -> l.linhasOriginais().stream().map(s -> s.replace("Oi mundo", "Ola mundo")).toList();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi mundo"), "ep.ass", new ArrayList<>(), null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertEquals("[[TAG0]]Oi mundo", ep.lotesRecebidos.get(0).linhasOriginais().get(0),
             "o LLM deve receber o texto mascarado");
@@ -164,7 +165,7 @@ class TradutorLotesServiceTest {
         List<String> avisos = new ArrayList<>();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), tele);
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi"), "ep.ass", avisos, null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", avisos, null);
 
         assertEquals("{\\i1}Oi", r.get("{\\i1}Oi"), "tags corrompidas mantêm o original");
         assertEquals(1, avisos.size());
@@ -186,11 +187,62 @@ class TradutorLotesServiceTest {
         List<String> avisos = new ArrayList<>();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), protecao, tele);
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("Oi"), "ep.ass", avisos, null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("Oi"), Set.of(), "ep.ass", avisos, null);
 
         assertEquals("Oi", r.get("Oi"), "resposta suspeita mantém o original");
         assertEquals(1, avisos.size());
         assertEquals(1, tele.alucinacoesPrevenidas);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: um cancelamento no meio propaga TraducaoParcialException reconstruída
+     * com o dicionário parcial já DESMASCARADO, e a barra de progresso é finalizada mesmo na falha.
+     * <p>INVARIANTES DO DOMÍNIO: o dicionário reconstruído mapeia original→desmascarado; a exceção
+     * de nível de arquivo não carrega lotes; {@code finalizar()} roda no bloco finally.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário mascarado, lotes preservados ou barra não
+     * finalizada reprova.
+     */
+    /**
+     * PROPÓSITO DE NEGÓCIO: o mesmo verso de música (OP/ED) aparece em muitas camadas
+     * KFX/clip com tags diferentes mas o MESMO texto mascarado; o LLM deve traduzi-lo
+     * uma unica vez e a traducao ser reaplicada a cada camada com suas proprias tags.
+     * <p>INVARIANTES DO DOMÍNIO: dedup pelo texto mascarado (nao pelo visivel); cada
+     * camada preserva suas tags; nenhuma traducao muda.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mais de uma chamada ao LLM ou tags trocadas reprova.
+     */
+    @Test
+    void dedupMusicaTraduzMascaradoUmaVezEAplicaTagsPorCamada() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        LinkedHashSet<String> pend = pendentes("{\\clip(0,10)}A flower", "{\\clip(0,20)}A flower");
+        Set<String> dedup = Set.of("{\\clip(0,10)}A flower", "{\\clip(0,20)}A flower");
+
+        Map<String, String> r = s.traduzirPendentes(pend, dedup, "ep.ass", new ArrayList<>(), null);
+
+        int linhasEnviadas = ep.lotesRecebidos.stream().mapToInt(l -> l.linhasOriginais().size()).sum();
+        assertEquals(1, linhasEnviadas, "o mesmo texto mascarado deve ir ao LLM uma unica vez");
+        assertEquals("T:{\\clip(0,10)}A flower", r.get("{\\clip(0,10)}A flower"), "camada 1 com suas tags");
+        assertEquals("T:{\\clip(0,20)}A flower", r.get("{\\clip(0,20)}A flower"), "camada 2 com suas tags");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fora do subconjunto deduplicavel (ex.: diálogo), cada fala
+     * vai ao LLM separadamente — o dedup nunca vaza para o diálogo.
+     * <p>INVARIANTES DO DOMÍNIO: {@code textosDeduplicaveis} vazio mantém o comportamento antigo.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: deduplicar fora do subconjunto reprova.
+     */
+    @Test
+    void semDedupCadaCamadaVaiSeparadaAoLlm() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        LinkedHashSet<String> pend = pendentes("{\\clip(0,10)}A flower", "{\\clip(0,20)}A flower");
+
+        Map<String, String> r = s.traduzirPendentes(pend, Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        int linhasEnviadas = ep.lotesRecebidos.stream().mapToInt(l -> l.linhasOriginais().size()).sum();
+        assertEquals(2, linhasEnviadas, "sem dedup, as duas camadas vao ao LLM");
+        assertEquals("T:{\\clip(0,10)}A flower", r.get("{\\clip(0,10)}A flower"));
+        assertEquals("T:{\\clip(0,20)}A flower", r.get("{\\clip(0,20)}A flower"));
     }
 
     /**
@@ -210,7 +262,7 @@ class TradutorLotesServiceTest {
         TradutorLotesService s = servico(props(20), ep, ui, new FakeProtecao(), new FakeTelemetria());
 
         TraducaoParcialException lancada = assertThrows(TraducaoParcialException.class,
-            () -> s.traduzirPendentes(pendentes("{\\i1}Oi"), "ep.ass", new ArrayList<>(), null));
+            () -> s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", new ArrayList<>(), null));
 
         assertEquals(Map.of("{\\i1}Oi", "{\\i1}Ola"), lancada.getDicionarioParcial(),
             "o dicionário parcial deve estar desmascarado");
