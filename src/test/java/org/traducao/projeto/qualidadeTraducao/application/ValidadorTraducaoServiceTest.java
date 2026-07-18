@@ -36,6 +36,57 @@ class ValidadorTraducaoServiceTest {
             validador.validarFala("A tradução deste documento levou anos."));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: impede o bug histórico em que o LLM, em vez de traduzir,
+     * devolvia uma recusa ou meta-resposta ("não recebi nenhuma linha para traduzir",
+     * "Sem tradução.") e esse texto ia direto para a legenda, no lugar da fala.
+     * <p>INVARIANTES DO DOMÍNIO: a recusa em PT-BR (ou EN) é tratada como alucinação;
+     * o chamador preserva o original. Casos reais extraídos do cache do software antigo
+     * (Gundam 08th MS Team) e do MKV PT-BR do ep 6 ("Dunno").
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer recusa aceita reprova o teste.
+     */
+    @Test
+    void rejeitaRecusaOuMetaRespostaDoLlm() {
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Desculpe, mas não recebi nenhuma linha para traduzir. "
+                + "Por favor, forneça-me as linhas que deseja traduzir."));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Sem tradução."));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Nenhuma tradução encontrada para \"900\"."));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("\"Kalent!\" -- tradução em português"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Desculpe, mas não tenho contexto para traduzir a linha \"Dunno\". "
+                + "Por favor, pode me fornecer mais informações sobre onde essa linha é utilizada?"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Desculpe, mas preciso de mais contexto para traduzir essa linha. "
+                + "Por favor, pode me fornecer o contexto da cena?"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Não tenho acesso ao contexto específico da fala que você considera relevante."));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("As an AI, I cannot translate this without more context."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que o detector de recusa não confunda diálogo
+     * legítimo — falas reais de anime usam "por favor", "desculpe" e "não posso"
+     * o tempo todo, e não podem ser preservadas sem tradução por engano.
+     * <p>INVARIANTES DO DOMÍNIO: só a meta-referência à tarefa de tradução dispara o
+     * bloqueio; "por favor"/"desculpe"/"não posso" sozinhos jamais bastam.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer fala legítima bloqueada reprova o teste.
+     */
+    @Test
+    void aceitaDialogoLegitimoComPorFavorDesculpeENaoPosso() {
+        assertDoesNotThrow(() -> validador.validarFala("Por favor, aguarde."));
+        assertDoesNotThrow(() -> validador.validarFala("Desculpe-me, não."));
+        assertDoesNotThrow(() -> validador.validarFala("Por favor, conecte-me ao Almirante Mauri."));
+        assertDoesNotThrow(() -> validador.validarFala(
+            "Se isso se transformar em uma zona de batalha, não posso garantir sua segurança."));
+        assertDoesNotThrow(() -> validador.validarFala(
+            "E não dê desculpas só porque Eledore não está aqui!"));
+    }
+
     @Test
     void rejeitaResiduoInglesEmFalaMista() {
         // Caso real (86): linha metade PT, metade EN.
