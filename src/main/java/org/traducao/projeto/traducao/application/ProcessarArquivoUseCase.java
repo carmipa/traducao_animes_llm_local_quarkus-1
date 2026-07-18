@@ -75,6 +75,7 @@ public class ProcessarArquivoUseCase {
     private final MontadorTelemetriaTraducao montadorTelemetria;
     private final ClassificadorPendenciaTelemetria classificadorPendencia;
     private final RecuperarPendenciaGoogleService recuperarPendenciaGoogle;
+    private final EnforcadorTermosLore enforcadorTermosLore;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -103,7 +104,8 @@ public class ProcessarArquivoUseCase {
         TradutorLotesService tradutorLotes,
         MontadorTelemetriaTraducao montadorTelemetria,
         ClassificadorPendenciaTelemetria classificadorPendencia,
-        RecuperarPendenciaGoogleService recuperarPendenciaGoogle
+        RecuperarPendenciaGoogleService recuperarPendenciaGoogle,
+        EnforcadorTermosLore enforcadorTermosLore
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -125,6 +127,7 @@ public class ProcessarArquivoUseCase {
         this.montadorTelemetria = montadorTelemetria;
         this.classificadorPendencia = classificadorPendencia;
         this.recuperarPendenciaGoogle = recuperarPendenciaGoogle;
+        this.enforcadorTermosLore = enforcadorTermosLore;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -351,6 +354,20 @@ public class ProcessarArquivoUseCase {
             pendenciasUnitarias.add(new ResumoPendencia(categoria.name(), causa.name(), 1));
         }
         List<ResumoPendencia> pendenciasPorCausa = classificadorPendencia.consolidar(pendenciasUnitarias);
+
+        // Reforço determinístico de terminologia da lore ativa (ex.: "Legião" -> "Legion",
+        // "Coveiro" -> "Undertaker"): restaura a grafia oficial nas traduções válidas SEM
+        // depender do modelo. Só age quando o original contém o termo canônico; mapa vazio
+        // (outra obra) é no-op. Não altera pendências (falas em branco são ignoradas).
+        Map<String, String> correcoesLore = gerenciadorContexto.correcoesTerminologiaAtiva();
+        if (!correcoesLore.isEmpty()) {
+            for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
+                String traduzido = traducao.getValue();
+                if (traduzido != null && !traduzido.isBlank()) {
+                    traducao.setValue(enforcadorTermosLore.reforcar(traducao.getKey(), traduzido, correcoesLore));
+                }
+            }
+        }
 
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
         List<EntradaCache> entradasCache = new ArrayList<>();
