@@ -26,6 +26,8 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
+import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
+import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoOnlinePort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -75,6 +77,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     Path raiz;
 
     private final TelemetriaCaptor telemetriaCaptor = new TelemetriaCaptor();
+
+    // Fallback online controlável pelos testes: por padrão DESLIGADO (pipeline 100%
+    // local), preservando o comportamento das caracterizações existentes.
+    private boolean fallbackOnlineAtivo = false;
+    private FallbackTraducaoOnlinePort fallbackPort = original -> Optional.empty();
 
     /**
      * PROPÓSITO DE NEGÓCIO: captura o último registro de telemetria emitido pelo fluxo, para a
@@ -245,11 +252,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
         ClassificadorPendenciaTelemetria classificadorPendencia =
             new ClassificadorPendenciaTelemetria(detectorKaraoke);
+        RecuperarPendenciaGoogleService recuperarPendenciaGoogle =
+            new RecuperarPendenciaGoogleService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
-            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia);
+            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -387,6 +396,67 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertEquals("DIALOGO", p.categoria());
         assertEquals("ECO", p.causaRaiz());
         assertEquals(1, p.quantidade());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (fallback online — rede de segurança): com o modo online LIGADO,
+     * uma fala de diálogo que o LLM deixou pendente é recuperada pelo provedor externo,
+     * validada canonicamente e publicada — o episódio conclui em vez de ficar PARCIAL.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só a fala pendente vai ao provedor; a resposta entra no
+     * ASS/cache final; status {@code CONCLUIDO}; sem pendências no KPI.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do wire): a fala continuaria pendente e o
+     * episódio seria PARCIAL — este teste falharia.
+     */
+    @Test
+    void fallbackLigadoRecuperaDialogoPendenteEConclui() throws Exception {
+        fallbackOnlineAtivo = true;
+        fallbackPort = original -> original.contains("KEEPME")
+            ? Optional.of("permanece aqui") : Optional.empty();
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "com a fala recuperada pelo fallback, o episódio conclui");
+        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(finalPtBr), "saída final deve ser publicada após recuperação");
+        String conteudo = Files.readString(finalPtBr, StandardCharsets.UTF_8);
+        assertTrue(conteudo.contains("permanece aqui"), "a tradução do fallback deve entrar na legenda");
+        assertFalse(conteudo.contains("KEEPME stays"), "a fala original não pode permanecer");
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertEquals("CONCLUIDO", tel.statusFinal());
+        assertTrue(tel.pendenciasPorCausa().isEmpty(), "não deve sobrar pendência após recuperação");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (fallback online — falha externa é segura): com o modo LIGADO
+     * mas o provedor indisponível (resposta vazia), a fala continua pendente exatamente
+     * como sem o fallback — nada é publicado à força.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: porta vazia ⇒ status {@code PARCIAL}; original preservado
+     * no artefato parcial.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: publicar tradução inexistente reprova.
+     */
+    @Test
+    void fallbackLigadoComRedeVaziaMantemPendente() throws Exception {
+        fallbackOnlineAtivo = true;
+        fallbackPort = original -> Optional.empty(); // simula rede fora/recusa
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
+            "sem resposta do provedor, a fala continua pendente");
+        assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
+            "saída final não pode ser publicada com pendência");
     }
 
     /**

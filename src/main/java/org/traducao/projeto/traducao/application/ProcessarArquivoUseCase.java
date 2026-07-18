@@ -74,6 +74,7 @@ public class ProcessarArquivoUseCase {
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
     private final ClassificadorPendenciaTelemetria classificadorPendencia;
+    private final RecuperarPendenciaGoogleService recuperarPendenciaGoogle;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -101,7 +102,8 @@ public class ProcessarArquivoUseCase {
         AvaliadorTraducaoCache avaliadorCache,
         TradutorLotesService tradutorLotes,
         MontadorTelemetriaTraducao montadorTelemetria,
-        ClassificadorPendenciaTelemetria classificadorPendencia
+        ClassificadorPendenciaTelemetria classificadorPendencia,
+        RecuperarPendenciaGoogleService recuperarPendenciaGoogle
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -122,6 +124,7 @@ public class ProcessarArquivoUseCase {
         this.tradutorLotes = tradutorLotes;
         this.montadorTelemetria = montadorTelemetria;
         this.classificadorPendencia = classificadorPendencia;
+        this.recuperarPendenciaGoogle = recuperarPendenciaGoogle;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -283,10 +286,12 @@ public class ProcessarArquivoUseCase {
                 falasComTagCorrompida.add(aviso.substring(PREFIXO_TAGS_CORROMPIDAS.length()));
             }
         }
-        List<ResumoPendencia> pendenciasUnitarias = new ArrayList<>();
-
+        // 1ª passada: separa o que passou na validação canônica do que ficou pendente.
+        // Ainda NÃO emite aviso/KPI: o fallback online (opt-in) pode recuperar algumas
+        // pendências antes de a lista final de pendentes ser consolidada.
         Map<String, String> traducoesValidadas = new HashMap<>();
         LinkedHashSet<String> falhasDistintas = new LinkedHashSet<>();
+        Map<String, String> motivoPorFalha = new HashMap<>();
         for (Map.Entry<String, String> traducao : traducoesCombinadas.entrySet()) {
             String original = traducao.getKey();
             String traduzido = traducao.getValue();
@@ -295,13 +300,45 @@ public class ProcessarArquivoUseCase {
                 traducoesValidadas.put(original, traduzido);
                 continue;
             }
-
             // Uma falha conhecida nunca volta ao banco como se fosse tradução.
-            // O original continua visível somente no artefato PARCIAL para que a
-            // sincronia da legenda seja preservada durante a revisão.
             traducoesValidadas.put(original, "");
             falhasDistintas.add(original);
+            motivoPorFalha.put(original, motivoFalha);
+        }
+
+        // Fallback online de último recurso (opt-in, desligado por padrão): só as falas
+        // de DIÁLOGO pendentes desta execução vão ao provedor externo; a resposta só é
+        // aceita se passar pela MESMA validação canônica do LLM. Rede falha/recusa =
+        // fala continua pendente. Quando desligado, recuperar() devolve mapa vazio.
+        if (!falhasDistintas.isEmpty()) {
+            LinkedHashSet<String> dialogosPendentes = new LinkedHashSet<>();
+            for (String pendente : falhasDistintas) {
+                if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) == CategoriaConteudo.DIALOGO) {
+                    dialogosPendentes.add(pendente);
+                }
+            }
+            Map<String, String> candidatas = recuperarPendenciaGoogle.recuperar(dialogosPendentes);
+            for (Map.Entry<String, String> candidata : candidatas.entrySet()) {
+                String original = candidata.getKey();
+                String google = candidata.getValue();
+                if (avaliadorCache.motivoFalhaFinal(original, google) != null) {
+                    continue; // não passou na validação canônica: mantém pendente
+                }
+                traducoesValidadas.put(original, google);
+                falhasDistintas.remove(original);
+                motivoPorFalha.remove(original);
+                telemetriaTraducao.registrarFalhaTraducaoRecuperada();
+                String recuperada = "Fala recuperada via fallback Google (último recurso): " + original;
+                log.info(recuperada);
+                uiLogger.log("[ OK ] " + recuperada);
+            }
+        }
+
+        // 2ª passada: consolida avisos e KPI só das falas que SOBRARAM pendentes.
+        List<ResumoPendencia> pendenciasUnitarias = new ArrayList<>();
+        for (String original : falhasDistintas) {
             telemetriaTraducao.registrarFallbackMantido();
+            String motivoFalha = motivoPorFalha.get(original);
             String aviso = "Fala pendente após tentativas do LLM: " + motivoFalha + ". Original: " + original;
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
