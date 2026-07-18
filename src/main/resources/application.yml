@@ -27,7 +27,7 @@ tradutor:
   # false o pipeline e 100% local. Quando true, apenas as pendencias desta execucao
   # vao ao provedor externo, ja validadas pela mesma checagem canonica do LLM.
   fallback-online:
-    ativo: false
+    ativo: true
   llm:
     base-url: "http://127.0.0.1:1234/v1"
     # "current" e proposital: usar o id exato do modelo aqui faz o LM Studio
