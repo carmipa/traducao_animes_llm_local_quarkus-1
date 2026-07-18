@@ -214,9 +214,28 @@ public class ProcessarArquivoUseCase {
             cacheReaproveitavel.size(), cacheSuspeito, textosPendentes.size());
         uiLogger.registrarFalasCache(cacheReaproveitavel.size());
 
+        // Estilo por texto (reusado no dedup e no KPI de pendência).
+        Map<String, String> estiloPorTexto = new HashMap<>();
+        for (EventoLegenda evento : documento.eventos()) {
+            if (evento.temTexto()) {
+                estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
+            }
+        }
+        // Dedup de camadas musicais (Incremento 2): o mesmo verso de OP/ED aparece
+        // em muitas camadas KFX/clip com tags diferentes mas o MESMO texto mascarado.
+        // Marca as falas NÃO-diálogo para o LLM traduzir cada mascarado uma vez e a
+        // tradução ser reaplicada a cada camada com suas próprias tags. Diálogo fica
+        // de fora (comportamento intacto). Romaji já nem chega aqui (é preservado).
+        Set<String> textosDeduplicaveis = new HashSet<>();
+        for (String pendente : textosPendentes) {
+            if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) != CategoriaConteudo.DIALOGO) {
+                textosDeduplicaveis.add(pendente);
+            }
+        }
+
         Map<String, String> traducoesNovas;
         try {
-            traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
+            traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, textosDeduplicaveis, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
         } catch (TraducaoParcialException e) {
             Map<String, String> traducoesParciais = e.getDicionarioParcial();
             if (traducoesParciais != null && !traducoesParciais.isEmpty()) {
@@ -254,16 +273,10 @@ public class ProcessarArquivoUseCase {
         Map<String, String> traducoesCombinadas = new HashMap<>(cacheReaproveitavel);
         traducoesCombinadas.putAll(traducoesNovas);
 
-        // KPI de pendência (schemaVersion 1.1): estilo por texto para o balde de
-        // conteúdo, e o conjunto de falas cuja causa-raiz é marcador corrompido
-        // (extraído dos avisos já emitidos pela via de desmascaramento). Precedência:
-        // MARCADORES_CORROMPIDOS vence o ECO que ela gera em seguida.
-        Map<String, String> estiloPorTexto = new HashMap<>();
-        for (EventoLegenda evento : documento.eventos()) {
-            if (evento.temTexto()) {
-                estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
-            }
-        }
+        // KPI de pendência (schemaVersion 1.1): usa o estiloPorTexto já construído
+        // acima para o balde de conteúdo, e o conjunto de falas cuja causa-raiz é
+        // marcador corrompido (extraído dos avisos já emitidos pela via de
+        // desmascaramento). Precedência: MARCADORES_CORROMPIDOS vence o ECO.
         Set<String> falasComTagCorrompida = new HashSet<>();
         for (String aviso : avisos) {
             if (aviso.startsWith(PREFIXO_TAGS_CORROMPIDAS)) {
