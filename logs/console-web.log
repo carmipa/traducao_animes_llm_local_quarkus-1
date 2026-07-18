@@ -115498,3 +115498,500 @@ Auditoria finalizada com sucesso!
 2026-07-17 22:12:15.583 [correcao] [ATENÇÃO] REVISÃO GRAMATICAL DO CACHE — status=CONCLUIDO_COM_PENDENCIAS, arquivos=14, alterados=2, corrigidos=2, pendentes=1, falhas=0
 2026-07-17 22:12:15.584 [correcao] [PRÓXIMO PASSO] Avance para a Opção 6. Ela sincronizará este cache mais novo no ASS antes da revisão.
 2026-07-17 22:12:15.585 [correcao] [RELATÓRIO FINAL] Operação: Revisão Gramatical do Cache (LLM) | Tempo total: 3,4s | Término: 22:12:15
+2026-07-17 22:20:52.481 [correcao] Iniciando correção online do cache via Google Translate: C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\cache
+2026-07-17 22:20:52.603 [correcao] [ARQUIVO] [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.cache.json — 2 entrada(s) pendente(s) para correção.
+2026-07-17 22:20:52.645 [correcao] [CORRIGINDO 1/2] Evento 478 — Banchi 18, Metis.
+2026-07-17 22:20:53.125 [correcao] [PENDENTE 1/2] Evento 478 — SEM_ALTERACAO
+2026-07-17 22:20:53.577 [correcao] [CORRIGINDO 2/2] Evento 1015 — Fransson!
+2026-07-17 22:20:53.992 [correcao] [PENDENTE 2/2] Evento 1015 — SEM_ALTERACAO
+2026-07-17 22:20:54.420 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2.cache.json — 34 entrada(s) pendente(s) para correção.
+2026-07-17 22:20:54.421 [correcao] [CORRIGINDO 1/34] Evento 1 — {\blur1\pos(952,608)\c&HFEFEFE&}The Battle in Three Dimensions
+2026-07-17 22:20:55.099 [correcao] [CORRIGIDA 1/34] Evento 1 — {\blur1\pos(952,608)\c&HFEFEFE&}A Batalha em Três Dimensões
+2026-07-17 22:20:55.501 [correcao] [CORRIGINDO 2/34] Evento 2 — {\i1}Hey B.B., was there someone like this in your class...?
+2026-07-17 22:20:55.600 [correcao] [CORRIGIDA 2/34] Evento 2 — {\i1}Ei B.B., tinha alguém assim na sua turma...?
+2026-07-17 22:20:56.002 [correcao] [CORRIGINDO 3/34] Evento 5 — {\i1}I guess it's hard to judge how close you can get to them...
+2026-07-17 22:20:56.098 [correcao] [CORRIGIDA 3/34] Evento 5 — {\i1}Acho que é difícil avaliar o quão perto você pode chegar deles...
+2026-07-17 22:20:56.499 [correcao] [CORRIGINDO 4/34] Evento 6 — {\i1}The kind of person you graduate with...
+2026-07-17 22:20:56.607 [correcao] [CORRIGIDA 4/34] Evento 6 — {\i1}O tipo de pessoa com quem você se forma...
+2026-07-17 22:20:57.008 [correcao] [CORRIGINDO 5/34] Evento 7 — {\i1}...without ever having talked to them even once.
+2026-07-17 22:20:57.114 [correcao] [CORRIGIDA 5/34] Evento 7 — {\i1}...sem nunca ter conversado com nenhuma vez.
+2026-07-17 22:20:57.517 [correcao] [CORRIGINDO 6/34] Evento 8 — {\i1}If only Eledore were here at times like these!
+2026-07-17 22:20:58.140 [correcao] [CORRIGIDA 6/34] Evento 8 — {\i1}Se ao menos Eledore estivesse aqui em momentos como este!
+2026-07-17 22:20:58.542 [correcao] [CORRIGINDO 7/34] Evento 9 — {\i1}His complete and utter lack of social skills would come in really handy right about now!
+2026-07-17 22:20:58.639 [correcao] [CORRIGIDA 7/34] Evento 9 — {\i1}Sua completa e absoluta falta de habilidades sociais seria muito útil agora!
+2026-07-17 22:20:59.041 [correcao] [CORRIGINDO 8/34] Evento 10 — {\i1}A bridge, huh?
+2026-07-17 22:20:59.133 [correcao] [CORRIGIDA 8/34] Evento 10 — {\i1}Uma ponte, né?
+2026-07-17 22:20:59.535 [correcao] [CORRIGINDO 9/34] Evento 11 — {\i1}So that means we've finally reached the halfway mark.
+2026-07-17 22:20:59.631 [correcao] [CORRIGIDA 9/34] Evento 11 — {\i1}Então isso significa que finalmente alcançamos a metade do caminho.
+2026-07-17 22:21:00.032 [correcao] [CORRIGINDO 10/34] Evento 17 — And the other one still wasn't destroyed, even after that!
+2026-07-17 22:21:00.135 [correcao] [CORRIGIDA 10/34] Evento 17 — E o outro ainda não foi destruído, mesmo depois disso!
+2026-07-17 22:21:00.536 [correcao] [CORRIGINDO 11/34] Evento 19 — {\i1}Can you read me? Karen!{\i0}
+2026-07-17 22:21:00.635 [correcao] [CORRIGIDA 11/34] Evento 19 — {\i1}Você pode me ler? Karen!{\i0}
+2026-07-17 22:21:01.036 [correcao] [CORRIGINDO 12/34] Evento 20 — Wasn't this area supposed to be under our control?!
+2026-07-17 22:21:01.129 [correcao] [CORRIGIDA 12/34] Evento 20 — Esta área não deveria estar sob nosso controle?!
+2026-07-17 22:21:01.531 [correcao] [CORRIGINDO 13/34] Evento 22 — {\i1}Move your aim more to the left!{\i0}
+2026-07-17 22:21:01.626 [correcao] [CORRIGIDA 13/34] Evento 22 — {\i1}Mova sua mira mais para a esquerda!{\i0}
+2026-07-17 22:21:02.028 [correcao] [CORRIGINDO 14/34] Evento 23 — {\i1}Keep them pinned down for 15 minutes!{\i0}
+2026-07-17 22:21:02.132 [correcao] [CORRIGIDA 14/34] Evento 23 — {\i1}Mantenha-os presos por 15 minutos!{\i0}
+2026-07-17 22:21:02.534 [correcao] [CORRIGINDO 15/34] Evento 26 — {\i1}Michel! Grab Karen and get her out of there!{\i0}
+2026-07-17 22:21:03.474 [correcao] [CORRIGIDA 15/34] Evento 26 — {\i1}Michel! Pegue Karen e tire-a daí!{\i0}
+2026-07-17 22:21:03.876 [correcao] [CORRIGINDO 16/34] Evento 28 — We're at a disadvantage here on the bridge. We need to pull back!
+2026-07-17 22:21:03.973 [correcao] [CORRIGIDA 16/34] Evento 28 — Estamos em desvantagem aqui na ponte . Precisamos recuar!
+2026-07-17 22:21:04.376 [correcao] [CORRIGINDO 17/34] Evento 32 — Do you really think I'd give you time to help your comrades?!
+2026-07-17 22:21:04.470 [correcao] [CORRIGIDA 17/34] Evento 32 — Você realmente acha que eu daria a você tempo para ajudar seus camaradas?!
+2026-07-17 22:21:04.872 [correcao] [CORRIGINDO 18/34] Evento 52 — {\i1}C-Commander, he's headed your way! He's 30 meters behind you!{\i0}
+2026-07-17 22:21:04.983 [correcao] [CORRIGIDA 18/34] Evento 52 — {\i1}C-Comandante, ele está vindo em sua direção! Ele está 30 metros atrás de você!{\i0}
+2026-07-17 22:21:05.386 [correcao] [CORRIGINDO 19/34] Evento 59 — I see, I see!
+2026-07-17 22:21:05.816 [correcao] [CORRIGIDA 19/34] Evento 59 — Eu vejo, eu vejo!
+2026-07-17 22:21:06.217 [correcao] [CORRIGINDO 20/34] Evento 60 — {\i1}That's the commander for ya!
+2026-07-17 22:21:06.321 [correcao] [CORRIGIDA 20/34] Evento 60 — {\i1}Esse é o comandante para você!
+2026-07-17 22:21:06.722 [correcao] [CORRIGINDO 21/34] Evento 61 — {\i1}Well, back to this problem.
+2026-07-17 22:21:06.821 [correcao] [CORRIGIDA 21/34] Evento 61 — {\i1}Bom, voltando a esse problema.
+2026-07-17 22:21:07.222 [correcao] [CORRIGINDO 22/34] Evento 62 — {\i1}This isn't a manga.
+2026-07-17 22:21:07.321 [correcao] [CORRIGIDA 22/34] Evento 62 — {\i1}Isso não é um mangá.
+2026-07-17 22:21:07.723 [correcao] [CORRIGINDO 23/34] Evento 67 — Wait a minute, just now, you...
+2026-07-17 22:21:07.821 [correcao] [CORRIGIDA 23/34] Evento 67 — Espere um minuto, agora mesmo, você...
+2026-07-17 22:21:08.224 [correcao] [CORRIGINDO 24/34] Evento 70 — You went through the trouble of offering me something, and I turned you down-
+2026-07-17 22:21:08.342 [correcao] [CORRIGIDA 24/34] Evento 70 — Você se deu ao trabalho de me oferecer algo a , e eu recusei-
+2026-07-17 22:21:08.744 [correcao] [CORRIGINDO 25/34] Evento 73 — However, if you wanted to drink coffee together, I'd be happy to! Here!
+2026-07-17 22:21:08.846 [correcao] [CORRIGIDA 25/34] Evento 73 — Porém, se vocês quiserem tomar café juntos, ficarei feliz! Aqui!
+2026-07-17 22:21:09.249 [correcao] [CORRIGINDO 26/34] Evento 97 — {\fad(150,150)\blur0.5\bord0}When I look back, I see so many things...
+2026-07-17 22:21:09.343 [correcao] [CORRIGIDA 26/34] Evento 97 — {\fad(150,150)\blur0.5\bord0}Quando olho para trás, vejo tantas coisas...
+2026-07-17 22:21:09.745 [correcao] [CORRIGINDO 27/34] Evento 102 — {\fad(150,150)\blur0.5\bord0}All shining in my history.
+2026-07-17 22:21:09.843 [correcao] [CORRIGIDA 27/34] Evento 102 — {\fad(150,150)\blur0.5\bord0}Tudo brilhando na minha história.
+2026-07-17 22:21:10.246 [correcao] [CORRIGINDO 28/34] Evento 103 — {\fad(150,150)\blur0.5\bord0}The ones who caused me pain...
+2026-07-17 22:21:10.342 [correcao] [CORRIGIDA 28/34] Evento 103 — {\fad(150,150)\blur0.5\bord0}Aqueles que me causaram dor...
+2026-07-17 22:21:10.744 [correcao] [CORRIGINDO 29/34] Evento 104 — {\fad(150,150)\blur0.5\bord0}...I met and left along the way.
+2026-07-17 22:21:10.846 [correcao] [CORRIGIDA 29/34] Evento 104 — {\fad(150,150)\blur0.5\bord0}...me encontrei e saí no caminho.
+2026-07-17 22:21:11.247 [correcao] [CORRIGINDO 30/34] Evento 105 — {\fad(150,150)\blur0.5\bord0}But I still ended up meeting you.
+2026-07-17 22:21:11.343 [correcao] [CORRIGIDA 30/34] Evento 105 — {\fad(150,150)\blur0.5\bord0}Mas mesmo assim acabei conhecendo você.
+2026-07-17 22:21:11.746 [correcao] [CORRIGINDO 31/34] Evento 106 — {\fad(150,150)\blur0.5\bord0}The one that I love.
+2026-07-17 22:21:11.850 [correcao] [CORRIGIDA 31/34] Evento 106 — {\fad(150,150)\blur0.5\bord0}Aquele que eu amo.
+2026-07-17 22:21:12.252 [correcao] [CORRIGINDO 32/34] Evento 107 — {\fad(150,150)\blur0.5\bord0}Ten years after, A decade from now.
+2026-07-17 22:21:12.360 [correcao] [CORRIGIDA 32/34] Evento 107 — {\fad(150,150)\blur0.5\bord0}Dez anos depois, Daqui a uma década.
+2026-07-17 22:21:12.762 [correcao] [CORRIGINDO 33/34] Evento 110 — {\fad(150,150)\blur0.5\bord0}Ten years after, a decade from now.
+2026-07-17 22:21:13.616 [correcao] [CORRIGIDA 33/34] Evento 110 — {\fad(150,150)\blur0.5\bord0}Dez anos depois, daqui a uma década.
+2026-07-17 22:21:14.017 [correcao] [CORRIGINDO 34/34] Evento 113 — {\fad(150,150)\blur0.5\bord0}...I want to be at your side with a smile.
+2026-07-17 22:21:14.119 [correcao] [CORRIGIDA 34/34] Evento 113 — {\fad(150,150)\blur0.5\bord0}...Quero estar ao seu lado com um sorriso.
+2026-07-17 22:21:14.523 [correcao] [OK] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2.cache.json: 34 entrada(s) corrigidas; backup em C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\backups\correcao-cache\google_20260717_222052_481\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2.cache.json
+2026-07-17 22:21:14.545 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json — 100 entrada(s) pendente(s) para correção.
+2026-07-17 22:21:14.545 [correcao] [CORRIGINDO 1/100] Evento 3 — {\an8\i1}Zeon's national strength is less than{\i} {\i1}1/30th that of the Earth Federation.{\i}
+2026-07-17 22:21:14.797 [correcao] [CORRIGIDA 1/100] Evento 3 — {\an8\i1}A força nacional de Zeon é menor que{\i} {\i1}1/30 da Federação Terrestre.{\i}
+2026-07-17 22:21:15.198 [correcao] [CORRIGINDO 2/100] Evento 4 — {\an8\i1}In spite of that, how is it that{\i} {\i1}we've been able to fight for so long?{\i}
+2026-07-17 22:21:15.313 [correcao] [CORRIGIDA 2/100] Evento 4 — {\an8\i1}Apesar disso, como é que{\i} {\i1}conseguimos lutar por tanto tempo?{\i}
+2026-07-17 22:21:15.713 [correcao] [CORRIGINDO 3/100] Evento 5 — {\an8\i1}My people!{\i}
+2026-07-17 22:21:15.806 [correcao] [CORRIGIDA 3/100] Evento 5 — {\an8\i1}Meu povo!{\i}
+2026-07-17 22:21:16.207 [correcao] [CORRIGINDO 4/100] Evento 6 — {\an8\i1}It is because the Principality of Zeon's{\i} {\i1}aims in this war are just!{\i}
+2026-07-17 22:21:16.775 [correcao] [CORRIGIDA 4/100] Evento 6 — {\an8\i1}É porque os objetivos do Principado de Zeon{\i} {\i1}nesta guerra são justos!{\i}
+2026-07-17 22:21:17.178 [correcao] [CORRIGINDO 5/100] Evento 11 — You want those fags in the 07th team to beat us?!
+2026-07-17 22:21:17.286 [correcao] [CORRIGIDA 5/100] Evento 11 — Você quer que aqueles bichas do time 07 nos derrotem?!
+2026-07-17 22:21:17.687 [correcao] [CORRIGINDO 6/100] Evento 12 — Hey, Pietro! Make sure you come back in one piece!
+2026-07-17 22:21:18.390 [correcao] [CORRIGIDA 6/100] Evento 12 — Olá, Pietro! Certifique-se de que você volte inteiro!
+2026-07-17 22:21:18.794 [correcao] [CORRIGINDO 7/100] Evento 37 — Hey, take a look at this, too. It's the Earth! The Earth!
+2026-07-17 22:21:18.910 [correcao] [CORRIGIDA 7/100] Evento 37 — Ei, dê uma olhada nisso também. É a Terra! A Terra!
+2026-07-17 22:21:19.313 [correcao] [CORRIGINDO 8/100] Evento 40 — Just seeing it makes you excited! Right?
+2026-07-17 22:21:19.628 [correcao] [CORRIGIDA 8/100] Evento 40 — Só de ver isso você fica animado! [Brilhante?
+2026-07-17 22:21:20.030 [correcao] [CORRIGINDO 9/100] Evento 45 — I'll do it, too. I'll take out as many Zeon soldiers as I can!
+2026-07-17 22:21:20.131 [correcao] [CORRIGIDA 9/100] Evento 45 — Eu farei isso também. Vou eliminar o máximo de soldados Zeon que puder!
+2026-07-17 22:21:20.533 [correcao] [CORRIGINDO 10/100] Evento 49 — {\i1}B.B., I'm on my way to Earth now with some other Federation soldiers.
+2026-07-17 22:21:20.631 [correcao] [CORRIGIDA 10/100] Evento 49 — {\i1}B.B., estou a caminho da Terra agora com alguns outros soldados da Federação.
+2026-07-17 22:21:21.032 [correcao] [CORRIGINDO 11/100] Evento 50 — What? You mean none of you have rehearsed for this?
+2026-07-17 22:21:21.129 [correcao] [CORRIGIDA 11/100] Evento 50 — O que? Quer dizer que nenhum de vocês ensaiou para isso?
+2026-07-17 22:21:21.530 [correcao] [CORRIGINDO 12/100] Evento 51 — Come on! We don't need to for fighting Zeon!
+2026-07-17 22:21:21.640 [correcao] [CORRIGIDA 12/100] Evento 51 — Vamos! Não precisamos de para lutar contra Zeon!
+2026-07-17 22:21:22.043 [correcao] [CORRIGINDO 13/100] Evento 52 — {\i1}It's disgraceful!{\i}
+2026-07-17 22:21:22.158 [correcao] [CORRIGIDA 13/100] Evento 52 — {\i1}É uma vergonha!{\i}
+2026-07-17 22:21:22.559 [correcao] [CORRIGINDO 14/100] Evento 53 — {\i1}This Ensign Shiro Amada I'm traveling with...{\i0}
+2026-07-17 22:21:23.368 [correcao] [CORRIGIDA 14/100] Evento 53 — {\i1}Este alferes Shiro Amada estou viajando com...{\i0}
+2026-07-17 22:21:23.770 [correcao] [CORRIGINDO 15/100] Evento 54 — {\i1}He seems to have some combat experience,{\i0}
+2026-07-17 22:21:23.872 [correcao] [CORRIGIDA 15/100] Evento 54 — {\i1}Ele parece ter alguma experiência de combate ,{\i0}
+2026-07-17 22:21:24.274 [correcao] [CORRIGINDO 16/100] Evento 55 — {\i1}but he doesn't take the coming battle seriously at all.{\i0}
+2026-07-17 22:21:24.388 [correcao] [CORRIGIDA 16/100] Evento 55 — {\i1}, mas ele não leva a batalha que vem com a sério.{\i0}
+2026-07-17 22:21:24.790 [correcao] [CORRIGINDO 17/100] Evento 56 — {\i1}He acts like he's going on a picnic!{\i0}
+2026-07-17 22:21:24.906 [correcao] [CORRIGIDA 17/100] Evento 56 — {\i1}Ele age como se fosse fazer um piquenique!{\i0}
+2026-07-17 22:21:25.308 [correcao] [CORRIGINDO 18/100] Evento 57 — {\i1}But don't worry, B.B. I'll be coming back from this alive!{\i}
+2026-07-17 22:21:25.406 [correcao] [CORRIGIDA 18/100] Evento 57 — {\i1}Mas não se preocupe, B.B. Voltarei disso vivo!{\i}
+2026-07-17 22:21:25.807 [correcao] [CORRIGINDO 19/100] Evento 63 — What the hell? I thought this area was under Federation control!
+2026-07-17 22:21:25.937 [correcao] [CORRIGIDA 19/100] Evento 63 — Que diabos? Achei que esta área estava sob controle da Federação!
+2026-07-17 22:21:26.339 [correcao] [CORRIGINDO 20/100] Evento 76 — Ensign, this ship wouldn't be any good in a battle.
+2026-07-17 22:21:26.460 [correcao] [CORRIGIDA 20/100] Evento 76 — Alferes, este navio não seria bom em uma batalha.
+2026-07-17 22:21:26.862 [correcao] [CORRIGINDO 21/100] Evento 77 — There must be something we can do. Something...
+2026-07-17 22:21:26.958 [correcao] [CORRIGIDA 21/100] Evento 77 — Deve haver algo que possamos fazer. Alguma coisa...
+2026-07-17 22:21:27.360 [correcao] [CORRIGINDO 22/100] Evento 79 — If we had a mobile suit, it'd be different, but...
+2026-07-17 22:21:27.847 [correcao] [CORRIGIDA 22/100] Evento 79 — Se tivéssemos um mobile suit, seria diferente, mas...
+2026-07-17 22:21:28.248 [correcao] [CORRIGINDO 23/100] Evento 85 — What if you mess up and put my ship in danger?
+2026-07-17 22:21:28.348 [correcao] [CORRIGIDA 23/100] Evento 85 — E se você errar e colocar meu navio em perigo?
+2026-07-17 22:21:28.750 [correcao] [CORRIGINDO 24/100] Evento 96 — {\i1}I can't just stand by and let one of our guys get killed!{\i}
+2026-07-17 22:21:29.390 [correcao] [CORRIGIDA 24/100] Evento 96 — {\i1}Não posso simplesmente ficar parado e deixar um de nossos caras morrer!{\i}
+2026-07-17 22:21:29.792 [correcao] [CORRIGINDO 25/100] Evento 97 — {\i1}We're sending you out. Ready to go?{\i0}
+2026-07-17 22:21:30.203 [correcao] [CORRIGIDA 25/100] Evento 97 — {\i1}Estamos mandando você embora. Pronto para ir?{\i0}
+2026-07-17 22:21:30.604 [correcao] [CORRIGINDO 26/100] Evento 99 — {\i1}Opening hatch!{\i0}
+2026-07-17 22:21:30.703 [correcao] [CORRIGIDA 26/100] Evento 99 — {\i1}Abrindo a escotilha!{\i0}
+2026-07-17 22:21:31.104 [correcao] [CORRIGINDO 27/100] Evento 101 — {\i1}I don't want any more repeats of Side 2{\i0}
+2026-07-17 22:21:31.204 [correcao] [CORRIGIDA 27/100] Evento 101 — {\i1}Não quero mais repetições do Lado 2{\i0}
+2026-07-17 22:21:31.605 [correcao] [CORRIGINDO 28/100] Evento 102 — {\i1}Disengage locks, please.
+2026-07-17 22:21:31.703 [correcao] [CORRIGIDA 28/100] Evento 102 — {\i1}Desative as travas, por favor.
+2026-07-17 22:21:32.105 [correcao] [CORRIGINDO 29/100] Evento 104 — {\i1}Unlocking, confirmed! Exiting bay!{\i0}
+2026-07-17 22:21:32.202 [correcao] [CORRIGIDA 29/100] Evento 104 — {\i1}Desbloqueio, confirmado! Saindo da baía!{\i0}
+2026-07-17 22:21:32.603 [correcao] [CORRIGINDO 30/100] Evento 110 — {\i1}Don't move...
+2026-07-17 22:21:32.729 [correcao] [CORRIGIDA 30/100] Evento 110 — {\i1}Não se mova...
+2026-07-17 22:21:33.131 [correcao] [CORRIGINDO 31/100] Evento 112 — {\i1}If you can move, then get out of here!
+2026-07-17 22:21:33.230 [correcao] [CORRIGIDA 31/100] Evento 112 — {\i1}Se você puder se mover, então saia daqui!
+2026-07-17 22:21:33.631 [correcao] [CORRIGINDO 32/100] Evento 113 — {\i1}There's a transport holding at 8 o'clock, moonward!{\i}
+2026-07-17 22:21:33.735 [correcao] [CORRIGIDA 32/100] Evento 113 — {\i1}Há um transporte segurando às 8 horas, em direção à lua!{\i}
+2026-07-17 22:21:34.137 [correcao] [CORRIGINDO 33/100] Evento 115 — {\i1}Quit talking tough! Now get going!{\i}
+2026-07-17 22:21:34.232 [correcao] [CORRIGIDA 33/100] Evento 115 — {\i1}Pare de falar duro! Agora vá!{\i}
+2026-07-17 22:21:34.634 [correcao] [CORRIGINDO 34/100] Evento 121 — {\i1}Can't believe you made it in this thing!
+2026-07-17 22:21:34.729 [correcao] [CORRIGIDA 34/100] Evento 121 — {\i1}Não acredito que você conseguiu isso!
+2026-07-17 22:21:35.130 [correcao] [CORRIGINDO 35/100] Evento 125 — Aye, sir. It was an improved Zaku with three escorts.
+2026-07-17 22:21:35.227 [correcao] [CORRIGIDA 35/100] Evento 125 — Sim, senhor. Foi um Zaku melhorado com três escoltas.
+2026-07-17 22:21:35.628 [correcao] [CORRIGINDO 36/100] Evento 130 — That doesn't mean he should have gone out in that piece of junk!
+2026-07-17 22:21:35.724 [correcao] [CORRIGIDA 36/100] Evento 130 — Isso não significa que ele deveria ter caído naquele pedaço de lixo!
+2026-07-17 22:21:36.126 [correcao] [CORRIGINDO 37/100] Evento 133 — Nothing... How much air does that guy have?
+2026-07-17 22:21:36.603 [correcao] [CORRIGIDA 37/100] Evento 133 — Nada... Quanto ar esse cara tem?
+2026-07-17 22:21:37.006 [correcao] [CORRIGINDO 38/100] Evento 139 — We confirmed two explosions. The Ball must have...!
+2026-07-17 22:21:37.109 [correcao] [CORRIGIDA 38/100] Evento 139 — Confirmamos duas explosões. A bola deve ter...!
+2026-07-17 22:21:37.511 [correcao] [CORRIGINDO 39/100] Evento 145 — Shoulda kept your mouth shut to begin with!
+2026-07-17 22:21:37.607 [correcao] [CORRIGIDA 39/100] Evento 145 — Deveria ter mantido a boca fechada para começar!
+2026-07-17 22:21:38.009 [correcao] [CORRIGINDO 40/100] Evento 151 — {\i1}All this is doing is using up my air!
+2026-07-17 22:21:38.107 [correcao] [CORRIGIDA 40/100] Evento 151 — {\i1}Tudo o que isso está fazendo é consumir meu ar!
+2026-07-17 22:21:38.508 [correcao] [CORRIGINDO 41/100] Evento 152 — {\i1}What have I got to lose now?!
+2026-07-17 22:21:38.845 [correcao] [CORRIGIDA 41/100] Evento 152 — {\i1}O que eu tenho a perder agora?!
+2026-07-17 22:21:39.249 [correcao] [CORRIGINDO 42/100] Evento 168 — We have to conserve every hit of air we have!
+2026-07-17 22:21:39.345 [correcao] [CORRIGIDA 42/100] Evento 168 — Temos que conservar cada golpe de ar que temos!
+2026-07-17 22:21:39.747 [correcao] [CORRIGINDO 43/100] Evento 175 — You have to just think about how to survive!
+2026-07-17 22:21:39.851 [correcao] [CORRIGIDA 43/100] Evento 175 — Você só precisa pensar em como sobreviver!
+2026-07-17 22:21:40.253 [correcao] [CORRIGINDO 44/100] Evento 180 — Hurry up. While we wait here, we're just using up our air.
+2026-07-17 22:21:40.356 [correcao] [CORRIGIDA 44/100] Evento 180 — Se apresse. Enquanto esperamos aqui, estamos apenas gastando nosso ar.
+2026-07-17 22:21:40.757 [correcao] [CORRIGINDO 45/100] Evento 181 — Can't see that Federation transport or any Zeon mobile suits from here.
+2026-07-17 22:21:40.871 [correcao] [CORRIGIDA 45/100] Evento 181 — Não consigo ver o transporte da Federação ou qualquer mobile suit do Zeon daqui.
+2026-07-17 22:21:41.275 [correcao] [CORRIGINDO 46/100] Evento 197 — Everyone who's finished with their work, get back into the ship!
+2026-07-17 22:21:41.390 [correcao] [CORRIGIDA 46/100] Evento 197 — Todos que terminaram o trabalho de , voltem para a nave!
+2026-07-17 22:21:41.792 [correcao] [CORRIGINDO 47/100] Evento 201 — {\i1}No way. There's no chance.{\i0}
+2026-07-17 22:21:42.442 [correcao] [CORRIGIDA 47/100] Evento 201 — {\i1}De jeito nenhum. Não há chance.{\i0}
+2026-07-17 22:21:42.845 [correcao] [CORRIGINDO 48/100] Evento 204 — {\i1}There must be something here to use. Something...{\i}
+2026-07-17 22:21:42.939 [correcao] [CORRIGIDA 48/100] Evento 204 — {\i1}Deve haver algo aqui para usar. Alguma coisa...{\i}
+2026-07-17 22:21:43.340 [correcao] [CORRIGINDO 49/100] Evento 213 — Don't knock it against anything! Gently, now...
+2026-07-17 22:21:44.032 [correcao] [CORRIGIDA 49/100] Evento 213 — Não bata em nada! Suavemente, agora...
+2026-07-17 22:21:44.433 [correcao] [CORRIGINDO 50/100] Evento 217 — Maybe I should go into the fireworks business.
+2026-07-17 22:21:44.537 [correcao] [CORRIGIDA 50/100] Evento 217 — Talvez eu devesse entrar no negócio de fogos de artifício.
+2026-07-17 22:21:44.940 [correcao] [CORRIGINDO 51/100] Evento 230 — You're not how I pictured a Federation soldier would be.
+2026-07-17 22:21:45.038 [correcao] [CORRIGIDA 51/100] Evento 230 — Você não é como imaginei que um soldado da Federação seria.
+2026-07-17 22:21:45.440 [correcao] [CORRIGINDO 52/100] Evento 232 — Envy me?
+2026-07-17 22:21:45.534 [correcao] [CORRIGIDA 52/100] Evento 232 — Inveja de mim?
+2026-07-17 22:21:45.938 [correcao] [CORRIGINDO 53/100] Evento 248 — No, it couldn't fight even if it wanted to. Get us out of here.
+2026-07-17 22:21:46.037 [correcao] [CORRIGIDA 53/100] Evento 248 — Não, não poderia lutar mesmo que quisesse. Tire-nos daqui.
+2026-07-17 22:21:46.438 [correcao] [CORRIGINDO 54/100] Evento 251 — {\i1}I don't believe him!
+2026-07-17 22:21:46.533 [correcao] [CORRIGIDA 54/100] Evento 251 — {\i1}Eu não acredito nele!
+2026-07-17 22:21:46.937 [correcao] [CORRIGINDO 55/100] Evento 252 — {\i1}He came back alive after all that!{\i}
+2026-07-17 22:21:47.036 [correcao] [CORRIGIDA 55/100] Evento 252 — {\i1}Ele voltou vivo depois de tudo isso!{\i}
+2026-07-17 22:21:47.438 [correcao] [CORRIGINDO 56/100] Evento 253 — {\i1}I'm gonna have to rewrite my letter!{\i0}
+2026-07-17 22:21:47.532 [correcao] [CORRIGIDA 56/100] Evento 253 — {\i1}Vou ter que reescrever minha carta!{\i0}
+2026-07-17 22:21:47.933 [correcao] [CORRIGINDO 57/100] Evento 261 — You and I are assigned to the same unit, Chief.
+2026-07-17 22:21:48.038 [correcao] [CORRIGIDA 57/100] Evento 261 — Você e eu estamos designados para a mesma unidade, chefe.
+2026-07-17 22:21:48.439 [correcao] [CORRIGINDO 58/100] Evento 263 — {\i1}No time to ship me back to my old unit...{\i}
+2026-07-17 22:21:48.537 [correcao] [CORRIGIDA 58/100] Evento 263 — {\i1}Não há tempo para me mandar de volta para minha antiga unidade...{\i}
+2026-07-17 22:21:48.938 [correcao] [CORRIGINDO 59/100] Evento 266 — {\i1}Maybe this ensign can finally change my luck.{\i0}
+2026-07-17 22:21:49.037 [correcao] [CORRIGIDA 59/100] Evento 266 — {\i1}Talvez esse alferes possa finalmente mudar minha sorte.{\i0}
+2026-07-17 22:21:49.439 [correcao] [CORRIGINDO 60/100] Evento 273 — Who cares?! We're gonna drive those Zeon off of our Earth!
+2026-07-17 22:21:49.533 [correcao] [CORRIGIDA 60/100] Evento 273 — Quem se importa?! Nós vamos expulsar aqueles Zeon da nossa Terra!
+2026-07-17 22:21:49.936 [correcao] [CORRIGINDO 61/100] Evento 280 — {\i1}but I want to show my team that I'm able to lead them!{\i0}
+2026-07-17 22:21:50.038 [correcao] [CORRIGIDA 61/100] Evento 280 — {\i1}mas quero mostrar à minha equipe que sou capaz de liderá-los!{\i0}
+2026-07-17 22:21:50.440 [correcao] [CORRIGINDO 62/100] Evento 281 — {\i1}Next time, on Mobile Suit Gundam The 08th MS Team{\i0}
+2026-07-17 22:21:50.968 [correcao] [CORRIGIDA 62/100] Evento 281 — {\i1}Da próxima vez, no Mobile Suit Gundam The 08th MS Team{\i0}
+2026-07-17 22:21:51.369 [correcao] [CORRIGINDO 63/100] Evento 282 — {\i1}Gundams in the Jungle{\i0}
+2026-07-17 22:21:51.470 [correcao] [CORRIGIDA 63/100] Evento 282 — {\i1}Gundams na Selva{\i0}
+2026-07-17 22:21:51.872 [correcao] [CORRIGINDO 64/100] Evento 287 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Those wounded angel wings, and gently...
+2026-07-17 22:21:51.965 [correcao] [CORRIGIDA 64/100] Evento 287 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:21:52.367 [correcao] [CORRIGINDO 65/100] Evento 289 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Newborn in a corner of the endless blue sky...
+2026-07-17 22:21:52.473 [correcao] [CORRIGIDA 65/100] Evento 289 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Recém-nascido num recanto do infinito céu azul...
+2026-07-17 22:21:52.874 [correcao] [CORRIGINDO 66/100] Evento 291 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}No matter how strong they may blow...
+2026-07-17 22:21:52.983 [correcao] [CORRIGIDA 66/100] Evento 291 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Não importa o quão forte eles possam explodir...
+2026-07-17 22:21:53.385 [correcao] [CORRIGINDO 67/100] Evento 292 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...or how icy they may be...
+2026-07-17 22:21:53.491 [correcao] [CORRIGIDA 67/100] Evento 292 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...ou quão gelados eles podem ser...
+2026-07-17 22:21:53.893 [correcao] [CORRIGINDO 68/100] Evento 294 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart!
+2026-07-17 22:21:53.999 [correcao] [CORRIGIDA 68/100] Evento 294 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}O sonho que brilha dentro do seu coração!
+2026-07-17 22:21:54.401 [correcao] [CORRIGINDO 69/100] Evento 298 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Those wounded angel wings, and gently...
+2026-07-17 22:21:54.505 [correcao] [CORRIGIDA 69/100] Evento 298 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:21:54.906 [correcao] [CORRIGINDO 70/100] Evento 299 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...pull them close to me.{\fad(0,1000)}
+2026-07-17 22:21:55.010 [correcao] [CORRIGIDA 70/100] Evento 299 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...puxa eles para perto de mim.{\fad(0,1000)}
+2026-07-17 22:21:55.411 [correcao] [CORRIGINDO 71/100] Evento 301 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}From childhood till now, so many days.
+2026-07-17 22:21:55.919 [correcao] [CORRIGIDA 71/100] Evento 301 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Desde a infância até agora, tantos dias.
+2026-07-17 22:21:56.323 [correcao] [CORRIGINDO 72/100] Evento 302 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things...
+2026-07-17 22:21:56.419 [correcao] [CORRIGIDA 72/100] Evento 302 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Quando olho para trás, vejo tantas coisas...
+2026-07-17 22:21:56.821 [correcao] [CORRIGINDO 73/100] Evento 307 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All shining in my history.
+2026-07-17 22:21:56.919 [correcao] [CORRIGIDA 73/100] Evento 307 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Tudo brilhando na minha história.
+2026-07-17 22:21:57.320 [correcao] [CORRIGINDO 74/100] Evento 308 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The ones who caused me pain...
+2026-07-17 22:21:57.423 [correcao] [CORRIGIDA 74/100] Evento 308 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aqueles que me causaram dor...
+2026-07-17 22:21:57.826 [correcao] [CORRIGINDO 75/100] Evento 310 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+2026-07-17 22:21:57.930 [correcao] [CORRIGIDA 75/100] Evento 310 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Mas mesmo assim acabei conhecendo você.
+2026-07-17 22:21:58.331 [correcao] [CORRIGINDO 76/100] Evento 312 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 years after, a decade from now.
+2026-07-17 22:21:58.425 [correcao] [CORRIGIDA 76/100] Evento 312 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 anos depois, daqui a uma década.
+2026-07-17 22:21:58.827 [correcao] [CORRIGINDO 77/100] Evento 313 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder what I will be doing then.
+2026-07-17 22:21:58.938 [correcao] [CORRIGIDA 77/100] Evento 313 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Eu me pergunto o que farei então.
+2026-07-17 22:21:59.340 [correcao] [CORRIGINDO 78/100] Evento 315 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 years after, a decade from now.
+2026-07-17 22:21:59.432 [correcao] [CORRIGIDA 78/100] Evento 315 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 anos depois, daqui a uma década.
+2026-07-17 22:21:59.833 [correcao] [CORRIGINDO 79/100] Evento 318 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+2026-07-17 22:21:59.930 [correcao] [CORRIGIDA 79/100] Evento 318 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+2026-07-17 22:22:00.332 [correcao] [CORRIGINDO 80/100] Evento 322 — {\fad(100,100)\blur1\bord0}Those wounded angel wings, and gently...
+2026-07-17 22:22:00.433 [correcao] [CORRIGIDA 80/100] Evento 322 — {\fad(100,100)\blur1\bord0}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:22:00.834 [correcao] [CORRIGINDO 81/100] Evento 323 — {\fad(100,100)\blur1\bord0}...pull them close to me.
+2026-07-17 22:22:00.932 [correcao] [CORRIGIDA 81/100] Evento 323 — {\fad(100,100)\blur1\bord0}...puxa eles para perto de mim.
+2026-07-17 22:22:01.333 [correcao] [CORRIGINDO 82/100] Evento 324 — {\fad(100,100)\blur1\bord0}Newborn in a corner of the endless blue sky...
+2026-07-17 22:22:01.464 [correcao] [CORRIGIDA 82/100] Evento 324 — {\fad(100,100)\blur1\bord0}Recém-nascido num recanto do infinito céu azul...
+2026-07-17 22:22:01.867 [correcao] [CORRIGINDO 83/100] Evento 326 — {\fad(100,100)\blur1\bord0}No matter how strong they may blow...
+2026-07-17 22:22:01.964 [correcao] [CORRIGIDA 83/100] Evento 326 — {\fad(100,100)\blur1\bord0}Não importa o quão forte eles possam explodir...
+2026-07-17 22:22:02.366 [correcao] [CORRIGINDO 84/100] Evento 327 — {\fad(100,100)\blur1\bord0}...or how icy they may be...
+2026-07-17 22:22:02.517 [correcao] [CORRIGIDA 84/100] Evento 327 — {\fad(100,100)\blur1\bord0}...ou quão gelados eles podem ser...
+2026-07-17 22:22:02.919 [correcao] [CORRIGINDO 85/100] Evento 329 — {\fad(100,100)\blur1\bord0}The dream that shines inside your heart!
+2026-07-17 22:22:03.018 [correcao] [CORRIGIDA 85/100] Evento 329 — {\fad(100,100)\blur1\bord0}O sonho que brilha dentro do seu coração!
+2026-07-17 22:22:03.421 [correcao] [CORRIGINDO 86/100] Evento 333 — {\fad(100,100)\blur1\bord0}Those wounded angel wings, and gently...
+2026-07-17 22:22:03.522 [correcao] [CORRIGIDA 86/100] Evento 333 — {\fad(100,100)\blur1\bord0}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:22:03.923 [correcao] [CORRIGINDO 87/100] Evento 334 — {\fad(100,100)\blur1\bord0}...pull them close to me.{\fad(0,1000)}
+2026-07-17 22:22:04.018 [correcao] [CORRIGIDA 87/100] Evento 334 — {\fad(100,100)\blur1\bord0}...puxa eles para perto de mim.{\fad(0,1000)}
+2026-07-17 22:22:04.419 [correcao] [CORRIGINDO 88/100] Evento 337 — {\fad(100,100)\blur1\bord0}When I look back, I see so many things...
+2026-07-17 22:22:04.520 [correcao] [CORRIGIDA 88/100] Evento 337 — {\fad(100,100)\blur1\bord0}Quando olho para trás, vejo tantas coisas...
+2026-07-17 22:22:04.921 [correcao] [CORRIGINDO 89/100] Evento 338 — {\fad(100,100)\blur1\bord0}...that happened to come into my life.
+2026-07-17 22:22:05.020 [correcao] [CORRIGIDA 89/100] Evento 338 — {\fad(100,100)\blur1\bord0}...isso aconteceu na minha vida.
+2026-07-17 22:22:05.422 [correcao] [CORRIGINDO 90/100] Evento 341 — {\fad(100,100)\blur1\bord0}The lost loves that were sort of hard.
+2026-07-17 22:22:05.914 [correcao] [CORRIGIDA 90/100] Evento 341 — {\fad(100,100)\blur1\bord0}Os amores perdidos que foram meio difíceis.
+2026-07-17 22:22:06.316 [correcao] [CORRIGINDO 91/100] Evento 343 — {\fad(100,100)\blur1\bord0}The ones who caused me pain...
+2026-07-17 22:22:06.427 [correcao] [CORRIGIDA 91/100] Evento 343 — {\fad(100,100)\blur1\bord0}Aqueles que me causaram dor...
+2026-07-17 22:22:06.828 [correcao] [CORRIGINDO 92/100] Evento 344 — {\fad(100,100)\blur1\bord0}...I met and left along the way.
+2026-07-17 22:22:06.926 [correcao] [CORRIGIDA 92/100] Evento 344 — {\fad(100,100)\blur1\bord0}...me encontrei e saí no caminho.
+2026-07-17 22:22:07.328 [correcao] [CORRIGINDO 93/100] Evento 345 — {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+2026-07-17 22:22:07.428 [correcao] [CORRIGIDA 93/100] Evento 345 — {\fad(100,100)\blur1\bord0}Mas mesmo assim acabei conhecendo você.
+2026-07-17 22:22:07.830 [correcao] [CORRIGINDO 94/100] Evento 346 — {\fad(100,100)\blur1\bord0}The one that I love.
+2026-07-17 22:22:07.927 [correcao] [CORRIGIDA 94/100] Evento 346 — {\fad(100,100)\blur1\bord0}Aquele que eu amo.
+2026-07-17 22:22:08.328 [correcao] [CORRIGINDO 95/100] Evento 347 — {\fad(100,100)\blur1\bord0}10 years after, a decade from now.
+2026-07-17 22:22:08.423 [correcao] [CORRIGIDA 95/100] Evento 347 — {\fad(100,100)\blur1\bord0}10 anos depois, daqui a uma década.
+2026-07-17 22:22:08.825 [correcao] [CORRIGINDO 96/100] Evento 350 — {\fad(100,100)\blur1\bord0}10 years after, a decade from now.
+2026-07-17 22:22:08.920 [correcao] [CORRIGIDA 96/100] Evento 350 — {\fad(100,100)\blur1\bord0}10 anos depois, daqui a uma década.
+2026-07-17 22:22:09.322 [correcao] [CORRIGINDO 97/100] Evento 352 — {\fad(100,100)\blur1\bord0}Stay together. When that day comes...
+2026-07-17 22:22:09.421 [correcao] [CORRIGIDA 97/100] Evento 352 — {\fad(100,100)\blur1\bord0}Fiquem juntos. Quando esse dia chegar...
+2026-07-17 22:22:09.822 [correcao] [CORRIGINDO 98/100] Evento 353 — {\fad(100,100)\blur1\bord0}...I want to be at your side with a smile.
+2026-07-17 22:22:09.923 [correcao] [CORRIGIDA 98/100] Evento 353 — {\fad(100,100)\blur1\bord0}...Quero estar ao seu lado com um sorriso.
+2026-07-17 22:22:10.324 [correcao] [CORRIGINDO 99/100] Evento 425 — {\blur1\pos(720,650)\c&HDEDEE3&}THE WAR OF THE TWO
+2026-07-17 22:22:10.422 [correcao] [CORRIGIDA 99/100] Evento 425 — {\blur1\pos(720,650)\c&HDEDEE3&}A GUERRA DOS DOIS
+2026-07-17 22:22:10.823 [correcao] [CORRIGINDO 100/100] Evento 427 — {\blur1\pos(720,650)\c&HDEDEE3&}GUNDAMS IN THE JUNGLE
+2026-07-17 22:22:10.935 [correcao] [CORRIGIDA 100/100] Evento 427 — {\blur1\pos(720,650)\c&HDEDEE3&}GUNDAMS NA SELVA
+2026-07-17 22:22:11.338 [correcao] [OK] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json: 100 entrada(s) corrigidas; backup em C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\backups\correcao-cache\google_20260717_222052_481\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json
+2026-07-17 22:22:11.357 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3.cache.json — 113 entrada(s) pendente(s) para correção.
+2026-07-17 22:22:11.357 [correcao] [CORRIGINDO 1/113] Evento 6 — Different from those air-conditioned colonies, huh?
+2026-07-17 22:22:11.463 [correcao] [CORRIGIDA 1/113] Evento 6 — Diferente daquelas colônias climatizadas, né?
+2026-07-17 22:22:11.864 [correcao] [CORRIGINDO 2/113] Evento 13 — Same here.
+2026-07-17 22:22:11.960 [correcao] [CORRIGIDA 2/113] Evento 13 — Mesmo aqui.
+2026-07-17 22:22:12.361 [correcao] [CORRIGINDO 3/113] Evento 14 — Mobile suits!
+2026-07-17 22:22:13.116 [correcao] [CORRIGIDA 3/113] Evento 14 — Trajes móveis!
+2026-07-17 22:22:13.519 [correcao] [CORRIGINDO 4/113] Evento 24 — Still, I can't believe the Team Killer is part of his group.
+2026-07-17 22:22:13.615 [correcao] [CORRIGIDA 4/113] Evento 24 — Ainda assim, não posso acreditar que o Team Killer faça parte do seu grupo.
+2026-07-17 22:22:14.017 [correcao] [CORRIGINDO 5/113] Evento 26 — ...that Zeon has established a secret factory in this area.
+2026-07-17 22:22:14.113 [correcao] [CORRIGIDA 5/113] Evento 26 — ...que Zeon estabeleceu uma fábrica secreta nesta área.
+2026-07-17 22:22:14.515 [correcao] [CORRIGINDO 6/113] Evento 28 — And due to the fact that their final defense line...
+2026-07-17 22:22:14.612 [correcao] [CORRIGIDA 6/113] Evento 28 — E devido ao fato de que a linha de defesa final deles ...
+2026-07-17 22:22:15.014 [correcao] [CORRIGINDO 7/113] Evento 33 — Quit asking questions. You'll just get in trouble.
+2026-07-17 22:22:15.108 [correcao] [CORRIGIDA 7/113] Evento 33 — Pare de fazer perguntas. Você simplesmente terá problemas.
+2026-07-17 22:22:15.510 [correcao] [CORRIGINDO 8/113] Evento 45 — Looks like you guys will be busy from now on.
+2026-07-17 22:22:15.615 [correcao] [CORRIGIDA 8/113] Evento 45 — Parece que vocês estarão ocupados de agora em diante.
+2026-07-17 22:22:16.018 [correcao] [CORRIGINDO 9/113] Evento 55 — Listen, Zeon isn't gonna come visit us when it's convenient.
+2026-07-17 22:22:16.121 [correcao] [CORRIGIDA 9/113] Evento 55 — Escute, Zeon não virá nos visitar quando for conveniente.
+2026-07-17 22:22:16.524 [correcao] [CORRIGINDO 10/113] Evento 67 — {\fad(0,227)}This is it...
+2026-07-17 22:22:16.629 [correcao] [CORRIGIDA 10/113] Evento 67 — {\fad(0,227)}É isso...
+2026-07-17 22:22:17.030 [correcao] [CORRIGINDO 11/113] Evento 74 — ...our commander has something he'd like to say to you.
+2026-07-17 22:22:17.120 [correcao] [CORRIGIDA 11/113] Evento 74 — ...nosso comandante tem algo que gostaria de dizer a você.
+2026-07-17 22:22:17.522 [correcao] [CORRIGINDO 12/113] Evento 75 — I'm sorry I haven't had more of a chance to get to know you all.
+2026-07-17 22:22:17.904 [correcao] [CORRIGIDA 12/113] Evento 75 — Me desculpe, não tive mais uma chance de conhecer todos vocês.
+2026-07-17 22:22:18.307 [correcao] [CORRIGINDO 13/113] Evento 77 — I'll also be doing whatever it takes to see you don't die.
+2026-07-17 22:22:18.402 [correcao] [CORRIGIDA 13/113] Evento 77 — Eu também farei o que for preciso para que você não morra.
+2026-07-17 22:22:18.804 [correcao] [CORRIGINDO 14/113] Evento 78 — No matter how heroic you might be in a fight,
+2026-07-17 22:22:18.900 [correcao] [CORRIGIDA 14/113] Evento 78 — Não importa o quão heróico você possa ser em uma luta,
+2026-07-17 22:22:19.301 [correcao] [CORRIGINDO 15/113] Evento 79 — it doesn't mean anything if you end up dying.
+2026-07-17 22:22:20.012 [correcao] [CORRIGIDA 15/113] Evento 79 — não significa nada se você acabar morrendo.
+2026-07-17 22:22:20.415 [correcao] [CORRIGINDO 16/113] Evento 81 — it's my job to see that everyone in this unit makes it back alive.
+2026-07-17 22:22:20.512 [correcao] [CORRIGIDA 16/113] Evento 81 — é meu trabalho garantir que todos nesta unidade voltem vivos.
+2026-07-17 22:22:20.914 [correcao] [CORRIGINDO 17/113] Evento 87 — Show me a man who wants to go and die!
+2026-07-17 22:22:21.039 [correcao] [CORRIGIDA 17/113] Evento 87 — Mostre-me um homem que quer morrer!
+2026-07-17 22:22:21.440 [correcao] [CORRIGINDO 18/113] Evento 95 — {\i1}08th Team, move out!
+2026-07-17 22:22:21.531 [correcao] [CORRIGIDA 18/113] Evento 95 — {\i1}08ª Equipe, saiam!
+2026-07-17 22:22:21.934 [correcao] [CORRIGINDO 19/113] Evento 99 — From here on, no radio transmissions are allowed.
+2026-07-17 22:22:22.029 [correcao] [CORRIGIDA 19/113] Evento 99 — A partir de agora, nenhuma transmissão de rádio será permitida.
+2026-07-17 22:22:22.432 [correcao] [CORRIGINDO 20/113] Evento 100 — {\i1}From here on, no radio transmissions are allowed.
+2026-07-17 22:22:22.530 [correcao] [CORRIGIDA 20/113] Evento 100 — {\i1}A partir de agora não serão permitidas transmissões de rádio .
+2026-07-17 22:22:22.932 [correcao] [CORRIGINDO 21/113] Evento 102 — {\i0}All communications from here on are to be pointcast only!{\i}
+2026-07-17 22:22:23.040 [correcao] [CORRIGIDA 21/113] Evento 102 — {\i0}Todas as comunicações daqui em diante devem ser apenas pontuais!{\i}
+2026-07-17 22:22:23.441 [correcao] [CORRIGINDO 22/113] Evento 103 — {\i1}All communications from here on are to be pointcast only!{\i}
+2026-07-17 22:22:23.539 [correcao] [CORRIGIDA 22/113] Evento 103 — {\i1}Todas as comunicações daqui em diante devem ser apenas pontuais!{\i}
+2026-07-17 22:22:23.941 [correcao] [CORRIGINDO 23/113] Evento 104 — {\i1}Kill all lights!{\i0}
+2026-07-17 22:22:24.045 [correcao] [CORRIGIDA 23/113] Evento 104 — {\i1}Apague todas as luzes!{\i0}
+2026-07-17 22:22:24.447 [correcao] [CORRIGINDO 24/113] Evento 105 — {\i1}Switch over to laser sensors and IR on your monitors!{\i}
+2026-07-17 22:22:24.552 [correcao] [CORRIGIDA 24/113] Evento 105 — {\i1}Mude para sensores laser e IR em seus monitores!{\i}
+2026-07-17 22:22:24.955 [correcao] [CORRIGINDO 25/113] Evento 126 — Trying to get killed right after you got here?!
+2026-07-17 22:22:25.049 [correcao] [CORRIGIDA 25/113] Evento 126 — Tentando ser morto logo depois que você chegou aqui?!
+2026-07-17 22:22:25.450 [correcao] [CORRIGINDO 26/113] Evento 130 — {\i1}It's no good!
+2026-07-17 22:22:25.548 [correcao] [CORRIGIDA 26/113] Evento 130 — {\i1}Não adianta!
+2026-07-17 22:22:25.950 [correcao] [CORRIGINDO 27/113] Evento 131 — I'm saying your piloting skill isn't up to this situation!
+2026-07-17 22:22:26.041 [correcao] [CORRIGIDA 27/113] Evento 131 — Estou dizendo que sua habilidade de pilotagem não está à altura desta situação!
+2026-07-17 22:22:26.441 [correcao] [CORRIGINDO 28/113] Evento 133 — {\i1}I don't care how you take it
+2026-07-17 22:22:26.537 [correcao] [CORRIGIDA 28/113] Evento 133 — {\i1}Eu não me importo como você reage
+2026-07-17 22:22:26.939 [correcao] [CORRIGINDO 29/113] Evento 135 — I'm not good enough to take on the enemy, huh? Well, fine!
+2026-07-17 22:22:27.374 [correcao] [CORRIGIDA 29/113] Evento 135 — Não sou bom o suficiente para enfrentar o inimigo, hein? Bem, tudo bem!
+2026-07-17 22:22:27.776 [correcao] [CORRIGINDO 30/113] Evento 139 — He says he's going after the Zaku to drive it out of our defense line!
+2026-07-17 22:22:27.867 [correcao] [CORRIGIDA 30/113] Evento 139 — Ele diz que vai atrás do Zaku para expulsá-lo da nossa linha de defesa!
+2026-07-17 22:22:28.269 [correcao] [CORRIGINDO 31/113] Evento 147 — {\i1}This doesn't handle like a GM at all!
+2026-07-17 22:22:28.362 [correcao] [CORRIGIDA 31/113] Evento 147 — {\i1}Isso não funciona como um GM!
+2026-07-17 22:22:28.764 [correcao] [CORRIGINDO 32/113] Evento 158 — {\i1}Huh? I thought he was with you.{\i0}
+2026-07-17 22:22:28.871 [correcao] [CORRIGIDA 32/113] Evento 158 — {\i1}Hein? Achei que ele estava com você.{\i0}
+2026-07-17 22:22:29.272 [correcao] [CORRIGINDO 33/113] Evento 166 — Should we send a rescue team out after him?
+2026-07-17 22:22:29.372 [correcao] [CORRIGIDA 33/113] Evento 166 — Deveríamos enviar uma equipe de resgate atrás dele?
+2026-07-17 22:22:29.774 [correcao] [CORRIGINDO 34/113] Evento 168 — If you do that so soon after he gets here,
+2026-07-17 22:22:29.868 [correcao] [CORRIGIDA 34/113] Evento 168 — Se você fizer isso logo depois que ele chegar aqui,
+2026-07-17 22:22:30.270 [correcao] [CORRIGINDO 35/113] Evento 171 — Oh, great! The navigation system's screwed up!
+2026-07-17 22:22:30.370 [correcao] [CORRIGIDA 35/113] Evento 171 — Ah, ótimo! O sistema de navegação está estragado!
+2026-07-17 22:22:30.772 [correcao] [CORRIGINDO 36/113] Evento 173 — {\fad(0,1435)}Oh, that's just great...
+2026-07-17 22:22:30.874 [correcao] [CORRIGIDA 36/113] Evento 173 — {\fad(0,1435)}Ah, isso é ótimo...
+2026-07-17 22:22:31.275 [correcao] [CORRIGINDO 37/113] Evento 174 — If he's alive, he could at least broadcast a mayday...
+2026-07-17 22:22:32.527 [correcao] [CORRIGIDA 37/113] Evento 174 — Se ele estiver vivo, ele poderia pelo menos transmitir um pedido de socorro...
+2026-07-17 22:22:32.930 [correcao] [CORRIGINDO 38/113] Evento 177 — It's barely dawn, but it's already so damn hot!
+2026-07-17 22:22:33.035 [correcao] [CORRIGIDA 38/113] Evento 177 — Mal amanheceu, mas já está muito quente!
+2026-07-17 22:22:33.437 [correcao] [CORRIGINDO 39/113] Evento 183 — I get an insubordinate master chief and a smart-ass petty officer...!
+2026-07-17 22:22:33.533 [correcao] [CORRIGIDA 39/113] Evento 183 — Eu tenho um chefe insubordinado e um suboficial espertinho...!
+2026-07-17 22:22:33.934 [correcao] [CORRIGINDO 40/113] Evento 191 — I heard the test unit was lost... Why did you do it?
+2026-07-17 22:22:34.031 [correcao] [CORRIGIDA 40/113] Evento 191 — Ouvi dizer que a unidade de teste foi perdida... Por que você fez isso?
+2026-07-17 22:22:34.432 [correcao] [CORRIGINDO 41/113] Evento 197 — No, it's not a dream anymore. Once it's on the front line...
+2026-07-17 22:22:34.536 [correcao] [CORRIGIDA 41/113] Evento 197 — Não, não é mais um sonho. Quando estiver na linha de frente...
+2026-07-17 22:22:34.937 [correcao] [CORRIGINDO 42/113] Evento 202 — Uh-oh. Big Brother, isn't it time for your medicine?
+2026-07-17 22:22:35.048 [correcao] [CORRIGIDA 42/113] Evento 202 — Ah, ah. Grande Irmão, não é hora do seu remédio?
+2026-07-17 22:22:35.450 [correcao] [CORRIGINDO 43/113] Evento 208 — She didn't have to just start shooting at me!
+2026-07-17 22:22:35.552 [correcao] [CORRIGIDA 43/113] Evento 208 — Ela não precisava simplesmente começar a atirar em mim!
+2026-07-17 22:22:35.952 [correcao] [CORRIGINDO 44/113] Evento 212 — We can't move until we get orders from the commander.
+2026-07-17 22:22:36.056 [correcao] [CORRIGIDA 44/113] Evento 212 — Não podemos nos mover até recebermos ordens do comandante.
+2026-07-17 22:22:36.458 [correcao] [CORRIGINDO 45/113] Evento 214 — {\i1}I have a personal debt to him.{\i}
+2026-07-17 22:22:36.551 [correcao] [CORRIGIDA 45/113] Evento 214 — {\i1}Tenho uma dívida pessoal com ele.{\i}
+2026-07-17 22:22:36.952 [correcao] [CORRIGINDO 46/113] Evento 215 — So, you're the team killer, Sanders the Reaper.
+2026-07-17 22:22:37.058 [correcao] [CORRIGIDA 46/113] Evento 215 — Então, você é o matador de equipe, Sanders, o Ceifador.
+2026-07-17 22:22:37.459 [correcao] [CORRIGINDO 47/113] Evento 219 — If your luck was different, you might be an officer now.
+2026-07-17 22:22:37.841 [correcao] [CORRIGIDA 47/113] Evento 219 — Se a sua sorte fosse diferente, você poderia ser um oficial agora.
+2026-07-17 22:22:38.245 [correcao] [CORRIGINDO 48/113] Evento 222 — The commander said we were to go back alive, right?
+2026-07-17 22:22:38.346 [correcao] [CORRIGIDA 48/113] Evento 222 — O comandante disse que íamos voltar vivos, certo?
+2026-07-17 22:22:38.748 [correcao] [CORRIGINDO 49/113] Evento 227 — Even clumsy pilots have clumsy ways of fighting.
+2026-07-17 22:22:38.848 [correcao] [CORRIGIDA 49/113] Evento 227 — Mesmo os pilotos desajeitados têm maneiras desajeitadas de lutar.
+2026-07-17 22:22:39.250 [correcao] [CORRIGINDO 50/113] Evento 228 — Now hurry up and get into my firing range!
+2026-07-17 22:22:39.346 [correcao] [CORRIGIDA 50/113] Evento 228 — Agora apresse-se e coloque no meu campo de tiro!
+2026-07-17 22:22:39.748 [correcao] [CORRIGINDO 51/113] Evento 239 — {\i1}B.B., I've only just landed here on Earth...
+2026-07-17 22:22:39.844 [correcao] [CORRIGIDA 51/113] Evento 239 — {\i1}B.B., acabei de pousar aqui na Terra...
+2026-07-17 22:22:40.247 [correcao] [CORRIGINDO 52/113] Evento 240 — {\i1}...and already I've had my first taste of battle!
+2026-07-17 22:22:40.347 [correcao] [CORRIGIDA 52/113] Evento 240 — {\i1}...e já tive meu primeiro gostinho de batalha!
+2026-07-17 22:22:40.748 [correcao] [CORRIGINDO 53/113] Evento 242 — {\i0}But something really awful happened out there.{\i}
+2026-07-17 22:22:40.853 [correcao] [CORRIGIDA 53/113] Evento 242 — {\i0}Mas algo realmente horrível aconteceu lá fora.{\i}
+2026-07-17 22:22:41.254 [correcao] [CORRIGINDO 54/113] Evento 243 — {\i1}Our commander got separated from us and never came back.
+2026-07-17 22:22:42.098 [correcao] [CORRIGIDA 54/113] Evento 243 — {\i1}Nosso comandante se separou de nós e nunca mais voltou.
+2026-07-17 22:22:42.499 [correcao] [CORRIGINDO 55/113] Evento 244 — {\i1}The Earth can be a harsh place.{\i0}
+2026-07-17 22:22:42.602 [correcao] [CORRIGIDA 55/113] Evento 244 — {\i1}A Terra pode ser um lugar difícil.{\i0}
+2026-07-17 22:22:43.003 [correcao] [CORRIGINDO 56/113] Evento 245 — {\i1}I wonder if I'm really gonna get through this alive...{\i0}
+2026-07-17 22:22:43.117 [correcao] [CORRIGIDA 56/113] Evento 245 — {\i1}Eu me pergunto se realmente vou passar por isso vivo...{\i0}
+2026-07-17 22:22:43.517 [correcao] [CORRIGINDO 57/113] Evento 252 — I'm thankful that mobile suit's as good as it is.
+2026-07-17 22:22:43.627 [correcao] [CORRIGIDA 57/113] Evento 252 — Estou grato que o Mobile Suit seja tão bom quanto é.
+2026-07-17 22:22:44.029 [correcao] [CORRIGINDO 58/113] Evento 254 — {\i1}Our new orders are handed down.{\i0}
+2026-07-17 22:22:44.639 [correcao] [CORRIGIDA 58/113] Evento 254 — {\i1}Nossos novos pedidos foram transmitidos.{\i0}
+2026-07-17 22:22:45.041 [correcao] [CORRIGINDO 59/113] Evento 255 — {\i1}We have to liberate a Zeon-occupied village in the hills!{\i0}
+2026-07-17 22:22:45.332 [correcao] [CORRIGIDA 59/113] Evento 255 — {\i1}Temos que libertar uma aldeia ocupada por Zeon nas colinas!{\i0}
+2026-07-17 22:22:45.733 [correcao] [CORRIGINDO 60/113] Evento 256 — {\i1}To take out the enemy's gun emplacements...{\i0}
+2026-07-17 22:22:45.828 [correcao] [CORRIGIDA 60/113] Evento 256 — {\i1}Para destruir as posições de armas do inimigo...{\i0}
+2026-07-17 22:22:46.230 [correcao] [CORRIGINDO 61/113] Evento 257 — {\i1}...we split up to try a pincer attack.{\i0}
+2026-07-17 22:22:46.326 [correcao] [CORRIGIDA 61/113] Evento 257 — {\i1}...nós nos separamos para tentar um ataque de pinça.{\i0}
+2026-07-17 22:22:46.728 [correcao] [CORRIGINDO 62/113] Evento 258 — {\i1}But then I slip up and get captured by guerillas...{\i0}
+2026-07-17 22:22:46.816 [correcao] [CORRIGIDA 62/113] Evento 258 — {\i1}Mas então eu cometi um deslize e fui capturado por guerrilheiros...{\i0}
+2026-07-17 22:22:47.219 [correcao] [CORRIGINDO 63/113] Evento 259 — {\i1}...as the attack start time draws closer and closer!{\i0}
+2026-07-17 22:22:47.344 [correcao] [CORRIGIDA 63/113] Evento 259 — {\i1}...conforme o horário de início do ataque se aproxima cada vez mais!{\i0}
+2026-07-17 22:22:47.746 [correcao] [CORRIGINDO 64/113] Evento 260 — {\i1}I can't let my team die like dogs!{\i0}
+2026-07-17 22:22:48.441 [correcao] [CORRIGIDA 64/113] Evento 260 — {\i1}Não posso deixar meu time morrer como cachorros!{\i0}
+2026-07-17 22:22:48.842 [correcao] [CORRIGINDO 65/113] Evento 261 — {\i1}Somehow, I've got to escape!{\i0}
+2026-07-17 22:22:48.942 [correcao] [CORRIGIDA 65/113] Evento 261 — {\i1}De alguma forma, eu tenho que escapar!{\i0}
+2026-07-17 22:22:49.344 [correcao] [CORRIGINDO 66/113] Evento 262 — {\i1}Next time, on Mobile Suit Gundam The 08th MS Team{\i0}
+2026-07-17 22:22:49.437 [correcao] [CORRIGIDA 66/113] Evento 262 — {\i1}Da próxima vez, no Mobile Suit Gundam The 08th MS Team{\i0}
+2026-07-17 22:22:49.837 [correcao] [CORRIGINDO 67/113] Evento 265 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}You see the dream shining within the storm.
+2026-07-17 22:22:49.945 [correcao] [CORRIGIDA 67/113] Evento 265 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Você vê o sonho brilhando dentro da tempestade.
+2026-07-17 22:22:50.346 [correcao] [CORRIGINDO 68/113] Evento 266 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+2026-07-17 22:22:50.448 [correcao] [CORRIGIDA 68/113] Evento 266 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Espere agora! Não deixe isso passar.
+2026-07-17 22:22:50.849 [correcao] [CORRIGINDO 69/113] Evento 268 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Those wounded angel wings, and gently...
+2026-07-17 22:22:50.954 [correcao] [CORRIGIDA 69/113] Evento 268 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:22:51.356 [correcao] [CORRIGINDO 70/113] Evento 269 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...pull them close to me.
+2026-07-17 22:22:51.460 [correcao] [CORRIGIDA 70/113] Evento 269 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...puxa eles para perto de mim.
+2026-07-17 22:22:51.862 [correcao] [CORRIGINDO 71/113] Evento 270 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Newborn in a corner of the endless blue sky...
+2026-07-17 22:22:51.956 [correcao] [CORRIGIDA 71/113] Evento 270 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Recém-nascido num recanto do infinito céu azul...
+2026-07-17 22:22:52.358 [correcao] [CORRIGINDO 72/113] Evento 271 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+2026-07-17 22:22:52.448 [correcao] [CORRIGIDA 72/113] Evento 271 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}O sonho está aí, e mesmo que agora seja pequeno...
+2026-07-17 22:22:52.849 [correcao] [CORRIGINDO 73/113] Evento 272 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}No matter how strong they may blow...
+2026-07-17 22:22:52.946 [correcao] [CORRIGIDA 73/113] Evento 272 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Não importa o quão forte eles possam explodir...
+2026-07-17 22:22:53.348 [correcao] [CORRIGINDO 74/113] Evento 273 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...or how icy they may be...
+2026-07-17 22:22:53.441 [correcao] [CORRIGIDA 74/113] Evento 273 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...ou quão gelados eles podem ser...
+2026-07-17 22:22:53.843 [correcao] [CORRIGINDO 75/113] Evento 274 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...those winds can never erase the dream that shines. Oh, no!
+2026-07-17 22:22:53.937 [correcao] [CORRIGIDA 75/113] Evento 274 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...esses ventos nunca poderão apagar o sonho que brilha. Oh não!
+2026-07-17 22:22:54.338 [correcao] [CORRIGINDO 76/113] Evento 275 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart!
+2026-07-17 22:22:54.433 [correcao] [CORRIGIDA 76/113] Evento 275 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}O sonho que brilha dentro do seu coração!
+2026-07-17 22:22:54.834 [correcao] [CORRIGINDO 77/113] Evento 276 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}You see the dream shining within the storm.
+2026-07-17 22:22:54.930 [correcao] [CORRIGIDA 77/113] Evento 276 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Você vê o sonho brilhando dentro da tempestade.
+2026-07-17 22:22:55.331 [correcao] [CORRIGINDO 78/113] Evento 277 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+2026-07-17 22:22:55.431 [correcao] [CORRIGIDA 78/113] Evento 277 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Espere agora! Não deixe isso passar.
+2026-07-17 22:22:55.832 [correcao] [CORRIGINDO 79/113] Evento 279 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Those wounded angel wings, and gently...
+2026-07-17 22:22:55.972 [correcao] [CORRIGIDA 79/113] Evento 279 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:22:56.373 [correcao] [CORRIGINDO 80/113] Evento 280 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...pull them close to me.{\fad(0,1000)}
+2026-07-17 22:22:56.480 [correcao] [CORRIGIDA 80/113] Evento 280 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...puxa eles para perto de mim.{\fad(0,1000)}
+2026-07-17 22:22:56.881 [correcao] [CORRIGINDO 81/113] Evento 283 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things...
+2026-07-17 22:22:56.980 [correcao] [CORRIGIDA 81/113] Evento 283 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Quando olho para trás, vejo tantas coisas...
+2026-07-17 22:22:57.382 [correcao] [CORRIGINDO 82/113] Evento 288 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All shining in my history.
+2026-07-17 22:22:57.478 [correcao] [CORRIGIDA 82/113] Evento 288 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Tudo brilhando na minha história.
+2026-07-17 22:22:57.881 [correcao] [CORRIGINDO 83/113] Evento 289 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The ones who caused me pain...
+2026-07-17 22:22:57.975 [correcao] [CORRIGIDA 83/113] Evento 289 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aqueles que me causaram dor...
+2026-07-17 22:22:58.378 [correcao] [CORRIGINDO 84/113] Evento 291 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+2026-07-17 22:22:58.474 [correcao] [CORRIGIDA 84/113] Evento 291 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Mas mesmo assim acabei conhecendo você.
+2026-07-17 22:22:58.876 [correcao] [CORRIGINDO 85/113] Evento 292 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+2026-07-17 22:22:58.974 [correcao] [CORRIGIDA 85/113] Evento 292 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Aquele que eu amo.
+2026-07-17 22:22:59.375 [correcao] [CORRIGINDO 86/113] Evento 293 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 years after, a decade from now.
+2026-07-17 22:22:59.468 [correcao] [CORRIGIDA 86/113] Evento 293 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 anos depois, daqui a uma década.
+2026-07-17 22:22:59.870 [correcao] [CORRIGINDO 87/113] Evento 296 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 years after, a decade from now.
+2026-07-17 22:22:59.968 [correcao] [CORRIGIDA 87/113] Evento 296 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}10 anos depois, daqui a uma década.
+2026-07-17 22:23:00.370 [correcao] [CORRIGINDO 88/113] Evento 298 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Stay together. When that day comes...
+2026-07-17 22:23:00.472 [correcao] [CORRIGIDA 88/113] Evento 298 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Fiquem juntos. Quando esse dia chegar...
+2026-07-17 22:23:00.873 [correcao] [CORRIGINDO 89/113] Evento 299 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+2026-07-17 22:23:00.972 [correcao] [CORRIGIDA 89/113] Evento 299 — {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+2026-07-17 22:23:01.373 [correcao] [CORRIGINDO 90/113] Evento 300 — {\fad(100,100)\blur1\bord0}You see the dream shining within the storm.
+2026-07-17 22:23:01.467 [correcao] [CORRIGIDA 90/113] Evento 300 — {\fad(100,100)\blur1\bord0}Você vê o sonho brilhando dentro da tempestade.
+2026-07-17 22:23:01.870 [correcao] [CORRIGINDO 91/113] Evento 301 — {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+2026-07-17 22:23:01.967 [correcao] [CORRIGIDA 91/113] Evento 301 — {\fad(100,100)\blur1\bord0}Espere agora! Não deixe isso passar.
+2026-07-17 22:23:02.369 [correcao] [CORRIGINDO 92/113] Evento 303 — {\fad(100,100)\blur1\bord0}Those wounded angel wings, and gently...
+2026-07-17 22:23:02.471 [correcao] [CORRIGIDA 92/113] Evento 303 — {\fad(100,100)\blur1\bord0}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:23:02.873 [correcao] [CORRIGINDO 93/113] Evento 304 — {\fad(100,100)\blur1\bord0}...pull them close to me.
+2026-07-17 22:23:02.980 [correcao] [CORRIGIDA 93/113] Evento 304 — {\fad(100,100)\blur1\bord0}...puxa eles para perto de mim.
+2026-07-17 22:23:03.382 [correcao] [CORRIGINDO 94/113] Evento 305 — {\fad(100,100)\blur1\bord0}Newborn in a corner of the endless blue sky...
+2026-07-17 22:23:03.478 [correcao] [CORRIGIDA 94/113] Evento 305 — {\fad(100,100)\blur1\bord0}Recém-nascido num recanto do infinito céu azul...
+2026-07-17 22:23:03.880 [correcao] [CORRIGINDO 95/113] Evento 306 — {\fad(100,100)\blur1\bord0}The dream is there, and even though it may now be small...
+2026-07-17 22:23:03.979 [correcao] [CORRIGIDA 95/113] Evento 306 — {\fad(100,100)\blur1\bord0}O sonho está aí, e mesmo que agora seja pequeno...
+2026-07-17 22:23:04.383 [correcao] [CORRIGINDO 96/113] Evento 308 — {\fad(100,100)\blur1\bord0}...or how icy they may be...
+2026-07-17 22:23:04.478 [correcao] [CORRIGIDA 96/113] Evento 308 — {\fad(100,100)\blur1\bord0}...ou quão gelados eles podem ser...
+2026-07-17 22:23:04.880 [correcao] [CORRIGINDO 97/113] Evento 310 — {\fad(100,100)\blur1\bord0}The dream that shines inside your heart!
+2026-07-17 22:23:04.978 [correcao] [CORRIGIDA 97/113] Evento 310 — {\fad(100,100)\blur1\bord0}O sonho que brilha dentro do seu coração!
+2026-07-17 22:23:05.379 [correcao] [CORRIGINDO 98/113] Evento 311 — {\fad(100,100)\blur1\bord0}You see the dream shining within the storm.
+2026-07-17 22:23:05.474 [correcao] [CORRIGIDA 98/113] Evento 311 — {\fad(100,100)\blur1\bord0}Você vê o sonho brilhando dentro da tempestade.
+2026-07-17 22:23:05.875 [correcao] [CORRIGINDO 99/113] Evento 312 — {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+2026-07-17 22:23:05.969 [correcao] [CORRIGIDA 99/113] Evento 312 — {\fad(100,100)\blur1\bord0}Espere agora! Não deixe isso passar.
+2026-07-17 22:23:06.371 [correcao] [CORRIGINDO 100/113] Evento 314 — {\fad(100,100)\blur1\bord0}Those wounded angel wings, and gently...
+2026-07-17 22:23:06.467 [correcao] [CORRIGIDA 100/113] Evento 314 — {\fad(100,100)\blur1\bord0}Aquelas asas de anjo feridas, e gentilmente...
+2026-07-17 22:23:06.869 [correcao] [CORRIGINDO 101/113] Evento 315 — {\fad(100,100)\blur1\bord0}...pull them close to me.{\fad(0,1000)}
+2026-07-17 22:23:06.962 [correcao] [CORRIGIDA 101/113] Evento 315 — {\fad(100,100)\blur1\bord0}...puxa eles para perto de mim.{\fad(0,1000)}
+2026-07-17 22:23:07.364 [correcao] [CORRIGINDO 102/113] Evento 316 — {\fad(100,100)\blur1\bord0}All that time that's passed me by.
+2026-07-17 22:23:07.895 [correcao] [CORRIGIDA 102/113] Evento 316 — {\fad(100,100)\blur1\bord0}Todo esse tempo que passou por mim.
+2026-07-17 22:23:08.296 [correcao] [CORRIGINDO 103/113] Evento 318 — {\fad(100,100)\blur1\bord0}When I look back, I see so many things...
+2026-07-17 22:23:08.395 [correcao] [CORRIGIDA 103/113] Evento 318 — {\fad(100,100)\blur1\bord0}Quando olho para trás, vejo tantas coisas...
+2026-07-17 22:23:08.798 [correcao] [CORRIGINDO 104/113] Evento 319 — {\fad(100,100)\blur1\bord0}...that happened to come into my life.
+2026-07-17 22:23:08.893 [correcao] [CORRIGIDA 104/113] Evento 319 — {\fad(100,100)\blur1\bord0}...isso aconteceu na minha vida.
+2026-07-17 22:23:09.295 [correcao] [CORRIGINDO 105/113] Evento 322 — {\fad(100,100)\blur1\bord0}The lost loves that were sort of hard.
+2026-07-17 22:23:09.398 [correcao] [CORRIGIDA 105/113] Evento 322 — {\fad(100,100)\blur1\bord0}Os amores perdidos que foram meio difíceis.
+2026-07-17 22:23:09.799 [correcao] [CORRIGINDO 106/113] Evento 323 — {\fad(100,100)\blur1\bord0}All shining in my history.
+2026-07-17 22:23:09.911 [correcao] [CORRIGIDA 106/113] Evento 323 — {\fad(100,100)\blur1\bord0}Tudo brilhando na minha história.
+2026-07-17 22:23:10.313 [correcao] [CORRIGINDO 107/113] Evento 324 — {\fad(100,100)\blur1\bord0}The ones who caused me pain...
+2026-07-17 22:23:10.428 [correcao] [CORRIGIDA 107/113] Evento 324 — {\fad(100,100)\blur1\bord0}Aqueles que me causaram dor...
+2026-07-17 22:23:10.830 [correcao] [CORRIGINDO 108/113] Evento 326 — {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+2026-07-17 22:23:10.926 [correcao] [CORRIGIDA 108/113] Evento 326 — {\fad(100,100)\blur1\bord0}Mas mesmo assim acabei conhecendo você.
+2026-07-17 22:23:11.327 [correcao] [CORRIGINDO 109/113] Evento 327 — {\fad(100,100)\blur1\bord0}The one that I love.
+2026-07-17 22:23:11.424 [correcao] [CORRIGIDA 109/113] Evento 327 — {\fad(100,100)\blur1\bord0}Aquele que eu amo.
