@@ -3,7 +3,10 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.traducao.domain.CategoriaConteudo;
+import org.traducao.projeto.traducao.domain.CausaRaizPendencia;
 import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
+import org.traducao.projeto.traducao.domain.ResumoPendencia;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
@@ -28,9 +31,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -68,6 +73,14 @@ public class ProcessarArquivoUseCase {
     private final AvaliadorTraducaoCache avaliadorCache;
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
+    private final ClassificadorPendenciaTelemetria classificadorPendencia;
+
+    // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
+    // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
+    // que a causa-raiz da pendência é MARCADORES_CORROMPIDOS (e não o eco que ela
+    // gera em seguida), sem alterar o caminho quente de tradução.
+    private static final String PREFIXO_TAGS_CORROMPIDAS =
+        "Fala mantida sem tradução (tags corrompidas pelo LLM): ";
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -87,7 +100,8 @@ public class ProcessarArquivoUseCase {
         SeletorEventosTraduziveis seletorEventos,
         AvaliadorTraducaoCache avaliadorCache,
         TradutorLotesService tradutorLotes,
-        MontadorTelemetriaTraducao montadorTelemetria
+        MontadorTelemetriaTraducao montadorTelemetria,
+        ClassificadorPendenciaTelemetria classificadorPendencia
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -107,6 +121,7 @@ public class ProcessarArquivoUseCase {
         this.avaliadorCache = avaliadorCache;
         this.tradutorLotes = tradutorLotes;
         this.montadorTelemetria = montadorTelemetria;
+        this.classificadorPendencia = classificadorPendencia;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -239,6 +254,24 @@ public class ProcessarArquivoUseCase {
         Map<String, String> traducoesCombinadas = new HashMap<>(cacheReaproveitavel);
         traducoesCombinadas.putAll(traducoesNovas);
 
+        // KPI de pendência (schemaVersion 1.1): estilo por texto para o balde de
+        // conteúdo, e o conjunto de falas cuja causa-raiz é marcador corrompido
+        // (extraído dos avisos já emitidos pela via de desmascaramento). Precedência:
+        // MARCADORES_CORROMPIDOS vence o ECO que ela gera em seguida.
+        Map<String, String> estiloPorTexto = new HashMap<>();
+        for (EventoLegenda evento : documento.eventos()) {
+            if (evento.temTexto()) {
+                estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
+            }
+        }
+        Set<String> falasComTagCorrompida = new HashSet<>();
+        for (String aviso : avisos) {
+            if (aviso.startsWith(PREFIXO_TAGS_CORROMPIDAS)) {
+                falasComTagCorrompida.add(aviso.substring(PREFIXO_TAGS_CORROMPIDAS.length()));
+            }
+        }
+        List<ResumoPendencia> pendenciasUnitarias = new ArrayList<>();
+
         Map<String, String> traducoesValidadas = new HashMap<>();
         LinkedHashSet<String> falhasDistintas = new LinkedHashSet<>();
         for (Map.Entry<String, String> traducao : traducoesCombinadas.entrySet()) {
@@ -260,7 +293,14 @@ public class ProcessarArquivoUseCase {
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
             avisos.add(aviso);
+
+            CausaRaizPendencia causa = falasComTagCorrompida.contains(original)
+                ? CausaRaizPendencia.MARCADORES_CORROMPIDOS
+                : classificadorPendencia.causaDeMotivoFinal(motivoFalha);
+            CategoriaConteudo categoria = classificadorPendencia.categoria(estiloPorTexto.get(original), original);
+            pendenciasUnitarias.add(new ResumoPendencia(categoria.name(), causa.name(), 1));
         }
+        List<ResumoPendencia> pendenciasPorCausa = classificadorPendencia.consolidar(pendenciasUnitarias);
 
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
         List<EntradaCache> entradasCache = new ArrayList<>();
@@ -314,7 +354,8 @@ public class ProcessarArquivoUseCase {
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
         telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,
-            cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status));
+            cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status,
+            pendenciasPorCausa));
 
         if (status == StatusArquivoTraducao.PARCIAL) {
             if (permitirRetraducao) {

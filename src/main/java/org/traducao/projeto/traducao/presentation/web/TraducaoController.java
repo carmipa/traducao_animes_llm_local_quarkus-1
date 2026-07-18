@@ -226,7 +226,7 @@ public class TraducaoController {
             nome, null, 0, 0, 0, 0L,
             java.util.List.of(motivo != null ? motivo : status.getRotulo()),
             anime, "Temporada Única", java.time.Instant.now().toString(),
-            lore, status.name()));
+            lore, status.name(), java.util.List.of()));
     }
 
     /**

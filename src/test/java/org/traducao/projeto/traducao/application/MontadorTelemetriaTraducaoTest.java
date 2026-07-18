@@ -57,7 +57,7 @@ class MontadorTelemetriaTraducaoTest {
         TelemetriaTraducao t = montador.montar(
             Path.of("MeuAnime", "legendas_originais", "ep03.ass"),
             10, 4, 6, 1234L, List.of("aviso A"), "MeuAnime", "MinhaLore",
-            StatusArquivoTraducao.CONCLUIDO);
+            StatusArquivoTraducao.CONCLUIDO, List.of());
 
         assertEquals("ep03.ass", t.nomeEpisodio());
         assertEquals("modelo-montador", t.modeloLlm());
@@ -89,7 +89,7 @@ class MontadorTelemetriaTraducaoTest {
 
         TelemetriaTraducao t = montador.montar(
             Path.of("ep.ass"), 1, 1, 0, 1L, avisosOriginais, "Anime", "Lore",
-            StatusArquivoTraducao.PARCIAL);
+            StatusArquivoTraducao.PARCIAL, List.of());
 
         avisosOriginais.add("aviso 2 posterior");
         assertEquals(List.of("aviso 1"), t.errosOcorridos(),
