@@ -242,11 +242,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria);
         MontadorTelemetriaTraducao montadorTelemetria =
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
+        ClassificadorPendenciaTelemetria classificadorPendencia =
+            new ClassificadorPendenciaTelemetria(detectorKaraoke);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
-            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria);
+            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -376,6 +378,14 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertEquals(2, tel.totalLinhas(), "duas falas traduzíveis");
         assertEquals(1, tel.falasTraduzidas(), "só 'Hello there' foi traduzida; KEEPME ficou pendente");
         assertFalse(tel.errosOcorridos().isEmpty(), "cenário parcial deve registrar avisos");
+
+        // KPI estruturado (schema 1.1): a fala 'KEEPME stays' voltou como o original
+        // (eco), sob estilo comum -> DIALOGO/ECO, quantidade 1.
+        assertEquals(1, tel.pendenciasPorCausa().size(), "uma combinação (categoria,causa) pendente");
+        var p = tel.pendenciasPorCausa().get(0);
+        assertEquals("DIALOGO", p.categoria());
+        assertEquals("ECO", p.causaRaiz());
+        assertEquals(1, p.quantidade());
     }
 
     /**

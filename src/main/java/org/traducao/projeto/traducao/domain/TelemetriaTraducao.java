@@ -34,6 +34,7 @@ public record TelemetriaTraducao(
     String temporada,
     String registradoEm,
     String loreNome,
-    String statusFinal
+    String statusFinal,
+    List<ResumoPendencia> pendenciasPorCausa
 ) {
 }

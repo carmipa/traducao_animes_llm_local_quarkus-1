@@ -1,6 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.traducao.domain.ResumoPendencia;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
@@ -76,7 +77,8 @@ public class MontadorTelemetriaTraducao {
             List<String> avisos,
             String animeNome,
             String loreNome,
-            StatusArquivoTraducao status) {
+            StatusArquivoTraducao status,
+            List<ResumoPendencia> pendenciasPorCausa) {
         return new TelemetriaTraducao(
             arquivoEntrada.getFileName().toString(),
             llmPropriedades.model(),
@@ -89,7 +91,8 @@ public class MontadorTelemetriaTraducao {
             resolvedorCache.temporadaAPartirDoNome(animeNome),
             Instant.now().toString(),
             loreNome,
-            status.name()
+            status.name(),
+            List.copyOf(pendenciasPorCausa)
         );
     }
 }
