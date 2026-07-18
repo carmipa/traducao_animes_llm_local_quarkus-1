@@ -115452,3 +115452,49 @@ Auditoria finalizada com sucesso!
 2026-07-17 22:07:36.541 [traducao]   [CONCLUÍDO] TRADUCAO LOCAL VIA LLM: 0 concluído(s), 13 parcial(is), 0 com falha/bloqueio de 13 arquivo(s).
 2026-07-17 22:07:36.542 [traducao] ========================================================================
 2026-07-17 22:07:36.544 [traducao] [RELATÓRIO FINAL] Operação: Tradução Local via LLM | Tempo total: 17min 53s | Término: 22:07:36
+2026-07-17 22:12:01.630 [correcao] Iniciando limpeza segura de cache em: C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\cache
+2026-07-17 22:12:02.808 [correcao] Resultado da limpeza: CONCLUIDO | arquivos=14 alterados=0 falhas=0
+2026-07-17 22:12:02.811 [correcao] [SUCESSO] LIMPEZA E AUDITORIA DE CACHE — status=CONCLUIDO, arquivos=14, alterados=0, corrigidos=0, pendentes=0, falhas=0
+2026-07-17 22:12:02.811 [correcao] [RELATÓRIO FINAL] Operação: Limpeza e Auditoria de Cache | Tempo total: 1,2s | Término: 22:12:02
+2026-07-17 22:12:12.207 [correcao] Iniciando revisão gramatical do cache em: C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\cache
+2026-07-17 22:12:12.666 [correcao] [ARQUIVO] [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:12.682 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:12.750 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json — 1 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:12.754 [correcao] [REVISANDO 1/1] Evento 119 | Motivo: Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original: "homem"
+2026-07-17 22:12:12.754 [correcao]   Original: A woman?
+2026-07-17 22:12:12.754 [correcao]   Tradução atual: Um homem?
+2026-07-17 22:12:13.837 [correcao] [CORRIGIDA 1/1] Evento 119
+2026-07-17 22:12:13.837 [correcao]   Antes: Um homem?
+2026-07-17 22:12:13.838 [correcao]   Depois: Uma mulher?
+2026-07-17 22:12:13.856 [correcao] [OK] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json: 1 revisão(ões) aplicadas; backup em C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\backups\correcao-cache\revisao_llm_20260717_221212_208\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3.cache.json
+2026-07-17 22:12:13.929 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.024 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.100 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.188 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.276 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.329 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.397 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.472 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.536 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.594 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3.cache.json — 0 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.665 [correcao] [ARQUIVO] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3.cache.json — 3 fala(s) suspeita(s) para revisão.
+2026-07-17 22:12:14.666 [correcao] [REVISANDO 1/3] Evento 9 | Motivo: Original indica masculino, mas participio/adjetivo predicativo está no feminino
+2026-07-17 22:12:14.667 [correcao]   Original: Komusai ready to launch, sir!
+2026-07-17 22:12:14.668 [correcao]   Tradução atual: A Komusai está pronta para ser lançada, senhor!
+2026-07-17 22:12:15.002 [correcao] [PENDENTE 1/3] Evento 9 | A proposta não reduziu os indícios: Original indica masculino, mas participio/adjetivo predicativo está no feminino; Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original: "senhora"
+2026-07-17 22:12:15.003 [correcao]   Proposta descartada: A Komusai está pronta para ser lançada, senhora!
+2026-07-17 22:12:15.004 [correcao] [REVISANDO 2/3] Evento 143 | Motivo: Original menciona irmã, mas a tradução usa irmão
+2026-07-17 22:12:15.006 [correcao]   Original: A sister. A sister.
+2026-07-17 22:12:15.007 [correcao]   Tradução atual: Um irmão.
+2026-07-17 22:12:15.203 [correcao] [CORRIGIDA 2/3] Evento 143
+2026-07-17 22:12:15.204 [correcao]   Antes: Um irmão.
+2026-07-17 22:12:15.204 [correcao]   Depois: Uma irmã.
+2026-07-17 22:12:15.207 [correcao] [REVISANDO 3/3] Evento 190 | Motivo: Original usa 'her', mas tradução aponta para masculino (ele/o/dele/para ele): "a ele"
+2026-07-17 22:12:15.208 [correcao]   Original: Tell me what her real name was.
+2026-07-17 22:12:15.209 [correcao]   Tradução atual: Ele disse para ela dizer a ele o nome dela.
+2026-07-17 22:12:15.520 [correcao] [CONFORME 3/3] Evento 190 | O LLM manteve a tradução atual.
+2026-07-17 22:12:15.536 [correcao] [OK] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3.cache.json: 1 revisão(ões) aplicadas; backup em C:\TRACKER-ANIMES\traducao_animes_llm_local_quarkus\backups\correcao-cache\revisao_llm_20260717_221212_208\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3.cache.json
+2026-07-17 22:12:15.583 [correcao] Resultado da revisão LLM: CONCLUIDO_COM_PENDENCIAS | corrigidas=2 pendentes=1 falhas=0
+2026-07-17 22:12:15.583 [correcao] [ATENÇÃO] REVISÃO GRAMATICAL DO CACHE — status=CONCLUIDO_COM_PENDENCIAS, arquivos=14, alterados=2, corrigidos=2, pendentes=1, falhas=0
+2026-07-17 22:12:15.584 [correcao] [PRÓXIMO PASSO] Avance para a Opção 6. Ela sincronizará este cache mais novo no ASS antes da revisão.
+2026-07-17 22:12:15.585 [correcao] [RELATÓRIO FINAL] Operação: Revisão Gramatical do Cache (LLM) | Tempo total: 3,4s | Término: 22:12:15
