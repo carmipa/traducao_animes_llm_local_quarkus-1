@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.guiltycrown;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -71,9 +73,36 @@ public class ContextoGuiltyCrown implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Shu Ouma", "Inori Yuzuriha", "Gai Tsutsugami", "Ayase Shinomiya", "Tsugumi",
-            "Funeral Parlor", "Undertaker", "Void Genome", "Void", "GHQ",
-            "Apocalypse Virus", "Lost Christmas", "Endlave", "Crystallization"
+            "Shu Ouma", "Inori Yuzuriha", "Gai Tsutsugami",
+            "Mana Ouma", "Ayase Shinomiya", "Tsugumi",
+            "Yahiro Samukawa", "Hare Menjou", "Souta Tamadate",
+            "Arisa Kuhouin", "Daryl Yan", "Makoto Waltz Segai",
+            "Shuichiro Keido", "Keido", "Funeral Parlor",
+            "Undertaker", "GHQ", "Anti Bodies",
+            "Da'ath", "Void", "Voids",
+            "Void Genome", "King's Power", "Apocalypse Virus",
+            "Apocalypse", "Lost Christmas", "Endlave",
+            "Leukocyte", "Genomic Resonance", "Crystallization",
+            "Guilty Crown"
+        );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico de terminologia própria da obra
+     * (nomes/termos que a lore manda manter no original).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return Map.ofEntries(
+            Map.entry("Vazio", "Void"),
+            Map.entry("Vazios", "Voids"),
+            Map.entry("Genoma do Vazio", "Void Genome"),
+            Map.entry("Funerária", "Funeral Parlor"),
+            Map.entry("Vírus do Apocalipse", "Apocalypse Virus"),
+            Map.entry("Natal Perdido", "Lost Christmas"),
+            Map.entry("Coroa Culpada", "Guilty Crown")
         );
     }
 }
