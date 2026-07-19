@@ -98,4 +98,18 @@ class CorretorLoreDeterministicoTest {
         assertTrue(corrigida.isPresent());
         assertEquals("Shin! Shinei Nouzen!", corrigida.get());
     }
+
+    @Test
+    @DisplayName("NÃO troca 'canela' por Shin quando o nome Shin já está correto no PT (evita cinnamon)")
+    void naoTrocaCanelaQuandoShinJaPresenteNoPt() {
+        // EN tem o nome "Shin" (correto) e "canela" aqui é a especiaria, não o nome mal traduzido.
+        // Como o PT já tem "Shin" na grafia certa, o gatilho não deve disparar.
+        var corrigida = corretor.corrigir(
+            "Shin, add cinnamon.",
+            "Shin, adicione canela.",
+            Map.of());
+
+        assertTrue(corrigida.isEmpty(),
+            "com 'Shin' já correto no PT, 'canela' é a especiaria e não pode virar Shin");
+    }
 }

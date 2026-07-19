@@ -91,6 +91,17 @@ class IsoladorQuebraDialogoTest {
     }
 
     @Test
+    @DisplayName("isolar preserva espaço duplo pré-existente ao isolar quebra mid-sentence")
+    void isolarPreservaEspacoDuploPreExistente() {
+        // O espaço duplo em "A  B" é do original, não foi criado pela remoção do \N;
+        // isolar a quebra não pode colapsar espaçamento não relacionado.
+        IsoladorQuebraDialogo.FalaIsolada r = isolador.isolar("A  B \\Ncontinua");
+
+        assertEquals("A  B continua", r.textoSemQuebra());
+        assertEquals(1, r.quebras());
+    }
+
+    @Test
     @DisplayName("isolar+reaplicar preserva o texto visível (round-trip da quebra)")
     void roundTripPreservaTextoVisivel() {
         String original = "Why do we have to put up \\Nwith this";
