@@ -172,4 +172,46 @@ class EnforcadorTermosLoreTest {
             "Pilote a Valkyrie.",
             enforcador.reforcar("Pilot the Valkyrie.", "Pilote a Veritech.", MAPA_MACROSS));
     }
+
+    @Test
+    @DisplayName("Macross Delta: restaura Walküre/Var Syndrome/Delta Flight")
+    void restauraMacrossDelta() {
+        var mapa = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacrossDelta.mapa();
+        assertEquals(
+            "A Walküre canta contra a Var Syndrome.",
+            enforcador.reforcar(
+                "Walküre sings against the Var Syndrome.",
+                "A Walkure canta contra a Síndrome Var.",
+                mapa));
+        assertEquals(
+            "Delta Flight protege o show.",
+            enforcador.reforcar(
+                "Delta Flight protects the show.",
+                "Esquadrão Delta protege o show.",
+                mapa));
+        assertEquals(
+            "Yami_Q_Ray enfrenta Heimdall na Macross Gigant.",
+            enforcador.reforcar(
+                "Yami_Q_Ray faces Heimdall on the Macross Gigant.",
+                "Yami Q-Ray enfrenta Heimdal na Gigante Macross.",
+                mapa));
+    }
+
+    @Test
+    @DisplayName("Guilty Crown: restaura Funerária/Vazio/Coveiro canônicos")
+    void restauraGuiltyCrown() {
+        var mapa = org.traducao.projeto.contexto.lore.guiltycrown.CorrecoesTerminologiaGuiltyCrown.mapa();
+        assertEquals(
+            "Ele entrou na Funeral Parlor com o Void Genome.",
+            enforcador.reforcar(
+                "He joined Funeral Parlor with the Void Genome.",
+                "Ele entrou na Funerária com o Genoma do Vazio.",
+                mapa));
+        assertEquals(
+            "Undertaker lidera o ataque.",
+            enforcador.reforcar(
+                "Undertaker leads the attack.",
+                "Coveiro lidera o ataque.",
+                mapa));
+    }
 }
