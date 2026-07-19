@@ -131,4 +131,45 @@ class EnforcadorTermosLoreTest {
             MAPA_ZETA);
         assertEquals("Pode ser o Axis?", r);
     }
+
+    private static final Map<String, String> MAPA_ZZ = Map.of(
+        "Eixo", "Axis",
+        "Titãs", "Titans",
+        "Novo Tipo", "Newtype",
+        "Plê", "Ple",
+        "Plee", "Ple");
+
+    @Test
+    @DisplayName("ZZ: restaura Eixo->Axis e Plê->Ple")
+    void restauraAxisEPleZz() {
+        assertEquals(
+            "Tripulantes da Argama, eu sou Mashymre Cello do Axis.",
+            enforcador.reforcar(
+                "Crew of the Argama, I am Mashymre Cello of Axis.",
+                "Tripulantes da Argama, eu sou Mashymre Cello do Eixo.",
+                MAPA_ZZ));
+        assertEquals(
+            "Por favor, Ple!",
+            enforcador.reforcar("Please, Ple!", "Por favor, Plê!", MAPA_ZZ));
+    }
+
+    private static final Map<String, String> MAPA_MACROSS = Map.of(
+        "Valquíria", "Valkyrie",
+        "Valquiria", "Valkyrie",
+        "Veritech", "Valkyrie",
+        "Zentraedi", "Zentradi");
+
+    @Test
+    @DisplayName("Macross: restaura Valquíria->Valkyrie e bloqueia Veritech")
+    void restauraValkyrieMacross() {
+        assertEquals(
+            "A Valkyrie transformou em Battroid.",
+            enforcador.reforcar(
+                "The Valkyrie transformed into Battroid.",
+                "A Valquíria transformou em Battroid.",
+                MAPA_MACROSS));
+        assertEquals(
+            "Pilote a Valkyrie.",
+            enforcador.reforcar("Pilot the Valkyrie.", "Pilote a Veritech.", MAPA_MACROSS));
+    }
 }

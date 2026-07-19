@@ -17,4 +17,18 @@ public class ContextoMacrossFrontierFilmes implements ProvedorContexto {
     @Override public String getId() { return "macross_frontier_filmes"; }
     @Override public String getNomeExibicao() { return "Macross Frontier: Filmes (False Songstress / Wings of Farewell)"; }
     @Override public String obterPromptSistema() { return PROMPT; }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
+     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public java.util.Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaMacross.mapa();
+    }
+
 }
