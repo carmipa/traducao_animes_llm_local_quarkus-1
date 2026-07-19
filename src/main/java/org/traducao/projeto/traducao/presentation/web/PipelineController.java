@@ -45,16 +45,19 @@ public class PipelineController {
     private final LlmPort llmPort;
     private final GerenciadorContexto gerenciadorContexto;
     private final LlmProperties llmProperties;
+    private final CatalogoObras catalogoObras;
 
     public PipelineController(
             FilaExecucaoPipeline filaExecucao,
             LlmPort llmPort,
             GerenciadorContexto gerenciadorContexto,
-            LlmProperties llmProperties) {
+            LlmProperties llmProperties,
+            CatalogoObras catalogoObras) {
         this.filaExecucao = filaExecucao;
         this.llmPort = llmPort;
         this.gerenciadorContexto = gerenciadorContexto;
         this.llmProperties = llmProperties;
+        this.catalogoObras = catalogoObras;
     }
 
     /**
@@ -121,8 +124,19 @@ public class PipelineController {
     @GetMapping("/contextos")
     public ResponseEntity<List<ContextoResponse>> listarContextos() {
         String idPadrao = gerenciadorContexto.getIdContextoPadrao();
+        // Enriquece com franquia (grupo) + nome padronizado e ordena por SEÇÃO (rótulo
+        // do grupo, ou o próprio nome quando título solto) e depois pela ordem cronológica
+        // dentro do grupo — a SPA só precisa criar os <optgroup> na troca de grupo.
         List<ContextoResponse> lista = gerenciadorContexto.getProvedores().stream()
-                .map(p -> new ContextoResponse(p.getId(), p.getNomeExibicao(), p.getId().equals(idPadrao)))
+                .map(p -> new ContextoResponse(
+                        p.getId(),
+                        catalogoObras.nomePadronizado(p.getId(), p.getNomeExibicao()),
+                        catalogoObras.grupo(p.getNomeExibicao()),
+                        p.getId().equals(idPadrao)))
+                .sorted(java.util.Comparator
+                        .comparing((ContextoResponse c) -> c.grupo().isEmpty() ? c.nome() : c.grupo(),
+                                String.CASE_INSENSITIVE_ORDER)
+                        .thenComparingInt(c -> catalogoObras.ordem(c.id())))
                 .toList();
         return ResponseEntity.ok(lista);
     }

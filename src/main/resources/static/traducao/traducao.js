@@ -1,4 +1,5 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
+import { montarOpcoesContextos } from '../js/selectContextos.js';
 
 let contextosCarregados = false;
 
@@ -94,15 +95,11 @@ async function carregarContextos() {
         }
 
         select.innerHTML = '';
-        contextos.forEach(ctx => {
-            const opt = document.createElement('option');
-            opt.value = ctx.id;
-            opt.textContent = ctx.nome;
-            // Pré-seleciona o contexto padrão do servidor (ex.: DanMachi) em vez de
-            // deixar o navegador escolher a primeira opção pela ordem alfabética,
-            // o que faria a tradução usar a lore errada sem o usuário perceber.
+        // Agrupa por franquia (<optgroup>) na ordem já vinda do backend. Pré-seleciona o
+        // contexto padrão do servidor (ex.: DanMachi) em vez de deixar o navegador pegar a
+        // primeira opção, o que faria a tradução usar a lore errada sem o usuário perceber.
+        montarOpcoesContextos(select, contextos, (opt, ctx) => {
             if (ctx.padrao) opt.selected = true;
-            select.appendChild(opt);
         });
 
         contextosCarregados = true;
