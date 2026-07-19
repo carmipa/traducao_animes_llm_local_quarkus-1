@@ -16,6 +16,10 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 /**
  * PROPÓSITO DE NEGÓCIO: orquestra a auditoria técnica de um lote de vídeos
@@ -39,6 +43,12 @@ import java.util.List;
 public class AnalisarMidiaUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(AnalisarMidiaUseCase.class);
+    /**
+     * Teto de ffprobe simultâneos. Cada ffprobe é I/O de disco independente por arquivo e
+     * desacoplado do LLM/GPU; limitar evita saturar disco/CPU numa pasta grande de episódios.
+     */
+    private static final int LIMITE_FFPROBE_PARALELO =
+        Math.max(2, Math.min(8, Runtime.getRuntime().availableProcessors()));
 
     private final FfprobeAdapter ffprobeAdapter;
     private final TelemetriaService telemetriaService;
@@ -95,15 +105,36 @@ public class AnalisarMidiaUseCase {
 
         BarraProgressoAnalise barra = new BarraProgressoAnalise();
         barra.iniciar(arquivosAnalisar.size(), "Analisando vídeos");
-        try {
+        // Fan-out do ffprobe em virtual threads com paralelismo limitado (Semaphore). Só o
+        // ffprobe — I/O independente por arquivo — roda concorrente; a coleta (telemetria,
+        // barra, agregação) acontece ORDENADA na thread principal, sem contenção nem corrida.
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Semaphore limite = new Semaphore(LIMITE_FFPROBE_PARALELO);
+            List<Future<AuditoriaResultado>> futuros = new ArrayList<>(arquivosAnalisar.size());
             for (Path arquivo : arquivosAnalisar) {
+                futuros.add(executor.submit(() -> {
+                    limite.acquire();
+                    try {
+                        return analisarArquivo(arquivo);
+                    } finally {
+                        limite.release();
+                    }
+                }));
+            }
+            for (int i = 0; i < arquivosAnalisar.size(); i++) {
+                Path arquivo = arquivosAnalisar.get(i);
                 try {
-                    AuditoriaResultado resultado = analisarArquivo(arquivo);
+                    AuditoriaResultado resultado = futuros.get(i).get();
                     resultados.add(resultado);
                     registrarNaTelemetria(resultado, entrada);
-                } catch (Exception e) {
-                    log.error("Falha ao analisar o arquivo {}: {}", arquivo.getFileName(), e.getMessage(), e);
-                    falhas.add(new FalhaAnalise(arquivo.getFileName().toString(), e.getMessage()));
+                } catch (ExecutionException e) {
+                    Throwable causa = e.getCause() != null ? e.getCause() : e;
+                    log.error("Falha ao analisar o arquivo {}: {}", arquivo.getFileName(), causa.getMessage(), causa);
+                    falhas.add(new FalhaAnalise(arquivo.getFileName().toString(), causa.getMessage()));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Análise interrompida no arquivo {}", arquivo.getFileName());
+                    falhas.add(new FalhaAnalise(arquivo.getFileName().toString(), "Análise interrompida"));
                 } finally {
                     barra.passo();
                 }
