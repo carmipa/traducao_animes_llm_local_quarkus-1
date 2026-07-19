@@ -120,6 +120,10 @@ public class RecuperarPendenciaGoogleService {
                     return false;
                 }
                 inicioDeFrase = terminaFrase;
+            } else if (terminaFrase) {
+                // Token de pontuação pura que encerra a frase (ex.: " . "): a próxima palavra
+                // é início de frase e não pode ser confundida com nome próprio obrigatório.
+                inicioDeFrase = true;
             }
         }
         return true;

@@ -85,4 +85,17 @@ class RecuperarPendenciaGoogleServiceTest {
 
         assertTrue(r.isEmpty());
     }
+
+    @Test
+    @DisplayName("ligado: pontuação isolada encerra a frase; a 1ª palavra da frase seguinte não é nome próprio")
+    void pontuacaoIsoladaEncerraFrase() {
+        // "London" abre a 2ª frase (após o ponto isolado) e foi legitimamente traduzido para
+        // "Londres"; não pode ser tratado como nome próprio obrigatório e reprovar a recuperação.
+        FallbackTraducaoOnlinePort porta = o -> Optional.of("Ele saiu . Londres chama");
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("He left . London calls"));
+
+        assertEquals("Ele saiu . Londres chama", r.get("He left . London calls"),
+            "palavra inicial da frase após pontuação isolada não é nome próprio obrigatório");
+    }
 }
