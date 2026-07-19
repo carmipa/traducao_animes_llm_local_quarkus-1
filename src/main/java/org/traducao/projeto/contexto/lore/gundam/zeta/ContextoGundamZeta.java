@@ -3,6 +3,7 @@ package org.traducao.projeto.contexto.lore.gundam.zeta;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
 
 import java.util.Map;
 import java.util.Set;
@@ -116,11 +117,13 @@ public class ContextoGundamZeta implements ProvedorContexto {
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return Map.of(
-            "Titãs", "Titans",
-            "Titas", "Titans",
-            "Quatro", "Quattro",
-            "Eixo", "Axis"
-        );
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Titãs", "Titans"),
+            Map.entry("Titas", "Titans"),
+            Map.entry("Quatro", "Quattro"),
+            Map.entry("Eixo", "Axis"),
+            Map.entry("Cem Estilos", "Hyaku Shiki"),
+            Map.entry("O O", "The O")
+        ));
     }
 }

@@ -7,11 +7,10 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore (Opção 7) para Gundam ZZ — nomes canônicos
- * e mapa determinístico alinhados à Tradução Local.
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional para Gundam ZZ (Double Zeta).
  *
- * <p>INVARIANTES DO DOMÍNIO: Axis ≠ Eixo; Titans ≠ Titãs; Newtype ≠ Novo Tipo;
- * Ple ≠ Plê; Quin Mantha ≠ Rainha Mansa; Double Zeta ≠ Zeta Duplo.
+ * <p>INVARIANTES DO DOMÍNIO: Axis ≠ Eixo; Titans ≠ Titãs; Ple ≠ Plê;
+ * Quin Mantha ≠ Rainha Mansa; ZZ Gundam ≠ Zeta Duplo; Newtype ≠ Novo Tipo.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -20,42 +19,68 @@ public class ContextoRevisaoLoreGundamZZ implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
         - Obra: Mobile Suit Gundam ZZ / Double Zeta, U.C. 0088, Neo Zeon / Axis.
-        - Regra: nomes canonicos NAO sao localizados. Corrija so grafia de lore.
-        - Personagens: Judau Ashta, Leina Ashta, Roux Louka, Elle Vianno, Beecha Oleg, Mondo Agake,
-          Iino Abbav, Haman Karn, Lady Haman, Mashymre Cello, Chara Soon, Glemy Toto, Bright Noa,
-          Fa Yuiry, Kamille Bidan, Wong Lee, Elpeo Ple (NUNCA Plê), Ple Two.
-        - Faccoes: A.E.U.G., Neo Zeon, Axis (NUNCA Eixo), Titans (NUNCA Titãs), Earth Federation,
-          Karaba, Anaheim Electronics, Blue Corps.
-        - Naves/lugares: Argama, Nahel Argama, Shangri-La, Axis, Endra, Sadalahn, Gwanban, Dublin, Core 3.
-        - Mecha: ZZ Gundam, Double Zeta, Zeta Gundam, Gundam Mk-II, Hyaku Shiki, Qubeley, Qubeley Mk-II,
-          Quin Mantha (NUNCA Rainha Mansa), Hamma-Hamma, R-Jarja, Dreissen, Bawoo, Gaza-C, Gaza-D.
-        - Termos: Newtype (NUNCA Novo Tipo), Cyber-Newtype, Psycommu, Minovsky, mobile suit, mobile armor.
-        - Alertas: Double Zeta nao vira "Zeta Duplo"; Axis nao vira "Eixo"; Lady Haman nao vira "Senhorita Haman";
-          Quin Mantha nao vira "Rainha Mansa"; Ple nao vira "Plê"; A.E.U.G. mantem pontos.
+        - Regra: corrigir APENAS nomenclatura. Sequela direta de Zeta.
+
+        === Personagens ===
+        - Judau Ashta (m), Leina Ashta (f), Roux Louka (f), Elle Vianno (f),
+          Beecha Oleg (m), Mondo Agake (m), Iino Abbav (m),
+          Haman Karn / Lady Haman (f), Mashymre Cello (m), Chara Soon (f),
+          Glemy Toto (m), Bright Noa (m), Fa Yuiry (f), Kamille Bidan (m),
+          Wong Lee (m), Elpeo Ple (f — NUNCA Plê), Ple Two (f).
+
+        === Faccoes / naves / lugares ===
+        - A.E.U.G. / AEUG; Neo Zeon; Axis (NUNCA Eixo); Titans (NUNCA Titãs);
+          Earth Federation; Karaba; Anaheim Electronics; Blue Corps; Glemy Faction.
+        - Argama; Nahel Argama; Shangri-La; Axis; Endra; Sadalahn; Dublin; Core 3; Moon Moon.
+
+        === Mecha ===
+        - ZZ Gundam (NUNCA Zeta Duplo); Double Zeta nao vira "Zeta Duplo";
+          Zeta Gundam; Gundam Mk-II; Hyaku Shiki;
+          Qubeley / Qubeley Mk-II; Quin Mantha (NUNCA Rainha Mansa — Quin Mantha nao vira "Rainha Mansa");
+          Hamma Hamma; R-Jarja; Dreissen; Bawoo; Zaku III.
+
+        === Termos UC / formas-ruim ===
+        - Newtype (NUNCA Novo Tipo); Cyber-Newtype; Oldtype; Psycommu; Minovsky;
+          Mobile Suit / Mobile Armor.
+        - Axis nao vira "Eixo"; Lady Haman nao vira "Senhorita Haman";
+          Eixo → Axis; Titãs → Titans; Plê → Ple; Rainha Mansa → Quin Mantha;
+          Zeta Duplo → ZZ Gundam; Novo Tipo → Newtype.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
 
-    @Override public String getId() { return "gundam_zz"; }
-    @Override public String getNomeExibicao() { return "Mobile Suit Gundam ZZ - Revisao de Lore"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+    @Override
+    public String getId() {
+        return "gundam_zz";
+    }
+
+    @Override
+    public String getNomeExibicao() {
+        return "Mobile Suit Gundam ZZ - Revisao de Lore";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mesmo mapa determinístico da tradução ZZ.
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico ZZ na Opção 7 (núcleo UC + extras ZZ).
      *
-     * <p>INVARIANTES DO DOMÍNIO: Eixo/Titãs/Novo Tipo/Plê → canônicos.
+     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local ZZ.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return Map.of(
-            "Eixo", "Axis",
-            "Titãs", "Titans",
-            "Titas", "Titans",
-            "Novo Tipo", "Newtype",
-            "Plê", "Ple",
-            "Plee", "Ple"
-        );
+        return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
+            Map.entry("Eixo", "Axis"),
+            Map.entry("Titãs", "Titans"),
+            Map.entry("Titas", "Titans"),
+            Map.entry("Plê", "Ple"),
+            Map.entry("Plee", "Ple"),
+            Map.entry("Rainha Mansa", "Quin Mantha"),
+            Map.entry("Zeta Duplo", "ZZ Gundam")
+        ));
     }
 }

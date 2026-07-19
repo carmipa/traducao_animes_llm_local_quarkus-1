@@ -66,11 +66,15 @@ public class ContextoGundamZZ implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Judau Ashta", "Leina Ashta", "Haman Karn", "Roux Louka", "Glemy Toto",
-            "Mashymre Cello", "Chara Soon", "Bright Noa", "Elpeo Ple", "Ple Two",
-            "ZZ Gundam", "Qubeley", "Shangri-La", "Argama", "Neo Zeon", "Axis", "Titans",
+            "Judau Ashta", "Leina Ashta", "Haman Karn", "Roux Louka", "Elle Vianno",
+            "Beecha Oleg", "Mondo Agake", "Iino Abbav", "Glemy Toto",
+            "Mashymre Cello", "Chara Soon", "Bright Noa", "Fa Yuiry", "Kamille Bidan",
+            "Wong Lee", "Elpeo Ple", "Ple Two",
+            "ZZ Gundam", "Zeta Gundam", "Gundam Mk-II", "Qubeley", "Quin Mantha",
+            "Hamma Hamma", "Shangri-La", "Argama", "Nahel Argama",
+            "Neo Zeon", "Axis", "Titans", "AEUG", "A.E.U.G.",
             "Newtype", "Cyber-Newtype", "Oldtype", "Minovsky", "Mobile Suit", "Mobile Armor",
-            "Spacenoid"
+            "Spacenoid", "Psycommu"
         );
     }
 
