@@ -14,6 +14,7 @@ import { initCura } from '../cura/cura.js?v=3.0';
 import { initRevisaoLore } from '../revisaoLore/revisaoLore.js?v=3.1';
 import { initTrocaTipoLegenda } from '../trocaTipoLegenda/trocaTipoLegenda.js?v=3.0';
 import { initRemuxer } from '../remuxer/remuxer.js?v=3.1';
+import { montarOpcoesContextos } from './selectContextos.js';
 import { initMapa } from '../mapa/mapa.js?v=5.0';
 import { initTelemetria } from '../telemetria/telemetria.js?v=3.1';
 import { initDocumentacao } from '../documentacao/documentacao.js?v=3.0';
@@ -923,17 +924,15 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
                 ? contextosRevisaoLore
                 : contextos;
 
-            fonteContextos.forEach(ctx => {
-                const opt = document.createElement('option');
-                opt.value = ctx.id;
-                opt.textContent = ctx.nome;
+            // Agrupa por franquia (<optgroup>) via helper compartilhado. Contextos de
+            // revisão de lore ainda não trazem `grupo` (2º passo) → caem como opções soltas.
+            montarOpcoesContextos(select, fonteContextos, (opt, ctx) => {
                 if (ctx.termoMetadata) {
                     opt.dataset.metadataQuery = ctx.termoMetadata;
                 }
                 if (!ehAuxiliar && !ehRevisaoLore && ctx.padrao) {
                     opt.selected = true;
                 }
-                select.appendChild(opt);
             });
         });
 
