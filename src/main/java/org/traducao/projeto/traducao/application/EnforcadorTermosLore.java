@@ -2,6 +2,7 @@ package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,8 @@ import java.util.regex.Pattern;
  *       correspondente — nunca altera uma tradução legítima que não veio daquele termo.</li>
  *   <li>Comparações por fronteira de palavra, ignorando caixa; o termo canônico é inserido
  *       exatamente como definido na lore.</li>
+ *   <li>Aplica entradas do mapa da frase mais longa para a mais curta — evita que
+ *       "Vazio"→"Void" destrua "Genoma do Vazio"→"Void Genome" antes da frase completa.</li>
  *   <li>Nunca pode deixar a linha PIOR: mapa vazio ou sem casamento devolve o texto
  *       traduzido inalterado (pior caso = comportamento de hoje). Classe sem estado.</li>
  * </ul>
@@ -50,7 +53,12 @@ public class EnforcadorTermosLore {
             return traduzido;
         }
         String resultado = traduzido;
-        for (Map.Entry<String, String> par : correcoes.entrySet()) {
+        // Frases longas primeiro: "Genoma do Vazio" antes de "Vazio".
+        var pares = correcoes.entrySet().stream()
+            .sorted(Comparator.comparingInt((Map.Entry<String, String> e) ->
+                e.getKey() == null ? 0 : e.getKey().length()).reversed())
+            .toList();
+        for (Map.Entry<String, String> par : pares) {
             String formaRuim = par.getKey();
             String canonico = par.getValue();
             if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
