@@ -28,8 +28,8 @@ public class ContextoDanMachiS2 implements ProvedorContexto {
           Freya Familia, Loki Familia. Manter "Familia" como termo da obra.
         - Personagens (gênero): Bell Cranel (m), Hestia (f), Liliruca Arde / Lili (f),
           Welf Crozzo (m), Mikoto Yamato (f), Haruhime Sanjouno (f), Aisha Belka (f),
-          Phryne Jamil (f), Ishtar (f), Freya (f), Hermes (m), Ais Wallenstein (f),
-          Syr Flova (f), Ryuu Lion (f), Ottar (m), Hyakinthos Clio (m).
+          Phryne Jamil (f), Ishtar (f), Freya (f), Hermes (m), Aiz Wallenstein (f),
+          Syr Flover (f), Ryu Lion (f), Ottar (m), Hyakinthos Clio (m).
         - Termos: Falna, Status, Level, War Game, Dungeon, Excelia, Magic Sword, Crozzo Magic Sword.
         - Regras: Bell Cranel ≠ "sino"; Haruhime não adaptar; Ishtar/Freya/Hermes mantêm grafia;
           Lili = apelido de Liliruca Arde.
@@ -62,7 +62,7 @@ public class ContextoDanMachiS2 implements ProvedorContexto {
     public Set<String> termosProtegidos() {
         return Set.of(
             "Bell Cranel", "Hestia", "Liliruca Arde", "Lili", "Welf Crozzo", "Mikoto Yamato",
-            "Haruhime Sanjouno", "Aisha Belka", "Ishtar", "Freya", "Hermes", "Syr Flova",
+            "Haruhime Sanjouno", "Aisha Belka", "Ishtar", "Freya", "Hermes", "Syr Flover",
             "Orario", "Dungeon", "Falna", "War Game"
         );
     }

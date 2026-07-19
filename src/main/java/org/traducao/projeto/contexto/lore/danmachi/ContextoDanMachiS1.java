@@ -21,16 +21,16 @@ public class ContextoDanMachiS1 implements ProvedorContexto {
     private static final String LORE = """
         - Obra: Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 1 (DanMachi I).
         - Arco: Bell Cranel chega a Orario, encontra a deusa Hestia, forma a Hestia Familia,
-          conhece Ais Wallenstein e enfrenta o Minotaur no Dungeon.
+          conhece Aiz Wallenstein e enfrenta o Minotaur no Dungeon.
         - Local central: Orario (cidade-labirinto sobre o Dungeon); Babel; Guilda; Hostess of Fertility.
         - Termos de mundo (manter quando forem lore): Dungeon, Familia, Falna, Status, Level, Skill,
           Magic, Excelia, Adventurer, War Game. "Familia" sem acento como nome de grupo (Hestia Familia).
         - Personagens (gênero): Bell Cranel (m), Hestia (f), Liliruca Arde / Lili (f), Welf Crozzo (m),
-          Mikoto Yamato (f), Ais Wallenstein (f), Eina Tulle (f), Syr Flova (f), Ryuu Lion (f),
+          Mikoto Yamato (f), Aiz Wallenstein (f), Eina Tulle (f), Syr Flover (f), Ryu Lion (f),
           Finn Deimne (m), Riveria Ljos Alf (f), Gareth Landrock (m), Bete Loga (m),
           Tiona Hiryute (f), Tione Hiryute (f), Lefiya Viridis (f), Ottar (m), Freya (f).
         - Regras de nomes: Liliruca Arde NUNCA "Lilisuka"; Bell Cranel não vira "sino";
-          Ais Wallenstein = Sword Princess / Princesa Espadachim de forma consistente;
+          Aiz Wallenstein = Sword Princess / Princesa Espadachim de forma consistente;
           Mikoto Yamato (ordem ocidental: prenome + sobrenome).
         - Armas/termos: Hestia Knife, Firebolt, Argonaut, Minotaur, Goliath, Black Goliath.
         - Tom: aventura leve, romance tímido, Bell sincero; Hestia carinhosa/ciumenta.
@@ -62,7 +62,7 @@ public class ContextoDanMachiS1 implements ProvedorContexto {
     public Set<String> termosProtegidos() {
         return Set.of(
             "Bell Cranel", "Hestia", "Liliruca Arde", "Lili", "Welf Crozzo", "Mikoto Yamato",
-            "Ais Wallenstein", "Eina Tulle", "Syr Flova", "Ryuu Lion", "Firebolt", "Hestia Knife",
+            "Aiz Wallenstein", "Eina Tulle", "Syr Flover", "Ryu Lion", "Firebolt", "Hestia Knife",
             "Orario", "Dungeon", "Falna", "Familia"
         );
     }

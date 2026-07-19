@@ -23,11 +23,11 @@ public class ContextoDanMachiOrion implements ProvedorContexto {
         - Premissa: a deusa Artemis chega a Orario; Bell e companheiros enfrentam uma ameaça
           ligada a um monstro ancestral e a uma flecha/ritual divino.
         - Locais: Orario, Dungeon, arredores / vilarejo ligado à trama do filme.
-        - Personagens (gênero): Bell Cranel (m), Hestia (f), Artemis (f), Ais Wallenstein (f),
+        - Personagens (gênero): Bell Cranel (m), Hestia (f), Artemis (f), Aiz Wallenstein (f),
           Hermes (m), Liliruca Arde / Lili (f), Welf Crozzo (m), Mikoto Yamato (f),
           Haruhime Sanjouno (f), Finn Deimne (m), Riveria Ljos Alf (f), Lefiya Viridis (f).
         - Regras: Liliruca Arde NUNCA "Liriruca" nem "Lilisuka"; Bell ≠ "sino";
-          Artemis/Hermes/Hestia mantêm grafia divina; Ais = Sword Princess de forma consistente.
+          Artemis/Hermes/Hestia mantêm grafia divina; Aiz = Sword Princess de forma consistente.
         - Termos: Familia, Falna, Dungeon, Status, Level, Orario.
         - Tom: aventura cinematográfica, humor leve e momentos heroicos.
         """;
@@ -57,7 +57,7 @@ public class ContextoDanMachiOrion implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Bell Cranel", "Hestia", "Artemis", "Ais Wallenstein", "Hermes",
+            "Bell Cranel", "Hestia", "Artemis", "Aiz Wallenstein", "Hermes",
             "Liliruca Arde", "Lili", "Orario", "Dungeon", "Falna"
         );
     }

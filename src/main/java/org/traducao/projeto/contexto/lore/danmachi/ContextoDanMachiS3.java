@@ -10,7 +10,7 @@ import java.util.Set;
  * PROPÓSITO DE NEGÓCIO: lore da 3ª temporada de DanMachi (arco Xenos) para
  * preservar nomes de monstros inteligentes e facções.
  *
- * <p>INVARIANTES DO DOMÍNIO: Xenos, Wiene, Fels, Dix Perdix, Asterius; Liliruca Arde.
+ * <p>INVARIANTES DO DOMÍNIO: Xenos, Wiene, Fels, Dix Perdix, Asterios; Liliruca Arde.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
  */
@@ -20,16 +20,16 @@ public class ContextoDanMachiS3 implements ProvedorContexto {
     private static final String LORE = """
         - Obra: Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 3 (DanMachi III) — Xenos Arc.
         - Premissa: Bell encontra Wiene e os Xenos (monstros inteligentes) sob Orario; conflito com
-          aventureiros caçadores e a Ikelos Familia; revelações sobre Asterius e o Dungeon.
+          aventureiros caçadores e a Ikelos Familia; revelações sobre Asterios e o Dungeon.
         - Locais: Orario, Dungeon, Knossos, Rua Daedalus, Under Orario / base Xenos.
         - Grupos: Hestia Familia, Xenos, Hermes Familia, Ikelos Familia, Ganesha Familia, Guilda.
         - Personagens (gênero): Bell Cranel (m), Hestia (f), Wiene (f), Fels (ambíguo/capuz — tratar
           conforme o original; frequentemente neutro/"eles" evita erro), Dix Perdix (m),
-          Asterius (m), Liliruca Arde / Lili (f), Welf Crozzo (m), Mikoto Yamato (f),
-          Haruhime Sanjouno (f), Ais Wallenstein (f), Ouranos (m), Lyd (m), Ray (f), Gros (m).
+          Asterios (m), Liliruca Arde / Lili (f), Welf Crozzo (m), Mikoto Yamato (f),
+          Haruhime Sanjouno (f), Aiz Wallenstein (f), Ouranos (m), Lido (m), Rei (f), Gros (m).
         - Termos: Xenos, Knossos, Dungeon, Familia, Falna, Status, Irregular, Monster Rex.
         - Regras: Xenos não traduzir como "alienígenas" genéricos quando for o nome do grupo;
-          Wiene/Asterius/Fels mantêm grafia; Bell ≠ "sino"; Liliruca ≠ "Lilisuka".
+          Wiene/Asterios/Fels mantêm grafia; Bell ≠ "sino"; Liliruca ≠ "Lilisuka".
         - Tom: moralmente cinza, empatia com os Xenos, tensão e perseguição.
         """;
 
@@ -58,7 +58,7 @@ public class ContextoDanMachiS3 implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Bell Cranel", "Hestia", "Wiene", "Fels", "Dix Perdix", "Asterius",
+            "Bell Cranel", "Hestia", "Wiene", "Fels", "Dix Perdix", "Asterios",
             "Liliruca Arde", "Xenos", "Knossos", "Orario", "Dungeon", "Ouranos"
         );
     }
