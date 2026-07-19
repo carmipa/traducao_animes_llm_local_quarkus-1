@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.gundam;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -68,10 +70,35 @@ public class ContextoGundam0079 implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Amuro Ray", "Char Aznable", "Bright Noa", "Sayla Mass", "Lalah Sune",
-            "White Base", "Gundam", "Zaku II", "Zeon", "Newtype", "Oldtype", "Spacenoid",
-            "Earthnoid", "One Year War", "Minovsky", "Mobile Suit", "Mobile Armor",
-            "Mega Particle Cannon"
+            "Amuro Ray", "Char Aznable", "Casval Rem Deikun",
+            "Bright Noa", "Sayla Mass", "Artesia Som Deikun",
+            "Lalah Sune", "Kai Shiden", "Hayato Kobayashi",
+            "Ryu Jose", "Sleggar Law", "Mirai Yashima",
+            "Fraw Bow", "Degwin Sodo Zabi", "Gihren Zabi",
+            "Kycilia Zabi", "Dozle Zabi", "Garma Zabi",
+            "Ramba Ral", "M'Quve", "Crowley Hamon",
+            "RX-78-2 Gundam", "Gundam", "RX-75 Guntank",
+            "RX-77 Guncannon", "MS-06 Zaku II", "Zaku II",
+            "MS-07 Gouf", "MS-09 Dom", "MSN-02 Zeong",
+            "White Base", "Earth Federation", "Principality of Zeon",
+            "Zeon", "Side 7", "Solomon",
+            "A Baoa Qu", "Jaburo", "One Year War",
+            "Minovsky", "Mega Particle Cannon", "Mobile Suit",
+            "Mobile Armor", "Newtype", "Cyber-Newtype",
+            "Oldtype", "Spacenoid", "Earthnoid"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
+     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Base Branca", "White Base")
+        ));
     }
 }
