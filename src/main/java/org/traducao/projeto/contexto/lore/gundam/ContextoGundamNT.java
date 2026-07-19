@@ -122,13 +122,18 @@ public class ContextoGundamNT implements ProvedorContexto {
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Operação Caça à Fênix", "Operation Phoenix Hunt"),
+            Map.entry("Operacao Caca a Fenix", "Operation Phoenix Hunt"),
+            Map.entry("Crianças Milagrosas", "Miracle Children"),
+            Map.entry("Criancas Milagrosas", "Miracle Children"),
+            Map.entry("Gundam Narrativo", "Narrative Gundam"),
             Map.entry("Fenís", "Phenex"),
             Map.entry("Fênix", "Phenex"),
-            Map.entry("Operação Caça à Fênix", "Operation Phoenix Hunt"),
-            Map.entry("Crianças Milagrosas", "Miracle Children"),
+            Map.entry("Fenix", "Phenex"),
             Map.entry("Mangas", "Sleeves"),
             Map.entry("Manga", "Sleeves"),
-            Map.entry("Moldura Psíquica", "Psycho-Frame")
+            Map.entry("Moldura Psíquica", "Psycho-Frame"),
+            Map.entry("Moldura Psiquica", "Psycho-Frame")
         ));
     }
 }

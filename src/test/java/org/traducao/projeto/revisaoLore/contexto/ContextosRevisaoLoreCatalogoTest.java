@@ -71,6 +71,42 @@ class ContextosRevisaoLoreCatalogoTest {
     }
 
     @Test
+    void contextosUcEMacrossClasseRevisaoExcepcionais() {
+        var origin = new ContextoRevisaoLoreGundamOrigin();
+        var zeta = new ContextoRevisaoLoreGundamZeta();
+        var zz = new ContextoRevisaoLoreGundamZZ();
+        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
+        var nt = new ContextoRevisaoLoreGundamNT();
+        var m2 = new ContextoRevisaoLoreMacross2();
+        var dyrl = new ContextoRevisaoLoreMacrossFilme1();
+
+        assertEquals("gundam_origin", origin.getId());
+        assertTrue(origin.obterPromptSistema().contains("Casval Rem Deikun"));
+        assertEquals("White Base", origin.correcoesTerminologia().get("Base Branca"));
+
+        assertEquals("Hyaku Shiki", zeta.correcoesTerminologia().get("Cem Estilos"));
+        assertEquals("Titans", zeta.correcoesTerminologia().get("Titãs"));
+
+        assertEquals("Quin Mantha", zz.correcoesTerminologia().get("Rainha Mansa"));
+        assertEquals("Ple", zz.correcoesTerminologia().get("Plê"));
+
+        assertEquals("Sleeves", unicorn.correcoesTerminologia().get("Mangas"));
+        assertEquals("Laplace's Box", unicorn.correcoesTerminologia().get("Caixa de Laplace"));
+        assertTrue(unicorn.obterPromptSistema().contains("Full Frontal nao vira"));
+
+        assertEquals("Phenex", nt.correcoesTerminologia().get("Fênix"));
+        assertEquals("Miracle Children", nt.correcoesTerminologia().get("Crianças Milagrosas"));
+        assertTrue(nt.obterPromptSistema().contains("Operation Phoenix Hunt"));
+
+        assertEquals("Emulator", m2.correcoesTerminologia().get("Emulador"));
+        assertEquals("Minmay Attack", m2.correcoesTerminologia().get("Ataque Minmay"));
+
+        assertEquals("Protoculture", dyrl.correcoesTerminologia().get("Protocultura"));
+        assertTrue(dyrl.obterPromptSistema().contains("Meltrandi"));
+        assertEquals("Protoculture", new ContextoRevisaoLoreMacrossDYRL().correcoesTerminologia().get("Protocultura"));
+    }
+
+    @Test
     void contextosMacrossDeltaRevisaoExcepcionais() {
         var tv = new ContextoRevisaoLoreMacrossDelta();
         var f1 = new ContextoRevisaoLoreMacrossDeltaFilme1();

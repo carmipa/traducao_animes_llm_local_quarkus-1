@@ -7,9 +7,10 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore lean para Macross II: Lovers Again.
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional para Macross II: Lovers Again.
  *
- * <p>INVARIANTES DO DOMÍNIO: Valkyrie/Zentradi oficiais; sem Veritech/Valquíria.
+ * <p>INVARIANTES DO DOMÍNIO: Emulator (cargo Marduk); Minmay Attack; Marduk; Valkyrie;
+ * anti-Veritech.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -17,25 +18,43 @@ import java.util.Map;
 public class ContextoRevisaoLoreMacross2 implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Macross II: Lovers Again.
-        - Regra: nomes canonicos NAO sao localizados. Corrija so grafia de lore.
-        - Nomes/termos: Hibiki Kanzaki, Ishtar, Silvie Gena, Nexx Gilbert, Lord Feff, Ingues, Marduk, Emulator, Minmay Attack, VF-2SS Valkyrie II, Metal Siren, UN Spacy, GERWALK, Battroid, Overtechnology, Valkyrie.
-        - Premissa: a humanidade usa o "Minmay Attack" (cultura/canção) como arma estratégica;
-        - Personagens (gênero): Hibiki Kanzaki (m) — repórter curioso/informal;
-        - Facções/termos: Marduk, Emulator (cargo cultural-militar Marduk — NÃO traduzir como
-        - Mecha/naves: VF-2SS Valkyrie II, Metal Siren, Gigamesh, Macross Cannon / SDF-era assets.
-        - Alertas: Valkyrie nao vira Valquiria/Valquíria; Zentradi grafia oficial; proibido Veritech;
-          GERWALK/Battroid/Fighter Mode — nao traduzir nomes dos modos.
+        - Obra: Macross II: Lovers Again (OVA — continuidade alternativa pos-Space War I).
+        - Regra: corrigir APENAS nomenclatura.
+
+        === Roster ===
+        - Hibiki Kanzaki (m), Ishtar (f — Emulator Marduk), Silvie Gena (f),
+          Nexx Gilbert (m), Lord Feff (m), Ingues (m), Mash Broodwell (m).
+
+        === Termos canonicos ===
+        - Marduk; Emulator (NUNCA tratar como "emulador" de software); Minmay Attack;
+          UN Spacy; VF-2SS Valkyrie II; Metal Siren; Gigamesh; Macross Cannon;
+          Valkyrie / Variable Fighter; GERWALK / Battroid; Overtechnology; Protoculture.
+        - PROIBIDO Veritech / Robotech.
+
+        === Formas-ruim ===
+        - Emulador → Emulator; Ataque Minmay → Minmay Attack; Marduque → Marduk;
+          Valquíria → Valkyrie; Protocultura → Protoculture.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
 
-    @Override public String getId() { return "macross_2"; }
-    @Override public String getNomeExibicao() { return "Macross II: Lovers Again - Revisao de Lore"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+    @Override
+    public String getId() {
+        return "macross_2";
+    }
+
+    @Override
+    public String getNomeExibicao() {
+        return "Macross II: Lovers Again - Revisao de Lore";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mapa determinístico Macross na Opção 7.
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico Macross II na Opção 7.
      *
      * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local.
      *
@@ -43,6 +62,6 @@ public class ContextoRevisaoLoreMacross2 implements ProvedorPromptRevisaoLore {
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacrossRevisao.mapa();
+        return CorrecoesTerminologiaMacross2Revisao.mapa();
     }
 }
