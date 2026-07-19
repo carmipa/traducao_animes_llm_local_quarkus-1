@@ -82,4 +82,36 @@ class GoogleFallbackAdapterTest {
 
         assertEquals("Ola pessoal", r.get());
     }
+
+    @Test
+    @DisplayName("preserva hard-space \\h e soft-break \\n (não só \\N)")
+    void preservaQuebrasMinusculas() {
+        GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Vem [Bh] ca [Bn] agora"));
+
+        Optional<String> r = adapter.traduzir("Come\\hhere\\nnow");
+
+        assertTrue(r.isPresent(), "quebras \\h/\\n devem ser preservadas");
+        assertEquals("Vem\\hca\\nagora", r.get());
+    }
+
+    @Test
+    @DisplayName("marcador de tag duplicado pelo Google → recusa (contagem)")
+    void tagDuplicadaRecusa() {
+        // Google ecoa [T0] duas vezes: restaurar produziria {\i1} duplicado.
+        GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("[T0] Ola [T0] mundo"));
+
+        Optional<String> r = adapter.traduzir("{\\i1}Hello world");
+
+        assertTrue(r.isEmpty(), "duplicacao de tag deve manter a fala pendente");
+    }
+
+    @Test
+    @DisplayName("hard-space \\h descartado pelo Google → recusa (contagem)")
+    void quebraPerdidaRecusa() {
+        GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Vem ca agora"));
+
+        Optional<String> r = adapter.traduzir("Come\\hhere now");
+
+        assertTrue(r.isEmpty(), "perda de \\h deve manter a fala pendente");
+    }
 }

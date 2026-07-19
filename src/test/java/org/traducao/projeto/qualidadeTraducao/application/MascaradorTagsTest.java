@@ -1,8 +1,12 @@
 package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -76,5 +80,23 @@ class MascaradorTagsTest {
     void ignoraDesenhoVetorialAss() {
         assertFalse(mascarador.contemTextoTraduzivel(
             "{\\blur2\\p1\\c&H161414&}m 0 0 l 1440 0 1440 1080 0 1080"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: um índice de marcador absurdo alucinado pelo LLM
+     * ({@code [[TAG9999999999999]]}) não pode estourar {@code NumberFormatException} e
+     * abortar o episódio/arquivo inteiro — deve cair no caminho gracioso de alucinação.
+     */
+    @Test
+    void desmascararComIndiceGiganteTrataComoAlucinacao() {
+        assertThrows(AlucinacaoDetectadaException.class,
+            () -> mascarador.desmascarar("Ola [[TAG9999999999999]]", List.of("{\\i1}")),
+            "indice fora do range deve virar AlucinacaoDetectadaException, nao NumberFormatException");
+    }
+
+    @Test
+    void marcadoresPreservadosComIndiceGiganteRetornaFalseSemLancar() {
+        assertFalse(mascarador.marcadoresPreservados("[[TAG0]]x", "[[TAG9999999999999]]x"),
+            "indice absurdo deve reprovar retornando false, sem lancar");
     }
 }
