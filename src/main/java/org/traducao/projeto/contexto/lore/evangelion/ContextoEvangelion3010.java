@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.evangelion;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -54,7 +56,28 @@ public class ContextoEvangelion3010 implements ProvedorContexto {
         return Set.of(
             "Shinji Ikari", "Rei Ayanami", "Asuka Shikinami Langley",
             "Mari Illustrious Makinami", "Gendo Ikari", "Misato Katsuragi",
-            "Village-3", "Golgotha Object", "WILLE", "AAA Wunder", "NERV"
+            "Ritsuko Akagi", "Kaworu Nagisa", "Kozo Fuyutsuki",
+            "Kensuke Aida", "Toji Suzuhara", "Hikari Horaki",
+            "WILLE", "AAA Wunder", "NERV",
+            "Village-3", "Anti-Universe", "Golgotha Object",
+            "Additional Impact", "Neon Genesis", "Spear of Longinus",
+            "Spear of Cassius", "EVA Unit-08", "AT Field",
+            "LCL", "Evangelion"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico de terminologia própria da obra
+     * (nomes/termos que a lore manda manter no original).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaEvangelion.comExtras(Map.ofEntries(
+            Map.entry("Asuka Langley Soryu", "Asuka Shikinami Langley"),
+            Map.entry("Lança de Longinus", "Spear of Longinus"),
+            Map.entry("Lança de Cassius", "Spear of Cassius")
+        ));
     }
 }

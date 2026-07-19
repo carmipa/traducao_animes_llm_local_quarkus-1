@@ -52,8 +52,12 @@ public class ContextoSidoniaFilme implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Nagate Tanikaze", "Tsumugi Shiraui", "Izana Shinatose", "Yuhata Midorikawa",
-            "Kobayashi", "Sidonia", "Gauna", "Garde", "Kabizashi", "Ena"
+            "Nagate Tanikaze", "Tsumugi Shiraui", "Izana Shinatose",
+            "Yuhata Midorikawa", "Kobayashi", "Norio Kunato",
+            "Lala Hiyama", "Shizuka Hoshijiro", "Sidonia",
+            "Gauna", "Garde", "Kabizashi",
+            "Ena", "Heigus", "placenta",
+            "Gauna core", "Toha Heavy Industries", "Immortal Ship Committee"
         );
     }
 }

@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.danmachi;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -58,8 +60,31 @@ public class ContextoDanMachiS3 implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Bell Cranel", "Hestia", "Wiene", "Fels", "Dix Perdix", "Asterios",
-            "Liliruca Arde", "Xenos", "Knossos", "Orario", "Dungeon", "Ouranos"
+            "Bell Cranel", "Hestia", "Liliruca Arde",
+            "Lili", "Welf Crozzo", "Mikoto Yamato",
+            "Haruhime Sanjouno", "Aiz Wallenstein", "Wiene",
+            "Fels", "Dix Perdix", "Asterios",
+            "Lido", "Rei", "Gros",
+            "Xenos", "Knossos", "Ouranos",
+            "Ikelos Familia", "Hermes Familia", "Ganesha Familia",
+            "Hestia Familia", "Orario", "Dungeon",
+            "Falna", "Familia", "Status",
+            "Level", "Skill", "Magic",
+            "Monster Rex", "Irregular", "Guild"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico da terminologia DanMachi (Familia sem
+     * acento + grafias erradas de nomes proprios da obra).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaDanMachi.comExtras(Map.ofEntries(
+            Map.entry("Lilisuka", "Liliruca Arde"),
+            Map.entry("Liriruca", "Liliruca Arde")
+        ));
     }
 }

@@ -53,8 +53,14 @@ public class ContextoKnightsOfSidonia implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Nagate Tanikaze", "Shizuka Hoshijiro", "Izana Shinatose", "Tsumugi Shiraui",
-            "Kobayashi", "Yuhata Midorikawa", "Sidonia", "Gauna", "Garde", "Kabizashi", "Ena"
+            "Nagate Tanikaze", "Izana Shinatose", "Shizuka Hoshijiro",
+            "Tsumugi Shiraui", "Norio Kunato", "Yuhata Midorikawa",
+            "Kobayashi", "Lala Hiyama", "Ochiai",
+            "Sidonia", "Gauna", "Garde",
+            "Tsugumori", "Kabizashi", "Ena",
+            "Heigus", "placenta", "Gauna core",
+            "Toha Heavy Industries", "Immortal Ship Committee", "Residential Layer",
+            "Photosynthesis Chamber"
         );
     }
 }
