@@ -60,7 +60,11 @@ public class CorretorLoreDeterministico {
         }
 
         String corrigida = traducaoMascarada;
+        // Só restaura "Shin" quando o nome NÃO está presente na grafia correta no PT: no
+        // erro real o nome virou "canela" (some do PT); se "Shin" já está no PT, o "canela"
+        // é a especiaria (falso-positivo) e não pode ser tocado.
         if (PADRAO_SHIN.matcher(originalMascarado).find()
+            && !PADRAO_SHIN.matcher(corrigida).find()
             && PADRAO_CANELA.matcher(corrigida).find()) {
             corrigida = PADRAO_CANELA.matcher(corrigida).replaceAll("Shin");
         }

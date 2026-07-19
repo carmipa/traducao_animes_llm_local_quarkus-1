@@ -62,7 +62,8 @@ public class IsoladorQuebraDialogo {
      * substituindo-o por espaço, para o LLM traduzir a frase inteira sem marcador interno.
      *
      * <p>INVARIANTES DO DOMÍNIO: só remove {@code \N} com texto real antes E depois; quebra
-     * de borda é mantida; espaços duplicados resultantes são normalizados a um só.
+     * de borda é mantida; o espaço no lugar da quebra só é inserido quando nenhum dos lados
+     * já tem um, preservando o espaçamento não relacionado do original.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto {@code null} ou sem {@code \N} mid-sentence é
      * devolvido intacto com {@code quebras = 0}.
@@ -83,7 +84,15 @@ public class IsoladorQuebraDialogo {
             boolean textoAntes = temTextoReal(original.substring(0, matcher.start()));
             boolean textoDepois = temTextoReal(original.substring(matcher.end()));
             if (textoAntes && textoDepois) {
-                resultado.append(' ');
+                // Insere o espaço da quebra só quando nenhum dos lados já tem um — assim não
+                // cria espaço duplo no ponto da quebra nem colapsa espaçamento não relacionado.
+                boolean espacoAntes = resultado.length() > 0
+                    && resultado.charAt(resultado.length() - 1) == ' ';
+                boolean espacoDepois = matcher.end() < original.length()
+                    && original.charAt(matcher.end()) == ' ';
+                if (!espacoAntes && !espacoDepois) {
+                    resultado.append(' ');
+                }
                 quebras++;
             } else {
                 resultado.append("\\N");
@@ -94,8 +103,7 @@ public class IsoladorQuebraDialogo {
         if (quebras == 0) {
             return new FalaIsolada(original, 0);
         }
-        String texto = resultado.toString().replaceAll(" {2,}", " ");
-        return new FalaIsolada(texto, quebras);
+        return new FalaIsolada(resultado.toString(), quebras);
     }
 
     /**
