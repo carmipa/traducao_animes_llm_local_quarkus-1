@@ -59,4 +59,18 @@ public class ContextoMacrossDeltaFilme2 implements ProvedorContexto {
             "VF-31AX Kairos-Plus", "Macross Gigant", "Walküre"
         );
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
+     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public java.util.Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaMacross.mapa();
+    }
+
 }

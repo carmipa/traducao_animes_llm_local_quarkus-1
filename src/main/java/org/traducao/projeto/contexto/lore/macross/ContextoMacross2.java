@@ -71,4 +71,18 @@ public class ContextoMacross2 implements ProvedorContexto {
             "Metal Siren", "UN Spacy", "GERWALK", "Battroid", "Overtechnology", "Valkyrie"
         );
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
+     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public java.util.Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaMacross.mapa();
+    }
+
 }

@@ -80,4 +80,18 @@ public class ContextoMacrossAnime implements ProvedorContexto {
             "Overtechnology", "Zentradi", "Deculture", "SDF-1", "Protoculture"
         );
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
+     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public java.util.Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaMacross.mapa();
+    }
+
 }
