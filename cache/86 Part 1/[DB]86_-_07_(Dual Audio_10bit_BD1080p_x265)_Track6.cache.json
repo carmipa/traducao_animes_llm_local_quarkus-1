@@ -18,14 +18,14 @@
     "indice" : 3,
     "estilo" : "Default",
     "original" : "Major, what's inside that box?",
-    "traduzido" : "",
+    "traduzido" : "Major, o que tem dentro dessa caixa?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 4,
     "estilo" : "Default",
     "original" : "S-Special ammunition.",
-    "traduzido" : "Munição especial",
+    "traduzido" : "Munição especial.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -39,21 +39,21 @@
     "indice" : 6,
     "estilo" : "Default",
     "original" : "Special ammunition.",
-    "traduzido" : "Municao especial.",
+    "traduzido" : "Munição especial.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 7,
     "estilo" : "Default",
     "original" : "A little more... A little more to the right.",
-    "traduzido" : "À direita... Mais um pouco à direita.",
+    "traduzido" : "Um pouco mais... Um pouco mais à direita.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 8,
     "estilo" : "Default",
     "original" : "Stop!",
-    "traduzido" : "Pare!",
+    "traduzido" : "Parar!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -67,28 +67,28 @@
     "indice" : 10,
     "estilo" : "Default",
     "original" : "Would you like to join us in the festivities, Major?",
-    "traduzido" : "Gostaria de se juntar a nós nas celebrações, major?",
+    "traduzido" : "Gostaria de se juntar a nós nas comemorações, major?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 11,
     "estilo" : "Default",
     "original" : "Initiate ID confirmation.",
-    "traduzido" : "Confirmar ID de iniciação.",
+    "traduzido" : "Confirmar ID de inicialização.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 12,
     "estilo" : "Default",
     "original" : "Major Vladilena Milizé,",
-    "traduzido" : "Handler One: Major Vladilena Milize.",
+    "traduzido" : "Handler One: Major Vladilena Milize",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 13,
     "estilo" : "Default",
     "original" : "commanding officer for the eastern front's first ward's first defensive squadron.",
-    "traduzido" : "Comandante do frente leste, primeira guarda, primeiro esquadrao defensivo",
+    "traduzido" : "comandante da frente oriental da primeira guarda do primeiro esquadrao defensivo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -102,14 +102,14 @@
     "indice" : 15,
     "estilo" : "Default",
     "original" : "Synchronization target: Spearhead Processors.",
-    "traduzido" : "Target de sincronização: Esquadrão Lança-Funda",
+    "traduzido" : "Alvo de sincronização: Processadores Esquadrão Lança.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 16,
     "estilo" : "Default",
     "original" : "Whoa!",
-    "traduzido" : "Quem diria!",
+    "traduzido" : "Whoa!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -137,7 +137,7 @@
     "indice" : 20,
     "estilo" : "Default",
     "original" : "{\\q2}Nothing really changes if we don't \\Nhave someone commanding us.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}De verdade nada muda se não\\Ntivermos alguém nos comandando.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -151,7 +151,7 @@
     "indice" : 22,
     "estilo" : "Default",
     "original" : "{\\q2}Hearing you freak out even though you're \\Nnot even on the battlefield is distracting.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Escutar você entrando em pânico mesmo\\Nsem estar no campo de batalha é distraente.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -165,7 +165,7 @@
     "indice" : 24,
     "estilo" : "Default",
     "original" : "Those voices?",
-    "traduzido" : "",
+    "traduzido" : "Aquelas vozes?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -200,28 +200,28 @@
     "indice" : 29,
     "estilo" : "Default",
     "original" : "{\\q2}Even without Shin's ability, Processors hear the \\Nscreams of their dying comrades all the time.",
-    "traduzido" : "{\\q2}Mesmo sem o dom de Shin, os Processors ouvem \\Nos gritos dos seus camaradas morrendo o tempo todo.",
+    "traduzido" : "{\\q2}Mesmo sem o dom de Shin, os Processors ouvem\\Nos gritos dos companheiros morrendo o tempo todo.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 30,
     "estilo" : "Default",
     "original" : "{\\q2}Dying instantly when your Juggernaut \\Nexplodes is one of the best ways to go.",
-    "traduzido" : "{\\q2}Morrer instantaneamente quando seu M1A4 \\Nexplode é uma das melhores maneiras de partir.",
+    "traduzido" : "{\\q2}Morrer instantaneamente quando seu M1A4\\Nexplode é um dos melhores jeitos de ir embora.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 31,
     "estilo" : "Default",
     "original" : "We've all seen our friends get their limbs blown off,",
-    "traduzido" : "Vimos todos nossos amigos terem membros decepados",
+    "traduzido" : "Vimos todos nossos amigos terem seus membros explodidos",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 32,
     "estilo" : "Default",
     "original" : "{\\q2}their faces ripped to shreds, their bodies burned all over, \\Nor their stomachs ripped open with guts pouring out,",
-    "traduzido" : "{\\q2}seus rostos dilacerados, seus corpos queimados por toda parte, \\Nou suas barrigas abertas com entranhas à mostra.",
+    "traduzido" : "{\\q2}seus rostos rasgados em pedacos, seus corpos queimados\\Npor toda parte ou suas barrigas abertas com tripas saindo.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -235,7 +235,7 @@
     "indice" : 34,
     "estilo" : "Default",
     "original" : "{\\q2}Compared to that, the voices \\Nof the long-dead are nothing.",
-    "traduzido" : "{\\q2}Em comparação com isso, as vozes \\Ndos mortos há muito tempo não são nada.",
+    "traduzido" : "{\\q2}Em comparação com isso, as vozes\\Ndos mortos há muito tempo são nada.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -277,7 +277,7 @@
     "indice" : 40,
     "estilo" : "Default",
     "original" : "Um, where's Captain Nouzen?",
-    "traduzido" : "Onde está o Capitão Nouzen?",
+    "traduzido" : "Capitão Nouzen está onde?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -312,14 +312,14 @@
     "indice" : 45,
     "estilo" : "Default",
     "original" : "I... Well, we don't really know for sure,",
-    "traduzido" : "Eu... Bem, nós realmente não sabemos ao certo.",
+    "traduzido" : "Bem, na verdade não sabemos ao certo.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 46,
     "estilo" : "Default",
     "original" : "but I'd bet it's exhausting hearing that 24 hours a day.",
-    "traduzido" : "Mas aposto que é exaustivo ouvir isso 24 horas por dia.",
+    "traduzido" : "Mas aposto que é exaustivo ouvir isso durante 24 horas por dia.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -354,7 +354,7 @@
     "indice" : 51,
     "estilo" : "Default",
     "original" : "you're all being strained as well.",
-    "traduzido" : "Vocês também estão sendo sobrecarregados.",
+    "traduzido" : "Vocês também estão sendo pressionados.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -375,7 +375,7 @@
     "indice" : 54,
     "estilo" : "Default",
     "original" : "{\\q2}You haven't received a single \\Nreplacement since I arrived.",
-    "traduzido" : "{\\q2}Você não recebeu nenhum \\Nsuplente desde que eu cheguei.",
+    "traduzido" : "{\\q2}Você não recebeu nenhum\\Nsubstituto desde que cheguei.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -410,21 +410,21 @@
     "indice" : 59,
     "estilo" : "Default",
     "original" : "Your unit is defending our most important base.",
-    "traduzido" : "Sua unidade está defendendo nossa base mais importante.",
+    "traduzido" : "Sua unidade está defendendo a base mais importante de nós.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 60,
     "estilo" : "Default",
     "original" : "Replacing your losses should have the highest priority.",
-    "traduzido" : "Substituir suas perdas deveria ter a maior prioridade.",
+    "traduzido" : "Priorize a substituição das suas perdas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 61,
     "estilo" : "Default",
     "original" : "{\\q2}Until then, I'll continue to request \\Nreinforcements from the surrounding units.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Até lá, vou continuar solicitando\\Nreforços das unidades vizinhas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -445,7 +445,7 @@
     "indice" : 64,
     "estilo" : "Default",
     "original" : "Well, I'll leave it to you. I guess.",
-    "traduzido" : "Vou deixar isso por sua conta então.",
+    "traduzido" : "Vou deixar isso por sua conta, acho.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -459,42 +459,42 @@
     "indice" : 66,
     "estilo" : "Default",
     "original" : "{\\q2\\an8}So you decided to overstep your position \\Nand complain directly to me, Major Milizé?",
-    "traduzido" : "",
+    "traduzido" : "{\\q2\\an8}Então você decidiu ultrapassar sua posição\\Ne reclamar diretamente comigo, Major Milize?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 67,
     "estilo" : "Default",
     "original" : "{\\q2}Sir, I can't wait any longer for replacements \\Nfor the Spearhead Squadron.",
-    "traduzido" : "{\\q2}Senhor, não posso esperar mais por reforços \\Npara o Esquadrão Lança-Funda.",
+    "traduzido" : "{\\q2}Senhor, não posso esperar mais pelos\\Nreforços para o Esquadrão Lança-Funda.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 68,
     "estilo" : "Default",
     "original" : "I'll do anything to help them,",
-    "traduzido" : "Farei qualquer coisa para ajudar eles",
+    "traduzido" : "Farei qualquer coisa para ajudá-los",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 69,
     "estilo" : "Default",
     "original" : "even beg you for aid.",
-    "traduzido" : "Por favor, até mesmo imploro pela sua ajuda.",
+    "traduzido" : "Mesmo imploro sua ajuda.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 70,
     "estilo" : "Default",
     "original" : "I've gone to every department for help, but—",
-    "traduzido" : "Fui a todos os departamentos em busca de ajuda, mas...",
+    "traduzido" : "Fui até todos os departamentos em busca de ajuda, mas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 71,
     "estilo" : "Default",
     "original" : "{\\q2}The resupply and Processor replacement plans \\Nfor the eastern front are a settled matter.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Os planos de reabastecimento e substituição\\Nde Processors para o front leste estão resolvidos.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -508,7 +508,7 @@
     "indice" : 73,
     "estilo" : "Default",
     "original" : "You're probably unaware since this is an internal matter.",
-    "traduzido" : "Não deve saber disso já que é um assunto interno.",
+    "traduzido" : "VocÍ provavelmente nÆo sabe disso pois se trata de um assunto interno.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -522,7 +522,7 @@
     "indice" : 75,
     "estilo" : "Default",
     "original" : "We're finally getting replacements?",
-    "traduzido" : "Estamos finalmente recebendo reforços?",
+    "traduzido" : "Finalmente estamos recebendo reforços?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -543,7 +543,7 @@
     "indice" : 78,
     "estilo" : "Default",
     "original" : "Attend the party in a proper dress.",
-    "traduzido" : "Comparecer à festa adequadamente vestido.",
+    "traduzido" : "Comparecer à festa vestida adequadamente.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -571,7 +571,7 @@
     "indice" : 82,
     "estilo" : "Default",
     "original" : "Why did you think that dress was a good choice?",
-    "traduzido" : "Por que você pensou que esse vestido era uma boa escolha?",
+    "traduzido" : "Por que você achou que aquele vestido era uma boa escolha?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -592,7 +592,7 @@
     "indice" : 85,
     "estilo" : "Default",
     "original" : "Thanks to this, nobody's asked me to dance.",
-    "traduzido" : "Ninguém mais me convidou para dançar por causa disso.",
+    "traduzido" : "Obrigada a isso, ninguém mais me convidou para dançar.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -613,28 +613,28 @@
     "indice" : 88,
     "estilo" : "Default",
     "original" : "Well, I think this looks nice enough for me.",
-    "traduzido" : "Bem, eu acho que isso parece bom o suficiente para mim.",
+    "traduzido" : "Bom, eu acho que isso parece bom o suficiente para mim.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 89,
     "estilo" : "Default",
     "original" : "That's not the issue...",
-    "traduzido" : "Aquele não é o problema...",
+    "traduzido" : "Aquilo não é o problema...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 90,
     "estilo" : "Default",
     "original" : "What's wrong?",
-    "traduzido" : "O que aconteceu?",
+    "traduzido" : "O que houve?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 91,
     "estilo" : "Default",
     "original" : "{\\q2}One of my fiancés is over there. \\NThe one who sent me those fancy new sweets.",
-    "traduzido" : "{\\q2}Um dos meus noivos está lá. \\NAquele que me mandou aquelas guloseimas novas chiques.",
+    "traduzido" : "{\\q2}Um dos meus noivos está lá. Aquele que\\Nme mandou aquelas guloseimas finas novas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -655,21 +655,21 @@
     "indice" : 94,
     "estilo" : "Default",
     "original" : "Is something wrong, Captain Nouzen? Is it the Legion?",
-    "traduzido" : "Tudo bem, Capitão Nouzen? É a Legião?",
+    "traduzido" : "Tudo bem, Capitão Nouzen? É algum problema com a Legion?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 95,
     "estilo" : "Default",
     "original" : "{\\q2}No, you didn't call at the usual time, \\Nso I thought I'd check in.",
-    "traduzido" : "{\\q2}Não, você não ligou no horário habitual, \\Nentão eu pensei em verificar como você estava.",
+    "traduzido" : "{\\q2}Não, você não ligou no horário habitual,\\Nentão eu pensei em verificar como você estava.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 96,
     "estilo" : "Default",
     "original" : "Is everything okay?",
-    "traduzido" : "Tudo bem?",
+    "traduzido" : "Tudo bem aí?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -690,28 +690,28 @@
     "indice" : 99,
     "estilo" : "Default",
     "original" : "Sorry, I usually call around this time, right?",
-    "traduzido" : "Desculpe, eu geralmente ligo nessa hora, né?",
+    "traduzido" : "Desculpa, eu geralmente ligo nessa hora, né?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 100,
     "estilo" : "Default",
     "original" : "What's wrong?",
-    "traduzido" : "O que aconteceu?",
+    "traduzido" : "O que houve?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 101,
     "estilo" : "Default",
     "original" : "{\\q2}I wanted to let you know that \\Nthe special ammunition arrived.",
-    "traduzido" : "{\\q2}Eu queria lhe informar que \\Na munição especial chegou.",
+    "traduzido" : "{\\q2}Eu queria lhe informar\\Nque a munição especial chegou.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 102,
     "estilo" : "Default",
     "original" : "It got there safely, huh?",
-    "traduzido" : "Chegou lá em segurança, é?",
+    "traduzido" : "Chegou lá em segurança, né?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -732,28 +732,28 @@
     "indice" : 105,
     "estilo" : "Default",
     "original" : "{\\q2}You've seen them with your brother \\Nand parents before, right?",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Você já viu eles com\\Nseu irmão e pais antes, né?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 106,
     "estilo" : "Default",
     "original" : "I'm sure the others have similar memories.",
-    "traduzido" : "Tenho certeza de que os outros têm lembranças semelhantes.",
+    "traduzido" : "Tenho certeza de que os outros têm memórias semelhantes.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 107,
     "estilo" : "Default",
     "original" : "The Revolution Festival tradition, huh?",
-    "traduzido" : "A festa da Revolucao, é?",
+    "traduzido" : "A festa da Revolucao eh isso, hein?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 108,
     "estilo" : "Default",
     "original" : "Can you see the fireworks from the Palace Lune?",
-    "traduzido" : "VOCÊ CONSEGUE VER OS FOGOS ARTIFICIAIS DO PALÁCIO LUNE?",
+    "traduzido" : "Você consegue ver os fogos do Palácio Lua?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -802,14 +802,14 @@
     "indice" : 115,
     "estilo" : "Default",
     "original" : "{\\q2}Let's all watch the fireworks in the \\NFirst Sector together someday.",
-    "traduzido" : "{\\q2}Vamos assistir juntos aos fogos de artifício no \\NPrimeiro Setor algum dia.",
+    "traduzido" : "{\\q2}Vamos assistir juntos os\\Nfogos do Primeiro Setor algum dia.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 116,
     "estilo" : "Default",
     "original" : "I'm sure you'll laugh.",
-    "traduzido" : "Vou achar engraçado.",
+    "traduzido" : "Eu tenho certeza que você vai rir.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -830,35 +830,35 @@
     "indice" : 119,
     "estilo" : "Default",
     "original" : "When the war's over—",
-    "traduzido" : "Quando a guerra acabar",
+    "traduzido" : "\"Quando a guerra acabar-\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 120,
     "estilo" : "Default",
     "original" : "When your term's over, we can all watch them together.",
-    "traduzido" : "Quando seu turno acabar, podemos assisti-los juntos.",
+    "traduzido" : "Quando seu turno acabar, podemos assistir juntos.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 121,
     "estilo" : "Default",
     "original" : "{\\q2}I wish Second Lieutenant Irma and \\Nthe others could've seen them, too.",
-    "traduzido" : "{\\q2}Eu gostaria que o Segundo Tenente Irma e \\Nos outros também pudessem tê-los visto.",
+    "traduzido" : "{\\q2}Eu desejo que o Segundo Tenente Irma\\Ne os outros também pudessem ter visto eles.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 122,
     "estilo" : "Default",
     "original" : "Sorry, my timing was bad again, huh?",
-    "traduzido" : "Desculpe, errei o timing outra vez, não é mesmo?",
+    "traduzido" : "Desculpa, eu errei de novo, né?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 123,
     "estilo" : "Default",
     "original" : "{\\q2}No, this is the first time we've been \\Nable to give them a proper gun salute.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Não, essa é a primeira vez que conseguimos\\Ndar a eles uma salva de tiros adequada.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -886,7 +886,7 @@
     "indice" : 127,
     "estilo" : "Default",
     "original" : "And...",
-    "traduzido" : "E...",
+    "traduzido" : "E então...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -900,14 +900,14 @@
     "indice" : 129,
     "estilo" : "Default",
     "original" : "{\\q2}She's the type that keeps things bottled up, \\Nso I'm grateful for that, too.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Ela é do tipo que guarda as coisas\\Npra si, então também sou grato por isso.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 130,
     "estilo" : "Default",
     "original" : "She'll never forget about Second Lieutenant Irma.",
-    "traduzido" : "Ela jamais vai esquecer do Segundo Tenente Irma.",
+    "traduzido" : "Ela nunca vai esquecer do Segundo Tenente Irma.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -928,14 +928,14 @@
     "indice" : 133,
     "estilo" : "Default",
     "original" : "That made me happy.",
-    "traduzido" : "Fiquei feliz com isso.",
+    "traduzido" : "Me deixou feliz.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 134,
     "estilo" : "Default",
     "original" : "Because I wasn't able to remember him.",
-    "traduzido" : "Porque eu não consegui me lembrar dele.",
+    "traduzido" : "Porque eu não fui capaz de me lembrar dele.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -970,14 +970,14 @@
     "indice" : 139,
     "estilo" : "Default",
     "original" : "Before that, I won't let you die.",
-    "traduzido" : "Antes disso, eu não deixarei você morrer.",
+    "traduzido" : "Antes disso, não vou deixar você morrer.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 140,
     "estilo" : "Default",
     "original" : "I won't let anyone else die.",
-    "traduzido" : "Não deixarei mais ninguém morrer.",
+    "traduzido" : "Não vou deixar mais ninguém morrer.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1012,14 +1012,14 @@
     "indice" : 145,
     "estilo" : "Default",
     "original" : "{\\q2}How much did you have to beg \\Nto get her to sign off on this?",
-    "traduzido" : "{\\q2}Quanto você teve que implorar \\Npara ela assinar isso?",
+    "traduzido" : "{\\q2}Quantas vezes você teve que\\Nimplorar para ela assinar isso?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 146,
     "estilo" : "Default",
     "original" : "We're busy with the festival, too.",
-    "traduzido" : "Estamos ocupados com a festa também.",
+    "traduzido" : "Estamos ocupados com o festival também.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1061,14 +1061,14 @@
     "indice" : 152,
     "estilo" : "Default",
     "original" : "From the major? Wow!",
-    "traduzido" : "",
+    "traduzido" : "Do major? Uau!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 153,
     "estilo" : "Default",
     "original" : "Hey, Anju, um...",
-    "traduzido" : "Olá, Anju, eu...",
+    "traduzido" : "Oi, Anju, eu...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1082,21 +1082,21 @@
     "indice" : 155,
     "estilo" : "Default",
     "original" : "I'm wondering if we should stop talking to her already.",
-    "traduzido" : "Estou me perguntando se ja nao devemos parar de falar com ela.",
+    "traduzido" : "Estou me perguntando se já não deveríamos parar de falar com ela.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 156,
     "estilo" : "Default",
     "original" : "Like, she's sending us presents and all now.",
-    "traduzido" : "Ela está mandando presentes para nós agora, é sério.",
+    "traduzido" : "Ela está nos mandando presentes agora, hein.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 157,
     "estilo" : "Default",
     "original" : "Are you worried about her?",
-    "traduzido" : "Está preocupado(a) com ela?",
+    "traduzido" : "Tá preocupado com ela?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1110,7 +1110,7 @@
     "indice" : 159,
     "estilo" : "Default",
     "original" : "But, um...",
-    "traduzido" : "Mas, bem...",
+    "traduzido" : "Mas, hum...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1145,21 +1145,21 @@
     "indice" : 164,
     "estilo" : "Default",
     "original" : "If we told her, she'd probably stop calling.",
-    "traduzido" : "Se dissermos a ela, provavelmente ela vai parar de ligar.",
+    "traduzido" : "Se a gente contar pra ela, provavelmente ela vai parar de ligar.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 165,
     "estilo" : "Default",
     "original" : "And that'd be better for all of us.",
-    "traduzido" : "Melhor para todos nós seria.",
+    "traduzido" : "E isso seria melhor para todos nós.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 166,
     "estilo" : "Default",
     "original" : "Yeah...",
-    "traduzido" : "Sim.",
+    "traduzido" : "Sim...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1173,21 +1173,21 @@
     "indice" : 168,
     "estilo" : "Default",
     "original" : "{\\q2}She's not a bad person, \\Nso she shouldn't get involved with us.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Ela não é uma pessoa má,\\Nentão ela não deveria se envolver conosco.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 169,
     "estilo" : "Default",
     "original" : "{\\q2}I think that's why Shin and Raiden \\Ncan't bring themselves to say it.",
-    "traduzido" : "{\\q2}Acho que é por isso que Shin e Raiden não conseguem se obrigar a dizer isso.\\N",
+    "traduzido" : "{\\q2}Acho que é por isso que Shin\\Ne Raiden não conseguem dizer isso.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 170,
     "estilo" : "Default",
     "original" : "They think that it'd hurt her.",
-    "traduzido" : "Eles acham que isso a machucaria.",
+    "traduzido" : "Eles acham que isso iria machucá-la.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1208,14 +1208,14 @@
     "indice" : 173,
     "estilo" : "Default",
     "original" : "You've never taken a shower with someone else before.",
-    "traduzido" : "Nunca tomou banho com outra pessoa antes.",
+    "traduzido" : "Nunca tomou banho com alguem antes.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 174,
     "estilo" : "Default",
     "original" : "I think it's okay now, honestly.",
-    "traduzido" : "Agora eu acho que está tudo bem, sério.",
+    "traduzido" : "Acho que agora está tudo bem, sinceramente.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1229,7 +1229,7 @@
     "indice" : 176,
     "estilo" : "Default",
     "original" : "Daiya... said I had pretty hair when we first met.",
-    "traduzido" : "Daiya... disse que eu tinha cabelo bonito quando nos conhecemos pela primeira vez.",
+    "traduzido" : "Daiya disse que eu tinha cabelo bonito quando nos conhecemos pela primeira vez.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1243,7 +1243,7 @@
     "indice" : 178,
     "estilo" : "Default",
     "original" : "{\\q2}but he still asked me if I was growing it out \\Nbecause it was so pretty.",
-    "traduzido" : "{\\q2}mas ainda assim ele perguntou se eu estava deixando crescer \\Nporque era tão bonito.",
+    "traduzido" : "{\\q2}mas ainda assim ele perguntou se eu\\Nestava deixando crescer porque era tão bonito.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1257,21 +1257,21 @@
     "indice" : 180,
     "estilo" : "Default",
     "original" : "So I think it's silly to keep worrying about it.",
-    "traduzido" : "Acho bobagem ficar preocupado com isso.",
+    "traduzido" : "Acho bobo continuar me preocupando com isso.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 181,
     "estilo" : "Default",
     "original" : "What about you? Don't you want to tell her?",
-    "traduzido" : "E você? Não quer contar a ela?",
+    "traduzido" : "E você? Não quer contar para ela?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 182,
     "estilo" : "Default",
     "original" : "No.",
-    "traduzido" : "\"O que eu sou? Uma marionete?\"",
+    "traduzido" : "\"Welcome to paradise, pig.\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1299,21 +1299,21 @@
     "indice" : 186,
     "estilo" : "Default",
     "original" : "{\\i1}I'm sure he'd bring me there. But...",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}Tenho certeza que ele me levaria até lá. Mas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 187,
     "estilo" : "Default",
     "original" : "{\\i1}But then, what about Shin?",
-    "traduzido" : "{\\i1}Mas o que dizer então sobre Shin?",
+    "traduzido" : "{\\i1}Mas e o Shin?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 188,
     "estilo" : "Default",
     "original" : "{\\i1}Who will carry his heart?",
-    "traduzido" : "{\\i1}Quem vai carregar seu coração?",
+    "traduzido" : "{\\i1}Quem carregará seu coração?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1327,7 +1327,7 @@
     "indice" : 190,
     "estilo" : "Default",
     "original" : "{\\q2}All personnel are ready to begin the \\Nattack on the Legion forward base.",
-    "traduzido" : "{\\q2}Todos os pessoal estão prontos para iniciar o \\Nataque à base avançada da Legion.",
+    "traduzido" : "{\\q2}Todos os efetivos estão prontos para\\Niniciar o ataque à base avançada da Legion.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1341,35 +1341,35 @@
     "indice" : 192,
     "estilo" : "Default",
     "original" : "Watch for the ambushers in the surrounding area.",
-    "traduzido" : "Vigie pelos emboscadores na área circundante.",
+    "traduzido" : "Alerta para os emboscadores na área circundante.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 193,
     "estilo" : "Default",
     "original" : "{\\q2}Once we've lured them into the open, \\Nthe second squad of the fourth platoon will open fire.",
-    "traduzido" : "{\\q2}Depois que atrairmos eles para o aberto, \\No segundo esquadrão do quarto pelotão abrirá fogo.",
+    "traduzido" : "{\\q2}Depois que os tivermos atraído para fora do abrigo,\\Na segunda esquadra do quarto pelotão abrirá fogo.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 194,
     "estilo" : "Default",
     "original" : "{\\q2}A-Analysis complete! Firing position \\Nis 120 kilometers east-northeast.",
-    "traduzido" : "{\\q2}Análise completa! Posição de tiro \\Nlocalizada a 120 quilômetros leste-nordeste.",
+    "traduzido" : "{\\q2}Análise completa! Posição de tiro\\Na 120 quilômetros leste-nordeste.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 195,
     "estilo" : "Default",
     "original" : "{\\q2}The estimated muzzle velocity is... \\N4,000 meters per second?",
-    "traduzido" : "{\\q2}A velocidade estimada do cano é... \\N4.000 metros por segundo?",
+    "traduzido" : "{\\q2}A velocidade estimada da boca\\Né... 4.000 metros por segundo?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 196,
     "estilo" : "Default",
     "original" : "{\\q2}It's an ultra-long-range artillery cannon. \\NOne we've never seen before!",
-    "traduzido" : "{\\q2}É uma peça de artilharia ultra-longeva. \\NUma que nunca vimos antes!",
+    "traduzido" : "{\\q2}É uma artilharia ultra de longo\\Nalcance. Uma que nunca vimos antes!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1390,7 +1390,7 @@
     "indice" : 199,
     "estilo" : "Default",
     "original" : "Roger.",
-    "traduzido" : "Roger.",
+    "traduzido" : "Entendido.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1404,7 +1404,7 @@
     "indice" : 201,
     "estilo" : "Default",
     "original" : "I-I'll get you more personnel! I'll make it happen today!",
-    "traduzido" : "Vou conseguir mais pessoal pra você! Vou fazer isso acontecer hoje mesmo!",
+    "traduzido" : "Vou conseguir mais pessoal pra você! Vou fazer acontecer hoje mesmo!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1425,14 +1425,14 @@
     "indice" : 204,
     "estilo" : "Default",
     "original" : "{\\q2}The Brigadier General even said \\Nthat they're planning to bring—",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}O Brigadeiro-General chegou a\\Ndizer que estão planejando trazer",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 205,
     "estilo" : "Default",
     "original" : "Major Milizé!",
-    "traduzido" : "Major Milize!",
+    "traduzido" : "\"Major Milize!\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1467,7 +1467,7 @@
     "indice" : 210,
     "estilo" : "Default",
     "original" : "Nothing you do will change anything.",
-    "traduzido" : "Nada do que você fizer mudará alguma coisa.",
+    "traduzido" : "Nada que você faça mudará alguma coisa.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1516,21 +1516,21 @@
     "indice" : 217,
     "estilo" : "Default",
     "original" : "{\\q2}The \"replacements\" you were just talking about \\Nare the Processors that will come after us.",
-    "traduzido" : "{\\q2}Os \"substitutos\" sobre os quais você estava falando \\Nsão os Processadores que virão depois de nós.",
+    "traduzido" : "{\\q2}Os \"substitutos\" que voce estava falando\\Nsão os Processors que virão depois de nós.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 218,
     "estilo" : "Default",
     "original" : "She means, \"After we're killed.\"",
-    "traduzido" : "Ela quer dizer, \"Depois que nós somos mortos.\"",
+    "traduzido" : "Ela quer dizer, \"Depois que a gente morrer.\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 219,
     "estilo" : "Default",
     "original" : "We've just received some brand-new Juggernauts.",
-    "traduzido" : "Acabamos de receber alguns novos Juggernauts.",
+    "traduzido" : "Recebemos alguns M1A4 Juggernaut novinhos em folha.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1544,28 +1544,28 @@
     "indice" : 221,
     "estilo" : "Default",
     "original" : "{\\q2}The white pigs don't intend to let a single \\NEighty-Six out of the Eighty-Sixth Sector.",
-    "traduzido" : "{\\q2}Os porcos brancos não pretendem deixar nenhum \\NOitenta e Seis escapar do Setor Oitenta e Seis.",
+    "traduzido" : "{\\q2}Os porcos brancos não pretendem deixar nenhum\\NOitenta e Seis sair do Setor Oitenta e Seis.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 222,
     "estilo" : "Default",
     "original" : "{\\q2}We're enlisted under the guise of, \\N\"Five years and you're free.\"",
-    "traduzido" : "{\\q2}Estamos alistados sob a promessa de, \\N\"Cinco anos e você é livre.\"",
+    "traduzido" : "{\\q2}Estamos alistados sob o disfarce\\Nde, \"Cinco anos e você é livre.\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 223,
     "estilo" : "Default",
     "original" : "Then they get us killed.",
-    "traduzido" : "Entao eles nos mandam pro abate.",
+    "traduzido" : "Então eles nos matam.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 224,
     "estilo" : "Default",
     "original" : "They really are pigs. It's terrible.",
-    "traduzido" : "Eles realmente são porcos. É terrível.",
+    "traduzido" : "Eles realmente são porcos. É horrível.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1579,7 +1579,7 @@
     "indice" : 226,
     "estilo" : "Default",
     "original" : "The vast majority of Processors die before their term is up,",
-    "traduzido" : "A maioria dos Processors morre antes do fim do seu tempo.",
+    "traduzido" : "A maioria dos Processors morre antes do fim do contrato.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1593,7 +1593,7 @@
     "indice" : 228,
     "estilo" : "Default",
     "original" : "{\\q2}The problem is when you have guys like us who \\Nmanage to survive on the battlefield against all odds.",
-    "traduzido" : "{\\q2}O problema é quando temos caras como nós que \\Nconseguem sobreviver em campo de batalha contra todas as probabilidades.",
+    "traduzido" : "{\\q2}O problema é quando temos caras como nós que conseguem\\Nsobreviver no campo de batalha contra todas as probabilidades.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1614,35 +1614,35 @@
     "indice" : 231,
     "estilo" : "Default",
     "original" : "They can't afford the possibility of us leading a rebellion.",
-    "traduzido" : "Eles não podem se dar ao luxo da possibilidade de nós liderarmos uma rebelião.",
+    "traduzido" : "Não podem se dar ao luxo da possibilidade de nós liderarmos uma rebelião.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 232,
     "estilo" : "Default",
     "original" : "So we're sent to the front with the worst fighting,",
-    "traduzido" : "Fomos enviados para a frente de batalha com as piores condições de luta.",
+    "traduzido" : "Fomos enviados para a frente com as piores batalhas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 233,
     "estilo" : "Default",
     "original" : "so we become casualties.",
-    "traduzido" : "Ficamos como baixas.",
+    "traduzido" : "Ficamos como baixas então.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 234,
     "estilo" : "Default",
     "original" : "And if we somehow survive, we end up here.",
-    "traduzido" : "E se algum dia sobrevivermos, acabaremos aqui.",
+    "traduzido" : "Se algum dia sobrevivermos, acabaremos aqui.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 235,
     "estilo" : "Default",
     "original" : "The first ward's first squadron—Spearhead.",
-    "traduzido" : "Esquadrao Spearhead do Primeiro Setor",
+    "traduzido" : "Esquadrao Lança-Funda, primeiro do Primeiro Distrito.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1656,7 +1656,7 @@
     "indice" : 237,
     "estilo" : "Default",
     "original" : "This is the end of the line for us.",
-    "traduzido" : "Esta é a linha final para nós.",
+    "traduzido" : "Esta é a última linha para nós.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1670,21 +1670,21 @@
     "indice" : 239,
     "estilo" : "Default",
     "original" : "Only after the last one is dead will replacements come.",
-    "traduzido" : "Apenas depois que o último deles morrerão virão os substitutos.",
+    "traduzido" : "Apenas depois que o último estiver morto é que virão os substitutos.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 240,
     "estilo" : "Default",
     "original" : "The next group, awaiting their own executions.",
-    "traduzido" : "Próximo grupo aguardando suas próprias execuções.",
+    "traduzido" : "O próximo grupo, aguardando suas próprias execuções.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 241,
     "estilo" : "Default",
     "original" : "{\\q2}So we're not forcing you to protect us, \\Nbut rather... to kill yourselves?",
-    "traduzido" : "{\\q2}Então não estamos forçando você a nos proteger, \\Nmas sim... a se matarem?",
+    "traduzido" : "{\\q2}Então não estamos forçando você a\\Nnos proteger, mas sim... a se matarem?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1698,7 +1698,7 @@
     "indice" : 243,
     "estilo" : "Default",
     "original" : "Did you all know...",
-    "traduzido" : "\"Vocês todos sabiam...\"",
+    "traduzido" : "Sabiam todos...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1726,7 +1726,7 @@
     "indice" : 247,
     "estilo" : "Default",
     "original" : "{\\q2}Nobody who went to war—neither my \\Nsister nor anybody else—came back.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Ninguém que foi para a guerra — nem\\Nminha irmã nem qualquer outra pessoa — voltou.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1740,14 +1740,14 @@
     "indice" : 249,
     "estilo" : "Default",
     "original" : "{\\q2}We all knew from the start that the \\Nwhite pigs don't keep their promises.",
-    "traduzido" : "{\\q2}Todos sabíamos desde o início que os \\Nporcos brancos não cumprem suas promessas.",
+    "traduzido" : "{\\q2}Sabíamos desde o início que os porcos\\Nbrancos não cumprem suas promessas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 250,
     "estilo" : "Default",
     "original" : "If you knew, then why did you fight?",
-    "traduzido" : "Se você sabia, então por que lutou?",
+    "traduzido" : "Se voce soubesse, entao porque lutou?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1768,7 +1768,7 @@
     "indice" : 253,
     "estilo" : "Default",
     "original" : "We'd just sit back and let the Legion through.",
-    "traduzido" : "Deixaríamos os Legion passarem sem fazer nada.",
+    "traduzido" : "Deixaríamos o Legion passar enquanto ficávamos sentados.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1789,56 +1789,56 @@
     "indice" : 256,
     "estilo" : "Default",
     "original" : "{\\q2}Until I was twelve, an old Alba woman \\Nin the Ninth Sector looked after me.",
-    "traduzido" : "{\\q2}Até meus doze anos, uma velha mulher Alba \\Ndo Nono Setor cuidava de mim.",
+    "traduzido" : "{\\q2}Até os doze anos, fui cuidada por\\Numa velha mulher Alba no Nono Setor.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 257,
     "estilo" : "Default",
     "original" : "{\\q2}Shin was raised by an Alba priest who refused \\Nto give up his land and was sent to the camps.",
-    "traduzido" : "{\\q2}Shin foi criado por um padre Alba que se recusou a \\Nabandonar sua terra e foi enviado aos campos.",
+    "traduzido" : "{\\q2}Shin foi criado por um padre Alba que se recusou\\Na abandonar sua terra e foi enviado aos campos.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 258,
     "estilo" : "Default",
     "original" : "Theo told you before about his captain.",
-    "traduzido" : "Theo já tinha falado sobre seu capitão para você.",
+    "traduzido" : "Theo já lhe contou sobre seu capitão.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 259,
     "estilo" : "Default",
     "original" : "Kurena knows the very worst of the Alba.",
-    "traduzido" : "Kurena conhece o pior dos Alba.",
+    "traduzido" : "Kurena conhece o pior lado dos Alba.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 260,
     "estilo" : "Default",
     "original" : "{\\q2}Of course, we all know how awful \\Nthe white pigs can be, but...",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Claro, todos sabemos o quanto os\\Nporcos brancos podem ser ruins, mas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 261,
     "estilo" : "Default",
     "original" : "There are also people like Kaie,",
-    "traduzido" : "Tem pessoas como Kaie também.",
+    "traduzido" : "Tem pessoas como Kae também.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 262,
     "estilo" : "Default",
     "original" : "{\\q2}who were abused by other Eighty-Six \\Nbecause of the color of their skin.",
-    "traduzido" : "{\\q2}quem foram abusados por outros Oitenta e Seis \\Ndevido a cor da sua pele.",
+    "traduzido" : "{\\q2}quem foram abusados por outros\\NOitenta e Seis devido à cor da sua pele.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 263,
     "estilo" : "Default",
     "original" : "{\\q2}Anju, Haruto, and Shin have some white pig \\Nor imperial blood. They're the same.",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Anju, Haruto e Shin têm algum sangue\\Nbranco ou imperial. Eles são iguais.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1852,42 +1852,42 @@
     "indice" : 265,
     "estilo" : "Default",
     "original" : "{\\q2}And there were a lot of proud Eighty-Six \\Nwho fought to the very end.",
-    "traduzido" : "{\\q2}E havia muitos orgulhosos do 86 \\Nque lutaram até o fim.",
+    "traduzido" : "{\\q2}E havia muitos orgulhosos\\NOitenta e Seis que lutaram até o fim.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 266,
     "estilo" : "Default",
     "original" : "Even if most Alba are scum,",
-    "traduzido" : "Mesmo que a maioria dos Alba sejam lixo",
+    "traduzido" : "Mesmo que a maioria dos Alba sejam escória",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 267,
     "estilo" : "Default",
     "original" : "there are some who couldn't let us die for no reason.",
-    "traduzido" : "Há quem não nos deixe morrer à toa.",
+    "traduzido" : "Há quem não nos deixe morrer sem motivo.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 268,
     "estilo" : "Default",
     "original" : "And neither are the Eighty-Six all good people either.",
-    "traduzido" : "E os Oitenta e Seis também não são todas pessoas boas.",
+    "traduzido" : "E os Oitenta e Seis também não são todos pessoas boas.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 269,
     "estilo" : "Default",
     "original" : "And so we all decided which we wanted to be.",
-    "traduzido" : "E assim decidimos quem queríamos ser.",
+    "traduzido" : "E assim todos decidimos quem queríamos ser.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 270,
     "estilo" : "Default",
     "original" : "Just because scum treats you like scum,",
-    "traduzido" : "Nao significa que voce tenha que agir como tal.",
+    "traduzido" : "Nao significa que voce precisa agir como tal.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1901,21 +1901,21 @@
     "indice" : 272,
     "estilo" : "Default",
     "original" : "{\\q2}If the only two paths are to die \\Nfighting the Legion or to die giving up,",
-    "traduzido" : "",
+    "traduzido" : "{\\q2}Se as únicas duas opções são morrer\\Nlutando contra a Legion ou morrer desistindo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 273,
     "estilo" : "Default",
     "original" : "we'll survive to the last moment and go down fighting.",
-    "traduzido" : "Vamos resistir até o último momento e cair lutando.",
+    "traduzido" : "Vamos sobreviver até o último momento e cair lutando.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 274,
     "estilo" : "Default",
     "original" : "That's the reason we fight.",
-    "traduzido" : "Aquilo é a razão pela qual lutamos.",
+    "traduzido" : "Essa é a razão pela qual lutamos.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1929,7 +1929,7 @@
     "indice" : 276,
     "estilo" : "Default",
     "original" : "{\\q2}If that means protecting the \\Nwhite pigs, well, that's not ideal,",
-    "traduzido" : "{\\q2}Se isso significa proteger os \\Nporcos brancos, então, não é ideal.",
+    "traduzido" : "{\\q2}Se isso significa proteger os\\Nporcos brancos, bem, não é ideal.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1943,21 +1943,21 @@
     "indice" : 278,
     "estilo" : "Default",
     "original" : "Even if you know that in the end, you'll die?",
-    "traduzido" : "Mesmo sabendo que no final, vai morrer?",
+    "traduzido" : "Mesmo sabendo que no final, você vai morrer?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 279,
     "estilo" : "Default",
     "original" : "{\\q2}What idiot would tie a noose today \\Nknowing they'll die tomorrow?",
-    "traduzido" : "{\\q2}Que idiota amarra uma forca hoje \\Nsabendo que vai morrer amanhã?",
+    "traduzido" : "{\\q2}Que idiota amarra uma forca\\Nhoje sabendo que vai morrer amanhã?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 280,
     "estilo" : "Default",
     "original" : "{\\q2}Even if you know you're going to the gallows, \\Nyou can choose how you're going to climb up there.",
-    "traduzido" : "{\\q2}Mesmo que você saiba que está indo para a forca, \\Nvocê pode escolher como vai subir até lá.",
+    "traduzido" : "{\\q2}Mesmo sabendo que vai para a forca,\\Nvocê pode escolher como vai subir até lá.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1985,175 +1985,175 @@
     "indice" : 357,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 358,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 359,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 360,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 365,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 366,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 367,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 368,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 373,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 374,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 375,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 376,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 378,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 383,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1078,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 384,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1062,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 385,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(896,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 386,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(988,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 391,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1040,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 392,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(792,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 393,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1055,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 394,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(805,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 399,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(996,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 400,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1025,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 401,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 402,
     "estilo" : "Opening",
     "original" : "{=23}{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{=23}{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{=23}{\\an2\\pos(782,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2258,175 +2258,175 @@
     "indice" : 584,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 585,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 586,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 587,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 592,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 593,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 594,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 595,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 600,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 601,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 602,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 603,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 605,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 610,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1024,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 611,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(817,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 612,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(769,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 613,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 618,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(844,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 619,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1092,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 620,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1095,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 621,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(1011,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 626,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(999,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 627,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(993,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 628,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, nunca esquecerei sua voz",
+    "traduzido" : "{\\an2\\pos(779,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa o que aconteça, jamais esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 629,
     "estilo" : "Opening",
     "original" : "{=31}{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter what happens, I'll never forget your voice",
-    "traduzido" : "{=31}{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, jamais esquecerei sua voz",
+    "traduzido" : "{=31}{\\an2\\pos(1091,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa o que aconteça, eu nunca esquecerei sua voz",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2545,7 +2545,7 @@
     "indice" : 801,
     "estilo" : "Opening",
     "original" : "{\\pos(856,40)\\1c&H00B2BA&\\3c&HB2BABB&\\t(0,50,\\blur4\\bord4)\\t(50,150,\\blur0.6\\bord0)}shou",
-    "traduzido" : "",
+    "traduzido" : "{\\pos(856,40)\\1c&H00B2BA&\\3c&HB2BABB&\\t(0,50,\\blur4\\bord4)\\t(50,150,\\blur0.6\\bord0)}Shou",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2727,175 +2727,175 @@
     "indice" : 933,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 934,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 935,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 936,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 941,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 942,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 943,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 944,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 949,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 950,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 951,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 952,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 954,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 959,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1096,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 960,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1068,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 961,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1155,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 962,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(869,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 967,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(764,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 968,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(922,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 969,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(914,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 970,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1114,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 975,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(781,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 976,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(1144,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 977,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{\\an2\\pos(878,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 978,
     "estilo" : "Opening",
     "original" : "{=43}{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}No matter how hard I wish, nothing ever changes",
-    "traduzido" : "{=43}{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Por mais que eu deseje, nada jamais muda",
+    "traduzido" : "{=43}{\\an2\\pos(1143,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Não importa quanto eu queira, nada nunca muda",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3014,525 +3014,525 @@
     "indice" : 1158,
     "estilo" : "Opening",
     "original" : "{=50}{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{=50}{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Aplaudindo, revoltando, ignorância voluntária",
+    "traduzido" : "{=50}{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltando-se em silêncio",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1159,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1160,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1161,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1162,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1163,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1164,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1165,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1166,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1167,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1168,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1169,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1170,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1171,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1172,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1173,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1174,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1175,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1176,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1177,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1178,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1179,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1180,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1181,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1182,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1183,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1184,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(931,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1185,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1090,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1186,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(820,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1187,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1082,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1188,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(931,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1189,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1190,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(820,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1191,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1082,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1192,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1001,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1193,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(874,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1194,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1067,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1195,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1036,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1196,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1001,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1197,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(874,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1198,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1067,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1199,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(1036,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1200,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(868,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1201,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(840,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1202,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(780,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1203,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(818,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1204,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(868,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1205,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(840,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1206,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas observando, revoltado, ignorando de propósito",
+    "traduzido" : "{\\an2\\pos(780,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Apenas assistindo, revoltados pela ignorância deliberada",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1207,
     "estilo" : "Opening",
     "original" : "{=51}{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Bystanding, revolting, willful ignorance",
-    "traduzido" : "{=51}{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Aplaudindo, revoltando, ignorância voluntária",
+    "traduzido" : "{=51}{\\an2\\pos(818,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Apenas assistindo, revoltando-se em silêncio",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1276,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1277,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1278,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1279,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(980,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(980,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(980,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1284,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1285,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1286,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1287,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1292,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1293,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1294,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1295,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1296,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1297,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1302,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1135,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1303,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1079,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1304,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(971,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1305,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(966,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1310,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1084,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1311,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(787,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1312,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1080,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1313,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1039,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1318,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(915,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1319,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1320,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}That's you, that's the person I see",
-    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Isso aí é você, é a pessoa que eu vejo",
+    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}É você, é a pessoa que eu vejo",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3546,168 +3546,168 @@
     "indice" : 1392,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1393,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1394,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1395,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(904,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(904,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(904,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1400,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1401,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1402,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1403,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1408,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1409,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1410,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1411,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1413,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(960,170)\\bord0\\2c&HC4B2AD&\\blur0.5}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1418,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(799,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1419,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(839,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1420,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1158,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1421,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1153,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1426,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1021,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1427,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1083,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1428,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1029,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1429,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(906,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,156.5,1920,173)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1434,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(789,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,107,1920,123.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1435,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1034,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,123.5,1920,140)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1436,
     "estilo" : "Opening",
     "original" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Don't worry, ease up, why don't you",
-    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxa, não precisa se preocupar",
+    "traduzido" : "{\\an2\\pos(1090,170)\\bord0\\2c&HC4B2AD&\\blur0.5\\clip(0,140,1920,156.5)}Relaxe, não precisa se preocupar",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3728,7 +3728,7 @@
     "indice" : 1548,
     "estilo" : "Signs",
     "original" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0}August 15th, Stellar Year 2148",
-    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0} Quinze de agosto, Ano Estelar 2148",
+    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0}15 de agosto do Ano Estelar 2148",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3742,7 +3742,7 @@
     "indice" : 1550,
     "estilo" : "Signs",
     "original" : "{=6}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fad(500,500)\\b0\\fscx90}August 16th, Stellar Year 2148",
-    "traduzido" : "{=6}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fad(500,500)\\b0\\fscx90}16 de agosto, Ano Estelar 2148",
+    "traduzido" : "",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3756,7 +3756,7 @@
     "indice" : 1552,
     "estilo" : "Signs",
     "original" : "{=7}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fad(500,500)\\b0\\fscx90}August 16th, Stellar Year 2148",
-    "traduzido" : "{=7}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fad(500,500)\\b0\\fscx90}16 de agosto, Ano Estelar 2148",
+    "traduzido" : "",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3791,7 +3791,7 @@
     "indice" : 1563,
     "estilo" : "Signs",
     "original" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0}August 27th, Stellar Year 2148",
-    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0}27 de agosto, Ano Estelar 2148",
+    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\fscx90\\t(0,500,\\1a&H00&)\\t(3000,3500,\\1a&HFF&)\\b0}27 de agosto do Ano Estelar 2148",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3833,7 +3833,7 @@
     "indice" : 1765,
     "estilo" : "Ending",
     "original" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}To shadows stalled in a silent haze",
-    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}Presos nas sombras em uma névoa silenciosa",
+    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}Presos nas sombras em um nevoeiro silencioso",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3847,21 +3847,21 @@
     "indice" : 1823,
     "estilo" : "Ending",
     "original" : "{=166}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&}So scattered and carved",
-    "traduzido" : "{=166}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&}Espalhados e talhados",
+    "traduzido" : "{=166}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&}Espalhados e esculpidos",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1824,
     "estilo" : "Ending",
     "original" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}So scattered and carved",
-    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}Espalhados e esculpidos",
+    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\2c&H7693FF&\\fs72\\3c&H0000A4&}Espalhados e cortados",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1825,
     "estilo" : "Ending",
     "original" : "{=167}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6}So scattered and carved",
-    "traduzido" : "{=167}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6}Espalhados e talhados",
+    "traduzido" : "{=167}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6}Espalhados e esculpidos",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3889,7 +3889,7 @@
     "indice" : 2060,
     "estilo" : "Ending",
     "original" : "{=178}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}The sky I look up to changes in color",
-    "traduzido" : "{=178}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}O céu que eu olho lá em cima muda de cor",
+    "traduzido" : "{=178}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}O céu que eu olho muda de cor",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3903,28 +3903,28 @@
     "indice" : 2062,
     "estilo" : "Ending",
     "original" : "{=179}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}The sky I look up to changes in color",
-    "traduzido" : "{=179}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}O céu que eu olho lá em cima muda de cor",
+    "traduzido" : "{=179}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}O céu que eu olho muda de cor",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2210,
     "estilo" : "Ending",
     "original" : "{=186}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}Avidity that I sought without even realizing it",
-    "traduzido" : "{=186}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}A avidez que procurei sem nem perceber",
+    "traduzido" : "{=186}{\\fad(80,80)\\pos(1860,125)\\blur1\\bord3\\3c&H00FFFFFF&\\2c&H7693FF&}A avidez que eu procurava sem nem perceber",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2211,
     "estilo" : "Ending",
     "original" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}Avidity that I sought without even realizing it",
-    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}Uma avidez que eu buscava sem nem perceber",
+    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}A avidez que procurei sem nem perceber",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2212,
     "estilo" : "Ending",
     "original" : "{=187}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}Avidity that I sought without even realizing it",
-    "traduzido" : "{=187}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}A avidez que procurei sem nem perceber",
+    "traduzido" : "{=187}{\\fad(80,80)\\pos(1860,125)\\bord0\\blur0.6\\3c&H0000A4&\\2c&H7693FF&}A avidez que eu procurava sem nem perceber",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3938,7 +3938,7 @@
     "indice" : 2543,
     "estilo" : "Ending",
     "original" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}The freedom of the ultramarine sky we saw that faithful day",
-    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}O liberdade do ceu ultramarino que vimos naquele dia fiel",
+    "traduzido" : "{\\fad(80,80)\\pos(1860,125)\\blur1\\c&H000000A4&\\3c&H0000A4&\\2c&H7693FF&}O liberdade do céu ultramarino que vimos naquele dia fiel",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -3952,21 +3952,21 @@
     "indice" : 2545,
     "estilo" : "Signs",
     "original" : "{=16}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fscx90\\b0}Eastern Front's Sixteenth Ward's First Squadron \"Falkes\"",
-    "traduzido" : "{=16}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona do Front Oriental",
+    "traduzido" : "{=16}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona da Frente Leste",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2546,
     "estilo" : "Signs",
     "original" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5\\fscx90\\b0}Eastern Front's Sixteenth Ward's First Squadron \"Falkes\"",
-    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona do Front Oriental",
+    "traduzido" : "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona da Frente Leste",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2547,
     "estilo" : "Signs",
     "original" : "{=17}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fscx90\\b0}Eastern Front's Sixteenth Ward's First Squadron \"Falkes\"",
-    "traduzido" : "{=17}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona do Front Oriental",
+    "traduzido" : "{=17}{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fscx90\\b0}Esquadrao Falkes da Primeira Zona da Frente Leste",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]

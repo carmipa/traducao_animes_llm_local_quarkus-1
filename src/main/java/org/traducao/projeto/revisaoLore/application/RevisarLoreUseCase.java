@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -529,7 +530,9 @@ public class RevisarLoreUseCase {
                 }
 
                 falasSinalizadas[0]++;
-                Optional<String> correcaoDeterministica = corrigirLoreDeterministica(mascaraEn.texto(), mascaraPt.texto());
+                Map<String, String> correcoesLore = gerenciadorPromptRevisaoLore.correcoesTerminologia(contextoId);
+                Optional<String> correcaoDeterministica =
+                    corrigirLoreDeterministica(mascaraEn.texto(), mascaraPt.texto(), correcoesLore);
                 if (correcaoDeterministica.isPresent()) {
                     String revisada = mascarador.desmascarar(correcaoDeterministica.get(), mascaraPt.tags());
                     try {
@@ -1249,6 +1252,24 @@ public class RevisarLoreUseCase {
     }
 
     static Optional<String> corrigirLoreDeterministica(String originalMascarado, String traducaoMascarada) {
+        return corrigirLoreDeterministica(originalMascarado, traducaoMascarada, Map.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura terminologia canônica de lore SEM LLM — casos
+     * específicos herdados (Shin/"Canela"; "dud rounds"/"munições falhas") mais o mapa
+     * genérico da obra ativa (forma-ruim PT → canônico). É o complemento determinístico
+     * do prompt: o prompt PEDE ao LLM; este método GARANTE nas formas-ruim conhecidas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: opera sobre texto MASCARADO (tags viram [[TAGn]], intactas);
+     * o mapa só restaura quando o original EN contém o canônico na grafia EXATA; forma-ruim
+     * casa por fronteira de palavra, ignorando caixa; nunca deixa a linha pior.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas/tradução vazia ou nenhuma
+     * substituição aplicável devolvem {@link Optional#empty()} (mantém o original).
+     */
+    static Optional<String> corrigirLoreDeterministica(
+            String originalMascarado, String traducaoMascarada, Map<String, String> correcoesTerminologia) {
         if (originalMascarado == null || traducaoMascarada == null || traducaoMascarada.isBlank()) {
             return Optional.empty();
         }
@@ -1264,10 +1285,64 @@ public class RevisarLoreUseCase {
             corrigida = PADRAO_RODADAS_ALEATORIAS.matcher(corrigida).replaceAll("munições falhas");
         }
 
+        corrigida = aplicarCorrecoesTerminologia(originalMascarado, corrigida, correcoesTerminologia);
+
         if (corrigida.equals(traducaoMascarada)) {
             return Optional.empty();
         }
         return Optional.of(corrigida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: aplica o mapa de terminologia da obra, restaurando cada
+     * forma-ruim para o canônico quando o original EN contém o canônico. Espelha o
+     * enforcer da tradução ({@code EnforcadorTermosLore}), reimplementado aqui porque a
+     * fatia de revisão de lore não pode importar a fatia de tradução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: canônico verificado no original por fronteira de palavra
+     * e SENSÍVEL à caixa (nome próprio "Titans" ≠ comum "titans"); forma-ruim substituída
+     * por fronteira de palavra IGNORANDO caixa; canônico inserido literalmente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo/vazio ou pares inválidos devolvem o
+     * texto inalterado.
+     */
+    private static String aplicarCorrecoesTerminologia(
+            String original, String traducao, Map<String, String> correcoes) {
+        if (correcoes == null || correcoes.isEmpty()) {
+            return traducao;
+        }
+        String resultado = traducao;
+        for (Map.Entry<String, String> par : correcoes.entrySet()) {
+            String formaRuim = par.getKey();
+            String canonico = par.getValue();
+            if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
+                continue;
+            }
+            if (!contemTermoCanonico(original, canonico)) {
+                continue;
+            }
+            Pattern formaRuimPat = Pattern.compile(
+                "(?<![\\p{L}\\p{N}])" + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            if (formaRuimPat.matcher(resultado).find()) {
+                resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: confirma que o original EN contém o termo canônico na grafia
+     * exata — nome próprio maiúsculo, distinto da palavra comum minúscula.
+     * <p>INVARIANTES DO DOMÍNIO: fronteira de palavra; comparação SENSÍVEL à caixa.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: termo em branco devolve {@code false}.
+     */
+    private static boolean contemTermoCanonico(String texto, String termo) {
+        if (termo.isBlank()) {
+            return false;
+        }
+        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+            .matcher(texto).find();
     }
 
     private String formatarMotivos(List<String> motivos) {
