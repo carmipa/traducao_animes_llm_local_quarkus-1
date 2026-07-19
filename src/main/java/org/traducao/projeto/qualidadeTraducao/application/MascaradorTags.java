@@ -34,6 +34,8 @@ public class MascaradorTags {
     private static final Pattern PADRAO_PLACEHOLDER = Pattern.compile("\\[\\[TAG(\\d+)]]");
     private static final Pattern PADRAO_MODO_DESENHO = Pattern.compile(
         "\\{[^}]*\\\\p[1-9]\\d*[^}]*}", Pattern.CASE_INSENSITIVE);
+    /** Índice impossível para um marcador legítimo (0..n-1); sinaliza marcador corrompido. */
+    private static final int INDICE_MARCADOR_INVALIDO = -1;
 
     /**
      * PROPÓSITO DE NEGÓCIO: transporta o resultado do mascaramento — o texto pronto
@@ -161,10 +163,31 @@ public class MascaradorTags {
         List<Integer> indices = new ArrayList<>();
         Matcher matcher = PADRAO_PLACEHOLDER.matcher(texto);
         while (matcher.find()) {
-            indices.add(Integer.parseInt(matcher.group(1)));
+            indices.add(parseIndiceMarcador(matcher.group(1)));
         }
         indices.sort(null);
         return indices;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: converte os dígitos de um marcador {@code [[TAGn]]} em índice,
+     * blindando o pipeline contra um índice absurdo alucinado pelo LLM
+     * (ex.: {@code [[TAG9999999999999]]}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: um índice que não cabe em {@code int} é impossível para um
+     * marcador legítimo (sempre {@code 0..n-1}); é tratado como corrompido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: em vez de propagar {@link NumberFormatException}
+     * (que escaparia dos catches de alucinação e abortaria o episódio/arquivo inteiro),
+     * devolve {@link #INDICE_MARCADOR_INVALIDO}, fazendo a validação de conjunto reprovar e
+     * lançar {@link AlucinacaoDetectadaException} — o caminho gracioso que mantém o original.
+     */
+    private static int parseIndiceMarcador(String digitos) {
+        try {
+            return Integer.parseInt(digitos);
+        } catch (NumberFormatException e) {
+            return INDICE_MARCADOR_INVALIDO;
+        }
     }
 
     /**
@@ -184,7 +207,7 @@ public class MascaradorTags {
         List<Integer> indicesEncontrados = new ArrayList<>();
         Matcher matcher = PADRAO_PLACEHOLDER.matcher(textoTraduzidoMascarado);
         while (matcher.find()) {
-            indicesEncontrados.add(Integer.parseInt(matcher.group(1)));
+            indicesEncontrados.add(parseIndiceMarcador(matcher.group(1)));
         }
 
         Set<Integer> esperados = new HashSet<>();
