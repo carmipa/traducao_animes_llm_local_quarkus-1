@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.gundam;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -67,10 +69,36 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Banagher Links", "Mineva Lao Zabi", "Audrey Burne", "Full Frontal",
-            "Marida Cruz", "Riddhe Marcenas", "Unicorn Gundam", "Banshee", "Sinanju",
-            "Kshatriya", "Laplace's Box", "Psycho-Frame", "Nahel Argama", "Sleeves",
-            "Newtype", "Cyber-Newtype", "Spacenoid", "NT-D", "Minovsky"
+            "Banagher Links", "Mineva Lao Zabi", "Audrey Burne",
+            "Full Frontal", "Marida Cruz", "Riddhe Marcenas",
+            "Suberoa Zinnerman", "Otto Midas", "Daguza Mackle",
+            "Martha Vist Carbine", "Cardeas Vist", "Alberto Vist",
+            "Angelo Sauper", "Unicorn Gundam", "Banshee",
+            "Sinanju", "Kshatriya", "Nahel Argama",
+            "Garencieres", "Earth Federation", "Sleeves",
+            "Neo Zeon", "Vist Foundation", "Anaheim Electronics",
+            "Laplace's Box", "Industrial 7", "Newtype",
+            "Cyber-Newtype", "Oldtype", "Spacenoid",
+            "Earthnoid", "Minovsky", "Psycho-Frame",
+            "NT-D", "psycommu", "funnel",
+            "Mobile Suit", "Mobile Armor"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
+     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Mangas", "Sleeves"),
+            Map.entry("Manga", "Sleeves"),
+            Map.entry("Moldura Psíquica", "Psycho-Frame"),
+            Map.entry("Caixa de Laplace", "Laplace's Box"),
+            Map.entry("Fundação Vist", "Vist Foundation")
+        ));
     }
 }

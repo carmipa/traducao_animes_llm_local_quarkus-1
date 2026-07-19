@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.gundam;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -95,11 +97,38 @@ public class ContextoGundamNT implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Banchi 18", "Metis", "Fransson", "Jona Basta", "Michele Luio", "Rita Bernal",
-            "Zoltan Akkanen", "Luio Woomin", "Stephanie Luio", "Phenex", "Narrative Gundam",
-            "Shezarr", "Sinanju Stein", "II Neo Zeong", "Newtype", "Cyber-Newtype", "Oldtype",
-            "Spacenoid", "NT-D", "Psycho-Frame", "Minovsky", "Sleeves", "Luio & Co.",
-            "Miracle Children", "Banagher Links", "Mineva Lao Zabi"
+            "Jona Basta", "Michele Luio", "Rita Bernal",
+            "Zoltan Akkanen", "Luio Woomin", "Stephanie Luio",
+            "Banagher Links", "Mineva Lao Zabi", "Iago Haakana",
+            "Monaghan Bakharo", "Narrative Gundam", "Phenex",
+            "Sinanju Stein", "II Neo Zeong", "Silver Bullet Suppressor",
+            "Unicorn", "Banshee", "Earth Federation",
+            "Shezarr", "Republic of Zeon", "Sleeves",
+            "Miracle Children", "Metis", "Banchi 18", "Fransson", "Operation Phoenix Hunt",
+            "Laplace's Box", "Universal Century", "Newtype",
+            "Cyber-Newtype", "Oldtype", "Spacenoid",
+            "Earthnoid", "Minovsky", "Psycho-Frame",
+            "psycommu", "funnel", "NT-D",
+            "Mega Particle Cannon", "Mobile Suit", "Mobile Armor"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
+     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Fenís", "Phenex"),
+            Map.entry("Fênix", "Phenex"),
+            Map.entry("Operação Caça à Fênix", "Operation Phoenix Hunt"),
+            Map.entry("Crianças Milagrosas", "Miracle Children"),
+            Map.entry("Mangas", "Sleeves"),
+            Map.entry("Manga", "Sleeves"),
+            Map.entry("Moldura Psíquica", "Psycho-Frame")
+        ));
     }
 }
