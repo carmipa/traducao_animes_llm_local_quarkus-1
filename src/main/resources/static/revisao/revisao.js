@@ -1,4 +1,5 @@
 import { logNoConsole } from '../js/app.js';
+import { montarOpcoesContextos } from '../js/selectContextos.js';
 
 const STORAGE_PASTA_PT = 'revisao.ultimaPastaPt';
 
@@ -216,12 +217,8 @@ async function carregarContextos() {
         }
 
         select.innerHTML = '';
-        contextos.forEach(ctx => {
-            const opt = document.createElement('option');
-            opt.value = ctx.id;
-            opt.textContent = ctx.nome;
+        montarOpcoesContextos(select, contextos, (opt, ctx) => {
             if (ctx.padrao) opt.selected = true;
-            select.appendChild(opt);
         });
 
         contextosCarregados = true;
