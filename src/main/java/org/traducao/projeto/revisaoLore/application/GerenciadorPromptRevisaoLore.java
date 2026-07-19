@@ -51,6 +51,20 @@ public class GerenciadorPromptRevisaoLore {
         return obterPrompt(id).obterPromptSistema();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega o mapa de terminologia canônica da obra ativa para o
+     * reforço determinístico da revisão de lore.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: delega ao provedor do {@code id}; chave = forma-ruim PT,
+     * valor = canônico.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code id} nulo/desconhecido lança
+     * {@link RevisaoLoreException} (mesma política de {@link #obterPrompt(String)}).
+     */
+    public Map<String, String> correcoesTerminologia(String id) {
+        return obterPrompt(id).correcoesTerminologia();
+    }
+
     private void validarIdsUnicos(List<ProvedorPromptRevisaoLore> provedores) {
         Map<String, Long> contagemPorId = provedores.stream()
             .map(ProvedorPromptRevisaoLore::getId)

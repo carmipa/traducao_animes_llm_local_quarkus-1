@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 
+import java.util.Map;
+
 @Component
 public class ContextoRevisaoLore86 implements ProvedorPromptRevisaoLore {
 
@@ -25,4 +27,24 @@ public class ContextoRevisaoLore86 implements ProvedorPromptRevisaoLore {
     @Override public String getId() { return "eight_six"; }
     @Override public String getNomeExibicao() { return "86 (Eighty-Six) - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: formas-ruim de terminologia do 86 que a revisão restaura
+     * deterministicamente — mesmo mapa da tradução local ({@code Contexto86}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: chave = forma-ruim PT; valor = canônico; só aplica quando
+     * o original EN contém o canônico na grafia exata.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return Map.of(
+            "Legião", "Legion",
+            "Handler Um", "Handler One",
+            "Processador", "Processor",
+            "Coveiro", "Undertaker",
+            "Cavaleiro da Morte", "Undertaker"
+        );
+    }
 }
