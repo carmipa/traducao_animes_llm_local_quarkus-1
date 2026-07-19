@@ -52,6 +52,8 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
     // restauração — sinal de que o Google corrompeu a formatação.
     private static final Pattern PADRAO_MARCADOR_RESIDUAL =
         Pattern.compile("(?i)[\\[(]\\s*[tb]\\s*\\d*\\s*[\\])]");
+    /** Quebras estruturais ASS verificadas por contagem exata na volta do Google. */
+    private static final List<String> QUEBRAS = List.of("\\N", "\\n", "\\h");
 
     private final ObjectMapper mapper;
     private final HttpClient httpClient;
@@ -92,10 +94,11 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
         sb.append(original, ultimoFim, original.length());
         String mascarado = sb.toString();
 
-        boolean temQuebra = mascarado.contains("\\N");
-        if (temQuebra) {
-            mascarado = mascarado.replace("\\N", " [B] ");
-        }
+        // Todas as quebras estruturais ASS viram marcadores distintos e restauráveis.
+        mascarado = mascarado
+            .replace("\\N", " [B] ")
+            .replace("\\n", " [Bn] ")
+            .replace("\\h", " [Bh] ");
         mascarado = mascarado.replaceAll("\\s+", " ").strip();
         if (mascarado.isEmpty()) {
             return Optional.empty();
@@ -139,21 +142,30 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
             return Optional.empty();
         }
 
-        if (temQuebra) {
-            traduzido = traduzido.replaceAll("(?i)\\s*\\[b\\]\\s*", "\\\\N");
-        }
+        // Restaura as quebras (marcadores mais específicos primeiro) e depois as tags.
+        traduzido = restaurarQuebra(traduzido, "bh", "\\h");
+        traduzido = restaurarQuebra(traduzido, "bn", "\\n");
+        traduzido = restaurarQuebra(traduzido, "b", "\\N");
         for (int i = 0; i < tags.size(); i++) {
             traduzido = traduzido.replaceAll("(?i)\\s*\\[t" + i + "\\]\\s*", Matcher.quoteReplacement(tags.get(i)));
         }
-        traduzido = traduzido.replace("\\ N", "\\N").replace("\\ n", "\\N");
+        traduzido = traduzido.replace("\\ N", "\\N").replace("\\ n", "\\n").replace("\\ h", "\\h");
 
         if (PADRAO_MARCADOR_RESIDUAL.matcher(traduzido).find()) {
             log.warn("Fallback Google: marcadores de tag/quebra mutilados — fala mantida pendente: {}", traduzido);
             return Optional.empty();
         }
+        // Contagem EXATA de cada tag e quebra: pega tanto perda quanto DUPLICAÇÃO de marcador
+        // pelo Google (um simples contains aceitaria uma tag restaurada em dobro).
         for (String tag : tags) {
-            if (!traduzido.contains(tag)) {
-                log.warn("Fallback Google: tag ASS {} perdida — fala mantida pendente.", tag);
+            if (contarOcorrencias(traduzido, tag) != contarOcorrencias(original, tag)) {
+                log.warn("Fallback Google: contagem da tag ASS {} divergente — fala mantida pendente.", tag);
+                return Optional.empty();
+            }
+        }
+        for (String quebra : QUEBRAS) {
+            if (contarOcorrencias(traduzido, quebra) != contarOcorrencias(original, quebra)) {
+                log.warn("Fallback Google: contagem da quebra {} divergente — fala mantida pendente.", quebra);
                 return Optional.empty();
             }
         }
@@ -161,6 +173,42 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
             return Optional.empty();
         }
         return Optional.of(traduzido);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve uma quebra estrutural ASS ({@code \N}, {@code \n},
+     * {@code \h}) ao lugar do seu marcador ({@code [B]}, {@code [Bn]}, {@code [Bh]}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: casa o marcador ignorando caixa e espaços ao redor; o
+     * código de quebra é inserido literalmente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: marcador ausente é no-op — a divergência de
+     * contagem a jusante mantém a fala pendente.
+     */
+    private static String restaurarQuebra(String texto, String marcador, String codigo) {
+        return texto.replaceAll("(?i)\\s*\\[" + marcador + "\\]\\s*", Matcher.quoteReplacement(codigo));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: conta ocorrências literais de {@code alvo} em {@code texto} para
+     * a verificação de integridade de tags/quebras.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: contagem por sobreposição zero (avança pelo comprimento do
+     * alvo); alvo vazio devolve 0.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; entradas sem ocorrência devolvem 0.
+     */
+    private static int contarOcorrencias(String texto, String alvo) {
+        if (alvo.isEmpty()) {
+            return 0;
+        }
+        int total = 0;
+        int idx = 0;
+        while ((idx = texto.indexOf(alvo, idx)) >= 0) {
+            total++;
+            idx += alvo.length();
+        }
+        return total;
     }
 
     /**
