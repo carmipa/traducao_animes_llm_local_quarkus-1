@@ -1,5 +1,8 @@
 package org.traducao.projeto.contexto.lore.gundam.msteam;
 
+import java.util.Map;
+import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -85,10 +88,31 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Shiro Amada", "Aina Sahalin", "Karen Joshua", "Terry Sanders Jr.",
-            "Eledore Massis", "Michel Ninorich", "Kiki Rosita", "Ginias Sahalin",
-            "Norris Packard", "Gundam Ez8", "Apsalus", "Gouf Custom", "08th MS Team",
-            "Newtype", "Minovsky", "Mobile Suit", "Mobile Armor", "Spacenoid"
+            "Shiro Amada", "Aina Sahalin", "Karen Joshua",
+            "Terry Sanders Jr.", "Eledore Massis", "Michel Ninorich",
+            "Kiki Rosita", "Ginias Sahalin", "Norris Packard",
+            "Kojima", "Gundam Ez8", "Ground Gundam",
+            "Gundam Ground Type", "GM Ground Type", "Zaku II Ground Type",
+            "Gouf Custom", "Apsalus", "Earth Federation",
+            "Principality of Zeon", "Kojima Battalion", "08th MS Team",
+            "Jaburo", "One Year War", "Newtype",
+            "Oldtype", "Spacenoid", "Earthnoid",
+            "Minovsky", "Mega Particle Cannon", "Mobile Suit",
+            "Mobile Armor"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
+     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Gouf Personalizado", "Gouf Custom"),
+            Map.entry("Gouf Customizado", "Gouf Custom")
+        ));
     }
 }

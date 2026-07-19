@@ -1,5 +1,8 @@
 package org.traducao.projeto.contexto.lore.gundam.chars;
 
+import java.util.Map;
+import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -57,10 +60,32 @@ public class ContextoCharsCounterattack implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Amuro Ray", "Char Aznable", "Bright Noa", "Hathaway Noa", "Quess Paraya",
-            "Gyunei Guss", "Chan Agi", "Nu Gundam", "Sazabi", "Londo Bell",
-            "Axis", "Newtype", "Oldtype", "Spacenoid", "psycho-frame", "Axis Shock",
-            "Minovsky", "Mobile Suit", "Mobile Armor"
+            "Amuro Ray", "Char Aznable", "Bright Noa",
+            "Chan Agi", "Beltorchika Irma", "Hathaway Noa",
+            "Quess Paraya", "Gyunei Guss", "Nanai Miguel",
+            "Londo Bell", "Neo Zeon", "Earth Federation",
+            "Anaheim Electronics", "Axis", "Luna II",
+            "Axis Shock", "Human Purification Theory", "Nu Gundam",
+            "Sazabi", "Re-GZ", "Jegan",
+            "Geara Doga", "Jagd Doga", "Alpha Azieru",
+            "Newtype", "Oldtype", "Cyber-Newtype",
+            "Spacenoid", "Earthnoid", "Mobile Suit",
+            "Mobile Armor", "psycho-frame", "psycommu",
+            "funnel", "Minovsky"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
+     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
+            Map.entry("Eixo", "Axis"),
+            Map.entry("Funil", "funnel")
+        ));
     }
 }
