@@ -59,7 +59,7 @@ class RevisarLoreUseCaseRevisorFakeIT {
         // apenas o gerenciador de prompts (validação de contexto) e a porta são exercitados.
         RevisarLoreUseCase useCase = new RevisarLoreUseCase(
             null, null, null, null, null,
-            fakeIndisponivel, gerenciadorPromptRevisaoLore, null, null, null, null, null, null);
+            fakeIndisponivel, gerenciadorPromptRevisaoLore, null, null, null, null, null, null, null);
 
         RevisaoLoreException excecao = assertThrows(RevisaoLoreException.class,
             () -> useCase.executar(pastaOriginal, pastaTraduzida, "eight_six", false));
