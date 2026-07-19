@@ -181,7 +181,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 56 lores em contexto.lore")
+    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 58 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -201,8 +201,9 @@ class FronteiraContextoArchTest {
                 "ContextoNaoEncontradoException", "ContextoPrompt", "ExcecaoContexto",
                 "ProvedorContexto", "RegrasConcordanciaPtBr"))),
             () -> "contexto.domain deve conter exatamente os 5 tipos homologados. Encontrado: " + domain);
-        assertEquals(56, lores,
-            "contexto.lore deve agregar exatamente 56 classes de lore (53 @Component + 3 agregadoras Macross)");
+        assertEquals(58, lores,
+            "contexto.lore deve agregar exatamente 58 classes de lore (53 @Component + 3 agregadoras Macross "
+                + "+ 2 mapas de terminologia ZZ/Macross)");
     }
 
     private static boolean ehDoContexto(JavaClass classe) {

@@ -18,4 +18,18 @@ public class ContextoMacrossDynamite7 implements ProvedorContexto {
     @Override public String getId() { return "macross_dynamite_7"; }
     @Override public String getNomeExibicao() { return "Macross Dynamite 7"; }
     @Override public String obterPromptSistema() { return PROMPT; }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
+     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public java.util.Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaMacross.mapa();
+    }
+
 }

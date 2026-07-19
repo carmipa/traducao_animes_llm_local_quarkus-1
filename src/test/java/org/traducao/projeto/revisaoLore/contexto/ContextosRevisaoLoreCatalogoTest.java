@@ -65,6 +65,18 @@ class ContextosRevisaoLoreCatalogoTest {
         assertTrue(prompt.contains("Quin Mantha nao vira"));
         assertTrue(prompt.contains("Lady Haman"));
         assertTrue(prompt.contains("Blue Corps"));
+        assertTrue(prompt.contains("Axis nao vira"));
+        assertEquals("Axis", new ContextoRevisaoLoreGundamZZ().correcoesTerminologia().get("Eixo"));
+    }
+
+    @Test
+    void contextosMacrossRevisaoExistemComMapa() {
+        var delta = new ContextoRevisaoLoreMacrossDelta();
+        assertEquals("macross_delta", delta.getId());
+        assertTrue(delta.getNomeExibicao().contains("Revisao de Lore"));
+        assertEquals("Valkyrie", delta.correcoesTerminologia().get("Valquíria"));
+        assertTrue(delta.obterPromptSistema().contains("Walküre")
+            || delta.obterPromptSistema().contains("Valkyrie"));
     }
 
     @Test
