@@ -20,3 +20,12 @@ application-local.yml
 *~
 .DS_Store
 Thumbs.db
+
+# --- Artefatos de runtime (nunca versionar) ---
+# Cache de tradução, logs/telemetria de execução e backups são gerados em
+# tempo de execução. Ignora-se por PASTA, não por extensão: um filtro global
+# como "*.cache.json" quebraria fixtures de teste versionados
+# (ex.: src/test/resources/cachetraducao/legado.cache.json).
+cache/
+logs/
+backups/
