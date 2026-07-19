@@ -2,6 +2,8 @@ package org.traducao.projeto.revisaoLore.application;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.revisaoLore.contexto.ContextoRevisaoLore86;
+import org.traducao.projeto.revisaoLore.contexto.ContextoRevisaoLoreGundamZeta;
 import org.traducao.projeto.revisaoLore.domain.ResultadoDeteccaoLore;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLore;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -289,5 +292,54 @@ class RevisarLoreUseCaseTest {
         assertEquals("Essas são munições falhas.", corrigida.get());
         assertTrue(cache.isPresent());
         assertEquals("Aquelas munições falhas caíram ali perto.", cache.get());
+    }
+
+    @Test
+    void mapaLoreRestauraTermoQuandoOriginalTemCanonico() {
+        var corrigida = RevisarLoreUseCase.corrigirLoreDeterministica(
+            "She was killed by the Titans.",
+            "Ela foi morta pelos Titãs.",
+            Map.of("Titãs", "Titans", "Titas", "Titans"));
+
+        assertTrue(corrigida.isPresent());
+        assertEquals("Ela foi morta pelos Titans.", corrigida.get());
+    }
+
+    @Test
+    void mapaLoreNaoRestauraSemCanonicoNoOriginal() {
+        var corrigida = RevisarLoreUseCase.corrigirLoreDeterministica(
+            "The Greek titans rose against Olympus.",
+            "Os titãs gregos se ergueram contra o Olimpo.",
+            Map.of("Titãs", "Titans", "Titas", "Titans"));
+
+        assertTrue(corrigida.isEmpty(),
+            "sem 'Titans' na grafia exata no original, a forma comum nao pode ser tocada");
+    }
+
+    @Test
+    void mapaLoreConviveComCasoHardcodedShin() {
+        var corrigida = RevisarLoreUseCase.corrigirLoreDeterministica(
+            "Shin! Shinei Nouzen!",
+            "Canela! Shinei Nouzen!",
+            Map.of("Legião", "Legion"));
+
+        assertTrue(corrigida.isPresent());
+        assertEquals("Shin! Shinei Nouzen!", corrigida.get());
+    }
+
+    @Test
+    void contexto86ExpoeMapaDeTerminologia() {
+        Map<String, String> mapa = new ContextoRevisaoLore86().correcoesTerminologia();
+        assertEquals("Legion", mapa.get("Legião"));
+        assertEquals("Undertaker", mapa.get("Coveiro"));
+        assertEquals("Handler One", mapa.get("Handler Um"));
+    }
+
+    @Test
+    void contextoZetaExpoeMapaDeTerminologia() {
+        Map<String, String> mapa = new ContextoRevisaoLoreGundamZeta().correcoesTerminologia();
+        assertEquals("Titans", mapa.get("Titãs"));
+        assertEquals("Quattro", mapa.get("Quatro"));
+        assertEquals("Axis", mapa.get("Eixo"));
     }
 }

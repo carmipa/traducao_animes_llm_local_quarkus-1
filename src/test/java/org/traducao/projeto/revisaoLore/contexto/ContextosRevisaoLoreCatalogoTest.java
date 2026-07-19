@@ -50,6 +50,10 @@ class ContextosRevisaoLoreCatalogoTest {
         assertTrue(prompt.contains("A.E.U.G."));
         assertTrue(prompt.contains("Hyaku Shiki nao vira"));
         assertTrue(prompt.contains("The O nao vira"));
+        assertTrue(prompt.contains("Titans nao vira"));
+        assertTrue(prompt.contains("Quattro nao vira"));
+        assertTrue(prompt.contains("Audhumla"));
+        assertTrue(prompt.contains("Bask Om"));
         assertTrue(prompt.contains("Gryps Conflict"));
     }
 
