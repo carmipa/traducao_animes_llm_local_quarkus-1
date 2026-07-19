@@ -198,6 +198,53 @@ class EnforcadorTermosLoreTest {
     }
 
     @Test
+    @DisplayName("Origin/Zeta/Unicorn/DYRL: restaura formas-ruim canônicas")
+    void restauraUcEMacrossClasse() {
+        var origin = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
+            Map.of("Base Branca", "White Base", "Zion", "Zeon"));
+        assertEquals(
+            "A White Base partiu de Zeon.",
+            enforcador.reforcar(
+                "The White Base left Zeon.",
+                "A Base Branca partiu de Zion.",
+                origin));
+
+        var zeta = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
+            Map.of("Cem Estilos", "Hyaku Shiki", "Titãs", "Titans"));
+        assertEquals(
+            "Titans pilotam o Hyaku Shiki.",
+            enforcador.reforcar(
+                "Titans pilot the Hyaku Shiki.",
+                "Titãs pilotam o Cem Estilos.",
+                zeta));
+
+        var unicorn = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
+            Map.of("Mangas", "Sleeves", "Caixa de Laplace", "Laplace's Box"));
+        assertEquals(
+            "Os Sleeves querem a Laplace's Box.",
+            enforcador.reforcar(
+                "The Sleeves want Laplace's Box.",
+                "Os Mangas querem a Caixa de Laplace.",
+                unicorn));
+
+        var dyrl = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacrossDyrl.mapa();
+        assertEquals(
+            "Protoculture une Zentradi e Meltrandi.",
+            enforcador.reforcar(
+                "Protoculture unites Zentradi and Meltrandi.",
+                "Protocultura une Zentradi e Meltrandi.",
+                dyrl));
+
+        var m2 = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacross2.mapa();
+        assertEquals(
+            "A Emulator canta o Minmay Attack.",
+            enforcador.reforcar(
+                "The Emulator sings the Minmay Attack.",
+                "A Emulador canta o Ataque Minmay.",
+                m2));
+    }
+
+    @Test
     @DisplayName("Guilty Crown: restaura Funerária/Vazio/Coveiro canônicos")
     void restauraGuiltyCrown() {
         var mapa = org.traducao.projeto.contexto.lore.guiltycrown.CorrecoesTerminologiaGuiltyCrown.mapa();

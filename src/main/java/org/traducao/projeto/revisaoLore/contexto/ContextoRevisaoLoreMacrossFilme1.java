@@ -7,9 +7,10 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore lean para Macross: Do You Remember Love?.
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional para Do You Remember Love?
+ * (id de Tradução: macross_filme1).
  *
- * <p>INVARIANTES DO DOMÍNIO: Valkyrie/Zentradi oficiais; sem Veritech/Valquíria.
+ * <p>INVARIANTES DO DOMÍNIO: Protoculture ≠ Protocultura; Meltrandi; Valkyrie; Minmay Attack.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -17,24 +18,43 @@ import java.util.Map;
 public class ContextoRevisaoLoreMacrossFilme1 implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Macross: Do You Remember Love?.
-        - Regra: nomes canonicos NAO sao localizados. Corrija so grafia de lore.
-        - Nomes/termos: Macross, You Remember Love, Oboete Imasu, Zentradi, Meltrandi, Termos, SDF, Protocultura, Valkyrie, Variable Fighter, Minmay Attack, Principais, Hikaru Ichijyo, Lynn Minmay, Misa Hayase, Roy Focker, Maximilian Jenius, Max Jenius, Milia Fallyna, Exsedol Folmo, Boddole Zer, Britai Kridanik, Mechas, Strike Valkyrie, Queadluun, Rau, Nousjadeul, Ger, Use, Tom.
-        - Termos centrais: SDF-1 Macross, Zentradi, Meltrandi, Protocultura, Valkyrie, Variable Fighter, Minmay Attack.
-        - Principais nomes: Hikaru Ichijyo, Lynn Minmay, Misa Hayase, Roy Focker, Maximilian Jenius/Max Jenius, Milia Fallyna, Exsedol Folmo, Boddole Zer, Britai Kridanik.
-        - Mechas/naves: VF-1 Valkyrie, VF-1S Strike Valkyrie, Queadluun-Rau, Nousjadeul-Ger, SDF-1.
-        - Alertas: Valkyrie nao vira Valquiria/Valquíria; Zentradi grafia oficial; proibido Veritech;
-          GERWALK/Battroid/Fighter Mode — nao traduzir nomes dos modos.
+        - Obra: Macross: Do You Remember Love? (filme 1984 — releitura Space War I).
+        - Regra: corrigir APENAS nomenclatura. Walküre Delta NAO se aplica aqui.
+
+        === Roster ===
+        - Hikaru Ichijyo, Lynn Minmay, Misa Hayase, Roy Focker, Max Jenius, Milia Fallyna,
+          Exsedol Folmo, Britai Kridanik, Boddole Zer.
+
+        === Termos canonicos ===
+        - SDF-1 Macross; Zentradi; Meltrandi; Protoculture (NUNCA Protocultura como canonico);
+          Minmay Attack; Valkyrie / VF-1 / Strike Valkyrie; Queadluun-Rau; Nousjadeul-Ger;
+          GERWALK / Battroid / Fighter Mode; UN Spacy; Overtechnology.
+        - PROIBIDO Veritech / Robotech.
+
+        === Formas-ruim ===
+        - Protocultura → Protoculture; Valquíria → Valkyrie; Zentraedi → Zentradi;
+          Meltrandy → Meltrandi; Ataque Minmay → Minmay Attack.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
 
-    @Override public String getId() { return "macross_filme1"; }
-    @Override public String getNomeExibicao() { return "Macross: Do You Remember Love? - Revisao de Lore"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+    @Override
+    public String getId() {
+        return "macross_filme1";
+    }
+
+    @Override
+    public String getNomeExibicao() {
+        return "Macross: Do You Remember Love? - Revisao de Lore";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mapa determinístico Macross na Opção 7.
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico DYRL na Opção 7.
      *
      * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local.
      *
@@ -42,6 +62,6 @@ public class ContextoRevisaoLoreMacrossFilme1 implements ProvedorPromptRevisaoLo
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacrossRevisao.mapa();
+        return CorrecoesTerminologiaMacrossDyrlRevisao.mapa();
     }
 }

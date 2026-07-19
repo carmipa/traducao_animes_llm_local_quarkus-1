@@ -82,7 +82,7 @@ public class ContextoMacross2 implements ProvedorContexto {
      */
     @Override
     public java.util.Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacross.mapa();
+        return CorrecoesTerminologiaMacross2.mapa();
     }
 
 }

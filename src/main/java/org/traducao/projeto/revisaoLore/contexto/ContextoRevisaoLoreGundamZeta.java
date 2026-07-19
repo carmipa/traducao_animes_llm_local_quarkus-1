@@ -98,11 +98,13 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return Map.of(
-            "Titãs", "Titans",
-            "Titas", "Titans",
-            "Quatro", "Quattro",
-            "Eixo", "Axis"
-        );
+        return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
+            Map.entry("Titãs", "Titans"),
+            Map.entry("Titas", "Titans"),
+            Map.entry("Quatro", "Quattro"),
+            Map.entry("Eixo", "Axis"),
+            Map.entry("Cem Estilos", "Hyaku Shiki"),
+            Map.entry("O O", "The O")
+        ));
     }
 }
