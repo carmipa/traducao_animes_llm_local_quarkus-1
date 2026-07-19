@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.danmachi;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -54,9 +56,31 @@ public class ContextoDanMachiS4 implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Bell Cranel", "Hestia", "Ryu Lion", "Liliruca Arde", "Welf Crozzo",
-            "Mikoto Yamato", "Haruhime Sanjouno", "Cassandra Ilion", "Daphne Lauros",
-            "Juggernaut", "Rivira", "Orario", "Dungeon", "Firebolt", "Hakugen"
+            "Bell Cranel", "Hestia", "Ryu Lion",
+            "Liliruca Arde", "Lili", "Welf Crozzo",
+            "Mikoto Yamato", "Haruhime Sanjouno", "Aiz Wallenstein",
+            "Cassandra Ilion", "Daphne Lauros", "Aisha Belka",
+            "Chigusa Hitachi", "Ouka Kashima", "Jura Halmer",
+            "Marie", "Juggernaut", "Amphisbaena",
+            "Rivira", "Orario", "Dungeon",
+            "Firebolt", "Hakugen", "Astraea Familia",
+            "Hestia Familia", "Loki Familia", "Takemikazuchi Familia",
+            "Miach Familia", "Hermes Familia", "Falna",
+            "Familia", "Status", "Level",
+            "Skill", "Magic", "Hestia Knife",
+            "Crozzo Magic Sword", "Monster Rex", "Floor Boss",
+            "Colosseum", "Deep Floors"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico da terminologia DanMachi (Familia sem
+     * acento + grafias erradas de nomes proprios da obra).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaDanMachi.mapa();
     }
 }

@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.evangelion;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -51,8 +53,25 @@ public class ContextoEvangelion111 implements ProvedorContexto {
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Shinji Ikari", "Rei Ayanami", "Misato Katsuragi", "Gendo Ikari",
-            "NERV", "SEELE", "Ramiel", "Sachiel", "Shamshel", "AT Field", "Tokyo-3"
+            "Shinji Ikari", "Rei Ayanami", "Misato Katsuragi",
+            "Gendo Ikari", "Ritsuko Akagi", "Kozo Fuyutsuki",
+            "Ryoji Kaji", "Toji Suzuhara", "Kensuke Aida",
+            "Maya Ibuki", "NERV", "SEELE",
+            "EVA Unit-00", "EVA Unit-01", "AT Field",
+            "LCL", "Entry Plug", "Dummy System",
+            "Sachiel", "Shamshel", "Ramiel",
+            "Tokyo-3", "GeoFront", "Evangelion"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico de terminologia própria da obra
+     * (nomes/termos que a lore manda manter no original).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaEvangelion.mapa();
     }
 }

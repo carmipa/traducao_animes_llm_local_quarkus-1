@@ -1,5 +1,7 @@
 package org.traducao.projeto.contexto.lore.evangelion;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
@@ -51,8 +53,26 @@ public class ContextoEvangelion222 implements ProvedorContexto {
     public Set<String> termosProtegidos() {
         return Set.of(
             "Shinji Ikari", "Asuka Shikinami Langley", "Mari Illustrious Makinami",
-            "Rei Ayanami", "Misato Katsuragi", "Zeruel", "Bardiel", "NERV",
-            "Near Third Impact", "AT Field"
+            "Rei Ayanami", "Misato Katsuragi", "Gendo Ikari",
+            "Ritsuko Akagi", "Ryoji Kaji", "Toji Suzuhara",
+            "EVA Unit-01", "EVA Unit-02", "EVA Unit-03",
+            "Beast Mode", "Zeruel", "Bardiel",
+            "Near Third Impact", "NERV", "SEELE",
+            "AT Field", "LCL", "Entry Plug",
+            "Evangelion"
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reforço determinístico de terminologia própria da obra
+     * (nomes/termos que a lore manda manter no original).
+     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     */
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaEvangelion.comExtras(Map.ofEntries(
+            Map.entry("Asuka Langley Soryu", "Asuka Shikinami Langley")
+        ));
     }
 }
