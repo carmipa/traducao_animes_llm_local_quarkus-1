@@ -7,10 +7,11 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional para Gundam ZZ (Double Zeta).
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore completa para Gundam ZZ / Double Zeta —
+ * Opção 7 alinhada à Tradução Local, sem importar {@code contexto.lore}.
  *
  * <p>INVARIANTES DO DOMÍNIO: Axis ≠ Eixo; Titans ≠ Titãs; Ple ≠ Plê;
- * Quin Mantha ≠ Rainha Mansa; ZZ Gundam ≠ Zeta Duplo; Newtype ≠ Novo Tipo.
+ * Quin Mantha ≠ Rainha Mansa; ZZ Gundam ≠ Zeta Duplo; Lady Haman; Newtype ≠ Novo Tipo.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -21,30 +22,34 @@ public class ContextoRevisaoLoreGundamZZ implements ProvedorPromptRevisaoLore {
         - Obra: Mobile Suit Gundam ZZ / Double Zeta, U.C. 0088, Neo Zeon / Axis.
         - Regra: corrigir APENAS nomenclatura. Sequela direta de Zeta.
 
-        === Personagens ===
-        - Judau Ashta (m), Leina Ashta (f), Roux Louka (f), Elle Vianno (f),
-          Beecha Oleg (m), Mondo Agake (m), Iino Abbav (m),
-          Haman Karn / Lady Haman (f), Mashymre Cello (m), Chara Soon (f),
-          Glemy Toto (m), Bright Noa (m), Fa Yuiry (f), Kamille Bidan (m),
-          Wong Lee (m), Elpeo Ple (f — NUNCA Plê), Ple Two (f).
+        === Roster — Shangri-La / Argama ===
+        - Judau Ashta; Leina Ashta; Roux Louka; Elle Vianno; Beecha Oleg; Mondo Agake;
+          Iino Abbav; Bright Noa; Fa Yuiry; Kamille Bidan; Wong Lee; Astonaige Medoz;
+          Torres; Emary Ounce; Blue Corps.
+
+        === Roster — Neo Zeon / Glemy ===
+        - Haman Karn / Lady Haman (NUNCA Senhorita Haman quando for Lady Haman);
+          Mashymre Cello; Chara Soon; Glemy Toto; Elpeo Ple (NUNCA Plê); Ple Two;
+          Mineva Lao Zabi; Rakan Dahkaran; Gottn Goh; August Guidan; Illia Pazom.
 
         === Faccoes / naves / lugares ===
         - A.E.U.G. / AEUG; Neo Zeon; Axis (NUNCA Eixo); Titans (NUNCA Titãs);
-          Earth Federation; Karaba; Anaheim Electronics; Blue Corps; Glemy Faction.
-        - Argama; Nahel Argama; Shangri-La; Axis; Endra; Sadalahn; Dublin; Core 3; Moon Moon.
+          Earth Federation; Karaba; Anaheim Electronics; Glemy Faction; Blue Corps.
+        - Argama; Nahel Argama; Endra; Sadalahn; Shangri-La; Axis; Core 3; Dublin; Moon Moon.
 
         === Mecha ===
         - ZZ Gundam (NUNCA Zeta Duplo); Double Zeta nao vira "Zeta Duplo";
-          Zeta Gundam; Gundam Mk-II; Hyaku Shiki;
+          Full Armor ZZ; Zeta Gundam; Gundam Mk-II; Hyaku Shiki;
           Qubeley / Qubeley Mk-II; Quin Mantha (NUNCA Rainha Mansa — Quin Mantha nao vira "Rainha Mansa");
-          Hamma Hamma; R-Jarja; Dreissen; Bawoo; Zaku III.
+          Queen Mansa (variante EN); Hamma Hamma; R-Jarja; Dreissen; Bawoo; Zaku III;
+          Gaza-C; Ga-Zowmn; Geymalk; Psycho Gundam Mk-II.
 
-        === Termos UC / formas-ruim ===
-        - Newtype (NUNCA Novo Tipo); Cyber-Newtype; Oldtype; Psycommu; Minovsky;
-          Mobile Suit / Mobile Armor.
+        === Formas-ruim ===
         - Axis nao vira "Eixo"; Lady Haman nao vira "Senhorita Haman";
           Eixo → Axis; Titãs → Titans; Plê → Ple; Rainha Mansa → Quin Mantha;
-          Zeta Duplo → ZZ Gundam; Novo Tipo → Newtype.
+          Zeta Duplo → ZZ Gundam; Senhorita Haman → Lady Haman;
+          Corpo Azul → Blue Corps; Cubely → Qubeley; Facção Glemy → Glemy Faction;
+          Novo Tipo → Newtype.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
@@ -65,9 +70,9 @@ public class ContextoRevisaoLoreGundamZZ implements ProvedorPromptRevisaoLore {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mapa determinístico ZZ na Opção 7 (núcleo UC + extras ZZ).
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico ZZ na Opção 7 (espelho da Tradução Local).
      *
-     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local ZZ.
+     * <p>INVARIANTES DO DOMÍNIO: sem import cruzado de {@code contexto.lore}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
@@ -80,7 +85,16 @@ public class ContextoRevisaoLoreGundamZZ implements ProvedorPromptRevisaoLore {
             Map.entry("Plê", "Ple"),
             Map.entry("Plee", "Ple"),
             Map.entry("Rainha Mansa", "Quin Mantha"),
-            Map.entry("Zeta Duplo", "ZZ Gundam")
+            Map.entry("Zeta Duplo", "ZZ Gundam"),
+            Map.entry("Senhorita Haman", "Lady Haman"),
+            Map.entry("Corpo Azul", "Blue Corps"),
+            Map.entry("Corpos Azuis", "Blue Corps"),
+            Map.entry("Cubely", "Qubeley"),
+            Map.entry("Qubelei", "Qubeley"),
+            Map.entry("Neo Zéon", "Neo Zeon"),
+            Map.entry("Neo Zeón", "Neo Zeon"),
+            Map.entry("Facção Glemy", "Glemy Faction"),
+            Map.entry("Faccao Glemy", "Glemy Faction")
         ));
     }
 }
