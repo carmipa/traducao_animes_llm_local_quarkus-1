@@ -104,6 +104,14 @@ public class ValidadorTraducaoService {
     // sem esta exceção a fala inteira era rejeitada e mantida sem tradução.
     private static final java.util.Set<String> RESIDUOS_TAMBEM_NOMES = java.util.Set.of("will");
 
+    // Asterisco no texto visível: o LLM às vezes CENSURA palavrão ("You bastards!" ->
+    // "uns *****es!") ou vaza MARKDOWN de ênfase ("Damn it!" -> "Merd**a**!"). Casos reais
+    // em ZZ/08th/Zeta/86/Narrative. Neste projeto a fonte NUNCA traz '*' e as legendas usam
+    // parênteses para ação — então qualquer '*' visível é artefato do modelo e a fala deve
+    // ficar pendente (retraduz) em vez de ir censurada/pontilhada para a legenda. Bônus:
+    // entradas de cache com asterisco deixam de ser reaproveitadas e retraduzem no próximo run.
+    private static final Pattern PADRAO_ASTERISCO = Pattern.compile("\\*");
+
     // Blocos {...} do ASS (tags de override e comentários de fansub) não são
     // texto exibido: valida-los como fala gerava falso positivo (comentário
     // legítimo em inglês tipo "{Yes, ma'am}" disparava resíduo e queimava uma
@@ -155,6 +163,10 @@ public class ValidadorTraducaoService {
         // o padrão de resíduo em inglês.
         if (visivel.contains("ERRO_TRADUCAO")) {
             throw new AlucinacaoDetectadaException("Marcador de erro de tradução detectado: " + textoTraduzido);
+        }
+
+        if (PADRAO_ASTERISCO.matcher(visivel).find()) {
+            throw new AlucinacaoDetectadaException("Censura/markdown com asterisco detectado: " + textoTraduzido);
         }
     }
 
