@@ -77,14 +77,23 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptZzProtegeTermosCriticosDaObra() {
-        String prompt = new ContextoRevisaoLoreGundamZZ().obterPromptSistema();
+        var zz = new ContextoRevisaoLoreGundamZZ();
+        String prompt = zz.obterPromptSistema();
 
         assertTrue(prompt.contains("Double Zeta nao vira"));
         assertTrue(prompt.contains("Quin Mantha nao vira"));
         assertTrue(prompt.contains("Lady Haman"));
         assertTrue(prompt.contains("Blue Corps"));
         assertTrue(prompt.contains("Axis nao vira"));
-        assertEquals("Axis", new ContextoRevisaoLoreGundamZZ().correcoesTerminologia().get("Eixo"));
+        assertTrue(prompt.contains("Glemy Faction"));
+        assertTrue(prompt.contains("Nahel Argama"));
+        assertTrue(prompt.contains("Elpeo Ple"));
+        assertTrue(prompt.contains("Rakan Dahkaran"));
+        assertEquals("Axis", zz.correcoesTerminologia().get("Eixo"));
+        assertEquals("Lady Haman", zz.correcoesTerminologia().get("Senhorita Haman"));
+        assertEquals("Blue Corps", zz.correcoesTerminologia().get("Corpo Azul"));
+        assertEquals("ZZ Gundam", zz.correcoesTerminologia().get("Zeta Duplo"));
+        assertEquals("Glemy Faction", zz.correcoesTerminologia().get("Facção Glemy"));
     }
 
     @Test
