@@ -1,17 +1,34 @@
+<style>
+    .lore-tabs { display: flex; gap: 6px; margin: 4px 0 14px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .lore-tab { background: transparent; border: none; color: var(--text-dim, #9aa0aa); padding: 8px 14px;
+        cursor: pointer; font-size: 0.95rem; border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; }
+    .lore-tab:hover { color: var(--text, #e6e8ec); }
+    .lore-tab.active { color: var(--accent, #b98cff); border-bottom-color: var(--accent, #b98cff);
+        background: rgba(185,140,255,0.08); }
+    .lore-tab-panel.hidden { display: none; }
+</style>
+
 <div class="glass-card">
     <h2>Revisão de Lore</h2>
-    <p class="card-desc">Compara legendas traduzidas com as originais em inglês e corrige <strong>nomes de personagens, locais, facções, mechas e termos de mundo</strong> que estejam fora do padrão oficial da obra, usando o LLM local com a lore do contexto selecionado.</p>
+    <p class="card-desc">Padroniza <strong>nomes de personagens, locais, facções, mechas e termos de mundo</strong> conforme a lore oficial da obra. Escolha a aba conforme você tenha (ou não) as legendas originais em inglês.</p>
     <p class="card-hint">Selecione obrigatoriamente a obra no menu abaixo — isso carrega a lore canônica e exibe os metadados do anime/filme via API.</p>
 
     <div class="anime-meta-banner hidden" id="meta-banner-revisao-lore"></div>
 
-    <form id="form-revisao-lore" class="standard-form">
-        <div class="form-group">
-            <label for="revisao-lore-contexto">Obra / Contexto (obrigatório): <span class="help-icon" data-tooltip="Define a lore oficial usada pelo LLM para padronizar nomes e termos. Também exibe capa e sinopse do anime.">?</span></label>
-            <select id="revisao-lore-contexto" required>
-                <option value="" disabled selected>Carregando contextos...</option>
-            </select>
-        </div>
+    <div class="form-group">
+        <label for="revisao-lore-contexto">Obra / Contexto (obrigatório): <span class="help-icon" data-tooltip="Define a lore oficial usada para padronizar nomes e termos. Também exibe capa e sinopse do anime.">?</span></label>
+        <select id="revisao-lore-contexto" required>
+            <option value="" disabled selected>Carregando contextos...</option>
+        </select>
+    </div>
+
+    <div class="lore-tabs" role="tablist">
+        <button type="button" class="lore-tab active" data-tab="com-ingles" role="tab">Com inglês (padrão)</button>
+        <button type="button" class="lore-tab" data-tab="pt-only" role="tab">PT-only (sem inglês)</button>
+    </div>
+
+    <form id="form-revisao-lore" class="standard-form lore-tab-panel" data-panel="com-ingles">
+        <p class="card-hint">Compara EN × PT-BR via LLM local: máxima precisão, inclusive nos homógrafos.</p>
         <div class="form-group">
             <label for="revisao-lore-entrada-original">Pasta com legendas ORIGINAIS (.ass, em inglês): <span class="help-icon" data-tooltip="Legendas de referência em inglês para comparar nomes e termos.">?</span></label>
             <div class="input-with-button">
@@ -38,6 +55,39 @@
                 <span>Iniciar Revisão de Lore</span>
             </button>
             <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-revisao-lore" data-tooltip="Limpa os campos e oculta o cartão do anime">
+                <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                <span>Limpar Campos</span>
+            </button>
+        </div>
+    </form>
+
+    <form id="form-revisao-lore-ptonly" class="standard-form lore-tab-panel hidden" data-panel="pt-only">
+        <p class="card-hint">Sem o inglês: a camada determinística corrige só os termos <strong>inequívocos</strong> (multi-palavra, ex.: "Traje Móvel" → "Mobile Suit"); ative o LLM para tentar também os homógrafos de uma palavra (ex.: "Eixo"/"Axis"). Toda alteração faz backup automático.</p>
+        <div class="form-group">
+            <label for="revisao-lore-ptonly-entrada-traduzida">Pasta com legendas TRADUZIDAS (PT-BR): <span class="help-icon" data-tooltip="Única pasta necessária: as legendas em português que serão revisadas e gravadas no lugar (com backup).">?</span></label>
+            <div class="input-with-button">
+                <input type="text" id="revisao-lore-ptonly-entrada-traduzida" autocomplete="off" spellcheck="false" placeholder="Ex: E:\animes\Gundam\0083\legendas_ptbr" required>
+                <button type="button" class="btn-procurar" data-target="revisao-lore-ptonly-entrada-traduzida" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="revisao-lore-ptonly-usar-llm">
+                Usar o LLM nos homógrafos de uma palavra (mais lento; sem o inglês o modelo pode errar em ambiguidade)
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="revisao-lore-ptonly-simular">
+                Apenas simular (dry-run — mostra o que mudaria, sem gravar)
+            </label>
+        </div>
+        <div class="correcao-actions">
+            <button type="button" class="btn btn-primary btn-purple" id="btn-iniciar-revisao-lore-ptonly" data-tooltip="Revisa a lore usando só a legenda PT-BR, sem a pasta de inglês">
+                <span class="material-symbols-outlined btn-icon">menu_book</span>
+                <span>Iniciar Revisão PT-only</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-revisao-lore-ptonly" data-tooltip="Limpa os campos desta aba">
                 <span class="material-symbols-outlined btn-icon">delete_sweep</span>
                 <span>Limpar Campos</span>
             </button>
