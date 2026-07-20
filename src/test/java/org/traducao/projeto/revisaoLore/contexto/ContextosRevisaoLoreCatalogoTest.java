@@ -153,8 +153,17 @@ class ContextosRevisaoLoreCatalogoTest {
         assertTrue(prompt.contains("Apocalypse Virus"));
         assertTrue(prompt.contains("Shuichiro Keido"));
         assertTrue(prompt.contains("Shibungi"));
+        assertTrue(prompt.contains("Argo Tsukishima"));
+        assertTrue(prompt.contains("Oogumo"));
+        assertTrue(prompt.contains("Crow"));
+        assertTrue(prompt.contains("Second Hand"));
+        assertTrue(prompt.contains("Roppongi Fort"));
         assertEquals("Funeral Parlor", ctx.correcoesTerminologia().get("Funerária"));
         assertEquals("Void Genome", ctx.correcoesTerminologia().get("Genoma do Vazio"));
         assertEquals("Undertaker", ctx.correcoesTerminologia().get("Coveiro"));
+        assertEquals("Genomic Resonance", ctx.correcoesTerminologia().get("Ressonância Genômica"));
+        assertEquals("Second Hand", ctx.correcoesTerminologia().get("Segunda Mão"));
+        assertEquals("Endlave", ctx.correcoesTerminologia().get("Endslave"));
+        assertEquals("Anti Bodies", ctx.correcoesTerminologia().get("Anticorpos"));
     }
 }
