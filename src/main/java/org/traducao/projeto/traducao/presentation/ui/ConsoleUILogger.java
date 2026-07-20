@@ -29,6 +29,11 @@ public class ConsoleUILogger {
     private static final String ANSI_YELLOW = AnsiCores.YELLOW;
     private static final String ANSI_CYAN = AnsiCores.CYAN;
 
+    // O apagar-linha ANSI (ESC[K) só faz sentido num terminal interativo real; em modo web
+    // (System.out redirecionado, sem console anexado) ele vazaria como lixo no painel SSE e
+    // no logs/console-web.log. Resolvido uma vez na carga da classe.
+    private static final boolean TERMINAL_INTERATIVO = System.console() != null;
+
     private ProgressBar pb;
 
     private int totalFalasCache = 0;
@@ -120,7 +125,9 @@ public class ConsoleUILogger {
         boolean mensagemImpressa = false;
         try {
             pb.pause();
-            System.out.print("\r\033[K");
+            if (TERMINAL_INTERATIVO) {
+                System.out.print("\r\033[K"); // apaga a linha da barra só no terminal real
+            }
             System.out.println(msgVisual);
             mensagemImpressa = true;
             pb.resume();
