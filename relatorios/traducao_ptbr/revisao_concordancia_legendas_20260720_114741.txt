@@ -1,0 +1,1237 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\TRACKER-ANIMES\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\traducao_ptbr
+Duração: 1min 19s
+Arquivos analisados: 13
+Falas auditadas: 4415
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 209
+Falas corrigidas via LLM: 172
+Falas pendentes: 37
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 3 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\an8\i1}Zeon's national strength is less than{\i}\N{\i1}1/30th that of the Earth Federation.{\i} | Fala não traduzida (idêntica ao original em inglês): {\an8\i1}Zeon's national strength is less than{\i}\N{\i1}1/30th that of the Earth Federation.{\i}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\an8\i1}Zeon's national strength is less than{\i}\N{\i1}1/30th that of the Earth Federation.{\i}
+PT anterior: {\an8\i1}Zeon's national strength is less than{\i}\N{\i1}1/30th that of the Earth Federation.{\i}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 6 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\an8\i1}It is because the Principality of Zeon's{\i}\N{\i1}aims in this war are just!{\i} | Fala não traduzida (idêntica ao original em inglês): {\an8\i1}It is because the Principality of Zeon's{\i}\N{\i1}aims in this war are just!{\i}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\an8\i1}It is because the Principality of Zeon's{\i}\N{\i1}aims in this war are just!{\i}
+PT anterior: {\an8\i1}It is because the Principality of Zeon's{\i}\N{\i1}aims in this war are just!{\i}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 7 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}04th Team!\NYou ready to move out yet?!{\i}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}04th Team!\NYou ready to move out yet?!{\i}
+PT anterior: {\i1}04th Team!\NYou ready to move out yet?!{\i}
+Proposta: {\i1}Time 04! \NVocês já estão prontos para partir? {\i}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 19 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: You drinking on the job again, Gramps? | Fala não traduzida (idêntica ao original em inglês): You drinking on the job again, Gramps?
+Diagnóstico: Correção validada e persistida.
+EN: You drinking on the job again, Gramps?
+PT anterior: You drinking on the job again, Gramps?
+Proposta: Você bebendo no trabalho de novo, velho?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 49 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}B.B., I'm on my way to Earth now with\Nsome other Federation soldiers. | Fala não traduzida (idêntica ao original em inglês): {\i1}B.B., I'm on my way to Earth now with\Nsome other Federation soldiers.
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}B.B., I'm on my way to Earth now with\Nsome other Federation soldiers.
+PT anterior: {\i1}B.B., I'm on my way to Earth now with\Nsome other Federation soldiers.
+Proposta: {\i1}B.B., estou a caminho da Terra agora com\Nalguns outros soldados da Federação.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 101 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\i1}I don't want any more repeats of Side 2{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}I don't want any more repeats of Side 2{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}I don't want any more repeats of Side 2{\i0}
+PT anterior: {\i1}I don't want any more repeats of Side 2{\i0}
+Proposta: {\i1}Não quero mais repetições de Lado 2{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 279 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}I can't say I'm not a little nervous,{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}I can't say I'm not a little nervous,{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}I can't say I'm not a little nervous,{\i0}
+PT anterior: {\i1}I can't say I'm not a little nervous,{\i0}
+Proposta: {\i1}Não posso dizer que não estou um pouco nervosa,{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 280 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}but I want to show my team\Nthat I'm able to lead them!{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}but I want to show my team\Nthat I'm able to lead them!{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}but I want to show my team\Nthat I'm able to lead them!{\i0}
+PT anterior: {\i1}but I want to show my team\Nthat I'm able to lead them!{\i0}
+Proposta: {\i1}mas eu quero mostrar à minha equipe\Nque sou capaz de liderá-los!{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 281 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+PT anterior: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 282 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}Gundams in the Jungle{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}Gundams in the Jungle{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}Gundams in the Jungle{\i0}
+PT anterior: {\i1}Gundams in the Jungle{\i0}
+Proposta: {\i1}Gundans na Selva{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 285 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 296 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 305 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Os tempos que lutei, os tempos que sonhei.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 309 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 310 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 316 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 318 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 320 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 345 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 425 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\blur1\pos(720,650)\c&HDEDEE3&}THE WAR OF THE TWO | Fala não traduzida (idêntica ao original em inglês): {\blur1\pos(720,650)\c&HDEDEE3&}THE WAR OF THE TWO
+Diagnóstico: Correção validada e persistida.
+EN: {\blur1\pos(720,650)\c&HDEDEE3&}THE WAR OF THE TWO
+PT anterior: {\blur1\pos(720,650)\c&HDEDEE3&}THE WAR OF THE TWO
+Proposta: {\blur1\pos(720,650)\c&HDEDEE3&}A GUERRA DOS DOIS
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 108 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Kid, get Newbie on the line. | Fala não traduzida (idêntica ao original em inglês): Kid, get Newbie on the line.
+Diagnóstico: Correção validada e persistida.
+EN: Kid, get Newbie on the line.
+PT anterior: Kid, get Newbie on the line.
+Proposta: Criança, coloque o novato na linha.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 255 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\i1}We have to liberate a\NZeon-occupied village in the hills!{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}We have to liberate a\NZeon-occupied village in the hills!{\i0}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}We have to liberate a\NZeon-occupied village in the hills!{\i0}
+PT anterior: {\i1}We have to liberate a\NZeon-occupied village in the hills!{\i0}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 262 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+PT anterior: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i0}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 266 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 271 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small... | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 277 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 285 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}As vezes que chorei, as vezes que ri.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 290 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 292 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 297 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 299 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado sorrindo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 301 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 306 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}The dream is there, and even though it may now be small... | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}The dream is there, and even though it may now be small...
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}The dream is there, and even though it may now be small...
+PT anterior: {\fad(100,100)\blur1\bord0}The dream is there, and even though it may now be small...
+Proposta: {\fad(100,100)\blur1\bord0}O sonho ainda está lá, mesmo que agora seja pequeno...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 6 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}You okay, Master Chief?!{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}You okay, Master Chief?!{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}You okay, Master Chief?!{\i0}
+PT anterior: {\i1}You okay, Master Chief?!{\i0}
+Proposta: {\i1}Tudo bem, chefe?!{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 268 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\i1}Go to it! And I'll hit that mobile\Nsuit on the west slope!{\i} | Fala não traduzida (idêntica ao original em inglês): {\i1}Go to it! And I'll hit that mobile\Nsuit on the west slope!{\i}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Go to it! And I'll hit that mobile\Nsuit on the west slope!{\i}
+PT anterior: {\i1}Go to it! And I'll hit that mobile\Nsuit on the west slope!{\i}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 277 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}Sorry I'm late! Is everyone all right?{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}Sorry I'm late! Is everyone all right?{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}Sorry I'm late! Is everyone all right?{\i0}
+PT anterior: {\i1}Sorry I'm late! Is everyone all right?{\i0}
+Proposta: {\i1}Desculpe o atraso! Todos estão bem?{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 342 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 343 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 360 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart! | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart!
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart!
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream that shines inside your heart!
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}O sonho que brilha dentro do seu coração!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 382 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Os tempos que lutei, os tempos que sonhei.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 384 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Os amores perdidos que foram meio duros.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 390 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 394 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 404 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 408 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 481 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\pos(724.8,658.6)\blur1\c&HDEDEE3&}THE TIME LIMIT ON TRUST | Fala não traduzida (idêntica ao original em inglês): {\pos(724.8,658.6)\blur1\c&HDEDEE3&}THE TIME LIMIT ON TRUST
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(724.8,658.6)\blur1\c&HDEDEE3&}THE TIME LIMIT ON TRUST
+PT anterior: {\pos(724.8,658.6)\blur1\c&HDEDEE3&}THE TIME LIMIT ON TRUST
+Proposta: {\pos(724.8,658.6)\blur1\c&HDEDEE3&}O LIMITE DE TEMPO PARA A CONFIANÇA
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 14 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}but I'll make it work somehow. | Fala não traduzida (idêntica ao original em inglês): {\i1}but I'll make it work somehow.
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}but I'll make it work somehow.
+PT anterior: {\i1}but I'll make it work somehow.
+Proposta: {\i1}De algum jeito, eu vou fazer dar certo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 47 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Insulto forte do original foi suavizado contra a preferência de tradução
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: You son of a hitch!
+PT anterior: Filho da mãe!
+Proposta: Filho da puta!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 91 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Sieg Zeon! Sieg Zeon! Sieg Zeon! Sieg Zeon!
+Diagnóstico: Correção validada e persistida.
+EN: Sieg Zeon! Sieg Zeon! Sieg Zeon! Sieg Zeon!
+PT anterior: Sieg Zeon! Sieg Zeon! Sieg Zeon! Sieg Zeon!
+Proposta: Vitória para Zeon! Vitória para Zeon! Vitória para Zeon! Vitória para Zeon!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 231 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Hey, Ginius!
+Diagnóstico: Correção validada e persistida.
+EN: Hey, Ginius!
+PT anterior: Hey, Ginius!
+Proposta: Olá, Ginias!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 301 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Forgive me, Miss Aina!{\i0}
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: {\i1}Forgive me, Miss Aina!{\i0}
+PT anterior: {\i1}Forgive me, Miss Aina!{\i0}
+Proposta: [[TAG0]]Perdoe-me, senhorita Aina![[TAG1]]
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 303 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Resíduo gringo detectado (contração): {\i1}I'll be all right!\NPlease, Miss Aina, get out of here!{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}I'll be all right!\NPlease, Miss Aina, get out of here!{\i0}
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: {\i1}I'll be all right!\NPlease, Miss Aina, get out of here!{\i0}
+PT anterior: {\i1}I'll be all right!\NPlease, Miss Aina, get out of here!{\i0}
+Proposta: [[TAG0]]Eu vou ficar bem![[TAG1]]Por favor, senhorita Aina, saia daqui![[TAG2]]
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 336 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team
+PT anterior: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 389 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 391 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Mas ainda acabei me encontrando com você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 393 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 403 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 407 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 484 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY | Fala não traduzida (idêntica ao original em inglês): {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+PT anterior: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+Proposta: {\pos(720,650)\blur1\c&HDEDEE3&}A ORDEM QUEBRADA \NPARA FICAR DE PÉ
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 179 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}I don't know for sure yet\NShould I take him?{\i0} | Fala não traduzida (idêntica ao original em inglês): {\i1}I don't know for sure yet\NShould I take him?{\i0}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}I don't know for sure yet\NShould I take him?{\i0}
+PT anterior: {\i1}I don't know for sure yet\NShould I take him?{\i0}
+Proposta: {\i1}Ainda não tenho certeza\NDevo levá-lo?{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 372 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}were watching the sun rise. | Fala não traduzida (idêntica ao original em inglês): {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}were watching the sun rise.
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}were watching the sun rise.
+PT anterior: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}were watching the sun rise.
+Proposta: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Estávamos assistindo o sol nascer.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 380 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}If we embrace each other...
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}If we embrace each other...
+PT anterior: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}If we embrace each other...
+Proposta: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Se nos abraçarmos...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 382 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}My dearest love...
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}My dearest love...
+PT anterior: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}My dearest love...
+Proposta: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Meu amor mais querido...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 385 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hey,
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hey,
+PT anterior: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hey,
+Proposta: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ei,
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 386 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Now, let's have a pleasant dream. | Fala não traduzida (idêntica ao original em inglês): {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Now, let's have a pleasant dream.
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Now, let's have a pleasant dream.
+PT anterior: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Now, let's have a pleasant dream.
+Proposta: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Agora, vamos ter um sonho agradável.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 444 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 445 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 480 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...that happened to come into my life. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...that happened to come into my life.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...that happened to come into my life.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...that happened to come into my life.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...que acabou acontecendo na minha vida.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 494 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 495 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 496 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 506 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 510 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 583 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY | Fala não traduzida (idêntica ao original em inglês): {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+PT anterior: {\pos(720,650)\blur1\c&HDEDEE3&}THE BROKEN ORDER \NTO STAND BY
+Proposta: {\pos(720,650)\blur1\c&HDEDEE3&}A ORDEM QUEBRADA \NPARA FICAR DE PÉ
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 585 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+PT anterior: {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+Proposta: {\pos(720,650)\blur1\c&HDEDEE3&}LINHA DE COMBATE NO \NAREIAS QUEIMADAS
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 309 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fs40\fad(100,100)\blur1\bord0\an9}If we embrace each other...
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\fad(100,100)\blur1\bord0\an9}If we embrace each other...
+PT anterior: {\fs40\fad(100,100)\blur1\bord0\an9}If we embrace each other...
+Proposta: {\fs40\fad(100,100)\blur1\bord0\an9}Se nos abraçarmos...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 356 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things... | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things...
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things...
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}When I look back, I see so many things...
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Quando olho para trás, vejo tantas coisas...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 360 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I cried, the times I laughed.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}As vezes que chorei, as vezes que ri.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 362 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The times I fought, the times I dreamed.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}As vezes que lutei, as vezes que sonhei.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 366 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All shining in my history.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All shining in my history.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All shining in my history.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Tudo brilhando na minha história.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 370 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 372 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 373 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: {\fad(100,100)\blur1\bord0}No entanto, acabei conhecendo você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 374 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 384 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 388 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 483 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+PT anterior: {\pos(720,650)\blur1\c&HDEDEE3&}BATTLE LINE ON \NTHE BURNING SAND
+Proposta: {\pos(720,650)\blur1\c&HDEDEE3&}LINHA DE COMBATE NO \NAREIAS QUEIMADAS
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 13 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Two Federation human-types.\NMinovsky density rising!
+Diagnóstico: Correção validada e persistida.
+EN: Two Federation human-types.\NMinovsky density rising!
+PT anterior: Two Federation human-types.\NMinovsky density rising!
+Proposta: Dois tipos humanos da Federação.\NDensidade Minovsky aumentando!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 209 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 210 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não solte!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 251 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Os amores perdidos que foram meio duros.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 259 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 260 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: {\fad(100,100)\blur1\bord0}Mas ainda acabei me encontrando com você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 261 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 267 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Me pergunto como ainda estarei amando você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 271 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 275 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado sorrindo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 350 | Estilo: Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\pos(720,650)\blur1\c&HDEDEE3&}DUTY AND IDEALS
+Diagnóstico: Correção validada e persistida.
+EN: {\pos(720,650)\blur1\c&HDEDEE3&}DUTY AND IDEALS
+PT anterior: {\pos(720,650)\blur1\c&HDEDEE3&}DUTY AND IDEALS
+Proposta: {\pos(720,650)\blur1\c&HDEDEE3&}DEVER E IDEAIS
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 202 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}Thanks, Mister!{\i} | Fala não traduzida (idêntica ao original em inglês): {\i1}Thanks, Mister!{\i}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}Thanks, Mister!{\i}
+PT anterior: {\i1}Thanks, Mister!{\i}
+Proposta: {\i1}Obrigado, senhor!{\i}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 212 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Insulto forte do original foi suavizado contra a preferência de tradução
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: You son of a...!
+PT anterior: Maldito filho da mãe!
+Proposta: Maldito filho da puta!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 294 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i}
+PT anterior: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team{\i}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 298 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 299 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe ir embora.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 348 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 349 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: {\fad(100,100)\blur1\bord0}Mas ainda acabei me encontrando com você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 360 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 364 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 60 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Hey! Spy Guy!
+Diagnóstico: Correção validada e persistida.
+EN: Hey! Spy Guy!
+PT anterior: Hey! Spy Guy!
+Proposta: Olá! Espião!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 150 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: Even the Feds aren't {\i1}that{\i0} dumb. | Fala não traduzida (idêntica ao original em inglês): Even the Feds aren't {\i1}that{\i0} dumb.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Even the Feds aren't {\i1}that{\i0} dumb.
+PT anterior: Even the Feds aren't {\i1}that{\i0} dumb.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 283 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}I won't fight for the Federation! However, | Fala não traduzida (idêntica ao original em inglês): {\i1}I won't fight for the Federation! However,
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}I won't fight for the Federation! However,
+PT anterior: {\i1}I won't fight for the Federation! However,
+Proposta: {\i1}Não lutarei pela Federação! Contudo,
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 317 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Next time,\NThe Shuddering Mountain (Part 1).
+Diagnóstico: Correção validada e persistida.
+EN: Next time,\NThe Shuddering Mountain (Part 1).
+PT anterior: Next time,\NThe Shuddering Mountain (Part 1).
+Proposta: Próxima vez, \N A Montanha Tremulante (Parte 1).
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 320 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 321 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguenta firme agora! Não deixe escapar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 368 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 370 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 371 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur1\bord0}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur1\bord0}But I still ended up meeting you.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 372 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The one that I love.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}A pessoa que eu amo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 382 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 386 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado com um sorriso.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 262 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}Next time,\NThe Shuddering Mountain (Part 2).
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}Next time,\NThe Shuddering Mountain (Part 2).
+PT anterior: {\i1}Next time,\NThe Shuddering Mountain (Part 2).
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 265 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 266 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 275 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small... | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The dream is there, and even though it may now be small...
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}O sonho ainda está lá, mesmo que agora possa parecer pequeno...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 307 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}The lost loves that were sort of hard.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Os amores perdidos que foram meio duros.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 313 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I met and left along the way.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Conheci e deixei para trás no caminho.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 315 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}But I still ended up meeting you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Mas ainda acabei me encontrando com você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 323 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I wonder how I will be still loving you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Me pergunto como ainda vou te amar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 327 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}I still want to be looking at you.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Ainda quero estar olhando para você.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 331 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...I want to be at your side with a smile.
+Proposta: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...Quero estar ao seu lado sorrindo.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 22 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Resíduo gringo detectado: A lock on?! From Karen's unit?! | Fala não traduzida (idêntica ao original em inglês): A lock on?! From Karen's unit?!
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: A lock on?! From Karen's unit?!
+PT anterior: A lock on?! From Karen's unit?!
+Proposta: Lock de alvo adquirido?! Do unidade de Karen?!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 66 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}98! 97!
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: {\i1}98! 97!
+PT anterior: {\i1}98! 97!
+Proposta: {\i1}98! 97!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 76 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}2... 1... 0!{\i0}
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: {\i1}2... 1... 0!{\i0}
+PT anterior: {\i1}2... 1... 0!{\i0}
+Proposta: {\i1}2... 1... 0!{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 147 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: {\i1}08th Team has returned.{\i} | Fala não traduzida (idêntica ao original em inglês): {\i1}08th Team has returned.{\i}
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\i1}08th Team has returned.{\i}
+PT anterior: {\i1}08th Team has returned.{\i}
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 238 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: {\i1}My love to you, B.B.{\i} | Fala não traduzida (idêntica ao original em inglês): {\i1}My love to you, B.B.{\i}
+Diagnóstico: Correção validada e persistida.
+EN: {\i1}My love to you, B.B.{\i}
+PT anterior: {\i1}My love to you, B.B.{\i}
+Proposta: {\i1}Meu amor por você, B.B.{\i}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 250 | Estilo: Song ENG
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}Hang on to it now! Don't let it go.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 251 | Estilo: Song ENG
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado (contração): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go. | Fala não traduzida (idêntica ao original em inglês): {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+PT anterior: {\fad(100,100)\blur1\bord0}Hang on to it now! Don't let it go.
+Proposta: {\fad(100,100)\blur1\bord0}Aguente firme agora! Não deixe escapar!
