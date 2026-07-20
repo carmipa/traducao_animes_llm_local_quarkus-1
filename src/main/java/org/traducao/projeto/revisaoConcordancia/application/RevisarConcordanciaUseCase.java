@@ -8,11 +8,14 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
+import org.traducao.projeto.telemetria.OperacaoTelemetria;
+import org.traducao.projeto.telemetria.TelemetriaService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,12 +55,15 @@ public class RevisarConcordanciaUseCase {
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final CorretorConcordanciaGeneroService corretor;
+    private final TelemetriaService telemetriaService;
 
     public RevisarConcordanciaUseCase(
-        LeitorLegendaAss leitor, EscritorLegendaAss escritor, CorretorConcordanciaGeneroService corretor) {
+        LeitorLegendaAss leitor, EscritorLegendaAss escritor,
+        CorretorConcordanciaGeneroService corretor, TelemetriaService telemetriaService) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.corretor = corretor;
+        this.telemetriaService = telemetriaService;
     }
 
     /**
@@ -72,6 +78,7 @@ public class RevisarConcordanciaUseCase {
      * @return {@link ResultadoConcordancia} com contagens e backups
      */
     public ResultadoConcordancia revisarPasta(Path pasta, boolean aplicar) {
+        long inicioMs = System.currentTimeMillis();
         if (pasta == null || !Files.isDirectory(pasta)) {
             return new ResultadoConcordancia(0, 0, 0, List.of(), aplicar);
         }
@@ -122,7 +129,17 @@ public class RevisarConcordanciaUseCase {
                 log.warn("Revisão de concordância pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
-        return new ResultadoConcordancia(analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar);
+        ResultadoConcordancia resultado =
+            new ResultadoConcordancia(analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar);
+        telemetriaService.registrarOperacao(new OperacaoTelemetria(
+            "Revisão de Concordância",
+            "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
+            System.currentTimeMillis() - inicioMs,
+            analisados,
+            falasCorrigidas,
+            falasCorrigidas,
+            Instant.now().toString()));
+        return resultado;
     }
 
     private Path criarBackup(Path pasta, Path arquivo) throws IOException {

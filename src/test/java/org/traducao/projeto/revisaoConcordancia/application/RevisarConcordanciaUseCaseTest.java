@@ -5,6 +5,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
+import org.traducao.projeto.telemetria.OperacaoTelemetria;
+import org.traducao.projeto.telemetria.TelemetriaService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +15,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -25,8 +28,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RevisarConcordanciaUseCaseTest {
 
+    private final TelemetriaSpy telemetria = new TelemetriaSpy();
     private final RevisarConcordanciaUseCase useCase = new RevisarConcordanciaUseCase(
-        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService());
+        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(), telemetria);
+
+    /** Captura a operação registrada sem persistir em disco (não chama super). */
+    static class TelemetriaSpy extends TelemetriaService {
+        OperacaoTelemetria ultima;
+        @Override
+        public synchronized void registrarOperacao(OperacaoTelemetria op) {
+            this.ultima = op;
+        }
+    }
 
     private static final String CABECALHO = """
         [Script Info]
@@ -84,5 +97,18 @@ class RevisarConcordanciaUseCaseTest {
         ResultadoConcordancia r =
             useCase.revisarPasta(Path.of("nao_existe_xyz"), true);
         assertEquals(0, r.arquivosAnalisados());
+    }
+
+    @Test
+    void registraOperacaoNaTelemetria(@TempDir Path dir) throws IOException {
+        Path ass = dir.resolve("ep_PT-BR.ass");
+        escreverAss(ass, "Vi o menina.");
+
+        useCase.revisarPasta(dir, true);
+
+        assertNotNull(telemetria.ultima, "deve registrar a operação na telemetria");
+        assertEquals("Revisão de Concordância", telemetria.ultima.tipo());
+        assertEquals(1, telemetria.ultima.arquivosProcessados());
+        assertEquals(1, telemetria.ultima.itensCorrigidos());
     }
 }
