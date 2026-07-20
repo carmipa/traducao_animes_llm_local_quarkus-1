@@ -16,11 +16,13 @@ import java.util.List;
  *       forma normalizada por {@link NormalizadorNomeEpisodio}.</li>
  *   <li>{@code registradoEm} é o timestamp UTC ISO-8601 da atualização, usado como
  *       critério de precedência dentro da mesma fonte.</li>
+ *   <li>{@code errosOcorridos} e {@code pendenciasPorCausa} são cópias defensivas imutáveis:
+ *       o estado gravado nunca diverge do momento do registro por mutação externa da lista.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
  * Campos ausentes são serializados como {@code null}; a ausência de nome resolve
- * para a chave vazia na deduplicação.
+ * para a chave vazia na deduplicação. Listas nulas viram listas vazias imutáveis.
  */
 public record TelemetriaTraducao(
     String nomeEpisodio,
@@ -37,4 +39,19 @@ public record TelemetriaTraducao(
     String statusFinal,
     List<ResumoPendencia> pendenciasPorCausa
 ) {
+    /**
+     * PROPÓSITO DE NEGÓCIO: blinda o registro contra aliasing — congela as listas no
+     * instante do registro para o JSON persistido jamais refletir mutações posteriores
+     * da lista original do chamador.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code errosOcorridos}/{@code pendenciasPorCausa} viram
+     * cópias imutáveis; {@code null} vira lista vazia.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: listas com elemento {@code null} fazem
+     * {@link List#copyOf} lançar {@code NullPointerException} (entrada inválida).
+     */
+    public TelemetriaTraducao {
+        errosOcorridos = errosOcorridos == null ? List.of() : List.copyOf(errosOcorridos);
+        pendenciasPorCausa = pendenciasPorCausa == null ? List.of() : List.copyOf(pendenciasPorCausa);
+    }
 }
