@@ -83,6 +83,7 @@ public class ContextoRevisaoLoreGuiltyCrown implements ProvedorPromptRevisaoLore
         Map<String, String> m = new LinkedHashMap<>();
         m.put("Genoma do Vazio", "Void Genome");
         m.put("Genoma Vazio", "Void Genome");
+        m.put("Genoma Void", "Void Genome");
         m.put("Empresa Funerária", "Funeral Parlor");
         m.put("Vírus do Apocalipse", "Apocalypse Virus");
         m.put("Virus do Apocalipse", "Apocalypse Virus");

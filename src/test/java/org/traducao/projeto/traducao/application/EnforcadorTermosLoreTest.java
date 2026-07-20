@@ -260,6 +260,14 @@ class EnforcadorTermosLoreTest {
                 "Undertaker leads the attack.",
                 "Coveiro lidera o ataque.",
                 mapa));
+        // Regressão real (Guilty Crown E14): o LLM manteve "Void" em inglês e só traduziu
+        // "Genome" -> "Genoma Void", forma que escapava do mapa ("Genoma do Vazio"/"Genoma Vazio").
+        assertEquals(
+            "Shu herdou o Void Genome.",
+            enforcador.reforcar(
+                "Shu inherited the Void Genome.",
+                "Shu herdou o Genoma Void.",
+                mapa));
     }
 
     @Test
