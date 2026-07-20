@@ -2,7 +2,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.traducao.application.NormalizadorAcentosComuns;
+import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

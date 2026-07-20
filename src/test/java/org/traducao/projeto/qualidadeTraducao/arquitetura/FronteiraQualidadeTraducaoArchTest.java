@@ -34,9 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code contexto}, {@code llm}). Em particular o detector, que antes dependia de
  *       {@code contexto.infrastructure.GerenciadorContexto}, agora depende só da porta
  *       {@code LoreAtivaPort} do próprio peer.</li>
- *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os sete proprietários
+ *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os oito proprietários
  *       top-level ({@code qualidadeTraducao.application.DetectorTraducaoIdenticaService},
  *       {@code qualidadeTraducao.application.MascaradorTags},
+ *       {@code qualidadeTraducao.application.NormalizadorAcentosComuns},
  *       {@code qualidadeTraducao.application.ProtecaoLegendaAssService},
  *       {@code qualidadeTraducao.application.ValidadorTraducaoService},
  *       {@code qualidadeTraducao.domain.AlucinacaoDetectadaException},
@@ -101,7 +102,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os sete proprietários top-level do peer qualidadeTraducao")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os oito proprietários top-level do peer qualidadeTraducao")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -117,13 +118,14 @@ class FronteiraQualidadeTraducaoArchTest {
         assertEquals(new TreeSet<>(List.of(
                 PKG_QT_APPLICATION + ".DetectorTraducaoIdenticaService",
                 PKG_QT_APPLICATION + ".MascaradorTags",
+                PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
                 PKG_QT_APPLICATION + ".ValidadorTraducaoService",
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
                 PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os sete proprietários top-level homologados, por FQN "
-                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um oitavo top-level). "
+            "qualidadeTraducao deve conter EXATAMENTE os oito proprietários top-level homologados, por FQN "
+                + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "Encontrado: " + topLevelsFqn);
     }
 
