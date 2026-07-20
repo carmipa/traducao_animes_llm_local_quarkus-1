@@ -21,9 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *       {@link PastasExecucao#configurar(String, String, String, TradutorProperties)},
  *       NÃO em {@link TradutorProperties#resolverDiretorioSaida()} (que apenas decide
  *       passthrough vs. fallback sobre valores já aparados).</li>
- *   <li>Composto legado (o que o CLI enxerga): saída ausente/vazia/blank ⇒
- *       {@code Path.of(entrada.trim()).resolve("traducao_ptbr")}; saída válida ⇒
- *       {@code Path.of(saida.trim())}.</li>
+ *   <li>Composto efetivo (o que o CLI enxerga): saída ausente/vazia/blank ⇒
+ *       {@code Path.of(entrada.trim()).getParent().resolve("traducao_ptbr")} — a
+ *       pasta-irmã da entrada, no mesmo nível (dentro da pasta da mídia/temporada);
+ *       saída válida ⇒ {@code Path.of(saida.trim())}.</li>
  *   <li>Nenhum dos três CLIs lê o diretório de cache de volta; a política de cache
  *       não entra nesta paridade.</li>
  * </ul>
@@ -53,21 +54,21 @@ class ParidadeResolucaoCaminhoE4bTest {
     }
 
     @Test
-    @DisplayName("saída ausente (null) → entrada/traducao_ptbr")
+    @DisplayName("saída ausente (null) → pasta-irmã da entrada/traducao_ptbr")
     void saidaAusenteCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).resolve("traducao_ptbr"), saidaLegada(ENTRADA, null));
+        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, null));
     }
 
     @Test
-    @DisplayName("saída vazia (\"\") → entrada/traducao_ptbr")
+    @DisplayName("saída vazia (\"\") → pasta-irmã da entrada/traducao_ptbr")
     void saidaVaziaCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).resolve("traducao_ptbr"), saidaLegada(ENTRADA, ""));
+        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, ""));
     }
 
     @Test
-    @DisplayName("saída só com espaços → entrada/traducao_ptbr")
+    @DisplayName("saída só com espaços → pasta-irmã da entrada/traducao_ptbr")
     void saidaBlankCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).resolve("traducao_ptbr"), saidaLegada(ENTRADA, "   "));
+        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, "   "));
     }
 
     @Test
@@ -80,7 +81,7 @@ class ParidadeResolucaoCaminhoE4bTest {
     @DisplayName("entrada com espaços laterais é normalizada por trim antes do fallback")
     void entradaComEspacosLateraisNormaliza() {
         assertEquals(
-            Path.of(ENTRADA).resolve("traducao_ptbr"),
+            Path.of(ENTRADA).getParent().resolve("traducao_ptbr"),
             saidaLegada("  " + ENTRADA + "  ", null));
     }
 

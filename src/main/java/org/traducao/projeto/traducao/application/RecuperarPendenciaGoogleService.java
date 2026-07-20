@@ -58,6 +58,20 @@ public class RecuperarPendenciaGoogleService {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: expõe ao orquestrador se a recuperação online está ligada,
+     * para que ele possa NARRAR na saída dinâmica que caiu no scraping do Google — sem
+     * o use case precisar depender de {@link FallbackOnlineProperties} (infra).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: reflete fielmente a flag opt-in {@code ativo}; não decide
+     * nada por conta própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: leitura pura de configuração; não lança.
+     */
+    public boolean ativo() {
+        return propriedades.ativo();
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: tenta recuperar online cada fala de diálogo pendente, devolvendo
      * só as candidatas que preservaram os nomes próprios do original.
      *

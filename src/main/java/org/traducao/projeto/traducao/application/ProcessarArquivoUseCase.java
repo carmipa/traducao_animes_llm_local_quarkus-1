@@ -76,6 +76,7 @@ public class ProcessarArquivoUseCase {
     private final ClassificadorPendenciaTelemetria classificadorPendencia;
     private final RecuperarPendenciaGoogleService recuperarPendenciaGoogle;
     private final EnforcadorTermosLore enforcadorTermosLore;
+    private final DetectorIdiomaFonteService detectorIdiomaFonte;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -105,7 +106,8 @@ public class ProcessarArquivoUseCase {
         MontadorTelemetriaTraducao montadorTelemetria,
         ClassificadorPendenciaTelemetria classificadorPendencia,
         RecuperarPendenciaGoogleService recuperarPendenciaGoogle,
-        EnforcadorTermosLore enforcadorTermosLore
+        EnforcadorTermosLore enforcadorTermosLore,
+        DetectorIdiomaFonteService detectorIdiomaFonte
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -128,6 +130,7 @@ public class ProcessarArquivoUseCase {
         this.classificadorPendencia = classificadorPendencia;
         this.recuperarPendenciaGoogle = recuperarPendenciaGoogle;
         this.enforcadorTermosLore = enforcadorTermosLore;
+        this.detectorIdiomaFonte = detectorIdiomaFonte;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -203,12 +206,17 @@ public class ProcessarArquivoUseCase {
         eventosTraduziveis.forEach(evento -> textosTraduziveisDistintos.add(evento.texto()));
 
         Map<String, String> cacheReaproveitavel = new HashMap<>();
+        // Falas cuja FONTE já está no idioma-alvo (fonte contaminada/meio-traduzida): não vão
+        // ao LLM (evita eco/recusa) e são mantidas como estão. Mapa original->original.
+        Map<String, String> jaNoIdiomaAlvo = new HashMap<>();
         LinkedHashSet<String> textosPendentes = new LinkedHashSet<>();
         int cacheSuspeito = 0;
         for (String textoOriginal : textosTraduziveisDistintos) {
             String cacheado = cacheExistente.get(textoOriginal);
             if (cacheado != null && avaliadorCache.isCacheReaproveitavel(textoOriginal, cacheado)) {
                 cacheReaproveitavel.put(textoOriginal, cacheado);
+            } else if (detectorIdiomaFonte.jaNoIdiomaAlvo(textoOriginal, propriedades.idiomaTraduzido())) {
+                jaNoIdiomaAlvo.put(textoOriginal, textoOriginal);
             } else {
                 if (cacheado != null) {
                     cacheSuspeito++;
@@ -219,6 +227,14 @@ public class ProcessarArquivoUseCase {
         log.info("{} fala(s) distinta(s) reaproveitada(s) do cache, {} suspeita(s), {} pendente(s) de tradução",
             cacheReaproveitavel.size(), cacheSuspeito, textosPendentes.size());
         uiLogger.registrarFalasCache(cacheReaproveitavel.size());
+        if (!jaNoIdiomaAlvo.isEmpty()) {
+            // Mensagem INFORMATIVA (não entra em 'avisos', que sinaliza pendência e marcaria o
+            // episódio como PARCIAL): fala já no alvo é sucesso, não problema.
+            String info = jaNoIdiomaAlvo.size() + " fala(s) já no idioma-alvo ("
+                + propriedades.idiomaTraduzido() + ") na fonte — mantida(s) sem retradução (não enviadas ao LLM).";
+            log.info(info);
+            uiLogger.log("[ INFO ] " + info);
+        }
 
         // Estilo por texto (reusado no dedup e no KPI de pendência).
         Map<String, String> estiloPorTexto = new HashMap<>();
@@ -295,9 +311,14 @@ public class ProcessarArquivoUseCase {
         Map<String, String> traducoesValidadas = new HashMap<>();
         LinkedHashSet<String> falhasDistintas = new LinkedHashSet<>();
         Map<String, String> motivoPorFalha = new HashMap<>();
-        for (Map.Entry<String, String> traducao : traducoesCombinadas.entrySet()) {
-            String original = traducao.getKey();
-            String traduzido = traducao.getValue();
+        // Itera na ordem ESTÁVEL do documento (textosTraduziveisDistintos é LinkedHashSet), não
+        // na ordem de um HashMap — assim os avisos, a fila do fallback Google e o KPI de
+        // pendência ficam determinísticos entre execuções.
+        for (String original : textosTraduziveisDistintos) {
+            if (jaNoIdiomaAlvo.containsKey(original)) {
+                continue; // fonte já no idioma-alvo: passthrough, fora da validação/pendência.
+            }
+            String traduzido = traducoesCombinadas.get(original);
             String motivoFalha = avaliadorCache.motivoFalhaFinal(original, traduzido);
             if (motivoFalha == null) {
                 traducoesValidadas.put(original, traduzido);
@@ -308,6 +329,9 @@ public class ProcessarArquivoUseCase {
             falhasDistintas.add(original);
             motivoPorFalha.put(original, motivoFalha);
         }
+        // Falas já no idioma-alvo entram direto como estão; passam pela mesma consolidação de
+        // saída/cache adiante e ainda recebem o reforço determinístico de termos de lore.
+        traducoesValidadas.putAll(jaNoIdiomaAlvo);
 
         // Fallback online de último recurso (opt-in, desligado por padrão): só as falas
         // de DIÁLOGO pendentes desta execução vão ao provedor externo; a resposta só é
@@ -319,6 +343,10 @@ public class ProcessarArquivoUseCase {
                 if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) == CategoriaConteudo.DIALOGO) {
                     dialogosPendentes.add(pendente);
                 }
+            }
+            if (recuperarPendenciaGoogle.ativo() && !dialogosPendentes.isEmpty()) {
+                uiLogger.log("[FALLBACK] LLM não resolveu " + dialogosPendentes.size()
+                    + " fala(s) de diálogo — enviando via scraping do Google...");
             }
             Map<String, String> candidatas = recuperarPendenciaGoogle.recuperar(dialogosPendentes);
             for (Map.Entry<String, String> candidata : candidatas.entrySet()) {
