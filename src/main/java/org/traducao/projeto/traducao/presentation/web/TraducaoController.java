@@ -143,6 +143,13 @@ public class TraducaoController {
                 String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
                 for (int i = 0; i < arquivos.size(); i++) {
                     Path arquivo = arquivos.get(i);
+                    if (Thread.currentThread().isInterrupted()) {
+                        // Parada cooperativa: um arquivo anterior foi cancelado (flag setada).
+                        // Não reprocessa os restantes nem os marca como falha.
+                        System.out.println("\n[PARADO] Tradução interrompida; " + (arquivos.size() - i)
+                            + " arquivo(s) restante(s) não processado(s).");
+                        break;
+                    }
                     System.out.println("\n--------------------------------------------------------------");
                     System.out.println("Processando arquivo [" + (i + 1) + "/" + arquivos.size() + "]: " + arquivo.getFileName());
                     System.out.println("--------------------------------------------------------------");
@@ -168,6 +175,12 @@ public class TraducaoController {
                         resultados.add(org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo.falha(arquivo.getFileName().toString(), loreNome));
                         registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.FALHOU, ex.getMessage());
                         System.out.println("[FALHA] " + arquivo.getFileName() + " abortado sem gerar saída (" + salvas + " linha(s) salvas no cache para retomar).");
+                    } catch (InterruptedException ie) {
+                        // Cancelamento cooperativo (botão Parar / shutdown): não conta como falha
+                        // do arquivo e encerra o lote — os restantes não são reprocessados.
+                        Thread.currentThread().interrupt();
+                        System.out.println("[PARADO] " + arquivo.getFileName() + " interrompido pelo usuário.");
+                        break;
                     } catch (Exception ex) {
                         resultados.add(org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo.falha(arquivo.getFileName().toString(), loreNome));
                         registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.FALHOU, ex.getMessage());
