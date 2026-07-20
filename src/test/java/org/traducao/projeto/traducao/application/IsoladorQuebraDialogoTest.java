@@ -112,6 +112,37 @@ class IsoladorQuebraDialogoTest {
         assertEquals("Why do we have to put up with this", reaplicado.replace("\\N", " "));
     }
 
+    @Test
+    @DisplayName("#10: \\N ladeado por espaço nos dois lados não cria espaço duplo")
+    void quebraComEspacoDosDoisLadosNaoDobra() {
+        IsoladorQuebraDialogo.FalaIsolada r = isolador.isolar("Oi \\N tchau");
+
+        assertEquals("Oi tchau", r.textoSemQuebra());
+        assertEquals(1, r.quebras());
+        assertFalse(r.textoSemQuebra().contains("  "), "não pode criar espaço duplo no ponto da quebra");
+    }
+
+    @Test
+    @DisplayName("#8: escape estrutural (\\h) antes do \\N inicial não é contado como texto (quebra de borda preservada)")
+    void escapeEstruturalNaoContaComoTexto() {
+        // '\h' é espaço rígido estrutural; o 'h' NÃO pode contar como texto humano, senão o
+        // \N inicial vira mid-sentence e é removido indevidamente.
+        IsoladorQuebraDialogo.FalaIsolada r = isolador.isolar("\\h\\NOla mundo bonito");
+
+        assertEquals("\\h\\NOla mundo bonito", r.textoSemQuebra());
+        assertEquals(0, r.quebras());
+    }
+
+    @Test
+    @DisplayName("#9: reaplicar não insere \\N dentro de uma tag {...} com espaço interno")
+    void reaplicarNaoQuebraDentroDeTag() {
+        String r = isolador.reaplicar("{\\pos(20 50)}Oi ai", 1);
+
+        assertEquals(1, contarQuebras(r));
+        assertTrue(r.contains("{\\pos(20 50)}"), "a tag com espaço interno deve permanecer intacta");
+        assertEquals("{\\pos(20 50)}Oi\\Nai", r);
+    }
+
     private static int contarQuebras(String texto) {
         int n = 0;
         int i = texto.indexOf("\\N");
