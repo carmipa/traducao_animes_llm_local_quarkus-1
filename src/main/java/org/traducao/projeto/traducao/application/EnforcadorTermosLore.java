@@ -85,14 +85,21 @@ public class EnforcadorTermosLore {
      * grafia EXATA — os termos de lore são nomes próprios maiúsculos ("Legion"), distinguindo-os
      * da palavra comum minúscula ("legion") que NÃO deve disparar a restauração. A contagem é o
      * TETO de restaurações desta fala, para não corromper um homógrafo comum.
-     * <p>INVARIANTES DO DOMÍNIO: fronteira de palavra; comparação SENSÍVEL à caixa.
+     * <p>INVARIANTES DO DOMÍNIO: fronteira de palavra; comparação SENSÍVEL à caixa para termos
+     * de UMA palavra (protege o homógrafo comum: "Void"≠"void", "Titans"≠"titans"), mas
+     * INSENSÍVEL à caixa para termos MULTI-PALAVRA (compostos técnicos como "Mobile Suit",
+     * "Beam Saber" não colidem com uma palavra comum minúscula do jeito que um nome próprio de
+     * uma palavra colide) — assim "Mobile suits" no EN também conta como o canônico "Mobile Suits".
      * <p>COMPORTAMENTO EM CASO DE FALHA: termo vazio devolve {@code 0}.
      */
     private int contarCanonico(String texto, String termo) {
         if (termo.isBlank()) {
             return 0;
         }
-        Matcher m = Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+        boolean multiPalavra = termo.trim().indexOf(' ') >= 0;
+        int flags = multiPalavra ? (Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) : 0;
+        Matcher m = Pattern.compile(
+            "(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])", flags)
             .matcher(texto);
         int total = 0;
         while (m.find()) {
