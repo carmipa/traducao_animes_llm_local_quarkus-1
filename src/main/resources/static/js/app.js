@@ -108,9 +108,14 @@ const CONFIG_SECOES = {
 
 let logsEventSource = null;
 let logsReconnectTimer = null;
+let logsWatchdogTimer = null;
 let seletorCaminhoEmAndamento = false;
 const logsPendentesPorConsole = new Map();
 const LIMITE_LOGS_PENDENTES = 1000;
+// Silêncio total (nem heartbeat) por mais que isto ⇒ conexão SSE provavelmente
+// zumbi (o servidor bate a cada 15s). Reconecta proativamente para nunca deixar
+// o console travar entre operações. Ver LogStreamService#enviarHeartbeat.
+const LOGS_WATCHDOG_MS = 40000;
 
 document.addEventListener('traducao-karaoke:painel-carregado', () => {
     descarregarLogsPendentes('console-traducao-karaoke');
@@ -264,6 +269,7 @@ function conectarFluxoLugsSSE() {
     console.log('Iniciando escuta de Server-Sent Events (SSE) para logs...');
     const eventSource = new EventSource('/api/logs/stream');
     logsEventSource = eventSource;
+    armarWatchdogLogs();
 
     // O backend publica cada operação em segundo plano sob um canal SSE com
     // o próprio nome (ver LogStreamService#definirCanalAtual no servidor),
@@ -289,10 +295,15 @@ function conectarFluxoLugsSSE() {
 
     for (const [canal, consoleId] of Object.entries(consoleMap)) {
         eventSource.addEventListener(canal, (event) => {
+            armarWatchdogLogs();
             logNoConsoleFormatado(consoleId, event.data);
             verificarAlertaSSE(event.data);
         });
     }
+
+    // Batimento do servidor (a cada ~15s): não vira log, só confirma que a
+    // conexão está viva e rearma o watchdog. Ver LogStreamService#enviarHeartbeat.
+    eventSource.addEventListener('heartbeat', () => armarWatchdogLogs());
 
     // Canal genérico de fallback, para qualquer log que não pertença a uma
     // operação específica das abas acima.
@@ -321,6 +332,7 @@ function conectarFluxoLugsSSE() {
 
     eventSource.onerror = (err) => {
         console.warn('Erro na conexão de stream SSE, tentando reconectar em 5s...', err);
+        limparWatchdogLogs();
         eventSource.close();
         if (logsEventSource === eventSource) {
             logsEventSource = null;
@@ -332,6 +344,38 @@ function conectarFluxoLugsSSE() {
             }, 5000);
         }
     };
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: garante que o console volte a ser dinâmico sozinho — sem o
+ * usuário recarregar a página — quando a conexão SSE morre em silêncio (conexão
+ * "zumbi": o navegador acha que está conectado, mas o servidor já não a tem).
+ *
+ * INVARIANTES DO DOMÍNIO: como o servidor bate a cada ~15s, qualquer silêncio maior
+ * que LOGS_WATCHDOG_MS indica conexão morta; o timer é sempre rearmado a cada evento
+ * recebido (heartbeat ou log), então uma conexão saudável nunca dispara a reconexão.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: ao disparar, fecha a conexão atual e reabre na hora;
+ * se já não houver EventSource, apenas reabre.
+ */
+function armarWatchdogLogs() {
+    limparWatchdogLogs();
+    logsWatchdogTimer = setTimeout(() => {
+        logsWatchdogTimer = null;
+        console.warn('Silêncio prolongado no stream SSE (sem heartbeat) — reconectando.');
+        if (logsEventSource) {
+            try { logsEventSource.close(); } catch (e) { /* já fechado */ }
+            logsEventSource = null;
+        }
+        conectarFluxoLugsSSE();
+    }, LOGS_WATCHDOG_MS);
+}
+
+function limparWatchdogLogs() {
+    if (logsWatchdogTimer) {
+        clearTimeout(logsWatchdogTimer);
+        logsWatchdogTimer = null;
+    }
 }
 
 /**
