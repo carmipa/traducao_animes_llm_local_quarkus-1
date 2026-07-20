@@ -114,4 +114,15 @@ class GoogleFallbackAdapterTest {
 
         assertTrue(r.isEmpty(), "perda de \\h deve manter a fala pendente");
     }
+
+    @Test
+    @DisplayName("#12: '(b)'/'(t)' como conteúdo (alternativas) não é confundido com marcador residual")
+    void conteudoComParentesesNaoEhMarcadorResidual() {
+        GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Escolha (b), nao (a)."));
+
+        Optional<String> r = adapter.traduzir("Choose (b), not (a).");
+
+        assertTrue(r.isPresent(), "conteúdo entre parênteses não pode ser tratado como marcador mutilado");
+        assertEquals("Escolha (b), nao (a).", r.get());
+    }
 }

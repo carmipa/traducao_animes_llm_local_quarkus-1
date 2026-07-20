@@ -108,16 +108,25 @@ public class LlmClientAdapter implements LlmPort {
     }
 
     /**
-     * Consulta a API estendida da LM Studio ({@code /api/v0/models}, fora do
-     * prefixo {@code /v1} do base-url configurado) e devolve os ids dos modelos
-     * com {@code state == "loaded"}. Lista vazia (sem lançar) se o servidor não
-     * suportar essa extensão — o chamador cai para o comportamento de catálogo.
+     * PROPÓSITO DE NEGÓCIO: consulta a API estendida da LM Studio ({@code /api/v0/models}, fora
+     * do prefixo {@code /v1} do base-url) para saber quais modelos estão de fato carregados
+     * ({@code state == "loaded"}) — insumo da detecção de disponibilidade real.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a raiz é derivada removendo barra(s) final(is) e o sufixo
+     * {@code /v1}; nunca gera caminho com barra dupla. Só ids com {@code state == "loaded"}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer erro (servidor sem a extensão, rede, parse)
+     * devolve lista vazia sem lançar — o chamador cai para o comportamento de catálogo.
      */
     private List<String> buscarModelosCarregadosViaApiEstendida() {
         try {
-            String raiz = propriedades.baseUrl().endsWith("/v1")
-                ? propriedades.baseUrl().substring(0, propriedades.baseUrl().length() - "/v1".length())
-                : propriedades.baseUrl();
+            // Remove barra(s) final(is) antes de derivar a raiz, senão base-url ".../v1/" geraria
+            // ".../v1//api/v0/models" e a detecção estendida falharia silenciosamente.
+            String base = propriedades.baseUrl();
+            while (base.endsWith("/")) {
+                base = base.substring(0, base.length() - 1);
+            }
+            String raiz = base.endsWith("/v1") ? base.substring(0, base.length() - "/v1".length()) : base;
             String json = httpClient.getAbsolute(raiz + "/api/v0/models");
             ListaModelosV0 resposta = objectMapper.readValue(json, ListaModelosV0.class);
             if (resposta == null || resposta.data() == null) {
@@ -558,16 +567,18 @@ public class LlmClientAdapter implements LlmPort {
         java.util.regex.Pattern.compile("^\\s*(\\d+)[.)]\\s+(.*)$");
 
     /**
-     * Alguns modelos enumeram a resposta ("1. fala", "2. fala") mesmo
-     * instruídos a não fazê-lo. A contagem de linhas bate, então a validação
-     * não pega — e o "1." iria parar na legenda final. Remove a numeração
-     * apenas quando TODAS as linhas vêm numeradas em sequência 1..N e os
-     * originais correspondentes NÃO começam numerados (se começam, o número é
-     * conteúdo real da fala, ex.: itens de uma lista, e deve ficar).
-     * <p>
-     * Vale também para lote de UMA linha (o tamanho-lote padrão do projeto é
-     * 1): "1. fala" numa resposta única é numeração alucinada do mesmo jeito,
-     * e era exatamente o caso que escapava quando este método exigia 2+ linhas.
+     * PROPÓSITO DE NEGÓCIO: remove a numeração que alguns modelos prefixam à resposta
+     * ("1. fala", "2. fala") mesmo instruídos a não fazê-lo — que passaria pela contagem de
+     * linhas e pararia na legenda final. Só remove quando TODAS as linhas vêm numeradas em
+     * sequência 1..N e os originais correspondentes NÃO começam numerados (aí o número é
+     * conteúdo real da fala e deve ficar). Vale também para lote de UMA linha.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: um número com mais de 9 dígitos nunca é índice de sequência
+     * (i+1 é pequeno) — é conteúdo real; a numeração só cai se casar exatamente {@code i+1}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: tamanhos divergentes, lista vazia, qualquer linha fora
+     * do padrão de sequência ou número gigante devolvem {@code traduzidas} inalterado; nunca
+     * lança {@code NumberFormatException} (o número gigante é barrado antes do parse).
      */
     private List<String> removerNumeracaoAlucinada(List<String> traduzidas, List<String> originais) {
         if (traduzidas.size() != originais.size() || traduzidas.isEmpty()) {
@@ -576,7 +587,13 @@ public class LlmClientAdapter implements LlmPort {
         List<String> semNumeracao = new ArrayList<>(traduzidas.size());
         for (int i = 0; i < traduzidas.size(); i++) {
             var matcher = PADRAO_LINHA_NUMERADA.matcher(traduzidas.get(i));
-            if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != i + 1) {
+            if (!matcher.matches()) {
+                return traduzidas;
+            }
+            String numero = matcher.group(1);
+            // Número com muitos dígitos não pode ser índice de sequência (i+1 é pequeno): é
+            // conteúdo real da fala. Barra antes do parseInt para não estourar NumberFormatException.
+            if (numero.length() > 9 || Integer.parseInt(numero) != i + 1) {
                 return traduzidas;
             }
             if (PADRAO_LINHA_NUMERADA.matcher(originais.get(i)).matches()) {
