@@ -1,0 +1,45 @@
+<div class="glass-card">
+    <h2>Revisão de Concordância</h2>
+    <p class="card-desc">Corrige <strong>erros de gênero</strong> inequívocos direto na legenda em português — <strong>sem inglês, sem cache e sem LLM</strong>. Ex.: "o menina" → "a menina", "uma menino" → "um menino", "ela está cansado" → "cansada".</p>
+    <p class="card-hint">Determinístico e conservador: só toca substantivos/adjetivos de gênero conhecido; o ambíguo fica intocado. Toda alteração faz backup automático.</p>
+
+    <form id="form-revisao-concordancia" class="standard-form">
+        <div class="form-group">
+            <label for="revisao-concordancia-entrada">Pasta com legendas TRADUZIDAS (PT-BR): <span class="help-icon" data-tooltip="Única pasta necessária: as legendas em português que serão revisadas e gravadas no lugar (com backup).">?</span></label>
+            <div class="input-with-button">
+                <input type="text" id="revisao-concordancia-entrada" autocomplete="off" spellcheck="false" placeholder="Ex: E:\animes\Gundam\0083\legendas_ptbr" required>
+                <button type="button" class="btn-procurar" data-target="revisao-concordancia-entrada" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="revisao-concordancia-simular">
+                Apenas simular (dry-run — mostra o que mudaria, sem gravar)
+            </label>
+        </div>
+        <div class="correcao-actions">
+            <button type="button" class="btn btn-primary btn-purple" id="btn-iniciar-revisao-concordancia" data-tooltip="Corrige concordância de gênero na pasta PT-BR (com backup)">
+                <span class="material-symbols-outlined btn-icon">spellcheck</span>
+                <span>Iniciar Revisão de Concordância</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-revisao-concordancia" data-tooltip="Limpa os campos">
+                <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                <span>Limpar Campos</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="glass-card console-card">
+    <div class="console-header">
+        <h3>Logs da Revisão de Concordância</h3>
+        <div class="console-actions">
+            <button class="btn-toggle-console" data-target="console-revisao-concordancia" data-tooltip="Alternar altura expandida do console"><span class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
+            <button class="btn-copy-console" data-target="console-revisao-concordancia" data-tooltip="Copiar conteúdo do console"><span class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>
+            <button class="btn-clear-console" data-target="console-revisao-concordancia"><span class="material-symbols-outlined console-action-icon">mop</span>Limpar</button>
+        </div>
+    </div>
+    <div class="console-body" id="console-revisao-concordancia">
+        <div class="system-message">Aguardando execução...</div>
+    </div>
+</div>

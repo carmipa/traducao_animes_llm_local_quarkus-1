@@ -7,6 +7,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,19 +59,6 @@ public class RevisarConcordanciaUseCase {
         this.escritor = escritor;
         this.corretor = corretor;
     }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: resumo da revisão de concordância de uma pasta.
-     * <p>INVARIANTES DO DOMÍNIO: contagens refletem o que realmente mudou; nunca some fala.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: portador de dados puro.
-     */
-    public record ResultadoConcordancia(
-        int arquivosAnalisados,
-        int arquivosAlterados,
-        int falasCorrigidas,
-        List<Path> backups,
-        boolean aplicado
-    ) {}
 
     /**
      * PROPÓSITO DE NEGÓCIO: revisa a concordância de gênero de todos os {@code .ass}/{@code .ssa}

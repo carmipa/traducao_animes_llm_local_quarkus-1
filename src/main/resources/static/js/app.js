@@ -12,6 +12,7 @@ import { initCorrecao } from '../correcao/correcao.js?v=3.0';
 import { initRevisao } from '../revisao/revisao.js?v=3.2';
 import { initCura } from '../cura/cura.js?v=3.0';
 import { initRevisaoLore } from '../revisaoLore/revisaoLore.js?v=3.1';
+import { initRevisaoConcordancia } from '../revisaoConcordancia/revisaoConcordancia.js?v=1.0';
 import { initTrocaTipoLegenda } from '../trocaTipoLegenda/trocaTipoLegenda.js?v=3.0';
 import { initRemuxer } from '../remuxer/remuxer.js?v=3.1';
 import { montarOpcoesContextos } from './selectContextos.js';
@@ -58,6 +59,10 @@ const CONFIG_SECOES = {
     "revisao-lore": {
         titulo: "7. Revisão de Lore",
         subtitulo: "Padronização de nomes, locais e termos de mundo nas legendas via LLM e lore oficial"
+    },
+    "revisao-concordancia": {
+        titulo: "Revisão de Concordância",
+        subtitulo: "Correção determinística de gênero (o menina → a menina) na legenda PT-BR, sem inglês nem LLM"
     },
     "troca-tipo-legenda": {
         titulo: "8. Troca Tipo Legenda",
@@ -226,6 +231,7 @@ async function inicializarModulos() {
     initRevisao();
     initCura();
     await initRevisaoLore();
+    await initRevisaoConcordancia();
     await initTrocaTipoLegenda();
     initRemuxer();
     await initRenomearArquivos();
@@ -271,6 +277,7 @@ function conectarFluxoLugsSSE() {
         'correcao': 'console-correcao',
         'revisao': 'console-revisao',
         'revisao-lore': 'console-revisao-lore',
+        'revisao-concordancia': 'console-revisao-concordancia',
         'troca-tipo-legenda': 'console-troca-tipo-legenda',
         'correcao-legendas': 'console-cura',
         'cura': 'console-cura',
