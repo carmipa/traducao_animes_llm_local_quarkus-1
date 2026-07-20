@@ -53,29 +53,33 @@ public class ConsoleRedirector {
     /**
      * OutputStream interno que espelha os bytes gravados no fluxo original
      * e acumula buffers de linhas finalizadas com '\n' para despacho via SSE.
+     * Package-private para caracterização em teste do buffer por-thread.
      */
-    private static class DoubleOutputStream extends OutputStream {
+    static class DoubleOutputStream extends OutputStream {
         private final OutputStream original;
         private final java.util.function.Consumer<String> consumer;
-        private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        // Buffer de linha POR-THREAD: cada job/thread acumula a SUA própria linha e o flush
+        // (consumer.accept) ocorre na thread que iniciou a linha — de modo que o SSE resolva o
+        // canal certo (LogStreamService usa um ThreadLocal de canal). Um buffer único misturaria
+        // linhas parciais de threads diferentes e as rotearia para o canal errado.
+        private final ThreadLocal<ByteArrayOutputStream> buffer =
+            ThreadLocal.withInitial(ByteArrayOutputStream::new);
 
         public DoubleOutputStream(OutputStream original, java.util.function.Consumer<String> consumer) {
             this.original = original;
             this.consumer = consumer;
         }
 
-        // synchronized: o buffer de linha é um só para todas as threads que
-        // imprimem em System.out (pipeline, threads HTTP, libs). O PrintStream
-        // serializa as chamadas na prática, mas isso é detalhe de implementação
-        // da JDK — o lock explícito garante que bytes de threads concorrentes
-        // não se entrelacem numa mesma linha nem saiam no canal SSE errado.
+        // synchronized: serializa a escrita no fluxo físico {@code original} para bytes de
+        // threads concorrentes não se entrelaçarem no console. O isolamento de LINHA por canal
+        // SSE vem do buffer por-thread acima (não do lock).
         @Override
         public synchronized void write(int b) throws IOException {
             original.write(b);
             if (b == '\n') {
                 flushBuffer();
             } else if (b != '\r') {
-                buffer.write(b);
+                buffer.get().write(b);
             }
         }
 
@@ -87,16 +91,17 @@ public class ConsoleRedirector {
                 if (ch == '\n') {
                     flushBuffer();
                 } else if (ch != '\r') {
-                    buffer.write(ch);
+                    buffer.get().write(ch);
                 }
             }
         }
 
         private void flushBuffer() {
-            if (buffer.size() > 0) {
-                String line = buffer.toString(StandardCharsets.UTF_8);
+            ByteArrayOutputStream linhaAtual = buffer.get();
+            if (linhaAtual.size() > 0) {
+                String line = linhaAtual.toString(StandardCharsets.UTF_8);
                 consumer.accept(line);
-                buffer.reset();
+                linhaAtual.reset();
             }
         }
     }
