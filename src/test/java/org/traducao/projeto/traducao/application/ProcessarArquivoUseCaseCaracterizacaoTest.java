@@ -266,7 +266,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
             pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
-            enforcadorTermos);
+            enforcadorTermos, new DetectorIdiomaFonteService());
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -495,6 +495,110 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (visibilidade do fallback): com o modo online LIGADO e falas de
+     * diálogo pendentes, o pipeline ANUNCIA na saída dinâmica que está enviando ao scraping
+     * do Google — para o operador não ficar no escuro durante a recuperação de último recurso.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a linha de aviso cita "scraping do Google" e é emitida antes
+     * da tentativa externa, apenas quando há diálogo pendente e o fallback está ligado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do wire): nenhuma narração — este teste falharia.
+     */
+    @Test
+    void fallbackLigadoAnunciaEnvioAoScrapingDoGoogle() throws Exception {
+        fallbackOnlineAtivo = true;
+        fallbackPort = original -> original.contains("KEEPME")
+            ? Optional.of("permanece aqui") : Optional.empty();
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        uc.processar(entrada, false);
+
+        assertTrue(logger.mensagens.stream().anyMatch(m -> m.contains("scraping do Google")),
+            "deve anunciar o envio ao scraping do Google quando há diálogo pendente e o fallback está ligado");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (fallback desligado é 100% local e silencioso): com o modo online
+     * DESLIGADO, mesmo havendo fala pendente, o pipeline NÃO pode anunciar envio ao Google —
+     * evita mentir que houve chamada externa quando nenhuma ocorre.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma linha citando "scraping do Google" é emitida.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: um anúncio incondicional (sem checar {@code ativo()})
+     * reprova este teste.
+     */
+    @Test
+    void fallbackDesligadoNaoAnunciaEnvioAoGoogle() throws Exception {
+        fallbackOnlineAtivo = false;
+        fallbackPort = original -> Optional.empty();
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        uc.processar(entrada, false);
+
+        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("scraping do Google")),
+            "com o fallback desligado, nada de scraping do Google deve ser anunciado");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (fonte contaminada — guarda de idioma): uma fala cuja FONTE já está
+     * em PT é mantida como está, SEM ir ao LLM, e o episódio conclui — em vez de virar eco/recusa
+     * pendente. É a defesa direta contra os arquivos "inglês" meio-traduzidos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a fala já-PT sai verbatim; status {@code CONCLUIDO}; um aviso
+     * informa que ela foi mantida sem retradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do wire): a fala já-PT iria ao LLM, voltaria como
+     * eco/recusa e o episódio ficaria PARCIAL — este teste falharia.
+     */
+    @Test
+    void fonteJaEmPortuguesEhMantidaSemRetraducao() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        Path entrada = escreverAss("ep.ass", "Não é que ele fosse desagradável.");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "a linha já-PT não vira pendência; o episódio conclui sem chamar o LLM");
+        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        String conteudo = Files.readString(finalPtBr, StandardCharsets.UTF_8);
+        assertTrue(conteudo.contains("Não é que ele fosse desagradável."),
+            "a fala já em PT deve ser mantida verbatim na saída");
+        assertTrue(logger.mensagens.stream().anyMatch(m -> m.contains("já no idioma-alvo")),
+            "deve anunciar que manteve fala(s) já no idioma-alvo");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (segurança da guarda): uma fala em INGLÊS nunca pode ser classificada
+     * como já-no-alvo — deixar inglês sem traduzir é o erro que a guarda precisa evitar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma mensagem "já no idioma-alvo" é emitida para inglês; a
+     * fala segue o caminho normal de tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: um detector agressivo demais (que pulasse inglês)
+     * reprova este teste.
+     */
+    @Test
+    void fonteInglesNaoEhTratadaComoJaTraduzida() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        Path entrada = escreverAss("ep.ass", "It is because the war changed everything.");
+
+        uc.processar(entrada, false);
+
+        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("já no idioma-alvo")),
+            "linha inglesa não pode ser classificada como já no idioma-alvo");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: uma falha real na SUBSTITUIÇÃO ATÔMICA final (o caminho
      * de destino já está ocupado por um diretório) não pode publicar uma legenda
      * inválida, não pode destruir o que ocupa o destino e não pode deixar
@@ -708,6 +812,31 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override
         public synchronized void iniciarLotes(int totalLotes, String nomeEpisodio) {
             // no-op: não constrói a barra de progresso (evita consumir a interrupção).
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: captura as mensagens emitidas por {@code uiLogger.log(...)}
+     * para que os testes possam asserir a narração da saída dinâmica (ex.: o anúncio do
+     * fallback Google) sem depender de capturar {@code System.out}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não constrói a barra de progresso e registra cada mensagem
+     * exatamente uma vez, na ordem recebida.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; lista thread-safe para tolerar emissões
+     * de qualquer thread do pipeline.
+     */
+    private static final class LoggerCapturador extends ConsoleUILogger {
+        final java.util.List<String> mensagens = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+        @Override
+        public synchronized void iniciarLotes(int totalLotes, String nomeEpisodio) {
+            // no-op: sem barra de progresso nos testes.
+        }
+
+        @Override
+        public synchronized void log(String mensagem) {
+            mensagens.add(mensagem);
         }
     }
 }

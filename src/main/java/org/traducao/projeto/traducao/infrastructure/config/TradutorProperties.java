@@ -61,8 +61,12 @@ public class TradutorProperties {
             return Path.of(diretorioSaida);
         }
         Path entrada = Path.of(diretorioEntrada);
-        // Por padrão, cria automaticamente a subpasta 'traducao_ptbr' dentro da pasta da mídia informada
-        return entrada.resolve("traducao_ptbr");
+        // Por padrão, cria 'traducao_ptbr' NO MESMO NÍVEL da pasta de legendas originais
+        // (irmã dela, dentro da pasta da mídia/temporada), não dentro dela — assim o
+        // artefato fica ao lado dos vídeos, onde o remuxer também procura por ele.
+        // Guarda contra entrada em raiz (sem pai): mantém o comportamento antigo.
+        Path pai = entrada.getParent();
+        return (pai != null ? pai : entrada).resolve("traducao_ptbr");
     }
 
     /**
