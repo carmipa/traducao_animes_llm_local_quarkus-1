@@ -1,0 +1,6 @@
+# Base de cache de tradução compartilhada entre computadores (PC/notebook).
+# O app grava os .cache.json com LF; sem isto, core.autocrlf=true converteria
+# para CRLF no checkout e o cache apareceria eternamente "modificado" (churn),
+# além de divergir byte-a-byte entre as máquinas. Pinar LF mantém os arquivos
+# como texto diffável e idênticos em qualquer sistema.
+cache/** text eol=lf
