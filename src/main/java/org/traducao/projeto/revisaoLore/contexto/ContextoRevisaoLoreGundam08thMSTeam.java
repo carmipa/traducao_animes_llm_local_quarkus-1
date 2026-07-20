@@ -6,25 +6,71 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 
 import java.util.Map;
 
+/**
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore completa para The 08th MS Team (UC 0079) —
+ * Opção 7 alinhada à Tradução Local, sem importar {@code contexto.lore}.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: 08th MS Team ≠ 8o Time MS; Apsalus ≠ Absalão; Gouf Custom;
+ * Gundam Ez8; Miller's Report; Apsalus é Mobile Armor.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
+ */
 @Component
 public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam: The 08th MS Team, Universal Century U.C. 0079.
-        - Regra central: manter nomes oficiais de equipe, personagens, faccoes, unidades, mobile suits, mobile armors, armas e termos UC.
-        - Personagens: Shiro Amada, Aina Sahalin, Karen Joshua, Terry Sanders Jr., Eledore Massis/Mathis, Michel Ninorich, Kiki Rosita, Ginias Sahalin, Norris Packard, Kojima, Isan Ryer, Alice Miller.
-        - Faccao/forcas: Earth Federation, Federation, Principality of Zeon, Zeon, 08th MS Team.
-        - Mobile suits/armors: RX-79[G] Ground Gundam, Gundam Ground Type, RX-79[G] Ez-8 Gundam Ez8, RGM-79[G] GM Ground Type, MS-06J Zaku II Ground Type, MS-07B-3 Gouf Custom, Gouf Flight Type, Zaku Tank, Magella Attack, Apsalus I, Apsalus II, Apsalus III.
-        - Termos: mobile suit, mobile armor, Hovertruck, Miller's Report, One Year War, Universal Century, U.C., Newtype, Minovsky particles, beam rifle, beam saber, mega particle cannon, Jaburo.
-        - Alertas: The 08th MS Team nao deve virar "O 8o Time MS" se for titulo; Apsalus nao vira "absalão"; Gouf Custom e Gundam Ez8 mantem grafia oficial.
+        - Obra: Mobile Suit Gundam: The 08th MS Team, Universal Century U.C. 0079 (One Year War).
+        - Regra: corrigir APENAS nomenclatura. Apsalus e Mobile Armor — nao Mobile Suit.
+
+        === Roster — 08th / Federacao ===
+        - Shiro Amada; Karen Joshua; Terry Sanders Jr.; Eledore Massis; Michel Ninorich;
+          Kojima; Isan Ryer; Alice Miller; Yuri Kellarny; B.B. (cartas de Michel).
+
+        === Roster — Zeon / civis ===
+        - Aina Sahalin; Ginias Sahalin; Norris Packard; Kiki Rosita; Baresto Rosita.
+
+        === Orgs / lugares ===
+        - 08th MS Team (NUNCA "8o Time MS" / "Oitava Equipe MS" como titulo);
+          Kojima Battalion; Earth Federation; Principality of Zeon / Zeon; Jaburo;
+          Miller's Report (epilogo).
+
+        === Mecha ===
+        - Gundam Ground Type / Ground Gundam; Gundam Ez8; GM Ground Type;
+          Zaku II Ground Type; Gouf Custom; Gouf Flight Type; Zaku Tank; Magella Attack;
+          Apsalus I / II / III; Hovertruck.
+
+        === Termos UC / formas-ruim ===
+        - Newtype; Mobile Suit / Mobile Armor; One Year War; Minovsky; Mega Particle Cannon.
+        - Absalão → Apsalus; Gouf Personalizado → Gouf Custom;
+          Gundam Tipo Terrestre → Gundam Ground Type; Guerra de Um Ano → One Year War;
+          Relatório Miller → Miller's Report; Principado de Zeon → Principality of Zeon;
+          Caminhão Hover → Hovertruck.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
 
-    @Override public String getId() { return "gundam_08ms"; }
-    @Override public String getNomeExibicao() { return "Mobile Suit Gundam: The 08th MS Team - Revisao de Lore"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+    @Override
+    public String getId() {
+        return "gundam_08ms";
+    }
 
+    @Override
+    public String getNomeExibicao() {
+        return "Mobile Suit Gundam: The 08th MS Team - Revisao de Lore";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: núcleo UC + extras 08th na Opção 7 (espelho da Tradução Local).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem import cruzado de {@code contexto.lore}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
+     */
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
@@ -32,7 +78,18 @@ public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisa
             Map.entry("Gouf Customizado", "Gouf Custom"),
             Map.entry("Absalão", "Apsalus"),
             Map.entry("Absalao", "Apsalus"),
-            Map.entry("Gundam Tipo Terrestre", "Gundam Ground Type")
+            Map.entry("Gundam Tipo Terrestre", "Gundam Ground Type"),
+            Map.entry("GM Tipo Terrestre", "GM Ground Type"),
+            Map.entry("Zaku Tipo Terrestre", "Zaku II Ground Type"),
+            Map.entry("Guerra de Um Ano", "One Year War"),
+            Map.entry("Relatório Miller", "Miller's Report"),
+            Map.entry("Relatorio Miller", "Miller's Report"),
+            Map.entry("8º Time MS", "08th MS Team"),
+            Map.entry("8o Time MS", "08th MS Team"),
+            Map.entry("Oitava Equipe MS", "08th MS Team"),
+            Map.entry("Principado de Zeon", "Principality of Zeon"),
+            Map.entry("Caminhão Hover", "Hovertruck"),
+            Map.entry("Caminhao Hover", "Hovertruck")
         ));
     }
 }
