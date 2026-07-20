@@ -1,0 +1,2636 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "eight_six",
+    "contextoHash" : "21d73e5283dcfd5c71ccc8a536f703ad40c501c852ede35ad73c87725b445a80",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 2,
+    "estilo" : "Default",
+    "original" : "Okay, good!",
+    "traduzido" : "Tudo bem, legal!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Default",
+    "original" : "{\\an8}Now further back!",
+    "traduzido" : "{\\an8}Agora, recuem mais ainda!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Default",
+    "original" : "{\\an8}Push them back!",
+    "traduzido" : "{\\an8}Empurre-os para trás!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Default",
+    "original" : "Roger!",
+    "traduzido" : "Entendido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Default",
+    "original" : "Should we circle around?",
+    "traduzido" : "Devemos dar a volta?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Default",
+    "original" : "Just wait, you tin cans!",
+    "traduzido" : "Aguarde aí, latas de conserva!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Default",
+    "original" : "I'm gonna blow you to bits!",
+    "traduzido" : "Vou te explodir em pedacos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Default",
+    "original" : "Watch it, Marcel!",
+    "traduzido" : "Cuidado, Marcel!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Default",
+    "original" : "We're going to crash!",
+    "traduzido" : "Vamos colidir!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Default",
+    "original" : "We're saved...",
+    "traduzido" : "Estamos salvos...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Default",
+    "original" : "Sorry, Eugene.",
+    "traduzido" : "Desculpe, Eugene.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Default",
+    "original" : "Are you okay?",
+    "traduzido" : "Tudo bem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Default",
+    "original" : "I think so...",
+    "traduzido" : "Penso que sim...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Default",
+    "original" : "What the hell are you fools doing?!",
+    "traduzido" : "Que diabos vocês estão fazendo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Default",
+    "original" : "Get out of the vehicles now!",
+    "traduzido" : "Saia dos veículos agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Default",
+    "original" : "{\\an8}Cadet Marcel, what the hell was that?",
+    "traduzido" : "{\\an8}Cabo Marcel, o que diabos foi aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Default",
+    "original" : "{\\an8}I wanted to flank the enemy.",
+    "traduzido" : "{\\an8}Eu queria flanquear o inimigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Default",
+    "original" : "{\\q2}That's your reasoning? \\NYou blindly crested the hill for that?",
+    "traduzido" : "{\\q2}É essa a sua lógica? Você subiu\\Ncegamente a colina por causa disso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Default",
+    "original" : "Exposing your Feldreß's belly to enemy fire for that?",
+    "traduzido" : "Expor a barriga do seu Feldreß ao fogo inimigo por isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Default",
+    "original" : "Your grade for this exercise is zero!",
+    "traduzido" : "Sua nota para esse exercício é zero!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Default",
+    "original" : "Go back and relearn the basics!",
+    "traduzido" : "Volte e reestreite os basicos novamente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Default",
+    "original" : "Yes, sir.",
+    "traduzido" : "Sim, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Default",
+    "original" : "Next, Cadet Nouzen!",
+    "traduzido" : "Próximo, Aluno Nouzen!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Default",
+    "original" : "Jumping in a Vánagandr? Are you insane?",
+    "traduzido" : "Saltando em um Vanagandr? Você perdeu o juízo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Default",
+    "original" : "Are you trying to destroy it?!",
+    "traduzido" : "Você está tentando destruí-lo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Default",
+    "original" : "I judged that it was the only way to avoid a collision.",
+    "traduzido" : "Julguei que era a única forma de evitar uma colisão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Default",
+    "original" : "{\\q2}It's better to lose the legs on one of the units \\Nthan to lose both of the units altogether.",
+    "traduzido" : "{\\q2}É melhor perder as pernas de uma das unidades\\Ndo que perder ambas as unidades completamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Default",
+    "original" : "Shin...",
+    "traduzido" : "Shin...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Default",
+    "original" : "Point taken.",
+    "traduzido" : "Entendido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Default",
+    "original" : "I'll give you credit for avoiding a collision.",
+    "traduzido" : "Vou te dar credito por evitar uma colisao.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Default",
+    "original" : "But in any case, it's reckless piloting.",
+    "traduzido" : "Mas em qualquer caso, é pilotagem imprudente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Default",
+    "original" : "So your run is disqualified, too.",
+    "traduzido" : "Sua corrida também está desqualificada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Default",
+    "original" : "Got it?",
+    "traduzido" : "Entendido?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Default",
+    "original" : "Yes, sir.",
+    "traduzido" : "Sim, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Default",
+    "original" : "Nouzen.",
+    "traduzido" : "Nouzen",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Default",
+    "original" : "I won't thank you for that.",
+    "traduzido" : "Não vou te agradecer por isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Default",
+    "original" : "There's no need.",
+    "traduzido" : "Não é necessário.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Default",
+    "original" : "You didn't need to dodge in the first place. I could've—",
+    "traduzido" : "Não precisava ter desviado no início. Eu poderia ter...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Default",
+    "original" : "I said there's no need.",
+    "traduzido" : "Eu disse que não é preciso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Default",
+    "original" : "Let's go, Eugene.",
+    "traduzido" : "Vamos embora, Eugene.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Default",
+    "original" : "Just come with me.",
+    "traduzido" : "Vem comigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Default",
+    "original" : "It's nice being young, isn't it?",
+    "traduzido" : "É gostoso ser jovem, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Default",
+    "original" : "Is that how it looks to you?",
+    "traduzido" : "Achei que fosse assim pra voce tambem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Default",
+    "original" : "That's quite cold of you.",
+    "traduzido" : "Que frio da sua parte.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Default",
+    "original" : "What is it today?",
+    "traduzido" : "O que é hoje?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Default",
+    "original" : "I want you to come with me again.",
+    "traduzido" : "Eu quero que você venha comigo novamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Default",
+    "original" : "I got permission this time.",
+    "traduzido" : "Tenho permissão desta vez.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Default",
+    "original" : "Eugene, don't get too close to Nouzen.",
+    "traduzido" : "Não se aproxime demais do Nouzen, Eugene.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Default",
+    "original" : "Why?",
+    "traduzido" : "Por que?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Default",
+    "original" : "{\\q2}Haven't you heard about the Feldreß \\Nthe Eighty-Six are developing with R&D?",
+    "traduzido" : "{\\q2}Não ouviste falar sobre o Feldreß\\Nque os 86 estão desenvolvendo com a R&D?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Default",
+    "original" : "They're a death trap.",
+    "traduzido" : "São uma armadilha mortal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Default",
+    "original" : "{\\q2}They're based on the Republic's designs, \\Nwhich don't factor in pilot safety at all!",
+    "traduzido" : "{\\q2}Eles são baseados nos desenhos da República, que\\Nnão levam em conta a segurança do piloto nem um pouco!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Default",
+    "original" : "{\\q2}Supposedly, dozens of test pilots \\Nhave been killed in testing.",
+    "traduzido" : "{\\q2}Supostamente, dezenas de pilotos\\Nde teste morreram durante os testes.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Default",
+    "original" : "Yet they're all completely fine.",
+    "traduzido" : "Ainda assim, todos estão completamente bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Default",
+    "original" : "That's just a rumor.",
+    "traduzido" : "É apenas um boato.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Default",
+    "original" : "Even so...",
+    "traduzido" : "Mesmo assim...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Default",
+    "original" : "I've got a bad feeling about him.",
+    "traduzido" : "Tenho um mau pressentimento sobre ele.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Default",
+    "original" : "Almost as if...",
+    "traduzido" : "Quase como se...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Default",
+    "original" : "As if?",
+    "traduzido" : "Como assim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Default",
+    "original" : "He's a Reaper.",
+    "traduzido" : "Ele é um Ceifador.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Default",
+    "original" : "Are you guys ready for a trip?",
+    "traduzido" : "Vocês estão prontos para uma viagem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Default",
+    "original" : "How far are we going?",
+    "traduzido" : "Até onde estamos indo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Default",
+    "original" : "A training exercise?",
+    "traduzido" : "Um exercicio de treinamento?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Default",
+    "original" : "No idea.",
+    "traduzido" : "Sem ideia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Default",
+    "original" : "But the truck's carrying something, right?",
+    "traduzido" : "Mas o caminhão está carregando alguma coisa, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Default",
+    "original" : "Oh, with the tarp over it?",
+    "traduzido" : "Com a lona por cima?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Default",
+    "original" : "{\\q2}When you traveled through here, \\Nthis was still Legion-controlled territory.",
+    "traduzido" : "{\\q2}Quando você passou por aqui, esta\\Nregião ainda estava sob controle da Legião.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Default",
+    "original" : "But over the last six months, we've managed to retake it.",
+    "traduzido" : "Recuperamos o território nos últimos seis meses.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Default",
+    "original" : "{\\q2}As our front line advanced, we found \\Nthis set of destroyed Republic Feldreß.",
+    "traduzido" : "{\\q2}À medida que nossas linhas de frente avançavam, encontramos\\Neste conjunto de mechas Feldress da República destruídos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Default",
+    "original" : "Among them were plates with names carved into them.",
+    "traduzido" : "Entre eles havia pratos com nomes gravados neles.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Default",
+    "original" : "{\\q2}In the Federacy, when someone dies in battle, their name \\Nis engraved on a memorial in the military graveyards.",
+    "traduzido" : "{\\q2}Na Federação, quando alguém morre em batalha, seu\\Nnome é gravado em um memorial nos cemitérios militares.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Default",
+    "original" : "{\\q2}However, we decided that the names inscribed on the plates—\\Nall 575 of them—should be memorialized here instead.",
+    "traduzido" : "{\\q2}No entanto, decidimos que os nomes gravados nas placas -\\Ntodos os 575 deles - deveriam ser homenageados aqui em vez disso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Default",
+    "original" : "So we made this.",
+    "traduzido" : "Então fizemos isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Default",
+    "original" : "{\\q2}Don't worry. After we recorded the names on \\Nthe plate, we returned it to its original spot.",
+    "traduzido" : "{\\q2}Não se preocupe. Depois que registramos os nomes\\Nna placa, colocamos ela de volta no lugar original.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Default",
+    "original" : "What do you think?",
+    "traduzido" : "O que você acha?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Default",
+    "original" : "Thank you for your concern.",
+    "traduzido" : "Obrigado pela sua preocupação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Default",
+    "original" : "{\\q2}But now that you've graduated \\Nfrom the special officer academy,",
+    "traduzido" : "{\\q2}Agora que você se formou na\\Nacademia de oficiais especiais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Default",
+    "original" : "{\\q2}you are now officially part of the \\NFederal Republic of Giad's military.",
+    "traduzido" : "{\\q2}Agora você é oficialmente parte\\Ndas Forças Armadas da Federação de Giad.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Default",
+    "original" : "And soon, you'll be sent into battle.",
+    "traduzido" : "Em breve, voce sera enviado para a batalha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Default",
+    "original" : "{\\q2}You'll be working in the Nordlicht Squadron, \\Nwhich is under my command.",
+    "traduzido" : "{\\q2}Você vai trabalhar no Esquadrão\\NNordlicht, que está sob meu comando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Default",
+    "original" : "{\\q2}I am Lieutenant Colonel Grethe Wenzel, \\Ncommanding officer of the 1,028th Trial Unit.",
+    "traduzido" : "{\\q2}Sou a Tenente Coronel Grethe Wenzel,\\Ncomandante da 1.028ª Unidade de Julgamento.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Default",
+    "original" : "Glad to be working with you all.",
+    "traduzido" : "Prazer em trabalhar com todos vocês.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Default",
+    "original" : "Thank you.",
+    "traduzido" : "Obrigado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Default",
+    "original" : "Hey, you didn't need to throw me off!",
+    "traduzido" : "Ei, você não precisava me jogar pra longe!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Default",
+    "original" : "Frederica?",
+    "traduzido" : "Fredérica?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Default",
+    "original" : "Hold on a second, what is that?",
+    "traduzido" : "Espere um segundo, o que é isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 88,
+    "estilo" : "Default",
+    "original" : "Don't look! This is a surprise!",
+    "traduzido" : "Não olhe! Isso é uma surpresa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 89,
+    "estilo" : "Default",
+    "original" : "A surprise?",
+    "traduzido" : "Uma surpresa?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 90,
+    "estilo" : "Default",
+    "original" : "That's right!",
+    "traduzido" : "Certo mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 91,
+    "estilo" : "Default",
+    "original" : "What is that?",
+    "traduzido" : "O que é aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 92,
+    "estilo" : "Default",
+    "original" : "A scavenger?",
+    "traduzido" : "Um Ameise?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 93,
+    "estilo" : "Default",
+    "original" : "That's Republic tech.",
+    "traduzido" : "Aquilo é tecnologia da República.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 94,
+    "estilo" : "Default",
+    "original" : "Why?",
+    "traduzido" : "Por que?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 95,
+    "estilo" : "Default",
+    "original" : "Fido?",
+    "traduzido" : "Fido?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 96,
+    "estilo" : "Default",
+    "original" : "What are you saying, Shin?",
+    "traduzido" : "O que você está dizendo, Shin?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 97,
+    "estilo" : "Default",
+    "original" : "Do you give all of your pets the same name?",
+    "traduzido" : "Dá o mesmo nome para todos os seus bichos de estimação?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 98,
+    "estilo" : "Default",
+    "original" : "No, this is Fido.",
+    "traduzido" : "Não, este é o Fido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 99,
+    "estilo" : "Default",
+    "original" : "The one that traveled with you.",
+    "traduzido" : "A que viajou contigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 100,
+    "estilo" : "Default",
+    "original" : "{\\q2}When we analyzed the wreckage, \\Nwe found that its core systems were intact.",
+    "traduzido" : "{\\q2}Após analisarmos os destroços, descobrimos\\Nque seus sistemas principais estavam intactos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 101,
+    "estilo" : "Default",
+    "original" : "Grethe rebuilt it.",
+    "traduzido" : "Grethe reconstruiu isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 102,
+    "estilo" : "Default",
+    "original" : "{\\q2}We may have replaced the mechanical shell, \\Nbut this is the real Fido!",
+    "traduzido" : "{\\q2}Podemos ter trocado a carcaça\\Nmecânica, mas este é o verdadeiro Fido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 103,
+    "estilo" : "Default",
+    "original" : "It may look the same, but it's several times stronger.",
+    "traduzido" : "Pode parecer igual, mas é várias vezes mais forte.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 104,
+    "estilo" : "Default",
+    "original" : "No way.",
+    "traduzido" : "De jeito nenhum.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 105,
+    "estilo" : "Default",
+    "original" : "{\\q2}He also thought he was dead \\Nand refused to activate at first.",
+    "traduzido" : "{\\q2}Ele também pensou que estava\\Nmorto e se recusou a ativar no início.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 106,
+    "estilo" : "Default",
+    "original" : "He only responded once he heard Shinei's name.",
+    "traduzido" : "Ele só respondeu após ouvir o nome de Shinei.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 107,
+    "estilo" : "Default",
+    "original" : "You are the proof that we made it here.",
+    "traduzido" : "Você é a prova de que chegamos até aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 108,
+    "estilo" : "Default",
+    "original" : "Perform your mission until you rust away.",
+    "traduzido" : "Cumpra sua missão até você enferrujar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 109,
+    "estilo" : "Default",
+    "original" : "You're still alive?",
+    "traduzido" : "Você ainda está vivo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 110,
+    "estilo" : "Default",
+    "original" : "{\\q2}I ordered you to perform your \\Nmission until you rusted away.",
+    "traduzido" : "{\\q2}Eu ordenei que você realizasse\\Nsua missão até enferrujar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 111,
+    "estilo" : "Default",
+    "original" : "But well...",
+    "traduzido" : "Mas bem...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 112,
+    "estilo" : "Default",
+    "original" : "Want to go home together once more?",
+    "traduzido" : "Queremos ir para casa juntos mais uma vez?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 113,
+    "estilo" : "Default",
+    "original" : "Saw that coming.",
+    "traduzido" : "Vindo vindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 114,
+    "estilo" : "Default",
+    "original" : "Shouldn't you be a little worried?",
+    "traduzido" : "Não deveria estar um pouco preocupada?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 115,
+    "estilo" : "Default",
+    "original" : "That's right!",
+    "traduzido" : "Certo mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 116,
+    "estilo" : "Default",
+    "original" : "It'd take more than that to break Fido.",
+    "traduzido" : "Levaria mais do que isso para quebrar o Fido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 117,
+    "estilo" : "Default",
+    "original" : "I meant Shinei!",
+    "traduzido" : "Eu quis dizer Shin!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 118,
+    "estilo" : "Default",
+    "original" : "Right!",
+    "traduzido" : "Entendido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 119,
+    "estilo" : "Default",
+    "original" : "Oh, he'll be fine.",
+    "traduzido" : "Ele vai ficar bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 120,
+    "estilo" : "Default",
+    "original" : "Shin knows how Fido moves.",
+    "traduzido" : "Shin sabe como o Fido se move.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 121,
+    "estilo" : "Default",
+    "original" : "Really?",
+    "traduzido" : "De verdade?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 122,
+    "estilo" : "Default",
+    "original" : "So he can smile after all, huh?",
+    "traduzido" : "Ele pode sorrir afinal, é isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 123,
+    "estilo" : "Default",
+    "original" : "So, Frederica, why are you here?",
+    "traduzido" : "Frederica, então, porque você está aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 124,
+    "estilo" : "Default",
+    "original" : "Because I'm your mascot.",
+    "traduzido" : "Porque eu sou seu mascote.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 125,
+    "estilo" : "Default",
+    "original" : "\"Mascot\"?",
+    "traduzido" : "\"Mascot\"?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 126,
+    "estilo" : "Default",
+    "original" : "You didn't know?",
+    "traduzido" : "Não sabia?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 127,
+    "estilo" : "Default",
+    "original" : "{\\q2}They have young girls like me join a unit \\Nand eat and sleep with them.",
+    "traduzido" : "{\\q2} Eles fazem meninas como eu se juntarem\\Na uma unidade e comerem e dormirem com eles.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 128,
+    "estilo" : "Default",
+    "original" : "And the unit forms a type of family",
+    "traduzido" : "E a unidade forma um tipo de família",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 129,
+    "estilo" : "Default",
+    "original" : "{\\q2}that is willing to risk their lives for their beloved \\Ndaughter or sister—it's an old Giadian tradition.",
+    "traduzido" : "{\\q2}é uma antiga tradição giadiana arriscar\\Na vida por uma filha ou irmã amada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 130,
+    "estilo" : "Default",
+    "original" : "That's kinda sickening.",
+    "traduzido" : "Isso é meio revoltante.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 131,
+    "estilo" : "Default",
+    "original" : "Do you mean...",
+    "traduzido" : "Simplesmente \"Vocês querem dizer...\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 132,
+    "estilo" : "Default",
+    "original" : "Yup.",
+    "traduzido" : "\"Sim.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 133,
+    "estilo" : "Default",
+    "original" : "I'll be joining the 1,028th Trial Unit.",
+    "traduzido" : "Vou me juntar à Unidade de Teste 1.028.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 134,
+    "estilo" : "Default",
+    "original" : "Which means I'm your goddess of victory!",
+    "traduzido" : "Sou a sua deusa da vitória!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 135,
+    "estilo" : "Default",
+    "original" : "Why are you laughing?",
+    "traduzido" : "Por que você está rindo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 136,
+    "estilo" : "Default",
+    "original" : "By the way, Shinei.",
+    "traduzido" : "Shin, aliás.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 137,
+    "estilo" : "Default",
+    "original" : "I have another surprise for you.",
+    "traduzido" : "Tenho outra surpresa para você.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 138,
+    "estilo" : "Default",
+    "original" : "I got it from Ernst.",
+    "traduzido" : "Eu peguei do Ernst.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 139,
+    "estilo" : "Default",
+    "original" : "It's important to you, isn't it?",
+    "traduzido" : "É importante pra você, não é?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 140,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 141,
+    "estilo" : "Default",
+    "original" : "Welcome back.",
+    "traduzido" : "Bem-vindos de volta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 142,
+    "estilo" : "Default",
+    "original" : "Welcome back.",
+    "traduzido" : "Bem-vindos de volta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 143,
+    "estilo" : "Default",
+    "original" : "Welcome back.",
+    "traduzido" : "Bem-vindos de volta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 144,
+    "estilo" : "Default",
+    "original" : "Welcome back!",
+    "traduzido" : "Bem-vindo(a) de volta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 145,
+    "estilo" : "Default",
+    "original" : "Glad to be here.",
+    "traduzido" : "Feliz por estar aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 146,
+    "estilo" : "Default",
+    "original" : "{\\an8}Enemy squadron approaching!",
+    "traduzido" : "{\\an8}Esquadrao inimigo se aproximando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 147,
+    "estilo" : "Default",
+    "original" : "{\\an8}Forty-five seconds until contact!",
+    "traduzido" : "{\\an8}Contato em quarenta e cinco segundos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 148,
+    "estilo" : "Default",
+    "original" : "I can't die here!",
+    "traduzido" : "Não posso morrer aqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 149,
+    "estilo" : "Default",
+    "original" : "Damn it!",
+    "traduzido" : "Merda!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 150,
+    "estilo" : "Default",
+    "original" : "Where's our suppressing fire?",
+    "traduzido" : "Onde está o fogo de supressão nosso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 151,
+    "estilo" : "Default",
+    "original" : "Damn it all!",
+    "traduzido" : "Merd**a!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 152,
+    "estilo" : "Default",
+    "original" : "I'm not letting you take me with you!",
+    "traduzido" : "Não vou deixar você me levar junto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 153,
+    "estilo" : "Default",
+    "original" : "How many of those damn things are there?",
+    "traduzido" : "Quantos desses malditos aparecimentos existem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 154,
+    "estilo" : "Default",
+    "original" : "Stand your ground!",
+    "traduzido" : "Mantenham suas posições!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 155,
+    "estilo" : "Default",
+    "original" : "Even if you run, they'll catch you!",
+    "traduzido" : "Mesmo que você fuja, eles vão te pegar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 156,
+    "estilo" : "Default",
+    "original" : "I'm honored to die for my homeland and my comrades!",
+    "traduzido" : "Estou honrada(a) em morrer pela minha pátria e pelos meus companheiros!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 157,
+    "estilo" : "Default",
+    "original" : "No!",
+    "traduzido" : "Não!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 158,
+    "estilo" : "Default",
+    "original" : "That's the new Reginleif...",
+    "traduzido" : "Aquilo é o novo Reginleif...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 159,
+    "estilo" : "Default",
+    "original" : "The Eighty-Six...",
+    "traduzido" : "Oitenta e Seis",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 160,
+    "estilo" : "Default",
+    "original" : "Monsters of the Republic!",
+    "traduzido" : "MONSTROS DA REPÚBLICA!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 161,
+    "estilo" : "Default",
+    "original" : "{\\q2}Second Lieutenant, you used the \\Nhigh-frequency blade again, didn't you?",
+    "traduzido" : "{\\q2}Tenente-Coronel, voce usou a lamina\\Nde alta frequencia novamente, nao e mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 162,
+    "estilo" : "Default",
+    "original" : "Yes.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 163,
+    "estilo" : "Default",
+    "original" : "Stop abusing that thing!",
+    "traduzido" : "Pare de abusar dessa coisa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 164,
+    "estilo" : "Default",
+    "original" : "We still don't have any replacement blades yet.",
+    "traduzido" : "Ainda não temos nenhuma lâmina reserva.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 165,
+    "estilo" : "Default",
+    "original" : "And even besides that, the way you use it—",
+    "traduzido" : "E mesmo além disso, a forma como você usa isso",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 166,
+    "estilo" : "Default",
+    "original" : "Don't worry.",
+    "traduzido" : "Não se preocupe.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 167,
+    "estilo" : "Default",
+    "original" : "The Legion will pull back soon.",
+    "traduzido" : "A Legiao vai recuar em breve.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 168,
+    "estilo" : "Default",
+    "original" : "Huh?",
+    "traduzido" : "Hã?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 169,
+    "estilo" : "Default",
+    "original" : "Roger.",
+    "traduzido" : "Roger.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 170,
+    "estilo" : "Default",
+    "original" : "Well done, Shinei!",
+    "traduzido" : "Bom trabalho, Shinei!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 171,
+    "estilo" : "Default",
+    "original" : "You snuck in here again?",
+    "traduzido" : "Você entrou aqui novamente?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 172,
+    "estilo" : "Default",
+    "original" : "{\\q2}You tried to get rid of me through \\Nthe repair crew. How naive.",
+    "traduzido" : "{\\q2}Você tentou se livrar de mim através\\Nda equipe de reparo. Como ingênuo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 173,
+    "estilo" : "Default",
+    "original" : "I told you not to follow us onto the battlefield.",
+    "traduzido" : "Eu disse para não nos seguir até o campo de batalha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 174,
+    "estilo" : "Default",
+    "original" : "You're just a mascot. Remember that.",
+    "traduzido" : "Voce e apenas um mascote. Lembre-se disso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 175,
+    "estilo" : "Default",
+    "original" : "You don't get to tell me that!",
+    "traduzido" : "Não é você quem decide isso para mim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 176,
+    "estilo" : "Default",
+    "original" : "{\\q2}A commanding officer isn't supposed to \\Ngo running alone into enemy territory!",
+    "traduzido" : "{\\q2}Um oficial comandante não deveria\\Ncorrer sozinho para território inimigo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 177,
+    "estilo" : "Default",
+    "original" : "It's a bad habit!",
+    "traduzido" : "É um mau hábito!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 178,
+    "estilo" : "Default",
+    "original" : "Bernholdt was complaining.",
+    "traduzido" : "Bernholdt estava reclamando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 179,
+    "estilo" : "Default",
+    "original" : "Are you listening, Shinei?",
+    "traduzido" : "Estou ouvindo, Shinei?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 180,
+    "estilo" : "Default",
+    "original" : "You need to take care of yourself.",
+    "traduzido" : "Precisa cuidar de si mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 181,
+    "estilo" : "Default",
+    "original" : "I can't get it off!",
+    "traduzido" : "Não consigo tirá-lo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 182,
+    "estilo" : "Default",
+    "original" : "Help me, Bernholdt!",
+    "traduzido" : "Me ajude, Bernholdt!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 183,
+    "estilo" : "Default",
+    "original" : "Right, right.",
+    "traduzido" : "Correcto, correcto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 184,
+    "estilo" : "Default",
+    "original" : "But you should quiet down.",
+    "traduzido" : "Mas você deveria ficar quieta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 185,
+    "estilo" : "Default",
+    "original" : "Everybody's tired after days of fighting.",
+    "traduzido" : "Todo mundo está cansado depois de dias lutando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 186,
+    "estilo" : "Default",
+    "original" : "Yeah. Sorry...",
+    "traduzido" : "Desculpa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 187,
+    "estilo" : "Default",
+    "original" : "Hey, what's Nordlicht doing here?",
+    "traduzido" : "Oi, o que o Esquadrão Norte Luz está fazendo aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 188,
+    "estilo" : "Default",
+    "original" : "{\\an8}We sent a request for reinforcements yesterday, right?",
+    "traduzido" : "{\\an8}Enviamos um pedido de reforços ontem, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 189,
+    "estilo" : "Default",
+    "original" : "A Second Lieutenant running a whole battalion?",
+    "traduzido" : "Um segundo-tenente comandando um batalhao inteiro?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 190,
+    "estilo" : "Default",
+    "original" : "Supposedly, all of his commanding officers were killed.",
+    "traduzido" : "Se diz que todos os seus oficiais superiores foram mortos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 191,
+    "estilo" : "Default",
+    "original" : "Right now, it's at a squadron's staffing level.",
+    "traduzido" : "Agora mesmo, está no nível de staff de um esquadrão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 192,
+    "estilo" : "Default",
+    "original" : "Who killed them, I wonder?",
+    "traduzido" : "Quem os matou, eu me pergunto?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 193,
+    "estilo" : "Default",
+    "original" : "The headless skeleton, the mark of a Reaper.",
+    "traduzido" : "Esqueleto sem cabeça, marca de um Ceifador.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 194,
+    "estilo" : "Default",
+    "original" : "How creepy.",
+    "traduzido" : "Como é assustador.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 195,
+    "estilo" : "Default",
+    "original" : "Stop it, Eugene.",
+    "traduzido" : "Pare com isso, Eugene.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 196,
+    "estilo" : "Default",
+    "original" : "Sorry, you go eat with the others.",
+    "traduzido" : "Desculpa, você vai comer com os outros.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 197,
+    "estilo" : "Default",
+    "original" : "Can I sit here?",
+    "traduzido" : "Posso sentar aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 198,
+    "estilo" : "Default",
+    "original" : "Sure...",
+    "traduzido" : "Claro...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 199,
+    "estilo" : "Default",
+    "original" : "Eugene? You were stationed here, too?",
+    "traduzido" : "Eugene? Você também estava estacionado aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 200,
+    "estilo" : "Default",
+    "original" : "I got here last month.",
+    "traduzido" : "Cheguei aqui ha um mês.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 201,
+    "estilo" : "Default",
+    "original" : "It's good to see you again, Shin.",
+    "traduzido" : "É bom ver você de novo, Shin.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 202,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 203,
+    "estilo" : "Default",
+    "original" : "If you can't eat them, don't force yourself.",
+    "traduzido" : "Se não consegue comer, não se force.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 204,
+    "estilo" : "Default",
+    "original" : "But that would be rude to the kitchen staff.",
+    "traduzido" : "Mas isso seria grosseiro com a equipe da cozinha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 205,
+    "estilo" : "Default",
+    "original" : "Then try harder.",
+    "traduzido" : "Então tente com mais força.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 206,
+    "estilo" : "Default",
+    "original" : "You saved us yesterday.",
+    "traduzido" : "Salvou a gente ontem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 207,
+    "estilo" : "Default",
+    "original" : "Oh, sorry.",
+    "traduzido" : "Desculpa",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 208,
+    "estilo" : "Default",
+    "original" : "There were so many requests for help that I didn't notice.",
+    "traduzido" : "Havia tantos pedidos de ajuda que eu não percebi.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 209,
+    "estilo" : "Default",
+    "original" : "You're sure busy, aren't you?",
+    "traduzido" : "Você está mesmo muito ocupado, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 210,
+    "estilo" : "Default",
+    "original" : "Busy enough for the squadron to be split up.",
+    "traduzido" : "O esquadrao esta ocupado o suficiente para ser dividido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 211,
+    "estilo" : "Default",
+    "original" : "That's why it's just the two of you.",
+    "traduzido" : "Só os dois é que estão aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 212,
+    "estilo" : "Default",
+    "original" : "Hey, I remember you!",
+    "traduzido" : "Oi, eu me lembro de você!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 213,
+    "estilo" : "Default",
+    "original" : "You remembered me!",
+    "traduzido" : "Lembrou-se de mim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 214,
+    "estilo" : "Default",
+    "original" : "Of course!",
+    "traduzido" : "Claro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 215,
+    "estilo" : "Default",
+    "original" : "I heard you were in Shinei's class at the academy.",
+    "traduzido" : "Ouvi dizer que você estava na turma do Shin na academia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 216,
+    "estilo" : "Default",
+    "original" : "It must have been a pain.",
+    "traduzido" : "Foi um incômodo, tenho certeza.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 217,
+    "estilo" : "Default",
+    "original" : "Yeah. He's really cold, and he never talks.",
+    "traduzido" : "Ele é mesmo frio e nunca fala.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 218,
+    "estilo" : "Default",
+    "original" : "You never know what he's thinking.",
+    "traduzido" : "Ele é um livro fechado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 219,
+    "estilo" : "Default",
+    "original" : "I know! I know!",
+    "traduzido" : "Eu sei! Eu sei!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 220,
+    "estilo" : "Default",
+    "original" : "{\\q2}You start talking to him, and he doesn't \\Nstop reading his book or acknowledge you.",
+    "traduzido" : "{\\q2}Você começa a conversar com ele e ele\\Nnão para de ler seu livro nem te reconhece.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 221,
+    "estilo" : "Default",
+    "original" : "{\\q2}If it's not something he's interested in, \\Nhe won't even listen!",
+    "traduzido" : "{\\q2}Se não for algo que lhe\\Ninteresse, nem vai ouvir!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 222,
+    "estilo" : "Default",
+    "original" : "And he does really crazy stuff at weird times!",
+    "traduzido" : "Ele faz coisas realmente loucas em momentos esquisitos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 223,
+    "estilo" : "Default",
+    "original" : "That's right! That's right!",
+    "traduzido" : "Certo! Certo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 224,
+    "estilo" : "Default",
+    "original" : "I think we'll get along.",
+    "traduzido" : "Acho que nos daremos bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 225,
+    "estilo" : "Default",
+    "original" : "Let's be friends!",
+    "traduzido" : "Vamos ser amigos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 226,
+    "estilo" : "Default",
+    "original" : "Yes!",
+    "traduzido" : "Sim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 227,
+    "estilo" : "Default",
+    "original" : "It's a pleasure to meet you!",
+    "traduzido" : "É um prazer conhecer você!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 228,
+    "estilo" : "Default",
+    "original" : "Now!",
+    "traduzido" : "Agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 229,
+    "estilo" : "Default",
+    "original" : "How about we take a photo to remember this day?",
+    "traduzido" : "Vamos bater uma foto pra lembrar esse dia?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 230,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 231,
+    "estilo" : "Default",
+    "original" : "Shinei!",
+    "traduzido" : "Shin!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 232,
+    "estilo" : "Default",
+    "original" : "Is this part of the job for a goddess of victory?",
+    "traduzido" : "É isso que se espera de uma deusa da vitória?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 233,
+    "estilo" : "Default",
+    "original" : "It's all I can do.",
+    "traduzido" : "É tudo o que posso fazer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 234,
+    "estilo" : "Default",
+    "original" : "Now...",
+    "traduzido" : "Agora...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 235,
+    "estilo" : "Default",
+    "original" : "{\\q2}I don't want to interrupt a meeting \\Nbetween old friends, so I'll be going!",
+    "traduzido" : "{\\q2}Não quero interromper um encontro\\Nentre velhos amigos, então eu vou embora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 236,
+    "estilo" : "Default",
+    "original" : "She became your mascot, huh?",
+    "traduzido" : "Ela virou sua mascote, é isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 237,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 238,
+    "estilo" : "Default",
+    "original" : "Nobody likes that old custom anymore.",
+    "traduzido" : "Ninguém gosta mais daquele costume antigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 239,
+    "estilo" : "Default",
+    "original" : "{\\q2}Even with someone like her, \\Nif she's there, we have to protect her.",
+    "traduzido" : "{\\q2}Mesmo com alguém como ela, se\\Nela estiver lá, temos que protegê-la.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 240,
+    "estilo" : "Default",
+    "original" : "We're all strangers, so they're using her as a hostage.",
+    "traduzido" : "São todos estranhos, então estão usando ela como refém.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 241,
+    "estilo" : "Default",
+    "original" : "That's awful.",
+    "traduzido" : "Isso é horrível.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 242,
+    "estilo" : "Default",
+    "original" : "She chose that path.",
+    "traduzido" : "Ela escolheu esse caminho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 243,
+    "estilo" : "Default",
+    "original" : "But she doesn't have a reason to fight, right?",
+    "traduzido" : "Mas ela não tem razão para lutar, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 244,
+    "estilo" : "Default",
+    "original" : "Family, country, justice, making a living...",
+    "traduzido" : "Família, país, justiça, sustento...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 245,
+    "estilo" : "Default",
+    "original" : "None of that matters to a kid that age!",
+    "traduzido" : "Nenhuma daquilo importa para uma criança dessa idade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 246,
+    "estilo" : "Default",
+    "original" : "So why does she have to fight?",
+    "traduzido" : "Por que ela precisa lutar?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 247,
+    "estilo" : "Default",
+    "original" : "You may be right.",
+    "traduzido" : "Você pode estar certo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 248,
+    "estilo" : "Default",
+    "original" : "How's your sister? Is she doing well?",
+    "traduzido" : "Como está sua irmã? Ela está bem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 249,
+    "estilo" : "Default",
+    "original" : "Yeah, I think so.",
+    "traduzido" : "Sim, eu acho que sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 250,
+    "estilo" : "Default",
+    "original" : "{\\q2}She's kind of lonely because \\Nshe's staying with my aunt.",
+    "traduzido" : "{\\q2}Ela está meio solitária porque\\Nestá ficando com a tia da Shin.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 251,
+    "estilo" : "Default",
+    "original" : "Aunt?",
+    "traduzido" : "Tia?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 252,
+    "estilo" : "Default",
+    "original" : "Oh, we don't have parents.",
+    "traduzido" : "Não temos pais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 253,
+    "estilo" : "Default",
+    "original" : "I want her to go to a good school,",
+    "traduzido" : "Eu quero que ela vá para uma boa escola.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 254,
+    "estilo" : "Default",
+    "original" : "so I need to make money.",
+    "traduzido" : "Preciso apenas ganhar dinheiro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 255,
+    "estilo" : "Default",
+    "original" : "It must be rough being an older brother.",
+    "traduzido" : "Deve ser difícil ser o irmão mais velho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 256,
+    "estilo" : "Default",
+    "original" : "Isn't she great?",
+    "traduzido" : "Não é ela incrível?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 257,
+    "estilo" : "Default",
+    "original" : "You can't have her.",
+    "traduzido" : "Não pode tê-la.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 258,
+    "estilo" : "Default",
+    "original" : "I've already got a little brat.",
+    "traduzido" : "Já tenho um pequeno traste.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 259,
+    "estilo" : "Default",
+    "original" : "I'm taking her somewhere on my next leave.",
+    "traduzido" : "Estou levando ela para algum lugar durante minha próxima licença.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 260,
+    "estilo" : "Default",
+    "original" : "A zoo, or maybe an amusement park.",
+    "traduzido" : "Um zoológico, ou talvez um parque de diversões.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 261,
+    "estilo" : "Default",
+    "original" : "{\\q2}Or even shopping. Since she's a girl, \\NI bet she'd love clothes or shoes.",
+    "traduzido" : "{\\q2} Ou até mesmo compras. Como ela é uma\\Ngarota, aposto que ela adoraria roupas ou sapatos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 262,
+    "estilo" : "Default",
+    "original" : "{\\q2}In that case, you shouldn't have \\Njoined the military, am I right?",
+    "traduzido" : "{\\q2}Nesse caso, você não deveria\\Nter se alistado no exército, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 263,
+    "estilo" : "Default",
+    "original" : "The war's not going well.",
+    "traduzido" : "A guerra não está indo bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 264,
+    "estilo" : "Default",
+    "original" : "And I don't think that's going to change.",
+    "traduzido" : "E não acho que isso vá mudar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 265,
+    "estilo" : "Default",
+    "original" : "Yes. My unit lost fifteen people just yesterday.",
+    "traduzido" : "Sim. Minha unidade perdeu quinze pessoas apenas ontem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 266,
+    "estilo" : "Default",
+    "original" : "{\\q2}The commanding officers were saying \\Nthis is normal when things get bad.",
+    "traduzido" : "{\\q2}Os oficiais comandantes diziam que\\Nisso é normal quando as coisas ficam ruins.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 267,
+    "estilo" : "Default",
+    "original" : "\"Normal,\" huh?",
+    "traduzido" : "\"Normal, é?\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 268,
+    "estilo" : "Default",
+    "original" : "I don't think that many dead is \"normal.\"",
+    "traduzido" : "Não acho que tantos mortos seja \"normal\".",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 269,
+    "estilo" : "Default",
+    "original" : "{\\q2}The number of dead and the number \\Nof destroyed Legion don't match at all.",
+    "traduzido" : "{\\q2}O número de mortos e o número de\\NLegião destruída não batem em nada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 270,
+    "estilo" : "Default",
+    "original" : "It sure doesn't feel like we're winning.",
+    "traduzido" : "Não parece que estamos vencendo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 271,
+    "estilo" : "Default",
+    "original" : "{\\q2}From the generals' perspective, \\Nit probably just means fewer mouths to feed.",
+    "traduzido" : "{\\q2}Do ponto de vista dos generais, provavelmente\\Nsignifica apenas menos bocas para alimentar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 272,
+    "estilo" : "Default",
+    "original" : "Sorry!",
+    "traduzido" : "\"Desculpa!\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 273,
+    "estilo" : "Default",
+    "original" : "No...",
+    "traduzido" : "\"Não...\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 274,
+    "estilo" : "Default",
+    "original" : "But then what about you?",
+    "traduzido" : "Mas e voce?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 275,
+    "estilo" : "Default",
+    "original" : "Why did you...",
+    "traduzido" : "Por que você...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 276,
+    "estilo" : "Default",
+    "original" : "Again? They never give up.",
+    "traduzido" : "Novamente? Eles nunca desistem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 277,
+    "estilo" : "Default",
+    "original" : "I bet girls don't like them.",
+    "traduzido" : "Aposto que meninas não gostam deles.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 278,
+    "estilo" : "Default",
+    "original" : "Okay, see you later.",
+    "traduzido" : "Tudo bem, nos vemos depois.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 279,
+    "estilo" : "Default",
+    "original" : "You're safe, right, Shinei?",
+    "traduzido" : "Estás seguro, certo, Shinei?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 280,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 281,
+    "estilo" : "Default",
+    "original" : "Good.",
+    "traduzido" : "Bom.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 282,
+    "estilo" : "Default",
+    "original" : "But...",
+    "traduzido" : "Mas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 283,
+    "estilo" : "Default",
+    "original" : "I'm sorry.",
+    "traduzido" : "Me desculpa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 284,
+    "estilo" : "Default",
+    "original" : "I have bad news.",
+    "traduzido" : "Tenho más notícias.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 285,
+    "estilo" : "Default",
+    "original" : "Frederica, close your \"eyes.\"",
+    "traduzido" : "Feche seus \"olhos\", Frederica.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 286,
+    "estilo" : "Default",
+    "original" : "Nina...",
+    "traduzido" : "Nina...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 287,
+    "estilo" : "Default",
+    "original" : "The picture...",
+    "traduzido" : "A imagem...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 288,
+    "estilo" : "Default",
+    "original" : "Nina's...",
+    "traduzido" : "Nina...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 289,
+    "estilo" : "Default",
+    "original" : "Please...",
+    "traduzido" : "Por favor...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 290,
+    "estilo" : "Default",
+    "original" : "Thank you.",
+    "traduzido" : "Obrigado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 291,
+    "estilo" : "Default",
+    "original" : "Eugene...",
+    "traduzido" : "Eugene...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 292,
+    "estilo" : "Default",
+    "original" : "Did you do that, Nouzen?",
+    "traduzido" : "Fez isso, Nouzen?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 293,
+    "estilo" : "Default",
+    "original" : "Good timing.",
+    "traduzido" : "Bom timing.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 294,
+    "estilo" : "Default",
+    "original" : "Make the casualty report.",
+    "traduzido" : "Faça o relatório de baixas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 295,
+    "estilo" : "Default",
+    "original" : "Why didn't you save him?",
+    "traduzido" : "Por que você não o salvou?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 296,
+    "estilo" : "Default",
+    "original" : "You could've done something!",
+    "traduzido" : "Você poderia ter feito alguma coisa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 297,
+    "estilo" : "Default",
+    "original" : "You were too busy fighting those tin cans, weren't you?",
+    "traduzido" : "Estava muito ocupado lutando contra aquelas latas de conserva, não estava?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 298,
+    "estilo" : "Default",
+    "original" : "You battle-crazed Eighty-Six!",
+    "traduzido" : "Vocês, oitenta e seis loucos por batalha!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 299,
+    "estilo" : "Default",
+    "original" : "Stop it, Second Lieutenant Marcel.",
+    "traduzido" : "Pare com isso, Segundo Tenente Marcel.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 300,
+    "estilo" : "Default",
+    "original" : "Are you no different from those scum in the Republic?",
+    "traduzido" : "Você não é diferente daqueles lixos na República?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 301,
+    "estilo" : "Default",
+    "original" : "I apologize.",
+    "traduzido" : "Me desculpe.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 302,
+    "estilo" : "Default",
+    "original" : "{\\q2}And thank you for what you did \\Nfor Second Lieutenant Rantz.",
+    "traduzido" : "{\\q2}E obrigado pelo que fez\\Npara o Segundo Tenente Rantz.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 303,
+    "estilo" : "Default",
+    "original" : "No...",
+    "traduzido" : "\"Não...\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 304,
+    "estilo" : "Default",
+    "original" : "So let me say this.",
+    "traduzido" : "Deixe-me apenas dizer isto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 305,
+    "estilo" : "Default",
+    "original" : "{\\q2}If you volunteered to help us out of a desire \\Nto repay us for saving you, there's no need.",
+    "traduzido" : "{\\q2}Se você se voluntariou para nos ajudar por querer\\Nretribuir pelo fato de termos lhe salvado, não há necessidade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 306,
+    "estilo" : "Default",
+    "original" : "We will never force poor children like you to fight.",
+    "traduzido" : "Não forçaremos crianças pobres como você a lutar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 307,
+    "estilo" : "Default",
+    "original" : "It's not too late.",
+    "traduzido" : "Não é tarde demais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 308,
+    "estilo" : "Default",
+    "original" : "Leave the army and live happily.",
+    "traduzido" : "Deixe o exército e viva feliz.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 309,
+    "estilo" : "Default",
+    "original" : "The Legion are coming.",
+    "traduzido" : "A Legiao está chegando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 310,
+    "estilo" : "Default",
+    "original" : "Meet up with your allies while you can.",
+    "traduzido" : "Reune-se com seus aliados enquanto puder.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 311,
+    "estilo" : "Default",
+    "original" : "Shinei?",
+    "traduzido" : "Shin?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 312,
+    "estilo" : "Default",
+    "original" : "What's the situation?",
+    "traduzido" : "Qual é a situação?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 313,
+    "estilo" : "Default",
+    "original" : "Not good.",
+    "traduzido" : "Não está bom.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 314,
+    "estilo" : "Default",
+    "original" : "Nordlicht has new orders.",
+    "traduzido" : "Nordlicht recebeu novas ordens.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 315,
+    "estilo" : "Default",
+    "original" : "{\\q2}Gather up at grid points 27-32 \\Nin preparation for a new attack.",
+    "traduzido" : "{\\q2}Reúnam-se nos pontos de grade\\N27-32 em preparação para um novo ataque.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 316,
+    "estilo" : "Default",
+    "original" : "Then stand by for further orders.",
+    "traduzido" : "Em posiçao e aguardando novas ordens.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 317,
+    "estilo" : "Default",
+    "original" : "Roger.",
+    "traduzido" : "Roger.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 318,
+    "estilo" : "Default",
+    "original" : "Shinei.",
+    "traduzido" : "Shin.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 319,
+    "estilo" : "Default",
+    "original" : "You're okay, right?",
+    "traduzido" : "Tudo bem contigo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 320,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 321,
+    "estilo" : "Default",
+    "original" : "Welcome back.",
+    "traduzido" : "Bem-vindos de volta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2485,
+    "estilo" : "Opening",
+    "original" : "{=189}{\\fad(200,0)\\blur0.6\\pos(436,30)\\c&H000F0E0E&}kyou",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2486,
+    "estilo" : "Opening",
+    "original" : "{\\fad(200,0)\\blur0.6\\bord0\\c&H00FFFFFF&\\pos(436,30)}kyou",
+    "traduzido" : "{\\fad(200,0)\\blur0.6\\bord0\\c&H00FFFFFF&\\pos(436,30)}Bom dia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2499,
+    "estilo" : "Opening",
+    "original" : "{\\pos(436,30)\\fad(0,80)\\blur0.6\\c&H000F0E0E&}kyou",
+    "traduzido" : "{\\pos(436,30)\\fad(0,80)\\blur0.6\\c&H000F0E0E&}Bom dia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2500,
+    "estilo" : "Opening",
+    "original" : "{\\bord0\\blur0.6\\c&H00FFFFFF&\\fad(0,80)\\pos(436,30)\\t(0,66,\\c&H00E3BE52&)}kyou",
+    "traduzido" : "{\\bord0\\blur0.6\\c&H00FFFFFF&\\fad(0,80)\\pos(436,30)\\t(0,66,\\c&H00E3BE52&)}Bom dia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4456,
+    "estilo" : "Signs",
+    "original" : "{=114}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}Special Officer Academy's Tactical Practice Grounds",
+    "traduzido" : "{=114}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}Campos de Prática Tática da Academia de Oficiais Especiais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4457,
+    "estilo" : "Signs",
+    "original" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}Special Officer Academy's Tactical Practice Grounds",
+    "traduzido" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}Campos de Prática Tática da Academia de Oficiais Especiais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4458,
+    "estilo" : "Signs",
+    "original" : "{=115}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}Special Officer Academy's Tactical Practice Grounds",
+    "traduzido" : "{=115}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}Campos de Prática Tática da Academia de Oficiais Especiais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4459,
+    "estilo" : "Signs",
+    "original" : "{=116}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fad(500,500)}February 11th, Stellar Year 2149",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4460,
+    "estilo" : "Signs",
+    "original" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5\\fad(500,500)}February 11th, Stellar Year 2149",
+    "traduzido" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5\\fad(500,500)}Onze de fevereiro do Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4461,
+    "estilo" : "Signs",
+    "original" : "{=117}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fad(500,500)}February 11th, Stellar Year 2149",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4462,
+    "estilo" : "Signs",
+    "original" : "{=118}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}April 1st, Stellar Year 2149",
+    "traduzido" : "{=118}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}1º de abril, Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4463,
+    "estilo" : "Signs",
+    "original" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}April 1st, Stellar Year 2149",
+    "traduzido" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}1º de abril, Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4464,
+    "estilo" : "Signs",
+    "original" : "{=119}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}April 1st, Stellar Year 2149",
+    "traduzido" : "{=119}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}1º de abril, Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4465,
+    "estilo" : "Signs",
+    "original" : "{=120}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}July 28th, Stellar Year 2149",
+    "traduzido" : "{=120}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}28 de julho do Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4466,
+    "estilo" : "Signs",
+    "original" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}July 28th, Stellar Year 2149",
+    "traduzido" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}28 de julho do Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4467,
+    "estilo" : "Signs",
+    "original" : "{=121}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}July 28th, Stellar Year 2149",
+    "traduzido" : "{=121}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}28 de julho do Ano Estelar 2149",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4468,
+    "estilo" : "Signs",
+    "original" : "{=122}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fad(500,500)}Federal Republic of Giad Western Front",
+    "traduzido" : "{=122}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5\\fad(500,500)}República Federal de Giad, Frente Ocidental",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4469,
+    "estilo" : "Signs",
+    "original" : "{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\1a&HFF&\\blur0.5\\fad(500,500)\\t(500,500,\\1a&H00&)\\t(3500,3500,\\1a&HFF&)}Federal Republic of Giad Western Front",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4470,
+    "estilo" : "Signs",
+    "original" : "{=123}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fad(500,500)}Federal Republic of Giad Western Front",
+    "traduzido" : "{=123}{\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5\\fad(500,500)}República Federal de Giad, Frente Ocidental",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4471,
+    "estilo" : "Signs",
+    "original" : "{=124}{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}Federal Republic of Giad \\NForward Operating Base 15 (FOB15)",
+    "traduzido" : "{=124}{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2\\1a&HFF&\\3a&H30&\\blur5}República Federal de Giad \\NBase Operacional Avançada 15 (BOA15)",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4472,
+    "estilo" : "Signs",
+    "original" : "{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}Federal Republic of Giad \\NForward Operating Base 15 (FOB15)",
+    "traduzido" : "{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\bord1\\c&H000000&\\blur0.5}República Federal de Giad \\NBase Operacional Avançada 15 (BOA15)",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4473,
+    "estilo" : "Signs",
+    "original" : "{=125}{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}Federal Republic of Giad \\NForward Operating Base 15 (FOB15)",
+    "traduzido" : "{=125}{\\q2\\an2\\pos(960,930)\\fscx90\\fnNewCinemaB Std D\\fs80\\fsp2\\blur0.5}República Federal de Giad \\NBase Operacional Avançada 15 (BOA15)",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4530,
+    "estilo" : "Ending",
+    "original" : "{=2}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Sleeping isn't a hard thing to do,",
+    "traduzido" : "{=2}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Dormir não é uma coisa difícil de fazer,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4531,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Sleeping isn't a hard thing to do,",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Dormir não é uma coisa difícil de fazer,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4532,
+    "estilo" : "Ending",
+    "original" : "{=3}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Sleeping isn't a hard thing to do,",
+    "traduzido" : "{=3}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Dormir não é uma coisa difícil de fazer,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4577,
+    "estilo" : "Ending",
+    "original" : "{=6}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}but I keep thinking of you",
+    "traduzido" : "{=6} {\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2} mas não paro de pensar em você",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4578,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}but I keep thinking of you",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}mas eu não paro de pensar em você",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4579,
+    "estilo" : "Ending",
+    "original" : "{=7}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}but I keep thinking of you",
+    "traduzido" : "{=7} {\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2} mas não paro de pensar em você",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4616,
+    "estilo" : "Ending",
+    "original" : "{=10}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}The distant explosions",
+    "traduzido" : "{=10}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}As explosões ao longe",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4617,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}The distant explosions",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}As explosões ao longe",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4618,
+    "estilo" : "Ending",
+    "original" : "{=11}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}The distant explosions",
+    "traduzido" : "{=11}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}As explosões ao longe",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4659,
+    "estilo" : "Ending",
+    "original" : "{=14}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}are piercing my eardrums",
+    "traduzido" : "{=14}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}estão perfurando meus tímpanos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4660,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}are piercing my eardrums",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}estão perfurando meus tímpanos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4661,
+    "estilo" : "Ending",
+    "original" : "{=15}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}are piercing my eardrums",
+    "traduzido" : "{=15}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}estão perfurando meus tímpanos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4730,
+    "estilo" : "Ending",
+    "original" : "{=18}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Don't worry, you can solve your problems first",
+    "traduzido" : "{=18}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Não se preocupe, você pode resolver seus problemas primeiro",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4731,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Don't worry, you can solve your problems first",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Não se preocupe, você pode resolver seus problemas primeiro",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4732,
+    "estilo" : "Ending",
+    "original" : "{=19}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Don't worry, you can solve your problems first",
+    "traduzido" : "{=19}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Não se preocupe, você pode resolver seus problemas primeiro",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4781,
+    "estilo" : "Ending",
+    "original" : "{=24}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Observe peace in the world",
+    "traduzido" : "{=24}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2} Observe paz no mundo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4782,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Observe peace in the world",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2} Observe a paz no mundo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4783,
+    "estilo" : "Ending",
+    "original" : "{=25}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Observe peace in the world",
+    "traduzido" : "{=25}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2} Observe paz no mundo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4844,
+    "estilo" : "Ending",
+    "original" : "{=26}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Chanting Alchemilla, Alchemilla",
+    "traduzido" : "{=26}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Cântico da Alquimia, Alquimia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4845,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Chanting Alchemilla, Alchemilla",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Cântico de Alquimia, Alquimia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4846,
+    "estilo" : "Ending",
+    "original" : "{=27}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Chanting Alchemilla, Alchemilla",
+    "traduzido" : "{=27}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Cântico da Alquimia, Alquimia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4911,
+    "estilo" : "Ending",
+    "original" : "{=30}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Piecing together my shattered heart,",
+    "traduzido" : "{=30}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Colando meu coração despedaçado",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4912,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Piecing together my shattered heart,",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Ajeitando meu coração despedaçado",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4913,
+    "estilo" : "Ending",
+    "original" : "{=31}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Piecing together my shattered heart,",
+    "traduzido" : "{=31}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Colando meu coração despedaçado",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4958,
+    "estilo" : "Ending",
+    "original" : "{=142}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}and now I can sleep",
+    "traduzido" : "{=142}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}e agora eu posso dormir",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4959,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}and now I can sleep",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}e agora eu posso dormir",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4960,
+    "estilo" : "Ending",
+    "original" : "{=143}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}and now I can sleep",
+    "traduzido" : "{=143}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}e agora eu posso dormir",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5017,
+    "estilo" : "Ending",
+    "original" : "{=144}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Good night, parallel world. Good night, parallel world,",
+    "traduzido" : "{=144}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}Boa noite, mundo paralelo. Boa noite, mundo paralelo,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5018,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Good night, parallel world. Good night, parallel world,",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}Boa noite, mundo paralelo. Boa noite, mundo paralelo,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5019,
+    "estilo" : "Ending",
+    "original" : "{=145}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Good night, parallel world. Good night, parallel world,",
+    "traduzido" : "{=145}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}Boa noite, mundo paralelo. Boa noite, mundo paralelo,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5040,
+    "estilo" : "Ending",
+    "original" : "{=44}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}and farewell",
+    "traduzido" : "{=44}{\\fad(120,120)\\blur1.6\\bord5.5\\alpha0\\c&H26F3FAFF&\\3c&H26F3FAFF&\\1a&H26&\\an2}e adeus",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5041,
+    "estilo" : "Ending",
+    "original" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}and farewell",
+    "traduzido" : "{\\fad(120,120)\\blur0.6\\c&H26F3FAFF&\\1a&H26&\\an2}e adeus",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5042,
+    "estilo" : "Ending",
+    "original" : "{=45}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}and farewell",
+    "traduzido" : "{=45}{\\fad(120,120)\\blur0.6\\bord0\\c&H26F3FAFF&\\1a&H26&\\an2}e adeus",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}

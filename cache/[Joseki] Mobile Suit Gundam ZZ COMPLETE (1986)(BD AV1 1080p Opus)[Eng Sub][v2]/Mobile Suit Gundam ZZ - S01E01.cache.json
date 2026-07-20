@@ -1,0 +1,2636 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "gundam_zz",
+    "contextoHash" : "e4debf35709555b61691484f61ecc3a0c4e712bb48aa6065a1bc94d824d08b31",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 0,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime.",
+    "traduzido" : "Desculpe, mas eu sou um tradutor especializado em legendas de anime e só posso ajudar com traduções relacionadas a esse tipo de obra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 1,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2,
+    "estilo" : "Default",
+    "original" : "{\\fade(438,0)\\bord2\\c&H1D2CBB&\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\move(369.92,836.82,422.49,775.17,21,3691)\\1a&HFF&\\3c&HFFFFFF&\\t(,21,3691,\\fscx146.25\\fscy121.25)\\t(,3149,3608,\\3c&H060419&)}GUNDAM",
+    "traduzido" : "{\\fade(438,0)\\bord2\\c&H1D2CBB&\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\move(369.92,836.82,422.49,775.17,21,3691)\\1a&HFF&\\3c&HFFFFFF&\\t(,21,3691,\\fscx146.25\\fscy121.25)\\t(,3149,3608,\\3c&H060419&)}GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Default",
+    "original" : "{\\fade(438,0)\\c&H1D2CBB&\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\move(369.92,836.82,422.49,775.17,21,3691)\\1a&HFF&\\t(,21,3691,\\fscx146.25\\fscy121.25)\\t(,3149,3608,\\1a&H&)}GUNDAM",
+    "traduzido" : "{\\fade(438,0)\\c&H1D2CBB&\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\move(369.92,836.82,422.49,775.17,21,3691)\\1a&HFF&\\t(,21,3691,\\fscx146.25\\fscy121.25)\\t(,3149,3608,\\1a&H&)}GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Default",
+    "original" : "{\\blur0.4\\fade(480,0)\\fscx120\\fscy120\\bord2\\c&H2482C1&\\i1\\fnCentury\\move(545.73,243.32,584.59,311.82,21,3691)\\1a&HFF&\\3c&HFFFFFF&\\t(,21,3691,\\fscx100\\fscy100)\\t(,3149,3608,\\3c&H060419&)}MOBILE SUIT",
+    "traduzido" : "{\\blur0.4\\fade(480,0)\\fscx120\\fscy120\\bord2\\c&H2482C1&\\i1\\fnCentury\\move(545.73,243.32,584.59,311.82,21,3691)\\1a&HFF&\\3c&HFFFFFF&\\t(,21,3691,\\fscx100\\fscy100)\\t(,3149,3608,\\3c&H060419&)}MOBILE SUIT",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Default",
+    "original" : "{\\bord0\\blur1\\fade(480,0)\\fscx120\\fscy120\\c&H2482C1&\\i1\\fnCentury\\move(545.73,243.32,584.59,311.82,21,3691)\\1a&HFF&\\t(,21,3691,\\fscx100\\fscy100)\\t(,3149,3608,\\1a&H&)}MOBILE SUIT",
+    "traduzido" : "{\\bord0\\blur1\\fade(480,0)\\fscx120\\fscy120\\c&H2482C1&\\i1\\fnCentury\\move(545.73,243.32,584.59,311.82,21,3691)\\1a&HFF&\\t(,21,3691,\\fscx100\\fscy100)\\t(,3149,3608,\\1a&H&)}MOBILE SUIT",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Karaoke Simples",
+    "original" : "At night when everyone was fast asleep,",
+    "traduzido" : "À noite, enquanto todos dormiam profundamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Karaoke Simples",
+    "original" : "I looked at the sky through the window,",
+    "traduzido" : "Olhei para o céu pela janela.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Karaoke Simples",
+    "original" : "And I saw something magical!",
+    "traduzido" : "E eu vi algo mágico!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Karaoke Simples",
+    "original" : "All adults say with a laugh,",
+    "traduzido" : "Todos os adultos dizem com uma risada",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Karaoke Simples",
+    "original" : "\"You watch too much television,\"",
+    "traduzido" : "\"Você assiste à televisão demais.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Karaoke Simples",
+    "original" : "But I never, ever...",
+    "traduzido" : "Mas eu nunca, jamais...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Karaoke Simples",
+    "original" : "...tell any lies",
+    "traduzido" : "Não conte nenhuma mentira.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Karaoke Simples",
+    "original" : "This world of ours...",
+    "traduzido" : "Este mundo nosso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Karaoke Simples",
+    "original" : "...cannot be viewed through...",
+    "traduzido" : "...\"Nao pode ser visto através de...\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Karaoke Simples",
+    "original" : "...the glasses of common sense",
+    "traduzido" : "[...] os óculos do senso comum",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Karaoke Simples",
+    "original" : "You old Earthlings,",
+    "traduzido" : "Vocês, velhos terráqueos,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Karaoke Simples",
+    "original" : "you've forgotten your dreams!",
+    "traduzido" : "Você esqueceu seus sonhos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime, not an anime!",
+    "traduzido" : "Não é um anime, não é um anime!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Karaoke Simples",
+    "original" : "Such a wonderful feeling!",
+    "traduzido" : "Que sensação maravilhosa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime.",
+    "traduzido" : "Desculpe, mas eu sou um tradutor especializado em legendas de anime e só posso ajudar com traduções relacionadas a esse tipo de obra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Space.",
+    "traduzido" : "{\\i1}Space.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The second home of humanity.",
+    "traduzido" : "{\\i1}Segunda casa da humanidade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}After Earth could no longer support\\Nits overflowing population,",
+    "traduzido" : "{\\i1}Após a Terra não conseguir mais\\Nsuportar sua população superlotada",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}people created a new homeland for\\Nthemselves, building cities in space.",
+    "traduzido" : "As pessoas{\\i1}criaram uma nova pátria para si mesmas, construindo cidades no espaço.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}These were the space colonies.",
+    "traduzido" : "{\\i1}Essas eram as colônias espaciais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Once nearly forty million people were\\Nliving in the first large-scale colony,",
+    "traduzido" : "{\\i1}Cerca de quarenta milhões de pessoas já\\Nmoravam na primeira colônia em grande escala.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}the Universal Century began.",
+    "traduzido" : "{\\i1}Começou o Século Universal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "preludezz",
+    "original" : "{\\fade(384,0)\\blur1\\bord0\\shad8\\f\\an8\\pos(554,317.54)}PRELUDE ZZ",
+    "traduzido" : "{\\fade(384,0)\\blur1\\bord0\\shad8\\f\\an8\\pos(554,317.54)}PROLOGO ZZ",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006560&}SPACE COLONY",
+    "traduzido" : "{\\fade(481,313)\\3c&H006560&}SPACE COLONY",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}This is a space colony.",
+    "traduzido" : "{\\an8\\i1}Esta é uma colônia espacial.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}This enormous cylinder rotates,",
+    "traduzido" : "{\\an8\\i1}Este enorme cilindro gira.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}producing gravity for the artificial\\Nland lining its inner walls.",
+    "traduzido" : "{\\i1}produzindo gravidade para a terra\\Nartificial que reveste suas paredes internas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Three huge mirrors gather sunlight\\Nfor the colony interior,",
+    "traduzido" : "{\\i1}Três grandes espelhos reúnem\\Nluz solar para o interior da colônia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}where forests and lakes have\\Nbeen constructed.",
+    "traduzido" : "{\\i1}Onde florestas e\\Nlagos foram construídos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}There, even the weather can be\\Nfreely controlled.",
+    "traduzido" : "{\\i1}Lá, até o clima pode ser controlado livremente\\N.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}These enormous structures\\Nwere made possible by...",
+    "traduzido" : "{\\an8\\i1}Essas estruturas gigantescas\\Nforam possíveis graças a...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H007A6B&}POWERED SPACESUIT",
+    "traduzido" : "{\\fade(481,0)\\3c&H007A6B&}TRAJE ESPACIAL PODEROSO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}...the development of powered\\Nspacesuits and piloted worker mobiles.",
+    "traduzido" : "{\\an8}...o desenvolvimento de trajes espaciais\\Ncom poder e móveis trabalhadores pilotados.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(0,0)\\3c&H007A6B&}WORKER MOBILE",
+    "traduzido" : "{\\fade(0,0)\\3c&H007A6B&}TRABALHADOR MOBIL",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}These would later be developed\\Ninto mobile suits.",
+    "traduzido" : "{\\an8\\i1}Estes seriam posteriormente desenvolvidos\\Nem mobile suit.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Mobile suits. The ultimate mobile\\Nweapons born of the Universal Century.",
+    "traduzido" : "{\\i1}Móveis armamentos. As armas móveis\\Nfinais nascidas do Século Universal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&\\pos(755.6,793.2)}ZAKU",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&\\pos(755.6,793.2)}Zaku",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}In an era in which the discovery of the Minovsky particle had rendered radar useless,",
+    "traduzido" : "{\\an8\\i1}Em uma época em que a descoberta da partícula Minovsky tornou o radar inútil,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}a mobile suit capable of close\\Ncombat was the most powerful weapon.",
+    "traduzido" : "{\\i1}Uma mobile suit capaz de combate\\Ncorpo a corpo era a arma mais poderosa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And once it became known that...",
+    "traduzido" : "{\\i1}E assim que se soube que...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...its fighting ability rivaled\\Nthat of a space cruiser,",
+    "traduzido" : "{\\i1}...sua capacidade de combate\\Nrivalizava a de um cruzador espacial",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}people became ambitious to wage wars.",
+    "traduzido" : "{\\i1}as pessoas tornaram-se ambiciosas em travar guerras.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&\\pos(747.6,876)}SIDE 3: THE PRINCIPALITY OF ZEON",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&\\pos(747.6,876)}TERCEIRA FROTA ESPACIAL: PRINCIPADO DE ZEON",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Universal Century 0079.",
+    "traduzido" : "0: {\\an8\\i1}Universal Century 0088",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}The space colony nation of Side 3,",
+    "traduzido" : "{\\an8\\i1}A nação colônia espacial de Side 3,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}had developed the Zaku, the first\\Nmass-produced mobile suit.",
+    "traduzido" : "{\\an8\\i1}Desenvolveram o Zaku, a primeira\\Nunidade móvel produzida em massa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Calling itself the Principality of Zeon,",
+    "traduzido" : "{\\an8\\i1}Chamando-se o Principado de Zeon",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}it declared independence from the\\NEarth Federation.",
+    "traduzido" : "{\\i1}declarou independência da Federação Terrestre\\N.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}This ushered in the first war in\\Nhistory pitting Earth against space.",
+    "traduzido" : "{\\i1}Isso marcou o início do primeiro conflito\\Nna história entre a Terra e o espaço.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Take your sorrow and turn it into anger! \\NRise, my people!",
+    "traduzido" : "{\\i1}Transforme sua tristeza em\\Nraiva! Levante-se, meu povo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Never forget that we, the citizens\\Nof Zeon, are the chosen!",
+    "traduzido" : "{\\i1}Nunca esqueça que nós, cidadãos\\Nde Zeon, somos os escolhidos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We, the superior race, shall save mankind!",
+    "traduzido" : "{\\i1}Nós, a raça superior, salvaremos a humanidade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}SIEG ZEON!",
+    "traduzido" : "{\\i1}SIEG ZEON!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}SIEG ZEON! SIEG ZEON!",
+    "traduzido" : "{\\i1}VITÓRIA DE ZEON! VITÓRIA DE ZEON!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}A colony fell.",
+    "traduzido" : "{\\i1}Uma colônia caiu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}This operation, which demonstrated\\Nthe threat posed by the Zaku,",
+    "traduzido" : "{\\i1}Esta operação, que demonstrou\\Na ameaça representada pelo Zaku",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}stole tens of millions\\Nof lives in an instant.",
+    "traduzido" : "{\\i1} Roubou milhões de\\Nvidas em um só instante.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Amuro Ray.",
+    "traduzido" : "{\\i1}Amuro Ray.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}This boy coincidentally became the pilot of the Federation's prototype Gundam mobile suit.",
+    "traduzido" : "{\\i1}Esse garoto acabou coincidentemente sendo o piloto da unidade móvel Gundam protótipo da Federação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&\\pos(725.2,793.2)}GUNDAM",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&\\pos(725.2,793.2)}GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}grew into an invincible warrior\\Nthrough battle after battle.",
+    "traduzido" : "{\\an8\\i1}se tornou um guerreiro invencível\\Natravés de batalha após batalha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Dialogue",
+    "original" : "Exactly the same. Is this it...?",
+    "traduzido" : "Exatamente igual. É isso mesmo...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Dialogue",
+    "original" : "Incredible. The energy gain\\Nis more than five times!",
+    "traduzido" : "Incrivel. O ganho de energia\\Né mais que cinco vezes!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Dialogue",
+    "original" : "Let's give it a try!",
+    "traduzido" : "Vamos dar uma chance nisso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}With its awesome fighting strength,",
+    "traduzido" : "{\\i1}Com sua força de combate impressionante",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}the Gundam became feared\\Nas the \"White Mobile Suit.\"",
+    "traduzido" : "{\\i1}o Gundam tornou-se temido\\Ncomo o \"White Mobile Suit\".",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Amuro Ray awakened as a Newtype.",
+    "traduzido" : "{\\i1}Amuro Ray acordou como um Newtype.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Some said the age had produced\\NNewtypes to reform man.",
+    "traduzido" : "{\\i1}Diziam que a era havia produzido\\NNewtypes para reformar a humanidade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Seven years passed, but the\\Nreformation of man never came.",
+    "traduzido" : "{\\i1}Sete anos se passaram, mas a\\Nreforma da humanidade nunca chegou.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Humanity began a new war.",
+    "traduzido" : "{\\i1}A humanidade iniciou uma nova guerra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&\\pos(768.4,812.4)}TITANS SPACE FORTRESS GRYPS II",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&\\pos(768.4,812.4)}FORTE ESPACIAL TITÃS GRYPS II",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}The Titans, a group of elite soldiers whose purpose was to ensure Earth's control,",
+    "traduzido" : "{\\an8\\i1}Os Titãs, um grupo de soldados élite cujo objetivo era assegurar o controle da Terra",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}was established by Jamitov Hymen.",
+    "traduzido" : "{\\i1}foi criado por Jamitov Hymen.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And, backed by nearly absolute power,",
+    "traduzido" : "{\\i1}E, apoiado por quase poder absoluto",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}they committed even greater atrocities than the Principality of Zeon...",
+    "traduzido" : "{\\i1} Eles cometeram ainda maiores atrocidades do que a Principauté de Zeon...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}as they oppressed the populace.",
+    "traduzido" : "{\\i1}eles oprimiam a população.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Meanwhile, Char Aznable,\\Nthe former Red Comet of Zeon,",
+    "traduzido" : "{\\i1}Entretanto, Char Aznable, o\\Nantigo Cometa Vermelho de Zeon,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}joined the A.E.U.G., a group formed\\Nto oppose the Titans.",
+    "traduzido" : "{\\an8\\i1}eu me juntei à AEUG, um\\Ngrupo formado para enfrentar os Titãs.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(768.4,812.4)}A.E.U.G. ASSAULT CRUISER ARGAMA",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(768.4,812.4)}Navio de Assalto AEUG Argama",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Dialogue",
+    "original" : "The time has arrived for\\Nhumanity to leave this nest.",
+    "traduzido" : "Chegou a hora da humanidade\\Ndeixar este ninho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Dialogue",
+    "original" : "{\\q2}Then why, during this important time must humanity \\Nfight against each other, and further pollute the Earth?!",
+    "traduzido" : "{\\q2}Então porque, em um momento tão crucial, a humanidade\\Nprecisa lutar entre si e ainda poluir mais a Terra?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 88,
+    "estilo" : "Dialogue",
+    "original" : "People may never truly awaken.",
+    "traduzido" : "Pessoas podem nunca acordar verdadeiramente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 89,
+    "estilo" : "Dialogue",
+    "original" : "I believe. We have Kamille now,\\Njust as we once had Amuro with us.",
+    "traduzido" : "Eu acredito. Agora temos o Kamille, assim\\Ncomo um dia tivemos o Amuro conosco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 90,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}In this time of turmoil,",
+    "traduzido" : "{\\i1}Nestes tempos turbulentos,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 91,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}many were swept up into the\\Nmaelstrom and lost their lives.",
+    "traduzido" : "{\\i1}muitos foram arrastados para o redemoinho\\Ne perderam a vida.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 92,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}To heal its wounds, both physical\\Nand emotional,",
+    "traduzido" : "{\\i1}Para curar suas feridas,\\Ntanto físicas quanto emocionais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 93,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}once the battle at Gryps 2 was over.",
+    "traduzido" : "{\\i1} após a batalha em Gryps 2 ter acabado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 94,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Argama set course for Side 1.",
+    "traduzido" : "{\\i1}A Argama rumou para o Lado 1.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 95,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Ship's log - 0301.",
+    "traduzido" : "{\\i1}Log do navio - 0301.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 96,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We defeated Scirocco...",
+    "traduzido" : "{\\i1}Derrotamos Scirocco...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 97,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...and destroyed the Jupitris,\\Nbut the cost was great.",
+    "traduzido" : "{\\i1}...e destruiu os Jupiteris,\\Nmas o custo foi grande.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 98,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Char Aznable, the leader of the\\NA.E.U.G., did not return from the battle.",
+    "traduzido" : "{\\i1}Char Aznable, o líder da\\NAEUG, não voltou da batalha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 99,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And Kamille's condition is also\\Ncause for concern.",
+    "traduzido" : "{\\i1}E a condição de Kamille também é motivo de preocupação para\\N.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 100,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}His mind and body have taken\\Nconsiderable damage.",
+    "traduzido" : "{\\i1}Seu corpo e mente\\Nsofreram danos consideráveis.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 101,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We must get him to Side 1 at once.",
+    "traduzido" : "{\\i1}Precisamos levá-lo para o Lado 1 imediatamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 102,
+    "estilo" : "Dialogue",
+    "original" : "There you are, Fa.\\NDon't worry about Kamille.",
+    "traduzido" : "Lá está você, Fa. Não se\\Npreocupe com Kamille.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 103,
+    "estilo" : "Dialogue",
+    "original" : "Side 1 has excellent hospitals.\\NTry to cheer up.",
+    "traduzido" : "Lado 1 tem ótimos\\Nhospitais. Tente se animar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 104,
+    "estilo" : "Dialogue",
+    "original" : "Thank you, Captain.",
+    "traduzido" : "Obrigado, Capitão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 105,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Oh, Kamille... Do you remember?",
+    "traduzido" : "{\\i1}Ah, Kamille... Lembra-se?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 106,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's mine!",
+    "traduzido" : "{\\i1}É meu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 107,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Shinta! Qum!",
+    "traduzido" : "{\\i1}Shinta! Qum!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 108,
+    "estilo" : "Dialogue",
+    "original" : "Kamille!",
+    "traduzido" : "Kamille!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 109,
+    "estilo" : "Dialogue",
+    "original" : "What the...?!",
+    "traduzido" : "O que...?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 110,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We always used to argue,\\Nbut you were nice to me.",
+    "traduzido" : "{\\i1}A gente sempre brigava,\\Nmas você era legal comigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 111,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}When I volunteered to fight...",
+    "traduzido" : "{\\i1}Quando me alistei para lutar...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 112,
+    "estilo" : "Dialogue",
+    "original" : "Fa, wait!",
+    "traduzido" : "Fica aí!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 113,
+    "estilo" : "Dialogue",
+    "original" : "I came to see the mobile suits.",
+    "traduzido" : "Eu vim ver os Mobile Suits.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 114,
+    "estilo" : "Dialogue",
+    "original" : "I wanted to know which\\None I'm going to pilot.",
+    "traduzido" : "Eu queria saber qual\\Neu vou pilotar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 115,
+    "estilo" : "Dialogue",
+    "original" : "Is it true you're a\\Ncandidate to be a pilot?",
+    "traduzido" : "É verdade que você é\\Ncandidata para ser uma piloto?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 116,
+    "estilo" : "Dialogue",
+    "original" : "Just leave things to me!",
+    "traduzido" : "Deixe isso comigo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 117,
+    "estilo" : "Dialogue",
+    "original" : "I was backing you up!",
+    "traduzido" : "Eu estava te cobrindo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 118,
+    "estilo" : "Dialogue",
+    "original" : "Fa!",
+    "traduzido" : "Fa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 119,
+    "estilo" : "Dialogue",
+    "original" : "You should rest while you have the chance.\\NOur next plan is beginning shortly.",
+    "traduzido" : "Você deve descansar enquanto ainda pode.\\NNosso próximo plano começará em breve.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 120,
+    "estilo" : "Dialogue",
+    "original" : "Kamille... But your heart belonged to...",
+    "traduzido" : "Judau: Kamille... Mas seu coração pertencia a...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 121,
+    "estilo" : "Dialogue",
+    "original" : "Four!",
+    "traduzido" : "Quatro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 122,
+    "estilo" : "Dialogue",
+    "original" : "Char! You just let it happen!",
+    "traduzido" : "Char! Você deixou isso acontecer!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 123,
+    "estilo" : "Dialogue",
+    "original" : "What do you mean, Amuro?",
+    "traduzido" : "O que você quer dizer, Amuro?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 124,
+    "estilo" : "Dialogue",
+    "original" : "Why didn't you stop those two at once?!",
+    "traduzido" : "Por que não deteve aqueles dois ao mesmo tempo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 125,
+    "estilo" : "Dialogue",
+    "original" : "You mean that girl, Four?",
+    "traduzido" : "Sim, aquela menina, a número quatro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 126,
+    "estilo" : "Dialogue",
+    "original" : "You of all people should have understood.",
+    "traduzido" : "Você, entre todas as pessoas, deveria ter entendido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 127,
+    "estilo" : "Dialogue",
+    "original" : "You intend to let the same\\Nthing happen again?!",
+    "traduzido" : "Não pretendias deixar a mesma\\Ncoisa acontecer novamente?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 128,
+    "estilo" : "Dialogue",
+    "original" : "Kamille. Kamille.",
+    "traduzido" : "Kamille. Kamille.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 129,
+    "estilo" : "Dialogue",
+    "original" : "Kamille.",
+    "traduzido" : "Kamille.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 130,
+    "estilo" : "Dialogue",
+    "original" : "But it's odd. I had forgotten all\\Nabout you until just a moment ago.",
+    "traduzido" : "Mas é estranho. Eu tinha me esquecido\\Ncompletamente de você até agora mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 131,
+    "estilo" : "Dialogue",
+    "original" : "I wonder why.",
+    "traduzido" : "Eu me pergunto por quê.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 132,
+    "estilo" : "Dialogue",
+    "original" : "You no longer care for me, do you?",
+    "traduzido" : "Não lhe importo mais, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 133,
+    "estilo" : "Dialogue",
+    "original" : "I'll always love you.",
+    "traduzido" : "Sempre te amarei.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 134,
+    "estilo" : "Dialogue",
+    "original" : "But I become a different person when\\NI pilot the Psyco Gundam.",
+    "traduzido" : "Mas eu me torno uma pessoa diferente\\Nquando piloto o Psico Gundam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 135,
+    "estilo" : "Dialogue",
+    "original" : "Four!",
+    "traduzido" : "Quatro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 136,
+    "estilo" : "Dialogue",
+    "original" : "Four, can you run?",
+    "traduzido" : "Quatro, você pode correr?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 137,
+    "estilo" : "Dialogue",
+    "original" : "Four.",
+    "traduzido" : "Four.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 138,
+    "estilo" : "Dialogue",
+    "original" : "Four? What's happening?",
+    "traduzido" : "Quatro? O que está acontecendo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 139,
+    "estilo" : "Dialogue",
+    "original" : "Who... are you? An enemy, aren't you?!",
+    "traduzido" : "Quem... você é? Um inimigo, não é mesmo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 140,
+    "estilo" : "Dialogue",
+    "original" : "I'll kill you!",
+    "traduzido" : "Eu vou te matar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 141,
+    "estilo" : "Dialogue",
+    "original" : "Stop it!",
+    "traduzido" : "Pare com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 142,
+    "estilo" : "Dialogue",
+    "original" : "Four!",
+    "traduzido" : "Quatro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 143,
+    "estilo" : "Dialogue",
+    "original" : "Kamille!",
+    "traduzido" : "Kamille!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 144,
+    "estilo" : "Dialogue",
+    "original" : "Okay! Open the cockpit!",
+    "traduzido" : "Abre o cockpit!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 145,
+    "estilo" : "Dialogue",
+    "original" : "Kamille, is it you?",
+    "traduzido" : "Kamille, é você?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 146,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You must get out of the Psyco\\NGundam's cockpit! Hurry!",
+    "traduzido" : "{\\i1}Você precisa sair do\\Ncockpit do Psico Gundam! Rápido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 147,
+    "estilo" : "Dialogue",
+    "original" : "Die, Kamille!",
+    "traduzido" : "Morre, Kamille!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 148,
+    "estilo" : "Dialogue",
+    "original" : "Jerid!",
+    "traduzido" : "Jerid!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 149,
+    "estilo" : "Dialogue",
+    "original" : "Stay back!",
+    "traduzido" : "Fique aí atrás!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 150,
+    "estilo" : "Dialogue",
+    "original" : "Four!!",
+    "traduzido" : "Quatro!!!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 151,
+    "estilo" : "Dialogue",
+    "original" : "The same mistake...!",
+    "traduzido" : "O mesmo erro...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 152,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Char, prepare to die!",
+    "traduzido" : "{\\i1}Caramba, prepare-se para morrer!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 153,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lalah!",
+    "traduzido" : "{\\i1}Lalá!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 154,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lalah...",
+    "traduzido" : "{\\i1}Lalá...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 155,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}LALAH!!!",
+    "traduzido" : "{\\i1}LAH!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 156,
+    "estilo" : "Dialogue",
+    "original" : "People end up repeating the same mistakes.",
+    "traduzido" : "Pessoas acabam cometendo os mesmos erros novamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 157,
+    "estilo" : "Dialogue",
+    "original" : "It's ridiculous!",
+    "traduzido" : "É ridículo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 158,
+    "estilo" : "Dialogue",
+    "original" : "Four, open your eyes!",
+    "traduzido" : "Abre os olhos, quatro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 159,
+    "estilo" : "Dialogue",
+    "original" : "You're kidding me, right?!\\NThis is all a lie, right?!",
+    "traduzido" : "Você está brincando comigo,\\Nné? Isso tudo é mentira, né?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 160,
+    "estilo" : "Dialogue",
+    "original" : "Open your eyes, Four!!",
+    "traduzido" : "Abre os olhos, Quatro!!!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 161,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The tears of time are never-ending.",
+    "traduzido" : "{\\i1}As lágrimas do tempo não têm fim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 162,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}When will the hopes of those lost in\\Nbattle ever be fulfilled?",
+    "traduzido" : "{\\i1}Quando os sonhos daqueles perdidos\\Nem batalha serão realizados algum dia?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 163,
+    "estilo" : "Dialogue",
+    "original" : "State of the Art Mobile Suit Catalog!",
+    "traduzido" : "Catalogo de Mobile Suits de Ponta Tecnológica!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 164,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Silhouette quiz, question 1:\\NWhich mobile suit is this?",
+    "traduzido" : "{\\i1}Silueta quiz, pergunta\\N1: Qual é esse Mobile Suit?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 165,
+    "estilo" : "Dialogue",
+    "original" : "The Hyaku Shiki!",
+    "traduzido" : "O Hyaku Shiki!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 166,
+    "estilo" : "Dialogue",
+    "original" : "Correct!",
+    "traduzido" : "Entendido, comece a traduzir.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 167,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&\\pos(714,769.2)}HYAKU SHIKI",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&\\pos(714,769.2)}CENTENAS DE MIL",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 168,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Its pilot is this man.",
+    "traduzido" : "{\\an8\\i1}O piloto é esse homem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 169,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&}QUATTRO BAJEENA",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&}QUATRO BAIANOS",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 170,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}Quattro Bajeena! Hyaku Shiki, launching!",
+    "traduzido" : "{\\an8}Quattro Bajeena! Hyaku Shiki, decolando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 171,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Do you know who Quattro Bajeena is?",
+    "traduzido" : "{\\i1}Você conhece quem é Quattro Bajeena?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 172,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Aw, quit playing dumb!",
+    "traduzido" : "{\\i1}Ah, pare de fazer de desentendido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 173,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Char's new color as Lt. Quattro is gold.",
+    "traduzido" : "{\\i1}A nova cor do Char como Tenente Quattro é dourada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 174,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}With its high combat capabilities, the Hyaku Shiki is one of the most famous mobile suits of this series.",
+    "traduzido" : "{\\i1}Com suas elevadas capacidades de combate, o Hyaku Shiki é um dos mobile suits mais famosos desta série.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 175,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Silhouette quiz, question 2:\\NWhich one is this?",
+    "traduzido" : "{\\i1}Silueta quiz,\\Npergunta 2: Qual é esse?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 176,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Rick Dias!",
+    "traduzido" : "{\\i1}O Rick Dias!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 177,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}A highly maneuverable mobile suit\\Ndeveloped by the A.E.U.G.",
+    "traduzido" : "{\\i1}Um mobile suit altamente manobrável\\Ndesenvolvido pela A.E.U.G.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 178,
+    "estilo" : "Copy of label2",
+    "original" : "{\\3c&H006B5D&\\pos(714,769.2)\\clip(525,683,570,771)\\t(0,313,\\clip(547,694,878,768))}RICK DIAS",
+    "traduzido" : "{\\3c&H006B5D&\\pos(714,769.2)\\clip(525,683,570,771)\\t(0,313,\\clip(547,694,878,768))}RICARDO DIAS",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 179,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}The \"Rick\" in \"Rick Dias\"\\Nmeans it's for space use.",
+    "traduzido" : "{\\an8\\i1}O \"Rick\" em \"Rick Dias\"\\Nindica que é para uso espacial.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 180,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And it's called \"Dias\" in honor of\\NBartolomeu Dias,",
+    "traduzido" : "{\\i1}E é chamado \"Dias\", em\\Nhomenagem a Bartolomeu Dias",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 181,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}the man who discovered the\\NCape of Good Hope.",
+    "traduzido" : "{\\i1}o homem que descobriu o\\NCabo da Boa Esperança.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 182,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It was Lt. Quattro who named it that!",
+    "traduzido" : "{\\i1}Foi o Tenente Quattro quem lhe deu esse nome!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 183,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's said that the Rick Dias, made\\Nfrom Gundarium alloy,",
+    "traduzido" : "{\\i1}Dizem que o Rick Dias,\\Nfeito de liga de Gundanium,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 184,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}began the second generation\\Nof mobile suits.",
+    "traduzido" : "{\\i1}iniciou a segunda geração\\Nde mobile suit.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 185,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Yay! The Gundam Mk-II!",
+    "traduzido" : "{\\an8\\i1}Uhul! O Gundam Mk-II!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 186,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(772,786)}GUNDAM Mk-II",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(772,786)}GUNDAM Mk-II",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 187,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}No, it's not. That's the Super Gundam!",
+    "traduzido" : "{\\an8\\i1}Não, não é. É o Super Gundam!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 188,
+    "estilo" : "Copy of label2",
+    "original" : "{\\3c&H006B5D&}EMMA SHEEN",
+    "traduzido" : "{\\3c&H006B5D&}EMMA SHEEN",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 189,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Because it's got the\\NG-Defenser attached to it.",
+    "traduzido" : "{\\an8\\i1}Porque tem o\\NG-Defensor instalado nele.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 190,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,313)\\3c&H006B5D&}G-DEFENSER",
+    "traduzido" : "{\\fade(481,313)\\3c&H006B5D&}Defensor G",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 191,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Gundam Mk-II was secretly\\Ndeveloped by the Titans,",
+    "traduzido" : "{\\i1}O Gundam Mk-II foi desenvolvido\\Nsecretamente pelos Titãs.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 192,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}but fell into the A.E.U.G.'s hands, thanks to the efforts of Kamille and Lt. Quattro.",
+    "traduzido" : "{\\i1}mas acabou nas mãos da AEUG, graças aos esforços de Kamille e do Tenente Quattro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 193,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's transforming!",
+    "traduzido" : "{\\i1}Está se transformando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 194,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Transformation was the most notable trait\\Namong the mobile suits of 0085.",
+    "traduzido" : "{\\an8\\i1}A transformação foi a característica\\Nmais marcante entre os mobile suits de 0085.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 195,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}GAPLANT",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}BASE AEUG",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 196,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}HAMBRABI",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}HAMBRABI",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 197,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}It looks like a manta ray.",
+    "traduzido" : "{\\an8\\i1}Parece um raio-manta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 198,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}The Hambrabi, piloted by Lt. Yazan,",
+    "traduzido" : "{\\an8\\i1}O Hambrabi, pilotado pelo Tenente Yazan",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 199,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&}YAZAN GABLE",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&}JAZON GABRIEL",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 200,
+    "estilo" : "Dialogue",
+    "original" : "usually operated in a team of three.",
+    "traduzido" : "Normalmente operado em equipe de três.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 201,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}It's big sister Rosamia's Baund Doc!",
+    "traduzido" : "{\\an8\\i1}É o Baund Doc da sua irmã mais velha, Rosamia!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 202,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&}ROSAMIA BADAM",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&}ROSANA BADA",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 203,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Some diehard fans consider this the\\Nmost beautiful of all mobile suits.",
+    "traduzido" : "{\\an8\\i1}Fãs mais dedicados consideram\\Neste o mobile suit mais bonito de todos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 204,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,500)\\3c&H006B5D&\\pos(738,778)}BAUND DOC",
+    "traduzido" : "{\\fade(481,500)\\3c&H006B5D&\\pos(738,778)}DOCUMENTO SEGURADO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 205,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i0}ls this all you can do, Gundam Mk-II?!",
+    "traduzido" : "{\\an8\\i0}Isso é tudo que você pode fazer, Gundam Mk-II?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 206,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&}FOUR MURASAME",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&}QUATRO MURASAME",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 207,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}There it is! The Saikoro (Dice) Gundam!",
+    "traduzido" : "{\\i1}Lá está! O Saikoro (Dice) Gundam!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 208,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}No, it's not. That's the Psyco Gundam.",
+    "traduzido" : "{\\an8\\i1}Não, não é. Aquilo ali é o Psycho Gundam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 209,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}PSYCO GUNDAM",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}GUNDAM PSICO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 210,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}What's especially notable about\\Nthis one is its amazing size.",
+    "traduzido" : "{\\an8\\i1}O que chama mesmo a atenção\\Nnesse é seu tamanho impressionante.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 211,
+    "estilo" : "Dialogue",
+    "original" : "I'll scoop you up from below.",
+    "traduzido" : "Vou te pegar de baixo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 212,
+    "estilo" : "Dialogue",
+    "original" : "What is it?!",
+    "traduzido" : "O que é isso?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 213,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}The Qubeley has a psycommu system\\Nwith funnels.",
+    "traduzido" : "{\\an8\\i1}O Qubeley possui um\\Nsistema psico-comum com funis.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 214,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}QUBELEY",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&\\pos(738,778)}QUBELÉ",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 215,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}What are those?",
+    "traduzido" : "{\\an8\\i1}O que são aqueles?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 216,
+    "estilo" : "Copy of label2",
+    "original" : "{\\3c&H006B5D&}HAMAN KARN",
+    "traduzido" : "{\\3c&H006B5D&}HAMAN KARN",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 217,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Little beam cannons that it controls\\Nusing brainwaves.",
+    "traduzido" : "{\\an8\\i1}Canhões de raios pequenos que\\Nela controla usando ondas cerebrais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 218,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Of course, the Hyaku Shiki is the\\Nbest mobile suit of all, right?",
+    "traduzido" : "{\\an8\\i1}Claro, o Hyaku Shiki é o melhor\\Nmobile suit de todos, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 219,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(500,500)\\3c&H006B5D&\\pos(738,778)}ZETA GUNDAM",
+    "traduzido" : "{\\fade(500,500)\\3c&H006B5D&\\pos(738,778)}ZETA GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 220,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Of course, it's the Zeta Gundam!",
+    "traduzido" : "{\\an8\\i1}Claro, é o Zeta Gundam!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 221,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It seems I don't have much luck.",
+    "traduzido" : "{\\i1}Parece que eu não tenho muita sorte.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 222,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(481,0)\\3c&H006B5D&}KAMILLE BIDAN",
+    "traduzido" : "{\\fade(481,0)\\3c&H006B5D&}KAMILLE BIDAN",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 223,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}What was that?",
+    "traduzido" : "{\\an8}O que foi aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 224,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Nothing.",
+    "traduzido" : "{\\an8\\i1}Nada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 225,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Together with Kamille Bidan's\\NNewtype abilities,",
+    "traduzido" : "{\\i1}Com os poderes de\\NNewtype de Kamille Bidan",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 226,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}the Zeta Gundam demonstrates\\Nextraordinary combat performance.",
+    "traduzido" : "{\\i1}o Zeta Gundam demonstra\\Ndesempenho de combate extraordinário.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 227,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Waverider form is so cool, too!",
+    "traduzido" : "{\\i1}A forma do Wave Rider é tão legal também!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 228,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Cool transformation! I'm surprised\\NKamille doesn't get dizzy doing that.",
+    "traduzido" : "{\\i1}Que transformação incrível! Fico surpreso\\Nque Kamille não fica tonto fazendo isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 229,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Now, the final mobile suit quiz\\Nyou've been waiting for!",
+    "traduzido" : "{\\i1}Agora, o último quiz de mobile\\Nsuits que você estava esperando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 230,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Write down the names and model numbers of the mobile suits shown here and mail them in to us.",
+    "traduzido" : "{\\i1}Anote os nomes e números de modelo dos mobile suits mostrados aqui e nos mande por correio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 231,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We'll have a drawing from the\\Ncorrect answers for a vacation to Jupiter!",
+    "traduzido" : "{\\i1}Teremos um desenho das respostas corretas de\\Npara férias em Júpiter!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 232,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Mail it to Side 6's Colony 23!",
+    "traduzido" : "{\\i1}Envie para a Colônia 23 do Setor 6!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 233,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Hey, hey, don't take this seriously!",
+    "traduzido" : "{\\i1}Ei, ei, não leva isso a sério!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 234,
+    "estilo" : "Karaoke Simples",
+    "original" : "Right now I can't move... That is my fate, but...",
+    "traduzido" : "Agora eu não posso me mover... Esse é meu destino, mas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 235,
+    "estilo" : "Karaoke Simples",
+    "original" : "I won't give up anymore because I have awakened.",
+    "traduzido" : "Não desistirei mais pois despertei.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 236,
+    "estilo" : "Karaoke Simples",
+    "original" : "My burning, throbbing heart reflects the era...",
+    "traduzido" : "Meu coração queimando, pulsante reflete a época...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 237,
+    "estilo" : "Karaoke Simples",
+    "original" : "It has the color of vividly blazing flames...",
+    "traduzido" : "Possui a cor de chamas ardentes e intensas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 238,
+    "estilo" : "Karaoke Simples",
+    "original" : "Crying, though I can't see it right now...",
+    "traduzido" : "Chorando, embora eu não possa ver agora...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 239,
+    "estilo" : "Karaoke Simples",
+    "original" : "Searching, a guidepost floats up ahead.",
+    "traduzido" : "Um farol flutuando à frente indica o caminho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 241,
+    "estilo" : "Karaoke Simples",
+    "original" : "Everyone's a noble mind!",
+    "traduzido" : "Todos são almas nobres!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 242,
+    "estilo" : "Karaoke Simples",
+    "original" : "I'll take out what remains of my youth there,",
+    "traduzido" : "Levarei o que resta da minha juventude para lá.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 243,
+    "estilo" : "Karaoke Simples",
+    "original" : "Believing a sign of Zeta,",
+    "traduzido" : "Acreditando num sinal de Zeta,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 244,
+    "estilo" : "Karaoke Simples",
+    "original" : "beyond the hard times from now!",
+    "traduzido" : "Além dos tempos difíceis que virão!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 245,
+    "estilo" : "Karaoke Simples",
+    "original" : "If these dry lips become wet,",
+    "traduzido" : "Se esses lábios secos ficarem úmidos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 246,
+    "estilo" : "Karaoke Simples",
+    "original" : "Beyond time, towards a passionate era,",
+    "traduzido" : "Além do tempo, rumo a uma era apaixonada",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 247,
+    "estilo" : "Karaoke Simples",
+    "original" : "Because I believe it will move...",
+    "traduzido" : "Porque eu acredito que vai se mexer...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 248,
+    "estilo" : "Karaoke Simples",
+    "original" : "Believing a sign of Zeta,",
+    "traduzido" : "Acreditando num sinal de Zeta,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 249,
+    "estilo" : "Karaoke Simples",
+    "original" : "beyond the hard times from now...",
+    "traduzido" : "Além dos tempos difíceis que virão...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 250,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(245,219)\\pos(760,826)}NEO-ZEON MOBILE FORTRESS AXIS",
+    "traduzido" : "{\\fade(245,219)\\pos(760,826)}NEO-ZEON MOBILE FORTRESS AXIS",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 251,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Axis, which seeks to gain\\Ncontrol of Side 3.",
+    "traduzido" : "{\\an8\\i1}Eixo, que busca\\Ncontrolar a Colônia Lado 3.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 252,
+    "estilo" : "Dialogue",
+    "original" : "This is Princess Mineva Zabi, the\\Nlegitimate heir to the Zabi family!",
+    "traduzido" : "Princesa Mineva Zabi, a legítima\\Nherdeira da família Zabi!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 253,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}They hope to use Mineva Zabi, \\Nthe orphan child of the Zabi family,",
+    "traduzido" : "{\\i1} Eles esperam usar Mineva\\NZabi, a criança órfã da família Zabi",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 254,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}to revive the ambitions of the\\NPrincipality of Zeon.",
+    "traduzido" : "{\\i1}para reviver as ambições\\Ndo Principado de Zeon.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 255,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman, all area forces are\\Nready to launch.",
+    "traduzido" : "Lady Haman, todas as forças em\\Nárea estão prontas para decolar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 256,
+    "estilo" : "Dialogue",
+    "original" : "Good.",
+    "traduzido" : "Bom.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 257,
+    "estilo" : "Dialogue",
+    "original" : "Order all fleets to launch!",
+    "traduzido" : "Ordene o lançamento de todas as frotas!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 258,
+    "estilo" : "Dialogue",
+    "original" : "As you wish, Lady Haman!",
+    "traduzido" : "Como desejar, senhora Haman!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 259,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Side 1 area forces,\\NMashymre Cello, launching!",
+    "traduzido" : "{\\i1}Forças da área Side 1,\\NMashymre Cello, decolando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 260,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(245,219)}SHANGRI-LA COLONY",
+    "traduzido" : "{\\fade(245,219)}SHANGRI-LA COLONY",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 261,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Side 1, Shangri-La Colony.",
+    "traduzido" : "{\\an8\\i1}Lado 1, Colônia Shangri-La.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 262,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}One of the older generation\\Nof space colonies,",
+    "traduzido" : "{\\i1}Uma das gerações mais antigas\\Nde colônias espaciais,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 263,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Shangri-La's interior has deteriorated\\Namidst the ongoing conflicts...",
+    "traduzido" : "{\\i1}O interior de Shangri-La deteriorou-se\\Nem meio aos conflitos em curso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 264,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...and even control of its rotational\\Nspeed has become unreliable.",
+    "traduzido" : "{\\i1}...e até mesmo o controle de sua\\Nvelocidade de rotação tornou-se instável.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 265,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Each Side consists of a group of\\Naround 40 colonies,",
+    "traduzido" : "{\\i1}Cada lado consiste em um\\Ngrupo de cerca de 40 colônias",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 266,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}with each colony successively\\Nnumbered, starting from 1.",
+    "traduzido" : "{\\i1}com cada colônia sucessivamente\\Nnumerada, começando em 1.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 267,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The space cities from Side 1 to Side\\N7 are located...",
+    "traduzido" : "{\\i1}As colônias espaciais de Lado\\N1 a Lado 7 estão localizadas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 268,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...at points where the gravity of the\\NEarth, moon, and sun is in balance.",
+    "traduzido" : "{\\i1}...em pontos onde a gravidade da\\NTerra, Lua e Sol está em equilíbrio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 269,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}They move in elliptical orbits\\Naround these Lagrange points.",
+    "traduzido" : "{\\i1}Eles se movem em órbitas elípticas\\Nem torno desses pontos de Lagrange.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 270,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}These colonies, which represent the\\Npeak of science and technology,",
+    "traduzido" : "{\\an8\\i1}Essas colônias, que representam\\No auge da ciência e tecnologia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 271,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(500,500)}AGRICULTURAL PLANT",
+    "traduzido" : "{\\fade(500,500)}AGRICULTURAL PLANT",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 272,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}include numerous facilities that\\Nsupport life in space,",
+    "traduzido" : "{\\an8\\i1}inclui inúmeras instalações que\\Nsustentam a vida no espaço,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 273,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}as well as a variety of safety systems.",
+    "traduzido" : "{\\an8\\i1}assim como uma variedade de sistemas de segurança.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 274,
+    "estilo" : "Dialogue",
+    "original" : "It isn't anime!",
+    "traduzido" : "Não é anime!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 275,
+    "estilo" : "Dialogue",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 276,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime.",
+    "traduzido" : "Desculpe, mas eu sou um tradutor especializado em legendas de anime e só posso ajudar com traduções relacionadas a esse tipo de obra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 277,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 278,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Hey there! I'm Judau Ashta, and I\\Nlive in Shangri-La Colony at Side 1.",
+    "traduzido" : "{\\an8\\i1}Ei lá! Sou Judau Ashta e\\Nmoro na Colônia Shangri-La no Lado 1.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 279,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(315,0)\\bord0\\shad6\\pos(731.6,932)}JUDAU ASHTA",
+    "traduzido" : "{\\fade(315,0)\\bord0\\shad6\\pos(731.6,932)}JUDAU ASHTA",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 280,
+    "estilo" : "Karaoke Simples",
+    "original" : "At night when everyone was fast asleep,",
+    "traduzido" : "À noite, enquanto todos dormiam profundamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 281,
+    "estilo" : "Karaoke Simples",
+    "original" : "I looked at the sky through the window,",
+    "traduzido" : "Olhei para o céu pela janela.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 282,
+    "estilo" : "Karaoke Simples",
+    "original" : "And I saw something magical!",
+    "traduzido" : "E eu vi algo mágico!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 283,
+    "estilo" : "Karaoke Simples",
+    "original" : "All adults say with a laugh,",
+    "traduzido" : "Todos os adultos dizem com uma risada",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 284,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Man, the world can be tough!",
+    "traduzido" : "{\\i1}Cara, o mundo pode ser difícil!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 285,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We need to hustle to earn\\Nenough just to stay alive!",
+    "traduzido" : "{\\i1}Precisamos correr para ganhar\\No suficiente só pra sobreviver!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 286,
+    "estilo" : "Karaoke Simples",
+    "original" : "\"You watch too much television,\"",
+    "traduzido" : "\"Você assiste à televisão demais.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 287,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}So, that's why I'm working\\Nas a junk dealer.",
+    "traduzido" : "{\\i1}Então é por isso que\\Ntrabalho como catador de sucata.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 288,
+    "estilo" : "Karaoke Simples",
+    "original" : "But I never, ever...",
+    "traduzido" : "Mas eu nunca, jamais...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 289,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}In other words, my job is to collect\\Nscrapped mobile suits and stuff.",
+    "traduzido" : "{\\i1}Em outras palavras, meu trabalho é coletar\\Nmobile suit e outras coisas descartadas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 290,
+    "estilo" : "Karaoke Simples",
+    "original" : "...tell any lies",
+    "traduzido" : "Não conte nenhuma mentira.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 291,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And lemme tell you, it's tough work!",
+    "traduzido" : "{\\i1}E deixa eu te dizer, é um trabalho duro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 292,
+    "estilo" : "Karaoke Simples",
+    "original" : "This world of ours...",
+    "traduzido" : "Este mundo nosso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 293,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Still, I've got a cute little sister\\Nand good friends.",
+    "traduzido" : "{\\i1} Ainda assim, tenho uma\\Nirmãzinha fofa e bons amigos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 294,
+    "estilo" : "Karaoke Simples",
+    "original" : "...cannot be viewed through...",
+    "traduzido" : "...\"Nao pode ser visto através de...\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 295,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}All kids are Newtypes, and we're\\Ngonna show those adults that!",
+    "traduzido" : "{\\i1}Todos as crianças são Newtypes e\\Nvamos mostrar isso para aqueles adultos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 296,
+    "estilo" : "Karaoke Simples",
+    "original" : "...the glasses of common sense",
+    "traduzido" : "[...] os óculos do senso comum",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 297,
+    "estilo" : "Karaoke Simples",
+    "original" : "You old Earthlings,",
+    "traduzido" : "Vocês, velhos terráqueos,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 298,
+    "estilo" : "Copy of label2",
+    "original" : "{\\pos(378,912.8)}IINO ABBAV",
+    "traduzido" : "{\\pos(378,912.8)}IINO ABBAV",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 299,
+    "estilo" : "Copy of label2",
+    "original" : "{\\pos(742.8,922.4)}MONDO AGAKE",
+    "traduzido" : "{\\pos(742.8,922.4)}Mond Agake",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 300,
+    "estilo" : "Karaoke Simples",
+    "original" : "you've forgotten your dreams!",
+    "traduzido" : "Você esqueceu seus sonhos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 301,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Just a second!",
+    "traduzido" : "{\\i1}Aguarde um segundo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 302,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(213,0)\\pos(746,925.6)}BEECHA OLEG",
+    "traduzido" : "{\\fade(213,0)\\pos(746,925.6)}BEECHA OLEG",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 303,
+    "estilo" : "Dialogue",
+    "original" : "{\\an9\\i1}I'm the leader here!",
+    "traduzido" : "{\\an9\\i1}Eu sou o líder aqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 304,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Argama's come to Shangri-La!\\NWe've got a chance to score some major cash!",
+    "traduzido" : "{\\i1}A Argama chegou em Shangri-La!\\NTemos a chance de ganhar uma grana preta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 305,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime, not an anime!",
+    "traduzido" : "Não é um anime, não é um anime!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 306,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's lovely world.",
+    "traduzido" : "É um mundo lindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 307,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's carrying that Zeta Gundam.",
+    "traduzido" : "{\\i1}Ele está levando aquele Zeta Gundam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 308,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}If we can get that, we can say\\Ngoodbye to this cruddy colony!",
+    "traduzido" : "{\\i1}Se conseguirmos isso, podemos\\Nnos livrar dessa colônia horrível!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 309,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Oh, jeez. There you go, getting\\Ncarried away again.",
+    "traduzido" : "{\\i1}Ah, não acredito. Lá vai você de\\Nnovo, se deixando levar pela emoção.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 310,
+    "estilo" : "Karaoke Simples",
+    "original" : "Such a wonderful feeling!",
+    "traduzido" : "Que sensação maravilhosa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 311,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Anyway, our first mistake was\\Nbringing this joker inside.",
+    "traduzido" : "{\\i1}Enfim, nosso primeiro erro foi\\Ntrazer esse curinga para dentro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 312,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's, um, Yazan, right?",
+    "traduzido" : "{\\i1}É, é o Yazan, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 313,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}A man needs to have guts! So, let's\\Ngrab the Zeta Gundam.",
+    "traduzido" : "{\\i1}Um homem precisa ter coragem!\\NEntão, vamos pegar o Zeta Gundam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 314,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 315,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I'm in!",
+    "traduzido" : "{\\i1}Estou dentro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 316,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(213,0)\\pos(746,925.6)}LEINA ASHTA",
+    "traduzido" : "{\\fade(213,0)\\pos(746,925.6)}LEINA ASHTA",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 317,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8\\i1}Big Brother!",
+    "traduzido" : "{\\an8\\i1}Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 318,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I wish he'd cure that reckless\\Nstreak of his.",
+    "traduzido" : "{\\i1}Eu gostaria que ele curasse aquela tendência imprudente\\Ndele.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 319,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Oh, I'm sick of all the\\Ntrouble he gets into.",
+    "traduzido" : "{\\i1}Oh, estou farto de todos os problemas do\\Nem que ele se mete.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 320,
+    "estilo" : "Karaoke Simples",
+    "original" : "Sneaking out of the room at dawn",
+    "traduzido" : "Saindo sorrateiramente do quarto ao amanhecer",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 321,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Hey, mister! Don't forget your\\Nhumanity! Don't forget that you owe us!",
+    "traduzido" : "{\\i1}Ei, senhor! Não esqueça sua humanidade!\\NNão esqueça que você nos deve algo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 322,
+    "estilo" : "Karaoke Simples",
+    "original" : "I kept on waiting at the beach,",
+    "traduzido" : "Fiquei esperando na praia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 323,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Cute!",
+    "traduzido" : "{\\i1}Fofinho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 324,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lemme see!",
+    "traduzido" : "{\\i1}Deixa eu ver!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 325,
+    "estilo" : "Karaoke Simples",
+    "original" : "and I saw such a great things.",
+    "traduzido" : "E eu vi coisas tão incríveis assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 326,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Is she on the Argama, too?\\NHeh, she's not bad!",
+    "traduzido" : "{\\i1}Ela também está na Argama?\\NHehe, ela não é nada má!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 327,
+    "estilo" : "Karaoke Simples",
+    "original" : "Everytime we share secrets.",
+    "traduzido" : "Todo vez que compartilhamos segredos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 328,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}But the Argama has someone even more\\Nincredible aboard: Kamille Bidan!",
+    "traduzido" : "{\\i1}Mas a Argama tem algo ainda mais\\Nincrível a bordo: Kamille Bidan!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 329,
+    "estilo" : "Karaoke Simples",
+    "original" : "People say \"You read too much manga\".",
+    "traduzido" : "Dizem que você lê muitos mangás.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 330,
+    "estilo" : "Karaoke Simples",
+    "original" : "But I never, ever...",
+    "traduzido" : "Mas eu nunca, jamais...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 331,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What's this feeling I'm getting?\\NIs that being a Newtype?",
+    "traduzido" : "{\\i1}O que é essa sensação que eu\\Nestou sentindo? É isso ser um Newtype?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 332,
+    "estilo" : "Karaoke Simples",
+    "original" : "...tell any lies",
+    "traduzido" : "Não conte nenhuma mentira.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 333,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You mean Newtypes really exist?",
+    "traduzido" : "{\\i1}Você quer dizer que os Newtypes realmente existem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 334,
+    "estilo" : "Karaoke Simples",
+    "original" : "Never forget,",
+    "traduzido" : "Nunca esqueça",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 335,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Anyway, let's grab the Zeta Gundam.\\NThe story will go from there.",
+    "traduzido" : "{\\i1}De qualquer forma, vamos pegar o Zeta Gundam.\\NA história continuará a partir daí.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 336,
+    "estilo" : "Karaoke Simples",
+    "original" : "this world can't be measured,",
+    "traduzido" : "Esse mundo não pode ser medido,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 337,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I read Mobile Suit Catalog Monthly,\\Nso I can handle the Zeta!",
+    "traduzido" : "{\\i1}Eu leio a revista Mensal do Catálogo de\\NMobile Suits, então sei como lidar com o Zeta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 338,
+    "estilo" : "Karaoke Simples",
+    "original" : "by common sense",
+    "traduzido" : "\"Use o senso comum.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 339,
+    "estilo" : "Karaoke Simples",
+    "original" : "You old Earthlings,",
+    "traduzido" : "Vocês, velhos terráqueos,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 340,
+    "estilo" : "Karaoke Simples",
+    "original" : "you've forgotten your dreams!",
+    "traduzido" : "Você esqueceu seus sonhos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 341,
+    "estilo" : "Karaoke Simples",
+    "original" : "Not an anime, not an anime!",
+    "traduzido" : "Não é um anime, não é um anime!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 342,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Hey, mister! Don't forget your\\Nhumanity! Remember, we saved you!",
+    "traduzido" : "{\\i1}Ei, moço! Não esqueça sua\\Nhumanidade! Lembre-se, nós te salvamos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 343,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's lovely world.",
+    "traduzido" : "É um mundo lindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 344,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You jerk! This is why I hate adults!",
+    "traduzido" : "{\\i1}Que merda! É por isso que eu odeio adultos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 345,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Why, you...!",
+    "traduzido" : "{\\i1}Ah, seu...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 346,
+    "estilo" : "Karaoke Simples",
+    "original" : "Such a wonderful feeling!",
+    "traduzido" : "Que sensação maravilhosa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 347,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You're so half-assed about this stuff!",
+    "traduzido" : "{\\i1}Vocês são tão desleixados com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 348,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What?! You ended up failing?",
+    "traduzido" : "{\\i1}O quê?! Você acabou falhando?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 349,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Sheesh, I can't take you guys!",
+    "traduzido" : "{\\i1}Ah, não aguento vocês!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 350,
+    "estilo" : "Copy of label2",
+    "original" : "{\\fade(315,286)\\bord0\\shad6\\pos(731.6,932)}ELLE VIANNO",
+    "traduzido" : "{\\fade(315,286)\\bord0\\shad6\\pos(731.6,932)}ELLE VIANNO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 351,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Judau, Beecha! Did you really think\\Ntrying this was a good idea?!",
+    "traduzido" : "{\\i1} Judau, Beecha! Vocês realmente\\Nacharam que essa ideia era boa?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 352,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Now more weirdos are coming!\\NThey may be after the Argama,",
+    "traduzido" : "{\\i1}Agora mais esquisitos estão\\Nchegando! Eles podem estar atrás da Argama",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 353,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}but I bet they'll be causing\\Ntrouble for us, too!",
+    "traduzido" : "{\\i1}Mas aposto que eles também\\Nvão nos causar problemas!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 354,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You're men, aren't you?! Now do\\Nsomething about this!",
+    "traduzido" : "{\\i1}Vocês são homens, não são?!\\NAgora façam alguma coisa sobre isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 355,
+    "estilo" : "Copy of label2",
+    "original" : "MASHYMRE CELLO",
+    "traduzido" : "Mashymre Cello",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 356,
+    "estilo" : "Karaoke Simples",
+    "original" : "It's true!",
+    "traduzido" : "É verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 357,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Dammit! I'm going to survive!",
+    "traduzido" : "{\\i1}Merd*! Eu vou sobreviver!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 358,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}How can I pilot the Zeta Gundam\\Nif I'm afraid of Newtypes?!",
+    "traduzido" : "{\\i1}Como eu vou pilotar o Zeta\\NGundam se tenho medo dos Newtypes?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 359,
+    "estilo" : "Dialogue",
+    "original" : "{\\fade(1781,0)\\bord0\\an7\\i1\\c&HFFFFFF&\\pos(57.6,253.6)}\\h\\h\\h\\h\\h\\hMOBILE SUIT \\N\\N\\N\\N\\N\\N\\N\\N\\N{\\fs180\\fade(1348,0)\\c&HF6482A&\\3c&HFFFFFF&\\bord5}GUNDAM{\\i1}",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 360,
+    "estilo" : "Karaoke Simples",
+    "original" : "Out in the wasteland, where there are no roads,",
+    "traduzido" : "No meio do deserto, onde não há estradas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 361,
+    "estilo" : "Karaoke Simples",
+    "original" : "it's difficult to lay down your rails",
+    "traduzido" : "É difícil traçar seu caminho",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 362,
+    "estilo" : "Karaoke Simples",
+    "original" : "...you must learn what's on the other side",
+    "traduzido" : "Aprenda o que há do outro lado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 363,
+    "estilo" : "Karaoke Simples",
+    "original" : "Our future starts now",
+    "traduzido" : "Nosso futuro começa agora",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 364,
+    "estilo" : "Karaoke Simples",
+    "original" : "\"Children have forgotten their dreams,\"",
+    "traduzido" : "Crianças esqueceram seus sonhos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 365,
+    "estilo" : "Karaoke Simples",
+    "original" : "...is what they say",
+    "traduzido" : "Eles dizem que é assim",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 366,
+    "estilo" : "Karaoke Simples",
+    "original" : "Ah, the times are crying",
+    "traduzido" : "Os tempos estão chorando",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 367,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}A colony at Side 1 is where\\Nwe were born and grew up.",
+    "traduzido" : "{\\i1}Uma colônia no Lado 1 é onde\\Nnascemos e crescemos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 368,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Scratch that! We're still growing up!",
+    "traduzido" : "{\\i1}Esquece isso! Ainda estamos crescendo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 369,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And the truth is, life for us is pretty hard.",
+    "traduzido" : "{\\i1}E a verdade é que a vida para nós é muito difícil.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 370,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lucky for us, the exhausted Argama\\Nhas docked here.",
+    "traduzido" : "{\\i1}Puxa vida, a exausta\\NArgama acabou de atracar aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 371,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}We're taking the Zeta to earn\\Nsome cash to live!",
+    "traduzido" : "{\\i1}Vamos levar o Zeta para\\Nganhar algum dinheiro pra viver!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 372,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Next time, on \"Gundam ZZ\":",
+    "traduzido" : "{\\i1}Próximo episódio em \"Gundam ZZ\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 373,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}\"The Boy from Shangri-La.\"",
+    "traduzido" : "{\\i1}\"O Garoto de Shangri-La.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 374,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}You'll see the battlefield of Newtypes!",
+    "traduzido" : "{\\i1}Você vai ver o campo de batalha dos Newtypes!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 375,
+    "estilo" : "nextep",
+    "original" : "{\\blur2\\an7\\c&HFFFCFE&\\pos(99.6,81.2)}\\hNext Episode \\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}The Boy From Shangri-La",
+    "traduzido" : "{\\blur2\\an7\\c&HFFFCFE&\\pos(99.6,81.2)}\\hPróximo episódio\\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}O garoto de Shangri-La",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}
