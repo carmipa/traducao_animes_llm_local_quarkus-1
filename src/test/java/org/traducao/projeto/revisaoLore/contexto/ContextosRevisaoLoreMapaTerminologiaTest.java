@@ -38,6 +38,12 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertEquals("Mobile Suit", m08th.get("Traje Móvel"), "08th deve herdar o núcleo UC");
         assertEquals("Gouf Custom", m08th.get("Gouf Personalizado"), "08th deve ter o extra Gouf Custom");
         assertEquals("Apsalus", m08th.get("Absalão"));
+        assertEquals("Miller's Report", m08th.get("Relatório Miller"));
+        assertEquals("08th MS Team", m08th.get("8o Time MS"));
+        assertEquals("Gundam Ground Type", m08th.get("Gundam Tipo Terrestre"));
+        assertEquals("Hovertruck", m08th.get("Caminhão Hover"));
+        assertTrue(new ContextoRevisaoLoreGundam08thMSTeam().obterPromptSistema().contains("Norris Packard"));
+        assertTrue(new ContextoRevisaoLoreGundam08thMSTeam().obterPromptSistema().contains("Miller's Report"));
 
         Map<String, String> cca = new ContextoRevisaoLoreGundamCCA().correcoesTerminologia();
         assertEquals("Mobile Suit", cca.get("Traje Móvel"), "CCA deve herdar o núcleo UC");
