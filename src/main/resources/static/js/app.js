@@ -930,6 +930,47 @@ function inicializarMetadadosDinamicos() {
     });
 }
 
+/**
+ * PROPÓSITO DE NEGÓCIO: agrupa o select da Revisão de Lore por franquia (<optgroup>)
+ * como o select da Tradução, derivando o grupo do nome da obra — os contextos de
+ * revisão não trazem `grupo` do backend (a fatia revisaoLore não pode importar o
+ * CatalogoObras da Tradução; a arquitetura proíbe a dependência entre fatias).
+ *
+ * INVARIANTES DO DOMÍNIO: mesma detecção por palavra-chave do CatalogoObras
+ * (Gundam/Macross/Evangelion/DanMachi/Sidonia); a lista é reordenada por grupo→nome
+ * para os <optgroup> saírem contíguos (montarOpcoesContextos abre um grupo novo a cada
+ * troca de rótulo).
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: obra sem franquia conhecida (86, Guilty Crown) fica
+ * com grupo vazio e vira opção solta, ordenada alfabeticamente entre os grupos.
+ */
+const FRANQUIAS_REVISAO_LORE = [
+    ['Gundam', 'Gundam'],
+    ['Macross', 'Macross'],
+    ['Evangelion', 'Evangelion'],
+    ['DanMachi', 'DanMachi'],
+    ['Sidonia', 'Knights of Sidonia']
+];
+
+function grupoFranquiaRevisaoLore(nome) {
+    if (!nome) return '';
+    for (const [chave, rotulo] of FRANQUIAS_REVISAO_LORE) {
+        if (nome.includes(chave)) return rotulo;
+    }
+    return '';
+}
+
+function agruparContextosRevisaoLore(lista) {
+    return lista
+        .map(ctx => ({ ...ctx, grupo: ctx.grupo || grupoFranquiaRevisaoLore(ctx.nome) }))
+        .sort((a, b) => {
+            const chaveA = (a.grupo || a.nome || '').toLowerCase();
+            const chaveB = (b.grupo || b.nome || '').toLowerCase();
+            if (chaveA !== chaveB) return chaveA < chaveB ? -1 : 1;
+            return (a.nome || '').localeCompare(b.nome || '');
+        });
+}
+
 async function carregarContextosAuxiliares(idsSelects, onComplete) {
     try {
         const [response, responseRevisaoLore] = await Promise.all([
@@ -972,11 +1013,12 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             }
 
             const fonteContextos = ehRevisaoLore && Array.isArray(contextosRevisaoLore) && contextosRevisaoLore.length > 0
-                ? contextosRevisaoLore
+                ? agruparContextosRevisaoLore(contextosRevisaoLore)
                 : contextos;
 
-            // Agrupa por franquia (<optgroup>) via helper compartilhado. Contextos de
-            // revisão de lore ainda não trazem `grupo` (2º passo) → caem como opções soltas.
+            // Agrupa por franquia (<optgroup>) via helper compartilhado. Para a Revisão de
+            // Lore o `grupo` é derivado do nome no cliente (agruparContextosRevisaoLore),
+            // já que o backend não envia franquia nesses contextos.
             montarOpcoesContextos(select, fonteContextos, (opt, ctx) => {
                 if (ctx.termoMetadata) {
                     opt.dataset.metadataQuery = ctx.termoMetadata;
