@@ -1467,7 +1467,7 @@
     "indice" : 208,
     "estilo" : "Dialogue",
     "original" : "{\\i1}I'll get them, Commander!",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}Eu vou buscá-los, Comandante!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2167,7 +2167,7 @@
     "indice" : 308,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Next time on {\\i1}Gundam ZZ:\\N\"Afternoon in Dublin.\"",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}Próxima vez em{\\i1}Gundam ZZ:\\N\"Tarde em Dublin.\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2342,7 +2342,7 @@
     "indice" : 333,
     "estilo" : "nextep",
     "original" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(131.6,84.8)}\\h\\h\\hNext Episode \\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}\\h\\h\\h\\h\\hAfternoon in Dublin",
-    "traduzido" : "",
+    "traduzido" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(131.6,84.8)}\\h\\h\\hPróximo episódio\\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}\\h\\h\\h\\h\\hTarde em Dublin",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]
