@@ -24,7 +24,8 @@ class CorrecoesTerminologiaGundamUcTest {
 
     /** Canônicos do núcleo UC (padrão compartilhado; não exigidos no roster de obra não-UC). */
     private static final Set<String> NUCLEO_CANONICOS = Set.of(
-        "Newtype", "Oldtype", "Mobile Suit", "Mobile Armor", "Beam Saber", "Beam Rifle");
+        "Newtype", "Oldtype", "Mobile Suit", "Mobile Suits",
+        "Mobile Armor", "Mobile Armors", "Beam Saber", "Beam Rifle");
 
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")

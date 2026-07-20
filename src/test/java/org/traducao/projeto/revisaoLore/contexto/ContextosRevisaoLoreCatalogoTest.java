@@ -82,7 +82,13 @@ class ContextosRevisaoLoreCatalogoTest {
 
         assertEquals("gundam_origin", origin.getId());
         assertTrue(origin.obterPromptSistema().contains("Casval Rem Deikun"));
+        assertTrue(origin.obterPromptSistema().contains("Black Tri-Stars"));
+        assertTrue(origin.obterPromptSistema().contains("Don Teabolo Mass"));
+        assertTrue(origin.obterPromptSistema().contains("Battle of Loum"));
         assertEquals("White Base", origin.correcoesTerminologia().get("Base Branca"));
+        assertEquals("Black Tri-Stars", origin.correcoesTerminologia().get("Triângulo Negro"));
+        assertEquals("Edouard Mass", origin.correcoesTerminologia().get("Eduardo Mass"));
+        assertEquals("One Year War", origin.correcoesTerminologia().get("Guerra de Um Ano"));
 
         assertEquals("Hyaku Shiki", zeta.correcoesTerminologia().get("Cem Estilos"));
         assertEquals("Titans", zeta.correcoesTerminologia().get("Titãs"));

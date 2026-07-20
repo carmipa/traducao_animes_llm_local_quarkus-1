@@ -201,12 +201,23 @@ class EnforcadorTermosLoreTest {
     @DisplayName("Origin/Zeta/Unicorn/DYRL: restaura formas-ruim canônicas")
     void restauraUcEMacrossClasse() {
         var origin = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
-            Map.of("Base Branca", "White Base", "Zion", "Zeon"));
+            Map.ofEntries(
+                Map.entry("Base Branca", "White Base"),
+                Map.entry("Zion", "Zeon"),
+                Map.entry("Triângulo Negro", "Black Tri-Stars"),
+                Map.entry("Eduardo Mass", "Edouard Mass")
+            ));
         assertEquals(
             "A White Base partiu de Zeon.",
             enforcador.reforcar(
                 "The White Base left Zeon.",
                 "A Base Branca partiu de Zion.",
+                origin));
+        assertEquals(
+            "Black Tri-Stars e Edouard Mass.",
+            enforcador.reforcar(
+                "Black Tri-Stars and Edouard Mass.",
+                "Triângulo Negro e Eduardo Mass.",
                 origin));
 
         var zeta = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
