@@ -16,8 +16,10 @@ import java.util.regex.Pattern;
  *   <li>Só opera quando o idioma-alvo é português ({@code pt*}); qualquer outro alvo devolve
  *       {@code false} (nunca pula a tradução).</li>
  *   <li>Viés de segurança: exige EVIDÊNCIA de português (stopword-PT inexistente em inglês,
- *       ou ≥2 diacríticos PT) E AUSÊNCIA de sinal forte de inglês. Uma linha inglesa nunca é
- *       classificada como já-no-alvo — deixar inglês sem traduzir é o erro a evitar.</li>
+ *       ou ≥2 diacríticos com ao menos um em palavra de inicial minúscula) E AUSÊNCIA de
+ *       sinal de inglês (lista ampliada de function words + apóstrofo tipográfico normalizado).
+ *       Uma linha inglesa nunca é classificada como já-no-alvo — deixar inglês sem traduzir é o
+ *       erro a evitar; reenviar um PT já pronto ao LLM (custo de eco) é o tradeoff aceito.</li>
  *   <li>Linhas muito curtas são ambíguas e nunca são puladas.</li>
  * </ul>
  *
@@ -32,11 +34,15 @@ public class DetectorIdiomaFonteService {
     private static final int MIN_CARACTERES = 6;
     private static final String DIACRITICOS_PT = "ãõçáéíóúâêôà";
 
-    // Palavras que só existem em inglês — presença ⇒ NÃO é português (manda traduzir).
-    // "to" fica de fora de propósito (colide com o coloquial "tô"/"to" do PT).
+    // Palavras que só existem em inglês — presença ⇒ NÃO é português (manda traduzir). Lista
+    // AMPLIADA (function words de alta frequência sem homógrafo em PT). Excluídos de propósito
+    // por colisão com PT: "to" (tô/to), "come" (ele come), "no"/"do"/"me"/"a"/"as" etc.
     private static final Pattern SINAL_INGLES = Pattern.compile(
         "(?i)(?<![\\p{L}])(the|you|your|and|is|are|was|were|this|that|with|what|have|has"
-        + "|for|not|it|its|we|they|he|she|will|would|can't|don't|i'm|it's|isn't|of|from|about)"
+        + "|for|not|it|its|we|they|he|she|will|would|can't|don't|i'm|it's|isn't|of|from|about"
+        + "|my|his|him|her|our|them|be|been|go|get|got|here|there|now|when|where|who|how|why"
+        + "|make|take|know|want|need|before|after|into|onto|over|just|than|then|does|did|back"
+        + "|down|up|out|off|said|only|one|two|but|if|let|way|day|god|hey|yeah|too|gonna|wanna|gotta)"
         + "(?![\\p{L}])");
 
     // Stopwords portuguesas sem colisão com inglês — presença ⇒ forte sinal de PT.
@@ -51,7 +57,11 @@ public class DetectorIdiomaFonteService {
      * ser mantida sem passar pelo LLM.
      *
      * <p>INVARIANTES DO DOMÍNIO: só decide {@code true} com evidência de PT e sem sinal de
-     * inglês; alvo não-PT, texto nulo ou linha curta ⇒ {@code false}.
+     * inglês; alvo não-PT, texto nulo ou linha curta ⇒ {@code false}. O apóstrofo tipográfico
+     * (’) é normalizado para reto antes da checagem, para as contrações inglesas
+     * ("don't"/"can't") não escaparem. O ramo por diacríticos exige que ao menos um acento
+     * esteja numa palavra de inicial minúscula (palavra comum PT), pois nomes próprios
+     * acentuados do inglês ("André"/"Chloé") são capitalizados e não indicam idioma-fonte PT.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas/curtas devolvem {@code false}.
      *
@@ -66,7 +76,8 @@ public class DetectorIdiomaFonteService {
             return false;
         }
         String limpo = TAGS_ASS.matcher(texto).replaceAll(" ")
-            .replace("\\N", " ").replace("\\n", " ").replace("\\h", " ").trim();
+            .replace("\\N", " ").replace("\\n", " ").replace("\\h", " ")
+            .replace('’', '\'').trim();
         if (limpo.length() < MIN_CARACTERES) {
             return false;
         }
@@ -76,9 +87,27 @@ public class DetectorIdiomaFonteService {
         if (SINAL_PORTUGUES.matcher(limpo).find()) {
             return true;
         }
-        long diacriticos = limpo.chars()
-            .filter(c -> DIACRITICOS_PT.indexOf(Character.toLowerCase((char) c)) >= 0)
-            .count();
-        return diacriticos >= 2;
+        // Ramo por diacríticos: exige ≥2 acentos PT E que ao menos um esteja em palavra de
+        // inicial minúscula (palavra comum). Nomes próprios acentuados em inglês são
+        // capitalizados, então uma linha inglesa como "André loves Chloé." não qualifica.
+        long diacriticos = 0;
+        boolean acentoEmPalavraComum = false;
+        for (String palavra : limpo.split("\\s+")) {
+            if (palavra.isEmpty()) {
+                continue;
+            }
+            boolean inicialMinuscula = Character.isLowerCase(palavra.charAt(0));
+            boolean palavraTemAcento = false;
+            for (int i = 0; i < palavra.length(); i++) {
+                if (DIACRITICOS_PT.indexOf(Character.toLowerCase(palavra.charAt(i))) >= 0) {
+                    diacriticos++;
+                    palavraTemAcento = true;
+                }
+            }
+            if (inicialMinuscula && palavraTemAcento) {
+                acentoEmPalavraComum = true;
+            }
+        }
+        return diacriticos >= 2 && acentoEmPalavraComum;
     }
 }
