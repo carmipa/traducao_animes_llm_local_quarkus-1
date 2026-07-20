@@ -43,6 +43,8 @@ public class IsoladorQuebraDialogo {
     private static final Pattern PADRAO_QUEBRA = Pattern.compile("\\\\N");
     /** Tags de estilo {@code {...}} — removidas apenas para checar presença de texto real. */
     private static final Pattern PADRAO_TAG_ESTILO = Pattern.compile("\\{[^{}]*}");
+    /** Escapes estruturais do ASS ({@code \N}, {@code \n}, {@code \h}) — não são texto humano. */
+    private static final Pattern PADRAO_ESCAPE_ESTRUTURAL = Pattern.compile("\\\\[Nnh]");
     /** Presença de ao menos uma letra ou dígito (texto humano) num trecho. */
     private static final Pattern PADRAO_TEXTO_REAL = Pattern.compile("[\\p{L}\\p{N}]");
 
@@ -94,10 +96,12 @@ public class IsoladorQuebraDialogo {
                     resultado.append(' ');
                 }
                 quebras++;
+                // Se os DOIS lados já têm espaço, consome o da direita para não sobrar espaço duplo.
+                ultimoFim = (espacoAntes && espacoDepois) ? matcher.end() + 1 : matcher.end();
             } else {
                 resultado.append("\\N");
+                ultimoFim = matcher.end();
             }
-            ultimoFim = matcher.end();
         }
         resultado.append(original.substring(ultimoFim));
         if (quebras == 0) {
@@ -112,7 +116,8 @@ public class IsoladorQuebraDialogo {
      *
      * <p>INVARIANTES DO DOMÍNIO: insere exatamente {@code quebras} quebras, cada uma no
      * espaço mais próximo de um ponto de divisão equilibrada ({@code k/(quebras+1)} do
-     * comprimento); cada espaço é usado no máximo uma vez.
+     * comprimento); cada espaço é usado no máximo uma vez; espaços DENTRO de tags {@code {...}}
+     * nunca são pontos de quebra (não corrompe a formatação da tag).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@code quebras <= 0}, texto {@code null} ou sem
      * espaços disponíveis devolve o texto inalterado (sem lançar).
@@ -125,9 +130,17 @@ public class IsoladorQuebraDialogo {
         if (traduzido == null || quebras <= 0) {
             return traduzido;
         }
+        // Coleta espaços candidatos, IGNORANDO os que estão dentro de tags {...} — inserir um
+        // \N ali corromperia a formatação (ex.: {\pos(20 50)} vira {\pos(20\N50)}).
         List<Integer> espacos = new ArrayList<>();
+        boolean dentroDeTag = false;
         for (int i = 0; i < traduzido.length(); i++) {
-            if (traduzido.charAt(i) == ' ') {
+            char c = traduzido.charAt(i);
+            if (c == '{') {
+                dentroDeTag = true;
+            } else if (c == '}') {
+                dentroDeTag = false;
+            } else if (c == ' ' && !dentroDeTag) {
                 espacos.add(i);
             }
         }
@@ -162,12 +175,15 @@ public class IsoladorQuebraDialogo {
      * ignorando as tags de estilo {@code {...}}, para distinguir quebra mid-sentence de
      * quebra de borda.
      *
-     * <p>INVARIANTES DO DOMÍNIO: tags de estilo não contam como texto; só letra/dígito conta.
+     * <p>INVARIANTES DO DOMÍNIO: tags de estilo {@code {...}} e escapes estruturais
+     * ({@code \N}/{@code \n}/{@code \h}) não contam como texto; só letra/dígito conta.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: trecho vazio ou só com tags devolve {@code false}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: trecho vazio, só com tags ou só com escapes devolve
+     * {@code false}.
      */
     private boolean temTextoReal(String trecho) {
         String semTags = PADRAO_TAG_ESTILO.matcher(trecho).replaceAll("");
-        return PADRAO_TEXTO_REAL.matcher(semTags).find();
+        String semEscapes = PADRAO_ESCAPE_ESTRUTURAL.matcher(semTags).replaceAll("");
+        return PADRAO_TEXTO_REAL.matcher(semEscapes).find();
     }
 }
