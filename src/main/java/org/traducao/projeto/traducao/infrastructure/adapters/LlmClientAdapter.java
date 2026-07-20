@@ -229,6 +229,14 @@ public class LlmClientAdapter implements LlmPort {
                         e.statusCode(), lote.idLote());
                     break;
                 }
+            } catch (InterruptedException ie) {
+                // Cancelamento cooperativo (fila/shutdown) enquanto o HTTP send bloqueava: NÃO é
+                // falha do LLM. Restaura a flag de interrupção e aborta já — sem dormir nem repetir.
+                Thread.currentThread().interrupt();
+                ultimaFalha = ie;
+                log.warn("Tradução do lote {} interrompida (cancelamento cooperativo) — abortando retries.",
+                    lote.idLote());
+                break;
             } catch (Exception e) {
                 ultimaFalha = e;
                 if (JsonHttpClient.isErroRedeOuTimeout(e)) {
