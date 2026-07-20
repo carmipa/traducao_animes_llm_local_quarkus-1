@@ -15,7 +15,8 @@ import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,9 +42,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Um arquivo existente ilegível NÃO é destruído silenciosamente: é preservado com
- * sufixo {@code .corrompido} antes de recomeçar o estado. Falha de I/O ao persistir
- * é registrada, mantendo o estado em memória coerente para a próxima escrita.
+ * Um arquivo existente ilegível NÃO é destruído silenciosamente: é preservado com sufixo
+ * único {@code .corrompido_<timestamp>_<seq>} (sem sobrescrever evidência anterior) antes de
+ * recomeçar o estado. O carregamento tolera elemento {@code null} no array de registros e
+ * captura também erros de runtime, para nunca reprovar o {@code @PostConstruct} e impedir o
+ * boot. Falha de I/O ao persistir é registrada, mantendo o estado em memória coerente.
  */
 @Component
 public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
@@ -55,6 +58,10 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
     private static final String SCHEMA_VERSION = "1.1";
     private static final String NOME_ARQUIVO = "telemetria_traducao.json";
     private static final String SUBPASTA = "logs";
+    // Carimbo único (timestamp + sequência JVM) para NÃO sobrescrever evidência forense de
+    // corrupções sucessivas; a sequência garante unicidade mesmo dentro do mesmo milissegundo.
+    private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
+    private static final AtomicInteger SEQ_CORROMPIDO = new AtomicInteger(0);
 
     private final ObjectMapper objectMapper;
     private final Map<String, TelemetriaTraducao> banco = new LinkedHashMap<>();
@@ -80,6 +87,9 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
             }
             if (doc.registros() != null) {
                 for (TelemetriaTraducao t : doc.registros()) {
+                    if (t == null) {
+                        continue; // elemento null no array (edição manual / escrita parcial): ignora
+                    }
                     banco.put(NormalizadorNomeEpisodio.normalizar(t.nomeEpisodio()), t);
                 }
             }
@@ -88,7 +98,9 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
             falhasTraducaoRecuperadas.set(doc.falhasTraducaoRecuperadas());
             fallbacksTraducaoMantidos.set(doc.fallbacksTraducaoMantidos());
             log.info("Telemetria da Traducao Local carregada: {} episodio(s) de {}.", banco.size(), arquivo);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
+            // Qualquer falha de leitura/processamento (I/O, JSON, dado inesperado) preserva o
+            // arquivo em vez de reprovar o @PostConstruct e impedir o boot da aplicação.
             preservarCorrompido(arquivo, e);
         }
     }
@@ -146,10 +158,22 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
         }
     }
 
-    private void preservarCorrompido(Path arquivo, IOException causa) {
-        Path corrompido = arquivo.resolveSibling(NOME_ARQUIVO + ".corrompido");
+    /**
+     * PROPÓSITO DE NEGÓCIO: preserva o arquivo de telemetria ilegível como evidência forense
+     * antes de recomeçar o estado — sem apagar nem sobrescrever a evidência de corrupções
+     * anteriores, para que cada falha possa ser investigada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o nome preservado é único por corrupção (carimbo de tempo +
+     * sequência JVM); NUNCA sobrescreve um {@code .corrompido_*} já existente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se nem mover for possível, o original é mantido
+     * intacto (não sobrescrito) e o estado inicia vazio; ambas as causas são logadas.
+     */
+    private void preservarCorrompido(Path arquivo, Exception causa) {
+        String carimbo = LocalDateTime.now().format(TS) + "_" + SEQ_CORROMPIDO.incrementAndGet();
+        Path corrompido = arquivo.resolveSibling(NOME_ARQUIVO + ".corrompido_" + carimbo);
         try {
-            Files.move(arquivo, corrompido, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(arquivo, corrompido);
             log.error("Telemetria da Traducao Local ilegivel; preservada como {} e reiniciado estado vazio. Causa: {}",
                 corrompido, causa.getMessage());
         } catch (IOException e) {

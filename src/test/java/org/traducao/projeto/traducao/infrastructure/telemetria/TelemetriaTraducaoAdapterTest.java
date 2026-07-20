@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -139,13 +142,49 @@ class TelemetriaTraducaoAdapterTest {
         TelemetriaTraducaoAdapter adapter = new TelemetriaTraducaoAdapter(mapper);
         adapter.carregar();
 
-        assertTrue(Files.exists(logs.resolve("telemetria_traducao.json.corrompido")),
-            "O arquivo ilegível deve ser preservado como .corrompido");
+        try (Stream<Path> s = Files.list(logs)) {
+            assertTrue(s.anyMatch(p -> p.getFileName().toString().startsWith("telemetria_traducao.json.corrompido")),
+                "O arquivo ilegível deve ser preservado como .corrompido_<ts>");
+        }
         // Estado reiniciado vazio: uma nova gravação projeta apenas o novo episódio.
         adapter.registrarTraducao(registro("ep99.ass", "modeloZ", 5, "2026-01-03T00:00:00Z"));
         TelemetriaTraducaoDocumento doc = lerArquivo();
         assertEquals(1, doc.registros().size());
         assertEquals("ep99.ass", doc.registros().get(0).nomeEpisodio());
         assertFalse(doc.registros().isEmpty());
+    }
+
+    @Test
+    @DisplayName("#5: registro null no JSON não derruba o carregar() e deixa o estado usável")
+    void registroNuloNaoDerrubaCarregar() throws IOException {
+        Path logs = Files.createDirectories(raiz.resolve("logs"));
+        Files.writeString(logs.resolve("telemetria_traducao.json"),
+            "{\"schemaVersion\":\"1.1\",\"registros\":[null],\"alucinacoesPrevenidas\":0,"
+            + "\"respostasTraducaoRejeitadas\":0,\"falhasTraducaoRecuperadas\":0,\"fallbacksTraducaoMantidos\":0}");
+
+        TelemetriaTraducaoAdapter adapter = new TelemetriaTraducaoAdapter(mapper);
+        assertDoesNotThrow(adapter::carregar); // antes: NPE em t.nomeEpisodio() reprovava o @PostConstruct
+
+        adapter.registrarTraducao(registro("ep01.ass", "m", 1, "2026-01-01T00:00:00Z"));
+        assertEquals(1, lerArquivo().registros().size());
+    }
+
+    @Test
+    @DisplayName("#19: corrupções sucessivas geram arquivos .corrompido distintos (não sobrescreve evidência)")
+    void corrupcoesSucessivasNaoSobrescrevem() throws IOException {
+        Path logs = Files.createDirectories(raiz.resolve("logs"));
+        Path arq = logs.resolve("telemetria_traducao.json");
+
+        Files.writeString(arq, "corrompido A {{{");
+        new TelemetriaTraducaoAdapter(mapper).carregar();
+        Files.writeString(arq, "corrompido B {{{");
+        new TelemetriaTraducaoAdapter(mapper).carregar();
+
+        try (Stream<Path> s = Files.list(logs)) {
+            long corrompidos = s
+                .filter(p -> p.getFileName().toString().startsWith("telemetria_traducao.json.corrompido"))
+                .count();
+            assertEquals(2, corrompidos, "cada corrupção deve preservar um arquivo distinto");
+        }
     }
 }
