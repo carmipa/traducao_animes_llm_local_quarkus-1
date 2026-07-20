@@ -8,11 +8,12 @@ import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 /**
- * PROPÓSITO DE NEGÓCIO: lore excepcional de Mobile Suit Gundam: The Origin
- * (OVA / prequela Char–Zeon, UC pré-0079).
+ * PROPÓSITO DE NEGÓCIO: lore completa de Mobile Suit Gundam: The Origin (OVA / mangá) —
+ * origem de Char, ascensão Zabi/Zeon e início da One Year War.
  *
- * <p>INVARIANTES DO DOMÍNIO: Casval/Char e Artesia/Sayla; família Zabi; Zeon Zum Deikun;
- * Principality of Zeon; Mobile Worker → Zaku; White Base; Newtype; proibido localizar Zeon/Char.
+ * <p>INVARIANTES DO DOMÍNIO: Casval/Édouard/Char e Artesia/Sayla; família Zabi completa;
+ * Munzo → Principality of Zeon; Mobile Worker → Zaku; Zeon ≠ Zion; Newtype oficial;
+ * Black Tri-Stars; grafias Origin (Dozle, Kycilia, RX-78-02).
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
@@ -20,33 +21,57 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 public class ContextoGundamOrigin implements ProvedorContexto {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam: The Origin (OVA / mangá U.C. — origem de Char e da Guerra de Um Ano).
-        - Premissa: ascensao de Zeon em Side 3 / Munzo; Casval Rem Deikun torna-se Char Aznable;
-          Artesia Som Deikun torna-se Sayla Mass; politica Zabi vs ideais de Zeon Zum Deikun;
-          desenvolvimento do Mobile Worker → Mobile Suit (Zaku).
+        - Obra: Mobile Suit Gundam: The Origin (OVA / mangá Yasuhiko Yoshikazu) —
+          prequela e releitura UC até o início da One Year War (U.C. 0068–0079).
+        - Premissa: assassinato de Zeon Zum Deikun; Casval Rem Deikun e Artesia Som Deikun
+          fogem sob os nomes Edouard Mass e Sayla Mass (familia Teabolo Mass);
+          Casval torna-se Char Aznable; familia Zabi transforma Munzo (Side 3) no
+          Principality of Zeon; Mobile Worker evolui para Mobile Suit (Zaku).
 
-        === Personagens (genero; grafia oficial) ===
-        - Casval Rem Deikun / Char Aznable (m) — mascara, estrategista; NUNCA "Shar"/"Xar".
-        - Artesia Som Deikun / Sayla Mass (f).
-        - Zeon Zum Deikun (m) — ideologo; Amuro Ray (m) — aparicoes/continuidade UC.
-        - Familia Zabi: Degwin Sodo Zabi (m), Gihren Zabi (m), Dozle Zabi (m),
-          Kycilia Zabi (f), Garma Zabi (m), Sasro Zabi (m) quando aparecer.
-        - Ramba Ral (m), Crowley Hamon (f), Torenov Y. Minovsky (m) quando o dialogo trouxer.
-        - Jimba Ral (m), Astraia Tor Deikun (f) quando aparecerem.
+        === Deikun / Mass / Char ===
+        - Zeon Zum Deikun (m) — ideologo Spacenoid; Astraia Tor Deikun (f) — mae de Casval/Artesia.
+        - Casval Rem Deikun (m) → Edouard Mass / Édouard Mass → Char Aznable (mascara vermelha).
+          NUNCA "Shar"/"Xar"; NUNCA traduzir Char.
+        - Artesia Som Deikun (f) → Sayla Mass.
+        - Don Teabolo Mass / Teabolo Mass (m) — tutor/adotivo em Texas Colony.
+        - Jimba Ral (m) — mentor politico Deikun; Ramba Ral (m); Crowley Hamon (f).
+
+        === Familia Zabi (Side 3 / Zeon) ===
+        - Degwin Sodo Zabi (m) — soberano; Gihren Zabi (m) — estrategista/ideologo militar;
+          Dozle Zabi (m); Kycilia Zabi (f); Garma Zabi (m); Sasro Zabi (m) — assassinado cedo.
+        - Torenov Y. Minovsky / T.Y. Minovsky (m) — fisica Minovsky.
+
+        === Federacao / White Base (quando a trama cruza 0079) ===
+        - Amuro Ray (m), Bright Noa (m), Mirai Yashima (f), Tem Ray (m),
+          Johann Ibrahim Revil (m), Lalah Sune (f) quando aparecerem.
+        - Kai Shiden, Hayato Kobayashi, Ryu Jose, Fraw Bow quando o dialogo trouxer.
+
+        === Pilotos / unidades Zeon recorrentes ===
+        - Black Tri-Stars: Gaia (m), Ortega (m), Mash (m) — NUNCA "Triangulo Negro" como canonico.
+        - M'Quve (m), Gadem (m), Clamp (m), Darcia Bakharov (m) quando aparecerem.
+        - Cozun Graham, Flanagan Boone, Challia Bull quando o dialogo trouxer.
 
         === Faccoes / lugares ===
-        - Principality of Zeon / Zeon; Autonomous Republic of Munzo; Side 3; Munzo; Earth Federation.
-        - Texas Colony; Loum (contexto da guerra); White Base (quando a continuidade cruzar 0079).
+        - Autonomous Republic of Munzo → Principality of Zeon / Zeon (Side 3).
+        - Earth Federation / Federation Forces; Spacenoid vs Earthnoid.
+        - Munzo; Side 3; Texas Colony; Loum (Battle of Loum); Granada; Solomon;
+          A Baoa Qu; Jaburo; Side 7; Luna II; Von Braun quando aparecerem.
+        - White Base (Pegasus-class) na continuidade OYW do Origin.
 
-        === Mecha / termos UC ===
-        - Mobile Worker; MS-04 Bugu; MS-05 Zaku I; MS-06S Zaku II (Char's); RX-78-02 Gundam.
-        - Mobile Suit vs Mobile Armor; Newtype (NUNCA "Novo Tipo"); Oldtype; Minovsky particles.
-        - Beam Saber / Beam Rifle quando o dialogo trouxer.
+        === Mecha / termos ===
+        - Mobile Worker; MS-04 Bugu; MS-05 Zaku I; MS-06 Zaku II / MS-06S Zaku II (Char's);
+          MS-07 Gouf; MS-09 Dom quando aparecerem.
+        - RX-78-02 Gundam (designacao Origin; distinta de RX-78-2 em alguns materiais 0079);
+          RX-75 Guntank; RX-77 Guncannon; GM quando aparecerem.
+        - Mobile Suit vs Mobile Armor; Newtype (NUNCA "Novo Tipo"); Oldtype;
+          Minovsky particles; Mega Particle Cannon; Beam Saber / Beam Rifle.
+        - One Year War; Battle of Loum; Operation British (quando o dialogo trouxer).
 
         === Regras duras ===
-        - Char/Casval/Sayla/Artesia/Zabi/Zeon/Munzo/Zaku/Gundam/White Base — grafia oficial.
-        - Principality of Zeon nao vira "Principado de Zion" (Zion mitologico).
-        - Tom: politico-militar pre-guerra; Char frio/calculista; Zabi autoritarios; Hamon leal a Ramba.
+        - Zeon NUNCA "Zion"; Principality of Zeon NUNCA "Principado de Zion".
+        - Edouard/Édouard Mass e Sayla Mass sao identidades de Casval/Artesia — manter grafia.
+        - Black Tri-Stars grafia oficial; Dozle (nao Dozzle antigo); Kycilia (grafia Origin).
+        - Tom: politico-militar, conspiracao Zabi, Char frio/calculista, tragedia Deikun.
         """;
 
     private static final String PROMPT = ContextoPrompt.montar("Mobile Suit Gundam: The Origin", LORE);
@@ -67,30 +92,41 @@ public class ContextoGundamOrigin implements ProvedorContexto {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: protege elenco Origin / Zabi / Zeon e mechas canônicos.
+     * PROPÓSITO DE NEGÓCIO: protege elenco Origin completo, locais UC e mechas canônicos
+     * contra localização indevida.
      *
-     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais UC Origin.
+     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais The Origin / UC; Zeon ≠ Zion.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
-            "Char Aznable", "Casval Rem Deikun", "Sayla Mass", "Artesia Som Deikun",
-            "Amuro Ray", "Zeon Zum Deikun", "Degwin Sodo Zabi", "Gihren Zabi",
-            "Dozle Zabi", "Kycilia Zabi", "Garma Zabi", "Sasro Zabi",
-            "Ramba Ral", "Crowley Hamon", "Jimba Ral", "Astraia Tor Deikun",
-            "Torenov Y. Minovsky", "Zeon", "Principality of Zeon", "Earth Federation",
-            "Side 3", "Munzo", "Zaku I", "Zaku II", "Bugu", "Gundam",
-            "Mobile Worker", "Mobile Suit", "Mobile Armor", "Newtype", "Oldtype",
-            "Minovsky", "White Base", "Texas Colony"
+            "Char Aznable", "Casval Rem Deikun", "Edouard Mass", "Édouard Mass",
+            "Sayla Mass", "Artesia Som Deikun", "Zeon Zum Deikun", "Astraia Tor Deikun",
+            "Don Teabolo Mass", "Teabolo Mass", "Jimba Ral", "Ramba Ral", "Crowley Hamon",
+            "Degwin Sodo Zabi", "Gihren Zabi", "Dozle Zabi", "Kycilia Zabi",
+            "Garma Zabi", "Sasro Zabi", "Torenov Y. Minovsky",
+            "Amuro Ray", "Bright Noa", "Mirai Yashima", "Tem Ray",
+            "Johann Ibrahim Revil", "Lalah Sune",
+            "Gaia", "Ortega", "Mash", "Black Tri-Stars",
+            "M'Quve", "Gadem", "Clamp", "Darcia Bakharov",
+            "Zeon", "Principality of Zeon", "Autonomous Republic of Munzo",
+            "Earth Federation", "Munzo", "Side 3", "Texas Colony", "Loum",
+            "Battle of Loum", "Granada", "Solomon", "A Baoa Qu", "Jaburo",
+            "Side 7", "White Base", "One Year War",
+            "Mobile Worker", "Bugu", "Zaku I", "Zaku II", "Gouf", "Dom",
+            "RX-78-02 Gundam", "Gundam", "Guntank", "Guncannon",
+            "Mobile Suit", "Mobile Armor", "Newtype", "Oldtype",
+            "Minovsky", "Spacenoid", "Earthnoid", "Mega Particle Cannon"
         );
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: núcleo UC + formas-ruim Origin (White Base, Mobile Worker, Zion).
+     * PROPÓSITO DE NEGÓCIO: núcleo UC + formas-ruim Origin (Mass, Zeon, Loum, Tri-Stars).
      *
-     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN; canônicos dos extras
+     * estão em {@link #termosProtegidos()}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
@@ -102,7 +138,17 @@ public class ContextoGundamOrigin implements ProvedorContexto {
             Map.entry("Trabalhador Movel", "Mobile Worker"),
             Map.entry("Zion", "Zeon"),
             Map.entry("Principado de Zion", "Principality of Zeon"),
-            Map.entry("Principado de Zeon", "Principality of Zeon")
+            Map.entry("Principado de Zeon", "Principality of Zeon"),
+            Map.entry("República Autônoma de Munzo", "Autonomous Republic of Munzo"),
+            Map.entry("Republica Autonoma de Munzo", "Autonomous Republic of Munzo"),
+            Map.entry("Guerra de Um Ano", "One Year War"),
+            Map.entry("Batalha de Loum", "Battle of Loum"),
+            Map.entry("Triângulo Negro", "Black Tri-Stars"),
+            Map.entry("Triangulo Negro", "Black Tri-Stars"),
+            Map.entry("Três Estrelas Negras", "Black Tri-Stars"),
+            Map.entry("Tres Estrelas Negras", "Black Tri-Stars"),
+            Map.entry("Eduardo Mass", "Edouard Mass"),
+            Map.entry("Edward Mass", "Edouard Mass")
         ));
     }
 }
