@@ -21,11 +21,17 @@ application-local.yml
 .DS_Store
 Thumbs.db
 
-# --- Artefatos de runtime (nunca versionar) ---
-# Cache de tradução, logs/telemetria de execução e backups são gerados em
-# tempo de execução. Ignora-se por PASTA, não por extensão: um filtro global
-# como "*.cache.json" quebraria fixtures de teste versionados
+# --- Artefatos de runtime ---
+# logs/telemetria de execução e backups são gerados em tempo de execução e
+# não se versionam. O CACHE de tradução, ao contrário, é versionado de
+# propósito: serve de BASE compartilhada entre os computadores (notebook/PC),
+# para não retraduzir do zero. Ignora-se por PASTA, não por extensão: um filtro
+# global como "*.cache.json" quebraria fixtures de teste versionados
 # (ex.: src/test/resources/cachetraducao/legado.cache.json).
-cache/
+# cache/  -> versionado como base compartilhada (ver decisão 2026-07-20)
+# EXCEÇÃO: cache/auditoria/ são logs .jsonl append-only com caminhos absolutos
+# por máquina (G:/C:/D:); versioná-los geraria conflito de merge entre os
+# computadores — ficam de fora, como logs/.
+cache/auditoria/
 logs/
 backups/
