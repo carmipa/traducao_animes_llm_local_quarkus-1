@@ -28,11 +28,18 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertEquals("Gundam Alex", m0080.get("Gundam Alexandre"));
         assertEquals("Kampfer", m0080.get("Kämpfer"));
 
-        Map<String, String> m0083 = new ContextoRevisaoLoreGundam0083().correcoesTerminologia();
+        var rev0083 = new ContextoRevisaoLoreGundam0083();
+        Map<String, String> m0083 = rev0083.correcoesTerminologia();
         assertEquals("Mobile Suit", m0083.get("Traje Móvel"));
         assertEquals("Delaz Fleet", m0083.get("Frota Delaz"));
         assertEquals("Dendrobium", m0083.get("Dendróbio"));
         assertEquals("Neue Ziel", m0083.get("Novo Alvo"));
+        assertEquals("Titans", m0083.get("Titãs"));
+        assertEquals("Operation Stardust", m0083.get("Operação Stardust"));
+        assertEquals("Colony Drop", m0083.get("Queda de Colônia"));
+        assertEquals("Physalis", m0083.get("Físalis"));
+        assertTrue(rev0083.obterPromptSistema().contains("Nightmare of Solomon"));
+        assertTrue(rev0083.obterPromptSistema().contains("La Vie en Rose"));
 
         Map<String, String> m08th = new ContextoRevisaoLoreGundam08thMSTeam().correcoesTerminologia();
         assertEquals("Mobile Suit", m08th.get("Traje Móvel"), "08th deve herdar o núcleo UC");

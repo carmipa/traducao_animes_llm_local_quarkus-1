@@ -2,240 +2,69 @@ package org.traducao.projeto.contexto.lore.gundam.stardust;
 
 import java.util.Map;
 import java.util.Set;
-import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
 
+/**
+ * PROPÓSITO DE NEGÓCIO: lore completa de Mobile Suit Gundam 0083: Stardust Memory (OVA UC 0083) —
+ * GP series, Delaz Fleet, Operation Stardust e germes dos Titans.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: Stardust Memory; Delaz Fleet; Anavel Gato; Dendrobium; Physalis;
+ * Neue Ziel; Titans ≠ Titãs; Newtype oficial; tom militar adulto.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
+ */
 @Component
 public class ContextoGundam0083 implements ProvedorContexto {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam 0083: Stardust Memory (UC 0083)
-        - Direção da tradução: Inglês → Português Brasileiro.
-        - Tipo de material: Legendas de anime, possivelmente em formato SRT, ASS ou linhas numeradas.
-        - Objetivo: Tradução natural, dramática e fiel ao tom militar da obra, preservando nomes, termos técnicos e estrutura das legendas.
+        - Obra: Mobile Suit Gundam 0083: Stardust Memory (OVA) — Universal Century U.C. 0083.
+        - Premissa: roubo do Gundam GP02A Physalis pela Delaz Fleet; perseguição pela Albion;
+          Operation Stardust / Colony Drop; conspiracao que prepara os Titans.
+        - Tom: drama militar sombrio, honra/dever, fanatismo Zeon, tragedia Kou/Nina/Gato.
+          Evitar girias modernas; dialogo militar objetivo.
 
-        ============================================================
-        1. TOM GERAL DA OBRA
-        ============================================================
+        === Nucleo UC ===
+        - Newtype / Oldtype; Spacenoid vs Earthnoid; Minovsky particles;
+          Mega Particle Cannon; Beam Rifle / Beam Saber.
+        - Mobile Suit vs Mobile Armor (Neue Ziel e Mobile Armor).
+        - Earth Federation; Principality of Zeon / Zeon remnants; One Year War (legado).
 
-        Mobile Suit Gundam 0083: Stardust Memory é um drama militar sombrio, político e trágico.
-        A tradução deve transmitir:
-        • tensão militar;
-        • honra e dever;
-        • trauma de guerra;
-        • fanatismo ideológico;
-        • conspiração política;
-        • sensação de tragédia inevitável.
+        === Roster — Federacao / Albion / Anaheim ===
+        - Kou Uraki (m); Nina Purpleton (f); South Burning (m); Eiphar Synapse (m);
+          Chuck Keith (m); Mora Bascht (f); Bernard Monsha (m); Chap Adel (m);
+          Alpha A. Bate (m) quando aparecer; John Kowen (m); Adelheid Bernard (f) quando aparecer.
+        - Jamitov Hymem (m); Bask Om (m) — germes dos Titans.
 
-        Evite humor fora de contexto, gírias modernas, memes ou coloquialismos brasileiros excessivos.
-        O texto deve soar adulto, sério, militar e dramático.
+        === Roster — Delaz Fleet / Zeon ===
+        - Anavel Gato (m) — Nightmare of Solomon (so quando o EN trouxer o epiteto).
+        - Aiguille Delaz (m); Cima Garahau (f); Kelly Layzner (m).
 
-        ============================================================
-        2. NOMES CANÔNICOS — USAR SEMPRE EXATAMENTE ASSIM
-        ============================================================
+        === Mecha ===
+        - RX-78GP01 Gundam GP01 Zephyranthes; GP01Fb Full Burnern;
+          RX-78GP02A Gundam GP02A Physalis; RX-78GP03 Gundam GP03 Dendrobium /
+          Dendrobium Orchis; AGX-04 Gerbera Tetra; AMA-X2 Neue Ziel;
+          RGM-79N GM Custom; RGC-83 GM Cannon II;
+          Gelgoog Marine; Dom Tropen; Dra-C; Val-Walo quando aparecerem.
 
-        Sempre preserve estes nomes exatamente como abaixo:
+        === Naves / orgs / operacoes ===
+        - Albion; La Vie en Rose; Gwaden; Birmingham; Musai / Komusai quando aparecerem.
+        - Delaz Fleet; Anaheim Electronics; Titans (NUNCA Titãs); Earth Federation.
+        - Operation Stardust; Colony Drop; Solar System II; Naval Review.
 
-        • Kou Uraki
-        • Anavel Gato
-        • Nina Purpleton
-        • South Burning
-        • Eiphar Synapse
-        • Aiguille Delaz
-        • Cima Garahau
-        • Kelly Layzner
-        • Chuck Keith
-        • Mora Bascht
-        • Bernard Monsha
-        • Chap Adel
-        • Jamitov Hymem
-        • Bask Om
-        • Adelheid Bernard
-        • John Kowen
-
-        Regra de normalização:
-        Se a legenda de origem trouxer variações como "Gato", "Uraki", "Captain Synapse",
-        "Synapse", "Delaz", "Cima" ou grafias alternativas, mantenha o nome canônico quando o nome completo for necessário.
-        Não invente traduções para nomes próprios.
-
-        Observação:
-        "Anavel Gato, o Pesadelo de Solomon" pode ser usado quando o original mencionar
-        "The Nightmare of Solomon". Caso contrário, mantenha apenas "Anavel Gato".
-
-        ============================================================
-        3. TERMOS TÉCNICOS E LORE
-        ============================================================
-
-        Manter em inglês, sem traduzir:
-
-        • Mobile Suit
-        • Gundam
-        • Beam Saber
-        • Minovsky particles
-        • Newtype
-        • Colony Drop
-        • Solar System II
-        • Operation Stardust
-        • Delaz Fleet
-        • Anaheim Electronics
-        • Earth Federation
-        • Zeon
-        • Principality of Zeon
-        • Albion
-        • La Vie en Rose
-
-        Padronização:
-        • "mobile suit" → "Mobile Suit"
-        • "beam saber" → "Beam Saber"
-        • "Minovsky particle(s)" → "Minovsky particles"
-        • "Operation Stardust" → "Operation Stardust"
-        • "Colony Drop" → "Colony Drop"
-
-        Não traduza "Mobile Suit" como "traje móvel", "robô móvel" ou similares.
-        Não traduza "Beam Saber" como "sabre de raio" ou "sabre de feixe".
-        Não traduza "Newtype" como "novo tipo".
-
-        ============================================================
-        4. PATENTES E TRATAMENTO MILITAR
-        ============================================================
-
-        Traduza patentes de forma consistente:
-
-        • Lieutenant → Tenente
-        • Ensign → Alferes
-        • Captain → Capitão
-        • Commander → Comandante
-        • Major → Major
-        • Colonel → Coronel
-        • Admiral → Almirante
-        • General → General
-
-        Exemplos:
-        • Captain Synapse → Capitão Synapse
-        • Lieutenant Burning → Tenente Burning
-        • Admiral Kowen → Almirante Kowen
-
-        Mantenha a hierarquia militar clara e respeitosa.
-        Em diálogos militares, prefira frases objetivas, diretas e com disciplina.
-
-        ============================================================
-        5. ESTILO DE FALA POR PERSONAGEM
-        ============================================================
-
-        • Anavel Gato:
-          Solene, formal, grandioso, ideológico e emocionalmente pesado.
-          Ele deve soar como um guerreiro fanático, honrado e trágico.
-          Evite deixá-lo casual demais.
-
-        • Kou Uraki:
-          Jovem, direto, impulsivo, emocional e às vezes desesperado.
-          Pode soar inseguro no início, mas determinado.
-
-        • Nina Purpleton:
-          Educada, técnica e profissional no início.
-          Conforme o drama avança, pode soar angustiada, vulnerável e contraditória.
-
-        • South Burning:
-          Veterano, rude, prático, sarcástico e direto.
-          Deve soar experiente, sem paciência para ingenuidade.
-
-        • Cima Garahau:
-          Fria, cínica, sarcástica, amarga e perigosa.
-          Não suavize demais suas falas.
-
-        • Aiguille Delaz:
-          Formal, político, ideológico e cerimonial.
-          Deve soar como líder militar de uma causa derrotada, mas ainda fanática.
-
-        ============================================================
-        6. MOBILE SUITS E UNIDADES PRINCIPAIS
-        ============================================================
-
-        Preserve exatamente os nomes abaixo:
-
-        • Gundam GP01 Zephyranthes
-        • GP01 Full Burnern
-        • Gundam GP02A Physalis
-        • GP03 Dendrobium
-        • GP03 Dendrobium Orchis
-        • Gerbera Tetra
-        • Neue Ziel
-        • GM Custom
-        • Val-Walo
-
-        Não traduza nomes de Mobile Suits.
-        Não adapte nomes de armas, naves ou unidades militares sem necessidade.
-
-        ============================================================
-        7. REGRAS ABSOLUTAS DE LEGENDA
-        ============================================================
-
-        1. Preserve a estrutura da entrada.
-           Se a entrada vier numerada, retorne com a mesma numeração.
-           Se houver timestamps, tags ou marcadores, preserve exatamente.
-
-        2. Nunca remova, altere ou invente tags.
-           Exemplos de tags que devem ser preservadas:
-           [T0], [T1], {\\an8}, <i>, </i>, \\N, timestamps SRT, números de linha.
-
-        3. Retorne somente a tradução.
-           Não explique escolhas.
-           Não adicione notas.
-           Não comente lore.
-           Não diga "Aqui está a tradução".
-
-        4. Mantenha frases curtas e legíveis.
-           Legenda precisa ser natural, mas não pode ficar longa demais.
-
-        5. Preserve o peso emocional.
-           Não neutralize frases dramáticas.
-           Não transforme ameaças, juramentos ou discursos militares em fala casual.
-
-        6. Não faça tradução literal quando isso soar estranho em português.
-           Priorize naturalidade brasileira mantendo o sentido, o tom e a intenção.
-
-        7. Não altere o significado político, militar ou emocional da fala.
-           Adaptações são permitidas apenas para fluidez, nunca para mudar a intenção.
-
-        ============================================================
-        8. FRASES E EXPRESSÕES FIXAS
-        ============================================================
-
-        • "Sieg Zeon!" → "Sieg Zeon!"
-        • "Roger" → "Entendido" ou "Copiado", conforme o contexto militar.
-        • "Yes, sir!" → "Sim, senhor!"
-        • "No, sir!" → "Não, senhor!"
-        • "Launch!" → "Lançar!" ou "Decolar!", conforme o contexto.
-        • "Sortie!" → "Partida!" ou "Preparar para lançamento!", conforme a cena.
-        • "Stand by" → "Aguardem" ou "Em espera".
-        • "All units" → "Todas as unidades".
-        • "Enemy mobile suit" → "Mobile Suit inimigo".
-        • "The Federation" → "a Federação".
-        • "Zeon remnants" → "remanescentes de Zeon".
-
-        ============================================================
-        9. FOCO FINAL DA TRADUÇÃO
-        ============================================================
-
-        A tradução deve soar como uma legenda brasileira profissional para anime militar adulto.
-        O foco é transmitir:
-        • a gravidade da guerra;
-        • o conflito ideológico entre Zeon e Federação;
-        • o fanatismo de Gato e Delaz;
-        • o amadurecimento traumático de Kou;
-        • a tragédia pessoal envolvendo Nina, Kou e Gato;
-        • o clima de conspiração que prepara o surgimento dos Titans.
-
-        Resultado esperado:
-        Português brasileiro natural, sério, dramático, consistente e fiel ao universo Gundam.
+        === Regras duras ===
+        - Stardust Memory NUNCA "Memoria de Poeira Estelar" como titulo.
+        - Physalis / Zephyranthes / Dendrobium / Neue Ziel / Gerbera Tetra grafias oficiais.
+        - Delaz Fleet NUNCA "Frota Delaz"; Titans NUNCA "Titas"; Sieg Zeon! permanece.
+        - Patentes: Lieutenant→Tenente, Captain→Capitao, Admiral→Almirante (nome proprio intacto).
         """;
 
     private static final String PROMPT = ContextoPrompt.montar(
-            "Mobile Suit Gundam 0083: Stardust Memory",
-            LORE
+        "Mobile Suit Gundam 0083: Stardust Memory",
+        LORE
     );
 
     @Override
@@ -254,10 +83,11 @@ public class ContextoGundam0083 implements ProvedorContexto {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: elenco, mechas, naves, facções e terminologia canônica desta obra
-     * que a tradução deve preservar no original — proteção upfront contra localização indevida.
-     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais; conjunto imutável.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O.
+     * PROPÓSITO DE NEGÓCIO: protege elenco 0083, GP series, Delaz Fleet e operações canônicas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais Stardust Memory / UC 0083.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
     @Override
     public Set<String> termosProtegidos() {
@@ -265,27 +95,52 @@ public class ContextoGundam0083 implements ProvedorContexto {
             "Kou Uraki", "Anavel Gato", "Nina Purpleton",
             "South Burning", "Eiphar Synapse", "Aiguille Delaz",
             "Cima Garahau", "Kelly Layzner", "Chuck Keith",
-            "Mora Bascht", "Bernard Monsha", "Chap Adel",
-            "Jamitov Hymem", "Bask Om", "Gundam GP01 Zephyranthes",
-            "Gundam GP02A Physalis", "GP03 Dendrobium", "Gerbera Tetra",
-            "Neue Ziel", "Albion", "La Vie en Rose",
+            "Mora Bascht", "Bernard Monsha", "Chap Adel", "Alpha A. Bate",
+            "Jamitov Hymem", "Bask Om", "Adelheid Bernard", "John Kowen",
+            "Nightmare of Solomon",
+            "Gundam GP01 Zephyranthes", "Full Burnern", "Zephyranthes",
+            "Gundam GP02A Physalis", "Physalis",
+            "GP03 Dendrobium", "Dendrobium", "Dendrobium Orchis",
+            "Gerbera Tetra", "Neue Ziel", "GM Custom", "GM Cannon II",
+            "Gelgoog Marine", "Dom Tropen", "Dra-C", "Val-Walo",
+            "Albion", "La Vie en Rose", "Gwaden", "Birmingham",
             "Earth Federation", "Zeon", "Principality of Zeon",
             "Delaz Fleet", "Anaheim Electronics", "Titans",
-            "Mobile Suit", "Gundam", "Beam Saber",
-            "Newtype"
+            "Operation Stardust", "Colony Drop", "Solar System II", "Naval Review",
+            "Stardust Memory", "Sieg Zeon",
+            "Mobile Suit", "Mobile Armor", "Gundam", "Beam Saber", "Beam Rifle",
+            "Newtype", "Oldtype", "Minovsky", "Mega Particle Cannon", "One Year War"
         );
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
-     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
-     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     * PROPÓSITO DE NEGÓCIO: núcleo UC + formas-ruim próprias de 0083 (Delaz, Dendrobium, Titans…).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN; canônicos dos extras
+     * estão em {@link #termosProtegidos()}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamUc.comExtras(Map.ofEntries(
-            Map.entry("Frota Delaz", "Delaz Fleet")
+            Map.entry("Frota Delaz", "Delaz Fleet"),
+            Map.entry("Dendróbio", "Dendrobium"),
+            Map.entry("Dendrobio", "Dendrobium"),
+            Map.entry("Novo Alvo", "Neue Ziel"),
+            Map.entry("Memória de Poeira Estelar", "Stardust Memory"),
+            Map.entry("Memoria de Poeira Estelar", "Stardust Memory"),
+            Map.entry("Titãs", "Titans"),
+            Map.entry("Titas", "Titans"),
+            Map.entry("Operação Stardust", "Operation Stardust"),
+            Map.entry("Operacao Stardust", "Operation Stardust"),
+            Map.entry("Queda de Colônia", "Colony Drop"),
+            Map.entry("Queda de Colonia", "Colony Drop"),
+            Map.entry("Sistema Solar II", "Solar System II"),
+            Map.entry("Pesadelo de Solomon", "Nightmare of Solomon"),
+            Map.entry("Físalis", "Physalis"),
+            Map.entry("Fisalis", "Physalis"),
+            Map.entry("Principado de Zeon", "Principality of Zeon")
         ));
     }
 }
