@@ -143,6 +143,19 @@ class IsoladorQuebraDialogoTest {
         assertEquals("{\\pos(20 50)}Oi\\Nai", r);
     }
 
+    @Test
+    @DisplayName("reaplicar não escolhe espaço logo antes de pontuação (evita \\N órfão: 'aaaa\\N,')")
+    void reaplicarNaoQuebraAntesDePontuacao() {
+        // O LLM às vezes emite 'palavra , resto' (espaço antes da vírgula). reaplicar não pode
+        // escolher esse espaço e produzir 'palavra\N,' — vírgula órfã no início da próxima linha.
+        // Deve preferir o espaço DEPOIS da vírgula, mantendo a pontuação colada à palavra.
+        String r = isolador.reaplicar("aaaa , bbbb", 1);
+
+        assertEquals(1, contarQuebras(r));
+        assertFalse(r.contains("\\N,"), "não pode deixar a vírgula órfã no início da linha");
+        assertEquals("aaaa ,\\Nbbbb", r);
+    }
+
     private static int contarQuebras(String texto) {
         int n = 0;
         int i = texto.indexOf("\\N");

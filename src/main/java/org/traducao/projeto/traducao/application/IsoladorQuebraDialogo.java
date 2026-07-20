@@ -47,6 +47,8 @@ public class IsoladorQuebraDialogo {
     private static final Pattern PADRAO_ESCAPE_ESTRUTURAL = Pattern.compile("\\\\[Nnh]");
     /** Presença de ao menos uma letra ou dígito (texto humano) num trecho. */
     private static final Pattern PADRAO_TEXTO_REAL = Pattern.compile("[\\p{L}\\p{N}]");
+    /** Pontuação que não pode abrir uma linha: quebrar num espaço seguido dela orfaniza o sinal. */
+    private static final String PONTUACAO_ORFA = ".,;:!?";
 
     /**
      * PROPÓSITO DE NEGÓCIO: transporta a fala pronta para o LLM (sem o {@code \N}
@@ -117,7 +119,9 @@ public class IsoladorQuebraDialogo {
      * <p>INVARIANTES DO DOMÍNIO: insere exatamente {@code quebras} quebras, cada uma no
      * espaço mais próximo de um ponto de divisão equilibrada ({@code k/(quebras+1)} do
      * comprimento); cada espaço é usado no máximo uma vez; espaços DENTRO de tags {@code {...}}
-     * nunca são pontos de quebra (não corrompe a formatação da tag).
+     * nunca são pontos de quebra (não corrompe a formatação da tag); espaços SEGUIDOS de
+     * pontuação ({@code . , ; : ! ?}) também não são candidatos — quebrar ali orfanaria o
+     * sinal no início da próxima linha.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@code quebras <= 0}, texto {@code null} ou sem
      * espaços disponíveis devolve o texto inalterado (sem lançar).
@@ -131,7 +135,10 @@ public class IsoladorQuebraDialogo {
             return traduzido;
         }
         // Coleta espaços candidatos, IGNORANDO os que estão dentro de tags {...} — inserir um
-        // \N ali corromperia a formatação (ex.: {\pos(20 50)} vira {\pos(20\N50)}).
+        // \N ali corromperia a formatação (ex.: {\pos(20 50)} vira {\pos(20\N50)}) — e também
+        // os espaços SEGUIDOS de pontuação: quebrar num "palavra , resto" (espaço antes da
+        // vírgula, que o LLM às vezes emite) produziria "palavra\N," — pontuação órfã no início
+        // da linha. Assim a quebra cai depois da pontuação, mantendo-a colada à palavra.
         List<Integer> espacos = new ArrayList<>();
         boolean dentroDeTag = false;
         for (int i = 0; i < traduzido.length(); i++) {
@@ -141,7 +148,10 @@ public class IsoladorQuebraDialogo {
             } else if (c == '}') {
                 dentroDeTag = false;
             } else if (c == ' ' && !dentroDeTag) {
-                espacos.add(i);
+                char proximo = (i + 1 < traduzido.length()) ? traduzido.charAt(i + 1) : '\0';
+                if (PONTUACAO_ORFA.indexOf(proximo) < 0) {
+                    espacos.add(i);
+                }
             }
         }
         if (espacos.isEmpty()) {
