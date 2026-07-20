@@ -1,0 +1,2237 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "gundam_zz",
+    "contextoHash" : "e4debf35709555b61691484f61ecc3a0c4e712bb48aa6065a1bc94d824d08b31",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 0,
+    "estilo" : "Dialogue",
+    "original" : "Miss Leina?",
+    "traduzido" : "Leina?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 1,
+    "estilo" : "Dialogue",
+    "original" : "I'm sorry.",
+    "traduzido" : "Me desculpa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2,
+    "estilo" : "Dialogue",
+    "original" : "Please, let me do things like that.",
+    "traduzido" : "Por favor, deixe-me fazer coisas assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Dialogue",
+    "original" : "Oh no, Master Glemy\\Nwill scold me for that.",
+    "traduzido" : "Ah não, o mestre Glemy vai\\Nme repreender por isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Dialogue",
+    "original" : "Please, do not move your finger.",
+    "traduzido" : "Por favor, não mexa o seu dedo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Dialogue",
+    "original" : "What the...",
+    "traduzido" : "O que...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Dialogue",
+    "original" : "So this is what's going on here.",
+    "traduzido" : "Então é isso que está acontecendo aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Dialogue",
+    "original" : "This is why they all came down to Dakar, right?",
+    "traduzido" : "Eles vieram todos para Dakar por isso mesmo, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Dialogue",
+    "original" : "Let's go!",
+    "traduzido" : "Vamos embora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Dialogue",
+    "original" : "Looks like it'll be impossible during the day.",
+    "traduzido" : "Parece que será impossível durante o dia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Dialogue",
+    "original" : "I told you. We'll make our move tonight.",
+    "traduzido" : "Eu disse a você. Vamos agir hoje à noite.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Dialogue",
+    "original" : "I hear there'll be a party at the\\Nreception hall, so that's where we'll strike.",
+    "traduzido" : "Vou ouvir que vai ter uma festa no salão\\Nde recepção, então é lá que vamos atacar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Dialogue",
+    "original" : "We'll be eating Leina's cooking again soon, huh?",
+    "traduzido" : "Vamos comer a comida da Leina novamente em breve, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Dialogue",
+    "original" : "Hey, Elle...",
+    "traduzido" : "Oi, Elle...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Dialogue",
+    "original" : "Huh?",
+    "traduzido" : "Hum?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Dialogue",
+    "original" : "Would you consider quitting the\\NGundam Team after we save Leina?",
+    "traduzido" : "Consideraria deixar o time Gundam\\Ndepois que salvamos a Leina?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Dialogue",
+    "original" : "Why?",
+    "traduzido" : "Por que?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Dialogue",
+    "original" : "I want you to take Leina to some\\Ncolony, where you can live peacefully.",
+    "traduzido" : "Eu quero que você leve Leina para alguma\\Ncolônia onde possam viver em paz.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Dialogue",
+    "original" : "I'll send enough money for you two to live on.",
+    "traduzido" : "Enviarei dinheiro suficiente para vocês dois viverem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Dialogue",
+    "original" : "What about you, Judau?",
+    "traduzido" : "E você, Judau?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Dialogue",
+    "original" : "I'll see this war through to the end.",
+    "traduzido" : "Vou ver essa guerra até o fim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Dialogue",
+    "original" : "I'm gonna give those selfish\\Nadults a big surprise.",
+    "traduzido" : "Vou dar um grande susto\\Nàqueles adultos egoístas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Dialogue",
+    "original" : "I get what you mean, but...",
+    "traduzido" : "Eu entendo o que você quer dizer, mas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Dialogue",
+    "original" : "If I'm gonna do that,\\NI don't want Leina by my side.",
+    "traduzido" : "Se vou fazer isso, não\\Nquero a Leina ao meu lado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Dialogue",
+    "original" : "I want to be by your—",
+    "traduzido" : "Eu quero estar ao seu lado",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Dialogue",
+    "original" : "Hey!",
+    "traduzido" : "Ei!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Dialogue",
+    "original" : "Roux's group is back! And dinner's ready!",
+    "traduzido" : "Grupo da Roux voltou! E o jantar está pronto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Dialogue",
+    "original" : "All right!",
+    "traduzido" : "Tudo bem!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Dialogue",
+    "original" : "Right! I'll do my best, too!",
+    "traduzido" : "Vamos lá! Eu também vou fazer o meu melhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Dialogue",
+    "original" : "Just relax, Leina.",
+    "traduzido" : "Relaxe, Leina.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Dialogue",
+    "original" : "During tonight's celebration of Neo Zeon,\\Nyou'll debut as part of high society.",
+    "traduzido" : "Durante a celebração desta noite do Neo Zeon,\\Nvocê fará sua estreia na alta sociedade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Dialogue",
+    "original" : "I hope that this will be a\\Nwonderful memory for you.",
+    "traduzido" : "Espero que isso seja uma\\Nlembrança maravilhosa para você.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Dialogue",
+    "original" : "Yes.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Dialogue",
+    "original" : "Then let's head out. It's almost time.",
+    "traduzido" : "Então vamos embora. Está quase na hora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Dialogue",
+    "original" : "Okay...",
+    "traduzido" : "OK...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Leina, tonight's the night.",
+    "traduzido" : "{\\i1}Leina, hoje é a noite.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I swear I'll rescue you!",
+    "traduzido" : "{\\i1}Juro que vou te salvar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Dialogue",
+    "original" : "Judau Ashta, here I go!",
+    "traduzido" : "Judau Ashta, cá vou eu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Dialogue",
+    "original" : "Judau!",
+    "traduzido" : "Judau!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Dialogue",
+    "original" : "You can't!",
+    "traduzido" : "Não pode!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Dialogue",
+    "original" : "No! I want to be with Judau!",
+    "traduzido" : "Não! Eu quero ficar com o Judau!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Dialogue",
+    "original" : "Ple! Don't be so selfish!",
+    "traduzido" : "Pô! Não seja tão egoísta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Dialogue",
+    "original" : "Judau needs me to be with him!",
+    "traduzido" : "Judau precisa que eu esteja com ele!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Dialogue",
+    "original" : "No way!",
+    "traduzido" : "De jeito nenhum!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Dialogue",
+    "original" : "So that's Princess Mineva Zabi.",
+    "traduzido" : "Então essa é a Princesa Mineva Zabi.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Dialogue",
+    "original" : "During the parade, I thought she was a double.",
+    "traduzido" : "Durante o desfile, pensei que ela fosse um duplo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Dialogue",
+    "original" : "There's no doubt! It's the same\\Nperson as in the videos.",
+    "traduzido" : "É ela mesma! A\\Nmulher dos vídeos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Dialogue",
+    "original" : "This is Her Majesty Mineva Zabi,\\Nthe leader of Neo Zeon.",
+    "traduzido" : "Esta é Sua Majestade Mineva\\NZabi, a líder do Neo Zeon.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Dialogue",
+    "original" : "At Axis, far from the Earth Sphere, Her Majesty...",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Dialogue",
+    "original" : "...has prayed night and day for harmony and prosperity among Earthnoids and Spacenoids.",
+    "traduzido" : "\"[...] tem orado dia e noite pela harmonia e prosperidade entre os Terráqueos e Espaciais.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Dialogue",
+    "original" : "Today, on this auspicious occasion,\\NHer Majesty is delighted...",
+    "traduzido" : "Hoje, nesta ocasião auspiciosa,\\NSua Majestade está deliciada...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Dialogue",
+    "original" : "...to see the footprints of Neo Zeon\\Nin the soil of Dakar.",
+    "traduzido" : "Para ver as pegadas do\\NNeo Zeon no solo de Dakar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Dialogue",
+    "original" : "Before you all, who gathered here so graciously,",
+    "traduzido" : "Antes de todos vocês, que gentilmente se reuniram aqui,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Dialogue",
+    "original" : "I, Haman, speak on her behalf as\\NHer Majesty's guardian...",
+    "traduzido" : "Falo em nome dela como\\Nguardiã de Sua Majestade...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Dialogue",
+    "original" : "...and give heartfelt thanks to the members\\Nof the Earth Federation government.",
+    "traduzido" : "E agradeço sinceramente aos membros\\Ndo governo da Federação Terrestre.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Dialogue",
+    "original" : "You'll get used to it soon.\\NJust don't forget to smile.",
+    "traduzido" : "Logo você vai se acostumar.\\NSó não esquece de sorrir.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Dialogue",
+    "original" : "Yes.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Dialogue",
+    "original" : "I am honored I was given the privilege to\\Nbe invited to such a grand occasion.",
+    "traduzido" : "Estou honrado(a) por ter sido\\Nconvidado(a) para tão importante ocasião.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Dialogue",
+    "original" : "Leina, watch closely.",
+    "traduzido" : "Leina, preste bem atenção.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Dialogue",
+    "original" : "Those you see here are the adults\\Nof the Earth Federation.",
+    "traduzido" : "Aqueles que vocês veem aqui são os\\Nadultos da Federação Terrestre.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Dialogue",
+    "original" : "These people can only survive by\\Ncurrying favor from the strong like this.",
+    "traduzido" : "Essas pessoas só sobrevivem\\Nagradando os fortes desse jeito.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}The Earth Federation...",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Weren't these adults the ones who\\Ntried to overthrow the Zabi family?",
+    "traduzido" : "{\\i1}Não foram esses adultos que\\Ntentaram derrubar a família Zabi?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What is this? Everyone here is lying.",
+    "traduzido" : "{\\i1}O que é isso? Todo mundo aqui está mentindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Nobody here is laughing from the\\Nbottom of their heart!",
+    "traduzido" : "{\\i1}Ninguém aqui está\\Nrindo de coração!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Why are they so subservient?\\NIs this what being an adult means?",
+    "traduzido" : "{\\i1}Por que eles são tão submissos?\\NÉ isso o que significa ser adulto?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What in the world are these people?!",
+    "traduzido" : "{\\i1}O que é que essas pessoas estão fazendo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Dialogue",
+    "original" : "Leina?",
+    "traduzido" : "Leina?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Dialogue",
+    "original" : "Don't fool around with them.\\NThey aren't toys!",
+    "traduzido" : "Não brinque com eles.\\NEles não são brinquedos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Dialogue",
+    "original" : "I'm going to shoot!",
+    "traduzido" : "Vou atirar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Dialogue",
+    "original" : "Not yet!",
+    "traduzido" : "Ainda não!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Dialogue",
+    "original" : "I'm shooting now!",
+    "traduzido" : "Estou atirando agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Dialogue",
+    "original" : "It's still too early! Are you upset,\\Njust because Judau left you behind?",
+    "traduzido" : "Ainda é muito cedo! Você está brava só\\Nporque o Judau te deixou para trás?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Dialogue",
+    "original" : "I can tell it's time!",
+    "traduzido" : "É hora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Dialogue",
+    "original" : "This isn't right!",
+    "traduzido" : "Isso não está certo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Dialogue",
+    "original" : "I don't want to grow up to be an adult like this!",
+    "traduzido" : "Eu não quero crescer para ser um adulto assim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Dialogue",
+    "original" : "What?!",
+    "traduzido" : "O quê?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Dialogue",
+    "original" : "Mondo! What are you doing?!\\NThat was way too early!",
+    "traduzido" : "Mondo! O que você está fazendo?\\NIsso foi bem cedo demais!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Dialogue",
+    "original" : "Ple did it all by herself!",
+    "traduzido" : "Ela fez tudo sozinha!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Dialogue",
+    "original" : "I'm gonna shoot again!",
+    "traduzido" : "Vou atirar de novo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Dialogue",
+    "original" : "At least aim better this time!",
+    "traduzido" : "Atenção esta vez!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Dialogue",
+    "original" : "If you hit the reception hall,\\NJudau's gonna slap you!",
+    "traduzido" : "Se você acertar o salão de\\Nrecepção, Judau vai te dar um tapa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Dialogue",
+    "original" : "Yeah! I don't want to be slapped!",
+    "traduzido" : "Eu também não quero ser esbofeteado!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Dialogue",
+    "original" : "Suppress them, quickly.",
+    "traduzido" : "Suprima-os rapidamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Dialogue",
+    "original" : "Yes, my lady.",
+    "traduzido" : "Sim, minha senhora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Dialogue",
+    "original" : "Stay here. There's nothing to worry about.",
+    "traduzido" : "Fique aqui. Não há nada para se preocupar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Big Brother...",
+    "traduzido" : "{\\i1}Irmão Mais Velho...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Dialogue",
+    "original" : "Everyone! Please, calm down!",
+    "traduzido" : "Todos! Por favor, acalmem-se!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 88,
+    "estilo" : "Dialogue",
+    "original" : "This is all part of the ceremony!",
+    "traduzido" : "Esta é parte da cerimônia!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 89,
+    "estilo" : "Dialogue",
+    "original" : "It is my understanding that you may\\Nnot yet be convinced of Neo Zeon's power.",
+    "traduzido" : "É minha impressão que você ainda não\\Nestá convencido do poder do Neo Zeon.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 90,
+    "estilo" : "Dialogue",
+    "original" : "So we have drawn Karaba here.",
+    "traduzido" : "Então trouxemos a Karaba até aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 91,
+    "estilo" : "Dialogue",
+    "original" : "We would like you to take a close\\Nlook at the power of our forces.",
+    "traduzido" : "Gostaríamos que você prestasse\\Natenção no poder das nossas forças.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 92,
+    "estilo" : "Dialogue",
+    "original" : "Remember, this is all part of the ceremony.",
+    "traduzido" : "Lembre-se, tudo isso faz parte da cerimônia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 93,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman, take Princess Mineva.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 94,
+    "estilo" : "Dialogue",
+    "original" : "I can leave the rest of this to you?",
+    "traduzido" : "Posso deixar o resto disso por sua conta?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 95,
+    "estilo" : "Dialogue",
+    "original" : "Yes, my lady.",
+    "traduzido" : "Sim, minha senhora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 96,
+    "estilo" : "Dialogue",
+    "original" : "Very well.",
+    "traduzido" : "Muito bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 97,
+    "estilo" : "Dialogue",
+    "original" : "Let us go, Princess Mineva.",
+    "traduzido" : "Vamos embora, Princesa Mineva.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 98,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Big Brother...",
+    "traduzido" : "{\\i1}Irmão Mais Velho...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 99,
+    "estilo" : "Dialogue",
+    "original" : "Wait for me, Leina!",
+    "traduzido" : "Espera por mim, Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 100,
+    "estilo" : "Dialogue",
+    "original" : "Thank you, Roux!",
+    "traduzido" : "Obrigado, Roux!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 101,
+    "estilo" : "Dialogue",
+    "original" : "What are you doing there?",
+    "traduzido" : "O que você está fazendo aí?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 102,
+    "estilo" : "Dialogue",
+    "original" : "You look suspicious!",
+    "traduzido" : "Você parece suspeito(a)!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 103,
+    "estilo" : "Dialogue",
+    "original" : "D-Don't shoot!",
+    "traduzido" : "Não atire!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 104,
+    "estilo" : "Dialogue",
+    "original" : "A mobile suit came crashing down!\\NSo I came to tell you guys about it!",
+    "traduzido" : "Um mobile suit caiu com tudo!\\NVim contar pra vocês sobre isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 105,
+    "estilo" : "Dialogue",
+    "original" : "What?! Which way?!",
+    "traduzido" : "Qual é a direção?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 106,
+    "estilo" : "Dialogue",
+    "original" : "That way! Over there!",
+    "traduzido" : "Aí! Lá embaixo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 107,
+    "estilo" : "Dialogue",
+    "original" : "Let's go!",
+    "traduzido" : "Vamos embora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 108,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What should I do...?",
+    "traduzido" : "{\\i1}O que eu devo fazer...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 109,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I guess I have to climb up.",
+    "traduzido" : "{\\i1}Acho que tenho que subir.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 110,
+    "estilo" : "Dialogue",
+    "original" : "Roux!",
+    "traduzido" : "Roux!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 111,
+    "estilo" : "Dialogue",
+    "original" : "Judau?!",
+    "traduzido" : "Judau?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 112,
+    "estilo" : "Dialogue",
+    "original" : "All right!",
+    "traduzido" : "Tudo bem!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 113,
+    "estilo" : "Dialogue",
+    "original" : "Good going, Roux!",
+    "traduzido" : "Bom trabalho, Roux!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 114,
+    "estilo" : "Dialogue",
+    "original" : "Leina...",
+    "traduzido" : "Leina...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 115,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother!",
+    "traduzido" : "Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 116,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}If we can maintain a cooperative relationship,",
+    "traduzido" : "{\\an8}Se pudermos manter uma relacao cooperativa",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 117,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}I am sure it will be profitable to you as well.",
+    "traduzido" : "{\\an8}Tenho certeza de que será lucrativo para você também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 118,
+    "estilo" : "Dialogue",
+    "original" : "{\\an8}If we make a genuine effort,",
+    "traduzido" : "{\\an8}Se fizermos um esforço genuíno,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 119,
+    "estilo" : "Dialogue",
+    "original" : "we could easily capture all of\\NJupiter's helium-gathering ships.",
+    "traduzido" : "Podíamos capturar facilmente todos os\\Nnavios de coleta de hélio de Júpiter.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 120,
+    "estilo" : "Dialogue",
+    "original" : "How scary. Still young, and so full of energy.",
+    "traduzido" : "Que medo. Ainda jovem e tão cheia de energia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 121,
+    "estilo" : "Dialogue",
+    "original" : "He seems very dependable.",
+    "traduzido" : "Ele parece muito confiável.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 122,
+    "estilo" : "Dialogue",
+    "original" : "This is probably a sign of the times as well.",
+    "traduzido" : "Isso provavelmente é um sinal dos tempos também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 123,
+    "estilo" : "Dialogue",
+    "original" : "Glemy, I'm not feeling well.",
+    "traduzido" : "Glemy, não estou me sentindo bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 124,
+    "estilo" : "Dialogue",
+    "original" : "Hmm? Then you should rest in your room.",
+    "traduzido" : "Hum? Então você deve descansar no seu quarto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 125,
+    "estilo" : "Dialogue",
+    "original" : "Hey!",
+    "traduzido" : "Ei!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 126,
+    "estilo" : "Dialogue",
+    "original" : "It's all right. I can go back by myself.",
+    "traduzido" : "Tudo bem. Eu posso voltar sozinho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 127,
+    "estilo" : "Dialogue",
+    "original" : "Yes, there's something different\\Nabout Neo Zeon's people.",
+    "traduzido" : "Sim, há algo diferente\\Nnas pessoas do Neo Zeon.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 128,
+    "estilo" : "Dialogue",
+    "original" : "She's so young, but already such a fine lady.",
+    "traduzido" : "Ela é tão nova, mas já uma senhora tão fina.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 129,
+    "estilo" : "Dialogue",
+    "original" : "Thank you. I sincerely appreciate the compliment.",
+    "traduzido" : "Obrigado. Agradeço sinceramente o elogio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 130,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}He's here... He's definitely nearby!",
+    "traduzido" : "{\\i1}Ele está aqui... Ele está definitivamente por perto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 131,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Big Brother!",
+    "traduzido" : "{\\i1}Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 132,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}This sensation...",
+    "traduzido" : "{\\i1}Essa sensação...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 133,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman?",
+    "traduzido" : "Lady Haman?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 134,
+    "estilo" : "Dialogue",
+    "original" : "See to Princess Mineva!",
+    "traduzido" : "Veja pela Princesa Mineva!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 135,
+    "estilo" : "Dialogue",
+    "original" : "Yes, my lady.",
+    "traduzido" : "Sim, minha senhora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 136,
+    "estilo" : "Dialogue",
+    "original" : "You disappoint me, Judau Ashta.",
+    "traduzido" : "Me decepciona, Judau Ashta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 137,
+    "estilo" : "Dialogue",
+    "original" : "I didn't think you would be this childish.",
+    "traduzido" : "Não pensei que você seria tão infantil assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 138,
+    "estilo" : "Dialogue",
+    "original" : "Sorry about ruining your precious party.",
+    "traduzido" : "Desculpe estragar a sua festa tão importante.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 139,
+    "estilo" : "Dialogue",
+    "original" : "Freeze!",
+    "traduzido" : "Congela!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 140,
+    "estilo" : "Dialogue",
+    "original" : "Do you not realize it?!",
+    "traduzido" : "Não percebe isso?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 141,
+    "estilo" : "Dialogue",
+    "original" : "The adults who came to this party\\Nand wagged their tails for Neo Zeon...",
+    "traduzido" : "Os adultos que vieram a essa festa\\Ne abanaram o rabo para o Neo Zeon...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 142,
+    "estilo" : "Dialogue",
+    "original" : "They are the very root of\\Nthe evil that defiles the Earth!",
+    "traduzido" : "Eles são a raiz do mal\\Nque corrompe a Terra!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 143,
+    "estilo" : "Dialogue",
+    "original" : "Even so, it doesn't mean that\\Nwhat you're doing is right.",
+    "traduzido" : "Mesmo assim, isso não significa que\\No que você está fazendo esteja certo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 144,
+    "estilo" : "Dialogue",
+    "original" : "Back in the asteroid belt, I lived so many years...",
+    "traduzido" : "Na faixa de asteroides, eu morei tantos anos...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 145,
+    "estilo" : "Dialogue",
+    "original" : "...gazing into the freezing darkness of space.",
+    "traduzido" : "Olhando para a escuridão gelada do espaço.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 146,
+    "estilo" : "Dialogue",
+    "original" : "And meanwhile, what did the foolish\\Npeople of Earth do?",
+    "traduzido" : "E enquanto isso, o que fizeram\\Nos tolos habitantes da Terra?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 147,
+    "estilo" : "Dialogue",
+    "original" : "They rushed to rebuild, with no thought\\Nfor the polluted state of this planet.",
+    "traduzido" : "Eles se apressaram para reconstruir, sem\\Npensar no estado poluído deste planeta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 148,
+    "estilo" : "Dialogue",
+    "original" : "In the end, they made the pollution even worse!",
+    "traduzido" : "No final das contas, eles só pioraram a poluição!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 149,
+    "estilo" : "Dialogue",
+    "original" : "I cannot forgive that!",
+    "traduzido" : "Não consigo perdoar isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 150,
+    "estilo" : "Dialogue",
+    "original" : "When I'm with you, I can speak my\\Nmind without hesitation.",
+    "traduzido" : "Quando estou contigo, posso\\Nfalar o que penso sem hesitar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 151,
+    "estilo" : "Dialogue",
+    "original" : "What a strange feeling.",
+    "traduzido" : "Que sensação estranha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 152,
+    "estilo" : "Dialogue",
+    "original" : "Whatever you say, I'm not gonna be yours.",
+    "traduzido" : "Não importa o que você diga, eu não vou ser sua.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 153,
+    "estilo" : "Dialogue",
+    "original" : "I know that.",
+    "traduzido" : "Eu sei disso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 154,
+    "estilo" : "Dialogue",
+    "original" : "I sense that you have the elements of a Newtype,",
+    "traduzido" : "Sinto que voce possui os elementos de um Newtype.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 155,
+    "estilo" : "Dialogue",
+    "original" : "but you don't understand how to go\\Nalong with the flow.",
+    "traduzido" : "Mas você não entende\\Ncomo seguir a corrente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 156,
+    "estilo" : "Dialogue",
+    "original" : "If you keep relying on your intuition,\\Nyou'll come to ruin someday.",
+    "traduzido" : "Se você continuar confiando apenas em sua\\Nintuição, vai acabar se arruinando algum dia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 157,
+    "estilo" : "Dialogue",
+    "original" : "I don't care about Newtypes!\\NAll I want is to save Leina!",
+    "traduzido" : "Não me importo com Newtypes! Tudo\\No que eu quero é salvar a Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 158,
+    "estilo" : "Dialogue",
+    "original" : "Even now, you act according to\\Nyour personal feelings.",
+    "traduzido" : "Agora mesmo, você age de acordo\\Ncom seus sentimentos pessoais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 159,
+    "estilo" : "Dialogue",
+    "original" : "When we first met, I had hopes for you...",
+    "traduzido" : "Quando nos conhecemos, eu tinha esperanças em você...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 160,
+    "estilo" : "Dialogue",
+    "original" : "But in the bitter end, you betray me, too.",
+    "traduzido" : "Mas no fim, você também me trai.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 161,
+    "estilo" : "Dialogue",
+    "original" : "Judau Ashta, you're the same!",
+    "traduzido" : "Judau Ashta, você é igualzinho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 162,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother!",
+    "traduzido" : "Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 163,
+    "estilo" : "Dialogue",
+    "original" : "Leina!",
+    "traduzido" : "Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 164,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother!",
+    "traduzido" : "Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 165,
+    "estilo" : "Dialogue",
+    "original" : "I see... How sweet.",
+    "traduzido" : "Vejo... Como é doce.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 166,
+    "estilo" : "Dialogue",
+    "original" : "Glemy Toto held your trump card all this time,\\NJudau Ashta, and yet he never fully used it.",
+    "traduzido" : "Glemy Toto estava guardando sua carta na manga esse\\Ntempo todo, Judau Ashta, mas nunca a usou completamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 167,
+    "estilo" : "Dialogue",
+    "original" : "But that trump card is no longer...",
+    "traduzido" : "Mas aquela carta na manga não está mais...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 168,
+    "estilo" : "Dialogue",
+    "original" : "You can't!",
+    "traduzido" : "Não pode!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 169,
+    "estilo" : "Dialogue",
+    "original" : "Get away, Leina!",
+    "traduzido" : "Afaste-se, Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 170,
+    "estilo" : "Dialogue",
+    "original" : "No! This time, it's my turn to save you!",
+    "traduzido" : "Não! Desta vez, é a minha vez de te salvar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 171,
+    "estilo" : "Dialogue",
+    "original" : "Leina, this fight isn't...",
+    "traduzido" : "Leina, essa luta não é...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 172,
+    "estilo" : "Dialogue",
+    "original" : "I can't stand such sentimentality.",
+    "traduzido" : "Não suporto esse sentimentalismo todo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 173,
+    "estilo" : "Dialogue",
+    "original" : "You can continue this in heaven!",
+    "traduzido" : "Continue isso no céu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 174,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother!",
+    "traduzido" : "Irmão mais velho!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 175,
+    "estilo" : "Dialogue",
+    "original" : "Leina!",
+    "traduzido" : "Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 176,
+    "estilo" : "Dialogue",
+    "original" : "Get a grip!",
+    "traduzido" : "Agora é hora de se controlar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 177,
+    "estilo" : "Dialogue",
+    "original" : "Leina!",
+    "traduzido" : "Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 178,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother...",
+    "traduzido" : "Grande Irmão...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 179,
+    "estilo" : "Dialogue",
+    "original" : "What?",
+    "traduzido" : "O quê?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 180,
+    "estilo" : "Dialogue",
+    "original" : "This feeling...",
+    "traduzido" : "Esta sensação...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 181,
+    "estilo" : "Dialogue",
+    "original" : "What is it?!",
+    "traduzido" : "O que é isso?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 182,
+    "estilo" : "Dialogue",
+    "original" : "What is it?!",
+    "traduzido" : "O que é isso?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 183,
+    "estilo" : "Dialogue",
+    "original" : "Big brother Judau?!",
+    "traduzido" : "Judau, o irmão mais velho?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 184,
+    "estilo" : "Dialogue",
+    "original" : "Haman...!",
+    "traduzido" : "Haman...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 185,
+    "estilo" : "Dialogue",
+    "original" : "S-Stay away!",
+    "traduzido" : "Afaste-se!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 186,
+    "estilo" : "Dialogue",
+    "original" : "Ugh... what is this sick feeling\\Nclinging to my skin...?",
+    "traduzido" : "Ah... o que é essa sensação\\Nruim grudando em minha pele...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 187,
+    "estilo" : "Dialogue",
+    "original" : "Excuse me for a moment.",
+    "traduzido" : "Desculpe-me por um momento.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 188,
+    "estilo" : "Dialogue",
+    "original" : "What is the meaning of this?",
+    "traduzido" : "Qual é o significado disso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 189,
+    "estilo" : "Dialogue",
+    "original" : "Haman and Mineva have\\Nmade an early departure!",
+    "traduzido" : "Haman e Mineva\\Npartiram cedo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 190,
+    "estilo" : "Dialogue",
+    "original" : "It's no good! Make a run for it!\\NIt's dangerous here!",
+    "traduzido" : "Não adianta! Fuja enquanto\\Npode! É perigoso aqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 191,
+    "estilo" : "Dialogue",
+    "original" : "Don't come near me! Stay away!",
+    "traduzido" : "Não chegue perto de mim! Fique longe!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 192,
+    "estilo" : "Dialogue",
+    "original" : "Stop it!",
+    "traduzido" : "Pare com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 193,
+    "estilo" : "Dialogue",
+    "original" : "What is that?!",
+    "traduzido" : "Aquilo ali é o que?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 194,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman?!",
+    "traduzido" : "Lady Haman?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 195,
+    "estilo" : "Dialogue",
+    "original" : "Out of my way!",
+    "traduzido" : "Foram-se!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 196,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman?! What's the matter?!",
+    "traduzido" : "Haman-sama?! O que aconteceu?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 197,
+    "estilo" : "Dialogue",
+    "original" : "Lady Haman!",
+    "traduzido" : "Dona Haman!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 198,
+    "estilo" : "Dialogue",
+    "original" : "To think he could exert such\\Npressure against me!",
+    "traduzido" : "Que pressão ele conseguiu\\Nexercer contra mim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 199,
+    "estilo" : "Dialogue",
+    "original" : "Judau Ashta... he is too dangerous!",
+    "traduzido" : "Judau Ashta... ele é muito perigoso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 200,
+    "estilo" : "Dialogue",
+    "original" : "Big Brother...",
+    "traduzido" : "Grande Irmão...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 201,
+    "estilo" : "Dialogue",
+    "original" : "I can stand...",
+    "traduzido" : "Eu aguento...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 202,
+    "estilo" : "Dialogue",
+    "original" : "You shouldn't! Don't move.",
+    "traduzido" : "Não faça isso! Não se mexa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 203,
+    "estilo" : "Dialogue",
+    "original" : "This time, I'll be the one to save you,\\NBig Brother. So...",
+    "traduzido" : "Desta vez, serei eu quem vai te\\Nsalvar, Grande Irmão. Então...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 204,
+    "estilo" : "Dialogue",
+    "original" : "Why can't we get out?",
+    "traduzido" : "Por que não podemos sair?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 205,
+    "estilo" : "Dialogue",
+    "original" : "Is Neo Zeon trying to kill us?!",
+    "traduzido" : "É o Neo Zeon que tá tentando nos matar?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 206,
+    "estilo" : "Dialogue",
+    "original" : "Please go back inside!",
+    "traduzido" : "Por favor, volte para dentro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 207,
+    "estilo" : "Dialogue",
+    "original" : "It's very dangerous outside!",
+    "traduzido" : "É muito perigoso lá fora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 208,
+    "estilo" : "Dialogue",
+    "original" : "These are Lady Haman's orders!",
+    "traduzido" : "Estas são as ordens da senhora Haman!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 209,
+    "estilo" : "Dialogue",
+    "original" : "So you want us to wait inside\\Nfor the bombs to fall?",
+    "traduzido" : "Você quer que a gente espere aqui\\Ndentro para as bombas caírem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 210,
+    "estilo" : "Dialogue",
+    "original" : "Karaba won't attack as long as\\NFederation Forces people are here!",
+    "traduzido" : "A Karaba não vai atacar enquanto houver\\Npessoas das Forças Federais aqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 211,
+    "estilo" : "Dialogue",
+    "original" : "My name is Leina!",
+    "traduzido" : "Meu nome é Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 212,
+    "estilo" : "Dialogue",
+    "original" : "I am returning to the Sadalahn with this\\Nyoung man on Master Glemy Toto's orders!",
+    "traduzido" : "Estou voltando para o Sadalahn com esse\\Njovem homem, sob ordens do Mestre Glemy Toto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 213,
+    "estilo" : "Dialogue",
+    "original" : "Let me through!",
+    "traduzido" : "Me deixe passar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 214,
+    "estilo" : "Dialogue",
+    "original" : "Why can you pass, but not us?",
+    "traduzido" : "Por que você pode passar, mas nós não podemos?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 215,
+    "estilo" : "Dialogue",
+    "original" : "Just because you're Neo Zeon...!",
+    "traduzido" : "Apenas porque você é o Neo Zeon...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 216,
+    "estilo" : "Dialogue",
+    "original" : "We are—",
+    "traduzido" : "Estamos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 217,
+    "estilo" : "Dialogue",
+    "original" : "Hush, all of you!",
+    "traduzido" : "Silêncio, todos vocês!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 218,
+    "estilo" : "Dialogue",
+    "original" : "Why did you all attend this party?!",
+    "traduzido" : "Por que vocês todos vieram a essa festa?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 219,
+    "estilo" : "Dialogue",
+    "original" : "You were prepared to place the fate\\Nof the Earth in Neo Zeon's hands.",
+    "traduzido" : "Você estava disposto a colocar o\\Ndestino da Terra nas mãos de Neo Zeon.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 220,
+    "estilo" : "Dialogue",
+    "original" : "So you should be willing to\\Nfollow us to the very end.",
+    "traduzido" : "Você deveria estar disposto\\Na nos seguir até o fim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 221,
+    "estilo" : "Dialogue",
+    "original" : "Unless you wish to become rebels,\\Nreturn to the party hall.",
+    "traduzido" : "A menos que queiram se tornar rebeldes,\\Nvoltem para o salão do partido.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 222,
+    "estilo" : "Dialogue",
+    "original" : "I command you on behalf of\\NPrincess Mineva Zabi!",
+    "traduzido" : "Eu ordeno em nome da\\NPrincesa Mineva Zabi!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 223,
+    "estilo" : "Dialogue",
+    "original" : "Leina...",
+    "traduzido" : "Leina...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 224,
+    "estilo" : "Dialogue",
+    "original" : "Thank you so much, Miss Leina!",
+    "traduzido" : "Obrigado, senhorita Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 225,
+    "estilo" : "Dialogue",
+    "original" : "That was so moving!",
+    "traduzido" : "Foi tão emocionante!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 226,
+    "estilo" : "Dialogue",
+    "original" : "To see a youngster like you\\Nstanding so proudly...",
+    "traduzido" : "Para ver um jovem como\\Nvocê tão orgulhoso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 227,
+    "estilo" : "Dialogue",
+    "original" : "It makes me truly glad to be part of Neo Zeon!",
+    "traduzido" : "Fico verdadeiramente feliz em fazer parte do Neo Zeon!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 228,
+    "estilo" : "Dialogue",
+    "original" : "Thank you for your hard work.",
+    "traduzido" : "Obrigado pelo seu trabalho árduo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 229,
+    "estilo" : "Dialogue",
+    "original" : "Ma'am!",
+    "traduzido" : "Senhora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 230,
+    "estilo" : "Dialogue",
+    "original" : "If you wish, I can escort you to the Sadalahn.",
+    "traduzido" : "Posso acompanhar você até o Sadalahn se quiser.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 231,
+    "estilo" : "Dialogue",
+    "original" : "Your job is to guard this entrance, is it not?",
+    "traduzido" : "Sua missão é guardar esta entrada, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 232,
+    "estilo" : "Dialogue",
+    "original" : "Ma'am! Forgive my error.",
+    "traduzido" : "Madame! Perdoe meu erro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 233,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Dammit, Leina... where did you go?",
+    "traduzido" : "{\\i1}Caramba, Leina... onde você foi?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 234,
+    "estilo" : "Dialogue",
+    "original" : "Leina, that was amazing...\\NI underestimated you.",
+    "traduzido" : "Leina, isso foi incrível...\\NEu te subestimei.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 235,
+    "estilo" : "Dialogue",
+    "original" : "Glemy trained me well.",
+    "traduzido" : "Glemy me treinou bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 236,
+    "estilo" : "Dialogue",
+    "original" : "Does it hurt?",
+    "traduzido" : "Machucou?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 237,
+    "estilo" : "Dialogue",
+    "original" : "I'm all right.",
+    "traduzido" : "Estou bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 238,
+    "estilo" : "Dialogue",
+    "original" : "I'm such a bad girl, telling all those lies.",
+    "traduzido" : "Sou tão má, contando todas aquelas mentiras.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 239,
+    "estilo" : "Dialogue",
+    "original" : "At this rate, heaven won't want me.",
+    "traduzido" : "Ao passo que eu vou, o céu não vai me querer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 240,
+    "estilo" : "Dialogue",
+    "original" : "Don't talk nonsense! We'll be back\\Nwith Elle and the others soon!",
+    "traduzido" : "Não fale bobagem! Logo estaremos\\Nde volta com Elle e os outros!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 241,
+    "estilo" : "Dialogue",
+    "original" : "Just hang in there!",
+    "traduzido" : "Aguente firme!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 242,
+    "estilo" : "Dialogue",
+    "original" : "You let Leina leave with some boy?!",
+    "traduzido" : "Você deixou Leina ir embora com algum garoto?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 243,
+    "estilo" : "Dialogue",
+    "original" : "Y-Yes. She said it was your order, Master Glemy.",
+    "traduzido" : "Sim. Ela disse que era sua ordem, Mestre Glemy.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 244,
+    "estilo" : "Dialogue",
+    "original" : "Why would I give such an order?!",
+    "traduzido" : "Por que eu daria uma ordem dessas?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 245,
+    "estilo" : "Dialogue",
+    "original" : "This is...?",
+    "traduzido" : "Isso é...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 246,
+    "estilo" : "Dialogue",
+    "original" : "Who goes there?!",
+    "traduzido" : "Quem está aí?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 247,
+    "estilo" : "Dialogue",
+    "original" : "What are you doing there!?",
+    "traduzido" : "O que você está fazendo aí?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 248,
+    "estilo" : "Dialogue",
+    "original" : "She's wounded, so let me through!",
+    "traduzido" : "Ela está ferida, então deixe-me passar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 249,
+    "estilo" : "Dialogue",
+    "original" : "Let me through, please!",
+    "traduzido" : "Deixa eu passar, por favor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 250,
+    "estilo" : "Dialogue",
+    "original" : "If I just stand here, my little sister's gonna die!",
+    "traduzido" : "Se eu ficar parado aqui, minha irmã vai morrer!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 251,
+    "estilo" : "Dialogue",
+    "original" : "What?!",
+    "traduzido" : "O quê?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 252,
+    "estilo" : "Dialogue",
+    "original" : "Enemy reinforcements!",
+    "traduzido" : "Inimigos Receiving reforços!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 253,
+    "estilo" : "Dialogue",
+    "original" : "Is that it?",
+    "traduzido" : "É só isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 254,
+    "estilo" : "Dialogue",
+    "original" : "Damn you, Judau!",
+    "traduzido" : "Maldito seja, Judau!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 255,
+    "estilo" : "Dialogue",
+    "original" : "I'm not going to let you take Leina\\Nback, after all the training I've done!",
+    "traduzido" : "Não vou deixar você levar Leina embora\\Ndepois de todo o treinamento que fiz!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 256,
+    "estilo" : "Dialogue",
+    "original" : "Just hang in there, Leina. I'll have\\Nyour wound treated right away!",
+    "traduzido" : "Vamos aguentar firme, Leina. Eu vou\\Ntratar esse seu ferimento agora mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 257,
+    "estilo" : "Dialogue",
+    "original" : "No good! I have to form the ZZ!",
+    "traduzido" : "Não adianta! Tenho que formar o ZZ!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 258,
+    "estilo" : "Dialogue",
+    "original" : "Iino, get over here!",
+    "traduzido" : "Iino, venha cá!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 259,
+    "estilo" : "Dialogue",
+    "original" : "It's the signal from Judau!",
+    "traduzido" : "É o sinal do Judau!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 260,
+    "estilo" : "Dialogue",
+    "original" : "Iino, go in! I'll cover you!",
+    "traduzido" : "Iino, entra aí! Eu te cobro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 261,
+    "estilo" : "Dialogue",
+    "original" : "Okay!",
+    "traduzido" : "Entendido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 262,
+    "estilo" : "Dialogue",
+    "original" : "Roux! To your front!",
+    "traduzido" : "Roux! À tua frente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 263,
+    "estilo" : "Dialogue",
+    "original" : "I won't let you do as you please!",
+    "traduzido" : "Não deixarei que faça o que bem entender!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 264,
+    "estilo" : "Dialogue",
+    "original" : "Iino!",
+    "traduzido" : "Iino!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 265,
+    "estilo" : "Dialogue",
+    "original" : "Glemy!",
+    "traduzido" : "Glemy!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 266,
+    "estilo" : "Dialogue",
+    "original" : "What? Is that Roux Louka?!",
+    "traduzido" : "É ela mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 267,
+    "estilo" : "Dialogue",
+    "original" : "Learn when to quit!",
+    "traduzido" : "Aprenda a saber quando parar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 268,
+    "estilo" : "Dialogue",
+    "original" : "Leina, hang on!",
+    "traduzido" : "Leina, segura aí!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 269,
+    "estilo" : "Dialogue",
+    "original" : "What the hell is Iino doing?!",
+    "traduzido" : "O que diabos o Iino está fazendo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 270,
+    "estilo" : "Dialogue",
+    "original" : "There! Open fire!",
+    "traduzido" : "Ataque!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 271,
+    "estilo" : "Dialogue",
+    "original" : "Eh? But you can't see anything!",
+    "traduzido" : "Mas como assim? Não dá pra ver nada!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 272,
+    "estilo" : "Dialogue",
+    "original" : "Judau is in danger!",
+    "traduzido" : "Judau está em perigo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 273,
+    "estilo" : "Dialogue",
+    "original" : "What?!",
+    "traduzido" : "O quê?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 274,
+    "estilo" : "Dialogue",
+    "original" : "Leina?!",
+    "traduzido" : "Leina?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 275,
+    "estilo" : "Dialogue",
+    "original" : "Hang in there!",
+    "traduzido" : "Aguenta firme!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 276,
+    "estilo" : "Dialogue",
+    "original" : "This isn't good...\\NShe has to see a doctor soon!",
+    "traduzido" : "Isso não está nada bom... Ela\\Nprecisa ver um médico logo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 277,
+    "estilo" : "Dialogue",
+    "original" : "This is no time to be fighting!",
+    "traduzido" : "Não é hora de estarmos lutando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 278,
+    "estilo" : "Dialogue",
+    "original" : "The signal flare! I need to get over there!",
+    "traduzido" : "Sinalizador! Preciso chegar lá!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 279,
+    "estilo" : "Dialogue",
+    "original" : "Their numbers keep increasing!\\NWe gotta be careful!",
+    "traduzido" : "Seus números não param de\\Naumentar! Temos que ter cuidado!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 280,
+    "estilo" : "Dialogue",
+    "original" : "Are those reinforcements?!",
+    "traduzido" : "São reforços?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 281,
+    "estilo" : "Dialogue",
+    "original" : "Hang in there, Leina!",
+    "traduzido" : "Aguenta aí, Leina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 282,
+    "estilo" : "Dialogue",
+    "original" : "What?!",
+    "traduzido" : "O quê?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 283,
+    "estilo" : "Dialogue",
+    "original" : "Stop it! We can't fight now!",
+    "traduzido" : "Pare com isso! Não podemos lutar agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 284,
+    "estilo" : "Dialogue",
+    "original" : "No good! I've lost control!",
+    "traduzido" : "Não está bom! Perdi o controle!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 285,
+    "estilo" : "Dialogue",
+    "original" : "Hold together!",
+    "traduzido" : "Mantenham-se unidos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 286,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Leina was wounded,\\Nand I had to leave her with Ple.",
+    "traduzido" : "{\\i1}Leina ficou ferida e\\Ntive que deixá-la com Ple.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 287,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I didn't realize how they felt\\Nabout each other deep down.",
+    "traduzido" : "{\\i1}Eu não percebi como eles se sentiam\\Num pelo outro no fundo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 288,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I guess I got carried away.",
+    "traduzido" : "{\\i1}Acho que me empolguei demais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 289,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And then one of Glemy's\\Nmobile suits got shot down...",
+    "traduzido" : "{\\i1}E então um dos mobile\\Nsuits do Glemy foi abatido...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 290,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...right on top of the building\\Nthe girls were inside!",
+    "traduzido" : "{\\i1}...direto no topo do prédio\\Nas meninas estavam dentro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 291,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Next time on {\\i1}Gundam ZZ: \"Leina's Blood.\"",
+    "traduzido" : "{\\i1}Próxima vez em{\\i1}Gundam ZZ: \"Leina's Blood.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 292,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}What a pathetic Newtype!",
+    "traduzido" : "{\\i1}Que novo tipo patético!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 293,
+    "estilo" : "Default",
+    "original" : "{\\bord4\\blur0.5\\fade(1065,500)\\b1\\i1\\fnCentury\\fscx100\\fscy100\\1a&HFF&\\c&HFFFFFF&\\3c&HFFFFFF&\\pos(602,316)}MOBILE SUIT",
+    "traduzido" : "{\\bord4\\blur0.5\\fade(1065,500)\\b1\\i1\\fnCentury\\fscx100\\fscy100\\1a&HFF&\\c&HFFFFFF&\\3c&HFFFFFF&\\pos(602,316)}MOBILE SUIT",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 294,
+    "estilo" : "Default",
+    "original" : "{\\bord0\\blur1\\fade(1065,0)\\b1\\i1\\fnCentury\\fscx100\\fscy100\\1a&HFF&\\t(,1983,2733,\\1a&H&)\\t(,2858,4443,\\c&H46AED2&)\\pos(602,316)}MOBILE SUIT",
+    "traduzido" : "{\\bord0\\blur1\\fade(1065,0)\\b1\\i1\\fnCentury\\fscx100\\fscy100\\1a&HFF&\\t(,1983,2733,\\1a&H&)\\t(,2858,4443,\\c&H46AED2&)\\pos(602,316)}MOBILE SUIT",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 295,
+    "estilo" : "Default",
+    "original" : "{\\bord4\\blur1\\fade(1065,500)\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\1a&HFF&\\pos(415.33,800.67)\\c&HFFFFFF&\\3c&HFFFFFF&}GUNDAM",
+    "traduzido" : "{\\bord4\\blur1\\fade(1065,500)\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\1a&HFF&\\pos(415.33,800.67)\\c&HFFFFFF&\\3c&HFFFFFF&}GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 296,
+    "estilo" : "Default",
+    "original" : "{\\bord0\\blur1\\fade(1065,0)\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\1a&HFF&\\t(,1983,2733,\\1a&H&)\\t(,2858,4443,\\c&H4645CE&)\\pos(415.33,800.67)}GUNDAM",
+    "traduzido" : "{\\bord0\\blur1\\fade(1065,0)\\fs108\\b1\\i1\\fnBritannic Bold\\fscx166.25\\fscy141.25\\1a&HFF&\\t(,1983,2733,\\1a&H&)\\t(,2858,4443,\\c&H4645CE&)\\pos(415.33,800.67)}GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 297,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}In the penthouse, as the stars showered down,",
+    "traduzido" : "{\\blur1}Na cobertura, enquanto as estrelas caíam,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 298,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}I was listening to Heaven's music box",
+    "traduzido" : "{\\blur1}Eu estava ouvindo a música do caixinha do céu",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 299,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}Walking blindfolded across a tightrope made of glass",
+    "traduzido" : "{\\blur1}Andando às cegas sobre um fio de vidro",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 300,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}Everyone is like a lonely child in the circus",
+    "traduzido" : "{\\blur1}Todo mundo é como uma criança solitária no circo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 301,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}Filled with the sadness of isolation,",
+    "traduzido" : "{\\blur1}Cheio da tristeza do isolamento,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 302,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}The creaking net",
+    "traduzido" : "{\\blur1}A rede rangendo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 303,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}wavers in my heart....",
+    "traduzido" : "{\\blur1}flutua no meu coração...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 304,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}I want to meet someone who'll look at me with warm eyes",
+    "traduzido" : "{\\blur1}Quero conhecer alguém que olhe para mim com olhos cheios de carinho",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 305,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}Please whisper that you'll always stay beside me....",
+    "traduzido" : "{\\blur1}Por favor, sussurre que você sempre ficará ao meu lado...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 306,
+    "estilo" : "OP2",
+    "original" : "{\\blur1}Silent Voice",
+    "traduzido" : "{\\blur1}Voz Silenciosa",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 307,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}O, hundreds upon thousands upon millions of stars!",
+    "traduzido" : "{\\fs60\\blur1}Ah, milhões e milhões de estrelas!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 308,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}Why do you just sit there and shine? Show me your power to speak!",
+    "traduzido" : "{\\fs60\\blur1}Por que voce fica ai brilhando sem fazer nada? Mostre seu poder de falar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 309,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}For now, even I have a mind that flies ahead without thinking back",
+    "traduzido" : "{\\fs60\\blur1}Por enquanto, até eu tenho uma mente que voa sem pensar no passado",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 310,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}If I can amass as many lives as there're stars,",
+    "traduzido" : "{\\fs60\\blur1}Se eu puder reunir vidas como há estrelas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 311,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}O galaxies, show me how to change the light",
+    "traduzido" : "{\\fs60\\blur1}Ó galáxias, mostrem-me como mudar a luz",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 312,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}Become the weight of the lives that I hold in my hands",
+    "traduzido" : "{\\fs60\\blur1}Seja o peso das vidas que seguro em minhas mãos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 313,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}I still can't quite see my guiding light in the sky",
+    "traduzido" : "{\\fs60\\blur1}Ainda não vejo meu farol no céu",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 314,
+    "estilo" : "OP2",
+    "original" : "{\\fs60\\blur1}Let the light of 10 million years touch my hand!",
+    "traduzido" : "{\\fs60\\blur1}Que a luz de 10 milhões de anos toque minha mão!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 315,
+    "estilo" : "nextep",
+    "original" : "{\\blur2\\fs190\\c&HFBFFF5&\\pos(491.52,714.33)}Leina's Blood\\N{\\fs120}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h(Part 1)",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 316,
+    "estilo" : "nextep",
+    "original" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(158.8,36.8)}\\h\\h\\hNext Episode",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 317,
+    "estilo" : "nextep",
+    "original" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(194,88)\\h\\h\\h{\\c&HFEFEFE&\\1a&HFF&}Next Episode \\N\\N\\N\\N\\N\\N\\N\\N\\N\\N{\\fs200}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h{\\c&HFEFEFE&\\1a&H00&}Leina's Blood\\N{\\fs120}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h(Part 2)",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}
