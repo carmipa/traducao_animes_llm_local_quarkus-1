@@ -29,6 +29,12 @@ public class ContextoRevisaoLoreGundamCCA implements ProvedorPromptRevisaoLore {
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
-            Map.entry("Eixo", "Axis")));
+            Map.entry("Eixo", "Axis"),
+            Map.entry("Novo Gundam", "Nu Gundam"),
+            Map.entry("Moldura Psíquica", "Psycho-Frame"),
+            Map.entry("Moldura Psiquica", "Psycho-Frame"),
+            Map.entry("Contra-ataque do Char", "Char's Counterattack"),
+            Map.entry("Contraataque do Char", "Char's Counterattack")
+        ));
     }
 }

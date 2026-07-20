@@ -25,8 +25,19 @@ public class ContextoRevisaoLoreDanMachi implements ProvedorPromptRevisaoLore {
     @Override public String getNomeExibicao() { return "DanMachi - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: núcleo DanMachi + grafias erradas recorrentes do núcleo da franquia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: Lilisuka/Liriruca → Liliruca Arde; Sino Cranel → Bell Cranel.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
+     */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaDanMachiRevisao.mapa();
+        return CorrecoesTerminologiaDanMachiRevisao.comExtras(Map.ofEntries(
+            Map.entry("Lilisuka", "Liliruca Arde"),
+            Map.entry("Liriruca", "Liliruca Arde"),
+            Map.entry("Sino Cranel", "Bell Cranel")
+        ));
     }
 }

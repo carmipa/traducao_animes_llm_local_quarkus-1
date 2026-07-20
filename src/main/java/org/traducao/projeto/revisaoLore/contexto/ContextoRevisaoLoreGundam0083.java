@@ -29,6 +29,15 @@ public class ContextoRevisaoLoreGundam0083 implements ProvedorPromptRevisaoLore 
 
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaGundamUcRevisao.mapa();
+        return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
+            Map.entry("Frota Delaz", "Delaz Fleet"),
+            Map.entry("Dendróbio", "Dendrobium"),
+            Map.entry("Dendrobio", "Dendrobium"),
+            Map.entry("Novo Alvo", "Neue Ziel"),
+            Map.entry("Memória de Poeira Estelar", "Stardust Memory"),
+            Map.entry("Memoria de Poeira Estelar", "Stardust Memory"),
+            Map.entry("Titãs", "Titans"),
+            Map.entry("Titas", "Titans")
+        ));
     }
 }

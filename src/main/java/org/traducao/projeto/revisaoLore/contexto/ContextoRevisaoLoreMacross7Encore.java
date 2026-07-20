@@ -41,6 +41,12 @@ public class ContextoRevisaoLoreMacross7Encore implements ProvedorPromptRevisaoL
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacrossRevisao.mapa();
+        return CorrecoesTerminologiaMacrossRevisao.comExtras(Map.ofEntries(
+            Map.entry("Protodevilns", "Protodeviln"),
+            Map.entry("Protodemonios", "Protodeviln"),
+            Map.entry("Protodemônios", "Protodeviln"),
+            Map.entry("Energia da Canção", "Song Energy"),
+            Map.entry("Energia da Cancao", "Song Energy")
+        ));
     }
 }
