@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 
+import java.util.Map;
+
 @Component
 public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisaoLore {
 
@@ -22,4 +24,11 @@ public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisa
     @Override public String getId() { return "gundam_08ms"; }
     @Override public String getNomeExibicao() { return "Mobile Suit Gundam: The 08th MS Team - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
+
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
+            Map.entry("Gouf Personalizado", "Gouf Custom"),
+            Map.entry("Gouf Customizado", "Gouf Custom")));
+    }
 }
