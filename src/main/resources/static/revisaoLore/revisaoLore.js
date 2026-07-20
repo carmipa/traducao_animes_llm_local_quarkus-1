@@ -1,6 +1,6 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 
-const PAINEL_HTML = 'revisaoLore/revisaoLore.html?v=3.1';
+const PAINEL_HTML = 'revisaoLore/revisaoLore.html?v=3.2';
 
 async function carregarPainelHtml() {
     const painel = document.getElementById('panel-revisao-lore');
@@ -113,10 +113,94 @@ function vincularEventos() {
     });
 }
 
+/**
+ * PROPÓSITO DE NEGÓCIO: alterna entre as abas "Com inglês" e "PT-only" no mesmo card,
+ * mostrando só o formulário da aba escolhida (o contexto/obra é compartilhado).
+ * INVARIANTES DO DOMÍNIO: exatamente um painel visível por vez; a aba ativa recebe o realce.
+ * COMPORTAMENTO EM CASO DE FALHA: sem abas no DOM, é no-op.
+ */
+function vincularAbas() {
+    const tabs = document.querySelectorAll('.lore-tab');
+    const paineis = document.querySelectorAll('.lore-tab-panel');
+    if (!tabs.length) return;
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        const alvo = tab.dataset.tab;
+        tabs.forEach(t => t.classList.toggle('active', t === tab));
+        paineis.forEach(p => p.classList.toggle('hidden', p.dataset.panel !== alvo));
+    }));
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: liga o formulário da aba "PT-only" ao endpoint que revisa a lore
+ * usando SÓ a pasta PT-BR (sem inglês), respeitando o dry-run e a opção de LLM.
+ * INVARIANTES DO DOMÍNIO: contexto e a pasta PT-BR são obrigatórios; aplicar = !simular.
+ * COMPORTAMENTO EM CASO DE FALHA: exibe o erro no console e reabilita o botão.
+ */
+function vincularEventosPtOnly() {
+    const btn = document.getElementById('btn-iniciar-revisao-lore-ptonly');
+    const inputTraduzida = document.getElementById('revisao-lore-ptonly-entrada-traduzida');
+    const selectContexto = document.getElementById('revisao-lore-contexto');
+    const chkLlm = document.getElementById('revisao-lore-ptonly-usar-llm');
+    const chkSimular = document.getElementById('revisao-lore-ptonly-simular');
+    if (!btn || !inputTraduzida || !selectContexto) return;
+
+    btn.addEventListener('click', async () => {
+        const diretorioTraduzido = inputTraduzida.value.trim();
+        const contextoId = selectContexto.value;
+
+        if (!diretorioTraduzido) {
+            mostrarAlerta('Informe a pasta com as legendas traduzidas (PT-BR)!', 'erro');
+            return;
+        }
+        if (!contextoId) {
+            mostrarAlerta('Selecione a obra/contexto para carregar a lore oficial.', 'erro');
+            return;
+        }
+
+        const usarLlm = chkLlm ? chkLlm.checked : false;
+        const aplicar = chkSimular ? !chkSimular.checked : true;
+        const nomeObra = selectContexto.options[selectContexto.selectedIndex]?.text || contextoId;
+
+        logNoConsole('console-revisao-lore', `Iniciando revisão de lore PT-only — Obra: ${nomeObra}`, 'info');
+        logNoConsole('console-revisao-lore',
+            `Traduzida: ${diretorioTraduzido} | LLM: ${usarLlm ? 'sim' : 'não'} | ${aplicar ? 'APLICAR' : 'simular (dry-run)'}`, 'info');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/revisar-lore-ptonly', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diretorioTraduzido, contextoId, usarLlm, aplicar })
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                throw new Error(data.erro || 'Falha ao iniciar revisão de lore PT-only');
+            }
+
+            logNoConsole('console-revisao-lore', data.mensagem || 'Revisão de lore PT-only iniciada.', 'sucesso');
+            mostrarAlerta('Revisão de lore PT-only iniciada! Acompanhe os logs.', 'sucesso');
+
+            await acompanharConclusao();
+            mostrarAlerta('Revisão de lore PT-only finalizada. Confira o status no console.', 'info');
+            const btnRefresh = document.getElementById('btn-refresh-telemetria');
+            if (btnRefresh) btnRefresh.click();
+        } catch (err) {
+            logNoConsole('console-revisao-lore', `Erro: ${err.message}`, 'erro');
+            mostrarAlerta(err.message, 'erro');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+}
+
 export async function initRevisaoLore() {
     try {
         await carregarPainelHtml();
         vincularEventos();
+        vincularAbas();
+        vincularEventosPtOnly();
         document.dispatchEvent(new CustomEvent('revisao-lore:painel-carregado'));
     } catch (err) {
         console.error('[Revisão de Lore] Erro ao carregar painel:', err);
