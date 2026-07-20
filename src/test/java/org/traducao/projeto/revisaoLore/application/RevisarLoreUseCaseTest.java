@@ -270,5 +270,8 @@ class RevisarLoreUseCaseTest {
         assertEquals("Titans", mapa.get("Titãs"));
         assertEquals("Quattro", mapa.get("Quatro"));
         assertEquals("Axis", mapa.get("Eixo"));
+        assertEquals("Hyaku Shiki", mapa.get("Cem Estilos"));
+        assertEquals("Colony Laser", mapa.get("Laser de Colônia"));
+        assertEquals("Qubeley", mapa.get("Cubely"));
     }
 }

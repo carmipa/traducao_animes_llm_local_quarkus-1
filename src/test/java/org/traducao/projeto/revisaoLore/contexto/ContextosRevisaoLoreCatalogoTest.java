@@ -54,7 +54,8 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptZetaProtegeTermosCriticosDaObra() {
-        String prompt = new ContextoRevisaoLoreGundamZeta().obterPromptSistema();
+        var zeta = new ContextoRevisaoLoreGundamZeta();
+        String prompt = zeta.obterPromptSistema();
 
         assertTrue(prompt.contains("A.E.U.G."));
         assertTrue(prompt.contains("Hyaku Shiki nao vira"));
@@ -64,6 +65,14 @@ class ContextosRevisaoLoreCatalogoTest {
         assertTrue(prompt.contains("Audhumla"));
         assertTrue(prompt.contains("Bask Om"));
         assertTrue(prompt.contains("Gryps Conflict"));
+        assertTrue(prompt.contains("Mineva Lao Zabi"));
+        assertTrue(prompt.contains("Gate of Zedan"));
+        assertTrue(prompt.contains("Psycho Gundam"));
+        assertTrue(prompt.contains("Dakar Speech"));
+        assertEquals("AEUG", zeta.correcoesTerminologia().get("União Anti-Terra"));
+        assertEquals("Gryps Conflict", zeta.correcoesTerminologia().get("Conflito de Gryps"));
+        assertEquals("Psycho Gundam", zeta.correcoesTerminologia().get("Psico Gundam"));
+        assertEquals("Gundam Mk-II", zeta.correcoesTerminologia().get("Gundam Mark II"));
     }
 
     @Test
