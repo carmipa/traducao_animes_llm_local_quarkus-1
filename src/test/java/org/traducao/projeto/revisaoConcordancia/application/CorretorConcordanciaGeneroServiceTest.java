@@ -62,4 +62,36 @@ class CorretorConcordanciaGeneroServiceTest {
         // "problema" (masc) não está na lista de gênero inequívoco → nada muda.
         assertTrue(corretor.corrigir("o problema era grande").isEmpty());
     }
+
+    @Test
+    @DisplayName("preserva as tags ASS de borda ao corrigir")
+    void preservaTagsAss() {
+        assertEquals(Optional.of("{\\i1}A menina chegou."), corretor.corrigir("{\\i1}O menina chegou."));
+    }
+
+    @Test
+    @DisplayName("corrige múltiplos erros de gênero na mesma linha")
+    void corrigeMultiplosErrosNaMesmaLinha() {
+        assertEquals(Optional.of("a menina viu o menino"), corretor.corrigir("o menina viu a menino"));
+    }
+
+    @Test
+    @DisplayName("concordância correta (fem+fem, masc+masc) não é tocada")
+    void naoTocaConcordanciaCorreta() {
+        assertTrue(corretor.corrigir("A amiga e o amigo chegaram.").isEmpty());
+    }
+
+    @Test
+    @DisplayName("não casa artigo como fragmento de outra palavra (sem espaço)")
+    void naoCasaFragmentoDePalavra() {
+        // "domina" contém "do"+"mina", mas sem espaço entre artigo e substantivo não há erro.
+        assertTrue(corretor.corrigir("Ela domina a arte.").isEmpty());
+    }
+
+    @Test
+    @DisplayName("predicativo com verbo variado (parece/é) também é corrigido")
+    void corrigePredicativoComVerboVariado() {
+        assertEquals(Optional.of("Ela parece cansada."), corretor.corrigir("Ela parece cansado."));
+        assertEquals(Optional.of("Ele é perdido."), corretor.corrigir("Ele é perdida."));
+    }
 }
