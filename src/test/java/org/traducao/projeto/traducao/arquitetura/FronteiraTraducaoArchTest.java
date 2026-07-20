@@ -272,6 +272,9 @@ class FronteiraTraducaoArchTest {
     private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".qualidadeTraducao.application.DetectorTraducaoIdenticaService",
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
+        // NormalizadorAcentosComuns movido de traducao.application para o peer: fecha o arco
+        // proibido raspagemRevisao.RevisorPtOnlyService -> traducao (INBOUND voltou a 0).
+        RAIZ + ".qualidadeTraducao.application.NormalizadorAcentosComuns",
         RAIZ + ".qualidadeTraducao.application.ProtecaoLegendaAssService",
         RAIZ + ".qualidadeTraducao.application.ValidadorTraducaoService",
         RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException",

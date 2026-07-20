@@ -29,6 +29,7 @@ import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAd
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
 import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoOnlinePort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;

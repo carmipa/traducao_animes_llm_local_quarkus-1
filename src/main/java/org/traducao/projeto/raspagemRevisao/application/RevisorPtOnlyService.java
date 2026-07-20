@@ -1,7 +1,7 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.application.NormalizadorAcentosComuns;
+import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import java.util.regex.Pattern;
 
