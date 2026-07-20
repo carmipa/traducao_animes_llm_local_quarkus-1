@@ -45,6 +45,6 @@ public class ContextoRevisaoLoreMacrossDeltaFilmes implements ProvedorPromptRevi
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacrossRevisao.mapa();
+        return CorrecoesTerminologiaMacrossDeltaRevisao.mapa();
     }
 }
