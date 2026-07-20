@@ -7,66 +7,61 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: fonte canônica da Revisao de Lore (Opção 7) para
- * Mobile Suit Zeta Gundam — mesma riqueza e política de nomenclatura da
- * Tradução Local ({@code ContextoGundamZeta}), adaptada ao papel de revisor
- * (corrigir grafia indevida em PT-BR, sem retraduzir o diálogo).
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore completa (Opção 7) para Mobile Suit Zeta Gundam —
+ * mesma política da Tradução Local, sem importar {@code contexto.lore}.
  *
  * <p>INVARIANTES DO DOMÍNIO: Titans ≠ Titãs; Quattro ≠ Quatro; Axis ≠ Eixo;
- * Hyaku Shiki ≠ Cem Estilos; The O ≠ O; Newtype ≠ Novo Tipo; A.E.U.G. preserva
- * pontos; Kamille Bidan permanece masculino quando o original assim exige.
+ * Hyaku Shiki ≠ Cem Estilos; The O ≠ O; Newtype ≠ Novo Tipo; A.E.U.G. preserva pontos;
+ * Kamille Bidan permanece masculino.
  *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt imutável em compile-time.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
 @Component
 public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
         - Obra: Mobile Suit Zeta Gundam, Universal Century 0087, Gryps Conflict.
-        - Papel desta lore: corrigir APENAS nomenclatura fora do padrao oficial.
-          Nomes proprios, mechas, naves e faccoes especificas NAO sao localizados para portugues.
-        - Tom da obra (so para julgamento de coerencia de nome/patente): militar/politico sombrio,
-          trauma e abuso de autoridade — nao usar para reescrever estilo.
+        - Papel: corrigir APENAS nomenclatura. Nomes/mechas/naves/faccoes NAO sao localizados.
 
-        === Faccoes / organizacoes (grafia oficial — NAO "melhorar" para PT) ===
-        - A.E.U.G. / AEUG (Anti-Earth Union Group): preservar pontos quando o texto/origem trouxer A.E.U.G.
-        - Titans: nome canônico da forca especial (NUNCA "Titãs" / mitologia grega).
-        - Earth Federation / Federation Forces pode aparecer como Federacao Terrestre quando ja estiver
-          natural em PT; Axis Zeon / Axis NUNCA vira "Eixo"; Karaba; Anaheim Electronics.
+        === Faccoes ===
+        - A.E.U.G. / AEUG (Anti-Earth Union Group) — preservar pontos quando houver A.E.U.G.
+        - Titans (NUNCA Titãs); Karaba; Anaheim Electronics; Earth Federation.
+        - Axis / Axis Zeon (NUNCA Eixo) — Haman Karn / Mineva Lao Zabi.
 
-        === Personagens (genero; preservar grafia) ===
-        - AEUG / Argama: Kamille Bidan (m — pronomes masculinos; piada recorrente de confusao de genero),
-          Quattro Bajeena / Char Aznable (m — NUNCA "Quatro"), Bright Noa (m), Emma Sheen (f),
-          Fa Yuiry (f), Reccoa Londe (f), Katz Kobayashi (m), Henken Bekkener (m),
-          Astonaige Medoz (m), Apolly Bay (m), Roberto (m), Wong Lee (m).
-        - Continuacao UC / aliados: Amuro Ray (m), Hayato Kobayashi (m), Mirai Yashima (f),
-          Hathaway Noa (m, crianca), Franklin Bidan (m), Hilda Bidan (f).
-        - Titans: Jerid Messa (m), Bask Om (m), Jamitov Hymen (m), Jamaican Daninghan (m),
-          Buran Blutarch (m), Lila Milla Rira (f), Mouar Pharaoh (f), Sarah Zabiarov (f),
-          Yazan Gable (m), Paptimus Scirocco (m).
-        - Cyber-Newtype / Axis: Four Murasame (f), Rosamia Badam (f), Haman Karn (f).
+        === Roster — AEUG / Argama / Karaba ===
+        - Kamille Bidan (m); Quattro Bajeena / Char Aznable (NUNCA Quatro); Bright Noa;
+          Emma Sheen; Fa Yuiry; Reccoa Londe; Katz Kobayashi; Henken Bekkener;
+          Astonaige Medoz; Apolly Bay; Roberto; Torres; Wong Lee;
+          Amuro Ray; Hayato Kobayashi; Mirai Yashima; Hathaway Noa;
+          Franklin Bidan; Hilda Bidan; Beltorchika Irma.
+
+        === Roster — Titans / Scirocco ===
+        - Jerid Messa; Bask Om; Jamitov Hymen; Jamaican Daninghan; Paptimus Scirocco;
+          Yazan Gable; Buran Blutarch; Lila Milla Rira; Mouar Pharaoh; Sarah Zabiarov;
+          Kacricon Cacooler; Gates Capa.
+
+        === Roster — Cyber-Newtype / Axis ===
+        - Four Murasame; Rosamia Badam; Haman Karn; Mineva Lao Zabi.
 
         === Naves / lugares / eventos ===
-        - Naves: Argama, Alexandria, Audhumla (Karaba), Radish, Jupitris, Gwadan.
-        - Lugares: Gryps, Jaburo, Hong Kong, Dakar, Kilimanjaro, Axis, Side colonies.
-        - Eventos: Gryps Conflict, Colony Laser, Universal Century / U.C.
+        - Argama; Radish; Alexandria; Audhumla; Jupitris; Gwadan.
+        - Gryps / Gate of Zedan; Jaburo; Dakar; Kilimanjaro; Axis; Shangri-La.
+        - Gryps Conflict; Colony Laser; Colony 30 Incident; Dakar Speech.
 
-        === Mobile suits / armors (designacao oficial) ===
-        - AEUG/Anaheim: MSZ-006 Zeta Gundam, RX-178 Gundam Mk-II, MSN-00100 Hyaku Shiki
-          (NUNCA "Cem Estilos"), Rick Dias, Methuss, Nemo, GM II.
-        - Titans: Marasai, Gaplant, Gabthley, Hambrabi, Palace Athene, Byarlant.
-        - Outros: Psycho Gundam (MRX-009), The O (NUNCA reduzir a "O"), Qubeley (Haman).
+        === Mecha ===
+        - Zeta Gundam; Gundam Mk-II / Super Gundam / G-Defenser; Hyaku Shiki (NUNCA Cem Estilos);
+          Rick Dias; Methuss; Nemo; Dijeh; Hizack; Marasai; Gaplant; Gabthley; Hambrabi;
+          Palace Athene; Byarlant; Messala; The O (NUNCA reduzir a O);
+          Psycho Gundam / Psycho Gundam Mk-II; Qubeley; Gaza-C.
 
-        === Termos UC ===
-        - Newtype (NUNCA "Novo Tipo"), Cyber-Newtype, Oldtype, Psycommu, Minovsky particles,
-          Spacenoid / Earthnoid, Mobile Suit vs Mobile Armor, beam rifle, beam saber.
-
-        === Regras duras / formas-ruim observadas ===
-        - Titans nao vira "Titãs"; Quattro nao vira "Quatro"; Axis nao vira "Eixo";
-          Hyaku Shiki nao vira "Cem Estilos"; The O nao vira "O"; Newtype nao vira "Novo Tipo".
-        - Restaurar: Titãs/Titas → Titans; Quatro → Quattro; Eixo → Axis (so quando for a faccao).
-        - A.E.U.G. deve manter os pontos; Titans/Quattro/Axis/Hyaku Shiki/The O/Newtype na grafia oficial.
-        - Kamille masculino; Quattro estrategico; Titans autoritarios; Scirocco manipulador.
+        === Formas-ruim (restaurar) ===
+        - Titans nao vira Titãs; Quattro nao vira Quatro; Axis nao vira Eixo;
+          Hyaku Shiki nao vira Cem Estilos; The O nao vira O; Newtype nao vira Novo Tipo.
+        - Titãs/Titas → Titans; Quatro → Quattro; Eixo → Axis;
+          Cem Estilos → Hyaku Shiki; O O → The O;
+          União Anti-Terra → AEUG; Conflito de Gryps → Gryps Conflict;
+          Laser de Colônia → Colony Laser; Psico Gundam → Psycho Gundam;
+          Cubely → Qubeley; Gundam Mark II → Gundam Mk-II.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
@@ -87,12 +82,9 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: formas-ruim de terminologia do Zeta que a revisão restaura
-     * deterministicamente — mesmo mapa da tradução local ({@code ContextoGundamZeta}).
+     * PROPÓSITO DE NEGÓCIO: núcleo UC + extras Zeta na Opção 7 (espelho da Tradução Local).
      *
-     * <p>INVARIANTES DO DOMÍNIO: chave = forma-ruim PT; valor = canônico; só aplica quando
-     * o original EN contém o canônico na grafia exata (ex.: numeral "quatro" sem "Quattro"
-     * no EN não é tocado).
+     * <p>INVARIANTES DO DOMÍNIO: sem import cruzado; só aplica com canônico no EN.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
      */
@@ -104,7 +96,19 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
             Map.entry("Quatro", "Quattro"),
             Map.entry("Eixo", "Axis"),
             Map.entry("Cem Estilos", "Hyaku Shiki"),
-            Map.entry("O O", "The O")
+            Map.entry("O O", "The O"),
+            Map.entry("Grupo da União Anti-Terra", "AEUG"),
+            Map.entry("Grupo da Uniao Anti-Terra", "AEUG"),
+            Map.entry("União Anti-Terra", "AEUG"),
+            Map.entry("Uniao Anti-Terra", "AEUG"),
+            Map.entry("Conflito de Gryps", "Gryps Conflict"),
+            Map.entry("Laser de Colônia", "Colony Laser"),
+            Map.entry("Laser de Colonia", "Colony Laser"),
+            Map.entry("Psico Gundam", "Psycho Gundam"),
+            Map.entry("Cubely", "Qubeley"),
+            Map.entry("Qubelei", "Qubeley"),
+            Map.entry("Gundam Mark II", "Gundam Mk-II"),
+            Map.entry("Gundam Mk II", "Gundam Mk-II")
         ));
     }
 }
