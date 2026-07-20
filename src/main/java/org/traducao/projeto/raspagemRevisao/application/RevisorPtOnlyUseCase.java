@@ -7,11 +7,14 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.telemetria.OperacaoTelemetria;
+import org.traducao.projeto.telemetria.TelemetriaService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -53,10 +56,13 @@ public class RevisorPtOnlyUseCase {
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final RevisorPtOnlyService revisor;
+    private final TelemetriaService telemetriaService;
 
-    public RevisorPtOnlyUseCase(LeitorLegendaAss leitor, EscritorLegendaAss escritor, RevisorPtOnlyService revisor) {
+    public RevisorPtOnlyUseCase(LeitorLegendaAss leitor, EscritorLegendaAss escritor,
+            RevisorPtOnlyService revisor, TelemetriaService telemetriaService) {
         this.leitor = leitor;
         this.escritor = escritor;
+        this.telemetriaService = telemetriaService;
         this.revisor = revisor;
     }
 
@@ -87,6 +93,7 @@ public class RevisorPtOnlyUseCase {
      * @return {@link ResultadoPtOnly} com contagens, falas com asterisco e backups
      */
     public ResultadoPtOnly revisarPasta(Path pasta, boolean aplicar) {
+        long inicioMs = System.currentTimeMillis();
         if (pasta == null || !Files.isDirectory(pasta)) {
             return new ResultadoPtOnly(0, 0, 0, List.of(), List.of(), aplicar);
         }
@@ -142,6 +149,14 @@ public class RevisorPtOnlyUseCase {
                 log.warn("Revisão PT-only pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
+        telemetriaService.registrarOperacao(new OperacaoTelemetria(
+            "Revisão PT-only",
+            "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
+            System.currentTimeMillis() - inicioMs,
+            analisados,
+            falasAlteradas,
+            falasAlteradas,
+            Instant.now().toString()));
         return new ResultadoPtOnly(analisados, alterados, falasAlteradas, List.copyOf(comAsterisco),
             List.copyOf(backups), aplicar);
     }

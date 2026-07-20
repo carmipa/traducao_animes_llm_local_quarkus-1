@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.telemetria.OperacaoTelemetria;
+import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducao.application.NormalizadorAcentosComuns;
 
 import java.io.IOException;
@@ -28,7 +30,16 @@ class RevisorPtOnlyUseCaseTest {
 
     private final RevisorPtOnlyUseCase useCase = new RevisorPtOnlyUseCase(
         new LeitorLegendaAss(), new EscritorLegendaAss(),
-        new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService()));
+        new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService()),
+        new TelemetriaNoOp());
+
+    /** Telemetria no-op para o teste unitário: não persiste em disco (não chama super). */
+    static class TelemetriaNoOp extends TelemetriaService {
+        @Override
+        public synchronized void registrarOperacao(OperacaoTelemetria op) {
+            // no-op: o teste do use case não verifica telemetria (coberta em concordância)
+        }
+    }
 
     private static final String CABECALHO = """
         [Script Info]

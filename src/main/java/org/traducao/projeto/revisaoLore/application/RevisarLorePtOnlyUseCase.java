@@ -11,11 +11,14 @@ import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLoreLlm;
 import org.traducao.projeto.revisaoLore.domain.ports.RevisorLoreLlmPort;
+import org.traducao.projeto.telemetria.OperacaoTelemetria;
+import org.traducao.projeto.telemetria.TelemetriaService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,6 +70,7 @@ public class RevisarLorePtOnlyUseCase {
     private final RevisorLoreLlmPort revisorLoreLlm;
     private final GerenciadorPromptRevisaoLore gerenciadorPrompt;
     private final ValidadorTraducaoService validador;
+    private final TelemetriaService telemetriaService;
 
     public RevisarLorePtOnlyUseCase(
         LeitorLegendaAss leitor,
@@ -75,7 +79,8 @@ public class RevisarLorePtOnlyUseCase {
         CorretorLoreDeterministico corretorLore,
         RevisorLoreLlmPort revisorLoreLlm,
         GerenciadorPromptRevisaoLore gerenciadorPrompt,
-        ValidadorTraducaoService validador
+        ValidadorTraducaoService validador,
+        TelemetriaService telemetriaService
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -84,6 +89,7 @@ public class RevisarLorePtOnlyUseCase {
         this.revisorLoreLlm = revisorLoreLlm;
         this.gerenciadorPrompt = gerenciadorPrompt;
         this.validador = validador;
+        this.telemetriaService = telemetriaService;
     }
 
     /**
@@ -117,6 +123,7 @@ public class RevisarLorePtOnlyUseCase {
      * @return {@link ResultadoLorePtOnly} com contagens e backups
      */
     public ResultadoLorePtOnly executar(Path pastaPt, String contextoId, boolean usarLlm, boolean aplicar) {
+        long inicioMs = System.currentTimeMillis();
         if (pastaPt == null || !Files.isDirectory(pastaPt) || contextoId == null || contextoId.isBlank()) {
             return new ResultadoLorePtOnly(0, 0, 0, 0, List.of(), aplicar, false);
         }
@@ -194,6 +201,15 @@ public class RevisarLorePtOnlyUseCase {
                 log.warn("Revisão de lore PT-only pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
+        telemetriaService.registrarOperacao(new OperacaoTelemetria(
+            "Revisão de Lore PT-only",
+            "Pasta: " + pastaPt.getFileName() + (aplicar ? " (aplicado)" : " (simulado)")
+                + (llmAtivo ? " + LLM" : ""),
+            System.currentTimeMillis() - inicioMs,
+            analisados,
+            falasCorrigidas,
+            falasCorrigidas,
+            Instant.now().toString()));
         return new ResultadoLorePtOnly(analisados, alterados, falasCorrigidas, falasDescartadas,
             List.copyOf(backups), aplicar, llmAtivo);
     }
