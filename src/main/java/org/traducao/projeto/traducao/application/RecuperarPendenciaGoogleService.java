@@ -138,6 +138,11 @@ public class RecuperarPendenciaGoogleService {
                 // Token de pontuação pura que encerra a frase (ex.: " . "): a próxima palavra
                 // é início de frase e não pode ser confundida com nome próprio obrigatório.
                 inicioDeFrase = true;
+            } else {
+                // Token sem letras que NÃO encerra frase (número "42", símbolo): há conteúdo
+                // antes da próxima palavra, então ela deixa de ser início de frase e volta a
+                // ser candidata a nome próprio obrigatório.
+                inicioDeFrase = false;
             }
         }
         return true;

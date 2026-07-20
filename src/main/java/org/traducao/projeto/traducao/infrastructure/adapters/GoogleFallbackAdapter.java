@@ -48,10 +48,13 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
     private static final Logger log = LoggerFactory.getLogger(GoogleFallbackAdapter.class);
 
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^}]+\\}");
-    // Marcador [Tn]/[B] residual (com mutilações comuns de espaço/parênteses) após a
-    // restauração — sinal de que o Google corrompeu a formatação.
-    private static final Pattern PADRAO_MARCADOR_RESIDUAL =
-        Pattern.compile("(?i)[\\[(]\\s*[tb]\\s*\\d*\\s*[\\])]");
+    // Marcador residual APENAS nas formas que este adapter emite ([T<n>], [B], [Bn], [Bh]),
+    // tolerando mutilação de colchete/espaço — sem confundir '(b)'/'(t)' de conteúdo (alternativas
+    // de múltipla escolha) com marcador. A perda/duplicação real é pega pela contagem exata.
+    private static final Pattern PADRAO_MARCADOR_RESIDUAL = Pattern.compile(
+        "(?i)[\\[(]\\s*t\\s*\\d+\\s*[\\])]"       // [T<n>]: T exige dígito
+        + "|[\\[(]\\s*b\\s*[nh]\\s*[\\])]"         // [Bn]/[Bh]: B com sufixo n/h
+        + "|\\[\\s*b\\s*\\]");                      // [B] puro: exige colchete reto (não pega "(b)")
     /** Quebras estruturais ASS verificadas por contagem exata na volta do Google. */
     private static final List<String> QUEBRAS = List.of("\\N", "\\n", "\\h");
 
