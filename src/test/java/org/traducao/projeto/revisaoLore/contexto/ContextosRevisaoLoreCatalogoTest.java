@@ -132,6 +132,12 @@ class ContextosRevisaoLoreCatalogoTest {
 
         assertEquals("Emulator", m2.correcoesTerminologia().get("Emulador"));
         assertEquals("Minmay Attack", m2.correcoesTerminologia().get("Ataque Minmay"));
+        assertEquals("Marduk", m2.correcoesTerminologia().get("Marduque"));
+        assertEquals("Song Energy", m2.correcoesTerminologia().get("Energia da Canção"));
+        assertEquals("Metal Siren", m2.correcoesTerminologia().get("Sereia de Metal"));
+        assertTrue(m2.obterPromptSistema().contains("Lord Feff"));
+        assertTrue(m2.obterPromptSistema().contains("VF-2SS Valkyrie II"));
+        assertTrue(m2.obterPromptSistema().contains("Gigamesh"));
 
         assertEquals("Protoculture", dyrl.correcoesTerminologia().get("Protocultura"));
         assertTrue(dyrl.obterPromptSistema().contains("Meltrandi"));
