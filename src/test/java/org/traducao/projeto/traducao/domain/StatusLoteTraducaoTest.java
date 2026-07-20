@@ -41,4 +41,20 @@ class StatusLoteTraducaoTest {
         assertEquals(StatusLoteTraducao.FALHOU, StatusLoteTraducao.consolidar(List.of()));
         assertEquals(StatusLoteTraducao.FALHOU, StatusLoteTraducao.consolidar(null));
     }
+
+    @Test
+    void loteInteiramenteBloqueadoViraConcluido() {
+        // Rerun de um lote 100% já traduzido: todos BLOQUEADO. Nada falhou -> CONCLUIDO,
+        // não FALHOU (BLOQUEADO é "já pronto", não é falha).
+        assertEquals(StatusLoteTraducao.CONCLUIDO, StatusLoteTraducao.consolidar(List.of(
+            comStatus(StatusArquivoTraducao.BLOQUEADO), comStatus(StatusArquivoTraducao.BLOQUEADO))));
+    }
+
+    @Test
+    void concluidoComBloqueadoViraConcluido() {
+        // Um arquivo novo traduzido + um já pronto (bloqueado): não há falha -> CONCLUIDO,
+        // não CONCLUIDO_COM_FALHAS.
+        assertEquals(StatusLoteTraducao.CONCLUIDO, StatusLoteTraducao.consolidar(List.of(
+            comStatus(StatusArquivoTraducao.CONCLUIDO), comStatus(StatusArquivoTraducao.BLOQUEADO))));
+    }
 }
