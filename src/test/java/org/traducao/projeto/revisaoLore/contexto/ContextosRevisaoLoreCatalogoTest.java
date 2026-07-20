@@ -36,12 +36,20 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptUnicornProtegeTermosCriticosDaObra() {
-        String prompt = new ContextoRevisaoLoreGundamUnicorn().obterPromptSistema();
+        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
+        String prompt = unicorn.obterPromptSistema();
 
         assertTrue(prompt.contains("Unicorn Gundam"));
         assertTrue(prompt.contains("Full Frontal nao vira"));
         assertTrue(prompt.contains("Laplace's Box"));
         assertTrue(prompt.contains("Nahel Argama"));
+        assertFalse(prompt.contains("Black Tri-Stars"));
+        assertTrue(prompt.contains("Magallanica"));
+        assertTrue(prompt.contains("Garencieres"));
+        assertTrue(prompt.contains("Gilboa Sant"));
+        assertTrue(prompt.contains("Ra Cailum"));
+        assertEquals("Destroy Mode", unicorn.correcoesTerminologia().get("Modo Destruição"));
+        assertEquals("Laplace Incident", unicorn.correcoesTerminologia().get("Incidente de Laplace"));
     }
 
     @Test

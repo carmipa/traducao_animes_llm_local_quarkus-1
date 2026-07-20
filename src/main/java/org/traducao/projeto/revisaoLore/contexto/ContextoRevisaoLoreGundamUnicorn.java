@@ -7,10 +7,10 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional para Gundam Unicorn.
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore completa para Gundam Unicorn (UC 0096).
  *
- * <p>INVARIANTES DO DOMÍNIO: Unicorn ≠ Unicórnio; Sleeves ≠ Mangas; Laplace's Box;
- * Full Frontal; Psycho-Frame; Newtype.
+ * <p>INVARIANTES DO DOMÍNIO: Unicorn Gundam ≠ Gundam Unicórnio; Sleeves ≠ Mangas;
+ * Laplace's Box; Full Frontal; Psycho-Frame; NT-D; Phenex é de NT.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -19,26 +19,40 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
 
     private static final String LORE = """
         - Obra: Mobile Suit Gundam Unicorn / Unicorn RE:0096, U.C. 0096.
-        - Regra: corrigir APENAS nomenclatura. Phenex e de NT — nao forcar aqui.
+        - Papel: corrigir APENAS nomenclatura. Phenex e de NT — nao forcar aqui.
 
-        === Personagens ===
-        - Banagher Links, Audrey Burne / Mineva Lao Zabi,
-          Full Frontal nao vira "Frontal Completo",
-          Marida Cruz, Riddhe Marcenas, Angelo Sauper, Cardeas Vist, Alberto Vist, Syam Vist,
-          Daguza Mackle, Suberoa Zinnerman, Otto Midas, Takuya Irei, Micott Bartsch, Loni Garvey.
+        === Protagonistas / Sleeves ===
+        - Banagher Links; Mineva Lao Zabi / Audrey Burne;
+          Full Frontal nao vira "Frontal Completo"; Marida Cruz; Suberoa Zinnerman;
+          Angelo Sauper; Gilboa Sant; Tikva Sant; Flaste Schole; Aaron Terzieff.
 
-        === Orgs / naves / mecha ===
-        - Earth Federation; Vist Foundation; Anaheim Electronics; Sleeves (NUNCA Mangas);
-          Neo Zeon; Londo Bell; ECOAS.
-        - Nahel Argama; Garencieres; Industrial 7; Palau; Torrington; Laplace's Box.
-        - Unicorn Gundam (NUNCA Gundam Unicornio); Banshee / Banshee Norn; Sinanju; Kshatriya;
-          Delta Plus; ReZEL; Geara Zulu; Rozen Zulu; Shamblo.
+        === Federacao / Londo Bell / ECOAS ===
+        - Riddhe Marcenas; Otto Midas; Daguza Mackle; Conroy Haagensen; Nigel Garrett;
+          Hill Dawson; Liam Borrinea; Mihiro Oiwakken; Bright Noa / Ra Cailum.
+
+        === Vist / civis ===
+        - Syam Vist; Cardeas Vist; Alberto Vist; Martha Vist Carbine;
+          Takuya Irei; Micott Bartsch; Loni Garvey.
+
+        === Orgs / naves / lugares ===
+        - Sleeves (NUNCA Mangas); Neo Zeon; Vist Foundation; Anaheim Electronics;
+          Londo Bell; ECOAS; Earth Federation.
+        - Nahel Argama; Garencieres; Ra Cailum; Rewloola; Musaka; Magallanica;
+          Industrial 7; Palau; Torrington Base; Dakar; Laplace's Box / Laplace Incident.
+
+        === Mecha ===
+        - Unicorn Gundam (NUNCA Gundam Unicornio); Banshee / Banshee Norn; Sinanju;
+          Kshatriya; Delta Plus; ReZEL; Jegan; Geara Zulu; Rozen Zulu; Shamblo;
+          Byarlant Custom; Stark Jegan; Anksha.
 
         === Termos UC / formas-ruim ===
         - Newtype; Cyber-Newtype; Psycho-Frame; NT-D; Destroy Mode; Minovsky;
-          Mobile Suit / Mobile Armor.
-        - Mangas → Sleeves; Caixa de Laplace → Laplace's Box; Unicórnio → Unicorn;
-          Moldura Psíquica → Psycho-Frame; Eixo → Axis; Novo Tipo → Newtype.
+          Mobile Suit / Mobile Armor; Axis (NUNCA Eixo).
+        - Mangas → Sleeves; Caixa de Laplace → Laplace's Box;
+          Incidente de Laplace → Laplace Incident; Fundação Vist → Vist Foundation;
+          Gundam Unicórnio → Unicorn Gundam; Frontal Completo → Full Frontal;
+          Modo Destruição → Destroy Mode; Moldura Psíquica → Psycho-Frame;
+          Novo Tipo → Newtype.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
@@ -61,7 +75,7 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
     /**
      * PROPÓSITO DE NEGÓCIO: mapa determinístico Unicorn na Opção 7.
      *
-     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local.
+     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local (sem import cruzado).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
@@ -73,12 +87,15 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
             Map.entry("Moldura Psiquica", "Psycho-Frame"),
             Map.entry("Caixa de Laplace", "Laplace's Box"),
+            Map.entry("Incidente de Laplace", "Laplace Incident"),
             Map.entry("Fundação Vist", "Vist Foundation"),
             Map.entry("Fundacao Vist", "Vist Foundation"),
             Map.entry("Gundam Unicórnio", "Unicorn Gundam"),
             Map.entry("Gundam Unicornio", "Unicorn Gundam"),
             Map.entry("Eixo", "Axis"),
-            Map.entry("Frontal Completo", "Full Frontal")
+            Map.entry("Frontal Completo", "Full Frontal"),
+            Map.entry("Modo Destruição", "Destroy Mode"),
+            Map.entry("Modo Destruicao", "Destroy Mode")
         ));
     }
 }
