@@ -94,9 +94,17 @@ public class ExtrairLegendaUseCase {
         videos.forEach(v -> resolverAdaptador(v).ifPresent(adaptadoresEmUso::add));
         adaptadoresEmUso.forEach(ExtratorVideoPort::validarInfraestrutura);
 
+        int total = videos.size();
+        int indice = 0;
         for (Path video : videos) {
+            indice++;
             relatorio.registrarDetectado();
             String nomeVideo = video.getFileName().toString();
+            // Progresso ARQUIVO A ARQUIVO ao vivo no console web: System.out é
+            // redirecionado para o canal SSE 'extracao' (ver ConsoleRedirector +
+            // PipelineWebSupport). log.* vai só para o terminal/arquivo do servidor,
+            // por isso a tela ficava muda durante o lote.
+            System.out.printf(">> [%d/%d] Extraindo legenda: %s%n", indice, total, nomeVideo);
             log.debug("Processando {}", nomeVideo);
 
             ExtratorVideoPort adaptador = resolverAdaptador(video).orElseThrow();
@@ -109,6 +117,7 @@ public class ExtrairLegendaUseCase {
                 if (faixaAlvo.isEmpty()) {
                     relatorio.registrarSemLegenda();
                     relatorio.adicionarItem(ItemExtracao.semFaixa(nomeVideo, formato.name()));
+                    System.out.printf("   [SEM FAIXA %s] %s%n", formato.name(), nomeVideo);
                     log.warn("Nenhuma faixa {} encontrada no vídeo: {}", formato, nomeVideo);
                     continue;
                 }
@@ -118,14 +127,17 @@ public class ExtrairLegendaUseCase {
                 relatorio.registrarTimeout();
                 relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), null,
                     "Timeout ao identificar faixas"));
+                System.out.printf("   [TIMEOUT] %s — ao identificar faixas%n", nomeVideo);
                 log.error("Timeout ao identificar faixas em {}: {}", nomeVideo, e.getMessage());
             } catch (ExtratorException e) {
                 relatorio.registrarFalha();
                 relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), null, e.getMessage()));
+                System.out.printf("   [FALHA] %s — %s%n", nomeVideo, e.getMessage());
                 log.error("Falha ao processar {}: {}", nomeVideo, e.getMessage());
             } catch (Exception e) {
                 relatorio.registrarFalha();
                 relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), null, e.getMessage()));
+                System.out.printf("   [ERRO] %s — %s%n", nomeVideo, e.getMessage());
                 log.error("Erro inesperado em {}: {}", nomeVideo, e.getMessage(), e);
             }
         }
@@ -177,6 +189,7 @@ public class ExtrairLegendaUseCase {
         if (Files.exists(caminhoFinal)) {
             relatorio.registrarJaExiste();
             relatorio.adicionarItem(ItemExtracao.jaExiste(nomeVideo, formato.name(), faixa.id(), arquivoSaida));
+            System.out.printf("   [JÁ EXISTE] %s -> %s%n", nomeVideo, arquivoSaida);
             log.warn("Arquivo de saída já existe; extração ignorada para não sobrescrever: {}", caminhoFinal);
             return;
         }
@@ -190,16 +203,18 @@ public class ExtrairLegendaUseCase {
             moverParaFinal(caminhoTemp, caminhoFinal);
             relatorio.registrarExtraido();
             relatorio.adicionarItem(ItemExtracao.sucesso(nomeVideo, formato.name(), faixa.id(), arquivoSaida));
-            log.info("Legenda extraída: {} -> {} (Track {})", nomeVideo, arquivoSaida, faixa.id());
+            System.out.printf("   [OK] %s -> %s (Track %d)%n", nomeVideo, arquivoSaida, faixa.id());
         } catch (ExtracaoTimeoutException e) {
             limparParcial(caminhoTemp);
             relatorio.registrarTimeout();
             relatorio.adicionarItem(ItemExtracao.timeout(nomeVideo, formato.name(), faixa.id()));
+            System.out.printf("   [TIMEOUT] %s (Track %d)%n", nomeVideo, faixa.id());
             log.error("Timeout ao extrair {} (Track {}): {}", nomeVideo, faixa.id(), e.getMessage());
         } catch (ExtratorException e) {
             limparParcial(caminhoTemp);
             relatorio.registrarFalha();
             relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), faixa.id(), e.getMessage()));
+            System.out.printf("   [FALHA] %s (Track %d) — %s%n", nomeVideo, faixa.id(), e.getMessage());
             log.error("Falha ao extrair {} (Track {}): {}", nomeVideo, faixa.id(), e.getMessage());
         }
     }
