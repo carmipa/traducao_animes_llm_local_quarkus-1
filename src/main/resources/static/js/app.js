@@ -61,31 +61,31 @@ const CONFIG_SECOES = {
         subtitulo: "Padronização de nomes, locais e termos de mundo nas legendas via LLM e lore oficial"
     },
     "revisao-concordancia": {
-        titulo: "Revisão de Concordância",
+        titulo: "8. Revisão de Concordância",
         subtitulo: "Correção determinística de gênero (o menina → a menina) na legenda PT-BR, sem inglês nem LLM"
     },
     "troca-tipo-legenda": {
-        titulo: "8. Troca Tipo Legenda",
+        titulo: "9. Troca Tipo Legenda",
         subtitulo: "Auditoria e substituição em lote de fontes vietnamitas ou ANSI legadas por fontes Unicode seguras"
     },
     "novo-karaoke": {
-        titulo: "9. Karaokê Simples",
+        titulo: "10. Karaokê Simples",
         subtitulo: "Conversão de karaokê KFX em legendas simples e limpas, preservando o tempo original"
     },
     "traducao-karaoke": {
-        titulo: "10. Tradução de Karaokê",
+        titulo: "11. Tradução de Karaokê",
         subtitulo: "Letras de música em PT-BR com o japonês/romaji original preservado junto na tela"
     },
     cura: {
-        titulo: "11. Correção de Legendas",
+        titulo: "12. Correção de Legendas",
         subtitulo: "Corrige a legenda PT-BR usando a original como referência imutável"
     },
     remuxer: {
-        titulo: "12. Remuxer Industrial",
+        titulo: "13. Remuxer Industrial",
         subtitulo: "Junção de vídeos originais e novas legendas traduzidas em novos MKVs"
     },
     "renomear-arquivos": {
-        titulo: "13. Renomear Arquivos de Vídeo",
+        titulo: "14. Renomear Arquivos de Vídeo",
         subtitulo: "Limpeza de nomes de arquivo usando regex e metadados S01E01"
     },
     mapa: {
