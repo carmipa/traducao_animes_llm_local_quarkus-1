@@ -128,7 +128,13 @@ class ContextosRevisaoLoreCatalogoTest {
 
         assertEquals("Phenex", nt.correcoesTerminologia().get("Fênix"));
         assertEquals("Miracle Children", nt.correcoesTerminologia().get("Crianças Milagrosas"));
+        assertEquals("Narrative Gundam", nt.correcoesTerminologia().get("Gundam Narrativo"));
+        assertEquals("Shezarr Team", nt.correcoesTerminologia().get("Equipe Shezarr"));
+        assertEquals("Silver Bullet Suppressor", nt.correcoesTerminologia().get("Supressor Silver Bullet"));
         assertTrue(nt.obterPromptSistema().contains("Operation Phoenix Hunt"));
+        assertTrue(nt.obterPromptSistema().contains("Brick Teclato"));
+        assertTrue(nt.obterPromptSistema().contains("Shezarr Team"));
+        assertTrue(nt.obterPromptSistema().contains("II Neo Zeong"));
 
         assertEquals("Emulator", m2.correcoesTerminologia().get("Emulador"));
         assertEquals("Minmay Attack", m2.correcoesTerminologia().get("Ataque Minmay"));
