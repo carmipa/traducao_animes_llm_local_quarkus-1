@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +55,7 @@ class RevisarConcordanciaUseCaseTest {
         Path ass = dir.resolve("ep_PT-BR.ass");
         escreverAss(ass, "Vi o menina.", "Ela está cansado.");
 
-        RevisarConcordanciaUseCase.ResultadoConcordancia r = useCase.revisarPasta(dir, true);
+        ResultadoConcordancia r = useCase.revisarPasta(dir, true);
 
         assertEquals(2, r.falasCorrigidas());
         assertEquals(1, r.backups().size());
@@ -71,7 +72,7 @@ class RevisarConcordanciaUseCaseTest {
         escreverAss(ass, "Vi o menina.");
         String antes = Files.readString(ass, StandardCharsets.UTF_8);
 
-        RevisarConcordanciaUseCase.ResultadoConcordancia r = useCase.revisarPasta(dir, false);
+        ResultadoConcordancia r = useCase.revisarPasta(dir, false);
 
         assertEquals(1, r.arquivosAlterados());
         assertFalse(r.aplicado());
@@ -80,7 +81,7 @@ class RevisarConcordanciaUseCaseTest {
 
     @Test
     void pastaInexistenteDevolveZero() {
-        RevisarConcordanciaUseCase.ResultadoConcordancia r =
+        ResultadoConcordancia r =
             useCase.revisarPasta(Path.of("nao_existe_xyz"), true);
         assertEquals(0, r.arquivosAnalisados());
     }
