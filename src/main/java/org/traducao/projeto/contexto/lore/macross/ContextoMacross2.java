@@ -4,41 +4,59 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- * PROPÓSITO DE NEGÓCIO: lore de Macross II: Lovers Again para tradução fiel de
- * nomes, Marduk/Emulator e mecha da continuidade alternativa.
+ * PROPÓSITO DE NEGÓCIO: lore completa de Macross II: Lovers Again (OVA) — continuidade
+ * alternativa pós-Space War I, Marduk/Emulator e doutrina Minmay Attack.
  *
- * <p>INVARIANTES DO DOMÍNIO: Hibiki Kanzaki; Ishtar; Silvie Gena; Marduk;
- * Emulator; Minmay Attack; VF-2SS.
+ * <p>INVARIANTES DO DOMÍNIO: Hibiki Kanzaki; Ishtar; Silvie Gena; Marduk; Emulator
+ * (cargo, NÃO software); Minmay Attack; VF-2SS; anti-Veritech/Robotech; Protoculture.
  *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
 @Component
 public class ContextoMacross2 implements ProvedorContexto {
 
     private static final String LORE = """
-        - Obra: Macross II: Lovers Again (OVA / filme — continuidade alternativa pós-Space War I,
-          distinta da linha Frontier/Delta/DYRL canônica principal em vários pontos).
-        - Premissa: a humanidade usa o "Minmay Attack" (cultura/canção) como arma estratégica;
-          o repórter Hibiki Kanzaki encontra Ishtar, Emulator do povo invasor Marduk;
-          conflito com a UN Spacy e a hierarquia Marduk (Lord Feff, Ingues).
-        - Personagens (gênero): Hibiki Kanzaki (m) — repórter curioso/informal;
-          Ishtar (f) — Emulator Marduk, inocência + reverência musical;
-          Silvie Gena (f) — oficial UN Spacy, militar direta;
-          Nexx Gilbert (m); Lord Feff (m); Ingues (m) — líder espiritual/político Marduk;
-          Mash / Mash Broodwell (m) conforme créditos.
-        - Facções/termos: Marduk, Emulator (cargo cultural-militar Marduk — NÃO traduzir como
-          "emulador" de software), Minmay Attack, UN Spacy / U.N. Spacy, Macross Cannon,
-          Valkyrie, Variable Fighter, Song Energy / cultura como arma.
-        - Mecha/naves: VF-2SS Valkyrie II, Metal Siren, Gigamesh, Macross Cannon / SDF-era assets.
-        - Nucleo Macross: PROIBIDO Veritech/Robotech; Fighter/GERWALK/Battroid; Overtechnology;
-          Reaction Weaponry; musica/Emulator = doutrina cultural de guerra, nao OST.
-        - Regras: Marduk e Emulator oficiais; Ishtar/Hibiki/Silvie sem adaptação;
-          "songstress" como cantora quando for função comum, mas Emulator permanece termo Marduk;
-          Minmay Attack como nome de doutrina/tática.
-        - Tom: romance idol/repórter em guerra espacial; Hibiki informal, Silvie objetiva, Ishtar ritualística.
+        - Obra: Macross II: Lovers Again (OVA 1992) — continuidade alternativa pos-Space War I
+          (distinta da linha Frontier/Delta em varios pontos).
+        - Premissa: humanidade usa Minmay Attack (cultura/cancao) como arma; reporter Hibiki
+          Kanzaki encontra Ishtar (Emulator Marduk); UN Spacy vs hierarquia Marduk
+          (Lord Feff / Ingues).
+        - Tom: romance idol/reporter em guerra espacial; Hibiki informal, Silvie objetiva,
+          Ishtar ritualistica. Evitar girias modernas.
+
+        === Nucleo Macross ===
+        - Valkyrie / Variable Fighter; Fighter / GERWALK / Battroid;
+          Overtechnology; Reaction Weaponry; Fold / space fold; Protoculture;
+          Zentradi (legado Space War I); Macross Cannon.
+        - PROIBIDO Veritech / Robotech.
+
+        === Faccoes / doutrina ===
+        - UN Spacy / U.N. Spacy; Marduk (invasores); Emulator (cargo cultural-militar Marduk —
+          NUNCA "emulador" de software); Minmay Attack (doutrina/tatica — NUNCA so "ataque musical");
+          Song Energy quando o dialogo trouxer.
+
+        === Roster — Terra / UN Spacy / midia ===
+        - Hibiki Kanzaki (m) — reporter;
+          Silvie Gena (f) — oficial UN Spacy / Metal Siren;
+          Nexx Gilbert (m); Mash Broodwell (m); Saori (f) quando aparecer;
+          Dennis Lone (m) quando aparecer.
+
+        === Roster — Marduk ===
+        - Ishtar (f) — Emulator;
+          Lord Feff (m); Ingues (m) — lider espiritual/politico Marduk.
+
+        === Mecha / naves ===
+        - VF-2SS Valkyrie II; Metal Siren; Gigamesh;
+          Macross Cannon / ativos estilo SDF-1 Macross quando a continuidade trouxer.
+
+        === Regras duras ===
+        - Emulator nao vira "emulador" de TI; Marduk nao vira Marduque;
+          Minmay Attack nao vira Ataque Minmay; Valkyrie nao vira Valquiria;
+          Protoculture nao vira Protocultura; Lovers Again como subtitulo oficial.
         """;
 
     private static final String PROMPT = ContextoPrompt.montar("Macross II: Lovers Again", LORE);
@@ -59,30 +77,35 @@ public class ContextoMacross2 implements ProvedorContexto {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: protege nomes e termos Marduk/Emulator de Macross II.
+     * PROPÓSITO DE NEGÓCIO: protege elenco Macross II, Marduk/Emulator e mecha oficiais.
+     *
      * <p>INVARIANTES DO DOMÍNIO: Emulator nunca tratado como palavra comum de TI.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
     @Override
     public Set<String> termosProtegidos() {
         return Set.of(
             "Hibiki Kanzaki", "Ishtar", "Silvie Gena", "Nexx Gilbert", "Lord Feff",
-            "Ingues", "Marduk", "Emulator", "Minmay Attack", "VF-2SS Valkyrie II",
-            "Metal Siren", "UN Spacy", "GERWALK", "Battroid", "Overtechnology", "Valkyrie"
+            "Ingues", "Mash Broodwell", "Saori", "Dennis Lone",
+            "Marduk", "Emulator", "Minmay Attack", "Song Energy",
+            "VF-2SS Valkyrie II", "Valkyrie II", "Metal Siren", "Gigamesh",
+            "Macross Cannon", "SDF-1", "Macross", "Lovers Again",
+            "UN Spacy", "U.N. Spacy", "Variable Fighter", "Valkyrie",
+            "GERWALK", "Battroid", "Fighter", "Overtechnology", "Reaction Weaponry",
+            "Protoculture", "Zentradi", "Space War I", "Fold"
         );
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando
-     * o LLM localiza indevidamente — mapa compartilhado da franquia.
+     * PROPÓSITO DE NEGÓCIO: restaura Emulator/Minmay Attack/Marduk + núcleo franquia Macross.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     * <p>INVARIANTES DO DOMÍNIO: mapa de {@link CorrecoesTerminologiaMacross2}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
      */
     @Override
-    public java.util.Map<String, String> correcoesTerminologia() {
+    public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaMacross2.mapa();
     }
-
 }
