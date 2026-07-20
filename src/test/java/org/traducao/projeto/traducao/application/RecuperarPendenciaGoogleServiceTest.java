@@ -87,6 +87,18 @@ class RecuperarPendenciaGoogleServiceTest {
     }
 
     @Test
+    @DisplayName("#7: nome próprio após token numérico no início de frase é verificado (não escapa a guarda)")
+    void nomePropioAposTokenNumericoEhVerificado() {
+        // "Zaku" vem após "42" (token sem letras que não encerra frase); a guarda não pode
+        // tratá-lo como início de frase e deixá-lo escapar. A tradução perdeu "Zaku" -> recusa.
+        FallbackTraducaoOnlinePort porta = o -> Optional.of("Pare! 42 caiu.");
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("Stop! 42 Zaku fell."));
+
+        assertTrue(r.isEmpty(), "nome próprio perdido após token numérico deve manter a fala pendente");
+    }
+
+    @Test
     @DisplayName("ligado: pontuação isolada encerra a frase; a 1ª palavra da frase seguinte não é nome próprio")
     void pontuacaoIsoladaEncerraFrase() {
         // "London" abre a 2ª frase (após o ponto isolado) e foi legitimamente traduzido para
