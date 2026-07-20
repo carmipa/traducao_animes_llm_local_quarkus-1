@@ -279,6 +279,18 @@ class EnforcadorTermosLoreTest {
                 "Shu inherited the Void Genome.",
                 "Shu herdou o Genoma Void.",
                 mapa));
+        assertEquals(
+            "Anti Bodies vigiam o Second Hand.",
+            enforcador.reforcar(
+                "Anti Bodies watch the Second Hand.",
+                "Anticorpos vigiam o Segunda Mão.",
+                mapa));
+        assertEquals(
+            "Piloto de Endlave com Genomic Resonance.",
+            enforcador.reforcar(
+                "Endlave pilot with Genomic Resonance.",
+                "Piloto de Endslave com Ressonância Genômica.",
+                mapa));
     }
 
     @Test
