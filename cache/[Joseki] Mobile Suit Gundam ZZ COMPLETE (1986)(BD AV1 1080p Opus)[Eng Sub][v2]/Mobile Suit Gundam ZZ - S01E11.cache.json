@@ -109,7 +109,7 @@
     "indice" : 14,
     "estilo" : "Karaoke Simples",
     "original" : "...cannot be viewed through...",
-    "traduzido" : "",
+    "traduzido" : "...não pode ser visualizado através de...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -193,7 +193,7 @@
     "indice" : 26,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Anyway, I'm glad everyone's all right.",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}De qualquer forma, estou feliz que todos estejam bem.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1537,7 +1537,7 @@
     "indice" : 218,
     "estilo" : "Dialogue",
     "original" : "Gottn, do you know the Argama's direction?",
-    "traduzido" : "",
+    "traduzido" : "Gottn, você conhece a direção do Argama?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2790,7 +2790,7 @@
     "indice" : 397,
     "estilo" : "nextep",
     "original" : "{\\blur2\\an7\\c&HFFFCFE&\\pos(149.6,93.2)}Next Episode \\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\hLeina Vanishes",
-    "traduzido" : "",
+    "traduzido" : "{\\blur2\\an7\\c&HFFFCFE&\\pos(149.6,93.2)}Próximo episódio\\N\\N\\N\\N\\N\\N\\N\\N{\\fs220}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\hLeina desaparece",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]
