@@ -76,4 +76,36 @@ class DetectorIdiomaFonteServiceTest {
         assertFalse(detector.jaNoIdiomaAlvo(null, PT));
         assertFalse(detector.jaNoIdiomaAlvo("", PT));
     }
+
+    @Test
+    @DisplayName("inglês com nomes próprios acentuados (André/Chloé) não é confundido com PT (#6)")
+    void inglesComNomesAcentuadosNaoEhAlvo() {
+        assertFalse(detector.jaNoIdiomaAlvo("André loves Chloé.", PT));
+        assertFalse(detector.jaNoIdiomaAlvo("Beyoncé met Chloé.", PT));
+    }
+
+    @Test
+    @DisplayName("inglês fora do núcleo antigo, mas com palavra funcional inglesa, não é alvo (#1)")
+    void inglesComPalavraFuncionalAmpliadaNaoEhAlvo() {
+        assertFalse(detector.jaNoIdiomaAlvo("Come to agora before dawn.", PT));
+        assertFalse(detector.jaNoIdiomaAlvo("My café's décor amazed us.", PT));
+        assertFalse(detector.jaNoIdiomaAlvo("His café résumé impressed everyone.", PT));
+        assertFalse(detector.jaNoIdiomaAlvo("Run DOS now, please.", PT));
+    }
+
+    @Test
+    @DisplayName("contração inglesa com apóstrofo curvo não escapa da guarda (#11)")
+    void apostrofoCurvoNaoEscapaIngles() {
+        // "can't"/"don't" com apóstrofo tipográfico (’) + gatilho de diacríticos: sem
+        // normalização o token não casaria SINAL_INGLES e a linha inglesa vazaria.
+        assertFalse(detector.jaNoIdiomaAlvo("Can’t belong, café olá.", PT));
+        assertFalse(detector.jaNoIdiomaAlvo("Don’t touché my olá.", PT));
+    }
+
+    @Test
+    @DisplayName("regressão: PT legítimo com acento em palavra comum continua reconhecido")
+    void ptComAcentoEmPalavraComumContinuaAlvo() {
+        assertTrue(detector.jaNoIdiomaAlvo("A força nacional será derrotada.", PT));
+        assertTrue(detector.jaNoIdiomaAlvo("Ninguém será derrotado hoje à noite.", PT));
+    }
 }
