@@ -144,12 +144,12 @@
                         <button class="nav-item" data-target="revisao-concordancia" id="btn-menu-revisao-concordancia"
                             data-tooltip="Corrige erros de gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.">
                             <span class="material-symbols-outlined nav-icon">spellcheck</span>
-                            <span>Revisão de Concordância</span>
+                            <span>8. Revisão de Concordância</span>
                         </button>
                         <button class="nav-item" data-target="troca-tipo-legenda" id="btn-menu-troca-tipo-legenda"
                             data-tooltip="Audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras para evitar acentuação corrompida.">
                             <span class="material-symbols-outlined nav-icon">font_download</span>
-                            <span>8. Troca Tipo Legenda</span>
+                            <span>9. Troca Tipo Legenda</span>
                         </button>
                     </div>
                 </div>
@@ -163,17 +163,17 @@
                         <button class="nav-item" data-target="novo-karaoke" id="btn-menu-novo-karaoke"
                             data-tooltip="Converta karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original.">
                             <span class="material-symbols-outlined nav-icon">music_off</span>
-                            <span>9. Karaokê Simples</span>
+                            <span>10. Karaokê Simples</span>
                         </button>
                         <button class="nav-item" data-target="traducao-karaoke" id="btn-menu-traducao-karaoke"
                             data-tooltip="Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa.">
                             <span class="material-symbols-outlined nav-icon">lyrics</span>
-                            <span>10. Tradução de Karaokê</span>
+                            <span>11. Tradução de Karaokê</span>
                         </button>
                         <button class="nav-item" data-target="cura" id="btn-menu-cura"
                             data-tooltip="Corrija a legenda traduzida usando a original como referência segura.">
                             <span class="material-symbols-outlined nav-icon">music_note</span>
-                            <span>11. Correção de Karaoke</span>
+                            <span>12. Correção de Karaoke</span>
                         </button>
                     </div>
                 </div>
@@ -187,12 +187,12 @@
                         <button class="nav-item" data-target="remuxer" id="btn-menu-remuxer"
                             data-tooltip="Recombine vídeos originais e as legendas traduzidas.">
                             <span class="material-symbols-outlined nav-icon">layers</span>
-                            <span>12. Remuxer</span>
+                            <span>13. Remuxer</span>
                         </button>
                         <button class="nav-item" data-target="renomear-arquivos" id="btn-menu-renomear-arquivos"
                             data-tooltip="Limpe e renomeie arquivos de vídeo e legendas usando um padrão S01E01 com base nos metadados.">
                             <span class="material-symbols-outlined nav-icon">drive_file_rename_outline</span>
-                            <span>13. Renomear Arquivos</span>
+                            <span>14. Renomear Arquivos</span>
                         </button>
                     </div>
                 </div>
@@ -429,12 +429,26 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 8 - Troca Tipo Legenda -->
+                            <!-- Card 8 - Revisão de Concordância -->
+                            <div class="pipeline-card card-revisao-concordancia"
+                                onclick="document.getElementById('btn-menu-revisao-concordancia').click()"
+                                data-tooltip="Clique para corrigir concordância de gênero na legenda PT-BR">
+                                <div class="card-glow-bg"></div>
+                                <div class="card-step-num">08</div>
+                                <div class="card-icon-container">
+                                    <span class="material-symbols-outlined">spellcheck</span>
+                                </div>
+                                <h4>Revisão de Concordância</h4>
+                                <p>Corrige gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.</p>
+                                <span class="card-action-link">Acessar Painel →</span>
+                            </div>
+
+                            <!-- Card 9 - Troca Tipo Legenda -->
                             <div class="pipeline-card card-troca-legenda"
                                 onclick="document.getElementById('btn-menu-troca-tipo-legenda').click()"
                                 data-tooltip="Clique para auditar e substituir fontes legadas">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">08</div>
+                                <div class="card-step-num">09</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">font_download</span>
                                 </div>
@@ -443,12 +457,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 9 — Karaokê Simples -->
+                            <!-- Card 10 — Karaokê Simples -->
                             <div class="pipeline-card card-novo-karaoke"
                                 onclick="document.getElementById('btn-menu-novo-karaoke').click()"
                                 data-tooltip="Clique para converter karaokê KFX em legenda simples">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">09</div>
+                                <div class="card-step-num">10</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">music_off</span>
                                 </div>
@@ -457,12 +471,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 10 — Tradução de Karaokê -->
+                            <!-- Card 11 — Tradução de Karaokê -->
                             <div class="pipeline-card card-traducao-karaoke"
                                 onclick="document.getElementById('btn-menu-traducao-karaoke').click()"
                                 data-tooltip="Clique para traduzir letras de música mantendo o romaji original">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">10</div>
+                                <div class="card-step-num">11</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">lyrics</span>
                                 </div>
@@ -472,12 +486,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 11 - Correção de Karaoke -->
+                            <!-- Card 12 - Correção de Karaoke -->
                             <div class="pipeline-card card-cura"
                                 onclick="document.getElementById('btn-menu-cura').click()"
                                 data-tooltip="Clique para corrigir a legenda traduzida">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">11</div>
+                                <div class="card-step-num">12</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">music_note</span>
                                 </div>
@@ -487,12 +501,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 12 -->
+                            <!-- Card 13 -->
                             <div class="pipeline-card card-remuxer"
                                 onclick="document.getElementById('btn-menu-remuxer').click()"
                                 data-tooltip="Clique para acoplar legendas traduzidas nos vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">12</div>
+                                <div class="card-step-num">13</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">layers</span>
                                 </div>
@@ -501,12 +515,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 13 -->
+                            <!-- Card 14 -->
                             <div class="pipeline-card card-renomear-arquivos"
                                 onclick="document.getElementById('btn-menu-renomear-arquivos').click()"
                                 data-tooltip="Clique para renomear e sanitizar arquivos de vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">13</div>
+                                <div class="card-step-num">14</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">drive_file_rename_outline</span>
                                 </div>
@@ -515,12 +529,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 14 -->
+                            <!-- Card 15 -->
                             <div class="pipeline-card card-mapa"
                                 onclick="document.getElementById('btn-menu-mapa').click()"
                                 data-tooltip="Clique para analisar o código Java">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">14</div>
+                                <div class="card-step-num">15</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">account_tree</span>
                                 </div>
@@ -529,12 +543,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 15 -->
+                            <!-- Card 16 -->
                             <div class="pipeline-card card-telemetria"
                                 onclick="document.getElementById('btn-menu-telemetria').click()"
                                 data-tooltip="Clique para acessar a telemetria">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">15</div>
+                                <div class="card-step-num">16</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">monitoring</span>
                                 </div>
