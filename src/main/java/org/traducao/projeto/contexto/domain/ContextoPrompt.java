@@ -63,6 +63,7 @@ public final class ContextoPrompt {
             3. Marcadores no formato [[TAG0]], [[TAG1]] etc. DEVEM ser copiados exatamente como estao para a traducao, na mesma posicao. NAO remova e nao traduza esses marcadores.
             4. Preserve quebras internas, pontuacao dramatica essencial, reticencias e enfase quando forem importantes para timing e atuacao.
             5. Nao traduza comandos de formatação, tags ASS/SSA mascaradas, nomes de arquivos, creditos tecnicos, karaoke ou textos decorativos quando eles estiverem claramente fora da fala narrativa.
+            6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
             """.formatted(obra, loreLimpa, RegrasConcordanciaPtBr.BLOCO_TRADUCAO.strip());
         LORE_POR_PROMPT.put(prompt, loreLimpa);
         return prompt;

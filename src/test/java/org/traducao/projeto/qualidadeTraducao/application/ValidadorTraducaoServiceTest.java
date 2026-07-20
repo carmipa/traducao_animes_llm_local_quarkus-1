@@ -37,6 +37,35 @@ class ValidadorTraducaoServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: impede que o LLM censure palavrão ou vaze markdown com asterisco
+     * na legenda. Casos reais (ZZ/08th/Narrative): "Damn it!" -> "Merd**a**!", "God dammit!" ->
+     * "Merd**", "You bastards!" -> "Vocês são uns *****es!". Neste projeto a fonte NUNCA traz
+     * '*' e ações usam parênteses; logo '*' no texto visível é sempre artefato do modelo e a
+     * fala deve ficar pendente (retraduz), nunca censurada/pontilhada na legenda.
+     * <p>INVARIANTES DO DOMÍNIO: qualquer '*' visível dispara alucinação; palavrão por extenso
+     * (sem asterisco) é tradução legítima e passa.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: asterisco aceito na legenda reprova.
+     */
+    @Test
+    void rejeitaCensuraOuMarkdownComAsterisco() {
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Merd**a**!"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Merd**"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("Vocês são uns *****es!"));
+        assertThrows(AlucinacaoDetectadaException.class, () ->
+            validador.validarFala("{\\i1}Merd*, me larga!"));
+    }
+
+    @Test
+    void aceitaPalavraoPorExtensoSemAsterisco() {
+        // O objetivo do fix: palavrão traduzido fielmente, sem censura, é legítimo.
+        assertDoesNotThrow(() -> validador.validarFala("Merda! Temos que pará-lo!"));
+        assertDoesNotThrow(() -> validador.validarFala("Malditos! Eles me pegaram!"));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: impede o bug histórico em que o LLM, em vez de traduzir,
      * devolvia uma recusa ou meta-resposta ("não recebi nenhuma linha para traduzir",
      * "Sem tradução.") e esse texto ia direto para a legenda, no lugar da fala.
