@@ -195,7 +195,8 @@ class WebInterfaceTest {
             "Análise de Legenda deve ficar no grupo Preparação"
         );
         // Decisão 2026-07-08: grupo Karaokê entre Qualidade e Finalização, com
-        // o Karaokê Simples (9) e a Correção de Karaoke (10, ex-item 7 da Qualidade).
+        // o Karaokê Simples (10) e a Correção de Karaoke (12); numeração +1 após a
+        // entrada da Revisão de Concordância como item 8 da Qualidade.
         org.junit.jupiter.api.Assertions.assertTrue(
             grupoPreparacao < grupoTraducao && grupoTraducao < grupoQualidade
                 && grupoQualidade < grupoKaraoke && grupoKaraoke < grupoFinalizacao,
@@ -210,6 +211,19 @@ class WebInterfaceTest {
                 && html.contains("<span>5. Correção Cache</span>"),
             "Numeração do grupo Tradução (4 e 5) ausente"
         );
+        // Revisão de Concordância entrou como item 8 do grupo Qualidade (após
+        // 6. Revisão de Legendas e 7. Revisão de Lore), empurrando Troca Tipo
+        // Legenda para 9 e todo o restante do pipeline +1.
+        int itemConcordancia = html.indexOf("data-target=\"revisao-concordancia\"");
+        org.junit.jupiter.api.Assertions.assertTrue(
+            itemConcordancia > grupoQualidade && itemConcordancia < grupoKaraoke,
+            "Revisão de Concordância deve ficar no grupo Qualidade"
+        );
+        org.junit.jupiter.api.Assertions.assertTrue(
+            html.contains("<span>8. Revisão de Concordância</span>")
+                && html.contains("<span>9. Troca Tipo Legenda</span>"),
+            "Numeração do grupo Qualidade (8. Concordância e 9. Troca) ausente"
+        );
         int itemNovoKaraoke = html.indexOf("data-target=\"novo-karaoke\"");
         int itemTraducaoKaraoke = html.indexOf("data-target=\"traducao-karaoke\"");
         int itemCura = html.indexOf("data-target=\"cura\"");
@@ -219,23 +233,23 @@ class WebInterfaceTest {
                 && itemCura > grupoKaraoke && itemCura < grupoFinalizacao,
             "Karaokê Simples, Tradução de Karaokê e Correção de Karaoke devem ficar no grupo Karaokê"
         );
-        // Decisão 2026-07-09: Tradução de Karaokê é o item 10, logo após o
+        // Decisão 2026-07-09: Tradução de Karaokê é o item 11, logo após o
         // Karaokê Simples (converte KFX → depois traduz a letra), empurrando
-        // Correção de Karaoke para 11 e a Finalização para 12/13.
+        // Correção de Karaoke para 12 e a Finalização para 13/14.
         org.junit.jupiter.api.Assertions.assertTrue(
             itemNovoKaraoke < itemTraducaoKaraoke && itemTraducaoKaraoke < itemCura,
             "Tradução de Karaokê deve ficar entre Karaokê Simples e Correção de Karaoke"
         );
         org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>9. Karaokê Simples</span>")
-                && html.contains("<span>10. Tradução de Karaokê</span>")
-                && html.contains("<span>11. Correção de Karaoke</span>"),
-            "Numeração do grupo Karaokê (9, 10 e 11) ausente"
+            html.contains("<span>10. Karaokê Simples</span>")
+                && html.contains("<span>11. Tradução de Karaokê</span>")
+                && html.contains("<span>12. Correção de Karaoke</span>"),
+            "Numeração do grupo Karaokê (10, 11 e 12) ausente"
         );
         org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>12. Remuxer</span>")
-                && html.contains("<span>13. Renomear Arquivos</span>"),
-            "Numeração da Finalização (12 e 13) ausente"
+            html.contains("<span>13. Remuxer</span>")
+                && html.contains("<span>14. Renomear Arquivos</span>"),
+            "Numeração da Finalização (13 e 14) ausente"
         );
         org.junit.jupiter.api.Assertions.assertTrue(
             html.contains("data-modulo=\"traducaoKaraoke\""),
