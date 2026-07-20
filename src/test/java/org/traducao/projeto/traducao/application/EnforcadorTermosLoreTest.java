@@ -261,4 +261,26 @@ class EnforcadorTermosLoreTest {
                 "Coveiro lidera o ataque.",
                 mapa));
     }
+
+    @Test
+    @DisplayName("#2: não corrompe homógrafo comum — só a forma capitalizada (Void) é restaurada")
+    void naoCorrompeHomografoComum() {
+        // 'Vazio' = Void (nome próprio); 'vazio' = empty (palavra comum). Só o 1º vira Void.
+        String r = enforcador.reforcar(
+            "The Void made everything empty.",
+            "O Vazio deixou tudo vazio.",
+            Map.of("Vazio", "Void"));
+        assertEquals("O Void deixou tudo vazio.", r);
+    }
+
+    @Test
+    @DisplayName("#2: restaura no máximo tantas formas-ruim quanto o canônico aparece no original")
+    void restauraNoMaximoOcorrenciasDoCanonico() {
+        // 'Void' aparece 2x no original -> restaura os 2 'Vazio' capitalizados; 'vazio' (empty) fica.
+        String r = enforcador.reforcar(
+            "Void here, Void there, all empty.",
+            "Vazio aqui, Vazio ali, tudo vazio.",
+            Map.of("Vazio", "Void"));
+        assertEquals("Void aqui, Void ali, tudo vazio.", r);
+    }
 }
