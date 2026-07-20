@@ -26,8 +26,23 @@ public class ContextoRevisaoLoreDanMachiS4 implements ProvedorPromptRevisaoLore 
     @Override public String getNomeExibicao() { return "DanMachi S4 - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: núcleo DanMachi + extras S4 (Xenos, Juggernaut, Deep Floors).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: Alienígenas→Xenos só com Xenos no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
+     */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaDanMachiRevisao.mapa();
+        return CorrecoesTerminologiaDanMachiRevisao.comExtras(Map.ofEntries(
+            Map.entry("Lilisuka", "Liliruca Arde"),
+            Map.entry("Liriruca", "Liliruca Arde"),
+            Map.entry("Sino Cranel", "Bell Cranel"),
+            Map.entry("Alienígenas", "Xenos"),
+            Map.entry("Alienigenas", "Xenos"),
+            Map.entry("Jugernaut", "Juggernaut"),
+            Map.entry("Andares Profundos", "Deep Floors")
+        ));
     }
 }

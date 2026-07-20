@@ -22,10 +22,24 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         Map.entry("Robô Móvel", "Mobile Suit"),
         Map.entry("Terno Móvel", "Mobile Suit"),
         Map.entry("Armadura Móvel", "Mobile Armor"),
+        Map.entry("Móvel Suit", "Mobile Suit"),
+        Map.entry("Suit Móvel", "Mobile Suit"),
+        Map.entry("Móveis Suits", "Mobile Suits"),
+        Map.entry("Suits Móveis", "Mobile Suits"),
+        Map.entry("Trajes Móveis", "Mobile Suits"),
+        Map.entry("Robôs Móveis", "Mobile Suits"),
+        Map.entry("Ternos Móveis", "Mobile Suits"),
+        Map.entry("Armaduras Móveis", "Mobile Armors"),
         Map.entry("Sabre de Raio", "Beam Saber"),
         Map.entry("Sabre de Feixe", "Beam Saber"),
         Map.entry("Fuzil de Feixe", "Beam Rifle"),
-        Map.entry("Rifle de Feixe", "Beam Rifle")
+        Map.entry("Rifle de Feixe", "Beam Rifle"),
+        Map.entry("Partículas Minovsky", "Minovsky particles"),
+        Map.entry("Particulas Minovsky", "Minovsky particles"),
+        Map.entry("Espacenóide", "Spacenoid"),
+        Map.entry("Espacenoide", "Spacenoid"),
+        Map.entry("Terranóide", "Earthnoid"),
+        Map.entry("Terranoide", "Earthnoid")
     );
 
     private CorrecoesTerminologiaGundamUcRevisao() {

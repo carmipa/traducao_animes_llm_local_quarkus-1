@@ -28,6 +28,10 @@ public class ContextoRevisaoLoreGundam0080 implements ProvedorPromptRevisaoLore 
 
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaGundamUcRevisao.mapa();
+        return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
+            Map.entry("Gundam Alexandre", "Gundam Alex"),
+            Map.entry("Kämpfer", "Kampfer"),
+            Map.entry("Guerra no Bolso", "War in the Pocket")
+        ));
     }
 }

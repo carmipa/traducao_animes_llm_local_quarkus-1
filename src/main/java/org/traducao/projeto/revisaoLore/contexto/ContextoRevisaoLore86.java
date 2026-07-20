@@ -39,12 +39,16 @@ public class ContextoRevisaoLore86 implements ProvedorPromptRevisaoLore {
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return Map.of(
-            "Legião", "Legion",
-            "Handler Um", "Handler One",
-            "Processador", "Processor",
-            "Coveiro", "Undertaker",
-            "Cavaleiro da Morte", "Undertaker"
+        return Map.ofEntries(
+            Map.entry("Legião", "Legion"),
+            Map.entry("Handler Um", "Handler One"),
+            Map.entry("Processador", "Processor"),
+            Map.entry("Coveiro", "Undertaker"),
+            Map.entry("Cavaleiro da Morte", "Undertaker"),
+            Map.entry("Canela", "Shin"),
+            Map.entry("Para RAID", "Para-RAID"),
+            Map.entry("Para Raid", "Para-RAID"),
+            Map.entry("Jugernaut", "Juggernaut")
         );
     }
 }

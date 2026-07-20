@@ -25,8 +25,25 @@ public class ContextoRevisaoLoreDanMachiS5 implements ProvedorPromptRevisaoLore 
     @Override public String getNomeExibicao() { return "DanMachi S5 - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: núcleo DanMachi + extras S5 (Freya Familia, Hostess of Fertility).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: Família Freya→Freya Familia; Anfitriã da Fertilidade→Hostess.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
+     */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaDanMachiRevisao.mapa();
+        return CorrecoesTerminologiaDanMachiRevisao.comExtras(Map.ofEntries(
+            Map.entry("Lilisuka", "Liliruca Arde"),
+            Map.entry("Liriruca", "Liliruca Arde"),
+            Map.entry("Sino Cranel", "Bell Cranel"),
+            Map.entry("Família Freya", "Freya Familia"),
+            Map.entry("Familia Freya", "Freya Familia"),
+            Map.entry("Anfitriã da Fertilidade", "Hostess of Fertility"),
+            Map.entry("Anfitria da Fertilidade", "Hostess of Fertility"),
+            Map.entry("Deusa da Fertilidade", "Goddess of Fertility"),
+            Map.entry("Deusa da Beleza", "Goddess of Beauty")
+        ));
     }
 }

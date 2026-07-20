@@ -43,6 +43,10 @@ public class ContextoRevisaoLoreMacrossFrontier implements ProvedorPromptRevisao
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacrossRevisao.mapa();
+        return CorrecoesTerminologiaMacrossRevisao.comExtras(Map.ofEntries(
+            Map.entry("Falha Fold", "Fold Fault"),
+            Map.entry("Falha de Fold", "Fold Fault"),
+            Map.entry("Vajras", "Vajra")
+        ));
     }
 }

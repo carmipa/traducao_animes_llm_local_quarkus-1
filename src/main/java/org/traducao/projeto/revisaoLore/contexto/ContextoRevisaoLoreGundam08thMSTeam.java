@@ -29,6 +29,10 @@ public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisa
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
             Map.entry("Gouf Personalizado", "Gouf Custom"),
-            Map.entry("Gouf Customizado", "Gouf Custom")));
+            Map.entry("Gouf Customizado", "Gouf Custom"),
+            Map.entry("Absalão", "Apsalus"),
+            Map.entry("Absalao", "Apsalus"),
+            Map.entry("Gundam Tipo Terrestre", "Gundam Ground Type")
+        ));
     }
 }
