@@ -1250,7 +1250,7 @@
     "indice" : 180,
     "estilo" : "Dialogue",
     "original" : "Captain Bright! We have an\\Nemergency communication!",
-    "traduzido" : "",
+    "traduzido" : "Capitão Brilhante! Temos uma comunicação de emergência\\N!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1271,7 +1271,7 @@
     "indice" : 184,
     "estilo" : "Dialogue",
     "original" : "\"Dispatch the Argama's\\Nmobile suit team immediately.\"",
-    "traduzido" : "",
+    "traduzido" : "\"Envie a equipe de mobile suit do Argama\\Nimediatamente.\"",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1509,7 +1509,7 @@
     "indice" : 218,
     "estilo" : "Dialogue",
     "original" : "{\\i1}I think Miss Roux might be right.",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}Acho que a senhorita Roux pode estar certa.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1852,7 +1852,7 @@
     "indice" : 270,
     "estilo" : "Dialogue",
     "original" : "It {\\i1}is{\\i0} you, Roux Louka!",
-    "traduzido" : "",
+    "traduzido" : "É{\\i1}é{\\i0}você, Roux Louka!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1887,7 +1887,7 @@
     "indice" : 275,
     "estilo" : "Dialogue",
     "original" : "Dammit, Beecha... You'll pay for this!",
-    "traduzido" : "",
+    "traduzido" : "Droga, Beecha... Você vai pagar por isso!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2027,7 +2027,7 @@
     "indice" : 296,
     "estilo" : "Dialogue",
     "original" : "{\\i1}I think Miss Roux said something\\Nimportant, in her way.",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}Acho que a senhorita Roux disse algo\\Nimportante, do jeito dela.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2559,14 +2559,14 @@
     "indice" : 373,
     "estilo" : "nextep",
     "original" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(158.8,36.8)}\\h\\h\\hNext Episode",
-    "traduzido" : "",
+    "traduzido" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(158.8,36.8)}\\h\\h\\hPróximo episódio",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 374,
     "estilo" : "nextep",
     "original" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(214,68)}\\h\\h\\h{\\c&HFEFEFE&\\1a&HFF&}Next Episode \\N\\N\\N\\N\\N\\N\\N\\N\\N\\N{\\fs190}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h{\\c&HFEFEFE&\\1a&H00&}Blue Corps\\N{\\fs120}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h(Part 1)",
-    "traduzido" : "",
+    "traduzido" : "{\\blur2\\an7\\c&HFEFEFE&\\pos(214,68)}\\h\\h\\h{\\c&HFEFEFE&\\1a&HFF&}Próximo episódio\\N\\N\\N\\N\\N\\N\\N\\N\\N\\N{\\fs190}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h{\\c&HFEFEFE&\\1a&H00&}Blue Corps\\N{\\fs120}\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h\\h(Parte 1)",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]
