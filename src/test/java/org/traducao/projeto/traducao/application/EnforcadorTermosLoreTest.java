@@ -283,4 +283,25 @@ class EnforcadorTermosLoreTest {
             Map.of("Vazio", "Void"));
         assertEquals("Void aqui, Void ali, tudo vazio.", r);
     }
+
+    @Test
+    @DisplayName("08th: composto meio-traduzido 'Móveis Suits' -> 'Mobile Suits' mesmo com EN minúsculo")
+    void restauraCompostoMeioTraduzidoMobileSuits() {
+        // O LLM meio-traduziu ("Mobile"->"Móveis", manteve "Suits") e o EN veio minúsculo
+        // ("Mobile suits!"). Termo multi-palavra é reconhecido case-insensitive no original.
+        var mapa = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.mapa();
+        assertEquals("Mobile Suits!",
+            enforcador.reforcar("Mobile suits!", "Móveis Suits!", mapa));
+    }
+
+    @Test
+    @DisplayName("multi-palavra: 'Mobile Suit' minúsculo no EN dispara restauração de 'traje móvel'")
+    void restauraMobileSuitComEnMinusculo() {
+        // Termo técnico composto não colide com palavra comum como um nome próprio de 1 palavra;
+        // por isso a checagem do canônico é case-insensitive para multi-palavra (Void/Titans, de
+        // 1 palavra, seguem SENSÍVEIS à caixa — cobertos por naoAlteraTitasMitologicos/homografo).
+        var mapa = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.mapa();
+        assertEquals("Lance o Mobile Suit.",
+            enforcador.reforcar("Deploy the mobile suit.", "Lance o traje móvel.", mapa));
+    }
 }
