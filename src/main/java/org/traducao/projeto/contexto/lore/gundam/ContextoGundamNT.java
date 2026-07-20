@@ -1,74 +1,63 @@
 package org.traducao.projeto.contexto.lore.gundam;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
-import java.util.Set;
-
 /**
- * PROPÓSITO DE NEGÓCIO: lore de Gundam NT (Narrative) calibrada no artefato real
- * (legendas EN/PT do BD em C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT).
+ * PROPÓSITO DE NEGÓCIO: lore completa de Mobile Suit Gundam NT (Narrative) — UC 0097,
+ * Operation Phoenix Hunt / Phenex, calibrada no diálogo real do BD.
  *
- * <p>INVARIANTES DO DOMÍNIO: Newtype/Cyber-Newtype/Oldtype; Spacenoid; Mobile Suit
- * vs Mobile Armor; Phenex; Shezarr; Metis/Banchi 18/Fransson; Minovsky vs psycho-waves.
+ * <p>INVARIANTES DO DOMÍNIO: Narrative Gundam ≠ Gundam Narrativo; Phenex ≠ Fênix;
+ * Miracle Children; Shezarr; Sleeves ≠ Mangas; Psycho-Frame; Newtype oficial.
  *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos protegidos imutáveis.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
 @Component
 public class ContextoGundamNT implements ProvedorContexto {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam NT (Narrative) / Kidou Senshi Gundam NT (filme 2018, UC 0097).
-        - Continuidade: um ano apos Laplace Incident / Gundam Unicorn. Operation Phoenix Hunt
-          caça o RX-0 Unicorn Gundam 03 Phenex.
-        - Fonte de calibracao: legendas oficiais do BD (EN Track3 + PT) — termos abaixo
-          aparecem no dialogo real; preserve-os.
+        - Obra: Mobile Suit Gundam NT (Narrative) / Kidou Senshi Gundam NT (filme 2018) —
+          Universal Century U.C. 0097, um ano apos Laplace Incident / Unicorn.
+        - Premissa: Operation Phoenix Hunt caca o RX-0 Unicorn Gundam 03 Phenex;
+          Miracle Children (Jona / Michele / Rita); Shezarr Team vs Sleeves / Zoltan.
+        - Tom: drama militar-espiritual, melancolico. Evitar girias modernas.
+          Fonte: termos abaixo aparecem no dialogo BD EN — preserve-os.
 
-        === Nucleo UC (NUNCA traduzir literalmente) ===
-        - Newtype: NUNCA "Novo Tipo". Cyber-Newtype = humano modificado artificialmente
-          (Zoltan e outros; dialogo: "Are you sure he ain't a Cyber-Newtype?").
-        - Oldtype: pejorativo para humanos "comuns" (dialogo: "The only thing that Oldtypes
-          understand is physical phenomena!"). NUNCA traduzir como "tipo antigo" casual.
-        - Spacenoid: habitante das colonias espaciais (dialogo: "fellow Spacenoids",
-          "restoration of Spacenoids"). Earthnoid quando aparecer = elite/habitante da Terra.
-        - Mobile Suit vs Mobile Armor: distinguir rigorosamente. MS = humanoide (Narrative,
-          Phenex, Sinanju Stein). MA = unidade tatica nao-humanoide de grande porte
-          (dialogo cita "gigantic mobile armor" / II Neo Zeong como mobile armor).
-        - Minovsky particles: bloqueiam radar/radio convencional; dialogo distingue
-          "Psycho-waves aren't affected by Minovsky particles" e "Nothing on Minovsky radar".
-          Mega Particle Cannon / reactor Minovsky: consistencia tecnica rigida.
-        - psycho-frame / Psycho-Frame, psycommu, funnel, NT-D: oficiais. NT-D "will attack
-          genuine Newtypes" (dialogo).
+        === Nucleo UC ===
+        - Newtype (NUNCA Novo Tipo); Cyber-Newtype; Oldtype; Spacenoid vs Earthnoid.
+        - Psycho-Frame / psycommu / funnel / NT-D; Minovsky particles;
+          Mega Particle Cannon; Mobile Suit vs Mobile Armor
+          (II Neo Zeong = Mobile Armor; Narrative/Phenex/Sinanju Stein = Mobile Suit).
 
-        === Conflito e faccoes ===
-        - Earth Federation / Shezarr Team (callsigns Shezarr 001…007; Ensign Jona = Shezarr 007).
-        - Luio & Co.: Chairman Luio Woomin; President Stephanie Luio; Michele Luio
-          (segunda filha / consultora — rumores vs Stephanie no dialogo).
-        - Republic of Zeon; Sleeves (remanescentes Neo Zeon).
-        - Miracle Children: Jona, Michele, Rita (experimento/trauma Newtype).
+        === Faccoes / orgs ===
+        - Earth Federation; Shezarr Team (callsigns Shezarr 001…007; Jona = Shezarr 007).
+        - Luio & Co. (Luio Woomin / Stephanie Luio / Michele Luio).
+        - Republic of Zeon; Sleeves (remanescentes Neo Zeon — NUNCA Mangas).
 
-        === Pessoas (genero) ===
-        - Jona Basta (m), Michele Luio / Michelle (f — preferir Michele), Rita Bernal (f),
-          Zoltan Akkanen (m), Iago Haakana (m), Brick Teclato (m), Mineva Lao Zabi (f),
-          Banagher Links (m), Monaghan Bakharo (m), Fransson (m — Cyber-Newtype no dialogo),
-          Luio Woomin (m), Stephanie Luio (f).
+        === Roster ===
+        - Jona Basta (m); Michele Luio (f — preferir Michele); Rita Bernal (f);
+          Zoltan Akkanen (m); Iago Haakana (m); Brick Teclato (m); Fransson (m);
+          Monaghan Bakharo (m); Luio Woomin (m); Stephanie Luio (f);
+          Banagher Links (m); Mineva Lao Zabi (f) — continuidade Unicorn.
 
-        === Mecha / lugares confirmados no dialogo ===
-        - RX-9 Narrative Gundam (A/B/C-Packs); RX-0 Unicorn Gundam 03 Phenex (NUNCA "Fenís"
-          como nome da unidade); Sinanju Stein; II Neo Zeong (mobile armor);
-          Silver Bullet Suppressor; Unicorn / Banshee (legado).
-        - Metis (colonia); Banchi 18 (setor/endereco em Metis); Helium-3 / Minovsky overconcentration.
+        === Mecha / lugares ===
+        - RX-9 Narrative Gundam (A-Packs / B-Packs / C-Packs) — NUNCA Gundam Narrativo;
+          RX-0 Unicorn Gundam 03 Phenex (NUNCA Fenís/Fênix como unidade);
+          Sinanju Stein; II Neo Zeong (MA); Silver Bullet Suppressor;
+          Unicorn / Banshee (legado).
+        - Metis (colonia); Banchi 18; Helium-3 / Minovsky overconcentration quando aparecer.
 
-        === Regras de traducao ===
-        - Narrative / Narrative Gundam / Phenex / Operation Phoenix Hunt / Laplace's Box /
-          Laplace Incident / Universal Century / U.C. — oficiais.
-        - Comunicacao militar curta ("Shezarr 001 to all units", "scatter", "no eyes on target").
-        - Tom: drama militar-espiritual, melancolico; Jona ferido; Michele calculista/culpada;
-          Zoltan teatral/cruel; Rita eterea.
-        - Genero: Jona/Zoltan/Iago/Brick/Banagher/Monaghan/Fransson/Luio Woomin = m |
+        === Operacoes / legado Unicorn ===
+        - Operation Phoenix Hunt; Laplace's Box; Laplace Incident; Universal Century / U.C.
+
+        === Regras duras ===
+        - Narrative / Narrative Gundam / Phenex / Miracle Children / Shezarr oficiais.
+        - Radio militar curto ("Shezarr 001 to all units", "no eyes on target").
+        - Genero: Jona/Zoltan/Iago/Brick/Banagher/Monaghan/Fransson/Luio Woomin = m;
           Michele/Rita/Mineva/Stephanie = f.
         """;
 
@@ -90,8 +79,10 @@ public class ContextoGundamNT implements ProvedorContexto {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: protege identificadores confirmados nas legendas do BD NT.
-     * <p>INVARIANTES DO DOMÍNIO: só termos que aparecem no artefato / cânone NT-Unicorn.
+     * PROPÓSITO DE NEGÓCIO: protege elenco NT, Phenex/Narrative, Shezarr e termos UC do filme.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só artefatos NT / continuidade Unicorn confirmados.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
     @Override
@@ -100,24 +91,28 @@ public class ContextoGundamNT implements ProvedorContexto {
             "Jona Basta", "Michele Luio", "Rita Bernal",
             "Zoltan Akkanen", "Luio Woomin", "Stephanie Luio",
             "Banagher Links", "Mineva Lao Zabi", "Iago Haakana",
-            "Monaghan Bakharo", "Narrative Gundam", "Phenex",
+            "Brick Teclato", "Monaghan Bakharo", "Fransson",
+            "Narrative", "Narrative Gundam", "Phenex",
             "Sinanju Stein", "II Neo Zeong", "Silver Bullet Suppressor",
-            "Unicorn", "Banshee", "Earth Federation",
-            "Shezarr", "Republic of Zeon", "Sleeves",
-            "Miracle Children", "Metis", "Banchi 18", "Fransson", "Operation Phoenix Hunt",
-            "Laplace's Box", "Universal Century", "Newtype",
-            "Cyber-Newtype", "Oldtype", "Spacenoid",
-            "Earthnoid", "Minovsky", "Psycho-Frame",
-            "psycommu", "funnel", "NT-D",
-            "Mega Particle Cannon", "Mobile Suit", "Mobile Armor"
+            "Unicorn", "Banshee", "Unicorn Gundam",
+            "Earth Federation", "Shezarr", "Shezarr Team",
+            "Luio & Co.", "Republic of Zeon", "Sleeves",
+            "Miracle Children", "Metis", "Banchi 18",
+            "Operation Phoenix Hunt", "Laplace's Box", "Laplace Incident",
+            "Universal Century", "Helium-3",
+            "Newtype", "Cyber-Newtype", "Oldtype", "Spacenoid", "Earthnoid",
+            "Minovsky", "Psycho-Frame", "psycommu", "funnel", "NT-D",
+            "Mega Particle Cannon", "Mobile Suit", "Mobile Armor",
+            "A-Packs", "B-Packs", "C-Packs"
         );
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: reforço determinístico do núcleo UC (Newtype, Mobile Suit, Beam
-     * Saber/Rifle, Mobile Armor, Oldtype) mais os termos próprios desta obra.
-     * <p>INVARIANTES DO DOMÍNIO: forma-ruim PT → canônico; só aplica se o EN contém o canônico.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
+     * PROPÓSITO DE NEGÓCIO: núcleo UC + formas-ruim NT (Phenex, Narrative, Phoenix Hunt…).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica com canônico no original EN.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
@@ -133,7 +128,12 @@ public class ContextoGundamNT implements ProvedorContexto {
             Map.entry("Mangas", "Sleeves"),
             Map.entry("Manga", "Sleeves"),
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
-            Map.entry("Moldura Psiquica", "Psycho-Frame")
+            Map.entry("Moldura Psiquica", "Psycho-Frame"),
+            Map.entry("Caixa de Laplace", "Laplace's Box"),
+            Map.entry("Incidente de Laplace", "Laplace Incident"),
+            Map.entry("Equipe Shezarr", "Shezarr Team"),
+            Map.entry("Supressor Silver Bullet", "Silver Bullet Suppressor"),
+            Map.entry("Silver Bullet Supressor", "Silver Bullet Suppressor")
         ));
     }
 }
