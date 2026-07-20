@@ -26,6 +26,17 @@ public final class CorrecoesTerminologiaGundamUc {
         Map.entry("Robô Móvel", "Mobile Suit"),
         Map.entry("Terno Móvel", "Mobile Suit"),
         Map.entry("Armadura Móvel", "Mobile Armor"),
+        // Compostos MEIO-traduzidos (o LLM localiza "Mobile"->"Móvel"/"Móveis" mas mantém "Suit"),
+        // e os plurais das formas-ruim acima — o canônico plural "Mobile Suits" casa o EN
+        // "Mobile suits" (checagem multi-palavra é case-insensitive no EnforcadorTermosLore).
+        Map.entry("Móvel Suit", "Mobile Suit"),
+        Map.entry("Suit Móvel", "Mobile Suit"),
+        Map.entry("Móveis Suits", "Mobile Suits"),
+        Map.entry("Suits Móveis", "Mobile Suits"),
+        Map.entry("Trajes Móveis", "Mobile Suits"),
+        Map.entry("Robôs Móveis", "Mobile Suits"),
+        Map.entry("Ternos Móveis", "Mobile Suits"),
+        Map.entry("Armaduras Móveis", "Mobile Armors"),
         Map.entry("Sabre de Raio", "Beam Saber"),
         Map.entry("Sabre de Feixe", "Beam Saber"),
         Map.entry("Fuzil de Feixe", "Beam Rifle"),
