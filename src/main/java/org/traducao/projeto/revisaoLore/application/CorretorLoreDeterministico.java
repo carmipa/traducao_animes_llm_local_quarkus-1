@@ -83,6 +83,50 @@ public class CorretorLoreDeterministico {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: variante PT-only (sem o inglês) da restauração de terminologia —
+     * para a revisão de lore quando só existe a legenda PT-BR. Sem o EN não há como desambiguar
+     * homógrafo de uma palavra ({@code Vazio}=Void vs {@code vazio}=empty); por isso aplica SÓ os
+     * termos INEQUÍVOCOS: forma-ruim MULTI-PALAVRA (contém espaço), improvável de colidir com
+     * palavra comum. Homógrafos de uma palavra ficam para o LLM PT-only.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aplica forma-ruim com espaço; fronteira de palavra;
+     * forma-ruim casa ignorando caixa; canônico inserido literalmente; nunca deixa pior.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: tradução vazia, mapa vazio ou nenhuma substituição
+     * aplicável devolve {@link Optional#empty()}; não lança.
+     *
+     * @param traducaoMascarada a fala PT já mascarada
+     * @param correcoesTerminologia mapa forma-ruim (PT) → canônico da obra ativa
+     * @return a fala corrigida quando houve alteração; caso contrário {@link Optional#empty()}
+     */
+    public Optional<String> corrigirPtOnly(String traducaoMascarada, Map<String, String> correcoesTerminologia) {
+        if (traducaoMascarada == null || traducaoMascarada.isBlank()
+            || correcoesTerminologia == null || correcoesTerminologia.isEmpty()) {
+            return Optional.empty();
+        }
+        String resultado = traducaoMascarada;
+        for (Map.Entry<String, String> par : correcoesTerminologia.entrySet()) {
+            String formaRuim = par.getKey();
+            String canonico = par.getValue();
+            if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
+                continue;
+            }
+            // Só termos INEQUÍVOCOS sem o EN: forma-ruim multi-palavra (contém espaço). Homógrafo
+            // de uma palavra ("Vazio") é pulado — sem o original não dá para separar do comum.
+            if (formaRuim.trim().indexOf(' ') < 0) {
+                continue;
+            }
+            Pattern formaRuimPat = Pattern.compile(
+                "(?<![\\p{L}\\p{N}])" + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            if (formaRuimPat.matcher(resultado).find()) {
+                resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));
+            }
+        }
+        return resultado.equals(traducaoMascarada) ? Optional.empty() : Optional.of(resultado);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: aplica o mapa de terminologia da obra, restaurando cada
      * forma-ruim para o canônico quando o original EN contém o canônico.
      *
