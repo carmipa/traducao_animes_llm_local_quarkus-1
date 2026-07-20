@@ -1,0 +1,112 @@
+{
+  "operacao" : {
+    "tipo" : "Correcao de Legendas (.ass original->traduzida)",
+    "detalhe" : "Original: C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\legendas_extraidas_ass | Traduzida: C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr",
+    "tempoTotalMs" : 327,
+    "arquivosProcessados" : 13,
+    "itensDetectados" : 0,
+    "itensCorrigidos" : 0,
+    "registradoEm" : "2026-07-20T17:16:52.827814500Z"
+  },
+  "pastaOriginal" : "C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\legendas_extraidas_ass",
+  "pastaTraduzida" : "C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr",
+  "llmHabilitado" : true,
+  "contexto" : "Mobile Suit Gundam: The 08th MS Team",
+  "resultado" : {
+    "curados" : 0,
+    "falasCuradas" : 0,
+    "corrigidosLlm" : 0,
+    "semAlteracao" : 0,
+    "semPar" : 0,
+    "traducaoAusente" : 0,
+    "totalErros" : 13,
+    "erros" : [ "Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass: contagem de eventos não corresponde (114 no original vs 75 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass: contagem de eventos não corresponde (430 no original vs 325 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass: contagem de eventos não corresponde (411 no original vs 306 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass: contagem de eventos não corresponde (486 no original vs 381 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass: contagem de eventos não corresponde (485 no original vs 380 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass: contagem de eventos não corresponde (589 no original vs 434 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass: contagem de eventos não corresponde (486 no original vs 353 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass: contagem de eventos não corresponde (353 no original vs 248 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass: contagem de eventos não corresponde (446 no original vs 341 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass: contagem de eventos não corresponde (468 no original vs 363 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass: contagem de eventos não corresponde (406 no original vs 301 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass: contagem de eventos não corresponde (371 no original vs 280 na tradução) — arquivo pulado, nenhuma alteração feita.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass: contagem de eventos não corresponde (574 no original vs 541 na tradução) — arquivo pulado, nenhuma alteração feita." ],
+    "relatorioJson" : null
+  },
+  "eventosSessao" : [ {
+    "timestampUtc" : "2026-07-20T17:16:52.506725200Z",
+    "nivel" : "INFO",
+    "arquivo" : null,
+    "mensagem" : "=== Iniciando Correcao de Legendas ==="
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.507730800Z",
+    "nivel" : "INFO",
+    "arquivo" : null,
+    "mensagem" : "Pasta original/ref: C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\legendas_extraidas_ass"
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.507730800Z",
+    "nivel" : "INFO",
+    "arquivo" : null,
+    "mensagem" : "Pasta traduzida/alvo: C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr"
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.510147600Z",
+    "nivel" : "INFO",
+    "arquivo" : null,
+    "mensagem" : "Correcao de traducao via LLM ativa (contexto: Mobile Suit Gundam: The 08th MS Team)"
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.536009100Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass: contagem de eventos não corresponde (114 no original vs 75 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.561773200Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass: contagem de eventos não corresponde (430 no original vs 325 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.586618500Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass: contagem de eventos não corresponde (411 no original vs 306 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.611354400Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass: contagem de eventos não corresponde (486 no original vs 381 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.636904400Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass: contagem de eventos não corresponde (485 no original vs 380 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.661024800Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass: contagem de eventos não corresponde (589 no original vs 434 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.684216500Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass: contagem de eventos não corresponde (486 no original vs 353 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.707024200Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass: contagem de eventos não corresponde (353 no original vs 248 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.732430700Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass: contagem de eventos não corresponde (446 no original vs 341 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.755008100Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass: contagem de eventos não corresponde (468 no original vs 363 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.780387700Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass: contagem de eventos não corresponde (406 no original vs 301 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.803202500Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass: contagem de eventos não corresponde (371 no original vs 280 na tradução) — arquivo pulado, nenhuma alteração feita."
+  }, {
+    "timestampUtc" : "2026-07-20T17:16:52.827814500Z",
+    "nivel" : "WARN",
+    "arquivo" : "Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass",
+    "mensagem" : "[Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass: contagem de eventos não corresponde (574 no original vs 541 na tradução) — arquivo pulado, nenhuma alteração feita."
+  } ]
+}
