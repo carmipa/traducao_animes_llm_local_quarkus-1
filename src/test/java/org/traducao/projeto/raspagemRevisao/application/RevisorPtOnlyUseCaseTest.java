@@ -6,7 +6,7 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.traducao.application.NormalizadorAcentosComuns;
+import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
