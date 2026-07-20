@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 
+import java.util.Map;
+
 @Component
 public class ContextoRevisaoLoreDanMachiS5 implements ProvedorPromptRevisaoLore {
 
@@ -22,4 +24,9 @@ public class ContextoRevisaoLoreDanMachiS5 implements ProvedorPromptRevisaoLore 
     @Override public String getId() { return "danmachi_s5"; }
     @Override public String getNomeExibicao() { return "DanMachi S5 - Revisao de Lore"; }
     @Override public String obterPromptSistema() { return PROMPT; }
+
+    @Override
+    public Map<String, String> correcoesTerminologia() {
+        return CorrecoesTerminologiaDanMachiRevisao.mapa();
+    }
 }
