@@ -78,6 +78,7 @@ public class ProcessarArquivoUseCase {
     private final EnforcadorTermosLore enforcadorTermosLore;
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
+    private final NormalizadorAcentosComuns normalizadorAcentos;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -109,7 +110,8 @@ public class ProcessarArquivoUseCase {
         RecuperarPendenciaGoogleService recuperarPendenciaGoogle,
         EnforcadorTermosLore enforcadorTermosLore,
         DetectorIdiomaFonteService detectorIdiomaFonte,
-        NormalizadorAspasService normalizadorAspas
+        NormalizadorAspasService normalizadorAspas,
+        NormalizadorAcentosComuns normalizadorAcentos
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -134,6 +136,7 @@ public class ProcessarArquivoUseCase {
         this.enforcadorTermosLore = enforcadorTermosLore;
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
+        this.normalizadorAcentos = normalizadorAcentos;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -400,13 +403,18 @@ public class ProcessarArquivoUseCase {
             }
         }
 
-        // Fidelidade à fonte: remove as aspas que ENVOLVEM a fala inteira quando o original (EN)
-        // não as tinha — o LLM às vezes cita um diálogo que a fonte não citava. Roda SEMPRE
-        // (independe de lore) e só nas traduções válidas (falas em branco/pendentes são ignoradas).
+        // Normalização determinística final das traduções válidas (roda SEMPRE, independe de
+        // lore; falas em branco/pendentes são ignoradas):
+        //  (1) aspas: remove as que ENVOLVEM a fala inteira quando o EN não as tinha (o LLM às
+        //      vezes cita um diálogo que a fonte não citava);
+        //  (2) acentos: repõe acento nas formas que sem ele nunca são palavra válida (infancia,
+        //      nao, ...), sem tocar homógrafos.
         for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
             String traduzido = traducao.getValue();
             if (traduzido != null && !traduzido.isBlank()) {
-                traducao.setValue(normalizadorAspas.normalizar(traducao.getKey(), traduzido));
+                String normalizado = normalizadorAspas.normalizar(traducao.getKey(), traduzido);
+                normalizado = normalizadorAcentos.normalizar(normalizado);
+                traducao.setValue(normalizado);
             }
         }
 
