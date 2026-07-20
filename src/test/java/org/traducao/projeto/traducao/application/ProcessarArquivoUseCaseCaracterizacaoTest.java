@@ -266,7 +266,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
             pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
-            enforcadorTermos, new DetectorIdiomaFonteService());
+            enforcadorTermos, new DetectorIdiomaFonteService(), new NormalizadorAspasService());
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {

@@ -77,6 +77,7 @@ public class ProcessarArquivoUseCase {
     private final RecuperarPendenciaGoogleService recuperarPendenciaGoogle;
     private final EnforcadorTermosLore enforcadorTermosLore;
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
+    private final NormalizadorAspasService normalizadorAspas;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -107,7 +108,8 @@ public class ProcessarArquivoUseCase {
         ClassificadorPendenciaTelemetria classificadorPendencia,
         RecuperarPendenciaGoogleService recuperarPendenciaGoogle,
         EnforcadorTermosLore enforcadorTermosLore,
-        DetectorIdiomaFonteService detectorIdiomaFonte
+        DetectorIdiomaFonteService detectorIdiomaFonte,
+        NormalizadorAspasService normalizadorAspas
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -131,6 +133,7 @@ public class ProcessarArquivoUseCase {
         this.recuperarPendenciaGoogle = recuperarPendenciaGoogle;
         this.enforcadorTermosLore = enforcadorTermosLore;
         this.detectorIdiomaFonte = detectorIdiomaFonte;
+        this.normalizadorAspas = normalizadorAspas;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -394,6 +397,16 @@ public class ProcessarArquivoUseCase {
                 if (traduzido != null && !traduzido.isBlank()) {
                     traducao.setValue(enforcadorTermosLore.reforcar(traducao.getKey(), traduzido, correcoesLore));
                 }
+            }
+        }
+
+        // Fidelidade à fonte: remove as aspas que ENVOLVEM a fala inteira quando o original (EN)
+        // não as tinha — o LLM às vezes cita um diálogo que a fonte não citava. Roda SEMPRE
+        // (independe de lore) e só nas traduções válidas (falas em branco/pendentes são ignoradas).
+        for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
+            String traduzido = traducao.getValue();
+            if (traduzido != null && !traduzido.isBlank()) {
+                traducao.setValue(normalizadorAspas.normalizar(traducao.getKey(), traduzido));
             }
         }
 
