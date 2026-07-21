@@ -1,6 +1,6 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 
-const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.1';
+const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.2';
 
 function escapeHtml(texto) {
     return String(texto ?? '')
@@ -30,6 +30,7 @@ async function carregarPainelHtml() {
 function vincularEventos() {
     const btnEscanear = document.getElementById('btn-escanear-fontes');
     const btnAplicar = document.getElementById('btn-aplicar-substituicoes');
+    const btnAchatar = document.getElementById('btn-achatar-estilos');
     const btnLimpar = document.querySelector('.btn-clear-form[data-form="form-troca-tipo-legenda"]');
     const inputEntrada = document.getElementById('troca-tipo-legenda-entrada');
     
@@ -241,6 +242,43 @@ function vincularEventos() {
                 logNoConsole('console-troca-tipo-legenda', `Erro: ${err.message}`, 'erro');
                 mostrarAlerta(err.message, 'erro');
                 btnAplicar.disabled = false;
+            }
+        });
+    }
+
+    // Ação do Botão: Achatar Estilos Decorativos (OP/ED/Sign -> Default)
+    if (btnAchatar) {
+        btnAchatar.addEventListener('click', async () => {
+            const caminho = inputEntrada.value.trim();
+            if (!caminho) {
+                mostrarAlerta('Informe a pasta com as legendas a serem achatadas!', 'erro');
+                return;
+            }
+            const ok = window.confirm(
+                'Achatar estilos decorativos grava os .ass NO LOCAL (com backup automático em backups/).\n\n'
+                + 'Aberturas/encerramentos e placas de fonte diferente do Default viram legenda branca simples '
+                + '(sem posição/fade). Diálogo comum e o Karaokê Simples não são tocados.\n\nContinuar?');
+            if (!ok) return;
+
+            logNoConsole('console-troca-tipo-legenda', `Solicitando achatamento de estilos decorativos em: ${caminho}`, 'info');
+            btnAchatar.disabled = true;
+            try {
+                const res = await fetch('/api/troca-legenda/achatar-estilos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ diretorioLegendas: caminho })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.erro || 'Falha ao iniciar o achatamento de estilos');
+                }
+                logNoConsole('console-troca-tipo-legenda', data.mensagem || 'Achatamento iniciado.', 'sucesso');
+                mostrarAlerta('Achatamento de estilos decorativos iniciado! Acompanhe os logs.', 'sucesso');
+            } catch (err) {
+                logNoConsole('console-troca-tipo-legenda', `Erro: ${err.message}`, 'erro');
+                mostrarAlerta(err.message, 'erro');
+            } finally {
+                btnAchatar.disabled = false;
             }
         });
     }
