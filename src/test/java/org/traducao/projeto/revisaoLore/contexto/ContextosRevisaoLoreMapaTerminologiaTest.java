@@ -23,10 +23,18 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
     @Test
     @DisplayName("Gundam UC (0080/0083/08th/CCA) têm o mapa UC + extras próprios")
     void gundamUcTemMapa() {
-        Map<String, String> m0080 = new ContextoRevisaoLoreGundam0080().correcoesTerminologia();
+        var rev0080 = new ContextoRevisaoLoreGundam0080();
+        Map<String, String> m0080 = rev0080.correcoesTerminologia();
         assertEquals("Mobile Suit", m0080.get("Traje Móvel"));
         assertEquals("Gundam Alex", m0080.get("Gundam Alexandre"));
         assertEquals("Kampfer", m0080.get("Kämpfer"));
+        assertEquals("War in the Pocket", m0080.get("Guerra no Bolso"));
+        assertEquals("Cyclops Team", m0080.get("Equipe Cyclops"));
+        assertEquals("Republic of Riah", m0080.get("República de Riah"));
+        assertEquals("Antarctic Base", m0080.get("Base Antártica"));
+        assertTrue(rev0080.obterPromptSistema().contains("Colonel Killing"));
+        assertTrue(rev0080.obterPromptSistema().contains("Libot colony"));
+        assertTrue(rev0080.obterPromptSistema().contains("GM Cold Districts Type"));
 
         var rev0083 = new ContextoRevisaoLoreGundam0083();
         Map<String, String> m0083 = rev0083.correcoesTerminologia();
