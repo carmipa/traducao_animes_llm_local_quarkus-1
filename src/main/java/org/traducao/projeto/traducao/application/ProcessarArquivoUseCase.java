@@ -27,8 +27,11 @@ import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssServ
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
+import org.traducao.projeto.traducao.domain.ports.RelatorioContextoCenaPort;
+import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.application.contextocena.TradutorContextualEpisodio;
 import org.traducao.projeto.traducao.domain.contextocena.ResumoContextoCena;
+import org.traducao.projeto.traducao.domain.contextocena.RegistroExecucaoContextoCena;
 import org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties;
 
 import java.nio.file.Files;
@@ -85,6 +88,7 @@ public class ProcessarArquivoUseCase {
     private final NormalizadorAcentosComuns normalizadorAcentos;
     private final ContextoCenaProperties contextoCena;
     private final TradutorContextualEpisodio tradutorContextual;
+    private final RelatorioContextoCenaPort relatorioContextoCena;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -119,7 +123,8 @@ public class ProcessarArquivoUseCase {
         NormalizadorAspasService normalizadorAspas,
         NormalizadorAcentosComuns normalizadorAcentos,
         ContextoCenaProperties contextoCena,
-        TradutorContextualEpisodio tradutorContextual
+        TradutorContextualEpisodio tradutorContextual,
+        RelatorioContextoCenaPort relatorioContextoCena
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -147,6 +152,7 @@ public class ProcessarArquivoUseCase {
         this.normalizadorAcentos = normalizadorAcentos;
         this.contextoCena = contextoCena;
         this.tradutorContextual = tradutorContextual;
+        this.relatorioContextoCena = relatorioContextoCena;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -487,10 +493,17 @@ public class ProcessarArquivoUseCase {
         uiLogger.registrarFalasNovas(traducoesNovasValidas);
         StatusArquivoTraducao status = avisos.isEmpty() && falhasDistintas.isEmpty()
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
-        telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
+        TelemetriaTraducao telemetria = montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,
             cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status,
-            pendenciasPorCausa));
+            pendenciasPorCausa);
+        telemetriaTraducao.registrarTraducao(telemetria);
+        // Braço A do A/B (só quando relatorio-ab está ligado): a via de hoje é o baseline, sem
+        // custo de contexto (caracteresContextoExtra = 0). pendentes = falas distintas que
+        // sobraram sem tradução confiável.
+        emitirRelatorioAb(arquivoEntrada, RegistroExecucaoContextoCena.VARIANTE_BASELINE, "baseline",
+            telemetria.modeloLlm(), eventosTraduziveis.size(), traducoesNovasValidas,
+            cacheReaproveitavel.size(), falhasDistintas.size(), 0L, tempoTotalMs, status);
 
         if (status == StatusArquivoTraducao.PARCIAL) {
             if (permitirRetraducao) {
@@ -657,14 +670,47 @@ public class ProcessarArquivoUseCase {
         uiLogger.registrarFalasCache(reaproveitadasTotal);
         uiLogger.registrarFalasNovas(novasValidas);
         StatusArquivoTraducao status = parcial ? StatusArquivoTraducao.PARCIAL : StatusArquivoTraducao.CONCLUIDO;
-        telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
+        TelemetriaTraducao telemetria = montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), novasValidas, reaproveitadasTotal, tempoTotalMs,
-            avisos, animeNome, loreNome, status, List.of()));
+            avisos, animeNome, loreNome, status, List.of());
+        telemetriaTraducao.registrarTraducao(telemetria);
+        // Braço B do A/B (só quando relatorio-ab está ligado): motor contextual. pendentes soma o
+        // diálogo mantido no original (alucinação/reprova) e as falhas do não-diálogo;
+        // caracteresContextoExtra é o custo de contexto que só este braço paga.
+        emitirRelatorioAb(arquivoEntrada, RegistroExecucaoContextoCena.VARIANTE_CONTEXTO,
+            "contexto-cena:" + TradutorContextualEpisodio.POLITICA_VERSAO, telemetria.modeloLlm(),
+            eventosTraduziveis.size(), novasValidas, reaproveitadasTotal,
+            resumo.pendentes() + falhasNaoDialogo, resumo.caracteresContextoExtra(), tempoTotalMs, status);
 
         log.info("Arquivo traduzido (contexto de cena) salvo em {} (cache em {})", arquivoSaida, arquivoCache);
         return new ResultadoTraducaoArquivo(
             arquivoSaida, arquivoEntrada.getFileName().toString(), loreNome,
             eventosTraduziveis.size(), reaproveitadasTotal, novasValidas, avisos.size(), status);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: acrescenta (append-only) uma linha ao relatório A/B do contexto de
+     * cena, marcando o braço (A_BASELINE/B_CONTEXTO) desta execução. É observabilidade OPT-IN: só
+     * emite quando {@code contexto-cena.relatorio-ab} está ligado — fora do experimento não há
+     * escrita e o caminho de tradução fica intocado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nada é escrito quando o relatório A/B está desligado (default),
+     * preservando o comportamento byte-idêntico do fluxo de hoje; o diretório de cache carimbado
+     * é a RAIZ configurada (identidade do isolamento entre os braços).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: delega ao adaptador, que absorve I/O e nunca propaga — a
+     * falha de observabilidade não derruba a tradução.
+     */
+    private void emitirRelatorioAb(Path arquivoEntrada, String variante, String politicaVersao,
+            String modelo, int linhasTraduziveis, int traduzidasNovas, int reaproveitadasCache,
+            int pendentes, long caracteresContextoExtra, long tempoMs, StatusArquivoTraducao status) {
+        if (!contextoCena.relatorioAb()) {
+            return;
+        }
+        relatorioContextoCena.registrar(new RegistroExecucaoContextoCena(
+            arquivoEntrada.getFileName().toString(), variante, politicaVersao, modelo,
+            propriedades.diretorioCache(), linhasTraduziveis, traduzidasNovas, reaproveitadasCache,
+            pendentes, caracteresContextoExtra, tempoMs, status.name()));
     }
 
     private static boolean ehSrt(Path arquivo) {

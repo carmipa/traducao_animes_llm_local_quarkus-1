@@ -12,11 +12,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * <p>INVARIANTES DO DOMÍNIO: {@code ativo} default {@code false}; {@code tamanhoJanela} é o
  * número de vizinhas de cada lado (default 2), nunca negativo — valor não positivo é
- * normalizado para 0 (janela só com a fala-alvo). Portador de configuração puro.
+ * normalizado para 0 (janela só com a fala-alvo). {@code relatorioAb} é um interruptor de
+ * OBSERVABILIDADE (default {@code false}): quando ligado, cada execução acrescenta uma linha
+ * ao relatório A/B append-only — NÃO altera a tradução nem a proveniência do cache (por isso
+ * está fora de {@link #marcadorProveniencia()}). Portador de configuração puro.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: nenhuma decisão de runtime vive aqui; o serviço que
  * consumir esta config decide o que fazer quando ligada. Ausência de config no ambiente
- * resolve para os defaults (desligada, janela 2).
+ * resolve para os defaults (desligada, janela 2, relatório A/B desligado).
  */
 @ConfigurationProperties(prefix = "tradutor.contexto-cena")
 public class ContextoCenaProperties {
@@ -29,6 +32,7 @@ public class ContextoCenaProperties {
 
     private boolean ativo = false;
     private int tamanhoJanela = 2;
+    private boolean relatorioAb = false;
 
     /**
      * PROPÓSITO DE NEGÓCIO: marcador que discrimina a proveniência do cache quando o motor
@@ -75,5 +79,17 @@ public class ContextoCenaProperties {
 
     public void setTamanhoJanela(int tamanhoJanela) {
         this.tamanhoJanela = Math.max(0, tamanhoJanela);
+    }
+
+    public boolean relatorioAb() {
+        return relatorioAb;
+    }
+
+    public boolean isRelatorioAb() {
+        return relatorioAb;
+    }
+
+    public void setRelatorioAb(boolean relatorioAb) {
+        this.relatorioAb = relatorioAb;
     }
 }
