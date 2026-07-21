@@ -949,7 +949,9 @@ const FRANQUIAS_REVISAO_LORE = [
     ['Macross', 'Macross'],
     ['Evangelion', 'Evangelion'],
     ['DanMachi', 'DanMachi'],
-    ['Sidonia', 'Knights of Sidonia']
+    ['Sidonia', 'Knights of Sidonia'],
+    ['Break Blade', 'Break Blade'],
+    ['Broken Blade', 'Break Blade']
 ];
 
 function grupoFranquiaRevisaoLore(nome) {
