@@ -56,6 +56,12 @@ public class RenomeadorUseCase {
     private static final String PREFIXO_ARQUIVO_UNDO = "kronos_undo_renomeacao_";
     private static final int TAMANHO_MAXIMO_NOME_PADRAO = 180;
 
+    // Marcador canônico de tracker "S01E02" (com separador opcional): é a origem
+    // MAIS confiável do número do episódio e precisa ter prioridade sobre o
+    // fallback numérico. O EPISODE_LABEL_PATTERN abaixo NÃO o captura porque o
+    // "E" dentro de "01E02" não tem fronteira de palavra (\b) após o dígito.
+    private static final Pattern SEASON_EPISODE_PATTERN = Pattern.compile(
+        "(?i)\\bS(\\d{1,2})[\\s._]?E(\\d{1,4})(?=$|[\\s._\\-\\[(]|v\\d)");
     private static final Pattern EPISODE_SEPARATOR_PATTERN = Pattern.compile(
         "(?:^|[\\s._])[-–—][\\s._]*(\\d{1,4})(?=$|[\\s._(\\[]|v\\d)", Pattern.CASE_INSENSITIVE);
     private static final Pattern EPISODE_LABEL_PATTERN = Pattern.compile(
@@ -500,12 +506,19 @@ public class RenomeadorUseCase {
     private EpisodioDetectado extrairEpisodio(String nome) {
         String semExtensao = nome.replaceAll("(?:\\.[A-Za-z0-9]{1,5})+$", "");
         String semBrackets = semExtensao.replaceAll("\\[.*?\\]", " ").trim();
+        Matcher seasonEp = SEASON_EPISODE_PATTERN.matcher(semBrackets);
+        if (seasonEp.find()) return new EpisodioDetectado(formatarNumero(seasonEp.group(2)), true);
         Matcher separador = EPISODE_SEPARATOR_PATTERN.matcher(semBrackets);
         if (separador.find()) return new EpisodioDetectado(formatarNumero(separador.group(1)), true);
         Matcher rotulo = EPISODE_LABEL_PATTERN.matcher(semBrackets);
         if (rotulo.find()) return new EpisodioDetectado(formatarNumero(rotulo.group(1)), true);
 
         String semRuido = semBrackets.replaceAll("\\([^\\)]*\\)", " ")
+            // Codecs de áudio com contagem de canais colada por ponto (AAC2.0,
+            // DDP5.1, DTS-HD MA...) removidos ANTES de trocar separadores por
+            // espaço, enquanto o ponto ainda os une. Sem isto, "AAC2.0" vira
+            // "AAC2 0" e o "0" solto vence o fallback como falso episódio 00.
+            .replaceAll("(?i)\\b(?:AAC|AC-?3|E-?AC-?3|DDP?|DTS(?:[-. ]?HD)?(?:[-. ]?MA)?|TrueHD|FLAC|Opus|MP3|PCM)[\\s._]?\\d?(?:[._]\\d)?\\b", " ")
             .replaceAll("[_.-]+", " ")
             .replaceAll("(?i)\\b(1080p|720p|2160p|4k|BD|BDRip|WEBRip|WEB\\s*DL|Dual\\s*Audio|Multi\\s*Audio|10bit|8bit|HEVC|AV1|x264|x265|Track\\s*\\d+|PTBR|PT\\s*BR)\\b", " ")
             .replaceAll("\\s+", " ").trim();
