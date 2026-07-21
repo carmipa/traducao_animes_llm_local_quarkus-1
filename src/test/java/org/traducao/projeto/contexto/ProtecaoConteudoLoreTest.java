@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * PROPÓSITO DE NEGÓCIO: gate de conteúdo da E7a. Prova que a extração do peer
  * {@code contexto} NÃO alterou nenhum prompt, nome de exibição, id ou termo protegido
- * das 53 lores descobertas por CDI — comparando o estado vivo pós-move com o manifesto
+ * das 59 lores descobertas por CDI — comparando o estado vivo pós-move com o manifesto
  * determinístico capturado ANTES do move ({@code /contexto/manifesto-lore.properties}).
  *
  * <h2>Invariantes do domínio</h2>
