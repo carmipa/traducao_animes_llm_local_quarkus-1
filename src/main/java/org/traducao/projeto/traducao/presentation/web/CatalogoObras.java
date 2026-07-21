@@ -29,6 +29,8 @@ public class CatalogoObras {
         // "Gundam SEED" ANTES de "Gundam": a Cosmic Era (SEED) tem submenu próprio.
         // Todos os títulos SEED contêm a substring "Gundam SEED" no nome de exibição.
         Map.entry("Gundam SEED", "Gundam SEED"),
+        // Reconguista in G (Regild Century) também tem submenu próprio — antes de "Gundam".
+        Map.entry("Reconguista", "Gundam Reconguista in G"),
         Map.entry("Gundam", "Gundam"),
         Map.entry("Macross", "Macross"),
         Map.entry("Evangelion", "Evangelion"),
@@ -62,7 +64,14 @@ public class CatalogoObras {
         Map.entry("gundam_hathaway", "UC 0105 - Mobile Suit Gundam Hathaway"),
         Map.entry("gundam_f91", "UC 0123 - Mobile Suit Gundam F91"),
         Map.entry("gundam_victory", "UC 0153 - Mobile Suit Victory Gundam"),
-        Map.entry("gundam_greco", "RC 1014 - Mobile Suit Gundam: Reconguista in G"),
+        // Regild Century (RC) — grupo "Gundam Reconguista in G" (TV + 5 filmes).
+        // Contrato p/ lore: ids gundam_greco_1..5, nome contendo "Reconguista".
+        Map.entry("gundam_greco", "RC 1014 - Reconguista in G (Série TV)"),
+        Map.entry("gundam_greco_1", "RC 1014 - Reconguista in G I: Go! Core Fighter"),
+        Map.entry("gundam_greco_2", "RC 1014 - Reconguista in G II: Bellri's Fierce Charge"),
+        Map.entry("gundam_greco_3", "RC 1014 - Reconguista in G III: Legacy from Space"),
+        Map.entry("gundam_greco_4", "RC 1014 - Reconguista in G IV: Love That Cries Out in Battle"),
+        Map.entry("gundam_greco_5", "RC 1014 - Reconguista in G V: Crossing the Line"),
         // Cosmic Era (CE) — grupo "Gundam SEED"
         Map.entry("gundam_seed", "C.E. 71 - Mobile Suit Gundam SEED"),
         Map.entry("gundam_seed_astray", "C.E. 71 - Mobile Suit Gundam SEED MSV Astray (Side Story)"),
@@ -79,7 +88,9 @@ public class CatalogoObras {
         "gundam_ms_igloo", "gundam_thunderbolt",
         "gundam_0080", "gundam_0083", "gundam_zeta", "gundam_zz", "gundam_cca",
         "gundam_unicorn", "gundam_nt", "gundam_hathaway", "gundam_f91", "gundam_victory",
-        "gundam_greco",
+        // Gundam Reconguista in G — Regild Century (RC), submenu próprio (TV + 5 filmes)
+        "gundam_greco", "gundam_greco_1", "gundam_greco_2", "gundam_greco_3",
+        "gundam_greco_4", "gundam_greco_5",
         // Gundam SEED — Cosmic Era (CE), submenu próprio
         "gundam_seed", "gundam_seed_astray", "gundam_seed_destiny",
         "gundam_seed_stargazer", "gundam_seed_freedom",
