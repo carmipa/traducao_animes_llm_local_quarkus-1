@@ -1,0 +1,327 @@
+{
+  "tipo" : "revisao_lore",
+  "operacao" : {
+    "tipo" : "Revisao de Lore (.ass LLM)",
+    "detalhe" : "C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr | promptRevisaoLore=Mobile Suit Gundam: The 08th MS Team - Revisao de Lore | status=CONCLUIDO_COM_PENDENCIAS | pendentes=0 | semResposta=0 | descartadas=0 | encaminhadasOpcao6=0 | erros=13",
+    "tempoTotalMs" : 291,
+    "arquivosProcessados" : 13,
+    "itensDetectados" : 0,
+    "itensCorrigidos" : 0,
+    "registradoEm" : "2026-07-21T01:38:28.181265800Z"
+  },
+  "contexto" : {
+    "id" : "gundam_08ms",
+    "nome" : "Mobile Suit Gundam: The 08th MS Team - Revisao de Lore"
+  },
+  "pastas" : {
+    "originalEn" : "C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\legendas_extraidas_ass",
+    "traduzidaPtBr" : "C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr"
+  },
+  "modo" : "apenas_sinalizadas",
+  "metricas" : {
+    "status" : "CONCLUIDO_COM_PENDENCIAS",
+    "duracaoMs" : 291,
+    "duracaoFormatada" : "0s",
+    "arquivosAnalisados" : 13,
+    "arquivosAlterados" : 0,
+    "falasAuditadas" : 0,
+    "falasSinalizadas" : 0,
+    "falasCorrigidas" : 0,
+    "falasSemAlteracao" : 0,
+    "falasSemResposta" : 0,
+    "falasDescartadas" : 0,
+    "falasEncaminhadasOpcao6" : 0,
+    "falasPendentes" : 0,
+    "totalErros" : 13
+  },
+  "erros" : [ "Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass: contagem de eventos divergente (114 vs 75) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass: contagem de eventos divergente (430 vs 325) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass: contagem de eventos divergente (411 vs 306) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 381) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass: contagem de eventos divergente (485 vs 380) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass: contagem de eventos divergente (589 vs 434) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 353) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass: contagem de eventos divergente (353 vs 248) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass: contagem de eventos divergente (446 vs 341) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass: contagem de eventos divergente (468 vs 363) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass: contagem de eventos divergente (406 vs 301) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass: contagem de eventos divergente (371 vs 280) — arquivo pulado.", "Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass: contagem de eventos divergente (574 vs 541) — arquivo pulado." ],
+  "eventos" : [ {
+    "instante" : "2026-07-21T01:38:27.836112700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.830981400Z | +00.006s] \n=== Revisao de Lore (nomes, locais e terminologia) ==="
+  }, {
+    "instante" : "2026-07-21T01:38:27.839109400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.836112700Z | +00.012s] Inicio UTC: 2026-07-21T01:38:27.836112700Z"
+  }, {
+    "instante" : "2026-07-21T01:38:27.841109300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.839109400Z | +00.015s] Pasta original (EN): C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\legendas_extraidas_ass"
+  }, {
+    "instante" : "2026-07-21T01:38:27.844110200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.841109300Z | +00.017s] Pasta traduzida (PT-BR): C:\\TRACKER-ANIMES\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\\simples-karaoke-ptbr"
+  }, {
+    "instante" : "2026-07-21T01:38:27.845617Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.844110200Z | +00.020s] Prompt de revisao de lore ativo: Mobile Suit Gundam: The 08th MS Team - Revisao de Lore (gundam_08ms)"
+  }, {
+    "instante" : "2026-07-21T01:38:27.849134100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.845617Z | +00.021s] Modo: revisar apenas falas sinalizadas pela heuristica"
+  }, {
+    "instante" : "2026-07-21T01:38:27.852136500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.850136600Z | +00.026s] Arquivos .ass encontrados na pasta original: 13"
+  }, {
+    "instante" : "2026-07-21T01:38:27.970258300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.968260500Z | +00.144s] Falas auditaveis no lote: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:27.973259200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.970258300Z | +00.146s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:27.978274500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.975763200Z | +00.151s] [Arquivo] Eventos original/traduzido: 114/75"
+  }, {
+    "instante" : "2026-07-21T01:38:27.981273900Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.978274500Z | +00.154s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass: contagem de eventos divergente (114 vs 75) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:27.984274600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.981273900Z | +00.157s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:27.989414300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.987413Z | +00.163s] [Arquivo] Eventos original/traduzido: 430/325"
+  }, {
+    "instante" : "2026-07-21T01:38:27.992414400Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.989414300Z | +00.165s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass: contagem de eventos divergente (430 vs 325) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:27.995419900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.992414400Z | +00.168s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.000447800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:27.998448200Z | +00.174s] [Arquivo] Eventos original/traduzido: 411/306"
+  }, {
+    "instante" : "2026-07-21T01:38:28.002953400Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.000447800Z | +00.176s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass: contagem de eventos divergente (411 vs 306) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.006477900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.002953400Z | +00.178s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.012990800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.010485Z | +00.186s] [Arquivo] Eventos original/traduzido: 486/381"
+  }, {
+    "instante" : "2026-07-21T01:38:28.014996900Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.012990800Z | +00.188s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 381) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.018093Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.014996900Z | +00.190s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.024211200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.021693Z | +00.197s] [Arquivo] Eventos original/traduzido: 485/380"
+  }, {
+    "instante" : "2026-07-21T01:38:28.027253300Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.024211200Z | +00.200s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass: contagem de eventos divergente (485 vs 380) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.029255500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.027253300Z | +00.203s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.035305700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.033251900Z | +00.209s] [Arquivo] Eventos original/traduzido: 589/434"
+  }, {
+    "instante" : "2026-07-21T01:38:28.038312300Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.035305700Z | +00.211s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass: contagem de eventos divergente (589 vs 434) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.041313600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.038312300Z | +00.214s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.047357700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.045310100Z | +00.221s] [Arquivo] Eventos original/traduzido: 486/353"
+  }, {
+    "instante" : "2026-07-21T01:38:28.049358100Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.047357700Z | +00.223s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 353) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.052360100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.049358100Z | +00.225s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.058934200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.056420Z | +00.232s] [Arquivo] Eventos original/traduzido: 353/248"
+  }, {
+    "instante" : "2026-07-21T01:38:28.060931800Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.058934200Z | +00.234s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass: contagem de eventos divergente (353 vs 248) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.063437300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.060931800Z | +00.236s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.070902400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.067902900Z | +00.243s] [Arquivo] Eventos original/traduzido: 446/341"
+  }, {
+    "instante" : "2026-07-21T01:38:28.073408700Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.070902400Z | +00.246s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass: contagem de eventos divergente (446 vs 341) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.075414500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.073408700Z | +00.249s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.080548Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.078548700Z | +00.254s] [Arquivo] Eventos original/traduzido: 468/363"
+  }, {
+    "instante" : "2026-07-21T01:38:28.083051900Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.080548Z | +00.256s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass: contagem de eventos divergente (468 vs 363) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.085057700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.083051900Z | +00.259s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.091104Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.088104900Z | +00.264s] [Arquivo] Eventos original/traduzido: 406/301"
+  }, {
+    "instante" : "2026-07-21T01:38:28.093103800Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.091104Z | +00.267s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass: contagem de eventos divergente (406 vs 301) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.095103900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.093103800Z | +00.269s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.101146Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.099146500Z | +00.275s] [Arquivo] Eventos original/traduzido: 371/280"
+  }, {
+    "instante" : "2026-07-21T01:38:28.103148300Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.101146Z | +00.277s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass: contagem de eventos divergente (371 vs 280) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.106205300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.103148300Z | +00.279s] \n[Arquivo] Analisando: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-21T01:38:28.113210800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.111204900Z | +00.287s] [Arquivo] Eventos original/traduzido: 574/541"
+  }, {
+    "instante" : "2026-07-21T01:38:28.115716500Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.113210800Z | +00.289s]   [Pulado] Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass: contagem de eventos divergente (574 vs 541) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.119511Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.117221900Z | +00.293s] Arquivos analisados: 13"
+  }, {
+    "instante" : "2026-07-21T01:38:28.121510300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.119511Z | +00.295s] Arquivos alterados: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.124023500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.121510300Z | +00.297s] Falas auditadas: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.126043200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.124023500Z | +00.300s] Falas sinalizadas (heuristica/LLM): 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.128042Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.126043200Z | +00.302s] Falas corrigidas: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.131042700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.128042Z | +00.304s] Falas ja conformes: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.133042800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.131042700Z | +00.307s] Falas sem resposta do LLM: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.135042800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.133042800Z | +00.309s] Falas descartadas (travas): 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.138125500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.135042800Z | +00.311s] Falas encaminhadas para a Opção 6: 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.140126600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.138125500Z | +00.314s] Falas pendentes (sinalizadas sem correcao): 0"
+  }, {
+    "instante" : "2026-07-21T01:38:28.142128Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.140126600Z | +00.316s] Status: Concluído com pendências"
+  }, {
+    "instante" : "2026-07-21T01:38:28.145127Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.142128Z | +00.318s] \nRevisao de lore concluida com 0 fala(s) pendente(s) e 13 aviso(s)/erro(s)."
+  }, {
+    "instante" : "2026-07-21T01:38:28.148147Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.145127Z | +00.321s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S00E02_Track2_PT-BR.ass: contagem de eventos divergente (114 vs 75) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.150146200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.148147Z | +00.324s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass: contagem de eventos divergente (430 vs 325) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.153152Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.150146200Z | +00.326s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass: contagem de eventos divergente (411 vs 306) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.155151500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.153152Z | +00.329s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 381) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.158274300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.155151500Z | +00.331s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass: contagem de eventos divergente (485 vs 380) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.161273700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.158274300Z | +00.334s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass: contagem de eventos divergente (589 vs 434) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.163273400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.161273700Z | +00.337s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass: contagem de eventos divergente (486 vs 353) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.166299700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.163273400Z | +00.339s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass: contagem de eventos divergente (353 vs 248) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.169298700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.166299700Z | +00.342s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass: contagem de eventos divergente (446 vs 341) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.172303300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.169298700Z | +00.345s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass: contagem de eventos divergente (468 vs 363) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.175261100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.172303300Z | +00.348s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass: contagem de eventos divergente (406 vs 301) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.177265900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.175261100Z | +00.351s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass: contagem de eventos divergente (371 vs 280) — arquivo pulado."
+  }, {
+    "instante" : "2026-07-21T01:38:28.180267700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:38:28.177265900Z | +00.353s]   - Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass: contagem de eventos divergente (574 vs 541) — arquivo pulado."
+  } ]
+}

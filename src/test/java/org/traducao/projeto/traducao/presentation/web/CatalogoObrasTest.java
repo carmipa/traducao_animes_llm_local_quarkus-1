@@ -23,7 +23,7 @@ class CatalogoObrasTest {
     @Test
     @DisplayName("grupo: Gundam e Macross capturam ate os fujoes da ordem alfabetica")
     void grupoCapturaFujoes() {
-        assertEquals("Gundam", catalogo.grupo("Gundam: Reconguista in G"));
+        assertEquals("Gundam", catalogo.grupo("Mobile Suit Gundam Unicorn"));
         assertEquals("Gundam", catalogo.grupo("Mobile Suit Zeta Gundam"));
         assertEquals("Macross", catalogo.grupo("The Super Dimension Fortress Macross"));
         assertEquals("Macross", catalogo.grupo("Macross Plus"));
@@ -67,6 +67,17 @@ class CatalogoObrasTest {
         assertTrue(catalogo.ordem("gundam_origin") < catalogo.ordem("gundam_0079"));
         assertTrue(catalogo.ordem("gundam_seed") < catalogo.ordem("gundam_seed_destiny"));
         assertTrue(catalogo.ordem("gundam_seed_destiny") < catalogo.ordem("gundam_seed_freedom"));
+    }
+
+    @Test
+    @DisplayName("grupo: Reconguista in G (Regild Century) tem submenu proprio, fora da UC")
+    void reconguistaTemSubmenuProprio() {
+        assertEquals("Gundam Reconguista in G", catalogo.grupo("Gundam: Reconguista in G"));
+        assertEquals("Gundam Reconguista in G",
+            catalogo.grupo("Gundam Reconguista in G I: Go! Core Fighter"));
+        // TV antes dos 5 filmes; filmes I->V em ordem.
+        assertTrue(catalogo.ordem("gundam_greco") < catalogo.ordem("gundam_greco_1"));
+        assertTrue(catalogo.ordem("gundam_greco_1") < catalogo.ordem("gundam_greco_5"));
     }
 
     @Test
