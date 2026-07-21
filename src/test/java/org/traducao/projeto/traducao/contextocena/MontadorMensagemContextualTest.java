@@ -48,6 +48,7 @@ class MontadorMensagemContextualTest {
         assertTrue(msg.contains("Karen, are you ready?") && msg.contains("Roger."), "faltou alguma vizinha");
         assertTrue(msg.contains("uma unica linha"), "faltou a instrucao de uma linha");
         assertTrue(msg.toLowerCase().contains("neutra"), "faltou a instrucao de formulacao neutra");
+        assertTrue(msg.contains("[[TAG"), "faltou a instrucao de preservar os marcadores [[TAGn]]");
 
         int iAntes = msg.indexOf("Karen, are you ready?");
         int iAlvo = msg.indexOf("I'm sure...");
