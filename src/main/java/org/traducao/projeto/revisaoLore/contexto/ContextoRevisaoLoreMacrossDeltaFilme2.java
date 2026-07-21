@@ -32,7 +32,8 @@ public class ContextoRevisaoLoreMacrossDeltaFilme2 implements ProvedorPromptRevi
         - Maximilian Jenius / Max Jenius; Lady M; Bogue Con-Vaart (pode ser Delta 6).
 
         === Mecha / termos ===
-        - VF-31AX Kairos-Plus; Macross Gigant; Absolute Live; Fold Waves; Chaos; NUNS; Walküre.
+        - VF-31AX Kairos-Plus; Macross Gigant; Absolute Live; Star Singer;
+          Fold Waves; Chaos; NUNS; Walküre; Protoculture.
         - GERWALK/Battroid/Fighter Mode; proibido Veritech.
 
         === Formas-ruim (mapa Delta) ===

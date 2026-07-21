@@ -28,8 +28,10 @@ public class ContextoRevisaoLoreMacrossDeltaFilme1 implements ProvedorPromptRevi
 
         === Termos ===
         - Passionate Walküre; Walküre; Var Syndrome; Fold Waves; Delta Flight; Aerial Knights;
-          Chaos; NUNS; Protoculture; VF-31 Siegfried; Sv-262 Draken III; Macross Elysion.
+          Windermere Kingdom; Chaos; NUNS; Protoculture; VF-31 Siegfried; Sv-262 Draken III;
+          Macross Elysion; Cassim Eberhard; Herman Kroos.
         - GERWALK/Battroid/Fighter Mode oficiais; proibido Veritech.
+        - SEM ameacas exclusivas do Absolute Live (filme 2).
 
         === Formas-ruim ===
         - Síndrome Var → Var Syndrome; Ondas Fold → Fold Waves; Esquadrão Delta → Delta Flight;
