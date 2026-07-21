@@ -1,0 +1,274 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\TRACKER-ANIMES\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\simples-karaoke-ptbr
+Duração: 20s
+Arquivos analisados: 13
+Falas auditadas: 4008
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 29
+Falas corrigidas via LLM: 14
+Falas pendentes: 15
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 297 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]Tudo o que eu quero é levar aquelas asas nas suas costas...
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}All I want is to take those wings on your back...
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]Tudo o que eu quero é levar aquelas asas nas suas costas...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 183 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Censura/markdown com asterisco detectado: Merd**a**! Onde? Para onde ele foi?!
+Diagnóstico: Censura/markdown com asterisco detectado: Merd**a**! Onde? Para onde ela foi?!
+EN: I get an insubordinate master chief\Nand a smart-ass petty officer...!
+PT anterior: Merd**a**! Onde? Para onde ele foi?!
+Proposta: Merd**a**! Onde? Para onde ela foi?!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 186 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original indica feminino, mas participio/adjetivo predicativo está no masculino
+Diagnóstico: Correção validada e persistida.
+EN: A... A girl?
+PT anterior: Voce é louco(a)?
+Proposta: A... Uma garota?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 188 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original usa 'she', mas sujeito da tradução é 'ele': "Ele será" | Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'
+Diagnóstico: Correção validada e persistida.
+EN: She's pretty.
+PT anterior: Ele será motivo de zombaria na base.
+Proposta: Ela será motivo de zombaria na base.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 191 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Censura/markdown com asterisco detectado: Merd**!
+Diagnóstico: Censura/markdown com asterisco detectado: Merd**!
+EN: I heard the test unit was lost...\NWhy did you do it?
+PT anterior: Merd**!
+Proposta: Merd**!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 207 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Original usa 'he', mas sujeito da tradução é 'ela': "Ela é" | Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'
+Diagnóstico: Correção validada e persistida.
+EN: He's a Federation pilot?
+PT anterior: Ela é bonita.
+Proposta: Ele é um piloto da Federação?
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 210 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Original indica personagem/falante masculino ('he'), mas predicado está no feminino | Original indica masculino, mas participio/adjetivo predicativo está no feminino
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: He's wandering around over there!\NAll right, then!
+PT anterior: Eu ouvi que a unidade de teste foi\Nperdida... Por que você fez isso?
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass
+Evento: 274 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...aqueles ventos nunca apagarão o sonho que brilha. Oh, não!
+EN: {\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...those winds can never erase the dream that shines. Oh, no!
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...aqueles ventos nunca apagarão o sonho que brilha. Oh, não!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 93 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: You soldiers are all alike!
+PT anterior: Você tem sorte, filho da puta!
+Proposta: Você soldiers são todos iguais!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 338 | Estilo: Dialogue
+Resultado: LLM_MARCADOR_LORE_INCOMPATIVEL
+Problemas: Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original: "senhor"
+Diagnóstico: A proposta perdeu ou alterou marcador protegido pela lore.
+EN: {\i1}Next time, on Mobile Suit Gundam\NThe 08th MS Team
+PT anterior: Sim, senhor!
+Proposta: Próximo episódio de Gundam The ZXQLORE1QXZ.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 66 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: Who's next?!
+PT anterior: Filho da puta!
+Proposta: Próximo!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 133 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original: "moça"
+Diagnóstico: Correção validada e persistida.
+EN: If I were Ginius,\NI'd have punched that guy out!
+PT anterior: Esta moça tão doce é mesmo a Aina?
+Proposta: Se eu fosse o Ginias, eu teria dado um soco naquele cara!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 134 | Estilo: Dialogue
+Resultado: LLM_REJEITADO_SEM_MELHORIA
+Problemas: Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original: "garoto"
+Diagnóstico: Correção descartada: resposta LLM inválida ou sem melhoria.
+EN: Miss Aina!
+PT anterior: Há quanto tempo não te vejo?\NAinda era só um garoto.
+Proposta: Há quanto tempo não te vejo?\NAinda eras só um garoto.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 225 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original: "Senhora"
+Diagnóstico: Correção validada e persistida.
+EN: Yes, Sir.
+PT anterior: {\i1}Senhora Aina, não deve exagerar demais.{\i0}
+Proposta: {\i1}Senhorita Aina, não deve exagerar demais.{\i0}
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 348 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproxime deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...me aproxime deles.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 24 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Censura/markdown com asterisco detectado: Merd**!** Ei, cadê\No Tenente Nickerd?
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Man...!
+PT anterior: Merd**!** Ei, cadê\No Tenente Nickerd?
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E05_Track3_PT-BR.ass
+Evento: 402 | Estilo: Karaoke Simples
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Correção validada e persistida.
+EN: {\fs40\fad(100,100)\blur1\bord0\an9}Now, let's have a pleasant dream.
+PT anterior: Sou Kyou made no so many days
+Proposta: Agora, vamos ter um sonho agradável.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 271 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Censura/markdown com asterisco detectado: Merd**a**, é bem como Michel disse mesmo.
+Diagnóstico: Correção validada e persistida.
+EN: No big deal.
+PT anterior: Merd**a**, é bem como Michel disse mesmo.
+Proposta: Não é nada de mais.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E06_Track3_PT-BR.ass
+Evento: 319 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Censura/markdown com asterisco detectado: Merd**! Eu perdi ela!
+Diagnóstico: Censura/markdown com asterisco detectado: Merd**! Eu perdi ela!
+EN: {\fs40\an9\fad(100,100)\blur2\c&HE8E8E8&\1a&HFF&}...even tears don't matter.
+PT anterior: Merd**! Eu perdi ela!
+Proposta: Merd**! Eu perdi ela!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 216 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproxime deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...me aproxime deles.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 233 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: Are you okay?!
+PT anterior: Maldito filho da puta!
+Proposta: Tudo bem contigo?!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 241 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Censura/markdown com asterisco detectado: Merd**!
+Diagnóstico: Correção validada e persistida.
+EN: The house...
+PT anterior: Merd**!
+Proposta: A casa...
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 34 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original: "senhor"
+Diagnóstico: Correção validada e persistida.
+EN: ...even if that girl comes after us,\Nwe don't have to fight her!
+PT anterior: Sim, senhor.
+Proposta: Sim, senhora.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 171 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: Even the Feds aren't {\i1}that{\i0} dumb.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: I'll treat you when my song's\Nroyalties come in!
+PT anterior: Even the Feds aren't {\i1}that{\i0} dumb.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 141 | Estilo: Dialogue
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Censura/markdown com asterisco detectado: Merd**a**! O som não para de se mexer!
+Diagnóstico: Censura/markdown com asterisco detectado: Merd**a**! O som não para de se mexer!
+EN: One!
+PT anterior: Merd**a**! O som não para de se mexer!
+Proposta: Merd**a**! O som não para de se mexer!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 182 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: Come on...!
+PT anterior: {\i1}Filho da puta!
+Proposta: {\i1}Vamos lá!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 228 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Censura/markdown com asterisco detectado: Merd**!** Onde está o circuito principal?!
+Diagnóstico: Correção validada e persistida.
+EN: My friends... Unit 301...!
+PT anterior: Merd**!** Onde está o circuito principal?!
+Proposta: Meus amigos... Unidade 301...!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 272 | Estilo: Karaoke Simples
+Resultado: LLM_VALIDACAO_REJEITADA
+Problemas: Resíduo gringo detectado: Sou Kyou made no so many days
+Diagnóstico: Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado 0 marcador(es) [], recebido: [[TAG0]]...me aproxime deles.
+EN: {\fad(100,100)\blur1\bord0}...pull them close to me.
+PT anterior: Sou Kyou made no so many days
+Proposta: [[TAG0]]...me aproxime deles.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E12_Track3_PT-BR.ass
+Evento: 293 | Estilo: Dialogue
+Resultado: LLM_REJEITADO_SEM_MELHORIA
+Problemas: Original indica feminino, mas participio/adjetivo predicativo está no masculino
+Diagnóstico: Correção descartada: resposta LLM inválida ou sem melhoria.
+EN: {=3}{\fscx100\fscy100\blur0.8\fs60\c&H010101&\pos(452,444)}THE 08TH MS TEAM
+PT anterior: {\fad(0,2440)}Sim. Eu acho que você está certo.
+Proposta: {\fad(0,2440)}Sim. Eu acho que você está certa.

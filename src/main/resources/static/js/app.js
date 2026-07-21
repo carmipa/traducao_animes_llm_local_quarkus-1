@@ -946,6 +946,7 @@ function inicializarMetadadosDinamicos() {
  */
 const FRANQUIAS_REVISAO_LORE = [
     ['Gundam SEED', 'Gundam SEED'],
+    ['Reconguista', 'Gundam Reconguista in G'],
     ['Gundam', 'Gundam'],
     ['Macross', 'Macross'],
     ['Evangelion', 'Evangelion'],
