@@ -64,7 +64,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         ProcessarArquivoAlucina() {
             super(null, null, null, null, null, null, null, null, null, null,
                   null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                  null, null); // +2: ContextoCenaProperties, TradutorContextualEpisodio (processar() é sobrescrito)
+                  null, null, null); // +3: ContextoCenaProperties, TradutorContextualEpisodio, RelatorioContextoCenaPort (processar() é sobrescrito)
         }
         @Override
         public Path processar(Path arquivoEntrada) {
