@@ -27,6 +27,9 @@ import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssServ
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
+import org.traducao.projeto.traducao.application.contextocena.TradutorContextualEpisodio;
+import org.traducao.projeto.traducao.domain.contextocena.ResumoContextoCena;
+import org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +83,8 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
+    private final ContextoCenaProperties contextoCena;
+    private final TradutorContextualEpisodio tradutorContextual;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -112,7 +117,9 @@ public class ProcessarArquivoUseCase {
         EnforcadorTermosLore enforcadorTermosLore,
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
-        NormalizadorAcentosComuns normalizadorAcentos
+        NormalizadorAcentosComuns normalizadorAcentos,
+        ContextoCenaProperties contextoCena,
+        TradutorContextualEpisodio tradutorContextual
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -138,6 +145,8 @@ public class ProcessarArquivoUseCase {
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
+        this.contextoCena = contextoCena;
+        this.tradutorContextual = tradutorContextual;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -201,6 +210,15 @@ public class ProcessarArquivoUseCase {
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
             avisos.add(aviso);
+        }
+
+        // FORK da correção de gênero por contexto de cena (subfase 6c-ii-c): quando a flag está
+        // LIGADA, o diálogo vai pelo tradutor contextual e o resto pela via de hoje. Com a flag
+        // DESLIGADA (default) este desvio nunca ocorre e o fluxo abaixo é byte-idêntico ao de
+        // sempre (guardado pelo ProcessarArquivoUseCaseCaracterizacaoTest). SRT segue só na via OFF.
+        if (contextoCena.ativo() && !ehSrt) {
+            return processarContextual(arquivoEntrada, documento, arquivoCache, proveniencia,
+                carga, promptCongelado, permitirRetraducao, avisos, inicioMs);
         }
 
         Map<String, Long> frequenciaTextoLimpo = seletorEventos.calcularFrequenciaTextoLimpo(documento);

@@ -27,6 +27,7 @@ public class MontadorMensagemContextual {
 
     private static final String INSTRUCAO_FINAL =
         "Traduza SOMENTE a fala-alvo, em uma unica linha. Nao traduza, nao repita e nao comente o contexto acima ou abaixo.\n"
+        + "Preserve EXATAMENTE os marcadores [[TAG0]], [[TAG1]] etc. da fala-alvo, na mesma posicao; nao os traduza nem remova.\n"
         + "Se o genero do falante ou do interlocutor for incerto pela cena, use formulacao neutra em portugues do Brasil.";
 
     /**
