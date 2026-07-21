@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoLore.contexto;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -22,29 +24,32 @@ public final class CorrecoesTerminologiaMacrossDeltaRevisao {
      * <p>COMPORTAMENTO EM CASO DE FALHA: sempre o mesmo mapa.
      */
     public static Map<String, String> mapa() {
-        return Map.ofEntries(
-            Map.entry("Valquíria", "Valkyrie"),
-            Map.entry("Valquiria", "Valkyrie"),
-            Map.entry("Veritech", "Valkyrie"),
-            Map.entry("Zentraedi", "Zentradi"),
-            Map.entry("Zentradii", "Zentradi"),
-            Map.entry("Walkure", "Walküre"),
-            Map.entry("Síndrome Var", "Var Syndrome"),
-            Map.entry("Sindrome Var", "Var Syndrome"),
-            Map.entry("Síndrome de Var", "Var Syndrome"),
-            Map.entry("Ondas Fold", "Fold Waves"),
-            Map.entry("Onda Fold", "Fold Waves"),
-            Map.entry("Ondas de Fold", "Fold Waves"),
-            Map.entry("Esquadrão Delta", "Delta Flight"),
-            Map.entry("Esquadrao Delta", "Delta Flight"),
-            Map.entry("Cavaleiros Aéreos", "Aerial Knights"),
-            Map.entry("Cavaleiros Aereos", "Aerial Knights"),
-            Map.entry("Protocultura", "Protoculture"),
-            Map.entry("Yami Q Ray", "Yami_Q_Ray"),
-            Map.entry("Yami Q-Ray", "Yami_Q_Ray"),
-            Map.entry("Heimdal", "Heimdall"),
-            Map.entry("Gigante Macross", "Macross Gigant"),
-            Map.entry("Macross Gigante", "Macross Gigant")
-        );
+        Map<String, String> m = new LinkedHashMap<>();
+        m.put("Valquíria", "Valkyrie");
+        m.put("Valquiria", "Valkyrie");
+        m.put("Veritech", "Valkyrie");
+        m.put("Zentraedi", "Zentradi");
+        m.put("Zentradii", "Zentradi");
+        m.put("Walkure", "Walküre");
+        m.put("Síndrome Var", "Var Syndrome");
+        m.put("Sindrome Var", "Var Syndrome");
+        m.put("Síndrome de Var", "Var Syndrome");
+        m.put("Ondas Fold", "Fold Waves");
+        m.put("Onda Fold", "Fold Waves");
+        m.put("Ondas de Fold", "Fold Waves");
+        m.put("Bio-Ondas Fold", "Bio-Fold Waves");
+        m.put("Esquadrão Delta", "Delta Flight");
+        m.put("Esquadrao Delta", "Delta Flight");
+        m.put("Cavaleiros Aéreos", "Aerial Knights");
+        m.put("Cavaleiros Aereos", "Aerial Knights");
+        m.put("Cavaleiros do Ar", "Aerial Knights");
+        m.put("Protocultura", "Protoculture");
+        m.put("Reino de Windermere", "Windermere Kingdom");
+        m.put("Yami Q Ray", "Yami_Q_Ray");
+        m.put("Yami Q-Ray", "Yami_Q_Ray");
+        m.put("Heimdal", "Heimdall");
+        m.put("Gigante Macross", "Macross Gigant");
+        m.put("Macross Gigante", "Macross Gigant");
+        return Collections.unmodifiableMap(m);
     }
 }

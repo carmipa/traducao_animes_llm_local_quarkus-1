@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * PROPÓSITO DE NEGÓCIO: lore excepcional de Macross Delta (série TV) — roster completo,
- * núcleo Macross e mapa determinístico Delta.
+ * PROPÓSITO DE NEGÓCIO: lore completa de Macross Delta (série TV, 2067 / Brisingr) —
+ * Walküre, Delta Flight, Aerial Knights e Var Syndrome.
  *
  * <p>INVARIANTES DO DOMÍNIO: Walküre ≠ Valkyrie; Var Syndrome; Delta Flight; Aerial Knights;
- * Windermere; proibido Veritech/Robotech.
+ * Windermere; Protoculture; proibido Veritech/Robotech. Filmes 1/2 têm contextos próprios.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
@@ -20,10 +20,12 @@ import java.util.Set;
 public class ContextoMacrossDelta implements ProvedorContexto {
 
     private static final String LORE = """
-        - Obra: Macross Delta (serie TV, 2067, aglomerado Brisingr / Brísingr).
+        - Obra: Macross Delta (serie TV, 2067, aglomerado Brisingr).
         - Premissa: Var Syndrome provoca furia em humanos e Zentradi; a Unidade Tatica Musical
-          Walküre usa Fold Waves (cancao) sob protecao do Delta Flight (Chaos) contra o Reino
-          de Windermere e seus Aerial Knights.
+          Walküre usa Fold Waves (cancao) sob protecao do Delta Flight (Chaos) contra o
+          Windermere Kingdom e seus Aerial Knights.
+        - Filmes Passionate Walküre / Absolute Live!!!!!! tem contextos separados — nao misturar
+          Heimdall / Yami_Q_Ray aqui.
 
         === Walküre (idol / todas femininas) — NUNCA traduzir o nome do grupo ===
         - Freyja Wion (f) — Windermere; cantora emotiva.
@@ -35,33 +37,34 @@ public class ContextoMacrossDelta implements ProvedorContexto {
         === Delta Flight (Chaos / VF-31 Siegfried) ===
         - Hayate Immelmann (m) — piloto impulsivo.
         - Mirage Farina Jenius (f) — piloto de elite; neta de Max e Milia Jenius.
-        - Arad Mölders / Arad Molders (m) — comandante do Delta Flight (Major Arad).
-        - Chuck Mustang (m) — piloto e cozinheiro.
-        - Messer Ihlefeld (m) — "As Branco".
+        - Arad Molders / Arad Mölders (m) — Major Arad, comandante do Delta Flight.
+        - Chuck Mustang (m); Messer Ihlefeld (m) — "As Branco".
+        - Ernest Johnson (m) — capitao da Macross Elysion quando aparecer.
+        - Berger Stone (m) — Chaos / inteligencia quando aparecer.
 
-        === Aerial Knights / Reino de Windermere ===
+        === Aerial Knights / Windermere Kingdom ===
         - Keith Aero Windermere (m) — Cavaleiro Branco.
         - Heinz Nerich Windermere (m) — principe cantor (voz Fold).
         - Roid Brehm (m) — chanceler; plano Protoculture / Var.
-        - Bogue Con-Vaart / Bogue Convaart (m).
-        - Cassim Eberhard (m), Herman Kroos (m), Theodore Riddle (m) quando aparecerem.
+        - Bogue Con-Vaart (m); Cassim Eberhard (m); Herman Kroos (m);
+          Theodore Riddle (m) quando aparecerem.
 
-        === Organizacoes / lugares / termos ===
-        - Chaos (PMC); NUNS (New United Nations Spacy); New United Nations Government.
-        - Walküre; Delta Flight; Aerial Knights; Windermere Kingdom; planeta Ragna; Al Shahal.
-        - Var Syndrome (NUNCA so "Sindrome Var" como nome canonico — restaurar Var Syndrome).
-        - Fold Waves / Bio-Fold Waves; Protoculture (NUNCA localizar como mitologia generica).
-        - Deculture quando o dialogo trouxer.
+        === Orgs / lugares / termos ===
+        - Chaos (PMC); NUNS / New United Nations Spacy; New United Nations Government.
+        - Walküre; Delta Flight; Aerial Knights; Windermere Kingdom;
+          planeta Ragna; Al Shahal; Brisingr.
+        - Var Syndrome (NUNCA "Sindrome Var" como nome canonico).
+        - Fold Waves / Bio-Fold Waves; Protoculture; Deculture quando o dialogo trouxer.
 
         === Mecha / naves ===
-        - VF-31 Siegfried (Delta Flight); Sv-262 Draken III (Aerial Knights); Macross Elysion.
+        - VF-31 Siegfried; Sv-262 Draken III; Macross Elysion.
         - Variable Fighter / Valkyrie (mecha) — distinto de Walküre (grupo).
-        - Modos: Fighter Mode, GERWALK Mode, Battroid Mode — NUNCA traduzir os nomes dos modos.
+        - Fighter Mode / GERWALK Mode / Battroid Mode — NUNCA traduzir nomes dos modos.
         - Overtechnology; Reaction Weaponry.
 
-        === Nucleo Macross (obrigatorio) ===
-        - PROIBIDO lexico Robotech (Veritech etc.).
-        - Musica Walküre = interferencia psicologica / fold real — nao "fundo musical" / OST.
+        === Regras duras ===
+        - Walküre ≠ Valkyrie; PROIBIDO Veritech / Robotech.
+        - Musica Walküre = interferencia psicologica / fold — nao "OST".
         - Tom: idol + mecha militar; Freyja emotiva; Hayate impulsivo; Keith nobre/hostil; Roid ideologo.
         """;
 
@@ -85,7 +88,7 @@ public class ContextoMacrossDelta implements ProvedorContexto {
     /**
      * PROPÓSITO DE NEGÓCIO: protege elenco Walküre / Delta Flight / Aerial Knights e termos Delta.
      *
-     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais; Walküre ≠ Valkyrie.
+     * <p>INVARIANTES DO DOMÍNIO: grafias oficiais; Walküre ≠ Valkyrie; sem Heimdall/Yami.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
@@ -93,13 +96,18 @@ public class ContextoMacrossDelta implements ProvedorContexto {
     public Set<String> termosProtegidos() {
         return Set.of(
             "Freyja Wion", "Mikumo Guynemer", "Kaname Buccaneer", "Makina Nakajima",
-            "Reina Prowler", "Hayate Immelmann", "Mirage Farina Jenius", "Arad Molders",
-            "Chuck Mustang", "Messer Ihlefeld", "Keith Aero Windermere",
-            "Heinz Nerich Windermere", "Roid Brehm", "Bogue Con-Vaart", "Cassim Eberhard",
-            "Herman Kroos", "Walküre", "Windermere", "Var Syndrome", "Delta Flight",
-            "Aerial Knights", "Chaos", "NUNS", "Fold Waves", "Protoculture", "VF-31 Siegfried",
-            "Sv-262 Draken III", "Macross Elysion", "GERWALK", "Battroid", "Valkyrie",
-            "Overtechnology", "Zentradi", "Deculture", "Brisingr"
+            "Reina Prowler", "Hayate Immelmann", "Mirage Farina Jenius",
+            "Arad Molders", "Arad Mölders", "Chuck Mustang", "Messer Ihlefeld",
+            "Ernest Johnson", "Berger Stone",
+            "Keith Aero Windermere", "Heinz Nerich Windermere", "Roid Brehm",
+            "Bogue Con-Vaart", "Cassim Eberhard", "Herman Kroos", "Theodore Riddle",
+            "Walküre", "Windermere", "Windermere Kingdom", "Var Syndrome",
+            "Delta Flight", "Aerial Knights", "Chaos", "NUNS",
+            "New United Nations Spacy", "Fold Waves", "Bio-Fold Waves",
+            "Protoculture", "Deculture", "VF-31 Siegfried", "Sv-262 Draken III",
+            "Macross Elysion", "GERWALK", "Battroid", "Valkyrie", "Variable Fighter",
+            "Overtechnology", "Reaction Weaponry", "Zentradi", "Brisingr",
+            "Ragna", "Al Shahal"
         );
     }
 

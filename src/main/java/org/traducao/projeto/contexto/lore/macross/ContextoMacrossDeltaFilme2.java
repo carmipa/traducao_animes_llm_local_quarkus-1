@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * PROPÓSITO DE NEGÓCIO: lore excepcional do filme Macross Delta — Absolute Live!!!!!!
+ * PROPÓSITO DE NEGÓCIO: lore completa do filme Macross Delta — Absolute Live!!!!!!
  * (continuação inédita pós-série: Heimdall, Yami_Q_Ray, legado Jenius).
  *
  * <p>INVARIANTES DO DOMÍNIO: Heimdall; Yami_Q_Ray + prefixo Yami; VF-31AX Kairos-Plus;
@@ -30,6 +30,7 @@ public class ContextoMacrossDeltaFilme2 implements ProvedorContexto {
         - Yami_Q_Ray — unidade idol/cibernetica rival; manter underscore e grafia Yami_Q_Ray.
         - Espelhos Yami (femininas): Yami Mikumo, Yami Freyja, Yami Kaname, Yami Makina, Yami Reina.
           Sempre prefixo "Yami" + nome; nao traduzir Yami.
+        - Star Singer quando o dialogo trouxer.
 
         === Walküre (femininas) ===
         - Freyja Wion, Mikumo Guynemer, Kaname Buccaneer, Makina Nakajima, Reina Prowler.
@@ -49,7 +50,7 @@ public class ContextoMacrossDeltaFilme2 implements ProvedorContexto {
         - Walküre (grupo) ≠ Valkyrie (mecha). PROIBIDO Veritech.
 
         === Termos ===
-        - Absolute Live; Heimdall; Yami_Q_Ray; Fold Waves; Chaos; NUNS; Walküre.
+        - Absolute Live; Heimdall; Yami_Q_Ray; Fold Waves; Chaos; NUNS; Walküre; Protoculture.
         - Tom: show ao vivo + combate; rivalidade Walküre vs Yami_Q_Ray; legado Jenius.
         """;
 
@@ -86,14 +87,15 @@ public class ContextoMacrossDeltaFilme2 implements ProvedorContexto {
             "Chuck Mustang", "Messer Ihlefeld", "Bogue Con-Vaart",
             "Maximilian Jenius", "Max Jenius", "Ian Cromwell", "Lady M",
             "Heimdall", "Yami_Q_Ray", "Yami Mikumo", "Yami Freyja", "Yami Kaname",
-            "Yami Makina", "Yami Reina", "VF-31AX Kairos-Plus", "Macross Gigant",
-            "Walküre", "Delta Flight", "Chaos", "NUNS", "Fold Waves", "Valkyrie",
-            "GERWALK", "Battroid", "Absolute Live"
+            "Yami Makina", "Yami Reina", "Star Singer",
+            "VF-31AX Kairos-Plus", "VF-31 Siegfried", "Macross Gigant",
+            "Walküre", "Delta Flight", "Chaos", "NUNS", "Fold Waves",
+            "Protoculture", "Valkyrie", "GERWALK", "Battroid", "Absolute Live", "Zentradi"
         );
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mapa determinístico Delta + formas Absolute Live via mesmo mapa.
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico Delta + formas Absolute Live.
      *
      * <p>INVARIANTES DO DOMÍNIO: {@link CorrecoesTerminologiaMacrossDelta}.
      *
