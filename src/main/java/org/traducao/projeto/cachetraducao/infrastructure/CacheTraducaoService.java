@@ -1,5 +1,6 @@
 package org.traducao.projeto.cachetraducao.infrastructure;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -43,19 +44,28 @@ public class CacheTraducaoService {
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
     private final ObjectMapper objectMapper;
+    // Escritor derivado que OMITE campos nulos na serialização (NON_NULL). Serve para que o
+    // campo aditivo assinaturaContexto (null no fluxo legado/desligado) NÃO apareça no JSON —
+    // assim regravar um cache legado mantém a estrutura byte-idêntica. É uma cópia
+    // independente: não altera o ObjectMapper compartilhado.
+    private final ObjectMapper escritorCache;
 
     public CacheTraducaoService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        this.escritorCache = objectMapper.copy().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
     }
 
     /**
-     * Resultado da carga versionada: o mapa reaproveitavel (original -> traduzido),
-     * quantas entradas foram invalidadas por mudanca de proveniencia e se o
-     * arquivo veio do formato antigo (lista pura) e sera migrado ao salvar.
+     * Resultado da carga versionada: o mapa reaproveitavel (original -> traduzido), o mapa
+     * CONTEXTUAL (assinaturaContexto -> traduzido, para a correcao por contexto de cena;
+     * vazio quando o cache nao tem assinaturas), quantas entradas foram invalidadas por
+     * mudanca de proveniencia e se o arquivo veio do formato antigo (lista pura) e sera
+     * migrado ao salvar.
      */
-    public record ResultadoCarga(Map<String, String> mapa, int invalidadas, boolean migrado) {
+    public record ResultadoCarga(Map<String, String> mapa, Map<String, String> mapaContextual,
+            int invalidadas, boolean migrado) {
         public static ResultadoCarga vazio() {
-            return new ResultadoCarga(new HashMap<>(), 0, false);
+            return new ResultadoCarga(new HashMap<>(), new HashMap<>(), 0, false);
         }
     }
 
@@ -99,7 +109,8 @@ public class CacheTraducaoService {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, EntradaCache.class));
                 log.warn("Cache sem proveniencia em {} — assumindo compativel nesta migracao; sera versionado a partir de agora.",
                     arquivoCache);
-                return new ResultadoCarga(montarMapa(entradas), 0, true);
+                // Formato antigo nao tem assinatura contextual: mapa contextual vazio.
+                return new ResultadoCarga(montarMapa(entradas), new HashMap<>(), 0, true);
             } catch (IllegalArgumentException e) {
                 preservarCorrompido(arquivoCache);
                 return ResultadoCarga.vazio();
@@ -120,14 +131,14 @@ public class CacheTraducaoService {
                 arquivarGeracao(arquivoCache, doc.proveniencia());
                 log.warn("Proveniencia do cache mudou (lore/modelo) em {} — {} entrada(s) arquivada(s) e NAO reutilizada(s).",
                     arquivoCache, entradas.size());
-                return new ResultadoCarga(new HashMap<>(), entradas.size(), false);
+                return new ResultadoCarga(new HashMap<>(), new HashMap<>(), entradas.size(), false);
             }
             Map<String, String> mapa = montarMapa(entradas);
             log.info("Cache carregado de {} ({} entradas reaproveitaveis, contexto {}, modelo {})",
                 arquivoCache, mapa.size(),
                 doc.proveniencia() != null ? doc.proveniencia().contextoId() : "?",
                 doc.proveniencia() != null ? doc.proveniencia().modeloLlm() : "?");
-            return new ResultadoCarga(mapa, 0, false);
+            return new ResultadoCarga(mapa, montarMapaContextual(entradas), 0, false);
         }
 
         // Escalar/booleano/etc. — nao e um cache valido.
@@ -148,7 +159,7 @@ public class CacheTraducaoService {
             CacheDocumento documento = new CacheDocumento(proveniencia, entradas);
             Path temp = Files.createTempFile(pasta, arquivoCache.getFileName().toString(), ".tmp");
             try {
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(temp.toFile(), documento);
+                escritorCache.writerWithDefaultPrettyPrinter().writeValue(temp.toFile(), documento);
                 ArquivoAtomicoUtil.substituirAtomico(temp, arquivoCache);
             } finally {
                 Files.deleteIfExists(temp);
@@ -190,7 +201,7 @@ public class CacheTraducaoService {
             }
             Path temp = Files.createTempFile(pasta, arquivoCache.getFileName().toString(), ".tmp");
             try {
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(temp.toFile(), entradas);
+                escritorCache.writerWithDefaultPrettyPrinter().writeValue(temp.toFile(), entradas);
                 ArquivoAtomicoUtil.substituirAtomico(temp, arquivoCache);
             } finally {
                 Files.deleteIfExists(temp);
@@ -209,6 +220,29 @@ public class CacheTraducaoService {
         for (EntradaCache entrada : entradas) {
             if (entrada.traduzido() != null && !entrada.traduzido().isBlank()) {
                 mapa.put(entrada.original(), entrada.traduzido());
+            }
+        }
+        return mapa;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta o mapa CONTEXTUAL (assinaturaContexto → traduzido) para a
+     * correção de gênero por contexto de cena reaproveitar, em re-execuções, a tradução
+     * daquela fala NAQUELA cena — sem colapsar falas iguais de cenas diferentes, ao contrário
+     * do mapa por texto original.
+     * <p>INVARIANTES DO DOMÍNIO: só entram entradas COM assinatura contextual e tradução não
+     * vazia; entradas legadas (assinatura null) são ignoradas aqui.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula devolve mapa vazio; nunca lança.
+     */
+    private Map<String, String> montarMapaContextual(List<EntradaCache> entradas) {
+        Map<String, String> mapa = new HashMap<>();
+        if (entradas == null) {
+            return mapa;
+        }
+        for (EntradaCache entrada : entradas) {
+            if (entrada.assinaturaContexto() != null
+                    && entrada.traduzido() != null && !entrada.traduzido().isBlank()) {
+                mapa.put(entrada.assinaturaContexto(), entrada.traduzido());
             }
         }
         return mapa;

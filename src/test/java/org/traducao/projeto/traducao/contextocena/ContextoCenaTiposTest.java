@@ -2,6 +2,7 @@ package org.traducao.projeto.traducao.contextocena;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.traducao.domain.contextocena.JanelaContextual;
 import org.traducao.projeto.traducao.domain.contextocena.LinhaAlvoContextual;
 import org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -68,5 +70,40 @@ class ContextoCenaTiposTest {
             () -> janela.antes().add(new LinhaAlvoContextual(0, "x", "y")));
         assertEquals("I'm sure...", janela.alvo().texto());
         assertEquals(10, janela.alvo().indice());
+    }
+
+    @Test
+    @DisplayName("proveniencia: flag OFF nao muda o marcador (cache legado permanece valido)")
+    void marcadorVazioComFlagDesligada() {
+        ContextoCenaProperties off = new ContextoCenaProperties();
+        assertEquals("", off.marcadorProveniencia(), "desligado deve devolver marcador vazio");
+
+        // Invariante central da subfase 6a: com a flag OFF, o hash de proveniencia fica
+        // BYTE-IDENTICO ao legado (hash so do prompt), entao os caches atuais continuam validos.
+        String prompt = "PROMPT DE SISTEMA CONGELADO";
+        assertEquals(
+            ProvenienciaCache.hashDe(prompt),
+            ProvenienciaCache.hashDe(prompt + off.marcadorProveniencia()),
+            "com a flag desligada o hash de proveniencia nao pode divergir do legado");
+    }
+
+    @Test
+    @DisplayName("proveniencia: flag ON diverge o marcador e o hash (invalida cache sem contexto)")
+    void marcadorDivergeComFlagLigada() {
+        ContextoCenaProperties on = new ContextoCenaProperties(true, 2);
+        String marcador = on.marcadorProveniencia();
+        assertTrue(marcador.contains("contexto-cena") && marcador.contains("janela=2"),
+            "ligado deve carimbar a versao da politica e o tamanho da janela");
+
+        String prompt = "PROMPT DE SISTEMA CONGELADO";
+        assertNotEquals(
+            ProvenienciaCache.hashDe(prompt),
+            ProvenienciaCache.hashDe(prompt + marcador),
+            "com a flag ligada o hash de proveniencia deve divergir do legado");
+
+        // tamanho de janela diferente => proveniencia diferente
+        assertNotEquals(
+            new ContextoCenaProperties(true, 2).marcadorProveniencia(),
+            new ContextoCenaProperties(true, 3).marcadorProveniencia());
     }
 }
