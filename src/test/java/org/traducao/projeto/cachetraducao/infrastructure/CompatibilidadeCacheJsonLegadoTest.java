@@ -79,8 +79,13 @@ class CompatibilidadeCacheJsonLegadoTest {
         JsonNode original = mapper.readTree(lerFixture());
         CacheDocumento doc = mapper.readValue(lerFixture(), CacheDocumento.class);
 
-        // Regrava a partir dos tipos pós-move e relê como árvore.
-        byte[] regravado = mapper.writeValueAsBytes(doc);
+        // Regrava a partir dos tipos pós-move e relê como árvore. Usa NON_NULL, EXATAMENTE como
+        // o CacheTraducaoService grava em produção (escritorCache), para que o campo aditivo e
+        // nulável assinaturaContexto (null no fluxo legado/desligado) NÃO apareça — mantendo o
+        // cache legado estruturalmente idêntico.
+        ObjectMapper escritor = mapper.copy()
+            .setDefaultPropertyInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
+        byte[] regravado = escritor.writeValueAsBytes(doc);
         JsonNode releitura = mapper.readTree(regravado);
 
         // Comparação estrutural: as árvores JSON devem ser equivalentes em chaves/valores,

@@ -5,6 +5,7 @@ import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Path;
@@ -47,6 +48,7 @@ public class ResolvedorCacheTraducao {
     private final GerenciadorContexto gerenciadorContexto;
     private final LlmProperties llmPropriedades;
     private final TradutorProperties propriedades;
+    private final ContextoCenaProperties contextoCena;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as fontes que compõem a identidade de cache do episódio —
@@ -68,13 +70,15 @@ public class ResolvedorCacheTraducao {
         ResolvedorSaidaLegenda resolvedorSaida,
         GerenciadorContexto gerenciadorContexto,
         LlmProperties llmPropriedades,
-        TradutorProperties propriedades
+        TradutorProperties propriedades,
+        ContextoCenaProperties contextoCena
     ) {
         this.pastasExecucao = pastasExecucao;
         this.resolvedorSaida = resolvedorSaida;
         this.gerenciadorContexto = gerenciadorContexto;
         this.llmPropriedades = llmPropriedades;
         this.propriedades = propriedades;
+        this.contextoCena = contextoCena;
     }
 
     /**
@@ -108,10 +112,14 @@ public class ResolvedorCacheTraducao {
      * a comparação de proveniência trata nulos como divergência.
      */
     public ProvenienciaCache provenienciaAtual() {
+        // O marcador é VAZIO com a flag desligada: o hash fica byte-idêntico ao legado e os
+        // caches atuais permanecem válidos. Ligada, o marcador diverge o hash para que
+        // traduções com contexto de cena não reusem (nem sejam reusadas por) as sem contexto.
+        String conteudoHash = gerenciadorContexto.obterPromptAtivo() + contextoCena.marcadorProveniencia();
         return new ProvenienciaCache(
             ProvenienciaCache.SCHEMA_ATUAL,
             gerenciadorContexto.obterIdContextoAtivo(),
-            ProvenienciaCache.hashDe(gerenciadorContexto.obterPromptAtivo()),
+            ProvenienciaCache.hashDe(conteudoHash),
             llmPropriedades.model(),
             propriedades.idiomaOriginal(),
             propriedades.idiomaTraduzido()

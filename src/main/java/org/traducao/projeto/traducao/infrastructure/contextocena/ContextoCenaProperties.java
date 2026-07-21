@@ -21,8 +21,29 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "tradutor.contexto-cena")
 public class ContextoCenaProperties {
 
+    /**
+     * Versão da política contextual (formato da mensagem + regra da janela). Bumpar quando
+     * mudar o formato do prompt contextual, para invalidar caches gerados pela versão anterior.
+     */
+    private static final String POLITICA_VERSAO = "v1";
+
     private boolean ativo = false;
     private int tamanhoJanela = 2;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: marcador que discrimina a proveniência do cache quando o motor
+     * contextual está ligado — ele é anexado ao conteúdo do hash de proveniência para que
+     * traduções feitas COM contexto de cena nunca reusem (nem sejam reusadas por) traduções
+     * feitas SEM ele. É o "politicaTraducaoHash" na prática, embutido no hash já existente do
+     * prompt, sem tocar o schema do cache.
+     * <p>INVARIANTES DO DOMÍNIO: com a flag DESLIGADA devolve string VAZIA — assim o hash de
+     * proveniência fica byte-idêntico ao legado e os caches atuais permanecem válidos; ligada,
+     * devolve um marcador com a versão da política e o tamanho da janela.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura, não lança.
+     */
+    public String marcadorProveniencia() {
+        return ativo ? " || contexto-cena:" + POLITICA_VERSAO + ":janela=" + tamanhoJanela : "";
+    }
 
     public ContextoCenaProperties() {
     }
