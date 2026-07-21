@@ -30,7 +30,10 @@ public class CatalogoObras {
         Map.entry("Macross", "Macross"),
         Map.entry("Evangelion", "Evangelion"),
         Map.entry("DanMachi", "DanMachi"),
-        Map.entry("Sidonia", "Knights of Sidonia")
+        Map.entry("Sidonia", "Knights of Sidonia"),
+        // Break Blade (título comum JP) e Broken Blade (título EN dos 6 filmes) — mesma franquia.
+        Map.entry("Break Blade", "Break Blade"),
+        Map.entry("Broken Blade", "Break Blade")
     );
 
     /** Rótulo padronizado "Mobile Suit Gundam - ‹subtítulo›" por id de contexto Gundam. */
@@ -76,6 +79,11 @@ public class CatalogoObras {
         "macross_7_filmes", "macross_zero", "macross_frontier", "macross_frontier_filme1",
         "macross_frontier_filme2", "macross_frontier_filmes", "macross_delta",
         "macross_delta_filme1", "macross_delta_filme2", "macross_delta_filmes",
+        // Break Blade (Broken Blade) — 6 filmes na ordem de lançamento.
+        // Contrato: ids break_blade_1..6; nome contendo "Break Blade"
+        // (ex.: "Break Blade - Filme 1 - O Tempo do Despertar").
+        "break_blade_1", "break_blade_2", "break_blade_3",
+        "break_blade_4", "break_blade_5", "break_blade_6",
         // Títulos solos (ordem interna irrelevante — cada um é uma opção única)
         "eight_six", "guilty_crown"
     );

@@ -61,4 +61,17 @@ class CatalogoObrasTest {
         assertEquals(Integer.MAX_VALUE, catalogo.ordem("id_inexistente"));
         assertEquals(Integer.MAX_VALUE, catalogo.ordem(null));
     }
+
+    @Test
+    @DisplayName("Break Blade: grupo por 'Break Blade'/'Broken Blade' e os 6 filmes ordenados 1->6")
+    void breakBladeGrupoEOrdem() {
+        assertEquals("Break Blade", catalogo.grupo("Break Blade - Filme 1 - O Tempo do Despertar"));
+        assertEquals("Break Blade", catalogo.grupo("Broken Blade Movie 6: Fortress of Lamentation"));
+        // Os 6 filmes reservados saem em ordem de lançamento crescente.
+        assertTrue(catalogo.ordem("break_blade_1") < catalogo.ordem("break_blade_2"));
+        assertTrue(catalogo.ordem("break_blade_2") < catalogo.ordem("break_blade_3"));
+        assertTrue(catalogo.ordem("break_blade_3") < catalogo.ordem("break_blade_4"));
+        assertTrue(catalogo.ordem("break_blade_4") < catalogo.ordem("break_blade_5"));
+        assertTrue(catalogo.ordem("break_blade_5") < catalogo.ordem("break_blade_6"));
+    }
 }

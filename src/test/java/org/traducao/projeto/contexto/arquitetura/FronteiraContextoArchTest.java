@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>{@code contexto.infrastructure} é congelado nominalmente: exatamente
  *       {@code GerenciadorContexto} e {@code ContextoBeansConfig}.</li>
  *   <li>{@code contexto.domain} contém os cinco tipos homologados;
- *       {@code contexto.lore} agrega 64 classes.</li>
+ *       {@code contexto.lore} agrega 71 classes.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -181,7 +181,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 64 lores em contexto.lore")
+    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 71 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -201,10 +201,10 @@ class FronteiraContextoArchTest {
                 "ContextoNaoEncontradoException", "ContextoPrompt", "ExcecaoContexto",
                 "ProvedorContexto", "RegrasConcordanciaPtBr"))),
             () -> "contexto.domain deve conter exatamente os 5 tipos homologados. Encontrado: " + domain);
-        assertEquals(64, lores,
-            "contexto.lore deve agregar exatamente 64 classes de lore (53 @Component + 2 agregadoras Macross "
-                + "Delta/Frontier Filmes + 9 mapas de terminologia: GundamUc, GundamZz, DanMachi, Evangelion, "
-                + "GuiltyCrown, Macross, Macross2, MacrossDelta, MacrossDyrl)");
+        assertEquals(71, lores,
+            "contexto.lore deve agregar exatamente 71 classes de lore (59 @Component + 2 agregadoras Macross "
+                + "Delta/Frontier Filmes + 10 mapas de terminologia: GundamUc, GundamZz, DanMachi, Evangelion, "
+                + "GuiltyCrown, Macross, Macross2, MacrossDelta, MacrossDyrl, BreakBlade)");
     }
 
     private static boolean ehDoContexto(JavaClass classe) {
