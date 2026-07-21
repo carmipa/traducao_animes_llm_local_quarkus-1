@@ -1,0 +1,2888 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "gundam_0083",
+    "contextoHash" : "395a203445cf47f023b37c80f788dc79a169f7228e1241f1b7df9d0ef8b77dc7",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 0,
+    "estilo" : "EG",
+    "original" : "{\\c&HCBCBD0&\\fs35\\blur1\\t(3811,4020,\\c&H1A17A7&)\\pos(927.04,697.61)}MOBILE SUIT GUNDAM",
+    "traduzido" : "{\\c&HCBCBD0&\\fs35\\blur1\\t(3811,4020,\\c&H1A17A7&)\\pos(927.04,697.61)}MOBILE SUIT GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 1,
+    "estilo" : "EG",
+    "original" : "{\\c&HACB2B5&\\fs55\\blur1\\t(1935,2060,\\c&H1C2177&)\\pos(686.02,320.89)}MOBILE SUIT GUNDAM",
+    "traduzido" : "{\\c&HACB2B5&\\fs55\\blur1\\t(1935,2060,\\c&H1C2177&)\\pos(686.02,320.89)}MOBILE SUIT GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Titles",
+    "original" : "{\\blur1\\c&H141316&\\pos(720,610)}CONSPIRACY SECTOR",
+    "traduzido" : "{\\blur1\\c&H141316&\\pos(720,610)}SEÇÃO DE CONSPIRAÇÃO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Titles",
+    "original" : "{\\blur1\\c&H141316&\\pos(720,610)}NEXT EPISODE",
+    "traduzido" : "{\\blur1\\c&H141316&\\pos(720,610)}NEXT EPISODE",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Titles",
+    "original" : "{\\blur1\\c&H141316&\\pos(720,680)}THE NIGHTMARE \\NOF SOLOMON",
+    "traduzido" : "{\\blur1\\c&H141316&\\pos(720,680)}O\\NPESADELO DE SALOMÃO",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}Eyes drained of their life.",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Olhos vazios de vida.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Eyes drained of their life.",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Olhos vazios de vida.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}The flames at which they gaze.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}The flames at which they gaze.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}Now the time has come to leave everything behind.",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0} Agora chegou a hora de deixar tudo para trás.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Now the time has come to leave everything behind.",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5} Agora chegou a hora de deixar tudo para trás.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}All those memories and the pain of the past.",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Todas aquelas memórias e a dor do passado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}All those memories and the pain of the past.",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Todas aquelas memórias e a dor do passado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}You can't look back at them, and the battle rages on.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}You can't look back at them, and the battle rages on.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}Even if lives are burnt to ashes today...",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Mesmo que vidas sejam reduzidas a cinzas hoje...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Even if lives are burnt to ashes today...",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Mesmo que vidas sejam reduzidas a cinzas hoje...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,500)\\blur1\\bord0}...will people still dream about tomorrow?",
+    "traduzido" : "{\\fad(100,500)\\blur1\\bord0}...as pessoas ainda sonharão com o amanhã?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,500)\\1a&HFF&\\blur2\\bord0.5}...will people still dream about tomorrow?",
+    "traduzido" : "{\\fad(100,500)\\1a&HFF&\\blur2\\bord0.5}...as pessoas ainda sonharão com o amanhã?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}It may be destiny, but",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Pode ser destino, mas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}It may be destiny, but",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Pode ser destino, mas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}In the skies of despair there rages now a storm.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}In the skies of despair there rages now a storm.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}For whom does the future exist now?",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Para quem o futuro existe agora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}For whom does the future exist now?",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Para quem o futuro existe agora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}A world on the path of destruction...",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}A world on the path of destruction...",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}...with a storm raging through.",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}...com uma tempestade assolando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}...with a storm raging through.",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}...com uma tempestade assolando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\blur1\\bord0}The ones who have been chosen are...",
+    "traduzido" : "{\\fad(100,100)\\blur1\\bord0}Os escolhidos são...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}The ones who have been chosen are...",
+    "traduzido" : "{\\fad(100,100)\\1a&HFF&\\blur2\\bord0.5}Os escolhidos são...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\bord0}All alone in the deep darkness.",
+    "traduzido" : "{\\fad(200,500)\\blur1\\bord0}Sozinho(a) no fundo do escuro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\bord0}On a night that swallows up the road.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\bord0}Searching on and on for\\Nthe memory of the brilliant dawn.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\bord0\\t(500,4960,\\3c&HAB7129&)}There are times when destiny...",
+    "traduzido" : "{\\fad(200,500)\\blur1\\bord0\\t(500,4960,\\3c&HAB7129&)}Há momentos em que o destino...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5}All alone in the deep darkness.",
+    "traduzido" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5}Sozinho(a) no fundo do escuro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5}On a night that swallows up the road.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5}Searching on and on for\\Nthe memory of the brilliant dawn.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5\\t(500,4960,\\)}There are times when destiny...",
+    "traduzido" : "{\\fad(200,500)\\blur2\\1a&HFF&\\bord0.5\\t(500,4960,\\)}Há momentos em que o destino...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}...is a wind that tests your heart.",
+    "traduzido" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}...é um vento que testa teu coração.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}Love is a sky that embraces everything.",
+    "traduzido" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}O amor é um céu que abraça tudo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}And in it is the vision of the new day.",
+    "traduzido" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}E nela há a visão do novo dia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}I should revive that warm heartbeat inside me.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}That frozen dream has begun to shine again.",
+    "traduzido" : "{\\fad(200,500)\\blur1\\3c&HAB7129&\\bord0}Aquele sonho congelado começou a brilhar novamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}...is a wind that tests your heart.",
+    "traduzido" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}...é um vento que testa teu coração.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}Love is a sky that embraces everything.",
+    "traduzido" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}O amor é um céu que abraça tudo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}And in it is the vision of the new day.",
+    "traduzido" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}E nela há a visão do novo dia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}I should revive that warm heartbeat inside me.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Song ENG",
+    "original" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}That frozen dream has begun to shine again.",
+    "traduzido" : "{\\fad(200,500)\\blur2\\\\1a&HFF&\\bord0.5}Aquele sonho congelado começou a brilhar novamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 106,
+    "estilo" : "Dialogue",
+    "original" : "Still tracing the IFF code,\\Nbut it's definitely one of ours.",
+    "traduzido" : "Ainda rastreando o código IFF, mas\\Ndefinitivamente é um dos nossos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 107,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant Bait's team\\Nis moving in to investigate.",
+    "traduzido" : "A equipe do Tenente Bait está\\Nse movendo para investigar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 108,
+    "estilo" : "Dialogue",
+    "original" : "Think it's headed for the naval review?",
+    "traduzido" : "Acha que está indo para a revisão naval?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 109,
+    "estilo" : "Dialogue",
+    "original" : "That's in two days. It's the first one\\Nsince the One Year War.",
+    "traduzido" : "Daqui a dois dias. É o primeiro\\Ndesde a Guerra de Um Ano.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 110,
+    "estilo" : "Dialogue",
+    "original" : "Guess the Federation top brass are\\Nfinally getting off their lazy backsides.",
+    "traduzido" : "A cúpula da Federação finalmente parece estar\\Nse mexendo depois de tanto tempo parada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 111,
+    "estilo" : "Dialogue",
+    "original" : "That's not quite true.",
+    "traduzido" : "Não é bem assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 112,
+    "estilo" : "Dialogue",
+    "original" : "The naval review was planned a while ago.",
+    "traduzido" : "A revisão naval foi planejada há algum tempo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 113,
+    "estilo" : "Dialogue",
+    "original" : "Since we're a new ship, we should\\Nhave been part of it as well.",
+    "traduzido" : "Como somos um novo navio, deveríamos\\Nter feito parte disso também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 114,
+    "estilo" : "Dialogue",
+    "original" : "The senior staff may have\\Norganized the review...",
+    "traduzido" : "Os membros sênior podem\\Nter organizado a revisão...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 115,
+    "estilo" : "Dialogue",
+    "original" : "...to show off the Federation's\\Nmilitary strength.",
+    "traduzido" : "Para exibir a força\\Nmilitar da Federação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 116,
+    "estilo" : "Dialogue",
+    "original" : "But I don't think our enemies will\\Nbe that impressed with it.",
+    "traduzido" : "Mas eu não acho que nossos inimigos\\Nficarão impressionados com isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 117,
+    "estilo" : "Dialogue",
+    "original" : "Especially...",
+    "traduzido" : "Principalmente...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 118,
+    "estilo" : "Dialogue",
+    "original" : "...Anavel Gato.",
+    "traduzido" : "Anavel Gato.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 119,
+    "estilo" : "Dialogue",
+    "original" : "This is Bait.\\NTarget sighted.",
+    "traduzido" : "Alvo avistado.\\NÉ isca.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 120,
+    "estilo" : "Dialogue",
+    "original" : "It's the battleship Birmingham.",
+    "traduzido" : "É o encouraçado Birmingham.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 121,
+    "estilo" : "Dialogue",
+    "original" : "They're being careless!",
+    "traduzido" : "Eles estão sendo descuidados!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 122,
+    "estilo" : "Dialogue",
+    "original" : "The inspection flagship,\\Nout here without an escort!",
+    "traduzido" : "A nau-almirante\\Naqui sem escolta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 123,
+    "estilo" : "Dialogue",
+    "original" : "The Inspector General is\\NAdmiral Green Wyatt, isn't he?",
+    "traduzido" : "O Inspetor-Geral é o Almirante\\NGreen Wyatt, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 124,
+    "estilo" : "Dialogue",
+    "original" : "Whose mobile suits\\Nwere those just now?",
+    "traduzido" : "De quem eram aqueles\\NMobile Suits agora mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 125,
+    "estilo" : "Dialogue",
+    "original" : "I believe they were\\Nfrom the Albion, sir.",
+    "traduzido" : "Acredito que eles eram\\Nda Albion, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 126,
+    "estilo" : "Dialogue",
+    "original" : "That stubborn little ship, huh?",
+    "traduzido" : "Aquela nave teimosa, hein?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 127,
+    "estilo" : "Dialogue",
+    "original" : "He's on to me!",
+    "traduzido" : "Ele descobriu meu plano!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 128,
+    "estilo" : "Dialogue",
+    "original" : "Uraki! You sure you want to\\Npull away from a slow Cannon?",
+    "traduzido" : "Kou! Tem certeza que quer se\\Nafastar de um canhão lento assim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 129,
+    "estilo" : "Dialogue",
+    "original" : "You're wasting too much ammo!",
+    "traduzido" : "Você está desperdiçando muita munição!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 130,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}E-Easy for you to say!{\\i}",
+    "traduzido" : "{\\i1}E-Fácil para você falar!{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 131,
+    "estilo" : "Dialogue",
+    "original" : "And you're wasting your breath!",
+    "traduzido" : "E você está desperdiçando seu fôlego!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 132,
+    "estilo" : "Dialogue",
+    "original" : "Uraki?! He's coming around me?",
+    "traduzido" : "Kou?! Ele está vindo atrás de mim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 133,
+    "estilo" : "Dialogue",
+    "original" : "You...!",
+    "traduzido" : "Você...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 134,
+    "estilo" : "Dialogue",
+    "original" : "You got me.",
+    "traduzido" : "Eu me rendo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 135,
+    "estilo" : "Dialogue",
+    "original" : "I got him...",
+    "traduzido" : "Eu o peguei...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 136,
+    "estilo" : "Dialogue",
+    "original" : "I finally beat the lieutenant!",
+    "traduzido" : "Finalmente venci o tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 137,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Way to go, Kou!",
+    "traduzido" : "{\\i1}Muito bem, Kou!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 138,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Hey, we beat the\\Nlieutenant, right?",
+    "traduzido" : "{\\i1}Ei, a gente\\Nvenceu o tenente, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 139,
+    "estilo" : "Dialogue",
+    "original" : "Keith, if this was a real fight,\\Nyou'd be dead!",
+    "traduzido" : "Keith, se isso fosse uma luta\\Nreal, você estaria morto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 140,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}But it's practice!\\NLighten up, Kou!",
+    "traduzido" : "{\\i1}Mas é só\\Ntreino! Relaxa, Kou!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 141,
+    "estilo" : "Dialogue",
+    "original" : "Geez, you never learn.",
+    "traduzido" : "Nossa, você nunca aprende.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 142,
+    "estilo" : "Dialogue",
+    "original" : "Uraki, good job.",
+    "traduzido" : "Bom trabalho, Uraki.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 143,
+    "estilo" : "Dialogue",
+    "original" : "I'll buy you a beer\\Nwhen we get back.",
+    "traduzido" : "Eu te pago uma cerveja\\Nquando voltarmos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 144,
+    "estilo" : "Dialogue",
+    "original" : "It was the Full Burnern, sir.\\NMy skill had nothing to do with it.",
+    "traduzido" : "Foi o Full Burnern, senhor. Minha\\Nhabilidade não teve nada a ver com isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 145,
+    "estilo" : "Dialogue",
+    "original" : "Meaning you know how\\Nto pilot it now, right?",
+    "traduzido" : "Significa que você sabe\\Npilotar agora, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 146,
+    "estilo" : "Dialogue",
+    "original" : "All right, training's over.\\NLet's head back.",
+    "traduzido" : "Tudo bem, o treinamento\\Nacabou. Vamos voltar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 147,
+    "estilo" : "Dialogue",
+    "original" : "- Roger!\\N- Roger!",
+    "traduzido" : "Roger!\\N- Roger!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 148,
+    "estilo" : "Dialogue",
+    "original" : "Have I gotten too old for this?",
+    "traduzido" : "Já fiquei velho demais para isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 149,
+    "estilo" : "Dialogue",
+    "original" : "How much longer can I keep on\\Npiloting these things?",
+    "traduzido" : "Quanto tempo mais eu vou\\Nconseguir pilotar essas coisas?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 150,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lieutenant there's a\\Nblack object ahead of us!",
+    "traduzido" : "{\\i1}Tenente, há um objeto preto\\Nà nossa frente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 151,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}It's big! Really big!{\\i}",
+    "traduzido" : "{\\i1}É grande! Muito grande!{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 152,
+    "estilo" : "Dialogue",
+    "original" : "What?",
+    "traduzido" : "O que?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 153,
+    "estilo" : "Dialogue",
+    "original" : "Don't scare me like that!",
+    "traduzido" : "Não me assuste assim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 154,
+    "estilo" : "Dialogue",
+    "original" : "Didn't you hear the report about the\\Nspace colonies they're moving?",
+    "traduzido" : "Não ouviu o relatório sobre as colônias\\Nespaciais que estão sendo movidas?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 155,
+    "estilo" : "Dialogue",
+    "original" : "I never realized just how big those\\Ncolonies really are...",
+    "traduzido" : "Eu nunca percebi o quanto\\Naquelas colônias eram grandes...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 156,
+    "estilo" : "Dialogue",
+    "original" : "They're taking colonies that were damaged\\Nin the war over from Side 1 to Side 3.",
+    "traduzido" : "Eles estão levando colônias danificadas\\Ndurante a guerra de Lado 1 para Lado 3.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 157,
+    "estilo" : "Dialogue",
+    "original" : "It's stage two of the\\NColony Restoration Project.",
+    "traduzido" : "Iniciando a segunda fase do Projeto\\Nde Restauração das Colônias.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 158,
+    "estilo" : "Dialogue",
+    "original" : "So, this... This is a space colony...",
+    "traduzido" : "Sim, isto... Isto é uma colônia espacial...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 159,
+    "estilo" : "Dialogue",
+    "original" : "Good job.",
+    "traduzido" : "Bom trabalho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 160,
+    "estilo" : "Dialogue",
+    "original" : "Kou!",
+    "traduzido" : "Kou!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 161,
+    "estilo" : "Dialogue",
+    "original" : "Nina!",
+    "traduzido" : "Nina!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 162,
+    "estilo" : "Dialogue",
+    "original" : "You did it!\\NYou finally got Lieutenant Burning!",
+    "traduzido" : "Parabéns! Você finalmente\\Nconseguiu o Tenente Burning!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 163,
+    "estilo" : "Dialogue",
+    "original" : "Bang!",
+    "traduzido" : "Bang!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 164,
+    "estilo" : "Dialogue",
+    "original" : "Thanks to that research.",
+    "traduzido" : "Devido àquele estudo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 165,
+    "estilo" : "Dialogue",
+    "original" : "It was spot on in\\Npredicting the situation.",
+    "traduzido" : "A previsao\\Nfoi certeira.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 166,
+    "estilo" : "Dialogue",
+    "original" : "The Gundam's improving.",
+    "traduzido" : "O Gundam está melhorando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 167,
+    "estilo" : "Dialogue",
+    "original" : "Along with a certain somebody's\\Nbattle skill level.",
+    "traduzido" : "Junto com um certo alguém e seu\\Nnível de habilidade em batalha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 168,
+    "estilo" : "Dialogue",
+    "original" : "It's my Gundam, after all.",
+    "traduzido" : "É o meu Gundam, afinal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 169,
+    "estilo" : "Dialogue",
+    "original" : "\"My\"...?",
+    "traduzido" : "\"Meu\"?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 170,
+    "estilo" : "Dialogue",
+    "original" : "Oh, sorry.\\NOur Gundam, right?",
+    "traduzido" : "Desculpa, certo.\\NNosso Gundam, não é?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 171,
+    "estilo" : "Dialogue",
+    "original" : "'Our\"?",
+    "traduzido" : "Nossa?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 172,
+    "estilo" : "Dialogue",
+    "original" : "Kou, when did you start\\Ntalking like a grown-up?",
+    "traduzido" : "Kou, desde quando você começou\\Na falar como um adulto?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 173,
+    "estilo" : "Dialogue",
+    "original" : "What do you mean?",
+    "traduzido" : "O que você quer dizer?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 174,
+    "estilo" : "Dialogue",
+    "original" : "You shouldn't treat a Federation\\Nofficer like a little brother.",
+    "traduzido" : "Não deve tratar um oficial da Federação\\Ncomo se fosse seu irmão mais novo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 175,
+    "estilo" : "Dialogue",
+    "original" : "Hey...",
+    "traduzido" : "Ei...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 176,
+    "estilo" : "Dialogue",
+    "original" : "You can say that once\\Nyou start eating carrots!",
+    "traduzido" : "Você pode dizer isso assim\\Nque começar a comer cenouras!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 177,
+    "estilo" : "Dialogue",
+    "original" : "Take care of my Gundam, okay?",
+    "traduzido" : "Cuida do meu Gundam, tá bom?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 178,
+    "estilo" : "Dialogue",
+    "original" : "Looks like there's nothing\\Nwrong with you.",
+    "traduzido" : "Parece que você não\\Ntem nada de errado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 179,
+    "estilo" : "Dialogue",
+    "original" : "You've been working pretty hard\\Nlately, haven't you?",
+    "traduzido" : "Você andou trabalhando muito\\Nultimamente, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 180,
+    "estilo" : "Dialogue",
+    "original" : "How about some vitamin supplements?",
+    "traduzido" : "Vamos tomar algum suplemento vitamínico?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 181,
+    "estilo" : "Dialogue",
+    "original" : "No, thanks. From what you say,\\NI don't really need them.",
+    "traduzido" : "Não, obrigado. Pelo que você diz,\\Neu não preciso deles de verdade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 182,
+    "estilo" : "Dialogue",
+    "original" : "It's all right.",
+    "traduzido" : "Tudo bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 183,
+    "estilo" : "Dialogue",
+    "original" : "So why come to me now?",
+    "traduzido" : "Por que vir até mim agora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 184,
+    "estilo" : "Dialogue",
+    "original" : "When your leg wdas broken,\\Nyou kept avoiding coming here.",
+    "traduzido" : "Quando sua perna foi quebrada, você\\Nmanteve distância deste lugar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 185,
+    "estilo" : "Dialogue",
+    "original" : "Well, my leg was always saying\\N\"Run! Run!\" to me, so...",
+    "traduzido" : "Minha perna sempre dizia\\N\"Corra! Corra!\", então...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 186,
+    "estilo" : "Dialogue",
+    "original" : "Well, that smart mouth of yours\\Nis as healthy as ever!",
+    "traduzido" : "Bem, essa sua boca esperta\\Nestá tão saudável como sempre!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 187,
+    "estilo" : "Dialogue",
+    "original" : "Exam's over.",
+    "traduzido" : "Exame acabou.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 188,
+    "estilo" : "Dialogue",
+    "original" : "Thanks.",
+    "traduzido" : "Obrigado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 189,
+    "estilo" : "Dialogue",
+    "original" : "Something wrong, Lieutenant?",
+    "traduzido" : "Tem algo errado, tenente?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 190,
+    "estilo" : "Dialogue",
+    "original" : "Captain. No, it's nothing, sir.\\NHow about you?",
+    "traduzido" : "Capitao. Não, nada,\\Nsenhor. E você?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 191,
+    "estilo" : "Dialogue",
+    "original" : "Oh, I have a limit on how much\\Nalcohol I can drink,",
+    "traduzido" : "Tenho um limite de\\Nquanto posso beber.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 192,
+    "estilo" : "Dialogue",
+    "original" : "so they keep it here.",
+    "traduzido" : "Eles mantêm isso aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 193,
+    "estilo" : "Dialogue",
+    "original" : "Down to this mark today, all right?",
+    "traduzido" : "Até esta marca hoje, tudo bem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 194,
+    "estilo" : "Dialogue",
+    "original" : "No, I'm taking it down to the one\\Nbelow that one.",
+    "traduzido" : "Estou levando isso até\\Na seguinte abaixo dela.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 195,
+    "estilo" : "Dialogue",
+    "original" : "Eh?",
+    "traduzido" : "Desculpe, não entendi o que você disse.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 196,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant, would you like\\Nto join me for a change?",
+    "traduzido" : "Tenente, gostaria de se juntar\\Na mim para uma mudança?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 197,
+    "estilo" : "Dialogue",
+    "original" : "Good liquor doesn't taste as good\\Nwhen you drink it alone.",
+    "traduzido" : "Bom uísque não tem o mesmo\\Nsabor quando bebido sozinho.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 198,
+    "estilo" : "Dialogue",
+    "original" : "Y-Yes, sir.",
+    "traduzido" : "Sim, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 199,
+    "estilo" : "Dialogue",
+    "original" : "How is everyone able to eat these things?",
+    "traduzido" : "Como todos conseguem comer essas coisas?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 200,
+    "estilo" : "Dialogue",
+    "original" : "But I'm a man, damn it!",
+    "traduzido" : "Mas eu sou um homem, droga!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 201,
+    "estilo" : "Dialogue",
+    "original" : "I can handle this!",
+    "traduzido" : "Eu posso lidar com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 202,
+    "estilo" : "Dialogue",
+    "original" : "Hey, Kou!",
+    "traduzido" : "Ei, Kou!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 203,
+    "estilo" : "Dialogue",
+    "original" : "Uh, what are you doing?",
+    "traduzido" : "O que você está fazendo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 204,
+    "estilo" : "Dialogue",
+    "original" : "W-Well...",
+    "traduzido" : "Bem...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 205,
+    "estilo" : "Dialogue",
+    "original" : "Nina always treats me\\Nlike a little kid, so...",
+    "traduzido" : "Nina sempre me trata como se eu\\Nfosse uma criancinha, entao...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 206,
+    "estilo" : "Dialogue",
+    "original" : "Probably 'cuz, out of all the\\Nstraight-arrows at Nijmegen,",
+    "traduzido" : "Provavelmente porque, dentre todos os\\Nmilitares de linha reta em Nijmegen,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 207,
+    "estilo" : "Dialogue",
+    "original" : "you were the straightest\\None of the bunch!",
+    "traduzido" : "Você era o mais\\Nreto do grupo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 208,
+    "estilo" : "Dialogue",
+    "original" : "Anyway, I didn't come here\\Nto talk about that.",
+    "traduzido" : "De qualquer forma, eu não vim\\Naqui para falar sobre isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 209,
+    "estilo" : "Dialogue",
+    "original" : "Check these out!",
+    "traduzido" : "Vamos ver isso aí!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 210,
+    "estilo" : "Dialogue",
+    "original" : "These... These are...!",
+    "traduzido" : "Esses... Esses são...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 211,
+    "estilo" : "Dialogue",
+    "original" : "They're Lieutenant Monsha's.",
+    "traduzido" : "São do Tenente Monsha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 212,
+    "estilo" : "Dialogue",
+    "original" : "He's still carrying a torch for her,\\Nso he's doing this.",
+    "traduzido" : "Ele ainda está apaixonado por\\Nela, então está fazendo isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 213,
+    "estilo" : "Dialogue",
+    "original" : "Maura found 'em in his GM's cockpit!",
+    "traduzido" : "Maura encontrou eles no cockpit do GM dele!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 214,
+    "estilo" : "Dialogue",
+    "original" : "Check it out! Isn't this incredible?",
+    "traduzido" : "Olha isso aí! Não é incrível?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 215,
+    "estilo" : "Dialogue",
+    "original" : "I wonder how he took these.",
+    "traduzido" : "Eu me pergunto como ele conseguiu isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 216,
+    "estilo" : "Dialogue",
+    "original" : "Still, Nina's sexiness just leaps\\Nout when you catch her off guard.",
+    "traduzido" : "Ainda assim, a sensualidade da Nina\\Nfica evidente quando ela menos espera.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 217,
+    "estilo" : "Dialogue",
+    "original" : "It just shows Monsha was being a\\Nlech when he took these, right?",
+    "traduzido" : "Isso só mostra que Monsha estava agindo como um\\Nvelho tarado quando tirou essas fotos, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 218,
+    "estilo" : "Dialogue",
+    "original" : "Oh, you idiot. Can't you see\\Nhow sexy adult women are?",
+    "traduzido" : "Oh, seu idiota. Não vê como\\Nmulheres adultas são sexy?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 219,
+    "estilo" : "Dialogue",
+    "original" : "Kou, all you've got right now is a\\Ncupid named Gundam.",
+    "traduzido" : "Kou, tudo o que você tem agora\\Né um Cupido chamado Gundam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 220,
+    "estilo" : "Dialogue",
+    "original" : "Do you really think\\Nyou can have her?",
+    "traduzido" : "Você realmente acha\\Nque pode tê-la?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 221,
+    "estilo" : "Dialogue",
+    "original" : "Eh?",
+    "traduzido" : "Desculpe, não entendi o que você disse.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 222,
+    "estilo" : "Dialogue",
+    "original" : "Agh...!",
+    "traduzido" : "Ahhhh...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 223,
+    "estilo" : "Dialogue",
+    "original" : "Can you take the lead\\Nin this relationship?",
+    "traduzido" : "Você pode assumir a liderança\\Nneste relacionamento?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 224,
+    "estilo" : "Dialogue",
+    "original" : "You like her, don't you?",
+    "traduzido" : "Você gosta dela, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 225,
+    "estilo" : "Dialogue",
+    "original" : "Well...",
+    "traduzido" : "Bem...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 226,
+    "estilo" : "Dialogue",
+    "original" : "Well...?",
+    "traduzido" : "Bem...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 227,
+    "estilo" : "Dialogue",
+    "original" : "I-I love her.",
+    "traduzido" : "Eu a amo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 228,
+    "estilo" : "Dialogue",
+    "original" : "Gah...!",
+    "traduzido" : "Ah...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 229,
+    "estilo" : "Dialogue",
+    "original" : "Then don't you think you'd want to\\Nlearn more about women?",
+    "traduzido" : "Não acha que gostaria de\\Naprender mais sobre mulheres?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 230,
+    "estilo" : "Dialogue",
+    "original" : "Every little bit?!",
+    "traduzido" : "Toda pequena parte?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 231,
+    "estilo" : "Dialogue",
+    "original" : "So, how are the kids doing?",
+    "traduzido" : "E então, como estão as crianças?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 232,
+    "estilo" : "Dialogue",
+    "original" : "They're getting to be\\Nreally steady pilots.",
+    "traduzido" : "Eles estão se tornando\\Nverdadeiros pilotos experientes.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 233,
+    "estilo" : "Dialogue",
+    "original" : "Test pilots are good at picking\\Nthings up quickly.",
+    "traduzido" : "Pilotos de teste são bons em\\Naprender coisas rapidamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 234,
+    "estilo" : "Dialogue",
+    "original" : "Especially Ensign Uraki.",
+    "traduzido" : "Kou Uraki é especialmente importante para mim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 235,
+    "estilo" : "Dialogue",
+    "original" : "He's also got Nina helping him, doesn't he?",
+    "traduzido" : "Ele também tem a Nina ajudando-o, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 236,
+    "estilo" : "Dialogue",
+    "original" : "Even without that, he's got a lot\\Ngoing for him.",
+    "traduzido" : "Mesmo sem isso, ele já\\Ntem muito a seu favor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 237,
+    "estilo" : "Dialogue",
+    "original" : "Well, she seems to help him\\Nboth in work and his private life.",
+    "traduzido" : "Bem, ela parece ajudá-lo tanto no\\Ntrabalho quanto em sua vida pessoal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 238,
+    "estilo" : "Dialogue",
+    "original" : "I see.",
+    "traduzido" : "Eu entendo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 239,
+    "estilo" : "Dialogue",
+    "original" : "We should probably re-examine\\Nour personnel system.",
+    "traduzido" : "Devemos provavelmente rever\\Nnosso sistema de pessoal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 240,
+    "estilo" : "Dialogue",
+    "original" : "Ah, the young are lucky.",
+    "traduzido" : "A sorte é dos jovens.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 241,
+    "estilo" : "Dialogue",
+    "original" : "Able to devote themselves\\Ntotally to victory.",
+    "traduzido" : "Capazes de se dedicar\\Ncompletamente à vitória.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 242,
+    "estilo" : "Dialogue",
+    "original" : "By the way, Burning, you have a wife\\Non Earth, don't you?",
+    "traduzido" : "Sim, tenho minha\\Nesposa na Terra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 243,
+    "estilo" : "Dialogue",
+    "original" : "Well, yes, sir. I do.",
+    "traduzido" : "Sim, senhor. Eu faço.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 244,
+    "estilo" : "Dialogue",
+    "original" : "Why don't you take some\\Nleave after this operation?",
+    "traduzido" : "Por que você não tira algumas\\Nfolgas depois dessa operação?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 245,
+    "estilo" : "Dialogue",
+    "original" : "Captain, I know I said they\\Nwere improving, but...!",
+    "traduzido" : "Tenente, eu sei que disse que\\Neles estavam melhorando, mas...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 246,
+    "estilo" : "Dialogue",
+    "original" : "You're a little old to be competing\\Nwith young men, you know.",
+    "traduzido" : "Você é um pouco velho para estar competindo\\Ncom rapazes mais jovens, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 247,
+    "estilo" : "Dialogue",
+    "original" : "You're wrong, Sir.\\NIt's just a matter of will.",
+    "traduzido" : "Você está errado, senhor. É\\Nsó uma questão de vontade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 248,
+    "estilo" : "Dialogue",
+    "original" : "Well, if you feel strongly enough\\Nto put it that way...",
+    "traduzido" : "Bem, se você sente isso\\Ntão fortemente assim...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 249,
+    "estilo" : "Dialogue",
+    "original" : "I beg your pardon, sir.",
+    "traduzido" : "Peço perdão, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 250,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant...",
+    "traduzido" : "Tenente...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 251,
+    "estilo" : "Dialogue",
+    "original" : "The truth is, my wife and I have\\Nbeen separated for a while now.",
+    "traduzido" : "Minha esposa e eu estamos separados\\Nha algum tempo, na verdade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 252,
+    "estilo" : "Dialogue",
+    "original" : "Oh. I'm sorry I...",
+    "traduzido" : "Eu sinto muito eu...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 253,
+    "estilo" : "Dialogue",
+    "original" : "No, that's all right.",
+    "traduzido" : "Não, isso não é necessário.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 254,
+    "estilo" : "Dialogue",
+    "original" : "Even if this battle with Delaz\\Nis my last one as a pilot,",
+    "traduzido" : "Mesmo que esta batalha contra a frota\\NDelaz seja minha última como piloto,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 255,
+    "estilo" : "Dialogue",
+    "original" : "I don't want to end my career\\Nwith any regrets.",
+    "traduzido" : "Não quero terminar minha carreira\\Ncom nenhum arrependimento.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 256,
+    "estilo" : "Dialogue",
+    "original" : "That makes two of us.",
+    "traduzido" : "Dois é pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 257,
+    "estilo" : "Dialogue",
+    "original" : "Well, we're scheduled to rendezvous\\Nwith a supply ship soon.",
+    "traduzido" : "Em breve teremos um encontro agendado\\Ncom um navio de suprimentos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 258,
+    "estilo" : "Dialogue",
+    "original" : "I'm going to grab some sleep.",
+    "traduzido" : "Vou pegar um sono.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 259,
+    "estilo" : "Dialogue",
+    "original" : "You should get some rest, too.",
+    "traduzido" : "Você também deveria descansar um pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 260,
+    "estilo" : "Dialogue",
+    "original" : "Yes, sir. Thanks for the drink.",
+    "traduzido" : "Sim, senhor. Obrigado pela bebida.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 261,
+    "estilo" : "Dialogue",
+    "original" : "This brings back some memories,\\NKarius. I'm glad you came.",
+    "traduzido" : "Essas lembranças me fazem bem,\\NKarius. Fico feliz que tenha vindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 262,
+    "estilo" : "Dialogue",
+    "original" : "Lt. Commander!",
+    "traduzido" : "Tenente-Comandante!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 263,
+    "estilo" : "Dialogue",
+    "original" : "Yeah, although there are\\Njust three units left...",
+    "traduzido" : "Sim, embora reste\\Napenas três unidades...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 264,
+    "estilo" : "Dialogue",
+    "original" : "...from the 302nd patrol company.",
+    "traduzido" : "...da 302ª companhia de patrulha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 265,
+    "estilo" : "Dialogue",
+    "original" : "The others will be coming soon.",
+    "traduzido" : "Em breve os outros chegarão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 266,
+    "estilo" : "Dialogue",
+    "original" : "My heart is trembling like all of space!",
+    "traduzido" : "Meu coração está tremendo como todo o espaço!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 267,
+    "estilo" : "Dialogue",
+    "original" : "Still, I noticed something strange, sir.",
+    "traduzido" : "Ainda assim, notei algo estranho, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 268,
+    "estilo" : "Dialogue",
+    "original" : "Oh? What?",
+    "traduzido" : "Oh? O que foi isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 269,
+    "estilo" : "Dialogue",
+    "original" : "It's Commander Cima, sir.",
+    "traduzido" : "É a comandante Cima, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 270,
+    "estilo" : "Dialogue",
+    "original" : "We nearly landed on\\Nher fleet by mistake.",
+    "traduzido" : "Quase caímos em cima da\\Nfrota dela por engano.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 271,
+    "estilo" : "Dialogue",
+    "original" : "Cima Garahau...",
+    "traduzido" : "Cima Garahau...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 272,
+    "estilo" : "Dialogue",
+    "original" : "I thought she wasn't\\Non this mission.",
+    "traduzido" : "Pensei que ela não\\Nestivesse nesta missão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 273,
+    "estilo" : "Dialogue",
+    "original" : "We're almost to point Z.",
+    "traduzido" : "Estamos quase no ponto Z.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 274,
+    "estilo" : "Dialogue",
+    "original" : "Think the Federation will be there?",
+    "traduzido" : "Acha que a Federação estará lá?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 275,
+    "estilo" : "Dialogue",
+    "original" : "Oh, they'll be there.",
+    "traduzido" : "Eles estarão lá.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 276,
+    "estilo" : "Dialogue",
+    "original" : "The question is whether they're\\Non the level or setting us up.",
+    "traduzido" : "A pergunta é se eles estão sendo honestos\\Nou nos atraindo para uma armadilha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 277,
+    "estilo" : "Dialogue",
+    "original" : "We're at the rendezvous point, sir.\\NThink it's a trap?",
+    "traduzido" : "Estamos no ponto de encontro, senhor.\\NAcha que é uma armadilha?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 278,
+    "estilo" : "Dialogue",
+    "original" : "Make some tea, would you?",
+    "traduzido" : "Faria um chá para você?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 279,
+    "estilo" : "Dialogue",
+    "original" : "Eh?",
+    "traduzido" : "Desculpe, não entendi o que você disse.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 280,
+    "estilo" : "Dialogue",
+    "original" : "I'll have Darjeeling.",
+    "traduzido" : "Vou tomar Darjeeling.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 281,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant Gyde and staff\\Nof the supply ship Edge...",
+    "traduzido" : "Tenente Gyde e sua equipe do\\Nnavio de suprimentos Edge...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 282,
+    "estilo" : "Dialogue",
+    "original" : "...requesting permission\\Nto come aboard, sir!",
+    "traduzido" : "Tenente, solicitando permissão\\Npara embarcar, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 283,
+    "estilo" : "Dialogue",
+    "original" : "Granted! Welcome aboard the Albion!",
+    "traduzido" : "Bem-vindo a bordo da Albion!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 284,
+    "estilo" : "Dialogue",
+    "original" : "All right, we've got mail for you\\Nthis time, too!",
+    "traduzido" : "Tudo bem, desta vez também\\Ntemos uma mensagem para você!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 285,
+    "estilo" : "Dialogue",
+    "original" : "That box is for me!",
+    "traduzido" : "Aquela caixa é minha!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 286,
+    "estilo" : "Dialogue",
+    "original" : "Civilian! Miss Purpleton\\Nfrom Anaheim Electronics!",
+    "traduzido" : "Tenente! Nina Purpleton,\\Nda Anaheim Electronics!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 287,
+    "estilo" : "Dialogue",
+    "original" : "That's me!",
+    "traduzido" : "Isso sou eu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 288,
+    "estilo" : "Dialogue",
+    "original" : "Keith! I can't believe you did that!",
+    "traduzido" : "Keith! Não acredito que você fez isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 289,
+    "estilo" : "Dialogue",
+    "original" : "You're as big a lech as Monsha!",
+    "traduzido" : "Você e tao lecha quanto Monsha!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 290,
+    "estilo" : "Dialogue",
+    "original" : "No! I'm telling you, no!",
+    "traduzido" : "No! Estou dizendo não, não!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 291,
+    "estilo" : "Dialogue",
+    "original" : "Kou has all of the pictures!",
+    "traduzido" : "Kou tem todas as fotos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 292,
+    "estilo" : "Dialogue",
+    "original" : "How much did you sell those\\Npeeping tom pictures for?!",
+    "traduzido" : "Quanto você vendeu\\Naquelas fotos de voyeur?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 293,
+    "estilo" : "Dialogue",
+    "original" : "You don't know anything\\Nabout a woman's heart!",
+    "traduzido" : "Não sabe nada sobre o\\Ncoração de uma mulher!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 294,
+    "estilo" : "Dialogue",
+    "original" : "What's going on?",
+    "traduzido" : "O que está acontecendo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 295,
+    "estilo" : "Dialogue",
+    "original" : "Please, believe me!",
+    "traduzido" : "Por favor, acredite em mim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 296,
+    "estilo" : "Dialogue",
+    "original" : "Okay, confess!",
+    "traduzido" : "Okay, confessa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 297,
+    "estilo" : "Dialogue",
+    "original" : "Come back!",
+    "traduzido" : "Voltar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 298,
+    "estilo" : "Dialogue",
+    "original" : "Like hell!",
+    "traduzido" : "Como se isso fosse acontecer!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 299,
+    "estilo" : "Dialogue",
+    "original" : "Kou, save me!",
+    "traduzido" : "Kou, me salve!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 300,
+    "estilo" : "Dialogue",
+    "original" : "Keith! We have to get\\Nto our alert stations.",
+    "traduzido" : "Chuck! Temos que ir para\\Nnossas estações de alerta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 301,
+    "estilo" : "Dialogue",
+    "original" : "Ensign Uraki, where are those pictures?!",
+    "traduzido" : "Tenente Uraki, onde estão aquelas fotos?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 302,
+    "estilo" : "Dialogue",
+    "original" : "If you don't tell me,\\NI won't forgive you!",
+    "traduzido" : "Não perdoarei se\\Nnão me contar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 303,
+    "estilo" : "Dialogue",
+    "original" : "I... I put them in the shredder!",
+    "traduzido" : "Eu... Eu joguei eles no triturador!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 304,
+    "estilo" : "Dialogue",
+    "original" : "That's an obvious lie!",
+    "traduzido" : "Isso é uma mentira óbvia!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 305,
+    "estilo" : "Dialogue",
+    "original" : "Maura, cut it out.",
+    "traduzido" : "Mora, pare com isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 306,
+    "estilo" : "Dialogue",
+    "original" : "If he's still reading these sorts of\\Nbooks, he probably did do that.",
+    "traduzido" : "Se ele ainda está lendo esse tipo de\\Nlivro, provavelmente fez mesmo isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 307,
+    "estilo" : "Dialogue",
+    "original" : "Th-Those are...!",
+    "traduzido" : "Aquilo são...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 308,
+    "estilo" : "Dialogue",
+    "original" : "“The ABC's of Women.\"",
+    "traduzido" : "As ABCs das Mulheres.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 309,
+    "estilo" : "Dialogue",
+    "original" : "\"On Spacenoid Females.\"",
+    "traduzido" : "\"Sobre Mulheres Espacionotas.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 310,
+    "estilo" : "Dialogue",
+    "original" : "“The Secrets of Womens' Bodies\"?",
+    "traduzido" : "\"Segredos do Corpo Feminino\"?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 311,
+    "estilo" : "Dialogue",
+    "original" : "What are you reading, man?",
+    "traduzido" : "O que você está lendo, cara?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 312,
+    "estilo" : "Dialogue",
+    "original" : "Uraki! Keith!\\NWhat the hell are you doing?!",
+    "traduzido" : "Kou! Chuck! O que diabos\\Nvoces estao fazendo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 313,
+    "estilo" : "Dialogue",
+    "original" : "Goofing off in here...\\NWhy aren't you at your alert stations?!",
+    "traduzido" : "Estão brincando aqui... Por que não\\Nestão em seus postos de alerta?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 314,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant, you see—",
+    "traduzido" : "Tenente, você vê",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 315,
+    "estilo" : "Dialogue",
+    "original" : "Quit playing around!",
+    "traduzido" : "Pare de brincar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 316,
+    "estilo" : "Dialogue",
+    "original" : "You do that and this ship\\Nwill end up destroyed!",
+    "traduzido" : "Você faz isso e este navio\\Nvai acabar destruído!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 317,
+    "estilo" : "Dialogue",
+    "original" : "Uraki! The same goes for you!",
+    "traduzido" : "Kou! O mesmo vale para você!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 318,
+    "estilo" : "Dialogue",
+    "original" : "Yes, sir! Sorry, sir!",
+    "traduzido" : "Sim, senhor! Desculpe, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 319,
+    "estilo" : "Dialogue",
+    "original" : "You think that excuses you?!",
+    "traduzido" : "Pense que isso te desculpa?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 320,
+    "estilo" : "Dialogue",
+    "original" : "Nina.",
+    "traduzido" : "Nina.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 321,
+    "estilo" : "Dialogue",
+    "original" : "See what I mean?",
+    "traduzido" : "Entendeu agora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 322,
+    "estilo" : "Dialogue",
+    "original" : "I'll scold you later. Follow me!",
+    "traduzido" : "Mais tarde eu te dou um esporro. Me segue!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 323,
+    "estilo" : "Dialogue",
+    "original" : "- Yes, sir!\\N- Yes, sir!",
+    "traduzido" : "Sim, senhor!\\N- Sim, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 324,
+    "estilo" : "Dialogue",
+    "original" : "Nina, hurry!",
+    "traduzido" : "Nina, depressa!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 325,
+    "estilo" : "Dialogue",
+    "original" : "Status report!",
+    "traduzido" : "Relatório de status!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 326,
+    "estilo" : "Dialogue",
+    "original" : "Possible enemy ship.",
+    "traduzido" : "Nave inimiga possível.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 327,
+    "estilo" : "Dialogue",
+    "original" : "We backtraced its\\NMinovsky jamming waves.",
+    "traduzido" : "Rastreamos as ondas de\\Ninterferência Minovsky.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 328,
+    "estilo" : "Dialogue",
+    "original" : "Sector 5-1-9!",
+    "traduzido" : "Setor 5-1-9!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 329,
+    "estilo" : "Dialogue",
+    "original" : "That's close to the Birmingham.",
+    "traduzido" : "Aquilo está perto do Birmingham.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 330,
+    "estilo" : "Dialogue",
+    "original" : "What's going on with\\Nour mobile suit launch?",
+    "traduzido" : "O que está acontecendo com o\\Nlançamento do nosso Mobile Suit?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 331,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Launching now, sir!{\\i}",
+    "traduzido" : "{\\i1}Iniciando agora, senhor!{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 332,
+    "estilo" : "Dialogue",
+    "original" : "You're late!\\NHave Bait's team on standby!",
+    "traduzido" : "Estás atrasado! Coloca a equipe\\Ndo Bait em estado de alerta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 333,
+    "estilo" : "Dialogue",
+    "original" : "And I always thought ladies made men wait.",
+    "traduzido" : "E eu sempre achei que as damas faziam os homens esperar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 334,
+    "estilo" : "Dialogue",
+    "original" : "Typical marines...",
+    "traduzido" : "Marinheiros típicos...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 335,
+    "estilo" : "Dialogue",
+    "original" : "Think she'll be a tough negotiator?",
+    "traduzido" : "Acha que ela vai ser uma negociadora difícil?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 336,
+    "estilo" : "Dialogue",
+    "original" : "Everybody knows ladies love gifts.",
+    "traduzido" : "Todo mundo sabe que as damas adoram presentes.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 337,
+    "estilo" : "Dialogue",
+    "original" : "Admiral, I have an emergency\\Ndispatch from the Albion.",
+    "traduzido" : "Almirante, tenho um despacho\\Nde emergência da Albion.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 338,
+    "estilo" : "Dialogue",
+    "original" : "Read it.",
+    "traduzido" : "Lê isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 339,
+    "estilo" : "Dialogue",
+    "original" : "Yes, sir!",
+    "traduzido" : "Sim, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 340,
+    "estilo" : "Dialogue",
+    "original" : "\"Have sighted enemy vessel.\"",
+    "traduzido" : "\"Avistado navio inimigo.\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 341,
+    "estilo" : "Dialogue",
+    "original" : "\"Dispatching mobile suits at once.”",
+    "traduzido" : "Enviando mobile suits imediatamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 342,
+    "estilo" : "Dialogue",
+    "original" : "\"From Albion. To the Inspector General.\"",
+    "traduzido" : "De Albion. Ao Inspetor-Geral.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 343,
+    "estilo" : "Dialogue",
+    "original" : "Admiral.",
+    "traduzido" : "Almirante",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 344,
+    "estilo" : "Dialogue",
+    "original" : "Idiots!",
+    "traduzido" : "Estúpidos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 345,
+    "estilo" : "Dialogue",
+    "original" : "Why do they have to butt in?",
+    "traduzido" : "Por que eles têm que se meter?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 346,
+    "estilo" : "Dialogue",
+    "original" : "Typical of Cowen's ships... Fools!",
+    "traduzido" : "Típico dos navios do Kowen... Idiotas!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 347,
+    "estilo" : "Dialogue",
+    "original" : "They're turning away. The\\NBirmingham's turning away!",
+    "traduzido" : "Eles estão virando à deriva. O\\NBirmingham está virando à deriva!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 348,
+    "estilo" : "Dialogue",
+    "original" : "What's going on? Are they\\Ndouble-crossing us?!",
+    "traduzido" : "O que está acontecendo?\\NEles estão nos traindo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 349,
+    "estilo" : "Dialogue",
+    "original" : "Don't panic!",
+    "traduzido" : "Não entre em pânico!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 350,
+    "estilo" : "Dialogue",
+    "original" : "We'll know in a moment.\\NIn a moment...",
+    "traduzido" : "Em um momento saberemos.\\NEm um momento...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 351,
+    "estilo" : "Dialogue",
+    "original" : "Enemy vessel is firing!",
+    "traduzido" : "Inimigo está atirando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 352,
+    "estilo" : "Dialogue",
+    "original" : "Nieberlung, dead in the water!",
+    "traduzido" : "Nieberlung, à deriva e sem vida!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 353,
+    "estilo" : "Dialogue",
+    "original" : "They're letting me get away.",
+    "traduzido" : "Eles estão me deixando escapar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 354,
+    "estilo" : "Dialogue",
+    "original" : "Huh?",
+    "traduzido" : "Hã?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 355,
+    "estilo" : "Dialogue",
+    "original" : "They're putting on\\Na show for their friends.",
+    "traduzido" : "Eles estão colocando um\\Nespetáculo para seus amigos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 356,
+    "estilo" : "Dialogue",
+    "original" : "That's why they missed this ship.",
+    "traduzido" : "E por isso eles perderam esse navio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 357,
+    "estilo" : "Dialogue",
+    "original" : "I wonder if he's a handsome man?",
+    "traduzido" : "Eu me pergunto se ele é um homem atraente?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 358,
+    "estilo" : "Dialogue",
+    "original" : "Way to go, Birmingham!",
+    "traduzido" : "Bom trabalho, Birmingham!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 359,
+    "estilo" : "Dialogue",
+    "original" : "They got a retreating enemy ship",
+    "traduzido" : "Eles conseguiram abater um navio inimigo que estava fugindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 360,
+    "estilo" : "Dialogue",
+    "original" : "Two o'clock!\\NTwo enemy vessels, retreating!",
+    "traduzido" : "02:00! Dois navios\\Ninimigos em retirada!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 361,
+    "estilo" : "Dialogue",
+    "original" : "I'll never forget that ship!",
+    "traduzido" : "Nunca esquecerei daquele navio!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 362,
+    "estilo" : "Dialogue",
+    "original" : "Calm down!",
+    "traduzido" : "Acalma-te!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 363,
+    "estilo" : "Dialogue",
+    "original" : "Our mission is to guard the\\NBirmingham as it retreats!",
+    "traduzido" : "Nossa missão é proteger o\\NBirmingham enquanto ele recua!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 364,
+    "estilo" : "Dialogue",
+    "original" : "Him again? Didn't I teach you\\Na lesson last time?",
+    "traduzido" : "Ele novamente? Não te ensinei\\Numa lição da última vez?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 365,
+    "estilo" : "Dialogue",
+    "original" : "Don't waste ammo...",
+    "traduzido" : "Não desperdice munição...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 366,
+    "estilo" : "Dialogue",
+    "original" : "Don't waste ammo...",
+    "traduzido" : "Não desperdice munição...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 367,
+    "estilo" : "Dialogue",
+    "original" : "What the hell is he, a grasshopper?!",
+    "traduzido" : "Que diabo ele é, um grilo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 368,
+    "estilo" : "Dialogue",
+    "original" : "Gotta hold on till\\NLt. Bait's team gets here!",
+    "traduzido" : "Tenho que aguentar até a\\Nequipe do Tenente Bait chegar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 369,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Take advantage of the situation, Uraki!",
+    "traduzido" : "{\\i1}Aproveite a situação, Uraki!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 370,
+    "estilo" : "Dialogue",
+    "original" : "Yes, sir!",
+    "traduzido" : "Sim, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 371,
+    "estilo" : "Dialogue",
+    "original" : "Wh-Where is he?!",
+    "traduzido" : "Onde ele está?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 372,
+    "estilo" : "Dialogue",
+    "original" : "In this situation, you should hide!",
+    "traduzido" : "Nesta situacao, você deve se esconder!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 373,
+    "estilo" : "Dialogue",
+    "original" : "Where's Uraki?!",
+    "traduzido" : "Onde está o Kou?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 374,
+    "estilo" : "Dialogue",
+    "original" : "Mistress Cima, time to go.\\NWe expect enemy reinforcements.",
+    "traduzido" : "Mistress Cima, é hora de ir.\\NEsperamos reforços inimigos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 375,
+    "estilo" : "Dialogue",
+    "original" : "Roger! At your discretion!",
+    "traduzido" : "Entendido! À sua discrição!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 376,
+    "estilo" : "Dialogue",
+    "original" : "How could I be beaten\\Nby only three mobile suits?!",
+    "traduzido" : "Como eu poderia ser derrotado\\Npor apenas três mobile suits?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 377,
+    "estilo" : "Dialogue",
+    "original" : "Wait, one of them isn't moving.",
+    "traduzido" : "Espere, um deles não está se mexendo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 378,
+    "estilo" : "Dialogue",
+    "original" : "He couldn't have...!",
+    "traduzido" : "Ele não pode ter...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 379,
+    "estilo" : "Dialogue",
+    "original" : "Bergman, you handle the grasshopper!",
+    "traduzido" : "Bergman, você cuida do gafanhoto!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 380,
+    "estilo" : "Dialogue",
+    "original" : "This may tell us about\\Nthe enemy's strength.",
+    "traduzido" : "Isso pode nos contar\\Nsobre a força do inimigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 381,
+    "estilo" : "Dialogue",
+    "original" : "What?!",
+    "traduzido" : "O quê?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 382,
+    "estilo" : "Dialogue",
+    "original" : "Trying to rob me of my profit?!",
+    "traduzido" : "Tentando roubar meu lucro?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 383,
+    "estilo" : "Dialogue",
+    "original" : "Not bad!",
+    "traduzido" : "Não é mau!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 384,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Mistress Cima! The Lili Marleen's\\Nat maximum retrieval range!",
+    "traduzido" : "{\\i1}Senhora Cima! A Lili Marleen está\\Nno alcance máximo de recuperação!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 385,
+    "estilo" : "Dialogue",
+    "original" : "Oh, to hell with it! It's Gato's\\Nass that'll be on the line.",
+    "traduzido" : "Oh, que se foda! É o traseiro\\Ndo Gato que vai estar na linha.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 386,
+    "estilo" : "Dialogue",
+    "original" : "All right, run for it!",
+    "traduzido" : "Corra pra salvar sua pele!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 387,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant, are you hurt, sir?",
+    "traduzido" : "Tenente, está ferido, senhor?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 388,
+    "estilo" : "Dialogue",
+    "original" : "Nah, I'm fine.",
+    "traduzido" : "Tô bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 389,
+    "estilo" : "Dialogue",
+    "original" : "They sank a round into me, but...",
+    "traduzido" : "Eles acertaram um tiro em mim, mas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 390,
+    "estilo" : "Dialogue",
+    "original" : "No problem. The Albion's close by.",
+    "traduzido" : "Sem problemas. A Albion está próxima.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 391,
+    "estilo" : "Dialogue",
+    "original" : "Secure from battle stations.\\NRecall Lieutenant Bait's team, too.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 392,
+    "estilo" : "Dialogue",
+    "original" : "Yes, Sir.",
+    "traduzido" : "Sim, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 393,
+    "estilo" : "Dialogue",
+    "original" : "Two enemy mobile suits, destroyed.\\NBoth scored by Lieutenant Burning.",
+    "traduzido" : "Dois mobile suits inimigos destruídos.\\NAmbos abatidos pelo Tenente South Burning.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 394,
+    "estilo" : "Dialogue",
+    "original" : "Scott, can you contact him?",
+    "traduzido" : "Scott, você pode contatá-lo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 395,
+    "estilo" : "Dialogue",
+    "original" : "Yes, sir!",
+    "traduzido" : "Sim, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 396,
+    "estilo" : "Dialogue",
+    "original" : "Well done, Lieutenant Burning.",
+    "traduzido" : "Bom trabalho, Tenente South Burning.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 397,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Thank you, sir. Actually,\\NI have another prize for you.",
+    "traduzido" : "{\\i1}Obrigado, senhor. Na verdade,\\Ntenho outro prêmio para você.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 398,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I bring it to you as\\Nsoon as I'm back on board.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 399,
+    "estilo" : "Dialogue",
+    "original" : "Oh? I look forward to it.",
+    "traduzido" : "Estou ansiosa(a) por isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 400,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Sir!",
+    "traduzido" : "{\\i1}Tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 401,
+    "estilo" : "Dialogue",
+    "original" : "Just a minute, Lieutenant.",
+    "traduzido" : "Um momento, Tenente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 402,
+    "estilo" : "Dialogue",
+    "original" : "I heard what happened before the battle.\\NGo easy on them, okay?",
+    "traduzido" : "Ouvi o que aconteceu antes da\\Nbatalha. Fique de olho neles, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 403,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Understood, sir.",
+    "traduzido" : "{\\i1}Entendido, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 404,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lieutenant.",
+    "traduzido" : "{\\i1}Lieutenant.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 405,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I wasn't on the ball today.{\\i}",
+    "traduzido" : "{\\i1}Eu não estava com a bola hoje.{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 406,
+    "estilo" : "Dialogue",
+    "original" : "The Birmingham got away safely,\\Nbut I delayed our launch, so...",
+    "traduzido" : "A Birmingham conseguiu escapar com segurança,\\Nmas eu adiei nosso lançamento, então...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 407,
+    "estilo" : "Dialogue",
+    "original" : "Maura filled me in on what happened.",
+    "traduzido" : "Mora me contou o que aconteceu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 408,
+    "estilo" : "Dialogue",
+    "original" : "So, it was about those pictures\\NMonsha took, huh?",
+    "traduzido" : "Então, era sobre aquelas\\Nfotos que Monsha tirou, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 409,
+    "estilo" : "Dialogue",
+    "original" : "Yes, Sir.",
+    "traduzido" : "Sim, senhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 410,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}And...?",
+    "traduzido" : "{\\i1}E...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 411,
+    "estilo" : "Dialogue",
+    "original" : "I destroyed them!\\NI really did!",
+    "traduzido" : "Eu os destruí! Eu\\Nrealmente fiz isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 412,
+    "estilo" : "Dialogue",
+    "original" : "Wh-What?! You didn't even save one?!",
+    "traduzido" : "O que?! Nem um você salvou?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 413,
+    "estilo" : "Dialogue",
+    "original" : "No, I didn't! Why won't\\Nanyone believe me?!",
+    "traduzido" : "Não, eu não fiz isso! Por\\Nque ninguém acredita em mim?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 414,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}That's why she treats\\Nyou like a little kid!",
+    "traduzido" : "{\\i1}Por isso ela trata\\Nvocê como um crianção!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 415,
+    "estilo" : "Dialogue",
+    "original" : "You both can stand on your own now.",
+    "traduzido" : "Agora vocês dois podem ficar de pé sozinhos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 416,
+    "estilo" : "Dialogue",
+    "original" : "You were able to fight those guys\\Nbefore on better than equal terms.",
+    "traduzido" : "Você conseguiu lutar contra aqueles caras\\Nantes em melhores condições do que eles.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 417,
+    "estilo" : "Dialogue",
+    "original" : "All that's left is for you to feel it\\Nyourselves, but I can't teach you that.",
+    "traduzido" : "Tudo o que resta é para vocês sentirem isso por\\Nsi mesmos, mas eu não posso ensinar isso a vocês.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 418,
+    "estilo" : "Dialogue",
+    "original" : "Yes, Sir...",
+    "traduzido" : "Sim, senhor...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 419,
+    "estilo" : "Dialogue",
+    "original" : "I remember having this sort of talk\\Nwith you on that night in Australia.",
+    "traduzido" : "Lembro de ter tido essa conversa\\Ncom você naquela noite na Austrália.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 420,
+    "estilo" : "Dialogue",
+    "original" : "All I can remember are those push-ups!",
+    "traduzido" : "Tudo o que lembro são aquelas flexões!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 421,
+    "estilo" : "Dialogue",
+    "original" : "Really?",
+    "traduzido" : "De verdade?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 422,
+    "estilo" : "Dialogue",
+    "original" : "Uraki, you should've kept one\\Npicture, like Keith said.",
+    "traduzido" : "Kou, você deveria ter guardado pelo\\Nmenos uma foto, como o Chuck disse.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 423,
+    "estilo" : "Dialogue",
+    "original" : "Do you have anything like that, sir?",
+    "traduzido" : "Tem alguma coisa assim, senhor?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 424,
+    "estilo" : "Dialogue",
+    "original" : "No, I was never much good\\Nat relationships, either...",
+    "traduzido" : "Eu nunca fui muito bom em\\Nrelacionamentos também...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 425,
+    "estilo" : "Dialogue",
+    "original" : "Not quite as bad as you are, though.",
+    "traduzido" : "Não tão ruim quanto você, pelo menos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 426,
+    "estilo" : "Dialogue",
+    "original" : "End of lecture.",
+    "traduzido" : "Fim da aula.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 427,
+    "estilo" : "Dialogue",
+    "original" : "Right, before we land...",
+    "traduzido" : "Antes de pousarmos...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 428,
+    "estilo" : "Dialogue",
+    "original" : "Orders from naval command.\\NOperation Stardust is to be...",
+    "traduzido" : "Ordens do comando naval. A\\NOperação Estardust deve ser...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 429,
+    "estilo" : "Dialogue",
+    "original" : "...carried out in the Solomon Sea Sector\\Nunder the following...",
+    "traduzido" : "Carregado a cabo no Setor do Mar de\\NSalomão sob as seguintes condições:",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 430,
+    "estilo" : "Dialogue",
+    "original" : "Incredible!",
+    "traduzido" : "Incrível!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 431,
+    "estilo" : "Dialogue",
+    "original" : "This lays the enemy's deployment\\Nout in one document!",
+    "traduzido" : "Este exibe a disposição das forças\\Ninimigas em um único documento!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 432,
+    "estilo" : "Dialogue",
+    "original" : "Hmm? Gundam Unit 02?!",
+    "traduzido" : "Gundam Unit 02?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 433,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Lieutenant, what did you say?!\\NIs it about Gato?!",
+    "traduzido" : "{\\i1}Tenente, o que você disse?!\\NÉ sobre Gato?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 434,
+    "estilo" : "Dialogue",
+    "original" : "Yeah. Uraki, Gato's making his move.",
+    "traduzido" : "Sim. Kou, Gato está fazendo sua jogada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 435,
+    "estilo" : "Dialogue",
+    "original" : "What's their objective, sir?!",
+    "traduzido" : "Qual é o objetivo deles, senhor?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 436,
+    "estilo" : "Dialogue",
+    "original" : "Their objective is...",
+    "traduzido" : "[1] O objetivo deles é...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 437,
+    "estilo" : "Dialogue",
+    "original" : "Oh, my God!",
+    "traduzido" : "Meu Deus!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 438,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant!",
+    "traduzido" : "Tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 439,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant, come in!\\NLieutenant!",
+    "traduzido" : "Tenente,\\Nresponda! Tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 440,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant... Don't give up, sir!",
+    "traduzido" : "Tenente... Não desista, senhor!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 441,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant!",
+    "traduzido" : "Tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 442,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant Burning!",
+    "traduzido" : "Tenente Queimando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 443,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant Burning!!!",
+    "traduzido" : "Tenente Queimando!!!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 444,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant!",
+    "traduzido" : "Tenente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 445,
+    "estilo" : "Dialogue",
+    "original" : "Damn it all!",
+    "traduzido" : "Merda pra tudo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 446,
+    "estilo" : "Dialogue",
+    "original" : "Lieutenant...!",
+    "traduzido" : "Tenente...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 447,
+    "estilo" : "Dialogue",
+    "original" : "Miss Nina, what is it?",
+    "traduzido" : "Tenente Nina, o que é?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 448,
+    "estilo" : "Dialogue",
+    "original" : "Captain, here.",
+    "traduzido" : "Capitao falando.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 449,
+    "estilo" : "Dialogue",
+    "original" : "It's for Lieutenant Burning.",
+    "traduzido" : "É para o Tenente South Burning.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 450,
+    "estilo" : "Dialogue",
+    "original" : "Sylvia Burning... His wife.",
+    "traduzido" : "Mora Bascht: Sylvia... A esposa dele.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 451,
+    "estilo" : "Dialogue",
+    "original" : "I wasn't able to give it to him\\Nbefore he launched.",
+    "traduzido" : "Não consegui entregá-lo\\Nantes de ele decolar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 452,
+    "estilo" : "Dialogue",
+    "original" : "Thank you, Nina.",
+    "traduzido" : "De nada, Nina.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 453,
+    "estilo" : "Dialogue",
+    "original" : "I'll answer the letter.",
+    "traduzido" : "Vou responder a carta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 454,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Today, in the defense of\\Nthe battleship Birmingham,",
+    "traduzido" : "{\\i1}Hoje, na defesa do\\Nencouraçado Birmingham",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 455,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}we lost Lt. South Burning,\\Na fine combat commander.",
+    "traduzido" : "{\\i1}perdemos o tenente South Burning,\\Num excelente comandante de combate.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 456,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}As I pray that his soul finds peace,",
+    "traduzido" : "{\\i1}Enquanto rezo para que sua alma encontre paz",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 457,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}I am exercising the special authority\\Ngranted a captain during an operation,{\\i}",
+    "traduzido" : "{\\i1}Estou exercendo a autoridade especial\\Nconcedida a um capitão durante uma operação,{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 458,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}and issuing battlefield promotions\\Nto Alpha A. Bait and Kou Uraki.{\\i}",
+    "traduzido" : "{\\i1}e concedendo promoções no campo de\\Nbatalha para Alpha A. Bate e Kou Uraki.{\\i}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 459,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}They have each been\\Nadvanced one rank.",
+    "traduzido" : "{\\i1}Eles foram\\Npromovidos um posto cada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 460,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Solomon.",
+    "traduzido" : "{\\i1}Solomão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 461,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}That was its name before\\Nit fell to the Federation Forces.",
+    "traduzido" : "{\\i1}Esse era seu nome antes de\\Ncair nas mãos das Forças Federais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 462,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}No... There are still men\\Nwho even now call it that.",
+    "traduzido" : "{\\i1}Não... Ainda hoje há\\Nhomens que o chamam assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 463,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Through their minds flow memories\\Nof honor and past glory...",
+    "traduzido" : "{\\i1}Pelos seus pensamentos fluem\\Nmemórias de honra e glória passada...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 464,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}...along with defeats and failures.",
+    "traduzido" : "{\\i1}...ao lado de derrotas e fracassos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 465,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}With the Federation fleet\\Narrayed before him,",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 466,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}what does this lonely dreamer see?",
+    "traduzido" : "{\\i1}O que esse sonhador solitário vê?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 467,
+    "estilo" : "Dialogue",
+    "original" : "{\\i1}Once more, the nightmare returns.",
+    "traduzido" : "{\\i1}Mais uma vez, o pesadelo volta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}

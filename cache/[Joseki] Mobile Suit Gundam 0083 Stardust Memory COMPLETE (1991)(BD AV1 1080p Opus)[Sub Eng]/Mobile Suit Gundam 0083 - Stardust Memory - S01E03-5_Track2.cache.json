@@ -1,0 +1,662 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "gundam_0083",
+    "contextoHash" : "395a203445cf47f023b37c80f788dc79a169f7228e1241f1b7df9d0ef8b77dc7",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 0,
+    "estilo" : "0083 Mayfly 2 Location",
+    "original" : "{\\pos(942.667,696)\\fad(271,0)\\bord0\\blur70\\t(0,271,\\blur1)}A BAOA QU",
+    "traduzido" : "{\\pos(942.667,696)\\fad(271,0)\\bord0\\blur70\\t(0,271,\\blur1)}BOA TARDE",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 1,
+    "estilo" : "Default",
+    "original" : "Universal Century 0079, December 31st.",
+    "traduzido" : "U.C. 0079, 31 de dezembro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2,
+    "estilo" : "Default",
+    "original" : "A Baoa Qu.",
+    "traduzido" : "Minha resposta é: A Baoa Qu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Default",
+    "original" : "The Zeon Fleet, thrown into disorder, desperately sought an escape route from E-Field.",
+    "traduzido" : "A frota de Zeon, jogada em desordem, desesperadamente buscava uma rota de fuga do campo E.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Default",
+    "original" : "{\\i1}It's an Amphibious Marine Combat Group! Charge in, focus on MAU Cima and ignore the other MAU units!{\\i0}",
+    "traduzido" : "{\\i1}É um Grupo de Combate Anfíbio Marinho! Avancem, foquem em MAU Cima e ignorem as outras unidades MAU!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Default",
+    "original" : "{\\i1}They're making a quick retreat! They're making a quick retreat! Breach their front!{\\i0}",
+    "traduzido" : "{\\i1}Eles estão fazendo uma retirada rápida! Eles estão fazendo uma retirada rápida! Quebre a frente deles!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Default",
+    "original" : "Living in this world is like rolling the dice,\\Nso I may as well go out in style!",
+    "traduzido" : "Vivendo neste mundo é como jogar dados,\\Nentão posso muito bem sair em grande estilo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Default",
+    "original" : "MAU Geil, following along!\\NI'll leave things to chance!",
+    "traduzido" : "Geil, malandro, indo junto!\\NDeixo as coisas ao destino!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Default",
+    "original" : "Geil, I'm prepared for anything!\\NI suppose military law trumps honor then?",
+    "traduzido" : "Estou pronto para qualquer coisa! Suponho\\Nque a lei militar ultrapasse a honra então?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Default",
+    "original" : "{\\fad(0,800)}Sieg Zeon! Farewell!",
+    "traduzido" : "{\\fad(0,800)}Sieg Zeon! Farewell!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "EG",
+    "original" : "{\\pos(921.7,311)\\fad(1000,1315)\\blur1\\c&H0F0EA2&}MOBILE SUIT GUNDAM",
+    "traduzido" : "{\\pos(921.7,311)\\fad(1000,1315)\\blur1\\c&H0F0EA2&}MOBILE SUIT GUNDAM",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Episode Titles",
+    "original" : "{\\fs110\\fad(0,1800)\\blur0.8\\c&H80931C&\\pos(960.63,825.21)}— The Mayfly of Space —",
+    "traduzido" : "{\\fs110\\fad(0,1800)\\blur0.8\\c&H80931C&\\pos(960.63,825.21)}— A efemérida do espaço —",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Default",
+    "original" : "On this day, Lieutenant Commander Gato, who stole the Gundam GP02 for Operation Stardust,",
+    "traduzido" : "Neste dia, o Tenente Comandante Gato, que roubou o Gundam GP02 para a Operação Estardust,",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Default",
+    "original" : "ascended to outer space.",
+    "traduzido" : "Ascendeu ao espaço exterior.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Default",
+    "original" : "{\\i1}The Yulin and Nashville are to fall back!\\NGM Squadron, launch! Recapture the GP02!{\\i0}",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Default",
+    "original" : "{\\i1}Commander! Enemy mobile suits! This way!{\\i0}",
+    "traduzido" : "{\\i1}Tenente! Inimigos Mobile Suits! Por aqui!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Default",
+    "original" : "{\\i1}Please hurry!{\\i0}",
+    "traduzido" : "{\\i1}Por favor, se apresse!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Default",
+    "original" : "I can see that, Gradoll.",
+    "traduzido" : "Posso ver isso, Gradoll.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Default",
+    "original" : "{\\i1}They're still far off.",
+    "traduzido" : "{\\i1}Eles ainda estão longe.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Default",
+    "original" : "{\\i1}But!",
+    "traduzido" : "{\\i1}Mas!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Default",
+    "original" : "I'll try anyway!",
+    "traduzido" : "Vou tentar mesmo assim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Default",
+    "original" : "Can't say I'm surprised by the long-range firing control.",
+    "traduzido" : "Não posso dizer que estou surpreso com o controle de tiro de longo alcance.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Default",
+    "original" : "Come, you Feddie cannon fodder!",
+    "traduzido" : "Vamos, você carne de canhão da Federação!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Default",
+    "original" : "Watch over me, Admiral Bitter.\\NGive me the courage to carry out what is just!",
+    "traduzido" : "Cuide de mim, Almirante Bitter. Me dê\\Na coragem para fazer o que é certo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Default",
+    "original" : "{\\i1}Retreat! Fall back!{\\i0}",
+    "traduzido" : "{\\i1}Recuar! Voltem atrás!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Default",
+    "original" : "A Gelgoog Marine?",
+    "traduzido" : "Um Gelgoog Marinho?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Default",
+    "original" : "Could it be?",
+    "traduzido" : "Poderia ser?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Default",
+    "original" : "- We should rally once more!",
+    "traduzido" : "Devemos nos reunir mais uma vez!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Default",
+    "original" : "We still have enough strength to fight back!",
+    "traduzido" : "Ainda temos força suficiente para lutar de volta!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Default",
+    "original" : "Don't be naïve! We'll regroup\\Nunder Maharaja Karn at Axis!",
+    "traduzido" : "Não seja ingênuo(a)! Reagruparemos\\Nsob o Maharaja Karn em Axis!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Default",
+    "original" : "Have you lost your backbone?!",
+    "traduzido" : "Tem alguma coluna vertebral aí?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Default",
+    "original" : "Compensation?! You expect us to give the\\N Lili Marleen to the Federation as compensation?!",
+    "traduzido" : "Compensação?! Você espera que entreguemos a Lili\\NMarleen para a Federação como compensação?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Default",
+    "original" : "{\\i1}I don't have time to deal with these trifling matters.\\NWhy don't you try sorting out your own problems yourself?{\\i0}",
+    "traduzido" : "{\\i1}Não tenho tempo para lidar com esses assuntos insignificantes.\\NPor que você não tenta resolver seus próprios problemas sozinho?{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Default",
+    "original" : "You dirty crook! All you do is exploit others!",
+    "traduzido" : "Sujo aproveitador! Tudo o que você faz é explorar os outros!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Default",
+    "original" : "Asakura!!",
+    "traduzido" : "Asakura!!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Default",
+    "original" : "{\\i1}Lieutenant Commander, control yourself!{\\i0}",
+    "traduzido" : "{\\i1}Tenente-Comandante, controle-se!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Default",
+    "original" : "{\\i1}Well, if it isn't Admiral Delaz's ace pilot...{\\i0}",
+    "traduzido" : "{\\i1}Bem, se não é o piloto ACE do Almirante Delaz...{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Default",
+    "original" : "{\\i1}How may a Granada Marine be of use to you?{\\i0}",
+    "traduzido" : "{\\i1}Em que um Gelgoog Marinho pode ser útil para você?{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Default",
+    "original" : "We can't afford to be hasty, Commander.",
+    "traduzido" : "Não podemos nos dar ao luxo de ser apressados, Comandante.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Default",
+    "original" : "Please act in a manner that is becoming of a soldier.",
+    "traduzido" : "Por favor, atue como um soldado deveria.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Default",
+    "original" : "I don't need to be lectured by you.",
+    "traduzido" : "Não preciso que me diga o que fazer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Default",
+    "original" : "{\\i1}Huh?{\\i0}",
+    "traduzido" : "{\\i1}Huh?{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Default",
+    "original" : "We've already breached military law and become war criminals... might as well hang ourselves now.",
+    "traduzido" : "Já violamos a lei militar e nos tornamos criminosos de guerra... tanto faz se enforcarmos agora mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Default",
+    "original" : "Commander, we will rise again. We must prepare ourselves...",
+    "traduzido" : "Comandante, nós nos ergueremos novamente. Devemos nos preparar...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Default",
+    "original" : "{\\i1}...and make sure that justice prevails!{\\i0}",
+    "traduzido" : "{\\i1}...e certifique-se que a justiça prevaleça!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Default",
+    "original" : "Is that so...? And just what does\\Nthat have to do with me?",
+    "traduzido" : "E isso é tudo o que você tem a dizer? E eu aqui pensando\\Nque você tinha algo importante para compartilhar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Default",
+    "original" : "Everything if you're really a soldier!",
+    "traduzido" : "Tudo se você realmente for um soldado!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Default",
+    "original" : "That's not how I was brought up!",
+    "traduzido" : "Não fui criado para agir dessa maneira!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Default",
+    "original" : "{\\i1}Do not let the Federation ships or the GMs escape! Dra-C Team, pursue them! {\\i0}",
+    "traduzido" : "{\\i1}Não deixem os navios da Federação ou os GM's escaparem! Time Dra-C, perseguem-nos! {\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Default",
+    "original" : "Long time no see. I escaped\\Nthe noose thanks to you.",
+    "traduzido" : "Tempo demais sem ver você.\\NEscapei do laço graças a você.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Default",
+    "original" : "Still alive and kicking!",
+    "traduzido" : "Ainda vivo e chutando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Default",
+    "original" : "{\\i1}Geil Hunt — wanted for B-grade war crimes that took place during the One Year War — has turned himself in.{\\i0}",
+    "traduzido" : "{\\i1}Geil Hunt — procurado por crimes de guerra de grau B que ocorreram durante a Guerra de Um Ano — entregou-se à justiça. {\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Default",
+    "original" : "{\\i1}Hunt led the Granada military's MAU Geil Unit during the war. {\\i0}",
+    "traduzido" : "{\\i1} Hunt liderou a unidade MAU Geil do exército de Granada durante a guerra. {\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Default",
+    "original" : "{\\i1}He was indicted for war crimes after the fighting had ended and has been given the death penalty.{\\i0}",
+    "traduzido" : "{\\i1}Foi indiciado por crimes de guerra após o fim dos combates e foi-lhe aplicada a pena de morte.{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Default",
+    "original" : "Geil...",
+    "traduzido" : "Geil...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Default",
+    "original" : "Geil, you've surrendered too?",
+    "traduzido" : "Geil, você também se rendeu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Default",
+    "original" : "Are you going to cut your ties with us?",
+    "traduzido" : "Vai cortar seus laços conosco?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Default",
+    "original" : "{\\i1}Your fleet overstepped military regulations. You will face a heavy penalty for dirtying the noble name of Zeon!{\\i0}",
+    "traduzido" : "{\\i1}Sua frota ultrapassou regulamentos militares. Você enfrentará uma pesada punição por macular o nobre nome de Zeon!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Default",
+    "original" : "Overstepped?!",
+    "traduzido" : "Excedeu?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Default",
+    "original" : "{\\i1}Truthfully, you've been a thorn in my side!{\\i0}",
+    "traduzido" : "{\\i1}De verdade, você tem sido uma espinha no meu lado!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Default",
+    "original" : "No one pays attention to a plain flower.",
+    "traduzido" : "Ninguém liga pra uma flor comum.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Default",
+    "original" : "I'm exempt from all my crimes and have taken on new subordinates... “Titans” was it?",
+    "traduzido" : "Eu fui isento de todos os meus crimes e assumi novos subordinados... \"Titans\", era esse o nome?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Default",
+    "original" : "A red Tetra. I suppose that's the Gerbera Tetra.",
+    "traduzido" : "AGX-04 Gelgoog Tetra. Acho que e a Gelgoog Tetra.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Default",
+    "original" : "I've still got life left in me yet. I'll show them the way a woman of space lives!",
+    "traduzido" : "Ainda tenho vida dentro de mim. Vou mostrar pra eles como uma mulher do espaço vive!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Default",
+    "original" : "Whose side are you on?!",
+    "traduzido" : "De que lado você está?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Default",
+    "original" : "What?!",
+    "traduzido" : "O que?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Default",
+    "original" : "Living in this world is like rolling the dice.",
+    "traduzido" : "Viver neste mundo é como jogar dados.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Default",
+    "original" : "I suppose I made a bad roll.",
+    "traduzido" : "Suponho que eu tenha feito um lance ruim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Default",
+    "original" : "It's been four years since the nightmares began.",
+    "traduzido" : "Há quatro anos que os pesadelos começaram.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Default",
+    "original" : "{\\i1}Ms. Cima! Just as predicted, the Peer Gynt is engaged in battle with the Federation.{\\i0}",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Somewhere in the Milky Way...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Alguém, em algum lugar do Caminho Lácteo...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Default",
+    "original" : "{\\i1}Come to the bridge right away!{\\i0}",
+    "traduzido" : "{\\i1}Venha para a ponte imediatamente!{\\i0}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Somewhere deep in outer space...",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}As he travels all the galaxy...",
+    "traduzido" : "{\\fad(500,500)\\blur5}À medida que viaja pela galáxia...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Does he feel as lonely as me?",
+    "traduzido" : "{\\fad(500,500)\\blur5}Ele se sente tão solitário quanto eu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Default",
+    "original" : "Well, Mr. Nightmare of Solomon...\\NBack from stealing the Gundam?",
+    "traduzido" : "Bem, Sr. Pesadelo de Salomão... De\\Nvolta depois de roubar o Gundam?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Default",
+    "original" : "Open a channel!",
+    "traduzido" : "Abrir um canal!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Default",
+    "original" : "Go ahead.",
+    "traduzido" : "Vá em frente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Out there where the comets fly...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Lá onde voam os cometas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Default",
+    "original" : "To the Musai ahead of us:\\NTerribly sorry!",
+    "traduzido" : "Desculpem-nos,\\NMusai à frente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Default",
+    "original" : "We mistook you\\Nfor colony wreckage.",
+    "traduzido" : "Nós confundimos você com\\Ndestroços de colônia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Default",
+    "original" : "{\\an8}Evasive! Evasive, now!",
+    "traduzido" : "{\\an8}Evite! Evite agora mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Default",
+    "original" : "{\\i1}However, it looks like it's too late to change course.",
+    "traduzido" : "{\\i1}Contudo, parece que já é tarde demais para mudar o curso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Out there where worlds collide...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Lá fora onde mundos colidem...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}As he chases all his wildest dreams...",
+    "traduzido" : "{\\fad(500,500)\\blur5}À medida que persegue todos os seus sonhos mais loucos...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Does he ever dream of me?",
+    "traduzido" : "{\\fad(500,500)\\blur5}Ele sonha comigo algum dia?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Gundam 0083 ED3 Lyrics A",
+    "original" : "{\\fad(500,500)\\blur5}Star bright...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Estrela brilhante...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 88,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Shining so high above...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Brilhando tão alto acima...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 89,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}How I wish he could hear me...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Ah, como eu queria que ele pudesse me ouvir...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 90,
+    "estilo" : "Gundam 0083 ED3 Lyrics A",
+    "original" : "{\\fad(500,500)\\blur5}Star bright...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Estrela brilhante...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 91,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5}Send me the one I love...",
+    "traduzido" : "{\\fad(500,500)\\blur5}Mande-me a pessoa que eu amo...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 92,
+    "estilo" : "Gundam 0083 ED3 Lyrics",
+    "original" : "{\\fad(500,500)\\blur5\\fs52}Make my wishes all come true tonight...",
+    "traduzido" : "{\\fad(500,500)\\blur5\\fs52}Torça para que todos os meus desejos se realizem hoje à noite...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 93,
+    "estilo" : "Gundam 0083 ED3 Lyrics A",
+    "original" : "{\\fad(500,1500)\\blur5}Star bright...",
+    "traduzido" : "{\\fad(500,1500)\\blur5}Estrela brilhante...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}
