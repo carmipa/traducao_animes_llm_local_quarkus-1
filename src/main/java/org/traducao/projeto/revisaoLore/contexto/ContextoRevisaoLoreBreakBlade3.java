@@ -20,7 +20,7 @@ public class ContextoRevisaoLoreBreakBlade3 implements ProvedorPromptRevisaoLore
         - Obra: Broken Blade / Break Blade — Movie 3: Scars from an Assassin's Blade
           / The Mark of the Assassin's Dagger (Cicatrizes da Lâmina do Assassino).
         - Regra: último ataque da Valkyrie Squadron; Argath; Zess ferido; Cleo capturada
-          (Narvi). SEM unidade Girge/Borcuse (filme 4).
+          (Narvi). SEM unidade Girge nem ofensiva de larga escala (filme 4).
 
         === Roster ===
         - Rygart Arrow, Hodr, Sigyn Erster, Zess, Cleo Saburafu, Narvi,

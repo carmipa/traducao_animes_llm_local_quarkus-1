@@ -945,6 +945,7 @@ function inicializarMetadadosDinamicos() {
  * com grupo vazio e vira opção solta, ordenada alfabeticamente entre os grupos.
  */
 const FRANQUIAS_REVISAO_LORE = [
+    ['Gundam SEED', 'Gundam SEED'],
     ['Gundam', 'Gundam'],
     ['Macross', 'Macross'],
     ['Evangelion', 'Evangelion'],

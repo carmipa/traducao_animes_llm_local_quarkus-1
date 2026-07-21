@@ -26,6 +26,9 @@ public class CatalogoObras {
 
     /** Franquias reconhecidas por palavra-chave no nome, na ordem de verificação. */
     private static final List<Map.Entry<String, String>> GRUPOS_POR_PALAVRA = List.of(
+        // "Gundam SEED" ANTES de "Gundam": a Cosmic Era (SEED) tem submenu próprio.
+        // Todos os títulos SEED contêm a substring "Gundam SEED" no nome de exibição.
+        Map.entry("Gundam SEED", "Gundam SEED"),
         Map.entry("Gundam", "Gundam"),
         Map.entry("Macross", "Macross"),
         Map.entry("Evangelion", "Evangelion"),
@@ -36,36 +39,50 @@ public class CatalogoObras {
         Map.entry("Broken Blade", "Break Blade")
     );
 
-    /** Rótulo padronizado "Mobile Suit Gundam - ‹subtítulo›" por id de contexto Gundam. */
+    /**
+     * Rótulo de exibição com o ANO da era (UC/CE/RC) na frente, para o select sair em
+     * ordem cronológica legível. UC = Universal Century; C.E. = Cosmic Era (SEED, submenu
+     * próprio); RC = Regild Century (Reconguista, fora da UC). Os ids IGLOO/Thunderbolt
+     * são o contrato de nome para quando a lore deles for criada.
+     */
     private static final Map<String, String> NOME_GUNDAM_PADRONIZADO = Map.ofEntries(
-        Map.entry("gundam_0079", "Mobile Suit Gundam (0079)"),
-        Map.entry("gundam_zeta", "Mobile Suit Gundam - Zeta"),
-        Map.entry("gundam_zz", "Mobile Suit Gundam - ZZ (Double Zeta)"),
-        Map.entry("gundam_cca", "Mobile Suit Gundam - Char's Counterattack"),
-        Map.entry("gundam_0080", "Mobile Suit Gundam - 0080: War in the Pocket"),
-        Map.entry("gundam_0083", "Mobile Suit Gundam - 0083: Stardust Memory"),
-        Map.entry("gundam_f91", "Mobile Suit Gundam - F91"),
-        Map.entry("gundam_victory", "Mobile Suit Gundam - Victory"),
-        Map.entry("gundam_08ms", "Mobile Suit Gundam - The 08th MS Team"),
-        Map.entry("gundam_seed", "Mobile Suit Gundam - SEED"),
-        Map.entry("gundam_seed_destiny", "Mobile Suit Gundam - SEED Destiny"),
-        Map.entry("gundam_seed_stargazer", "Mobile Suit Gundam - SEED C.E. 73: Stargazer"),
-        Map.entry("gundam_seed_astray", "Mobile Suit Gundam - SEED MSV Astray (Mangá/Side Story)"),
-        Map.entry("gundam_unicorn", "Mobile Suit Gundam - Unicorn"),
-        Map.entry("gundam_greco", "Mobile Suit Gundam - Reconguista in G"),
-        Map.entry("gundam_origin", "Mobile Suit Gundam - The Origin"),
-        Map.entry("gundam_nt", "Mobile Suit Gundam - NT (Narrative)"),
-        Map.entry("gundam_hathaway", "Mobile Suit Gundam - Hathaway"),
-        Map.entry("gundam_seed_freedom", "Mobile Suit Gundam - SEED Freedom")
+        // Universal Century (UC) — grupo "Gundam"
+        Map.entry("gundam_origin", "UC 0068 - Mobile Suit Gundam: The Origin"),
+        Map.entry("gundam_0079", "UC 0079 - Mobile Suit Gundam (0079)"),
+        Map.entry("gundam_08ms", "UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
+        Map.entry("gundam_ms_igloo", "UC 0079 - Mobile Suit Gundam MS IGLOO"),
+        Map.entry("gundam_thunderbolt", "UC 0079 - Mobile Suit Gundam Thunderbolt"),
+        Map.entry("gundam_0080", "UC 0079 - Mobile Suit Gundam 0080: War in the Pocket"),
+        Map.entry("gundam_0083", "UC 0083 - Mobile Suit Gundam 0083: Stardust Memory"),
+        Map.entry("gundam_zeta", "UC 0087 - Mobile Suit Zeta Gundam"),
+        Map.entry("gundam_zz", "UC 0088 - Mobile Suit Gundam ZZ"),
+        Map.entry("gundam_cca", "UC 0093 - Mobile Suit Gundam: Char's Counterattack"),
+        Map.entry("gundam_unicorn", "UC 0096 - Mobile Suit Gundam Unicorn"),
+        Map.entry("gundam_nt", "UC 0097 - Mobile Suit Gundam Narrative"),
+        Map.entry("gundam_hathaway", "UC 0105 - Mobile Suit Gundam Hathaway"),
+        Map.entry("gundam_f91", "UC 0123 - Mobile Suit Gundam F91"),
+        Map.entry("gundam_victory", "UC 0153 - Mobile Suit Victory Gundam"),
+        Map.entry("gundam_greco", "RC 1014 - Mobile Suit Gundam: Reconguista in G"),
+        // Cosmic Era (CE) — grupo "Gundam SEED"
+        Map.entry("gundam_seed", "C.E. 71 - Mobile Suit Gundam SEED"),
+        Map.entry("gundam_seed_astray", "C.E. 71 - Mobile Suit Gundam SEED MSV Astray (Side Story)"),
+        Map.entry("gundam_seed_destiny", "C.E. 73 - Mobile Suit Gundam SEED Destiny"),
+        Map.entry("gundam_seed_stargazer", "C.E. 73 - Mobile Suit Gundam SEED C.E. 73: Stargazer"),
+        Map.entry("gundam_seed_freedom", "C.E. 75 - Mobile Suit Gundam SEED Freedom")
     );
 
     /** Ordem cronológica (release) dentro de cada grupo — id na sequência final desejada. */
     private static final List<String> ORDEM_CRONOLOGICA = List.of(
-        // Gundam
-        "gundam_0079", "gundam_zeta", "gundam_zz", "gundam_cca", "gundam_0080",
-        "gundam_0083", "gundam_f91", "gundam_victory", "gundam_08ms", "gundam_seed",
-        "gundam_seed_destiny", "gundam_seed_stargazer", "gundam_seed_astray", "gundam_unicorn",
-        "gundam_greco", "gundam_origin", "gundam_nt", "gundam_hathaway", "gundam_seed_freedom",
+        // Gundam — Universal Century (UC), ordem cronológica; Reconguista (RC) ao fim.
+        // gundam_ms_igloo/gundam_thunderbolt: slots reservados (UC 0079), lore pendente.
+        "gundam_origin", "gundam_0079", "gundam_08ms",
+        "gundam_ms_igloo", "gundam_thunderbolt",
+        "gundam_0080", "gundam_0083", "gundam_zeta", "gundam_zz", "gundam_cca",
+        "gundam_unicorn", "gundam_nt", "gundam_hathaway", "gundam_f91", "gundam_victory",
+        "gundam_greco",
+        // Gundam SEED — Cosmic Era (CE), submenu próprio
+        "gundam_seed", "gundam_seed_astray", "gundam_seed_destiny",
+        "gundam_seed_stargazer", "gundam_seed_freedom",
         // DanMachi
         "danmachi", "danmachi_s1", "danmachi_so", "danmachi_s2", "danmachi_movie",
         "danmachi_s3", "danmachi_s4", "danmachi_s5",
@@ -114,8 +131,9 @@ public class CatalogoObras {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: o rótulo de exibição — padroniza o grupo Gundam para
-     * "Mobile Suit Gundam - ‹subtítulo›"; demais obras mantêm o nome original.
+     * PROPÓSITO DE NEGÓCIO: o rótulo de exibição — para as obras Gundam, prefixa o ano da
+     * era ("UC 0087 - ...", "C.E. 71 - ...", "RC 1014 - ...") para o select sair legível em
+     * ordem cronológica; demais obras mantêm o nome original.
      * <p>INVARIANTES DO DOMÍNIO: transform apenas visual; não altera o contexto nem o id.
      * <p>COMPORTAMENTO EM CASO DE FALHA: id sem padronização devolve {@code nomeOriginal}.
      */
