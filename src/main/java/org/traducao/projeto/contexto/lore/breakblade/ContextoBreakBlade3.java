@@ -13,7 +13,7 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
  * da Valkyrie Squadron, ferimento de Zess e captura de Cleo.
  *
  * <p>INVARIANTES DO DOMÍNIO: Rygart já é Heavy Knight do Delphine; NÃO adiantar
- * unidade especial Narvi/Girge em campanha (filme 4) nem Borcuse/Hykelion.
+ * unidade especial Narvi/Girge em campanha nem a ofensiva de larga escala (filme 4+).
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
@@ -27,8 +27,8 @@ public class ContextoBreakBlade3 implements ProvedorContexto {
         - Continuidade: 3º dos 6 filmes. Após a escolha de Rygart no filme 2.
         - Foco deste filme: treinamento do Delphine com blindagem pesada; último ataque
           da Valkyrie Squadron a Binonten; morte de Argath; Zess gravemente ferido por
-          Rygart; Cleo luta em fúria e é capturada (Narvi); Erekt evacua Zess.
-          NÃO cobrir marcha de Borcuse / morte de True (filme 4).
+          Rygart;           Cleo luta em fúria e é capturada (Narvi); Erekt evacua Zess.
+          NÃO cobrir a marcha do general Athens nem a morte de True (filme 4).
 
         === Personagens (gênero) ===
         - Rygart Arrow (m), Hodr (m), Sigyn Erster (f), Zess (m).
@@ -74,7 +74,7 @@ public class ContextoBreakBlade3 implements ProvedorContexto {
     /**
      * PROPÓSITO DE NEGÓCIO: protege roster e termos do Filme 3 (cicatrizes / Cleo).
      *
-     * <p>INVARIANTES DO DOMÍNIO: sem Borcuse/Hykelion/Girge como foco.
+     * <p>INVARIANTES DO DOMÍNIO: sem ofensiva de larga escala / Hykelion / Girge como foco.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */

@@ -13,8 +13,8 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
  * despertar do Under-Golem Delphine.
  *
  * <p>INVARIANTES DO DOMÍNIO: continuidade dos 6 filmes teatrais (não misturar com
- * o mangá completo); NÃO adiantar morte de Lee, captura de Cleo, Borcuse ou Hykelion
- * (filmes 2–6).
+ * o mangá completo); NÃO adiantar morte de Lee, captura de Cleo nem arcos de
+ * generalidade/escala dos filmes 2–6.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; termos e mapa imutáveis.
  */
@@ -28,7 +28,8 @@ public class ContextoBreakBlade1 implements ProvedorContexto {
           com o mangá pós-filme 6 nem com a edição TV de 12 episódios como ids separados.
         - Foco deste filme: Assam caiu sob a Athens Commonwealth; Rygart Arrow (un-sorcerer)
           é chamado a Binonten por Hodr e Sigyn; descobre o Under-Golem ancestral; Zess
-          lidera a Valkyrie Squadron contra a capital. NÃO cobrir cessar-fogo/Lee (filme 2).
+          lidera a Valkyrie Squadron contra a capital. NÃO cobrir cessar-fogo/Lee (filme 2)
+          nem campanhas posteriores.
 
         === Mundo / facções ===
         - Continente Cruzon: quase todos manipulam Quartz (energia/mágica tecnológica).
@@ -84,7 +85,7 @@ public class ContextoBreakBlade1 implements ProvedorContexto {
     /**
      * PROPÓSITO DE NEGÓCIO: protege roster e termos do Filme 1 (despertar / Delphine).
      *
-     * <p>INVARIANTES DO DOMÍNIO: sem Borcuse/Hykelion/Girge como foco (filmes posteriores).
+     * <p>INVARIANTES DO DOMÍNIO: sem foco em oficiais/mechas exclusivos dos filmes 4–6.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.
      */
