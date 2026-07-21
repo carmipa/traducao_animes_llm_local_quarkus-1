@@ -96,6 +96,48 @@ class RenomeadorUseCaseTest {
         assertTrue(Files.exists(arquivo1));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que o marcador de tracker "S01E02" seja a origem
+     * do número do episódio, e não o "0" solto de "AAC2.0" (bug Tsundere-Raws do
+     * Gundam Origin, em que todos os episódios viravam S01E00 e colidiam).
+     * INVARIANTES DO DOMÍNIO: SxxExx tem prioridade sobre o fallback numérico.
+     * COMPORTAMENTO EM CASO DE FALHA: um episódio errado (ex.: S01E00) reprova aqui.
+     */
+    @Test
+    void extraiEpisodioDeSxxExxIgnorandoAAC2ponto0() throws IOException {
+        String padrao = "Mobile Suit Gundam - The Origin - ADVENT OF THE RED COMET";
+        Files.createFile(tempDir.resolve(
+            "Mobile Suit Gundam The Origin Advent of the Red Comet S01E02 SUBFRENCH 1080p CR WEB-DL AAC2.0 x264-Tsundere-Raws_PTBR.mkv"));
+        Files.createFile(tempDir.resolve(
+            "Mobile Suit Gundam The Origin Advent of the Red Comet S01E13 SUBFRENCH 1080p CR WEB-DL AAC2.0 x264-Tsundere-Raws_PTBR.mkv"));
+
+        List<OperacaoRenomeacao.ItemRenomeado> simulados = renomeadorUseCase.simularRenomeacao(tempDir, padrao);
+
+        assertEquals(2, simulados.size(), "os dois episódios devem gerar nomes distintos, sem colisão em S01E00");
+        assertEquals(padrao + " - S01E02.mkv", simulados.get(0).nomeNovo());
+        assertEquals(padrao + " - S01E13.mkv", simulados.get(1).nomeNovo());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando não há SxxExx e o episódio vem do fallback, a
+     * notação de canais de áudio "AAC2.0" não pode deixar um "0" que vença como
+     * falso episódio.
+     * INVARIANTES DO DOMÍNIO: codecs de áudio são removidos antes do fallback numérico.
+     * COMPORTAMENTO EM CASO DE FALHA: um episódio S01E00/S01E02 (do "AAC2 0") reprova.
+     */
+    @Test
+    void fallbackNaoConfundeCanalDeAudioComEpisodio() throws IOException {
+        // Dois vídeos => modo SÉRIE (um vídeo único sem marcador explícito seria FILME).
+        Files.createFile(tempDir.resolve("Show Name 07 AAC2.0 x264.mkv"));
+        Files.createFile(tempDir.resolve("Show Name 08 AAC2.0 x264.mkv"));
+
+        List<OperacaoRenomeacao.ItemRenomeado> simulados = renomeadorUseCase.simularRenomeacao(tempDir, "Show Name");
+
+        assertEquals(2, simulados.size());
+        assertEquals("Show Name - S01E07.mkv", simulados.get(0).nomeNovo());
+        assertEquals("Show Name - S01E08.mkv", simulados.get(1).nomeNovo());
+    }
+
     @Test
     void renomeiaVideosELegendasIgnorandoOutrosArquivos() throws IOException {
         Path video = tempDir.resolve("[SubsPlease] Anime Teste - 03 (1080p).mp4");
