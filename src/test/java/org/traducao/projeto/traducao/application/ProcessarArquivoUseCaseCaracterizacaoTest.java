@@ -264,12 +264,21 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         RecuperarPendenciaGoogleService recuperarPendenciaGoogle =
             new RecuperarPendenciaGoogleService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
 
+        // Contexto de cena DESLIGADO nesta caracterização (o fluxo OFF deve ficar byte-idêntico).
+        var contextoCena = new org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties();
+        var tradutorContextual = new org.traducao.projeto.traducao.application.contextocena.TradutorContextualEpisodio(
+            new org.traducao.projeto.traducao.application.contextocena.MontadorJanelaContextual(classificadorPendencia),
+            new org.traducao.projeto.traducao.application.contextocena.ChaveadorContextual(),
+            mascarador, new IsoladorQuebraDialogo(),
+            req -> req.janela().alvo().texto(), // porta stub: nunca chamada com a flag desligada
+            avaliadorCache, contextoCena, props);
+
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
             pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
-            new NormalizadorAcentosComuns());
+            new NormalizadorAcentosComuns(), contextoCena, tradutorContextual);
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
