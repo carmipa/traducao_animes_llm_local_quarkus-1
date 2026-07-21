@@ -184,7 +184,7 @@ class EnforcadorTermosLoreTest {
                 "Rygart é Não-feiticeiro e pilota a Delfine.",
                 mapa));
         assertEquals(
-            "A Valkyrie Squadron serve Athens Commonwealth.",
+            "O Valkyrie Squadron serve a Athens Commonwealth.",
             enforcador.reforcar(
                 "The Valkyrie Squadron serves the Athens Commonwealth.",
                 "O Esquadrão Valquíria serve a Comunidade de Atenas.",

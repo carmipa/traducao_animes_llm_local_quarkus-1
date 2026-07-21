@@ -9,8 +9,8 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 /**
  * PROPÓSITO DE NEGÓCIO: Revisao de Lore excepcional do Filme 1 — The Time of Awakening.
  *
- * <p>INVARIANTES DO DOMÍNIO: canônicos Break Blade; sem Lee/Borcuse/Girge como foco
- * (filmes 2–6); sem import de {@code contexto.lore}.
+ * <p>INVARIANTES DO DOMÍNIO: canônicos Break Blade; sem Lee nem arcos dos filmes 2–6
+ * como foco; sem import de {@code contexto.lore}.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -19,7 +19,7 @@ public class ContextoRevisaoLoreBreakBlade1 implements ProvedorPromptRevisaoLore
 
     private static final String LORE = """
         - Obra: Broken Blade / Break Blade — Movie 1: The Time of Awakening (O Tempo do Despertar).
-        - Regra: 1º dos 6 filmes; NÃO adiantar cessar-fogo/Lee (filme 2) nem Borcuse (filme 4+).
+        - Regra: 1º dos 6 filmes; NÃO adiantar cessar-fogo/Lee (filme 2) nem campanhas posteriores.
         - Valkyrie Squadron (Zess) ≠ Macross Valkyrie.
 
         === Roster ===

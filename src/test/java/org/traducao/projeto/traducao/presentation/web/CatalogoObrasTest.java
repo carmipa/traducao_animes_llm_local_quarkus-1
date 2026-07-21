@@ -41,15 +41,32 @@ class CatalogoObrasTest {
     }
 
     @Test
-    @DisplayName("nomePadronizado: Gundam vira 'Mobile Suit Gundam - X'; demais mantem original")
+    @DisplayName("nomePadronizado: Gundam ganha prefixo de ano UC/CE; demais mantem original")
     void nomePadronizadoGundam() {
-        assertEquals("Mobile Suit Gundam - Zeta",
+        assertEquals("UC 0087 - Mobile Suit Zeta Gundam",
             catalogo.nomePadronizado("gundam_zeta", "Mobile Suit Zeta Gundam"));
-        assertEquals("Mobile Suit Gundam - ZZ (Double Zeta)",
+        assertEquals("UC 0088 - Mobile Suit Gundam ZZ",
             catalogo.nomePadronizado("gundam_zz", "Mobile Suit Gundam ZZ"));
+        assertEquals("C.E. 71 - Mobile Suit Gundam SEED",
+            catalogo.nomePadronizado("gundam_seed", "Mobile Suit Gundam SEED"));
         // Nao-Gundam mantem o nome original.
         assertEquals("Macross Plus", catalogo.nomePadronizado("macross_plus", "Macross Plus"));
         assertEquals("86 (Eighty-Six)", catalogo.nomePadronizado("eight_six", "86 (Eighty-Six)"));
+    }
+
+    @Test
+    @DisplayName("grupo: Cosmic Era (SEED) vai para o submenu 'Gundam SEED', UC continua 'Gundam'")
+    void seedTemSubmenuProprio() {
+        assertEquals("Gundam SEED", catalogo.grupo("Mobile Suit Gundam SEED"));
+        assertEquals("Gundam SEED", catalogo.grupo("Mobile Suit Gundam SEED Destiny"));
+        assertEquals("Gundam SEED", catalogo.grupo("Mobile Suit Gundam SEED MSV Astray (Mangá/Side Story)"));
+        // Universal Century permanece no grupo Gundam.
+        assertEquals("Gundam", catalogo.grupo("Mobile Suit Gundam Unicorn"));
+        assertEquals("Gundam", catalogo.grupo("Mobile Suit Gundam: The Origin"));
+        // Ordem: SEED em ordem CE; UC com Origin antes de 0079.
+        assertTrue(catalogo.ordem("gundam_origin") < catalogo.ordem("gundam_0079"));
+        assertTrue(catalogo.ordem("gundam_seed") < catalogo.ordem("gundam_seed_destiny"));
+        assertTrue(catalogo.ordem("gundam_seed_destiny") < catalogo.ordem("gundam_seed_freedom"));
     }
 
     @Test
