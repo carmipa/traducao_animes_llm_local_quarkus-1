@@ -246,7 +246,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
         ResolvedorCacheTraducao resolvedorCache =
-            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
+            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props,
+                new org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties());
         PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
         SeletorEventosTraduziveis seletorEventos =
             new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador);
