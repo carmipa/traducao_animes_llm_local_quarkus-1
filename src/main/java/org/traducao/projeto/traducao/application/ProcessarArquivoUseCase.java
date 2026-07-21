@@ -511,6 +511,162 @@ public class ProcessarArquivoUseCase {
 
 
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: caminho da correção de gênero por contexto de cena (flag LIGADA) —
+     * traduz o DIÁLOGO pelo tradutor contextual (janela de vizinhança + máscara de tags +
+     * validação, sem colapsar falas iguais de cenas diferentes) e o RESTO (música/letreiro/
+     * romaji) pela via de tradução de hoje. Produz a mesma saída publicável (ASS + cache +
+     * telemetria) do fluxo normal, apenas com o diálogo tratado com contexto.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o diálogo é reconstruído por ÍNDICE de evento (nunca por texto
+     * original, para não recolapsar); as entradas de diálogo carregam a assinatura contextual;
+     * o não-diálogo passa pelas MESMAS máquinas de dedup/validação/terminologia/normalização do
+     * fluxo OFF; tag corrompida ou reprova de validação degradam para "manter original", nunca
+     * para legenda corrompida.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: uma tradução parcial do não-diálogo
+     * ({@link TraducaoParcialException}) é absorvida (usa o dicionário parcial e marca o arquivo
+     * como PARCIAL) em vez de abortar o episódio; falha de I/O na escrita propaga.
+     */
+    private ResultadoTraducaoArquivo processarContextual(
+            Path arquivoEntrada, DocumentoLegenda documento, Path arquivoCache,
+            ProvenienciaCache proveniencia, CacheTraducaoService.ResultadoCarga carga,
+            String promptCongelado, boolean permitirRetraducao, List<String> avisos, long inicioMs)
+            throws InterruptedException, ExecutionException {
+
+        Map<String, Long> frequencia = seletorEventos.calcularFrequenciaTextoLimpo(documento);
+        List<EventoLegenda> eventosTraduziveis = documento.eventos().stream()
+            .filter(evento -> seletorEventos.isTraduzivel(evento, frequencia))
+            .toList();
+
+        Map<String, String> estiloPorTexto = new HashMap<>();
+        for (EventoLegenda evento : documento.eventos()) {
+            if (evento.temTexto()) {
+                estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
+            }
+        }
+
+        // Separa DIÁLOGO (vai pelo contexto de cena) do RESTO (via de hoje).
+        Set<Integer> indicesDialogo = new HashSet<>();
+        LinkedHashSet<String> naoDialogoDistintos = new LinkedHashSet<>();
+        for (EventoLegenda evento : eventosTraduziveis) {
+            if (classificadorPendencia.categoria(evento.estilo(), evento.texto()) == CategoriaConteudo.DIALOGO) {
+                indicesDialogo.add(evento.indice());
+            } else {
+                naoDialogoDistintos.add(evento.texto());
+            }
+        }
+
+        // 1) DIÁLOGO -> tradutor contextual (reaproveita o cache contextual por assinatura).
+        TradutorContextualEpisodio.ResultadoContextual ctx = tradutorContextual.traduzir(
+            documento.eventos(), indicesDialogo, promptCongelado, carga.mapaContextual());
+        ResumoContextoCena resumo = ctx.resumo();
+        uiLogger.log("[ CONTEXTO ] Diálogo por contexto de cena: " + resumo.falasContextualizadas()
+            + " traduzida(s), " + resumo.reaproveitadasCache() + " do cache, "
+            + resumo.pendentes() + " pendente(s).");
+
+        // 2) NÃO-DIÁLOGO -> via de hoje: dedup por original, lote, validação.
+        Map<String, String> cacheReaproveitavel = new HashMap<>();
+        LinkedHashSet<String> pendentes = new LinkedHashSet<>();
+        for (String texto : naoDialogoDistintos) {
+            String cacheado = carga.mapa().get(texto);
+            if (cacheado != null && avaliadorCache.isCacheReaproveitavel(texto, cacheado)) {
+                cacheReaproveitavel.put(texto, cacheado);
+            } else {
+                pendentes.add(texto);
+            }
+        }
+        Set<String> deduplicaveis = new HashSet<>();
+        for (String pendente : pendentes) {
+            if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) != CategoriaConteudo.DIALOGO) {
+                deduplicaveis.add(pendente);
+            }
+        }
+        Map<String, String> novas;
+        try {
+            novas = tradutorLotes.traduzirPendentes(pendentes, deduplicaveis,
+                arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
+        } catch (TraducaoParcialException e) {
+            novas = e.getDicionarioParcial() != null ? e.getDicionarioParcial() : new HashMap<>();
+        }
+        Map<String, String> naoDialogoValidadas = new HashMap<>(cacheReaproveitavel);
+        naoDialogoValidadas.putAll(novas);
+        int falhasNaoDialogo = 0;
+        for (String original : naoDialogoDistintos) {
+            String motivo = avaliadorCache.motivoFalhaFinal(original, naoDialogoValidadas.get(original));
+            if (motivo != null) {
+                naoDialogoValidadas.put(original, "");
+                falhasNaoDialogo++;
+            }
+        }
+
+        // Terminologia + normalização determinística nas não-diálogo válidas (as contextuais já
+        // saem prontas do orquestrador).
+        Map<String, String> correcoesLore = gerenciadorContexto.correcoesTerminologiaAtiva();
+        for (Map.Entry<String, String> traducao : naoDialogoValidadas.entrySet()) {
+            String valor = traducao.getValue();
+            if (valor != null && !valor.isBlank()) {
+                if (!correcoesLore.isEmpty()) {
+                    valor = enforcadorTermosLore.reforcar(traducao.getKey(), valor, correcoesLore);
+                }
+                valor = normalizadorAspas.normalizar(traducao.getKey(), valor);
+                valor = normalizadorAcentos.normalizar(valor);
+                traducao.setValue(valor);
+            }
+        }
+
+        // 3) Reconstrução: diálogo por ÍNDICE (do orquestrador), resto por texto original.
+        Map<Integer, String> porIndice = ctx.traducaoPorIndice();
+        List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
+        List<EntradaCache> entradasCache = new ArrayList<>(ctx.entradas());
+        for (EventoLegenda evento : documento.eventos()) {
+            if (!seletorEventos.isTraduzivel(evento, frequencia)) {
+                eventosFinais.add(evento);
+                continue;
+            }
+            if (indicesDialogo.contains(evento.indice())) {
+                String traduzido = porIndice.get(evento.indice());
+                eventosFinais.add(evento.comTexto(traduzido != null ? traduzido : evento.texto()));
+                // a entrada de cache do diálogo já veio do orquestrador (ctx.entradas()).
+            } else {
+                String validado = naoDialogoValidadas.get(evento.texto());
+                String textoFinal = (validado == null || validado.isBlank()) ? evento.texto() : validado;
+                eventosFinais.add(evento.comTexto(textoFinal));
+                entradasCache.add(new EntradaCache(evento.indice(), evento.estilo(), evento.texto(),
+                    validado, propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
+            }
+        }
+
+        DocumentoLegenda documentoFinal = new DocumentoLegenda(
+            documento.cabecalho(), eventosFinais, documento.quebraDeLinha(), documento.comBom());
+
+        boolean parcial = !avisos.isEmpty() || falhasNaoDialogo > 0 || resumo.pendentes() > 0;
+        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
+        Path arquivoSaida = resolvedorSaida.selecionar(arquivoSaidaFinal, parcial, permitirRetraducao);
+        if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
+            politicaBackup.criarBackupAntesSobrescrita(arquivoSaidaFinal);
+        }
+        escritor.escrever(arquivoSaida, documentoFinal);
+        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
+
+        long tempoTotalMs = System.currentTimeMillis() - inicioMs;
+        String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);
+        String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
+        int reaproveitadasTotal = resumo.reaproveitadasCache() + cacheReaproveitavel.size();
+        int novasValidas = resumo.falasContextualizadas();
+        uiLogger.registrarFalasCache(reaproveitadasTotal);
+        uiLogger.registrarFalasNovas(novasValidas);
+        StatusArquivoTraducao status = parcial ? StatusArquivoTraducao.PARCIAL : StatusArquivoTraducao.CONCLUIDO;
+        telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
+            arquivoEntrada, eventosTraduziveis.size(), novasValidas, reaproveitadasTotal, tempoTotalMs,
+            avisos, animeNome, loreNome, status, List.of()));
+
+        log.info("Arquivo traduzido (contexto de cena) salvo em {} (cache em {})", arquivoSaida, arquivoCache);
+        return new ResultadoTraducaoArquivo(
+            arquivoSaida, arquivoEntrada.getFileName().toString(), loreNome,
+            eventosTraduziveis.size(), reaproveitadasTotal, novasValidas, avisos.size(), status);
+    }
+
     private static boolean ehSrt(Path arquivo) {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");
     }
