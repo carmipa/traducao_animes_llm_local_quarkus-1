@@ -7,9 +7,10 @@ import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 import java.util.Map;
 
 /**
- * PROPÓSITO DE NEGÓCIO: Revisao de Lore lean para Macross Delta (Filmes).
+ * PROPÓSITO DE NEGÓCIO: Revisao de Lore agregada dos filmes Macross Delta.
  *
- * <p>INVARIANTES DO DOMÍNIO: Valkyrie/Zentradi oficiais; sem Veritech/Valquíria.
+ * <p>INVARIANTES DO DOMÍNIO: filme 1 ≠ filme 2; Walküre ≠ Valkyrie; Yami_Q_Ray / Heimdall
+ * só Absolute Live; preferir contextos filme1/filme2 quando possível.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
@@ -17,29 +18,51 @@ import java.util.Map;
 public class ContextoRevisaoLoreMacrossDeltaFilmes implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Macross Delta (Filmes).
-        - Regra: nomes canonicos NAO sao localizados. Corrija so grafia de lore.
-        - Nomes/termos: Macross Delta, Gekijouban Macross Delta, Gekjou, Walkuere, Zettai Live, Continuidade, Heimdall, Absolute Live, Todas Femininas, Freyja Wion, Mikumo Guynemer, Kaname Buccaneer, Makina Nakajima, Reina Prowler, Unidade Rival, Yami Mikumo, Yami Freyja, Yami Kaname, Yami Makina, Yami Reina, Pilotos, Delta, Hayate Immelmann, Mirage Farina Jenius, Arad Molders, Chuck Mustang, Messer Ihlefeld, Legado, Especiais, Maximilian Jenius, Max Jenius, Macross Gigant, Ian Cromwell, Lady, Termos, Chaos, NUNS, Star Singer, Kairos, Plus.
-        - Premissa: Continuidade e releitura cinematográfica dos eventos de Macross Delta, incluindo a batalha contra a unidade cibernética/clonada Yami_Q_Ray e a ameaça de Heimdall em Absolute Live!!!!!!.
-        - Unidade Tática Musical Walküre (Todas Femininas): Freyja Wion (mulher), Mikumo Guynemer (mulher), Kaname Buccaneer (mulher), Makina Nakajima (mulher), Reina Prowler (mulher).
-        - Unidade Rival Yami_Q_Ray (Absolute Live!!!!!! - Todas Femininas): Yami Mikumo, Yami Freyja, Yami Kaname, Yami Makina, Yami Reina.
-        - Pilotos do Esquadrão Delta: Hayate Immelmann (homem), Mirage Farina Jenius (mulher), Arad Molders (homem), Chuck Mustang (homem), Messer Ihlefeld (homem).
-        - Personagens de Legado e Especiais: Maximilian Jenius / Max Jenius (homem / capitão lendário da Macross Gigant), Ian Cromwell (homem / líder da Heimdall), Lady M.
-        - Organizações e Termos: Chaos, NUNS, Heimdall, Walküre, Yami_Q_Ray, Star Singer, Sv-301t Kairos-Plus, VF-31AX Kairos-Plus, VF-31E Siegfried, Macross Gigant.
-        - Alertas: Valkyrie nao vira Valquiria/Valquíria; Zentradi grafia oficial; proibido Veritech;
-          GERWALK/Battroid/Fighter Mode — nao traduzir nomes dos modos.
+        - Obra: Macross Delta (Filmes) — Passionate Walküre + Absolute Live!!!!!!
+        - Preferir macross_delta_filme1 / macross_delta_filme2 quando for so um filme.
+        - Walküre ≠ Valkyrie; PROIBIDO Veritech.
+
+        === Passionate Walküre (filme 1) ===
+        - Windermere Kingdom / Aerial Knights / Var Syndrome / Fold Waves /
+          VF-31 Siegfried / Macross Elysion. SEM Heimdall / Yami_Q_Ray.
+
+        === Absolute Live!!!!!! (filme 2) ===
+        - Heimdall (Ian Cromwell); Yami_Q_Ray (+ Yami Mikumo/Freyja/Kaname/Makina/Reina);
+          Max Jenius / Macross Gigant; VF-31AX Kairos-Plus; Star Singer.
+
+        === Roster comum ===
+        - Walküre: Freyja Wion, Mikumo Guynemer, Kaname Buccaneer, Makina Nakajima, Reina Prowler.
+        - Delta Flight: Hayate Immelmann, Mirage Farina Jenius, Arad Molders, Chuck Mustang,
+          Messer Ihlefeld.
+
+        === Formas-ruim ===
+        - Walkure → Walküre; Síndrome Var → Var Syndrome; Ondas Fold → Fold Waves;
+          Esquadrão Delta → Delta Flight; Cavaleiros Aéreos → Aerial Knights;
+          Heimdal → Heimdall; Yami Q Ray → Yami_Q_Ray; Gigante Macross → Macross Gigant;
+          Valquíria → Valkyrie.
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
 
-    @Override public String getId() { return "macross_delta_filmes"; }
-    @Override public String getNomeExibicao() { return "Macross Delta (Filmes) - Revisao de Lore"; }
-    @Override public String obterPromptSistema() { return PROMPT; }
+    @Override
+    public String getId() {
+        return "macross_delta_filmes";
+    }
+
+    @Override
+    public String getNomeExibicao() {
+        return "Macross Delta (Filmes) - Revisao de Lore";
+    }
+
+    @Override
+    public String obterPromptSistema() {
+        return PROMPT;
+    }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mapa determinístico Macross na Opção 7.
+     * PROPÓSITO DE NEGÓCIO: mapa determinístico Delta na Opção 7.
      *
-     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local.
+     * <p>INVARIANTES DO DOMÍNIO: espelho da Tradução Local Delta.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável.
      */

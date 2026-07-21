@@ -155,21 +155,32 @@ class ContextosRevisaoLoreCatalogoTest {
         var tv = new ContextoRevisaoLoreMacrossDelta();
         var f1 = new ContextoRevisaoLoreMacrossDeltaFilme1();
         var f2 = new ContextoRevisaoLoreMacrossDeltaFilme2();
+        var filmes = new ContextoRevisaoLoreMacrossDeltaFilmes();
 
         assertEquals("macross_delta", tv.getId());
         assertEquals("macross_delta_filme1", f1.getId());
         assertEquals("macross_delta_filme2", f2.getId());
+        assertEquals("macross_delta_filmes", filmes.getId());
 
         assertTrue(tv.obterPromptSistema().contains("Aerial Knights"));
+        assertTrue(tv.obterPromptSistema().contains("Ernest Johnson"));
+        assertTrue(tv.obterPromptSistema().contains("Windermere Kingdom"));
         assertTrue(f1.obterPromptSistema().contains("Passionate Walküre"));
         assertTrue(f2.obterPromptSistema().contains("Yami_Q_Ray"));
         assertTrue(f2.obterPromptSistema().contains("Heimdall"));
+        assertTrue(f2.obterPromptSistema().contains("Star Singer"));
         assertFalse(f1.obterPromptSistema().contains("Yami_Q_Ray"));
+        assertTrue(filmes.obterPromptSistema().contains("Absolute Live"));
+        assertTrue(filmes.obterPromptSistema().contains("Passionate Walküre"));
 
         assertEquals("Walküre", tv.correcoesTerminologia().get("Walkure"));
         assertEquals("Var Syndrome", tv.correcoesTerminologia().get("Síndrome Var"));
         assertEquals("Delta Flight", f1.correcoesTerminologia().get("Esquadrão Delta"));
         assertEquals("Fold Waves", f2.correcoesTerminologia().get("Ondas Fold"));
+        assertEquals("Windermere Kingdom", tv.correcoesTerminologia().get("Reino de Windermere"));
+        assertEquals("Aerial Knights", tv.correcoesTerminologia().get("Cavaleiros do Ar"));
+        assertEquals("Heimdall", f2.correcoesTerminologia().get("Heimdal"));
+        assertEquals("Yami_Q_Ray", f2.correcoesTerminologia().get("Yami Q Ray"));
     }
 
     @Test

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * PROPÓSITO DE NEGÓCIO: lore excepcional do filme Macross Delta — Passionate Walküre
+ * PROPÓSITO DE NEGÓCIO: lore completa do filme Macross Delta — Passionate Walküre
  * (releitura cinematográfica da guerra Windermere / Var).
  *
  * <p>INVARIANTES DO DOMÍNIO: mesmos canônicos da série Delta; NÃO misturar com Absolute Live
@@ -23,7 +23,7 @@ public class ContextoMacrossDeltaFilme1 implements ProvedorContexto {
         - Obra: Macross Delta the Movie: Passionate Walküre
           (劇場版マクロスΔ 激情のワルキューレ / Gekijou no Walküre).
         - Natureza: releitura cinematografica dos eventos da serie TV (2067, Brisingr) —
-          Walküre + Delta Flight vs Reino de Windermere / Aerial Knights / plano Var + Fold Waves.
+          Walküre + Delta Flight vs Windermere Kingdom / Aerial Knights / plano Var + Fold Waves.
         - NAO confundir com Absolute Live!!!!!! (filme 2 — Heimdall, Yami_Q_Ray, Macross Gigant).
 
         === Walküre (femininas) ===
@@ -39,7 +39,7 @@ public class ContextoMacrossDeltaFilme1 implements ProvedorContexto {
 
         === Orgs / termos / lugares ===
         - Chaos, NUNS, Walküre, Delta Flight, Aerial Knights, Windermere Kingdom,
-          Var Syndrome, Fold Waves, Protoculture, planeta Ragna, Al Shahal.
+          Var Syndrome, Fold Waves, Protoculture, planeta Ragna, Al Shahal, Brisingr.
         - Walküre (grupo) ≠ Valkyrie (mecha Variable Fighter).
 
         === Mecha / naves ===
@@ -49,7 +49,7 @@ public class ContextoMacrossDeltaFilme1 implements ProvedorContexto {
 
         === Tom ===
         - Idol + mecha cinematografico; Freyja emotiva; Hayate impulsivo; Keith nobre/hostil;
-          Roid ideologo Protoculture; cancoes cantaveis sem notas editoriais.
+          Roid ideologo Protoculture.
         """;
 
     private static final String PROMPT = ContextoPrompt.montar(
@@ -84,10 +84,12 @@ public class ContextoMacrossDeltaFilme1 implements ProvedorContexto {
             "Reina Prowler", "Hayate Immelmann", "Mirage Farina Jenius", "Arad Molders",
             "Chuck Mustang", "Messer Ihlefeld", "Keith Aero Windermere",
             "Heinz Nerich Windermere", "Roid Brehm", "Bogue Con-Vaart",
-            "Walküre", "Windermere", "Var Syndrome", "Delta Flight", "Aerial Knights",
-            "Chaos", "NUNS", "Fold Waves", "Protoculture", "VF-31 Siegfried",
-            "Sv-262 Draken III", "Macross Elysion", "GERWALK", "Battroid", "Valkyrie",
-            "Overtechnology", "Passionate Walküre"
+            "Cassim Eberhard", "Herman Kroos",
+            "Walküre", "Windermere", "Windermere Kingdom", "Var Syndrome",
+            "Delta Flight", "Aerial Knights", "Chaos", "NUNS", "Fold Waves",
+            "Protoculture", "VF-31 Siegfried", "Sv-262 Draken III", "Macross Elysion",
+            "GERWALK", "Battroid", "Valkyrie", "Overtechnology", "Zentradi",
+            "Brisingr", "Ragna", "Al Shahal", "Passionate Walküre"
         );
     }
 
