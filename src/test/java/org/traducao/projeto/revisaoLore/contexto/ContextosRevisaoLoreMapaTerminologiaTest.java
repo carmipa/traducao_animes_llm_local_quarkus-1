@@ -126,6 +126,26 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
     }
 
     @Test
+    @DisplayName("Break Blade — mapa un-sorcerer/Delphine/Krisna/Valkyrie Squadron")
+    void breakBladeMapaEnriquecido() {
+        Map<String, String> nucleo = CorrecoesTerminologiaBreakBladeRevisao.mapa();
+        assertEquals("un-sorcerer", nucleo.get("Não-feiticeiro"));
+        assertEquals("Delphine", nucleo.get("Delfine"));
+        assertEquals("Delphine", nucleo.get("Delphing"));
+        assertEquals("Kingdom of Krisna", nucleo.get("Reino de Krisna"));
+        assertEquals("Athens Commonwealth", nucleo.get("Comunidade de Atenas"));
+        assertEquals("Valkyrie Squadron", nucleo.get("Esquadrão Valquíria"));
+        assertEquals("Heavy Knight", nucleo.get("Cavaleiro Pesado"));
+        assertEquals("Hykelion", nucleo.get("Hykélion"));
+        assertEquals("Quartz", nucleo.get("Quartzo"));
+
+        assertEquals("un-sorcerer",
+            new ContextoRevisaoLoreBreakBlade1().correcoesTerminologia().get("Sem-magia"));
+        assertEquals("Broken Blade",
+            new ContextoRevisaoLoreBreakBlade6().correcoesTerminologia().get("Lâmina Quebrada"));
+    }
+
+    @Test
     @DisplayName("ids DanMachi revisao cobrem S1–S5, SO e filme")
     void idsDanMachiRevisaoCompletos() {
         assertEquals("danmachi_s1", new ContextoRevisaoLoreDanMachiS1().getId());

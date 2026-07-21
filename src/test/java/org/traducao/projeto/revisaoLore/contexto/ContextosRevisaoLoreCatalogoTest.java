@@ -184,6 +184,47 @@ class ContextosRevisaoLoreCatalogoTest {
     }
 
     @Test
+    void contextosBreakBladeRevisaoExcepcionais() {
+        var f1 = new ContextoRevisaoLoreBreakBlade1();
+        var f2 = new ContextoRevisaoLoreBreakBlade2();
+        var f3 = new ContextoRevisaoLoreBreakBlade3();
+        var f4 = new ContextoRevisaoLoreBreakBlade4();
+        var f5 = new ContextoRevisaoLoreBreakBlade5();
+        var f6 = new ContextoRevisaoLoreBreakBlade6();
+
+        assertEquals("break_blade_1", f1.getId());
+        assertEquals("break_blade_2", f2.getId());
+        assertEquals("break_blade_3", f3.getId());
+        assertEquals("break_blade_4", f4.getId());
+        assertEquals("break_blade_5", f5.getId());
+        assertEquals("break_blade_6", f6.getId());
+
+        assertTrue(f1.getNomeExibicao().contains("Break Blade"));
+        assertTrue(f1.getNomeExibicao().contains("Revisao de Lore"));
+        assertTrue(f1.obterPromptSistema().contains("Delphine"));
+        assertTrue(f1.obterPromptSistema().contains("un-sorcerer"));
+        assertTrue(f2.obterPromptSistema().contains("Heavy Knight"));
+        assertTrue(f2.obterPromptSistema().contains("Lee"));
+        assertTrue(f3.obterPromptSistema().contains("Cleo Saburafu"));
+        assertTrue(f3.obterPromptSistema().contains("Narvi"));
+        assertTrue(f4.obterPromptSistema().contains("Borcuse"));
+        assertTrue(f4.obterPromptSistema().contains("Girge"));
+        assertTrue(f5.obterPromptSistema().contains("Hykelion"));
+        assertTrue(f5.obterPromptSistema().contains("Regatz"));
+        assertTrue(f6.obterPromptSistema().contains("Fortress of Lamentation"));
+        assertTrue(f6.obterPromptSistema().contains("Greta"));
+        assertFalse(f1.obterPromptSistema().contains("Hykelion"));
+        assertFalse(f3.obterPromptSistema().contains("Borcuse"));
+
+        assertEquals("Delphine", f1.correcoesTerminologia().get("Delfine"));
+        assertEquals("un-sorcerer", f2.correcoesTerminologia().get("Não-feiticeiro"));
+        assertEquals("Valkyrie Squadron", f3.correcoesTerminologia().get("Esquadrão Valquíria"));
+        assertEquals("Hykelion", f4.correcoesTerminologia().get("Hykélion"));
+        assertEquals("Kingdom of Krisna", f5.correcoesTerminologia().get("Reino de Krishna"));
+        assertEquals("Orlando Empire", f6.correcoesTerminologia().get("Império de Orlando"));
+    }
+
+    @Test
     void promptGuiltyCrownProtegeTermosCriticosDaObra() {
         var ctx = new ContextoRevisaoLoreGuiltyCrown();
         String prompt = ctx.obterPromptSistema();

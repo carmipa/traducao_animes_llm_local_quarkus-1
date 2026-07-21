@@ -174,6 +174,30 @@ class EnforcadorTermosLoreTest {
     }
 
     @Test
+    @DisplayName("Break Blade: restaura un-sorcerer/Delphine/Valkyrie Squadron")
+    void restauraBreakBlade() {
+        var mapa = org.traducao.projeto.contexto.lore.breakblade.CorrecoesTerminologiaBreakBlade.mapa();
+        assertEquals(
+            "Rygart é un-sorcerer e pilota a Delphine.",
+            enforcador.reforcar(
+                "Rygart is an un-sorcerer and pilots the Delphine.",
+                "Rygart é Não-feiticeiro e pilota a Delfine.",
+                mapa));
+        assertEquals(
+            "A Valkyrie Squadron serve Athens Commonwealth.",
+            enforcador.reforcar(
+                "The Valkyrie Squadron serves the Athens Commonwealth.",
+                "O Esquadrão Valquíria serve a Comunidade de Atenas.",
+                mapa));
+        assertEquals(
+            "Hykelion enfrenta o Heavy Knight.",
+            enforcador.reforcar(
+                "Hykelion faces the Heavy Knight.",
+                "Hykélion enfrenta o Cavaleiro Pesado.",
+                mapa));
+    }
+
+    @Test
     @DisplayName("Macross Delta: restaura Walküre/Var Syndrome/Delta Flight")
     void restauraMacrossDelta() {
         var mapa = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacrossDelta.mapa();
