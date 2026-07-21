@@ -1,0 +1,127 @@
+{
+  "tipo" : "revisao_lore",
+  "operacao" : {
+    "tipo" : "Revisao de Lore (.ass LLM)",
+    "detalhe" : "C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT\\legendas pt | promptRevisaoLore=Mobile Suit Gundam: The 08th MS Team - Revisao de Lore | status=CONCLUIDO_COM_PENDENCIAS | pendentes=0 | semResposta=0 | descartadas=0 | encaminhadasOpcao6=0 | erros=1",
+    "tempoTotalMs" : 26,
+    "arquivosProcessados" : 0,
+    "itensDetectados" : 0,
+    "itensCorrigidos" : 0,
+    "registradoEm" : "2026-07-21T01:44:55.577372500Z"
+  },
+  "contexto" : {
+    "id" : "gundam_08ms",
+    "nome" : "Mobile Suit Gundam: The 08th MS Team - Revisao de Lore"
+  },
+  "pastas" : {
+    "originalEn" : "C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT\\legednas -en",
+    "traduzidaPtBr" : "C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT\\legendas pt"
+  },
+  "modo" : "apenas_sinalizadas",
+  "metricas" : {
+    "status" : "CONCLUIDO_COM_PENDENCIAS",
+    "duracaoMs" : 26,
+    "duracaoFormatada" : "0s",
+    "arquivosAnalisados" : 0,
+    "arquivosAlterados" : 0,
+    "falasAuditadas" : 0,
+    "falasSinalizadas" : 0,
+    "falasCorrigidas" : 0,
+    "falasSemAlteracao" : 0,
+    "falasSemResposta" : 0,
+    "falasDescartadas" : 0,
+    "falasEncaminhadasOpcao6" : 0,
+    "falasPendentes" : 0,
+    "totalErros" : 1
+  },
+  "erros" : [ "Sem par traduzido para: [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.ass" ],
+  "eventos" : [ {
+    "instante" : "2026-07-21T01:44:55.528066500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.525060900Z | +00.003s] \n=== Revisao de Lore (nomes, locais e terminologia) ==="
+  }, {
+    "instante" : "2026-07-21T01:44:55.530580200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.528066500Z | +00.006s] Inicio UTC: 2026-07-21T01:44:55.528066500Z"
+  }, {
+    "instante" : "2026-07-21T01:44:55.532583100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.530580200Z | +00.008s] Pasta original (EN): C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT\\legednas -en"
+  }, {
+    "instante" : "2026-07-21T01:44:55.536094700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.532583100Z | +00.010s] Pasta traduzida (PT-BR): C:\\TRACKER-ANIMES\\animes\\Gundam Narrative NT\\legendas pt"
+  }, {
+    "instante" : "2026-07-21T01:44:55.538094800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.536094700Z | +00.014s] Prompt de revisao de lore ativo: Mobile Suit Gundam: The 08th MS Team - Revisao de Lore (gundam_08ms)"
+  }, {
+    "instante" : "2026-07-21T01:44:55.540606800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.538094800Z | +00.016s] Modo: revisar apenas falas sinalizadas pela heuristica"
+  }, {
+    "instante" : "2026-07-21T01:44:55.542606800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.540606800Z | +00.018s] Arquivos .ass encontrados na pasta original: 1"
+  }, {
+    "instante" : "2026-07-21T01:44:55.545109Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.543604900Z | +00.021s] Falas auditaveis no lote: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.548117900Z",
+    "nivel" : "WARN",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.546114500Z | +00.024s]   [Pulado] Sem par traduzido para: [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.ass"
+  }, {
+    "instante" : "2026-07-21T01:44:55.550116700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.548117900Z | +00.026s] Arquivos analisados: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.552116Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.550116700Z | +00.028s] Arquivos alterados: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.555113700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.552116Z | +00.030s] Falas auditadas: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.557229500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.555113700Z | +00.033s] Falas sinalizadas (heuristica/LLM): 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.559229100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.557229500Z | +00.035s] Falas corrigidas: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.561224900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.559229100Z | +00.037s] Falas ja conformes: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.564226Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.562225800Z | +00.040s] Falas sem resposta do LLM: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.566294800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.564226Z | +00.042s] Falas descartadas (travas): 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.568296200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.566294800Z | +00.044s] Falas encaminhadas para a Opção 6: 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.570294700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.568296200Z | +00.046s] Falas pendentes (sinalizadas sem correcao): 0"
+  }, {
+    "instante" : "2026-07-21T01:44:55.572294400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.570294700Z | +00.048s] Status: Concluído com pendências"
+  }, {
+    "instante" : "2026-07-21T01:44:55.575294900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.572294400Z | +00.050s] \nRevisao de lore concluida com 0 fala(s) pendente(s) e 1 aviso(s)/erro(s)."
+  }, {
+    "instante" : "2026-07-21T01:44:55.577372500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-21T01:44:55.575294900Z | +00.053s]   - Sem par traduzido para: [2ndfire]Mobile_Suit_Gundam_Narrative[BD][1080p][AV1][10bit][981A36A1]_Track3.ass"
+  } ]
+}

@@ -931,18 +931,19 @@ function inicializarMetadadosDinamicos() {
 }
 
 /**
- * PROPÓSITO DE NEGÓCIO: agrupa o select da Revisão de Lore por franquia (<optgroup>)
- * como o select da Tradução, derivando o grupo do nome da obra — os contextos de
- * revisão não trazem `grupo` do backend (a fatia revisaoLore não pode importar o
- * CatalogoObras da Tradução; a arquitetura proíbe a dependência entre fatias).
+ * PROPÓSITO DE NEGÓCIO: faz o select da Revisão de Lore ficar IDÊNTICO ao da Tradução —
+ * mesmo nome (com ano UC/CE/RC), mesmo grupo (<optgroup>) e mesma ordem cronológica.
+ * Como a fatia revisaoLore não pode importar o CatalogoObras da Tradução (a arquitetura
+ * proíbe dependência entre fatias / INBOUND→traducao = 0), o alinhamento é feito no
+ * cliente por JOIN de id: o contexto de revisão herda o nome/grupo/ordem já corrigidos
+ * do /api/contextos. O mapa de palavras-chave FRANQUIAS_REVISAO_LORE é o FALLBACK para
+ * obras de revisão sem par na lista principal.
  *
- * INVARIANTES DO DOMÍNIO: mesma detecção por palavra-chave do CatalogoObras
- * (Gundam/Macross/Evangelion/DanMachi/Sidonia); a lista é reordenada por grupo→nome
- * para os <optgroup> saírem contíguos (montarOpcoesContextos abre um grupo novo a cada
- * troca de rótulo).
+ * INVARIANTES DO DOMÍNIO: id de revisão espelha id de tradução; a lista sai ordenada por
+ * grupo→ordem-canônica para os <optgroup> saírem contíguos e cronológicos.
  *
- * COMPORTAMENTO EM CASO DE FALHA: obra sem franquia conhecida (86, Guilty Crown) fica
- * com grupo vazio e vira opção solta, ordenada alfabeticamente entre os grupos.
+ * COMPORTAMENTO EM CASO DE FALHA: obra sem par usa o grupo por palavra-chave e vai para o
+ * fim do seu grupo (ordem máxima), ordenada por nome.
  */
 const FRANQUIAS_REVISAO_LORE = [
     ['Gundam SEED', 'Gundam SEED'],
@@ -964,13 +965,30 @@ function grupoFranquiaRevisaoLore(nome) {
     return '';
 }
 
-function agruparContextosRevisaoLore(lista) {
+function agruparContextosRevisaoLore(lista, contextosPrincipais) {
+    // Join por id com a lista principal (/api/contextos, já corrigida pelo CatalogoObras:
+    // nome com ano UC/CE/RC, grupo e ordem cronológica). O id do contexto de REVISÃO
+    // espelha o id de TRADUÇÃO (ex.: ambos "gundam_0080"), então a Revisão de Lore herda
+    // o MESMO nome/grupo/ordem do select da Tradução — os selects ficam idênticos.
+    // Obra sem par na lista principal cai no fallback: grupo por palavra-chave no cliente.
+    const principaisPorId = new Map();
+    (Array.isArray(contextosPrincipais) ? contextosPrincipais : []).forEach((ctx, i) => {
+        principaisPorId.set(ctx.id, { nome: ctx.nome, grupo: ctx.grupo || '', ordem: i });
+    });
     return lista
-        .map(ctx => ({ ...ctx, grupo: ctx.grupo || grupoFranquiaRevisaoLore(ctx.nome) }))
+        .map(ctx => {
+            const principal = principaisPorId.get(ctx.id);
+            if (principal) {
+                // Mantém id e termoMetadata da revisão; adota nome/grupo/ordem canônicos.
+                return { ...ctx, nome: principal.nome, grupo: principal.grupo, ordem: principal.ordem };
+            }
+            return { ...ctx, grupo: ctx.grupo || grupoFranquiaRevisaoLore(ctx.nome), ordem: Number.MAX_SAFE_INTEGER };
+        })
         .sort((a, b) => {
             const chaveA = (a.grupo || a.nome || '').toLowerCase();
             const chaveB = (b.grupo || b.nome || '').toLowerCase();
             if (chaveA !== chaveB) return chaveA < chaveB ? -1 : 1;
+            if (a.ordem !== b.ordem) return a.ordem - b.ordem;
             return (a.nome || '').localeCompare(b.nome || '');
         });
 }
@@ -1017,7 +1035,7 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             }
 
             const fonteContextos = ehRevisaoLore && Array.isArray(contextosRevisaoLore) && contextosRevisaoLore.length > 0
-                ? agruparContextosRevisaoLore(contextosRevisaoLore)
+                ? agruparContextosRevisaoLore(contextosRevisaoLore, contextos)
                 : contextos;
 
             // Agrupa por franquia (<optgroup>) via helper compartilhado. Para a Revisão de
