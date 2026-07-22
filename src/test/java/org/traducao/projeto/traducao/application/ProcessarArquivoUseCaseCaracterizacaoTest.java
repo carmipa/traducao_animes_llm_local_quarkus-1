@@ -27,6 +27,9 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
+import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
+import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
 import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
@@ -44,6 +47,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -82,7 +86,37 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     // Fallback online controlável pelos testes: por padrão DESLIGADO (pipeline 100%
     // local), preservando o comportamento das caracterizações existentes.
     private boolean fallbackOnlineAtivo = false;
-    private FallbackTraducaoMaquinaPort fallbackPort = original -> Optional.empty();
+    private FallbackTraducaoMaquinaPort fallbackPort = portaFallback(original -> Optional.empty());
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: adapta a intenção simples destas caracterizações ("traduziu isto" /
+     * "não traduziu") ao contrato tipado da porta, que passou a exigir provedor e causa. Mantém
+     * os casos legíveis sem enfraquecer o contrato de produção: cada teste continua declarando
+     * apenas o desfecho que lhe importa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@link Optional} presente vira recuperação atribuída ao provedor
+     * {@link ProvedorFallback#GOOGLE}; vazio vira recusa por
+     * {@link StatusFallback#RESPOSTA_VAZIA} — o mesmo desfecho que o {@code Optional.empty()}
+     * representava antes, agora com causa explícita.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: repassa o resultado da função sem interpretá-lo.
+     */
+    private static FallbackTraducaoMaquinaPort portaFallback(Function<String, Optional<String>> traducao) {
+        return new FallbackTraducaoMaquinaPort() {
+            @Override
+            public ResultadoFallback traduzir(String original) {
+                return traducao.apply(original)
+                    .map(t -> ResultadoFallback.recuperada(t, ProvedorFallback.GOOGLE))
+                    .orElseGet(() -> ResultadoFallback.recusada(
+                        ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "sem resposta do provedor"));
+            }
+
+            @Override
+            public ProvedorFallback provedor() {
+                return ProvedorFallback.GOOGLE;
+            }
+        };
+    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: captura o último registro de telemetria emitido pelo fluxo, para a
@@ -449,8 +483,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void fallbackLigadoRecuperaDialogoPendenteEConclui() throws Exception {
         fallbackOnlineAtivo = true;
-        fallbackPort = original -> original.contains("KEEPME")
-            ? Optional.of("permanece aqui") : Optional.empty();
+        fallbackPort = portaFallback(original -> original.contains("KEEPME")
+            ? Optional.of("permanece aqui") : Optional.empty());
         FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
@@ -483,7 +517,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void fallbackLigadoComRedeVaziaMantemPendente() throws Exception {
         fallbackOnlineAtivo = true;
-        fallbackPort = original -> Optional.empty(); // simula rede fora/recusa
+        fallbackPort = portaFallback(original -> Optional.empty()); // simula rede fora/recusa
         FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
@@ -509,8 +543,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void fallbackLigadoAnunciaEnvioAoScrapingDoGoogle() throws Exception {
         fallbackOnlineAtivo = true;
-        fallbackPort = original -> original.contains("KEEPME")
-            ? Optional.of("permanece aqui") : Optional.empty();
+        fallbackPort = portaFallback(original -> original.contains("KEEPME")
+            ? Optional.of("permanece aqui") : Optional.empty());
         FakeLlmPort llm = new FakeLlmPort();
         LoggerCapturador logger = new LoggerCapturador();
         ProcessarArquivoUseCase uc = montar(llm, logger);
@@ -535,7 +569,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void fallbackDesligadoNaoAnunciaEnvioAoGoogle() throws Exception {
         fallbackOnlineAtivo = false;
-        fallbackPort = original -> Optional.empty();
+        fallbackPort = portaFallback(original -> Optional.empty());
         FakeLlmPort llm = new FakeLlmPort();
         LoggerCapturador logger = new LoggerCapturador();
         ProcessarArquivoUseCase uc = montar(llm, logger);
