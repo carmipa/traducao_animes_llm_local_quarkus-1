@@ -113,6 +113,26 @@ A Tradução Local **não** tenta resolver isso: é responsabilidade da [Revisã
 
 ---
 
+## Recuperação de pendências (tradutor de máquina)
+
+Quando o LLM local esgota as tentativas e uma fala de **diálogo** continua pendente, a fatia pode acionar um tradutor de máquina como **último recurso** — opt-in por `tradutor.fallback-online.ativo`. O escopo é estrito: **só as falhas desta execução**, nunca uma varredura de cache antigo.
+
+O contrato é a porta própria `FallbackTraducaoMaquinaPort`, que devolve um `ResultadoFallback` **tipado** — tradução, provedor, status e motivo. O retorno anterior (`Optional<String>`) colapsava nove desfechos num único "vazio" e apagava a razão da recusa; hoje toda tentativa que não recupera é registrada com a causa e contabilizada em `ResultadoRecuperacao`, que o console imprime como `Desfecho por causa: ...`.
+
+**Guarda de terminologia.** Uma candidata só é aceita se preservar o que a obra exige. São exigidos apenas três tipos de token:
+
+| Categoria | Exemplo | Origem |
+|---|---|---|
+| Termo da obra ativa | `Zaku`, `Rygart Arrow` | `LoreAtivaPort.termosProtegidosAtivos()` |
+| Sigla / acrônimo | `MS`, `EFF` | CAIXA ALTA com ≥2 caracteres |
+| Identificador | `RX-78`, `2148` | contém dígito (ordinal inglês exige só os dígitos: `12th` → `12`) |
+
+Palavra capitalizada comum **não** obriga. A regra anterior — qualquer maiúscula no meio da frase era "nome próprio" — tornava impossível traduzir um título em Title Case (`The Battle in Three Dimensions` exigia `Battle` em português) e recusava a resposta de **qualquer** provedor, já que a verificação ocorre depois dela. Medição sobre as 560 pendências reais dos caches versionados: **323 (57,7%)** caíam só por esse falso-positivo; 35 (6,2%) dependem de termo legítimo e seguem protegidas.
+
+*Trade-off declarado:* um nome próprio que a obra não declara deixa de ser protegido por esta guarda — a rede de segurança passa a ser a validação canônica a jusante, a mesma aplicada à saída do LLM.
+
+---
+
 ## Endpoint REST
 
 ### `POST /api/traduzir`
