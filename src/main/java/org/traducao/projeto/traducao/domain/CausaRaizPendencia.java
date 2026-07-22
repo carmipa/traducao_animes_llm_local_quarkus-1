@@ -25,6 +25,13 @@ package org.traducao.projeto.traducao.domain;
 public enum CausaRaizPendencia {
     /** O LLM perdeu/duplicou/inventou marcadores {@code [[TAGn]]}; o desmascarar recusou a resposta. */
     MARCADORES_CORROMPIDOS,
+    /**
+     * A tradução alterou ou apagou um identificador numérico da fonte (ex.: {@code 04th Team}
+     * publicado como {@code Equipe 08}). Precedência logo abaixo do marcador e acima da
+     * estrutura: é corrupção de CONTEÚDO, não de formatação, e o eco que ela possa gerar é
+     * apenas sintoma.
+     */
+    IDENTIFICADOR_NUMERICO_ALTERADO,
     /** A resposta veio com número de linhas divergente ou quebras/tags estruturalmente incompatíveis. */
     ESTRUTURA_DIVERGENTE,
     /** Resíduo em inglês, idioma incorreto, preâmbulo ou recusa/meta-resposta detectados no texto. */

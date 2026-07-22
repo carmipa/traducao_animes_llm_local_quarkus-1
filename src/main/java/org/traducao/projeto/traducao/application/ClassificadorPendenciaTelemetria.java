@@ -62,6 +62,11 @@ public class ClassificadorPendenciaTelemetria {
         if (m.contains("resposta vazia")) {
             return CausaRaizPendencia.VAZIA;
         }
+        // Antes da regra de estrutura: a mensagem do verificador numérico é específica e não
+        // pode ser absorvida por um "divergente" genérico.
+        if (m.contains("identificador numérico") || m.contains("identificador numerico")) {
+            return CausaRaizPendencia.IDENTIFICADOR_NUMERICO_ALTERADO;
+        }
         if (m.contains("divergent") || m.contains("quebras de linha") || m.contains("tags ass/ssa")) {
             return CausaRaizPendencia.ESTRUTURA_DIVERGENTE;
         }

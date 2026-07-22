@@ -289,7 +289,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         SeletorEventosTraduziveis seletorEventos =
             new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador);
         AvaliadorTraducaoCache avaliadorCache =
-            new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador);
+            new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador,
+                new VerificadorIdentificadorNumerico());
         TradutorLotesService tradutorLotes =
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
                 new IsoladorQuebraDialogo());
@@ -300,7 +301,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new ClassificadorPendenciaTelemetria(detectorKaraoke);
         RecuperarPendenciaFallbackService recuperarPendenciaGoogle =
             new RecuperarPendenciaFallbackService(
-                new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort, loreAtivaAdapter);
+                new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort, loreAtivaAdapter,
+                new VerificadorIdentificadorNumerico());
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
@@ -707,9 +709,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm, new ConsoleUILoggerSilencioso());
         // 21 falas distintas e traduzíveis: com tamanhoLote=20, geram 2 lotes
         // (20 + 1); o primeiro conclui, o segundo nunca é enviado.
+        // Rótulos ALFABÉTICOS de propósito: o dublê troca todo o texto por "fala traduzida",
+        // apagando qualquer número. Desde a invariância numérica (Bug 3), uma fala numerada
+        // traduzida assim seria — corretamente — recusada, e este teste não é sobre isso.
         String[] falas = new String[21];
         for (int i = 0; i < falas.length; i++) {
-            falas[i] = String.format("Line %02d", i + 1);
+            falas[i] = "Line " + (char) ('A' + i / 26) + (char) ('A' + i % 26);
         }
         Path entrada = escreverAss("ep.ass", falas);
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
@@ -721,8 +726,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         }
 
         assertEquals(1, llm.chamadas.get(), "apenas o primeiro lote pode ser enviado ao LLM");
-        // Cache parcial: exatamente as 20 falas do primeiro lote (Line 01..Line 20),
-        // sem a fala do segundo lote (Line 21). Carregado com a mesma proveniência.
+        // Cache parcial: exatamente as 20 falas do primeiro lote (Line AA..Line AT),
+        // sem a fala do segundo lote (Line AU). Carregado com a mesma proveniência.
         Path arquivoCache = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
         assertTrue(Files.exists(arquivoCache), "o progresso parcial deve ter sido persistido no cache");
         ProvenienciaCache prov = new ProvenienciaCache(
@@ -731,12 +736,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             "modelo-teste", "en", "pt-BR");
         var mapa = new CacheTraducaoService(new ObjectMapper()).carregar(arquivoCache, prov).mapa();
         assertEquals(20, mapa.size(), "o cache parcial deve conter as 20 falas do primeiro lote");
-        for (int i = 1; i <= 20; i++) {
-            String chave = String.format("Line %02d", i);
+        for (int i = 0; i < 20; i++) {
+            String chave = "Line " + (char) ('A' + i / 26) + (char) ('A' + i % 26);
             assertTrue(mapa.containsKey(chave), "cache parcial deve conter " + chave);
             assertEquals("fala traduzida", mapa.get(chave), "conteudo traduzido do primeiro lote");
         }
-        assertFalse(mapa.containsKey("Line 21"), "a fala do segundo lote nao pode estar no cache");
+        assertFalse(mapa.containsKey("Line AU"), "a fala do segundo lote nao pode estar no cache");
 
         assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
             "nenhuma saida final pode ser publicada apos o cancelamento");
