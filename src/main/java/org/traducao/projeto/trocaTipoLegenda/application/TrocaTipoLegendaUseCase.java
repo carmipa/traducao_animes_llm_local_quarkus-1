@@ -1,5 +1,7 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.inject.Inject;
@@ -82,7 +84,7 @@ public class TrocaTipoLegendaUseCase {
         TelemetriaService telemetriaService,
         TrocaTipoLegendaAuditoriaCache auditoriaCache
     ) {
-        this(leitor, escritor, auditoriaService, telemetriaService, auditoriaCache, Path.of("backups"));
+        this(leitor, escritor, auditoriaService, telemetriaService, auditoriaCache, DiretorioBaseKronos.resolver("backups"));
     }
 
     /**

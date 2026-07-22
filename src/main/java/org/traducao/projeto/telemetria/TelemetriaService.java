@@ -91,7 +91,7 @@ public class TelemetriaService {
 
     // Estruturas para Server-Sent Events (SSE)
     private final List<SseEventSink> sinks = new CopyOnWriteArrayList<>();
-    private volatile Path ultimoDiretorioCache = Path.of("cache");
+    private volatile Path ultimoDiretorioCache = DiretorioBaseKronos.resolver("cache");
     private ScheduledExecutorService scheduler;
 
     // Cache da contagem de arquivos .cache.json (ver TTL_CONTAGEM_CACHE_MS)

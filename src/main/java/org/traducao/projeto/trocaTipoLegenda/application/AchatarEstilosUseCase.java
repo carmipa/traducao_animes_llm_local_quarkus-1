@@ -1,5 +1,7 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +68,7 @@ public class AchatarEstilosUseCase {
         AchatadorEstilosDecorativosService achatador,
         TelemetriaService telemetriaService
     ) {
-        this(leitor, escritor, achatador, telemetriaService, Path.of("backups"));
+        this(leitor, escritor, achatador, telemetriaService, DiretorioBaseKronos.resolver("backups"));
     }
 
     AchatarEstilosUseCase(
