@@ -37,7 +37,18 @@ graph TB
 
 - **`TelemetriaService`** mantém 3 bancos em memória e **persiste imediatamente** a cada `registrar*()` — escrita atômica (grava em `.tmp` e faz `Files.move` com `ATOMIC_MOVE`) para não corromper o arquivo se o processo cair no meio da escrita.
 - No `@PostConstruct`, recarrega o JSON existente — a telemetria **sobrevive a restarts** do servidor.
-- **"Telemetria compartilhada"** = esse arquivo canônico único, fonte de verdade compartilhada entre todas as operações (não é por sessão nem por anime).
+- **"Telemetria compartilhada"** = esse arquivo canônico, fonte de verdade das operações de **análise, extração, remux e correções** (não é por sessão nem por anime).
+
+> **Atenção (FASE E8):** a **Tradução Local** NÃO escreve mais neste arquivo — ela ganhou um **arquivo canônico próprio** (`logs/telemetria_traducao.json`), descrito na próxima seção. O `telemetria_compartilhada.json` segue vivo para as demais operações.
+
+---
+
+## Telemetria própria da Tradução Local (`logs/telemetria_traducao.json`)
+
+Para isolar a Tradução Local do módulo `telemetria` (o fence ArchUnit proíbe a aresta `traducao → telemetria`), a fatia escreve seu **próprio** arquivo canônico via `TelemetriaTraducaoAdapter`, lido pelo painel através de `TelemetriaTraducaoLeitura`.
+
+- **Dedup por episódio (nunca append-only):** o registro mais recente de um episódio **substitui** o anterior (chave = nome normalizado). Escrita atômica (`.tmp` + move seguro); um arquivo ilegível é **preservado** como `.corrompido_<timestamp>` em vez de destruído.
+- **Schema 1.1 — `pendenciasPorCausa`:** além dos 4 contadores da fatia (alucinações prevenidas, respostas rejeitadas, falhas recuperadas, fallbacks mantidos), cada episódio carrega um **KPI estruturado** que classifica as falas pendentes por `(categoria × causa-raiz)` — ex.: `DIALOGO × MARCADORES_CORROMPIDOS`, `DIALOGO × ECO` — para o painel mostrar *por que* algo não traduziu, não só *quanto*.
 
 ---
 
