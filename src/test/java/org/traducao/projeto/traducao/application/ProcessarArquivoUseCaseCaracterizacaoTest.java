@@ -476,16 +476,24 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: CARACTERIZA UM DEFEITO ABERTO — uma fala que o LLM nunca
-     * conseguiu traduzir (engoliu os marcadores {@code [[TAGn]]} nas três tentativas) é
-     * publicada EM INGLÊS na saída final e gravada no cache como tradução válida, sem
-     * aparecer no KPI de pendências. O episódio sai {@code PARCIAL} com
-     * {@code pendenciasPorCausa} VAZIO — a assinatura exata que motivou a investigação.
+     * PROPÓSITO DE NEGÓCIO: uma fala que o LLM nunca conseguiu traduzir (engoliu os
+     * marcadores {@code [[TAGn]]} nas três tentativas) NÃO pode ser publicada em inglês como
+     * se fosse tradução. Ela vira pendência declarada, o episódio fica contido no
+     * {@code .parcial.ass} e o cache grava vazio para a fala ser retentada na próxima
+     * execução.
      *
-     * <p>Este teste NÃO descreve o comportamento desejado: ele congela o comportamento de
-     * hoje para que qualquer conserto do status ou da régua de identidade seja visível na
-     * suíte. Antes dele, o cenário não estava caracterizado em lugar nenhum e uma mudança
-     * na condição de {@code StatusArquivoTraducao} passaria sem quebrar um único teste.
+     * <p>HISTÓRICO — este teste nasceu ao contrário. Escrito em 2026-07-22, ele CARACTERIZAVA
+     * o defeito: exigia {@code pendenciasPorCausa} VAZIO, saída FINAL publicada e o inglês
+     * gravado no cache como tradução boa. Era a assinatura real de 7 episódios do 08th MS
+     * Team, todos {@code PARCIAL} sem dizer o que estava errado. A causa era a régua de
+     * identidade aceitar qualquer palavra capitalizada com 3+ letras como nome próprio, o que
+     * deixava passar {@code Heavy!}, {@code Enter.}, {@code Gotcha!} e {@code Next Episode}.
+     *
+     * <p>Quando a régua por evidência entrou em
+     * {@code DetectorTraducaoIdenticaService.temEvidenciaDeInglesTraduzivel}, este teste
+     * falhou — como previsto no próprio Javadoc que ele tinha na época — e foi invertido para
+     * fixar o comportamento correto. As asserções abaixo são o oposto ponto a ponto das
+     * originais.
      *
      * <h2>Prova real (corrida de 2026-07-22, Gundam 08th MS Team, 13 episódios)</h2>
      * 29 avisos "tags corrompidas pelo LLM" em 7 episódios PARCIAL-com-zero-pendência.
@@ -495,23 +503,17 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * entregue ao espectador: {@code "Heavy!"} (E02), {@code "Enter."} (E07) e
      * {@code "\"Doctor Flanagan\"...?"} (E12).
      *
-     * <h2>Invariantes do domínio (as que ESTE teste fixa)</h2>
+     * <h2>Invariantes do domínio</h2>
      * <ul>
-     *   <li>O aviso de descarte é emitido e preservado em {@code errosOcorridos}.</li>
-     *   <li>A fala NÃO entra em {@code falhasDistintas}: {@code motivoFalhaFinal} aceita a
-     *       identidade porque {@code deveManterIdentico} trata qualquer palavra única
-     *       capitalizada com 3+ caracteres como nome próprio.</li>
-     *   <li>Como não há pendência, a saída vai para o {@code _PT-BR.ass} FINAL (não para
-     *       {@code .parcial.ass}) e o inglês é gravado no cache como tradução boa — na
-     *       próxima execução {@code isCacheReaproveitavel} o reaproveita e a fala congela.</li>
+     *   <li>Fala descartada pelo desmascaramento NUNCA entra no cache como tradução válida.</li>
+     *   <li>PARCIAL vem sempre acompanhado da pendência que o justifica no KPI causal.</li>
+     *   <li>Com pendência, a saída final não é publicada — o inglês fica no {@code .parcial.ass}.</li>
      * </ul>
      *
      * <h2>Comportamento em caso de falha</h2>
-     * Se este teste passar a falhar, o pipeline mudou de opinião sobre um destes três
-     * pontos — verifique QUAL antes de ajustar a expectativa: (a) a fala virou pendência
-     * de verdade (melhoria: atualize para PARCIAL com KPI não-vazio); (b) o status deixou
-     * de ser PARCIAL (regressão: inglês publicado sendo reportado como CONCLUIDO); (c) o
-     * inglês parou de ir ao cache (melhoria: a fala deixa de congelar).
+     * Voltar a gravar o inglês no cache é o pior desfecho: {@code isCacheReaproveitavel} o
+     * reaproveita na execução seguinte e a fala congela em inglês, agora sem nem o PARCIAL
+     * para chamar atenção.
      */
     @Test
     void falaComMarcadorDescartadoEhPublicadaEmInglesSemVirarPendencia() throws Exception {
@@ -524,24 +526,27 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ResultadoTraducaoArquivo r = uc.processar(entrada, false);
 
         assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
-            "hoje o aviso sozinho já marca o episódio como PARCIAL");
+            "a fala não resolvida mantém o episódio PARCIAL");
 
         TelemetriaTraducao tel = telemetriaCaptor.ultima;
         assertNotNull(tel, "a telemetria do episódio deve ter sido registrada");
-        assertTrue(tel.pendenciasPorCausa().isEmpty(),
-            "ASSINATURA DO DEFEITO: PARCIAL sem nenhuma pendência no KPI causal");
+        assertFalse(tel.pendenciasPorCausa().isEmpty(),
+            "o PARCIAL agora vem ACOMPANHADO da pendência que o justifica — era exatamente isto "
+                + "que faltava: status PARCIAL com KPI causal vazio, sem dizer o que estava errado");
         assertTrue(tel.errosOcorridos().stream()
                 .anyMatch(a -> a.startsWith("Fala mantida sem tradução (tags corrompidas pelo LLM): ")),
             "o descarte do marcador precisa deixar rastro em errosOcorridos: " + tel.errosOcorridos());
 
-        // Sem pendência, o resolvedor publica a saída FINAL — o inglês não fica contido
-        // no .parcial.ass, ele é entregue como tradução pronta.
+        // Com pendência declarada, o resolvedor NÃO publica a saída final: o inglês fica contido
+        // no .parcial.ass e a versão final anterior permanece intacta.
         Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
-        assertTrue(Files.exists(finalPtBr), "sem pendência, a saída final é publicada");
-        assertTrue(Files.readString(finalPtBr, StandardCharsets.UTF_8).contains("Heavy{\\b1}!"),
-            "o inglês original é publicado na saída final");
+        Path parcial = raiz.resolve("saida").resolve("ep_PT-BR.parcial.ass");
+        assertFalse(Files.exists(finalPtBr),
+            "com fala não resolvida, a saída FINAL não pode ser publicada");
+        assertTrue(Files.exists(parcial), "o resultado incompleto vai para .parcial.ass");
 
-        // E o inglês entra no cache como tradução VÁLIDA (uma pendência gravaria "").
+        // E o cache grava VAZIO na fala pendente — é isso que a faz ser reenviada ao LLM na
+        // próxima execução, em vez de congelar em inglês para sempre.
         JsonNode cacheGravado = new ObjectMapper()
             .readTree(raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json").toFile());
         JsonNode entradaDaFala = null;
@@ -552,8 +557,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             }
         }
         assertNotNull(entradaDaFala, "a fala descartada deveria estar no cache: " + cacheGravado);
-        assertEquals("Heavy{\\b1}!", entradaDaFala.get("traduzido").asText(),
-            "o inglês é gravado como tradução boa e será reaproveitado na próxima execução");
+        assertEquals("", entradaDaFala.get("traduzido").asText(),
+            "pendência grava vazio: o inglês NÃO é aceito como tradução e a fala será retentada");
     }
 
     /**
