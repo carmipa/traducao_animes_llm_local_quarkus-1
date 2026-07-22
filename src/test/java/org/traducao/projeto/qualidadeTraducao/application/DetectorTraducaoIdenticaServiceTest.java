@@ -189,6 +189,46 @@ class DetectorTraducaoIdenticaServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: REGRA DE OURO — nenhuma palavra ganha imunidade só por aparecer
+     * dentro da prosa do prompt ou recortada de um termo composto. As duas rotas de imunidade
+     * indevida existiram de fato na primeira versão desta régua e foram apanhadas em revisão:
+     * (1) o veto chamava {@code termoDoLoreAtivo}, que varre o TEXTO CORRIDO do prompt, e a
+     * prosa do 08th contém "Miller's Report" — bastava isso para {@code Report!} continuar
+     * vazando; (2) o veto decompunha termos compostos em tokens, então declarar
+     * {@code "Far East Division"} imunizava {@code East!} e {@code Division!}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o veto consome apenas termos DECLARADOS e INTEIROS; a prosa do
+     * prompt não participa; sobrar qualquer palavra do léxico recusa a identidade.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer uma das duas rotas reabre o vazamento sem que
+     * nenhum outro teste perceba — foi assim que ele passou despercebido da primeira vez.
+     */
+    @Test
+    void componenteDeTermoCompostoNaoHerdaImunidadeDoTermoInteiro() {
+        DetectorTraducaoIdenticaService comCompostos = new DetectorTraducaoIdenticaService(new LoreAtivaPort() {
+            @Override public Set<String> termosProtegidosAtivos() {
+                return Set.of("Miller's Report", "Far East Division", "Michel Ninorich");
+            }
+            @Override public String obterLoreAtiva() {
+                // A prosa MENCIONA os termos: é precisamente o que não pode conceder imunidade.
+                return "Universal Century. Miller's Report; Far East Division; Magella Attack; 08th MS Team.";
+            }
+        });
+
+        assertTrue(comCompostos.deveManterIdentico("Miller's Report"),
+            "termo composto declarado por inteiro permanece");
+        assertTrue(comCompostos.deveManterIdentico("Far East Division"),
+            "termo composto declarado por inteiro permanece");
+
+        assertFalse(comCompostos.deveManterIdentico("Report!"),
+            "'report' está na prosa e dentro de um termo composto — nenhum dos dois dá imunidade");
+        assertFalse(comCompostos.deveManterIdentico("East!"),
+            "componente solto de 'Far East Division' deve ser traduzido");
+        assertFalse(comCompostos.deveManterIdentico("Division!"),
+            "componente solto de 'Far East Division' deve ser traduzido");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a mudança precisa ser MONÓTONA — a régua por evidência só pode
      * recusar, nunca aceitar algo que as heurísticas históricas já recusavam. Sem isso, um
      * conserto de vazamento poderia abrir outro.

@@ -80,11 +80,20 @@ public class DetectorTraducaoIdenticaService {
      *
      * <p>CRESCE POR EVIDÊNCIA, nunca por palpite: acrescentar palavra sem ocorrência medida
      * transforma esta lista no mesmo tipo de heurística cega que ela existe para substituir.
+     * As poucas entradas SEM ocorrência medida estão marcadas abaixo e entraram por revisão
+     * arquitetural — são componentes de termos compostos que a lore do 08th declarou
+     * ({@code Far East Division}), incluídos para provar que declarar o termo composto NÃO
+     * concede imunidade às suas partes soltas.
      */
     private static final Set<String> PALAVRAS_INGLES_TRADUZIVEIS = Set.of(
+        // medidas nos caches (2026-07-22)
         "next", "episode", "preview", "roger", "gotcha", "report", "move", "heavy",
         "enter", "big", "brother", "little", "sister", "fire", "ready", "lieutenant",
-        "lady", "hurry", "doctor", "captain", "sergeant", "commander", "sir", "enemy",
+        "lady", "hurry", "doctor",
+        // por revisão arquitetural: partes de termos compostos declarados na lore
+        "east", "division", "point", "sand",
+        // vocabulário militar corrente da mesma família das medidas
+        "captain", "sergeant", "commander", "sir", "enemy",
         "target", "retreat", "advance", "hold", "cover", "watch", "listen", "look"
     );
 
@@ -202,14 +211,16 @@ public class DetectorTraducaoIdenticaService {
         if (limpo.isBlank()) {
             return false;
         }
-        String minusculo = limpo.toLowerCase(Locale.ROOT);
-        // Terminologia canônica da obra vence o léxico: o que a lore declara é intocável.
-        if (termoDoLoreAtivo(minusculo) || compostoSoDeTermosDaLore(minusculo)) {
+        String normalizado = normalizarParaEvidencia(limpo);
+        // Veto por terminologia DECLARADA e INTEIRA. Deliberadamente NÃO usa termoDoLoreAtivo:
+        // aquele método faz busca livre na PROSA do prompt, e a prosa contém "Miller's Report",
+        // "Magella Attack" e "08th MS Team" — bastaria isso para "Report!", "Attack!" e "Team!"
+        // soltos ganharem imunidade, que é exatamente o vazamento que esta régua fecha.
+        if (terminologiaDeclaradaCobre(normalizado)) {
             return false;
         }
-        Set<String> tokensDaLore = tokensDaTerminologiaAtiva();
-        for (String palavra : minusculo.split("\\s+")) {
-            if (PALAVRAS_INGLES_TRADUZIVEIS.contains(palavra) && !tokensDaLore.contains(palavra)) {
+        for (String palavra : normalizado.split("\\s+")) {
+            if (PALAVRAS_INGLES_TRADUZIVEIS.contains(palavra)) {
                 return true;
             }
         }
@@ -217,34 +228,60 @@ public class DetectorTraducaoIdenticaService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: decompõe os termos declarados da obra ativa em palavras soltas, para
-     * que uma palavra do léxico que pertença à terminologia da obra não seja tratada como
-     * evidência de inglês solto.
+     * PROPÓSITO DE NEGÓCIO: normalização própria da régua por evidência, aplicada IGUALMENTE ao
+     * texto da fala e aos termos declarados, para que os dois lados sejam comparáveis.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só decompõe o que a obra DECLAROU; nunca a prosa livre da lore
-     * — a prosa contém "Miller's Report", "Magella Attack" e "08th MS Team", e usá-la aqui
-     * liberaria {@code Report!}, {@code Attack!} e {@code Team!} soltos, que é exatamente o
-     * vazamento que esta classe passou a fechar.
+     * <p>INVARIANTES DO DOMÍNIO: usa {@code \p{L}\p{N}} (não {@code \w}), então acento e cedilha
+     * sobrevivem nos DOIS lados. A régua histórica usa {@code \w} ASCII e apaga acento só do
+     * texto — assimetria que faria um termo acentuado declarado nunca casar. Aqui isso não
+     * acontece porque a mesma função normaliza fala e termo.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lore ausente ou vazia devolve conjunto vazio; não lança.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem letra nem dígito devolve string vazia.
      */
-    private Set<String> tokensDaTerminologiaAtiva() {
+    private String normalizarParaEvidencia(String texto) {
+        return texto.toLowerCase(Locale.ROOT)
+            .replaceAll("[^\\p{L}\\p{N}\\s]", "")
+            .replaceAll("\\s+", " ")
+            .strip();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: confirma que a fala é INTEIRAMENTE coberta por terminologia que a
+     * obra declarou — o único caso em que uma expressão contendo palavra do léxico pode
+     * legitimamente permanecer em inglês (ex.: {@code Miller's Report}, {@code Far East
+     * Division}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: consome apenas termos INTEIROS, do mais longo para o mais
+     * curto. Um componente solto de termo composto NUNCA ganha imunidade: declarar
+     * {@code "Far East Division"} não autoriza {@code East!} nem {@code Division!}, e declarar
+     * {@code "Miller's Report"} não autoriza {@code Report!}. Só devolve {@code true} quando
+     * NADA sobra do texto após o consumo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem lore ativa ou sem termos declarados devolve
+     * {@code false} — a ausência de cadastro nunca vira imunidade. Não lança.
+     */
+    private boolean terminologiaDeclaradaCobre(String normalizado) {
         Set<String> declarados = loreAtiva.termosProtegidosAtivos();
-        if (declarados == null || declarados.isEmpty()) {
-            return Set.of();
+        if (declarados == null || declarados.isEmpty() || normalizado.isBlank()) {
+            return false;
         }
-        Set<String> tokens = new HashSet<>();
-        for (String termo : declarados) {
-            if (termo == null || termo.isBlank()) {
-                continue;
-            }
-            for (String parte : termo.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}]+")) {
-                if (!parte.isBlank()) {
-                    tokens.add(parte);
-                }
+        List<String> ordenados = declarados.stream()
+            .filter(t -> t != null && !t.isBlank())
+            .map(this::normalizarParaEvidencia)
+            .filter(t -> !t.isBlank())
+            .sorted(Comparator.comparingInt(String::length).reversed())
+            .toList();
+
+        String resto = normalizado;
+        for (String termo : ordenados) {
+            resto = Pattern.compile(
+                    "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                .matcher(resto).replaceAll(" ");
+            if (resto.isBlank()) {
+                return true;
             }
         }
-        return tokens;
+        return resto.isBlank();
     }
 
     /**
