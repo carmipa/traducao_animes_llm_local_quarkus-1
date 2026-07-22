@@ -93,7 +93,7 @@ public class ContextoWarInPocket implements ProvedorContexto {
             "Hardy Steiner", "Gabriel Ramirez Garcia", "Andy Strauss",
             "Colonel Killing", "Killing", "Chay", "Telcott",
             "Cyclops Team", "Zeon Special Forces",
-            "Earth Federation", "Principality of Zeon", "Zeon",
+            "Earth Federation", "Principality of Zeon", "Zeon", "Sieg Zeon",
             "Side 6", "Republic of Riah", "Libot", "Libot colony", "Antarctic Base",
             "Gundam Alex", "RX-78NT-1", "Zaku II Kai", "Kampfer",
             "Hygogg", "Z'Gok-E", "GM Cold Districts Type", "GM Sniper II",

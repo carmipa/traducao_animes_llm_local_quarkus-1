@@ -107,7 +107,7 @@ public class ContextoGundamZZ implements ProvedorContexto {
             "Hamma Hamma", "R-Jarja", "Dreissen", "Bawoo", "Zaku III",
             "Gaza-C", "Ga-Zowmn", "Geymalk", "Psycho Gundam Mk-II",
             "Shangri-La", "Argama", "Nahel Argama", "Endra", "Sadalahn",
-            "Core 3", "Dublin", "Moon Moon", "Tigerbaum", "Axis",
+            "Core 3", "Dublin", "Moon Moon", "Tigerbaum", "Axis", "Sieg Zeon",
             "Neo Zeon", "Glemy Faction", "Titans", "AEUG", "A.E.U.G.",
             "Earth Federation", "Karaba", "Anaheim Electronics", "Blue Corps",
             "Newtype", "Cyber-Newtype", "Oldtype", "Minovsky", "Psycommu",

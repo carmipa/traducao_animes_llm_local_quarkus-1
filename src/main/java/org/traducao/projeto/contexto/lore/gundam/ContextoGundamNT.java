@@ -96,7 +96,7 @@ public class ContextoGundamNT implements ProvedorContexto {
             "Sinanju Stein", "II Neo Zeong", "Silver Bullet Suppressor",
             "Unicorn", "Banshee", "Unicorn Gundam",
             "Earth Federation", "Shezarr", "Shezarr Team",
-            "Luio & Co.", "Republic of Zeon", "Sleeves",
+            "Luio & Co.", "Republic of Zeon", "Sleeves", "Sieg Zeon",
             "Miracle Children", "Metis", "Banchi 18",
             "Operation Phoenix Hunt", "Laplace's Box", "Laplace Incident",
             "Universal Century", "Helium-3",

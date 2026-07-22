@@ -63,7 +63,7 @@ public class ContextoCharsCounterattack implements ProvedorContexto {
             "Amuro Ray", "Char Aznable", "Bright Noa",
             "Chan Agi", "Beltorchika Irma", "Hathaway Noa",
             "Quess Paraya", "Gyunei Guss", "Nanai Miguel",
-            "Londo Bell", "Neo Zeon", "Earth Federation",
+            "Londo Bell", "Neo Zeon", "Sieg Zeon", "Earth Federation",
             "Anaheim Electronics", "Axis", "Luna II",
             "Axis Shock", "Human Purification Theory", "Nu Gundam",
             "Sazabi", "Re-GZ", "Jegan",
