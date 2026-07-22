@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoOnlinePort;
+import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
+import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
+import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,18 +34,18 @@ import java.util.regex.Pattern;
  *   <li>Blocos de tag {@code {...}} viram {@code [Tn]} e quebras {@code \N} viram {@code [B]}
  *       antes do envio; ambos são restaurados na volta.</li>
  *   <li>Se o Google perder/mutilar qualquer marcador, ou devolver texto igual/vazio, o
- *       resultado é {@link Optional#empty()} — nunca uma legenda com formatação quebrada.</li>
+ *       resultado é um resultado de recusa com a causa — nunca uma legenda com formatação quebrada.</li>
  *   <li>Só depende do JDK ({@code java.net.http}) e do Jackson; não conhece cache, LLM,
  *       legenda nem outras fatias.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
  * Erro de rede, HTTP != 200, corpo inesperado, marcador residual/mutilado ou tradução
- * idêntica devolvem {@link Optional#empty()}. O transporte HTTP fica isolado em
+ * idêntica devolvem um resultado de recusa com a causa. O transporte HTTP fica isolado em
  * {@link #executarGet(String)} ({@code protected}) para os testes substituírem sem rede.
  */
 @Component
-public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
+public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleFallbackAdapter.class);
 
@@ -75,13 +77,24 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
      * <p>INVARIANTES DO DOMÍNIO: a saída, quando presente, contém exatamente as mesmas
      * tags/quebras do original; qualquer corrupção de marcador reprova.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link Optional#empty()} em rede, resposta
+     * <p>COMPORTAMENTO EM CASO DE FALHA: um resultado de recusa com a causa em rede, resposta
      * inválida, marcador residual ou tradução igual ao original; não lança.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: identifica este adaptador como o provedor Google na cadeia de
+     * recuperação, para que contadores e logs sejam rotulados sem conhecer a classe concreta.
+     * <p>INVARIANTES DO DOMÍNIO: valor fixo {@link ProvedorFallback#GOOGLE}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
     @Override
-    public Optional<String> traduzir(String original) {
+    public ProvedorFallback provedor() {
+        return ProvedorFallback.GOOGLE;
+    }
+
+    @Override
+    public ResultadoFallback traduzir(String original) {
         if (original == null || original.isBlank()) {
-            return Optional.empty();
+            return ResultadoFallback.naoTentada("fala original vazia");
         }
 
         List<String> tags = new ArrayList<>();
@@ -104,7 +117,7 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
             .replace("\\h", " [Bh] ");
         mascarado = mascarado.replaceAll("\\s+", " ").strip();
         if (mascarado.isEmpty()) {
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "fala vazia apos mascaramento");
         }
 
         String corpo;
@@ -114,12 +127,12 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
             RespostaHttp resposta = executarGet(url);
             if (resposta.statusCode() != 200) {
                 log.warn("Fallback Google: HTTP {} — fala mantida pendente.", resposta.statusCode());
-                return Optional.empty();
+                return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.HTTP_ERRO, "HTTP " + resposta.statusCode());
             }
             corpo = resposta.corpo();
         } catch (Exception e) {
             log.warn("Fallback Google: falha de comunicação ({}) — fala mantida pendente.", e.getMessage());
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.PROVEDOR_INDISPONIVEL, "falha de comunicacao: " + e.getMessage());
         }
 
         String traduzido;
@@ -138,11 +151,11 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
             traduzido = acc.toString();
         } catch (Exception e) {
             log.warn("Fallback Google: resposta em formato inesperado ({}) — fala mantida pendente.", e.getMessage());
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "resposta em formato inesperado: " + e.getMessage());
         }
 
         if (traduzido.isBlank()) {
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "provedor devolveu texto vazio");
         }
 
         // Restaura as quebras (marcadores mais específicos primeiro) e depois as tags.
@@ -156,26 +169,26 @@ public class GoogleFallbackAdapter implements FallbackTraducaoOnlinePort {
 
         if (PADRAO_MARCADOR_RESIDUAL.matcher(traduzido).find()) {
             log.warn("Fallback Google: marcadores de tag/quebra mutilados — fala mantida pendente: {}", traduzido);
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.MARCADOR_CORROMPIDO, "marcadores de tag/quebra mutilados");
         }
         // Contagem EXATA de cada tag e quebra: pega tanto perda quanto DUPLICAÇÃO de marcador
         // pelo Google (um simples contains aceitaria uma tag restaurada em dobro).
         for (String tag : tags) {
             if (contarOcorrencias(traduzido, tag) != contarOcorrencias(original, tag)) {
                 log.warn("Fallback Google: contagem da tag ASS {} divergente — fala mantida pendente.", tag);
-                return Optional.empty();
+                return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.MARCADOR_CORROMPIDO, "contagem da tag ASS " + tag + " divergente");
             }
         }
         for (String quebra : QUEBRAS) {
             if (contarOcorrencias(traduzido, quebra) != contarOcorrencias(original, quebra)) {
                 log.warn("Fallback Google: contagem da quebra {} divergente — fala mantida pendente.", quebra);
-                return Optional.empty();
+                return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.MARCADOR_CORROMPIDO, "contagem da quebra " + quebra + " divergente");
             }
         }
         if (traduzido.equals(original)) {
-            return Optional.empty();
+            return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.ECO, "provedor devolveu o texto original sem traduzir");
         }
-        return Optional.of(traduzido);
+        return ResultadoFallback.recuperada(traduzido, ProvedorFallback.GOOGLE);
     }
 
     /**

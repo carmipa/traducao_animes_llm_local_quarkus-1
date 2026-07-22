@@ -3,21 +3,27 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoOnlinePort;
+import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
+import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
+import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * PROPÓSITO DE NEGÓCIO: recuperação de ÚLTIMO RECURSO das falas de diálogo que o LLM local
- * não conseguiu traduzir. Só age quando o modo online está explicitamente ligado (opt-in) e
- * apenas sobre as pendências informadas desta execução; para cada uma, tenta o provedor
- * externo (porta própria da fatia) e só aceita a resposta se ela preservar os nomes próprios
- * do original — a validação canônica final (mesma do LLM) fica a cargo do chamador.
+ * PROPÓSITO DE NEGÓCIO: recuperação de ÚLTIMO RECURSO das falas de diálogo que o LLM local não
+ * conseguiu traduzir. Só age quando o modo está explicitamente ligado (opt-in) e apenas sobre as
+ * pendências informadas desta execução; para cada uma consulta o tradutor de máquina (porta
+ * própria da fatia) e só aceita a resposta se ela preservar os nomes próprios do original — a
+ * validação canônica final (a mesma do LLM) fica a cargo do chamador.
+ *
+ * <p>Sucedeu o {@code RecuperarPendenciaFallbackService}: o nome citava um provedor específico,
+ * mas o papel é o de orquestrar QUALQUER tradutor de máquina da cadeia (LibreTranslate local,
+ * Google externo).
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
@@ -25,45 +31,46 @@ import java.util.regex.Pattern;
  *   <li>Nunca varre cache de execuções anteriores: opera só sobre as falas recebidas.</li>
  *   <li>Guarda de nomes próprios: um token capitalizado MID-SENTENCE (não início de frase,
  *       ≥3 letras) do original deve sobreviver na tradução; se sumir, a resposta é RECUSADA
- *       (a fala continua pendente). Recusar é seguro — equivale a manter o inglês, como sem
- *       o fallback.</li>
+ *       (a fala continua pendente). Recusar é seguro — equivale a manter o inglês, como sem o
+ *       fallback.</li>
+ *   <li>NENHUMA recusa é silenciosa: toda tentativa que não recupera é registrada em log com o
+ *       provedor e a causa canônica ({@link StatusFallback}).</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Porta vazia (rede/marcador corrompido) ou nome próprio perdido ⇒ a fala é simplesmente
+ * Recusa da porta (rede/marcador corrompido) ou nome próprio perdido ⇒ a fala é simplesmente
  * omitida do resultado (permanece pendente). Nunca lança para o chamador.
  */
 @Service
-public class RecuperarPendenciaGoogleService {
+public class RecuperarPendenciaFallbackService {
 
-    private static final Logger log = LoggerFactory.getLogger(RecuperarPendenciaGoogleService.class);
+    private static final Logger log = LoggerFactory.getLogger(RecuperarPendenciaFallbackService.class);
 
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^{}]*}");
     private static final int TAMANHO_MINIMO_NOME = 3;
 
     private final FallbackOnlineProperties propriedades;
-    private final FallbackTraducaoOnlinePort fallbackPort;
+    private final FallbackTraducaoMaquinaPort fallbackPort;
 
     /**
-     * PROPÓSITO DE NEGÓCIO: compõe a recuperação online com a flag opt-in e a porta própria.
+     * PROPÓSITO DE NEGÓCIO: compõe a recuperação com a flag opt-in e a porta própria da fatia.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
      * <p>COMPORTAMENTO EM CASO DE FALHA: dependência ausente impede a criação do serviço.
      */
-    public RecuperarPendenciaGoogleService(
+    public RecuperarPendenciaFallbackService(
         FallbackOnlineProperties propriedades,
-        FallbackTraducaoOnlinePort fallbackPort
+        FallbackTraducaoMaquinaPort fallbackPort
     ) {
         this.propriedades = propriedades;
         this.fallbackPort = fallbackPort;
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: expõe ao orquestrador se a recuperação online está ligada,
-     * para que ele possa NARRAR na saída dinâmica que caiu no scraping do Google — sem
-     * o use case precisar depender de {@link FallbackOnlineProperties} (infra).
+     * PROPÓSITO DE NEGÓCIO: expõe ao orquestrador se a recuperação está ligada, para que ele
+     * possa NARRAR na saída dinâmica que caiu no tradutor de máquina — sem o use case precisar
+     * depender de {@link FallbackOnlineProperties} (infra).
      *
-     * <p>INVARIANTES DO DOMÍNIO: reflete fielmente a flag opt-in {@code ativo}; não decide
-     * nada por conta própria.
+     * <p>INVARIANTES DO DOMÍNIO: reflete fielmente a flag opt-in {@code ativo}.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: leitura pura de configuração; não lança.
      */
@@ -72,14 +79,15 @@ public class RecuperarPendenciaGoogleService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: tenta recuperar online cada fala de diálogo pendente, devolvendo
-     * só as candidatas que preservaram os nomes próprios do original.
+     * PROPÓSITO DE NEGÓCIO: tenta recuperar cada fala de diálogo pendente, devolvendo só as
+     * candidatas que preservaram os nomes próprios do original.
      *
-     * <p>INVARIANTES DO DOMÍNIO: sem efeito quando o modo está desligado; a ordem de iteração
-     * é estável; cada candidata ainda passará pela validação canônica do chamador.
+     * <p>INVARIANTES DO DOMÍNIO: sem efeito quando o modo está desligado; a ordem de iteração é
+     * estável; cada candidata ainda passará pela validação canônica do chamador; toda recusa é
+     * logada com provedor e causa.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de rede, marcador corrompido ou nome próprio
-     * perdido apenas omitem a fala do resultado (permanece pendente).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: recusa da porta ou nome próprio perdido apenas omitem a
+     * fala do resultado (permanece pendente).
      *
      * @param dialogosPendentes textos originais das falas de diálogo já dadas como pendentes
      * @return mapa original→tradução candidata (subconjunto do informado), possivelmente vazio
@@ -90,13 +98,17 @@ public class RecuperarPendenciaGoogleService {
         }
         Map<String, String> recuperadas = new LinkedHashMap<>();
         for (String original : dialogosPendentes) {
-            Optional<String> candidata = fallbackPort.traduzir(original);
-            if (candidata.isEmpty()) {
+            ResultadoFallback resultado = fallbackPort.traduzir(original);
+            if (!resultado.recuperou()) {
+                // A causa NUNCA é descartada: sem ela, uma pendência vira um número sem diagnóstico.
+                log.warn("Fallback [{}] {}: {} — fala mantida pendente: {}",
+                    resultado.provedor(), resultado.status(), resultado.motivo(), original);
                 continue;
             }
-            String traduzido = candidata.get();
+            String traduzido = resultado.traducao();
             if (!nomesPropriosPreservados(original, traduzido)) {
-                log.warn("Fallback Google: nome próprio não preservado — fala mantida pendente: {}", original);
+                log.warn("Fallback [{}] {}: nome próprio não preservado — fala mantida pendente: {}",
+                    resultado.provedor(), StatusFallback.GUARDA_LORE, original);
                 continue;
             }
             recuperadas.put(original, traduzido);
@@ -105,8 +117,8 @@ public class RecuperarPendenciaGoogleService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: guarda heurística de nomes próprios sem depender da lore — evita
-     * que a tradução externa apague nomes que aparecem capitalizados no meio da frase.
+     * PROPÓSITO DE NEGÓCIO: guarda heurística de nomes próprios sem depender da lore — evita que
+     * a tradução de máquina apague nomes que aparecem capitalizados no meio da frase.
      *
      * <p>INVARIANTES DO DOMÍNIO: ignora o token inicial de cada frase (capital de início não é
      * nome); só considera tokens com ≥{@value #TAMANHO_MINIMO_NOME} letras iniciados por
@@ -135,13 +147,13 @@ public class RecuperarPendenciaGoogleService {
                 }
                 inicioDeFrase = terminaFrase;
             } else if (terminaFrase) {
-                // Token de pontuação pura que encerra a frase (ex.: " . "): a próxima palavra
-                // é início de frase e não pode ser confundida com nome próprio obrigatório.
+                // Token de pontuação pura que encerra a frase (ex.: " . "): a próxima palavra é
+                // início de frase e não pode ser confundida com nome próprio obrigatório.
                 inicioDeFrase = true;
             } else {
-                // Token sem letras que NÃO encerra frase (número "42", símbolo): há conteúdo
-                // antes da próxima palavra, então ela deixa de ser início de frase e volta a
-                // ser candidata a nome próprio obrigatório.
+                // Token sem letras que NÃO encerra frase (número "42", símbolo): há conteúdo antes
+                // da próxima palavra, então ela deixa de ser início de frase e volta a ser
+                // candidata a nome próprio obrigatório.
                 inicioDeFrase = false;
             }
         }
@@ -157,5 +169,15 @@ public class RecuperarPendenciaGoogleService {
         Pattern ocorrencia = Pattern.compile(
             "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
         return ocorrencia.matcher(traduzido).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: identifica o provedor da cadeia em uso, para o orquestrador rotular
+     * a narração e os contadores sem conhecer as classes concretas de infraestrutura.
+     * <p>INVARIANTES DO DOMÍNIO: delega à porta; nunca {@code null}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public ProvedorFallback provedorAtivo() {
+        return fallbackPort.provedor();
     }
 }
