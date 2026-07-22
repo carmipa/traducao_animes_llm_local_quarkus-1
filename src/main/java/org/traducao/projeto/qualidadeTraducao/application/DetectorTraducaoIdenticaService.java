@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -62,6 +63,32 @@ public class DetectorTraducaoIdenticaService {
     );
 
     /**
+     * Léxico de EVIDÊNCIA: inglês que uma legenda PT-BR tem obrigação de traduzir. Diferente de
+     * {@link #PALAVRAS_INGLES_COMUNS} (consultada só para palavra única), este conjunto é o
+     * gatilho da recusa por evidência e vale para a fala inteira.
+     *
+     * <p>A lista é DERIVADA DE MEDIÇÃO, não de suposição: em 2026-07-22 varri as 55.322 entradas
+     * distintas dos 216 caches versionados e encontrei 1.569 falas publicadas idênticas ao
+     * original. Destas, 128 ocorrências em 25 textos distintos eram inglês corrente — o resto era
+     * nome próprio legítimo (995 de uma palavra: Kamille, Judau, Leina, Roux, Katz...). As
+     * palavras abaixo são exatamente as que apareceram nessas 25 falas.
+     *
+     * <p>Ocorrências medidas: {@code Next Episode} 63x, {@code Roger!} 29x, {@code Gotcha!} 12x,
+     * mais {@code Report!}, {@code Move!}, {@code Fire!}, {@code Big Brother}, {@code Little
+     * Sister}, {@code Ready, Lieutenant!}, {@code Lady Haman! Hurry!}, {@code Heavy!},
+     * {@code Enter.} e {@code "Doctor Flanagan"...?}.
+     *
+     * <p>CRESCE POR EVIDÊNCIA, nunca por palpite: acrescentar palavra sem ocorrência medida
+     * transforma esta lista no mesmo tipo de heurística cega que ela existe para substituir.
+     */
+    private static final Set<String> PALAVRAS_INGLES_TRADUZIVEIS = Set.of(
+        "next", "episode", "preview", "roger", "gotcha", "report", "move", "heavy",
+        "enter", "big", "brother", "little", "sister", "fire", "ready", "lieutenant",
+        "lady", "hurry", "doctor", "captain", "sergeant", "commander", "sir", "enemy",
+        "target", "retreat", "advance", "hold", "cover", "watch", "listen", "look"
+    );
+
+    /**
      * PROPÓSITO DE NEGÓCIO: decide se um conteúdo idêntico pode permanecer no
      * cache por ser nome, sigla, número ou termo canônico da lore.
      *
@@ -72,12 +99,28 @@ public class DetectorTraducaoIdenticaService {
      * preservado para evitar limpeza destrutiva por heurística fraca.
      */
     public boolean deveManterIdentico(String texto) {
+        // CONJUNÇÃO DELIBERADA (não disjunção): a régua por evidência só pode RECUSAR o que as
+        // heurísticas aceitariam, nunca aceitar o que elas recusam. Isso torna a mudança
+        // monótona — nenhuma fala que hoje é mandada traduzir passa a ser publicada em inglês —
+        // e confina toda a regressão possível às palavras escritas em
+        // PALAVRAS_INGLES_TRADUZIVEIS, que são revisáveis em diff.
+        return identidadeAceitaPelasHeuristicas(texto) && !temEvidenciaDeInglesTraduzivel(texto);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: régua histórica de identidade — nome, número, sigla ou termo de lore.
+     * Preservada intacta como PRIMEIRO filtro; o que ela recusa continua recusado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mesma precedência de sempre (caractere único, palavra única,
+     * termo da lore, composição de termos, capitalização).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve {@code true} (preservação segura).
+     */
+    private boolean identidadeAceitaPelasHeuristicas(String texto) {
         if (texto == null) {
             return true;
         }
-        String textoLimpo = PADRAO_REMOVE_TAGS_ASS.matcher(texto).replaceAll("").strip();
-        textoLimpo = removerGagueiraDeNome(textoLimpo);
-        textoLimpo = textoLimpo.replaceAll("[^\\w\\s\\d]", "").strip();
+        String textoLimpo = limpar(texto);
 
         // Um único caractere visível (letra de karaokê por letra, interjeição
         // "A", numeral) não dá base para julgar tradução — manter idêntico.
@@ -105,6 +148,103 @@ public class DetectorTraducaoIdenticaService {
                 .noneMatch(PALAVRAS_INGLES_COMUNS::contains);
         }
         return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: normalização única do texto antes de qualquer julgamento de
+     * identidade — remove tags ASS, hesitação escrita e pontuação, deixando só as palavras.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é a MESMA limpeza para a régua histórica e para a régua por
+     * evidência; se as duas divergissem, uma poderia aceitar o que a outra recusa sobre um
+     * texto que elas nem enxergam igual.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; texto sem palavra devolve string vazia.
+     */
+    private String limpar(String texto) {
+        String limpo = PADRAO_REMOVE_TAGS_ASS.matcher(texto).replaceAll("").strip();
+        limpo = removerGagueiraDeNome(limpo);
+        return limpo.replaceAll("[^\\w\\s\\d]", "").strip();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recusa a identidade quando há EVIDÊNCIA POSITIVA de que a fala é
+     * inglês corrente que o espectador brasileiro tem direito de ver traduzido. É o conserto do
+     * vazamento medido em 2026-07-22: {@code Next Episode} (63x), {@code Roger!} (29x) e
+     * {@code Gotcha!} (12x) eram publicados no {@code _PT-BR.ass} final e gravados no cache como
+     * tradução válida, congelando em inglês para sempre.
+     *
+     * <p>A polaridade é deliberada. A alternativa avaliada — só aceitar identidade quando a fala
+     * fosse 100% terminologia declarada — foi medida contra os caches reais e reprovava 1 em cada
+     * 3 identidades legítimas da própria obra, porque as legendas chamam os personagens pelo
+     * primeiro nome ({@code Michel!}) enquanto a lore declara o nome completo
+     * ({@code Michel Ninorich}). Exigir evidência para RECUSAR, em vez de exigir cadastro para
+     * ACEITAR, protege os 995 nomes próprios sem depender de curadoria exaustiva de lore.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A terminologia da obra ativa VETA a evidência: uma fala que é termo canônico, ou
+     *       composta só de termos canônicos, nunca é recusada — mesmo contendo palavra do léxico
+     *       (ex.: um título declarado como {@code War in the Pocket}).</li>
+     *   <li>O veto também vale por TOKEN: se a palavra suspeita é parte de um termo declarado da
+     *       obra, ela não conta como evidência.</li>
+     *   <li>Sem lore ativa, o veto simplesmente não age — o léxico decide sozinho.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Devolve {@code false} (sem evidência ⇒ não recusa) para texto nulo, vazio ou sem palavra
+     * alguma. Nunca lança: na dúvida, preserva o comportamento anterior.
+     */
+    private boolean temEvidenciaDeInglesTraduzivel(String texto) {
+        if (texto == null) {
+            return false;
+        }
+        String limpo = limpar(texto);
+        if (limpo.isBlank()) {
+            return false;
+        }
+        String minusculo = limpo.toLowerCase(Locale.ROOT);
+        // Terminologia canônica da obra vence o léxico: o que a lore declara é intocável.
+        if (termoDoLoreAtivo(minusculo) || compostoSoDeTermosDaLore(minusculo)) {
+            return false;
+        }
+        Set<String> tokensDaLore = tokensDaTerminologiaAtiva();
+        for (String palavra : minusculo.split("\\s+")) {
+            if (PALAVRAS_INGLES_TRADUZIVEIS.contains(palavra) && !tokensDaLore.contains(palavra)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decompõe os termos declarados da obra ativa em palavras soltas, para
+     * que uma palavra do léxico que pertença à terminologia da obra não seja tratada como
+     * evidência de inglês solto.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só decompõe o que a obra DECLAROU; nunca a prosa livre da lore
+     * — a prosa contém "Miller's Report", "Magella Attack" e "08th MS Team", e usá-la aqui
+     * liberaria {@code Report!}, {@code Attack!} e {@code Team!} soltos, que é exatamente o
+     * vazamento que esta classe passou a fechar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lore ausente ou vazia devolve conjunto vazio; não lança.
+     */
+    private Set<String> tokensDaTerminologiaAtiva() {
+        Set<String> declarados = loreAtiva.termosProtegidosAtivos();
+        if (declarados == null || declarados.isEmpty()) {
+            return Set.of();
+        }
+        Set<String> tokens = new HashSet<>();
+        for (String termo : declarados) {
+            if (termo == null || termo.isBlank()) {
+                continue;
+            }
+            for (String parte : termo.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{N}]+")) {
+                if (!parte.isBlank()) {
+                    tokens.add(parte);
+                }
+            }
+        }
+        return tokens;
     }
 
     /**
