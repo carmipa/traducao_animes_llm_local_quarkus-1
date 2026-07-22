@@ -62,6 +62,16 @@ test {
     // Ver DiretorioBaseKronos.
     systemProperty 'kronos.dir.base',
         layout.buildDirectory.dir('tmp/kronos-tests').get().asFile.absolutePath
+
+    // Propaga as chaves de benchmark do CLI para a JVM de teste. O Gradle NÃO repassa
+    // -D automaticamente, então sem isto o harness de medição (que só liga com
+    // -Dkronos.benchmark=true) é silenciosamente pulado — e "0 testes rodaram" tem a
+    // mesma aparência de "tudo passou".
+    ['kronos.benchmark', 'kronos.libre.url', 'kronos.benchmark.cache'].each { chave ->
+        if (System.getProperty(chave) != null) {
+            systemProperty chave, System.getProperty(chave)
+        }
+    }
 }
 
 quarkusDev {
