@@ -1,5 +1,9 @@
 # --- Artefatos gerados de build (nunca versionar) ---
 .gradle/
+# GRADLE_USER_HOME isolado criado por ferramenta de agente (apareceu em 2026-07-22 com
+# 22.961 arquivos / 551 MB). E cache de build, nunca fonte: versionar isso empurraria meio
+# giga de artefato para o remoto no primeiro commit automatico que passasse por aqui.
+.gradle-agent-home/
 build/
 bin/
 
