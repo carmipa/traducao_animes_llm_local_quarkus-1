@@ -1,5 +1,7 @@
 package org.traducao.projeto.raspagemRevisao;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import org.traducao.projeto.config.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -47,7 +49,7 @@ public class RevisorLegendasCLI implements ExecucaoCli {
             return;
         }
 
-        revisarLegendasUseCase.executar(Path.of(pastaPt), null, Path.of("cache"), null);
+        revisarLegendasUseCase.executar(Path.of(pastaPt), null, DiretorioBaseKronos.resolver("cache"), null);
 
         System.out.println(AnsiCores.CYAN + "==========================================================" + AnsiCores.RESET);
     }

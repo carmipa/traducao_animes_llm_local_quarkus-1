@@ -1,5 +1,7 @@
 package org.traducao.projeto.apiDadosAnime.application;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ObterMetadataAnimeUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ObterMetadataAnimeUseCase.class);
-    private static final Path PASTA_CACHE_METADATA = Path.of("cache", "metadata");
+    private static final Path PASTA_CACHE_METADATA = DiretorioBaseKronos.resolver("cache", "metadata");
     private static final long TTL_AUSENCIA_MS = 5 * 60 * 1000L;
 
     private final TmdbApiClientAdapter tmdbAdapter;

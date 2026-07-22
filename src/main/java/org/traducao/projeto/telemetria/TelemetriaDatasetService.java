@@ -1,5 +1,7 @@
 package org.traducao.projeto.telemetria;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -70,7 +72,7 @@ public class TelemetriaDatasetService {
         prepararRepositorio(repo);
         garantirDocumentosBase(repo);
 
-        TelemetriaResumo resumo = telemetria.gerarResumo(Path.of("cache"));
+        TelemetriaResumo resumo = telemetria.gerarResumo(DiretorioBaseKronos.resolver("cache"));
         Path pastaMetrics = repo.resolve("metrics");
         Files.createDirectories(pastaMetrics);
         Path arquivo = pastaMetrics.resolve(NOME_ARQUIVO_DATASET);
