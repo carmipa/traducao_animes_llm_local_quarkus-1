@@ -74,26 +74,32 @@ class ProcessarArquivoUseCaseGuardTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: comprova que uma retradução liberada começa sem
-     * reutilizar o cache defeituoso que impedia a reconstrução da legenda.
+     * PROPÓSITO DE NEGÓCIO: comprova que uma retradução liberada preserva o cache anterior
+     * numa cópia recuperável SEM tirar o arquivo do caminho ativo. A geração antiga deixa de
+     * valer por decisão em memória de quem chama; o arquivo em disco continua sendo a rede de
+     * segurança do episódio até a nova geração estar inteira.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o cache ativo desaparece somente depois de uma
-     * cópia fiel existir no backup; o conteúdo anterior continua recuperável.
+     * <p>INVARIANTES DO DOMÍNIO: a cópia fiel passa a existir no backup exclusivo E o cache
+     * ativo permanece byte a byte igual. Nenhum instante da execução tem o caminho ativo vazio.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer erro de cópia/remoção é
-     * propagado pelo método de produção e faz o teste falhar imediatamente.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o cache ativo sumir de novo, voltou a existir a
+     * janela em que uma interrupção perde o episódio inteiro — foi o que apagou o S00E02 do
+     * 08th MS Team em 2026-07-22, recuperado na mão a partir de {@code backups/traducao-cache}.
      */
     @Test
-    void retraducaoLiberadaArquivaERetiraCacheAnteriorDoUso() throws IOException {
+    void retraducaoLiberadaArquivaSemRetirarOCacheAtivoDoLugar() throws IOException {
         Path cache = pastaTemporaria.resolve("episodio.cache.json");
         Files.writeString(cache, "cache antigo");
         Path raizBackup = pastaTemporaria.resolve("backups-cache");
 
         Path backup = PoliticaBackupTraducao.arquivarCacheParaRetraducao(cache, raizBackup);
 
-        assertFalse(Files.exists(cache));
         assertTrue(Files.exists(backup));
         assertEquals("cache antigo", Files.readString(backup));
+        assertTrue(Files.exists(cache),
+            "o cache ativo NÃO pode ser removido: ele é a rede de segurança até a nova geração ser gravada");
+        assertEquals("cache antigo", Files.readString(cache),
+            "o cache ativo continua íntegro; quem ignora a geração anterior é o chamador, em memória");
     }
 
     @Test
