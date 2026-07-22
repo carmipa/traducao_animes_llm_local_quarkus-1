@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * própria da fatia) e só aceita a resposta se ela preservar os nomes próprios do original — a
  * validação canônica final (a mesma do LLM) fica a cargo do chamador.
  *
- * <p>Sucedeu o {@code RecuperarPendenciaFallbackService}: o nome citava um provedor específico,
+ * <p>Sucedeu o {@code RecuperarPendenciaGoogleService}: o nome citava um provedor específico,
  * mas o papel é o de orquestrar QUALQUER tradutor de máquina da cadeia (LibreTranslate local,
  * Google externo).
  *

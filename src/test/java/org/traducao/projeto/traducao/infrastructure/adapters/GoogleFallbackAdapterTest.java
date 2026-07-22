@@ -48,7 +48,7 @@ class GoogleFallbackAdapterTest {
     void restauraTagsEQuebra() {
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("[T0] Ola [B] mundo"));
 
-        Optional<String> r = adapter.traduzir("{\\i1}Hello \\Nworld");
+        Optional<String> r = adapter.traduzir("{\\i1}Hello \\Nworld").traducaoOpcional();
 
         assertTrue(r.isPresent(), "tradução válida deve estar presente");
         assertEquals("{\\i1}Ola\\Nmundo", r.get());
@@ -60,7 +60,7 @@ class GoogleFallbackAdapterTest {
         // A resposta não traz [T0]: a tag {\i1} não pode ser restaurada.
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Ola mundo"));
 
-        Optional<String> r = adapter.traduzir("{\\i1}Hello world");
+        Optional<String> r = adapter.traduzir("{\\i1}Hello world").traducaoOpcional();
 
         assertTrue(r.isEmpty(), "tag perdida deve manter a fala pendente");
     }
@@ -70,7 +70,7 @@ class GoogleFallbackAdapterTest {
     void httpErroRecusa() {
         GoogleFallbackAdapter adapter = new AdapterFake(429, "");
 
-        assertTrue(adapter.traduzir("Hello there").isEmpty());
+        assertTrue(adapter.traduzir("Hello there").traducaoOpcional().isEmpty());
     }
 
     @Test
@@ -78,7 +78,7 @@ class GoogleFallbackAdapterTest {
     void semTagTraduz() {
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Ola pessoal"));
 
-        Optional<String> r = adapter.traduzir("Hi everyone");
+        Optional<String> r = adapter.traduzir("Hi everyone").traducaoOpcional();
 
         assertEquals("Ola pessoal", r.get());
     }
@@ -88,7 +88,7 @@ class GoogleFallbackAdapterTest {
     void preservaQuebrasMinusculas() {
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Vem [Bh] ca [Bn] agora"));
 
-        Optional<String> r = adapter.traduzir("Come\\hhere\\nnow");
+        Optional<String> r = adapter.traduzir("Come\\hhere\\nnow").traducaoOpcional();
 
         assertTrue(r.isPresent(), "quebras \\h/\\n devem ser preservadas");
         assertEquals("Vem\\hca\\nagora", r.get());
@@ -100,7 +100,7 @@ class GoogleFallbackAdapterTest {
         // Google ecoa [T0] duas vezes: restaurar produziria {\i1} duplicado.
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("[T0] Ola [T0] mundo"));
 
-        Optional<String> r = adapter.traduzir("{\\i1}Hello world");
+        Optional<String> r = adapter.traduzir("{\\i1}Hello world").traducaoOpcional();
 
         assertTrue(r.isEmpty(), "duplicacao de tag deve manter a fala pendente");
     }
@@ -110,7 +110,7 @@ class GoogleFallbackAdapterTest {
     void quebraPerdidaRecusa() {
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Vem ca agora"));
 
-        Optional<String> r = adapter.traduzir("Come\\hhere now");
+        Optional<String> r = adapter.traduzir("Come\\hhere now").traducaoOpcional();
 
         assertTrue(r.isEmpty(), "perda de \\h deve manter a fala pendente");
     }
@@ -120,7 +120,7 @@ class GoogleFallbackAdapterTest {
     void conteudoComParentesesNaoEhMarcadorResidual() {
         GoogleFallbackAdapter adapter = new AdapterFake(200, jsonGoogle("Escolha (b), nao (a)."));
 
-        Optional<String> r = adapter.traduzir("Choose (b), not (a).");
+        Optional<String> r = adapter.traduzir("Choose (b), not (a).").traducaoOpcional();
 
         assertTrue(r.isPresent(), "conteúdo entre parênteses não pode ser tratado como marcador mutilado");
         assertEquals("Escolha (b), nao (a).", r.get());
