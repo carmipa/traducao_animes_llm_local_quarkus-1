@@ -245,6 +245,27 @@ class RecuperarPendenciaFallbackServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: regressão de um falso-positivo achado no benchmark F4 — o ordinal
+     * português ("1º") coloca depois do número um caractere que o Unicode classifica como LETRA.
+     * Com fronteira {@code \p{L}}, o "1" exigido de "September 1st" não era reconhecido dentro
+     * de "1º de setembro", e uma data corretamente traduzida era recusada. Ocorria em falas
+     * reais do Gundam 0083 ("September 1st, Stellar Year 2149").
+     * <p>INVARIANTES DO DOMÍNIO: token puramente numérico usa fronteira só de dígito.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: recusar aqui significa que a fronteira voltou a exigir
+     * separador não-letra depois do número.
+     */
+    @Test
+    @DisplayName("F4-fix: número seguido de ordinal português ('1º') conta como sobrevivente")
+    void numeroSeguidoDeOrdinalPortuguesSobrevive() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("1º de setembro, Ano Estelar 2149", ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("September 1st, Stellar Year 2149")).recuperadas();
+
+        assertEquals("1º de setembro, Ano Estelar 2149", r.get("September 1st, Stellar Year 2149"),
+            "o '1' de '1st' sobrevive dentro de '1º' — a data está corretamente traduzida");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: prova que identificadores numéricos continuam obrigatórios — perder
      * o ano numa legenda de época corromperia a informação, e nenhum afrouxamento da guarda pode
      * permitir isso.
