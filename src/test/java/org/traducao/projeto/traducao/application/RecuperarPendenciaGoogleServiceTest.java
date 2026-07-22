@@ -98,6 +98,58 @@ class RecuperarPendenciaGoogleServiceTest {
         assertTrue(r.isEmpty(), "nome próprio perdido após token numérico deve manter a fala pendente");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: caracteriza (subfase F1) o DEFEITO hoje vigente na guarda de nomes
+     * próprios — tratar QUALQUER palavra capitalizada no meio da frase como nome próprio
+     * obrigatório. Consequência real: um título em Title Case jamais pode ser traduzido, porque
+     * a tradução correta necessariamente substitui as palavras capitalizadas. Nenhum provedor
+     * de fallback contorna isso: a recusa acontece DEPOIS da resposta, sobre ela.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: este teste fixa o comportamento ATUAL (recusa) para que a
+     * correção da subfase F3 apareça como inversão explícita no diff. Ele NÃO descreve o
+     * comportamento desejado — descreve o bug.
+     *
+     * <p>Medição da subfase F0 sobre as 560 falas pendentes reais dos caches versionados:
+     * <b>323 delas (57,7%)</b> são recusadas exclusivamente por palavra capitalizada comum que
+     * não é termo de lore, sigla nem identificador. Outras 35 (6,2%) dependem de termo de lore
+     * legítimo e devem continuar protegidas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se este teste passar a falhar sem que F3 tenha sido
+     * aplicada, a guarda mudou por acidente — investigar antes de ajustar a expectativa.
+     */
+    @Test
+    @DisplayName("F1 (defeito atual): título em Title Case é recusado — 'Battle' tratado como nome próprio")
+    void caracterizacaoTituloTitleCaseEhRecusadoHoje() {
+        // Título real do Gundam 0083. A tradução está CORRETA, mas "Battle", "Three" e
+        // "Dimensions" somem (como devem sumir) e a guarda recusa a fala inteira.
+        FallbackTraducaoOnlinePort porta = o -> Optional.of("A Batalha em Três Dimensões");
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("The Battle in Three Dimensions"));
+
+        assertTrue(r.isEmpty(),
+            "CARACTERIZAÇÃO DO DEFEITO: hoje a guarda recusa um título corretamente traduzido, "
+                + "porque exige que 'Battle'/'Three'/'Dimensions' sobrevivam em português");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: caracteriza o mesmo defeito no padrão de DATA/legenda de época
+     * ("May 12th, Stellar Year 2148"), que aparece com alta frequência nas pendências reais
+     * (Stellar 42x, Year 43x na medição F0). "Stellar" e "Year" não são nomes próprios, mas a
+     * guarda os exige.
+     * <p>INVARIANTES DO DOMÍNIO: fixa o comportamento atual; F3 inverte.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ver o teste irmão acima.
+     */
+    @Test
+    @DisplayName("F1 (defeito atual): data de época é recusada — 'Stellar'/'Year' tratados como nome próprio")
+    void caracterizacaoDataDeEpocaEhRecusadaHoje() {
+        FallbackTraducaoOnlinePort porta = o -> Optional.of("12 de maio, Ano Estelar 2148");
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("May 12th, Stellar Year 2148"));
+
+        assertTrue(r.isEmpty(),
+            "CARACTERIZAÇÃO DO DEFEITO: 'Stellar' e 'Year' são exigidos literalmente em português");
+    }
+
     @Test
     @DisplayName("ligado: pontuação isolada encerra a frase; a 1ª palavra da frase seguinte não é nome próprio")
     void pontuacaoIsoladaEncerraFrase() {
