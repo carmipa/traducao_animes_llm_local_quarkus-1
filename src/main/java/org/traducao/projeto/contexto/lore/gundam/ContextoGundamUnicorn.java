@@ -112,7 +112,7 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             "Stark Jegan", "Anksha",
             "Nahel Argama", "Garencieres", "Ra Cailum", "Rewloola",
             "Musaka", "Magallanica",
-            "Earth Federation", "Sleeves", "Neo Zeon", "Vist Foundation",
+            "Earth Federation", "Sleeves", "Sieg Zeon", "Neo Zeon", "Vist Foundation",
             "Anaheim Electronics", "Londo Bell", "ECOAS",
             "Laplace's Box", "Laplace Incident", "Industrial 7", "Palau",
             "Torrington Base", "Dakar",

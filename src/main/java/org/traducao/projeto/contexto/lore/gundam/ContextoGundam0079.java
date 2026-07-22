@@ -81,7 +81,7 @@ public class ContextoGundam0079 implements ProvedorContexto {
             "RX-77 Guncannon", "MS-06 Zaku II", "Zaku II",
             "MS-07 Gouf", "MS-09 Dom", "MSN-02 Zeong",
             "White Base", "Earth Federation", "Principality of Zeon",
-            "Zeon", "Side 7", "Solomon",
+            "Zeon", "Sieg Zeon", "Side 7", "Solomon",
             "A Baoa Qu", "Jaburo", "One Year War",
             "Minovsky", "Mega Particle Cannon", "Mobile Suit",
             "Mobile Armor", "Newtype", "Cyber-Newtype",

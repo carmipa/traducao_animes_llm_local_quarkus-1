@@ -108,7 +108,7 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
             "Zaku Tank", "Magella Attack",
             "Apsalus", "Apsalus I", "Apsalus II", "Apsalus III",
             "Hovertruck", "Miller's Report",
-            "Earth Federation", "Principality of Zeon", "Zeon",
+            "Earth Federation", "Principality of Zeon", "Zeon", "Sieg Zeon",
             "Kojima Battalion", "08th MS Team",
             "Jaburo", "One Year War", "Newtype", "Oldtype",
             "Spacenoid", "Earthnoid", "Minovsky", "Mega Particle Cannon",

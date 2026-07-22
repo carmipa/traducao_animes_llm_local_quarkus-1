@@ -111,7 +111,7 @@ public class ContextoGundamOrigin implements ProvedorContexto {
             "Johann Ibrahim Revil", "Lalah Sune",
             "Gaia", "Ortega", "Mash", "Black Tri-Stars",
             "M'Quve", "Gadem", "Clamp", "Darcia Bakharov",
-            "Zeon", "Principality of Zeon", "Autonomous Republic of Munzo",
+            "Zeon", "Sieg Zeon", "Principality of Zeon", "Autonomous Republic of Munzo",
             "Earth Federation", "Munzo", "Side 3", "Texas Colony", "Loum",
             "Battle of Loum", "Granada", "Solomon", "A Baoa Qu", "Jaburo",
             "Side 7", "White Base", "One Year War",
