@@ -16,14 +16,14 @@ O núcleo do pipeline: traduz cada fala de uma legenda `.ass`/`.ssa` do inglês 
 
 | Classe | Papel |
 |--------|-------|
-| `ProcessarArquivoUseCase` (`application`) | Orquestra: lê o `.ass`, separa falas por lote, consulta o cache, envia pendências ao LLM, escreve o `.ass` traduzido |
-| `LlmClientAdapter` (`infrastructure/adapters`) | Implementa `LlmPort` — cliente HTTP OpenAI-compatible para o LM Studio (funciona com qualquer modelo servido pelo LM Studio) |
-| `CacheTraducaoService` / `EntradaCache` (`infrastructure/cache`) | Persistência do par original↔traduzido por arquivo de legenda |
-| `GerenciadorContexto` / `ProvedorContexto` (`contexto/`, `infrastructure/contexto`) | Sistema de lore por anime — ver [Contextos & Lore](09-contextos-lore.md) |
-| `LeitorLegendaAss` / `EscritorLegendaAss` (`infrastructure/legenda`) | Parser/escritor do formato `.ass` — preserva timestamps e formatação **byte a byte**, só troca o campo `Text` |
-| `MascaradorTags` | Protege tags de formatação ASS (`{\pos(...)}`, `{\i1}` etc.) substituindo-as por marcadores `[[TAG0]]` antes de enviar ao LLM, e restaura depois — evita que o modelo traduza ou corrompa a sintaxe de estilo |
-| `ValidadorTraducaoService` | Detecta resíduo em inglês / alucinação na resposta do LLM |
-| `DetectorTraducaoIdenticaService` | Detecta falas onde `traduzido == original` (sinal de falha silenciosa do LLM) |
+| `ProcessarArquivoUseCase` (fatia `traducao`, `application`) | Orquestra: lê o `.ass`, separa falas por lote, consulta o cache, envia pendências ao LLM, valida e escreve o `.ass` traduzido |
+| `LlmClientAdapter` (`traducao/infrastructure/adapters`) | Implementa `LlmPort` (peer **`llm`**) — cliente HTTP OpenAI-compatible para o LM Studio; é o **ponto de composição** do peer `llm` |
+| `CacheTraducaoService` / `EntradaCache` / `ProvenienciaCache` (peer **`cachetraducao`**) | **Dono único** do cache: persiste o par original↔traduzido por arquivo e carimba a **proveniência** (ver abaixo) |
+| `GerenciadorContexto` / `ProvedorContexto` (peer **`contexto`**) | Sistema de lore por anime — ver [Contextos & Lore](09-contextos-lore.md) |
+| `LeitorLegendaAss` / `EscritorLegendaAss` (peer **`legenda`**) | Parser/escritor do `.ass` — preserva timestamps e formatação **byte a byte**, só troca o campo `Text` |
+| `MascaradorTags` / `ValidadorTraducaoService` / `DetectorTraducaoIdenticaService` (peer **`qualidadeTraducao`**) | Máscara de tags ASS, detecção de resíduo/alucinação e de tradução idêntica ao original (falha silenciosa) |
+
+> As classes de cache, legenda, contexto, qualidade e LLM vivem em **fatias peer próprias** (`cachetraducao`, `legenda`, `contexto`, `qualidadeTraducao`, `llm`), importadas pela Tradução Local por uma fronteira **congelada por ArchUnit** — ver [Arquitetura](01-arquitetura.md#fatias-verticais-peers-e-fronteiras-congeladas-archunit).
 
 ---
 
@@ -75,6 +75,7 @@ sequenceDiagram
 - **Chave de lookup:** o **texto original**, não o índice — se a mesma frase aparecer em falas diferentes, a mesma tradução é reaproveitada (cada evento mantém seu próprio timestamp, então isso nunca afeta sincronismo).
 - **Editável manualmente:** o operador pode abrir o `.cache.json` e corrigir uma tradução na mão; na próxima execução, o valor corrigido é respeitado (não é sobrescrito, a menos que o texto original mude).
 - **Entradas de falha:** quando o LLM devolve o mesmo texto (não traduziu), a entrada é salva com `original == traduzido` — esse é o "fallback de falha" que os 3 fluxos de [Correção & Revisão](06-modulo-correcao-revisao.md) tratam de formas diferentes.
+- **Proveniência (`ProvenienciaCache`):** cada arquivo de cache carrega um hash de proveniência (`contextoHash` = SHA-256 do prompt de sistema/lore, mais modelo e idiomas). Se a **lore ou o modelo mudam**, o cache anterior é **arquivado e não reusado** — a fala é retraduzida sob o contexto atual, em vez de servir uma tradução feita sob outra lore. É também o mecanismo que separa os braços A/B do [contexto de cena](#correção-de-gênero-por-contexto-de-cena-piloto-d).
 
 ---
 
@@ -99,6 +100,42 @@ Antes de enviar ao LLM, o `MascaradorTags` substitui blocos `{...}` por marcador
 ## Modelo "coringa": `tradutor.llm.model: "current"`
 
 O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"current"`, nunca o id fixo de um modelo (ex. `"mistralai/mistral-nemo-instruct-2407"`). Ao iniciar cada operação, `LlmClientAdapter.verificarDisponibilidade()` consulta o LM Studio para descobrir **qual modelo está de fato carregado em memória** (via a API estendida `/api/v0/models`, que expõe o campo `state: "loaded"`) e adapta o valor em runtime. Isso permite trocar o modelo ativo direto na UI/CLI do LM Studio (`lms load`) sem tocar no `application.yml` nem recompilar — e evita que o app dispare um **auto-load de uma segunda instância de modelo** ao mandar uma requisição para um id que não bate com o que está carregado (ver detalhes técnicos em [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente)).
+
+---
+
+## Correção de gênero por contexto de cena (piloto D)
+
+**O problema.** Em PT-BR, adjetivos e particípios concordam em gênero com quem fala ("Estou cert**o**" vs "Estou cert**a**"). Só que a fonte `.ass` de fansub **não diz quem fala** — a coluna `Name`/Actor vem vazia (no Gundam 08th MS Team, em 325/325 falas). Como o pipeline traduz **linha a linha** (`lote=1`) e dedup/cacheia por texto original puro, o modelo não tem como inferir o gênero e erra: `Thank you, Norris.` — dito pela **Aina** — virava "Obrigad**o**".
+
+**A correção (piloto D).** Um motor **OPT-IN** em subpacotes próprios da fatia — `traducao/{domain,application,infrastructure}/contextocena` — que, para cada fala de **diálogo**, manda ao modelo uma **janela de falas vizinhas** como referência (rotuladas "NÃO traduzir, só contexto") para ele inferir o falante, mantendo `lote=1` no alvo. Não-diálogo (música/letreiro/romaji) continua pela via de hoje. Desligado por padrão: com `tradutor.contexto-cena.ativo=false`, o pipeline é **byte-idêntico** ao atual (provado por 16 testes de caracterização).
+
+```mermaid
+flowchart TD
+    A["🗣️ Fala elegível"] --> B{"Categoria?"}
+    B -->|"não-diálogo<br/>(música / letreiro / romaji)"| V["Via de hoje<br/>dedup + lote + validação"]
+    B -->|"diálogo"| J["Monta JANELA de contexto<br/>N falas vizinhas (tamanho-janela)"]
+    J --> M["Mascara as tags do alvo<br/>tag ASS vira marcador seguro"]
+    M --> P["1 chamada ao LLM<br/>contexto (não traduzir) + alvo mascarado"]
+    P --> D["Desmascara as tags<br/>fallback anti-alucinação:<br/>mantém o original se o marcador corromper"]
+    D --> W["Valida + reconstrói o .ass por ÍNDICE<br/>(nunca por texto → não recolapsa cenas)"]
+    V --> W
+    W --> OUT["📄 .ass PT-BR"]
+
+    classDef dlg fill:#312e81,stroke:#818CF8,color:#F9FAFB
+    classDef via fill:#14532d,stroke:#4ADE80,color:#F9FAFB
+    classDef io fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
+    class A,J,M,P,D,W dlg
+    class V via
+    class OUT io
+```
+
+Detalhes que preservam a segurança do cache e da legenda:
+
+- **Chave de cache só-fonte:** a assinatura da entrada contextual é derivada só da FONTE (índice + original + estilo + hash das vizinhas + versão da política), nunca do palpite do modelo — evita circularidade. `EntradaCache` ganhou o campo aditivo `assinaturaContexto` (o cache legado continua válido).
+- **Proveniência separa os braços:** ligar a flag muda o `contextoHash`, então uma tradução feita **com** contexto de cena nunca reusa (nem é reusada por) uma feita **sem** — o braço B arquiva o cache do braço A automaticamente.
+- **Relatório A/B append-only:** com `tradutor.contexto-cena.relatorio-ab=true`, cada execução acrescenta uma linha a `logs/contexto_cena_ab.jsonl` (marcada `A_BASELINE` ou `B_CONTEXTO`), com atividade e custo — a telemetria canônica (que deduplica por episódio) não conseguiria guardar os dois braços do mesmo episódio. Ver [Telemetria](10-modulo-telemetria.md).
+
+> Como ativar e comparar (protocolo A/B com variáveis congeladas e critério de decisão) está registrado no cérebro do projeto (Plano-Mestre D). O acerto de gênero em si é medido contra um conjunto-ouro manual; o relatório mede **atividade e custo**, não acerto.
 
 ---
 
