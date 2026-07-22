@@ -14,6 +14,7 @@ import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -28,9 +29,11 @@ import java.util.Map;
  *
  * <p>INVARIANTES DO DOMÍNIO: cada arquivo carrega a {@link ProvenienciaCache}
  * (lore/hash/modelo/idiomas) que o gerou; uma proveniência divergente NÃO é reutilizada
- * — a geração anterior é arquivada e o episódio é retraduzido com o lore atual. A
- * escrita é atômica (temporário + {@code ArquivoAtomicoUtil}); a leitura aceita tanto o
- * documento versionado quanto a lista JSON histórica.
+ * — a geração anterior é COPIADA para um arquivo datado ao lado e o episódio é retraduzido
+ * com o lore atual, mas o cache ativo permanece no lugar até a nova geração ser gravada.
+ * O caminho ativo nunca fica vazio durante uma tradução: a escrita é atômica (temporário +
+ * {@code ArquivoAtomicoUtil}) e é o único momento em que o conteúdo ativo troca. A leitura
+ * aceita tanto o documento versionado quanto a lista JSON histórica.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: um JSON ilegível é preservado (renomeado
  * {@code .corrompido_<ts>.json}) em vez de ignorado/sobrescrito; falha de gravação
@@ -225,14 +228,34 @@ public class CacheTraducaoService {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda uma cópia datada da geração anterior quando a proveniência
+     * muda (troca de lore/modelo/schema), para que o trabalho de LLM daquela geração continue
+     * recuperável mesmo depois de o episódio ser retraduzido com o contexto novo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: COPIA e NUNCA remove o cache do caminho ativo. A geração
+     * anterior deixa de ser reutilizada por decisão EM MEMÓRIA — {@link #carregar} devolve
+     * mapa vazio e a contagem de invalidadas —, não por o arquivo sumir do disco. O caminho
+     * ativo só muda quando {@link #salvar} conclui a substituição atômica da nova geração.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança nem propaga; falha de I/O na cópia é
+     * registrada em WARN e a carga prossegue — o cache ativo permanece intacto de qualquer
+     * forma, então nenhuma tradução é perdida por causa do arquivamento.
+     *
+     * <p>HISTÓRICO: até 2026-07-22 este método fazia {@code Files.move}, tirando o cache do
+     * caminho ativo ANTES das ~25 minutos de tradução seguintes. Uma interrupção nessa janela
+     * deixava o episódio sem cache algum — foi o que aconteceu com o S00E02 do 08th MS Team,
+     * recuperado na mão a partir de {@code backups/traducao-cache}.
+     */
     private void arquivarGeracao(Path arquivoCache, ProvenienciaCache anterior) {
         try {
             String tag = anterior != null && anterior.contextoHash() != null && anterior.contextoHash().length() >= 8
                 ? anterior.contextoHash().substring(0, 8) : "anterior";
             Path destino = arquivoCache.resolveSibling(
                 arquivoCache.getFileName().toString() + ".geracao_" + tag + "_" + LocalDateTime.now().format(TS) + ".json");
-            Files.move(arquivoCache, destino);
-            log.info("Geracao anterior do cache arquivada em {}.", destino);
+            Files.copy(arquivoCache, destino, StandardCopyOption.COPY_ATTRIBUTES);
+            log.info("Geracao anterior do cache copiada para {} (o cache ativo permanece ate a nova geracao ser gravada).",
+                destino);
         } catch (IOException e) {
             log.warn("Falha ao arquivar a geracao anterior do cache {}: {}", arquivoCache, e.getMessage());
         }

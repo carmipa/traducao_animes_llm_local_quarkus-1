@@ -168,14 +168,21 @@ public class ProcessarArquivoUseCase {
 
         Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada);
         ProvenienciaCache proveniencia = resolvedorCache.provenienciaAtual();
+        boolean cacheAnteriorJaPreservado = false;
         if (permitirRetraducao && Files.exists(arquivoCache)) {
             politicaBackup.arquivarCacheAntesDaRetraducao(arquivoCache);
+            cacheAnteriorJaPreservado = true;
         }
         // Congela o prompt de sistema no início do arquivo: se o contexto global
         // mudar (troca de lore) enquanto este episódio traduz, o prompt já capturado
         // continua valendo até o fim — a mesma origem carimbada na proveniência.
         String promptCongelado = gerenciadorContexto.obterPromptAtivo();
-        CacheTraducaoService.ResultadoCarga carga = cacheService.carregar(arquivoCache, proveniencia);
+        // Retradução liberada: a geração anterior é descartada EM MEMÓRIA. Antes, quem
+        // produzia o mapa vazio era o arquivo ter sido apagado do disco no passo acima —
+        // e era isso que deixava o episódio sem cache nenhum se a execução caísse no meio.
+        CacheTraducaoService.ResultadoCarga carga = permitirRetraducao
+            ? CacheTraducaoService.ResultadoCarga.vazio()
+            : cacheService.carregar(arquivoCache, proveniencia);
         Map<String, String> cacheExistente = carga.mapa();
 
         // Avisos de falas que ficaram sem tradução confiável (tags corrompidas,
@@ -293,8 +300,11 @@ public class ProcessarArquivoUseCase {
                     }
                 }
                 if (!entradasCacheParcial.isEmpty()) {
+                    // Sem backup duplicado: a retradução já preservou esta mesma geração
+                    // ANTES de começar (o arquivo ativo permanece intacto até aqui).
                     politicaBackup.salvarCacheDaExecucao(
-                        arquivoCache, proveniencia, entradasCacheParcial, permitirRetraducao);
+                        arquivoCache, proveniencia, entradasCacheParcial,
+                        permitirRetraducao && !cacheAnteriorJaPreservado);
                 }
             }
             throw e;
@@ -470,7 +480,11 @@ public class ProcessarArquivoUseCase {
         } else {
             escritor.escrever(arquivoSaida, documentoFinal);
         }
-        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
+        // Substituição atômica da geração: só AQUI o cache ativo deixa de ser o anterior.
+        // preservarAnterior fica falso quando a retradução já copiou esta mesma geração no
+        // início — do contrário o mesmo arquivo iria duas vezes para backups/traducao-cache.
+        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache,
+            permitirRetraducao && !cacheAnteriorJaPreservado);
 
         long tempoTotalMs = System.currentTimeMillis() - inicioMs;
         String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);

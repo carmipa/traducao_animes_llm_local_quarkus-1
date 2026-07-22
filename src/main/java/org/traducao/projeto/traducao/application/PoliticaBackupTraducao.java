@@ -28,8 +28,9 @@ import java.util.List;
  *   <li>Toda substituição autorizada (retradução ou sobrescrita) copia a versão anterior
  *       para uma pasta EXCLUSIVA em {@code backups/} — com atributos preservados — ANTES
  *       de alterar o original; nenhum backup anterior é sobrescrito.</li>
- *   <li>O arquivamento de cache para retradução só remove o cache atual depois que a
- *       cópia fiel já existe no backup.</li>
+ *   <li>O arquivamento de cache para retradução NUNCA remove o cache do caminho ativo:
+ *       apenas copia. Retirar o arquivo antes de a nova geração existir abriria uma
+ *       janela de perda total do episódio se a execução fosse interrompida.</li>
  *   <li>A gravação do cache com {@code preservarAnterior} exige backup bem-sucedido antes
  *       de persistir a nova geração.</li>
  * </ul>
@@ -68,19 +69,21 @@ public class PoliticaBackupTraducao {
      * PROPÓSITO DE NEGÓCIO: inicia uma retradução integral do episódio preservando o
      * cache anterior — o operador liberou explicitamente refazer a obra do zero.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o cache atual só é removido depois que uma cópia fiel
-     * existe no backup exclusivo {@code backups/traducao-cache}; caches de outras obras
-     * nunca são tocados.
+     * <p>INVARIANTES DO DOMÍNIO: uma cópia fiel passa a existir no backup exclusivo
+     * {@code backups/traducao-cache} ANTES de a tradução começar, e o cache ativo NÃO é
+     * removido — a geração anterior deixa de valer apenas em memória, para o episódio
+     * sobreviver a uma interrupção no meio da retradução. Caches de outras obras nunca são
+     * tocados.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: falha ao copiar ou remover vira
-     * {@link ArquivoLegendaException} e aborta o processamento, sem fingir que o cache
-     * foi reiniciado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha ao copiar vira {@link ArquivoLegendaException}
+     * e aborta o processamento, sem fingir que a geração anterior foi preservada.
      */
     public void arquivarCacheAntesDaRetraducao(Path arquivoCache) {
         Path raizBackup = DiretorioBaseKronos.resolver("backups", "traducao-cache").toAbsolutePath().normalize();
         try {
             Path backupCache = arquivarCacheParaRetraducao(arquivoCache, raizBackup);
-            log.warn("Retradução liberada: cache anterior removido do uso e preservado em {}", backupCache);
+            log.warn("Retradução liberada: cache anterior preservado em {} e ignorado nesta execução "
+                + "(o arquivo ativo permanece até a nova geração ser gravada).", backupCache);
             uiLogger.log("[ CACHE REINICIADO ] Geração anterior preservada em: " + backupCache);
         } catch (IOException e) {
             throw new ArquivoLegendaException(
@@ -161,18 +164,23 @@ public class PoliticaBackupTraducao {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: retira o cache atual de uso e o preserva, para uma retradução
-     * integral sem heurística sobre se o cache antigo ainda é confiável.
+     * PROPÓSITO DE NEGÓCIO: preserva o cache atual numa cópia datada antes de uma retradução
+     * integral, sem heurística sobre se o cache antigo ainda é confiável.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só remove o cache depois que a cópia fiel existe no
-     * backup; opera exclusivamente sobre o arquivo de cache informado.
+     * <p>INVARIANTES DO DOMÍNIO: COPIA e NUNCA remove o cache do caminho ativo. A retradução
+     * ignora a geração anterior por decisão EM MEMÓRIA (o chamador não carrega o mapa), não
+     * por o arquivo sumir do disco; o caminho ativo só muda quando a nova geração é gravada
+     * atomicamente ao fim do episódio. Opera exclusivamente sobre o arquivo informado.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; se a cópia ou a
-     * remoção falhar, nenhuma geração nova começa fingindo cache reiniciado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; sem a cópia fiel, o
+     * chamador aborta e nenhuma retradução começa. O cache ativo permanece intacto em
+     * qualquer desfecho.
+     *
+     * <p>HISTÓRICO: até 2026-07-22 este método apagava o cache logo após copiá-lo, deixando o
+     * caminho ativo vazio durante toda a tradução seguinte. Uma interrupção nessa janela
+     * perdia o episódio inteiro — foi o caso do S00E02 do 08th MS Team.
      */
     public static Path arquivarCacheParaRetraducao(Path arquivoCache, Path raizBackup) throws IOException {
-        Path backup = copiarParaBackupExclusivo(arquivoCache, raizBackup);
-        Files.delete(arquivoCache);
-        return backup;
+        return copiarParaBackupExclusivo(arquivoCache, raizBackup);
     }
 }
