@@ -1,5 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,7 +77,7 @@ public class PoliticaBackupTraducao {
      * foi reiniciado.
      */
     public void arquivarCacheAntesDaRetraducao(Path arquivoCache) {
-        Path raizBackup = Path.of("backups", "traducao-cache").toAbsolutePath().normalize();
+        Path raizBackup = DiretorioBaseKronos.resolver("backups", "traducao-cache").toAbsolutePath().normalize();
         try {
             Path backupCache = arquivarCacheParaRetraducao(arquivoCache, raizBackup);
             log.warn("Retradução liberada: cache anterior removido do uso e preservado em {}", backupCache);
@@ -98,7 +100,7 @@ public class PoliticaBackupTraducao {
      * escrita da nova saída final, mantendo intacta a versão anterior.
      */
     public Path criarBackupAntesSobrescrita(Path arquivoFinal) {
-        Path raizBackup = Path.of("backups", "traducao").toAbsolutePath().normalize();
+        Path raizBackup = DiretorioBaseKronos.resolver("backups", "traducao").toAbsolutePath().normalize();
         try {
             Path backup = copiarParaBackupExclusivo(arquivoFinal, raizBackup);
             log.info("Backup da tradução final criado em {}", backup);
@@ -128,7 +130,7 @@ public class PoliticaBackupTraducao {
             List<EntradaCache> entradas,
             boolean preservarAnterior) {
         if (preservarAnterior && Files.exists(arquivoCache)) {
-            Path raizBackup = Path.of("backups", "traducao-cache").toAbsolutePath().normalize();
+            Path raizBackup = DiretorioBaseKronos.resolver("backups", "traducao-cache").toAbsolutePath().normalize();
             try {
                 Path backup = copiarParaBackupExclusivo(arquivoCache, raizBackup);
                 log.info("Backup do cache anterior criado em {}", backup);

@@ -1,6 +1,7 @@
 package org.traducao.projeto.traducao.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -56,11 +57,26 @@ public class TradutorProperties {
     public String getIdiomaTraduzido() { return idiomaTraduzido; }
     public void setIdiomaTraduzido(String idiomaTraduzido) { if (idiomaTraduzido != null && !idiomaTraduzido.isBlank()) this.idiomaTraduzido = idiomaTraduzido; }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: resolve a pasta onde as legendas traduzidas são gravadas —
+     * o caminho configurado, ou, na ausência dele, a pasta {@code traducao_ptbr} irmã da
+     * pasta de legendas originais (ao lado dos vídeos, onde o remuxer também procura).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o caminho passa por {@link DiretorioBaseKronos}, então um
+     * valor ABSOLUTO é usado como está e um valor RELATIVO (o default {@code saida}) fica
+     * sob a raiz operacional efetiva. Em produção a raiz é o diretório corrente, e o
+     * resultado é idêntico ao histórico; na suíte de testes a raiz é redirecionada, o que
+     * impede a gravação em pastas versionadas pelo Git.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança exceção própria; um caminho
+     * sintaticamente inválido propaga {@link java.nio.file.InvalidPathException}. Entrada
+     * em raiz (sem pai) mantém o comportamento antigo.
+     */
     public Path resolverDiretorioSaida() {
         if (diretorioSaida != null && !diretorioSaida.isBlank()) {
-            return Path.of(diretorioSaida);
+            return DiretorioBaseKronos.resolver(diretorioSaida);
         }
-        Path entrada = Path.of(diretorioEntrada);
+        Path entrada = DiretorioBaseKronos.resolver(diretorioEntrada);
         // Por padrão, cria 'traducao_ptbr' NO MESMO NÍVEL da pasta de legendas originais
         // (irmã dela, dentro da pasta da mídia/temporada), não dentro dela — assim o
         // artefato fica ao lado dos vídeos, onde o remuxer também procura por ele.
@@ -70,16 +86,27 @@ public class TradutorProperties {
     }
 
     /**
-     * Se nao for informado (nem por config nem pelo console), o cache fica em
-     * "cache/<pasta-do-anime>/<subpasta>" na raiz do projeto — mesma convenção
-     * relativa usada por logging.file.name (logs/tradutor.log) — em vez de
-     * pedir esse caminho ao usuário a cada execução.
+     * PROPÓSITO DE NEGÓCIO: resolve onde mora o banco bilíngue (cache) do episódio. Se não
+     * for informado (nem por config nem pelo console), fica em
+     * {@code cache/<pasta-do-anime>/<subpasta>} sob a raiz operacional — mesma convenção
+     * relativa de {@code logs/tradutor.log} — em vez de pedir o caminho a cada execução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o caminho passa por {@link DiretorioBaseKronos}, então um
+     * valor ABSOLUTO é usado como está e um valor RELATIVO (o default {@code cache}) fica
+     * sob a raiz operacional efetiva. Isto é o que impede a SUÍTE DE TESTES de escrever no
+     * {@code cache/} versionado pelo Git: uma execução de teste chegou a esvaziar o campo
+     * {@code traduzido} de 28 caches reais (86, Gundam 0083/ZZ/08th), perda silenciosa de
+     * tradução já paga ao LLM. Em produção a raiz é o diretório corrente e o resultado é
+     * byte-idêntico ao histórico.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança exceção própria; um caminho
+     * sintaticamente inválido propaga {@link java.nio.file.InvalidPathException}.
      */
     public Path resolverDiretorioCache() {
         if (diretorioCache != null && !diretorioCache.isBlank()) {
-            return Path.of(diretorioCache);
+            return DiretorioBaseKronos.resolver(diretorioCache);
         }
-        return Path.of("cache").resolve(nomeAnimeAPartirDaEntrada());
+        return DiretorioBaseKronos.resolver("cache").resolve(nomeAnimeAPartirDaEntrada());
     }
 
     private Path nomeAnimeAPartirDaEntrada() {

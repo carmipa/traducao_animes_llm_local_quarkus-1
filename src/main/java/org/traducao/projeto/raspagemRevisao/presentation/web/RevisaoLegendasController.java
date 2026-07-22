@@ -1,5 +1,7 @@
 package org.traducao.projeto.raspagemRevisao.presentation.web;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -284,7 +286,7 @@ public class RevisaoLegendasController {
                 return escolhido;
             }
         }
-        return Path.of("cache");
+        return DiretorioBaseKronos.resolver("cache");
     }
 
     /**

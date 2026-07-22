@@ -2,6 +2,7 @@ package org.traducao.projeto.traducao.infrastructure.config;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Path;
@@ -22,9 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *       NÃO em {@link TradutorProperties#resolverDiretorioSaida()} (que apenas decide
  *       passthrough vs. fallback sobre valores já aparados).</li>
  *   <li>Composto efetivo (o que o CLI enxerga): saída ausente/vazia/blank ⇒
- *       {@code Path.of(entrada.trim()).getParent().resolve("traducao_ptbr")} — a
- *       pasta-irmã da entrada, no mesmo nível (dentro da pasta da mídia/temporada);
- *       saída válida ⇒ {@code Path.of(saida.trim())}.</li>
+ *       a pasta-irmã da entrada, no mesmo nível (dentro da pasta da mídia/temporada);
+ *       saída válida ⇒ o caminho informado, apenas aparado.</li>
+ *   <li><b>Âncora (correção do vazamento de artefatos):</b> a fórmula deixou de usar
+ *       {@code Path.of} cru e passa por {@link DiretorioBaseKronos}. Um caminho ABSOLUTO
+ *       segue intocado e, em produção, a raiz é o diretório corrente — o resultado é
+ *       byte-idêntico ao legado, então a paridade dos CLIs permanece exatamente a mesma.
+ *       O que muda é só a suíte, onde a raiz é redirecionada e caminhos RELATIVOS deixam
+ *       de cair em {@code ./saida} e {@code ./cache} versionados. Esta mudança é o motivo
+ *       de as expectativas abaixo usarem {@code DiretorioBaseKronos.resolver(...)}.</li>
  *   <li>Nenhum dos três CLIs lê o diretório de cache de volta; a política de cache
  *       não entra nesta paridade.</li>
  * </ul>
@@ -56,38 +63,38 @@ class ParidadeResolucaoCaminhoE4bTest {
     @Test
     @DisplayName("saída ausente (null) → pasta-irmã da entrada/traducao_ptbr")
     void saidaAusenteCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, null));
+        assertEquals(DiretorioBaseKronos.resolver(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, null));
     }
 
     @Test
     @DisplayName("saída vazia (\"\") → pasta-irmã da entrada/traducao_ptbr")
     void saidaVaziaCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, ""));
+        assertEquals(DiretorioBaseKronos.resolver(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, ""));
     }
 
     @Test
     @DisplayName("saída só com espaços → pasta-irmã da entrada/traducao_ptbr")
     void saidaBlankCaiNoFallback() {
-        assertEquals(Path.of(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, "   "));
+        assertEquals(DiretorioBaseKronos.resolver(ENTRADA).getParent().resolve("traducao_ptbr"), saidaLegada(ENTRADA, "   "));
     }
 
     @Test
     @DisplayName("saída explícita → Path.of(saida), sem fallback")
     void saidaExplicitaNaoCaiNoFallback() {
-        assertEquals(Path.of("destino/ptbr"), saidaLegada(ENTRADA, "destino/ptbr"));
+        assertEquals(DiretorioBaseKronos.resolver("destino/ptbr"), saidaLegada(ENTRADA, "destino/ptbr"));
     }
 
     @Test
     @DisplayName("entrada com espaços laterais é normalizada por trim antes do fallback")
     void entradaComEspacosLateraisNormaliza() {
         assertEquals(
-            Path.of(ENTRADA).getParent().resolve("traducao_ptbr"),
+            DiretorioBaseKronos.resolver(ENTRADA).getParent().resolve("traducao_ptbr"),
             saidaLegada("  " + ENTRADA + "  ", null));
     }
 
     @Test
     @DisplayName("saída explícita com espaços laterais é normalizada por trim")
     void saidaExplicitaComEspacosLateraisNormaliza() {
-        assertEquals(Path.of("destino/ptbr"), saidaLegada(ENTRADA, "  destino/ptbr  "));
+        assertEquals(DiretorioBaseKronos.resolver("destino/ptbr"), saidaLegada(ENTRADA, "  destino/ptbr  "));
     }
 }

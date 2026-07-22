@@ -1,5 +1,7 @@
 package org.traducao.projeto.core.presentation.web;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -92,7 +94,13 @@ public class PipelineWebSupport {
                     limpo = limpo.substring(1, limpo.length() - 1).trim();
                 }
             }
-            return limpo.isBlank() ? null : Path.of(limpo);
+            // Ancorado em DiretorioBaseKronos: um caminho ABSOLUTO (o caso normal vindo da
+            // UI) passa intocado; um caminho RELATIVO ("cache", "saida") fica sob a raiz
+            // operacional efetiva. Em produção a raiz é o diretório corrente e o resultado
+            // é idêntico ao histórico. Na suíte, isto impede que um POST com caminho
+            // relativo enfileire um job que varre os diretórios versionados pelo Git —
+            // foi assim que testes de contrato HTTP esvaziaram traduções reais de 28 caches.
+            return limpo.isBlank() ? null : DiretorioBaseKronos.resolver(limpo);
         } catch (InvalidPathException e) {
             log.warn("Caminho inválido informado: {}", valor);
             return null;

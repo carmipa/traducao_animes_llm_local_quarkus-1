@@ -3,12 +3,14 @@ package org.traducao.projeto.telemetria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
+import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,5 +74,57 @@ class IsolamentoArtefatosTest {
             DiretorioBaseKronos.resolver("logs", "telemetria_compartilhada.json");
         assertTrue(Files.exists(telemetriaRedirecionada),
             "A telemetria de teste deveria persistir na árvore redirecionada: " + telemetriaRedirecionada);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: estende o guard de isolamento ao {@code cache/} e ao
+     * {@code backups/} — os diretórios que guardam horas de tradução já pagas ao LLM e
+     * são versionados pelo Git. É regressão de um dano REAL: uma execução da suíte
+     * esvaziou o campo {@code traduzido} de 28 caches de produção (86, Gundam 0083/ZZ/
+     * 08th), porque {@code TradutorProperties} resolvia o caminho com {@code Path.of}
+     * cru, ignorando o redirecionamento de teste.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: todo caminho operacional RELATIVO ({@code cache},
+     * {@code saida}, {@code backups}) resolve SOB a raiz redirecionada; nenhum deles pode
+     * cair na árvore real do repositório. Um caminho ABSOLUTO informado pelo usuário
+     * continua intocado — é o que preserva o comportamento de produção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer caminho que escape da raiz de teste
+     * reprova, apontando o valor resolvido — sinaliza que o vazamento voltou.
+     */
+    @Test
+    void caminhosDeCacheSaidaEBackupNaoEscapamParaOsDiretoriosReais() {
+        Path base = DiretorioBaseKronos.base().toAbsolutePath().normalize();
+
+        TradutorProperties propriedades = new TradutorProperties(
+            "entrada", "saida", "cache", 20, null, "en", "pt-br");
+
+        assertTrue(propriedades.resolverDiretorioCache().toAbsolutePath().normalize().startsWith(base),
+            "cache configurado como relativo deve ficar sob a raiz de teste, nunca em ./cache versionado. Resolvido: "
+                + propriedades.resolverDiretorioCache().toAbsolutePath());
+        assertTrue(propriedades.resolverDiretorioSaida().toAbsolutePath().normalize().startsWith(base),
+            "saida configurada como relativa deve ficar sob a raiz de teste. Resolvido: "
+                + propriedades.resolverDiretorioSaida().toAbsolutePath());
+
+        // Sem cache configurado: cai no default "cache/<anime>" — o caminho que causou o dano.
+        TradutorProperties semCache = new TradutorProperties(
+            "Anime/legendas_originais", "saida", null, 20, null, "en", "pt-br");
+        assertTrue(semCache.resolverDiretorioCache().toAbsolutePath().normalize().startsWith(base),
+            "o default cache/<anime> deve ficar sob a raiz de teste. Resolvido: "
+                + semCache.resolverDiretorioCache().toAbsolutePath());
+
+        // Backups da Tradução Local: mesma classe de falha, mesmo guard.
+        assertTrue(DiretorioBaseKronos.resolver("backups", "traducao-cache")
+                .toAbsolutePath().normalize().startsWith(base),
+            "backups/traducao-cache deve ficar sob a raiz de teste");
+
+        // Caminho ABSOLUTO do usuário é preservado: prova que o isolamento não quebrou produção.
+        Path absoluto = Path.of("/kronos-caminho-absoluto-do-usuario").toAbsolutePath();
+        TradutorProperties comAbsoluto = new TradutorProperties(
+            "entrada", absoluto.toString(), absoluto.toString(), 20, null, "en", "pt-br");
+        assertEquals(absoluto.normalize(), comAbsoluto.resolverDiretorioCache().normalize(),
+            "caminho absoluto informado pelo usuário não pode ser reancorado na raiz operacional");
+        assertEquals(absoluto.normalize(), comAbsoluto.resolverDiretorioSaida().normalize(),
+            "caminho absoluto de saída informado pelo usuário não pode ser reancorado");
     }
 }
