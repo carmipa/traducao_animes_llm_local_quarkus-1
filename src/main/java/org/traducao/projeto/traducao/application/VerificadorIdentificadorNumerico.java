@@ -36,11 +36,14 @@ import java.util.regex.Pattern;
  * {@link #divergencia(String, String)} devolve uma mensagem legível nomeando os valores que
  * sumiram (a fala permanece pendente) ou {@code null} quando todos sobreviveram. Não lança.
  *
- * <p>LIMITE DECLARADO: a verificação cobre APENAS remoção e alteração. A INVENÇÃO de um número
- * que não existia no original é deliberadamente tolerada, porque a tradução legitimamente
- * numeraliza quantidades escritas por extenso ("eighteen" → "18") e reprovar isso reintroduziria
- * a classe de falso-positivo que esta fase eliminou. Na prática o caso perigoso já é coberto:
- * quando o modelo troca um número, o valor original desaparece e a troca é detectada por aí.
+ * <p>LIMITE DECLARADO: a verificação cobre a SUBSTITUIÇÃO de valor, não a mudança de
+ * representação. Número escrito por extenso na tradução ({@code "10 years"} → {@code "Dez
+ * anos"}) e quantidade por extenso virando algarismo ({@code "eighteen"} → {@code "18"}) são
+ * as duas faces do mesmo fenômeno e ambas passam: são escolha legítima de tradução, não
+ * corrupção. A consequência aceita é que um número simplesmente OMITIDO numa tradução sem
+ * nenhum algarismo não é detectado aqui — em troca, nenhuma letra de música ou contagem
+ * regressiva é reprovada. A corrida de 2026-07-22 mostrou o custo de errar esse lado: a
+ * primeira versão da regra, que reprovava todo sumiço, derrubou 22 falas boas.
  */
 @Component
 public class VerificadorIdentificadorNumerico {
@@ -84,8 +87,24 @@ public class VerificadorIdentificadorNumerico {
         if (perdidos.isEmpty()) {
             return null;
         }
-        return "identificador numérico alterado ou removido pela tradução: original tem "
-            + naFonte + ", tradução tem " + naTraducao + " (sumiu: " + perdidos + ")";
+        // Sumiço NÃO basta: a tradução pode ter escrito o número POR EXTENSO, que é português
+        // legítimo ("10 years after" → "Dez anos depois", "2... 1... 0!" → "Dois... um...
+        // zero!"). O que caracteriza corrupção é a SUBSTITUIÇÃO — o valor da fonte sumir E um
+        // valor estranho ocupar o lugar dele em algarismos. Sem esta condição a regra reprovava
+        // 22 falas boas na corrida de 2026-07-22, quase todas verso de música e contagem
+        // regressiva, e era o espelho do caso que já se tolerava de propósito (numeralizar
+        // quantidade escrita por extenso).
+        List<String> estranhos = new ArrayList<>();
+        for (String valor : naTraducao) {
+            if (!naFonte.contains(valor)) {
+                estranhos.add(valor);
+            }
+        }
+        if (estranhos.isEmpty()) {
+            return null;
+        }
+        return "identificador numérico alterado pela tradução: original tem " + naFonte
+            + ", tradução tem " + naTraducao + " (sumiu: " + perdidos + ", surgiu: " + estranhos + ")";
     }
 
     /**

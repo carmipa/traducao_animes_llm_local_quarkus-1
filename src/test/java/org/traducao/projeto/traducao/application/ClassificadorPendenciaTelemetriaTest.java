@@ -50,8 +50,8 @@ class ClassificadorPendenciaTelemetriaTest {
         // pela regra genérica de "divergente" — a causa da pendência é o número alterado.
         assertEquals(CausaRaizPendencia.IDENTIFICADOR_NUMERICO_ALTERADO,
             classificador.causaDeMotivoFinal(
-                "identificador numérico alterado ou removido pela tradução: original tem [04], "
-                    + "tradução tem [08] (sumiu: [04])"));
+                "identificador numérico alterado pela tradução: original tem [04], "
+                    + "tradução tem [08] (sumiu: [04], surgiu: [08])"));
     }
 
     @Test
