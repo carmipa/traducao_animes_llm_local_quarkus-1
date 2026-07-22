@@ -39,6 +39,7 @@ public class AvaliadorTraducaoCache {
     private final MascaradorTags mascarador;
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final ValidadorTraducaoService validador;
+    private final VerificadorIdentificadorNumerico verificadorNumerico;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as blindagens de qualidade — estrutura de tags, decisão de
@@ -57,11 +58,13 @@ public class AvaliadorTraducaoCache {
     public AvaliadorTraducaoCache(
         MascaradorTags mascarador,
         DetectorTraducaoIdenticaService detectorIdentica,
-        ValidadorTraducaoService validador
+        ValidadorTraducaoService validador,
+        VerificadorIdentificadorNumerico verificadorNumerico
     ) {
         this.mascarador = mascarador;
         this.detectorIdentica = detectorIdentica;
         this.validador = validador;
+        this.verificadorNumerico = verificadorNumerico;
     }
 
     /**
@@ -128,6 +131,12 @@ public class AvaliadorTraducaoCache {
         }
         if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
             return "modelo devolveu o texto original sem tradução";
+        }
+        // Invariância numérica: o modelo não tem autoridade para reescrever um identificador
+        // da fonte. Roda AQUI porque este portão é o mesmo do LLM e do tradutor de máquina.
+        String numeroAlterado = verificadorNumerico.divergencia(original, traduzido);
+        if (numeroAlterado != null) {
+            return numeroAlterado;
         }
         try {
             validador.validarFala(traduzido);

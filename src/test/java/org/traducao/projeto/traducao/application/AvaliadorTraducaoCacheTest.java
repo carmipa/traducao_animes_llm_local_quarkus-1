@@ -35,7 +35,8 @@ class AvaliadorTraducaoCacheTest {
     private final AvaliadorTraducaoCache avaliador = new AvaliadorTraducaoCache(
         new MascaradorTags(),
         new DetectorTraducaoIdenticaService(new LoreVazia()),
-        new ValidadorTraducaoService());
+        new ValidadorTraducaoService(),
+        new VerificadorIdentificadorNumerico());
 
     /**
      * PROPÓSITO DE NEGÓCIO: tradução ausente nunca é reaproveitada.
