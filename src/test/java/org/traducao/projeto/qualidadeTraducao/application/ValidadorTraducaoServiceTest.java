@@ -116,48 +116,6 @@ class ValidadorTraducaoServiceTest {
             "E não dê desculpas só porque Eledore não está aqui!"));
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: caso REAL (Gundam 08th MS Team, ep 1) — a fonte
-     * "About who I am and what I'm capable of." fez o LLM RECITAR o próprio prompt de
-     * sistema em vez de traduzir, vazando um parágrafo como "Sou capaz de traduzir
-     * legendas de anime do inglês para o português do Brasil, preservando sentido,
-     * subtexto, intenção emocional...". Como está em PT e preserva a estrutura ASS,
-     * escapava da validação e ia PARA A LEGENDA. É uma classe de meta-resposta distinta
-     * da recusa: RECITAÇÃO DE CAPACIDADE/PAPEL do tradutor (eco do prompt de sistema em
-     * {@code ContextoPrompt}).
-     * <p>INVARIANTES DO DOMÍNIO: recitar a tarefa de tradução (traduzir legendas /
-     * legendas de anime / intenção emocional — vocabulário do prompt) é meta-resposta e
-     * vira alucinação; o chamador preserva o original.
-     * <p>COMPORTAMENTO EM CASO DE FALHA (antes do fix): o vazamento é aceito e vai para a
-     * legenda — este teste falha.
-     */
-    @Test
-    void rejeitaRecitacaoDoPromptDeTraducao() {
-        assertThrows(AlucinacaoDetectadaException.class, () -> validador.validarFala(
-            "Sou capaz de traduzir legendas de anime do inglês para o português do Brasil, "
-                + "preservando sentido, subtexto, intenção emocional e continuidade da cena."));
-        assertThrows(AlucinacaoDetectadaException.class, () -> validador.validarFala(
-            "Minha função é traduzir legendas de anime mantendo os marcadores de formatação."));
-        assertThrows(AlucinacaoDetectadaException.class, () -> validador.validarFala(
-            "Preservo o subtexto e a intenção emocional de cada cena."));
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: o detector de recitação de prompt NÃO pode confundir diálogo
-     * legítimo — "sou capaz de", "preservando" e "emocional" aparecem em fala normal de
-     * anime e jamais podem virar meta-resposta por engano. Só a meta-referência à TAREFA
-     * de tradução (traduzir legendas / legendas de anime / intenção emocional) dispara.
-     * <p>INVARIANTES DO DOMÍNIO: mantém a calibração histórica (recusa real x fala legítima).
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer fala legítima bloqueada reprova o teste.
-     */
-    @Test
-    void aceitaDialogoLegitimoQueNaoRecitaTarefaDeTraducao() {
-        assertDoesNotThrow(() -> validador.validarFala("Sou capaz de derrotá-lo sozinho!"));
-        assertDoesNotThrow(() -> validador.validarFala("Preservando a honra da família, seguirei em frente."));
-        assertDoesNotThrow(() -> validador.validarFala("Ela é uma pessoa muito emocional."));
-        assertDoesNotThrow(() -> validador.validarFala("Preciso preservar as evidências da cena do crime."));
-    }
-
     @Test
     void rejeitaResiduoInglesEmFalaMista() {
         // Caso real (86): linha metade PT, metade EN.

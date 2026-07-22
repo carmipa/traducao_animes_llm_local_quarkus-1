@@ -36,28 +36,6 @@ class CacheTraducaoServiceTest {
         return new EntradaCache(0, "Default", original, traduzido, "en", "pt-BR");
     }
 
-    private static EntradaCache entCtx(int indice, String original, String traduzido, String assinatura) {
-        return new EntradaCache(indice, "Default", original, traduzido, "en", "pt-BR", assinatura);
-    }
-
-    @Test
-    void mapaContextualDistingueMesmaFalaEmCenasDiferentes() {
-        Path f = dir.resolve("ep.cache.json");
-        // MESMA fala original, cenas (assinaturas) e traduções de gênero DIFERENTES.
-        svc.salvar(f, prov("h1"), List.of(
-            entCtx(10, "Thank you.", "Obrigada.", "sig-aina"),
-            entCtx(200, "Thank you.", "Obrigado.", "sig-shiro")));
-
-        CacheTraducaoService.ResultadoCarga r = svc.carregar(f, prov("h1"));
-
-        // O mapa por original COLAPSA as duas (comportamento legado, uma tradução só).
-        assertEquals(1, r.mapa().size());
-        // O mapa CONTEXTUAL distingue: cada cena mantém a sua tradução.
-        assertEquals(2, r.mapaContextual().size());
-        assertEquals("Obrigada.", r.mapaContextual().get("sig-aina"));
-        assertEquals("Obrigado.", r.mapaContextual().get("sig-shiro"));
-    }
-
     private boolean existeArquivoContendo(String fragmento) throws IOException {
         try (Stream<Path> s = Files.list(dir)) {
             return s.anyMatch(p -> p.getFileName().toString().contains(fragmento));
