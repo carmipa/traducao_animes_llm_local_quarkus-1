@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Depois da tradução inicial, sobram tipicamente dois tipos de problema: **falas que o LLM não traduziu** (resíduo em inglês, fallback silencioso) e **erros de concordância de gênero em PT-BR** (o inglês não marca gênero em pronomes/adjetivos como o português — "her sword" pode virar "sua espada dele" por calque). Existem **cinco endpoints, agrupados em três fluxos distintos**, cada um atacando uma fonte diferente com o método mais adequado.
+Depois da tradução inicial, sobram tipicamente dois tipos de problema: **falas que o LLM não traduziu** (resíduo em inglês, fallback silencioso) e **erros de concordância de gênero em PT-BR** (o inglês não marca gênero em pronomes/adjetivos como o português — "her sword" pode virar "sua espada dele" por calque). Existem **seis endpoints, agrupados em quatro fluxos distintos**, cada um atacando uma fonte diferente com o método mais adequado.
 
 ---
 
@@ -19,6 +19,7 @@ Depois da tradução inicial, sobram tipicamente dois tipos de problema: **falas
 | `POST /api/revisar-cache` | `RevisarCacheUseCase` | `cache/**/*.cache.json` | **LLM local** — foco em concordância PT-BR |
 | `POST /api/revisar-legendas` | `RevisarLegendasUseCase` (modo `GOOGLE`) | Arquivos `.ass`/`.ssa` já traduzidos | **Google Translate** |
 | `POST /api/revisar-legendas-concordancia` | `RevisarLegendasUseCase` (modo `LLM_CONCORDANCIA`) | Arquivos `.ass`/`.ssa` já traduzidos | **LLM local** |
+| `POST /api/revisar-concordancia` | `RevisarConcordanciaUseCase` (painel 8) | Só a pasta `.ass` PT-BR (sem original) | **Determinístico (regex)** — conserta gênero inequívoco, sem LLM, com dry-run/apply |
 
 ```mermaid
 graph TD
@@ -92,6 +93,14 @@ sequenceDiagram
 
 ---
 
+## Fluxo 4 — Concordância de gênero determinística (`revisaoConcordancia`, painel 8)
+
+O painel **"8. Revisão de Concordância"** é uma passada **100% determinística (regex), sem LLM e sem precisar do original em inglês**: `CorretorConcordanciaGeneroService` conserta, direto na pasta `.ass` PT-BR, os casos de gênero **inequívoco** — artigo masculino + substantivo feminino (e vice-versa), `ela` + verbo de ligação + adjetivo masculino (e vice-versa) etc. Por ser barato e sem ambiguidade, roda em **dry-run** por padrão (`aplicar: false` — simula e reporta sem gravar) e só grava quando `aplicar: true`.
+
+É complementar aos fluxos 1–3 (que dependem do LLM e/ou do original): aqui o alvo são erros **óbvios** de concordância que já estão na legenda final, sem depender de saber quem fala. A Tradução Local não corrige gênero — ver a [limitação conhecida](05-modulo-traducao-llm.md#concordância-de-gênero-limitação-conhecida).
+
+---
+
 ## Endpoints REST
 
 | Endpoint | Payload | Canal SSE |
@@ -101,6 +110,7 @@ sequenceDiagram
 | `POST /api/revisar-cache` | `{entrada?, contextoId?}` | `correcao` |
 | `POST /api/revisar-legendas` | `{entradaPt, entradaEn?, contextoId?}` | `revisao` |
 | `POST /api/revisar-legendas-concordancia` | `{entradaPt, entradaEn?, contextoId?}` | `revisao` |
+| `POST /api/revisar-concordancia` | `{diretorioTraduzido, aplicar}` | `revisao-concordancia` |
 
 ---
 
