@@ -81,16 +81,10 @@ public class RecuperarPendenciaFallbackService {
         "particle", "mega", "the", "and", "of", "for", "with", "ms", "gm",
         "base", "white", "side", "new", "old", "class", "unit", "group", "command");
 
-    /**
-     * Ordinal inglês puro ({@code 12th}, {@code 1st}, {@code 08th}). Em português o sufixo cai e
-     * sobra o número ("May 12th" → "12 de maio"), então exigir o token inteiro reprovaria uma
-     * tradução correta; exige-se apenas a parte numérica.
-     */
-    private static final Pattern ORDINAL_INGLES = Pattern.compile("(?i)\\d+(st|nd|rd|th)");
-
     private final FallbackOnlineProperties propriedades;
     private final FallbackTraducaoMaquinaPort fallbackPort;
     private final LoreAtivaPort loreAtiva;
+    private final VerificadorIdentificadorNumerico verificadorNumerico;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a recuperação com a flag opt-in, a porta própria da fatia e a
@@ -102,11 +96,13 @@ public class RecuperarPendenciaFallbackService {
     public RecuperarPendenciaFallbackService(
         FallbackOnlineProperties propriedades,
         FallbackTraducaoMaquinaPort fallbackPort,
-        LoreAtivaPort loreAtiva
+        LoreAtivaPort loreAtiva,
+        VerificadorIdentificadorNumerico verificadorNumerico
     ) {
         this.propriedades = propriedades;
         this.fallbackPort = fallbackPort;
         this.loreAtiva = loreAtiva;
+        this.verificadorNumerico = verificadorNumerico;
     }
 
     /**
@@ -245,7 +241,7 @@ public class RecuperarPendenciaFallbackService {
                 continue;
             }
             boolean temDigito = token.chars().anyMatch(Character::isDigit);
-            if (temDigito ? !sobreviveNumerico(token, traduzido) : !sobrevive(token, traduzido)) {
+            if (temDigito ? !verificadorNumerico.sobrevive(token, traduzido) : !sobrevive(token, traduzido)) {
                 return token;
             }
         }
@@ -314,82 +310,18 @@ public class RecuperarPendenciaFallbackService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: confirma que um IDENTIFICADOR NUMÉRICO do original sobreviveu à
-     * tradução, aceitando as reescritas que o português faz legitimamente sobre números —
-     * separador de milhar ({@code 9500} → {@code 9.500}), vírgula decimal ({@code 0.5} →
-     * {@code 0,5}) e queda do ordinal inglês ({@code 1/30th} → {@code 1/30}).
+     * PROPÓSITO DE NEGÓCIO: verifica se um termo textual do original aparece na tradução.
      *
-     * <p>INVARIANTES DO DOMÍNIO: compara apenas a SEQUÊNCIA de dígitos, na ordem: o valor não
-     * pode mudar, mas a pontuação pode. Exige fronteira de dígito nas duas pontas para que
-     * {@code 500} não seja dado como sobrevivente dentro de {@code 2500}.
+     * <p>INVARIANTES DO DOMÍNIO: comparação ignora caixa e exige fronteira alfanumérica nas duas
+     * pontas, para que "Zeon" não seja dado como sobrevivente dentro de "Zeonic". Identificador
+     * numérico NÃO passa por aqui — vai para {@link VerificadorIdentificadorNumerico}, que
+     * compara valor em vez de grafia.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: token sem dígito ou tradução nula devolve
-     * {@code false} (recusa segura, mantém a fala pendente). Não lança.
-     */
-    private static boolean sobreviveNumerico(String token, String traduzido) {
-        if (token == null || traduzido == null) {
-            return false;
-        }
-        String digitos = apenasDigitos(ORDINAL_INGLES.matcher(token).replaceAll(
-            resultado -> resultado.group().replaceAll("(?i)(st|nd|rd|th)$", "")));
-        if (digitos.isEmpty()) {
-            return false;
-        }
-        String alvo = apenasDigitos(traduzido);
-        int posicao = alvo.indexOf(digitos);
-        while (posicao >= 0) {
-            boolean esquerdaLivre = posicao == 0 || !Character.isDigit(alvo.charAt(posicao - 1));
-            int fim = posicao + digitos.length();
-            boolean direitaLivre = fim >= alvo.length() || !Character.isDigit(alvo.charAt(fim));
-            if (esquerdaLivre && direitaLivre) {
-                return true;
-            }
-            posicao = alvo.indexOf(digitos, posicao + 1);
-        }
-        return false;
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: remove a pontuação que separa dígitos, para que
-     * {@code 9.500} e {@code 9500} comparem iguais.
-     * <p>INVARIANTES DO DOMÍNIO: só some o separador ENTRE dígitos; qualquer outro caractere
-     * vira um espaço, que serve de fronteira e impede colar números vizinhos.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada vazia devolve string vazia; não lança.
-     */
-    private static String apenasDigitos(String texto) {
-        StringBuilder saida = new StringBuilder(texto.length());
-        for (int i = 0; i < texto.length(); i++) {
-            char c = texto.charAt(i);
-            if (Character.isDigit(c)) {
-                saida.append(c);
-                continue;
-            }
-            // isSpaceChar cobre o espaço NÃO SEPARÁVEL (U+00A0), que isWhitespace ignora e que
-            // é justamente o separador de milhar usado por várias saídas de tradução.
-            boolean separadorEntreDigitos =
-                (c == '.' || c == ',' || Character.isWhitespace(c) || Character.isSpaceChar(c))
-                && i > 0 && Character.isDigit(texto.charAt(i - 1))
-                && i + 1 < texto.length() && Character.isDigit(texto.charAt(i + 1));
-            if (!separadorEntreDigitos) {
-                saida.append(' ');
-            }
-        }
-        return saida.toString();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: verifica se um nome próprio do original aparece na tradução.
-     * <p>INVARIANTES DO DOMÍNIO: comparação ignora caixa e exige fronteira alfanumérica.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: ausência devolve {@code false}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ausência devolve {@code false}. Não lança.
      */
     private boolean sobrevive(String nome, String traduzido) {
-        // Token PURAMENTE numérico usa fronteira só de dígito. O ordinal português ("1º",
-        // "1ª") coloca um caractere que o Unicode classifica como LETRA logo após o número,
-        // então a fronteira \p{L} rejeitaria "1" dentro de "1º" — e "September 1st" traduzido
-        // como "1º de setembro" era recusado, mesmo estando correto.
-        String fronteiraDireita = nome.chars().allMatch(Character::isDigit) ? "(?!\\p{N})" : "(?![\\p{L}\\p{N}])";
         Pattern ocorrencia = Pattern.compile(
-            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + fronteiraDireita);
+            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
         return ocorrencia.matcher(traduzido).find();
     }
 

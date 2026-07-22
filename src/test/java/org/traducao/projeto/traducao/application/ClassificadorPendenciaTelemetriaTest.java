@@ -46,6 +46,12 @@ class ClassificadorPendenciaTelemetriaTest {
         assertEquals(CausaRaizPendencia.RESIDUO,
             classificador.causaDeMotivoFinal("Resíduo gringo detectado: The Legion?"));
         assertEquals(CausaRaizPendencia.ECO, classificador.causaDeMotivoFinal(null));
+        // Bug 3: a mensagem do verificador numérico é específica e NÃO pode ser absorvida
+        // pela regra genérica de "divergente" — a causa da pendência é o número alterado.
+        assertEquals(CausaRaizPendencia.IDENTIFICADOR_NUMERICO_ALTERADO,
+            classificador.causaDeMotivoFinal(
+                "identificador numérico alterado ou removido pela tradução: original tem [04], "
+                    + "tradução tem [08] (sumiu: [04])"));
     }
 
     @Test

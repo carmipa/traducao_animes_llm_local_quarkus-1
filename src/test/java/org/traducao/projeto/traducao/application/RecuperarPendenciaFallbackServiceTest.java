@@ -53,7 +53,8 @@ class RecuperarPendenciaFallbackServiceTest {
                 return "";
             }
         };
-        return new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(ativo), porta, lore);
+        return new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(ativo), porta, lore,
+            new VerificadorIdentificadorNumerico());
     }
 
     private static LinkedHashSet<String> conjunto(String... itens) {
