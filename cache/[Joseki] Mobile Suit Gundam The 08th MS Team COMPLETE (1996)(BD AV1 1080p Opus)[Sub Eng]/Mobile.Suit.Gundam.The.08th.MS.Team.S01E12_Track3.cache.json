@@ -2,7 +2,7 @@
   "proveniencia" : {
     "schemaVersion" : 1,
     "contextoId" : "gundam_08ms",
-    "contextoHash" : "4cb5da93f3708964eb2f39eed0ff2bb5db47a5ed554af78b3b6722b84af0da64",
+    "contextoHash" : "d0cd6a99e7bb76edffafe9d0aa72af895cb167c6f45e809d9e2cb8b30de1d771",
     "modeloLlm" : "current",
     "idiomaOrigem" : "en",
     "idiomaDestino" : "pt-br"
@@ -11,2298 +11,2011 @@
     "indice" : 3,
     "estilo" : "Dialogue",
     "original" : "We're going down with this ship!",
-    "traduzido" : "Vamos afundar com esse navio!",
+    "traduzido" : "Vamos afundar com este navio!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "250afc079a0fc9355e5b57e918563b93b1bee428cd2e008a2c30413e364ec9f0"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 4,
     "estilo" : "Dialogue",
     "original" : "But we can't let you kids die!",
-    "traduzido" : "Mas não podemos deixar que vocês, crianças, morram!",
+    "traduzido" : "Não podemos deixar que vocês, crianças, morram!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2dcf2a02afcea655fd787f710906e1678dde3c1192f3e50d13d4b62b47febf62"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 5,
     "estilo" : "Dialogue",
     "original" : "Not until you've fulfilled your mission!",
-    "traduzido" : "Não até que você tenha cumprido sua missão!",
+    "traduzido" : "Até você cumprir sua missão!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "81132e7af23ae3e5f53238ef8230efad58b4e5a041158e22548552ffbe6882dc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 6,
     "estilo" : "Dialogue",
     "original" : "Not much time left...",
-    "traduzido" : "Não muito tempoleft...",
+    "traduzido" : "Tempo pouco restando...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d8c1c25bc47db5e5bf9f946c16517e5497a7adb5f068963182432b7904db6ee3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 7,
     "estilo" : "Dialogue",
     "original" : "All right, shake a leg!\\NWe're ready to evac you now!",
-    "traduzido" : "",
+    "traduzido" : "Tudo bem, vamos embora! Estamos\\Nprontos para evacuá-lo agora!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f9a6b0e6edd150a3aa7e44afde387de6d01e1f5ba9d3518e624e11a089a7b2b9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 8,
     "estilo" : "Dialogue",
     "original" : "Keep the Komusai from being hit,\\Nno matter what!",
-    "traduzido" : "",
+    "traduzido" : "Proteja o Komusai\\Na qualquer custo!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "023ca10a084f862d6e01a5e9ace7a44eedb84234ed26617f1b82834e4ea142b1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 9,
     "estilo" : "Dialogue",
     "original" : "Komusai ready to launch, sir!",
-    "traduzido" : "",
+    "traduzido" : "Preparado para decolar, senhor!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6989d2af21f94d62a13830408720755a72eed40ed09bcdeea6146275060c66d1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 10,
     "estilo" : "Dialogue",
     "original" : "They have the advantage in numbers for now,",
-    "traduzido" : "Eles tem a vantagem numérica por enquanto,",
+    "traduzido" : "Eles têm vantagem numérica por enquanto.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0407709396ee9f76515362d3e06d3536657b7dfe305e9146e04c6591fdda0411"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 11,
     "estilo" : "Dialogue",
     "original" : "but Zeon will definitely beat\\Nthe Federation in the end!",
-    "traduzido" : "\"Mas o Zeon vai definitivamente\\Nvencer a Federação no final!\"",
+    "traduzido" : "Mas a Federação vai definitivamente\\Nvencer Zeon no final!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9161b2a914ac48b821bbc7f3eb2c0370e9044f51cd9383adb8394455f656f7ad"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 12,
     "estilo" : "Dialogue",
     "original" : "I'm sure you kids can see that.\\NNow get going!",
-    "traduzido" : "Tenho certeza que vocês podem\\Nver isso. Agora, vão embora!",
+    "traduzido" : "Estou certo que vocês podem\\Nver isso. Agora, andem logo!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "311f7d8e04020f6d755dfb28d223b08b4bfe89aa5f9bb331752a95c978dcb8a5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 13,
     "estilo" : "Dialogue",
     "original" : "Come on. Careful you don't trip.",
-    "traduzido" : "",
+    "traduzido" : "Vamos lá. Tome cuidado pra não cair.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "703b895c4fd04e6140d9831ce105a4d43fff1b147e8d70cdf32f647f6decd1dc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 14,
     "estilo" : "Dialogue",
     "original" : "Okay!",
-    "traduzido" : "",
+    "traduzido" : "Tudo bem!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a4caba7467aa03a23657b36080eb2a9ca8531cc5300716189398ecdbb6319622"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 15,
     "estilo" : "Dialogue",
     "original" : "Look, I said you could have\\Ntwo for the price of one, right?",
-    "traduzido" : "Olha, eu disse que voce podia\\Nter dois pelo preço de um, certo?",
+    "traduzido" : "Eu disse que você podia ter dois\\Npelo preço de um, não disse?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5b6cbe87d1193ced8de6044dab21ae300709f2ac4fb1e5b678db8475382c40ea"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 16,
     "estilo" : "Dialogue",
     "original" : "I was just hoping we could make it three.",
-    "traduzido" : "Eu estava torcendo para podermos fazer três.",
+    "traduzido" : "Eu apenas esperava que pudéssemos fazer três.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ecafaaabf792f4ef644ff8343c634aa38e5e33f1208a2399e50d5ef6abf4862e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 17,
     "estilo" : "Dialogue",
     "original" : "{\\i1}It was UC00...\\N00 whatever it was.,",
-    "traduzido" : "{\\i1}Foi no UC 00... 00\\Nqualquer coisa mesmo.",
+    "traduzido" : "{\\i1}Era U.C. 00...\\N00 seja lá o que for.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "394d5513492b129e0fced8654408bc90a152679d6223ccbec09b2ec3c246f7f8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 18,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Anyway, the war was over.",
-    "traduzido" : "{\\i1}De qualquer forma, a guerra tinha acabado.",
+    "traduzido" : "{\\i1}De qualquer forma, a guerra acabou.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b5d2247899110660ac2130a2557a52b460831edae9fb819abb9ec0a8ac7d4769"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 19,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Giant weapons had become\\Nlifeless hunks of metal.{\\i}",
-    "traduzido" : "{\\i1}Armas gigantescas tornaram-se\\Nmontanhas de metal sem vida.{\\i}",
+    "traduzido" : "{\\i1}Armas gigantescas se tornaram\\Nmontes de ferro sem vida.{\\i}",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f6c4c2fe6563ad3e0a26e2ee9b778b1b602cc4033da41b232d5e2d66e0d62451"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 20,
     "estilo" : "Dialogue",
     "original" : "{\\i1}All that remained on the abandoned\\Nbattlefields were feelings of emptiness.{\\i}",
-    "traduzido" : "{\\i1}Tudo o que restava nos campos de batalha\\Nabandonados eram sentimentos de vazio.{\\i}",
+    "traduzido" : "{\\i1}Tudo o que restou nos campos de batalha\\Nabandonados foram sentimentos de vazio.{\\i}",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2e362c6e48e8d7b9f49c7da1704976881de2d9f5fb69e8855f17ae3814f2f89e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 21,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Our team had disbanded.",
-    "traduzido" : "{\\i1}Nosso time havia se dispersado.",
+    "traduzido" : "{\\i1}Nossa equipe se desfez.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fa4c44d54d171dc89c39d60d0566cf0b7ef69ba17415944a9fb52385e5eb7abd"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 22,
     "estilo" : "Dialogue",
     "original" : "{\\i1}It's members were all\\Nsent to different places...",
-    "traduzido" : "{\\i1} Seus membros foram todos\\Nenviados para lugares diferentes...",
+    "traduzido" : "{\\i1}Eles foram todos enviados\\Npara lugares diferentes...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5b67a8d2bdfd0bef3ab3ebbbe8c323fe521a464c3fd8c9377381b45a090831b8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 23,
     "estilo" : "Dialogue",
     "original" : "{\\i1}...as part of the post-war reorganization.",
-    "traduzido" : "{\\i1}...como parte da reorganizacao pós-guerra.",
+    "traduzido" : "{\\i1}...como parte da reorganização pós-guerra.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d54dcf08fd41eeaa2d6b1b8b772323fe0eb3f5cc3c911bcbb4fcf13f5099c75d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 24,
     "estilo" : "Dialogue",
     "original" : "{\\i1}As the only one who was discharged,\\NI carried on the hope of the others.",
     "traduzido" : "{\\i1}Como o único que foi dispensado,\\Ncarreguei a esperança dos outros.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "089bcb5ddef542b36fea144e156c8e2ea3d17db68ffdf2c44d05f20d0c20279a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 25,
     "estilo" : "Dialogue",
     "original" : "{\\i1}That our team commander,\\Nwho had disappeared...",
-    "traduzido" : "{\\i1}Que nosso comandante de\\Nequipe, que havia desaparecido...",
+    "traduzido" : "{\\i1}Que nosso comandante de\\Nequipe, que tinha desaparecido...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8e31f7d5c1c3e6878e6dfbf7eb6c2ba81ad0876eafd7058e1c32fc12977751a1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 26,
     "estilo" : "Dialogue",
     "original" : "{\\i1}He still has to be alive.",
-    "traduzido" : "{\\i1}Ele ainda deve estar vivo.",
+    "traduzido" : "{\\i1}Ele ainda precisa estar vivo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "76f1f306792eb831f653055fe88b01206d2a788c6e54cab7d2471b9a63da0478"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 27,
     "estilo" : "Dialogue",
     "original" : "Jeez... How long are you\\Ngonna pine for her?",
-    "traduzido" : "Jeez... Por quanto tempo ainda\\Nvai ficar obcecado por ela?",
+    "traduzido" : "Caramba... Por quanto tempo\\Nvai ficar suspirando por ela?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "34a826b337c39e039760e65906143b669255d64a2e6a28f373d0ba2ee1834e4f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 28,
     "estilo" : "Dialogue",
     "original" : "B.B.!",
-    "traduzido" : "B.B.!",
+    "traduzido" : "BB!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0e62ac91f929a8854d615b3ed672cb3722ce6308524d697cbf40e606b7d67536"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 29,
     "estilo" : "Dialogue",
     "original" : "Quit crying over her already.",
-    "traduzido" : "",
+    "traduzido" : "[Shiro] Pare de choramingar por ela já.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2e3cb69d2eaf17e72508d87936bf8afb49637df46aea3617aa420e4172391405"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 30,
     "estilo" : "Dialogue",
     "original" : "Beautiful things... I hate them now.",
-    "traduzido" : "",
+    "traduzido" : "Lindas coisas... agora eu as odeio.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "83d8b4b6e02e3bffe8d25496d324dc35bb7d2c7154f07ee976b643b9112fb7da"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 31,
     "estilo" : "Dialogue",
     "original" : "What's that?",
-    "traduzido" : "",
+    "traduzido" : "O que é aquilo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "14af4e926ed8f60087c3f99abedf8fda1af007f87249d0352b6e1f5f8da48c51"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 32,
     "estilo" : "Dialogue",
     "original" : "A hatch...",
-    "traduzido" : "A escotilha...",
+    "traduzido" : "Uma escotilha...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5e62da6292eb332d73e445db782c8f5a9c56f27a66fc9e9b1d912b3d8341fdf4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 33,
     "estilo" : "Dialogue",
     "original" : "From a spaceship.",
-    "traduzido" : "",
+    "traduzido" : "De uma nave espacial.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "94cf99569f12b43bf56eb73ade50003451e8c2709be7acfb630db3be77b06975"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 34,
     "estilo" : "Dialogue",
     "original" : "Spaceship?",
-    "traduzido" : "Spaceship?",
+    "traduzido" : "Nave espacial?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "523609bb9fb40c6ae36d5a460f0a5448ba476b5eadc083e32d1d0b0eb91b8d3e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 35,
     "estilo" : "Dialogue",
     "original" : "A Zeon spaceship...?",
-    "traduzido" : "Uma nave espacial Zeon?",
+    "traduzido" : "Uma nave espacial de Zeon...?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0be6e597a7993e8dbd11ed6bb6e3d3c6ef423d591ebca97658fd4c7f6361ebbd"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 36,
     "estilo" : "Dialogue",
     "original" : "Wait up!",
-    "traduzido" : "Espera aí!",
+    "traduzido" : "Espere aí!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "06e48f20fb2d4ace6584fe7cbd691e2ed8d34b51136bc1757101ba01a77670dd"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 37,
     "estilo" : "Dialogue",
     "original" : "Quiet!",
-    "traduzido" : "Quiet!",
+    "traduzido" : "Shh!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a2a28211341b5aa9973f9f149e68cd7a0d1f74a2fb785f776af2fc50ca9ce760"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 38,
     "estilo" : "Dialogue",
     "original" : "Is it safe?",
-    "traduzido" : "Isso é seguro?",
+    "traduzido" : "É seguro?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "847a87126603521db38dd272001efa76f6f92aee74b3d795670464313244e0f9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 39,
     "estilo" : "Dialogue",
     "original" : "Looks like someone's been living in here.",
-    "traduzido" : "Alguém parece ter morado aqui.",
+    "traduzido" : "Parece que alguém esteve morando aqui.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ecf7a5bb4806fd14b2d9bb406a69e9f29bfee0cda1c7f4b7c52f1ac0a94cd1eb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 40,
     "estilo" : "Dialogue",
     "original" : "Zeon soldiers?",
     "traduzido" : "Soldados de Zeon?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "03de34850876e9bb500f995b233b592b27d9f98ee5f2d737023347889cc2de3f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 41,
     "estilo" : "Dialogue",
     "original" : "\"Doctor Flanagan\"...?",
-    "traduzido" : "\"Doutor Flanagan\"...?",
+    "traduzido" : "\"Doutor Flanagan\"...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a6554444c9c99a61f4ece52bec7f3b1354b31181921715943b59ac7e9636dc79"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 42,
     "estilo" : "Dialogue",
     "original" : "C'mon, I think we should get out of here.",
     "traduzido" : "Vamos embora daqui.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2ce103ec521a41a351197c1270e7d2bb53a03457ac1d9f4427e4baefdbbc712b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 43,
     "estilo" : "Dialogue",
     "original" : "This place is seriously creeping me out!",
     "traduzido" : "Este lugar está me dando arrepios sérios!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8a1f7b63b500f0be55e8918a27e3b2c3ac6ad63dd5d132c12abfb903564fcc5d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 44,
     "estilo" : "Dialogue",
     "original" : "S-Somebody's out there!",
-    "traduzido" : "Alguém está aí fora!",
+    "traduzido" : "Alguém está lá fora!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "96c23e831f079bea52232d40194b352b30f6848b384d5c9c676904c792f86e05"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 45,
     "estilo" : "Dialogue",
     "original" : "Yeah, I know. Check it out.",
-    "traduzido" : "Sim, eu sei. Dá uma olhada.",
+    "traduzido" : "Vamos lá, eu sei. Dá uma olhada nisso.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d90f29fafcadc78e481f27a3eae1c0bf72d1c98d3a5f5b2855c1e7829e9ac355"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 46,
     "estilo" : "Dialogue",
     "original" : "Footprints...",
-    "traduzido" : "Footprints...",
+    "traduzido" : "Passos...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "287b2e1b05f2a6c669c4d491f33673481dead44e8e0ad96c8c1e9361cbf8a609"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 47,
     "estilo" : "Dialogue",
     "original" : "And besides that... Look.",
-    "traduzido" : "E além disso... Olha.",
+    "traduzido" : "E além disso... Olha só.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d09c073e4fff147263f2e8ed4a45c7249b455f86dadd7ae54b5f636bb442b094"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 48,
     "estilo" : "Dialogue",
     "original" : "Dog tags!",
-    "traduzido" : "",
+    "traduzido" : "Etiquetas de identificação!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d4b4721eaafa2aaf3a50663889e5a5a2894fbf0f6e500bfc8c08d3f3c01b9fab"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 49,
     "estilo" : "Dialogue",
     "original" : "T-That many...?!",
-    "traduzido" : "",
+    "traduzido" : "M-Mais ainda?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e7e33c290d133e6b0627143ddb64eccee552f61d8395fe48041712a0343ea1d7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 50,
     "estilo" : "Dialogue",
     "original" : "S-Somebody's definitely living here!",
-    "traduzido" : "Alguém definitivamente está morando aqui!",
+    "traduzido" : "Alguém definitivamente mora aqui!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d8e6ae3084eb14d35d63b2a9fade4c17681b688aaab54bc7f5972a3a91054b85"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 51,
     "estilo" : "Dialogue",
     "original" : "Kiki, this isn't good!",
-    "traduzido" : "Kiki, isso não é bom!",
+    "traduzido" : "Kiki, isso não está nada bom!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9081398994f60d69d075f1bdecf709fac367f255a7a08844e2f682f593ea98e7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 52,
     "estilo" : "Dialogue",
     "original" : "A swan? What's that doing here?",
     "traduzido" : "Um cisne? O que está fazendo aqui?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "577f7565152513dc5382da2f43738297254afc2730d61d01ec735560bdbfc0b4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 53,
     "estilo" : "Dialogue",
     "original" : "We'll camp in here tonight.",
-    "traduzido" : "Nós acamparemos aqui hoje à noite.",
+    "traduzido" : "Vamos acampar aqui hoje à noite.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e82dee9dae2f56ec4ce25afbdbef6758652bb9d5d7bab0f51449182916e46f14"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 54,
     "estilo" : "Dialogue",
     "original" : "{\\fad(0,1731)}What? No way...",
-    "traduzido" : "{\\fad(0,1731)}O que? De jeito nenhum...",
+    "traduzido" : "{\\fad(0,1731)}O quê? De jeito nenhum...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "aaa2c11503e094b0c491bf31a69541d212afbfaf714b68016037210e5fcde27c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 55,
     "estilo" : "Dialogue",
     "original" : "Get up.",
-    "traduzido" : "Acorda.",
+    "traduzido" : "Levanta-te.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "92861f001388494784dabdae73a0d3e5331bdad0e56910434ae16c36c74a6ab6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 56,
     "estilo" : "Dialogue",
     "original" : "Get up!",
-    "traduzido" : "Acorda!",
+    "traduzido" : "Levanta!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fc49935878238352cb04336970aa262ad58dfa500abd2f99d7b583f18da762b8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 57,
     "estilo" : "Dialogue",
     "original" : "Get up!",
-    "traduzido" : "Acorda!",
+    "traduzido" : "Levanta!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a06a7a62e6a4adbc1e76b51795e5f3fa058b11bc38897580c67f4daad55d8dac"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 58,
     "estilo" : "Dialogue",
     "original" : "Who are you?",
     "traduzido" : "Quem é você?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8ef32555d786aa3d52454bc8b20f0946b5a7aab749ed4ed34b2e16e6cad4158a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 59,
     "estilo" : "Dialogue",
     "original" : "Hey!",
-    "traduzido" : "",
+    "traduzido" : "Olá!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5f350bc883c04164afcaf3fbf5ab80a4ccf52f29978f10214a4938a2c761d197"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 60,
     "estilo" : "Dialogue",
     "original" : "Forget it.",
-    "traduzido" : "Esquece isso.",
+    "traduzido" : "Esqueça isso.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "97da48fa666a341340d2f11b528d58eb92d86e3a423637a79806108f48dfb071"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 61,
     "estilo" : "Dialogue",
     "original" : "Who are you guys?!",
     "traduzido" : "Quem são vocês?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d9a52e699a90ae3ad61fe8287c2b3b94343a1c2e0136fa54ba59f495258dcfe6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 62,
     "estilo" : "Dialogue",
     "original" : "Zeon! And this one, too?",
     "traduzido" : "Zeon! E esse também?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2d79c50af3f31dbc41b03c05dd1a5b21a13bf67955f5eb8f06dab8d693288ddf"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 63,
     "estilo" : "Dialogue",
     "original" : "We're taking you to the commander.",
     "traduzido" : "Estamos levando você ao comandante.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a3d43699be0a66378dcfe081dc800f05c9a86c1498f3f0253f1ad8f1a34e0141"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 64,
     "estilo" : "Dialogue",
     "original" : "Commander?",
     "traduzido" : "Comandante?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9617dda504f0a4f657ca873b18e71ec3f7043559de553c420871e5baf2131e18"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 65,
     "estilo" : "Dialogue",
     "original" : "Who's that?",
-    "traduzido" : "Quem é esse?",
+    "traduzido" : "Quem é aquele ali?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "33d296b5686119e65ee054aa81c90ffa94ccc6d017673e14ae5fb54e6e962a39"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 66,
     "estilo" : "Dialogue",
     "original" : "This village...",
-    "traduzido" : "",
+    "traduzido" : "Vila...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "4abe66e6c7ca119309552f746907e240bea9190de5c3551322b0cd0d84c3c933"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 67,
     "estilo" : "Dialogue",
     "original" : "Was it destroyed in the war?",
     "traduzido" : "Foi destruída durante a guerra?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "39fd143deab094148b2e678920c65a6b381115ef0d2cf98b6f4636eff1564812"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 68,
     "estilo" : "Dialogue",
     "original" : "The river's course must\\Nhave been changed.",
-    "traduzido" : "O curso do rio deve\\Nter sido alterado.",
+    "traduzido" : "O curso do rio\\Ndeve ter mudado.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a7bc139a43ae5004d29b27ccd2b39b965b3a12d69147249218a09772f3ab9246"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 69,
     "estilo" : "Dialogue",
     "original" : "Follow me.",
-    "traduzido" : "",
+    "traduzido" : "Me siga.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8e3a2a291556e9cf9b1b89b05d80422d447dc7e7dfce43eaf6d17ce60e482dd5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 70,
     "estilo" : "Dialogue",
     "original" : "{\\fad(0,1354)}A mobile suit...",
-    "traduzido" : "{\\fad(0,1354)}Um mobile suit...",
+    "traduzido" : "{\\fad(0,1354)}Um Mobile Suit...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0d877fa156837987c079975787a9d83bc5bfb9568329475634a095fd5251aa5d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 71,
     "estilo" : "Dialogue",
     "original" : "Where are we going?",
-    "traduzido" : "Onde estamos indo?",
+    "traduzido" : "Para onde estamos indo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d345599939de14b3ef4bc581f7605ea66d48ea0e2e81c160641c532998d60b9c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 72,
     "estilo" : "Dialogue",
     "original" : "Graves...",
     "traduzido" : "Graves...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "47710e581421a427b91fcb440587e0f3d14ac787042acf50300ccc3ac73c4272"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 73,
     "estilo" : "Dialogue",
     "original" : "Rank and unit!",
-    "traduzido" : "Rank e unidade!",
+    "traduzido" : "Lieutenant Shiro Amada, 08th MS Team",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "cd65842c5cffe1e302550d51bb81d58ba0fa452780a1702c0b7ba7f9fdb67170"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 74,
     "estilo" : "Dialogue",
     "original" : "Tell me your ranks and unit attachments!",
-    "traduzido" : "",
+    "traduzido" : "Qual é a sua patente e unidade de afiliação?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "99d1fe6a9dcf4195c2cd36f08d7a54b89083f77419e49ade3b7bac83bbde3e97"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 75,
     "estilo" : "Dialogue",
     "original" : "I'm just a civilian.",
     "traduzido" : "Eu sou apenas um civil.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "464f7f57f39c255c1795833851ace653eb21b6492c960ed1af933f0907aea546"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 76,
     "estilo" : "Dialogue",
     "original" : "But you're a soldier, right?!",
-    "traduzido" : "Mas voce e um soldado, nao e?",
+    "traduzido" : "Mas você é um soldado, não é?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "88b83ce2fed01d7f26bb70e50ab18b09173c87f76b1f1e7e0f8a7e3bc5b3cb04"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 77,
     "estilo" : "Dialogue",
     "original" : "My name's Kiki Logita. And he's...",
-    "traduzido" : "Meu nome é Kiki Logita. E ele é...",
+    "traduzido" : "Meu nome é Kiki Rosita. E ele é...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "17af590b2d9c59ebfe25b9548b7b82aeed85e592d6371d67c30ddb7accd28502"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 78,
     "estilo" : "Dialogue",
     "original" : "Yeah. I'm, uh...",
-    "traduzido" : "",
+    "traduzido" : "Eu sou, hã...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "493405f2458be76bb53878138241b88655669928edd27332c5da452d0d95b37a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 79,
     "estilo" : "Dialogue",
     "original" : "Right... Earth Federation Forces,\\NFar East Division.",
-    "traduzido" : "",
+    "traduzido" : "Forças Federais\\NTerrestres, Divisão Leste.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "043bffa62dcd6f022f15a4a445445d4c2aab8f80f0e34474b79bb7582ddd66db"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 80,
     "estilo" : "Dialogue",
     "original" : "Combined Mechanized Battalion.\\N08th Mobile Suit Team.",
-    "traduzido" : "",
+    "traduzido" : "Esquadrao Combinado de Veículos\\NBlindados. 08ª Equipe de Mobile Suits.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2ebad42442a068d80575e5d672314c29a0eac03333636d9b2ba78a6f3d1866b0"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 81,
     "estilo" : "Dialogue",
     "original" : "Petty Officer Michel Ninorich.\\NUm, retired.",
-    "traduzido" : "Petty Officer Michel\\NNinorich. Um, aposentado.",
+    "traduzido" : "Michel Ninorich, um\\Nmarinheiro reformado.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1411bcab600630952c7719192cd159d5a91d3745d1944f4f9f3e8e2865a9e328"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 82,
     "estilo" : "Dialogue",
     "original" : "Kiki and Michel...",
     "traduzido" : "Kiki e Michel...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ce800aaeaa993853e679d6fc4172a0a379b98602a32b774ffcbe04115c90454e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 83,
     "estilo" : "Dialogue",
     "original" : "Don't lie to us!",
     "traduzido" : "Não minta pra nós!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0234b6eed560cf369e3146de63161f65a1456a44e73dc1151832848c9df787fa"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 84,
     "estilo" : "Dialogue",
     "original" : "We're not lying! If we were out\\Nhunting for Zeon stragglers,",
-    "traduzido" : "Nao estamos mentindo! Se estivessemos\\Ncaçando soldados zeonitas,",
+    "traduzido" : "Não estamos mentindo! Se\\Nestivéssemos caçando restos de Zeon,",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2259cff9c3c73db598327c76eaccc59239cfe69a9721f3c3e76217db248521b4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 85,
     "estilo" : "Dialogue",
     "original" : "there would be more than just two of us!\\NDon't get us wrong!",
-    "traduzido" : "Não mintam\\Npara nós!",
+    "traduzido" : "Havia mais do que apenas nós dois\\Naqui! Não nos julgue errado!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "357c909acf6426b7efe466a5534ab8c7b8fb81587fd706a1b88ce314ffce4a65"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 86,
     "estilo" : "Dialogue",
     "original" : "How long have you all been living here?",
-    "traduzido" : "",
+    "traduzido" : "Há quanto tempo vocês todos estão morando aqui?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "86a58ecdfae0d9d8f75dfec5a7b9021dc17fd11717e51c9ea97d03f8d7fc847a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 87,
     "estilo" : "Dialogue",
     "original" : "Are you waiting to be rescued?",
-    "traduzido" : "",
+    "traduzido" : "Estás à espera de ser resgatado?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "bdbc81c4730194ace2303a8a149eee1b8b13d9394d39df878287e4fd5a70cf67"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 88,
     "estilo" : "Dialogue",
     "original" : "If you are, forget it.",
-    "traduzido" : "Se voce esta, esqueca.",
+    "traduzido" : "Se for, esqueça.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0bda49c92da7adacab04a252a20e677f7635cd16fe656dd73d1e330b13ce6cef"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 89,
     "estilo" : "Dialogue",
     "original" : "You must know that the Zeon lost, right?",
-    "traduzido" : "Voce deve saber que a Zeon perdeu, certo?",
+    "traduzido" : "Sim, você deve saber que Zeon perdeu, certo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "342fd8701b53bae2ef3d54ec814538472e4b9ecea1a6799aaf9494c5bfdbaa39"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 90,
     "estilo" : "Dialogue",
     "original" : "Shut up!",
-    "traduzido" : "Cala a boca!",
+    "traduzido" : "Cale a boca!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ef36561ca96d2d83129cd155774af2cb81ecde8825cc5f0e6517e6adbdd44b1e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 91,
     "estilo" : "Dialogue",
     "original" : "If you do know, then surrender\\Nto the Federation now!",
-    "traduzido" : "",
+    "traduzido" : "Se você sabe onde ele está,\\Nentregue-o agora para a Federação!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b823928471e4a68e7325ea18b8f93ca38de4bfd1ce37d6e185a303d705150dd4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 92,
     "estilo" : "Dialogue",
     "original" : "Yeah! That'd be the best thing—",
-    "traduzido" : "",
+    "traduzido" : "Sim, isso seria a melhor coisa!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "c8a2995b9a9efa9a88d6ad68ae58004a52ca40ca579310fe4bcc658869d7a3cc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 93,
     "estilo" : "Dialogue",
     "original" : "Yeah! That'd be the best thing—",
-    "traduzido" : "",
+    "traduzido" : "Sim, isso seria a melhor coisa!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9d19d8edb840fd15f3db7d8ef9cc640e7ddda63b0056f15d8d03cefb26267010"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 94,
     "estilo" : "Dialogue",
     "original" : "The war will start again.",
-    "traduzido" : "",
+    "traduzido" : "A guerra recomeçará novamente.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d27ba94a0b1a710480d8fb849eb7c2138ab86efe4fd87350cdfec5e3a32a39bb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 95,
     "estilo" : "Dialogue",
     "original" : "And when it does, they'll use us again!",
-    "traduzido" : "E quando isso acontecer, eles vão nos usar de novo!",
+    "traduzido" : "E quando isso acontecer, eles vão nos usar outra vez!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "002dc8bed10ab5c6252147244b286d4c550799a79810db619e931c0763c61c4a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 96,
     "estilo" : "Dialogue",
     "original" : "Living here will be more peaceful.",
-    "traduzido" : "Viver aqui será mais pacífico.",
+    "traduzido" : "Viver aqui será mais tranquilo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e49e0ac5e92f4117310b4f32a20c071582bb00c98782f0dddab2676af2e25e82"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 97,
     "estilo" : "Dialogue",
     "original" : "You must have had some really\\Nbad times after being drafted.",
-    "traduzido" : "Voce deve ter passado por tempos\\Nmuito ruins depois de ser recrutado.",
+    "traduzido" : "Tiveste que passar por momentos\\Nmuito ruins depois de ser recrutado.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1d3d4d3b0928807c6a5f78247c6f51ac8a8fc164c3f502d49802bb3d0454cba6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 98,
     "estilo" : "Dialogue",
     "original" : "But you have to face the problems\\Nyou have now, in front of you!",
-    "traduzido" : "Mas você precisa enfrentar os problemas\\Nque tem agora, bem na sua frente!",
+    "traduzido" : "Mas você tem que enfrentar os problemas\\Nque tem agora, bem diante de você!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "62015959a8b34bd8048b5489dba40f96f3e2830d7aa79292b42c8c8eec3d32f9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 99,
     "estilo" : "Dialogue",
     "original" : "You have little kids and\\Nwounded people here.",
-    "traduzido" : "",
+    "traduzido" : "Tem crianças pequenas\\Ne pessoas feridas aqui.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3b88f31753490ab7de39a7b5695f949ad4e9381c93ede402da34bf1ee7bc2f87"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 100,
     "estilo" : "Dialogue",
     "original" : "And I don't see much food here, either—",
-    "traduzido" : "E não vejo muita comida aqui também—",
+    "traduzido" : "Não vejo muita comida aqui também.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "99cb8165af8e5db454c8426d71c08773deeb937c6e14a5b059c6156ba5c0e502"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 101,
     "estilo" : "Dialogue",
     "original" : "Get up! I'll have you stay\\Nin one of our sheds.",
-    "traduzido" : "",
+    "traduzido" : "Levanta! Vou te deixar ficar\\Nem um dos nossos barracos.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2681e369729a92dfee47232a9a388ef8c90d8e3cc444c131d72a269e8c3df1ab"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 102,
     "estilo" : "Dialogue",
     "original" : "Kiki... I think you went too far.",
     "traduzido" : "Kiki... Acho que você foi longe demais.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "97e5fac8c7899fb467e9eac4ea24b9089bb18c8a3cdd6ba100973e2fbf138ce8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 103,
     "estilo" : "Dialogue",
     "original" : "C'mon, untie my hands!",
-    "traduzido" : "",
+    "traduzido" : "Meu Deus, solte minhas mãos!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2ca17cb142a239c7267cc0b5a9928d528b16c44dbb9bdbbddf1a102dacc8f8bf"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 104,
     "estilo" : "Dialogue",
     "original" : "Then at least give me my booze back!",
-    "traduzido" : "Entao, pelo menos me devolva minha bebida!",
+    "traduzido" : "Então pelo menos me devolva minha bebida!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "618b5e2caf904d0b6172b6c5047fbdfebb90dc9102cb8befa77a3b32150e2509"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 105,
     "estilo" : "Dialogue",
     "original" : "It's not like you'll drink it!",
-    "traduzido" : "Não é como se você fosse beber mesmo!",
+    "traduzido" : "Não é como se você fosse bebê-lo!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "393ae51db5d2a49b7ba01d3ae96879d0a8e00745a3b4ce9c0dcfc4b44d0c9b6f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 106,
     "estilo" : "Dialogue",
     "original" : "Are you still going on about that?",
-    "traduzido" : "Ainda está falando sobre isso?",
+    "traduzido" : "Ainda está falando disso?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "eb8ab6ab1ebb57558ba4d82e6aff97820ce1639204d99049b49fb5da1f5b9d8e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 107,
     "estilo" : "Dialogue",
     "original" : "Stay here and be quiet.",
-    "traduzido" : "",
+    "traduzido" : "Fique aqui e fique quieto.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8b5a33529820d0fb67eccf95eb0353803af28869ac8fbe2e4bac271f17851047"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 108,
     "estilo" : "Dialogue",
     "original" : "All right! He's gonna go get it for me?",
-    "traduzido" : "All right! Ele vai buscar isso pra mim?",
+    "traduzido" : "Tudo bem! Ele vai pegar para mim?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5704f96d019c35eb4d0bf7e24ce37d472394c02fac0bce0623b582e2ba9b7eeb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 109,
     "estilo" : "Dialogue",
     "original" : "Unlike you, I can reason with them, Kiki.",
-    "traduzido" : "Diferente de você, eu posso raciocinar com eles, Kiki.",
+    "traduzido" : "Kiki, diferente de você, eu posso raciocinar com eles.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0c0d7d1f45565a85356eb8456789c71b9bca48a2c0c11e45e390b4ab4c3ee28c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 110,
     "estilo" : "Dialogue",
     "original" : "Maybe he's gonna poison it 'cuz\\Nyou're such a pain in the ass.",
-    "traduzido" : "Talvez ele vá envenená-lo porque\\Nvocê é uma dor de cabeça.",
+    "traduzido" : "Talvez ele vá envenená-lo porque\\Nvocê é um verdadeiro incômodo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "201353de70efa5832215ed6df30d91b78e55882eed407116e4a00a5af639cc49"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 111,
     "estilo" : "Dialogue",
     "original" : "That's it! Maybe these guys did something!",
-    "traduzido" : "Nossa! Talvez esses caras tenham feito alguma coisa!",
+    "traduzido" : "Isso aí! Talvez esses caras tenham feito alguma coisa!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2ed2693df98d7f14d594f932d006862a2bd444132f278b96ee39b5c331533390"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 112,
     "estilo" : "Dialogue",
     "original" : "Huh? Did what?",
-    "traduzido" : "Huh? O que eles fizeram?",
+    "traduzido" : "\"O que foi isso? O que você fez?\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d3bf2d6f41fe498cd7a0cdad56e96c2c778a455e15f43095ae98aeb56794c7c1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 113,
     "estilo" : "Dialogue",
     "original" : "Like get shot intentionally like\\NEledore to be hospitalized...",
-    "traduzido" : "Como Eledore foi atingido de\\Npropósito para ser hospitalizado...",
+    "traduzido" : "Eledore quer ser hospitalizado como se\\Ntivesse sido atingido de propósito...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5b290808ae022b9725507fb9c193719757a01836698aa615b747d6926a8dee60"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 114,
     "estilo" : "Dialogue",
     "original" : "...or deserted in the face of the\\Nenemy like the commander.",
-    "traduzido" : "...ou desertar diante do\\Ninimigo como o comandante fez.",
+    "traduzido" : "\"Ou abandonados no meio do\\Ncombate como o comandante foi.\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0e0f0ffe0e0dec53576075f957805dc38bd155253b3a735870bcf2cb53004e80"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 115,
     "estilo" : "Dialogue",
     "original" : "What are you talking about?",
-    "traduzido" : "O que você está falando?",
+    "traduzido" : "Do que você está falando?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5448735fc614bbaaf47d8481ab2f90294cefcdef9d3d048b7a889d8e844c0798"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 116,
     "estilo" : "Dialogue",
     "original" : "And then they couldn't go back to\\Neither the Federation or Zeon!",
-    "traduzido" : "Então eles não puderam voltar nem\\Npara a Federação nem para Zeon!",
+    "traduzido" : "E então eles não poderiam voltar\\Nnem para a Federação nem para Zeon!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "125c80eed9465eb930b670d3f9ef12560179a2a496112417b2fcaf10d2a845d5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 117,
     "estilo" : "Dialogue",
     "original" : "That's it! They must have\\Ncrashed that spaceship!",
-    "traduzido" : "",
+    "traduzido" : "Eles devem ter crashado\\Naquela nave espacial!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "eee1d1b50805455ebd2aeb422d8ae398cb217260cd114da7aab344e88447d884"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 118,
     "estilo" : "Dialogue",
     "original" : "Huh? For what reason?",
-    "traduzido" : "",
+    "traduzido" : "Hã? Por que razão?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b062b6d6a9bbc86651334eb88055a9ca7f3f31d78fa284b9e73c3b3d5d9fb5c1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 119,
     "estilo" : "Dialogue",
     "original" : "Why else? To run away from the war!",
     "traduzido" : "Por que mais? Para fugir da guerra!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a6e4bae93445386625a7c33a9ac8fe4a975d33cd479b45ed4f6ed10602c75e81"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 120,
     "estilo" : "Dialogue",
     "original" : "Maybe they killed the pilots.",
     "traduzido" : "Talvez eles tenham matado os pilotos.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "acfa740bed51ca94e2d2ecb4def2c8dedddf24c105353839a98cee9aa908b1e6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 121,
     "estilo" : "Dialogue",
     "original" : "And the commander, too,\\Nif they caught him here.",
     "traduzido" : "E o comandante também,\\Nse eles o pegarem aqui.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "7bb166aa9a240f5d27d1a97c0a640b20e0296aac3a7fda8a10af140a056ac55a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 122,
     "estilo" : "Dialogue",
     "original" : "Don't be ridiculous!\\NShiro's still alive, remember?",
-    "traduzido" : "Não seja ridículo! Shiro\\Nainda está vivo, lembra?",
+    "traduzido" : "Não seja ridículo! Lembras\\Nque Shiro ainda está vivo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fd7761791670422bf8006e1d79cf5d2a757d14c8fd44347470e88ea1d3f0be8d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 123,
     "estilo" : "Dialogue",
     "original" : "Yeah... Yeah, I guess.",
     "traduzido" : "Sim... Sim, acho que sim.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0cd6962316ee8d9e40db5936049dba82c4fbaf4f3996fa8c8cc49b23a5ebafe3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 124,
     "estilo" : "Dialogue",
     "original" : "Kiki?",
     "traduzido" : "Kiki?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "eb6f29c1093faf9d5393edc287fea725a49f2296a0b178c4155c3dd6a336d6c8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 125,
     "estilo" : "Dialogue",
     "original" : "Okay, hold your hands out to\\Nme and I'll cut you loose.",
-    "traduzido" : "Okay, estenda suas mãos\\Npara mim e eu te solto.",
+    "traduzido" : "Estenda suas mãos para\\Nmim e eu te soltarei.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d03f5078f7e709c17bf8558f29057cb9bb04037730871d732c90f7d73f4b33fa"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 126,
     "estilo" : "Dialogue",
     "original" : "With {\\i1}that{\\i0}?! You're kidding, right?!",
-    "traduzido" : "",
+    "traduzido" : "Com {\\i1}aquilo{\\i0}?! Você está brincando né?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a442c92896910a177e8f8133c01f39fc51798712b3f15957d21d0ed8c2005ffe"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 127,
     "estilo" : "Dialogue",
     "original" : "Come on, hurry up!",
-    "traduzido" : "",
+    "traduzido" : "Vamos logo, depressa!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d8388fc008b05cd3ff65e2a0febc75cf5cfbb61b8950038dd3863f7481988fe1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 128,
     "estilo" : "Dialogue",
     "original" : "Ow! I've got blisters now!",
-    "traduzido" : "",
+    "traduzido" : "Ai! Agora tenho bolhas!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6bd1a47fe2c0e24f203b1a56f33b52efdb6e47892236d7a6a8c9fddb74636c1a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 129,
     "estilo" : "Dialogue",
     "original" : "Shh! They're here!",
-    "traduzido" : "",
+    "traduzido" : "Silêncio! Eles estão chegando!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9b5b78bb62d796de886e6c58796e2beec36d6f0eab08c665f4cf32437ca4f49c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 130,
     "estilo" : "Dialogue",
     "original" : "What are they doing?",
-    "traduzido" : "",
+    "traduzido" : "O que eles estão fazendo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "923863c7b154084a40cf930ef894cfb7c1e7a9e1941d94f82b042fee7cbd51fb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 131,
     "estilo" : "Dialogue",
     "original" : "That girl...",
-    "traduzido" : "A menina...",
+    "traduzido" : "Aquela garota...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "62662a14a3dac01d50c67956051420684b4b6e084c4e2a1467fd12d6dab30057"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 132,
     "estilo" : "Dialogue",
     "original" : "Did she die?",
     "traduzido" : "Ela morreu?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ba55fa76eebd9b3307fcf181e496fffeacac8f51530b2937f6f8d86b0839f1bf"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 133,
     "estilo" : "Dialogue",
     "original" : "T-They'll see you!",
-    "traduzido" : "Eles vão ver você!",
+    "traduzido" : "Eles vão te ver!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d47ebfa70902c4c7d923773ccf0969b06fb128e9dbd5fdffe44d94503f5e1686"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 134,
     "estilo" : "Dialogue",
     "original" : "Kiki!",
     "traduzido" : "Kiki!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f1871796ee107ae12a53100adaa755daf10f8d7e2bb7eb85c22bb8d285870dca"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 135,
     "estilo" : "Dialogue",
     "original" : "Hold it!",
-    "traduzido" : "",
+    "traduzido" : "Mantenha distância!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "93d5e9d691edde2be949f5cd5dbe4e8a88a67b8d0bf9aea4752d0629b7c8c02c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 136,
     "estilo" : "Dialogue",
     "original" : "Don't you have any pity for that girl?!",
-    "traduzido" : "Não tem dó daquela garota?",
+    "traduzido" : "Não sente pena dessa garota?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a339bc43a36b456d9123bd3a104c2649ee5d0825fd5dad092789919ce072bcd3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 137,
     "estilo" : "Dialogue",
     "original" : "I said hold it!",
-    "traduzido" : "",
+    "traduzido" : "Disse: Aguenta aí!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "db89cdeaa4d9e1dee5d35580cb7036c22329bb05344cb9240dfac3232167c3cf"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 138,
     "estilo" : "Dialogue",
     "original" : "This is a... \"funeral\"...?",
-    "traduzido" : "",
+    "traduzido" : "Isso é... um funeral...?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6509335d03603766d06ae1930f6a0fa3d0f5efacff9adc1c3251f890ab4e993f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 139,
     "estilo" : "Dialogue",
     "original" : "Yeah. You shouldn't just\\Nshovel dirt over somebody.",
-    "traduzido" : "Simplesmente não jogue\\Nterra sobre alguém assim.",
+    "traduzido" : "Sim. Não se deve apenas jogar\\Nterra em cima de alguém.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8fd79dff832b97b544b895d9c0158508444a4ce0601c10b01df2be3d2c9a6386"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 140,
     "estilo" : "Dialogue",
     "original" : "Tell me, what relation was she to you all?",
-    "traduzido" : "",
+    "traduzido" : "Qual era a relação dela com vocês todos?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5674b209fd233f805d0ab20d427c359bdd63dd40c4e256cadccf0fcae0b49f07"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 141,
     "estilo" : "Dialogue",
     "original" : "She was...",
-    "traduzido" : "Ela era...",
+    "traduzido" : "Ela estava...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "157b7e2428c91257469a45220b24accc14a9553b49c6d0fffb85f0285bd02f2f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 142,
     "estilo" : "Dialogue",
     "original" : "A best friend.",
-    "traduzido" : "A melhor amiga dela.",
+    "traduzido" : "Melhor amigo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8c0d9047896e0b5835dddbed4cdf78e4e8d06bb5ce562b64afa871054c7dbc79"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 143,
     "estilo" : "Dialogue",
     "original" : "A sister.                           A sister.",
-    "traduzido" : "A sister.",
+    "traduzido" : "Uma irmã.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fc380056f9bd3151a6ed43c7b2170e0facaec1bc01094a817204965b65b571f3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 144,
     "estilo" : "Dialogue",
     "original" : "A comrade.",
-    "traduzido" : "",
+    "traduzido" : "Um camarada.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3679dd532fbf65a241fc4a46cf180f2bd56fa85098d166f0810440f3bb7baa02"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 145,
     "estilo" : "Dialogue",
     "original" : "Well, then...! Why not look sad, at least?!",
-    "traduzido" : "Então... Por que não fica triste, pelo menos?!",
+    "traduzido" : "Então... Por que não fica triste, pelo menos?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b63a863565d55e3a038cb8415ac28cd00d2659d3149fe063cfb57b7640c21916"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 146,
     "estilo" : "Dialogue",
     "original" : "I don't get it! She was your friend, right?!",
     "traduzido" : "Não entendo! Ela era sua amiga, certo?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a11957459dc70016f7212e2407513ad2c84b76f0b61984267c5ff423b771bdc9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 147,
     "estilo" : "Dialogue",
     "original" : "How can you all look so calm?!",
-    "traduzido" : "Como podem estar tão calmos?!",
+    "traduzido" : "Como vocês conseguem ficar tão calmos?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9cbf2152be63f2264ace87a9ccfdb973a605870224ac27ad80574ed851c76208"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 148,
     "estilo" : "Dialogue",
     "original" : "We're sad, but...",
     "traduzido" : "Estamos tristes, mas...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d6dc8776a3d1600b61cda7997fb0657d2bb3f8fe625c6cb57ec07738e604eee9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 149,
     "estilo" : "Dialogue",
     "original" : "Our hearts are one.",
     "traduzido" : "Nossos corações são um.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "7091c8800e61c518036167e3e9631af05943145b46ab9ca66b5136805752d19a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 150,
     "estilo" : "Dialogue",
     "original" : "Our minds are one.",
-    "traduzido" : "Nossos corações são um.",
+    "traduzido" : "Nossas mentes são uma só.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "249a55d7d81398bc850bb5ba3009326db5ac75ef15efd345e1d1a487fd32fcc9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 151,
     "estilo" : "Dialogue",
     "original" : "Forever...",
-    "traduzido" : "Forever...",
+    "traduzido" : "Para sempre...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "44566783066b9beafff4a7f3af27aea9ac5c16455524c76ef19fe0643cc5df38"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 152,
     "estilo" : "Dialogue",
     "original" : "...and ever...",
-    "traduzido" : "...e para sempre.",
+    "traduzido" : "E para sempre...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ce448e66e4718b4fbeb33eca34207c3ebfec37407dbd1b1c86b34813430e8987"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 153,
     "estilo" : "Dialogue",
     "original" : "...She shall live on inside of us.\\NForever.",
-    "traduzido" : "...Ela viverá dentro\\Nde nós. Para sempre.",
+    "traduzido" : "Ela viverá conosco\\Npara sempre.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "636fbb3c4f3b6c7bed856aebe84a71c1508e32001e0d4c860def8040b6fe3783"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 154,
     "estilo" : "Dialogue",
     "original" : "Isn't that right... Aina?",
-    "traduzido" : "Não é mesmo... Aina?",
+    "traduzido" : "Sim, não é mesmo... Aina?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a1e68abe8c2945749d17fffaa4aff201f5b96d7f0028aa2c452994bb4bfe94cc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 155,
     "estilo" : "Dialogue",
     "original" : "\"Aina\"?!",
-    "traduzido" : "\"Aina\"?!",
+    "traduzido" : "\"aina?!\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "28ba5473fbd87e4504b6bd35a0ed3426e2b681be3e5755a921f7eef0f0fa576f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 156,
     "estilo" : "Dialogue",
     "original" : "Are you saying she's...?!",
-    "traduzido" : "Ela disse que... Aina?",
+    "traduzido" : "Ela está dizendo que ela é...?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5966d1017056f5748ab491c4752454694ea96457c541621914642b16f7242f0e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 157,
     "estilo" : "Dialogue",
     "original" : "Do any of you recognize\\Nthe man in this picture?",
-    "traduzido" : "Ninguem reconhece esse\\Nhomem nessa foto?",
+    "traduzido" : "Nenhum de vocês reconhece\\Nesse homem nessa foto?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "aacc655adfddb5b8816e7d903c5351500c706a94def7345b48f9225c053436d1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 158,
     "estilo" : "Dialogue",
     "original" : "His name's Shiro Amada.",
     "traduzido" : "Seu nome é Shiro Amada.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "cb4f0282d8e83a74a13de0fa4eea837052e67fac7658632fdc4f3b9cb0ad7836"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 159,
     "estilo" : "Dialogue",
     "original" : "If you know anything, anything\\Nat all, then tell me, please!",
-    "traduzido" : "",
+    "traduzido" : "Se você sabe alguma coisa, qualquer\\Nque seja, então me diga, por favor!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "53d4734b5e98733182405aa40764202c60922adcd0d3e8ce4b0a8de6b6e6231b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 160,
     "estilo" : "Dialogue",
     "original" : "Is that the name of a comrade of yours?",
-    "traduzido" : "Isso é o nome de um companheiro seu?",
+    "traduzido" : "É esse o nome de um companheiro seu?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "aebcd50cb371046b57760b4c704afb1d0dc45f4ad0d052d0d81ccf7ee9d9bff6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 161,
     "estilo" : "Dialogue",
     "original" : "Yes. Someone very important to us.",
     "traduzido" : "Sim. Alguém muito importante para nós.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e6eb94716e93743450fb9db88612c1b68b5b1cea31f73cd96d5816b1615e06b4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 162,
     "estilo" : "Dialogue",
     "original" : "You know, don't you?!\\NWhere's the commander now?!",
-    "traduzido" : "Você sabe, não é?! Onde\\Nestá o comandante agora?!",
+    "traduzido" : "Sabes onde está o\\Ncomandante agora?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6709b7d6e0267c6db5750adeba27110db24fd0eadbae0e81ad01d8bab811221c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 163,
     "estilo" : "Dialogue",
     "original" : "He's dead.",
     "traduzido" : "Ele está morto.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "7256881bb674a4b967c782a1ebfe6f6278fa99beb8f0c92bd0b24f15c7b4e555"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 164,
     "estilo" : "Dialogue",
     "original" : "That man is dead. His grave is here.",
     "traduzido" : "Aquele homem está morto. Sua sepultura está aqui.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b486cd3929a3b53acb9352435d2e9c21ffd924284e6743c39b087f5760d35a62"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 165,
     "estilo" : "Dialogue",
     "original" : "You're lying!",
-    "traduzido" : "Voce está mentindo!",
+    "traduzido" : "Mentira!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "73ef8b8cffdac336c927a8c91a67edd8102923c91f61e9709f809f205dd074b2"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 166,
     "estilo" : "Dialogue",
     "original" : "Don't you dare joke about that!",
-    "traduzido" : "Não ouse brincar com isso!",
+    "traduzido" : "Não ouse brincar sobre isso!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "278382b1761422f5f66257312028aadec5d83bc93bf7a9626f54ed390257d2dc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 167,
     "estilo" : "Dialogue",
     "original" : "What have you done with our commander?!",
-    "traduzido" : "",
+    "traduzido" : "O que você fez com o nosso comandante?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e786f45d91076d8b8d71b7036a4814260efb2f7a4d93d60bacc39216273c76ce"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 168,
     "estilo" : "Dialogue",
     "original" : "I told you! Your commander's dead!",
-    "traduzido" : "Eu disse! Seu comandante está morto!",
+    "traduzido" : "Eu disse a você! Seu comandante está morto!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6d585374ba1db5bedbf2a5b23fa3b6f297a28d9f25b464e6c709df7646ba58cc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 169,
     "estilo" : "Dialogue",
     "original" : "You little...!",
-    "traduzido" : "Voce pouco...!",
+    "traduzido" : "Voce pequeno...!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e04cbe75607365a23f12863589d4984824b17b7dba44dcd5eece0129b23b86d9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 170,
     "estilo" : "Dialogue",
     "original" : "{\\an8}Michel!",
     "traduzido" : "{\\an8}Michel!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "dcab3a3f2cd1c31cff423ce2986c32175f0dfc505f6da9f3d7dbe67fd6fedba9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 171,
     "estilo" : "Dialogue",
     "original" : "What?!",
-    "traduzido" : "",
+    "traduzido" : "O quê?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "c702d9429230007f0791d85a2d73d5a1ac71544bac3f34bef3acc63def6d9e7e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 172,
     "estilo" : "Dialogue",
     "original" : "W-What's your problem?!",
-    "traduzido" : "",
+    "traduzido" : "O que tem de errado com você?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "92e33237e56ceb7dcc9b26a1767b17b5f05ccc41e945bf7e5660eb3e8bf898c3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 173,
     "estilo" : "Dialogue",
     "original" : "What do you wanna do to me?!",
     "traduzido" : "O que você quer fazer comigo?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "42e7150ff90ee59f7adc57d2fc8fcbb1720d8dc885ba013b30d02135af280df0"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 174,
     "estilo" : "Dialogue",
     "original" : "Weird kid.",
-    "traduzido" : "Criança esquisita.",
+    "traduzido" : "Criança estranha.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1f48882ef7db3df87164695eee718aa0188288a8bf2bfafd88b2fd4bfb67635d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 175,
     "estilo" : "Dialogue",
     "original" : "W-What?",
-    "traduzido" : "",
+    "traduzido" : "O que?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "48916df41cd961b51e080d0a8ecd89abf0a2209c7904f982a4e4acfafea537a5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 176,
     "estilo" : "Dialogue",
     "original" : "It's cold...",
-    "traduzido" : "",
+    "traduzido" : "Está frio...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d01e89a1b28d34a23a82003bcc9b97bb318293502bb1dceb54f271880321a433"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 177,
     "estilo" : "Dialogue",
     "original" : "No, not like that. See?",
     "traduzido" : "Não, não assim. Veja?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "eb6b8037981fdce30dbf7125df71ac88eba100eea175f6c0aa4eb40220bd559a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 178,
     "estilo" : "Dialogue",
     "original" : "You put the food on\\Nthe leaf plate, like this.",
-    "traduzido" : "Você coloca a comida no\\Nprato de folha, assim.",
+    "traduzido" : "Coloque a comida no prato de\\Nfolha, assim como eu fiz.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a2fd775dae245f4ff8fe0bd38ae7837eafdbcb1da4f1509e90c62216db4cd5a3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 179,
     "estilo" : "Dialogue",
     "original" : "Then you say \"Please, help yourself.\"",
-    "traduzido" : "Então você diz \"Por favor, sirva-se.\"",
+    "traduzido" : "Então você diz: \"Por favor, fique à vontade.\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ed86872ec2db3a6de70bb34374ea0276022dc824bea7f42dfcdd582a3a8c0d9d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 180,
     "estilo" : "Dialogue",
     "original" : "That's it.",
     "traduzido" : "Isso é tudo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e753f13e1d1317deacb375ce15a52c0fb6ae91c8da3ccbf7dbfcfe8ebdd473ae"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 181,
     "estilo" : "Dialogue",
     "original" : "Please, help yourself.",
-    "traduzido" : "Por favor, sirva-se.",
+    "traduzido" : "Por favor, fique a vontade.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "aa68298c536a01dda389590731eaefcb13bef60c7385de6d98077a8d5ae4e6a2"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 182,
     "estilo" : "Dialogue",
     "original" : "Okay.",
-    "traduzido" : "Tudo bem.",
+    "traduzido" : "Entendido.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "e3c8a12f3e6e64f1dc01d8e9d240e9b90a433ada0565b1827dc8c2dbe0ba2c71"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 183,
     "estilo" : "Dialogue",
     "original" : "Mmm, it's looks delicious. Let's eat!",
-    "traduzido" : "Mmm, parece delicioso. Vamos comer!",
+    "traduzido" : "Hum, parece delicioso. Vamos comer!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9f407d3ee9432ceeab9ccc0b07b0bf3487cea458b2f62e219c1ace6a0e92133b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 184,
     "estilo" : "Dialogue",
     "original" : "Ah, that was good!",
-    "traduzido" : "Ah, que delícia!",
+    "traduzido" : "Ah, isso foi bom!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1923867e1c7cd46efcad2ffc25f956d3ee9ca694bfa8230726f910f6a947e0ed"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 185,
     "estilo" : "Dialogue",
     "original" : "You want to try playing house, too?",
-    "traduzido" : "Quer experimentar também jogar casinha?",
+    "traduzido" : "Quer também tentar brincar de casinha?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8f1f878ed28067b78d2983ef27ecfcd08c237ea9249099a3004a22dc3c6187ef"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 186,
     "estilo" : "Dialogue",
     "original" : "That girl Aina who died...",
     "traduzido" : "A garota Aina que morreu...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0cb74bcbceef6588d8ef7a0f317680d10b7368bf88ee8c76d3025b789e19b222"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 187,
     "estilo" : "Dialogue",
     "original" : "Who was she, really?",
     "traduzido" : "Quem ela era, realmente?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "468779c1fdfc7a33993bbc808ac58f293d7f1f4c48f87a9a2191c958493e268e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 188,
     "estilo" : "Dialogue",
     "original" : "What's that supposed to mean?",
-    "traduzido" : "",
+    "traduzido" : "O que isso quer dizer?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6a8df99d9c05d349eb52de1ae9002ec384dd91ab79b303ac40ad233abb689670"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 189,
     "estilo" : "Dialogue",
     "original" : "Aina wasn't that young. That girl wasn't Aina!",
-    "traduzido" : "A menina não era tão jovem assim. Aquela garota não era Aina!",
+    "traduzido" : "Ela não era tão jovem assim. Aquela garota não era a Aina!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "bbaa1fc3999b20ecf723094a72714787a4f7b23ca28e518fe941e9f1ee21b146"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 190,
     "estilo" : "Dialogue",
     "original" : "Tell me what her real name was.",
-    "traduzido" : "",
+    "traduzido" : "Diga-me qual era o verdadeiro nome dela.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "213f665cf97594f551f6bfb1f26a250a6092bbb492fcf1d00756f3909a94a8e5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 191,
     "estilo" : "Dialogue",
     "original" : "She didn't have one! She was Aina!\\NHer name was Aina!",
     "traduzido" : "Ela não tinha um! Ela era\\NAina! Seu nome era Aina!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "57e4d08d08f08c4b2341e34a3145c708c1c9050d13b24537f2ce34b1c7773132"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 192,
     "estilo" : "Dialogue",
     "original" : "I want you to tell me the truth.",
-    "traduzido" : "Eu quero que você me diga a verdade.",
+    "traduzido" : "Eu quero que você me conte a verdade.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b21a85dc02c3d75f33da2caacf453b6e9a1c2096b358ee3d7728261a88f7a1cb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 193,
     "estilo" : "Dialogue",
     "original" : "You're hiding something, aren't you?",
-    "traduzido" : "Você está escondendo alguma coisa, não está?",
+    "traduzido" : "Não estou escondendo nada.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "cdd7050dca73e5080f3964f66814366b16a9b9a683124958e15620a211439392"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 194,
     "estilo" : "Dialogue",
     "original" : "Shut up! The man you're\\Nlooking for is in that grave!",
     "traduzido" : "Cale a boca! O homem que você está\\Nprocurando está naquela cova!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "c4d34aaed9709947efc4adfdc1cfe5f2b62a106f0258fb8ba0bf84b100ca8a68"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 195,
     "estilo" : "Dialogue",
     "original" : "Then tell me! How did Shiro die?!",
-    "traduzido" : "Então me diz! Como Shiro morreu?!",
+    "traduzido" : "Então me diga! Como o Shiro morreu?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3ba1082eac180edee6a7637ec5492cc565ebb17bc695e1aff670ddcd5e13248c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 196,
     "estilo" : "Dialogue",
     "original" : "Well, he...!",
     "traduzido" : "Bem, ele...!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "72914c6e61369360f6e84fae6c557de7d939066d95af43db1282ce79b8b9eac1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 197,
     "estilo" : "Dialogue",
     "original" : "Did you kill him?!",
-    "traduzido" : "",
+    "traduzido" : "Matou ele?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3b88f5bae632f4e47d0b499e3f021d664061ceef627bc1f9872ac13cd554fc91"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 198,
     "estilo" : "Dialogue",
     "original" : "No!",
-    "traduzido" : "",
+    "traduzido" : "Não!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1208d8287f043fce32c3c2c15f7753f809e2467ce75caffacd479dbd0dcddcb0"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 199,
     "estilo" : "Dialogue",
     "original" : "Then what?!",
-    "traduzido" : "Então, e agora?!",
+    "traduzido" : "Então o quê?!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "37d790cece2dbe4ea4e505e5e6018f38caee7ef44254be2077cb2e02ed120154"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 200,
     "estilo" : "Dialogue",
     "original" : "Shut up! The man you're\\Nlooking for really is dead!",
-    "traduzido" : "Cala a boca! O homem que você está\\Nprocurando realmente está morto!",
+    "traduzido" : "Cale a boca! O homem que você está\\Nprocurando realmente está morto!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "40b72ab691bbeff82c3c3775860ed86490b912268a232fed40c70edccaef3edf"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 201,
     "estilo" : "Dialogue",
     "original" : "Now get out of here!",
-    "traduzido" : "Agora dê o fora daqui!",
+    "traduzido" : "Sai daqui agora!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "42f0ebb1c316942c1c64ceee2f9e4af62e32feb3ab9d45d99fdaf22870ab7dc3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 202,
     "estilo" : "Dialogue",
     "original" : "What are you doing?!\\NWe don't need that many!",
-    "traduzido" : "O que você está fazendo?! Não\\Nprecisamos de tantos assim!",
+    "traduzido" : "O que você está fazendo?!\\NNão precisamos disso tudo!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "756585a07a91e4727ee90555e6c41192485d572eacbca940fd4e0f6cdb4e38e6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 203,
     "estilo" : "Dialogue",
     "original" : "Well, this way they can't\\Nclobber me with one again!",
-    "traduzido" : "",
+    "traduzido" : "Bom, assim eles não podem\\Nme acertar com outro!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8932cbaf2497ef5f4e5b11a2266abffea02a58d7b1a3dd9a0e34fc509475c7bb"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 204,
     "estilo" : "Dialogue",
     "original" : "I think we should stop.",
-    "traduzido" : "Eu acho que devemos parar.",
+    "traduzido" : "Acho que devemos parar.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "97a7a9d448777c34026b594dacea4af375e5c53eff4be3af9159fb5e4374fd89"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 205,
     "estilo" : "Dialogue",
     "original" : "No way! We won't get anywhere\\Nuntil we see who's in this grave!",
-    "traduzido" : "Nunca! Não vamos chegar a lugar nenhum\\Naté vermos quem está nessa cova!",
+    "traduzido" : "Nunca! Não chegaremos a lugar nenhum\\Naté vermos quem está nessa cova!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "c03f7174a22d1d3133e059fb0898dc8e9869909964a54b7039ce8c5a50d80648"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 206,
     "estilo" : "Dialogue",
     "original" : "Well, yeah, but...",
-    "traduzido" : "Bem, é claro, mas...",
+    "traduzido" : "Bem é, mas...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "bd2e6077597ec8cf140dc3b7640c71c9583eafc89178c8a3643d7772f7439b1e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 207,
     "estilo" : "Dialogue",
     "original" : "But what if the commander's really in here?",
-    "traduzido" : "Mas e se o comandante estiver mesmo aí dentro?",
+    "traduzido" : "Mas e se o comandante estiver mesmo aqui?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "dc617deeb9720a0e60ff02c813a7ce297c6b3976009e1099ba600329d15e28f1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 208,
     "estilo" : "Dialogue",
     "original" : "Nobody's in there.",
-    "traduzido" : "Ninguem está aí dentro.",
+    "traduzido" : "Ninguém está lá dentro.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "56e8b2cf3483d2b5b015ab06eed1ad80b7388d009d5030b627b38bf6da6271f1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 209,
     "estilo" : "Dialogue",
     "original" : "\"Nobody's in there\"...?",
-    "traduzido" : "\"Ninguém está lá dentro\"...?",
+    "traduzido" : "Ninguem esta ai...?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1f3751b313ace86c7cb9210850cc0b08bedf942c94173d1c64e46a35341b322e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 210,
     "estilo" : "Dialogue",
     "original" : "We were at Dr. Flanagan's institute.",
-    "traduzido" : "Estávamos no instituto do Dr. Flanagan.",
+    "traduzido" : "Estávamos no instituto do dr. Flanagan.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "7828c80fbf8003bb4599075afea101c60fc7e16ba2e12240e62102466500b98e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 211,
     "estilo" : "Dialogue",
     "original" : "We don't know anything before that.",
-    "traduzido" : "Não sabemos de nada antes disso.",
+    "traduzido" : "Não sabemos nada sobre isso antes disso.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6c99038706f7f6cb279e2c1d739a7b000751495a3e86316979bebfe6ea64a529"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 212,
     "estilo" : "Dialogue",
     "original" : "Not our families or our names.",
-    "traduzido" : "Não sabemos nada sobre nossas famílias ou nomes.",
+    "traduzido" : "Não nossas famílias nem nossos nomes.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "024bee2c9ffb3f6332ed15b8d166b1586a13c2edb06563be4b26377d758705c0"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 213,
     "estilo" : "Dialogue",
     "original" : "Not even your names?",
-    "traduzido" : "Não sabe nem seus nomes?",
+    "traduzido" : "Nem mesmo seus nomes?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b02bb099142ca9329b3c04530c0766fccb2f41cec1d691e5df74e3107ff2fc25"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 214,
     "estilo" : "Dialogue",
     "original" : "All they ever called us was \"you kids.\"",
-    "traduzido" : "",
+    "traduzido" : "Eles só nos chamavam de \"vocês crianças\".",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8518ebab9482c15ece66e9fb80cd5340e12bd061b795fece5622974fb0ba0813"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 215,
     "estilo" : "Dialogue",
     "original" : "When the adults died,\\Nwe didn't know what to do.",
-    "traduzido" : "Quando os adultos morreram,\\Nnão sabíamos o que fazer.",
+    "traduzido" : "Quando os adultos morreram,\\Nnão soubemos o que fazer.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "b6fb4ac000960d14c5c02672851a1ee29e3efb2f8192a32a0af48783d821a44b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 216,
     "estilo" : "Dialogue",
     "original" : "That's when we met Shiro and Aina.",
-    "traduzido" : "",
+    "traduzido" : "Então foi quando conhecemos Shiro e Aina.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "964ca64ffd54fe12826890b891fd76f481628b68a8bb12a227da48147c6fe789"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 217,
     "estilo" : "Dialogue",
     "original" : "They taught us all sorts of things.",
-    "traduzido" : "Eles nos ensinaram todo tipo de coisa.",
+    "traduzido" : "Nos ensinaram todo tipo de coisa.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ed40754e350559648198fe09d5f936d6d163cc9464589e705caaaf505779f524"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 218,
     "estilo" : "Dialogue",
     "original" : "How to build a fire, how to fish.",
-    "traduzido" : "Aprender a fazer fogo, aprender a pescar.",
+    "traduzido" : "Como construir uma fogueira, como pescar.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d3196c7a81192fae8df393c8f67df70e4de8cf9ee7b2f4de414226bb02b09660"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 219,
     "estilo" : "Dialogue",
     "original" : "How to make drinkable water,\\Nhow to bandage wounds...",
-    "traduzido" : "",
+    "traduzido" : "Como fazer água potável,\\Ncomo bandear ferimentos...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0412fe327bca283d420aceb3976e3a5283720d7204d602fbb1a921d2102bdd27"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 220,
     "estilo" : "Dialogue",
     "original" : "Then they dug that grave and\\Nburied their clothes in it.",
-    "traduzido" : "Entao eles cavaram aquela cova\\Ne enterraram suas roupas nela.",
+    "traduzido" : "Então eles cavaram aquela cova\\Ne enterraram suas roupas nela.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "689c252c8806b1fba4a4b448cc50bc7071161dbad05dcb750ddf4bf92b4c7666"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 221,
     "estilo" : "Dialogue",
     "original" : "They said \"Now we're reborn.\"",
-    "traduzido" : "Agora somos renascidos.",
+    "traduzido" : "Disseram: \"Agora nascemos novamente.\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f20596e192521aa3e4038fd2e464009495b6a25c71679b2cb7fdfd6908f63cbc"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 222,
     "estilo" : "Dialogue",
     "original" : "\"Now we're reborn...\"",
     "traduzido" : "Agora somos renascidos...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "ecfeb10597f2d46422f72a1f82dcd9b80db34b30bc14fcbed591d1bb4954b6e6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 223,
     "estilo" : "Dialogue",
     "original" : "I see.",
-    "traduzido" : "Eu vejo.",
+    "traduzido" : "Eu entendo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "efd77bfb9be0bc180b9876368d46d61e20b5b888a63032495b076e08b3eb6aef"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 224,
     "estilo" : "Dialogue",
     "original" : "After that, they gave us names.",
-    "traduzido" : "Depois disso, eles nos deram nomes.",
+    "traduzido" : "Após isso, eles nos deram nomes.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a0abcd38c5526dbce8d5412a5f029e5e17b2a687c9f46262141a47fb35758cf5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 225,
     "estilo" : "Dialogue",
     "original" : "Names?",
-    "traduzido" : "Names?",
+    "traduzido" : "Shiro Amada, Aina Sahalin",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3788863b3bd012145c3c4919044037d744f1cb6c614b04dee3e378aecf609cb6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 226,
     "estilo" : "Dialogue",
     "original" : "I'm Sanders.",
-    "traduzido" : "Eu sou Sanders.",
+    "traduzido" : "Sou Sanders.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d978034beac10e2b07edca764b7e9b9e67113a52e109e518d508d200c00c18e3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 227,
     "estilo" : "Dialogue",
     "original" : "I'm Eledore.",
-    "traduzido" : "Eu sou Eledore.",
+    "traduzido" : "Sou Eledore.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "313cdaf7bca052e05c530c8bbe5257f1265860d8b7cc54edc9d4fd94cea88c79"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 228,
     "estilo" : "Dialogue",
     "original" : "Karen.",
-    "traduzido" : "Karen",
+    "traduzido" : "Karen.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0e26f2cddbed93b1c170729d8ad5cf60b2762c646ef071f7984453e8f55e7993"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 229,
     "estilo" : "Dialogue",
     "original" : "Michel.",
-    "traduzido" : "Michel.",
+    "traduzido" : "Michel:",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "06b8dc73e0a77891204c45ee4b4c2289c1d852f468f1fcfe0a6b62a4acd628db"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 230,
     "estilo" : "Dialogue",
     "original" : "She's Kiki.",
     "traduzido" : "Ela é Kiki.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "18e03f9af4d9194b3b264b50a0da54ac26539a6533857d641c75d752357d8b9a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 231,
     "estilo" : "Dialogue",
     "original" : "And Aina even gave that girl her\\Nown name to encourage her.",
-    "traduzido" : "E Aina chegou até a dar seu próprio\\Nnome àquela garota para incentivá-la.",
+    "traduzido" : "E Aina chegou até mesmo a dar seu próprio\\Nnome àquela menina para incentivá-la.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f3ff1217fc42b20a636d453fc901556c5b9cfb1e3d1a9c4a5ff5f41dbcb5ec0e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 232,
     "estilo" : "Dialogue",
     "original" : "That's so like the commander...",
-    "traduzido" : "Esse é bem o estilo do comandante...",
+    "traduzido" : "Isso é bem típico do comandante...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f6a9879591f7b73cdc9f06935c888cbe676186d41048c995a4d01ef322113bd3"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 233,
     "estilo" : "Dialogue",
     "original" : "Kiki, take your name back.",
-    "traduzido" : "Kiki, pegue seu nome de volta.",
+    "traduzido" : "Kiki, recupere seu nome.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3e72ab4b8e1df5d29cf1b86a590656f48f979dec7d44f2e4555f8d10ffa48f8d"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 234,
     "estilo" : "Dialogue",
     "original" : "\"Kiki\" is your name.",
-    "traduzido" : "Kiki é seu nome.",
+    "traduzido" : "\"Kiki\" é o seu nome.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "67c744fd442d9053f03ebb0351e476724d0a5aa0cb6ea3f676a1727d46815461"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 235,
     "estilo" : "Dialogue",
     "original" : "Take them back.",
-    "traduzido" : "",
+    "traduzido" : "Recupere-os.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5915c585d7462e4be690b715277e2868f5655744ce814ee89db8d3f9920945f6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 236,
     "estilo" : "Dialogue",
     "original" : "Our names.",
-    "traduzido" : "",
+    "traduzido" : "Shiro Amada",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f782f2f5ca8feedb8b9ca93ea8a2eaa79f9156c0ee475883c3ee03075721bdba"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 237,
     "estilo" : "Dialogue",
     "original" : "I'll give you back your name, Michel.",
-    "traduzido" : "Eu devolverei seu nome, Michel.",
+    "traduzido" : "Vou devolver seu nome, Michel.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "49ccfe76eb59090594d9a01211ae178c65811b1368a62d1c5d99e03aff87675f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 238,
     "estilo" : "Dialogue",
     "original" : "And me!",
     "traduzido" : "E eu!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "39262eed1fcb2272b712844d9684525126cb51d69554cf7f630f2aacb615cce7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 239,
     "estilo" : "Dialogue",
     "original" : "No, don't!",
-    "traduzido" : "Não faça isso!",
+    "traduzido" : "Não, não faça isso!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "954297432e277284716f817fe28c7e8ec81ac620b3e184255a9dc953761a3b00"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 240,
     "estilo" : "Dialogue",
     "original" : "No! No! No! I won't allow it!",
     "traduzido" : "Não! Não! Não! Eu não vou permitir isso!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6b71de320a91e937888efd8303f4f1da0a7ff988b8f19e6af4b7830e4cc1629c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 241,
     "estilo" : "Dialogue",
     "original" : "They're our names now!\\NWe won't give them back!",
-    "traduzido" : "",
+    "traduzido" : "Agora são nossos nomes!\\NNão vamos devolvê-los!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a3064caf556b8cf43dd8c4fc7d551293e0520b646a28fa0f7914c5b9084fff7c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 242,
     "estilo" : "Dialogue",
     "original" : "Shiro Amada is {\\i1}my{\\i0} name now!\\NI won't give it back!",
-    "traduzido" : "",
+    "traduzido" : "Shiro Amada é{\\i1}meu nome{\\i0}agora!\\NEu não vou devolver!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9b9218e20ea5225cb759b7bb4eeee734a7d8f0ec0595aaee1267def59992b574"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 243,
     "estilo" : "Dialogue",
     "original" : "No way...!",
-    "traduzido" : "Nunca!",
+    "traduzido" : "De jeito nenhum...!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a8daf92b2692c98368e35126226435bbf957abc4f3240556f99687f407382469"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 244,
     "estilo" : "Dialogue",
     "original" : "That kid...!",
-    "traduzido" : "",
+    "traduzido" : "Aquela criança...!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "14a51fa28b2e80397e87353ce695d3568512560d85197586d2861afbb91c690c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 245,
     "estilo" : "Dialogue",
     "original" : "Don't be mad at him!",
     "traduzido" : "Não fique bravo com ele!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "28dcc5e3308574e5adc8e6386e6fdb2ef86d4a322cfd58b8679a542d8e5d5f6c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 246,
     "estilo" : "Dialogue",
     "original" : "I know!",
     "traduzido" : "Eu sei!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d7ce4099c073c0946e517c07a0a57c2d977ca0aec0fd6049aa72d58fdc90b4d4"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 247,
     "estilo" : "Dialogue",
     "original" : "Shiro's my name! {\\i1}my{\\i0} name!",
-    "traduzido" : "Meu nome é Shiro! {\\i1}meu{\\i0} nome!",
+    "traduzido" : "Shiro é meu nome!{\\i1}meu nome{\\i0}!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "986d9b880721e3298c3f46a11c964889bc5c0838d021e13ab1f1f7a24d15bb0b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 248,
     "estilo" : "Dialogue",
     "original" : "He gave it to me!",
     "traduzido" : "Ele me deu isso!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3c23b112b5e60c71e142aeffcdbaac8e97128163a755673564d008bd9ea139e2"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 249,
     "estilo" : "Dialogue",
     "original" : "Kid...",
-    "traduzido" : "Criança...",
+    "traduzido" : "Kid...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fca72616c339bc685c6eef17a4e4a898f2bc170b371cab790942e9e3badf42a7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 250,
     "estilo" : "Dialogue",
     "original" : "I'm Shiro! I have a name! Call me that!",
-    "traduzido" : "Sou Shiro! Tenho um nome! Me chame assim!",
+    "traduzido" : "Sou Shiro! Eu tenho um nome! Me chame assim!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8d11f11ba5e9ef41e90fb7e3a2e1570dd26cd0e3082582235422c9d331c45eb8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 251,
     "estilo" : "Dialogue",
     "original" : "Call me Shiro!",
     "traduzido" : "Me chame de Shiro!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8a1ca41fdeb7a9778b8c7edd3a7a2a45d2f93d49183bf5a96ef52ec7585a06c9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 252,
     "estilo" : "Dialogue",
     "original" : "He gave it to me!",
     "traduzido" : "Ele me deu isso!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "af5517fb2e6591b7ae886c46919f31f02b47315d6b7d6dc6db8053e2b23017e8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 253,
     "estilo" : "Dialogue",
     "original" : "So you can't have it back!",
-    "traduzido" : "Então você não pode ter de volta!",
+    "traduzido" : "Não posso devolvê-lo para você!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "bb959f9340ccc70dfbafe8a3fd5d0fdea0a78f81d6853682641800e0200a9919"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 254,
     "estilo" : "Dialogue",
     "original" : "I'm the only Shiro here!",
-    "traduzido" : "Sou o único Shiro aqui!",
+    "traduzido" : "Eu sou o único Shiro aqui!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "646b4c9bebc7dbf39295fb4a5aec3805ca373fb0c3e6e1a612a2e1d88bfa9ca7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 255,
     "estilo" : "Dialogue",
     "original" : "Take your name?",
-    "traduzido" : "",
+    "traduzido" : "Qual é o seu nome?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8d9b4e48c58b35b91612b55f93295059e0bfacf92589649154273236828cefd9"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 256,
     "estilo" : "Dialogue",
     "original" : "I won't do that.\\NThere's no way I could, right?",
-    "traduzido" : "Nao farei isso. Nao ha chance\\Nde eu fazer isso, certo?",
+    "traduzido" : "Não farei isso. Não há\\Nchance de eu fazer, certo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d24c89c0d04d4fa175a13dce0f1bdf8eaffa78e71887c8f9dcf4ddf2814a58a5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 257,
     "estilo" : "Dialogue",
     "original" : "Trying to protect their names...",
-    "traduzido" : "",
+    "traduzido" : "Procurando proteger seus nomes...",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d9297c885d8bdbd3ff99a145301a809a9de83dd9ac7eb349a7942bfc23b48178"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 258,
     "estilo" : "Dialogue",
     "original" : "You've tried so hard to lead them yourself.",
-    "traduzido" : "Voce tentou tanto lidera-los por conta propria.",
+    "traduzido" : "Tentou tanto liderá-los você mesmo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "75b188112ecdbbcb751682e5841e1055ab939157a57c06ff6b6ab4964434a5b5"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 259,
     "estilo" : "Dialogue",
     "original" : "Names are precious to everyone...",
-    "traduzido" : "",
+    "traduzido" : "\"Nomes são preciosos para todos...\"",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9889138c49f83e20d45a3638e22ae4c500e8f335126aeaba9d0a516897c3960c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 260,
     "estilo" : "Dialogue",
     "original" : "...and you should never have\\Nto give them away, right?",
-    "traduzido" : "...e você nunca deveria ter\\Nque abrir mão deles, certo?",
+    "traduzido" : "E você nunca deveria ter\\Nque desistir deles, certo?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "37561b649b8294481435ca459e16db771b807be75aed15a83e9d02bc75e487d8"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 261,
     "estilo" : "Dialogue",
     "original" : "But it's all right now.",
-    "traduzido" : "Mas agora está tudo bem.",
+    "traduzido" : "Agora está tudo bem.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3d74b2c860cbca09b7ef30bb52b62339b3c82a9dae712b98581d80b3d671925a"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 262,
     "estilo" : "Dialogue",
     "original" : "No one's going to do\\Nthat to you ever again.",
-    "traduzido" : "Ninguém vai fazer isso\\Ncom você nunca mais.",
+    "traduzido" : "Ninguém vai fazer isso\\Ncom você novamente.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "df2171f3b429ac2320444edd2aee26e5fca84db3219b159bf4644c6d6036a0f7"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 263,
     "estilo" : "Dialogue",
     "original" : "You're a great commander.\\NYou deserve to be Shiro Amada.",
-    "traduzido" : "Voce e uma grande lider.\\NVoce merece ser Shiro Amada.",
+    "traduzido" : "Você é um grande comandante.\\NVocê merece ser o Shiro Amada.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "2cd9f1d7de7d5f4906baeacf9a0d184605ae3cd3cfa6244c5d69c5d820498d57"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 264,
     "estilo" : "Dialogue",
     "original" : "Snow? This is snow? Michel, look at it!",
-    "traduzido" : "Neve? É isso que é neve? Michel, olha só!",
+    "traduzido" : "Neve? É neve mesmo, Michel! Olha só!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "30d5016b0804403bb1c24baf199d249ab9bb676f5f7dac361f011e432e1f4dbe"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 265,
     "estilo" : "Dialogue",
     "original" : "No kidding! How can you be\\Nso happy when it's this cold?!",
-    "traduzido" : "Não é fácil acreditar! Como você\\Npode estar tão feliz com esse frio?",
+    "traduzido" : "Sem brincadeira! Como você pode\\Nestar tão feliz com esse frio?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d9136a59b5d60d51f7ee987ca70056837eb508b21800e789d163ecdaa361da43"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 266,
     "estilo" : "Dialogue",
     "original" : "Hey!",
-    "traduzido" : "",
+    "traduzido" : "Olá!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f07972bb960d0ffe58558444f8ef86c0941513a06005e664cd4ee65f5f4ed7de"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 267,
     "estilo" : "Dialogue",
     "original" : "Did the commander teach them this, too?",
-    "traduzido" : "",
+    "traduzido" : "O comandante ensinou isso também para eles?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "fb937bab9726a73d423bdff6eca594b48cc8082c43c61f4db8261100335debed"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 268,
     "estilo" : "Dialogue",
     "original" : "Jeez, that's just like him.",
-    "traduzido" : "Jeez, isso é bem tipico dele.",
+    "traduzido" : "Cara, isso é bem a cara dele.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "82b1290fa1b41fc57f6ec512e2d83b3b127c74af78f301fd0ce3b961bcbb2822"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 269,
     "estilo" : "Dialogue",
     "original" : "So, where did they go?",
-    "traduzido" : "",
+    "traduzido" : "Onde eles foram então?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "93fdc4efc1c3a01d69573b7463473ee47c91c6c9d85ce7a2bafd9500f9317786"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 270,
     "estilo" : "Dialogue",
     "original" : "North.",
     "traduzido" : "North.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9afea4fd8e2af11fba9ad6e271b799ca18c0a954f1c38a3d4668f2ed0589548b"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 271,
     "estilo" : "Dialogue",
     "original" : "North?",
-    "traduzido" : "North?",
+    "traduzido" : "Norte?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1ac7b30d480b9c357c455ff07e4628d4db6be4042ec969e3c336ce229165c450"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 272,
     "estilo" : "Dialogue",
     "original" : "Why'd they go north?",
-    "traduzido" : "",
+    "traduzido" : "Por que foram para o norte?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "180b99227bce452257faf0db446e5dcd91e8dbc05dd2022e41d8e0579c2d5777"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 273,
     "estilo" : "Dialogue",
     "original" : "He said there's a new world there.\\NA new life.",
     "traduzido" : "Ele disse que há um novo\\Nmundo lá. Uma nova vida.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "0434acfe64ea4e4314ad575128c8b2c83a272ef61837bbe61cdf9bb6d1c68321"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 274,
     "estilo" : "Dialogue",
     "original" : "Jeez... You even talk just\\Nlike the commander.",
-    "traduzido" : "Jeez... Você até fala\\Nigual ao comandante.",
+    "traduzido" : "Caramba... Você até fala\\Nigual ao comandante.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9ebccf98611c7499052eff47c65314ad9683af136a60f60f76569a5d01a6f4cd"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 275,
     "estilo" : "Dialogue",
     "original" : "They're all gone.",
-    "traduzido" : "Todos se foram.",
+    "traduzido" : "Eles todos se foram.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "9d1f346808d2df51afecf14c5532a253c8a3c5f13b70e7d15fe9aefd7f19a174"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 276,
     "estilo" : "Dialogue",
     "original" : "They disappeared? While we were asleep?",
     "traduzido" : "Desapareceram? Enquanto dormíamos?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "d806d4ebc3ec379e97da6af5ae77820141217299fcad8103fe2b3e6b8c723603"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 277,
     "estilo" : "Dialogue",
     "original" : "But how?",
     "traduzido" : "Mas como?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "5e36bb53421b8b6b3c587a6d8faa6bf5a5ebd369c99107d101eae28c4148ca43"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 278,
     "estilo" : "Dialogue",
     "original" : "{\\fad(0,1608)}I've been thinking about that.",
-    "traduzido" : "",
+    "traduzido" : "{\\fad(0,1608)}Eu estive pensando sobre isso.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "8388aa7438614524fab73ccf25ff836fbe4c3dda42b8d5d688f8736a4072224c"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 279,
     "estilo" : "Dialogue",
     "original" : "About whether it was all an illusion.",
-    "traduzido" : "",
+    "traduzido" : "Sobre se tudo era uma ilusão.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "075b1ed013c2cb8086df27196e0f7fefe515cba7649becda342751005a0b5acd"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 280,
     "estilo" : "Dialogue",
     "original" : "An illusion?",
-    "traduzido" : "An ilusão?",
+    "traduzido" : "Uma ilusão?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "f7ced387dacaab3122d6262c475684939b8242622c62f4ffacd77e5343771021"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 281,
     "estilo" : "Dialogue",
     "original" : "Yeah, an illusion.",
     "traduzido" : "Sim, uma ilusão.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "6fcd83d411609406b1835f3de3161756141a9790f578ce56834dccacdd14f41f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 282,
     "estilo" : "Dialogue",
     "original" : "And if it wasn't, then maybe\\Nthey were all ghosts.",
     "traduzido" : "E se não fosse, então talvez\\Ntodos fossem fantasmas.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "1f68f6f4ad8ab1270299ef2ecc2603c8003db7fae07b64617d75eae7275f3550"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 283,
     "estilo" : "Dialogue",
     "original" : "I don't think they were either.",
-    "traduzido" : "Não acho que eram também.",
+    "traduzido" : "Não acho que eles eram também.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "194e84c3ef946ec1a655d0235e1b236dff97b3a28fee86ef68b4f1a9d33d5d9e"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 284,
     "estilo" : "Dialogue",
     "original" : "They must have gone out searching, too.",
     "traduzido" : "Eles devem ter saído procurando também.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "4dc814d1b61b1d71afad4573323d998ed5c476f201112c078a696a00a66c73ec"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 285,
     "estilo" : "Dialogue",
     "original" : "Searching? For what?",
-    "traduzido" : "",
+    "traduzido" : "Procurando? Por quê?",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "3947eff1c500fd35671ae0b7c1a99933a0cdbeb817a2907b6688c311bb591ae2"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 286,
     "estilo" : "Dialogue",
     "original" : "What else? For a new world. A new life.",
-    "traduzido" : "O que mais? Por um novo mundo. Uma nova vida.",
+    "traduzido" : "Para um novo mundo. Uma nova vida.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "96aedeb18c461ff1ccbc7241a08b888f0779e0f76c17e8b41e10f3c94498089f"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 287,
     "estilo" : "Dialogue",
     "original" : "{\\fad(0,2440)}Yeah. I guess you're right.",
-    "traduzido" : "{\\fad(0,2440)}Sim. Acho que voce tem razao.",
+    "traduzido" : "{\\fad(0,2440)}Sim. Eu acho que você está certo.",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "7a03a905e6ba75511b74b0b4201fbeca358585bff1586e693418755d1c1ea642"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 288,
     "estilo" : "Dialogue",
     "original" : "Commander!!!",
     "traduzido" : "Comandante!!!",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "bbdfeaa82fcfe29a3fe199cc157c46e77f7e398f89172fd38c22d211dee48aa6"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 290,
     "estilo" : "Titles",
     "original" : "{\\pos(720,650)\\blur1\\c&HDEDEE3&}LAST RESORT",
-    "traduzido" : "{\\pos(720,650)\\blur1\\c&HDEDEE3&}ÚLTIMA OPÇÃO",
+    "traduzido" : "{\\pos(720,650)\\blur1\\c&HDEDEE3&}ÚLTIMO RECURSO",
     "idiomaOriginal" : "en",
-    "idiomaTraduzido" : "pt-br",
-    "assinaturaContexto" : "a45c9d0b91ba3e465b201c25b3449f6d078a9b096634901ee1cd6cae09ec3dc1"
+    "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 538,
     "estilo" : "Song ENG",
@@ -2314,14 +2027,14 @@
     "indice" : 540,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Hang on to it now! Don't let it go.",
-    "traduzido" : "",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Espere agora! Não deixe isso passar.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 542,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}All I want is to take those wings on your back...",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Tudo o que eu quero é levar aquelas asas nas suas costas...",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&} Tudo o que eu quero é pegar aquelas asas nas suas costas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2335,14 +2048,14 @@
     "indice" : 546,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...pull them close to me.",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...puxe-os para perto de mim.",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...me aproxime deles.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 548,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Newborn in a corner of the endless blue sky...",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Nasceu num canto do céu infinito azul...",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Nasceu no canto do céu infinito azul...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2356,14 +2069,14 @@
     "indice" : 552,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}No matter how strong they may blow...",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Por mais forte que eles soprem...",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Não importa o quanto eles soprem...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 554,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...or how icy they may be...",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...ou quão gelados eles possam ser...",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...ou o quanto possam ser frias...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2391,14 +2104,14 @@
     "indice" : 562,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Hang on to it now! Don't let it go.",
-    "traduzido" : "",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Espere agora! Não deixe isso passar.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 564,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}All I want is to take those wings on your back...",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}Tudo o que eu quero é levar aquelas asas nas suas costas...",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&} Tudo o que eu quero é pegar aquelas asas nas suas costas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2412,7 +2125,7 @@
     "indice" : 568,
     "estilo" : "Song ENG",
     "original" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...pull them close to me.",
-    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...puxe-os para perto de mim.",
+    "traduzido" : "{\\fad(100,100)\\blur0.8\\bord0\\c&H000000&}...me aproxime deles.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]

@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Painel **"10. Karaokê Simples"** da SPA (grupo **Karaokê**). Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** gerados pelo Kara Templater do Aegisub — em legendas simples: **uma linha limpa por frase da música, no mesmo tempo do efeito original**. É o pré-requisito para a [Tradução de Karaokê](22-modulo-traducao-karaoke.md) e alivia players fracos que travam com KFX pesado.
+Painel **"9. Karaokê Simples"** da SPA (grupo **Karaokê**). Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** gerados pelo Kara Templater do Aegisub — em legendas simples: **uma linha limpa por frase da música, no mesmo tempo do efeito original**. É o pré-requisito para a [Tradução de Karaokê](22-modulo-traducao-karaoke.md) e alivia players fracos que travam com KFX pesado.
 
 ![Painel de Karaokê Simples](../src/main/resources/static/img/screenshots/karaoke-simples.png)
 

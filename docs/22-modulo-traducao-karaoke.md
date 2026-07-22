@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Painel **"11. Tradução de Karaokê"** da SPA (grupo **Karaokê**). Traduz as **letras de música** das legendas mantendo o japonês original junto na tela: a camada **romaji/japonesa é preservada intacta** e apenas a camada de **tradução em inglês** vai ao LLM, virando PT-BR nos mesmos tempos — resultado: romaji em cima, PT-BR embaixo, como fansub clássico.
+Painel **"10. Tradução de Karaokê"** da SPA (grupo **Karaokê**). Traduz as **letras de música** das legendas mantendo o japonês original junto na tela: a camada **romaji/japonesa é preservada intacta** e apenas a camada de **tradução em inglês** vai ao LLM, virando PT-BR nos mesmos tempos — resultado: romaji em cima, PT-BR embaixo, como fansub clássico.
 
 O problema central que o módulo resolve: **cantores japoneses misturam inglês no meio da letra** (*"kimi no heart ni fly away"*). Uma detecção ingênua de "linha em inglês" mandaria a letra original para o LLM e a destruiria. Aqui a classificação é **por evidência**, com viés de preservação.
 

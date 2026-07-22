@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Painel **"14. Renomear Arquivos"** da SPA (grupo **Finalização**). Renomeia em lote arquivos de vídeo com nomes confusos de release groups de tracker (ex.: `[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_PTBR.mkv`) para um padrão limpo `Nome do Anime - S01E01.mkv`, extraindo o número do episódio por **regex** — com simulação prévia (dry-run) e **reversão completa (undo)**.
+Painel **"13. Renomear Arquivos"** da SPA (grupo **Finalização**). Renomeia em lote arquivos de vídeo com nomes confusos de release groups de tracker (ex.: `[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_PTBR.mkv`) para um padrão limpo `Nome do Anime - S01E01.mkv`, extraindo o número do episódio por **regex** — com simulação prévia (dry-run) e **reversão completa (undo)**.
 
 ![Painel de Renomear Arquivos](../src/main/resources/static/img/screenshots/renomear-arquivos.png)
 
