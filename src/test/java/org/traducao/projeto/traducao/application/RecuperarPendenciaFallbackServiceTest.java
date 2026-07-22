@@ -7,7 +7,10 @@ import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlinePropert
 
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
+import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
+import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,11 +35,34 @@ class RecuperarPendenciaFallbackServiceTest {
         return new LinkedHashSet<>(Set.of(itens));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta uma porta de teste a partir apenas da função de tradução,
+     * para que cada caso declare só o desfecho que lhe interessa. A porta deixou de ser
+     * funcional ao ganhar {@code provedor()}, e sem este helper cada teste teria de repetir
+     * uma classe anônima de dois métodos.
+     * <p>INVARIANTES DO DOMÍNIO: o provedor reportado é sempre {@link ProvedorFallback#GOOGLE};
+     * nenhum caso deste teste depende de outro provedor.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: repassa o resultado da função sem interpretá-lo.
+     */
+    private static FallbackTraducaoMaquinaPort porta(Function<String, ResultadoFallback> traducao) {
+        return new FallbackTraducaoMaquinaPort() {
+            @Override
+            public ResultadoFallback traduzir(String original) {
+                return traducao.apply(original);
+            }
+
+            @Override
+            public ProvedorFallback provedor() {
+                return ProvedorFallback.GOOGLE;
+            }
+        };
+    }
+
     @Test
     @DisplayName("desligado: não chama a porta e devolve mapa vazio")
     void desligadoNaoChamaPorta() {
         boolean[] chamou = {false};
-        FallbackTraducaoMaquinaPort porta = o -> { chamou[0] = true; return Optional.of("x"); };
+        FallbackTraducaoMaquinaPort porta = porta(o -> { chamou[0] = true; return ResultadoFallback.recuperada("x", ProvedorFallback.GOOGLE); });
 
         Map<String, String> r = servico(false, porta).recuperar(conjunto("Hello"));
 
@@ -47,7 +73,7 @@ class RecuperarPendenciaFallbackServiceTest {
     @Test
     @DisplayName("ligado: devolve a tradução quando a porta responde e os nomes são preservados")
     void ligadoRecuperaComNomePreservado() {
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("Eu vi o Lena ontem");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Eu vi o Lena ontem", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday"));
 
@@ -58,7 +84,7 @@ class RecuperarPendenciaFallbackServiceTest {
     @DisplayName("ligado: recusa (mantém pendente) quando o nome próprio mid-sentence some")
     void ligadoRecusaQuandoNomePropioSome() {
         // "Lena" é mid-sentence e capitalizado; a tradução a perdeu -> recusa segura.
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("Eu vi ela ontem");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Eu vi ela ontem", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday"));
 
@@ -69,7 +95,7 @@ class RecuperarPendenciaFallbackServiceTest {
     @DisplayName("ligado: capital de início de frase não é tratado como nome próprio")
     void capitalDeInicioNaoEhNomeProprio() {
         // "Why" abre a frase; a tradução PT não o contém e mesmo assim é aceita.
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("Por que temos que aguentar isso");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Por que temos que aguentar isso", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("Why do we have to put up with this"));
 
@@ -79,7 +105,7 @@ class RecuperarPendenciaFallbackServiceTest {
     @Test
     @DisplayName("ligado: porta vazia (rede/recusa) omite a fala do resultado")
     void portaVaziaOmiteFala() {
-        FallbackTraducaoMaquinaPort porta = o -> Optional.empty();
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "sem resposta"));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("Hello there"));
 
@@ -91,7 +117,7 @@ class RecuperarPendenciaFallbackServiceTest {
     void nomePropioAposTokenNumericoEhVerificado() {
         // "Zaku" vem após "42" (token sem letras que não encerra frase); a guarda não pode
         // tratá-lo como início de frase e deixá-lo escapar. A tradução perdeu "Zaku" -> recusa.
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("Pare! 42 caiu.");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Pare! 42 caiu.", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("Stop! 42 Zaku fell."));
 
@@ -122,7 +148,7 @@ class RecuperarPendenciaFallbackServiceTest {
     void caracterizacaoTituloTitleCaseEhRecusadoHoje() {
         // Título real do Gundam 0083. A tradução está CORRETA, mas "Battle", "Three" e
         // "Dimensions" somem (como devem sumir) e a guarda recusa a fala inteira.
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("A Batalha em Três Dimensões");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("A Batalha em Três Dimensões", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("The Battle in Three Dimensions"));
 
@@ -142,7 +168,7 @@ class RecuperarPendenciaFallbackServiceTest {
     @Test
     @DisplayName("F1 (defeito atual): data de época é recusada — 'Stellar'/'Year' tratados como nome próprio")
     void caracterizacaoDataDeEpocaEhRecusadaHoje() {
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("12 de maio, Ano Estelar 2148");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("12 de maio, Ano Estelar 2148", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("May 12th, Stellar Year 2148"));
 
@@ -155,7 +181,7 @@ class RecuperarPendenciaFallbackServiceTest {
     void pontuacaoIsoladaEncerraFrase() {
         // "London" abre a 2ª frase (após o ponto isolado) e foi legitimamente traduzido para
         // "Londres"; não pode ser tratado como nome próprio obrigatório e reprovar a recuperação.
-        FallbackTraducaoMaquinaPort porta = o -> Optional.of("Ele saiu . Londres chama");
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Ele saiu . Londres chama", ProvedorFallback.GOOGLE));
 
         Map<String, String> r = servico(true, porta).recuperar(conjunto("He left . London calls"));
 
