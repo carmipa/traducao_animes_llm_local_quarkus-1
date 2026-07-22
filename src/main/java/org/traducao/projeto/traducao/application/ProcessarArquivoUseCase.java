@@ -75,7 +75,7 @@ public class ProcessarArquivoUseCase {
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
     private final ClassificadorPendenciaTelemetria classificadorPendencia;
-    private final RecuperarPendenciaGoogleService recuperarPendenciaGoogle;
+    private final RecuperarPendenciaFallbackService recuperarPendenciaGoogle;
     private final EnforcadorTermosLore enforcadorTermosLore;
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
@@ -108,7 +108,7 @@ public class ProcessarArquivoUseCase {
         TradutorLotesService tradutorLotes,
         MontadorTelemetriaTraducao montadorTelemetria,
         ClassificadorPendenciaTelemetria classificadorPendencia,
-        RecuperarPendenciaGoogleService recuperarPendenciaGoogle,
+        RecuperarPendenciaFallbackService recuperarPendenciaGoogle,
         EnforcadorTermosLore enforcadorTermosLore,
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,

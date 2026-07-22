@@ -27,7 +27,7 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
-import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoOnlinePort;
+import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
@@ -82,7 +82,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     // Fallback online controlável pelos testes: por padrão DESLIGADO (pipeline 100%
     // local), preservando o comportamento das caracterizações existentes.
     private boolean fallbackOnlineAtivo = false;
-    private FallbackTraducaoOnlinePort fallbackPort = original -> Optional.empty();
+    private FallbackTraducaoMaquinaPort fallbackPort = original -> Optional.empty();
 
     /**
      * PROPÓSITO DE NEGÓCIO: captura o último registro de telemetria emitido pelo fluxo, para a
@@ -260,8 +260,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
         ClassificadorPendenciaTelemetria classificadorPendencia =
             new ClassificadorPendenciaTelemetria(detectorKaraoke);
-        RecuperarPendenciaGoogleService recuperarPendenciaGoogle =
-            new RecuperarPendenciaGoogleService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
+        RecuperarPendenciaFallbackService recuperarPendenciaGoogle =
+            new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
