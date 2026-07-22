@@ -253,8 +253,13 @@ public class RecuperarPendenciaFallbackService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: ausência devolve {@code false}.
      */
     private boolean sobrevive(String nome, String traduzido) {
+        // Token PURAMENTE numérico usa fronteira só de dígito. O ordinal português ("1º",
+        // "1ª") coloca um caractere que o Unicode classifica como LETRA logo após o número,
+        // então a fronteira \p{L} rejeitaria "1" dentro de "1º" — e "September 1st" traduzido
+        // como "1º de setembro" era recusado, mesmo estando correto.
+        String fronteiraDireita = nome.chars().allMatch(Character::isDigit) ? "(?!\\p{N})" : "(?![\\p{L}\\p{N}])";
         Pattern ocorrencia = Pattern.compile(
-            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
+            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + fronteiraDireita);
         return ocorrencia.matcher(traduzido).find();
     }
 
