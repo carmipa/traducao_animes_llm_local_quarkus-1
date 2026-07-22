@@ -279,7 +279,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         pastas.configurar(props.diretorioEntrada(), props.diretorioSaida(), props.diretorioCache(), props);
 
         ProcessarEpisodioUseCase episodio =
-            new ProcessarEpisodioUseCase(llm, validador, uiLogger, telemetria, mascarador);
+            new ProcessarEpisodioUseCase(llm, validador, uiLogger, telemetria, mascarador,
+                new ReparadorMarcadoresLlm(mascarador));
 
         ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
         ResolvedorCacheTraducao resolvedorCache =

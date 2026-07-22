@@ -10,6 +10,7 @@ import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
+import org.traducao.projeto.traducao.domain.exceptions.MarcadorCorrompidoException;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
@@ -42,6 +43,7 @@ public class ProcessarEpisodioUseCase {
     private final ConsoleUILogger uiLogger;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final MascaradorTags mascarador;
+    private final ReparadorMarcadoresLlm reparadorMarcadores;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe tradução, validação, acompanhamento visual e
@@ -58,13 +60,15 @@ public class ProcessarEpisodioUseCase {
         ValidadorTraducaoService validador,
         ConsoleUILogger uiLogger,
         TelemetriaTraducaoPort telemetriaTraducao,
-        MascaradorTags mascarador
+        MascaradorTags mascarador,
+        ReparadorMarcadoresLlm reparadorMarcadores
     ) {
         this.llmPort = llmPort;
         this.validador = validador;
         this.uiLogger = uiLogger;
         this.telemetriaTraducao = telemetriaTraducao;
         this.mascarador = mascarador;
+        this.reparadorMarcadores = reparadorMarcadores;
     }
 
     public List<TraducaoLote> processarEpisodio(List<Lote> lotes) throws InterruptedException, ExecutionException {
@@ -183,9 +187,12 @@ public class ProcessarEpisodioUseCase {
      * <p>INVARIANTES DO DOMÍNIO: cada resposta rejeitada e cada recuperação são
      * contabilizadas separadamente; o fallback original não representa sucesso.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: após esgotar as tentativas, devolve o
-     * original como marcador transitório; {@link ProcessarArquivoUseCase} o
-     * converte em tradução vazia no cache e saída explicitamente parcial.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: após esgotar as tentativas, devolve um
+     * marcador transitório que {@link ProcessarArquivoUseCase} converte em tradução
+     * vazia no cache e saída explicitamente parcial. Se a causa foi marcador
+     * {@code [[TAGn]]} corrompido, o marcador transitório é a TENTATIVA recusada (e não
+     * o original), para que o desmascaramento registre a causa-raiz correta em vez de
+     * a pendência ser contabilizada como eco — ver {@link MarcadorCorrompidoException}.
      */
     private List<String> traduzirLinhaUnicaComFallback(Lote lote, String promptSistemaCongelado) {
         if (lote.linhasOriginais().isEmpty()) {
@@ -216,6 +223,17 @@ public class ProcessarEpisodioUseCase {
             lote.idLote(), ultimaFalha != null ? ultimaFalha.getMessage() : "motivo desconhecido", original);
         uiLogger.log("[ WARN ] Fala mantida sem tradução no Lote " + lote.idLote()
             + " (revise manualmente no cache): " + original);
+
+        // Quando a causa foi marcador corrompido, devolve a TENTATIVA recusada em vez do
+        // original: o desmascaramento em TradutorLotesService a reprova pela mesma régua
+        // (marcadoresPreservados e desmascarar são equivalentes — se um falha, o outro
+        // também) e emite o aviso que classifica a pendência como MARCADORES_CORROMPIDOS.
+        // Devolvendo o original, o desmascaramento passava e a fala era contabilizada como
+        // ECO, escondendo a causa real. O texto publicado é o mesmo nos dois caminhos: o
+        // fallback do desmascaramento mantém o original.
+        if (ultimaFalha instanceof MarcadorCorrompidoException marcador && marcador.tentativa() != null) {
+            return List.of(marcador.tentativa());
+        }
         return List.of(original);
     }
 
@@ -239,14 +257,25 @@ public class ProcessarEpisodioUseCase {
         // ser detectada no desmascaramento (fora do retry) e a fala virar pendente.
         List<String> mascaradoOriginal = lote.linhasOriginais();
         List<String> traduzido = resultado.linhasTraduzidas();
+        List<String> saneadas = new ArrayList<>(traduzido.size());
         for (int i = 0; i < traduzido.size(); i++) {
-            if (!mascarador.marcadoresPreservados(mascaradoOriginal.get(i), traduzido.get(i))) {
-                throw new AlucinacaoDetectadaException(
-                    "Marcadores [[TAGn]] corrompidos pelo LLM na tentativa: " + traduzido.get(i));
+            String linha = traduzido.get(i);
+            if (!mascarador.marcadoresPreservados(mascaradoOriginal.get(i), linha)) {
+                // O modelo costuma traduzir BEM e apenas não repetir o marcador de controle.
+                // Antes de descartar a fala, tenta o reparo determinístico (variante
+                // sintática ou marcador só de borda); o reparo é revalidado pela MESMA
+                // regra estrita, então nada frouxo passa por aqui.
+                String recusada = linha;
+                linha = reparadorMarcadores.reparar(mascaradoOriginal.get(i), recusada)
+                    .orElseThrow(() -> new MarcadorCorrompidoException(
+                        "Marcadores [[TAGn]] corrompidos pelo LLM na tentativa: " + recusada, recusada));
+                log.info("Marcador [[TAGn]] reparado no lote {}: \"{}\" -> \"{}\"",
+                    lote.idLote(), recusada, linha);
             }
-            validador.validarFala(traduzido.get(i));
+            validador.validarFala(linha);
+            saneadas.add(linha);
         }
 
-        return traduzido;
+        return saneadas;
     }
 }
