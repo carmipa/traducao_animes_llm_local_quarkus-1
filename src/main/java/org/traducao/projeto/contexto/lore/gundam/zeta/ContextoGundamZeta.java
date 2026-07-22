@@ -115,7 +115,7 @@ public class ContextoGundamZeta implements ProvedorContexto {
             "Kacricon Cacooler", "Gates Capa",
             "Hayato Kobayashi", "Mirai Yashima", "Hathaway Noa",
             "Franklin Bidan", "Hilda Bidan",
-            "AEUG", "A.E.U.G.", "Anti-Earth Union Group", "Titans", "Axis", "Axis Zeon",
+            "AEUG", "A.E.U.G.", "Anti-Earth Union Group", "Titans", "Axis", "Sieg Zeon", "Axis Zeon",
             "Karaba", "Anaheim Electronics", "Earth Federation",
             "Zeta Gundam", "Gundam Mk-II", "Super Gundam", "G-Defenser", "Hyaku Shiki",
             "Rick Dias", "Methuss", "Nemo", "GM II", "Dijeh",

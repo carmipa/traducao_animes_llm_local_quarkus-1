@@ -3,6 +3,8 @@ package org.traducao.projeto.qualidadeTraducao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -92,6 +94,9 @@ public class DetectorTraducaoIdenticaService {
         if (termoDoLoreAtivo(minusculo)) {
             return true;
         }
+        if (compostoSoDeTermosDaLore(minusculo)) {
+            return true;
+        }
         if (palavras.length >= 2 && palavras.length <= 4
             && java.util.Arrays.stream(palavras)
                 .allMatch(p -> !p.isBlank() && Character.isUpperCase(p.charAt(0)))) {
@@ -125,6 +130,54 @@ public class DetectorTraducaoIdenticaService {
         Pattern termoInteiro = Pattern.compile(
             "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termoMinusculo) + "(?![\\p{L}\\p{N}])");
         return termoInteiro.matcher(lore.toLowerCase(Locale.ROOT)).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece a fala que é feita SÓ de terminologia canônica, ainda
+     * que repetida — o caso do brado de guerra. {@code "Sieg Zeon! Sieg Zeon! Sieg Zeon!"}
+     * é o slogan do Principado de Zeon e deve permanecer no original em toda a linha do
+     * tempo UC, mas {@link #termoDoLoreAtivo} exige que o texto INTEIRO seja igual ao termo
+     * e por isso não reconhecia a repetição: a fala era acusada de "modelo devolveu o
+     * original sem traduzir" e virava pendência a cada execução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só devolve {@code true} quando TODO o texto é consumido
+     * por termos declarados da obra ativa e pelo menos um termo casou de fato — sobrando
+     * qualquer palavra traduzível ("Zeon attacks" deixa "attacks"), a fala continua exigindo
+     * tradução. Termos compostos são consumidos antes dos curtos, para que
+     * "Principality of Zeon" não seja quebrado por "Zeon". A comparação ignora caixa e exige
+     * fronteira de palavra.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem contexto ativo ou sem termos declarados devolve
+     * {@code false} (degrada para as heurísticas globais, nunca para aceitação cega); não lança.
+     */
+    private boolean compostoSoDeTermosDaLore(String textoMinusculo) {
+        Set<String> declarados = loreAtiva.termosProtegidosAtivos();
+        if (declarados == null || declarados.isEmpty() || textoMinusculo.isBlank()) {
+            return false;
+        }
+        List<String> ordenados = declarados.stream()
+            .filter(t -> t != null && !t.isBlank())
+            .map(t -> t.toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{N}\\s]", " ")
+                .replaceAll("\\s+", " ").strip())
+            .filter(t -> !t.isBlank())
+            .sorted(Comparator.comparingInt(String::length).reversed())
+            .toList();
+
+        String resto = textoMinusculo;
+        boolean casouAlgum = false;
+        for (String termo : ordenados) {
+            String antes = resto;
+            resto = Pattern.compile(
+                    "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                .matcher(resto).replaceAll(" ");
+            if (!resto.equals(antes)) {
+                casouAlgum = true;
+            }
+            if (resto.isBlank()) {
+                break;
+            }
+        }
+        return casouAlgum && resto.isBlank();
     }
 
     /**
