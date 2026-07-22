@@ -336,4 +336,135 @@ class RecuperarPendenciaFallbackServiceTest {
         assertEquals("Ele saiu . Londres chama", r.get("He left . London calls"),
             "palavra inicial da frase após pontuação isolada não é nome próprio obrigatório");
     }
+
+    // ------------------------------------------------------------------------------------
+    // Bug 2 (corrida de 2026-07-22): a guarda decompunha termos compostos em palavras soltas,
+    // tratava cartela de título como sigla e comparava número sem normalizar. Os originais
+    // abaixo são reais, extraídos das 37 recusas GUARDA_LORE daquele log.
+    // ------------------------------------------------------------------------------------
+
+    /** Termos compostos reais da lore do 08th MS Team, onde nascia o falso-positivo. */
+    private static final Set<String> LORE_08TH = Set.of(
+        "Earth Federation", "Principality of Zeon", "One Year War", "08th MS Team",
+        "Eledore Massis", "Zeon", "Hovertruck");
+
+    @Test
+    @DisplayName("Bug 2: substantivo comum de termo composto NÃO é exigido (one/team/war/Earth/Federation)")
+    void substantivoComumDeTermoCompostoNaoEhExigido() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada(
+            switch (o) {
+                case "{\\i1}I can't just stand by and let one of our guys get killed!{\\i}" ->
+                    "{\\i1}Não posso ficar parado e deixar um dos nossos morrer!{\\i}";
+                case "{\\i1}The Earth can be a harsh place.{\\i0}" ->
+                    "{\\i1}A Terra pode ser um lugar cruel.{\\i0}";
+                case "{\\i1}I can't let my team die like dogs!{\\i0}" ->
+                    "{\\i1}Não posso deixar minha equipe morrer como cães!{\\i0}";
+                case "Two Federation human-types.\\NMinovsky density rising!" ->
+                    "Dois humanoides da Federação.\\NDensidade de Minovsky subindo!";
+                default -> "traduzido";
+            }, ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta, LORE_08TH).recuperar(conjunto(
+            "{\\i1}I can't just stand by and let one of our guys get killed!{\\i}",
+            "{\\i1}The Earth can be a harsh place.{\\i0}",
+            "{\\i1}I can't let my team die like dogs!{\\i0}",
+            "Two Federation human-types.\\NMinovsky density rising!")).recuperadas();
+
+        assertEquals(4, r.size(),
+            "exigir 'one', 'Earth', 'team' e 'Federation' em português contradiz a política de "
+                + "tradução da própria obra e reprovava traduções corretas; recuperadas: " + r.keySet());
+    }
+
+    @Test
+    @DisplayName("Bug 2: nome de personagem dentro de termo composto CONTINUA exigido (Eledore)")
+    void nomeDePersonagemEmTermoCompostoContinuaExigido() {
+        FallbackTraducaoMaquinaPort porta = porta(o ->
+            ResultadoFallback.recuperada("Ajude aqueles civis!", ProvedorFallback.GOOGLE));
+
+        var resultado = servico(true, porta, LORE_08TH).recuperar(conjunto("Eledore! Help those civilians out!"));
+
+        assertTrue(resultado.recuperadas().isEmpty(),
+            "apagar o nome do personagem deve continuar reprovando a resposta do tradutor de máquina");
+        assertEquals(1, resultado.porCausa().get(StatusFallback.GUARDA_LORE));
+    }
+
+    @Test
+    @DisplayName("Bug 2: cartela 100% em CAIXA ALTA não vira acrônimo obrigatório")
+    void cartelaEmCaixaAltaNaoViraAcronimo() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada(
+            switch (o) {
+                case "{\\blur1\\pos(720,650)\\c&HDEDEE3&}THE WAR OF THE TWO" ->
+                    "{\\blur1\\pos(720,650)\\c&HDEDEE3&}A GUERRA DOS DOIS";
+                case "{\\blur1\\pos(720,650)\\c&HDEDEE3&}GUNDAMS IN THE JUNGLE" ->
+                    "{\\blur1\\pos(720,650)\\c&HDEDEE3&}GUNDAMS NA SELVA";
+                default -> "traduzido";
+            }, ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta, LORE_08TH).recuperar(conjunto(
+            "{\\blur1\\pos(720,650)\\c&HDEDEE3&}THE WAR OF THE TWO",
+            "{\\blur1\\pos(720,650)\\c&HDEDEE3&}GUNDAMS IN THE JUNGLE")).recuperadas();
+
+        assertEquals(2, r.size(),
+            "numa linha inteiramente maiúscula a caixa alta é estilo, não sigla: exigir THE/IN/OF "
+                + "impedia traduzir qualquer cartela de título; recuperadas: " + r.keySet());
+    }
+
+    @Test
+    @DisplayName("Bug 2: sigla real continua exigida quando CONTRASTA com a linha")
+    void siglaRealContinuaExigidaEmLinhaMista() {
+        FallbackTraducaoMaquinaPort porta = porta(o ->
+            ResultadoFallback.recuperada("O piloto do robô chegou.", ProvedorFallback.GOOGLE));
+
+        var resultado = servico(true, porta, Set.of()).recuperar(conjunto("The MS pilot has arrived."));
+
+        assertTrue(resultado.recuperadas().isEmpty(), "apagar a sigla MS deve continuar reprovando");
+    }
+
+    @Test
+    @DisplayName("Bug 2: número reescrito no padrão português sobrevive (9500 -> 9.500, 0.5 -> 0,5)")
+    void numeroReescritoNoPadraoPortuguesSobrevive() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada(
+            switch (o) {
+                case "{\\i1}Currently holding at\\Nan altitude of 9500!" ->
+                    "{\\i1}Mantendo agora\\Numa altitude de 9.500!";
+                case "{\\i1}Wind speed: 0.5 to 0.6." -> "{\\i1}Velocidade do vento: 0,5 a 0,6.";
+                case "{\\an8\\i1}less than 1/30th that of the Earth Federation.{\\i}" ->
+                    "{\\an8\\i1}menos de 1/30 da Federação Terrestre.{\\i}";
+                default -> "traduzido";
+            }, ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta, LORE_08TH).recuperar(conjunto(
+            "{\\i1}Currently holding at\\Nan altitude of 9500!",
+            "{\\i1}Wind speed: 0.5 to 0.6.",
+            "{\\an8\\i1}less than 1/30th that of the Earth Federation.{\\i}")).recuperadas();
+
+        assertEquals(3, r.size(),
+            "separador de milhar, vírgula decimal e queda do ordinal inglês são reescritas "
+                + "legítimas do português, não perda do identificador; recuperadas: " + r.keySet());
+    }
+
+    @Test
+    @DisplayName("Bug 2: número TROCADO continua reprovando (a guarda não virou permissiva)")
+    void numeroTrocadoContinuaReprovando() {
+        FallbackTraducaoMaquinaPort porta = porta(o ->
+            ResultadoFallback.recuperada("Mantendo uma altitude de 8500!", ProvedorFallback.GOOGLE));
+
+        var resultado = servico(true, porta, LORE_08TH)
+            .recuperar(conjunto("Currently holding at an altitude of 9500!"));
+
+        assertTrue(resultado.recuperadas().isEmpty(),
+            "9500 virando 8500 é alteração de valor, não reescrita de formato");
+    }
+
+    @Test
+    @DisplayName("Bug 2: identificador não pode ser dado como sobrevivente dentro de outro número")
+    void identificadorNaoSobreviveDentroDeOutroNumero() {
+        FallbackTraducaoMaquinaPort porta = porta(o ->
+            ResultadoFallback.recuperada("Alcance 12500 metros.", ProvedorFallback.GOOGLE));
+
+        var resultado = servico(true, porta, Set.of()).recuperar(conjunto("Range 500 meters."));
+
+        assertTrue(resultado.recuperadas().isEmpty(),
+            "500 dentro de 12500 não é sobrevivência: a fronteira de dígito deve valer nas duas pontas");
+    }
 }

@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>Modo desligado ou conjunto vazio ⇒ nenhuma chamada externa e resultado vazio.</li>
  *   <li>Nunca varre cache de execuções anteriores: opera só sobre as falas recebidas.</li>
- *   <li>Guarda de nomes próprios: um token capitalizado MID-SENTENCE (não início de frase,
- *       ≥3 letras) do original deve sobreviver na tradução; se sumir, a resposta é RECUSADA
- *       (a fala continua pendente). Recusar é seguro — equivale a manter o inglês, como sem o
- *       fallback.</li>
+ *   <li>Guarda de TERMINOLOGIA: um token do original que a obra exige preservar — termo de
+ *       lore que nao seja substantivo comum, sigla que contraste com a linha, ou identificador
+ *       numerico — deve sobreviver na traducao; se sumir, a resposta e RECUSADA (a fala
+ *       continua pendente). Recusar e seguro — equivale a manter o ingles, como sem o fallback.</li>
  *   <li>NENHUMA recusa é silenciosa: toda tentativa que não recupera é registrada em log com o
  *       provedor e a causa canônica ({@link StatusFallback}).</li>
  * </ul>
@@ -53,6 +53,33 @@ public class RecuperarPendenciaFallbackService {
 
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^{}]*}");
     private static final int TAMANHO_MINIMO_NOME = 3;
+
+    /**
+     * PALAVRAS COMUNS que aparecem DENTRO de termos de lore compostos e que a obra espera ver
+     * TRADUZIDAS, não preservadas em inglês. Sem esta lista, decompor "Earth Federation",
+     * "One Year War" ou "08th MS Team" em tokens transformava "earth", "one", "year", "war" e
+     * "team" em terminologia obrigatória — e qualquer frase inglesa contendo a palavra "one"
+     * passava a exigir "one" no texto em português. Foi a causa de 23 das 37 recusas da guarda
+     * na corrida de 2026-07-22.
+     *
+     * <p>A política do próprio projeto manda traduzi-las: {@code PromptRevisaoLore} determina que
+     * "faccoes e organizacoes consagradas que possuem traducao padrao estabelecida para o
+     * portugues devem ser traduzidas" — "Earth Federation" vira "Federação Terrestre". Exigir o
+     * inglês dentro do português contradiz a regra de tradução.
+     *
+     * <p>É uma lista de POLÍTICA, curada: contém apenas vocabulário comum observado dentro dos
+     * termos das lores do projeto. Um token que NÃO esteja aqui continua exigível — é assim que
+     * "Eledore" (de "Eledore Massis") e "Zeon" (de "Principality of Zeon") seguem protegidos,
+     * enquanto "Principality" deixa de ser. Ao cadastrar uma obra cujos termos usem outro
+     * substantivo comum, acrescente-o aqui.
+     */
+    private static final Set<String> PALAVRAS_COMUNS_EM_TERMOS = Set.of(
+        "earth", "federation", "principality", "kingdom", "republic", "empire", "alliance",
+        "one", "year", "war", "team", "squad", "force", "forces", "battalion", "corps",
+        "mobile", "suit", "suits", "armor", "armour", "beam", "rifle", "saber", "sabre",
+        "ground", "type", "custom", "flight", "tank", "attack", "report", "cannon",
+        "particle", "mega", "the", "and", "of", "for", "with", "ms", "gm",
+        "base", "white", "side", "new", "old", "class", "unit", "group", "command");
 
     /**
      * Ordinal inglês puro ({@code 12th}, {@code 1st}, {@code 08th}). Em português o sufixo cai e
@@ -161,8 +188,12 @@ public class RecuperarPendenciaFallbackService {
                 continue;
             }
             for (String parte : termo.split("[^\\p{L}\\p{N}'-]+")) {
-                if (parte.length() >= TAMANHO_MINIMO_NOME) {
-                    tokens.add(parte.toLowerCase(Locale.ROOT));
+                String minusculo = parte.toLowerCase(Locale.ROOT);
+                // Substantivo comum dentro de um termo composto NÃO vira terminologia
+                // obrigatória: "Earth Federation" não pode transformar "earth" em exigência
+                // sobre toda frase que contenha a palavra. Ver PALAVRAS_COMUNS_EM_TERMOS.
+                if (parte.length() >= TAMANHO_MINIMO_NOME && !PALAVRAS_COMUNS_EM_TERMOS.contains(minusculo)) {
+                    tokens.add(minusculo);
                 }
             }
         }
@@ -201,20 +232,20 @@ public class RecuperarPendenciaFallbackService {
     private String termoProtegidoPerdido(String original, String traduzido, Set<String> tokensDeLore) {
         String semTags = PADRAO_TAG.matcher(original).replaceAll("")
             .replace("\\N", " ").replace("\\n", " ").replace("\\h", " ");
+        // Cartela de título ("THE WAR OF THE TWO", "GUNDAMS IN THE JUNGLE") é escrita
+        // inteiramente em caixa alta por estilo. Ali a regra de sigla não distingue nada:
+        // TODA palavra da linha viraria "acrônimo obrigatório" e nenhuma tradução passaria.
+        boolean linhaTodaEmCaixaAlta = ehTudoCaixaAlta(semTags);
         for (String bruto : semTags.split("\\s+")) {
             if (bruto.isEmpty()) {
                 continue;
             }
             String token = bruto.replaceAll("^[^\\p{L}\\p{N}]+", "").replaceAll("[^\\p{L}\\p{N}]+$", "");
-            if (token.isEmpty() || !exigidoNaTraducao(token, tokensDeLore)) {
+            if (token.isEmpty() || !exigidoNaTraducao(token, tokensDeLore, linhaTodaEmCaixaAlta)) {
                 continue;
             }
-            // Ordinal em inglês ("12th", "1st") vira o número puro em português ("12 de maio"):
-            // exigir o token inteiro reprovaria uma tradução correta. Exige-se só os dígitos.
-            String exigido = ORDINAL_INGLES.matcher(token).matches()
-                ? token.replaceAll("(?i)(st|nd|rd|th)$", "")
-                : token;
-            if (!sobrevive(exigido, traduzido)) {
+            boolean temDigito = token.chars().anyMatch(Character::isDigit);
+            if (temDigito ? !sobreviveNumerico(token, traduzido) : !sobrevive(token, traduzido)) {
                 return token;
             }
         }
@@ -226,25 +257,124 @@ public class RecuperarPendenciaFallbackService {
      * coração da guarda nova. Só três categorias obrigam: terminologia da obra, sigla e
      * identificador técnico.
      *
-     * <p>INVARIANTES DO DOMÍNIO: (a) termo de lore, comparado sem distinção de caixa; (b) sigla
-     * em CAIXA ALTA com ≥2 caracteres (evita exigir "A"/"I", que são artigo e pronome em inglês);
-     * (c) token com dígito (identificador de mecha/data/unidade). Fora disso devolve
-     * {@code false}, e a palavra pode ser legitimamente traduzida.
+     * <p>INVARIANTES DO DOMÍNIO: (a) termo de lore que NÃO seja substantivo comum de termo
+     * composto (ver {@link #PALAVRAS_COMUNS_EM_TERMOS}), comparado sem distinção de caixa;
+     * (b) sigla em CAIXA ALTA com ≥2 caracteres, e apenas quando a linha NÃO é toda maiúscula —
+     * numa cartela de título a caixa alta é estilo, não acrônimo; (c) token com dígito
+     * (identificador de mecha/data/unidade). Fora disso devolve {@code false}, e a palavra pode
+     * ser legitimamente traduzida.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: token nulo/vazio devolve {@code false}; não lança.
+     *
+     * @param linhaTodaEmCaixaAlta {@code true} quando a fala inteira está em maiúsculas, o que
+     *        desliga a regra de sigla para não exigir cada palavra da cartela
      */
-    private static boolean exigidoNaTraducao(String token, Set<String> tokensDeLore) {
+    private static boolean exigidoNaTraducao(String token, Set<String> tokensDeLore,
+            boolean linhaTodaEmCaixaAlta) {
         if (token == null || token.isEmpty()) {
             return false;
         }
         if (tokensDeLore.contains(token.toLowerCase(Locale.ROOT))) {
             return true;
         }
-        if (token.length() >= 2 && token.equals(token.toUpperCase(Locale.ROOT))
+        // A caixa alta só sinaliza sigla quando CONTRASTA com o resto da linha. Numa cartela
+        // escrita inteiramente em maiúsculas ela não distingue nada, e aplicar a regra ali
+        // exigiria "THE", "IN" e "BATTLE" em português — 8 das 37 recusas de 2026-07-22.
+        if (!linhaTodaEmCaixaAlta && token.length() >= 2 && token.equals(token.toUpperCase(Locale.ROOT))
                 && token.chars().anyMatch(Character::isLetter)) {
             return true; // sigla/acrônimo: MS, EFF, GM
         }
         return token.chars().anyMatch(Character::isDigit); // identificador: RX-78, 08th, 2148
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece a cartela de título — a linha escrita inteiramente em
+     * CAIXA ALTA por estilo, não por acrônimo — para desligar ali a regra de sigla.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: considera apenas as letras da linha; uma linha sem letra
+     * alguma não é tratada como caixa alta (não há o que distinguir).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve {@code false}; não lança.
+     */
+    private static boolean ehTudoCaixaAlta(String texto) {
+        if (texto == null) {
+            return false;
+        }
+        boolean temLetra = false;
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
+            if (Character.isLetter(c)) {
+                temLetra = true;
+                if (Character.isLowerCase(c)) {
+                    return false;
+                }
+            }
+        }
+        return temLetra;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: confirma que um IDENTIFICADOR NUMÉRICO do original sobreviveu à
+     * tradução, aceitando as reescritas que o português faz legitimamente sobre números —
+     * separador de milhar ({@code 9500} → {@code 9.500}), vírgula decimal ({@code 0.5} →
+     * {@code 0,5}) e queda do ordinal inglês ({@code 1/30th} → {@code 1/30}).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara apenas a SEQUÊNCIA de dígitos, na ordem: o valor não
+     * pode mudar, mas a pontuação pode. Exige fronteira de dígito nas duas pontas para que
+     * {@code 500} não seja dado como sobrevivente dentro de {@code 2500}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: token sem dígito ou tradução nula devolve
+     * {@code false} (recusa segura, mantém a fala pendente). Não lança.
+     */
+    private static boolean sobreviveNumerico(String token, String traduzido) {
+        if (token == null || traduzido == null) {
+            return false;
+        }
+        String digitos = apenasDigitos(ORDINAL_INGLES.matcher(token).replaceAll(
+            resultado -> resultado.group().replaceAll("(?i)(st|nd|rd|th)$", "")));
+        if (digitos.isEmpty()) {
+            return false;
+        }
+        String alvo = apenasDigitos(traduzido);
+        int posicao = alvo.indexOf(digitos);
+        while (posicao >= 0) {
+            boolean esquerdaLivre = posicao == 0 || !Character.isDigit(alvo.charAt(posicao - 1));
+            int fim = posicao + digitos.length();
+            boolean direitaLivre = fim >= alvo.length() || !Character.isDigit(alvo.charAt(fim));
+            if (esquerdaLivre && direitaLivre) {
+                return true;
+            }
+            posicao = alvo.indexOf(digitos, posicao + 1);
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: remove a pontuação que separa dígitos, para que
+     * {@code 9.500} e {@code 9500} comparem iguais.
+     * <p>INVARIANTES DO DOMÍNIO: só some o separador ENTRE dígitos; qualquer outro caractere
+     * vira um espaço, que serve de fronteira e impede colar números vizinhos.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada vazia devolve string vazia; não lança.
+     */
+    private static String apenasDigitos(String texto) {
+        StringBuilder saida = new StringBuilder(texto.length());
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
+            if (Character.isDigit(c)) {
+                saida.append(c);
+                continue;
+            }
+            // isSpaceChar cobre o espaço NÃO SEPARÁVEL (U+00A0), que isWhitespace ignora e que
+            // é justamente o separador de milhar usado por várias saídas de tradução.
+            boolean separadorEntreDigitos =
+                (c == '.' || c == ',' || Character.isWhitespace(c) || Character.isSpaceChar(c))
+                && i > 0 && Character.isDigit(texto.charAt(i - 1))
+                && i + 1 < texto.length() && Character.isDigit(texto.charAt(i + 1));
+            if (!separadorEntreDigitos) {
+                saida.append(' ');
+            }
+        }
+        return saida.toString();
     }
 
     /**
