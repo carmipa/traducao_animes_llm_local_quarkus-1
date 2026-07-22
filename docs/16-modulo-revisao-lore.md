@@ -31,7 +31,7 @@ Diferente da tradução principal, aqui a **seleção de obra é obrigatória**:
 | `EntradaAuditoriaRevisaoLore` (`domain`) | Record de cada entrada da trilha de auditoria |
 | `RevisaoLoreController` (`presentation`) | Endpoints REST — lista de contextos e disparo da operação em background |
 
-> ⚠️ **Este módulo tem seu próprio sistema de contextos**, separado do [`ProvedorContexto`](09-contextos-lore.md) usado na tradução principal. São **9 implementações** de `ProvedorPromptRevisaoLore` em `revisaoLore/contexto/**` (DanMachi geral + S4 + S5, 86, e a linha Gundam: 0080, 0083, 08th MS Team, CCA, Narrative) — um subconjunto bem menor que os 56+ contextos de tradução, cobrindo só as obras onde a revisão de lore já foi calibrada manualmente.
+> ⚠️ **Este módulo tem seu próprio sistema de contextos**, separado do [`ProvedorContexto`](09-contextos-lore.md) usado na tradução principal. Hoje são **45 implementações** de `ProvedorPromptRevisaoLore` em `revisaoLore/contexto/**` — incluindo DanMachi (geral/S4/S5), 86, a linha Gundam (0080, 0083, 08th MS Team, CCA, Narrative, Zeta, ZZ, Unicorn, Origin), Macross (Delta, II), Guilty Crown, Break Blade, Sidonia, entre outras — cobrindo as obras onde a revisão de lore já foi calibrada manualmente. Ainda é um subconjunto dos **61** contextos de tradução ([Contextos & Lore](09-contextos-lore.md)).
 
 ---
 

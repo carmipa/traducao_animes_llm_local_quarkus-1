@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Painel **"3. Análise de Conteúdo"** da SPA (grupo **Preparação**). Audita legendas `.ass`/`.srt` **antes e depois da tradução**, procurando anomalias que nenhuma etapa individual enxerga sozinha: efeitos de karaokê destruídos por LLM, tags vazadas para o texto visível, quebras de linha alucinadas e metadados inconsistentes. Existe porque **blindagem por nome de estilo não é confiável entre releases** — cada fansub estrutura legendas de um jeito, então o fluxo seguro é extrair → **auditar o que veio** → traduzir.
+Painel **"3. Análise de Legenda"** da SPA (grupo **Preparação**) — também chamado de **Análise de Conteúdo**. Audita legendas `.ass`/`.srt` **antes e depois da tradução**, procurando anomalias que nenhuma etapa individual enxerga sozinha: efeitos de karaokê destruídos por LLM, tags vazadas para o texto visível, quebras de linha alucinadas e metadados inconsistentes. Existe porque **blindagem por nome de estilo não é confiável entre releases** — cada fansub estrutura legendas de um jeito, então o fluxo seguro é extrair → **auditar o que veio** → traduzir.
 
 ### Três modos (abas internas)
 
