@@ -61,9 +61,33 @@ class VerificadorIdentificadorNumericoTest {
     }
 
     @Test
-    @DisplayName("número apagado pela tradução é reprovado")
-    void numeroApagadoEhReprovado() {
-        assertNotNull(verificador.divergencia("Range 2300. Two mobile suits.", "Dois mobile suits."));
+    @DisplayName("número TROCADO por outro em algarismos é reprovado")
+    void numeroTrocadoEhReprovado() {
+        assertNotNull(verificador.divergencia("Range 2300. Two mobile suits.", "Alcance 3200. Dois mobile suits."));
+    }
+
+    /**
+     * Casos REAIS da corrida de 2026-07-22 que a primeira versão da regra reprovou por engano:
+     * eram 22 falas boas, quase todas verso de música e contagem regressiva, em que a tradução
+     * escreveu o número por extenso. Escrever "dez" para "10" é português legítimo, não
+     * corrupção — e é o espelho exato do caso que já se tolerava ("eighteen" → "18").
+     */
+    @Test
+    @DisplayName("número escrito por extenso na tradução é aceito (regressão real)")
+    void numeroPorExtensoEhAceito() {
+        assertNull(verificador.divergencia(
+            "{\\fad(100,100)\\blur1\\bord0}10 years after, a decade from now.",
+            "{\\fad(100,100)\\blur1\\bord0}Dez anos depois, uma década a partir de agora."));
+        assertNull(verificador.divergencia("{\\i1}2... 1... 0!{\\i0}", "{\\i1}Dois... um... zero!{\\i0}"));
+        assertNull(verificador.divergencia("{\\i1}98! 97!", "{\\i1}Noventa e oito! Noventa e sete!"));
+        assertNull(verificador.divergencia("120...", "Cento e vinte..."));
+    }
+
+    @Test
+    @DisplayName("representação mista não reprova quando nenhum valor estranho aparece")
+    void representacaoMistaNaoReprova() {
+        assertNull(verificador.divergencia("10 years, 20 dead.", "Dez anos, 20 mortos."),
+            "o 10 virou palavra e o 20 seguiu algarismo: nenhum valor foi substituído");
     }
 
     @Test
