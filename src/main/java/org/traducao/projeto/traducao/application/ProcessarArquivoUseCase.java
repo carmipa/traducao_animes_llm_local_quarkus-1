@@ -177,6 +177,7 @@ public class ProcessarArquivoUseCase {
     public ResultadoTraducaoArquivo processar(Path arquivoEntrada, boolean permitirRetraducao) throws InterruptedException, ExecutionException {
         long inicioMs = System.currentTimeMillis();
         boolean ehSrt = ehSrt(arquivoEntrada);
+        anunciarEstadoContextoCena(ehSrt);
         log.info("Lendo arquivo de legenda: {}", arquivoEntrada);
         DocumentoLegenda documento = ehSrt ? leitorSrt.ler(arquivoEntrada) : leitor.ler(arquivoEntrada);
 
@@ -711,6 +712,29 @@ public class ProcessarArquivoUseCase {
             arquivoEntrada.getFileName().toString(), variante, politicaVersao, modelo,
             propriedades.diretorioCache(), linhasTraduziveis, traduzidasNovas, reaproveitadasCache,
             pendentes, caracteresContextoExtra, tempoMs, status.name()));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: torna VISÍVEL, no início de cada episódio, se o motor de
+     * correção de gênero por contexto de cena está ligado. A ausência desse sinal fez uma
+     * retradução do Gundam 08th rodar no baseline achando que o motor estava ativo — o log
+     * {@code [ CONTEXTO ] Utilizando contexto: <lore>} é seleção de LORE da obra, NÃO este
+     * motor. Aqui o operador vê o estado efetivo da flag na saída dinâmica (SSE).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não altera a tradução; só narra o estado efetivo da flag
+     * {@code tradutor.contexto-cena.ativo} (e sinaliza quando é ignorada por ser SRT).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: puramente informativo; não lança.
+     */
+    private void anunciarEstadoContextoCena(boolean ehSrt) {
+        if (contextoCena.ativo()) {
+            String extra = ehSrt ? " (ignorado neste arquivo: SRT segue o pipeline padrão)" : "";
+            uiLogger.log("[ CONTEXTO-CENA ] motor de correção de gênero LIGADO — janela="
+                + contextoCena.tamanhoJanela()
+                + (contextoCena.relatorioAb() ? ", relatório A/B ON" : "") + extra);
+        } else {
+            uiLogger.log("[ CONTEXTO-CENA ] motor de correção de gênero DESLIGADO (ativo=false) — pipeline padrão");
+        }
     }
 
     private static boolean ehSrt(Path arquivo) {

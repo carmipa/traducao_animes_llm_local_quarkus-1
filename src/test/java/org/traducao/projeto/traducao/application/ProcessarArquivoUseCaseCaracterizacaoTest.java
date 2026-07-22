@@ -928,6 +928,34 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (observabilidade — evita o "achei que liguei"): o operador deve
+     * VER, no início de cada episódio, se o motor de contexto de cena está ligado. A falta
+     * desse sinal fez uma retradução do 08th rodar no baseline achando que o motor estava
+     * ativo. Com a flag OFF anuncia DESLIGADO; com ON, LIGADO — distinto do log de lore.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a linha aparece SEMPRE, independente do resultado; não altera
+     * a tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ausência do anúncio (ou estado errado) reprova.
+     */
+    @Test
+    void anunciaEstadoDoMotorContextoCenaNoInicio() throws Exception {
+        LoggerCapturador loggerOff = new LoggerCapturador();
+        montar(new FakeLlmPort(), loggerOff).processar(escreverAss("epoff.ass", "Hello there"), false);
+        assertTrue(loggerOff.mensagens.stream().anyMatch(m ->
+                m.contains("[ CONTEXTO-CENA ]") && m.contains("DESLIGADO")),
+            "com a flag OFF, o operador deve ver o motor de contexto de cena DESLIGADO");
+
+        contextoCenaAtivo = true;
+        portaContextual = req -> "fala contextual";
+        LoggerCapturador loggerOn = new LoggerCapturador();
+        montar(new FakeLlmPort(), loggerOn).processar(escreverAss("epon.ass", "Hello there"), false);
+        assertTrue(loggerOn.mensagens.stream().anyMatch(m ->
+                m.contains("[ CONTEXTO-CENA ]") && m.contains("LIGADO")),
+            "com a flag ON, o operador deve ver o motor de contexto de cena LIGADO");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: logger de progresso silencioso para os testes —
      * desliga a barra de progresso de terceiros ({@code me.tongfei:progressbar}),
      * que, quando ativa, consome o flag de interrupção da thread e impediria
