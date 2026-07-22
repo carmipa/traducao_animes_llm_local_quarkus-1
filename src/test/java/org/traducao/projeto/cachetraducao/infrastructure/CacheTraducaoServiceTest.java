@@ -20,6 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Cobre o cache versionado por proveniência: reuso só quando lore/modelo batem,
  * invalidação + arquivamento quando divergem, migração do formato antigo e
  * preservação (não sobrescrita) de cache corrompido.
+ *
+ * <p>Cobre também a propriedade TRANSACIONAL do caminho ativo (hotfix de 2026-07-22):
+ * invalidar por proveniência é decisão de memória e copia a geração anterior para o lado,
+ * mas nunca esvazia o caminho ativo — só {@code salvar} troca o conteúdo ativo, de uma vez.
+ * Antes do hotfix o arquivo era MOVIDO na invalidação, e uma interrupção durante a
+ * retradução deixava o episódio sem cache nenhum.
  */
 class CacheTraducaoServiceTest {
 
@@ -75,8 +81,68 @@ class CacheTraducaoServiceTest {
 
         assertTrue(r.mapa().isEmpty(), "cache de outro lore não pode ser reutilizado");
         assertEquals(2, r.invalidadas());
-        assertFalse(Files.exists(f), "arquivo original deve ter sido arquivado");
+        assertTrue(Files.exists(f),
+            "o cache ativo NÃO pode sair do lugar: a invalidação é em memória, e o arquivo só "
+                + "será substituído quando a nova geração estiver inteira");
         assertTrue(existeArquivoContendo(".geracao_"), "geração anterior deve ser preservada");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma execução interrompida entre "invalidar por proveniência" e
+     * "gravar a nova geração" NÃO pode deixar o episódio sem cache. Enquanto a nova geração
+     * não existe, o cache ativo continua sendo o antigo, íntegro e reaproveitável pela
+     * proveniência que o gerou — o operador não perde horas de LLM por um Ctrl-C.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code carregar} com proveniência divergente é uma decisão
+     * de MEMÓRIA (mapa vazio + contagem de invalidadas) e não pode ter efeito destrutivo no
+     * disco. O conteúdo do caminho ativo permanece byte a byte o mesmo até {@code salvar}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se este teste falhar, voltou a existir uma janela em
+     * que o episódio fica sem cache — o defeito que apagou o S00E02 do 08th MS Team em
+     * 2026-07-22, recuperado na mão a partir de {@code backups/traducao-cache}.
+     */
+    @Test
+    void interrupcaoAposInvalidarPorProvenienciaPreservaOCacheAtivoIntacto() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi"), ent("Bye", "Tchau")));
+        String conteudoAntes = Files.readString(f);
+
+        // Lore mudou: invalida em memória. A execução MORRE aqui (nenhum salvar depois).
+        CacheTraducaoService.ResultadoCarga r = svc.carregar(f, prov("h2"));
+        assertTrue(r.mapa().isEmpty());
+        assertEquals(2, r.invalidadas());
+
+        assertTrue(Files.exists(f), "o cache ativo não pode ter sumido com a execução abortada");
+        assertEquals(conteudoAntes, Files.readString(f),
+            "o cache ativo deve estar byte a byte igual: nada foi gravado depois da invalidação");
+
+        // E ele continua servindo para quem tem a proveniência original — nada se perdeu.
+        CacheTraducaoService.ResultadoCarga reaberto = svc.carregar(f, prov("h1"));
+        assertEquals(2, reaberto.mapa().size(), "as duas falas traduzidas continuam recuperáveis");
+        assertEquals("Oi", reaberto.mapa().get("Hi"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: concluída a retradução, a nova geração ocupa o caminho ativo de
+     * uma vez só — é o único momento em que o conteúdo ativo troca.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: depois de {@code salvar}, o ativo tem exatamente a geração
+     * nova e a cópia datada da anterior continua ao lado para auditoria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: cache ativo com conteúdo velho após a gravação, ou
+     * cópia histórica ausente.
+     */
+    @Test
+    void novaGeracaoSubstituiOAtivoSomenteAoSalvarEPreservaACopiaAnterior() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi")));
+
+        svc.carregar(f, prov("h2"));                       // invalida por lore nova
+        svc.salvar(f, prov("h2"), List.of(ent("Hi", "Olá"))); // retradução termina
+
+        CacheTraducaoService.ResultadoCarga r = svc.carregar(f, prov("h2"));
+        assertEquals("Olá", r.mapa().get("Hi"), "o ativo passa a ser a geração nova");
+        assertTrue(existeArquivoContendo(".geracao_"), "a geração anterior segue auditável ao lado");
     }
 
     @Test
@@ -91,7 +157,7 @@ class CacheTraducaoServiceTest {
 
         assertTrue(r.mapa().isEmpty(), "schema divergente não pode ser reutilizado");
         assertEquals(1, r.invalidadas());
-        assertFalse(Files.exists(f), "geração de schema incompatível deve ser arquivada");
+        assertTrue(Files.exists(f), "o cache ativo permanece; a cópia da geração fica ao lado");
         assertTrue(existeArquivoContendo(".geracao_"));
     }
 
@@ -106,7 +172,7 @@ class CacheTraducaoServiceTest {
 
         assertTrue(r.mapa().isEmpty(), "schema 0 não é normalizado para atual");
         assertEquals(1, r.invalidadas());
-        assertFalse(Files.exists(f));
+        assertTrue(Files.exists(f), "o cache ativo permanece; a cópia da geração fica ao lado");
         assertTrue(existeArquivoContendo(".geracao_"));
     }
 
@@ -122,7 +188,7 @@ class CacheTraducaoServiceTest {
         assertTrue(r.mapa().isEmpty(), "objeto sem schema não é reutilizado");
         assertEquals(1, r.invalidadas());
         assertFalse(r.migrado(), "objeto sem schema NÃO é a lista pura legada — são formatos diferentes");
-        assertFalse(Files.exists(f));
+        assertTrue(Files.exists(f), "o cache ativo permanece; a cópia da geração fica ao lado");
         assertTrue(existeArquivoContendo(".geracao_"));
     }
 
