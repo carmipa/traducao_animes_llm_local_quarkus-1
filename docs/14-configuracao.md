@@ -35,7 +35,7 @@ tradutor:
     connect-timeout: 5s
     read-timeout: 180s
   fallback-online:
-    ativo: true                       # Fallback de ÚLTIMO recurso (Google Translate) p/ pendências de diálogo — OPT-IN
+    ativo: true                       # Tradutor de máquina como ÚLTIMO recurso p/ pendências de diálogo — OPT-IN
 
 remuxer:
   mkvmerge-path: mkvmerge            # Caminho/comando do mkvmerge (MKVToolNix)
@@ -124,7 +124,7 @@ quarkus.log.file.rotation.max-backup-index=5
 | `tradutor.llm.temperature` | `0.3` | Baixa — prioriza consistência sobre criatividade |
 | `tradutor.llm.max-tokens` | `2000` | Limite de tokens de saída por chamada |
 | `tradutor.llm.read-timeout` | `180s` | Timeout generoso — modelos locais em GPU modesta podem ser lentos |
-| `tradutor.fallback-online.ativo` | `true` | Fallback Google Translate para pendências de diálogo (opt-in, último recurso) |
+| `tradutor.fallback-online.ativo` | `true` | Tradutor de máquina como último recurso para as pendências de diálogo desta execução (ver doc 05) |
 | `remuxer.mkvmerge-path` | `mkvmerge` | Ajuste se não estiver no `PATH` |
 | `extrator.formato` | `ASS` | Formato padrão quando não especificado na requisição |
 | `extrator.mkvmerge-path` / `mkvextract-path` | `mkvmerge` / `mkvextract` | Ajuste se não estiver no `PATH` |
