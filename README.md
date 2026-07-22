@@ -114,22 +114,22 @@ cd traducao_animes_llm_local_quarkus
 
 ## Arquitetura em 30 Segundos
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                           KRONOS CORE                                 │
-│                                                                        │
-│  ┌──────────┐    ┌────────────────┐    ┌───────────────────────┐    │
-│  │   SPA    │───▶│ ApiController  │───▶│  Use Cases (20 pacotes)│    │
-│  │ (HTML/JS)│    │  REST + SSE    │    │  análise → extração →  │    │
-│  └──────────┘    └───────┬────────┘    │  tradução → correção → │    │
-│                          │              │  cura → remuxer        │    │
-│              ┌───────────┼───────────┐  └───────────────────────┘    │
-│              ▼           ▼           ▼                                │
-│       ┌──────────┐ ┌──────────┐ ┌──────────┐                        │
-│       │LM Studio │ │MKVToolNix│ │  FFmpeg  │                        │
-│       │ (GPU/LOC)│ │ (remux)  │ │(análise) │                        │
-│       └──────────┘ └──────────┘ └──────────┘                        │
-└──────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    SPA["🖥️ SPA — HTML/CSS/JS puro + SSE"] --> CTRL["🎮 ~21 controllers REST<br/>um por fatia (prefixo /api)"]
+    CTRL --> SLICES["🧩 27 fatias verticais<br/>fronteiras congeladas por ArchUnit"]
+    SLICES --> PEERS["🧱 Peers importáveis<br/>legenda · cachetraducao · contexto · qualidadeTraducao · llm"]
+    SLICES --> EXT["🌍 LM Studio (GPU) · MKVToolNix · FFmpeg"]
+    PEERS --> EXT
+
+    classDef a fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
+    classDef b fill:#312e81,stroke:#818CF8,color:#F9FAFB
+    classDef c fill:#14532d,stroke:#4ADE80,color:#F9FAFB
+    classDef d fill:#0f172a,stroke:#10B981,color:#F9FAFB
+    class SPA,CTRL a
+    class SLICES b
+    class PEERS c
+    class EXT d
 ```
 
 > Diagrama completo com fluxo de dados e decisões de arquitetura em [docs/01-arquitetura.md](docs/01-arquitetura.md).
@@ -189,35 +189,43 @@ Build:      Gradle com Quarkus Plugin
 
 ```
 traducao_animes_llm_local_quarkus/
-├── src/
-│   ├── main/
-│   │   ├── java/org/traducao/projeto/
-│   │   │   ├── analisadorMidia/       ← Auditoria ffprobe
-│   │   │   ├── legendasExtracao/      ← Extração ASS/SRT/PGS
-│   │   │   ├── traducao/              ← Núcleo: LLM, cache, contextos, ApiController
-│   │   │   ├── raspagemCorrecao/      ← Correção via Google Translate
-│   │   │   ├── raspagemRevisao/       ← Revisão de concordância PT-BR
-│   │   │   ├── auditorConteudoLegendas/ ← Análise de Conteúdo (anomalias de LLM/efeitos)
-│   │   │   ├── correcaoLegendas/      ← Correção estrutural (original como referência)
-│   │   │   ├── revisaoLore/           ← Revisão de nomes/termos vs. lore oficial
-│   │   │   ├── trocaTipoLegenda/      ← Troca de fontes legadas por Unicode
-│   │   │   ├── novoKaraoke/           ← Karaokê Simples (KFX → linha limpa)
-│   │   │   ├── traducaoKaraoke/       ← Tradução de Karaokê (romaji + PT-BR juntos)
-│   │   │   ├── remuxer/               ← Combina vídeo + legenda
-│   │   │   ├── renomearArquivos/      ← Renomeação em lote (S01E01) com undo
-│   │   │   ├── sistema/               ← Encerramento gracioso (menu "Sair")
-│   │   │   ├── telemetria/            ← Rastreamento de operações
-│   │   │   ├── mapaProjeto/           ← Gerador de mapa_projeto.md
-│   │   │   ├── apiDadosAnime/         ← Metadados (Jikan/TMDB)
-│   │   │   └── core/, config/         ← Utilitários, FilaExecucaoPipeline e bootstrap
-│   │   └── resources/
-│   │       ├── static/                ← SPA (HTML/CSS/JS por painel)
-│   │       ├── application.yml        ← Configuração principal
-│   │       └── application-local.yml  ← Chaves privadas (git-ignored)
-│   └── test/
-├── docs/                               ← Esta documentação
-├── build.gradle
-└── gradle.properties
+├── src/main/java/org/traducao/projeto/
+│   │   ── Fatias funcionais (não importam umas às outras) ──
+│   ├── traducao/                ← NÚCLEO da Tradução Local
+│   ├── legendasExtracao/        ← Extração ASS/SRT/PGS
+│   ├── analisadorMidia/         ← Auditoria ffprobe
+│   ├── auditorConteudoLegendas/ ← Análise de Conteúdo (anomalias de LLM/efeitos)
+│   ├── revisaoConcordancia/     ← Revisão de concordância de gênero PT-BR
+│   ├── revisaoLore/             ← Revisão de nomes/termos vs. lore oficial
+│   ├── raspagemCorrecao/        ← Correção de cache via Google Translate
+│   ├── raspagemRevisao/         ← Revisão de .ass finais (Google/LLM) + concordância
+│   ├── correcaoLegendas/        ← Correção estrutural (original como referência)
+│   ├── traducaoCorrige/         ← Limpeza de cache (entradas de fallback)
+│   ├── trocaTipoLegenda/        ← Troca de fontes legadas por Unicode
+│   ├── novoKaraoke/             ← Karaokê Simples (KFX → linha limpa)
+│   ├── traducaoKaraoke/         ← Tradução de Karaokê (romaji + PT-BR juntos)
+│   ├── remuxer/                 ← Combina vídeo + legenda
+│   ├── renomearArquivos/        ← Renomeação em lote (S01E01) com undo
+│   ├── telemetria/              ← Painel de telemetria + SSE
+│   ├── mapaProjeto/             ← Gerador de mapa_projeto.md
+│   ├── apiDadosAnime/           ← Metadados (Jikan/TMDB)
+│   ├── mcp/                     ← Ferramentas MCP (Model Context Protocol)
+│   ├── sistema/                 ← Encerramento gracioso (menu "Sair")
+│   │   ── Peers (importáveis; superfície congelada por ArchUnit) ──
+│   ├── legenda/                 ← Modelo + I/O .ass/.srt
+│   ├── cachetraducao/           ← Dono único do cache (+ proveniência)
+│   ├── contexto/                ← 61 lores + regras de concordância PT-BR
+│   ├── qualidadeTraducao/       ← Máscara de tags + validação anti-alucinação
+│   ├── llm/                     ← Contrato neutro do LLM (LlmPort)
+│   │   ── Infra transversal ──
+│   ├── core/                    ← FilaExecucaoPipeline, I/O atômico, kernel web/SSE
+│   └── config/                  ← Bootstrap (modo WEB vs CLI)
+│
+├── src/main/resources/static/   ← SPA (HTML/CSS/JS por painel) + img/screenshots
+├── src/main/resources/application.yml  ← Configuração principal
+├── src/test/                    ← Testes (inclui fitness ArchUnit: Fronteira*ArchTest)
+├── docs/                        ← Esta documentação
+└── build.gradle
 ```
 
 ---
@@ -228,11 +236,11 @@ A barra lateral organiza os painéis em **6 grupos acordeão** (recolhíveis, co
 
 | Grupo | Painéis |
 |-------|---------|
-| 🎬 **Preparação** | `1. Análise de Mídia` · `2. Extração` · `3. Análise de Conteúdo` |
+| 🎬 **Preparação** | `1. Análise de Mídia` · `2. Extração` · `3. Análise de Legenda` |
 | 🌐 **Tradução** | `4. Tradução Local` · `5. Correção Cache` |
-| ✅ **Qualidade** | `6. Revisão de Legendas` · `7. Revisão de Lore` · `8. Troca Tipo Legenda` |
-| 🎤 **Karaokê** | `9. Karaokê Simples` · `10. Tradução de Karaokê` · `11. Correção de Karaoke` |
-| 📦 **Finalização** | `12. Remuxer` · `13. Renomear Arquivos` |
+| ✅ **Qualidade** | `6. Revisão de Legendas` · `7. Revisão de Lore` · `8. Revisão de Concordância` · `9. Troca Tipo Legenda` |
+| 🎤 **Karaokê** | `10. Karaokê Simples` · `11. Tradução de Karaokê` · `12. Correção de Karaoke` |
+| 📦 **Finalização** | `13. Remuxer` · `14. Renomear Arquivos` |
 | ⚙️ **Sistema** | `Telemetria` · `Mapa do Projeto` · **`Documentação`** · `Sobre` |
 
 O menu **Documentação** renderiza esta mesma pasta `docs/` dentro da própria aplicação (incluindo os diagramas Mermaid), sem precisar sair do app ou abrir o GitHub.

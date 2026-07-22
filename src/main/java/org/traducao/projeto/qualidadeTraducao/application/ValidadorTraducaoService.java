@@ -83,6 +83,12 @@ public class ValidadorTraducaoService {
     // tradução — NUNCA em "por favor"/"desculpe"/"não posso" sozinhos, que são
     // diálogo legítimo comum em anime (validado contra 88 recusas reais x 125
     // falas legítimas com "por favor" no cache do Gundam 08th MS Team).
+    // Inclui também a RECITAÇÃO DE CAPACIDADE/PAPEL: ao ver "About who I am and what
+    // I'm capable of." (08th ep1), o modelo recitou o prompt de sistema -> "Sou capaz
+    // de traduzir legendas de anime ... preservando ... intenção emocional". Como está
+    // em PT e preserva o ASS, escapava da validação. Ancorado no vocabulário de
+    // tarefa/prompt ("traduzir legendas", "legendas de anime", "intenção emocional") —
+    // NUNCA em "sou capaz"/"preservando"/"emocional" sozinhos, que são fala legítima.
     private static final Pattern PADRAO_RECUSA_META = Pattern.compile(
         "(?:sem\\s+tradu[çc][ãa]o\\b"
             + "|n[ãa]o\\s+(?:recebi|tenho\\s+acesso|tenho\\s+como\\s+saber|tenho\\s+contexto|tenho\\s+informa)"
@@ -94,7 +100,8 @@ public class ValidadorTraducaoService {
             + "|--\\s*tradu[çc][ãa]o|^traduzir\\s*:"
             + "|n[ãa]o\\s+precisa\\s+ser\\s+retrabalhada|a\\s+tradu[çc][ãa]o\\s+(?:atual\\s+)?[ée]\\s+correta"
             + "|as\\s+an\\s+ai|i\\s+(?:cannot|can'?t|am\\s+unable)\\b"
-            + "|provide\\s+more\\s+(?:context|info)|don'?t\\s+have\\s+.{0,20}context)",
+            + "|provide\\s+more\\s+(?:context|info)|don'?t\\s+have\\s+.{0,20}context"
+            + "|traduzir\\s+legendas?|legendas?\\s+de\\s+anime|inten[çc][ãa]o\\s+emocional)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
 

@@ -34,6 +34,8 @@ tradutor:
     max-tokens: 2000
     connect-timeout: 5s
     read-timeout: 180s
+  fallback-online:
+    ativo: true                       # Fallback de ÚLTIMO recurso (Google Translate) p/ pendências de diálogo — OPT-IN
 
 remuxer:
   mkvmerge-path: mkvmerge            # Caminho/comando do mkvmerge (MKVToolNix)
@@ -47,6 +49,26 @@ extrator:
 
 tmdb:
   api-key: dummy_key                 # Placeholder — chave real fica em application-local.yml
+
+revisao-lore:                        # Stack LLM PRÓPRIA da Revisão de Lore (Opção 7), isolada de tradutor.llm
+  llm:
+    base-url: "http://127.0.0.1:1234/v1"
+    model: "current"
+    max-tokens: 2000
+    connect-timeout: 5s
+    read-timeout: 180s
+
+api-dados-anime:                     # Timeouts do cliente HTTP dos metadados de anime (AniList/Jikan/TMDB)
+  http:
+    connect-timeout: 5s
+    read-timeout: 180s
+
+telemetria-dataset:                  # Repositório do dataset público de telemetria (botão "Publicar Dataset")
+  repositorio-local: ../kronos-anime-translation-telemetry-dataset
+  repositorio-remoto: https://github.com/carmipa/kronos-anime-translation-telemetry-dataset.git
+  hardware:
+    publicar-ambiente-execucao: true
+    permitir-deteccao-automatica: true
 ```
 
 > ⚠️ **`tradutor.llm.model` deve permanecer sempre `"current"`.** Fixar o id exato de um modelo (ex.: `"mistralai/mistral-nemo-instruct-2407"`) faz o app enviar requisições para esse id específico mesmo quando outro modelo está carregado no LM Studio — e o LM Studio, ao receber uma chamada para um modelo que não está em memória, faz **auto-load (JIT)** dele, resultando em **duas instâncias de modelo carregadas simultaneamente** (consumindo VRAM em dobro). O app já resolve dinamicamente qual modelo está de fato carregado a cada operação — ver [Tradução Local — modelo "coringa"](05-modulo-traducao-llm.md#modelo-coringa-tradutorllmmodel-current) e [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente).
@@ -102,6 +124,7 @@ quarkus.log.file.rotation.max-backup-index=5
 | `tradutor.llm.temperature` | `0.3` | Baixa — prioriza consistência sobre criatividade |
 | `tradutor.llm.max-tokens` | `2000` | Limite de tokens de saída por chamada |
 | `tradutor.llm.read-timeout` | `180s` | Timeout generoso — modelos locais em GPU modesta podem ser lentos |
+| `tradutor.fallback-online.ativo` | `true` | Fallback Google Translate para pendências de diálogo (opt-in, último recurso) |
 | `remuxer.mkvmerge-path` | `mkvmerge` | Ajuste se não estiver no `PATH` |
 | `extrator.formato` | `ASS` | Formato padrão quando não especificado na requisição |
 | `extrator.mkvmerge-path` / `mkvextract-path` | `mkvmerge` / `mkvextract` | Ajuste se não estiver no `PATH` |
