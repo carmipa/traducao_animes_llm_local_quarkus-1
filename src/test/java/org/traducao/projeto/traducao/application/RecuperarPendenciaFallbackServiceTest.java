@@ -8,6 +8,7 @@ import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlinePropert
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.function.Function;
+import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
 import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
 import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
@@ -28,7 +29,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RecuperarPendenciaFallbackServiceTest {
 
     private static RecuperarPendenciaFallbackService servico(boolean ativo, FallbackTraducaoMaquinaPort porta) {
-        return new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(ativo), porta);
+        return servico(ativo, porta, Set.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta o serviço com uma lore ATIVA controlada pelo teste — a guarda
+     * passou a exigir preservação apenas do que a obra declara como termo protegido, então cada
+     * caso precisa dizer qual é essa terminologia.
+     * <p>INVARIANTES DO DOMÍNIO: lore vazia significa "obra sem terminologia declarada"; a guarda
+     * então só exige siglas e identificadores.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dublê puro, sem I/O; não lança.
+     */
+    private static RecuperarPendenciaFallbackService servico(
+            boolean ativo, FallbackTraducaoMaquinaPort porta, Set<String> termosProtegidos) {
+        LoreAtivaPort lore = new LoreAtivaPort() {
+            @Override
+            public Set<String> termosProtegidosAtivos() {
+                return termosProtegidos;
+            }
+
+            @Override
+            public String obterLoreAtiva() {
+                return "";
+            }
+        };
+        return new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(ativo), porta, lore);
     }
 
     private static LinkedHashSet<String> conjunto(String... itens) {
@@ -64,7 +89,7 @@ class RecuperarPendenciaFallbackServiceTest {
         boolean[] chamou = {false};
         FallbackTraducaoMaquinaPort porta = porta(o -> { chamou[0] = true; return ResultadoFallback.recuperada("x", ProvedorFallback.GOOGLE); });
 
-        Map<String, String> r = servico(false, porta).recuperar(conjunto("Hello"));
+        Map<String, String> r = servico(false, porta).recuperar(conjunto("Hello")).recuperadas();
 
         assertTrue(r.isEmpty());
         assertTrue(!chamou[0], "porta não pode ser chamada com o modo desligado");
@@ -75,20 +100,42 @@ class RecuperarPendenciaFallbackServiceTest {
     void ligadoRecuperaComNomePreservado() {
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Eu vi o Lena ontem", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday")).recuperadas();
 
         assertEquals("Eu vi o Lena ontem", r.get("I saw Lena yesterday"));
     }
 
     @Test
-    @DisplayName("ligado: recusa (mantém pendente) quando o nome próprio mid-sentence some")
-    void ligadoRecusaQuandoNomePropioSome() {
-        // "Lena" é mid-sentence e capitalizado; a tradução a perdeu -> recusa segura.
+    @DisplayName("ligado: recusa (mantém pendente) quando um nome DA LORE some da tradução")
+    void ligadoRecusaQuandoNomeDaLoreSome() {
+        // "Lena" é personagem declarada pela obra; a tradução a perdeu -> recusa segura.
+        // Desde F3 a exigência vem da terminologia da obra, não da capitalização.
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Eu vi ela ontem", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday"));
+        Map<String, String> r = servico(true, porta, Set.of("Lena"))
+            .recuperar(conjunto("I saw Lena yesterday")).recuperadas();
 
-        assertTrue(r.isEmpty(), "nome próprio perdido deve manter a fala pendente");
+        assertTrue(r.isEmpty(), "nome declarado pela lore e perdido deve manter a fala pendente");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: documenta o TRADE-OFF assumido em F3 — um nome próprio que a obra
+     * NÃO declara deixa de ser protegido por esta guarda. É deliberado: era exatamente essa
+     * exigência indiscriminada que recusava 57,7% das pendências reais. A rede de segurança
+     * passa a ser a validação canônica a jusante, aplicada pelo chamador.
+     * <p>INVARIANTES DO DOMÍNIO: sem lore declarada, só siglas e identificadores obrigam.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se voltar a recusar, a heurística de capitalização
+     * ressurgiu.
+     */
+    @Test
+    @DisplayName("F3 (trade-off): nome FORA da lore não é mais exigido pela guarda")
+    void nomeForaDaLoreNaoEhMaisExigido() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Eu vi ela ontem", ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("I saw Lena yesterday")).recuperadas();
+
+        assertEquals("Eu vi ela ontem", r.get("I saw Lena yesterday"),
+            "sem termo de lore declarado, a guarda não bloqueia — a validação canônica assume");
     }
 
     @Test
@@ -97,7 +144,7 @@ class RecuperarPendenciaFallbackServiceTest {
         // "Why" abre a frase; a tradução PT não o contém e mesmo assim é aceita.
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Por que temos que aguentar isso", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("Why do we have to put up with this"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("Why do we have to put up with this")).recuperadas();
 
         assertEquals("Por que temos que aguentar isso", r.get("Why do we have to put up with this"));
     }
@@ -107,21 +154,23 @@ class RecuperarPendenciaFallbackServiceTest {
     void portaVaziaOmiteFala() {
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.RESPOSTA_VAZIA, "sem resposta"));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("Hello there"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("Hello there")).recuperadas();
 
         assertTrue(r.isEmpty());
     }
 
     @Test
-    @DisplayName("#7: nome próprio após token numérico no início de frase é verificado (não escapa a guarda)")
-    void nomePropioAposTokenNumericoEhVerificado() {
-        // "Zaku" vem após "42" (token sem letras que não encerra frase); a guarda não pode
-        // tratá-lo como início de frase e deixá-lo escapar. A tradução perdeu "Zaku" -> recusa.
+    @DisplayName("#7: termo da lore é exigido em QUALQUER posição, inclusive após token numérico")
+    void termoDaLoreEhExigidoEmQualquerPosicao() {
+        // "Zaku" é mecha declarado pela obra e vem após "42". Desde F3 a posição na frase deixou
+        // de importar — o que obriga é ser terminologia da obra —, então ele é exigido aqui e
+        // também seria se abrisse a frase (a regra antiga o deixaria escapar no início).
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Pare! 42 caiu.", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("Stop! 42 Zaku fell."));
+        Map<String, String> r = servico(true, porta, Set.of("Zaku"))
+            .recuperar(conjunto("Stop! 42 Zaku fell.")).recuperadas();
 
-        assertTrue(r.isEmpty(), "nome próprio perdido após token numérico deve manter a fala pendente");
+        assertTrue(r.isEmpty(), "termo da lore perdido deve manter a fala pendente");
     }
 
     /**
@@ -144,17 +193,35 @@ class RecuperarPendenciaFallbackServiceTest {
      * aplicada, a guarda mudou por acidente — investigar antes de ajustar a expectativa.
      */
     @Test
-    @DisplayName("F1 (defeito atual): título em Title Case é recusado — 'Battle' tratado como nome próprio")
-    void caracterizacaoTituloTitleCaseEhRecusadoHoje() {
-        // Título real do Gundam 0083. A tradução está CORRETA, mas "Battle", "Three" e
-        // "Dimensions" somem (como devem sumir) e a guarda recusa a fala inteira.
+    @DisplayName("F3 (corrigido): título em Title Case é ACEITO — 'Battle' não é termo de lore")
+    void tituloTitleCaseAgoraEhAceito() {
+        // Título real do Gundam 0083, corretamente traduzido: "Battle"/"Three"/"Dimensions"
+        // somem, como devem. Nenhum deles é termo de lore, sigla ou identificador.
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("A Batalha em Três Dimensões", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("The Battle in Three Dimensions"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("The Battle in Three Dimensions")).recuperadas();
 
-        assertTrue(r.isEmpty(),
-            "CARACTERIZAÇÃO DO DEFEITO: hoje a guarda recusa um título corretamente traduzido, "
-                + "porque exige que 'Battle'/'Three'/'Dimensions' sobrevivam em português");
+        assertEquals("A Batalha em Três Dimensões", r.get("The Battle in Three Dimensions"),
+            "palavra capitalizada comum não pode mais reprovar um título corretamente traduzido");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que afrouxar a guarda NÃO desprotegeu a terminologia — o mesmo
+     * título continua sendo recusado quando a obra declara "Battle" como termo protegido. É o
+     * contraponto obrigatório do teste acima: sem ele, "passou a aceitar" poderia significar
+     * "parou de verificar".
+     * <p>INVARIANTES DO DOMÍNIO: a exigência agora vem da lore, não da capitalização.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se passar a aceitar, a proteção de lore regrediu.
+     */
+    @Test
+    @DisplayName("F3: o MESMO título é recusado quando 'Battle' é termo protegido da obra")
+    void tituloEhRecusadoQuandoPalavraEhTermoDeLore() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("A Batalha em Três Dimensões", ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta, Set.of("Battle"))
+            .recuperar(conjunto("The Battle in Three Dimensions")).recuperadas();
+
+        assertTrue(r.isEmpty(), "termo declarado pela lore deve continuar obrigatório na tradução");
     }
 
     /**
@@ -166,14 +233,74 @@ class RecuperarPendenciaFallbackServiceTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: ver o teste irmão acima.
      */
     @Test
-    @DisplayName("F1 (defeito atual): data de época é recusada — 'Stellar'/'Year' tratados como nome próprio")
-    void caracterizacaoDataDeEpocaEhRecusadaHoje() {
+    @DisplayName("F3 (corrigido): data de época é ACEITA — mas o número 2148 continua exigido")
+    void dataDeEpocaAgoraEhAceita() {
+        // "Stellar"/"Year" são palavras comuns e podem ser traduzidas; "2148" é identificador
+        // numérico e a tradução o preserva — por isso passa.
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("12 de maio, Ano Estelar 2148", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("May 12th, Stellar Year 2148"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("May 12th, Stellar Year 2148")).recuperadas();
 
-        assertTrue(r.isEmpty(),
-            "CARACTERIZAÇÃO DO DEFEITO: 'Stellar' e 'Year' são exigidos literalmente em português");
+        assertEquals("12 de maio, Ano Estelar 2148", r.get("May 12th, Stellar Year 2148"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que identificadores numéricos continuam obrigatórios — perder
+     * o ano numa legenda de época corromperia a informação, e nenhum afrouxamento da guarda pode
+     * permitir isso.
+     * <p>INVARIANTES DO DOMÍNIO: token com dígito é sempre exigido, independentemente da lore.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: aceitar aqui significa que a regra (c) da guarda sumiu.
+     */
+    @Test
+    @DisplayName("F3: identificador numérico perdido continua recusando (ano some da tradução)")
+    void identificadorNumericoPerdidoEhRecusado() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("12 de maio, Ano Estelar", ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("May 12th, Stellar Year 2148")).recuperadas();
+
+        assertTrue(r.isEmpty(), "identificador numérico perdido deve manter a fala pendente");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que siglas/acrônimos continuam obrigatórios — "MS" (Mobile
+     * Suit) traduzido ou apagado descaracterizaria a fala.
+     * <p>INVARIANTES DO DOMÍNIO: token em CAIXA ALTA com ≥2 caracteres é sempre exigido.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: aceitar aqui significa que a regra (b) da guarda sumiu.
+     */
+    @Test
+    @DisplayName("F3: sigla em caixa alta perdida continua recusando")
+    void siglaPerdidaEhRecusada() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("A unidade foi destruída", ProvedorFallback.GOOGLE));
+
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("The MS unit was destroyed")).recuperadas();
+
+        assertTrue(r.isEmpty(), "sigla perdida deve manter a fala pendente");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que o relatório por CAUSA é preenchido — é ele que transforma
+     * "recuperou N de M" em diagnóstico acionável.
+     * <p>INVARIANTES DO DOMÍNIO: cada tentativa incrementa exatamente uma causa; a soma cobre
+     * todas as falas informadas.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contadores ausentes reprovam.
+     */
+    @Test
+    @DisplayName("F3: contadores por causa cobrem todas as tentativas")
+    void contadoresPorCausaSaoPreenchidos() {
+        FallbackTraducaoMaquinaPort porta = porta(o -> o.contains("MS")
+            ? ResultadoFallback.recuperada("A unidade foi destruída", ProvedorFallback.GOOGLE)
+            : ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.HTTP_ERRO, "HTTP 429"));
+
+        var resultado = servico(true, porta)
+            .recuperar(conjunto("The MS unit was destroyed", "Hello there"));
+
+        assertEquals(1, resultado.porCausa().get(StatusFallback.GUARDA_LORE),
+            "a fala com sigla perdida deve contar como GUARDA_LORE");
+        assertEquals(1, resultado.porCausa().get(StatusFallback.HTTP_ERRO),
+            "a fala com erro de transporte deve contar como HTTP_ERRO");
+        assertTrue(resultado.recuperadas().isEmpty());
+        assertTrue(resultado.resumoPorCausa().contains("HTTP_ERRO"),
+            "o resumo legível deve listar as causas ocorridas: " + resultado.resumoPorCausa());
     }
 
     @Test
@@ -183,7 +310,7 @@ class RecuperarPendenciaFallbackServiceTest {
         // "Londres"; não pode ser tratado como nome próprio obrigatório e reprovar a recuperação.
         FallbackTraducaoMaquinaPort porta = porta(o -> ResultadoFallback.recuperada("Ele saiu . Londres chama", ProvedorFallback.GOOGLE));
 
-        Map<String, String> r = servico(true, porta).recuperar(conjunto("He left . London calls"));
+        Map<String, String> r = servico(true, porta).recuperar(conjunto("He left . London calls")).recuperadas();
 
         assertEquals("Ele saiu . Londres chama", r.get("He left . London calls"),
             "palavra inicial da frase após pontuação isolada não é nome próprio obrigatório");

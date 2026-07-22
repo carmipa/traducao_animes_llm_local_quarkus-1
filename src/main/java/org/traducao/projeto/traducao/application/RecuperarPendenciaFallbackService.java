@@ -3,13 +3,18 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 import org.traducao.projeto.traducao.domain.fallback.ProvedorFallback;
 import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoRecuperacao;
 import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
 import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;
 
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -49,20 +54,32 @@ public class RecuperarPendenciaFallbackService {
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^{}]*}");
     private static final int TAMANHO_MINIMO_NOME = 3;
 
+    /**
+     * Ordinal inglês puro ({@code 12th}, {@code 1st}, {@code 08th}). Em português o sufixo cai e
+     * sobra o número ("May 12th" → "12 de maio"), então exigir o token inteiro reprovaria uma
+     * tradução correta; exige-se apenas a parte numérica.
+     */
+    private static final Pattern ORDINAL_INGLES = Pattern.compile("(?i)\\d+(st|nd|rd|th)");
+
     private final FallbackOnlineProperties propriedades;
     private final FallbackTraducaoMaquinaPort fallbackPort;
+    private final LoreAtivaPort loreAtiva;
 
     /**
-     * PROPÓSITO DE NEGÓCIO: compõe a recuperação com a flag opt-in e a porta própria da fatia.
+     * PROPÓSITO DE NEGÓCIO: compõe a recuperação com a flag opt-in, a porta própria da fatia e a
+     * terminologia da obra ativa — que passou a ser a FONTE DE VERDADE da guarda, no lugar da
+     * heurística de capitalização.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
      * <p>COMPORTAMENTO EM CASO DE FALHA: dependência ausente impede a criação do serviço.
      */
     public RecuperarPendenciaFallbackService(
         FallbackOnlineProperties propriedades,
-        FallbackTraducaoMaquinaPort fallbackPort
+        FallbackTraducaoMaquinaPort fallbackPort,
+        LoreAtivaPort loreAtiva
     ) {
         this.propriedades = propriedades;
         this.fallbackPort = fallbackPort;
+        this.loreAtiva = loreAtiva;
     }
 
     /**
@@ -92,72 +109,142 @@ public class RecuperarPendenciaFallbackService {
      * @param dialogosPendentes textos originais das falas de diálogo já dadas como pendentes
      * @return mapa original→tradução candidata (subconjunto do informado), possivelmente vazio
      */
-    public Map<String, String> recuperar(Set<String> dialogosPendentes) {
+    public ResultadoRecuperacao recuperar(Set<String> dialogosPendentes) {
         if (!propriedades.ativo() || dialogosPendentes == null || dialogosPendentes.isEmpty()) {
-            return Map.of();
+            return ResultadoRecuperacao.vazio();
         }
         Map<String, String> recuperadas = new LinkedHashMap<>();
+        Map<StatusFallback, Integer> porCausa = new EnumMap<>(StatusFallback.class);
+        Set<String> tokensDeLore = tokensProtegidos();
+
         for (String original : dialogosPendentes) {
             ResultadoFallback resultado = fallbackPort.traduzir(original);
             if (!resultado.recuperou()) {
                 // A causa NUNCA é descartada: sem ela, uma pendência vira um número sem diagnóstico.
+                porCausa.merge(resultado.status(), 1, Integer::sum);
                 log.warn("Fallback [{}] {}: {} — fala mantida pendente: {}",
                     resultado.provedor(), resultado.status(), resultado.motivo(), original);
                 continue;
             }
             String traduzido = resultado.traducao();
-            if (!nomesPropriosPreservados(original, traduzido)) {
-                log.warn("Fallback [{}] {}: nome próprio não preservado — fala mantida pendente: {}",
-                    resultado.provedor(), StatusFallback.GUARDA_LORE, original);
+            String termoPerdido = termoProtegidoPerdido(original, traduzido, tokensDeLore);
+            if (termoPerdido != null) {
+                porCausa.merge(StatusFallback.GUARDA_LORE, 1, Integer::sum);
+                log.warn("Fallback [{}] {}: termo protegido \"{}\" não sobreviveu — fala mantida pendente: {}",
+                    resultado.provedor(), StatusFallback.GUARDA_LORE, termoPerdido, original);
                 continue;
             }
+            porCausa.merge(StatusFallback.RECUPERADA, 1, Integer::sum);
             recuperadas.put(original, traduzido);
         }
-        return recuperadas;
+        return new ResultadoRecuperacao(recuperadas, porCausa);
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: guarda heurística de nomes próprios sem depender da lore — evita que
-     * a tradução de máquina apague nomes que aparecem capitalizados no meio da frase.
+     * PROPÓSITO DE NEGÓCIO: projeta os termos protegidos da obra ativa (que podem ser compostos,
+     * como "Rygart Arrow" ou "Kingdom of Krisna") no conjunto de PALAVRAS que a guarda compara
+     * token a token — a verificação é por token, então um termo composto precisa ser decomposto
+     * para que cada parte relevante seja exigível.
      *
-     * <p>INVARIANTES DO DOMÍNIO: ignora o token inicial de cada frase (capital de início não é
-     * nome); só considera tokens com ≥{@value #TAMANHO_MINIMO_NOME} letras iniciados por
-     * maiúscula; a checagem de sobrevivência ignora caixa e respeita fronteiras.
+     * <p>INVARIANTES DO DOMÍNIO: comparação sem distinção de caixa (chaves em minúsculas);
+     * partículas curtas (&lt;{@value #TAMANHO_MINIMO_NOME} letras, ex.: "of", "de") ficam de fora,
+     * pois nunca são o que identifica um nome e ainda causariam falso-positivo.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer nome próprio candidato ausente na tradução
-     * devolve {@code false} (recusa segura — mantém a fala pendente).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem contexto ativo, {@code termosProtegidosAtivos()}
+     * devolve conjunto vazio e a guarda passa a exigir apenas siglas/identificadores — degrada
+     * para menos restritiva, nunca para bloqueio total.
      */
-    private boolean nomesPropriosPreservados(String original, String traduzido) {
+    private Set<String> tokensProtegidos() {
+        Set<String> tokens = new HashSet<>();
+        for (String termo : loreAtiva.termosProtegidosAtivos()) {
+            if (termo == null || termo.isBlank()) {
+                continue;
+            }
+            for (String parte : termo.split("[^\\p{L}\\p{N}'-]+")) {
+                if (parte.length() >= TAMANHO_MINIMO_NOME) {
+                    tokens.add(parte.toLowerCase(Locale.ROOT));
+                }
+            }
+        }
+        return tokens;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda de TERMINOLOGIA — impede que a tradução de máquina apague um
+     * termo que a obra exige preservar (nome, facção, codinome), uma sigla ou um identificador
+     * técnico. Devolve o primeiro termo perdido, para que o log diga QUAL termo reprovou em vez
+     * de apenas "recusada".
+     *
+     * <p>Substituiu a heurística anterior, que tratava QUALQUER palavra capitalizada no meio da
+     * frase como nome próprio obrigatório. Aquela regra tornava impossível traduzir um título em
+     * Title Case — "The Battle in Three Dimensions" exigia que "Battle", "Three" e "Dimensions"
+     * sobrevivessem em português — e recusava a resposta de qualquer provedor, o que nenhuma
+     * troca de tradutor resolveria. Medição sobre as 560 falas pendentes reais dos caches
+     * versionados: <b>323 (57,7%)</b> eram recusadas exclusivamente por esse falso-positivo,
+     * contra apenas 35 (6,2%) que dependem de termo legítimo e continuam protegidas aqui.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só é exigido o token que (a) pertence à terminologia da obra
+     * ativa, (b) é sigla/acrônimo em CAIXA ALTA com ≥2 caracteres, ou (c) é identificador
+     * alfanumérico (contém dígito, como {@code RX-78} ou {@code 08th}). Capitalização comum
+     * deixa de reprovar. A checagem de sobrevivência ignora caixa e respeita fronteiras de
+     * palavra. Posição na frase deixou de importar: um termo de lore é exigido mesmo abrindo a
+     * frase, e uma palavra comum não é exigida nem no meio dela.
+     *
+     * <p>TRADE-OFF DECLARADO: um nome próprio que NÃO esteja na lore da obra deixa de ser
+     * protegido por esta guarda. É aceitável porque (1) as lores do projeto trazem rosters
+     * completos e (2) a validação canônica a jusante — a mesma aplicada à saída do LLM —
+     * continua rodando sobre a candidata e barra resíduo em inglês.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve o termo perdido (recusa segura, mantém a fala
+     * pendente) ou {@code null} quando tudo que era exigido sobreviveu. Não lança.
+     */
+    private String termoProtegidoPerdido(String original, String traduzido, Set<String> tokensDeLore) {
         String semTags = PADRAO_TAG.matcher(original).replaceAll("")
             .replace("\\N", " ").replace("\\n", " ").replace("\\h", " ");
-        String[] tokens = semTags.split("\\s+");
-        boolean inicioDeFrase = true;
-        for (String bruto : tokens) {
+        for (String bruto : semTags.split("\\s+")) {
             if (bruto.isEmpty()) {
                 continue;
             }
-            String token = bruto.replaceAll("^[^\\p{L}]+", "").replaceAll("[^\\p{L}]+$", "");
-            boolean terminaFrase = bruto.matches(".*[.!?][\"')\\]]*$");
-            if (!token.isEmpty()) {
-                boolean candidatoNome = token.length() >= TAMANHO_MINIMO_NOME
-                    && Character.isUpperCase(token.codePointAt(0))
-                    && !inicioDeFrase;
-                if (candidatoNome && !sobrevive(token, traduzido)) {
-                    return false;
-                }
-                inicioDeFrase = terminaFrase;
-            } else if (terminaFrase) {
-                // Token de pontuação pura que encerra a frase (ex.: " . "): a próxima palavra é
-                // início de frase e não pode ser confundida com nome próprio obrigatório.
-                inicioDeFrase = true;
-            } else {
-                // Token sem letras que NÃO encerra frase (número "42", símbolo): há conteúdo antes
-                // da próxima palavra, então ela deixa de ser início de frase e volta a ser
-                // candidata a nome próprio obrigatório.
-                inicioDeFrase = false;
+            String token = bruto.replaceAll("^[^\\p{L}\\p{N}]+", "").replaceAll("[^\\p{L}\\p{N}]+$", "");
+            if (token.isEmpty() || !exigidoNaTraducao(token, tokensDeLore)) {
+                continue;
+            }
+            // Ordinal em inglês ("12th", "1st") vira o número puro em português ("12 de maio"):
+            // exigir o token inteiro reprovaria uma tradução correta. Exige-se só os dígitos.
+            String exigido = ORDINAL_INGLES.matcher(token).matches()
+                ? token.replaceAll("(?i)(st|nd|rd|th)$", "")
+                : token;
+            if (!sobrevive(exigido, traduzido)) {
+                return token;
             }
         }
-        return true;
+        return null;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se um token do original PRECISA aparecer na tradução — o
+     * coração da guarda nova. Só três categorias obrigam: terminologia da obra, sigla e
+     * identificador técnico.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: (a) termo de lore, comparado sem distinção de caixa; (b) sigla
+     * em CAIXA ALTA com ≥2 caracteres (evita exigir "A"/"I", que são artigo e pronome em inglês);
+     * (c) token com dígito (identificador de mecha/data/unidade). Fora disso devolve
+     * {@code false}, e a palavra pode ser legitimamente traduzida.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: token nulo/vazio devolve {@code false}; não lança.
+     */
+    private static boolean exigidoNaTraducao(String token, Set<String> tokensDeLore) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        if (tokensDeLore.contains(token.toLowerCase(Locale.ROOT))) {
+            return true;
+        }
+        if (token.length() >= 2 && token.equals(token.toUpperCase(Locale.ROOT))
+                && token.chars().anyMatch(Character::isLetter)) {
+            return true; // sigla/acrônimo: MS, EFF, GM
+        }
+        return token.chars().anyMatch(Character::isDigit); // identificador: RX-78, 08th, 2148
     }
 
     /**

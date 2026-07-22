@@ -3,6 +3,7 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.traducao.domain.fallback.ResultadoRecuperacao;
 import org.traducao.projeto.traducao.domain.CategoriaConteudo;
 import org.traducao.projeto.traducao.domain.CausaRaizPendencia;
 import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
@@ -353,22 +354,36 @@ public class ProcessarArquivoUseCase {
             }
             if (recuperarPendenciaGoogle.ativo() && !dialogosPendentes.isEmpty()) {
                 uiLogger.log("[FALLBACK] LLM não resolveu " + dialogosPendentes.size()
-                    + " fala(s) de diálogo — enviando via scraping do Google...");
+                    + " fala(s) de diálogo — enviando ao tradutor de máquina ("
+                    + recuperarPendenciaGoogle.provedorAtivo() + ")...");
             }
-            Map<String, String> candidatas = recuperarPendenciaGoogle.recuperar(dialogosPendentes);
-            for (Map.Entry<String, String> candidata : candidatas.entrySet()) {
+            ResultadoRecuperacao recuperacao = recuperarPendenciaGoogle.recuperar(dialogosPendentes);
+            int reprovadasNaValidacao = 0;
+            for (Map.Entry<String, String> candidata : recuperacao.recuperadas().entrySet()) {
                 String original = candidata.getKey();
-                String google = candidata.getValue();
-                if (avaliadorCache.motivoFalhaFinal(original, google) != null) {
-                    continue; // não passou na validação canônica: mantém pendente
+                String traducaoMaquina = candidata.getValue();
+                if (avaliadorCache.motivoFalhaFinal(original, traducaoMaquina) != null) {
+                    // Passou na guarda, mas a validação canônica (a mesma do LLM) reprovou:
+                    // continua pendente. Contabilizado à parte para não inflar "recuperadas".
+                    reprovadasNaValidacao++;
+                    continue;
                 }
-                traducoesValidadas.put(original, google);
+                traducoesValidadas.put(original, traducaoMaquina);
                 falhasDistintas.remove(original);
                 motivoPorFalha.remove(original);
                 telemetriaTraducao.registrarFalhaTraducaoRecuperada();
-                String recuperada = "Fala recuperada via fallback Google (último recurso): " + original;
+                String recuperada = "Fala recuperada via fallback (último recurso): " + original;
                 log.info(recuperada);
                 uiLogger.log("[ OK ] " + recuperada);
+            }
+            // Relatório por CAUSA: sem ele, "recuperou N de M" não diz se o resto caiu por
+            // provedor fora do ar, marcador corrompido ou guarda de lore — e não há como
+            // decidir se vale trocar de provedor, ajustar a guarda ou subir um container.
+            if (!dialogosPendentes.isEmpty() && recuperarPendenciaGoogle.ativo()) {
+                String resumo = recuperacao.resumoPorCausa()
+                    + (reprovadasNaValidacao > 0 ? ", REPROVADA_VALIDACAO=" + reprovadasNaValidacao : "");
+                log.info("Fallback por causa: {}", resumo);
+                uiLogger.log("[FALLBACK] Desfecho por causa: " + resumo);
             }
         }
 

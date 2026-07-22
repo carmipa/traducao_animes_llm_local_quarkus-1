@@ -256,8 +256,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         CacheTraducaoService cache = new CacheTraducaoService(new ObjectMapper());
         ValidadorTraducaoService validador = new ValidadorTraducaoService();
         GerenciadorContexto gerenciador = new GerenciadorContexto(List.of(new ContextoTeste()));
+        // Mesma instância para o detector e para a guarda do fallback: ambos julgam contra a
+        // terminologia da obra ATIVA, e usar adapters distintos permitiria divergência silenciosa.
+        LoreAtivaContextoAdapter loreAtivaAdapter = new LoreAtivaContextoAdapter(gerenciador);
         DetectorTraducaoIdenticaService detectorIdentica =
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(gerenciador));
+            new DetectorTraducaoIdenticaService(loreAtivaAdapter);
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         DetectorEfeitoKaraokeService detectorKaraoke = new DetectorEfeitoKaraokeService();
         TelemetriaTraducaoPort telemetria = telemetriaCaptor;
@@ -295,7 +298,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ClassificadorPendenciaTelemetria classificadorPendencia =
             new ClassificadorPendenciaTelemetria(detectorKaraoke);
         RecuperarPendenciaFallbackService recuperarPendenciaGoogle =
-            new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
+            new RecuperarPendenciaFallbackService(
+                new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort, loreAtivaAdapter);
 
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
@@ -484,7 +488,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     void fallbackLigadoRecuperaDialogoPendenteEConclui() throws Exception {
         fallbackOnlineAtivo = true;
         fallbackPort = portaFallback(original -> original.contains("KEEPME")
-            ? Optional.of("permanece aqui") : Optional.empty());
+            ? Optional.of("KEEPME permanece aqui") : Optional.empty());
         FakeLlmPort llm = new FakeLlmPort();
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
@@ -535,7 +539,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * diálogo pendentes, o pipeline ANUNCIA na saída dinâmica que está enviando ao scraping
      * do Google — para o operador não ficar no escuro durante a recuperação de último recurso.
      *
-     * <p>INVARIANTES DO DOMÍNIO: a linha de aviso cita "scraping do Google" e é emitida antes
+     * <p>INVARIANTES DO DOMÍNIO: a linha de aviso cita "tradutor de máquina" e é emitida antes
      * da tentativa externa, apenas quando há diálogo pendente e o fallback está ligado.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA (antes do wire): nenhuma narração — este teste falharia.
@@ -544,7 +548,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     void fallbackLigadoAnunciaEnvioAoScrapingDoGoogle() throws Exception {
         fallbackOnlineAtivo = true;
         fallbackPort = portaFallback(original -> original.contains("KEEPME")
-            ? Optional.of("permanece aqui") : Optional.empty());
+            ? Optional.of("KEEPME permanece aqui") : Optional.empty());
         FakeLlmPort llm = new FakeLlmPort();
         LoggerCapturador logger = new LoggerCapturador();
         ProcessarArquivoUseCase uc = montar(llm, logger);
@@ -552,8 +556,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         uc.processar(entrada, false);
 
-        assertTrue(logger.mensagens.stream().anyMatch(m -> m.contains("scraping do Google")),
-            "deve anunciar o envio ao scraping do Google quando há diálogo pendente e o fallback está ligado");
+        assertTrue(logger.mensagens.stream().anyMatch(m -> m.contains("tradutor de máquina")),
+            "deve anunciar o envio ao tradutor de máquina quando há diálogo pendente e o fallback está ligado");
     }
 
     /**
@@ -561,7 +565,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * DESLIGADO, mesmo havendo fala pendente, o pipeline NÃO pode anunciar envio ao Google —
      * evita mentir que houve chamada externa quando nenhuma ocorre.
      *
-     * <p>INVARIANTES DO DOMÍNIO: nenhuma linha citando "scraping do Google" é emitida.
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma linha citando "tradutor de máquina" é emitida.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: um anúncio incondicional (sem checar {@code ativo()})
      * reprova este teste.
@@ -577,8 +581,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         uc.processar(entrada, false);
 
-        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("scraping do Google")),
-            "com o fallback desligado, nada de scraping do Google deve ser anunciado");
+        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("tradutor de máquina")),
+            "com o fallback desligado, nada de fallback deve ser anunciado");
     }
 
     /**
