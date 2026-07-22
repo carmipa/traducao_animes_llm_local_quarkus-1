@@ -1,6 +1,8 @@
 package org.traducao.projeto.traducao.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.llm.domain.Lote;
@@ -163,6 +165,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         private static final Pattern TOKEN = Pattern.compile("\\[\\[[^\\]]*\\]\\]");
         final AtomicInteger chamadas = new AtomicInteger();
         private final boolean interromperNaPrimeira;
+        private final boolean comerMarcadores;
 
         FakeLlmPort() {
             this(false);
@@ -170,6 +173,27 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         FakeLlmPort(boolean interromperNaPrimeira) {
             this.interromperNaPrimeira = interromperNaPrimeira;
+            this.comerMarcadores = false;
+        }
+
+        private FakeLlmPort(boolean interromperNaPrimeira, boolean comerMarcadores) {
+            this.interromperNaPrimeira = interromperNaPrimeira;
+            this.comerMarcadores = comerMarcadores;
+        }
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: dublê do modo de falha REAL observado em produção — o modelo
+         * traduz o texto mas ENGOLE os marcadores {@code [[TAGn]]} das tags ASS. É a causa dos
+         * 29 avisos "tags corrompidas pelo LLM" da corrida de 2026-07-22 no 08th MS Team.
+         *
+         * <p>INVARIANTES DO DOMÍNIO: a tradução do texto visível é a mesma do modo normal; só
+         * os marcadores desaparecem. Falas sem tag nenhuma não são afetadas.
+         *
+         * <p>COMPORTAMENTO EM CASO DE FALHA: determinístico — as três tentativas de
+         * {@code ProcessarEpisodioUseCase} recebem a mesma resposta e todas são recusadas.
+         */
+        static FakeLlmPort queEngoleMarcadores() {
+            return new FakeLlmPort(false, true);
         }
 
         @Override
@@ -181,7 +205,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
             int chamada = chamadas.incrementAndGet();
             List<String> saida = lote.linhasOriginais().stream()
-                .map(FakeLlmPort::traduzirLinha)
+                .map(this::traduzirLinha)
                 .toList();
             if (interromperNaPrimeira && chamada == 1) {
                 // Reproduz o clique em "Parar" logo após concluir o primeiro lote:
@@ -192,7 +216,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             return new TraducaoLote(lote.idLote(), saida, true, null);
         }
 
-        private static String traduzirLinha(String mascarada) {
+        private String traduzirLinha(String mascarada) {
             if (mascarada.contains("KEEPME")) {
                 return mascarada; // devolve o original: o pipeline marca como pendente
             }
@@ -205,7 +229,9 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                     out.append("fala traduzida");
                     houveTexto = true;
                 }
-                out.append(m.group());
+                if (!comerMarcadores) {
+                    out.append(m.group());
+                }
                 ultimo = m.end();
             }
             if (ultimo < mascarada.length()) {
@@ -447,6 +473,137 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertEquals("DIALOGO", p.categoria());
         assertEquals("ECO", p.causaRaiz());
         assertEquals(1, p.quantidade());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CARACTERIZA UM DEFEITO ABERTO — uma fala que o LLM nunca
+     * conseguiu traduzir (engoliu os marcadores {@code [[TAGn]]} nas três tentativas) é
+     * publicada EM INGLÊS na saída final e gravada no cache como tradução válida, sem
+     * aparecer no KPI de pendências. O episódio sai {@code PARCIAL} com
+     * {@code pendenciasPorCausa} VAZIO — a assinatura exata que motivou a investigação.
+     *
+     * <p>Este teste NÃO descreve o comportamento desejado: ele congela o comportamento de
+     * hoje para que qualquer conserto do status ou da régua de identidade seja visível na
+     * suíte. Antes dele, o cenário não estava caracterizado em lugar nenhum e uma mudança
+     * na condição de {@code StatusArquivoTraducao} passaria sem quebrar um único teste.
+     *
+     * <h2>Prova real (corrida de 2026-07-22, Gundam 08th MS Team, 13 episódios)</h2>
+     * 29 avisos "tags corrompidas pelo LLM" em 7 episódios PARCIAL-com-zero-pendência.
+     * Cruzando cada aviso com o cache: 19 falas foram recuperadas pelo fallback (o aviso
+     * ficou órfão) e 10 foram publicadas idênticas ao original. Dessas 10, sete são nomes
+     * próprios legítimos (Eledore, Michel, Karen, Dell) e três são inglês de verdade
+     * entregue ao espectador: {@code "Heavy!"} (E02), {@code "Enter."} (E07) e
+     * {@code "\"Doctor Flanagan\"...?"} (E12).
+     *
+     * <h2>Invariantes do domínio (as que ESTE teste fixa)</h2>
+     * <ul>
+     *   <li>O aviso de descarte é emitido e preservado em {@code errosOcorridos}.</li>
+     *   <li>A fala NÃO entra em {@code falhasDistintas}: {@code motivoFalhaFinal} aceita a
+     *       identidade porque {@code deveManterIdentico} trata qualquer palavra única
+     *       capitalizada com 3+ caracteres como nome próprio.</li>
+     *   <li>Como não há pendência, a saída vai para o {@code _PT-BR.ass} FINAL (não para
+     *       {@code .parcial.ass}) e o inglês é gravado no cache como tradução boa — na
+     *       próxima execução {@code isCacheReaproveitavel} o reaproveita e a fala congela.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Se este teste passar a falhar, o pipeline mudou de opinião sobre um destes três
+     * pontos — verifique QUAL antes de ajustar a expectativa: (a) a fala virou pendência
+     * de verdade (melhoria: atualize para PARCIAL com KPI não-vazio); (b) o status deixou
+     * de ser PARCIAL (regressão: inglês publicado sendo reportado como CONCLUIDO); (c) o
+     * inglês parou de ir ao cache (melhoria: a fala deixa de congelar).
+     */
+    @Test
+    void falaComMarcadorDescartadoEhPublicadaEmInglesSemVirarPendencia() throws Exception {
+        FakeLlmPort llm = FakeLlmPort.queEngoleMarcadores();
+        ProcessarArquivoUseCase uc = montar(llm);
+        // "Heavy{\b1}!" reproduz a fala real do E02: a tag fica NO MEIO do texto visível,
+        // então o reparador de marcadores não pode reconstruí-la pelas bordas e recusa.
+        Path entrada = escreverAss("ep.ass", "Heavy{\\b1}!", "How are you");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+
+        assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
+            "hoje o aviso sozinho já marca o episódio como PARCIAL");
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertNotNull(tel, "a telemetria do episódio deve ter sido registrada");
+        assertTrue(tel.pendenciasPorCausa().isEmpty(),
+            "ASSINATURA DO DEFEITO: PARCIAL sem nenhuma pendência no KPI causal");
+        assertTrue(tel.errosOcorridos().stream()
+                .anyMatch(a -> a.startsWith("Fala mantida sem tradução (tags corrompidas pelo LLM): ")),
+            "o descarte do marcador precisa deixar rastro em errosOcorridos: " + tel.errosOcorridos());
+
+        // Sem pendência, o resolvedor publica a saída FINAL — o inglês não fica contido
+        // no .parcial.ass, ele é entregue como tradução pronta.
+        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(finalPtBr), "sem pendência, a saída final é publicada");
+        assertTrue(Files.readString(finalPtBr, StandardCharsets.UTF_8).contains("Heavy{\\b1}!"),
+            "o inglês original é publicado na saída final");
+
+        // E o inglês entra no cache como tradução VÁLIDA (uma pendência gravaria "").
+        JsonNode cacheGravado = new ObjectMapper()
+            .readTree(raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json").toFile());
+        JsonNode entradaDaFala = null;
+        for (JsonNode entradaCache : cacheGravado.get("entradas")) {
+            if ("Heavy{\\b1}!".equals(entradaCache.get("original").asText())) {
+                entradaDaFala = entradaCache;
+                break;
+            }
+        }
+        assertNotNull(entradaDaFala, "a fala descartada deveria estar no cache: " + cacheGravado);
+        assertEquals("Heavy{\\b1}!", entradaDaFala.get("traduzido").asText(),
+            "o inglês é gravado como tradução boa e será reaproveitado na próxima execução");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a retradução liberada refaz o episódio do zero SEM tirar o cache
+     * anterior do caminho ativo. O operador que aborta a execução no meio (ou perde energia)
+     * continua com o cache que tinha — a geração anterior só é substituída quando a nova
+     * estiver inteira e gravada atomicamente.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A geração anterior é descartada EM MEMÓRIA: o LLM é chamado de novo mesmo com o
+     *       cache presente e válido no disco.</li>
+     *   <li>O arquivo de cache ativo existe antes, durante e depois — nunca some.</li>
+     *   <li>UMA única cópia vai para {@code backups/traducao-cache} por execução: a do
+     *       início. Sem a guarda, a gravação final copiaria o mesmo arquivo outra vez.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * LLM não rechamado ⇒ a retradução virou no-op e o cache velho foi reaproveitado.
+     * Cache ausente ⇒ voltou a janela que apagou o S00E02 do 08th MS Team em 2026-07-22.
+     * Dois backups ⇒ o mesmo arquivo está sendo duplicado em disco a cada retradução.
+     */
+    @Test
+    void retraducaoLiberadaIgnoraOCacheSemApagarOArquivoAtivo() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false);
+
+        Path arquivoCache = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        assertTrue(Files.exists(arquivoCache), "a primeira execução deve ter gravado o cache");
+        Path raizBackup = DiretorioBaseKronos.resolver("backups", "traducao-cache");
+        long backupsAntes = contarPastas(raizBackup);
+
+        FakeLlmPort segunda = new FakeLlmPort();
+        montar(segunda).processar(entrada, true); // retradução explicitamente liberada
+
+        assertEquals(1, segunda.chamadas.get(),
+            "a retradução ignora o cache em MEMÓRIA e reenvia as falas ao LLM");
+        assertTrue(Files.exists(arquivoCache),
+            "o cache ativo não pode ser removido: uma interrupção deixaria o episódio sem nada");
+        assertEquals(backupsAntes + 1, contarPastas(raizBackup),
+            "exatamente UMA cópia de segurança por retradução — a do início, sem duplicar na gravação");
+    }
+
+    private static long contarPastas(Path raizBackup) throws IOException {
+        if (!Files.exists(raizBackup)) {
+            return 0;
+        }
+        try (Stream<Path> s = Files.list(raizBackup)) {
+            return s.filter(Files::isDirectory).count();
+        }
     }
 
     /**
