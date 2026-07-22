@@ -36,9 +36,6 @@ import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
-import org.traducao.projeto.traducao.domain.ports.RelatorioContextoCenaPort;
-import org.traducao.projeto.traducao.domain.contextocena.RegistroExecucaoContextoCena;
-import org.traducao.projeto.traducao.domain.contextocena.TradutorContextualPort;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -81,31 +78,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     Path raiz;
 
     private final TelemetriaCaptor telemetriaCaptor = new TelemetriaCaptor();
-    private final RelatorioAbCaptor relatorioAbCaptor = new RelatorioAbCaptor();
 
     // Fallback online controlável pelos testes: por padrão DESLIGADO (pipeline 100%
     // local), preservando o comportamento das caracterizações existentes.
     private boolean fallbackOnlineAtivo = false;
     private FallbackTraducaoOnlinePort fallbackPort = original -> Optional.empty();
-
-    // Contexto de cena controlável pelos testes: por padrão DESLIGADO e sem relatório A/B,
-    // de modo que as 16 caracterizações do fluxo OFF sigam byte-idênticas. A porta contextual
-    // ecoa o alvo por padrão (nunca é chamada com a flag desligada); os testes do braço B a
-    // substituem por uma tradução determinística.
-    private boolean contextoCenaAtivo = false;
-    private boolean relatorioAbAtivo = false;
-    private TradutorContextualPort portaContextual = req -> req.janela().alvo().texto();
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: captura as linhas do relatório A/B emitidas pelo fluxo, para que a
-     * caracterização assere o braço (A_BASELINE/B_CONTEXTO) e os contadores sem gravar em disco.
-     * <p>INVARIANTES DO DOMÍNIO: guarda cada registro na ordem recebida; nunca deduplica.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; lista simples de escopo de teste.
-     */
-    private static final class RelatorioAbCaptor implements RelatorioContextoCenaPort {
-        final List<RegistroExecucaoContextoCena> registros = new java.util.ArrayList<>();
-        @Override public void registrar(RegistroExecucaoContextoCena registro) { registros.add(registro); }
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: captura o último registro de telemetria emitido pelo fluxo, para a
@@ -269,8 +246,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
         ResolvedorCacheTraducao resolvedorCache =
-            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props,
-                new org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties());
+            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
         PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
         SeletorEventosTraduziveis seletorEventos =
             new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador);
@@ -287,23 +263,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         RecuperarPendenciaGoogleService recuperarPendenciaGoogle =
             new RecuperarPendenciaGoogleService(new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort);
 
-        // Contexto de cena controlado pelos flags do teste; por padrão DESLIGADO (o fluxo OFF
-        // deve ficar byte-idêntico). O relatório A/B é opt-in e o captor coleta as linhas.
-        var contextoCena = new org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties(contextoCenaAtivo, 2);
-        contextoCena.setRelatorioAb(relatorioAbAtivo);
-        var tradutorContextual = new org.traducao.projeto.traducao.application.contextocena.TradutorContextualEpisodio(
-            new org.traducao.projeto.traducao.application.contextocena.MontadorJanelaContextual(classificadorPendencia),
-            new org.traducao.projeto.traducao.application.contextocena.ChaveadorContextual(),
-            mascarador, new IsoladorQuebraDialogo(),
-            portaContextual, // echo por padrão (nunca chamada com a flag desligada); braço B a substitui
-            avaliadorCache, contextoCena, props);
-
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
             pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
-            new NormalizadorAcentosComuns(), contextoCena, tradutorContextual, relatorioAbCaptor);
+            new NormalizadorAcentosComuns());
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -830,129 +795,6 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
         assertTrue(Files.readString(saida, StandardCharsets.UTF_8).contains("fala traduzida"),
             "a saida deve conter a retraducao, nao o cache suspeito");
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO (subfase 7 — relatório A/B, braço A): com o relatório A/B LIGADO mas o
-     * motor contextual DESLIGADO, a via de hoje emite uma linha marcada {@code A_BASELINE}, com os
-     * contadores próprios do baseline e SEM custo de contexto — o ponto de comparação do braço A.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: exatamente uma linha por execução; {@code caracteresContextoExtra}
-     * é 0 no baseline; a tradução em si segue idêntica (o relatório é observabilidade lateral).
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: braço, política, contadores ou custo divergentes reprovam.
-     */
-    @Test
-    void relatorioAbLigadoBaselineEmiteVarianteA() throws Exception {
-        relatorioAbAtivo = true; // contextoCenaAtivo permanece false -> braço A (via de hoje)
-        FakeLlmPort llm = new FakeLlmPort();
-        ProcessarArquivoUseCase uc = montar(llm);
-        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
-
-        uc.processar(entrada, false);
-
-        assertEquals(1, relatorioAbCaptor.registros.size(), "uma linha A/B por execução");
-        RegistroExecucaoContextoCena r = relatorioAbCaptor.registros.get(0);
-        assertEquals(RegistroExecucaoContextoCena.VARIANTE_BASELINE, r.variante());
-        assertEquals("baseline", r.politicaVersao());
-        assertEquals("ep.ass", r.episodio());
-        assertEquals("modelo-teste", r.modelo());
-        assertEquals(2, r.linhasTraduziveis());
-        assertEquals(2, r.traduzidasNovas());
-        assertEquals(0, r.reaproveitadasCache());
-        assertEquals(0, r.pendentes());
-        assertEquals(0L, r.caracteresContextoExtra(), "o baseline não paga custo de contexto");
-        assertEquals("CONCLUIDO", r.status());
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO (subfase 7 — relatório A/B, braço B + PRIMEIRO teste e2e da rota ON):
-     * com o motor contextual e o relatório A/B LIGADOS, o diálogo é traduzido pela rota contextual,
-     * a saída final é publicada e uma linha {@code B_CONTEXTO} é emitida com o custo de contexto que
-     * só este braço paga. Exercita ponta-a-ponta a rota que antes só tinha o orquestrador em unit.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: a saída traz a tradução contextual; exatamente uma linha B por
-     * execução; {@code caracteresContextoExtra > 0} (contexto foi enviado); política carimba
-     * {@code contexto-cena:}.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: rota ON que não publica, não contextualiza ou não paga
-     * custo de contexto reprova.
-     */
-    @Test
-    void relatorioAbLigadoContextoEmiteVarianteBExercitandoRotaOn() throws Exception {
-        contextoCenaAtivo = true;
-        relatorioAbAtivo = true;
-        portaContextual = req -> "fala contextual"; // tradução determinística (alvos sem tag)
-        FakeLlmPort llm = new FakeLlmPort();
-        ProcessarArquivoUseCase uc = montar(llm);
-        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
-
-        ResultadoTraducaoArquivo res = uc.processar(entrada, false);
-
-        assertEquals(StatusArquivoTraducao.CONCLUIDO, res.status());
-        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
-        assertTrue(Files.exists(saida), "a rota ON deve publicar a saída final");
-        assertTrue(Files.readString(saida, StandardCharsets.UTF_8).contains("fala contextual"),
-            "o diálogo traduzido por contexto deve aparecer na saída");
-
-        assertEquals(1, relatorioAbCaptor.registros.size());
-        RegistroExecucaoContextoCena r = relatorioAbCaptor.registros.get(0);
-        assertEquals(RegistroExecucaoContextoCena.VARIANTE_CONTEXTO, r.variante());
-        assertTrue(r.politicaVersao().startsWith("contexto-cena:"), "o braço B carimba a política contextual");
-        assertEquals(2, r.linhasTraduziveis());
-        assertEquals(2, r.traduzidasNovas(), "as duas falas de diálogo foram contextualizadas");
-        assertEquals(0, r.pendentes());
-        assertTrue(r.caracteresContextoExtra() > 0, "o braço B paga o custo do contexto enviado");
-        assertEquals("CONCLUIDO", r.status());
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO (subfase 7 — sem emissão fora do experimento): com o relatório A/B
-     * DESLIGADO (default), nenhuma linha é emitida — o custo de observabilidade é zero e o fluxo
-     * OFF fica intocado, além de o que as 16 caracterizações de byte-identidade já provam.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: zero linhas no captor.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer emissão espúria reprova.
-     */
-    @Test
-    void relatorioAbDesligadoNaoEmiteLinhaAlguma() throws Exception {
-        FakeLlmPort llm = new FakeLlmPort();
-        ProcessarArquivoUseCase uc = montar(llm);
-        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
-
-        uc.processar(entrada, false);
-
-        assertTrue(relatorioAbCaptor.registros.isEmpty(),
-            "com o relatório A/B desligado (default), nada é emitido");
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO (observabilidade — evita o "achei que liguei"): o operador deve
-     * VER, no início de cada episódio, se o motor de contexto de cena está ligado. A falta
-     * desse sinal fez uma retradução do 08th rodar no baseline achando que o motor estava
-     * ativo. Com a flag OFF anuncia DESLIGADO; com ON, LIGADO — distinto do log de lore.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: a linha aparece SEMPRE, independente do resultado; não altera
-     * a tradução.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: ausência do anúncio (ou estado errado) reprova.
-     */
-    @Test
-    void anunciaEstadoDoMotorContextoCenaNoInicio() throws Exception {
-        LoggerCapturador loggerOff = new LoggerCapturador();
-        montar(new FakeLlmPort(), loggerOff).processar(escreverAss("epoff.ass", "Hello there"), false);
-        assertTrue(loggerOff.mensagens.stream().anyMatch(m ->
-                m.contains("[ CONTEXTO-CENA ]") && m.contains("DESLIGADO")),
-            "com a flag OFF, o operador deve ver o motor de contexto de cena DESLIGADO");
-
-        contextoCenaAtivo = true;
-        portaContextual = req -> "fala contextual";
-        LoggerCapturador loggerOn = new LoggerCapturador();
-        montar(new FakeLlmPort(), loggerOn).processar(escreverAss("epon.ass", "Hello there"), false);
-        assertTrue(loggerOn.mensagens.stream().anyMatch(m ->
-                m.contains("[ CONTEXTO-CENA ]") && m.contains("LIGADO")),
-            "com a flag ON, o operador deve ver o motor de contexto de cena LIGADO");
     }
 
     /**

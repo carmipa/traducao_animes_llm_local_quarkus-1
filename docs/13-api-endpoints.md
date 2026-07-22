@@ -102,16 +102,6 @@ Revisão de legendas `.ass` finais via LLM local (modo `LLM_CONCORDANCIA`).
 
 ---
 
-### `POST /api/revisar-concordancia`
-Correção **determinística** de concordância de gênero (painel 8), direto na pasta PT-BR — sem LLM e sem o original. `aplicar: false` = dry-run (simula, não grava). Ver [Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-4--concordância-de-gênero-determinística-revisaoconcordancia-painel-8).
-
-```json
-{ "diretorioTraduzido": "C:/.../legendas-ptbr", "aplicar": false }
-```
-**Canal SSE:** `revisao-concordancia`
-
----
-
 ### `POST /api/correcao-legendas`
 Correção estrutural de legendas PT-BR usando a original como referência. Ver [Correção de Legendas](07-modulo-cura-tags.md).
 
@@ -195,7 +185,7 @@ Renomeação em lote de arquivos para o padrão `Nome - S01E01` (dry-run, aplica
 Combina vídeo + legenda em MKV final. Ver [Remuxer](08-modulo-remuxer.md).
 
 ```json
-{ "entrada": "C:/animes/Gundam-Narrative-NT", "saida": "C:/.../saida-mkv", "syncOffsetMs": 0, "preservarLegendasOriginais": true }
+{ "pathVideos": "C:/animes/Gundam-Narrative-NT", "pathLegendas": "C:/.../legendas-ptbr", "sincronismoMs": 0 }
 ```
 **Canal SSE:** `remuxer`
 
@@ -279,7 +269,6 @@ Conexão `EventSource` única para **todos** os logs em tempo real. Cada operaç
 | `traducao` | `/api/traduzir` |
 | `correcao` | `/api/corrigir-*`, `/api/revisar-cache` |
 | `revisao` | `/api/revisar-legendas*` |
-| `revisao-concordancia` | `/api/revisar-concordancia` |
 | `cura` | `/api/cura-tags` |
 | `revisao-lore` | `/api/revisar-lore` |
 | `troca-tipo-legenda` | `/api/troca-legenda/aplicar` |

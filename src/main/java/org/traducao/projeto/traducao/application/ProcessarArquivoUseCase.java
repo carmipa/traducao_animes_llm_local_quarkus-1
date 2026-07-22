@@ -27,12 +27,6 @@ import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssServ
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
-import org.traducao.projeto.traducao.domain.ports.RelatorioContextoCenaPort;
-import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
-import org.traducao.projeto.traducao.application.contextocena.TradutorContextualEpisodio;
-import org.traducao.projeto.traducao.domain.contextocena.ResumoContextoCena;
-import org.traducao.projeto.traducao.domain.contextocena.RegistroExecucaoContextoCena;
-import org.traducao.projeto.traducao.infrastructure.contextocena.ContextoCenaProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -86,9 +80,6 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
-    private final ContextoCenaProperties contextoCena;
-    private final TradutorContextualEpisodio tradutorContextual;
-    private final RelatorioContextoCenaPort relatorioContextoCena;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -121,10 +112,7 @@ public class ProcessarArquivoUseCase {
         EnforcadorTermosLore enforcadorTermosLore,
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
-        NormalizadorAcentosComuns normalizadorAcentos,
-        ContextoCenaProperties contextoCena,
-        TradutorContextualEpisodio tradutorContextual,
-        RelatorioContextoCenaPort relatorioContextoCena
+        NormalizadorAcentosComuns normalizadorAcentos
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -150,9 +138,6 @@ public class ProcessarArquivoUseCase {
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
-        this.contextoCena = contextoCena;
-        this.tradutorContextual = tradutorContextual;
-        this.relatorioContextoCena = relatorioContextoCena;
     }
 
     public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
@@ -177,7 +162,6 @@ public class ProcessarArquivoUseCase {
     public ResultadoTraducaoArquivo processar(Path arquivoEntrada, boolean permitirRetraducao) throws InterruptedException, ExecutionException {
         long inicioMs = System.currentTimeMillis();
         boolean ehSrt = ehSrt(arquivoEntrada);
-        anunciarEstadoContextoCena(ehSrt);
         log.info("Lendo arquivo de legenda: {}", arquivoEntrada);
         DocumentoLegenda documento = ehSrt ? leitorSrt.ler(arquivoEntrada) : leitor.ler(arquivoEntrada);
 
@@ -217,15 +201,6 @@ public class ProcessarArquivoUseCase {
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
             avisos.add(aviso);
-        }
-
-        // FORK da correção de gênero por contexto de cena (subfase 6c-ii-c): quando a flag está
-        // LIGADA, o diálogo vai pelo tradutor contextual e o resto pela via de hoje. Com a flag
-        // DESLIGADA (default) este desvio nunca ocorre e o fluxo abaixo é byte-idêntico ao de
-        // sempre (guardado pelo ProcessarArquivoUseCaseCaracterizacaoTest). SRT segue só na via OFF.
-        if (contextoCena.ativo() && !ehSrt) {
-            return processarContextual(arquivoEntrada, documento, arquivoCache, proveniencia,
-                carga, promptCongelado, permitirRetraducao, avisos, inicioMs);
         }
 
         Map<String, Long> frequenciaTextoLimpo = seletorEventos.calcularFrequenciaTextoLimpo(documento);
@@ -494,17 +469,10 @@ public class ProcessarArquivoUseCase {
         uiLogger.registrarFalasNovas(traducoesNovasValidas);
         StatusArquivoTraducao status = avisos.isEmpty() && falhasDistintas.isEmpty()
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
-        TelemetriaTraducao telemetria = montadorTelemetria.montar(
+        telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,
             cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status,
-            pendenciasPorCausa);
-        telemetriaTraducao.registrarTraducao(telemetria);
-        // Braço A do A/B (só quando relatorio-ab está ligado): a via de hoje é o baseline, sem
-        // custo de contexto (caracteresContextoExtra = 0). pendentes = falas distintas que
-        // sobraram sem tradução confiável.
-        emitirRelatorioAb(arquivoEntrada, RegistroExecucaoContextoCena.VARIANTE_BASELINE, "baseline",
-            telemetria.modeloLlm(), eventosTraduziveis.size(), traducoesNovasValidas,
-            cacheReaproveitavel.size(), falhasDistintas.size(), 0L, tempoTotalMs, status);
+            pendenciasPorCausa));
 
         if (status == StatusArquivoTraducao.PARCIAL) {
             if (permitirRetraducao) {
@@ -524,218 +492,6 @@ public class ProcessarArquivoUseCase {
     }
 
 
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: caminho da correção de gênero por contexto de cena (flag LIGADA) —
-     * traduz o DIÁLOGO pelo tradutor contextual (janela de vizinhança + máscara de tags +
-     * validação, sem colapsar falas iguais de cenas diferentes) e o RESTO (música/letreiro/
-     * romaji) pela via de tradução de hoje. Produz a mesma saída publicável (ASS + cache +
-     * telemetria) do fluxo normal, apenas com o diálogo tratado com contexto.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: o diálogo é reconstruído por ÍNDICE de evento (nunca por texto
-     * original, para não recolapsar); as entradas de diálogo carregam a assinatura contextual;
-     * o não-diálogo passa pelas MESMAS máquinas de dedup/validação/terminologia/normalização do
-     * fluxo OFF; tag corrompida ou reprova de validação degradam para "manter original", nunca
-     * para legenda corrompida.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: uma tradução parcial do não-diálogo
-     * ({@link TraducaoParcialException}) é absorvida (usa o dicionário parcial e marca o arquivo
-     * como PARCIAL) em vez de abortar o episódio; falha de I/O na escrita propaga.
-     */
-    private ResultadoTraducaoArquivo processarContextual(
-            Path arquivoEntrada, DocumentoLegenda documento, Path arquivoCache,
-            ProvenienciaCache proveniencia, CacheTraducaoService.ResultadoCarga carga,
-            String promptCongelado, boolean permitirRetraducao, List<String> avisos, long inicioMs)
-            throws InterruptedException, ExecutionException {
-
-        Map<String, Long> frequencia = seletorEventos.calcularFrequenciaTextoLimpo(documento);
-        List<EventoLegenda> eventosTraduziveis = documento.eventos().stream()
-            .filter(evento -> seletorEventos.isTraduzivel(evento, frequencia))
-            .toList();
-
-        Map<String, String> estiloPorTexto = new HashMap<>();
-        for (EventoLegenda evento : documento.eventos()) {
-            if (evento.temTexto()) {
-                estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
-            }
-        }
-
-        // Separa DIÁLOGO (vai pelo contexto de cena) do RESTO (via de hoje).
-        Set<Integer> indicesDialogo = new HashSet<>();
-        LinkedHashSet<String> naoDialogoDistintos = new LinkedHashSet<>();
-        for (EventoLegenda evento : eventosTraduziveis) {
-            if (classificadorPendencia.categoria(evento.estilo(), evento.texto()) == CategoriaConteudo.DIALOGO) {
-                indicesDialogo.add(evento.indice());
-            } else {
-                naoDialogoDistintos.add(evento.texto());
-            }
-        }
-
-        // 1) DIÁLOGO -> tradutor contextual (reaproveita o cache contextual por assinatura).
-        TradutorContextualEpisodio.ResultadoContextual ctx = tradutorContextual.traduzir(
-            documento.eventos(), indicesDialogo, promptCongelado, carga.mapaContextual());
-        ResumoContextoCena resumo = ctx.resumo();
-        uiLogger.log("[ CONTEXTO ] Diálogo por contexto de cena: " + resumo.falasContextualizadas()
-            + " traduzida(s), " + resumo.reaproveitadasCache() + " do cache, "
-            + resumo.pendentes() + " pendente(s).");
-
-        // 2) NÃO-DIÁLOGO -> via de hoje: dedup por original, lote, validação.
-        Map<String, String> cacheReaproveitavel = new HashMap<>();
-        LinkedHashSet<String> pendentes = new LinkedHashSet<>();
-        for (String texto : naoDialogoDistintos) {
-            String cacheado = carga.mapa().get(texto);
-            if (cacheado != null && avaliadorCache.isCacheReaproveitavel(texto, cacheado)) {
-                cacheReaproveitavel.put(texto, cacheado);
-            } else {
-                pendentes.add(texto);
-            }
-        }
-        Set<String> deduplicaveis = new HashSet<>();
-        for (String pendente : pendentes) {
-            if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) != CategoriaConteudo.DIALOGO) {
-                deduplicaveis.add(pendente);
-            }
-        }
-        Map<String, String> novas;
-        try {
-            novas = tradutorLotes.traduzirPendentes(pendentes, deduplicaveis,
-                arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
-        } catch (TraducaoParcialException e) {
-            novas = e.getDicionarioParcial() != null ? e.getDicionarioParcial() : new HashMap<>();
-        }
-        Map<String, String> naoDialogoValidadas = new HashMap<>(cacheReaproveitavel);
-        naoDialogoValidadas.putAll(novas);
-        int falhasNaoDialogo = 0;
-        for (String original : naoDialogoDistintos) {
-            String motivo = avaliadorCache.motivoFalhaFinal(original, naoDialogoValidadas.get(original));
-            if (motivo != null) {
-                naoDialogoValidadas.put(original, "");
-                falhasNaoDialogo++;
-            }
-        }
-
-        // Terminologia + normalização determinística nas não-diálogo válidas (as contextuais já
-        // saem prontas do orquestrador).
-        Map<String, String> correcoesLore = gerenciadorContexto.correcoesTerminologiaAtiva();
-        for (Map.Entry<String, String> traducao : naoDialogoValidadas.entrySet()) {
-            String valor = traducao.getValue();
-            if (valor != null && !valor.isBlank()) {
-                if (!correcoesLore.isEmpty()) {
-                    valor = enforcadorTermosLore.reforcar(traducao.getKey(), valor, correcoesLore);
-                }
-                valor = normalizadorAspas.normalizar(traducao.getKey(), valor);
-                valor = normalizadorAcentos.normalizar(valor);
-                traducao.setValue(valor);
-            }
-        }
-
-        // 3) Reconstrução: diálogo por ÍNDICE (do orquestrador), resto por texto original.
-        Map<Integer, String> porIndice = ctx.traducaoPorIndice();
-        List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
-        List<EntradaCache> entradasCache = new ArrayList<>(ctx.entradas());
-        for (EventoLegenda evento : documento.eventos()) {
-            if (!seletorEventos.isTraduzivel(evento, frequencia)) {
-                eventosFinais.add(evento);
-                continue;
-            }
-            if (indicesDialogo.contains(evento.indice())) {
-                String traduzido = porIndice.get(evento.indice());
-                eventosFinais.add(evento.comTexto(traduzido != null ? traduzido : evento.texto()));
-                // a entrada de cache do diálogo já veio do orquestrador (ctx.entradas()).
-            } else {
-                String validado = naoDialogoValidadas.get(evento.texto());
-                String textoFinal = (validado == null || validado.isBlank()) ? evento.texto() : validado;
-                eventosFinais.add(evento.comTexto(textoFinal));
-                entradasCache.add(new EntradaCache(evento.indice(), evento.estilo(), evento.texto(),
-                    validado, propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
-            }
-        }
-
-        DocumentoLegenda documentoFinal = new DocumentoLegenda(
-            documento.cabecalho(), eventosFinais, documento.quebraDeLinha(), documento.comBom());
-
-        boolean parcial = !avisos.isEmpty() || falhasNaoDialogo > 0 || resumo.pendentes() > 0;
-        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
-        Path arquivoSaida = resolvedorSaida.selecionar(arquivoSaidaFinal, parcial, permitirRetraducao);
-        if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
-            politicaBackup.criarBackupAntesSobrescrita(arquivoSaidaFinal);
-        }
-        escritor.escrever(arquivoSaida, documentoFinal);
-        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache, permitirRetraducao);
-
-        long tempoTotalMs = System.currentTimeMillis() - inicioMs;
-        String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);
-        String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
-        int reaproveitadasTotal = resumo.reaproveitadasCache() + cacheReaproveitavel.size();
-        int novasValidas = resumo.falasContextualizadas();
-        uiLogger.registrarFalasCache(reaproveitadasTotal);
-        uiLogger.registrarFalasNovas(novasValidas);
-        StatusArquivoTraducao status = parcial ? StatusArquivoTraducao.PARCIAL : StatusArquivoTraducao.CONCLUIDO;
-        TelemetriaTraducao telemetria = montadorTelemetria.montar(
-            arquivoEntrada, eventosTraduziveis.size(), novasValidas, reaproveitadasTotal, tempoTotalMs,
-            avisos, animeNome, loreNome, status, List.of());
-        telemetriaTraducao.registrarTraducao(telemetria);
-        // Braço B do A/B (só quando relatorio-ab está ligado): motor contextual. pendentes soma o
-        // diálogo mantido no original (alucinação/reprova) e as falhas do não-diálogo;
-        // caracteresContextoExtra é o custo de contexto que só este braço paga.
-        emitirRelatorioAb(arquivoEntrada, RegistroExecucaoContextoCena.VARIANTE_CONTEXTO,
-            "contexto-cena:" + TradutorContextualEpisodio.POLITICA_VERSAO, telemetria.modeloLlm(),
-            eventosTraduziveis.size(), novasValidas, reaproveitadasTotal,
-            resumo.pendentes() + falhasNaoDialogo, resumo.caracteresContextoExtra(), tempoTotalMs, status);
-
-        log.info("Arquivo traduzido (contexto de cena) salvo em {} (cache em {})", arquivoSaida, arquivoCache);
-        return new ResultadoTraducaoArquivo(
-            arquivoSaida, arquivoEntrada.getFileName().toString(), loreNome,
-            eventosTraduziveis.size(), reaproveitadasTotal, novasValidas, avisos.size(), status);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: acrescenta (append-only) uma linha ao relatório A/B do contexto de
-     * cena, marcando o braço (A_BASELINE/B_CONTEXTO) desta execução. É observabilidade OPT-IN: só
-     * emite quando {@code contexto-cena.relatorio-ab} está ligado — fora do experimento não há
-     * escrita e o caminho de tradução fica intocado.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: nada é escrito quando o relatório A/B está desligado (default),
-     * preservando o comportamento byte-idêntico do fluxo de hoje; o diretório de cache carimbado
-     * é a RAIZ configurada (identidade do isolamento entre os braços).
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: delega ao adaptador, que absorve I/O e nunca propaga — a
-     * falha de observabilidade não derruba a tradução.
-     */
-    private void emitirRelatorioAb(Path arquivoEntrada, String variante, String politicaVersao,
-            String modelo, int linhasTraduziveis, int traduzidasNovas, int reaproveitadasCache,
-            int pendentes, long caracteresContextoExtra, long tempoMs, StatusArquivoTraducao status) {
-        if (!contextoCena.relatorioAb()) {
-            return;
-        }
-        relatorioContextoCena.registrar(new RegistroExecucaoContextoCena(
-            arquivoEntrada.getFileName().toString(), variante, politicaVersao, modelo,
-            propriedades.diretorioCache(), linhasTraduziveis, traduzidasNovas, reaproveitadasCache,
-            pendentes, caracteresContextoExtra, tempoMs, status.name()));
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: torna VISÍVEL, no início de cada episódio, se o motor de
-     * correção de gênero por contexto de cena está ligado. A ausência desse sinal fez uma
-     * retradução do Gundam 08th rodar no baseline achando que o motor estava ativo — o log
-     * {@code [ CONTEXTO ] Utilizando contexto: <lore>} é seleção de LORE da obra, NÃO este
-     * motor. Aqui o operador vê o estado efetivo da flag na saída dinâmica (SSE).
-     *
-     * <p>INVARIANTES DO DOMÍNIO: não altera a tradução; só narra o estado efetivo da flag
-     * {@code tradutor.contexto-cena.ativo} (e sinaliza quando é ignorada por ser SRT).
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: puramente informativo; não lança.
-     */
-    private void anunciarEstadoContextoCena(boolean ehSrt) {
-        if (contextoCena.ativo()) {
-            String extra = ehSrt ? " (ignorado neste arquivo: SRT segue o pipeline padrão)" : "";
-            uiLogger.log("[ CONTEXTO-CENA ] motor de correção de gênero LIGADO — janela="
-                + contextoCena.tamanhoJanela()
-                + (contextoCena.relatorioAb() ? ", relatório A/B ON" : "") + extra);
-        } else {
-            uiLogger.log("[ CONTEXTO-CENA ] motor de correção de gênero DESLIGADO (ativo=false) — pipeline padrão");
-        }
-    }
 
     private static boolean ehSrt(Path arquivo) {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");

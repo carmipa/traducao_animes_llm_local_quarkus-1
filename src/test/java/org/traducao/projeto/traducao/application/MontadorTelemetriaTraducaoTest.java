@@ -34,7 +34,7 @@ class MontadorTelemetriaTraducaoTest {
     }
 
     private static ResolvedorCacheTraducao resolvedorComTemporada(String temporada) {
-        return new ResolvedorCacheTraducao(null, null, null, null, null, null) {
+        return new ResolvedorCacheTraducao(null, null, null, null, null) {
             @Override
             public String temporadaAPartirDoNome(String animeNome) {
                 return temporada;
