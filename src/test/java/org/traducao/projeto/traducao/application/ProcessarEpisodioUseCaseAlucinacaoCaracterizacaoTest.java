@@ -82,7 +82,8 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
         };
 
         ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
-            new LlmSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria, new MascaradorTags());
+            new LlmSempreUmaLinha(), validadorAlucina, new ConsoleUILogger(), telemetria, new MascaradorTags(),
+            new ReparadorMarcadoresLlm(new MascaradorTags()));
 
         List<TraducaoLote> resultado = useCase.processarEpisodio(List.of(new Lote(1, List.of("KEEPME"))), null);
 
@@ -122,7 +123,8 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
         TelemetriaFake telemetria = new TelemetriaFake();
         ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
             new LlmCorrompeMarcadorPrimeiraVez(), new ValidadorTraducaoService(),
-            new ConsoleUILogger(), telemetria, new MascaradorTags());
+            new ConsoleUILogger(), telemetria, new MascaradorTags(),
+            new ReparadorMarcadoresLlm(new MascaradorTags()));
 
         List<TraducaoLote> resultado = useCase.processarEpisodio(
             List.of(new Lote(1, List.of("[[TAG0]]Hello"))), null);

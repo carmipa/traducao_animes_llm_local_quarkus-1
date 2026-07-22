@@ -44,7 +44,7 @@ class TradutorLotesServiceTest {
         TraducaoParcialException aLancar = null;
         Function<Lote, List<String>> tradutor = l -> l.linhasOriginais().stream().map(s -> "T:" + s).toList();
 
-        FakeEpisodio() { super(null, null, null, null, null); }
+        FakeEpisodio() { super(null, null, null, null, null, null); }
 
         @Override
         public List<TraducaoLote> processarEpisodio(List<Lote> lotes, String promptSistemaCongelado) {
