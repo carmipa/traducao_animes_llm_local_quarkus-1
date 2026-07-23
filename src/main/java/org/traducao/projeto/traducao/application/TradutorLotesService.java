@@ -106,6 +106,36 @@ public class TradutorLotesService {
             LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
             String nomeArquivo, List<String> avisos, String promptCongelado)
             throws InterruptedException, ExecutionException {
+        // Compat: sem inventário explícito, vale a regra histórica — isola a quebra
+        // apenas do que NÃO é deduplicável, ou seja, só do diálogo.
+        return traduzirPendentes(textosPendentes, textosDeduplicaveis, null,
+            nomeArquivo, avisos, promptCongelado);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução em lotes, recebendo o inventário de falas cuja
+     * quebra {@code \N} pode ser ISOLADA antes do mascaramento. A isolação existe porque um
+     * {@code [[TAGn]]} no meio da frase é o que o LLM mais erra: o português reordena as
+     * palavras e o marcador se perde, derrubando a fala inteira.
+     *
+     * <p>Até 2026-07-23 a isolação era exclusiva do diálogo, e música/letreiro seguiam com o
+     * {@code \N} mascarado. O custo apareceu medido no Break Blade filme 1: das 34 falas, 6
+     * viraram pendência por marcador corrompido — todas verso de música e cartela de título com
+     * tag no meio do texto, o caso exato que a isolação resolve.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o inventário decide por FALA, não por heurística local. KFX e
+     * romaji preservado ficam de fora por decisão do chamador — neles a posição da quebra tem
+     * relação com o tempo do efeito, não é quebra visual. Cada fala reaplica a QUANTIDADE de
+     * quebras que ela mesma tinha, então camadas que deduplicam entre si não trocam de layout.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: inventário {@code null} recai na regra histórica
+     * (compatibilidade); fala ausente do inventário simplesmente não tem a quebra isolada.
+     */
+    public Map<String, String> traduzirPendentes(
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            Set<String> textosComQuebraIsolavel,
+            String nomeArquivo, List<String> avisos, String promptCongelado)
+            throws InterruptedException, ExecutionException {
         if (textosPendentes.isEmpty()) {
             return Map.of();
         }
@@ -114,12 +144,17 @@ public class TradutorLotesService {
         Map<String, String> textoMascaradoPorOriginal = new LinkedHashMap<>();
         Map<String, Integer> quebrasPorOriginal = new LinkedHashMap<>();
         for (String original : textosPendentes) {
-            // Diálogo (fora do subconjunto deduplicável): isola o \N mid-sentence ANTES de
-            // mascarar, para o LLM traduzir a frase inteira sem marcador no meio; a quebra é
-            // reaplicada na tradução em desmascararComFallback. Música/karaokê/KFX (dedupláveis)
-            // seguem com o \N mascarado como [[TAGn]] pelo caminho antigo, intactos.
+            // Isola o \N mid-sentence ANTES de mascarar, para o LLM traduzir a frase inteira
+            // sem marcador no meio; a quebra é reaplicada na tradução em desmascararComFallback.
+            // Quem pode ser isolado vem do CHAMADOR, que conhece a categoria da fala: diálogo,
+            // música latina e letreiro (onde \N é quebra visual). KFX e romaji ficam de fora --
+            // neles a quebra tem relação com o tempo do efeito. Sem inventário, vale a regra
+            // histórica (só o que não é deduplicável, isto é, só diálogo).
             String textoParaMascarar = original;
-            if (!textosDeduplicaveis.contains(original)) {
+            boolean quebraIsolavel = textosComQuebraIsolavel == null
+                ? !textosDeduplicaveis.contains(original)
+                : textosComQuebraIsolavel.contains(original);
+            if (quebraIsolavel) {
                 IsoladorQuebraDialogo.FalaIsolada isolada = isoladorQuebra.isolar(original);
                 if (isolada.quebras() > 0) {
                     textoParaMascarar = isolada.textoSemQuebra();
