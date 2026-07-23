@@ -263,16 +263,31 @@ public class ProcessarArquivoUseCase {
         // Marca as falas NÃO-diálogo para o LLM traduzir cada mascarado uma vez e a
         // tradução ser reaplicada a cada camada com suas próprias tags. Diálogo fica
         // de fora (comportamento intacto). Romaji já nem chega aqui (é preservado).
+        // Inventário de quebra isolável: onde o \N é quebra VISUAL, tirá-lo antes do
+        // mascaramento evita o marcador no meio da frase — que é o que o LLM mais erra, porque
+        // o português reordena as palavras e o marcador se perde. Diálogo já fazia isso; música
+        // latina e letreiro entram agora. Medição que motivou (Break Blade filme 1, 2026-07-23):
+        // 6 das 34 falas viraram pendência por marcador corrompido, TODAS verso de música e
+        // cartela com tag no meio do texto. KFX e romaji preservado ficam FORA de propósito: ali
+        // a quebra acompanha o tempo do efeito, não é decoração visual.
         Set<String> textosDeduplicaveis = new HashSet<>();
+        Set<String> textosComQuebraIsolavel = new HashSet<>();
         for (String pendente : textosPendentes) {
-            if (classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente) != CategoriaConteudo.DIALOGO) {
+            CategoriaConteudo categoria = classificadorPendencia.categoria(estiloPorTexto.get(pendente), pendente);
+            if (categoria != CategoriaConteudo.DIALOGO) {
                 textosDeduplicaveis.add(pendente);
+            }
+            if (categoria == CategoriaConteudo.DIALOGO
+                || categoria == CategoriaConteudo.MUSICA_LATINA
+                || categoria == CategoriaConteudo.LETREIRO) {
+                textosComQuebraIsolavel.add(pendente);
             }
         }
 
         Map<String, String> traducoesNovas;
         try {
-            traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, textosDeduplicaveis, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
+            traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, textosDeduplicaveis,
+                textosComQuebraIsolavel, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
         } catch (TraducaoParcialException e) {
             Map<String, String> traducoesParciais = e.getDicionarioParcial();
             if (traducoesParciais != null && !traducoesParciais.isEmpty()) {

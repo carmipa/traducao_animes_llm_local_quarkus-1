@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -224,6 +225,59 @@ class TradutorLotesServiceTest {
         assertEquals(1, linhasEnviadas, "o mesmo texto mascarado deve ir ao LLM uma unica vez");
         assertEquals("T:{\\clip(0,10)}A flower", r.get("{\\clip(0,10)}A flower"), "camada 1 com suas tags");
         assertEquals("T:{\\clip(0,20)}A flower", r.get("{\\clip(0,20)}A flower"), "camada 2 com suas tags");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: verso de música com {@code \N} no MEIO da frase deixa de mandar um
+     * marcador no meio da tradução. Um {@code [[TAGn]]} mid-sentence é o que o LLM mais erra —
+     * o português reordena as palavras e o marcador se perde, derrubando a fala inteira.
+     *
+     * <p>CASO REAL (Break Blade filme 1, 2026-07-23): das 34 falas, 6 viraram pendência por
+     * marcador corrompido, TODAS verso de música e cartela com tag no meio, como
+     * {@code {\be1\fad(0,200)\pos(502.5,930)}because I never make\Npromises I cannot keep}. A
+     * isolação da quebra já existia, mas era exclusiva do diálogo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto que chega ao LLM não tem marcador no meio; a fala
+     * traduzida volta com a MESMA quantidade de quebras que tinha.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o mascarado voltar a levar marcador mid-sentence,
+     * a música volta a virar pendência a cada execução.
+     */
+    @Test
+    void musicaComQuebraNoMeioNaoMandaMarcadorMidSentenceAoLlm() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        String verso = "{\\be1\\fad(0,200)}because I never make\\Npromises I cannot keep";
+        LinkedHashSet<String> pend = pendentes(verso);
+
+        Map<String, String> r = s.traduzirPendentes(
+            pend, Set.of(verso), Set.of(verso), "ep.ass", new ArrayList<>(), null);
+
+        String enviado = ep.lotesRecebidos.get(0).linhasOriginais().get(0);
+        assertFalse(enviado.matches("(?s).*\\p{L}.*\\[\\[TAG\\d+]].*\\p{L}.*"),
+            "nao pode haver marcador ENTRE trechos de texto visivel: " + enviado);
+        assertTrue(r.get(verso).contains("\\N"),
+            "a quebra visual precisa voltar na traducao: " + r.get(verso));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: KFX e romaji ficam FORA da isolação — ali a quebra acompanha o
+     * tempo do efeito, não é decoração visual, e mexer nela desalinharia o karaokê.
+     * <p>INVARIANTES DO DOMÍNIO: fala ausente do inventário segue o caminho de mascaramento.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: isolar quebra de KFX corrompe o sincronismo.
+     */
+    @Test
+    void falaForaDoInventarioMantemAQuebraMascarada() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        String kfx = "{\\k30}fu\\Nmi";
+        LinkedHashSet<String> pend = pendentes(kfx);
+
+        s.traduzirPendentes(pend, Set.of(kfx), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        String enviado = ep.lotesRecebidos.get(0).linhasOriginais().get(0);
+        assertTrue(enviado.contains("[[TAG"),
+            "sem estar no inventario, a quebra segue mascarada: " + enviado);
     }
 
     /**
