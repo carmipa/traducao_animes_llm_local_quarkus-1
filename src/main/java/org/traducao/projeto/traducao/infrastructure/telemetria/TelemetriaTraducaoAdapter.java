@@ -13,12 +13,15 @@ import org.traducao.projeto.traducao.domain.TelemetriaTraducaoDocumento;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,6 +60,12 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
     // retrocompatível — arquivos 1.0 sao lidos com o campo ausente como null.
     private static final String SCHEMA_VERSION = "1.1";
     private static final String NOME_ARQUIVO = "telemetria_traducao.json";
+    /** Histórico append-only: uma linha JSON por EXECUÇÃO (o canônico guarda só a última). */
+    static final String NOME_ARQUIVO_HISTORICO = "telemetria_execucoes.jsonl";
+    /** Teto LOCAL de execuções guardadas. O acervo completo vive no repositório do dataset. */
+    private static final int LIMITE_LOCAL_EXECUCOES = 20_000;
+    /** Folga antes de podar, para não reescrever o arquivo a cada episódio traduzido. */
+    private static final int FOLGA_PODA = 1_000;
     private static final String SUBPASTA = "logs";
     // Carimbo único (timestamp + sequência JVM) para NÃO sobrescrever evidência forense de
     // corrupções sucessivas; a sequência garante unicidade mesmo dentro do mesmo milissegundo.
@@ -112,6 +121,68 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
         }
         banco.put(NormalizadorNomeEpisodio.normalizar(telemetria.nomeEpisodio()), telemetria);
         persistir();
+        acrescentarAoHistorico(telemetria);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: preserva CADA execução de tradução como uma linha própria, para que o
+     * dataset de pesquisa possa comparar o mesmo episódio ao longo do tempo ("esta mudança
+     * melhorou?"). O arquivo canônico {@code telemetria_traducao.json} é, por construção, uma
+     * FOTO: {@code banco} é um mapa chaveado pelo nome do episódio, então retraduzir apaga a
+     * medição anterior. Em 2026-07-23 isso foi confirmado nos dados reais — 155 registros para
+     * 155 episódios distintos, zero repetições, e as medições do 08th de 2026-07-22 já haviam
+     * sumido ao serem retraduzidas.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>APPEND puro: uma linha JSON por execução, jamais reescrita ou editada.</li>
+     *   <li>Teto LOCAL de {@value #LIMITE_LOCAL_EXECUCOES} linhas — a máquina do operador não
+     *       pode crescer sem fim. Ao estourar, as MAIS ANTIGAS saem daqui; elas continuam no
+     *       repositório do dataset, que só cresce.</li>
+     *   <li>A poda roda com folga ({@value #FOLGA_PODA} linhas além do teto) para não reescrever
+     *       o arquivo a cada episódio.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * NUNCA propaga: telemetria histórica é observabilidade, não pode derrubar uma tradução que
+     * já terminou. Falha de I/O é registrada em WARN e a execução segue.
+     */
+    private void acrescentarAoHistorico(TelemetriaTraducao telemetria) {
+        try {
+            Path pasta = pasta();
+            Files.createDirectories(pasta);
+            Path historico = pasta.resolve(NOME_ARQUIVO_HISTORICO);
+            String linha = objectMapper.writeValueAsString(telemetria);
+            Files.writeString(historico, linha + System.lineSeparator(),
+                StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            podarHistoricoSeNecessario(historico);
+        } catch (IOException | RuntimeException e) {
+            log.warn("Falha ao acrescentar execucao ao historico de telemetria: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mantém o histórico local dentro de um teto sem jamais perder dado já
+     * publicado — o corte local é de ARMAZENAMENTO, não de acervo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: descarta apenas as linhas mais ANTIGAS e preserva a ordem
+     * cronológica de escrita; a reescrita é atômica (temporário + substituição), então uma queda
+     * no meio da poda não trunca o histórico.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} para o chamador, que apenas
+     * loga — o arquivo anterior permanece íntegro porque a troca só ocorre no fim.
+     */
+    private void podarHistoricoSeNecessario(Path historico) throws IOException {
+        List<String> linhas = Files.readAllLines(historico, StandardCharsets.UTF_8);
+        if (linhas.size() <= LIMITE_LOCAL_EXECUCOES + FOLGA_PODA) {
+            return;
+        }
+        List<String> mantidas = linhas.subList(linhas.size() - LIMITE_LOCAL_EXECUCOES, linhas.size());
+        Path temporario = historico.resolveSibling(NOME_ARQUIVO_HISTORICO + ".tmp");
+        Files.write(temporario, mantidas, StandardCharsets.UTF_8);
+        ArquivoAtomicoUtil.substituirAtomico(temporario, historico);
+        log.info("Historico local de telemetria podado para as {} execucoes mais recentes "
+            + "(as anteriores permanecem no repositorio do dataset).", LIMITE_LOCAL_EXECUCOES);
     }
 
     @Override
