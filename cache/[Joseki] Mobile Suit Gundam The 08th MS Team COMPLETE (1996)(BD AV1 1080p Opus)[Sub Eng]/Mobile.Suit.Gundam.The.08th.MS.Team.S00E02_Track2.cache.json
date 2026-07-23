@@ -18,7 +18,7 @@
     "indice" : 2,
     "estilo" : "Default",
     "original" : "{\\i1}Hey B.B., was there someone\\Nlike this in your class...?",
-    "traduzido" : "{\\i1}Ei, B.B., tinha alguém\\Nassim na sua turma...?",
+    "traduzido" : "{\\i1}Ei B.B., tinha alguém\\Nassim na sua turma...?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -39,21 +39,21 @@
     "indice" : 5,
     "estilo" : "Default",
     "original" : "{\\i1}I guess it's hard to judge how\\Nclose you can get to them...",
-    "traduzido" : "{\\i1}Acho que é difícil julgar quanto\\Nvocê pode se aproximar deles...",
+    "traduzido" : "{\\i1}Acho difícil julgar quanto\\Nvocê pode se aproximar deles...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 6,
     "estilo" : "Default",
     "original" : "{\\i1}The kind of person you graduate with...",
-    "traduzido" : "{\\i1}O tipo de pessoa com quem você se forma...",
+    "traduzido" : "{\\i1}O tipo de pessoa que você se forma junto...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 7,
     "estilo" : "Default",
     "original" : "{\\i1}...without ever having talked\\Nto them even once.",
-    "traduzido" : "{\\i1}Nunca falei com\\Neles nem uma vez.",
+    "traduzido" : "{\\i1}Sem nunca ter falado\\Ncom eles nem uma vez.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -67,7 +67,7 @@
     "indice" : 9,
     "estilo" : "Default",
     "original" : "{\\i1}His complete and utter lack of social skills would come in really handy right about now!",
-    "traduzido" : "{\\i1}Sua completa falta de habilidades sociais seria bem útil agora mesmo!",
+    "traduzido" : "{\\i1} Sua completa e absoluta falta de habilidades sociais seria bem útil agora mesmo!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -123,7 +123,7 @@
     "indice" : 17,
     "estilo" : "Default",
     "original" : "And the other one still wasn't\\Ndestroyed, even after that!",
-    "traduzido" : "Ainda assim, o outro\\Nainda não foi destruído!",
+    "traduzido" : "E o outro ainda não foi\\Ndestruído, mesmo depois disso!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -144,7 +144,7 @@
     "indice" : 20,
     "estilo" : "Default",
     "original" : "Wasn't this area supposed\\Nto be under our control?!",
-    "traduzido" : "Não deveríamos estar\\Nno comando desta área?",
+    "traduzido" : "Não era para esta área\\Nestar sob nosso controle?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -158,7 +158,7 @@
     "indice" : 22,
     "estilo" : "Default",
     "original" : "{\\i1}Move your aim more to the left!{\\i0}",
-    "traduzido" : "{\\i1}Mova sua mira mais para a esquerda!{\\i0}",
+    "traduzido" : "{\\i1}Ajuste seu alvo mais para a esquerda!{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -186,14 +186,14 @@
     "indice" : 26,
     "estilo" : "Default",
     "original" : "{\\i1}Michel! Grab Karen and get her out of there!{\\i0}",
-    "traduzido" : "{\\i1}Michel! Pega a Karen e tira ela dali!{\\i0}",
+    "traduzido" : "{\\i1}Michel! Pega a Karen e tira ela daí!{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 27,
     "estilo" : "Default",
     "original" : "Huh?!",
-    "traduzido" : "Hã?",
+    "traduzido" : "Hum?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -207,7 +207,7 @@
     "indice" : 29,
     "estilo" : "Default",
     "original" : "It's too far out!",
-    "traduzido" : "É muito longe!",
+    "traduzido" : "É muito longe pra mim!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -228,7 +228,7 @@
     "indice" : 32,
     "estilo" : "Default",
     "original" : "Do you really think I'd give you\\Ntime to help your comrades?!",
-    "traduzido" : "Não achas mesmo que eu te daria\\Ntempo para ajudar seus companheiros?!",
+    "traduzido" : "Eu realmente acho que você daria\\Ntempo para ajudar seus companheiros?!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -249,7 +249,7 @@
     "indice" : 35,
     "estilo" : "Default",
     "original" : "...think so!",
-    "traduzido" : "I think so! -> Acho que sim!",
+    "traduzido" : "Penso assim!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -263,7 +263,7 @@
     "indice" : 37,
     "estilo" : "Default",
     "original" : "Okay! It's stopped!",
-    "traduzido" : "Tudo bem! Parou!",
+    "traduzido" : "Okay! Parou!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -277,14 +277,14 @@
     "indice" : 39,
     "estilo" : "Default",
     "original" : "He made that shot... from that distance?!",
-    "traduzido" : "Ele fez aquele tiro... àquela distância?!",
+    "traduzido" : "Ele conseguiu fazer aquele tiro... àquela distância?!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 40,
     "estilo" : "Default",
     "original" : "So he's an ace pilot, huh?",
-    "traduzido" : "Ele é um piloto ACE então, hein?",
+    "traduzido" : "Ele é um piloto ACE então?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -312,14 +312,14 @@
     "indice" : 44,
     "estilo" : "Default",
     "original" : "But we're up against a mobile suit!",
-    "traduzido" : "Mas estamos enfrentando um Mobile Suit!",
+    "traduzido" : "Estamos enfrentando um Mobile Suit!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 45,
     "estilo" : "Default",
     "original" : "Do we really have any other options here?",
-    "traduzido" : "Não temos mais opções aqui?",
+    "traduzido" : "Não temos mais opções aqui, não é mesmo?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -361,14 +361,14 @@
     "indice" : 51,
     "estilo" : "Default",
     "original" : "S-Somehow, yes!",
-    "traduzido" : "Somehow, yes! -> De alguma forma, sim!",
+    "traduzido" : "Sim, de alguma forma!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 52,
     "estilo" : "Default",
     "original" : "{\\i1}C-Commander, he's headed your way!\\NHe's 30 meters behind you!{\\i0}",
-    "traduzido" : "{\\i1}Comandante, ele está vindo em sua direção!\\NEle está a 30 metros atrás de você!{\\i0}",
+    "traduzido" : "{\\i1}Comandante, ele está vindo atrás de\\Nvocê! Ele está a 30 metros de distância!{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -389,14 +389,14 @@
     "indice" : 55,
     "estilo" : "Default",
     "original" : "I believe you!!!",
-    "traduzido" : "Eu acredito em você!!!",
+    "traduzido" : "Eu acredito em você!!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 56,
     "estilo" : "Default",
     "original" : "What?!",
-    "traduzido" : "O quê?!",
+    "traduzido" : "O que?!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -459,21 +459,21 @@
     "indice" : 65,
     "estilo" : "Default",
     "original" : "O-Oh, u-uh... no thanks, I'm a minor...",
-    "traduzido" : "Eu sou menor, não obrigado.",
+    "traduzido" : "Eu sou menor, obrigado mas não obrigado",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 66,
     "estilo" : "Default",
     "original" : "S-Sorry...",
-    "traduzido" : "Desculpe...",
+    "traduzido" : "Desculpa...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 67,
     "estilo" : "Default",
     "original" : "Wait a minute, just now, you...",
-    "traduzido" : "Espere um momento, agora mesmo você...",
+    "traduzido" : "Espere um pouco, agora mesmo você...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -487,21 +487,21 @@
     "indice" : 69,
     "estilo" : "Default",
     "original" : "Um, Chief!",
-    "traduzido" : "Um, Chefe!",
+    "traduzido" : "Entao chefe!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 70,
     "estilo" : "Default",
     "original" : "You went through the trouble of offering\\Nme something, and I turned you down-",
-    "traduzido" : "Eu te ofereci algo\\Ne você recusou.",
+    "traduzido" : "Eu passei por todo esse trabalho para\\Noferecer algo a você, e você recusou.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 71,
     "estilo" : "Default",
     "original" : "O-Oh, i-it's no-",
-    "traduzido" : "Oh não, é o...",
+    "traduzido" : "use.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -515,7 +515,7 @@
     "indice" : 73,
     "estilo" : "Default",
     "original" : "However, if you wanted to drink coffee\\Ntogether, I'd be happy to! Here!",
-    "traduzido" : "Mas se você quiser tomar cafe\\Njuntos, ficarei feliz em ir! Aqui!",
+    "traduzido" : "Mas se você quiser tomar cafe juntos,\\Nficarei feliz em fazer isso! Aqui!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -529,7 +529,7 @@
     "indice" : 96,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}From childhood till now, so many days.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Desde a infância até hoje, tantos dias se passaram.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Desde a infância até hoje, tantos dias.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -543,7 +543,7 @@
     "indice" : 98,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}...that happened to come into my life.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}[...que acabou acontecendo na minha vida.]",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}...que acabou acontecendo na minha vida.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -557,42 +557,42 @@
     "indice" : 100,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}The times I fought, the times I dreamed.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Os tempos que lutei, os tempos que sonhei.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}As vezes que lutei, as vezes que sonhei.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 101,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}The lost loves that were sort of hard.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Os amores perdidos que foram meio duros.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Os amores perdidos que foram meio difíceis.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 102,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}All shining in my history.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Brilhando em minha história.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Brilhando em minha historia.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 103,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}The ones who caused me pain...",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Os responsáveis pelo meu sofrimento...",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Os responsáveis pela minha dor...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 104,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}...I met and left along the way.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Eu conheci e deixei para tras no caminho.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Eu conheci e deixei para traz no caminho.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 105,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}But I still ended up meeting you.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Ainda assim acabei me encontrando com você.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Ainda assim, acabei me encontrando com você.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -606,7 +606,7 @@
     "indice" : 107,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}Ten years after, A decade from now.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0} Dez anos depois, uma década a partir de agora.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0} Dez anos depois, uma década mais tarde.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -634,7 +634,7 @@
     "indice" : 111,
     "estilo" : "Song ENG",
     "original" : "{\\fad(150,150)\\blur0.5\\bord0}I still want to be looking at you.",
-    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Eu ainda quero estar olhando para você.",
+    "traduzido" : "{\\fad(150,150)\\blur0.5\\bord0}Ainda quero estar olhando para você.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
