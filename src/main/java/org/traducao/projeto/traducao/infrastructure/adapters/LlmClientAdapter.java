@@ -37,6 +37,14 @@ public class LlmClientAdapter implements LlmPort {
     private static final double TEMPERATURA_CORRECAO_TRADUCAO = 0.3;
     private static final Pattern BLOCO_RACIOCINIO = Pattern.compile("(?is)<think>.*?</think>");
     private static final Pattern MARCADOR_TAG = Pattern.compile("\\[\\[TAG\\d+]]");
+
+    /**
+     * Modelo REALMENTE resolvido junto ao LM Studio, guardado aqui porque {@link LlmProperties}
+     * é {@code @ConfigurationProperties} e não é instância compartilhada — o {@code setModel}
+     * não chega aos outros beans. {@code volatile}: escrito na thread da requisição que verifica
+     * disponibilidade, lido na thread da fila de tradução.
+     */
+    private volatile String modeloResolvido;
     private static final Pattern PREFIXO_RESPOSTA = Pattern.compile(
         "(?i)^(?:tradu[cç][aã]o(?: corrigida)?|resposta|pt-br|texto corrigido)\\s*:\\s*");
 
@@ -52,6 +60,29 @@ public class LlmClientAdapter implements LlmPort {
         this.httpClient = new JsonHttpClient(propriedades.connectTimeout(), propriedades.readTimeout(), propriedades.baseUrl(), mapper);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve o modelo que este adaptador resolveu de fato junto ao LM
+     * Studio, para a telemetria registrar qual LLM produziu a tradução.
+     *
+     * <p>Não basta ler {@code propriedades.model()}: {@link LlmProperties} é
+     * {@code @ConfigurationProperties} e NÃO é uma instância compartilhada entre os beans. O
+     * {@code setModel} chamado aqui muda a cópia deste adaptador, mas o montador de telemetria
+     * enxerga outra cópia, que continua com o {@code "current"} do {@code application.yml} — foi
+     * exatamente isso que fez os 155 registros de 2026-07-23 gravarem {@code "current"} mesmo
+     * com a deteccao funcionando.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só devolve valor DETECTADO em {@link #verificarDisponibilidade()};
+     * nunca o configurado. Campo {@code volatile}: a deteccao roda na thread da requisição e a
+     * leitura acontece na thread da fila de tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} enquanto nenhuma verificação bem-sucedida
+     * tiver ocorrido. Não lança e não faz chamada de rede.
+     */
+    @Override
+    public String modeloAtivo() {
+        return modeloResolvido;
+    }
+
     @Override
     public StatusLlm verificarDisponibilidade() {
         try {
@@ -63,6 +94,7 @@ public class LlmClientAdapter implements LlmPort {
             if (!carregados.isEmpty()) {
                 String escolhido = escolherEntreCarregados(carregados);
                 propriedades.setModel(escolhido);
+                this.modeloResolvido = escolhido;
                 String msg = carregados.size() == 1
                     ? "Servidor LLM online e modelo \"" + escolhido + "\" carregado em memória."
                     : "Servidor LLM online; " + carregados.size() + " modelos carregados, usando \"" + escolhido + "\".";
@@ -93,6 +125,7 @@ public class LlmClientAdapter implements LlmPort {
             if (configuradoNoCatalogo.isPresent()) {
                 String modelo = configuradoNoCatalogo.get();
                 propriedades.setModel(modelo);
+                this.modeloResolvido = modelo;
                 log.warn("Load-state não confirmado por este servidor; usando o modelo configurado \"{}\" achado no catálogo /v1/models.", modelo);
                 return new StatusLlm(true, true,
                     "Servidor LLM online. Modelo configurado \"" + modelo + "\" encontrado no catálogo (o servidor não confirma qual está carregado).");

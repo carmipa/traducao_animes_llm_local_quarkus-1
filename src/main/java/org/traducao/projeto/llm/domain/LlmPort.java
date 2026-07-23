@@ -89,6 +89,31 @@ public interface LlmPort {
     StatusLlm verificarDisponibilidade();
 
     /**
+     * PROPÓSITO DE NEGÓCIO: informa o modelo que EFETIVAMENTE respondeu, para a telemetria
+     * registrar qual LLM produziu cada tradução. Sem isso não existe comparação entre execuções:
+     * medir a mesma obra numa máquina potente e num notebook com GPU pequena só tem sentido se o
+     * registro souber qual modelo rodou em cada uma.
+     *
+     * <p>O valor NÃO pode vir da configuração. Em 2026-07-23 os 155 registros de telemetria
+     * traziam {@code modeloLlm="current"} — e {@code "current"} é proposital no
+     * {@code application.yml}, porque pedir o id exato ao LM Studio faz o servidor recarregar (ou
+     * subir uma segunda instância via auto-load). A configuração diz "use o que estiver
+     * carregado"; só a implementação sabe qual era.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: devolve o último modelo RESOLVIDO pela implementação, jamais o
+     * valor configurado. Consulta é barata e local — nunca dispara chamada de rede.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} quando a implementação ainda não resolveu
+     * nenhum modelo (nenhuma verificação de disponibilidade ocorreu) ou não sabe informar. O
+     * chamador decide o que registrar nesse caso; nunca lança.
+     *
+     * @return identificador do modelo ativo, ou {@code null} se desconhecido
+     */
+    default String modeloAtivo() {
+        return null;
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: revisa uma fala já traduzida, corrigindo concordância de
      * gênero/pronomes sem retraduzir do zero.
      * <p>INVARIANTES DO DOMÍNIO: opera sobre o texto mascarado (marcadores de tag

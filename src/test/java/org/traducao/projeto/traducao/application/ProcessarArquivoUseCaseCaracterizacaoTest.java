@@ -322,7 +322,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 new IsoladorQuebraDialogo());
         EnforcadorTermosLore enforcadorTermos = new EnforcadorTermosLore();
         MontadorTelemetriaTraducao montadorTelemetria =
-            new MontadorTelemetriaTraducao(llmProps, resolvedorCache);
+            new MontadorTelemetriaTraducao(llmProps, resolvedorCache, llm);
         ClassificadorPendenciaTelemetria classificadorPendencia =
             new ClassificadorPendenciaTelemetria(detectorKaraoke);
         RecuperarPendenciaFallbackService recuperarPendenciaGoogle =
