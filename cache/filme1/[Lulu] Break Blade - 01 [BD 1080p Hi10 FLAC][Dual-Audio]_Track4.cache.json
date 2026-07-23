@@ -1,0 +1,249 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "break_blade_1",
+    "contextoHash" : "8a5f6a6cd05213a40ef5d486683bee37a3875f771f21319aac947989dfe14ab0",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 2,
+    "estilo" : "Ep Titles",
+    "original" : "{\\fad(1500,0)}{\\be1}Book One\\N{\\fs75}The Time of Awakening",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Next Ep",
+    "original" : "{\\fs105}Preview",
+    "traduzido" : "{\\fs105}Prévia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Next Ep",
+    "original" : "{\\fad(600,600)\\fs60\\pos(960,952.5)}Book Two\\N\\N{\\fs105}The Split Path",
+    "traduzido" : "{\\fad(600,600)\\fs60\\pos(960,952.5)}Livro\\NDois\\N{\\fs105}O Caminho Dividido",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}This world has",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Este mundo tem",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}nothing worth noting",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}nada digno de nota",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}But we have plenty of love",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Mas temos muito amor",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}on our hands",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}em nossas maos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Those who",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Aqueles que",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}have faith",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}tenha fé",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}will act on behalf",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Atuarei em seu nome.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}of their unwavering love",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}do seu amor inabalável",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}If I could challenge fate,",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Se eu pudesse desafiar o destino",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}I'd act on all of my feelings",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}Eu agiria sobre todos os meus sentimentos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,165)}ALIVE SERIOUS AGE",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,165)}VIVO SÉRIO IDADE",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}There is no one in the future",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Não há ninguém no futuro",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Hearing voices only from behind,",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Ouvindo vozes apenas atrás de mim",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I look up to see wishes\\Nblooming in the land",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Olho para cima e vejo desejos desabrochando na terra\\N",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I seek out the ones who\\Ntry to stomp on them",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Procurarei aqueles que\\Ntentam pisoteá-los",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}because I never make\\Npromises I cannot keep",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}They're proud dreams,\\Nso I'll make them shine brighter",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}São sonhos orgulhosos,\\Nentão farei eles brilharem ainda mais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}while bearing lonely strength\\Nfor the irreplaceable future",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}enquanto carregando força solitária\\Npelo futuro insubstituível",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}\"Don't just turn around\\Nand move forward\"",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}You pointed me toward\\Nthe horizon I needed to follow",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Você apontou para mim o horizonte que eu precisava seguir \\N",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I began to run and noticed too late",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Comecei a correr e percebi tarde demais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}that feelings die when they connect",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}que sentimentos morrem quando se conectam",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I will live in the present for\\Nwe may meet in the future",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Wind blows with no one in sight,\\Nand I wander lost in this stronghold",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}O vento sopra sem ninguém à vista, \\Ne eu vagueio perdido neste forte.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Even if there were others, I still\\Nwouldn't wander into their wandering",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Mesmo que houvesse outros, eu ainda assim \\Nnão iria me meter no caminho deles.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}\"Don't just turn around\\Nand move forward\"",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}You pointed me toward\\Nthe horizon I needed to follow",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Você apontou para mim o horizonte que eu precisava seguir \\N",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I began to run and noticed too late",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Comecei a correr e percebi tarde demais",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}that feelings die when they connect",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}que sentimentos morrem quando se conectam",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}I will live in the present for\\Nwe may meet in the future",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Ending",
+    "original" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Alive in this serious age",
+    "traduzido" : "{\\be1\\fad(0,200)\\pos(502.5,930)}Vivo nesta era séria",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}
