@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.traducao.domain.ResumoPendencia;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 
 import java.nio.file.Path;
@@ -19,7 +20,9 @@ import java.util.List;
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>O modelo registrado é o efetivamente ativo ({@code llmProperties.model()}) e a
- *       temporada é derivada do nome da obra pela mesma regra do cache.</li>
+ *       temporada é derivada do nome da obra pela mesma regra do cache. O modelo vem da PORTA
+ *       ({@code LlmPort.modeloAtivo()}), não da configuração — o {@code application.yml} traz
+ *       {@code "current"} de propósito e literalmente não sabe o nome do modelo carregado.</li>
  *   <li>A lista de avisos é copiada de forma imutável para o registro não refletir mutações
  *       posteriores do chamador.</li>
  *   <li>O carimbo de tempo é o instante da montagem, em ISO-8601.</li>
@@ -38,22 +41,49 @@ public class MontadorTelemetriaTraducao {
 
     private final LlmProperties llmPropriedades;
     private final ResolvedorCacheTraducao resolvedorCache;
+    private final LlmPort llmPort;
 
     /**
-     * PROPÓSITO DE NEGÓCIO: injeta as fontes derivadas do registro — o modelo ativo e a regra de
-     * temporada — para que a montagem apenas transcreva métricas e derive esses dois campos.
+     * PROPÓSITO DE NEGÓCIO: injeta as fontes derivadas do registro — o modelo REALMENTE ativo e a
+     * regra de temporada — para que a montagem apenas transcreva métricas e derive esses campos.
      *
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
      * implementação própria.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
      *
-     * @param llmPropriedades configuração de onde vem o modelo efetivamente ativo
+     * @param llmPropriedades configuração do LLM, usada só como último recurso para o modelo
      * @param resolvedorCache resolvedor que deriva a temporada a partir do nome da obra
+     * @param llmPort porta que sabe qual modelo de fato respondeu
      */
-    public MontadorTelemetriaTraducao(LlmProperties llmPropriedades, ResolvedorCacheTraducao resolvedorCache) {
+    public MontadorTelemetriaTraducao(LlmProperties llmPropriedades, ResolvedorCacheTraducao resolvedorCache,
+            LlmPort llmPort) {
         this.llmPropriedades = llmPropriedades;
         this.resolvedorCache = resolvedorCache;
+        this.llmPort = llmPort;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: identifica qual LLM produziu esta tradução. É o campo que torna
+     * possível comparar execuções — a mesma obra traduzida numa máquina potente e num notebook
+     * com GPU pequena só é comparável se o registro souber qual modelo rodou em cada uma.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a porta VENCE a configuração. O {@code application.yml} traz
+     * {@code model: "current"} de propósito (pedir o id exato faz o LM Studio recarregar o
+     * modelo), então a configuração literalmente não sabe o nome — foi por isso que os 155
+     * registros de 2026-07-23 gravaram {@code "current"} e a comparação entre máquinas seria
+     * impossível.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem modelo resolvido pela porta (nenhuma verificação de
+     * disponibilidade ocorreu ainda), cai na configuração — que pode ser o {@code "current"}
+     * inútil, mas é preferível a gravar vazio e perder até o rastro de que houve execução.
+     */
+    private String modeloEfetivo() {
+        String daPorta = llmPort != null ? llmPort.modeloAtivo() : null;
+        if (daPorta != null && !daPorta.isBlank()) {
+            return daPorta;
+        }
+        return llmPropriedades.model();
     }
 
     /**
@@ -81,7 +111,7 @@ public class MontadorTelemetriaTraducao {
             List<ResumoPendencia> pendenciasPorCausa) {
         return new TelemetriaTraducao(
             arquivoEntrada.getFileName().toString(),
-            llmPropriedades.model(),
+            modeloEfetivo(),
             eventosTraduziveis,
             traducoesNovasValidas,
             cacheReaproveitadas,
