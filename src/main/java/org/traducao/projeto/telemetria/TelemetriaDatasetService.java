@@ -2,6 +2,7 @@ package org.traducao.projeto.telemetria;
 
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,8 +19,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * PROPÓSITO DE NEGÓCIO: publica a telemetria acumulada como dataset público num repositório Git
@@ -47,6 +50,10 @@ public class TelemetriaDatasetService {
     private static final Logger log = LoggerFactory.getLogger(TelemetriaDatasetService.class);
 
     static final String NOME_ARQUIVO_DATASET = "kronos-telemetria-dataset.json";
+    /** Acervo append-only: uma linha por EXECUÇÃO. Cresce e nunca diminui. */
+    static final String NOME_ARQUIVO_EXECUCOES = "kronos-telemetria-execucoes.jsonl";
+    /** Histórico local que alimenta o acervo (limitado por teto na máquina do operador). */
+    private static final String NOME_ARQUIVO_HISTORICO_LOCAL = "telemetria_execucoes.jsonl";
     private static final Duration TIMEOUT_GIT = Duration.ofSeconds(30);
     private static final Duration TIMEOUT_REDE = Duration.ofMinutes(2);
 
@@ -67,6 +74,103 @@ public class TelemetriaDatasetService {
     /** Resultado da publicação, devolvido ao painel de Telemetria. */
     public record ResultadoPublicacao(String repositorio, String commit, boolean pushOk, String mensagem) {}
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: faz o ACERVO do dataset crescer e nunca diminuir. O
+     * {@code kronos-telemetria-dataset.json} é uma FOTO — reescrito por inteiro a cada
+     * publicação e contendo só o último resultado de cada episódio, porque o banco em memória é
+     * chaveado pelo nome do episódio. Isso serve ao painel, mas não a pesquisa: retraduzir o
+     * mesmo episódio apaga a medição anterior e a base nunca cresce em linhas.
+     *
+     * <p>Este método publica, ao lado da foto, um acervo em JSONL onde cada linha é UMA
+     * execução. Ele funde o que já está no repositório do dataset com o histórico local e grava
+     * de volta — o arquivo cresce em linhas e o git preserva cada commit.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>NADA é removido: o que já está no acervo permanece, mesmo que tenha saído do
+     *       histórico local por causa do teto de armazenamento da máquina.</li>
+     *   <li>Deduplicação por {@code nomeEpisodio + registradoEm} — a chave natural de uma
+     *       execução. Republicar não duplica linha.</li>
+     *   <li>Ordem cronológica estável por {@code registradoEm}, para o diff do commit mostrar
+     *       apenas as linhas acrescentadas.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Histórico local ausente (primeira execução após a mudança, ou máquina nova) é caso normal:
+     * devolve 0 e o acervo remoto segue intacto. Linha ilegível é PULADA, nunca descarta o
+     * arquivo. Falha de I/O na gravação propaga {@link IOException} e aborta a publicação antes
+     * do commit, preservando o acervo anterior.
+     *
+     * @return quantas execuções NOVAS entraram no acervo nesta publicação
+     */
+    private int acumularExecucoes(Path pastaMetrics) throws IOException {
+        Path acervo = pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES);
+        Path historicoLocal = DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_HISTORICO_LOCAL);
+
+        Map<String, String> porExecucao = new LinkedHashMap<>();
+        int jaNoAcervo = indexar(acervo, porExecucao);
+        int antes = porExecucao.size();
+        indexar(historicoLocal, porExecucao);
+        int novas = porExecucao.size() - antes;
+
+        if (novas == 0 && jaNoAcervo == porExecucao.size()) {
+            return 0; // nada mudou: não reescreve o arquivo à toa
+        }
+        List<String> ordenadas = porExecucao.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(Map.Entry::getValue)
+            .toList();
+        Files.write(acervo, ordenadas, StandardCharsets.UTF_8);
+        log.info("Acervo de execuções do dataset: {} linha(s) no total, {} nova(s) nesta publicação.",
+            ordenadas.size(), novas);
+        return novas;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: indexa um arquivo JSONL de execuções pela chave natural da execução,
+     * de modo que fundir dois arquivos seja um {@code putIfAbsent} sem risco de duplicar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a chave é {@code registradoEm + '|' + nomeEpisodio} — o carimbo
+     * primeiro para que a ordenação por chave já seja cronológica. Uma execução já presente NÃO
+     * é sobrescrita: o acervo é lido antes do histórico local, então o que já foi publicado
+     * vence.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo inexistente devolve 0 (caso normal). Linha
+     * ilegível ou sem os campos-chave é ignorada com log em DEBUG — uma linha corrompida não
+     * pode impedir a publicação de todas as outras.
+     *
+     * @return quantas linhas válidas o arquivo contribuiu
+     */
+    private int indexar(Path arquivo, Map<String, String> destino) throws IOException {
+        if (!Files.exists(arquivo)) {
+            return 0;
+        }
+        int validas = 0;
+        for (String linha : Files.readAllLines(arquivo, StandardCharsets.UTF_8)) {
+            if (linha == null || linha.isBlank()) {
+                continue;
+            }
+            try {
+                JsonNode no = mapper.readTree(linha);
+                String episodio = texto(no, "nomeEpisodio");
+                String quando = texto(no, "registradoEm");
+                if (episodio == null || quando == null) {
+                    continue;
+                }
+                destino.putIfAbsent(quando + '|' + episodio, linha);
+                validas++;
+            } catch (IOException e) {
+                log.debug("Linha ilegivel no historico de execucoes, ignorada: {}", e.getMessage());
+            }
+        }
+        return validas;
+    }
+
+    private static String texto(JsonNode no, String campo) {
+        JsonNode v = no.get(campo);
+        return v == null || v.isNull() ? null : v.asText();
+    }
+
     public synchronized ResultadoPublicacao publicar() throws IOException {
         Path repo = Path.of(propriedades.repositorioLocal()).toAbsolutePath().normalize();
         prepararRepositorio(repo);
@@ -81,10 +185,14 @@ public class TelemetriaDatasetService {
             montarDatasetSanitizado(resumo, mapper, ambienteExecucao.detectar(propriedades.hardware())));
         log.info("Dataset de telemetria gerado em {}", arquivo);
 
-        git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE", "metrics/" + NOME_ARQUIVO_DATASET);
+        int execucoesNovas = acumularExecucoes(pastaMetrics);
+
+        git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE",
+            "metrics/" + NOME_ARQUIVO_DATASET, "metrics/" + NOME_ARQUIVO_EXECUCOES);
         String mensagemCommit = String.format(Locale.ROOT,
-            "dataset: snapshot com %d episódios e %d operações",
-            resumo.totalEpisodios(), resumo.operacoes() != null ? resumo.operacoes().size() : 0);
+            "dataset: snapshot com %d episódios e %d operações (+%d execução(ões) no acervo)",
+            resumo.totalEpisodios(), resumo.operacoes() != null ? resumo.operacoes().size() : 0,
+            execucoesNovas);
         ProcessoExternoUtil.Resultado commit = git(repo, TIMEOUT_GIT, "commit", "-m", mensagemCommit);
         boolean semMudancas = commit.codigoSaida() != 0
             && saida(commit).toLowerCase(Locale.ROOT).contains("nothing to commit");
