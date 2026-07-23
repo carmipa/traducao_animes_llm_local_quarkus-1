@@ -3,6 +3,10 @@ package org.traducao.projeto.traducao.application;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
+import org.traducao.projeto.llm.domain.LlmPort;
+import org.traducao.projeto.llm.domain.Lote;
+import org.traducao.projeto.llm.domain.StatusLlm;
+import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 
 import java.nio.file.Path;
@@ -33,6 +37,71 @@ class MontadorTelemetriaTraducaoTest {
             Duration.ofSeconds(5), Duration.ofSeconds(30));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: dublê da porta do LLM que informa qual modelo de fato respondeu.
+     * <p>INVARIANTES DO DOMÍNIO: só {@code modeloAtivo()} importa aqui; os demais métodos não são
+     * exercitados pela montagem do registro.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; devolve o valor fixo recebido.
+     */
+    private static LlmPort portaComModelo(String modelo) {
+        return new LlmPort() {
+            @Override public TraducaoLote traduzir(Lote lote) { return null; }
+            @Override public StatusLlm verificarDisponibilidade() { return null; }
+            @Override public String modeloAtivo() { return modelo; }
+            @Override public java.util.Optional<String> revisarConcordancia(String o, String t, List<String> p) {
+                return java.util.Optional.empty();
+            }
+            @Override public java.util.Optional<String> corrigirTraducao(String o, String t, String m) {
+                return java.util.Optional.empty();
+            }
+        };
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o registro precisa dizer QUAL modelo produziu a tradução, senão não
+     * existe comparação entre execuções — a mesma obra numa máquina potente e num notebook com
+     * GPU pequena só é comparável se cada registro souber qual LLM rodou.
+     *
+     * <p>CASO REAL: em 2026-07-23 os 155 registros traziam {@code modeloLlm="current"}. O valor
+     * vinha da configuração, e {@code "current"} é proposital no {@code application.yml} —
+     * pedir o id exato faz o LM Studio recarregar o modelo. A configuração literalmente não sabe
+     * o nome; só a porta sabe. A detecção já existia em {@code LlmClientAdapter}, mas o
+     * {@code setModel} não chegava ao montador porque {@link LlmProperties} é
+     * {@code @ConfigurationProperties} e não é instância compartilhada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a porta VENCE a configuração; sem porta, cai na configuração.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: voltar a gravar o valor configurado inutiliza o campo e
+     * torna impossível comparar máquinas e modelos.
+     */
+    @Test
+    void modeloVemDaPortaNaoDaConfiguracao() {
+        MontadorTelemetriaTraducao comPorta = new MontadorTelemetriaTraducao(
+            llmComModelo("current"), resolvedorComTemporada("T1"), portaComModelo("qwen2.5-14b-instruct-q4"));
+
+        TelemetriaTraducao t = comPorta.montar(Path.of("A", "ep.ass"), 1, 1, 0, 1L,
+            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of());
+
+        assertEquals("qwen2.5-14b-instruct-q4", t.modeloLlm(),
+            "o modelo tem de ser o que a porta resolveu, nunca o 'current' da configuracao");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: sem modelo resolvido (nenhuma verificação de disponibilidade ainda),
+     * gravar a configuração é melhor que gravar vazio — preserva ao menos o rastro da execução.
+     * <p>INVARIANTES DO DOMÍNIO: porta ausente ou sem resposta degrada para a configuração.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: campo vazio apaga o rastro da execução.
+     */
+    @Test
+    void semModeloResolvidoCaiNaConfiguracao() {
+        MontadorTelemetriaTraducao semPorta = new MontadorTelemetriaTraducao(
+            llmComModelo("modelo-do-yml"), resolvedorComTemporada("T1"), portaComModelo(null));
+
+        TelemetriaTraducao t = semPorta.montar(Path.of("A", "ep.ass"), 1, 1, 0, 1L,
+            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of());
+
+        assertEquals("modelo-do-yml", t.modeloLlm());
+    }
+
     private static ResolvedorCacheTraducao resolvedorComTemporada(String temporada) {
         return new ResolvedorCacheTraducao(null, null, null, null, null) {
             @Override
@@ -52,7 +121,7 @@ class MontadorTelemetriaTraducaoTest {
     @Test
     void montaRegistroComCadaCampoNoLugarCerto() {
         MontadorTelemetriaTraducao montador =
-            new MontadorTelemetriaTraducao(llmComModelo("modelo-montador"), resolvedorComTemporada("Temporada 7"));
+            new MontadorTelemetriaTraducao(llmComModelo("modelo-montador"), resolvedorComTemporada("Temporada 7"), null);
 
         TelemetriaTraducao t = montador.montar(
             Path.of("MeuAnime", "legendas_originais", "ep03.ass"),
@@ -84,7 +153,7 @@ class MontadorTelemetriaTraducaoTest {
     @Test
     void avisosSaoCopiadosDeFormaImutavel() {
         MontadorTelemetriaTraducao montador =
-            new MontadorTelemetriaTraducao(llmComModelo("m"), resolvedorComTemporada("Temporada Única"));
+            new MontadorTelemetriaTraducao(llmComModelo("m"), resolvedorComTemporada("Temporada Única"), null);
         List<String> avisosOriginais = new ArrayList<>(List.of("aviso 1"));
 
         TelemetriaTraducao t = montador.montar(
