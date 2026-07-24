@@ -473,7 +473,7 @@
     "indice" : 66,
     "estilo" : "Dialogue",
     "original" : "{\\i1}98! 97!",
-    "traduzido" : "",
+    "traduzido" : "{\\i1}98! 97!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1425,7 +1425,7 @@
     "indice" : 202,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Roger.",
-    "traduzido" : "{\\i1}Roger.",
+    "traduzido" : "{\\i1}Entendido.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1635,7 +1635,7 @@
     "indice" : 232,
     "estilo" : "Dialogue",
     "original" : "- Commander!\\N- Commander!",
-    "traduzido" : "",
+    "traduzido" : "- Comandante! - Comandante!\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1957,7 +1957,7 @@
     "indice" : 312,
     "estilo" : "Titles",
     "original" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}THE SHUDDERING \\NMOUNTAIN",
-    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A\\Nmontanha treme.",
+    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A MONTANHA TREMENTE\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]
