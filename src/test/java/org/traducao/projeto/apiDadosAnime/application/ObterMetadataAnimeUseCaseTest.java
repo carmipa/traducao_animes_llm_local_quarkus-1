@@ -44,6 +44,45 @@ class ObterMetadataAnimeUseCaseTest {
      * COMPORTAMENTO EM CASO DE FALHA: qualquer regressão reprova a suíte com a
      * diferença entre o termo esperado e o termo sanitizado.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: prefixo de CATÁLOGO do operador não é título de obra. As pastas são
+     * organizadas por linha do tempo ({@code UC 0079 - ...}), mas a AniList/Jikan/TMDB não conhecem
+     * esse prefixo — mandá-lo na busca devolve HTTP 404 e a capa não aparece.
+     *
+     * <p>CASO REAL (2026-07-23 07:25): a pasta {@code UC 0079 - Mobile Suit Gundam: The 08th MS
+     * Team} virava a busca {@code "UC 0079 Mobile Suit Gundam: The 08th MS Team"} e a AniList
+     * respondia 404, enquanto o MESMO anime já tinha metadata em cache sob a chave
+     * {@code mobile_suit_gundam_the_08th_ms_team}. O filtro de ano não pegava o {@code 0079}
+     * porque só remove {@code 19xx}/{@code 20xx}. O defeito ficou anos escondido atrás do cache:
+     * só apareceu quando a pasta foi renomeada e a chave de cache mudou junto.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só sai prefixo com a forma sigla curta + número + hífen NO COMEÇO.</li>
+     *   <li>Número que PERTENCE ao título sobrevive: {@code Mobile Suit Gundam 0083 - Stardust
+     *       Memory} e {@code 0080 - War in the Pocket} são obras reais com metadata em cache.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Remover demais quebra a busca das obras cujo número é parte do nome; remover de menos
+     * mantém a capa sumida em toda pasta organizada por linha do tempo.
+     */
+    @Test
+    void removePrefixoDeCatalogoSemDestruirNumeroQuePertenceAoTitulo() {
+        assertEquals("Mobile Suit Gundam: The 08th MS Team",
+            useCase.extrairNomeTermoBusca("UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
+            "o prefixo de linha do tempo nao pode ir para a API");
+        assertEquals("Mobile Suit Gundam: The 08th MS Team",
+            useCase.extrairNomeTermoBusca("G:/animes/UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
+            "mesmo caso vindo como caminho completo");
+
+        // O numero E o titulo: nao pode ser confundido com prefixo de catalogo.
+        assertTrue(useCase.extrairNomeTermoBusca("Mobile Suit Gundam 0083 - Stardust Memory").contains("0083"),
+            "0083 pertence ao titulo da obra");
+        assertTrue(useCase.extrairNomeTermoBusca("86 - Eighty Six").contains("86"),
+            "86 e o proprio nome da obra");
+    }
+
     @Test
     void preservaAliasNarrativeEntreParentesesParaBuscaDeCapa() {
         assertEquals(
