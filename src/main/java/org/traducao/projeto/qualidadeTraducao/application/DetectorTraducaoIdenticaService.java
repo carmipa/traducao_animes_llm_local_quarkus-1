@@ -80,6 +80,13 @@ public class DetectorTraducaoIdenticaService {
      *
      * <p>CRESCE POR EVIDÊNCIA, nunca por palpite: acrescentar palavra sem ocorrência medida
      * transforma esta lista no mesmo tipo de heurística cega que ela existe para substituir.
+     *
+     * <p>E ENCOLHE POR DECISÃO EDITORIAL. {@code roger} saiu em 2026-07-23: a medição mostrou 220
+     * ocorrências no acervo, sendo 179 traduzidas como "Entendido" e 34 mantidas em inglês — e o
+     * Paulo decidiu que manter em inglês está correto, porque "Roger" é compreendido em PT-BR no
+     * contexto de rádio. Mantê-lo aqui transformaria 34 falas HOJE corretas em pendência. Nem
+     * toda palavra inglesa numa legenda PT-BR é defeito; o léxico só pode conter o que a obra
+     * tem obrigação de traduzir.
      * As poucas entradas SEM ocorrência medida estão marcadas abaixo e entraram por revisão
      * arquitetural — são componentes de termos compostos que a lore do 08th declarou
      * ({@code Far East Division}), incluídos para provar que declarar o termo composto NÃO
@@ -87,7 +94,7 @@ public class DetectorTraducaoIdenticaService {
      */
     private static final Set<String> PALAVRAS_INGLES_TRADUZIVEIS = Set.of(
         // medidas nos caches (2026-07-22)
-        "next", "episode", "preview", "roger", "gotcha", "report", "move", "heavy",
+        "next", "episode", "preview", "gotcha", "report", "move", "heavy",
         "enter", "big", "brother", "little", "sister", "fire", "ready", "lieutenant",
         "lady", "hurry", "doctor",
         // por revisão arquitetural: partes de termos compostos declarados na lore
