@@ -11,7 +11,7 @@
     "indice" : 1,
     "estilo" : "08thMS",
     "original" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}MS TEAM",
-    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}EQUIPE",
+    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}EQUIPE MS",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -424,7 +424,7 @@
     "indice" : 60,
     "estilo" : "Dialogue",
     "original" : "...under the highway viaduct and\\Nthen stand by until 1500 hours.",
-    "traduzido" : "",
+    "traduzido" : "...sob o viaduto da rodovia e aguardem até as 1500 horas.\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -802,7 +802,7 @@
     "indice" : 114,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Roger!{\\i0}",
-    "traduzido" : "{\\i1}Shiro: Roger!{\\i0}",
+    "traduzido" : "{\\i1}Entendido!{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -991,7 +991,7 @@
     "indice" : 141,
     "estilo" : "Dialogue",
     "original" : "Master Chief, you think the\\Ncommander made it through okay?",
-    "traduzido" : "",
+    "traduzido" : "Sargento, acha que o comandante conseguiu passar?\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1586,7 +1586,7 @@
     "indice" : 226,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Roger!{\\i0}",
-    "traduzido" : "{\\i1}Shiro: Roger!{\\i0}",
+    "traduzido" : "{\\i1}Entendido!{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
