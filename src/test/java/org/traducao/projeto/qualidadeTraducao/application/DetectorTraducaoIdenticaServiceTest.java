@@ -129,7 +129,11 @@ class DetectorTraducaoIdenticaServiceTest {
     void inglesCorrenteMedidoNosCachesDeixaDeSerAceitoComoTraducao() {
         assertFalse(detectorZeon.deveManterIdentico("Next Episode"), "63 ocorrências medidas");
         assertFalse(detectorZeon.deveManterIdentico("NEXT EPISODE"), "caixa alta não é salvo-conduto");
-        assertFalse(detectorZeon.deveManterIdentico("Roger!"), "29 ocorrências medidas");
+        assertTrue(detectorZeon.deveManterIdentico("Roger!"),
+            "DECISÃO EDITORIAL (Paulo, 2026-07-23): 'Roger' de rádio PODE ficar em inglês — é "
+                + "compreendido em PT-BR. Das 220 ocorrências no acervo, 179 viraram 'Entendido' "
+                + "e 34 ficaram em inglês; as duas formas são aceitáveis, então recusar aqui "
+                + "transformaria 34 falas corretas em pendência");
         assertFalse(detectorZeon.deveManterIdentico("Gotcha!"), "12 ocorrências medidas");
         assertFalse(detectorZeon.deveManterIdentico("Heavy!"), "caso real do episódio 2");
         assertFalse(detectorZeon.deveManterIdentico("Enter."), "caso real do episódio 7");
