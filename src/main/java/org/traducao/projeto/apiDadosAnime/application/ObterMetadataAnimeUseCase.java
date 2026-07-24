@@ -194,6 +194,17 @@ public class ObterMetadataAnimeUseCase {
         // antes de tokenizar, senao "cache"/"json"/"mkv" sobram como ruido na busca.
         texto = texto.replaceAll("(?:\\.[A-Za-z0-9]{1,5})+$", "");
 
+        // Prefixo de CATALOGO do operador, nao do titulo: "UC 0079 - Mobile Suit Gundam...".
+        // Precisa sair ANTES de "[_.-]" virar espaco, porque e justamente o hifen que distingue
+        // um prefixo de catalogo de um numero que pertence a obra. Exige sigla curta (1-4 letras)
+        // + numero + hifen no COMECO -- com isso "Mobile Suit Gundam 0083 - Stardust Memory" nao
+        // casa ("Mobile" tem 6 letras) e "86 - Eighty Six" tambem nao (comeca com digito).
+        // Caso real (2026-07-23): a pasta "UC 0079 - Mobile Suit Gundam: The 08th MS Team" virava
+        // a busca "UC 0079 Mobile Suit Gundam: The 08th MS Team" e a AniList devolvia HTTP 404,
+        // enquanto o MESMO anime ja tinha metadata em cache sob "mobile_suit_gundam_the_08th_ms_team".
+        // O filtro de ano nao pegava o "0079" porque so remove 19xx/20xx.
+        texto = texto.replaceAll("^\\s*[A-Za-z]{1,4}\\s*\\d{2,4}\\s*-\\s+", "");
+
         texto = texto.replaceAll("\\[[^\\]]*\\]", " ")
                      // Parenteses em nomes de contexto frequentemente carregam
                      // aliases essenciais: "NT (Narrative)", "86 (Eighty-Six)".
