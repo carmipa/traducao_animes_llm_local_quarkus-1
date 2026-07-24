@@ -823,7 +823,7 @@
     "indice" : 116,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Michel, distract him with the hovertruck!{\\i}",
-    "traduzido" : "{\\i1}Michel: \"Distraia ele com o hovertruck!\"{\\i}",
+    "traduzido" : "{\\i1}Michel, distraia ele com o hovertruck!{\\i}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1061,7 +1061,7 @@
     "indice" : 150,
     "estilo" : "Dialogue",
     "original" : "Even the Feds aren't {\\i1}that{\\i0} dumb.",
-    "traduzido" : "",
+    "traduzido" : "Nem os Federais são tão burros assim.{\\i1}{\\i0}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2727,7 +2727,7 @@
     "indice" : 459,
     "estilo" : "08thMS",
     "original" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}MS TEAM",
-    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}EQUIPE",
+    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}EQUIPE MS",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2762,7 +2762,7 @@
     "indice" : 467,
     "estilo" : "Titles",
     "original" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}THE SHUDDERING \\NMOUNTAIN",
-    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A\\NMontanha Tremula",
+    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A MONTANHA TREMENTE\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]

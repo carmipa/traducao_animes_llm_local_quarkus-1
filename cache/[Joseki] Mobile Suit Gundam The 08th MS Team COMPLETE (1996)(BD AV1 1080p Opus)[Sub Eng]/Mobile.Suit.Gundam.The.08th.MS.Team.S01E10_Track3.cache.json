@@ -11,7 +11,7 @@
     "indice" : 1,
     "estilo" : "08thMS",
     "original" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}MS TEAM",
-    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}MS TEAM",
+    "traduzido" : "{\\blur2.5\\c&H171417&\\fscx200\\fscy200\\t(,(22,231,\\fscx100\\fscy100\\blur1)\\clip(m -1.375 0 l -1.375 1080 1440 1080)\\move(166,901,511,691,22,231)}EQUIPE MS",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -25,14 +25,14 @@
     "indice" : 4,
     "estilo" : "Titles",
     "original" : "{\\fad(0,399)\\fs100\\pos(1060,600)\\blur1\\c&HDEDEE3&}(PART 1)",
-    "traduzido" : "Shiro: {\\fad(0,399)\\fs100\\pos(1060,600)\\blur1\\c&HDEDEE3&} \"O que é isso?!\"",
+    "traduzido" : "{\\fad(0,399)\\fs100\\pos(1060,600)\\blur1\\c&HDEDEE3&}(PARTE 1)",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 5,
     "estilo" : "Titles",
     "original" : "{\\fad(0,399)\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}THE SHUDDERING \\NMOUNTAIN",
-    "traduzido" : "",
+    "traduzido" : "{\\fad(0,399)\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A MONTANHA TREMENTE\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -823,7 +823,7 @@
     "indice" : 118,
     "estilo" : "Dialogue",
     "original" : "Roger. What do you want to eat?",
-    "traduzido" : "Eu: O que você quer comer?",
+    "traduzido" : "Entendido. O que você quer comer?",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1089,7 +1089,7 @@
     "indice" : 156,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Sanders!",
-    "traduzido" : "{\\i1}Shiro: \"Sanders!\"",
+    "traduzido" : "{\\i1}Sanders!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1796,7 +1796,7 @@
     "indice" : 258,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Sanders...",
-    "traduzido" : "{\\i1}Shiro: Sanders...",
+    "traduzido" : "{\\i1}Sanders...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -1810,7 +1810,7 @@
     "indice" : 260,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Michel...",
-    "traduzido" : "{\\i1}Michel: Eu não aguento mais isso!",
+    "traduzido" : "{\\i1}Michel...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -2328,7 +2328,7 @@
     "indice" : 405,
     "estilo" : "Titles",
     "original" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}THE SHUDDERING \\NMOUNTAIN",
-    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A\\NMONTANHA TREMULANTE",
+    "traduzido" : "{\\fs120\\blur1\\c&HDEDEE3&\\pos(600,600)}A MONTANHA TREMENTE\\N",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]

@@ -78,6 +78,7 @@ public class ProcessarArquivoUseCase {
     private final ClassificadorPendenciaTelemetria classificadorPendencia;
     private final RecuperarPendenciaFallbackService recuperarPendenciaGoogle;
     private final EnforcadorTermosLore enforcadorTermosLore;
+    private final EnforcadorGlossarioFala enforcadorGlossarioFala;
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
@@ -111,6 +112,7 @@ public class ProcessarArquivoUseCase {
         ClassificadorPendenciaTelemetria classificadorPendencia,
         RecuperarPendenciaFallbackService recuperarPendenciaGoogle,
         EnforcadorTermosLore enforcadorTermosLore,
+        EnforcadorGlossarioFala enforcadorGlossarioFala,
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
         NormalizadorAcentosComuns normalizadorAcentos
@@ -136,6 +138,7 @@ public class ProcessarArquivoUseCase {
         this.classificadorPendencia = classificadorPendencia;
         this.recuperarPendenciaGoogle = recuperarPendenciaGoogle;
         this.enforcadorTermosLore = enforcadorTermosLore;
+        this.enforcadorGlossarioFala = enforcadorGlossarioFala;
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
@@ -449,12 +452,18 @@ public class ProcessarArquivoUseCase {
         //  (1) aspas: remove as que ENVOLVEM a fala inteira quando o EN não as tinha (o LLM às
         //      vezes cita um diálogo que a fonte não citava);
         //  (2) acentos: repõe acento nas formas que sem ele nunca são palavra válida (infancia,
-        //      nao, ...), sem tocar homógrafos.
+        //      nao, ...), sem tocar homógrafos;
+        //  (3) glossário de fala completa: fixa a forma canônica das falas que são INTEIRAMENTE
+        //      um termo conhecido ("Roger." -> "Entendido."). Roda por ÚLTIMO porque decide a
+        //      partir do ORIGINAL e reescreve a fala inteira — é o único ponto capaz de corrigir
+        //      tradução alucinada ("Shiro: Roger!") e erro semântico ("Rogério."), que passam
+        //      limpos por todas as outras guardas justamente por não serem iguais ao original.
         for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
             String traduzido = traducao.getValue();
             if (traduzido != null && !traduzido.isBlank()) {
                 String normalizado = normalizadorAspas.normalizar(traducao.getKey(), traduzido);
                 normalizado = normalizadorAcentos.normalizar(normalizado);
+                normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
             }
         }
