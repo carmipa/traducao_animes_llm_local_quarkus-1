@@ -11,28 +11,28 @@
     "indice" : 0,
     "estilo" : "EG",
     "original" : "{\\blur1.5\\pos(661.6,308)}{\\fad(1774,1728)}{\\pos(803.596,270)\\c&H3233AA&}MOBILE SUIT GUNDAM",
-    "traduzido" : "{\\blur1.5\\pos(661.6,308)}{\\fad(1774,1728)}{\\pos(803.596,270)\\c&H3233AA&}MOBILE SUIT GUNDAM",
+    "traduzido" : "{\\blur1.5\\pos(661.6,308)}{\\fad(1774,1728)}{\\pos(803.596,270)\\c&H3233AA&}Mobile Suit Gundam",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 1,
     "estilo" : "Episode Titles",
     "original" : "{\\blur1}{\\pos(720,697.5)}{\\fad(0,1800)\\c&H6A6A24&}- The Mayfly of Space -",
-    "traduzido" : "{\\blur1}{\\pos(720,697.5)}{\\fad(0,1800)\\c&H6A6A24&}- A Borboleta do Espaco -",
+    "traduzido" : "{\\blur1}{\\pos(720,697.5)}{\\fad(0,1800)\\c&H6A6A24&}La Vida en Rose",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 2,
     "estilo" : "Dialogue",
     "original" : "Damn!",
-    "traduzido" : "Merda!",
+    "traduzido" : "Caramba!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 3,
     "estilo" : "Dialogue",
     "original" : "{\\i1}What a persistent nightmare!{\\i}",
-    "traduzido" : "{\\i1}Que pesadelo insistente!{\\i}",
+    "traduzido" : "{\\i1}Que pesadelo persistente!{\\i}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -67,7 +67,7 @@
     "indice" : 8,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Keep your eyes peeled!",
-    "traduzido" : "{\\i1}Mantenha os olhos bem abertos!",
+    "traduzido" : "{\\i1}Fique de olho!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
@@ -102,77 +102,77 @@
     "indice" : 13,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Whatever! We are the infamous Cima Fleet.{\\i}",
-    "traduzido" : "{\\i1}Qualquer coisa! Nós somos a famosa Frota Cima.{\\i}",
+    "traduzido" : "{\\i1}Nós somos a infame Frota Cima.{\\i}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 14,
     "estilo" : "Dialogue",
     "original" : "{\\i1}It's too late for second thoughts!{\\i}",
-    "traduzido" : "{\\i1}É tarde demais para pensar duas vezes!{\\i}",
+    "traduzido" : "{\\i1}É tarde demais para arrependimentos!{\\i}",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 15,
     "estilo" : "Dialogue",
     "original" : "{\\i1}...the true desire of we spacenoids...",
-    "traduzido" : "{\\i1}...o verdadeiro desejo dos espacionautas...",
+    "traduzido" : "{\\i1}O verdadeiro desejo dos espacionautas...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 16,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Linear Gock...",
-    "traduzido" : "{\\i1}Gock linear",
+    "traduzido" : "{\\i1}Linear Gock...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 17,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Set.",
-    "traduzido" : "Kou: {\\i1}Estamos chegando à Albion.",
+    "traduzido" : "{\\i1}Estou cansada disso.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 18,
     "estilo" : "Dialogue",
     "original" : "{\\i1}AR Breed...",
-    "traduzido" : "{\\i1}Arre!",
+    "traduzido" : "{\\i1}Arre, rapaz...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 19,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Set.",
-    "traduzido" : "Kou: {\\i1}Estamos chegando à Albion.",
+    "traduzido" : "{\\i1}Estou cansada disso.",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 20,
     "estilo" : "Dialogue",
     "original" : "{\\i1}NCI...",
-    "traduzido" : "{\\i1}NC",
+    "traduzido" : "{\\i1}NCI...",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 21,
     "estilo" : "Dialogue",
     "original" : "Alright, I'm ready, Marinalica!",
-    "traduzido" : "Estou pronta, Marinalica!",
+    "traduzido" : "Estou pronto, Marinalica!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 22,
     "estilo" : "Dialogue",
     "original" : "{\\i1}Lt. Commander Cima, have a good hunt!",
-    "traduzido" : "{\\i1}Tenente-Comandante Cima, boa caçada!",
+    "traduzido" : "{\\i1}Tenente Comandante Cima, boa caçada!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   }, {
     "indice" : 23,
     "estilo" : "Dialogue",
     "original" : "Of course!",
-    "traduzido" : "Claro!",
+    "traduzido" : "Entendido!",
     "idiomaOriginal" : "en",
     "idiomaTraduzido" : "pt-br"
   } ]
