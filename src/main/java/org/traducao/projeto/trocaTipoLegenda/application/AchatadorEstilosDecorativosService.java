@@ -1,6 +1,9 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
@@ -64,9 +67,17 @@ public class AchatadorEstilosDecorativosService {
     private static final Pattern OVERRIDE_LIDER = Pattern.compile("^(?:\\{[^}]*\\})+");
 
     private final AuditoriaFontesService auditoriaFontes;
+    private final DetectorEfeitoKaraokeService detectorKaraoke;
+    private final ProtecaoCamadasMusicaisService protecaoCamadasMusicais;
 
-    public AchatadorEstilosDecorativosService(AuditoriaFontesService auditoriaFontes) {
+    public AchatadorEstilosDecorativosService(
+        AuditoriaFontesService auditoriaFontes,
+        DetectorEfeitoKaraokeService detectorKaraoke,
+        ProtecaoCamadasMusicaisService protecaoCamadasMusicais
+    ) {
         this.auditoriaFontes = auditoriaFontes;
+        this.detectorKaraoke = detectorKaraoke;
+        this.protecaoCamadasMusicais = protecaoCamadasMusicais;
     }
 
     /**
@@ -97,9 +108,14 @@ public class AchatadorEstilosDecorativosService {
         List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
         Set<String> decorativosAchatados = new LinkedHashSet<>();
         int falasAchatadas = 0;
+        // Pré-passe do peer legenda, uma vez por documento: quais linhas são a camada ORIGINAL do
+        // karaokê. Achatá-las jogaria o romaji no estilo do diálogo — rodapé, em cima da fala.
+        ProtecaoCamadas protecao = protecaoCamadasMusicais == null
+            ? ProtecaoCamadas.VAZIA
+            : protecaoCamadasMusicais.calcular(documento);
 
         for (EventoLegenda evento : documento.eventos()) {
-            if (ehDecorativo(evento, estiloBase, fonteBase, fontesPorEstilo)) {
+            if (ehDecorativo(evento, estiloBase, fonteBase, fontesPorEstilo, protecao)) {
                 String novoPrefixo = reescreverColunaEstilo(
                     evento.prefixo(), evento.tipoLinha(), indiceColunaStyle, estiloBase);
                 String novoTexto = removerOverridesLideres(evento.texto());
@@ -125,14 +141,25 @@ public class AchatadorEstilosDecorativosService {
      *
      * <p>INVARIANTES DO DOMÍNIO: só {@code Dialogue}; estilo diferente do base
      * (case-insensitive); estilo não protegido; fonte declarada conhecida e diferente
-     * da fonte base.
+     * da fonte base. Acima de tudo isso, o que o peer {@code legenda} reconhece como
+     * LÍNGUA ORIGINAL (romaji) nunca é achatado — nem quando a fonte difere, nem quando o nome do
+     * estilo é desconhecido. Achatar romaji o joga no estilo do diálogo, ou seja, no rodapé e em
+     * cima da fala, além de dissolver a pista que separa as duas camadas do karaokê.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo ou fonte desconhecida devolve
      * {@code false} (não achata), preservando a fala.
      */
     private boolean ehDecorativo(EventoLegenda evento, String estiloBase, String fonteBase,
-                                 Map<String, String> fontesPorEstilo) {
+                                 Map<String, String> fontesPorEstilo, ProtecaoCamadas protecao) {
         if (evento == null || !evento.isDialogo() || evento.estilo() == null) {
+            return false;
+        }
+        // Proteção por LÍNGUA, não por fonte nem por nome: a razão de existir desta fase.
+        if (protecao != null && protecao.protege(evento.indice())) {
+            return false;
+        }
+        if (detectorKaraoke != null
+            && detectorKaraoke.devePreservarKaraokeOriginal(evento.estilo(), evento.texto())) {
             return false;
         }
         String estilo = evento.estilo();

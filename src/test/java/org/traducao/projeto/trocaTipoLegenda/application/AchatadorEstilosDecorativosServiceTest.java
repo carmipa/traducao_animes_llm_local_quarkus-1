@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
@@ -69,7 +71,9 @@ class AchatadorEstilosDecorativosServiceTest {
 
     @BeforeEach
     void setUp() {
-        achatador = new AchatadorEstilosDecorativosService(new AuditoriaFontesService());
+        DetectorEfeitoKaraokeService detector = new DetectorEfeitoKaraokeService();
+        achatador = new AchatadorEstilosDecorativosService(
+            new AuditoriaFontesService(), detector, new ProtecaoCamadasMusicaisService(detector));
     }
 
     @Test
@@ -127,9 +131,59 @@ class AchatadorEstilosDecorativosServiceTest {
             "a linha OPL2 regravada deve estar em Default e sem o bloco {...}");
     }
 
+    @Test
+    @DisplayName("romaji NÃO é achatado, mesmo com fonte própria — e o letreiro comum continua sendo")
+    void naoAchataRomajiMasContinuaAchatandoLetreiro(@TempDir Path dir) throws IOException {
+        DocumentoLegenda doc = lerKaraoke(dir);
+
+        AchatadorEstilosDecorativosService.Resultado r = achatador.achatar(doc);
+
+        EventoLegenda romaji = r.documento().eventos().get(1);
+        assertEquals("OP_S2_roma", romaji.estilo(),
+            "achatar o romaji o joga no estilo do diálogo: rodapé, em cima da fala, e some a pista "
+                + "que separa as duas camadas do karaokê");
+        assertTrue(romaji.prefixo().contains(",OP_S2_roma,"), "o prefixo do romaji deve ficar intacto");
+        assertFalse(r.estilosDecorativos().contains("OP_S2_roma"));
+
+        EventoLegenda letreiro = r.documento().eventos().get(3);
+        assertEquals("Default", letreiro.estilo(), "letreiro comum continua sendo achatado");
+        assertTrue(r.estilosDecorativos().contains("Sign"));
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);
+        return leitor.ler(arquivo);
+    }
+
+    /** Estrutura real do OP: romaji e tradução no MESMO tempo, cada um com sua fonte. */
+    private DocumentoLegenda lerKaraoke(Path dir) throws IOException {
+        String ass = String.join("\n",
+            "[Script Info]",
+            "ScriptType: v4.00+",
+            "",
+            "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+                + "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+                + "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+            "Style: Default,Gandhi Sans,70,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,"
+                + "100,100,0,0,1,2,1,2,0,0,30,1",
+            "Style: OP_S2_roma,Amienne,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,1,8,10,10,10,1",
+            "Style: OP_S2,Amienne,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,1,8,10,10,40,1",
+            "Style: Sign,Althea,150,&H00FFFFFE,&H000000FF,&H00000000,&H7C1D1D1D,0,0,0,0,"
+                + "100,100,0,0,1,0,5,5,10,10,10,1",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:00:10.00,0:00:12.00,Default,,0,0,0,,Ola mundo",
+            "Dialogue: 0,0:01:23.45,0:01:26.78,OP_S2_roma,,0,0,0,,Sonna sekai ni nokosareta boku wa",
+            "Dialogue: 0,0:01:23.40,0:01:26.90,OP_S2,,0,0,0,,In this world I was left behind",
+            "Dialogue: 0,0:03:00.00,0:03:04.00,Sign,,0,0,0,,{\\pos(500,200)}CARTAZ",
+            "");
+        Path arquivo = dir.resolve("karaoke.ass");
+        Files.writeString(arquivo, ass, StandardCharsets.UTF_8);
         return leitor.ler(arquivo);
     }
 }
