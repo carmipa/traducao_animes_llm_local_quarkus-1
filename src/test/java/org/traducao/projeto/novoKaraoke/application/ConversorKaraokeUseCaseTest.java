@@ -45,7 +45,7 @@ class ConversorKaraokeUseCaseTest {
     }
 
     @Test
-    void deduplicaRomajiEPtBrNoMesmoTempoELimpaTagsVisiveis() throws Exception {
+    void preservaAsDuasCamadasNoMesmoTempoELimpaTagsVisiveis() throws Exception {
         Path origem = tempDir.resolve("karaoke.ass");
         Path destino = Files.createDirectory(tempDir.resolve("saida"));
         Files.writeString(origem, cabecalho()
@@ -56,8 +56,13 @@ class ConversorKaraokeUseCaseTest {
         novoConversor().converterArquivo(origem, destino, true);
 
         String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
-        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:04.00,Karaoke Simples,,0,0,0,,Não importa o quanto eu deseje, nada muda"));
-        assertFalse(saida.contains("aigan shitemo"));
+        // REGRA DE NEGÓCIO (Paulo, 2026-07-25): o romaji é a LÍNGUA ORIGINAL e fica; o que se
+        // remove é a frescura visual. As duas camadas viram UM evento com \N — original em cima,
+        // tradução embaixo — porque a saída usa um único estilo e eventos separados no mesmo tempo
+        // imprimiriam um sobre o outro. Antes desta data o romaji era justamente o descartado.
+        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:04.00,Karaoke Simples,,0,0,0,,"
+            + "aigan shitemo kongan shitemo kawaranai ya, mou"
+            + "\\NNão importa o quanto eu deseje, nada muda"), saida);
         assertFalse(saida.contains("[]"));
         assertFalse(saida.contains("TAG1"));
     }
@@ -120,8 +125,9 @@ class ConversorKaraokeUseCaseTest {
         novoConversor().converterArquivo(origem, destino, true);
 
         String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
-        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:04.00,Karaoke Simples,,0,0,0,,Oi"), saida);
-        assertFalse(saida.contains("ki mi no"));
+        // O romaji pulverizado pelo KFX é reconstruído ("ki mi no") e PRESERVADO acima da
+        // tradução, em vez de descartado: continua sendo a língua original.
+        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:04.00,Karaoke Simples,,0,0,0,,ki mi no\\NOi"), saida);
         assertFalse(saida.contains("\\move("));
         assertFalse(saida.contains("\\t("));
     }
@@ -160,8 +166,11 @@ class ConversorKaraokeUseCaseTest {
         novoConversor().converterArquivo(origem, destino, true);
 
         String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
-        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:05.00,Karaoke Simples,,0,0,0,,Não importa o quanto eu deseje, nada muda"), saida);
-        assertFalse(saida.contains("aigan shitemo"), saida);
+        // Agrupar por sobreposição continua valendo (as janelas diferem em 4 centésimos); o que
+        // mudou é o desfecho: as duas camadas são preservadas juntas, não uma descartada.
+        assertTrue(saida.contains("Dialogue: 0,0:00:01.00,0:00:05.00,Karaoke Simples,,0,0,0,,"
+            + "aigan shitemo kongan shitemo kawaranai ya, mou"
+            + "\\NNão importa o quanto eu deseje, nada muda"), saida);
     }
 
     @Test
