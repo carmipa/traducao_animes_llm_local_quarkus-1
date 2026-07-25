@@ -2,12 +2,63 @@ package org.traducao.projeto.legenda.application;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DetectorEfeitoKaraokeServiceTest {
 
     private final DetectorEfeitoKaraokeService detector = new DetectorEfeitoKaraokeService();
+
+    // Linhas reais extraídas do cache versionado do projeto (Guilty Crown ep13, estilo ED_S2_roma,
+    // e o karaokê do 0083), usadas como conjunto-ouro do escore de romaji.
+    private static final String ROMAJI_PURO = "Sonna sekai ni nokosareta boku wa";
+    private static final String ROMAJI_COM_INGLES = "mugen no Energy yobisamasu";
+    private static final String KARAOKE_INGLES = "But no matter how bad a fight we'd have";
+
+    @Test
+    void preservaRomajiQuandoEstiloSeparaOMarcadorPorSublinhado() {
+        // Estilo real do ED do Guilty Crown. Com fronteira \b o sublinhado é caractere de palavra,
+        // então "ED_S2_roma" NÃO casava e as 29 linhas de romaji do ED/OP foram traduzidas.
+        assertTrue(detector.devePreservarKaraokeOriginal("ED_S2_roma", "{\\k30}But {\\k25}why"));
+        assertTrue(detector.devePreservarKaraokeOriginal("OP_S2_roma", "{\\k30}But {\\k25}why"));
+        // A forma com espaço, que já funcionava, continua valendo.
+        assertTrue(detector.devePreservarKaraokeOriginal("OP Roma", "{\\k30}But {\\k25}why"));
+    }
+
+    @Test
+    void naoConfundeMarcadorDeRomajiComPalavraQueApenasComeceIgual() {
+        // "Romance"/"Roman" não podem ligar a proteção só por começarem com "roma".
+        assertFalse(detector.devePreservarKaraokeOriginal("Romance", "{\\k30}But {\\k25}why"));
+        assertFalse(detector.devePreservarKaraokeOriginal("Roman Signs", "{\\k30}But {\\k25}why"));
+    }
+
+    @Test
+    void proporcaoRomajiSeparaRomajiDeKaraokeEmIngles() {
+        // Medido no cache real: estilo romaji tem mediana 100; música não-romaji, 22.
+        assertEquals(100, detector.proporcaoRomaji(ROMAJI_PURO));
+        assertTrue(detector.proporcaoRomaji(ROMAJI_COM_INGLES) >= 70,
+            "romaji com palavra inglesa solta precisa continuar acima do limiar de preservação");
+        assertTrue(detector.proporcaoRomaji(KARAOKE_INGLES) < 50,
+            "karaokê em inglês precisa ficar bem abaixo do limiar");
+    }
+
+    @Test
+    void proporcaoRomajiIgnoraTagsEQuebrasDeLinha() {
+        // A mesma linha do ED, como vive no arquivo: uma tag de cor por caractere (KFX).
+        String comKfx = "{\\3c&HF497D3&\\blur4.5}S{\\3c&HF49ED0&}o{\\3c&HF4A2CF&}nna"
+            + "{\\3c&HF5B2CA&} {\\3c&HF6BCC7&}sekai\\N{\\3c&HF5A7CE&}ni nokosareta boku wa";
+        assertEquals(detector.proporcaoRomaji(ROMAJI_PURO), detector.proporcaoRomaji(comKfx));
+    }
+
+    @Test
+    void proporcaoRomajiDegradaSemLancar() {
+        assertEquals(0, detector.proporcaoRomaji(null));
+        assertEquals(0, detector.proporcaoRomaji("   "));
+        assertEquals(0, detector.proporcaoRomaji("{\\pos(10,10)}"));
+        // Kana/kanji não pontuam aqui de propósito: são reconhecidos por escrita japonesa.
+        assertEquals(0, detector.proporcaoRomaji("そんな世界に"));
+    }
 
     @Test
     void detectaKaraokeCruComTagsDeTiming() {
