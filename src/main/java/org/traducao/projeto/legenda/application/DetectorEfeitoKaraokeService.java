@@ -235,9 +235,23 @@ public class DetectorEfeitoKaraokeService {
         return altaDensidadeTags && tamanhoTags >= MIN_CHARS_TAGS_POSICIONAMENTO_COMPLEXO;
     }
 
+    /**
+     * Um estilo que se declara ROMAJI é, por si só, indicador de música: ninguém nomeia uma fala de
+     * diálogo de "roma"/"japanese"/"kana". Sem isso, {@code ED_S2_roma} e {@code OP_S2_roma} não
+     * eram sequer tratados como música — o padrão de NOME musical usa {@code \b} e sublinhado é
+     * caractere de palavra, então "ED_S2..." não casa {@code \bed\b} — e as 29 linhas de romaji do
+     * OP/ED do Guilty Crown ep13 foram traduzidas e corrompidas no cache.
+     *
+     * <p>Delta deliberadamente mínimo: a MESMA limitação do {@code \b} continua valendo para
+     * {@code OP2}, {@code ED_S2} e {@code OP_S2} (as camadas em inglês, 494 linhas no acervo), que
+     * seguem fora do conjunto musical. Alargar o padrão genérico arrastaria essas linhas para dentro
+     * do simplificador de karaokê e do fluxo de correção de uma vez — mudança de outra ordem, que
+     * pertence à fase de retrabalho do karaokê simples, com caracterização própria.
+     */
     private boolean temIndicadorDeMusica(String estilo, String texto) {
         return temTagKaraoke(texto)
-            || (estilo != null && ESTILO_MUSICA_PATTERN.matcher(estilo).find());
+            || (estilo != null && (ESTILO_MUSICA_PATTERN.matcher(estilo).find()
+                || ESTILO_JAPONES_ROMAJI_PATTERN.matcher(estilo).find()));
     }
 
     private String extrairTextoVisivel(String texto) {
