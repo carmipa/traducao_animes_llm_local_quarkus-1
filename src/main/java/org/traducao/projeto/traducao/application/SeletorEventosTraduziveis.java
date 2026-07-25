@@ -160,8 +160,24 @@ public class SeletorEventosTraduziveis {
             return false;
         }
         String texto = evento.texto();
-        if (politicaEstiloMusical.estiloIgnorado(evento.estilo())
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
+        // REGRA DE ESCOPO (Paulo, 2026-07-25): a Tradução Local traduz FALA. Música e karaokê —
+        // inclusive em inglês — são responsabilidade da fatia própria (Traduzir Karaokê), que sabe
+        // lidar com KFX, camadas e timing por sílaba. Aqui não é "não consigo traduzir", é "não é
+        // meu trabalho".
+        //
+        // Antes, letra em idioma latino passava por esta porta e virava a MAIOR fonte de pendência
+        // do projeto: na execução de 2026-07-25 (Guilty Crown completo), MUSICA_LATINA respondeu
+        // por 94 das 139 pendências classificadas — sempre a mesma assinatura, uma tag de cor por
+        // caractere, com o LLM devolvendo o original ou corrompendo os marcadores. Não era o modelo
+        // errando: era linha que não devia estar aqui.
+        //
+        // Critério LARGO de propósito (o mesmo do pareamento): precisa alcançar ED_S2/OP_S2/OP2,
+        // que a fronteira \b do padrão de nome não pega. Errar para o lado de NÃO traduzir música
+        // custa uma linha no idioma original; errar para o outro lado é o que produziu a salada.
+        if (detectorKaraoke.podeSerCamadaMusical(evento.estilo(), texto)) {
+            return false;
+        }
+        if (politicaEstiloMusical.estiloIgnorado(evento.estilo())) {
             return false;
         }
 
