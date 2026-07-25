@@ -1,0 +1,159 @@
+{
+  "tipo" : "revisao_lore",
+  "operacao" : {
+    "tipo" : "Revisao de Lore (.ass LLM)",
+    "detalhe" : "C:\\TRACKER-ANIMES\\animes\\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\\f2\\ptbr | promptRevisaoLore=Break Blade - Filme 2 - O Caminho da Separação - Revisao de Lore | status=CONCLUIDO_COM_PENDENCIAS | pendentes=1 | semResposta=0 | descartadas=1 | encaminhadasOpcao6=0 | erros=0",
+    "tempoTotalMs" : 1780,
+    "arquivosProcessados" : 1,
+    "itensDetectados" : 1,
+    "itensCorrigidos" : 0,
+    "registradoEm" : "2026-07-25T11:16:29.137619Z"
+  },
+  "contexto" : {
+    "id" : "break_blade_2",
+    "nome" : "Break Blade - Filme 2 - O Caminho da Separação - Revisao de Lore"
+  },
+  "pastas" : {
+    "originalEn" : "C:\\TRACKER-ANIMES\\animes\\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\\f2\\en",
+    "traduzidaPtBr" : "C:\\TRACKER-ANIMES\\animes\\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\\f2\\ptbr"
+  },
+  "modo" : "apenas_sinalizadas",
+  "metricas" : {
+    "status" : "CONCLUIDO_COM_PENDENCIAS",
+    "duracaoMs" : 1780,
+    "duracaoFormatada" : "1s",
+    "arquivosAnalisados" : 1,
+    "arquivosAlterados" : 0,
+    "falasAuditadas" : 3,
+    "falasSinalizadas" : 1,
+    "falasCorrigidas" : 0,
+    "falasSemAlteracao" : 2,
+    "falasSemResposta" : 0,
+    "falasDescartadas" : 1,
+    "falasEncaminhadasOpcao6" : 0,
+    "falasPendentes" : 1,
+    "totalErros" : 0
+  },
+  "erros" : [ ],
+  "eventos" : [ {
+    "instante" : "2026-07-25T11:16:27.355758100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.352750900Z | +00.009s] \n=== Revisao de Lore (nomes, locais e terminologia) ==="
+  }, {
+    "instante" : "2026-07-25T11:16:27.356758Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.355758100Z | +00.012s] Inicio UTC: 2026-07-25T11:16:27.355758100Z"
+  }, {
+    "instante" : "2026-07-25T11:16:27.357759Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.356758Z | +00.013s] Pasta original (EN): C:\\TRACKER-ANIMES\\animes\\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\\f2\\en"
+  }, {
+    "instante" : "2026-07-25T11:16:27.357759Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.357759Z | +00.014s] Pasta traduzida (PT-BR): C:\\TRACKER-ANIMES\\animes\\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\\f2\\ptbr"
+  }, {
+    "instante" : "2026-07-25T11:16:27.358756200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.357759Z | +00.014s] Prompt de revisao de lore ativo: Break Blade - Filme 2 - O Caminho da Separação - Revisao de Lore (break_blade_2)"
+  }, {
+    "instante" : "2026-07-25T11:16:27.359756900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.358756200Z | +00.015s] Modo: revisar apenas falas sinalizadas pela heuristica"
+  }, {
+    "instante" : "2026-07-25T11:16:27.361760300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.360756600Z | +00.017s] Arquivos .ass encontrados na pasta original: 1"
+  }, {
+    "instante" : "2026-07-25T11:16:27.367756800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.366757700Z | +00.023s] Falas auditaveis no lote: 3"
+  }, {
+    "instante" : "2026-07-25T11:16:27.367756800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.367756800Z | +00.024s] \n[Arquivo] Analisando: [Lulu] Break Blade - 02 [BD 1080p Hi10 FLAC][Dual-Audio]_Track4_PT-BR.ass"
+  }, {
+    "instante" : "2026-07-25T11:16:27.370761100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.369756700Z | +00.026s] [Arquivo] Eventos original/traduzido: 67/67"
+  }, {
+    "instante" : "2026-07-25T11:16:27.375757800Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.374757400Z | +00.031s] [Arquivo 1/1 | Fala 1/3 | evento 3] auditando lore | EN: {\\fad(1200,1500)}{\\be2}Book Two {\\fs90}The Split Path | PT: Book Two {\\fs90}The Split Path"
+  }, {
+    "instante" : "2026-07-25T11:16:27.380756300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.379758100Z | +00.036s] [Arquivo 1/1 | Fala 1/3 | evento 3] limpo pela heuristica"
+  }, {
+    "instante" : "2026-07-25T11:16:27.381757Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.380756300Z | +00.037s] [Arquivo 1/1 | Fala 2/3 | evento 4] auditando lore | EN: {\\fs127.5\\pos(960,750)}Preview | PT: Prévia"
+  }, {
+    "instante" : "2026-07-25T11:16:27.382756900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.381757Z | +00.038s] [Arquivo 1/1 | Fala 2/3 | evento 4] limpo pela heuristica"
+  }, {
+    "instante" : "2026-07-25T11:16:27.383756900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.382756900Z | +00.039s] [Arquivo 1/1 | Fala 3/3 | evento 5] auditando lore | EN: {\\fad(600,600)\\fs60\\pos(960,952.5)}Book Three {\\fs105}A Scar made by an Assassin's Dagger | PT: Livro Três {\\fs105}Uma cicatriz feita por uma adaga de assassino"
+  }, {
+    "instante" : "2026-07-25T11:16:27.386757100Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:27.386757100Z | +00.043s] [Arquivo 1/1 | Fala 3/3 | evento 5] enviada ao LLM | motivos: Nome proprio do original pode estar inconsistente na traducao: \"Book Three\" | Nome proprio do original pode estar inconsistente na traducao: \"Scar\" | Nome proprio composto foi preservado apenas em parte; conferir se algum trecho foi traduzido: \"Assassin Dagger\""
+  }, {
+    "instante" : "2026-07-25T11:16:29.116623700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.115621900Z | +01.772s] [Arquivo 1/1 | Fala 3/3 | evento 5] pendente: LLM nao alterou a fala suspeita"
+  }, {
+    "instante" : "2026-07-25T11:16:29.123617600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.122617500Z | +01.779s]   [OK]     [Lulu] Break Blade - 02 [BD 1080p Hi10 FLAC][Dual-Audio]_Track4_PT-BR.ass (lore conforme)"
+  }, {
+    "instante" : "2026-07-25T11:16:29.125619200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.124617500Z | +01.781s] Arquivos analisados: 1"
+  }, {
+    "instante" : "2026-07-25T11:16:29.126619Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.125619200Z | +01.782s] Arquivos alterados: 0"
+  }, {
+    "instante" : "2026-07-25T11:16:29.126619Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.126619Z | +01.783s] Falas auditadas: 3"
+  }, {
+    "instante" : "2026-07-25T11:16:29.127620400Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.126619Z | +01.783s] Falas sinalizadas (heuristica/LLM): 1"
+  }, {
+    "instante" : "2026-07-25T11:16:29.128619200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.127620400Z | +01.784s] Falas corrigidas: 0"
+  }, {
+    "instante" : "2026-07-25T11:16:29.129621300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.128619200Z | +01.785s] Falas ja conformes: 2"
+  }, {
+    "instante" : "2026-07-25T11:16:29.130622900Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.129621300Z | +01.786s] Falas sem resposta do LLM: 0"
+  }, {
+    "instante" : "2026-07-25T11:16:29.131620200Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.130622900Z | +01.787s] Falas descartadas (travas): 1"
+  }, {
+    "instante" : "2026-07-25T11:16:29.132621500Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.131620200Z | +01.788s] Falas encaminhadas para a Opção 6: 0"
+  }, {
+    "instante" : "2026-07-25T11:16:29.133620300Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.132621500Z | +01.789s] Falas pendentes (sinalizadas sem correcao): 1"
+  }, {
+    "instante" : "2026-07-25T11:16:29.134619600Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.133620300Z | +01.790s] Status: Concluído com pendências"
+  }, {
+    "instante" : "2026-07-25T11:16:29.135619700Z",
+    "nivel" : "INFO",
+    "mensagem" : "[UTC 2026-07-25T11:16:29.134619600Z | +01.791s] \nRevisao de lore concluida com 1 fala(s) pendente(s) e 0 aviso(s)/erro(s)."
+  } ]
+}

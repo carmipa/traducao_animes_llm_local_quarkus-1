@@ -1,0 +1,22 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\TRACKER-ANIMES\animes\[Lulu] Break Blade Movies [BD 1080p Hi10 FLAC][Dual-Audio]\traducao_ptbr
+Duração: 3s
+Arquivos analisados: 7
+Falas auditadas: 220
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 1
+Falas corrigidas via LLM: 1
+Falas pendentes: 0
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: [Lulu] Break Blade - 01 [BD 1080p Hi10 FLAC][Dual-Audio]_Track4_PT-BR.ass
+Evento: 2 | Estilo: Ep Titles
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\fad(1500,0)}{\be1}Book One\N{\fs75}The Time of Awakening
+Diagnóstico: Correção validada e persistida.
+EN: {\fad(1500,0)}{\be1}Book One\N{\fs75}The Time of Awakening
+PT anterior: {\fad(1500,0)}{\be1}Book One\N{\fs75}The Time of Awakening
+Proposta: {\fad(1500,0)}{\be1}Livro Um\N{\fs75}The Time of Awakening

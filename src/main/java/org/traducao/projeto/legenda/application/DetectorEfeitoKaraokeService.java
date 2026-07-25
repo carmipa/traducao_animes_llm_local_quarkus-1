@@ -48,8 +48,13 @@ public class DetectorEfeitoKaraokeService {
     private static final Pattern TEXTO_ALFANUMERICO_PATTERN = Pattern.compile("[\\p{L}\\d]");
     private static final Pattern ESTILO_MUSICA_PATTERN = Pattern.compile(
         "(?i)\\b(song|music|karaoke|opening|ending|theme|insert|op|ed|sing|lyrics?)\\b");
+    // "roma" (abreviação de romaji), além de "romaji"/"romanized"/"romanji": estilos de fansub
+    // marcam a faixa romanizada como "OP Roma", "ED Roma L1", "Roma" — e SEM esta forma curta a
+    // linha caía na heurística de texto, que falha quando o romaji mistura palavras em inglês
+    // (ex.: o OP "My Dearest" do Guilty Crown), levando o romaji a ser TRADUZIDO e corrompido em
+    // salada romaji/PT-BR. Só afeta linha que já tem indicador de música, então diálogo não muda.
     private static final Pattern ESTILO_JAPONES_ROMAJI_PATTERN = Pattern.compile(
-        "(?i)\\b(romaji|jp|jpn|japanese|japones|japon[eê]s|kana|kanji)\\b");
+        "(?i)\\b(roma(?:ji|nized|nji)?|jp|jpn|japanese|japones|japon[eê]s|kana|kanji)\\b");
     // Palavra inteiramente decomponível em sílabas japonesas romanizadas
     // (Hepburn): "n" solto ou consoante opcional (com geminada kk/ss/tt/pp ou
     // dígrafo sh/ch/ts/ky/...) seguida de vogal. "fuminijirareru" casa;

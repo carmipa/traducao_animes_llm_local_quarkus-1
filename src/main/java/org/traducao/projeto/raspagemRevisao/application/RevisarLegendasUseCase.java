@@ -700,13 +700,22 @@ public class RevisarLegendasUseCase {
             boolean temOriginalEn = originalEn != null && !originalEn.isBlank();
 
             String textoCorrigidoKaraoke = sanitizadorTags.escaparChavesInvalidas(textoNormalizado, originalEn);
-            if (!textoNormalizado.equals(textoCorrigidoKaraoke)) {
+            // GUARDA DE INTEGRIDADE: uma correção NUNCA pode apagar uma fala. Se o
+            // saneamento de tags deixou o texto VISÍVEL vazio numa linha que tinha
+            // conteúdo, a "correção" destruiria a legenda — mantém-se o original.
+            // Sem esta guarda, um bloco contínuo de diálogo (Guilty Crown ep4, 13:58–20:52)
+            // foi esvaziado: as linhas ficaram com tempo e estilo, mas texto em branco.
+            boolean esvaziaria = saneamentoEsvaziariaFala(textoNormalizado, textoCorrigidoKaraoke);
+            if (!textoNormalizado.equals(textoCorrigidoKaraoke) && !esvaziaria) {
                 evento = evento.comTexto(textoCorrigidoKaraoke);
                 modificado = true;
                 corrigidasNesteArquivo++;
                 out("  -> Karaoke corrigido na linha " + evento.indice() + ":");
                 out("     De : " + textoNormalizado);
                 out("     Para: " + textoCorrigidoKaraoke);
+            } else if (esvaziaria) {
+                out("  [GUARDA] Linha " + evento.indice()
+                    + " preservada: o saneamento de tags esvaziaria a fala \"" + textoNormalizado + "\".");
             }
 
             String traducaoAtual = evento.texto();
@@ -1198,8 +1207,27 @@ public class RevisarLegendasUseCase {
         return estilo.contains("romaji") && visivel.equalsIgnoreCase("you");
     }
 
-    private String extrairTextoVisivel(String texto) {
-        return texto.replaceAll("\\{[^}]*\\}", "").replace("\\N", " ").trim();
+    private static String extrairTextoVisivel(String texto) {
+        return texto == null ? "" : texto.replaceAll("\\{[^}]*\\}", "").replace("\\N", " ").trim();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda de integridade das ferramentas que corrigem a legenda PT-BR
+     * direto no arquivo (sem inglês nem cache). Uma correção JAMAIS pode transformar uma fala
+     * com texto em uma linha vazia — o resultado é uma legenda que some da tela mantendo tempo e
+     * estilo. Foi o que apagou um bloco contínuo de diálogo do Guilty Crown ep4 (13:58–20:52).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só acusa quando o ORIGINAL tinha texto visível e o CORRIGIDO
+     * ficou sem nenhum — reordenar, reescrever ou trocar tags continua permitido; apagar, não.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulos degradam para string vazia; nunca lança. Original
+     * já vazio devolve {@code false} (não há fala a proteger).
+     *
+     * @return {@code true} se aplicar {@code corrigido} apagaria uma fala que tinha conteúdo
+     */
+    static boolean saneamentoEsvaziariaFala(String original, String corrigido) {
+        return !extrairTextoVisivel(original).isBlank()
+            && extrairTextoVisivel(corrigido).isBlank();
     }
 
     private String normalizarTexto(String texto) {
