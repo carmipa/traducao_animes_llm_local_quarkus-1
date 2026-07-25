@@ -130,6 +130,18 @@ public class DetectorEfeitoKaraokeService {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o texto visível contém kana ou kanji — evidência DIRETA de japonês, sem
+     * heurística. Existe para operações que precisam de alta confiança, como apagar tradução já
+     * gravada no cache: preservar erra para o lado de não traduzir, mas apagar destrói trabalho e
+     * precisa errar para o lado de não apagar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} devolve {@code false}; nunca lança.
+     */
+    public boolean temEscritaJaponesa(String texto) {
+        return texto != null && ESCRITA_JAPONESA_PATTERN.matcher(extrairTextoVisivel(texto)).find();
+    }
+
+    /**
      * Karaokê em qualquer forma (cru ou pós-template). Usado nos fluxos de
      * revisão/correção, onde ignorar um letreiro já traduzido é inofensivo e o
      * risco real é mexer em música.

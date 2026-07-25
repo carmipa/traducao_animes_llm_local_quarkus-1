@@ -16,6 +16,8 @@ import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: cobre a fronteira que impede o menu de apagar termos
@@ -57,6 +59,62 @@ class ClassificadorEntradaCacheServiceTest {
             service.classificar(entrada("Run!", "Run!")).status());
         assertEquals(ClassificadorEntradaCacheService.Status.VAZIA,
             service.classificar(entrada("Help!", "")).status());
+    }
+
+    @Test
+    void romajiComTraducaoGravadaEDanoConsumadoENaoConteudoProtegido() {
+        // Linha real do ED do Guilty Crown ep13: o cache guardava "Sonhonaa sekai..." como
+        // tradução do romaji e reaplicava a salada a cada reprocessamento.
+        ObjectNode envenenada = entrada("Sonna sekai ni nokosareta boku wa", "Sonhonaa sekai ni nokosareta");
+        envenenada.put("estilo", "ED_S2_roma");
+
+        ClassificadorEntradaCacheService.Classificacao cls = service.classificar(envenenada);
+
+        assertEquals(ClassificadorEntradaCacheService.Status.ROMAJI_TRADUZIDO, cls.status());
+        assertTrue(cls.precisaCorrecao(),
+            "sem isto o cache devolve PROTEGIDA e CONGELA o estrago dentro do arquivo");
+    }
+
+    @Test
+    void romajiIntactoNoCacheContinuaProtegidoSemCorrecao() {
+        ObjectNode preservada = entrada("Sonna sekai ni nokosareta boku wa", "Sonna sekai ni nokosareta boku wa");
+        preservada.put("estilo", "ED_S2_roma");
+
+        ClassificadorEntradaCacheService.Classificacao cls = service.classificar(preservada);
+
+        assertEquals(ClassificadorEntradaCacheService.Status.PROTEGIDA, cls.status());
+        assertFalse(cls.precisaCorrecao(), "preservar não é dano: nada a corrigir");
+    }
+
+    @Test
+    void naoApagaCacheComBaseNaHeuristicaDeSilabas() {
+        // "E eu, assim, sozinha" pontua 75% na heurística de romaji porque português também
+        // decompõe em sílabas abertas. Preservar por causa disso é barato; APAGAR destruiria
+        // tradução legítima, então a limpeza exige estilo declarado ou escrita japonesa.
+        ObjectNode portuguesQuePareceRomaji = entrada("E eu, assim, sozinha...", "Eu, assim, tão sozinha...");
+        portuguesQuePareceRomaji.put("estilo", "Karaoke Simples");
+
+        ClassificadorEntradaCacheService.Classificacao cls = service.classificar(portuguesQuePareceRomaji);
+
+        assertEquals(ClassificadorEntradaCacheService.Status.PROTEGIDA, cls.status());
+        assertFalse(cls.precisaCorrecao(), "apagar cache erra para o lado de NÃO apagar");
+    }
+
+    @Test
+    void escritaJaponesaComTraducaoGravadaTambemEDano() {
+        ObjectNode kana = entrada("そんな世界に残された僕は", "Neste mundo em que fui deixado");
+        kana.put("estilo", "Song JP");
+
+        assertEquals(ClassificadorEntradaCacheService.Status.ROMAJI_TRADUZIDO,
+            service.classificar(kana).status());
+    }
+
+    @Test
+    void musicaEmInglesComTraducaoLegitimaNaoEConfundidaComDano() {
+        ObjectNode legitima = entrada("But no matter how bad a fight we'd have", "Não importa o quanto brigássemos");
+        legitima.put("estilo", "Opening");
+
+        assertEquals(ClassificadorEntradaCacheService.Status.VALIDA, service.classificar(legitima).status());
     }
 
     private ObjectNode entrada(String original, String traduzido) {

@@ -24,7 +24,13 @@ import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 @Service
 public class ClassificadorEntradaCacheService {
 
-    public enum Status { VALIDA, VAZIA, NAO_TRADUZIDA, INVALIDA, PROTEGIDA, IGNORADA }
+    /**
+     * {@code ROMAJI_TRADUZIDO}: o cache guarda uma tradução para uma linha que é LÍNGUA ORIGINAL —
+     * exatamente o dano que o pipeline causou antes das correções de 2026-07-25 e que nenhuma
+     * mudança de código desfaz sozinha, porque o resultado já está gravado. Precisa de correção:
+     * invalidar a tradução devolve a linha ao pipeline, que agora preserva em vez de traduzir.
+     */
+    public enum Status { VALIDA, VAZIA, NAO_TRADUZIDA, INVALIDA, PROTEGIDA, IGNORADA, ROMAJI_TRADUZIDO }
 
     /**
      * PROPÓSITO DE NEGÓCIO: devolve status e justificativa estáveis para
@@ -41,7 +47,8 @@ public class ClassificadorEntradaCacheService {
          * <p>COMPORTAMENTO EM CASO DE FALHA: retorna decisão booleana estável.
          */
         public boolean precisaCorrecao() {
-            return status == Status.VAZIA || status == Status.NAO_TRADUZIDA || status == Status.INVALIDA;
+            return status == Status.VAZIA || status == Status.NAO_TRADUZIDA || status == Status.INVALIDA
+                || status == Status.ROMAJI_TRADUZIDO;
         }
     }
 
@@ -86,6 +93,25 @@ public class ClassificadorEntradaCacheService {
         String estilo = texto(entrada, "estilo");
         if (original == null || original.isBlank()) {
             return new Classificacao(Status.IGNORADA, "Entrada sem texto original");
+        }
+        // ANTES de qualquer proteção: uma linha de LÍNGUA ORIGINAL que tem tradução gravada é dano
+        // consumado, não conteúdo protegido. Se ela cair na regra de proteção abaixo, o cache
+        // devolve "PROTEGIDA" e CONGELA o estrago — foi o que aconteceu com as linhas de romaji do
+        // OP/ED que viraram salada ("Sonna sekai..." → "Sonhonaa sekai...") e continuaram sendo
+        // aplicadas na legenda a cada reprocessamento.
+        if (detectorKaraoke.devePreservarKaraokeOriginal(estilo, original)) {
+            // ASSIMETRIA DELIBERADA: preservar pode errar para o lado de não traduzir (custa uma
+            // linha de música sem tradução); APAGAR cache destrói trabalho e precisa do sinal de
+            // ALTA CONFIANÇA — estilo que se declara romaji ou escrita japonesa no texto. A
+            // heurística de sílabas NÃO serve aqui: português também decompõe em sílabas abertas
+            // ("E eu, assim, sozinha" pontua 75%), e apagar por causa dela destruiria tradução boa.
+            boolean altaConfianca = detectorKaraoke.eEstiloDeRomaji(estilo)
+                || detectorKaraoke.temEscritaJaponesa(original);
+            if (altaConfianca && traduzido != null && !traduzido.isBlank() && !traduzido.equals(original)) {
+                return new Classificacao(Status.ROMAJI_TRADUZIDO,
+                    "Camada original (romaji) com tradução gravada no cache");
+            }
+            return new Classificacao(Status.PROTEGIDA, "Língua original preservada");
         }
         if (estilo != null && politicaEstiloMusical.estiloIgnorado(estilo)
             && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(estilo, original)) {
