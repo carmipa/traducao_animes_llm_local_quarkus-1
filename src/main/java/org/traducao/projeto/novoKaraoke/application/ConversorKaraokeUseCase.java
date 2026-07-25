@@ -583,28 +583,118 @@ public class ConversorKaraokeUseCase {
 
         List<LinhaSimplesKaraoke> deduplicadas = new ArrayList<>();
         int removidas = 0;
+        int empilhadas = 0;
         for (List<LinhaSimplesKaraoke> grupo : porJanela) {
             if (grupo.size() == 1) {
                 deduplicadas.add(grupo.getFirst());
                 continue;
             }
-            LinhaSimplesKaraoke melhor = grupo.stream()
-                .min(Comparator.comparingInt(this::pontuarPreferenciaLinha)
-                    .thenComparing(Comparator.comparingInt((LinhaSimplesKaraoke l) -> l.eventosOrigem()).reversed()))
-                .orElse(grupo.getFirst());
-            deduplicadas.add(melhor);
-            removidas += grupo.size() - 1;
+            // Mesma janela NÃO significa mesma frase: o karaokê traz romaji e tradução no mesmo
+            // tempo. Só é duplicata o que também tem TEXTO parecido — variantes pulverizadas do
+            // KFX. Camadas de línguas diferentes são conteúdo distinto e as duas ficam.
+            List<List<LinhaSimplesKaraoke>> camadas = agruparPorTextoParecido(grupo);
+            List<LinhaSimplesKaraoke> representantes = new ArrayList<>();
+            for (List<LinhaSimplesKaraoke> camada : camadas) {
+                representantes.add(melhorDaCamada(camada));
+                removidas += camada.size() - 1;
+            }
+            if (representantes.size() == 1) {
+                LinhaSimplesKaraoke melhor = representantes.getFirst();
+                deduplicadas.add(melhor);
+                logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
+                    "   [DEDUP] %s–%s | %d variante(s) do mesmo verso → mantida: \"%s\"",
+                    melhor.inicioAss(), melhor.fimAss(), grupo.size(), resumir(melhor.texto())));
+                continue;
+            }
+            LinhaSimplesKaraoke empilhada = empilharCamadas(representantes);
+            deduplicadas.add(empilhada);
+            empilhadas++;
             logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
-                "   [DEDUP] %s–%s | %d camadas simultâneas → mantida: \"%s\"",
-                melhor.inicioAss(), melhor.fimAss(), grupo.size(), resumir(melhor.texto())));
+                "   [CAMADAS] %s–%s | %d camadas preservadas juntas: \"%s\"",
+                empilhada.inicioAss(), empilhada.fimAss(), representantes.size(),
+                resumir(empilhada.texto())));
         }
 
         if (removidas > 0) {
-            String aviso = removidas + " linha(s) simultânea(s) de karaokê foram removidas por deduplicação romaji/PT-BR.";
+            String aviso = removidas + " variante(s) do mesmo verso removida(s) por deduplicação.";
             resultado.adicionarAviso(aviso);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] " + aviso);
         }
+        if (empilhadas > 0) {
+            String aviso = empilhadas + " verso(s) mantiveram as duas camadas (original em cima, tradução embaixo).";
+            resultado.adicionarAviso(aviso);
+            logStream.publicarLog(CANAL_LOG, "   [INFO] " + aviso);
+        }
         return deduplicadas;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: separa, dentro de uma mesma janela de tempo, o que é o MESMO verso
+     * escrito de formas ligeiramente diferentes (variantes pulverizadas do KFX) do que são CAMADAS
+     * de línguas distintas (romaji e tradução). Só o primeiro caso é duplicata.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa o mesmo critério de similaridade de tokens que a fusão de
+     * variantes já aplica no bloco musical; a ordem original de chegada é preservada dentro de cada
+     * camada, o que mantém a decisão determinística.
+     */
+    private List<List<LinhaSimplesKaraoke>> agruparPorTextoParecido(List<LinhaSimplesKaraoke> grupo) {
+        List<List<LinhaSimplesKaraoke>> camadas = new ArrayList<>();
+        for (LinhaSimplesKaraoke linha : grupo) {
+            List<LinhaSimplesKaraoke> alvo = null;
+            for (List<LinhaSimplesKaraoke> camada : camadas) {
+                if (similaridadeTokens(camada.getFirst().texto(), linha.texto()) >= SIMILARIDADE_MINIMA_TOKENS) {
+                    alvo = camada;
+                    break;
+                }
+            }
+            if (alvo == null) {
+                alvo = new ArrayList<>();
+                camadas.add(alvo);
+            }
+            alvo.add(linha);
+        }
+        return camadas;
+    }
+
+    private LinhaSimplesKaraoke melhorDaCamada(List<LinhaSimplesKaraoke> camada) {
+        return camada.stream()
+            .min(Comparator.comparingInt(this::pontuarPreferenciaLinha)
+                .thenComparing(Comparator.comparingInt((LinhaSimplesKaraoke l) -> l.eventosOrigem()).reversed()))
+            .orElse(camada.getFirst());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: junta as camadas simultâneas em UM evento, com quebra {@code \N} —
+     * romaji em cima, tradução embaixo. Regra de negócio do Paulo: no karaokê se remove a frescura
+     * visual (KFX, animação vetorial), preserva-se o romaji porque é a língua original, e traduz-se
+     * apenas a camada em inglês. Manter as duas em eventos separados no mesmo tempo faria uma
+     * imprimir sobre a outra, já que a saída usa um único estilo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a janela resultante cobre as duas camadas (menor início, maior
+     * fim); os contadores de origem são somados para a telemetria não perder eventos.
+     */
+    private LinhaSimplesKaraoke empilharCamadas(List<LinhaSimplesKaraoke> camadas) {
+        List<LinhaSimplesKaraoke> ordenadas = new ArrayList<>(camadas);
+        // A "mais japonesa" primeiro: é a língua original e vai em cima.
+        ordenadas.sort(Comparator.comparing(
+            (LinhaSimplesKaraoke l) -> pareceOriginalJaponesOuRomaji(l.texto()) ? 0 : 1));
+
+        StringBuilder texto = new StringBuilder();
+        long inicio = Long.MAX_VALUE;
+        long fim = Long.MIN_VALUE;
+        int eventos = 0;
+        int variantes = 0;
+        for (LinhaSimplesKaraoke linha : ordenadas) {
+            if (!texto.isEmpty()) {
+                texto.append("\\N");
+            }
+            texto.append(linha.texto());
+            inicio = Math.min(inicio, linha.inicioCs());
+            fim = Math.max(fim, linha.fimCs());
+            eventos += linha.eventosOrigem();
+            variantes += linha.variantesTexto();
+        }
+        return new LinhaSimplesKaraoke(texto.toString(), inicio, fim, eventos, variantes);
     }
 
     private int pontuarPreferenciaLinha(LinhaSimplesKaraoke linha) {
