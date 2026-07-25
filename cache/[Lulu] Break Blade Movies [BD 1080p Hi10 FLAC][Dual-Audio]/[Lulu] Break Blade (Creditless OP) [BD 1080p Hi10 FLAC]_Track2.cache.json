@@ -1,0 +1,81 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "break_blade_1",
+    "contextoHash" : "8a5f6a6cd05213a40ef5d486683bee37a3875f771f21319aac947989dfe14ab0",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 1,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be2}This world has",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Este mundo tem",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}nothing worth noting",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}nada digno de nota",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be2}But we have plenty of love",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Mas temos muito amor",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}on our hands",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}nas nossas maos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Those who",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Aqueles que",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}have faith",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}tenha fé",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be2}will act on behalf",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Atuarei em nome",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}of their unwavering love",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}do seu amor inabalável",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be2}If I could fight destiny,",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be2}Se eu pudesse lutar contra o destino...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}I'd act on all of my feelings",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be2}Eu agiria seguindo todos os meus sentimentos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -25,8 +24,10 @@ import java.util.regex.Pattern;
  *   <li>A lore ativa (via porta) é a fonte dos termos protegidos; expressões
  *       conversacionais comuns continuam exigindo tradução.</li>
  *   <li>A precedência das verificações é preservada: limpeza de tags, gagueira e
- *       pontuação; caso de caractere único; palavra única; então lore ativa e, por fim,
- *       heurística de capitalização.</li>
+ *       pontuação; caso de caractere único; fala só de números; palavra única; então lore
+ *       ativa e, por fim, heurística de capitalização.</li>
+ *   <li>Número não se traduz: fala composta apenas de dígitos e pontuação (contagem
+ *       regressiva, altímetro, coordenadas) é sempre identidade legítima.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -39,6 +40,8 @@ public class DetectorTraducaoIdenticaService {
     private static final Pattern PADRAO_REMOVE_TAGS_ASS = Pattern.compile("\\{[^}]+}");
     private static final Pattern PADRAO_GAGUEIRA_NOME = Pattern.compile(
         "(?iu)(?<![\\p{L}\\p{N}])([\\p{L}])-(?=\\1[\\p{L}])");
+    /** Fala só com dígitos e espaços (a pontuação já saiu na limpeza): número não se traduz. */
+    private static final Pattern SOMENTE_NUMEROS = Pattern.compile("[\\d\\s]+");
 
     private final LoreAtivaPort loreAtiva;
 
@@ -87,7 +90,8 @@ public class DetectorTraducaoIdenticaService {
      * contexto de rádio. Mantê-lo aqui transformaria 34 falas HOJE corretas em pendência. Nem
      * toda palavra inglesa numa legenda PT-BR é defeito; o léxico só pode conter o que a obra
      * tem obrigação de traduzir.
-     * As poucas entradas SEM ocorrência medida estão marcadas abaixo e entraram por revisão
+     *
+     * <p>As poucas entradas SEM ocorrência medida estão marcadas abaixo e entraram por revisão
      * arquitetural — são componentes de termos compostos que a lore do 08th declarou
      * ({@code Far East Division}), incluídos para provar que declarar o termo composto NÃO
      * concede imunidade às suas partes soltas.
@@ -141,6 +145,16 @@ public class DetectorTraducaoIdenticaService {
         // Um único caractere visível (letra de karaokê por letra, interjeição
         // "A", numeral) não dá base para julgar tradução — manter idêntico.
         if (textoLimpo.length() <= 1) {
+            return true;
+        }
+
+        // Fala feita SÓ de números não tem tradução possível: contagem regressiva
+        // ("98! 97!"), leitura de altímetro ("6500! 7000!"), coordenadas. O caso de UMA
+        // palavra já era aceito por deveManterPalavraUnicaIdentica, mas a SEQUÊNCIA caía na
+        // heurística de capitalização — e '9' não é maiúscula, então a fala era acusada de eco.
+        // Consequência real (2026-07-23): a "Limpar Falhas do Cache" apagava "98! 97!" do
+        // episódio 11 do 08th a cada passagem, recriando uma pendência que não existe.
+        if (SOMENTE_NUMEROS.matcher(textoLimpo).matches()) {
             return true;
         }
 

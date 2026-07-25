@@ -193,6 +193,33 @@ class DetectorTraducaoIdenticaServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: fala feita SÓ de números não tem tradução possível — contagem
+     * regressiva, leitura de altímetro, coordenadas. Publicá-la idêntica é a única saída correta.
+     *
+     * <p>CASO REAL (2026-07-23): a "Limpar Falhas do Cache" apagava {@code "98! 97!"} do episódio
+     * 11 do 08th MS Team a cada passagem, recriando uma pendência inexistente. O caso de UMA
+     * palavra já era aceito ({@code "6000!"} passa por {@code matches("\\d+")}), mas a SEQUÊNCIA
+     * caía na heurística de capitalização — e {@code '9'} não é maiúscula, então a fala era
+     * acusada de eco.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só dígitos, espaço e pontuação passam; basta uma letra para a
+     * fala voltar a exigir tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a contagem regressiva vira pendência eterna, apagada e
+     * retentada a cada execução, em qualquer obra com números em sequência.
+     */
+    @Test
+    void falaFeitaSoDeNumerosNaoExigeTraducao() {
+        assertTrue(detector.deveManterIdentico("98! 97!"), "contagem regressiva");
+        assertTrue(detector.deveManterIdentico("{\\i1}98! 97!"), "com tag ASS");
+        assertTrue(detector.deveManterIdentico("6500! 7000! 8000!"), "leitura de altímetro");
+        assertTrue(detector.deveManterIdentico("3... 2... 1..."), "contagem com reticências");
+
+        assertFalse(detector.deveManterIdentico("Level 5"), "tem letra: continua exigindo tradução");
+        assertFalse(detector.deveManterIdentico("98 dead"), "número + palavra inglesa");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: REGRA DE OURO — nenhuma palavra ganha imunidade só por aparecer
      * dentro da prosa do prompt ou recortada de um termo composto. As duas rotas de imunidade
      * indevida existiram de fato na primeira versão desta régua e foram apanhadas em revisão:
