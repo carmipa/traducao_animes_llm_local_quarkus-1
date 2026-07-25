@@ -34,6 +34,40 @@ class DetectorEfeitoKaraokeServiceTest {
     }
 
     @Test
+    void estiloQueSeDeclaraRomajiVirouIndicadorDeMusicaPorSiSo() {
+        // Sem tag \k e sem nome musical reconhecível: antes da Fase 1 a linha nem chegava a ser
+        // tratada como música e o romaji ia para o LLM. É o caso das 29 linhas do Guilty Crown ep13.
+        String romajiSemTagK = "{\\3c&HF497D3&\\blur4.5\\fad(200,150)}Sonna sekai ni nokosareta boku wa";
+        assertTrue(detector.devePreservarKaraokeOriginal("ED_S2_roma", romajiSemTagK));
+        assertTrue(detector.devePreservarKaraokeOriginal("OP_S2_roma", romajiSemTagK));
+        // E não vale o contrário: nome sem marcador de romaji e texto em inglês segue traduzível.
+        assertFalse(detector.devePreservarKaraokeOriginal("ED_S2", "In this world I was left behind"));
+    }
+
+    @Test
+    void inventarioDeEstilosReaisDoAcervoEstaCongelado() {
+        // Os 45 estilos distintos do cache versionado; aqui os representativos de cada decisão.
+        for (String musical : new String[] {
+            "Opening", "Ending", "Ending 2", "OP", "ED", "Song ENG", "Karaoke Simples",
+            "Insert", "Gundam 0083 ED3 Lyrics", "Copy of OP", "OP Roma", "ED Roma L1"}) {
+            assertTrue(detector.eEstiloDeMusica(musical), "deveria ser música: " + musical);
+        }
+        for (String comum : new String[] {
+            "Dialogue", "Default", "Default - Alt", "Signs", "Titles", "EG", "nextep", "Next Ep",
+            "Ep Titles", "Zeta Episode Title", "08thMS", "Axis", "preludezz", "Copy of label2",
+            "Gundam Narrative Cage"}) {
+            assertFalse(detector.eEstiloDeMusica(comum), "não deveria ser música: " + comum);
+        }
+        // CONHECIDO E DELIBERADO: as camadas em inglês com sublinhado/dígito (494 linhas no acervo)
+        // seguem fora do conjunto musical. Alargar o padrão de NOME as arrastaria de uma vez para o
+        // simplificador de karaokê e para o fluxo de correção — pertence à fase do karaokê simples.
+        for (String pendente : new String[] {"OP2", "ED_S2", "OP_S2"}) {
+            assertFalse(detector.eEstiloDeMusica(pendente),
+                "mudança consciente de fase futura, não regressão: " + pendente);
+        }
+    }
+
+    @Test
     void proporcaoRomajiSeparaRomajiDeKaraokeEmIngles() {
         // Medido no cache real: estilo romaji tem mediana 100; música não-romaji, 22.
         assertEquals(100, detector.proporcaoRomaji(ROMAJI_PURO));

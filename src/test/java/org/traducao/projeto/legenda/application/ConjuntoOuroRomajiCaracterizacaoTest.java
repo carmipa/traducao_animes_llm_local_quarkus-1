@@ -94,17 +94,17 @@ class ConjuntoOuroRomajiCaracterizacaoTest {
     }
 
     @Test
-    @DisplayName("HOJE 29 das 31 linhas de romaji vazam para a tradução (o bug, medido)")
-    void hojeVinteENoveLinhasDeRomajiVazamParaTraducao() {
+    @DisplayName("todo romaji legítimo do conjunto-ouro é preservado (Fase 1 fechou o vazamento)")
+    void todoRomajiLegitimoEPreservado() {
         long preservadas = preservadas(ROMAJI);
 
-        assertEquals(2, preservadas,
-            "só o estilo com ESPAÇO (\"ED Roma L1\") é reconhecido como música hoje");
-        assertEquals(29, daClasse(ROMAJI).size() - preservadas,
-            "as 29 desprotegidas são exatamente as de estilo com SUBLINHADO (ED_S2_roma/OP_S2_roma): "
-                + "o padrão de nome de estilo musical usa \\b, e sublinhado é caractere de palavra, "
-                + "então a linha nem chega a ser tratada como música. A Fase 1 do Plano-Mestre deve "
-                + "virar este número para 31/0 — e ESTE teste é quem prova.");
+        assertEquals(daClasse(ROMAJI).size(), preservadas,
+            "nenhuma linha de romaji pode escapar para a tradução");
+        assertEquals(0, daClasse(ROMAJI).size() - preservadas,
+            "medição de 2026-07-25, ANTES da Fase 1: eram 2 preservadas e 29 vazando — todas as 29 "
+                + "de estilo com SUBLINHADO (ED_S2_roma/OP_S2_roma), que o padrão de NOME musical "
+                + "não reconhecia porque usa \\b e sublinhado é caractere de palavra. A Fase 1 "
+                + "passou a tratar 'estilo declara romaji' como indicador de música por si só.");
     }
 
     @Test
