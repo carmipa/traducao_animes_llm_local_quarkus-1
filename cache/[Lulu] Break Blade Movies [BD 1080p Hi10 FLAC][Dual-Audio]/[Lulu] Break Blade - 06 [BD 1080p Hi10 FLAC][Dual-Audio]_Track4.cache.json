@@ -1,0 +1,214 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "break_blade_1",
+    "contextoHash" : "8a5f6a6cd05213a40ef5d486683bee37a3875f771f21319aac947989dfe14ab0",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 3,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}This world has",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Um mundo onde",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}nothing worth noting",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}Nada digno de nota",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}But we have plenty of love",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Mas temos muito amor",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}on our hands",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}Em nossas mãos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Those who",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Aqueles que",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}have faith",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}tenha fé",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}will act on behalf",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Agirei em nome dele",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}of their unwavering love",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}do seu amor inabalável",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Opening",
+    "original" : "{\\pos(660,990)\\fad(1000,1000)\\be1}If I could fight destiny,",
+    "traduzido" : "{\\pos(660,990)\\fad(1000,1000)\\be1}Se eu pudesse lutar contra o destino",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Opening",
+    "original" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}I'd act on all of my feelings",
+    "traduzido" : "{\\pos(1260,990)\\fad(1000,1000)\\be1}Eu agiria de acordo com todos os meus sentimentos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Ep Titles",
+    "original" : "{\\fad(1000,1500)}{\\be1}Book Six\\N{\\fs90}Bastions of Sorrow",
+    "traduzido" : "{\\fad(1000,1500)}{\\be1}Livro Seis\\N{\\fs90}Fortalezas da Tristeza",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}A lone flower sprung from the earth",
+    "traduzido" : "{\\be1}Uma flor solitária brotou da terra",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}silently watches war unfold.",
+    "traduzido" : "{\\be1}assiste silenciosamente à guerra se desenrolar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}It grieves in silence,",
+    "traduzido" : "{\\be1}Chora em silêncio",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}asking, “why must they sacrifice others to protect what they hold dear?”",
+    "traduzido" : "{\\be1}Por que eles precisam sacrificar os outros para proteger o que mais prezam?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}“And what are they fighting for?”",
+    "traduzido" : "{\\be1}\"E pelo que eles estão lutando?\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}Let us believe that the future holds hope yet,",
+    "traduzido" : "{\\be1}Vamos acreditar que o futuro ainda guarda esperança.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}that there is a deeper meaning",
+    "traduzido" : "{\\be1}que existe um significado mais profundo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}in the trials we've faced to protect those we love.",
+    "traduzido" : "{\\be1}em todos os desafios que enfrentamos para proteger quem amamos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}If only we could be like this forever,",
+    "traduzido" : "{\\be1}[[]] Se ao menos pudéssemos ficar assim para sempre",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}my beloved says, and laughs.",
+    "traduzido" : "{\\be1}Minha amada diz, e ri.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}Everybody longs for these peaceful days,",
+    "traduzido" : "{\\be1}Todos ansiamos por esses dias tranquilos",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}yet my heart still grieves.",
+    "traduzido" : "{\\be1}Meu coração ainda dói.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}I can almost hear their hearts breaking",
+    "traduzido" : "{\\be1}Estou quase ouvindo seus corações partirem",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}as people lost all that was dear to them.",
+    "traduzido" : "{\\be1}As pessoas perderam tudo o que lhes era caro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}And I wonder if I don't deserve the same.",
+    "traduzido" : "{\\be1}E eu me pergunto se não mereço o mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}Let us believe that the future holds hope yet,",
+    "traduzido" : "{\\be1}Vamos acreditar que o futuro ainda guarda esperança.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Ending 2",
+    "original" : "{\\be1}that there is a deeper meaning",
+    "traduzido" : "{\\be1}que existe um significado mais profundo",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Ending 2",
+    "original" : "{\\fad(0,3000)\\be1}in the trials we've faced to protect those we love.",
+    "traduzido" : "{\\fad(0,3000)\\be1}em todos os desafios que enfrentamos para proteger quem amamos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}

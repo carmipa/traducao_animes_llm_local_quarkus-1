@@ -1,0 +1,112 @@
+REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
+============================================
+Pasta: C:\TRACKER-ANIMES\animes\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]\traducao_ptbr
+Duração: 8s
+Arquivos analisados: 13
+Falas auditadas: 4413
+Falas sem original EN (ignoradas): 0
+Problemas detectados: 11
+Falas corrigidas via LLM: 8
+Falas pendentes: 3
+
+DETALHES POR OCORRÊNCIA
+=======================
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E01_Track3_PT-BR.ass
+Evento: 40 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: Just seeing it makes you excited!\NRight? | Fala não traduzida (idêntica ao original em inglês): Just seeing it makes you excited!\NRight?
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Just seeing it makes you excited!\NRight?
+PT anterior: Just seeing it makes you excited!\NRight?
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 60 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: ...under the highway viaduct and\Nthen stand by until 1500 hours. | Fala não traduzida (idêntica ao original em inglês): ...under the highway viaduct and\Nthen stand by until 1500 hours.
+Diagnóstico: Correção validada e persistida.
+EN: ...under the highway viaduct and\Nthen stand by until 1500 hours.
+PT anterior: ...under the highway viaduct and\Nthen stand by until 1500 hours.
+Proposta: Debaixo do viaduto da rodovia e \Nentão fique de prontidão até às 15 horas.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E03_Track3_PT-BR.ass
+Evento: 270 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Resíduo gringo detectado: Eledore! Help those civilians out! | Fala não traduzida (idêntica ao original em inglês): Eledore! Help those civilians out!
+Diagnóstico: Correção validada e persistida.
+EN: Eledore! Help those civilians out!
+PT anterior: Eledore! Help those civilians out!
+Proposta: Eledore! Ajude aqueles civis!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 47 | Estilo: Dialogue
+Resultado: CORRIGIDA_REGRA_SEGURA
+Problemas: Insulto forte do original foi suavizado contra a preferência de tradução
+Diagnóstico: Contradição objetiva corrigida localmente, sem chamar LLM ou Google.
+EN: You son of a hitch!
+PT anterior: Filho da mãe!
+Proposta: Filho da puta!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 170 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: The team would be better off without a god damned coward like you on it!
+PT anterior: Seria melhor pra equipe se você, covarde filho da puta, não estivesse nela!
+Proposta: Seria melhor para a equipe se você, covarde, não estivesse nela!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E04_Track3_PT-BR.ass
+Evento: 308 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Tradução introduziu palavrão forte ausente no original
+Diagnóstico: Correção validada e persistida.
+EN: You god damned monster!
+PT anterior: Seu monstro filho da puta!
+Proposta: Seu monstro cruel!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E07_Track3_PT-BR.ass
+Evento: 134 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Enter.
+Diagnóstico: Correção validada e persistida.
+EN: Enter.
+PT anterior: Enter.
+Proposta: Entrar.
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E08_Track3_PT-BR.ass
+Evento: 69 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Big Brother?!
+Diagnóstico: Correção validada e persistida.
+EN: Big Brother?!
+PT anterior: Big Brother?!
+Proposta: Irmão Maior?!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E09_Track3_PT-BR.ass
+Evento: 150 | Estilo: Dialogue
+Resultado: LLM_SEM_CONTEUDO_UTILIZAVEL
+Problemas: Resíduo gringo detectado: Even the Feds aren't {\i1}that{\i0} dumb. | Fala não traduzida (idêntica ao original em inglês): Even the Feds aren't {\i1}that{\i0} dumb.
+Diagnóstico: O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.
+EN: Even the Feds aren't {\i1}that{\i0} dumb.
+PT anterior: Even the Feds aren't {\i1}that{\i0} dumb.
+Proposta: —
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E10_Track3_PT-BR.ass
+Evento: 135 | Estilo: Dialogue
+Resultado: CORRIGIDA_LLM
+Problemas: Fala não traduzida (idêntica ao original em inglês): Gotcha!
+Diagnóstico: Correção validada e persistida.
+EN: Gotcha!
+PT anterior: Gotcha!
+Proposta: Peguei você!
+
+Arquivo: Mobile.Suit.Gundam.The.08th.MS.Team.S01E11_Track3_PT-BR.ass
+Evento: 66 | Estilo: Dialogue
+Resultado: LLM_SEM_ALTERACAO
+Problemas: Fala não traduzida (idêntica ao original em inglês): {\i1}98! 97!
+Diagnóstico: O modelo respondeu, mas manteve a tradução atual.
+EN: {\i1}98! 97!
+PT anterior: {\i1}98! 97!
+Proposta: {\i1}98! 97!
