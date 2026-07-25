@@ -11,6 +11,7 @@ import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.llm.domain.LlmPort;
@@ -313,7 +314,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
         PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
         SeletorEventosTraduziveis seletorEventos =
-            new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador);
+            new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador,
+                new ProtecaoCamadasMusicaisService(detectorKaraoke));
         AvaliadorTraducaoCache avaliadorCache =
             new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador,
                 new VerificadorIdentificadorNumerico());

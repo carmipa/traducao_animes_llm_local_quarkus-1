@@ -9,6 +9,7 @@ import org.traducao.projeto.traducao.domain.CausaRaizPendencia;
 import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.ResumoPendencia;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
@@ -215,8 +216,19 @@ public class ProcessarArquivoUseCase {
         }
 
         Map<String, Long> frequenciaTextoLimpo = seletorEventos.calcularFrequenciaTextoLimpo(documento);
+        // Pre-passe do peer legenda: quais linhas sao a camada ORIGINAL do karaoke (romaji). E uma
+        // propriedade do DOCUMENTO — duas linhas no mesmo tempo —, por isso calculada uma vez aqui,
+        // no mesmo molde da frequencia de texto. Com a flag desligada devolve protecao vazia e a
+        // decisao do que traduzir fica identica a de antes.
+        ProtecaoCamadas protecaoCamadas = propriedades.protecaoRomajiPareamento()
+            ? seletorEventos.calcularProtecaoCamadas(documento)
+            : ProtecaoCamadas.VAZIA;
+        log.info("[ PROTECAO-ROMAJI ] pareamento de camadas {} — {} par(es), {} indeciso(s), {} linha(s) preservada(s)",
+            propriedades.protecaoRomajiPareamento() ? "LIGADO" : "DESLIGADO",
+            protecaoCamadas.paresEncontrados(), protecaoCamadas.paresIndecisos(),
+            protecaoCamadas.indicesPreservados().size());
         List<EventoLegenda> eventosTraduziveis = documento.eventos().stream()
-            .filter(evento -> seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo))
+            .filter(evento -> seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas))
             .toList();
         log.info("{} fala(s) traduzível(eis) encontrada(s) em {}", eventosTraduziveis.size(), arquivoEntrada.getFileName());
 
@@ -308,7 +320,7 @@ public class ProcessarArquivoUseCase {
 
                 List<EntradaCache> entradasCacheParcial = new ArrayList<>();
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo)) {
+                    if (seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
                         String txtFinal = parciaisValidadas.get(evento.texto());
                         if (txtFinal != null) {
                             entradasCacheParcial.add(new EntradaCache(
@@ -471,7 +483,7 @@ public class ProcessarArquivoUseCase {
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
         List<EntradaCache> entradasCache = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo)) {
+            if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
                 eventosFinais.add(evento);
                 continue;
             }

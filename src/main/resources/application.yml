@@ -19,6 +19,11 @@ tradutor:
     - "ED - Romaji"
     - "ED - English"
     - "ED-ROM"
+  # Protecao de romaji pelo PAREAMENTO das duas camadas de karaoke (romaji e traducao ocupam o
+  # mesmo tempo na tela). Sinal PRIMARIO, independente de nome de estilo e de fonte -- que sao
+  # normalizados de proposito. DESLIGADA por padrao: com false a decisao do que traduzir fica
+  # identica a de antes. Ver o Plano-Mestre da protecao de romaji no cerebro (2026-07-25).
+  protecao-romaji-pareamento: false
   # Chaves de idioma gravadas no cache JSON (par original -> traduzido).
   idioma-original: "en"
   idioma-traduzido: "pt-br"

@@ -15,6 +15,12 @@ public class TradutorProperties {
     private List<String> estilosIgnorados = List.of("Song JP");
     private String idiomaOriginal = "en";
     private String idiomaTraduzido = "pt-br";
+    /**
+     * Proteção de romaji pelo PAREAMENTO das duas camadas de karaokê (romaji e tradução no mesmo
+     * tempo). DESLIGADA por padrão: com {@code false} o seletor recebe proteção vazia e a decisão
+     * do que traduzir fica byte-idêntica à anterior. Ligar exige rodar o A/B do Plano-Mestre.
+     */
+    private boolean protecaoRomajiPareamento = false;
 
     public TradutorProperties() {
     }
@@ -52,6 +58,10 @@ public class TradutorProperties {
     public String idiomaOriginal() { return idiomaOriginal; }
     public String getIdiomaOriginal() { return idiomaOriginal; }
     public void setIdiomaOriginal(String idiomaOriginal) { if (idiomaOriginal != null && !idiomaOriginal.isBlank()) this.idiomaOriginal = idiomaOriginal; }
+
+    public boolean protecaoRomajiPareamento() { return protecaoRomajiPareamento; }
+    public boolean isProtecaoRomajiPareamento() { return protecaoRomajiPareamento; }
+    public void setProtecaoRomajiPareamento(boolean protecaoRomajiPareamento) { this.protecaoRomajiPareamento = protecaoRomajiPareamento; }
 
     public String idiomaTraduzido() { return idiomaTraduzido; }
     public String getIdiomaTraduzido() { return idiomaTraduzido; }
