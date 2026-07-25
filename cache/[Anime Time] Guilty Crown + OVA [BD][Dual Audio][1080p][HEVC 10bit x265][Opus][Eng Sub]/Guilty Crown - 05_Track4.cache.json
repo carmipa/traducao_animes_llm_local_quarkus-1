@@ -1,0 +1,536 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "guilty_crown",
+    "contextoHash" : "484ccc0bdeac15fb939a113a7253d8dfc1403f9808a2607796477c6ba91bf809",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 2,
+    "estilo" : "Default",
+    "original" : "{\\i1}When you're with Tsutsugami Gai,",
+    "traduzido" : "{\\i1}Quando voce esta com Tsutsugami Gai",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Default",
+    "original" : "{\\i1}please press the blue button twice, and then the red one once.",
+    "traduzido" : "{\\i1}Por favor, aperte o botão azul duas vezes e depois o vermelho uma vez.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Default",
+    "original" : "{\\i1}We will come to mete out the appropriate punishment on them.",
+    "traduzido" : "{\\i1}Iremos até eles para aplicar a punição adequada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Default",
+    "original" : "{\\i1}No matter where they may be.",
+    "traduzido" : "{\\i1}Não importa onde eles estejam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Default",
+    "original" : "How's Kido?",
+    "traduzido" : "Como está Kido?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Default",
+    "original" : "He's still sleeping.",
+    "traduzido" : "Ele ainda está dormindo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Default",
+    "original" : "I don't know if it's due to the shock of having his Void used,",
+    "traduzido" : "Não sei se é pelo choque de ter seu Void usado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Default",
+    "original" : "but he shows no sign of waking.",
+    "traduzido" : "Ele não mostra nenhum sinal de acordar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Default",
+    "original" : "I see.",
+    "traduzido" : "Eu entendo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Default",
+    "original" : "In that case, I'll formally reintroduce him.",
+    "traduzido" : "Entao, vou apresentar ele formalmente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Default",
+    "original" : "This is Ouma Shu. He has the Void Genome.",
+    "traduzido" : "Shu Ouma está presente. Ele possui o Void Genome.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Default",
+    "original" : "We'll be placing Shu at the core of our strategies henceforth.",
+    "traduzido" : "A partir de agora, colocaremos Shu no centro das nossas estratégias.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Default",
+    "original" : "Now that he's joined us and we've acquired Kido Kenji,",
+    "traduzido" : "Agora que ele se juntou a nós e adquirimos Kido Kenji",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Default",
+    "original" : "the greatest of the Undertakers' immediate goals is within reach:",
+    "traduzido" : "O objetivo mais imediato dos Funeral Parlor está ao alcance.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Default",
+    "original" : "taking the Leucocyte.",
+    "traduzido" : "Tomando o Leucócito.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Default",
+    "original" : "{\\i1}Leucocyte?",
+    "traduzido" : "{\\i1}Leucocito?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Default",
+    "original" : "This is the proposed plan.",
+    "traduzido" : "Este é o plano proposto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Default",
+    "original" : "Depending on the situation on the ground, there are 145 diverging patterns it could take.",
+    "traduzido" : "De acordo com a situacao no terreno, ha 145 padroes divergentes que pode tomar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Default",
+    "original" : "You will all memorize every last one of them by the time we begin the operation.",
+    "traduzido" : "Vocês todos vão decorar cada um deles até começarmos a operação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Default",
+    "original" : "How much time?",
+    "traduzido" : "Quantos minutos faltam?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Default",
+    "original" : "Three days.",
+    "traduzido" : "Três dias.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Default",
+    "original" : "If you can't even manage that, don't participate.",
+    "traduzido" : "Se você não consegue nem fazer isso, não participe.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Default",
+    "original" : "It hasn't even been a full day since our raid on the isolation facility.",
+    "traduzido" : "Não se passou nem um dia inteiro desde nosso ataque à instalação de isolamento.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Default",
+    "original" : "Fatigue is a concern.",
+    "traduzido" : "Cansaço é uma preocupação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Default",
+    "original" : "No, it's not.",
+    "traduzido" : "Não, não é.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Default",
+    "original" : "What did you people come here for?",
+    "traduzido" : "Por que vocês vieram aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Default",
+    "original" : "I doubt it was for a pleasant nap!",
+    "traduzido" : "Duvido que tenha sido para uma soneca agradável!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Default",
+    "original" : "Do you plan to waltz into the enemy's line of fire while bleary-eyed from sleep?",
+    "traduzido" : "Você planeja caminhar para a linha de fogo inimiga enquanto sonolento?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Default",
+    "original" : "Ayase.",
+    "traduzido" : "Ayase.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Default",
+    "original" : "Yes?",
+    "traduzido" : "Sim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Default",
+    "original" : "You'll be responsible",
+    "traduzido" : "Você será responsável",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Default",
+    "original" : "for giving him enough basic training to keep up on this mission.",
+    "traduzido" : "Para dar a ele treinamento básico suficiente para acompanhar essa missão.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Default",
+    "original" : "Me, Sir?",
+    "traduzido" : "Eu, senhor?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Default",
+    "original" : "He'll only get in our way as he is now.",
+    "traduzido" : "Ele só vai atrapalhar como está agora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Default",
+    "original" : "If you value your own life, you'll do it.",
+    "traduzido" : "Se você valoriza sua própria vida, faça isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Default",
+    "original" : "Um, you don't have to bother with me, really.",
+    "traduzido" : "De verdade, não precisa se preocupar comigo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Default",
+    "original" : "I'd feel awful causing trouble for a girl in a wheelchair, too.",
+    "traduzido" : "Eu me sentiria horrível causando problemas para uma garota em cadeira de rodas também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Default",
+    "original" : "My, you're very kind, Ouma.",
+    "traduzido" : "Minha, você é muito gentil, Ouma.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Default",
+    "original" : "You can... call me \"Shu\"...",
+    "traduzido" : "Pode me chamar de \"Shu\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Default",
+    "original" : "This wheelchair is something that makes me who I am.",
+    "traduzido" : "Este cadeirante é algo que me define quem eu sou.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Default",
+    "original" : "I don't need your {\\i1}consideration{\\i0}. Understand?",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Default",
+    "original" : "{\\i1}Hey, are you serious about jumping?",
+    "traduzido" : "{\\i1}Ei, você tá falando sério sobre pular?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Default",
+    "original" : "{\\i1}It'll be fine!",
+    "traduzido" : "{\\i1}Tudo bem!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Default",
+    "original" : "{\\i1}Come on, just get over here! Believe in me!",
+    "traduzido" : "{\\i1}Vamos lá, só vem pra cá! Confia em mim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Default",
+    "original" : "What was...",
+    "traduzido" : "O que foi...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Default",
+    "original" : "My clothes and the pen are both gone...",
+    "traduzido" : "Meus roupas e a caneta sumiram...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Default",
+    "original" : "Ew!",
+    "traduzido" : "Eca!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Default",
+    "original" : "Your training starts now, got it?",
+    "traduzido" : "Entendido, seu treinamento começa agora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Default",
+    "original" : "No more sleeping in. Prepare yourself!",
+    "traduzido" : "Acordar logo! Se preparem!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Default",
+    "original" : "I said you didn't have to...",
+    "traduzido" : "Eu disse que voce não precisava...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Default",
+    "original" : "I don't like this either!",
+    "traduzido" : "Eu também não gosto disso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Default",
+    "original" : "I'm only doing it because Gai said to.",
+    "traduzido" : "Estou fazendo isso porque o Gai mandou.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Default",
+    "original" : "Why did you even want to join the Undertakers, anyway?",
+    "traduzido" : "Por que você queria se juntar aos Cavaleiros da Morte, afinal?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Default",
+    "original" : "You're a laughably bad fit for us.",
+    "traduzido" : "Voce é um ajuste ridiculamente ruim para nós.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Default",
+    "original" : "That's...",
+    "traduzido" : "Isso é...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Default",
+    "original" : "What are you looking at?",
+    "traduzido" : "O que você está olhando?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Default",
+    "original" : "This?",
+    "traduzido" : "Isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Default",
+    "original" : "Where did you get that? It looks nice.",
+    "traduzido" : "De onde você tirou isso? Parece legal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Default",
+    "original" : "I found it.",
+    "traduzido" : "Encontrei.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Default",
+    "original" : "Don't tell me it's yours?",
+    "traduzido" : "Não me diga que é seu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Default",
+    "original" : "Well, yes.",
+    "traduzido" : "Sim, claro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Default",
+    "original" : "Could I have it back?",
+    "traduzido" : "Posso ter isso de volta?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Default",
+    "original" : "Nope.",
+    "traduzido" : "Lamento, mas não tenho nada a dizer sobre isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Default",
+    "original" : "Oh, wait, I've got a great idea.",
+    "traduzido" : "Ah, espera aí, eu tenho uma ótima ideia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Default",
+    "original" : "We're planning to test you in a week to see if you've got what it takes to be in the Undertakers.",
+    "traduzido" : "Estamos planejando testá-lo em uma semana para ver se você tem o que é preciso para fazer parte dos Cavaleiros da Morte.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Default",
+    "original" : "I'll let you have this back — if you pass.",
+    "traduzido" : "Eu devolvo isso para você — se você passar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Default",
+    "original" : "I'm Tsukishima Argo, a second year at Ryusen High. What's your name?",
+    "traduzido" : "Sou Argo Tsukishima, do segundo ano do Colégio Ryusen. Qual é o seu nome?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Default",
+    "original" : "It's Ouma Shu.",
+    "traduzido" : "Sou o Shu Ouma.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Default",
+    "original" : "I know that.",
+    "traduzido" : "Eu sei disso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Default",
+    "original" : "Come at me like you're really trying to kill me.",
+    "traduzido" : "Ataca-me como se realmente quisesse me matar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Default",
+    "original" : "This is real, right?",
+    "traduzido" : "Isso é real, não é?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Default",
+    "original" : "Yeah. And?",
+    "traduzido" : "Sim. E então?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Default",
+    "original" : "The title of an Undertaker is a heavy one.",
+    "traduzido" : "O título de um Undertaker é pesado demais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Default",
+    "original" : "Don't let {\\i1}this{\\i0} scare you!",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Default",
+    "original" : "Heartbeat soaring dangerously high.",
+    "traduzido" : "Pulso acelerado perigosamente alto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}

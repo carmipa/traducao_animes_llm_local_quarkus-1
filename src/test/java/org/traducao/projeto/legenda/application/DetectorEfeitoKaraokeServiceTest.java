@@ -72,6 +72,26 @@ class DetectorEfeitoKaraokeServiceTest {
         assertFalse(detector.eKaraokeOuMusicaTraduzivel("Romaji", "{\\k30}kimi {\\k20}no na wa"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o estilo "OP Roma"/"ED Roma" (abreviação de romaji) tem de ser
+     * preservado pelo NOME, sem depender da heurística de texto. Caso real (Guilty Crown ep4):
+     * o OP "My Dearest" mistura romaji e inglês, a heurística por palavra não reconhecia como
+     * romaji, e a linha era TRADUZIDA — virava salada "Eusouumcaminhonissosagueyou" com tags de
+     * cor injetadas por token. "OP Roma" não casava com o regex que só aceitava "romaji".
+     * <p>INVARIANTES DO DOMÍNIO: só age em linha que já tem indicador de música; diálogo intacto.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se voltar a não reconhecer "Roma", o romaji é traduzido.
+     */
+    @Test
+    void preservaRomajiPeloNomeAbreviadoDoEstilo() {
+        // Mesmo com inglês misturado (que derruba a heurística de palavra), o NOME salva.
+        assertTrue(detector.devePreservarKaraokeOriginal("OP Roma", "{\\k30}boku {\\k20}wa you"));
+        assertTrue(detector.devePreservarKaraokeOriginal("ED Roma L1", "{\\k30}kimi {\\k20}dake"));
+        assertTrue(detector.devePreservarKaraokeOriginal("Roma", "{\\k30}sekai"));
+        assertFalse(detector.eKaraokeOuMusicaTraduzivel("OP Roma", "{\\k30}boku {\\k20}wa you"));
+        // Guarda: sem indicador de música, "Roma" no nome NÃO protege diálogo comum.
+        assertFalse(detector.devePreservarKaraokeOriginal("Default", "Vamos a Roma amanhã."));
+    }
+
     @Test
     void permiteKaraokeEmInglesOuOutroIdiomaLatino() {
         assertFalse(detector.devePreservarKaraokeOriginal("Song EN", "{\\k30}Fly {\\k20}me to the moon"));
