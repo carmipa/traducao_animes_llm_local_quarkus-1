@@ -63,6 +63,11 @@ public class DetectorEfeitoKaraokeService {
         "^(?:n|(?:([kgsztdnhbpmyrwfjv])\\1?|sh|ch|ts|ky|gy|ny|hy|my|ry|by|py)?[aeiou])+$");
     private static final Pattern NAO_ASCII_PATTERN = Pattern.compile("[^\\x00-\\x7F]");
     private static final int MIN_CHARS_TAGS_POSICIONAMENTO_COMPLEXO = 45;
+    // Proporção mínima de palavras-sílaba-japonesa para uma linha de música ser tratada como
+    // romaji. Antes exigia 100% (todas), e o OP "My Dearest" do Guilty Crown (romaji com palavras
+    // inglesas soltas: "you", "love") vazava para o LLM e virava salada. 70% preserva o romaji
+    // misturado sem capturar karaokê em inglês, que fica ~50% ou menos (medido nos testes).
+    private static final int LIMIAR_PROPORCAO_ROMAJI = 70;
 
     /**
      * Karaokê cru: só as tags de timing {@code \k}. Usado onde ignorar demais
@@ -132,19 +137,26 @@ public class DetectorEfeitoKaraokeService {
         if (NAO_ASCII_PATTERN.matcher(normalizado).find()) {
             return false;
         }
-        int palavras = 0;
-        int letras = 0;
+        int total = 0;
+        int romaji = 0;
+        int letrasRomaji = 0;
         for (String palavra : normalizado.split("[^a-z]+")) {
             if (palavra.isEmpty()) {
                 continue;
             }
-            if (!PALAVRA_ROMAJI_PATTERN.matcher(palavra).matches()) {
-                return false;
+            total++;
+            if (PALAVRA_ROMAJI_PATTERN.matcher(palavra).matches()) {
+                romaji++;
+                letrasRomaji += palavra.length();
             }
-            palavras++;
-            letras += palavra.length();
         }
-        return palavras >= 2 && letras >= 6;
+        // Proporção, não tudo-ou-nada: a MAIORIA das palavras precisa ser sílaba japonesa. Isso
+        // preserva o romaji que mistura inglês solto (J-pop: "sekai no naka de you know") — antes
+        // uma única palavra inglesa derrubava a detecção e o romaji ia para a tradução. Karaokê em
+        // inglês fica bem abaixo do limiar (encontro consonantal, consoante final) e segue
+        // traduzível. Viés de preservar mantido: exige ao menos 2 palavras romaji e 6 letras.
+        return total >= 2 && romaji >= 2 && letrasRomaji >= 6
+            && romaji * 100 >= total * LIMIAR_PROPORCAO_ROMAJI;
     }
 
     /**

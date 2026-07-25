@@ -109,6 +109,23 @@ class DetectorEfeitoKaraokeServiceTest {
         assertTrue(detector.devePreservarKaraokeOriginal("OP", "{\\k30}kimi {\\k20}no na wa"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: romaji que MISTURA palavras em inglês (comum em J-pop, ex.: o OP
+     * "My Dearest" do Guilty Crown) deve ser preservado. Antes a detecção era tudo-ou-nada — uma
+     * única palavra inglesa a derrubava —, e o romaji vazava para o LLM virando salada
+     * "Eusouumcaminhonissosagueyou". Agora é por PROPORÇÃO: maioria de sílabas japonesas basta.
+     * <p>INVARIANTES DO DOMÍNIO: só age em linha de música; karaokê em inglês fica abaixo do
+     * limiar e continua traduzível.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se voltar ao tudo-ou-nada, o romaji misturado é traduzido.
+     */
+    @Test
+    void preservaRomajiQueMisturaPalavrasEmIngles() {
+        assertTrue(detector.devePreservarKaraokeOriginal("Opening",
+            "{\\pos(500,40)}sekai no naka de you know"), "5/6 sílabas japonesas: é romaji");
+        assertTrue(detector.devePreservarKaraokeOriginal("OP",
+            "{\\k30}kimi {\\k20}wa {\\k18}boku {\\k15}no love"), "maioria romaji, 'love' solto");
+    }
+
     @Test
     void naoPreservaLetraOcidentalEmEstiloMusical() {
         // Letra já em PT (dano da era Gemma no 86) e letra em inglês continuam
