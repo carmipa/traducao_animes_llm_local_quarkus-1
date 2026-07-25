@@ -1,0 +1,2734 @@
+{
+  "proveniencia" : {
+    "schemaVersion" : 1,
+    "contextoId" : "guilty_crown",
+    "contextoHash" : "484ccc0bdeac15fb939a113a7253d8dfc1403f9808a2607796477c6ba91bf809",
+    "modeloLlm" : "current",
+    "idiomaOrigem" : "en",
+    "idiomaDestino" : "pt-br"
+  },
+  "entradas" : [ {
+    "indice" : 0,
+    "estilo" : "Default",
+    "original" : "This is GHQ's Public Information Division.",
+    "traduzido" : "Esta é a Divisão de Informações Públicas da GHQ.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 1,
+    "estilo" : "Default",
+    "original" : "In accordance with Infection Control Law Article 9, Section 3,",
+    "traduzido" : "Em conformidade com a Lei de Controle de Infecção, Artigo 9, Seção 3",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 2,
+    "estilo" : "Default",
+    "original" : "an emergency quarantine is now in effect.",
+    "traduzido" : "Um quarentena de emergência está agora em vigor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 3,
+    "estilo" : "Default",
+    "original" : "Citizens are strictly prohibited from venturing outside Loop 7.",
+    "traduzido" : "Cidadãos são rigidamente proibidos de sair do Loop 7.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 4,
+    "estilo" : "Default",
+    "original" : "{\\i1}It's been two weeks since then. Tokyo has changed completely.",
+    "traduzido" : "{\\i1}Faz duas semanas desde aquilo. Tóquio mudou completamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 5,
+    "estilo" : "Default",
+    "original" : "{\\i1}The incident from two weeks ago...",
+    "traduzido" : "{\\i1}O incidente de duas semanas atrás...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 6,
+    "estilo" : "Default",
+    "original" : "{\\i1}The Apocalypse Virus outbreak called \"the second coming of Lost Christmas\"",
+    "traduzido" : "{\\i1}O surto do Apocalipse Virus chamado \"o segundo advento do Lost Christmas\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 7,
+    "estilo" : "Default",
+    "original" : "{\\i1}has led to the blockage of the entire city center.",
+    "traduzido" : "{\\i1}A ocupacao tem levado ao bloqueio do centro da cidade inteiro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 8,
+    "estilo" : "Default",
+    "original" : "{\\i1}Internet and phone lines are down and the TV and radio stations have gone silent.",
+    "traduzido" : "{\\i1}As linhas de internet e telefone estão caóticas e as estações de TV e rádio ficaram em silêncio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 9,
+    "estilo" : "Default",
+    "original" : "{\\i1}People are now living at local evacuation sites.",
+    "traduzido" : "{\\i1}Pessoas agora vivem em locais de evacuação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 10,
+    "estilo" : "Default",
+    "original" : "{\\i1}Students have automatically gathered here at Tennozu First High School.",
+    "traduzido" : "{\\i1}Estudantes se reuniram automaticamente aqui na Escola Secundaria Tennouzu Primeiro.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 11,
+    "estilo" : "Default",
+    "original" : "{\\i1}They can't contact their families",
+    "traduzido" : "{\\i1}Eles não podem entrar em contato com suas famílias",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 12,
+    "estilo" : "Default",
+    "original" : "{\\i1}and they can't go home because they live outside the blockaded area.",
+    "traduzido" : "{\\i1}Eles não podem ir para casa porque moram fora da área bloqueada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 13,
+    "estilo" : "Default",
+    "original" : "{\\i1}So, they've stayed here.",
+    "traduzido" : "{\\i1}Entao, eles ficaram aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 14,
+    "estilo" : "Default",
+    "original" : "{\\i1}The GHQ announcements say the blockade will be lifted at any moment.",
+    "traduzido" : "{\\i1}As notícias do GHQ afirmam que o bloqueio será levantado a qualquer momento.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 15,
+    "estilo" : "Default",
+    "original" : "{\\i1}But some people, like Yahiro, seem to doubt that...",
+    "traduzido" : "{\\i1}Mas algumas pessoas, como Yahiro, parecem duvidar disso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 16,
+    "estilo" : "Default",
+    "original" : "{\\i1}But I don't think the blockade will last much longer.",
+    "traduzido" : "{\\i1}Mas eu não acho que o bloqueio vai durar muito mais tempo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 17,
+    "estilo" : "Default",
+    "original" : "Shu.",
+    "traduzido" : "Shu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 18,
+    "estilo" : "Default",
+    "original" : "You're here again?",
+    "traduzido" : "Você voltou?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 19,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 20,
+    "estilo" : "Default",
+    "original" : "My feet just seem to take me here.",
+    "traduzido" : "Meus pés simplesmente parecem me levar até aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 21,
+    "estilo" : "Default",
+    "original" : "It's... all over now, isn't it... Gai.",
+    "traduzido" : "Agora é o fim, não é, Gai?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 22,
+    "estilo" : "Default",
+    "original" : "Ouch...",
+    "traduzido" : "Ai...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 23,
+    "estilo" : "Default",
+    "original" : "What am I even doing?",
+    "traduzido" : "O que eu estou fazendo aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 24,
+    "estilo" : "Default",
+    "original" : "A little rowdy, aren't you?",
+    "traduzido" : "Um pouco agitado, não é?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 25,
+    "estilo" : "Default",
+    "original" : "Are you okay? Can you stand?",
+    "traduzido" : "Estou bem. Consigo me levantar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 26,
+    "estilo" : "Default",
+    "original" : "Get lost.",
+    "traduzido" : "Afasta-se.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 27,
+    "estilo" : "Default",
+    "original" : "Don't be like that.",
+    "traduzido" : "Não seja assim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 28,
+    "estilo" : "Default",
+    "original" : "We're just offering to help.",
+    "traduzido" : "Estamos apenas oferecendo para ajudar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 29,
+    "estilo" : "Default",
+    "original" : "I didn't ask for your help.",
+    "traduzido" : "Eu não pedi sua ajuda.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 30,
+    "estilo" : "Default",
+    "original" : "Oh, you're one of those \"I can do it myself\" types, huh?",
+    "traduzido" : "Ah, você é um daqueles \"Eu posso fazer isso sozinho\" tipos, hein?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 31,
+    "estilo" : "Default",
+    "original" : "Go away!",
+    "traduzido" : "Afaste-se!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 32,
+    "estilo" : "Default",
+    "original" : "What, you only sweet to your \"honey\"?",
+    "traduzido" : "Só é doce com sua \"namorada\"?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 33,
+    "estilo" : "Default",
+    "original" : "There's nothing wrong with being stoic,",
+    "traduzido" : "Não há nada de errado em ser estoico.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 34,
+    "estilo" : "Default",
+    "original" : "but it pisses me off when people don't appreciate my kindness.",
+    "traduzido" : "Mas isso me irrita quando as pessoas não apreciam minha bondade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 35,
+    "estilo" : "Default",
+    "original" : "So let's be friendly with one another.",
+    "traduzido" : "Vamos então ser amigos uns dos outros.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 36,
+    "estilo" : "Default",
+    "original" : "Hey, stop it.",
+    "traduzido" : "Pare com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 37,
+    "estilo" : "Default",
+    "original" : "What do you want?",
+    "traduzido" : "O que você quer?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 38,
+    "estilo" : "Default",
+    "original" : "No, what are {\\i1}you{\\i0} doing? To a girl that fell down too.",
+    "traduzido" : "Não, o que{\\i1}você{\\i0}está fazendo? Para uma garota que caiu também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 39,
+    "estilo" : "Default",
+    "original" : "We were demonstrating a spirit of cooperation in this time of trouble.",
+    "traduzido" : "Estávamos demonstrando um espírito de cooperação neste momento difícil.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 40,
+    "estilo" : "Default",
+    "original" : "Yup! Is there a problem with that?",
+    "traduzido" : "Sim! Há algum problema com isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 41,
+    "estilo" : "Default",
+    "original" : "Missile Kick!",
+    "traduzido" : "Chute de míssil!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 42,
+    "estilo" : "Default",
+    "original" : "What the hell what that for?",
+    "traduzido" : "O que diabos aquilo foi para?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 43,
+    "estilo" : "Default",
+    "original" : "What was that for?",
+    "traduzido" : "O que foi aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 44,
+    "estilo" : "Default",
+    "original" : "You tell me! What are {\\i1}you{\\i0} doing to Aya? Perverts!",
+    "traduzido" : "Você me diz! O que{\\i1}você{\\i0}está fazendo com Aya? Pervertidos!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 45,
+    "estilo" : "Default",
+    "original" : "Hey, don't lump me in with—{Cut Off}",
+    "traduzido" : "Olá, não me coloque no mesmo grupo que—{Cut Off}",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 46,
+    "estilo" : "Default",
+    "original" : "{\\an8}Piss off, shrimp—",
+    "traduzido" : "{\\an8}Vai embora, rã.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 47,
+    "estilo" : "Default",
+    "original" : "Nay! I'm just getting started!",
+    "traduzido" : "Não! Estou apenas começando!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 48,
+    "estilo" : "Default",
+    "original" : "Hey.",
+    "traduzido" : "Eai.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 49,
+    "estilo" : "Default",
+    "original" : "You'll regret this.",
+    "traduzido" : "Você vai se arrepender disso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 50,
+    "estilo" : "Default",
+    "original" : "Yeah right! Like I'd waste a single millibyte storing {\\i1}this{\\i0} memory!",
+    "traduzido" : "Sim, certo! Como se eu desperdiçasse um único milibyte armazenando{\\i1}essa memória{\\i0}!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 51,
+    "estilo" : "Default",
+    "original" : "You all right?",
+    "traduzido" : "Tudo bem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 52,
+    "estilo" : "Default",
+    "original" : "Did something happen?",
+    "traduzido" : "Algo aconteceu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 53,
+    "estilo" : "Default",
+    "original" : "Nah, they were just hassling me a little.",
+    "traduzido" : "Não, eles só estavam me incomodando um pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 54,
+    "estilo" : "Default",
+    "original" : "Say, would you mind leaving?",
+    "traduzido" : "Por favor, você poderia sair?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 55,
+    "estilo" : "Default",
+    "original" : "But...",
+    "traduzido" : "Mas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 56,
+    "estilo" : "Default",
+    "original" : "I told you before, didn't I? I refuse to accept help from anyone.",
+    "traduzido" : "Eu já te falei antes, não é mesmo? Eu recuso ajuda de qualquer pessoa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 57,
+    "estilo" : "Default",
+    "original" : "I don't look elegant crawling up into it.",
+    "traduzido" : "Não me vejo elegante rastejando para entrar nela.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 58,
+    "estilo" : "Default",
+    "original" : "Let's go, Shu.",
+    "traduzido" : "Vamos embora, Shu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 59,
+    "estilo" : "Default",
+    "original" : "Right...",
+    "traduzido" : "Certo...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 60,
+    "estilo" : "Default",
+    "original" : "She's in pretty bad shape.",
+    "traduzido" : "Ela está numa situação bem ruim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 61,
+    "estilo" : "Default",
+    "original" : "I knew it...",
+    "traduzido" : "Eu sabia disso...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 62,
+    "estilo" : "Default",
+    "original" : "Gai's death hit Aya the hardest.",
+    "traduzido" : "A morte de Gai atingiu Ayase com mais força.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 63,
+    "estilo" : "Default",
+    "original" : "I wonder if the Undertakers will close up shop now...",
+    "traduzido" : "Eu me pergunto se o Funeral Parlor vai fechar as portas agora...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 64,
+    "estilo" : "Default",
+    "original" : "{\\i1}We got separated from the other members when it happened.",
+    "traduzido" : "{\\i1}Ficamos separados dos outros membros quando aconteceu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 65,
+    "estilo" : "Default",
+    "original" : "{\\i1}We don't know where most of our other members are,",
+    "traduzido" : "{\\i1}Nós não sabemos onde estão a maioria dos nossos outros membros.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 66,
+    "estilo" : "Default",
+    "original" : "{\\i1}but Ayase and Tsugumi are blending with the students and taking shelter here.",
+    "traduzido" : "{\\i1}mas Ayase e Tsugumi estao se misturando aos estudantes e buscando refugo aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 67,
+    "estilo" : "Default",
+    "original" : "{\\i1}And Gai... is gone.",
+    "traduzido" : "{\\i1}E Gai... desapareceu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 68,
+    "estilo" : "Default",
+    "original" : "The Kuhouin Group is airlifting supplies in,",
+    "traduzido" : "O grupo Kuhouin esta transportando suprimentos via ar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 69,
+    "estilo" : "Default",
+    "original" : "so we're still in pretty good shape there..",
+    "traduzido" : "Estamos ainda em boa forma lá...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 70,
+    "estilo" : "Default",
+    "original" : "I'm a little worried about the vaccine stock though...",
+    "traduzido" : "Estou um pouco preocupada com o estoque de vacinas...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 71,
+    "estilo" : "Default",
+    "original" : "The effects of the virus are a concern too.",
+    "traduzido" : "Os efeitos do vírus também são uma preocupação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 72,
+    "estilo" : "Default",
+    "original" : "I'd like to secure a good supply of vaccine. Can we ask for your help?",
+    "traduzido" : "Gostaria de garantir um bom suprimento de vacina. Podemos pedir sua ajuda?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 73,
+    "estilo" : "Default",
+    "original" : "All right. I'll try to negotiate something with my grandfather.",
+    "traduzido" : "Tudo bem. Vou tentar negociar alguma coisa com meu avô.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 74,
+    "estilo" : "Default",
+    "original" : "Aren't you worrying too much?",
+    "traduzido" : "Não está preocupado demais?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 75,
+    "estilo" : "Default",
+    "original" : "The quarantine won't last {\\i1}that{\\i0} long.",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 76,
+    "estilo" : "Default",
+    "original" : "We can't afford to be too optimistic.",
+    "traduzido" : "Não podemos nos dar ao luxo de ser muito otimistas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 77,
+    "estilo" : "Default",
+    "original" : "It's been two weeks, which is about when people start losing it.",
+    "traduzido" : "Já se passaram duas semanas, o que é quando as pessoas começam a perder a cabeça.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 78,
+    "estilo" : "Default",
+    "original" : "It sounds like there's already been a small riot in Shinjuku.",
+    "traduzido" : "Já parece que houve um tumulto pequeno em Shinjuku.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 79,
+    "estilo" : "Default",
+    "original" : "He has a point. We've been seeing fights within the school too.",
+    "traduzido" : "Ele tem razão. Também temos visto brigas dentro da escola.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 80,
+    "estilo" : "Default",
+    "original" : "It's because everyone's tired.",
+    "traduzido" : "É porque todos estão cansados.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 81,
+    "estilo" : "Default",
+    "original" : "There are a lot of kids who want to go home and can't.",
+    "traduzido" : "Tem muitas crianças que querem ir para casa e não podem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 82,
+    "estilo" : "Default",
+    "original" : "If we could at least give them a breather, that would help...",
+    "traduzido" : "Se pudessemos pelo menos dar-lhes um momento para respirar, isso ajudaria...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 83,
+    "estilo" : "Default",
+    "original" : "Come to think of it...!",
+    "traduzido" : "Pelo que me lembro...!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 84,
+    "estilo" : "Default",
+    "original" : "What is it, Souta?",
+    "traduzido" : "O que é isso, Souta?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 85,
+    "estilo" : "Default",
+    "original" : "Say, how about we do a Culture Festival?",
+    "traduzido" : "Vamos fazer um festival cultural?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 86,
+    "estilo" : "Default",
+    "original" : "Huh?",
+    "traduzido" : "Hm?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 87,
+    "estilo" : "Default",
+    "original" : "Normally we'd be having the Culture Festival this month, right?",
+    "traduzido" : "Normalmente, estaríamos tendo o Festival da Cultura neste mês, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 88,
+    "estilo" : "Default",
+    "original" : "Come on, let's do it!",
+    "traduzido" : "Vamos lá, vamos fazer isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 89,
+    "estilo" : "Default",
+    "original" : "Are you kidding? We're in the middle of a crisis.",
+    "traduzido" : "Estou brincando? Estamos no meio de uma crise!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 90,
+    "estilo" : "Default",
+    "original" : "That's exactly why we should! Let's liven things up with something big",
+    "traduzido" : "Vamos agitar as coisas com algo grande!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 91,
+    "estilo" : "Default",
+    "original" : "and clear out the bad atmosphere here!",
+    "traduzido" : "Limpe esse ar ruim daqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 92,
+    "estilo" : "Default",
+    "original" : "That might be a good idea.",
+    "traduzido" : "Essa pode ser uma boa ideia.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 93,
+    "estilo" : "Default",
+    "original" : "You too, President?",
+    "traduzido" : "Também você, Presidente?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 94,
+    "estilo" : "Default",
+    "original" : "We have enough food to last us a while.",
+    "traduzido" : "Temos comida suficiente para durar um tempo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 95,
+    "estilo" : "Default",
+    "original" : "I think we can pull off something if we keep it small.",
+    "traduzido" : "Acho que conseguimos fazer algo se mantivermos pequeno.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 96,
+    "estilo" : "Default",
+    "original" : "You heard the lady!",
+    "traduzido" : "Ouviu a senhora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 97,
+    "estilo" : "Default",
+    "original" : "Read the atmosphere, Chief Cabinet Secretary Samukawa.",
+    "traduzido" : "Ler a atmosfera, Secretário-Chefe do Gabinete Samukawa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 98,
+    "estilo" : "Default",
+    "original" : "Is this really okay?",
+    "traduzido" : "É isso mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 99,
+    "estilo" : "Default",
+    "original" : "Not to worry. These conditions will end soon.",
+    "traduzido" : "Não se preocupe. Essas condições vão acabar logo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 100,
+    "estilo" : "Default",
+    "original" : "In that case...",
+    "traduzido" : "Caso contrário...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 101,
+    "estilo" : "Default",
+    "original" : "Then it's okay, right?",
+    "traduzido" : "Entao ta tudo bem, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 102,
+    "estilo" : "Default",
+    "original" : "Right, Shu?",
+    "traduzido" : "Certo, Shu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 103,
+    "estilo" : "Default",
+    "original" : "Yeah.",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 104,
+    "estilo" : "Default",
+    "original" : "Ah, it's finally time?",
+    "traduzido" : "Finalmente é hora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 105,
+    "estilo" : "Default",
+    "original" : "Yes sir. They said we'd have approval in a few days.",
+    "traduzido" : "Sim senhor. Eles disseram que teríamos aprovação em alguns dias.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 106,
+    "estilo" : "Default",
+    "original" : "Life will be boring until then... Shall we do a little preview?",
+    "traduzido" : "Vida vai ser chata até lá... Que tal um pouquinho de antecipação?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 107,
+    "estilo" : "Default",
+    "original" : "Please sir! No more joking around!",
+    "traduzido" : "Por favor, senhor! Chega de brincadeiras!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 108,
+    "estilo" : "Default",
+    "original" : "You aren't in the same position anymore...",
+    "traduzido" : "Você não está mais na mesma posição...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 109,
+    "estilo" : "Default",
+    "original" : "...Chief Segai.",
+    "traduzido" : "Chefe Segai.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 110,
+    "estilo" : "Default",
+    "original" : "We've both landed in difficult positions, haven't we?",
+    "traduzido" : "Temos ambos em posições difíceis, não é mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 111,
+    "estilo" : "Default",
+    "original" : "I couldn't agree more.",
+    "traduzido" : "Concordo plenamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 112,
+    "estilo" : "Default",
+    "original" : "I didn't expect {\\i1}you{\\i0} to agree too.",
+    "traduzido" : "Eu não esperava que {\\i1}você{\\i0} concordasse tão facilmente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 113,
+    "estilo" : "Default",
+    "original" : "I guess maybe I felt like living it up too.",
+    "traduzido" : "Talvez eu também tenha sentido vontade de aproveitar a vida.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 114,
+    "estilo" : "Default",
+    "original" : "So this was inside me?",
+    "traduzido" : "Isso estava dentro de mim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 115,
+    "estilo" : "Default",
+    "original" : "Why are you able to hand it to me now?",
+    "traduzido" : "Por que você pode me entregar agora?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 116,
+    "estilo" : "Default",
+    "original" : "During the last fight, I think my powers changed.",
+    "traduzido" : "Durante a ultima briga, acho que minhas habilidades mudaram.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 117,
+    "estilo" : "Default",
+    "original" : "How do we put it back?",
+    "traduzido" : "Como colocamos de volta?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 118,
+    "estilo" : "Default",
+    "original" : "Try letting go of it again.",
+    "traduzido" : "Tente soltar novamente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 119,
+    "estilo" : "Default",
+    "original" : "These \"Voids\" are just one mystery after another, aren't they?",
+    "traduzido" : "Esses \"Voids\" são apenas um mistério atrás do outro, não são?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 120,
+    "estilo" : "Default",
+    "original" : "But why are you suddenly so interested in Voids?",
+    "traduzido" : "Por que de repente você ficou tao interessado em Voids?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 121,
+    "estilo" : "Default",
+    "original" : "Curiosity.",
+    "traduzido" : "Curiosidade.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 122,
+    "estilo" : "Default",
+    "original" : "I don't think I'll be using this power again, though.",
+    "traduzido" : "Não acho que vou usar esse poder novamente, porém.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 123,
+    "estilo" : "Default",
+    "original" : "Do you really believe that?",
+    "traduzido" : "Realmente você acredita nisso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 124,
+    "estilo" : "Default",
+    "original" : "What do you mean?",
+    "traduzido" : "O que você quer dizer?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 125,
+    "estilo" : "Default",
+    "original" : "These conditions won't last long.",
+    "traduzido" : "Essas condições não durarão muito tempo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 126,
+    "estilo" : "Default",
+    "original" : "And by that I mean the opposite of what Kuhouin does, Shu.",
+    "traduzido" : "Eu quero dizer o oposto do que a Kuhouin faz, Shu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 127,
+    "estilo" : "Default",
+    "original" : "Your right hand, its power...",
+    "traduzido" : "Sua mão direita, seu poder...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 128,
+    "estilo" : "Default",
+    "original" : "You'll have to use them again soon enough.",
+    "traduzido" : "Você terá que usá-los novamente em breve.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 129,
+    "estilo" : "Default",
+    "original" : "I-I don't need those!",
+    "traduzido" : "Eu não preciso disso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 130,
+    "estilo" : "Default",
+    "original" : "Oh, don't say that. Here you go!",
+    "traduzido" : "Não diga isso. Aqui está!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 131,
+    "estilo" : "Default",
+    "original" : "Hey, Shu!",
+    "traduzido" : "Ei, Shu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 132,
+    "estilo" : "Default",
+    "original" : "Ta-da!",
+    "traduzido" : "Ta-da!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 133,
+    "estilo" : "Default",
+    "original" : "What's that outfit for?",
+    "traduzido" : "Qual é o objetivo dessa roupa?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 134,
+    "estilo" : "Default",
+    "original" : "They told me this was an Animal Cafe.",
+    "traduzido" : "Eles disseram que este era um Café de Animais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 135,
+    "estilo" : "Default",
+    "original" : "You're really part of the school now aren't you, Tsugami?",
+    "traduzido" : "Agora você realmente faz parte da escola, não é, Tsugami?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 136,
+    "estilo" : "Default",
+    "original" : "Well, moping won't help anyone.",
+    "traduzido" : "Bem, ficar triste não vai ajudar ninguém.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 137,
+    "estilo" : "Default",
+    "original" : "So we have to take this opportunity to have some fun!",
+    "traduzido" : "Vamos aproveitar essa oportunidade para nos divertirmos um pouco!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 138,
+    "estilo" : "Default",
+    "original" : "But I don't have anything to do with it.",
+    "traduzido" : "Não tenho nada a ver com isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 139,
+    "estilo" : "Default",
+    "original" : "Don't laugh.",
+    "traduzido" : "Não riam.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 140,
+    "estilo" : "Default",
+    "original" : "Sorry, sorry.",
+    "traduzido" : "Desculpa, desculpa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 141,
+    "estilo" : "Default",
+    "original" : "They look good on you.",
+    "traduzido" : "Eles ficam bons em você.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 142,
+    "estilo" : "Default",
+    "original" : "Sheesh...",
+    "traduzido" : "Sheesh...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 143,
+    "estilo" : "Default",
+    "original" : "Say, where's Inori?",
+    "traduzido" : "Diga, onde está a Inori?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 144,
+    "estilo" : "Default",
+    "original" : "Hey, Shu! Over here!",
+    "traduzido" : "Ei, Shu! Aqui!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 145,
+    "estilo" : "Default",
+    "original" : "A live Egoist concert?",
+    "traduzido" : "O show ao vivo do Egoist?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 146,
+    "estilo" : "Default",
+    "original" : "It's the festival's main event!",
+    "traduzido" : "É o evento principal do festival!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 147,
+    "estilo" : "Default",
+    "original" : "Leave the stage directing to me!",
+    "traduzido" : "Deixe a direcao do palco comigo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 148,
+    "estilo" : "Default",
+    "original" : "Tamadate, Minister of Education, Culture, Sports, Science and Technology,",
+    "traduzido" : "Ministro de Educação, Cultura, Esportes, Ciência e Tecnologia",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 149,
+    "estilo" : "Default",
+    "original" : "will show you what I'm made of!",
+    "traduzido" : "Mostrarei do que sou feita!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 150,
+    "estilo" : "Default",
+    "original" : "Are you okay with this, Inori?",
+    "traduzido" : "Tudo bem com isso, Inori?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 151,
+    "estilo" : "Default",
+    "original" : "I want to try it.",
+    "traduzido" : "Eu quero tentar isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 152,
+    "estilo" : "Default",
+    "original" : "Okay?",
+    "traduzido" : "Sim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 153,
+    "estilo" : "Default",
+    "original" : "Of course. I look forward to it.",
+    "traduzido" : "Claro. Estou ansioso(a) por isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 154,
+    "estilo" : "Default",
+    "original" : "Come on, a festival now? There's something wrong with these people.",
+    "traduzido" : "Vamos, um festival agora? Tem alguma coisa errada com essas pessoas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 155,
+    "estilo" : "Default",
+    "original" : "Maybe the germs have spread to their brains.",
+    "traduzido" : "Talvez os germes tenham se espalhado para seus cérebros.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 156,
+    "estilo" : "Default",
+    "original" : "That hurt! What if I were injured!?",
+    "traduzido" : "Ai, isso doeu! E se eu tivesse me machucado?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 157,
+    "estilo" : "Default",
+    "original" : "Be more careful!",
+    "traduzido" : "Tenha mais cuidado!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 158,
+    "estilo" : "Default",
+    "original" : "Oh sorry! But hey, perfect timing!",
+    "traduzido" : "Desculpa! Mas olha, que timing perfeito!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 159,
+    "estilo" : "Default",
+    "original" : "Here, you take this.",
+    "traduzido" : "Aqui, você fica com isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 160,
+    "estilo" : "Default",
+    "original" : "Hey! Why should I have to—",
+    "traduzido" : "Ei! Por que eu tenho que...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 161,
+    "estilo" : "Default",
+    "original" : "This too please. And this!",
+    "traduzido" : "Por favor, isso também. E isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 162,
+    "estilo" : "Default",
+    "original" : "Why do I have to do work like this?",
+    "traduzido" : "Por que tenho que fazer trabalho assim?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 163,
+    "estilo" : "Default",
+    "original" : "Man, you're a weakling.",
+    "traduzido" : "Cara, você é um fraco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 164,
+    "estilo" : "Default",
+    "original" : "No, you just gave me too much to do!",
+    "traduzido" : "Não, você só me deu muito para fazer!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 165,
+    "estilo" : "Default",
+    "original" : "Aw, take this and cheer up.",
+    "traduzido" : "Ah, toma isso e anima-te.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 166,
+    "estilo" : "Default",
+    "original" : "What is it?",
+    "traduzido" : "O que é isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 167,
+    "estilo" : "Default",
+    "original" : "Your reward.",
+    "traduzido" : "Seu premio.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 168,
+    "estilo" : "Default",
+    "original" : "I don't want that yucky food.",
+    "traduzido" : "Eu não quero essa comida nojenta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 169,
+    "estilo" : "Default",
+    "original" : "When someone does something nice for you...",
+    "traduzido" : "Quando alguém faz algo legal pra você...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 170,
+    "estilo" : "Default",
+    "original" : "...shut up and accept it!",
+    "traduzido" : "Cale a boca e aceite isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 171,
+    "estilo" : "Default",
+    "original" : "St-Stop it!",
+    "traduzido" : "Pare com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 172,
+    "estilo" : "Default",
+    "original" : "Whoa, Shinomiya, you're good at this.",
+    "traduzido" : "Uau, Shinomiya, você e boa nisso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 173,
+    "estilo" : "Default",
+    "original" : "You can call me Ayase.",
+    "traduzido" : "Pode me chamar de Ayase.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 174,
+    "estilo" : "Default",
+    "original" : "Your name is Menjo, right?",
+    "traduzido" : "Seu nome é Menjou, certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 175,
+    "estilo" : "Default",
+    "original" : "Please, call me Hare. I'm sorry for asking you to do this out of the blue.",
+    "traduzido" : "Por favor, me chame de Hare. Desculpe por pedir isso assim tão de repente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 176,
+    "estilo" : "Default",
+    "original" : "Why me, though?",
+    "traduzido" : "Por que eu, afinal?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 177,
+    "estilo" : "Default",
+    "original" : "I suppose I looked lonely by myself...?",
+    "traduzido" : "Parece que eu pareci sozinho...?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 178,
+    "estilo" : "Default",
+    "original" : "No, that's not it.",
+    "traduzido" : "Não, isso não é isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 179,
+    "estilo" : "Default",
+    "original" : "Um, Shu's changed lately, you know? In a good way.",
+    "traduzido" : "Shu mudou recentemente, não é mesmo? Para melhor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 180,
+    "estilo" : "Default",
+    "original" : "I just thought that must be thanks to the people in the Undertakers.",
+    "traduzido" : "Eu apenas pensei que deve ser graças às pessoas do Funeral Parlor.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 181,
+    "estilo" : "Default",
+    "original" : "So I wanted to say thank you.",
+    "traduzido" : "Eu queria apenas dizer obrigada.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 182,
+    "estilo" : "Default",
+    "original" : "Thank you very much.",
+    "traduzido" : "Obrigado muito.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 183,
+    "estilo" : "Default",
+    "original" : "Huh? Yeah, that's right.",
+    "traduzido" : "Hum? Isso mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 184,
+    "estilo" : "Default",
+    "original" : "Yuzuriha Inori, Ouma Shu—everyone's here.",
+    "traduzido" : "Inori Yuzuriha, Shu Ouma — todo mundo está aqui.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 185,
+    "estilo" : "Default",
+    "original" : "This is way too complicated.",
+    "traduzido" : "Isso está muito complicado demais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 186,
+    "estilo" : "Default",
+    "original" : "You could just destroy this place right now!",
+    "traduzido" : "Você poderia destruir este lugar agora mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 187,
+    "estilo" : "Default",
+    "original" : "No, that won't do. We're in the middle of deliberations right now.",
+    "traduzido" : "Não, isso não vai funcionar. Estamos no meio de nossas deliberações agora.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 188,
+    "estilo" : "Default",
+    "original" : "We can't make any direct moves.",
+    "traduzido" : "Não podemos fazer nenhum movimento direto.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 189,
+    "estilo" : "Default",
+    "original" : "No {\\i1}direct{\\i0} moves...",
+    "traduzido" : "Nenhum{\\i1}movimento direto de{\\i0}...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 190,
+    "estilo" : "Default",
+    "original" : "At any rate, don't interfere. You understand?",
+    "traduzido" : "De qualquer maneira, não interfira. Entende?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 191,
+    "estilo" : "Default",
+    "original" : "Yeah, got it.",
+    "traduzido" : "Sim, entendi.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 192,
+    "estilo" : "Default",
+    "original" : "What {\\i1}is{\\i0} this thing? It looks so cheap.",
+    "traduzido" : "O que{\\i1}é{\\i0}essa coisa? Parece tão barato.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 193,
+    "estilo" : "Default",
+    "original" : "The next time I see that runt, I swear I'm going to torment her.",
+    "traduzido" : "Próxima vez que eu ver aquela pestinha, juro que vou atormentá-la.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 194,
+    "estilo" : "Default",
+    "original" : "The Tenno Festival is now officially open.",
+    "traduzido" : "A Festa do Tennou agora está oficialmente aberta.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 195,
+    "estilo" : "Default",
+    "original" : "Have fun, everyone.",
+    "traduzido" : "Divirtam-se, pessoal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 196,
+    "estilo" : "Default",
+    "original" : "Isn't this fun, Aya?",
+    "traduzido" : "Não é divertido, Aya?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 197,
+    "estilo" : "Default",
+    "original" : "I wonder if we'd be doing this too, if we went to school like normal kids.",
+    "traduzido" : "Eu me pergunto se estaríamos fazendo isso também, se fôssemos para a escola como crianças normais.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 198,
+    "estilo" : "Default",
+    "original" : "What do you think?",
+    "traduzido" : "O que você acha?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 199,
+    "estilo" : "Default",
+    "original" : "Look, mini-hotcakes!",
+    "traduzido" : "Mini-pancakes!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 200,
+    "estilo" : "Default",
+    "original" : "It's mini-hotcakes, Aya!",
+    "traduzido" : "São minipancakes, Aya!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 201,
+    "estilo" : "Default",
+    "original" : "They're having a Cultural Festival.",
+    "traduzido" : "Eles estão tendo um Festival Cultural.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 202,
+    "estilo" : "Default",
+    "original" : "That's not right. Not in tough times like this where people are starving.",
+    "traduzido" : "Isso não está certo. Não em tempos difíceis como esses onde as pessoas estão passando fome.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 203,
+    "estilo" : "Default",
+    "original" : "You said it!",
+    "traduzido" : "Disse isso mesmo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 204,
+    "estilo" : "Default",
+    "original" : "This is a job for us \"Philanthropists,\" am I right?",
+    "traduzido" : "Esse é um trabalho para nós \"Filantropos\", certo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 205,
+    "estilo" : "Default",
+    "original" : "A Humvee and a Gautier Endlave? Are they the real thing?",
+    "traduzido" : "Uma Humvee e um Gautier Endlave? São os verdadeiros?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 206,
+    "estilo" : "Default",
+    "original" : "How'd you get those?",
+    "traduzido" : "Como você conseguiu aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 207,
+    "estilo" : "Default",
+    "original" : "A gift.",
+    "traduzido" : "Um presente.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 208,
+    "estilo" : "Default",
+    "original" : "Whoa, are you serious?",
+    "traduzido" : "Sério mesmo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 209,
+    "estilo" : "Default",
+    "original" : "He said he was a wealthy man who agreed with our cause.",
+    "traduzido" : "Ele disse que era um homem rico que concordava com nossa causa.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 210,
+    "estilo" : "Default",
+    "original" : "He seemed a little sketchy, but turned out to be a good guy.",
+    "traduzido" : "Ele pareceu um pouco suspeito, mas acabou sendo um cara legal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 211,
+    "estilo" : "Default",
+    "original" : "\"Good guy?\"",
+    "traduzido" : "\"Cara legal?\"",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 212,
+    "estilo" : "Default",
+    "original" : "It just goes to show the high hopes people have for our justice.",
+    "traduzido" : "Esse fato apenas mostra as altas expectativas que as pessoas têm para com a nossa justiça.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 213,
+    "estilo" : "Default",
+    "original" : "Come on, let's go!",
+    "traduzido" : "Vamos lá, vamos embora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 214,
+    "estilo" : "Default",
+    "original" : "We're gonna teach those happy school kids what a harsh world this is.",
+    "traduzido" : "Vamos ensinar às crianças felizes da escola quão cruel é este mundo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 215,
+    "estilo" : "Default",
+    "original" : "You sure you don't want any? These are really good.",
+    "traduzido" : "Não, obrigado. Não estou com fome.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 216,
+    "estilo" : "Default",
+    "original" : "Say...",
+    "traduzido" : "Diga...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 217,
+    "estilo" : "Default",
+    "original" : "Hey Aya, this is the last one! Here... say \"ah.\"",
+    "traduzido" : "Olá Aya, este é o último! Agora... diga \"ah\".",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 218,
+    "estilo" : "Default",
+    "original" : "Stop it!",
+    "traduzido" : "Pare com isso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 219,
+    "estilo" : "Default",
+    "original" : "What was {\\i1}that{\\i0} for?",
+    "traduzido" : "Para que foi{\\i1}aquele{\\i0}?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 220,
+    "estilo" : "Default",
+    "original" : "Hey, why did you cut it?",
+    "traduzido" : "Por que você cortou isso?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 221,
+    "estilo" : "Default",
+    "original" : "Huh? What do you mean?",
+    "traduzido" : "O que você quer dizer?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 222,
+    "estilo" : "Default",
+    "original" : "Why did you cut my connection that day!?",
+    "traduzido" : "Por que você cortou minha conexão naquele dia!?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 223,
+    "estilo" : "Default",
+    "original" : "I could've kept going.",
+    "traduzido" : "Eu poderia ter continuado.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 224,
+    "estilo" : "Default",
+    "original" : "I could've protected Gai!",
+    "traduzido" : "Eu poderia ter protegido o Gai!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 225,
+    "estilo" : "Default",
+    "original" : "That's crazy... What, so you wouldn't have minded if {\\i1}you'd{\\i0} died?",
+    "traduzido" : "Isso é loucura... O que, então você não se importaria se {\\i1}você{\\i0} tivesse morrido?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 226,
+    "estilo" : "Default",
+    "original" : "I wish I did die!",
+    "traduzido" : "Eu queria ter morrido!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 227,
+    "estilo" : "Default",
+    "original" : "My life right now is so half-assed...",
+    "traduzido" : "Minha vida agora está tão pela metade...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 228,
+    "estilo" : "Default",
+    "original" : "After the accident and now too...",
+    "traduzido" : "Depois do acidente e agora também...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 229,
+    "estilo" : "Default",
+    "original" : "Don't say things like that.",
+    "traduzido" : "Não diga coisas desse tipo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 230,
+    "estilo" : "Default",
+    "original" : "You're gonna make {\\i1}me{\\i0} sad.",
+    "traduzido" : "Você vai deixar{\\i1}eu{\\i0}triste.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 231,
+    "estilo" : "Default",
+    "original" : "I'm sorry, Aya. I'll go back to the festival.",
+    "traduzido" : "Sinto muito, Aya. Vou voltar para o festival.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 232,
+    "estilo" : "Default",
+    "original" : "And then the music will start, but don't come out yet okay?",
+    "traduzido" : "Então a música vai começar, mas ainda não saia ok?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 233,
+    "estilo" : "Default",
+    "original" : "Come out on my signal.",
+    "traduzido" : "Saia quando eu der o sinal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 234,
+    "estilo" : "Default",
+    "original" : "Okay.",
+    "traduzido" : "OK.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 235,
+    "estilo" : "Default",
+    "original" : "{\\i1}She has her songs.",
+    "traduzido" : "{\\i1}Ela tem suas canções.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 236,
+    "estilo" : "Default",
+    "original" : "{\\i1}She's not like me.",
+    "traduzido" : "{\\i1}Ela não é como eu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 237,
+    "estilo" : "Default",
+    "original" : "{\\i1}I'm just some girl her lost her Endlave...",
+    "traduzido" : "{\\i1}Sou apenas uma garota que perdeu seu Endlave...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 238,
+    "estilo" : "Default",
+    "original" : "Ayase.",
+    "traduzido" : "Ayase.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 239,
+    "estilo" : "Default",
+    "original" : "Shu...",
+    "traduzido" : "Shu",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 240,
+    "estilo" : "Default",
+    "original" : "What are you doing over here?",
+    "traduzido" : "O que você está fazendo aqui?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 241,
+    "estilo" : "Default",
+    "original" : "Don't you want to come closer?",
+    "traduzido" : "Não quer se aproximar?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 242,
+    "estilo" : "Default",
+    "original" : "There's no point. I'm not useful for anything anyway.",
+    "traduzido" : "Não faz sentido. Eu não sou útil para nada mesmo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 243,
+    "estilo" : "Default",
+    "original" : "Nobody said that.",
+    "traduzido" : "Ninguém disse isso.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 244,
+    "estilo" : "Default",
+    "original" : "I'm saying you're one of us, so you should be with us more.",
+    "traduzido" : "Estou dizendo que você é um de nós, então deveria estar conosco mais vezes.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 245,
+    "estilo" : "Default",
+    "original" : "Gai died, you know!",
+    "traduzido" : "Gai morreu, você sabe!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 246,
+    "estilo" : "Default",
+    "original" : "No... I couldn't protect him.",
+    "traduzido" : "Não... Não consegui protegê-lo.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 247,
+    "estilo" : "Default",
+    "original" : "{\\i1}I{\\i0} let him die.",
+    "traduzido" : "{\\i1}Eu{\\i0}deixei ele morrer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 248,
+    "estilo" : "Default",
+    "original" : "You're wrong, Ayase. I'm the one who let him die.",
+    "traduzido" : "Estou errada, Ayase. Fui eu quem o deixou morrer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 249,
+    "estilo" : "Default",
+    "original" : "It was me.",
+    "traduzido" : "Foi eu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 250,
+    "estilo" : "Default",
+    "original" : "An Endlave!",
+    "traduzido" : "Um Endlave!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 251,
+    "estilo" : "Default",
+    "original" : "Bingo!",
+    "traduzido" : "Bingo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 252,
+    "estilo" : "Default",
+    "original" : "The riots have reached us too!?",
+    "traduzido" : "Os tumultos chegaram até nós também!?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 253,
+    "estilo" : "Default",
+    "original" : "No. That's a military machine.",
+    "traduzido" : "Esse é um veículo militar.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 254,
+    "estilo" : "Default",
+    "original" : "Dammit! What the hell is this about!?",
+    "traduzido" : "Merda! Do que diabos se trata isso!?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 255,
+    "estilo" : "Default",
+    "original" : "Where's Shu?",
+    "traduzido" : "Onde está o Shu?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 256,
+    "estilo" : "Default",
+    "original" : "Hey!",
+    "traduzido" : "Ei!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 257,
+    "estilo" : "Default",
+    "original" : "There's no need for you to fight! Let's get you somewhere safe!",
+    "traduzido" : "Não precisa lutar! Vamos colocar você em um lugar seguro!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 258,
+    "estilo" : "Default",
+    "original" : "But I don't {\\i1}want{\\i0} to run away!",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 259,
+    "estilo" : "Default",
+    "original" : "Don't cut my connection!",
+    "traduzido" : "Não corte minha conexão!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 260,
+    "estilo" : "Default",
+    "original" : "What are you doing?",
+    "traduzido" : "O que você está fazendo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 261,
+    "estilo" : "Default",
+    "original" : "Ayase...",
+    "traduzido" : "Ayase...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 262,
+    "estilo" : "Default",
+    "original" : "Are you okay?",
+    "traduzido" : "Tudo bem?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 263,
+    "estilo" : "Default",
+    "original" : "You want to make me into a slacker too!?",
+    "traduzido" : "Você quer que eu vire um preguiçoso também?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 264,
+    "estilo" : "Default",
+    "original" : "No, I...",
+    "traduzido" : "Eu não...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 265,
+    "estilo" : "Default",
+    "original" : "Gai gave me legs.",
+    "traduzido" : "Gai me deu pernas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 266,
+    "estilo" : "Default",
+    "original" : "Legs that could run fast anywhere, jump any height.",
+    "traduzido" : "Pernas que podiam correr rápido em qualquer lugar, pular qualquer altura.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 267,
+    "estilo" : "Default",
+    "original" : "But I...",
+    "traduzido" : "Mas eu...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 268,
+    "estilo" : "Default",
+    "original" : "It's no good! I can't let it end this way!",
+    "traduzido" : "Não adianta! Não posso deixar que acabe assim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 269,
+    "estilo" : "Default",
+    "original" : "Please, Shu. Let me stand on my own!",
+    "traduzido" : "Por favor, Shu. Me deixe ficar em pé sozinha!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 270,
+    "estilo" : "Default",
+    "original" : "Everyone head for the old college building!",
+    "traduzido" : "Todos para o prédio antigo da faculdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 271,
+    "estilo" : "Default",
+    "original" : "Menjo!",
+    "traduzido" : "Minha tradução para a linha \"Menjo!\" é \"Menjo!\".",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 272,
+    "estilo" : "Default",
+    "original" : "This is my Void.",
+    "traduzido" : "Este é o meu Void.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 273,
+    "estilo" : "Default",
+    "original" : "Pretty sweet, huh?",
+    "traduzido" : "Muito legal, né?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 274,
+    "estilo" : "Default",
+    "original" : "Yes!",
+    "traduzido" : "Sim!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 275,
+    "estilo" : "Default",
+    "original" : "Gai, I'm moving forward too. Even if you're not here, I'll go forward!",
+    "traduzido" : "Eu também estou avançando. Mesmo que você não esteja aqui, eu vou seguir em frente!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 276,
+    "estilo" : "Default",
+    "original" : "What the hell was that?",
+    "traduzido" : "O que diabos foi aquilo?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 277,
+    "estilo" : "Default",
+    "original" : "How should I know?",
+    "traduzido" : "Não sei como.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 278,
+    "estilo" : "Default",
+    "original" : "She's—",
+    "traduzido" : "Ela é",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 279,
+    "estilo" : "Default",
+    "original" : "Shit...",
+    "traduzido" : "Caralho...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 280,
+    "estilo" : "Default",
+    "original" : "I'll shoot you! For real!",
+    "traduzido" : "Eu vou atirar em você! De verdade!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 281,
+    "estilo" : "Default",
+    "original" : "You're under arrest!",
+    "traduzido" : "Você está preso!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 282,
+    "estilo" : "Default",
+    "original" : "Go, Aya!",
+    "traduzido" : "Vamos, Aya!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 283,
+    "estilo" : "Default",
+    "original" : "Right!",
+    "traduzido" : "Certo!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 284,
+    "estilo" : "Default",
+    "original" : "See, you were useful.",
+    "traduzido" : "Você foi útil, afinal.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 285,
+    "estilo" : "Default",
+    "original" : "Dammit, what the hell is this!?",
+    "traduzido" : "Caralho, mas que merda é essa!?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 286,
+    "estilo" : "Default",
+    "original" : "Shu!",
+    "traduzido" : "Shu!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 287,
+    "estilo" : "Default",
+    "original" : "It's been a long time since I ran full-tilt on my own legs like that.",
+    "traduzido" : "Há muito tempo não corria assim, só nas minhas pernas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 288,
+    "estilo" : "Default",
+    "original" : "It felt good.",
+    "traduzido" : "Me senti bem.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 289,
+    "estilo" : "Default",
+    "original" : "I feel a little better too.",
+    "traduzido" : "Me sinto um pouco melhor também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 290,
+    "estilo" : "Default",
+    "original" : "Maybe, I was just overthinking things before.",
+    "traduzido" : "Talvez eu só estivesse me preocupando demais antes.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 291,
+    "estilo" : "Default",
+    "original" : "I can't accept what happened to Gai yet, but I want to think it through little by little.",
+    "traduzido" : "Não consigo aceitar o que aconteceu com Gai ainda, mas quero pensar nisso pouco a pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 292,
+    "estilo" : "Default",
+    "original" : "I want to think about what I can do.",
+    "traduzido" : "Eu quero pensar no que posso fazer.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 293,
+    "estilo" : "Default",
+    "original" : "Me too.",
+    "traduzido" : "Eu também.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 294,
+    "estilo" : "Default",
+    "original" : "Thanks, Shu.",
+    "traduzido" : "Obrigado, Shu.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 295,
+    "estilo" : "Default",
+    "original" : "Hey everybody! The TV's back on!",
+    "traduzido" : "Olá a todos! A televisão voltou ao ar!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 296,
+    "estilo" : "Default",
+    "original" : "Transferring the feed to the monitors...",
+    "traduzido" : "Transmitindo a imagem para os monitores...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 297,
+    "estilo" : "Default",
+    "original" : "In our investigation,",
+    "traduzido" : "Durante nossas investigações",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 298,
+    "estilo" : "Default",
+    "original" : "we have been unable to find any survivors within the Loop 7 area who aren't highly cancerous.",
+    "traduzido" : "Não encontramos nenhum sobrevivente na área do Loop 7 que não esteja altamente cancerígeno.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 299,
+    "estilo" : "Default",
+    "original" : "The provisional government and GHQ have thus agreed to cease rescue operations",
+    "traduzido" : "O governo provisorio e a GHQ concordaram em cessar as operacoes de resgate",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 300,
+    "estilo" : "Default",
+    "original" : "and completely seal off the area for the next ten years.",
+    "traduzido" : "Selar completamente a área por dez anos.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 301,
+    "estilo" : "Default",
+    "original" : "Loop 7?",
+    "traduzido" : "Loop 7?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 302,
+    "estilo" : "Default",
+    "original" : "But we're inside Loop 7!",
+    "traduzido" : "Mas estamos dentro do Loop 7!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 303,
+    "estilo" : "Default",
+    "original" : "What?",
+    "traduzido" : "O que?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 304,
+    "estilo" : "Default",
+    "original" : "We will devote our utmost efforts to eradicating the Apocalypse Virus",
+    "traduzido" : "Nós nos esforçaremos ao máximo para erradicar o Apocalypse Virus",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 305,
+    "estilo" : "Default",
+    "original" : "and thereby dispel the concerns of the international community.",
+    "traduzido" : "E assim dissipar as preocupações da comunidade internacional.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 306,
+    "estilo" : "Default",
+    "original" : "As the newly inaugurated President of Japan's provisional government,",
+    "traduzido" : "Como o recem-empossado Presidente do governo provisorio do Japao",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 307,
+    "estilo" : "Default",
+    "original" : "I believe it is my duty to bring about rebirth via purification.",
+    "traduzido" : "Eu acredito ser meu dever trazer renascimento através da purificação.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 308,
+    "estilo" : "Default",
+    "original" : "What the hell is going on!?",
+    "traduzido" : "O que diabos está acontecendo?!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 309,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(200,150)}N{\\3c&HF49ED0&}o{\\3c&HF4A2CF&}w{\\3c&HF5A9CD&} {\\3c&HF5AECC&}t{\\3c&HF5B2CA&}h{\\3c&HF6B7C9&}a{\\3c&HF6BCC7&}t{\\3c&HF6C0C6&} {\\3c&HF6BFC6&}I{\\3c&HF6BCC7&} {\\3c&HF6B8C9&}a{\\3c&HF5B2CA&}m{\\3c&HF5ABCC&} {\\3c&HF5A7CE&}a{\\3c&HF4A2CF&}l{\\3c&HF4A0D0&}l{\\3c&HF49CD1&} {\\3c&HF497D2&}a{\\3c&HF49AD2&}l{\\3c&HF49DD0&}o{\\3c&HF4A2CF&}n{\\3c&HF5A7CE&}e{\\3c&HF5ACCC&} {\\3c&HF5AFCB&}i{\\3c&HF6B4CA&}n{\\3c&HF6B8C8&} {\\3c&HF6BDC7&}t{\\3c&HF6C1C6&}h{\\3c&HF6BEC7&}i{\\3c&HF6BAC8&}s{\\3c&HF6B5C9&} {\\3c&HF5AFCB&}w{\\3c&HF5AACD&}o{\\3c&HF4A3CF&}r{\\3c&HF4A0D0&}l{\\3c&HF49BD1&}d{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(200,150)}N{\\3c&HF49ED0&}o{\\3c&HF4A2CF&}w{\\3c&HF5A9CD&}{\\3c&HF5AECC&}t{\\3c&HF5B2CA&}h{\\3c&HF6B7C9&}a{\\3c&HF6BCC7&}t{\\3c&HF6C0C6&}{\\3c&HF6BFC6&}I{\\3c&HF6BCC7&}{\\3c&HF6B8C9&}a{\\3c&HF5B2CA&}m{\\3c&HF5ABCC&}{\\3c&HF5A7CE&}a{\\3c&HF4A2CF&}l{\\3c&HF4A0D0&}l{\\3c&HF49CD1&}{\\3c&HF497D2&}a{\\3c&HF49AD2&}l{\\3c&HF49DD0&}o{\\3c&HF4A2CF&}n{\\3c&HF5A7CE&}e{\\3c&HF5ACCC&}{\\3c&HF5AFCB&}i{\\3c&HF6B4CA&}n{\\3c&HF6B8C8&}{\\3c&HF6BDC7&}t{\\3c&HF6C1C6&}h{\\3c&HF6BEC7&}i{\\3c&HF6BAC8&}s{\\3c&HF6B5C9&}{\\3c&HF5AFCB&}w{\\3c&HF5AACD&}o{\\3c&HF4A3CF&}r{\\3c&HF4A0D0&}l{\\3c&HF49BD1&}d{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 310,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}w{\\3c&HF4A0D0&}h{\\3c&HF5A7CE&}a{\\3c&HF5ADCC&}t{\\3c&HF5B2CA&} {\\3c&HF6B8C8&}s{\\3c&HF6BEC7&}h{\\3c&HF6BEC6&}o{\\3c&HF6B8C8&}u{\\3c&HF5B2CA&}l{\\3c&HF5ADCC&}d{\\3c&HF5A6CE&} {\\3c&HF4A1CF&}I{\\3c&HF49DD0&} {\\3c&HF497D2&}f{\\3c&HF49DD1&}e{\\3c&HF4A3CF&}e{\\3c&HF5A8CD&}l{\\3c&HF5ADCC&} {\\3c&HF6B3CA&}a{\\3c&HF6BAC8&}n{\\3c&HF6C1C6&}d{\\3c&HF6BBC7&} {\\3c&HF6B6C9&}t{\\3c&HF5AFCB&}h{\\3c&HF5ABCC&}i{\\3c&HF4A4CE&}n{\\3c&HF49ED0&}k{\\3c&HF497D3&\\blur4.5\\fad(100,150)}?",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}w{\\3c&HF4A0D0&}h{\\3c&HF5A7CE&}a{\\3c&HF5ADCC&}t{\\3c&HF5B2CA&}{\\3c&HF6B8C8&}s{\\3c&HF6BEC7&}h{\\3c&HF6BEC6&}o{\\3c&HF6B8C8&}u{\\3c&HF5B2CA&}l{\\3c&HF5ADCC&}d{\\3c&HF5A6CE&}{\\3c&HF4A1CF&}I{\\3c&HF49DD0&}{\\3c&HF497D2&}f{\\3c&HF49DD1&}e{\\3c&HF4A3CF&}e{\\3c&HF5A8CD&}l{\\3c&HF5ADCC&}{\\3c&HF6B3CA&}a{\\3c&HF6BAC8&}n{\\3c&HF6C1C6&}d{\\3c&HF6BBC7&}{\\3c&HF6B6C9&}t{\\3c&HF5AFCB&}h{\\3c&HF5ABCC&}i{\\3c&HF4A4CE&}n{\\3c&HF49ED0&}k{\\3c&HF497D3&\\blur4.5\\fad(100,150)}?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 311,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF49DD1&}f{\\3c&HF4A1CF&}t{\\3c&HF5A5CE&}e{\\3c&HF5AACD&}r{\\3c&HF5B1CB&} {\\3c&HF6B5C9&}w{\\3c&HF6BCC7&}e{\\3c&HF6C0C6&} {\\3c&HF6BFC6&}s{\\3c&HF6BAC8&}p{\\3c&HF6B5C9&}e{\\3c&HF5B1CB&}n{\\3c&HF5ACCC&}d{\\3c&HF5A7CE&} {\\3c&HF4A2CF&}c{\\3c&HF49FD0&}o{\\3c&HF49AD1&}u{\\3c&HF498D2&}n{\\3c&HF49DD1&}t{\\3c&HF4A0D0&}l{\\3c&HF4A4CF&}e{\\3c&HF5A8CD&}s{\\3c&HF5ACCC&}s{\\3c&HF5B0CB&} {\\3c&HF6B5C9&}d{\\3c&HF6BAC8&}a{\\3c&HF6BFC6&}y{\\3c&HF6C0C6&}s{\\3c&HF6BCC7&} {\\3c&HF6B8C8&}t{\\3c&HF6B4CA&}o{\\3c&HF5B0CB&}g{\\3c&HF5ABCC&}e{\\3c&HF5A7CE&}t{\\3c&HF4A2CF&}h{\\3c&HF49DD0&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)}r",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF49DD1&}f{\\3c&HF4A1CF&}t{\\3c&HF5A5CE&}e{\\3c&HF5AACD&}r{\\3c&HF5B1CB&}{\\3c&HF6B5C9&}w{\\3c&HF6BCC7&}e{\\3c&HF6C0C6&}{\\3c&HF6BFC6&}s{\\3c&HF6BAC8&}p{\\3c&HF6B5C9&}e{\\3c&HF5B1CB&}n{\\3c&HF5ACCC&}d{\\3c&HF5A7CE&}{\\3c&HF4A2CF&}c{\\3c&HF49FD0&}o{\\3c&HF49AD1&}u{\\3c&HF498D2&}n{\\3c&HF49DD1&}t{\\3c&HF4A0D0&}l{\\3c&HF4A4CF&}e{\\3c&HF5A8CD&}s{\\3c&HF5ACCC&}s{\\3c&HF5B0CB&}{\\3c&HF6B5C9&}d{\\3c&HF6BAC8&}a{\\3c&HF6BFC6&}y{\\3c&HF6C0C6&}s{\\3c&HF6BCC7&}{\\3c&HF6B8C8&}t{\\3c&HF6B4CA&}o{\\3c&HF5B0CB&}g{\\3c&HF5ABCC&}e{\\3c&HF5A7CE&}t{\\3c&HF4A2CF&}h{\\3c&HF49DD0&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)}r",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 312,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a{\\3c&HF49ED0&}n{\\3c&HF5A6CE&}d{\\3c&HF5AECB&} {\\3c&HF6B5C9&}s{\\3c&HF6BCC7&}h{\\3c&HF6BFC6&}a{\\3c&HF6B7C9&}r{\\3c&HF5ADCC&}e{\\3c&HF5A5CE&}d{\\3c&HF49DD1&} {\\3c&HF497D2&}o{\\3c&HF49FD0&}u{\\3c&HF5A9CD&}r{\\3c&HF5B1CA&} {\\3c&HF6B9C8&}f{\\3c&HF6C0C6&}e{\\3c&HF6BCC7&}e{\\3c&HF6B7C9&}l{\\3c&HF5B2CA&}i{\\3c&HF5ABCC&}n{\\3c&HF4A3CF&}g{\\3c&HF49DD1&}s{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a{\\3c&HF49ED0&}n{\\3c&HF5A6CE&}d{\\3c&HF5AECB&}{\\3c&HF6B5C9&}s{\\3c&HF6BCC7&}h{\\3c&HF6BFC6&}a{\\3c&HF6B7C9&}r{\\3c&HF5ADCC&}e{\\3c&HF5A5CE&}d{\\3c&HF49DD1&}{\\3c&HF497D2&}o{\\3c&HF49FD0&}u{\\3c&HF5A9CD&}r{\\3c&HF5B1CA&}{\\3c&HF6B9C8&}f{\\3c&HF6C0C6&}e{\\3c&HF6BCC7&}e{\\3c&HF6B7C9&}l{\\3c&HF5B2CA&}i{\\3c&HF5ABCC&}n{\\3c&HF4A3CF&}g{\\3c&HF49DD1&}s{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 313,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}w{\\3c&HF49FD0&}e{\\3c&HF5A6CE&} {\\3c&HF5ACCC&}w{\\3c&HF6B4C9&}i{\\3c&HF6B8C8&}l{\\3c&HF6BCC7&}l{\\3c&HF6C0C6&} {\\3c&HF6BDC7&}n{\\3c&HF6B6C9&}e{\\3c&HF5B0CB&}v{\\3c&HF5AACC&}e{\\3c&HF4A3CF&}r{\\3c&HF49BD1&} {\\3c&HF499D2&}b{\\3c&HF49FD0&}e{\\3c&HF5A5CE&} {\\3c&HF5ABCC&}t{\\3c&HF5B3CA&}r{\\3c&HF6BBC8&}u{\\3c&HF6BFC6&}l{\\3c&HF6BEC6&}y{\\3c&HF6B8C8&} {\\3c&HF5B2CA&}a{\\3c&HF5ABCC&}p{\\3c&HF5A5CE&}a{\\3c&HF49CD1&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}w{\\3c&HF49FD0&}e{\\3c&HF5A6CE&}{\\3c&HF5ACCC&}w{\\3c&HF6B4C9&}i{\\3c&HF6B8C8&}l{\\3c&HF6BCC7&}l{\\3c&HF6C0C6&}{\\3c&HF6BDC7&}n{\\3c&HF6B6C9&}e{\\3c&HF5B0CB&}v{\\3c&HF5AACC&}e{\\3c&HF4A3CF&}r{\\3c&HF49BD1&}{\\3c&HF499D2&}b{\\3c&HF49FD0&}e{\\3c&HF5A5CE&}{\\3c&HF5ABCC&}t{\\3c&HF5B3CA&}r{\\3c&HF6BBC8&}u{\\3c&HF6BFC6&}l{\\3c&HF6BEC6&}y{\\3c&HF6B8C8&}{\\3c&HF5B2CA&}a{\\3c&HF5ABCC&}p{\\3c&HF5A5CE&}a{\\3c&HF49CD1&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 314,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF498D2&} {\\3c&HF49CD1&}t{\\3c&HF49FD0&}o{\\3c&HF4A3CF&}o{\\3c&HF5A6CE&}k{\\3c&HF5AACD&} {\\3c&HF5AECB&}y{\\3c&HF5B2CA&}o{\\3c&HF6B5C9&}u{\\3c&HF6BAC8&} {\\3c&HF6BEC7&}f{\\3c&HF6C1C6&}o{\\3c&HF6BDC7&}r{\\3c&HF6B8C8&} {\\3c&HF6B4C9&}g{\\3c&HF5B0CB&}r{\\3c&HF5AACC&}a{\\3c&HF5A6CE&}n{\\3c&HF4A2CF&}t{\\3c&HF49FD0&}e{\\3c&HF49BD1&}d{\\3c&HF497D2&},{\\3c&HF49AD1&} {\\3c&HF49ED0&}a{\\3c&HF4A2CF&}n{\\3c&HF5A7CE&}d{\\3c&HF5ABCC&} {\\3c&HF5AFCB&}n{\\3c&HF5B2CA&}o{\\3c&HF6B7C9&}w{\\3c&HF6BCC7&} {\\3c&HF6BFC6&}y{\\3c&HF6C0C6&}o{\\3c&HF6BCC7&}u{\\3c&HF6B8C8&} {\\3c&HF6B4CA&}a{\\3c&HF5AECB&}r{\\3c&HF5AACD&}e{\\3c&HF5A6CE&} {\\3c&HF4A2CF&}g{\\3c&HF49FD0&}o{\\3c&HF49BD1&}n{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF498D2&}{\\3c&HF49CD1&}t{\\3c&HF49FD0&}o{\\3c&HF4A3CF&}o{\\3c&HF5A6CE&}k{\\3c&HF5AACD&}{\\3c&HF5AECB&}y{\\3c&HF5B2CA&}o{\\3c&HF6B5C9&}u{\\3c&HF6BAC8&}{\\3c&HF6BEC7&}f{\\3c&HF6C1C6&}o{\\3c&HF6BDC7&}r{\\3c&HF6B8C8&}{\\3c&HF6B4C9&}g{\\3c&HF5B0CB&}r{\\3c&HF5AACC&}a{\\3c&HF5A6CE&}n{\\3c&HF4A2CF&}t{\\3c&HF49FD0&}e{\\3c&HF49BD1&}d{\\3c&HF497D2&},{\\3c&HF49AD1&}{\\3c&HF49ED0&}a{\\3c&HF4A2CF&}n{\\3c&HF5A7CE&}d{\\3c&HF5ABCC&}{\\3c&HF5AFCB&}n{\\3c&HF5B2CA&}o{\\3c&HF6B7C9&}w{\\3c&HF6BCC7&}{\\3c&HF6BFC6&}y{\\3c&HF6C0C6&}o{\\3c&HF6BCC7&}u{\\3c&HF6B8C8&}{\\3c&HF6B4CA&}a{\\3c&HF5AECB&}r{\\3c&HF5AACD&}e{\\3c&HF5A6CE&}{\\3c&HF4A2CF&}g{\\3c&HF49FD0&}o{\\3c&HF49BD1&}n{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 315,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}T{\\3c&HF49FD0&}h{\\3c&HF5A5CE&}a{\\3c&HF5ABCC&}t{\\3c&HF5AFCB&}'{\\3c&HF5B2CA&}s{\\3c&HF6B7C9&} {\\3c&HF6BCC7&}t{\\3c&HF6C1C6&}h{\\3c&HF6BCC7&}e{\\3c&HF6B6C9&} {\\3c&HF5B0CB&}p{\\3c&HF5AACC&}a{\\3c&HF5A6CE&}i{\\3c&HF4A1CF&}n{\\3c&HF49BD1&} {\\3c&HF497D2&}I{\\3c&HF498D2&}'{\\3c&HF49CD1&}v{\\3c&HF4A2CF&}e{\\3c&HF5A7CE&} {\\3c&HF5ACCC&}c{\\3c&HF5B0CB&}o{\\3c&HF6B8C8&}m{\\3c&HF6BEC6&}e{\\3c&HF6BFC6&} {\\3c&HF6BBC8&}t{\\3c&HF6B6C9&}o{\\3c&HF5B1CB&} {\\3c&HF5AACD&}b{\\3c&HF4A4CE&}e{\\3c&HF49FD0&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)}r",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 316,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}E{\\3c&HF49BD1&}v{\\3c&HF49ED0&}e{\\3c&HF4A2CF&}n{\\3c&HF5A5CE&} {\\3c&HF5A8CD&}i{\\3c&HF5ABCC&}f{\\3c&HF5AECB&} {\\3c&HF5B1CA&}I{\\3c&HF5B3CA&} {\\3c&HF6B6C9&}h{\\3c&HF6BAC8&}a{\\3c&HF6BEC7&}d{\\3c&HF6C1C6&} {\\3c&HF6BEC7&}h{\\3c&HF6BAC8&}e{\\3c&HF6B7C9&}l{\\3c&HF6B4C9&}d{\\3c&HF5B1CB&} {\\3c&HF5ADCC&}o{\\3c&HF5AACD&}n{\\3c&HF5A7CE&}t{\\3c&HF4A4CE&}o{\\3c&HF4A1CF&} {\\3c&HF49ED0&}y{\\3c&HF49BD1&}o{\\3c&HF497D2&}u{\\3c&HF49BD1&}r{\\3c&HF49FD0&} {\\3c&HF4A2CF&}h{\\3c&HF5A6CE&}a{\\3c&HF5AACD&}n{\\3c&HF5ADCC&}d{\\3c&HF5B1CA&} {\\3c&HF6B5C9&}w{\\3c&HF6BAC8&}h{\\3c&HF6BDC7&}e{\\3c&HF6C1C6&}n{\\3c&HF6BFC6&} {\\3c&HF6BCC7&}y{\\3c&HF6B9C8&}o{\\3c&HF6B5C9&}u{\\3c&HF5B1CA&} {\\3c&HF5AFCB&}l{\\3c&HF5ACCC&}e{\\3c&HF5A8CD&}f{\\3c&HF5A5CE&}t{\\3c&HF4A2CF&} {\\3c&HF49DD1&}m{\\3c&HF499D2&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 317,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a{\\3c&HF4A1CF&}n{\\3c&HF5ACCC&}d{\\3c&HF6B7C9&} {\\3c&HF6C1C6&}n{\\3c&HF6B8C8&}o{\\3c&HF5AFCB&}t{\\3c&HF5A6CE&} {\\3c&HF49ED0&}l{\\3c&HF497D2&}e{\\3c&HF4A0D0&}t{\\3c&HF5A9CD&} {\\3c&HF5B3CA&}y{\\3c&HF6BCC7&}o{\\3c&HF6BCC7&}u{\\3c&HF5B2CA&} {\\3c&HF5A8CD&}g{\\3c&HF49FD0&}o{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a{\\3c&HF4A1CF&}n{\\3c&HF5ACCC&}d{\\3c&HF6B7C9&}{\\3c&HF6C1C6&}n{\\3c&HF6B8C8&}o{\\3c&HF5AFCB&}t{\\3c&HF5A6CE&}{\\3c&HF49ED0&}l{\\3c&HF497D2&}e{\\3c&HF4A0D0&}t{\\3c&HF5A9CD&}{\\3c&HF5B3CA&}y{\\3c&HF6BCC7&}o{\\3c&HF6BCC7&}u{\\3c&HF5B2CA&}{\\3c&HF5A8CD&}g{\\3c&HF49FD0&}o{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 318,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF498D2&} {\\3c&HF49CD1&}w{\\3c&HF4A1CF&}o{\\3c&HF4A4CE&}u{\\3c&HF5A9CD&}l{\\3c&HF5ABCC&}d{\\3c&HF5B0CB&} {\\3c&HF6B3CA&}h{\\3c&HF6B8C9&}a{\\3c&HF6BBC7&}v{\\3c&HF6BFC6&}e{\\3c&HF6C0C6&} {\\3c&HF6BCC7&}d{\\3c&HF6B8C8&}o{\\3c&HF6B5C9&}n{\\3c&HF5B1CB&}e{\\3c&HF5ADCC&} {\\3c&HF5AACD&}i{\\3c&HF5A7CD&}t{\\3c&HF4A4CE&} {\\3c&HF4A0D0&}p{\\3c&HF49CD1&}u{\\3c&HF497D2&}r{\\3c&HF49BD1&}e{\\3c&HF49ED0&}l{\\3c&HF4A1CF&}y{\\3c&HF4A5CE&} {\\3c&HF5A8CD&}o{\\3c&HF5ACCC&}u{\\3c&HF5B0CB&}t{\\3c&HF6B3CA&} {\\3c&HF6B7C9&}o{\\3c&HF6BAC8&}f{\\3c&HF6BEC7&} {\\3c&HF6C1C6&}s{\\3c&HF6BEC7&}e{\\3c&HF6BBC7&}l{\\3c&HF6B8C8&}f{\\3c&HF6B4CA&}-{\\3c&HF5B1CA&}i{\\3c&HF5ADCC&}n{\\3c&HF5AACD&}t{\\3c&HF5A6CE&}e{\\3c&HF4A1CF&}r{\\3c&HF49DD1&}e{\\3c&HF49AD2&}s{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF498D2&}{\\3c&HF49CD1&}w{\\3c&HF4A1CF&}o{\\3c&HF4A4CE&}u{\\3c&HF5A9CD&}l{\\3c&HF5ABCC&}d{\\3c&HF5B0CB&}{\\3c&HF6B3CA&}h{\\3c&HF6B8C9&}a{\\3c&HF6BBC7&}v{\\3c&HF6BFC6&}e{\\3c&HF6C0C6&}{\\3c&HF6BCC7&}d{\\3c&HF6B8C8&}o{\\3c&HF6B5C9&}n{\\3c&HF5B1CB&}e{\\3c&HF5ADCC&}{\\3c&HF5AACD&}i{\\3c&HF5A7CD&}t{\\3c&HF4A4CE&}{\\3c&HF4A0D0&}p{\\3c&HF49CD1&}u{\\3c&HF497D2&}r{\\3c&HF49BD1&}e{\\3c&HF49ED0&}l{\\3c&HF4A1CF&}y{\\3c&HF4A5CE&}{\\3c&HF5A8CD&}o{\\3c&HF5ACCC&}u{\\3c&HF5B0CB&}t{\\3c&HF6B3CA&}{\\3c&HF6B7C9&}o{\\3c&HF6BAC8&}f{\\3c&HF6BEC7&}{\\3c&HF6C1C6&}s{\\3c&HF6BEC7&}e{\\3c&HF6BBC7&}l{\\3c&HF6B8C8&}f{\\3c&HF6B4CA&}-{\\3c&HF5B1CA&}i{\\3c&HF5ADCC&}n{\\3c&HF5AACD&}t{\\3c&HF5A6CE&}e{\\3c&HF4A1CF&}r{\\3c&HF49DD1&}e{\\3c&HF49AD2&}s{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 319,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF49AD2&}'{\\3c&HF49ED0&}m{\\3c&HF5A9CD&} {\\3c&HF5B1CB&}s{\\3c&HF6B8C8&}u{\\3c&HF6C0C6&}c{\\3c&HF6BCC7&}h{\\3c&HF6B4CA&} {\\3c&HF5ACCC&}a{\\3c&HF4A4CE&} {\\3c&HF49DD1&}h{\\3c&HF498D2&}o{\\3c&HF4A2CF&}r{\\3c&HF5ADCC&}r{\\3c&HF6B4CA&}i{\\3c&HF6BCC7&}b{\\3c&HF6C1C6&}l{\\3c&HF6BBC8&}e{\\3c&HF5B3CA&} {\\3c&HF5AECB&}l{\\3c&HF5A9CD&}i{\\3c&HF4A2CF&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)}r",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}I{\\3c&HF49AD2&}'{\\3c&HF49ED0&}m{\\3c&HF5A9CD&}{\\3c&HF5B1CB&}s{\\3c&HF6B8C8&}u{\\3c&HF6C0C6&}c{\\3c&HF6BCC7&}h{\\3c&HF6B4CA&}{\\3c&HF5ACCC&}a{\\3c&HF4A4CE&}{\\3c&HF49DD1&}h{\\3c&HF498D2&}o{\\3c&HF4A2CF&}r{\\3c&HF5ADCC&}r{\\3c&HF6B4CA&}i{\\3c&HF6BCC7&}b{\\3c&HF6C1C6&}l{\\3c&HF6BBC8&}e{\\3c&HF5B3CA&}{\\3c&HF5AECB&}l{\\3c&HF5A9CD&}i{\\3c&HF4A2CF&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)}r",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 320,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}W{\\3c&HF49DD1&}h{\\3c&HF4A1CF&}e{\\3c&HF5A5CE&}n{\\3c&HF5A9CD&} {\\3c&HF5ACCC&}I{\\3c&HF5AECB&} {\\3c&HF5B2CA&}w{\\3c&HF6B7C9&}h{\\3c&HF6BBC8&}i{\\3c&HF6BDC7&}s{\\3c&HF6C1C6&}p{\\3c&HF6BEC6&}e{\\3c&HF6BAC8&}r{\\3c&HF6B5C9&}e{\\3c&HF5B1CA&}d{\\3c&HF5ADCC&} {\\3c&HF5A9CD&}t{\\3c&HF5A6CE&}h{\\3c&HF4A2CF&}a{\\3c&HF49ED0&}t{\\3c&HF49BD1&} {\\3c&HF499D2&}I{\\3c&HF497D2&} {\\3c&HF49CD1&}w{\\3c&HF4A0D0&}a{\\3c&HF4A4CF&}s{\\3c&HF5A7CD&} {\\3c&HF5ABCC&}d{\\3c&HF5AFCB&}o{\\3c&HF5B1CA&}i{\\3c&HF6B5C9&}n{\\3c&HF6B9C8&}g{\\3c&HF6BCC7&} {\\3c&HF6BFC6&}i{\\3c&HF6C1C6&}t{\\3c&HF6BDC7&} {\\3c&HF6BAC8&}a{\\3c&HF6B7C9&}l{\\3c&HF6B5C9&}l{\\3c&HF5B2CA&} {\\3c&HF5AECB&}f{\\3c&HF5ABCC&}o{\\3c&HF5A5CE&}r{\\3c&HF4A2CF&} {\\3c&HF49ED0&}y{\\3c&HF49BD1&}o{\\3c&HF497D3&\\blur4.5\\fad(100,150)}u",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}W{\\3c&HF49DD1&}h{\\3c&HF4A1CF&}e{\\3c&HF5A5CE&}n{\\3c&HF5A9CD&}{\\3c&HF5ACCC&}I{\\3c&HF5AECB&}{\\3c&HF5B2CA&}w{\\3c&HF6B7C9&}h{\\3c&HF6BBC8&}i{\\3c&HF6BDC7&}s{\\3c&HF6C1C6&}p{\\3c&HF6BEC6&}e{\\3c&HF6BAC8&}r{\\3c&HF6B5C9&}e{\\3c&HF5B1CA&}d{\\3c&HF5ADCC&}{\\3c&HF5A9CD&}t{\\3c&HF5A6CE&}h{\\3c&HF4A2CF&}a{\\3c&HF49ED0&}t{\\3c&HF49BD1&}{\\3c&HF499D2&}I{\\3c&HF497D2&}{\\3c&HF49CD1&}w{\\3c&HF4A0D0&}a{\\3c&HF4A4CF&}s{\\3c&HF5A7CD&}{\\3c&HF5ABCC&}d{\\3c&HF5AFCB&}o{\\3c&HF5B1CA&}i{\\3c&HF6B5C9&}n{\\3c&HF6B9C8&}g{\\3c&HF6BCC7&}{\\3c&HF6BFC6&}i{\\3c&HF6C1C6&}t{\\3c&HF6BDC7&}{\\3c&HF6BAC8&}a{\\3c&HF6B7C9&}l{\\3c&HF6B5C9&}l{\\3c&HF5B2CA&}{\\3c&HF5AECB&}f{\\3c&HF5ABCC&}o{\\3c&HF5A5CE&}r{\\3c&HF4A2CF&}{\\3c&HF49ED0&}y{\\3c&HF49BD1&}o{\\3c&HF497D3&\\blur4.5\\fad(100,150)}u",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 321,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}y{\\3c&HF49BD1&}o{\\3c&HF4A0D0&}u{\\3c&HF5A6CE&} {\\3c&HF5ABCC&}h{\\3c&HF5B0CB&}a{\\3c&HF6B6C9&}d{\\3c&HF6BBC7&} {\\3c&HF6C0C6&}a{\\3c&HF6BEC7&}l{\\3c&HF6BAC8&}r{\\3c&HF5B3CA&}e{\\3c&HF5AECB&}a{\\3c&HF5A8CD&}d{\\3c&HF4A3CF&}y{\\3c&HF49ED0&} {\\3c&HF499D2&}s{\\3c&HF498D2&}t{\\3c&HF49CD1&}o{\\3c&HF4A1CF&}p{\\3c&HF5A7CE&}p{\\3c&HF5ACCC&}e{\\3c&HF5B2CA&}d{\\3c&HF6B7C9&} {\\3c&HF6BDC7&}b{\\3c&HF6C1C6&}e{\\3c&HF6BDC7&}l{\\3c&HF6BAC8&}i{\\3c&HF6B6C9&}e{\\3c&HF5B1CB&}v{\\3c&HF5ADCC&}i{\\3c&HF5A8CD&}n{\\3c&HF4A3CF&}g{\\3c&HF49ED0&} {\\3c&HF49BD1&}i{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}y{\\3c&HF49BD1&}o{\\3c&HF4A0D0&}u{\\3c&HF5A6CE&}{\\3c&HF5ABCC&}h{\\3c&HF5B0CB&}a{\\3c&HF6B6C9&}d{\\3c&HF6BBC7&}{\\3c&HF6C0C6&}a{\\3c&HF6BEC7&}l{\\3c&HF6BAC8&}r{\\3c&HF5B3CA&}e{\\3c&HF5AECB&}a{\\3c&HF5A8CD&}d{\\3c&HF4A3CF&}y{\\3c&HF49ED0&}{\\3c&HF499D2&}s{\\3c&HF498D2&}t{\\3c&HF49CD1&}o{\\3c&HF4A1CF&}p{\\3c&HF5A7CE&}p{\\3c&HF5ACCC&}e{\\3c&HF5B2CA&}d{\\3c&HF6B7C9&}{\\3c&HF6BDC7&}b{\\3c&HF6C1C6&}e{\\3c&HF6BDC7&}l{\\3c&HF6BAC8&}i{\\3c&HF6B6C9&}e{\\3c&HF5B1CB&}v{\\3c&HF5ADCC&}i{\\3c&HF5A8CD&}n{\\3c&HF4A3CF&}g{\\3c&HF49ED0&}{\\3c&HF49BD1&}i{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 322,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}N{\\3c&HF49ED0&}o{\\3c&HF4A3CF&}w{\\3c&HF5AACD&} {\\3c&HF5AECB&}I{\\3c&HF5B0CB&} {\\3c&HF6B5C9&}r{\\3c&HF6BDC7&}u{\\3c&HF6C1C6&}n{\\3c&HF6BBC7&} {\\3c&HF6B7C9&}t{\\3c&HF5B3CA&}o{\\3c&HF5AECB&} {\\3c&HF5AACD&}y{\\3c&HF5A5CE&}o{\\3c&HF4A0D0&}u{\\3c&HF49BD1&} {\\3c&HF497D2&}t{\\3c&HF49BD1&}o{\\3c&HF4A0D0&} {\\3c&HF5A6CE&}m{\\3c&HF5ACCC&}a{\\3c&HF5B1CA&}k{\\3c&HF6B7C9&}e{\\3c&HF6BBC7&} {\\3c&HF6C1C6&}u{\\3c&HF6BCC7&}p{\\3c&HF6B7C9&} {\\3c&HF5B2CA&}f{\\3c&HF5AECB&}o{\\3c&HF5A7CE&}r{\\3c&HF4A2CF&} {\\3c&HF49FD0&}i{\\3c&HF49BD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}N{\\3c&HF49ED0&}o{\\3c&HF4A3CF&}w{\\3c&HF5AACD&}{\\3c&HF5AECB&}I{\\3c&HF5B0CB&}{\\3c&HF6B5C9&}r{\\3c&HF6BDC7&}u{\\3c&HF6C1C6&}n{\\3c&HF6BBC7&}{\\3c&HF6B7C9&}t{\\3c&HF5B3CA&}o{\\3c&HF5AECB&}{\\3c&HF5AACD&}y{\\3c&HF5A5CE&}o{\\3c&HF4A0D0&}u{\\3c&HF49BD1&}{\\3c&HF497D2&}t{\\3c&HF49BD1&}o{\\3c&HF4A0D0&}{\\3c&HF5A6CE&}m{\\3c&HF5ACCC&}a{\\3c&HF5B1CA&}k{\\3c&HF6B7C9&}e{\\3c&HF6BBC7&}{\\3c&HF6C1C6&}u{\\3c&HF6BCC7&}p{\\3c&HF6B7C9&}{\\3c&HF5B2CA&}f{\\3c&HF5AECB&}o{\\3c&HF5A7CE&}r{\\3c&HF4A2CF&}{\\3c&HF49FD0&}i{\\3c&HF49BD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 323,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}n{\\3c&HF49BD1&}o{\\3c&HF49FD0&} {\\3c&HF4A3CF&}m{\\3c&HF5A9CD&}a{\\3c&HF5AECB&}t{\\3c&HF5B1CA&}t{\\3c&HF6B5C9&}e{\\3c&HF6BAC8&}r{\\3c&HF6C0C6&} {\\3c&HF6BFC6&}h{\\3c&HF6BBC8&}o{\\3c&HF6B6C9&}w{\\3c&HF5B1CB&} {\\3c&HF5ADCC&}o{\\3c&HF5A9CD&}f{\\3c&HF4A5CE&}t{\\3c&HF4A1CF&}e{\\3c&HF49CD1&}n{\\3c&HF498D2&} {\\3c&HF498D2&}I{\\3c&HF49BD1&} {\\3c&HF4A1CF&}m{\\3c&HF5A6CE&}a{\\3c&HF5AACD&}y{\\3c&HF5AECB&} {\\3c&HF5B3CA&}f{\\3c&HF6B7C9&}a{\\3c&HF6BAC8&}l{\\3c&HF6BDC7&}l{\\3c&HF6C0C6&} {\\3c&HF6BFC6&}o{\\3c&HF6B9C8&}r{\\3c&HF6B5C9&} {\\3c&HF5B0CB&}g{\\3c&HF5ACCC&}e{\\3c&HF5A8CD&}t{\\3c&HF4A4CE&} {\\3c&HF4A1CF&}l{\\3c&HF49ED0&}o{\\3c&HF49AD1&}s{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 324,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}W{\\3c&HF49FD0&}a{\\3c&HF4A4CE&}i{\\3c&HF5A7CD&}t{\\3c&HF5ACCC&} {\\3c&HF5B0CB&}f{\\3c&HF6B5C9&}o{\\3c&HF6BAC8&}r{\\3c&HF6C1C6&} {\\3c&HF6BDC7&}m{\\3c&HF6B6C9&}e{\\3c&HF5B1CA&},{\\3c&HF5ADCC&} {\\3c&HF5A9CD&}I{\\3c&HF5A7CD&}'{\\3c&HF4A3CF&}m{\\3c&HF49CD1&} {\\3c&HF498D2&}c{\\3c&HF499D2&}o{\\3c&HF49FD0&}m{\\3c&HF4A4CE&}i{\\3c&HF5A8CD&}n{\\3c&HF5AECB&}g{\\3c&HF5B3CA&} {\\3c&HF6B7C9&}t{\\3c&HF6BBC7&}o{\\3c&HF6C0C6&} {\\3c&HF6BDC7&}m{\\3c&HF6B7C9&}e{\\3c&HF5B2CA&}e{\\3c&HF5AECB&}t{\\3c&HF5A9CD&} {\\3c&HF4A5CE&}y{\\3c&HF4A0CF&}o{\\3c&HF49BD1&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}W{\\3c&HF49FD0&}a{\\3c&HF4A4CE&}i{\\3c&HF5A7CD&}t{\\3c&HF5ACCC&}{\\3c&HF5B0CB&}f{\\3c&HF6B5C9&}o{\\3c&HF6BAC8&}r{\\3c&HF6C1C6&}{\\3c&HF6BDC7&}m{\\3c&HF6B6C9&}e{\\3c&HF5B1CA&},{\\3c&HF5ADCC&}{\\3c&HF5A9CD&}I{\\3c&HF5A7CD&}'{\\3c&HF4A3CF&}m{\\3c&HF49CD1&}{\\3c&HF498D2&}c{\\3c&HF499D2&}o{\\3c&HF49FD0&}m{\\3c&HF4A4CE&}i{\\3c&HF5A8CD&}n{\\3c&HF5AECB&}g{\\3c&HF5B3CA&}{\\3c&HF6B7C9&}t{\\3c&HF6BBC7&}o{\\3c&HF6C0C6&}{\\3c&HF6BDC7&}m{\\3c&HF6B7C9&}e{\\3c&HF5B2CA&}e{\\3c&HF5AECB&}t{\\3c&HF5A9CD&}{\\3c&HF4A5CE&}y{\\3c&HF4A0CF&}o{\\3c&HF49BD1&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 325,
+    "estilo" : "ED_S2",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}n{\\3c&HF49BD1&}o{\\3c&HF49FD0&} {\\3c&HF4A4CF&}m{\\3c&HF5AACD&}a{\\3c&HF5AFCB&}t{\\3c&HF5B3CA&}t{\\3c&HF6B7C9&}e{\\3c&HF6BBC7&}r{\\3c&HF6C1C6&} {\\3c&HF6BDC7&}w{\\3c&HF6B6C9&}h{\\3c&HF5B2CA&}a{\\3c&HF5ADCC&}t{\\3c&HF5A9CD&} {\\3c&HF4A5CE&}h{\\3c&HF4A0D0&}a{\\3c&HF49AD1&}r{\\3c&HF499D2&}d{\\3c&HF49ED0&}s{\\3c&HF4A2CF&}h{\\3c&HF5A6CE&}i{\\3c&HF5AACD&}p{\\3c&HF5AECB&}s{\\3c&HF5B2CA&} {\\3c&HF6B8C8&}m{\\3c&HF6BEC7&}a{\\3c&HF6C1C6&}y{\\3c&HF6BDC7&} {\\3c&HF6B8C8&}a{\\3c&HF5B2CA&}w{\\3c&HF5ADCC&}a{\\3c&HF5AACD&}i{\\3c&HF5A6CE&}t{\\3c&HF4A2CF&} {\\3c&HF49BD1&}m{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}n{\\3c&HF49BD1&}o{\\3c&HF49FD0&}{\\3c&HF4A4CF&}m{\\3c&HF5AACD&}a{\\3c&HF5AFCB&}t{\\3c&HF5B3CA&}t{\\3c&HF6B7C9&}e{\\3c&HF6BBC7&}r{\\3c&HF6C1C6&}{\\3c&HF6BDC7&}w{\\3c&HF6B6C9&}h{\\3c&HF5B2CA&}a{\\3c&HF5ADCC&}t{\\3c&HF5A9CD&}{\\3c&HF4A5CE&}h{\\3c&HF4A0D0&}a{\\3c&HF49AD1&}r{\\3c&HF499D2&}d{\\3c&HF49ED0&}s{\\3c&HF4A2CF&}h{\\3c&HF5A6CE&}i{\\3c&HF5AACD&}p{\\3c&HF5AECB&}s{\\3c&HF5B2CA&}{\\3c&HF6B8C8&}m{\\3c&HF6BEC7&}a{\\3c&HF6C1C6&}y{\\3c&HF6BDC7&}{\\3c&HF6B8C8&}a{\\3c&HF5B2CA&}w{\\3c&HF5ADCC&}a{\\3c&HF5AACD&}i{\\3c&HF5A6CE&}t{\\3c&HF4A2CF&}{\\3c&HF49BD1&}m{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 326,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(200,150)}S{\\3c&HF49ED0&}o{\\3c&HF4A2CF&}n{\\3c&HF5A9CD&}n{\\3c&HF5AECC&}a{\\3c&HF5B2CA&} {\\3c&HF6BCC7&}s{\\3c&HF6C0C6&}e{\\3c&HF6BFC6&}k{\\3c&HF6BCC7&}a{\\3c&HF6B8C9&}i{\\3c&HF5B2CA&} {\\3c&HF5A7CE&}n{\\3c&HF4A2CF&}i{\\3c&HF4A0D0&} {\\3c&HF497D2&}n{\\3c&HF49AD2&}o{\\3c&HF49DD0&}k{\\3c&HF4A2CF&}o{\\3c&HF5A7CE&}s{\\3c&HF5ACCC&}a{\\3c&HF5AFCB&}r{\\3c&HF6B4CA&}e{\\3c&HF6B8C8&}t{\\3c&HF6BDC7&}a{\\3c&HF6C1C6&} {\\3c&HF6BAC8&}b{\\3c&HF6B5C9&}o{\\3c&HF5AFCB&}k{\\3c&HF5AACD&}u{\\3c&HF4A3CF&} {\\3c&HF4A0D0&}w{\\3c&HF49BD1&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(200,150)}S{\\3c&HF49ED0&}on{\\3c&HF4A2CF&}ho{\\3c&HF5A9CD&}na{\\3c&HF5AECC&}a{\\3c&HF5B2CA&} {\\3c&HF6BCC7&}s{\\3c&HF6C0C6&}e{\\3c&HF6BFC6&}k{\\3c&HF6BCC7&}ai{\\3c&HF6B8C9&}i{\\3c&HF5B2CA&} {\\3c&HF5A7CE&}n{\\3c&HF4A2CF&}o{\\3c&HF4A0D0&} {\\3c&HF497D2&}n{\\3c&HF49AD2&}o{\\3c&HF49DD0&}k{\\3c&HF4A2CF&}o{\\3c&HF5A7CE&}s{\\3c&HF5ACCC&}a{\\3c&HF5AFCB&}r{\\3c&HF6B4CA&}e{\\3c&HF6B8C8&}t{\\3c&HF6BDC7&}a{\\3c&HF6C1C6&} {\\3c&HF6BAC8&}b{\\3c&HF6B5C9&}o{\\3c&HF5AFCB&}k{\\3c&HF5AACD&}u{\\3c&HF4A3CF&} {\\3c&HF4A0D0&}w{\\3c&HF49BD1&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 327,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}H{\\3c&HF4A0D0&}i{\\3c&HF5A7CE&}t{\\3c&HF5ADCC&}o{\\3c&HF5B2CA&}r{\\3c&HF6B8C8&}i{\\3c&HF6BEC7&} {\\3c&HF6B8C8&}n{\\3c&HF5B2CA&}a{\\3c&HF5ADCC&}n{\\3c&HF5A6CE&}i{\\3c&HF4A1CF&} {\\3c&HF497D2&}w{\\3c&HF49DD1&}o{\\3c&HF4A3CF&} {\\3c&HF5ADCC&}o{\\3c&HF6B3CA&}m{\\3c&HF6BAC8&}o{\\3c&HF6C1C6&}e{\\3c&HF6BBC7&}b{\\3c&HF6B6C9&}a{\\3c&HF5AFCB&} {\\3c&HF5ABCC&}i{\\3c&HF4A4CE&}i{\\3c&HF497D3&\\blur4.5\\fad(100,150)}?",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}H{\\3c&HF4A0D0&}i{\\3c&HF5A7CE&}t{\\3c&HF5ADCC&}or{\\3c&HF5B2CA&}i{\\3c&HF6B8C8&}a{\\3c&HF6BEC7&}n{\\3c&HF6B8C8&}n{\\3c&HF5B2CA&}a{\\3c&HF5ADCC&}n{\\3c&HF5A6CE&}i{\\3c&HF4A1CF&} {\\3c&HF497D2&}w{\\3c&HF49DD1&}o{\\3c&HF4A3CF&} {\\3c&HF5ADCC&}o{\\3c&HF6B3CA&}m{\\3c&HF6BAC8&}o{\\3c&HF6C1C6&}e{\\3c&HF6BBC7&}b{\\3c&HF6B6C9&}a{\\3c&HF5AFCB&} {\\3c&HF5ABCC&}i{\\3c&HF4A4CE&}i{\\3c&HF497D3&\\blur4.5\\fad(100,150)}?",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 328,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}T{\\3c&HF4A1CF&}o{\\3c&HF5AACD&}k{\\3c&HF6B5C9&}i{\\3c&HF6BAC8&} {\\3c&HF5A7CE&}w{\\3c&HF49FD0&}o{\\3c&HF4A0D0&} {\\3c&HF5B0CB&}k{\\3c&HF6BAC8&}a{\\3c&HF6B8C8&}s{\\3c&HF5B0CB&}a{\\3c&HF5A7CE&}n{\\3c&HF49DD0&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}T{\\3c&HF4A1CF&}o{\\3c&HF5AACD&}k{\\3c&HF6B5C9&}i{\\3c&HF6BAC8&}{\\3c&HF5A7CE&}w{\\3c&HF49FD0&}o{\\3c&HF4A0D0&}{\\3c&HF5B0CB&}k{\\3c&HF6BAC8&}a{\\3c&HF6B8C8&}s{\\3c&HF5B0CB&}a{\\3c&HF5A7CE&}n{\\3c&HF49DD0&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 329,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}o{\\3c&HF49ED0&}m{\\3c&HF5A6CE&}o{\\3c&HF5AECB&}i{\\3c&HF6BFC6&} {\\3c&HF5ADCC&}w{\\3c&HF5A5CE&}o{\\3c&HF49FD0&} {\\3c&HF5B1CA&}k{\\3c&HF6B9C8&}a{\\3c&HF6B7C9&}s{\\3c&HF5B2CA&}a{\\3c&HF5ABCC&}n{\\3c&HF4A3CF&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}o{\\3c&HF49ED0&}m{\\3c&HF5A6CE&}o{\\3c&HF5AECB&}i{\\3c&HF6BFC6&}{\\3c&HF5ADCC&}w{\\3c&HF5A5CE&}o{\\3c&HF49FD0&}{\\3c&HF5B1CA&}k{\\3c&HF6B9C8&}a{\\3c&HF6B7C9&}s{\\3c&HF5B2CA&}a{\\3c&HF5ABCC&}n{\\3c&HF4A3CF&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 330,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49FD0&}o{\\3c&HF5A6CE&}u{\\3c&HF5ACCC&} {\\3c&HF6B4C9&}y{\\3c&HF6B8C8&}a{\\3c&HF6BCC7&}t{\\3c&HF6C0C6&}t{\\3c&HF6BDC7&}e {\\3c&HF6B6C9&}z{\\3c&HF5B0CB&}u{\\3c&HF5AACC&}t{\\3c&HF4A3CF&}t{\\3c&HF49BD1&}o{\\3c&HF499D2&} {\\3c&HF49FD0&}c{\\3c&HF5A5CE&}h{\\3c&HF5ABCC&}i{\\3c&HF5B3CA&}k{\\3c&HF6BBC8&}a{\\3c&HF6BFC6&}k{\\3c&HF6BEC6&}u {\\3c&HF6B8C8&}n{\\3c&HF5B2CA&}i{\\3c&HF5ABCC&} {\\3c&HF5A5CE&}i{\\3c&HF49CD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49FD0&}o{\\3c&HF5A6CE&}u{\\3c&HF5ACCC&}{\\3c&HF6B4C9&}y{\\3c&HF6B8C8&}a{\\3c&HF6BCC7&}t{\\3c&HF6C0C6&}t{\\3c&HF6BDC7&}e{\\3c&HF6B6C9&}z{\\3c&HF5B0CB&}u{\\3c&HF5AACC&}t{\\3c&HF4A3CF&}t{\\3c&HF49BD1&}o{\\3c&HF499D2&}{\\3c&HF49FD0&}c{\\3c&HF5A5CE&}h{\\3c&HF5ABCC&}i{\\3c&HF5B3CA&}k{\\3c&HF6BBC8&}a{\\3c&HF6BFC6&}k{\\3c&HF6BEC6&}u{\\3c&HF6B8C8&}n{\\3c&HF5B2CA&}i{\\3c&HF5ABCC&}{\\3c&HF5A5CE&}i{\\3c&HF49CD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 331,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF498D2&}t{\\3c&HF49CD1&}a{\\3c&HF49FD0&}r{\\3c&HF5A6CE&}i{\\3c&HF5AACD&}m{\\3c&HF5AECB&}a{\\3c&HF6B5C9&}e{\\3c&HF6BAC8&} {\\3c&HF6BEC7&}d{\\3c&HF6BDC7&}a{\\3c&HF6B8C8&}t{\\3c&HF6B4C9&}t{\\3c&HF5AACC&}a{\\3c&HF5A6CE&} {\\3c&HF4A2CF&}k{\\3c&HF49BD1&}i{\\3c&HF497D2&}m{\\3c&HF49AD1&}i{\\3c&HF4A2CF&} {\\3c&HF5A7CE&}g{\\3c&HF5ABCC&}a{\\3c&HF5B2CA&} {\\3c&HF6B7C9&}i{\\3c&HF6BCC7&}n{\\3c&HF6C0C6&}a{\\3c&HF6BCC7&}k{\\3c&HF6B8C8&}u{\\3c&HF5AECB&} {\\3c&HF5AACD&}n{\\3c&HF5A6CE&}a{\\3c&HF49FD0&}t{\\3c&HF49BD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF498D2&}t{\\3c&HF49CD1&}a{\\3c&HF49FD0&}r{\\3c&HF5A6CE&}i{\\3c&HF5AACD&}m{\\3c&HF5AECB&}a{\\3c&HF6B5C9&}e{\\3c&HF6BAC8&}{\\3c&HF6BEC7&}d{\\3c&HF6BDC7&}a{\\3c&HF6B8C8&}t{\\3c&HF6B4C9&}t{\\3c&HF5AACC&}a{\\3c&HF5A6CE&}{\\3c&HF4A2CF&}k{\\3c&HF49BD1&}i{\\3c&HF497D2&}m{\\3c&HF49AD1&}i{\\3c&HF4A2CF&}{\\3c&HF5A7CE&}g{\\3c&HF5ABCC&}a{\\3c&HF5B2CA&}{\\3c&HF6B7C9&}i{\\3c&HF6BCC7&}n{\\3c&HF6C0C6&}a{\\3c&HF6BCC7&}k{\\3c&HF6B8C8&}u{\\3c&HF5AECB&}{\\3c&HF5AACD&}n{\\3c&HF5A6CE&}a{\\3c&HF49FD0&}t{\\3c&HF49BD1&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 332,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49FD0&}o{\\3c&HF5A5CE&}n{\\3c&HF5AFCB&}o{\\3c&HF5B2CA&} {\\3c&HF6BCC7&}o{\\3c&HF6C1C6&}m{\\3c&HF6B6C9&}o{\\3c&HF5B0CB&}s{\\3c&HF5A6CE&}a{\\3c&HF4A1CF&} {\\3c&HF497D2&}w{\\3c&HF4A2CF&}o{\\3c&HF5A7CE&} {\\3c&HF5B0CB&}s{\\3c&HF6B8C8&}h{\\3c&HF6BFC6&}i{\\3c&HF6BBC8&}t{\\3c&HF5B1CB&}t{\\3c&HF5AACD&}a{\\3c&HF4A4CE&}n{\\3c&HF49FD0&}d{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49FD0&}o{\\3c&HF5A5CE&}n{\\3c&HF5AFCB&}o{\\3c&HF5B2CA&}{\\3c&HF6BCC7&}o{\\3c&HF6C1C6&}m{\\3c&HF6B6C9&}o{\\3c&HF5B0CB&}s{\\3c&HF5A6CE&}a{\\3c&HF4A1CF&}{\\3c&HF497D2&}w{\\3c&HF4A2CF&}o{\\3c&HF5A7CE&}{\\3c&HF5B0CB&}s{\\3c&HF6B8C8&}h{\\3c&HF6BFC6&}i{\\3c&HF6BBC8&}t{\\3c&HF5B1CB&}t{\\3c&HF5AACD&}a{\\3c&HF4A4CE&}n{\\3c&HF49FD0&}d{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 333,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF49BD1&}n{\\3c&HF4A2CF&}o{\\3c&HF5A8CD&} {\\3c&HF5AECB&}h{\\3c&HF5B3CA&}i{\\3c&HF6BAC8&} {\\3c&HF6C1C6&}s{\\3c&HF6BAC8&}o{\\3c&HF6B4C9&}n{\\3c&HF5ADCC&}o{\\3c&HF5A7CE&} {\\3c&HF4A1CF&}t{\\3c&HF49BD1&}e{\\3c&HF49BD1&} {\\3c&HF4A2CF&}w{\\3c&HF5AACD&}o{\\3c&HF5B1CA&} {\\3c&HF6BAC8&}h{\\3c&HF6C1C6&}a{\\3c&HF6BCC7&}n{\\3c&HF6B5C9&}a{\\3c&HF5AFCB&}s{\\3c&HF5A8CD&}a{\\3c&HF4A2CF&}z{\\3c&HF499D2&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}A{\\3c&HF49BD1&}n{\\3c&HF4A2CF&}o{\\3c&HF5A8CD&}{\\3c&HF5AECB&}h{\\3c&HF5B3CA&}i{\\3c&HF6BAC8&}{\\3c&HF6C1C6&}s{\\3c&HF6BAC8&}o{\\3c&HF6B4C9&}n{\\3c&HF5ADCC&}o{\\3c&HF5A7CE&}{\\3c&HF4A1CF&}t{\\3c&HF49BD1&}e{\\3c&HF49BD1&}{\\3c&HF4A2CF&}w{\\3c&HF5AACD&}o{\\3c&HF5B1CA&}{\\3c&HF6BAC8&}h{\\3c&HF6C1C6&}a{\\3c&HF6BCC7&}n{\\3c&HF6B5C9&}a{\\3c&HF5AFCB&}s{\\3c&HF5A8CD&}a{\\3c&HF4A2CF&}z{\\3c&HF499D2&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 334,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t{\\3c&HF4A1CF&}s{\\3c&HF5ACCC&}uy{\\3c&HF6B7C9&}o{\\3c&HF6C1C6&}k{\\3c&HF6B8C8&}u {\\3c&HF5AFCB&}t{\\3c&HF5A6CE&}s{\\3c&HF49ED0&}uk{\\3c&HF497D2&}a{\\3c&HF4A0D0&}m{\\3c&HF5A9CD&}ae{\\3c&HF5B3CA&}t{\\3c&HF6BCC7&}e{\\3c&HF6BCC7&}ta{\\3c&HF5B2CA&} {\\3c&HF5A8CD&}na{\\3c&HF49FD0&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a,",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}t{\\3c&HF4A1CF&}u{\\3c&HF5ACCC&}s{\\3c&HF6B7C9&}o{\\3c&HF6C1C6&}k{\\3c&HF6B8C8&}u {\\3c&HF5AFCB&}t{\\3c&HF5A6CE&}s{\\3c&HF49ED0&}uk{\\3c&HF497D2&}a{\\3c&HF4A0D0&}m{\\3c&HF5A9CD&}ae{\\3c&HF5B3CA&}t{\\3c&HF6BCC7&}e{\\3c&HF6BCC7&}ta{\\3c&HF5B2CA&} {\\3c&HF5A8CD&}na{\\3c&HF49FD0&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}a",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 335,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}B{\\3c&HF498D2&}o{\\3c&HF49CD1&}k{\\3c&HF4A1CF&}u{\\3c&HF4A4CE&} {\\3c&HF5A9CD&}wa{\\3c&HF5ABCC&} {\\3c&HF5B0CB&}k{\\3c&HF6B3CA&}e{\\3c&HF6B8C9&}k{\\3c&HF6BBC7&}ky{\\3c&HF6BFC6&}o{\\3c&HF6C0C6&}k{\\3c&HF6BCC7&}u{\\3c&HF6B8C8&} {\\3c&HF6B5C9&}hi{\\3c&HF5B1CB&}t{\\3c&HF5ADCC&}o{\\3c&HF5AACD&}r{\\3c&HF5A7CD&}i{\\3c&HF4A4CE&} d{\\3c&HF4A0D0&}e{\\3c&HF49CD1&} {\\3c&HF497D2&}j{\\3c&HF49BD1&}i{\\3c&HF49ED0&}ko{\\3c&HF4A1CF&}u{\\3c&HF4A5CE&} {\\3c&HF5A8CD&}m{\\3c&HF5ACCC&}a{\\3c&HF5B0CB&}nz{\\3c&HF6B3CA&}o{\\3c&HF6B7C9&}k{\\3c&HF6BAC8&}u{\\3c&HF6BEC7&} {\\3c&HF6C1C6&}sh{\\3c&HF6BEC7&}i{\\3c&HF6BBC7&}t{\\3c&HF6B8C8&}e{\\3c&HF6B4CA&}i{\\3c&HF5B1CA&}ta{\\3c&HF5ADCC&} {\\3c&HF5AACD&}d{\\3c&HF5A6CE&}a{\\3c&HF4A1CF&}k{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}B{\\3c&HF498D2&}o{\\3c&HF49CD1&}k{\\3c&HF4A1CF&}u{\\3c&HF4A4CE&}{\\3c&HF5A9CD&}wa{\\3c&HF5ABCC&}{\\3c&HF5B0CB&}k{\\3c&HF6B3CA&}e{\\3c&HF6B8C9&}k{\\3c&HF6BBC7&}ky{\\3c&HF6BFC6&}o{\\3c&HF6C0C6&}k{\\3c&HF6BCC7&}u{\\3c&HF6B8C8&}{\\3c&HF6B5C9&}hi{\\3c&HF5B1CB&}t{\\3c&HF5ADCC&}o{\\3c&HF5AACD&}r{\\3c&HF5A7CD&}i{\\3c&HF4A4CE&}d{\\3c&HF4A0D0&}e{\\3c&HF49CD1&}{\\3c&HF497D2&}j{\\3c&HF49BD1&}i{\\3c&HF49ED0&}ko{\\3c&HF4A1CF&}u{\\3c&HF4A5CE&}{\\3c&HF5A8CD&}m{\\3c&HF5ACCC&}a{\\3c&HF5B0CB&}nz{\\3c&HF6B3CA&}o{\\3c&HF6B7C9&}k{\\3c&HF6BAC8&}u{\\3c&HF6BEC7&}{\\3c&HF6C1C6&}sh{\\3c&HF6BEC7&}i{\\3c&HF6BBC7&}t{\\3c&HF6B8C8&}e{\\3c&HF6B4CA&}i{\\3c&HF5B1CA&}ta{\\3c&HF5ADCC&}{\\3c&HF5AACD&}d{\\3c&HF5A6CE&}a{\\3c&HF4A1CF&}k{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 336,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}M{\\3c&HF49AD2&}a{\\3c&HF49ED0&}r{\\3c&HF5A9CD&}u{\\3c&HF5B1CB&} d{\\3c&HF6B8C8&}e{\\3c&HF6C0C6&} {\\3c&HF6BCC7&}k{\\3c&HF6B4CA&}o{\\3c&HF5ACCC&}r{\\3c&HF4A4CE&}e{\\3c&HF49DD1&} {\\3c&HF498D2&}j{\\3c&HF4A2CF&}a{\\3c&HF5ADCC&} {\\3c&HF6B4CA&}u{\\3c&HF6BCC7&}so{\\3c&HF6C1C6&}t{\\3c&HF6BBC8&}s{\\3c&HF5B3CA&}u{\\3c&HF5AECB&}k{\\3c&HF5A9CD&}i{\\3c&HF4A2CF&} {\\3c&HF497D3&\\blur4.5\\fad(100,150)}da",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}M{\\3c&HF49AD2&}a{\\3c&HF49ED0&}r{\\3c&HF5A9CD&}u{\\3c&HF5B1CB&}d{\\3c&HF6B8C8&}e{\\3c&HF6C0C6&}{\\3c&HF6BCC7&}k{\\3c&HF6B4CA&}o{\\3c&HF5ACCC&}r{\\3c&HF4A4CE&}e{\\3c&HF49DD1&}{\\3c&HF498D2&}j{\\3c&HF4A2CF&}a{\\3c&HF5ADCC&}{\\3c&HF6B4CA&}u{\\3c&HF6BCC7&}então{\\3c&HF6C1C6&}t{\\3c&HF6BBC8&}s{\\3c&HF5B3CA&}u{\\3c&HF5AECB&}k{\\3c&HF5A9CD&}i{\\3c&HF4A2CF&}{\\3c&HF497D3&\\blur4.5\\fad(100,150)}da",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 337,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}k{\\3c&HF49DD1&}i{\\3c&HF5A5CE&}m{\\3c&HF5ACCC&}i{\\3c&HF5B2CA&} {\\3c&HF6BBC8&}n{\\3c&HF6C1C6&}o{\\3c&HF6BAC8&} {\\3c&HF5B1CA&}t{\\3c&HF5A9CD&}a{\\3c&HF5A6CE&}m{\\3c&HF49ED0&}e{\\3c&HF499D2&} {\\3c&HF49CD1&}t{\\3c&HF4A4CF&}o{\\3c&HF5ABCC&}k{\\3c&HF5B1CA&}a{\\3c&HF6B9C8&} {\\3c&HF6BFC6&}i{\\3c&HF6C1C6&}c{\\3c&HF6BAC8&}c{\\3c&HF6B5C9&}h{\\3c&HF5AECB&}a{\\3c&HF5A5CE&}t{\\3c&HF49ED0&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}C{\\3c&HF49DD1&}o{\\3c&HF5A5CE&}m{\\3c&HF5ACCC&}o{\\3c&HF5B2CA&} {\\3c&HF6BBC8&}n{\\3c&HF6C1C6&}o{\\3c&HF6BAC8&} {\\3c&HF5B1CA&}t{\\3c&HF5A9CD&}a{\\3c&HF5A6CE&}m{\\3c&HF49ED0&}e{\\3c&HF499D2&} {\\3c&HF49CD1&}t{\\3c&HF4A4CF&}o{\\3c&HF5ABCC&}k{\\3c&HF5B1CA&}a{\\3c&HF6B9C8&} {\\3c&HF6BFC6&}i{\\3c&HF6C1C6&}c{\\3c&HF6BAC8&}c{\\3c&HF6B5C9&}h{\\3c&HF5AECB&}a{\\3c&HF5A5CE&}t{\\3c&HF49ED0&}t{\\3c&HF497D3&\\blur4.5\\fad(100,150)}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 338,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49BD1&}o{\\3c&HF4A0D0&}u{\\3c&HF5A6CE&} {\\3c&HF5ABCC&}t{\\3c&HF5B0CB&}s{\\3c&HF6B6C9&}u{\\3c&HF6BBC7&}bu{\\3c&HF6C0C6&}y{\\3c&HF6BEC7&}a{\\3c&HF6BAC8&}i{\\3c&HF5B3CA&}t{\\3c&HF5AECB&}a{\\3c&HF5A8CD&} {\\3c&HF4A3CF&}k{\\3c&HF49ED0&}ot{\\3c&HF499D2&}o{\\3c&HF498D2&}b{\\3c&HF49CD1&}a{\\3c&HF4A1CF&} {\\3c&HF5A7CE&}d{\\3c&HF5ACCC&}e{\\3c&HF5B2CA&} {\\3c&HF6B7C9&}sa{\\3c&HF6BDC7&}e{\\3c&HF6C1C6&} {\\3c&HF6BDC7&}t{\\3c&HF6BAC8&}o{\\3c&HF6B6C9&}d{\\3c&HF5B1CB&}o{\\3c&HF5ADCC&}k{\\3c&HF5A8CD&}an{\\3c&HF4A3CF&}a{\\3c&HF49ED0&}k{\\3c&HF49BD1&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)}te",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}S{\\3c&HF49BD1&}o{\\3c&HF4A0D0&}u{\\3c&HF5A6CE&}{\\3c&HF5ABCC&}t{\\3c&HF5B0CB&}s{\\3c&HF6B6C9&}u{\\3c&HF6BBC7&}bu{\\3c&HF6C0C6&}y{\\3c&HF6BEC7&}a{\\3c&HF6BAC8&}i{\\3c&HF5B3CA&}t{\\3c&HF5AECB&}a{\\3c&HF5A8CD&}{\\3c&HF4A3CF&}k{\\3c&HF49ED0&}ot{\\3c&HF499D2&}o{\\3c&HF498D2&}b{\\3c&HF49CD1&}a{\\3c&HF4A1CF&}{\\3c&HF5A7CE&}d{\\3c&HF5ACCC&}e{\\3c&HF5B2CA&}{\\3c&HF6B7C9&}sa{\\3c&HF6BDC7&}e{\\3c&HF6C1C6&}{\\3c&HF6BDC7&}t{\\3c&HF6BAC8&}o{\\3c&HF6B6C9&}d{\\3c&HF5B1CB&}o{\\3c&HF5ADCC&}k{\\3c&HF5A8CD&}an{\\3c&HF4A3CF&}a{\\3c&HF49ED0&}k{\\3c&HF49BD1&}u{\\3c&HF497D3&\\blur4.5\\fad(100,150)}te",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 339,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}H{\\3c&HF49ED0&}a{\\3c&HF5AACD&}s{\\3c&HF5AECB&}h{\\3c&HF6B5C9&}i{\\3c&HF6BDC7&}r{\\3c&HF6BBC7&}e{\\3c&HF6B7C9&} {\\3c&HF5AECB&}k{\\3c&HF5AACD&}i{\\3c&HF4A0D0&}m{\\3c&HF49BD1&}i{\\3c&HF49BD1&} {\\3c&HF4A0D0&}n{\\3c&HF5ACCC&}o{\\3c&HF5B1CA&} {\\3c&HF6BBC7&}m{\\3c&HF6C1C6&}o{\\3c&HF6B7C9&}t{\\3c&HF5B2CA&}o{\\3c&HF5A7CE&} {\\3c&HF4A2CF&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}H{\\3c&HF49ED0&}a{\\3c&HF5AACD&}s{\\3c&HF5AECB&}h{\\3c&HF6B5C9&}i{\\3c&HF6BDC7&}r{\\3c&HF6BBC7&}e{\\3c&HF6B7C9&}{\\3c&HF5AECB&}k{\\3c&HF5AACD&}i{\\3c&HF4A0D0&}m{\\3c&HF49BD1&}i{\\3c&HF49BD1&}{\\3c&HF4A0D0&}n{\\3c&HF5ACCC&}o{\\3c&HF5B1CA&}{\\3c&HF6BBC7&}m{\\3c&HF6C1C6&}o{\\3c&HF6B7C9&}t{\\3c&HF5B2CA&}o{\\3c&HF5A7CE&}{\\3c&HF4A2CF&}e{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 340,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}B{\\3c&HF49BD1&}o{\\3c&HF49FD0&}k{\\3c&HF4A3CF&}u{\\3c&HF5A9CD&} {\\3c&HF5AECB&}w{\\3c&HF5B1CA&}a{\\3c&HF6B5C9&} {\\3c&HF6BAC8&}n{\\3c&HF6C0C6&}a{\\3c&HF6BFC6&}nd{\\3c&HF6BBC8&}o{\\3c&HF6B6C9&} {\\3c&HF5B1CB&}d{\\3c&HF5ADCC&}a{\\3c&HF5A9CD&}t{\\3c&HF4A5CE&}t{\\3c&HF4A1CF&}e{\\3c&HF49CD1&} {\\3c&HF498D2&}k{\\3c&HF498D2&}o{\\3c&HF49BD1&}ro{\\3c&HF4A1CF&}n{\\3c&HF5A6CE&}d{\\3c&HF5AACD&}e{\\3c&HF5AECB&} {\\3c&HF5B3CA&}y{\\3c&HF6B7C9&}a{\\3c&HF6BAC8&}r{\\3c&HF6BDC7&}u{\\3c&HF6C0C6&} {\\3c&HF6BFC6&}m{\\3c&HF6B9C8&}a{\\3c&HF6B5C9&}y{\\3c&HF5B0CB&}o{\\3c&HF5ACCC&}t{\\3c&HF5A8CD&}t{\\3c&HF4A4CE&}e{\\3c&HF4A1CF&} y{\\3c&HF49ED0&}a{\\3c&HF49AD1&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}u",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}B{\\3c&HF49BD1&}o{\\3c&HF49FD0&}k{\\3c&HF4A3CF&}u{\\3c&HF5A9CD&}{\\3c&HF5AECB&}w{\\3c&HF5B1CA&}a{\\3c&HF6B5C9&}{\\3c&HF6BAC8&}n{\\3c&HF6C0C6&}a{\\3c&HF6BFC6&}nd{\\3c&HF6BBC8&}o{\\3c&HF6B6C9&}{\\3c&HF5B1CB&}d{\\3c&HF5ADCC&}a{\\3c&HF5A9CD&}t{\\3c&HF4A5CE&}t{\\3c&HF4A1CF&}e{\\3c&HF49CD1&}{\\3c&HF498D2&}k{\\3c&HF498D2&}o{\\3c&HF49BD1&}ro{\\3c&HF4A1CF&}n{\\3c&HF5A6CE&}d{\\3c&HF5AACD&}e{\\3c&HF5AECB&}{\\3c&HF5B3CA&}y{\\3c&HF6B7C9&}a{\\3c&HF6BAC8&}r{\\3c&HF6BDC7&}u{\\3c&HF6C0C6&}{\\3c&HF6BFC6&}m{\\3c&HF6B9C8&}a{\\3c&HF6B5C9&}y{\\3c&HF5B0CB&}o{\\3c&HF5ACCC&}t{\\3c&HF5A8CD&}t{\\3c&HF4A4CE&}e{\\3c&HF4A1CF&}y{\\3c&HF49ED0&}a{\\3c&HF49AD1&}r{\\3c&HF497D3&\\blur4.5\\fad(100,150)}você",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 341,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}M{\\3c&HF49FD0&}a{\\3c&HF4A4CE&}t{\\3c&HF5A7CD&}t{\\3c&HF5ACCC&}e{\\3c&HF6B5C9&}i{\\3c&HF6BAC8&}t{\\3c&HF6C1C6&}e{\\3c&HF6BDC7&} {\\3c&HF6B6C9&}i{\\3c&HF5B1CA&}m{\\3c&HF5A7CD&}a{\\3c&HF4A3CF&}s{\\3c&HF49CD1&}u{\\3c&HF498D2&}g{\\3c&HF49FD0&}u{\\3c&HF4A4CE&} {\\3c&HF5A8CD&}n{\\3c&HF5AECB&}i{\\3c&HF5B3CA&} {\\3c&HF6BBC7&}i{\\3c&HF6C0C6&}k{\\3c&HF6BDC7&}u{\\3c&HF6B7C9&} {\\3c&HF5B2CA&}k{\\3c&HF5A9CD&}a{\\3c&HF4A5CE&}r{\\3c&HF4A0CF&}a{\\3c&HF497D3&\\blur4.5\\fad(100,150)},",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 342,
+    "estilo" : "ED_S2_roma",
+    "original" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}D{\\3c&HF49BD1&}o{\\3c&HF49FD0&}n{\\3c&HF4A4CF&}n{\\3c&HF5AACD&}a{\\3c&HF5AFCB&} {\\3c&HF5B3CA&}k{\\3c&HF6BBC7&}o{\\3c&HF6C1C6&}n{\\3c&HF6BDC7&}n{\\3c&HF6B6C9&}a{\\3c&HF5B2CA&}n{\\3c&HF5A9CD&} {\\3c&HF4A5CE&}g{\\3c&HF4A0D0&}a{\\3c&HF49AD1&} {\\3c&HF499D2&}s{\\3c&HF4A2CF&}o{\\3c&HF5A6CE&}k{\\3c&HF5AACD&}o{\\3c&HF5AECB&} {\\3c&HF6B8C8&}n{\\3c&HF6BEC7&}i{\\3c&HF6C1C6&} {\\3c&HF6BDC7&}a{\\3c&HF5B2CA&}t{\\3c&HF5ADCC&}t{\\3c&HF5AACD&}e{\\3c&HF4A2CF&} {\\3c&HF49BD1&}m{\\3c&HF497D3&\\blur4.5\\fad(100,150)}o",
+    "traduzido" : "{\\3c&HF497D3&\\blur4.5\\fad(100,150)}D{\\3c&HF49BD1&}o{\\3c&HF49FD0&}n{\\3c&HF4A4CF&}n{\\3c&HF5AACD&}a{\\3c&HF5AFCB&}{\\3c&HF5B3CA&}k{\\3c&HF6BBC7&}o{\\3c&HF6C1C6&}n{\\3c&HF6BDC7&}n{\\3c&HF6B6C9&}a{\\3c&HF5B2CA&}n{\\3c&HF5A9CD&}{\\3c&HF4A5CE&}g{\\3c&HF4A0D0&}a{\\3c&HF49AD1&}{\\3c&HF499D2&}s{\\3c&HF4A2CF&}o{\\3c&HF5A6CE&}k{\\3c&HF5AACD&}o{\\3c&HF5AECB&}{\\3c&HF6B8C8&}n{\\3c&HF6BEC7&}i{\\3c&HF6C1C6&}{\\3c&HF6BDC7&}a{\\3c&HF5B2CA&}t{\\3c&HF5ADCC&}t{\\3c&HF5AACD&}e{\\3c&HF4A2CF&}{\\3c&HF49BD1&}m{\\3c&HF497D3&\\blur4.5\\fad(100,150)}o",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 343,
+    "estilo" : "OP_S2",
+    "original" : "{\\c&H5846A6&\\blur4.5\\fad(100,75)\\t(\\c&H39383C&\\3c&HCACEC2&)}The reality of the destruction around us fills our mind",
+    "traduzido" : "{\\c&H5846A6&\\blur4.5\\fad(100,75)\\t(\\c&H39383C&\\3c&HCACEC2&)}A realidade da destruição ao nosso redor preenche nossas mentes",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 344,
+    "estilo" : "OP_S2",
+    "original" : "{\\c&H4E3CC8&\\blur4.5\\fad(100,300)\\t(\\3c&H4E3CC8&\\c&HCACEC2&)}The raging rain sounds like a storm of tears",
+    "traduzido" : "{\\c&H4E3CC8&\\blur4.5\\fad(100,300)\\t(\\3c&H4E3CC8&\\c&HCACEC2&)}O som da chuva furiosa parece uma tempestade de lágrimas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 345,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\3c&HF6D6B3&}N{\\3c&HDCDDD2&}o{\\3c&HD6D9C4&}t{\\3c&HD9D2A9&}i{\\3c&HE2C9AA&}c{\\3c&HF4BDCB&}e",
+    "traduzido" : "{\\blur4.5\\3c&HF6D6B3&}N{\\3c&HDCDDD2&}o{\\3c&HD6D9C4&}t{\\3c&HD9D2A9&}i{\\3c&HE2C9AA&}c{\\3c&HF4BDCB&}e",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 346,
+    "estilo" : "OP_S2",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}that your eyes were given to you to {\\c&HEAEEEB&}acknowledge others,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}que seus olhos foram dados a você para {\\c&HEAEEEB&}reconhecer os outros",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 347,
+    "estilo" : "OP_S2",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}that your eyes were given to you to {\\c&HEAEEEB&}{\\t(\\c&H39383C&)}acknowledge {\\c&HEAEEEB&}others,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}que seus olhos foram dados a você para {\\c&HEAEEEB&}{\\t(\\c&H39383C&)}reconhecer {\\c&HEAEEEB&}os outros",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 348,
+    "estilo" : "OP_S2",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}that your eyes were given to you to {\\c&H39383C&}{\\t(\\c&HEAEEEB&)}acknowledge {\\c&HEAEEEB&}others,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}que seus olhos lhe foram dados para {\\c&H39383C&}{\\t(\\c&HEAEEEB&)}reconhecer {\\c&HEAEEEB&}os outros",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 349,
+    "estilo" : "OP_S2",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}that your eyes were given to you to {\\c&HEAEEEB&}{\\t(\\c&H39383C&)}acknowledge {\\c&HEAEEEB&}others,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}que seus olhos foram dados a você para {\\c&HEAEEEB&}{\\t(\\c&H39383C&)}reconhecer {\\c&HEAEEEB&}os outros",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 350,
+    "estilo" : "OP_S2",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}that your eyes were given to you to {\\c&H39383C&}{\\t(\\c&HEAEEEB&)}acknowledge {\\c&HEAEEEB&}others,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}que seus olhos lhe foram dados para {\\c&H39383C&}{\\t(\\c&HEAEEEB&)}reconhecer {\\c&HEAEEEB&}os outros",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 351,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\t(\\3c&HEBCDE3&)}that your voice was given to you to tell others how you feel",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\t(\\3c&HEBCDE3&)}que sua voz lhe foi dada para contar aos outros como você se sente",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 352,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)}{\\3c&HF6D6B3&}a{\\3c&HF3D6B5&}n{\\3c&HF2D7B7&}d{\\3c&HF0D7BA&} {\\3c&HEED8BC&}t{\\3c&HEDD8BD&}h{\\3c&HEBD9C0&}a{\\3c&HE9D9C2&}t{\\3c&HE8DAC4&} {\\3c&HE6DAC6&}y{\\3c&HE4DBC8&}o{\\3c&HE2DBCB&}u{\\3c&HE1DCCD&}r{\\3c&HDFDCCE&} {\\3c&HDEDCD0&}h{\\3c&HDCDDD3&}a{\\3c&HDADED6&}n{\\3c&HD8DED8&}d{\\3c&HD6DFDA&}s{\\3c&HD5DFDC&} {\\3c&HD4DFDD&}w{\\3c&HD4DED8&}e{\\3c&HD4DDD4&}r{\\3c&HD5DCD1&}e{\\3c&HD5DBCD&} {\\3c&HD6DBCA&}g{\\3c&HD6DAC7&}i{\\3c&HD6D9C5&}v{\\3c&HD6D8C1&}e{\\3c&HD7D7BD&}n to{\\3c&HD7D7BA&} {\\3c&HD7D6B7&}y{\\3c&HD8D5B3&}o{\\3c&HD8D4B0&}u{\\3c&HD9D3AD&} {\\3c&HD9D2AA&}t{\\3c&HD9D1A6&}o{\\3c&HDAD1A3&} {\\3c&HDAD09F&}h{\\3c&HDACF9B&}o{\\3c&HDBCE9C&}l{\\3c&HDDCD9E&}d{\\3c&HDECCA1&} {\\3c&HDFCCA2&}t{\\3c&HE0CBA5&}h{\\3c&HE2C9A8&}o{\\3c&HE3C9AA&}s{\\3c&HE4C7AD&}e{\\3c&HE5C7AF&} {\\3c&HE7C6B2&}d{\\3c&HE8C5B5&}e{\\3c&HEAC4B8&}a{\\3c&HEBC3BA&}r{\\3c&HECC2BC&} {\\3c&HEDC1BE&}t{\\3c&HEEC0C1&}o{\\3c&HEFBFC3&} {\\3c&HF1BFC5&}y{\\3c&HF2BDC8&}o{\\3c&HF4BDCB&}u",
+    "traduzido" : "{\\blur4.5\\fad(100,150)}{\\3c&HF6D6B3&}a{\\3c&HF3D6B5&}n{\\3c&HF2D7B7&}d{\\3c&HF0D7BA&}{\\3c&HEED8BC&}t{\\3c&HEDD8BD&}h{\\3c&HEBD9C0&}a{\\3c&HE9D9C2&}t{\\3c&HE8DAC4&}{\\3c&HE6DAC6&}y{\\3c&HE4DBC8&}o{\\3c&HE2DBCB&}u{\\3c&HE1DCCD&}r{\\3c&HDFDCCE&}{\\3c&HDEDCD0&}h{\\3c&HDCDDD3&}a{\\3c&HDADED6&}n{\\3c&HD8DED8&}d{\\3c&HD6DFDA&}s{\\3c&HD5DFDC&}{\\3c&HD4DFDD&}w{\\3c&HD4DED8&}e{\\3c&HD4DDD4&}r{\\3c&HD5DCD1&}e{\\3c&HD5DBCD&}{\\3c&HD6DBCA&}g{\\3c&HD6DAC7&}i{\\3c&HD6D9C5&}v{\\3c&HD6D8C1&}e{\\3c&HD7D7BD&}n a{\\3c&HD7D7BA&}{\\3c&HD7D6B7&}y{\\3c&HD8D5B3&}o{\\3c&HD8D4B0&}u{\\3c&HD9D3AD&}{\\3c&HD9D2AA&}t{\\3c&HD9D1A6&}o{\\3c&HDAD1A3&}{\\3c&HDAD09F&}h{\\3c&HDACF9B&}o{\\3c&HDBCE9C&}l{\\3c&HDDCD9E&}d{\\3c&HDECCA1&}{\\3c&HDFCCA2&}t{\\3c&HE0CBA5&}h{\\3c&HE2C9A8&}o{\\3c&HE3C9AA&}s{\\3c&HE4C7AD&}e{\\3c&HE5C7AF&}{\\3c&HE7C6B2&}d{\\3c&HE8C5B5&}e{\\3c&HEAC4B8&}a{\\3c&HEBC3BA&}r{\\3c&HECC2BC&}{\\3c&HEDC1BE&}t{\\3c&HEEC0C1&}o{\\3c&HEFBFC3&}{\\3c&HF1BFC5&}y{\\3c&HF2BDC8&}o{\\3c&HF4BDCB&}você",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 353,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}All living things",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}Todas as coisas vivas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 354,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}bear witness to my song",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}assista ao meu canto",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 355,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Your heart contains all its truth",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Seu coração contém toda a sua verdade",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 356,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Even when all you see in your path are storms",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Mesmo quando tudo que você vê em seu caminho são tempestades",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 357,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&H0E28D5&}remember that your strength is no coincidence",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&H0E28D5&}Lembre-se que sua força não é coincidência",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 358,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF6D6B3&}a{\\3c&HE7DAC5&}n{\\3c&HD9DED6&}d{\\3c&HD5DCD1&} {\\3c&HD8D5B4&}o{\\3c&HDBCE9C&}n{\\3c&HE3C8AB&} {\\3c&HE9C4B6&}i{\\3c&HEFBFC3&}t{\\3c&HF4BDCB&},",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF6D6B3&}a{\\3c&HE7DAC5&}n{\\3c&HD9DED6&}d{\\3c&HD5DCD1&}{\\3c&HD8D5B4&}o{\\3c&HDBCE9C&}n{\\3c&HE3C8AB&}{\\3c&HE9C4B6&}i{\\3c&HEFBFC3&}t{\\3c&HF4BDCB&},",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 359,
+    "estilo" : "OP_S2",
+    "original" : "{\\blur4.5\\fad(100,350)\\3c&HF6D6B3&}r{\\3c&HD7DED9&}e{\\3c&HDCCD9E&}l{\\3c&HF4BDCB&}y",
+    "traduzido" : "",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 360,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\c&H5846A6&\\blur4.5\\fad(100,75)\\t(\\c&H39383C&\\3c&HCACEC2&)}Houkai no shinfonii ga narihibiite",
+    "traduzido" : "{\\c&H5846A6&\\blur4.5\\fad(100,75)\\t(\\c&H39383C&\\3c&HCACEC2&)}O sino da destruição soou.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 361,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\c&H4E3CC8&\\blur4.5\\fad(100,300)\\t(\\3c&H4E3CC8&\\c&HCACEC2&)}Furu ame wa maru de namida no neiro",
+    "traduzido" : "{\\c&H4E3CC8&\\blur4.5\\fad(100,300)\\t(\\3c&H4E3CC8&\\c&HCACEC2&)}O furacão é redondo como as lágrimas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 362,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\3c&HF6D6B3&}K{\\3c&HDCDDD2&}i{\\3c&HD6D9C4&}z{\\3c&HD9D2A9&}ui{\\3c&HE2C9AA&}t{\\3c&HF4BDCB&}e",
+    "traduzido" : "{\\blur4.5\\3c&HF6D6B3&}Coro{\\3c&HDCDDD2&}a{\\3c&HD6D9C4&}l{\\3c&HD9D2A9&}em{\\3c&HE2C9AA&}br{\\3c&HF4BDCB&}ent",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 363,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&\\c&HEAEEEB&}Sono me wa tagai wo mitomeru tame,",
+    "traduzido" : "{\\fad(0,0)\\blur4.5\\3c&H4331EA&\\c&HEAEEEB&}Para ver o meu rosto, olhe para mim.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 364,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\t(\\3c&HEBCDE3&)}Sono koe wa omoi wo tsutaeru tame",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\t(\\3c&HEBCDE3&)}O som da voz é um mensageiro do coração.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 365,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)}{\\3c&HF6D6B3&}S{\\3c&HF3D6B5&}o{\\3c&HF2D7B7&}n{\\3c&HF0D7BA&}o{\\3c&HEED8BC&} {\\3c&HE9D9C2&}t{\\3c&HE8DAC4&}e{\\3c&HE6DAC6&} {\\3c&HE2DBCB&}w{\\3c&HE1DCCD&}a{\\3c&HDFDCCE&} {\\3c&HDCDDD3&}d{\\3c&HDADED6&}a{\\3c&HD8DED8&}i{\\3c&HD6DFDA&}j{\\3c&HD5DFDC&}i{\\3c&HD4DFDD&} {\\3c&HD4DDD4&}n{\\3c&HD5DCD1&}a{\\3c&HD5DBCD&} {\\3c&HD6DAC7&}h{\\3c&HD6D9C5&}i{\\3c&HD6D8C1&}t{\\3c&HD7D7BD&}o{\\3c&HD7D7BA&} {\\3c&HD8D4B0&}t{\\3c&HD9D3AD&}o{\\3c&HD9D2AA&} {\\3c&HDAD09F&}t{\\3c&HDACF9B&}s{\\3c&HDBCE9C&}u{\\3c&HDDCD9E&}n{\\3c&HDECCA1&}a{\\3c&HDFCCA2&}g{\\3c&HE0CBA5&}u{\\3c&HE2C9A8&} {\\3c&HE4C7AD&}t{\\3c&HE5C7AF&}a{\\3c&HE7C6B2&}m{\\3c&HE8C5B5&}e{\\3c&HEAC4B8&} {\\3c&HECC2BC&}n{\\3c&HEDC1BE&}i{\\3c&HEEC0C1&} {\\3c&HF1BFC5&}a{\\3c&HF2BDC8&}r{\\3c&HF4BDCB&}u",
+    "traduzido" : "{\\blur4.5\\fad(100,150)}{\\3c&HF6D6B3&}S{\\3c&HF3D6B5&}o{\\3c&HF2D7B7&}n{\\3c&HF0D7BA&}o{\\3c&HEED8BC&}{\\3c&HE9D9C2&}t{\\3c&HE8DAC4&}e{\\3c&HE6DAC6&}{\\3c&HE2DBCB&}w{\\3c&HE1DCCD&}a{\\3c&HDFDCCE&}{\\3c&HDCDDD3&}d{\\3c&HDADED6&}a{\\3c&HD8DED8&}i{\\3c&HD6DFDA&}j{\\3c&HD5DFDC&}i{\\3c&HD4DFDD&}{\\3c&HD4DDD4&}n{\\3c&HD5DCD1&}a{\\3c&HD5DBCD&}{\\3c&HD6DAC7&}h{\\3c&HD6D9C5&}i{\\3c&HD6D8C1&}t{\\3c&HD7D7BD&}o{\\3c&HD7D7BA&}{\\3c&HD8D4B0&}t{\\3c&HD9D3AD&}o{\\3c&HD9D2AA&}{\\3c&HDAD09F&}t{\\3c&HDACF9B&}s{\\3c&HDBCE9C&}u{\\3c&HDDCD9E&}n{\\3c&HDECCA1&}a{\\3c&HDFCCA2&}g{\\3c&HE0CBA5&}u{\\3c&HE2C9A8&}{\\3c&HE4C7AD&}t{\\3c&HE5C7AF&}a{\\3c&HE7C6B2&}m{\\3c&HE8C5B5&}e{\\3c&HEAC4B8&}{\\3c&HECC2BC&}n{\\3c&HEDC1BE&}i{\\3c&HEEC0C1&}{\\3c&HF1BFC5&}a{\\3c&HF2BDC8&}r{\\3c&HF4BDCB&}u",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 366,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}Kono uta ga kikoeteru",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}Eu posso ouvir essa canção",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 367,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}Inochi aru subete no mono yo",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF5FF9F&}Há vida em todas as coisas",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 368,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Shinjitsu wa anata no mune no naka ni aru",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}A verdade está dentro do seu coração",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 369,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Arashi no umi wo yuku toki mo",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HE09956&}Nesse momento também, o mar de Arashi está...",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 370,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&H0E28D5&}Keshite oku suru koto no nai tsuyosa wo",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&H0E28D5&}Não há nada que possa superar essa vantagem",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 371,
+    "estilo" : "OP_S2_roma",
+    "original" : "{\\blur4.5\\fad(100,150)\\3c&HF6D6B3&}K{\\3c&HE7DAC5&}u{\\3c&HD9DED6&}r{\\3c&HD5DCD1&}e{\\3c&HD8D5B4&}r{\\3c&HDBCE9C&}u{\\3c&HE3C8AB&} k{\\3c&HE9C4B6&}a{\\3c&HEFBFC3&}r{\\3c&HF4BDCB&}a",
+    "traduzido" : "{\\blur4.5\\fad(100,150)\\3c&HF6D6B3&}K{\\3c&HE7DAC5&}u{\\3c&HD9DED6&}r{\\3c&HD5DCD1&}e{\\3c&HD8D5B4&}r{\\3c&HDBCE9C&}u{\\3c&HE3C8AB&}k{\\3c&HE9C4B6&}a{\\3c&HEFBFC3&}r{\\3c&HF4BDCB&}a",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 375,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(20,0)\\fs52.5\\blur1.3\\fay-0.15\\fax0.3\\c&H898C74&\\3c&HEEF2E7&\\frz359.524\\pos(1035,567)\\clip(m 876 618 l 1276.5 558 b 1278 555 1276.5 454.5 1275 457.5 l 832.5 525)}Ouma Haruka",
+    "traduzido" : "{\\fad(20,0)\\fs52.5\\blur1.3\\fay-0.15\\fax0.3\\c&H898C74&\\3c&HEEF2E7&\\frz359.524\\pos(1035,567)\\clip(m 876 618 l 1276.5 558 b 1278 555 1276.5 454.5 1275 457.5 l 832.5 525)}Haruka Ouma",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 376,
+    "estilo" : "Signs----1",
+    "original" : "{\\blur5\\fax0.15\\fs36\\frz7.92\\fnArial Rounded MT\\b0\\3c&H4A4F32&\\c&HFFFFFF&\\pos(1017.143,447.143)\\1a&H96&}Calling restricted",
+    "traduzido" : "{\\blur5\\fax0.15\\fs36\\frz7.92\\fnArial Rounded MT\\b0\\3c&H4A4F32&\\c&HFFFFFF&\\pos(1017.143,447.143)\\1a&H96&}Chamando restrito",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 377,
+    "estilo" : "Signs----1",
+    "original" : "{\\blur0.75\\fax0.15\\fs36\\frz7.92\\fnArial Rounded MT\\b0\\3c&H4A4F32&\\c&HAFB39E&\\pos(1017.143,447.143)}Calling restricted",
+    "traduzido" : "{\\blur0.75\\fax0.15\\fs36\\frz7.92\\fnArial Rounded MT\\b0\\3c&H4A4F32&\\c&HAFB39E&\\pos(1017.143,447.143)}Chamando restrito",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 378,
+    "estilo" : "Signs----1",
+    "original" : "{\\fax0.14\\fs37.5\\b0\\fnArial Rounded MT\\frz8.5\\blur5\\frx3\\c&HFFFFFF&\\pos(1040.5,504.9)\\1a&H96&}Please wait a while.",
+    "traduzido" : "{\\fax0.14\\fs37.5\\b0\\fnArial Rounded MT\\frz8.5\\blur5\\frx3\\c&HFFFFFF&\\pos(1040.5,504.9)\\1a&H96&}Por favor, aguarde um pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 379,
+    "estilo" : "Signs----1",
+    "original" : "{\\fax0.14\\fs37.5\\b0\\fnArial Rounded MT\\frz8.5\\blur0.75\\frx3\\c&HAEB293&\\pos(1040.5,504.9)}Please wait a while.",
+    "traduzido" : "{\\fax0.14\\fs37.5\\b0\\fnArial Rounded MT\\frz8.5\\blur0.75\\frx3\\c&HAEB293&\\pos(1040.5,504.9)}Por favor, aguarde um pouco.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 380,
+    "estilo" : "Signs----1",
+    "original" : "{\\an6\\blur4\\fscx90\\fax0.15\\fs30\\b1\\fnArial Rounded MT\\c&HB2B79C&\\frz8.8\\pos(1229,623.5)\\1a&H64&}Call again after\\Nrestrictions have been lifted.",
+    "traduzido" : "{\\an6\\blur4\\fscx90\\fax0.15\\fs30\\b1\\fnArial Rounded MT\\c&HB2B79C&\\frz8.8\\pos(1229,623.5)\\1a&H64&}Ligue novamente depois\\Nque as restrições tenham sido levantadas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 381,
+    "estilo" : "Signs----1",
+    "original" : "{\\an6\\blur0.75\\fscx90\\fax0.15\\fs30\\b1\\fnArial Rounded MT\\c&HAFB39E&\\frz8.8\\pos(1229,623.5)}Call again after\\Nrestrictions have been lifted.",
+    "traduzido" : "{\\an6\\blur0.75\\fscx90\\fax0.15\\fs30\\b1\\fnArial Rounded MT\\c&HAFB39E&\\frz8.8\\pos(1229,623.5)}Ligue\\Nnovamente depois que as restrições forem levantadas.",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 382,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,250)\\blur1.33\\bord0\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)\\frx12\\pos(934.5,618)\\frz356.984}A\\N\\N{\\c&H0399C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}n\\N\\N{\\c&H04733E&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}i\\N\\N{\\c&H973C4F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}m\\N\\N{\\c&H9231C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H0559C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}l",
+    "traduzido" : "{\\fad(0,250)\\blur1.33\\bord0\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)\\frx12\\pos(934.5,618)\\frz356.984}A\\N\\N{\\c&H0399C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}n\\N\\N{\\c&H04733E&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}i\\N\\N{\\c&H973C4F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}m\\N\\N{\\c&H9231C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H0559C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}l",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 383,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,250)\\blur1.33\\bord6\\c&H03174F&\\fnFunny farm hard\\fs90\\3c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)\\frx12\\pos(934.5,618)\\frz356.984}A\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}n\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}i\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}m\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}l",
+    "traduzido" : "{\\fad(0,250)\\blur1.33\\bord6\\c&H03174F&\\fnFunny farm hard\\fs90\\3c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)\\frx12\\pos(934.5,618)\\frz356.984}A\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}n\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}i\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}m\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}l",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 384,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,250)\\blur1.33\\bord0\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\fax-0.05\\frx14\\frz2.229\\pos(1308,657)}{\\c&H0399C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}C\\N\\N{\\c&H04733E&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H973C4F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}f\\N\\N{\\c&H9231C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}é",
+    "traduzido" : "{\\fad(0,250)\\blur1.33\\bord0\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\fax-0.05\\frx14\\frz2.229\\pos(1308,657)}{\\c&H0399C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}C\\N\\N{\\c&H04733E&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H973C4F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}f\\N\\N{\\c&H9231C5&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}é",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 385,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,250)\\blur1.33\\bord6\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\fax-0.05\\frx14\\frz2.229\\pos(1308,657)}{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}C\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}f\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}é",
+    "traduzido" : "{\\fad(0,250)\\blur1.33\\bord6\\c&H1400A5&\\fnFunny farm hard\\fs90\\3c&H03174F&\\fax-0.05\\frx14\\frz2.229\\pos(1308,657)}{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}C\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}a\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}f\\N\\N{\\c&H03174F&\\t(3420,4420,\\c&H000000&\\3c&H000000&)}é",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 386,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.2\\fax0.1\\fay0.55\\alpha&H10&\\fs76.5\\fnVesta\\bord0\\b1\\3c&HEEF4F4&\\c&H304449&\\pos(952.5,172.5)\\frz355.5\\1a&H23&}Celebrating Tennou Festival",
+    "traduzido" : "{\\fad(0,690)\\blur1.2\\fax0.1\\fay0.55\\alpha&H10&\\fs76.5\\fnVesta\\bord0\\b1\\3c&HEEF4F4&\\c&H304449&\\pos(952.5,172.5)\\frz355.5\\1a&H23&}Comemorando o Festival Tennou",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 387,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.33\\fax0.1\\fay0.55\\alpha&H10&\\fs76.5\\fnVesta\\bord2.5\\b1\\3c&HF8F8F8&\\c&HF8F8F8&\\pos(952.5,172.5)\\frz355.5\\3a&H00&\\1a&HFF&}Celebrating Tennou Festival",
+    "traduzido" : "{\\fad(0,690)\\blur1.33\\fax0.1\\fay0.55\\alpha&H10&\\fs76.5\\fnVesta\\bord2.5\\b1\\3c&HF8F8F8&\\c&HF8F8F8&\\pos(952.5,172.5)\\frz355.5\\3a&H00&\\1a&HFF&}Comemorando o Festival Tennou",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 388,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H10&\\fs72\\fnVesta\\bord0\\3c&HE8E5E3&\\c&H575264&\\pos(951,531)\\frz359}Let's have fun now since",
+    "traduzido" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H10&\\fs72\\fnVesta\\bord0\\3c&HE8E5E3&\\c&H575264&\\pos(951,531)\\frz359}Vamos nos divertir agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 389,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H10&\\fs72\\fnVesta\\bord3\\3c&HE8E5E3&\\c&HE8E5E3&\\pos(951,531)\\frz359}Let's have fun now since",
+    "traduzido" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H10&\\fs72\\fnVesta\\bord3\\3c&HE8E5E3&\\c&HE8E5E3&\\pos(951,531)\\frz359}Vamos nos divertir agora!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 390,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H25&\\fs72\\fnVesta\\bord0\\3c&HE8E5E3&\\c&H6B5261&\\pos(928.5,727.5)}everything else sucks!",
+    "traduzido" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H25&\\fs72\\fnVesta\\bord0\\3c&HE8E5E3&\\c&H6B5261&\\pos(928.5,727.5)}Tudo mais é uma droga!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  }, {
+    "indice" : 391,
+    "estilo" : "Signs----1",
+    "original" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H25&\\fs72\\fnVesta\\bord3\\3c&HE8E5E3&\\c&HE8E5E3&\\pos(928.5,727.5)}everything else sucks!",
+    "traduzido" : "{\\fad(0,690)\\blur1.33\\fax0.03\\fay0.55\\alpha&H25&\\fs72\\fnVesta\\bord3\\3c&HE8E5E3&\\c&HE8E5E3&\\pos(928.5,727.5)}Tudo mais é uma droga!",
+    "idiomaOriginal" : "en",
+    "idiomaTraduzido" : "pt-br"
+  } ]
+}
