@@ -53,8 +53,12 @@ public class DetectorEfeitoKaraokeService {
     // linha caía na heurística de texto, que falha quando o romaji mistura palavras em inglês
     // (ex.: o OP "My Dearest" do Guilty Crown), levando o romaji a ser TRADUZIDO e corrompido em
     // salada romaji/PT-BR. Só afeta linha que já tem indicador de música, então diálogo não muda.
+    //
+    // A fronteira é por LETRA (lookaround), não \b: com \b o sublinhado é caractere de palavra e
+    // "ED_S2_roma"/"OP_S2_roma" NÃO casavam — exatamente os estilos do ED/OP do Guilty Crown cujas
+    // 29 linhas de romaji foram traduzidas e corrompidas no cache. Dígito também separa ("OP_roma2").
     private static final Pattern ESTILO_JAPONES_ROMAJI_PATTERN = Pattern.compile(
-        "(?i)\\b(roma(?:ji|nized|nji)?|jp|jpn|japanese|japones|japon[eê]s|kana|kanji)\\b");
+        "(?i)(?<!\\p{L})(roma(?:ji|nized|nji)?|jp|jpn|japanese|japones|japon[eê]s|kana|kanji)(?!\\p{L})");
     // Palavra inteiramente decomponível em sílabas japonesas romanizadas
     // (Hepburn): "n" solto ou consoante opcional (com geminada kk/ss/tt/pp ou
     // dígrafo sh/ch/ts/ky/...) seguida de vogal. "fuminijirareru" casa;
@@ -130,12 +134,51 @@ public class DetectorEfeitoKaraokeService {
      * deixar uma linha de música sem traduzir custa menos que destruir romaji.
      */
     private boolean pareceLetraRomaji(String visivel) {
+        Contagem c = contarPalavrasRomaji(visivel);
+        // Proporção, não tudo-ou-nada: a MAIORIA das palavras precisa ser sílaba japonesa. Isso
+        // preserva o romaji que mistura inglês solto (J-pop: "sekai no naka de you know") — antes
+        // uma única palavra inglesa derrubava a detecção e o romaji ia para a tradução. Karaokê em
+        // inglês fica bem abaixo do limiar (encontro consonantal, consoante final) e segue
+        // traduzível. Viés de preservar mantido: exige ao menos 2 palavras romaji e 6 letras.
+        return c.total() >= 2 && c.romaji() >= 2 && c.letrasRomaji() >= 6
+            && c.romaji() * 100 >= c.total() * LIMIAR_PROPORCAO_ROMAJI;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: expõe como NÚMERO (0–100) o quanto o texto visível parece japonês
+     * romanizado, para que o pareamento das duas camadas de karaokê possa responder "qual destas
+     * duas linhas simultâneas é a original?" — decisão que o booleano
+     * {@link #devePreservarKaraokeOriginal} não consegue tomar, porque no caso difícil (letra
+     * bilíngue, ex.: Sawano) AMBAS as camadas passam ou reprovam juntas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é a mesma contagem que sustenta {@code pareceLetraRomaji} — razão
+     * entre palavras decomponíveis em sílabas japonesas (Hepburn) e o total de palavras, sem
+     * mínimos de tamanho. Medido no cache real: linhas de estilo romaji ficam na mediana de 100,
+     * música não-romaji em 22 e diálogo em 25.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}, texto em branco, sem palavras ou com
+     * caractere não-ASCII devolvem {@code 0} — kana/kanji NÃO pontuam aqui de propósito, pois já
+     * são reconhecidos diretamente por escrita japonesa em {@link #devePreservarKaraokeOriginal};
+     * este escore mede apenas romanização. Nunca lança.
+     *
+     * @param texto texto do evento, com ou sem tags ASS
+     * @return proporção de palavras romaji, de 0 a 100
+     */
+    public int proporcaoRomaji(String texto) {
+        Contagem c = contarPalavrasRomaji(extrairTextoVisivel(texto));
+        if (c.total() == 0) {
+            return 0;
+        }
+        return Math.round(100f * c.romaji() / c.total());
+    }
+
+    private Contagem contarPalavrasRomaji(String visivel) {
         String normalizado = visivel.toLowerCase()
             .replace('ā', 'a').replace('ī', 'i').replace('ū', 'u')
             .replace('ē', 'e').replace('ō', 'o')
             .replace("'", "");
         if (NAO_ASCII_PATTERN.matcher(normalizado).find()) {
-            return false;
+            return new Contagem(0, 0, 0);
         }
         int total = 0;
         int romaji = 0;
@@ -150,13 +193,10 @@ public class DetectorEfeitoKaraokeService {
                 letrasRomaji += palavra.length();
             }
         }
-        // Proporção, não tudo-ou-nada: a MAIORIA das palavras precisa ser sílaba japonesa. Isso
-        // preserva o romaji que mistura inglês solto (J-pop: "sekai no naka de you know") — antes
-        // uma única palavra inglesa derrubava a detecção e o romaji ia para a tradução. Karaokê em
-        // inglês fica bem abaixo do limiar (encontro consonantal, consoante final) e segue
-        // traduzível. Viés de preservar mantido: exige ao menos 2 palavras romaji e 6 letras.
-        return total >= 2 && romaji >= 2 && letrasRomaji >= 6
-            && romaji * 100 >= total * LIMIAR_PROPORCAO_ROMAJI;
+        return new Contagem(total, romaji, letrasRomaji);
+    }
+
+    private record Contagem(int total, int romaji, int letrasRomaji) {
     }
 
     /**
