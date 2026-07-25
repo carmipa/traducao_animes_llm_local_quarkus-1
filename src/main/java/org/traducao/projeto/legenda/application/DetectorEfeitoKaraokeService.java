@@ -48,6 +48,11 @@ public class DetectorEfeitoKaraokeService {
     private static final Pattern TEXTO_ALFANUMERICO_PATTERN = Pattern.compile("[\\p{L}\\d]");
     private static final Pattern ESTILO_MUSICA_PATTERN = Pattern.compile(
         "(?i)\\b(song|music|karaoke|opening|ending|theme|insert|op|ed|sing|lyrics?)\\b");
+    // Mesmas palavras, fronteira por LETRA em vez de \b: alcança "ED_S2", "OP_S2" e "OP2", onde o
+    // sublinhado e o dígito são caractere de palavra e derrotam o \b. Usado SÓ como critério de
+    // candidatura do pareamento (ver podeSerCamadaMusical) — candidatar-se não protege nada.
+    private static final Pattern ESTILO_MUSICA_AMPLO_PATTERN = Pattern.compile(
+        "(?i)(?<!\\p{L})(song|music|karaoke|opening|ending|theme|insert|op|ed|sing|lyrics?)(?!\\p{L})");
     // "roma" (abreviação de romaji), além de "romaji"/"romanized"/"romanji": estilos de fansub
     // marcam a faixa romanizada como "OP Roma", "ED Roma L1", "Roma" — e SEM esta forma curta a
     // linha caía na heurística de texto, que falha quando o romaji mistura palavras em inglês
@@ -90,6 +95,38 @@ public class DetectorEfeitoKaraokeService {
      */
     public boolean eEstiloDeMusica(String estilo) {
         return estilo != null && ESTILO_MUSICA_PATTERN.matcher(estilo).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: critério de CANDIDATURA do pareamento de camadas — mais largo que o de
+     * DECISÃO. Para reconhecer o par romaji × tradução é preciso enxergar os DOIS lados, e a camada
+     * traduzida do OP/ED costuma usar o nome com sublinhado ou dígito ({@code ED_S2},
+     * {@code OP_S2}, {@code OP2}), que a fronteira {@code \b} do padrão de decisão não alcança.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: candidatar-se ao pareamento NÃO protege nada por si só — quem
+     * protege é o resultado do pareamento, e só quando há par com original identificada. Por isso
+     * este critério pode ser largo sem afrouxar nenhuma decisão existente: nenhum outro fluxo o
+     * consulta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo e texto nulos devolvem {@code false}; nunca lança.
+     */
+    public boolean podeSerCamadaMusical(String estilo, String texto) {
+        if (temIndicadorDeMusica(estilo, texto)) {
+            return true;
+        }
+        return estilo != null && ESTILO_MUSICA_AMPLO_PATTERN.matcher(estilo).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o NOME do estilo declara romaji/japonês ({@code OP Roma},
+     * {@code ED_S2_roma}, {@code Song JP}). Sinal de REFORÇO, nunca base: Paulo normaliza as fontes
+     * e renomeia estilos, então quem decide preservação é o conteúdo — este método existe para o
+     * pareamento das duas camadas saber qual lado do par o arquivo já declara como original.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} devolve {@code false}; nunca lança.
+     */
+    public boolean eEstiloDeRomaji(String estilo) {
+        return estilo != null && ESTILO_JAPONES_ROMAJI_PATTERN.matcher(estilo).find();
     }
 
     /**
@@ -248,7 +285,7 @@ public class DetectorEfeitoKaraokeService {
      * do simplificador de karaokê e do fluxo de correção de uma vez — mudança de outra ordem, que
      * pertence à fase de retrabalho do karaokê simples, com caracterização própria.
      */
-    private boolean temIndicadorDeMusica(String estilo, String texto) {
+    public boolean temIndicadorDeMusica(String estilo, String texto) {
         return temTagKaraoke(texto)
             || (estilo != null && (ESTILO_MUSICA_PATTERN.matcher(estilo).find()
                 || ESTILO_JAPONES_ROMAJI_PATTERN.matcher(estilo).find()));

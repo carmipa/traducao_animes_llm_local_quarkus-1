@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
+import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
@@ -51,6 +53,7 @@ public class SeletorEventosTraduziveis {
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
     private final MascaradorTags mascarador;
+    private final ProtecaoCamadasMusicaisService protecaoCamadasMusicais;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as blindagens que decidem a elegibilidade de uma fala —
@@ -70,12 +73,29 @@ public class SeletorEventosTraduziveis {
         PoliticaEstiloMusical politicaEstiloMusical,
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
-        MascaradorTags mascarador
+        MascaradorTags mascarador,
+        ProtecaoCamadasMusicaisService protecaoCamadasMusicais
     ) {
         this.politicaEstiloMusical = politicaEstiloMusical;
         this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
         this.mascarador = mascarador;
+        this.protecaoCamadasMusicais = protecaoCamadasMusicais;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: calcula, UMA VEZ POR ARQUIVO, quais linhas são a camada original do
+     * karaokê — mesmo molde de {@code calcularFrequenciaTextoLimpo}, que já é calculado uma vez e
+     * consultado a cada evento. A regra pertence ao peer {@code legenda}; aqui é só consumo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem o serviço injetado (construções manuais em teste)
+     * devolve {@link ProtecaoCamadas#VAZIA}, e o pipeline se comporta como antes.
+     */
+    public ProtecaoCamadas calcularProtecaoCamadas(DocumentoLegenda documento) {
+        if (protecaoCamadasMusicais == null) {
+            return ProtecaoCamadas.VAZIA;
+        }
+        return protecaoCamadasMusicais.calcular(documento);
     }
 
     /**
@@ -117,7 +137,26 @@ public class SeletorEventosTraduziveis {
      * traduzível chegue ao LLM.
      */
     public boolean isTraduzivel(EventoLegenda evento, Map<String, Long> frequenciaTextoLimpo) {
+        return isTraduzivel(evento, frequenciaTextoLimpo, ProtecaoCamadas.VAZIA);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma decisão, agora podendo consultar a proteção das camadas de
+     * karaokê calculada uma vez por arquivo pelo peer {@code legenda}. É o sinal PRIMÁRIO da
+     * proteção de romaji: quando duas linhas ocupam o mesmo tempo, a original é reconhecida pelo
+     * PAREAMENTO, e não por nome de estilo ou fonte — que Paulo normaliza de propósito.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a proteção só BLOQUEIA; nunca libera o que as demais regras
+     * negariam. Par indeciso não protege ninguém, então o comportamento anterior é preservado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code protecao} nula equivale a
+     * {@link ProtecaoCamadas#VAZIA} — a decisão fica idêntica à da sobrecarga sem proteção.
+     */
+    public boolean isTraduzivel(EventoLegenda evento, Map<String, Long> frequenciaTextoLimpo, ProtecaoCamadas protecao) {
         if (!evento.isDialogo() || !evento.temTexto()) {
+            return false;
+        }
+        if (protecao != null && protecao.protege(evento.indice())) {
             return false;
         }
         String texto = evento.texto();

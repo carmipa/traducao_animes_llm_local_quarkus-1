@@ -187,6 +187,12 @@ class FronteiraTraducaoArchTest {
      *   <li>E8a: {@code DetectorEfeitoKaraokeService} (regra única música/karaokê),
      *       movido de {@code traducao.application} para {@code legenda.application};
      *       consumido pela Tradução Local via {@code ProcessarArquivoUseCase}.</li>
+     *   <li>Proteção de romaji (Plano-Mestre 2026-07-25, Fase 2):
+     *       {@code ProtecaoCamadasMusicaisService} — pré-passe que reconhece, uma vez por arquivo,
+     *       qual linha é a camada ORIGINAL do karaokê. O record de resultado é ANINHADO no serviço
+     *       e normaliza para a classe de topo, por isso não consome uma segunda entrada aqui.
+     *       Entrou com a fatia consumindo pela superfície pública do peer, sem tocar em
+     *       {@code legenda.infrastructure}.</li>
      * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
@@ -199,7 +205,8 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".legenda.infrastructure.LeitorLegendaSrt",
         RAIZ + ".legenda.infrastructure.EscritorLegendaAss",
         RAIZ + ".legenda.infrastructure.EscritorLegendaSrt",
-        RAIZ + ".legenda.application.DetectorEfeitoKaraokeService"
+        RAIZ + ".legenda.application.DetectorEfeitoKaraokeService",
+        RAIZ + ".legenda.application.ProtecaoCamadasMusicaisService"
     );
 
     /**
