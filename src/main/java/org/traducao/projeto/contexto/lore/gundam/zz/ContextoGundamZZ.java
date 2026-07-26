@@ -112,7 +112,11 @@ public class ContextoGundamZZ implements ProvedorContexto {
             "Earth Federation", "Karaba", "Anaheim Electronics", "Blue Corps",
             "Newtype", "Cyber-Newtype", "Oldtype", "Minovsky", "Psycommu",
             "Mobile Suit", "Mobile Armor", "Beam Rifle", "Beam Saber",
-            "Spacenoid", "Earthnoid", "Mega Particle Cannon"
+            "Spacenoid", "Earthnoid", "Mega Particle Cannon",
+            // Traje pressurizado do piloto. Faltava aqui, e o run completo mostrou o custo:
+            // 23 ocorrências de "normal suit" no inglês, ZERO preservadas, e nove renderizações
+            // diferentes para a mesma peça ao longo dos 47 episódios.
+            "Normal Suit", "Powered Suit", "Powered Spacesuit"
         );
     }
 
