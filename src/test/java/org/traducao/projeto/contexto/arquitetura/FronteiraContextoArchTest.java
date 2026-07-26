@@ -25,14 +25,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>{@code contexto} NÃO depende de {@code traducao} nem de outra fatia funcional:
- *       só JDK/libs técnicas, {@code core} e o próprio {@code contexto}.</li>
+ *       só JDK/libs técnicas, {@code core} e o próprio {@code contexto}. Em particular NÃO
+ *       depende de {@code cachetraducao}: o {@code SnapshotContexto} entrega o prompt
+ *       congelado e nada mais — quem deriva o hash do carimbo de cache é
+ *       {@code traducao.application.ResolvedorCacheTraducao}, com
+ *       {@code ProvenienciaCache.hashDe}. Manter uma cópia do algoritmo aqui criaria DUAS
+ *       fontes do mesmo hash e, ao divergirem, invalidaria todo o cache já gravado.</li>
  *   <li>{@code contexto.domain} é puro: sem {@code contexto.infrastructure} nem framework.</li>
  *   <li>{@code contexto.lore} depende somente de {@code contexto.domain}, JDK e Spring
  *       {@code @Component} — nunca de {@code core}, {@code infrastructure} ou outra fatia.</li>
  *   <li>{@code contexto.infrastructure} é congelado nominalmente: exatamente
  *       {@code GerenciadorContexto} e {@code ContextoBeansConfig}.</li>
- *   <li>{@code contexto.domain} contém os cinco tipos homologados;
- *       {@code contexto.lore} agrega 71 classes.</li>
+ *   <li>{@code contexto.domain} contém os OITO tipos homologados — os cinco da E7b, mais
+ *       {@code SnapshotContexto} (a fotografia imutável do contexto ativo, para que uma
+ *       execução pare de reconsultar o contexto global mutável no meio de um arquivo),
+ *       {@code VeredictoObraContexto} (o desfecho da comparação obra×contexto, movido de
+ *       {@code qualidadeTraducao.domain} porque IDENTIDADE DE OBRA é assunto deste peer) e
+ *       {@code IdentidadeObra} (a identidade canônica derivada de id + nome de exibição, que
+ *       deu cobertura de reconhecimento a TODAS as obras do catálogo de uma vez, e não só às
+ *       que declaram apelidos à mão); {@code contexto.lore} agrega 71 classes.</li>
+ *   <li>{@code contexto.application} é congelado nominalmente em exatamente
+ *       {@code ValidadorCompatibilidadeObraContexto} — o serviço que julga se o arquivo
+ *       pertence à obra cuja lore está selecionada, movido de
+ *       {@code qualidadeTraducao.application.GuardaObraContextoService}. O peer
+ *       {@code qualidadeTraducao} é dono da validação do TEXTO produzido, não da identidade
+ *       da obra; a fatia {@code traducao} apenas consome o veredicto e o traduz em efeito.</li>
+ *   <li>{@code contexto.application} NÃO depende de {@code contexto.infrastructure}: o
+ *       validador recebe os ids que reconhecem a pasta como DADO, sem consultar o
+ *       {@code GerenciadorContexto}, e por isso é testável sem container.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -47,6 +67,7 @@ class FronteiraContextoArchTest {
     private static final String FATIA_CORE = "core";
     private static final String PKG_CONTEXTO = RAIZ + ".contexto";
     private static final String PKG_CONTEXTO_DOMAIN = RAIZ + ".contexto.domain";
+    private static final String PKG_CONTEXTO_APPLICATION = RAIZ + ".contexto.application";
     private static final String PKG_CONTEXTO_LORE = RAIZ + ".contexto.lore";
     private static final String PKG_CONTEXTO_INFRA = RAIZ + ".contexto.infrastructure";
 
@@ -181,7 +202,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada E7b: 5 tipos em domain e 71 lores em contexto.lore")
+    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 71 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -199,12 +220,81 @@ class FronteiraContextoArchTest {
         }
         assertTrue(domain.equals(new TreeSet<>(List.of(
                 "ContextoNaoEncontradoException", "ContextoPrompt", "ExcecaoContexto",
-                "ProvedorContexto", "RegrasConcordanciaPtBr"))),
-            () -> "contexto.domain deve conter exatamente os 5 tipos homologados. Encontrado: " + domain);
+                "IdentidadeObra", "ProvedorContexto", "RegrasConcordanciaPtBr", "SnapshotContexto",
+                "VeredictoObraContexto"))),
+            () -> "contexto.domain deve conter exatamente os 8 tipos homologados (VeredictoObraContexto entrou "
+                + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
+                + "peer). Encontrado: " + domain);
         assertEquals(71, lores,
             "contexto.lore deve agregar exatamente 71 classes de lore (59 @Component + 2 agregadoras Macross "
                 + "Delta/Frontier Filmes + 10 mapas de terminologia: GundamUc, GundamZz, DanMachi, Evangelion, "
                 + "GuiltyCrown, Macross, Macross2, MacrossDelta, MacrossDyrl, BreakBlade)");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela nominalmente a camada de aplicação do peer, criada neste
+     * passo para receber a compatibilidade obra×contexto. Impede que
+     * {@code contexto.application} vire depósito de serviços avulsos: hoje ela existe para
+     * UMA responsabilidade — julgar se o arquivo pertence à obra cuja lore está selecionada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exatamente {@code ValidadorCompatibilidadeObraContexto},
+     * movido de {@code qualidadeTraducao.application.GuardaObraContextoService}. Qualquer
+     * segunda classe reprova até autorização explícita.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reprova listando o conteúdo real do pacote.
+     */
+    @Test
+    @DisplayName("contexto.application é congelado NOMINALMENTE: exatamente ValidadorCompatibilidadeObraContexto")
+    void aplicacaoCongeladaNominalmente() {
+        TreeSet<String> application = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            if (!(pkg.equals(PKG_CONTEXTO_APPLICATION) || pkg.startsWith(PKG_CONTEXTO_APPLICATION + "."))) {
+                continue;
+            }
+            String nome = topo(classe.getName());
+            if (nome.contains("$")) {
+                continue;
+            }
+            application.add(nome.substring(nome.lastIndexOf('.') + 1));
+        }
+        assertEquals(new TreeSet<>(List.of("ValidadorCompatibilidadeObraContexto")), application,
+            "contexto.application deve conter EXATAMENTE ValidadorCompatibilidadeObraContexto "
+                + "(sem liberação genérica da camada; qualquer segunda classe reprova). Encontrado: " + application);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mantém o {@code ValidadorCompatibilidadeObraContexto} decidível
+     * a partir de DADOS, não de estado global — ele recebe os ids que reconhecem a pasta como
+     * argumento em vez de consultar o {@code GerenciadorContexto}. É o que o deixa
+     * determinístico e testável sem container.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma classe de {@code contexto.application} pode depender
+     * de {@code contexto.infrastructure}. A direção permitida é a inversa (infrastructure
+     * pode compor application), nunca esta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reprova listando a aresta exata.
+     */
+    @Test
+    @DisplayName("contexto.application não depende de contexto.infrastructure (validador julga por DADO, não consulta o gerenciador)")
+    void aplicacaoNaoDependeDeInfrastructure() {
+        List<String> violacoes = new ArrayList<>();
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            if (!(pkg.equals(PKG_CONTEXTO_APPLICATION) || pkg.startsWith(PKG_CONTEXTO_APPLICATION + "."))) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destinoPkg = dependencia.getTargetClass().getPackageName();
+                if (destinoPkg.equals(PKG_CONTEXTO_INFRA) || destinoPkg.startsWith(PKG_CONTEXTO_INFRA + ".")) {
+                    violacoes.add(origem + " -> " + topo(dependencia.getTargetClass().getName()));
+                }
+            }
+        }
+        assertTrue(violacoes.isEmpty(),
+            () -> "contexto.application não pode depender de contexto.infrastructure:\n"
+                + String.join("\n", new TreeSet<>(violacoes)));
     }
 
     private static boolean ehDoContexto(JavaClass classe) {

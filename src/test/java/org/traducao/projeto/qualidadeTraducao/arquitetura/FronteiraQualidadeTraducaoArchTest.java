@@ -44,8 +44,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code qualidadeTraducao.domain.ExcecaoQualidadeTraducao},
  *       {@code qualidadeTraducao.domain.LoreAtivaPort}); o nested
  *       {@code MascaradorTags$Mascarado} normaliza para o FQN de {@code MascaradorTags} e
- *       NÃO conta como oitavo top-level. Congelar por FQN (não por simple name) impede
+ *       NÃO conta como um top-level a mais. Congelar por FQN (não por simple name) impede
  *       que uma classe mude de pacote/camada mantendo o mesmo nome sem reprovar.</li>
+ *   <li>NADA sobre IDENTIDADE DE OBRA mora aqui. {@code GuardaObraContextoService} e
+ *       {@code VeredictoObraContexto} chegaram a nascer neste peer e foram movidos para o
+ *       peer {@code contexto} ({@code contexto.application.ValidadorCompatibilidadeObraContexto}
+ *       e {@code contexto.domain.VeredictoObraContexto}): "de qual obra é este arquivo?" é
+ *       pergunta do dono da identidade de obra, enquanto este peer valida o TEXTO PRODUZIDO
+ *       pela tradução. O inventário exato acima é a catraca que impede o retorno — qualquer
+ *       tipo com nome de obra/contexto reaparecendo aqui reprova.</li>
  *   <li>{@code qualidadeTraducao.domain} é puro: só JDK e {@code core}; sem application,
  *       infrastructure ou framework.</li>
  *   <li>{@code qualidadeTraducao.application} depende de domain/core/JDK/Spring técnico;
@@ -102,7 +109,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os oito proprietários top-level do peer qualidadeTraducao")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os oito proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -126,7 +133,43 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
             "qualidadeTraducao deve conter EXATAMENTE os oito proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
+                + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: catraca dedicada da fatia vertical — prova que o peer
+     * {@code qualidadeTraducao} não guarda NADA sobre identidade de obra. Ele valida o TEXTO
+     * produzido pela tradução; "de qual obra é este arquivo?" é pergunta do peer
+     * {@code contexto}, dono da identidade de obra.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nenhum tipo do peer pode se chamar
+     * {@code GuardaObraContextoService} nem {@code VeredictoObraContexto} — os dois nomes
+     * exatos que já moraram aqui e migraram para {@code contexto}. A checagem é por SIMPLE
+     * NAME de propósito: renomear o pacote mantendo o tipo continuaria reprovando.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer um dos dois nomes reaparecendo sob
+     * {@code qualidadeTraducao} reprova, apontando o FQN encontrado.
+     */
+    @Test
+    @DisplayName("qualidadeTraducao NÃO contém identidade de obra (GuardaObraContextoService/VeredictoObraContexto moraram aqui e saíram para contexto)")
+    void semIdentidadeDeObraNoPeerDeQualidade() {
+        TreeSet<String> reincidentes = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            if (!ehDoQualidade(classe)) {
+                continue;
+            }
+            String fqn = topo(classe.getName());
+            String simples = fqn.substring(fqn.lastIndexOf('.') + 1);
+            if (simples.equals("GuardaObraContextoService") || simples.equals("VeredictoObraContexto")) {
+                reincidentes.add(fqn);
+            }
+        }
+        assertTrue(reincidentes.isEmpty(),
+            () -> "A compatibilidade obra×contexto pertence ao peer contexto "
+                + "(contexto.application.ValidadorCompatibilidadeObraContexto e "
+                + "contexto.domain.VeredictoObraContexto). qualidadeTraducao valida o TEXTO produzido, "
+                + "não a identidade da obra. Encontrado de volta em qualidadeTraducao: " + reincidentes);
     }
 
     @Test

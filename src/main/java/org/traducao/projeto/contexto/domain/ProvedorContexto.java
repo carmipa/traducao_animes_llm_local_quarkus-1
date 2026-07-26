@@ -57,4 +57,49 @@ public interface ProvedorContexto {
     default Map<String, String> correcoesTerminologia() {
         return Map.of();
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: nomes ALTERNATIVOS e abreviações pelos quais ESTA obra também é
+     * reconhecível na pasta em que os arquivos de legenda moram (ex.: {@code "Stardust Memory"},
+     * {@code "Z Gundam"}, {@code "86"}). É o COMPLEMENTO da identidade canônica: o id e o nome
+     * de exibição já identificam a obra automaticamente (ver {@link IdentidadeObra#de}), e este
+     * conjunto cobre o que eles não alcançam — o título abreviado, o nome do arco/subtítulo, a
+     * grafia que o grupo de fansub usa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: por padrão VAZIO — e vazio NÃO significa mais "obra sem
+     * identidade": desde a identidade canônica derivada, toda obra do catálogo se reconhece
+     * pelo id e pelo nome de exibição sem declarar nada. Cada apelido é comparado por
+     * SEQUÊNCIA DE PALAVRAS INTEIRAS, então apelidos curtos e numéricos ({@code "86"},
+     * {@code "0083"}) são seguros: não casam dentro de outra palavra nem dentro de
+     * {@code "(1986)"}. Um apelido idêntico ao de OUTRO provedor é erro de configuração e
+     * impede o startup — declarar {@code "Break Blade"} nos seis filmes, por exemplo, é
+     * proibido; cada entrada precisa de um nome que só ela reivindique.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; o conjunto é imutável e sem I/O.
+     *
+     * @return apelidos de pasta desta obra, possivelmente vazio
+     */
+    default Set<String> apelidosPasta() {
+        return Set.of();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se o nome de uma pasta de obra identifica ESTA lore.
+     * Cada obra sabe se reconhecer; quem orquestra apenas pergunta, sem heurística própria.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: delega à {@link IdentidadeObra} derivada deste provedor —
+     * FONTE ÚNICA do reconhecimento. Nenhuma comparação de nome de obra é reimplementada aqui:
+     * duas cópias da regra divergiriam e o catálogo passaria a discordar da guarda sobre o que
+     * é a mesma obra. O casamento exige sequência de palavras INTEIRAS e nunca é um palpite por
+     * similaridade, prefixo ou distância.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome nulo/em branco devolve {@code false}; nunca
+     * lança.
+     *
+     * @param nomeDaPasta nome da pasta da obra, cru como veio do sistema de arquivos
+     * @return {@code true} somente quando um nome canônico casa por palavras inteiras
+     */
+    default boolean reconhecePasta(String nomeDaPasta) {
+        return IdentidadeObra.de(this).reconhece(nomeDaPasta);
+    }
 }

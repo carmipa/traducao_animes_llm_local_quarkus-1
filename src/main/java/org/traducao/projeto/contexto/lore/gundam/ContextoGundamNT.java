@@ -79,6 +79,24 @@ public class ContextoGundamNT implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: complementa a identidade canônica desta obra. A pasta real desta
+     * árvore se chama {@code "Gundam Narrative NT"} e o arquivo,
+     * {@code "Mobile_Suit_Gundam_Narrative"} — nem o id ({@code gundam_nt}) nem o nome de
+     * exibição ({@code "Mobile Suit Gundam NT (Narrative)"}) aparecem nela como sequência de
+     * palavras inteiras, porque {@code "Narrative"} fica ENTRE {@code "Gundam"} e {@code "NT"}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code "NT"} é sigla de identidade (o título da obra), não
+     * ruído de release; declarar as três grafias cobre a pasta com {@code Narrative} no meio,
+     * a abreviada e a expandida, sem nenhuma delas ser reivindicada por outra obra do catálogo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Gundam NT", "Gundam Narrative", "Gundam Narrative NT");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege elenco NT, Phenex/Narrative, Shezarr e termos UC do filme.
      *
      * <p>INVARIANTES DO DOMÍNIO: só artefatos NT / continuidade Unicorn confirmados.

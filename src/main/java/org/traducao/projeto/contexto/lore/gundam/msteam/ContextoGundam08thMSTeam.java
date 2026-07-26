@@ -92,6 +92,21 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: complementa a identidade canônica desta obra com o subtítulo, que é
+     * como a pasta fica quando o grupo abrevia {@code "Mobile Suit Gundam"}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code "08th"} é IDENTIDADE (o número do esquadrão faz parte do
+     * título) e sobrevive à normalização porque dígitos nunca são descartados. Nenhuma outra
+     * obra do catálogo reivindica esta sequência.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("08th MS Team");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege elenco 08th/Zeon/civis, aliases da fansub EN, mecha terrestre,
      * naves e topônimos UC da obra para o LLM não localizar nomes próprios.
      *

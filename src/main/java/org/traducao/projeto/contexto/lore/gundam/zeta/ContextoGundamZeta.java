@@ -96,6 +96,26 @@ public class ContextoGundamZeta implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: complementa a identidade canônica desta obra. A pasta real desta
+     * árvore é {@code "[Joseki] Mobile Suit Z Gundam COMPLETE (1985)..."} — grafada com a LETRA
+     * {@code Z}, enquanto o id ({@code gundam_zeta}) e o nome de exibição
+     * ({@code "Mobile Suit Zeta Gundam"}) usam {@code Zeta} por extenso. Sem estes apelidos, a
+     * obra não se reconheceria na própria pasta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code "Z Gundam"} é seguro apesar de uma das palavras ter uma
+     * letra só, porque o casamento é por sequência de palavras INTEIRAS: na pasta de ZZ
+     * ({@code "Mobile Suit Gundam ZZ"}) as palavras são {@code gundam} e {@code zz}, e
+     * {@code "z gundam"} não aparece ali em nenhuma ordem. É o par mínimo Z × ZZ que o teste de
+     * catálogo mantém preso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Z Gundam", "Zeta Gundam", "Mobile Suit Z Gundam");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege elenco Gryps Conflict, facções, naves e mecha canônicos.
      *
      * <p>INVARIANTES DO DOMÍNIO: só artefatos UC 0087 / Zeta; grafias oficiais.

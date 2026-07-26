@@ -16,6 +16,7 @@ import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
@@ -34,9 +35,12 @@ import java.util.stream.Stream;
  *
  * <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
  * {@link PipelineWebSupport}; contexto de lore é obrigatório e validado (sem
- * fallback silencioso); apenas extensões suportadas ({@code .ass/.ssa/.srt})
- * são traduzidas; nenhuma URL, código HTTP ou nome de campo de DTO é alterado em
- * relação ao controller monolítico original.
+ * fallback silencioso); o contexto do lote é congelado UMA vez, a partir do
+ * {@code contextoId} explícito da requisição, e passado por parâmetro a cada arquivo —
+ * de modo que trocar a obra ativa durante o lote não muda a lore, o prompt nem a
+ * proveniência dos arquivos restantes; apenas extensões suportadas
+ * ({@code .ass/.ssa/.srt}) são traduzidas; nenhuma URL, código HTTP ou nome de campo de
+ * DTO é alterado em relação ao controller monolítico original.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: entrada em branco ou contexto ausente/
  * inválido retorna HTTP 400; falhas por arquivo são contabilizadas, registradas
@@ -118,9 +122,17 @@ public class TraducaoController {
                 String saida = req.saida() != null && !req.saida().isBlank() ? req.saida() : "";
                 pastasExecucao.configurar(req.entrada(), saida, propriedades.diretorioCache(), propriedades);
 
-                // Define o contexto de tradução selecionado na UI
+                // Fotografia ÚNICA do job, resolvida a partir do contextoId EXPLÍCITO da
+                // requisição — não do contexto ativo global. Todos os arquivos deste lote
+                // serão traduzidos, validados e carimbados com ESTE valor imutável: se o
+                // operador (ou outra rota: correção, revisão, karaokê) trocar a obra ativa
+                // enquanto o lote roda, os arquivos restantes continuam na obra pedida.
+                SnapshotContexto contextoDoJob = gerenciadorContexto.snapshotPorId(req.contextoId());
+                // O ativo global continua sendo definido para as rotas legadas que ainda o
+                // leem (revisão de concordância no LlmClientAdapter, fallback do
+                // LoreAtivaContextoAdapter fora de execução). Ele NÃO é a fonte deste lote.
                 gerenciadorContexto.definirContextoAtivo(req.contextoId());
-                System.out.println("\u001B[34m[CONTEXTO] Utilizando contexto: " + gerenciadorContexto.obterNomeContextoAtivo() + "\u001B[0m");
+                System.out.println("\u001B[34m[CONTEXTO] Utilizando contexto: " + contextoDoJob.nomeExibicao() + "\u001B[0m");
 
                 List<Path> arquivos;
                 try (Stream<Path> stream = Files.list(pathEntrada)) {
@@ -140,7 +152,10 @@ public class TraducaoController {
 
                 java.util.List<org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo> resultados = new java.util.ArrayList<>();
                 boolean permitir = Boolean.TRUE.equals(req.permitirRetraducao());
-                String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
+                // Rótulo de lore do RELATÓRIO e da telemetria: sai do snapshot do job, não do
+                // ativo global — do contrário uma troca de obra no meio do lote renomearia,
+                // no relatório, arquivos que foram traduzidos com a obra anterior.
+                String loreNome = contextoDoJob.nomeExibicao();
                 for (int i = 0; i < arquivos.size(); i++) {
                     Path arquivo = arquivos.get(i);
                     if (Thread.currentThread().isInterrupted()) {
@@ -154,7 +169,7 @@ public class TraducaoController {
                     System.out.println("Processando arquivo [" + (i + 1) + "/" + arquivos.size() + "]: " + arquivo.getFileName());
                     System.out.println("--------------------------------------------------------------");
                     try {
-                        var resultado = processarArquivoUseCase.processar(arquivo, permitir);
+                        var resultado = processarArquivoUseCase.processar(arquivo, permitir, contextoDoJob);
                         resultados.add(resultado);
                         if (resultado.status() == org.traducao.projeto.traducao.domain.StatusArquivoTraducao.CONCLUIDO) {
                             System.out.println("[OK] Traduzido: " + arquivo.getFileName());
@@ -163,6 +178,13 @@ public class TraducaoController {
                                 + ": saída parcial em " + resultado.arquivoSaida()
                                 + "; corrija o cache e execute novamente.");
                         }
+                    } catch (org.traducao.projeto.traducao.domain.exceptions.ObraDivergenteDoContextoException ex) {
+                        // Guarda obra×contexto: a obra do caminho é reconhecida por outro
+                        // contexto. É BLOQUEIO, não falha técnica — nada foi enviado ao LLM
+                        // nem gravado em cache, e o lote segue para o próximo arquivo.
+                        resultados.add(org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo.bloqueado(arquivo.getFileName().toString(), loreNome));
+                        registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.BLOQUEADO, ex.getMessage());
+                        System.out.println("[BLOQUEADO] " + arquivo.getFileName() + ": " + ex.getMessage());
                     } catch (org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException ex) {
                         resultados.add(org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo.bloqueado(arquivo.getFileName().toString(), loreNome));
                         registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.BLOQUEADO, ex.getMessage());

@@ -78,6 +78,25 @@ public class Contexto86 implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: complementa a identidade canônica desta obra, que o id
+     * ({@code eight_six}) e o nome de exibição ({@code "86 (Eighty-Six)"}) não cobrem: as
+     * pastas reais desta árvore se chamam {@code "86 Part 1"} e {@code "86 Part 2"} — o título
+     * É o número, sem nenhuma palavra em volta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code "86"} é IDENTIDADE, não ruído de release, e por isso
+     * precisa mesmo estar aqui. Declará-lo é seguro porque o casamento é por palavra INTEIRA:
+     * {@code "86"} não casa dentro de {@code "(1986)"} — o ano da pasta de Gundam ZZ —, nem
+     * dentro de {@code "x265"} ou {@code "1080p"}. É exatamente esse par mínimo que o teste de
+     * catálogo mantém preso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("86", "Eighty-Six");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege léxico de segregação e guerra de 86.
      * <p>INVARIANTES DO DOMÍNIO: Shin e Colorata/Pig nunca viram tradução literal destrutiva.
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável.

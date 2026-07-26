@@ -79,6 +79,23 @@ public class ContextoWarInPocket implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: complementa a identidade canônica desta obra com o subtítulo, que é
+     * como muitos grupos nomeiam a pasta quando abreviam {@code "Mobile Suit Gundam"}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code "0080"} é IDENTIDADE — o par mínimo com {@code "0083"}
+     * (Stardust Memory) é justamente o dígito final, e apagar "número de release" de forma
+     * genérica confundiria as duas OVAs de guerra da UC. O casamento por palavras inteiras
+     * garante que {@code "Gundam 0080"} não case com {@code "Gundam 0083"} nem com
+     * {@code "Gundam 00"}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Gundam 0080", "War in the Pocket");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege elenco 0080, Cyclops Team, mecha e colonias canônicas.
      *
      * <p>INVARIANTES DO DOMÍNIO: grafias oficiais War in the Pocket / UC.

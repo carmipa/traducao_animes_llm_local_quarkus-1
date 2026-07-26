@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
@@ -47,6 +49,10 @@ import java.util.stream.Stream;
  *   <li>Arquivos são processados um por vez de propósito: todos compartilham o
  *       mesmo LLM local (GPU única). Lotes dentro de cada episódio também são
  *       sequenciais (ver {@code ProcessarEpisodioUseCase}).</li>
+ *   <li>O contexto/lore do lote é congelado UMA vez, antes do primeiro arquivo, e
+ *       passado por parâmetro a cada tradução. O {@code GerenciadorContexto} é um bean
+ *       compartilhado com a UI web: sem esse congelamento, uma troca de obra feita por
+ *       outra rota mudaria a lore dos arquivos restantes no meio do lote.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -73,19 +79,32 @@ public class TradutorCLI {
     private final TradutorProperties propriedades;
     private final PastasExecucao pastasExecucao;
     private final LlmPort llmPort;
+    private final GerenciadorContexto gerenciadorContexto;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta os colaboradores da execução CLI, incluindo o catálogo de
+     * contextos — a CLI não recebe id de contexto por requisição, então é ela quem congela o
+     * contexto ativo UMA vez, no início do lote, para passá-lo a cada arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
+     * implementação própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
+     */
     public TradutorCLI(
         ProcessarArquivoUseCase processarArquivoUseCase,
         ConsoleUILogger uiLogger,
         TradutorProperties propriedades,
         PastasExecucao pastasExecucao,
-        LlmPort llmPort
+        LlmPort llmPort,
+        GerenciadorContexto gerenciadorContexto
     ) {
         this.processarArquivoUseCase = processarArquivoUseCase;
         this.uiLogger = uiLogger;
         this.propriedades = propriedades;
         this.pastasExecucao = pastasExecucao;
         this.llmPort = llmPort;
+        this.gerenciadorContexto = gerenciadorContexto;
     }
 
     /**
@@ -147,6 +166,14 @@ public class TradutorCLI {
         log.info("{} arquivo(s) de legenda encontrado(s) em {}", arquivos.size(), diretorioEntrada);
         uiLogger.log(arquivos.size() + " arquivo(s) encontrado(s). Iniciando tradução...");
 
+        // Fotografia ÚNICA do lote. A CLI não recebe id por requisição, então o contexto do
+        // job é o ativo no INSTANTE em que o lote começa — congelado aqui e repassado a cada
+        // arquivo. Reconsultar o gerenciador dentro do laço deixaria uma troca de obra vinda
+        // de outra rota (a UI web compartilha o mesmo bean) mudar a lore no meio do lote.
+        SnapshotContexto contextoDoJob = gerenciadorContexto.snapshotAtivo();
+        log.info("Contexto congelado para o lote: {} ({})",
+            contextoDoJob.nomeExibicao(), contextoDoJob.id());
+
         int sucesso = 0;
         int falha = 0;
         List<String> arquivosComFalha = new ArrayList<>();
@@ -154,7 +181,7 @@ public class TradutorCLI {
             Path arquivo = arquivos.get(i);
             uiLogger.tituloEpisodio(arquivo.getFileName().toString(), i + 1, arquivos.size());
             try {
-                processarArquivoUseCase.processar(arquivo);
+                processarArquivoUseCase.processar(arquivo, false, contextoDoJob);
                 uiLogger.log("[ OK ] " + arquivo.getFileName() + " traduzido com sucesso.");
                 sucesso++;
             } catch (TraducaoParcialException e) {

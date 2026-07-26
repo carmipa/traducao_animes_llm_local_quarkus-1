@@ -83,6 +83,29 @@ public class ContextoGundam0083 implements ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: vocabulário que identifica esta obra pelo nome da pasta, para a
+     * guarda obra×contexto. Nasceu do incidente medido nesta árvore: 15 caches desta obra
+     * foram gravados com {@code proveniencia.contextoId = "guilty_crown"} e ~4.442 entradas
+     * produzidas sob a lore errada (um {@code "No."} virou uma frase sobre Shu Ouma e o
+     * Funeral Parlor). Com estes apelidos, o mesmo clique errado no combo é BLOQUEADO
+     * antes da primeira chamada ao LLM.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: complementam a identidade canônica DERIVADA do id e do nome de
+     * exibição, cobrindo o subtítulo ({@code "Stardust Memory"}) e a grafia curta que os grupos
+     * usam quando abreviam {@code "Mobile Suit"}. O {@code 0083} É a identidade desta obra e por
+     * isso está aqui: o par mínimo com {@code "Gundam 0080"} (War in the Pocket) é o último
+     * dígito, e apagar números por parecerem "ruído de release" fundiria as duas OVAs. Já
+     * {@code "0083"} SOZINHO fica de fora de propósito — sem a palavra {@code "Gundam"} ao lado,
+     * um número solto no nome da pasta não é prova de obra nenhuma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Gundam 0083", "Stardust Memory");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: protege elenco 0083, GP series, Delaz Fleet e operações canônicas.
      *
      * <p>INVARIANTES DO DOMÍNIO: grafias oficiais Stardust Memory / UC 0083.

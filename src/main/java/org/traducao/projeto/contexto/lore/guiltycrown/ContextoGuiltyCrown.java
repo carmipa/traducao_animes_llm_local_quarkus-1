@@ -94,6 +94,14 @@ public class ContextoGuiltyCrown implements ProvedorContexto {
         return PROMPT;
     }
 
+    // SEM apelidosPasta(): esta obra — a que vazou para 15 caches de Gundam 0083 no incidente
+    // medido nesta árvore — é identificada pela IDENTIDADE CANÔNICA DERIVADA do id
+    // ("guilty_crown") e do nome de exibição ("Guilty Crown"), que normalizam para o mesmo
+    // "guilty crown" das pastas reais "[Anime Time...] Guilty Crown + OVA [...]". Declarar o
+    // apelido "Guilty Crown" seria repetir o derivado, e apelido existe para nome ALTERNATIVO
+    // ou abreviação (ver ContextoGundam0083, que declara "Stardust Memory"). O par
+    // 0083 × Guilty Crown fica preso pelo teste de catálogo, contra os nomes reais de pasta.
+
     /**
      * PROPÓSITO DE NEGÓCIO: protege elenco, facções, locais e termos canônicos de Guilty Crown.
      *

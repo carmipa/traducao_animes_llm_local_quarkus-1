@@ -13,9 +13,12 @@ import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
+import org.traducao.projeto.traducao.domain.exceptions.ObraDivergenteDoContextoException;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
+import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
@@ -50,6 +53,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -268,7 +272,29 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override public java.util.Map<String, String> correcoesTerminologia() {
             return java.util.Map.of("fala traduzida", "Legion");
         }
+        // Vocabulário de pasta: "AnimeTeste" é a pasta em que todos os cenários escrevem,
+        // então a guarda obra×contexto os classifica como CASA e o fluxo caracterizado
+        // permanece idêntico.
+        @Override public Set<String> apelidosPasta() { return Set.of("AnimeTeste"); }
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: segunda obra registrada, para que exista uma pasta que OUTRO
+     * contexto reconhece — sem isso não há como provar divergência (que exige prova
+     * positiva de reconhecimento por um contexto diferente do ativo).
+     * <p>INVARIANTES DO DOMÍNIO: nome de exibição posterior a "Caracterizacao" na ordem
+     * case-insensitive, para que o contexto padrão (o primeiro) continue sendo o de teste.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: retornos fixos; não lança.
+     */
+    private static final class ContextoObraAlheia implements ProvedorContexto {
+        @Override public String getId() { return "obra_alheia"; }
+        @Override public String getNomeExibicao() { return "Obra Alheia"; }
+        @Override public String obterPromptSistema() { return "Traduza a obra alheia."; }
+        @Override public Set<String> apelidosPasta() { return Set.of("ObraAlheia"); }
+    }
+
+    /** Gerenciador da última montagem, para os cenários que precisam trocar o contexto ativo. */
+    private GerenciadorContexto gerenciadorMontado;
 
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
@@ -282,10 +308,14 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         MascaradorTags mascarador = new MascaradorTags();
         CacheTraducaoService cache = new CacheTraducaoService(new ObjectMapper());
         ValidadorTraducaoService validador = new ValidadorTraducaoService();
-        GerenciadorContexto gerenciador = new GerenciadorContexto(List.of(new ContextoTeste()));
+        GerenciadorContexto gerenciador =
+            new GerenciadorContexto(List.of(new ContextoTeste(), new ContextoObraAlheia()));
+        this.gerenciadorMontado = gerenciador;
+        ContextoCongeladoDaExecucao contextoCongelado = new ContextoCongeladoDaExecucao();
         // Mesma instância para o detector e para a guarda do fallback: ambos julgam contra a
         // terminologia da obra ATIVA, e usar adapters distintos permitiria divergência silenciosa.
-        LoreAtivaContextoAdapter loreAtivaAdapter = new LoreAtivaContextoAdapter(gerenciador);
+        LoreAtivaContextoAdapter loreAtivaAdapter =
+            new LoreAtivaContextoAdapter(gerenciador, contextoCongelado);
         DetectorTraducaoIdenticaService detectorIdentica =
             new DetectorTraducaoIdenticaService(loreAtivaAdapter);
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
@@ -311,7 +341,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         ResolvedorSaidaLegenda resolvedorSaida = new ResolvedorSaidaLegenda();
         ResolvedorCacheTraducao resolvedorCache =
-            new ResolvedorCacheTraducao(pastas, resolvedorSaida, gerenciador, llmProps, props);
+            new ResolvedorCacheTraducao(pastas, resolvedorSaida, llmProps, props);
         PoliticaBackupTraducao politicaBackup = new PoliticaBackupTraducao(cache, uiLogger);
         SeletorEventosTraduziveis seletorEventos =
             new SeletorEventosTraduziveis(new PoliticaEstiloMusical(List.of()), detectorKaraoke, protecao, mascarador,
@@ -332,12 +362,35 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort, loreAtivaAdapter,
                 new VerificadorIdentificadorNumerico());
 
+        GuardaContextoObraTraducao guardaContextoObra = new GuardaContextoObraTraducao(
+            gerenciador, new ValidadorCompatibilidadeObraContexto(), resolvedorCache, uiLogger);
+
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
-            pastas, telemetria, protecao, gerenciador, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
+            pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new EnforcadorGlossarioFala(), new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
-            new NormalizadorAcentosComuns());
+            new NormalizadorAcentosComuns(), guardaContextoObra, contextoCongelado);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: escreve um episódio dentro de uma pasta de obra ARBITRÁRIA, para
+     * exercitar a guarda obra×contexto — que decide a partir do nome da pasta-avó.
+     * <p>INVARIANTES DO DOMÍNIO: mesma estrutura {@code <Obra>/legendas_originais/arquivo} dos
+     * demais cenários; só o nome da obra muda.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga a {@link IOException} da escrita.
+     */
+    private Path escreverAssEmObra(String obra, String nomeArquivo, String... falas) throws IOException {
+        Path pastaAnime = Files.createDirectories(raiz.resolve(obra).resolve("legendas_originais"));
+        StringBuilder sb = new StringBuilder(CABECALHO_ASS);
+        int t = 1;
+        for (String fala : falas) {
+            sb.append(String.format("Dialogue: 0,0:00:%02d.00,0:00:%02d.00,Default,,0,0,0,,%s%n", t, t + 1, fala));
+            t += 2;
+        }
+        Path arquivo = pastaAnime.resolve(nomeArquivo);
+        Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+        return arquivo;
     }
 
     private Path escreverAss(String nomeArquivo, String... falas) throws IOException {
@@ -380,7 +433,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
@@ -412,11 +465,11 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
 
         FakeLlmPort primeira = new FakeLlmPort();
-        montar(primeira).processar(entrada, false);
+        montar(primeira).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
         assertEquals(1, primeira.chamadas.get());
 
         FakeLlmPort segunda = new FakeLlmPort();
-        ResultadoTraducaoArquivo r = montar(segunda).processar(entrada, false);
+        ResultadoTraducaoArquivo r = montar(segunda).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
         assertEquals(0, segunda.chamadas.get(), "segunda execucao nao pode chamar o LLM");
@@ -432,7 +485,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverSrt("ep.srt", "Hello there", "How are you");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.srt");
@@ -451,7 +504,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.PARCIAL, r.status());
         Path parcial = raiz.resolve("saida").resolve("ep_PT-BR.parcial.ass");
@@ -525,7 +578,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         // então o reparador de marcadores não pode reconstruí-la pelas bordas e recusa.
         Path entrada = escreverAss("ep.ass", "Heavy{\\b1}!", "How are you");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
             "a fala não resolvida mantém o episódio PARCIAL");
@@ -586,7 +639,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     @Test
     void retraducaoLiberadaIgnoraOCacheSemApagarOArquivoAtivo() throws Exception {
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
-        montar(new FakeLlmPort()).processar(entrada, false);
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         Path arquivoCache = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
         assertTrue(Files.exists(arquivoCache), "a primeira execução deve ter gravado o cache");
@@ -594,7 +647,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         long backupsAntes = contarPastas(raizBackup);
 
         FakeLlmPort segunda = new FakeLlmPort();
-        montar(segunda).processar(entrada, true); // retradução explicitamente liberada
+        montar(segunda).processar(entrada, true, gerenciadorMontado.snapshotAtivo()); // retradução explicitamente liberada
 
         assertEquals(1, segunda.chamadas.get(),
             "a retradução ignora o cache em MEMÓRIA e reenvia as falas ao LLM");
@@ -631,7 +684,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         // que o mapa do ContextoTeste restaura para "Legion".
         Path entrada = escreverAss("ep.ass", "The Legion attacks at dawn");
 
-        uc.processar(entrada, false);
+        uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
         assertTrue(Files.exists(saida), "saída final deve existir");
@@ -660,7 +713,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
             "com a fala recuperada pelo fallback, o episódio conclui");
@@ -693,7 +746,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
             "sem resposta do provedor, a fala continua pendente");
@@ -721,7 +774,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm, logger);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
-        uc.processar(entrada, false);
+        uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertTrue(logger.mensagens.stream().anyMatch(m -> m.contains("tradutor de máquina")),
             "deve anunciar o envio ao tradutor de máquina quando há diálogo pendente e o fallback está ligado");
@@ -746,7 +799,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm, logger);
         Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
 
-        uc.processar(entrada, false);
+        uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("tradutor de máquina")),
             "com o fallback desligado, nada de fallback deve ser anunciado");
@@ -770,7 +823,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm, logger);
         Path entrada = escreverAss("ep.ass", "Não é que ele fosse desagradável.");
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
             "a linha já-PT não vira pendência; o episódio conclui sem chamar o LLM");
@@ -799,7 +852,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         ProcessarArquivoUseCase uc = montar(llm, logger);
         Path entrada = escreverAss("ep.ass", "It is because the war changed everything.");
 
-        uc.processar(entrada, false);
+        uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("já no idioma-alvo")),
             "linha inglesa não pode ser classificada como já no idioma-alvo");
@@ -833,7 +886,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         Path pastaSaida = Files.createDirectories(raiz.resolve("saida"));
         Path destinoOcupado = Files.createDirectory(pastaSaida.resolve("ep_PT-BR.ass"));
 
-        assertThrows(ArquivoLegendaException.class, () -> uc.processar(entrada, false));
+        assertThrows(ArquivoLegendaException.class, () -> uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo()));
 
         assertTrue(Files.isDirectory(destinoOcupado), "o diretorio que ocupava o destino permanece intacto");
         try (Stream<Path> itens = Files.list(pastaSaida)) {
@@ -884,7 +937,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         String origemAntes = Files.readString(entrada, StandardCharsets.UTF_8);
 
         try {
-            assertThrows(TraducaoParcialException.class, () -> uc.processar(entrada, false));
+            assertThrows(TraducaoParcialException.class, () -> uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo()));
         } finally {
             Thread.interrupted();
         }
@@ -932,7 +985,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         String desenho = "{\\p1}m 5 5 l 40 5 l 40 40 l 5 40{\\p0}";
         Path entrada = escreverAss("ep.ass", desenho);
 
-        ResultadoTraducaoArquivo r = uc.processar(entrada, false);
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
         assertEquals(0, llm.chamadas.get(), "desenho vetorial nunca deve ir ao LLM");
@@ -961,7 +1014,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         String letreiro = "{\\clip(0,0,300,300)\\t(0,1000,\\frx360)\\pos(20,20)}Hi";
         Path entrada = escreverAss("ep.ass", letreiro, letreiro, letreiro, letreiro, letreiro);
 
-        uc.processar(entrada, false);
+        uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(0, llm.chamadas.get(), "letreiro animado repetido nao deve ir ao LLM");
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
@@ -996,13 +1049,176 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             List.of(new EntradaCache(0, "Default", "Hello there", "Hello there", "en", "pt-BR")));
 
         FakeLlmPort llm = new FakeLlmPort();
-        montar(llm).processar(entrada, false);
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertEquals(1, llm.chamadas.get(),
             "fala em cache que aparenta nao-traduzida deve ser reenviada ao LLM");
         Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
         assertTrue(Files.readString(saida, StandardCharsets.UTF_8).contains("fala traduzida"),
             "a saida deve conter a retraducao, nao o cache suspeito");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (guarda obra×contexto — DIVERGÊNCIA BLOQUEIA): um arquivo que mora
+     * numa pasta reconhecida por OUTRO contexto não pode ser traduzido com a lore selecionada.
+     * É a reprodução direta do incidente medido nesta árvore: 15 caches de Gundam 0083 gravados
+     * com {@code contextoId = "guilty_crown"} e ~4.442 entradas produzidas sob a lore errada,
+     * porque nada comparava a obra do ARQUIVO com o contexto ATIVO.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O bloqueio acontece ANTES do LLM: zero chamadas ao modelo.</li>
+     *   <li>Nada é escrito: nenhum arquivo de cache e nenhuma legenda de saída.</li>
+     *   <li>A mensagem nomeia a obra do caminho, o contexto esperado e o contexto ativo — o
+     *       operador precisa saber qual clique corrigir.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Se a execução prosseguir, o cache nasce carimbado com a lore errada e o dano só aparece
+     * depois, na legenda publicada — que foi exatamente como o incidente passou despercebido.
+     */
+    @Test
+    void obraDivergenteDoContextoAtivoBloqueiaAntesDoLlmESemEscreverNada() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        gerenciadorMontado.definirContextoAtivo("caracterizacao");
+        // Pasta reconhecida por ContextoObraAlheia; contexto ativo é o de caracterização.
+        Path entrada = escreverAssEmObra("ObraAlheia", "ep.ass", "Hello there", "How are you");
+
+        ObraDivergenteDoContextoException erro = assertThrows(
+            ObraDivergenteDoContextoException.class, () -> uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo()));
+
+        assertEquals(0, llm.chamadas.get(), "nenhuma fala pode chegar ao LLM sob a lore errada");
+        assertFalse(Files.exists(raiz.resolve("cache").resolve("ObraAlheia").resolve("ep.cache.json")),
+            "nenhum cache pode ser gravado com a proveniência da obra errada");
+        assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
+            "nenhuma legenda pode ser publicada");
+        assertTrue(erro.getMessage().contains("ObraAlheia"), "a mensagem cita a obra do caminho: " + erro.getMessage());
+        assertTrue(erro.getMessage().contains("obra_alheia"), "a mensagem cita o contexto esperado: " + erro.getMessage());
+        assertTrue(erro.getMessage().contains("caracterizacao"), "a mensagem cita o contexto ativo: " + erro.getMessage());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (guarda obra×contexto — CAMINHO IGUAL PASSA): quando a pasta é
+     * reconhecida pelo contexto ativo, a guarda é transparente: o episódio traduz normalmente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: status {@code CONCLUIDO}, saída final publicada e nenhum aviso
+     * de bloqueio — a guarda não pode custar nada ao caminho feliz.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: uma guarda que bloqueie o caso correto para o pipeline
+     * inteiro; por isso o caso feliz é testado explicitamente, e não só por tabela.
+     */
+    @Test
+    void obraQueConfereComOContextoAtivoTraduzNormalmente() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        gerenciadorMontado.definirContextoAtivo("caracterizacao");
+        // "AnimeTeste" é justamente o apelido de pasta declarado por ContextoTeste.
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
+        assertTrue(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")));
+        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("[ BLOQUEADO ]")),
+            "obra que confere não pode gerar bloqueio: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().noneMatch(m -> m.contains("[ AVISO ]")),
+            "obra que confere não pode gerar aviso de checagem pulada: " + logger.mensagens);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (guarda obra×contexto — CAMINHO DESCONHECIDO AVISA E SEGUE): uma
+     * pasta que nenhum contexto reconhece não é prova de nada. A guarda AVISA que pulou a
+     * checagem e deixa passar — adivinhar a obra a partir de um caminho desconhecido seria
+     * repetir, automatizado, o erro que ela existe para impedir.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A tradução conclui normalmente: nada é bloqueado.</li>
+     *   <li>O aviso aparece na saída dinâmica, para o operador saber que passou sem conferência.</li>
+     *   <li>O aviso NÃO entra na lista de avisos do episódio — se entrasse, todo arquivo de obra
+     *       ainda sem vocabulário declarado viraria {@code PARCIAL}, e "não sei julgar" não é
+     *       tradução incompleta.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Bloquear aqui pararia toda obra que ainda não declarou apelidos de pasta; silenciar aqui
+     * daria a falsa impressão de que o arquivo foi conferido.
+     */
+    @Test
+    void obraNaoReconhecidaAvisaESegueSemMarcarParcial() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(llm, logger);
+        gerenciadorMontado.definirContextoAtivo("caracterizacao");
+        Path entrada = escreverAssEmObra("PastaSemVocabulario", "ep.ass", "Hello there", "How are you");
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "caminho desconhecido não pode bloquear nem marcar o episódio como parcial");
+        assertTrue(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
+            "a saída final deve ser publicada normalmente");
+        assertTrue(logger.mensagens.stream()
+                .anyMatch(m -> m.startsWith("[ AVISO ]") && m.contains("PastaSemVocabulario")),
+            "a checagem pulada precisa ficar visível para o operador: " + logger.mensagens);
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertTrue(tel.errosOcorridos().isEmpty(),
+            "o aviso da guarda não pode entrar em errosOcorridos (marcaria o episódio PARCIAL): "
+                + tel.errosOcorridos());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (snapshot ÚNICO POR JOB — ponta a ponta): o contexto é resolvido
+     * UMA vez, no início do lote, e vale até o último arquivo. Trocar o contexto ativo GLOBAL
+     * no MEIO do lote — outro clique do operador, ou outra rota (correção, revisão, karaokê)
+     * que compartilha o mesmo gerenciador — não pode mudar a lore, o prompt nem a proveniência
+     * dos arquivos que ainda faltam. É o modo de falha exato do incidente medido nesta árvore.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O caso de uso NÃO consulta o gerenciador: recebe o snapshot por parâmetro, o mesmo
+     *       objeto para os dois arquivos do lote.</li>
+     *   <li>Os DOIS caches continuam legíveis sob a proveniência do contexto do início —
+     *       inclusive o do arquivo traduzido DEPOIS da troca global.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Se o contexto voltar a ser lido do gerenciador dentro do laço, o segundo arquivo passa a
+     * declarar a obra nova e a carga com a proveniência do início devolve mapa vazio.
+     */
+    @Test
+    void snapshotDoJobNaoMudaQuandoOContextoGlobalTrocaNoMeioDoLote() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        gerenciadorMontado.definirContextoAtivo("caracterizacao");
+        // Exatamente o que o TraducaoController faz ANTES do laço de arquivos: congela o
+        // contexto a partir do id EXPLÍCITO pedido, sem passar pelo estado global.
+        SnapshotContexto contextoDoJob = gerenciadorMontado.snapshotPorId("caracterizacao");
+        Path primeiro = escreverAss("ep1.ass", "Hello there", "How are you");
+        Path segundo = escreverAss("ep2.ass", "Hello there", "How are you");
+
+        uc.processar(primeiro, false, contextoDoJob);
+        // Troca da obra ativa NO MEIO do lote, entre um arquivo e o próximo.
+        gerenciadorMontado.definirContextoAtivo("obra_alheia");
+        uc.processar(segundo, false, contextoDoJob);
+
+        ProvenienciaCache doInicio = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "caracterizacao",
+            ProvenienciaCache.hashDe("Traduza fielmente para PT-BR."),
+            "modelo-teste", "en", "pt-BR");
+        CacheTraducaoService cacheService = new CacheTraducaoService(new ObjectMapper());
+        Path pastaCache = raiz.resolve("cache").resolve("AnimeTeste");
+
+        assertEquals(2, cacheService.carregar(pastaCache.resolve("ep1.cache.json"), doInicio).mapa().size(),
+            "o primeiro arquivo do lote carimba a proveniência do contexto congelado no início");
+        assertEquals(2, cacheService.carregar(pastaCache.resolve("ep2.cache.json"), doInicio).mapa().size(),
+            "o arquivo traduzido DEPOIS da troca global carimba a MESMA proveniência do início "
+                + "do lote — o snapshot do job não observa o contexto ativo");
+        assertEquals("obra_alheia", gerenciadorMontado.obterIdContextoAtivo(),
+            "o contexto global realmente mudou no meio do lote (senão o teste não prova nada)");
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducaoCorrige.application;
 
+import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class ClassificadorEntradaCacheServiceTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
     private final ClassificadorEntradaCacheService service = new ClassificadorEntradaCacheService(
-        new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)),
+        new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())),
         new ValidadorTraducaoService(),
         new PoliticaEstiloMusical(List.of("Song JP")),
         new DetectorEfeitoKaraokeService(),
