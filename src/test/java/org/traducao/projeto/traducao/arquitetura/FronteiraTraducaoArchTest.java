@@ -233,16 +233,26 @@ class FronteiraTraducaoArchTest {
      * inesperado quanto entrada obsoleta sobrando na allowlist. Conteúdo medido pós-E7b:
      * <ul>
      *   <li>{@code GerenciadorContexto} (infrastructure): consumido por classes de
-     *       {@code traducao} (ProcessarArquivoUseCase, LlmClientAdapter, controllers e,
-     *       desde a E8c.1, {@code LoreAtivaContextoAdapter}) — migrou do {@code traducao} para
-     *       o peer na E7b. Na E8c.1 o {@code DetectorTraducaoIdenticaService} deixou de
-     *       consumi-lo diretamente (saiu para {@code qualidadeTraducao} e passou a depender da
-     *       porta {@code LoreAtivaPort}); o adapter assumiu essa dependência, então o tipo
-     *       {@code GerenciadorContexto} permanece consumido por traducao e no congelamento.</li>
+     *       {@code traducao} — os pontos de ENTRADA que resolvem o contexto do job
+     *       ({@code TraducaoController} via {@code snapshotPorId}, {@code TradutorCLI} via
+     *       {@code snapshotAtivo}, {@code PipelineController}), a guarda obra×contexto
+     *       ({@code idsQueReconhecem}), o {@code LlmClientAdapter} e o
+     *       {@code LoreAtivaContextoAdapter} — migrou do {@code traducao} para o peer na E7b.
+     *       {@code ProcessarArquivoUseCase} e {@code ResolvedorCacheTraducao} SAÍRAM da lista
+     *       de consumidores: o contexto do job passou a chegar neles por PARÂMETRO (ver
+     *       {@link #contextoDoJobEntraPorParametroNaoPeloGerenciador()}).</li>
      *   <li>{@code ProvedorContexto}: {@code PipelineController.getProvedores()}
      *       (lambda {@code p -> new ContextoResponse(p.getId()...)}).</li>
      *   <li>{@code RegrasConcordanciaPtBr}: {@code LlmClientAdapter} (bloco de tradução
      *       e prompt de revisão de concordância).</li>
+     *   <li>{@code SnapshotContexto}: fotografia imutável do contexto, congelada UMA vez por
+     *       JOB no ponto de entrada e repassada por parâmetro a cada arquivo do lote.</li>
+     *   <li>Guarda obra×contexto (identidade de obra é do peer {@code contexto}):
+     *       {@code ValidadorCompatibilidadeObraContexto} (emite o veredicto e redige as
+     *       mensagens) e {@code VeredictoObraContexto} (o desfecho). Ambos chegaram a nascer
+     *       em {@code qualidadeTraducao} e foram movidos para cá; a fatia {@code traducao}
+     *       consome os dois APENAS pelo {@code GuardaContextoObraTraducao}, que traduz
+     *       veredicto em efeito (bloqueio/aviso) e não decide compatibilidade.</li>
      * </ul>
      * SAÍRAM na E7b (deixaram de ser consumidos diretamente por {@code traducao}, pois só o
      * manager os usava): {@code ContextoPrompt} (obterLoreAtiva) e
@@ -252,7 +262,17 @@ class FronteiraTraducaoArchTest {
     private static final Set<String> CONTEXTO_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".contexto.infrastructure.GerenciadorContexto",
         RAIZ + ".contexto.domain.ProvedorContexto",
-        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr"
+        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr",
+        // A fotografia imutável do contexto, congelada UMA vez por JOB no ponto de entrada
+        // (TraducaoController/TradutorCLI) e trafegada por PARÂMETRO por ProcessarArquivoUseCase,
+        // ResolvedorCacheTraducao, GuardaContextoObraTraducao, ContextoCongeladoDaExecucao
+        // (ponte legada) e LoreAtivaContextoAdapter.
+        RAIZ + ".contexto.domain.SnapshotContexto",
+        // Guarda obra×contexto (identidade de obra pertence ao peer contexto): o validador
+        // que emite o veredicto e redige as mensagens, e o próprio veredicto. Consumidos
+        // SOMENTE por GuardaContextoObraTraducao, o tradutor de veredicto em efeito da fatia.
+        RAIZ + ".contexto.application.ValidadorCompatibilidadeObraContexto",
+        RAIZ + ".contexto.domain.VeredictoObraContexto"
     );
 
     /**
@@ -270,7 +290,10 @@ class FronteiraTraducaoArchTest {
      * {@code LoreAtivaContextoAdapter} em {@code traducao.infrastructure}) desde a E8c.1.
      * {@code ExcecaoQualidadeTraducao} NÃO entra por ser base interna da exceção, sem consumo
      * direto medido. O nested {@code MascaradorTags$Mascarado} é normalizado ao proprietário
-     * {@code MascaradorTags}.
+     * {@code MascaradorTags}. {@code GuardaObraContextoService} e {@code VeredictoObraContexto}
+     * SAÍRAM deste conjunto: a compatibilidade obra×contexto migrou para o peer {@code contexto}
+     * (ver {@link #CONTEXTO_TIPOS_CONGELADOS}), porque identidade de obra é do dono da obra e
+     * este peer valida o TEXTO produzido.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@link #qualidadeTraducaoCongeladoPorTipo()} exige
      * igualdade {@code tiposUsados == QUALIDADE_TRADUCAO_TIPOS_CONGELADOS}, reprovando tanto
@@ -485,8 +508,115 @@ class FronteiraTraducaoArchTest {
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela o ÚNICO ponto da fatia {@code traducao} autorizado a tocar
+     * na compatibilidade obra×contexto — {@code GuardaContextoObraTraducao}, que traduz o
+     * veredicto do peer {@code contexto} em efeito (bloqueio, aviso ou seguimento). Espalhar
+     * esse consumo por use cases ou controllers duplicaria, dentro da fatia, uma regra cujo
+     * dono é o peer {@code contexto}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma classe de {@code traducao} além de
+     * {@code traducao.application.GuardaContextoObraTraducao} pode depender de
+     * {@code ValidadorCompatibilidadeObraContexto} ou de {@code VeredictoObraContexto}. Os
+     * demais consumidores da fatia enxergam apenas o EFEITO
+     * ({@code ObraDivergenteDoContextoException}), nunca o veredicto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer outra classe de {@code traducao} apontando
+     * para um dos dois tipos reprova, listando a aresta exata.
+     */
     @Test
-    @DisplayName("contexto é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente os tipos homologados do peer (E7b)")
+    @DisplayName("obra×contexto entra em traducao SÓ pelo GuardaContextoObraTraducao (a fatia traduz veredicto em efeito, não julga)")
+    void obraContextoEntraSoPelaGuardaDaTraducao() {
+        Set<String> tiposDoVeredicto = Set.of(
+            RAIZ + ".contexto.application.ValidadorCompatibilidadeObraContexto",
+            RAIZ + ".contexto.domain.VeredictoObraContexto");
+        String guardaAutorizada = RAIZ + ".traducao.application.GuardaContextoObraTraducao";
+
+        Set<String> violacoes = new TreeSet<>();
+        boolean guardaConsome = false;
+        for (JavaClass classe : classesProducao) {
+            if (!ehDaTraducao(classe)) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = topo(dependencia.getTargetClass().getName());
+                if (!tiposDoVeredicto.contains(destino)) {
+                    continue;
+                }
+                if (origem.equals(guardaAutorizada)) {
+                    guardaConsome = true;
+                } else {
+                    violacoes.add(aresta(origem, destino));
+                }
+            }
+        }
+        assertTrue(guardaConsome,
+            "GuardaContextoObraTraducao deve continuar consumindo o veredicto do peer contexto "
+                + "(é ela quem traduz DIVERGENTE em bloqueio e INDETERMINADO em aviso)");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Só GuardaContextoObraTraducao pode consumir a compatibilidade obra×contexto dentro de "
+                + "traducao; as demais classes veem apenas o efeito (ObraDivergenteDoContextoException). "
+                + "Violações:\n" + String.join("\n", violacoes));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela a direção pela qual o contexto/lore entra no PIPELINE de
+     * tradução — por PARÂMETRO, resolvido UMA vez por job no ponto de entrada. O
+     * {@code GerenciadorContexto} guarda um contexto ativo global e mutável, compartilhado com
+     * todas as outras rotas (correção, revisão, karaokê) e com a UI; qualquer classe do
+     * pipeline que volte a consultá-lo no meio de um lote reabre a janela do incidente medido
+     * nesta árvore — arquivos do mesmo lote traduzidos, validados e carimbados com obras
+     * diferentes, sem nenhum sinal.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: dentro de {@code traducao.application}, SOMENTE
+     * {@code GuardaContextoObraTraducao} pode depender de {@code GerenciadorContexto} — e por
+     * um motivo que não é escolher lore: ela pergunta ao catálogo QUAIS contextos reconhecem a
+     * pasta ({@code idsQueReconhecem}), fato que não existe no snapshot. Todo o resto
+     * ({@code ProcessarArquivoUseCase}, {@code ResolvedorCacheTraducao}, …) recebe
+     * {@code SnapshotContexto} na assinatura. Resolver o contexto do job continua permitido em
+     * {@code presentation} (controller e CLI), que é onde o id explícito chega.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer outra classe de {@code traducao.application}
+     * apontando para o gerenciador reprova, listando a aresta exata.
+     */
+    @Test
+    @DisplayName("contexto do job entra por PARÂMETRO: em traducao.application só a guarda obra×contexto conhece o GerenciadorContexto")
+    void contextoDoJobEntraPorParametroNaoPeloGerenciador() {
+        String gerenciador = RAIZ + ".contexto.infrastructure.GerenciadorContexto";
+        String guardaAutorizada = RAIZ + ".traducao.application.GuardaContextoObraTraducao";
+        String pkgApplication = RAIZ + ".traducao.application";
+
+        Set<String> violacoes = new TreeSet<>();
+        boolean guardaConsome = false;
+        for (JavaClass classe : classesProducao) {
+            String pkg = classe.getPackageName();
+            if (!(pkg.equals(pkgApplication) || pkg.startsWith(pkgApplication + "."))) {
+                continue;
+            }
+            String origem = topo(classe.getName());
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                if (!gerenciador.equals(topo(dependencia.getTargetClass().getName()))) {
+                    continue;
+                }
+                if (origem.equals(guardaAutorizada)) {
+                    guardaConsome = true;
+                } else {
+                    violacoes.add(aresta(origem, gerenciador));
+                }
+            }
+        }
+        assertTrue(guardaConsome,
+            "GuardaContextoObraTraducao deve continuar consultando o catálogo (idsQueReconhecem): "
+                + "quais contextos reconhecem a pasta é fato do catálogo, não do snapshot");
+        assertTrue(violacoes.isEmpty(),
+            () -> "Nenhuma outra classe de traducao.application pode ler o contexto ATIVO GLOBAL: "
+                + "o contexto do job é resolvido UMA vez no ponto de entrada e trafega por "
+                + "parâmetro (SnapshotContexto). Violações:\n" + String.join("\n", violacoes));
+    }
+
+    @Test
+    @DisplayName("contexto é congelado por tipo com igualdade EXATA: Tradução Local usa exatamente os tipos homologados do peer (E7b + guarda obra×contexto)")
     void contextoCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposContextoUsados = new TreeSet<>();
@@ -530,7 +660,7 @@ class FronteiraTraducaoArchTest {
      * medido diferente do congelado (tipo novo ou entrada obsoleta) reprova o teste.
      */
     @Test
-    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: MascaradorTags, AlucinacaoDetectadaException (E8b), ValidadorTraducaoService, ProtecaoLegendaAssService (E8c), DetectorTraducaoIdenticaService e LoreAtivaPort (E8c.1)")
+    @DisplayName("qualidadeTraducao é congelado por tipo com igualdade EXATA: MascaradorTags, AlucinacaoDetectadaException (E8b), ValidadorTraducaoService, ProtecaoLegendaAssService (E8c), DetectorTraducaoIdenticaService e LoreAtivaPort (E8c.1) — sem nada de identidade de obra")
     void qualidadeTraducaoCongeladoPorTipo() {
         List<String> violacoes = new ArrayList<>();
         Set<String> tiposQualidadeUsados = new TreeSet<>();

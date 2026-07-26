@@ -1,5 +1,6 @@
 package org.traducao.projeto.raspagemCorrecao.application;
 
+import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,7 +51,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
@@ -86,7 +87,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups-interrupcao"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(

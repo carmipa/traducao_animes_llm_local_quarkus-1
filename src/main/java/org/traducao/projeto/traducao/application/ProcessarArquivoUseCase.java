@@ -18,7 +18,7 @@ import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
@@ -68,7 +68,6 @@ public class ProcessarArquivoUseCase {
     private final PastasExecucao pastasExecucao;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final ProtecaoLegendaAssService protecaoAss;
-    private final GerenciadorContexto gerenciadorContexto;
     private final ResolvedorSaidaLegenda resolvedorSaida;
     private final ResolvedorCacheTraducao resolvedorCache;
     private final PoliticaBackupTraducao politicaBackup;
@@ -83,6 +82,8 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
+    private final GuardaContextoObraTraducao guardaContextoObra;
+    private final ContextoCongeladoDaExecucao contextoCongelado;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -102,7 +103,6 @@ public class ProcessarArquivoUseCase {
         PastasExecucao pastasExecucao,
         TelemetriaTraducaoPort telemetriaTraducao,
         ProtecaoLegendaAssService protecaoAss,
-        GerenciadorContexto gerenciadorContexto,
         ResolvedorSaidaLegenda resolvedorSaida,
         ResolvedorCacheTraducao resolvedorCache,
         PoliticaBackupTraducao politicaBackup,
@@ -116,7 +116,9 @@ public class ProcessarArquivoUseCase {
         EnforcadorGlossarioFala enforcadorGlossarioFala,
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
-        NormalizadorAcentosComuns normalizadorAcentos
+        NormalizadorAcentosComuns normalizadorAcentos,
+        GuardaContextoObraTraducao guardaContextoObra,
+        ContextoCongeladoDaExecucao contextoCongelado
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -128,7 +130,6 @@ public class ProcessarArquivoUseCase {
         this.pastasExecucao = pastasExecucao;
         this.telemetriaTraducao = telemetriaTraducao;
         this.protecaoAss = protecaoAss;
-        this.gerenciadorContexto = gerenciadorContexto;
         this.resolvedorSaida = resolvedorSaida;
         this.resolvedorCache = resolvedorCache;
         this.politicaBackup = politicaBackup;
@@ -143,44 +144,102 @@ public class ProcessarArquivoUseCase {
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
-    }
-
-    public Path processar(Path arquivoEntrada) throws InterruptedException, ExecutionException {
-        return processar(arquivoEntrada, false).arquivoSaida();
+        this.guardaContextoObra = guardaContextoObra;
+        this.contextoCongelado = contextoCongelado;
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: Traduz um arquivo de legenda. Quando a entrada aparenta
-     * já estar em PT-BR, a retradução é BLOQUEADA por padrão — evita traduzir de
-     * novo uma legenda já traduzida e sobrescrever trabalho bom.
+     * PROPÓSITO DE NEGÓCIO: Traduz um arquivo de legenda sob o contexto que o JOB escolheu.
+     * Quando a entrada aparenta já estar em PT-BR, a retradução é BLOQUEADA por padrão —
+     * evita traduzir de novo uma legenda já traduzida e sobrescrever trabalho bom.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só reprocessa uma entrada que parece traduzida se
-     * {@code permitirRetraducao} for explicitamente verdadeiro (confirmação do
-     * usuário); com essa liberação, uma saída final existente só é substituída após
-     * backup obrigatório, inclusive quando a nova execução ainda ficar parcial.
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O contexto chega por PARÂMETRO e é o mesmo objeto para todos os arquivos do lote:
+     *       quem resolve é o chamador, UMA vez, a partir do id explicitamente pedido. Este
+     *       caso de uso não conhece mais o {@code GerenciadorContexto} — antes ele consultava
+     *       o contexto ATIVO GLOBAL a cada arquivo, e uma troca de obra no meio do lote fazia
+     *       os arquivos seguintes saírem com outra lore, prompt e proveniência, sem sinal.</li>
+     *   <li>A guarda obra×contexto roda POR ARQUIVO (pastas mistas: obras diferentes sob a
+     *       mesma entrada), sempre contra ESTE mesmo snapshot — é a revalidação que bloqueia
+     *       o arquivo alheio sem reabrir a porta para outra lore entrar no lugar.</li>
+     *   <li>Só reprocessa uma entrada que parece traduzida se {@code permitirRetraducao} for
+     *       explicitamente verdadeiro (confirmação do usuário); com essa liberação, uma saída
+     *       final existente só é substituída após backup obrigatório, inclusive quando a nova
+     *       execução ainda ficar parcial.</li>
+     * </ul>
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada aparentemente já traduzida sem
-     * confirmação → lança {@link ArquivoLegendaException} (o lote registra o
-     * arquivo como falha e segue para o próximo); falha ao criar backup aborta a
-     * substituição e preserva o arquivo final anterior.
+     * <h2>Comportamento em caso de falha</h2>
+     * Entrada aparentemente já traduzida sem confirmação → lança
+     * {@link EntradaJaTraduzidaException} (o lote registra o arquivo como falha e segue para
+     * o próximo); obra do caminho divergente do contexto do job → lança
+     * {@code ObraDivergenteDoContextoException} antes de qualquer LLM ou escrita; falha ao
+     * criar backup aborta a substituição e preserva o arquivo final anterior. Contexto nulo é
+     * um erro de programação do chamador e falha rápido, em vez de degradar silenciosamente
+     * para o contexto global — degradar aqui reintroduziria o bug que este parâmetro elimina.
+     *
+     * @param arquivoEntrada legenda a traduzir
+     * @param permitirRetraducao liberação explícita para reprocessar entrada já traduzida
+     * @param contextoDoJob fotografia imutável do contexto escolhido para o job inteiro
      */
-    public ResultadoTraducaoArquivo processar(Path arquivoEntrada, boolean permitirRetraducao) throws InterruptedException, ExecutionException {
+    public ResultadoTraducaoArquivo processar(
+        Path arquivoEntrada, boolean permitirRetraducao, SnapshotContexto contextoDoJob
+    ) throws InterruptedException, ExecutionException {
         long inicioMs = System.currentTimeMillis();
+        if (contextoDoJob == null) {
+            throw new IllegalArgumentException(
+                "Contexto do job obrigatório: a tradução de " + arquivoEntrada
+                    + " não pode escolher lore por conta própria.");
+        }
+        // Portão determinístico ANTES de ler a legenda, de chamar o LLM e de escrever cache:
+        // arquivo cuja obra é reconhecida por outro contexto é BLOQUEADO aqui. Roda por
+        // arquivo (a pasta de entrada pode misturar obras) contra o MESMO snapshot do job.
+        guardaContextoObra.verificar(arquivoEntrada, contextoDoJob);
+        // Ponte para o consumidor legado que ainda lê a lore por ThreadLocal (ver
+        // ContextoCongeladoDaExecucao): a validação de cada fala atravessa a porta
+        // LoreAtivaPort, que não recebe o snapshot por parâmetro.
+        contextoCongelado.definir(contextoDoJob);
+        try {
+            return traduzirArquivo(arquivoEntrada, permitirRetraducao, inicioMs, contextoDoJob);
+        } finally {
+            // Sempre: um snapshot vazado sobreviveria à thread da fila única e contaminaria
+            // o próximo job com a lore do arquivo anterior.
+            contextoCongelado.limpar();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: executa a tradução do arquivo já autorizada pela guarda e sob um
+     * contexto congelado, do cache à publicação da legenda PT-BR.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: toda leitura de lore desta execução vem do parâmetro
+     * {@code contexto} — prompt do LLM, proveniência do cache, mapa de terminologia e nome
+     * da lore na telemetria. Nenhuma consulta ao contexto global acontece daqui para baixo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mantém o contrato de erro do fluxo original —
+     * entrada aparentemente já traduzida sem confirmação lança
+     * {@link EntradaJaTraduzidaException}; cancelamento no meio propaga
+     * {@link TraducaoParcialException} com o progresso persistido; falha de I/O vira
+     * {@link ArquivoLegendaException}.
+     */
+    private ResultadoTraducaoArquivo traduzirArquivo(
+        Path arquivoEntrada, boolean permitirRetraducao, long inicioMs, SnapshotContexto contexto
+    ) throws InterruptedException, ExecutionException {
         boolean ehSrt = ehSrt(arquivoEntrada);
         log.info("Lendo arquivo de legenda: {}", arquivoEntrada);
         DocumentoLegenda documento = ehSrt ? leitorSrt.ler(arquivoEntrada) : leitor.ler(arquivoEntrada);
 
         Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada);
-        ProvenienciaCache proveniencia = resolvedorCache.provenienciaAtual();
+        ProvenienciaCache proveniencia = resolvedorCache.provenienciaDe(contexto);
         boolean cacheAnteriorJaPreservado = false;
         if (permitirRetraducao && Files.exists(arquivoCache)) {
             politicaBackup.arquivarCacheAntesDaRetraducao(arquivoCache);
             cacheAnteriorJaPreservado = true;
         }
-        // Congela o prompt de sistema no início do arquivo: se o contexto global
-        // mudar (troca de lore) enquanto este episódio traduz, o prompt já capturado
-        // continua valendo até o fim — a mesma origem carimbada na proveniência.
-        String promptCongelado = gerenciadorContexto.obterPromptAtivo();
+        // Prompt do snapshot congelado no início do arquivo: se o contexto global mudar
+        // (troca de lore) enquanto este episódio traduz, o prompt já capturado continua
+        // valendo até o fim — a mesma origem carimbada na proveniência acima.
+        String promptCongelado = contexto.promptSistema();
         // Retradução liberada: a geração anterior é descartada EM MEMÓRIA. Antes, quem
         // produzia o mapa vazio era o arquivo ter sido apagado do disco no passo acima —
         // e era isso que deixava o episódio sem cache nenhum se a execução caísse no meio.
@@ -449,7 +508,7 @@ public class ProcessarArquivoUseCase {
         // "Coveiro" -> "Undertaker"): restaura a grafia oficial nas traduções válidas SEM
         // depender do modelo. Só age quando o original contém o termo canônico; mapa vazio
         // (outra obra) é no-op. Não altera pendências (falas em branco são ignoradas).
-        Map<String, String> correcoesLore = gerenciadorContexto.correcoesTerminologiaAtiva();
+        Map<String, String> correcoesLore = contexto.correcoesTerminologia();
         if (!correcoesLore.isEmpty()) {
             for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
                 String traduzido = traducao.getValue();
@@ -524,7 +583,7 @@ public class ProcessarArquivoUseCase {
 
         long tempoTotalMs = System.currentTimeMillis() - inicioMs;
         String animeNome = resolvedorCache.animeAPartirDoArquivo(arquivoEntrada);
-        String loreNome = gerenciadorContexto.obterNomeContextoAtivo();
+        String loreNome = contexto.nomeExibicao();
         int traducoesNovasValidas = (int) traducoesNovas.entrySet().stream()
             .filter(e -> {
                 String validada = traducoesValidadas.get(e.getKey());

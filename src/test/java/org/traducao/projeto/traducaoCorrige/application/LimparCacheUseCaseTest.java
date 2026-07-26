@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducaoCorrige.application;
 
+import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class LimparCacheUseCaseTest {
     void preparar() {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         auditoria = new AuditoriaStub(mapper);
         useCase = new LimparCacheUseCase(

@@ -1,5 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
+import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -69,7 +70,7 @@ class RevisarCacheUseCaseTest {
             new ContextoTeste("gundam", "Gundam", "Amuro Ray")));
         LlmStub llm = new LlmStub(contexto);
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto)), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,

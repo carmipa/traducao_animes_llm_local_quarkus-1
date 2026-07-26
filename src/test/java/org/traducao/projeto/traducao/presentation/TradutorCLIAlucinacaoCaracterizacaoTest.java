@@ -3,7 +3,10 @@ package org.traducao.projeto.traducao.presentation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
+import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.llm.domain.LlmPort;
@@ -18,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -58,16 +62,24 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         @Override public Optional<String> corrigirTraducao(String a, String b, String c) { return Optional.empty(); }
     }
 
-    /** Caso de uso que sempre alucina — conta quantos arquivos foram efetivamente processados. */
+    /**
+     * Caso de uso que sempre alucina — conta quantos arquivos foram efetivamente processados
+     * e registra o contexto que o CLI passou, para provar que ele congela UM snapshot para o
+     * lote inteiro em vez de reconsultar o gerenciador por arquivo.
+     */
     private static final class ProcessarArquivoAlucina extends ProcessarArquivoUseCase {
         final AtomicInteger chamadas = new AtomicInteger();
+        final List<SnapshotContexto> contextosRecebidos = new java.util.ArrayList<>();
         ProcessarArquivoAlucina() {
             super(null, null, null, null, null, null, null, null, null, null,
-                  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                  null);
         }
         @Override
-        public Path processar(Path arquivoEntrada) {
+        public ResultadoTraducaoArquivo processar(
+            Path arquivoEntrada, boolean permitirRetraducao, SnapshotContexto contextoDoJob) {
             chamadas.incrementAndGet();
+            contextosRecebidos.add(contextoDoJob);
             throw new AlucinacaoDetectadaException("alucinacao em " + arquivoEntrada.getFileName());
         }
     }
@@ -84,11 +96,19 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
             entrada.toString(), entrada.toString(), entrada.toString(), 20, List.of(), "en", "pt-BR");
         PastasExecucao pastas = new PastasExecucao();
 
-        TradutorCLI cli = new TradutorCLI(processar, uiLogger, props, pastas, new LlmDisponivel());
+        GerenciadorContexto gerenciador = new GerenciadorContexto(List.of());
+        TradutorCLI cli = new TradutorCLI(
+            processar, uiLogger, props, pastas, new LlmDisponivel(), gerenciador);
         cli.executar();
 
         // Continuidade do lote: os DOIS arquivos foram processados apesar da falha no primeiro.
         assertEquals(2, processar.chamadas.get(), "o lote deve continuar após a falha do primeiro arquivo");
+
+        // Snapshot ÚNICO por lote: o CLI congela o contexto antes do laço e passa o MESMO
+        // objeto a cada arquivo, em vez de reconsultar o gerenciador (global e mutável).
+        assertEquals(2, processar.contextosRecebidos.size());
+        assertSame(processar.contextosRecebidos.get(0), processar.contextosRecebidos.get(1),
+            "todos os arquivos do lote devem receber a MESMA fotografia de contexto");
 
         // Mensagem preservada no formato do ramo crítico "[ FAIL ] Falha em X: msg".
         long falhasFormatoCritico = uiLogger.linhas.stream()

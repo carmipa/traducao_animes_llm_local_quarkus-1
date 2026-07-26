@@ -2,7 +2,7 @@ package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -23,15 +23,16 @@ import java.util.regex.Pattern;
  *   <li>O arquivo de cache mora em {@code <diretorioCache>/<anime>/<base>.cache.json},
  *       preservando a extensão do formato via {@link ResolvedorSaidaLegenda} e o mesmo
  *       nome-base do episódio.</li>
- *   <li>A proveniência carimba os seis campos canônicos (schema, contexto ativo, hash
- *       do prompt ativo, modelo, idiomas) — qualquer troca de lore/modelo/idioma muda o
- *       carimbo e invalida o cache antigo.</li>
+ *   <li>A proveniência carimba os seis campos canônicos (schema, contexto congelado do job,
+ *       hash do prompt desse contexto, modelo, idiomas) — qualquer troca de lore/modelo/
+ *       idioma muda o carimbo e invalida o cache antigo. O contexto chega por PARÂMETRO;
+ *       este resolvedor não consulta o contexto ativo global.</li>
  *   <li>O nome do anime vem da pasta-avó do arquivo ({@code <Anime>/legendas_originais/
  *       arquivo.ass}); a temporada é extraída desse nome quando presente.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Não lança: sem contexto ativo, {@code contextoId} vem nulo e o hash do prompt padrão
+ * Não lança: um snapshot neutro carimba {@code contextoId} nulo e o hash do prompt genérico
  * ainda é calculado (a comparação de proveniência trata nulos como divergência); um
  * caminho sem pasta-avó reconhecível resolve o anime como {@code "Desconhecido"} e a
  * temporada como {@code "Temporada Única"}.
@@ -44,35 +45,34 @@ public class ResolvedorCacheTraducao {
 
     private final PastasExecucao pastasExecucao;
     private final ResolvedorSaidaLegenda resolvedorSaida;
-    private final GerenciadorContexto gerenciadorContexto;
     private final LlmProperties llmPropriedades;
     private final TradutorProperties propriedades;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as fontes que compõem a identidade de cache do episódio —
-     * diretórios, extensão do formato, contexto/lore ativo, modelo e idiomas.
+     * diretórios, extensão do formato, modelo e idiomas.
      *
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas; não as substitui nem cria
-     * implementação própria.
+     * implementação própria. O contexto/lore NÃO é colaborador injetado: ele chega por
+     * parâmetro em {@link #provenienciaDe(SnapshotContexto)}, já congelado pelo job. Injetar
+     * o {@code GerenciadorContexto} aqui era uma segunda porta para o estado global mutável,
+     * capaz de carimbar o cache com uma obra diferente da que produziu o prompt.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
      *
      * @param pastasExecucao raiz de cache/saída resolvidas para a execução
      * @param resolvedorSaida provê a extensão canônica do formato de legenda
-     * @param gerenciadorContexto fonte do contexto/lore e do prompt ativos
      * @param llmPropriedades configuração de onde vem o modelo efetivamente ativo
      * @param propriedades idiomas de origem/destino do carimbo de proveniência
      */
     public ResolvedorCacheTraducao(
         PastasExecucao pastasExecucao,
         ResolvedorSaidaLegenda resolvedorSaida,
-        GerenciadorContexto gerenciadorContexto,
         LlmProperties llmPropriedades,
         TradutorProperties propriedades
     ) {
         this.pastasExecucao = pastasExecucao;
         this.resolvedorSaida = resolvedorSaida;
-        this.gerenciadorContexto = gerenciadorContexto;
         this.llmPropriedades = llmPropriedades;
         this.propriedades = propriedades;
     }
@@ -96,22 +96,32 @@ public class ResolvedorCacheTraducao {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: carimbo de origem da tradução em cache — qual lore, hash do
-     * prompt de sistema, modelo e idiomas estão em vigor nesta execução. É o que impede
-     * o cache de reusar traduções feitas com um lore diferente.
+     * PROPÓSITO DE NEGÓCIO: carimba a proveniência a partir do contexto CONGELADO do job, e
+     * não do contexto ativo global. É o que garante que o cache gravado no fim do arquivo
+     * declare a mesma lore que produziu o prompt enviado ao LLM no começo dele — mesmo que o
+     * operador troque a obra no combo enquanto o episódio traduz.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o hash reflete o prompt ativo inteiro; qualquer mudança
-     * de lore/regra o altera e invalida o cache antigo.
+     * <p>INVARIANTES DO DOMÍNIO: este método é a FRONTEIRA DE INTEGRAÇÃO entre o peer
+     * {@code contexto} (que só entrega o prompt congelado) e o peer {@code cachetraducao}
+     * (dono do formato do carimbo). O hash é derivado AQUI, com
+     * {@link ProvenienciaCache#hashDe(String)} — a única fonte do algoritmo. O snapshot não
+     * calcula hash algum: se ele mantivesse uma cópia do algoritmo e as duas divergissem,
+     * todo o cache já gravado passaria a ser lido como de outra origem e seria descartado.
+     * O {@code contextoId} e o {@code contextoHash} saem do MESMO snapshot, então nunca
+     * podem pertencer a obras diferentes.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; se não houver contexto ativo,
-     * {@code contextoId} vem nulo e o {@code hashDe} do prompt padrão ainda é calculado —
-     * a comparação de proveniência trata nulos como divergência.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; um snapshot neutro (job sem contexto)
+     * carimba {@code contextoId} nulo, e a comparação de proveniência trata nulo como
+     * divergência — o cache antigo não é reusado por engano.
+     *
+     * @param contexto fotografia imutável do contexto em vigor neste job
+     * @return carimbo de proveniência desta execução
      */
-    public ProvenienciaCache provenienciaAtual() {
+    public ProvenienciaCache provenienciaDe(SnapshotContexto contexto) {
         return new ProvenienciaCache(
             ProvenienciaCache.SCHEMA_ATUAL,
-            gerenciadorContexto.obterIdContextoAtivo(),
-            ProvenienciaCache.hashDe(gerenciadorContexto.obterPromptAtivo()),
+            contexto.id(),
+            ProvenienciaCache.hashDe(contexto.promptSistema()),
             llmPropriedades.model(),
             propriedades.idiomaOriginal(),
             propriedades.idiomaTraduzido()
