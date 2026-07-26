@@ -38,6 +38,22 @@ import java.util.regex.Pattern;
 @Component
 public class EnforcadorTermosLore {
 
+    // A quebra de linha do ASS é a sequência literal "\N" — DOIS caracteres, e o segundo é a
+    // LETRA N. Isso envenena toda fronteira de palavra por lookbehind: em "attack\NAxis" o
+    // caractere imediatamente antes de "Axis" é 'N', então {@code (?<![\p{L}\p{N}])} falha e o
+    // termo canônico fica INVISÍVEL para a restauração — que por isso nunca dispara.
+    //
+    // Medido no run completo de Gundam ZZ (47 episódios, 16.716 pares): 21,5% das falas têm a
+    // quebra, 74 trazem um termo canônico colado nela, e entre elas estão 5 dos 8 casos de
+    // "Axis -> Eixo" que escaparam. A separação é exata: termo colado na quebra NUNCA foi
+    // corrigido; termo solto SEMPRE foi.
+    //
+    // Só o lado ESQUERDO precisa da alternativa: à direita do termo o caractere da quebra é a
+    // barra invertida, que já não é letra nem dígito e portanto não quebra a asserção.
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
+    private static final String FIM_DE_TERMO = "(?![\\p{L}\\p{N}])";
+
     /**
      * PROPÓSITO DE NEGÓCIO: restaura os termos canônicos da lore na fala traduzida.
      *
@@ -99,7 +115,7 @@ public class EnforcadorTermosLore {
         boolean multiPalavra = termo.trim().indexOf(' ') >= 0;
         int flags = multiPalavra ? (Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) : 0;
         Matcher m = Pattern.compile(
-            "(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])", flags)
+            INICIO_DE_TERMO + Pattern.quote(termo) + FIM_DE_TERMO, flags)
             .matcher(texto);
         int total = 0;
         while (m.find()) {
@@ -158,7 +174,7 @@ public class EnforcadorTermosLore {
      */
     private Pattern padraoFormaRuim(String termo) {
         return Pattern.compile(
-            "(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])",
+            INICIO_DE_TERMO + Pattern.quote(termo) + FIM_DE_TERMO,
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 }

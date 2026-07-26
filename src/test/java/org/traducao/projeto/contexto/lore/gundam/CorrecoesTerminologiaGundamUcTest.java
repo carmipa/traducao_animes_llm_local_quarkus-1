@@ -22,10 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CorrecoesTerminologiaGundamUcTest {
 
-    /** Canônicos do núcleo UC (padrão compartilhado; não exigidos no roster de obra não-UC). */
+    /**
+     * Canônicos do núcleo UC (padrão compartilhado; não exigidos no roster de obra não-UC).
+     *
+     * <p>{@code Beam Sabers} entrou quando o run de Gundam ZZ mostrou o plural sendo localizado
+     * ("Por que você acha que tem sabres de luz?"). As famílias Mobile Suit e Mobile Armor já
+     * traziam singular E plural; a de Beam Saber não trazia — ausência que só apareceu quando o
+     * mapa passou a restaurar a forma plural.
+     */
     private static final Set<String> NUCLEO_CANONICOS = Set.of(
         "Newtype", "Oldtype", "Mobile Suit", "Mobile Suits",
-        "Mobile Armor", "Mobile Armors", "Beam Saber", "Beam Rifle");
+        "Mobile Armor", "Mobile Armors", "Beam Saber", "Beam Sabers", "Beam Rifle",
+        "Normal Suit", "Normal Suits", "Powered Spacesuit");
 
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")
