@@ -591,7 +591,14 @@ public class ProcessarArquivoUseCase {
             })
             .count();
         uiLogger.registrarFalasNovas(traducoesNovasValidas);
-        StatusArquivoTraducao status = avisos.isEmpty() && falhasDistintas.isEmpty()
+        // O status reflete PENDÊNCIA FINAL, não aviso. `avisos` também carrega mensagens
+        // meramente informativas — cache invalidado por mudança de lore e reprocessamento
+        // confirmado pelo operador — que não deixam nenhuma fala por traduzir. Enquanto o
+        // status dependia delas, um episódio 100% traduzido saía PARCIAL: no run de Guilty
+        // Crown foram SETE episódios marcados assim sem ter uma única pendência, o que torna
+        // o indicador inútil justamente para quem precisa achar o que ainda falta.
+        // `falhasDistintas` já é a lista consolidada DEPOIS da recuperação pelo fallback.
+        StatusArquivoTraducao status = falhasDistintas.isEmpty()
             ? StatusArquivoTraducao.CONCLUIDO : StatusArquivoTraducao.PARCIAL;
         telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,

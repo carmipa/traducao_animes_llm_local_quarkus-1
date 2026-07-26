@@ -89,8 +89,20 @@ public class AvaliadorTraducaoCache {
         if (normalizarParaComparacao(original).equals(normalizarParaComparacao(traduzido))) {
             return detectorIdentica.deveManterIdentico(original);
         }
+        // Invariância numérica: rodava SÓ em motivoFalhaFinal, então um identificador
+        // adulterado era rejeitado vindo do LLM e ACEITO vindo do cache — buraco real de
+        // reaproveitamento, não risco teórico. Os dois portões passam a exigir o mesmo.
+        String numeroAlterado = verificadorNumerico.divergencia(original, traduzido);
+        if (numeroAlterado != null) {
+            log.warn("Cache ignorado por divergencia numerica: {}", numeroAlterado);
+            return false;
+        }
         try {
             validador.validarFala(traduzido);
+            // Ancoragem no original: sem isto, as 27 entradas contaminadas do run de Guilty
+            // Crown seriam reaproveitadas do cache para sempre, porque são PT-BR impecável e
+            // passam em toda regra que olhe apenas a saída.
+            validador.validarPar(original, traduzido);
             return true;
         } catch (AlucinacaoDetectadaException e) {
             log.warn("Cache ignorado porque parece conter fala ainda nao traduzida: {}", traduzido);
@@ -140,6 +152,11 @@ public class AvaliadorTraducaoCache {
         }
         try {
             validador.validarFala(traduzido);
+            // Ancoragem: o defeito que NENHUMA regra de saída alcança, porque a fala está em
+            // PT-BR perfeito e só o original prova que o conteúdo foi inventado. Roda AQUI,
+            // no portão único, para valer igualmente para o LLM, o fallback de máquina e a
+            // consolidação final — e para a resposta do Google atravessar a mesma exigência.
+            validador.validarPar(original, traduzido);
             return null;
         } catch (AlucinacaoDetectadaException e) {
             return e.getMessage();
