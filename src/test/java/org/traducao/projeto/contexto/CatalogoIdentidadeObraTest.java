@@ -93,6 +93,13 @@ class CatalogoIdentidadeObraTest {
             Set.of("gundam_zz"));
         mapa.put("[Joseki] Mobile Suit Z Gundam COMPLETE (1985)(BD AV1 1080p Opus)[Sub Eng][v2]",
             Set.of("gundam_zeta"));
+        // Pastas de ORIGEM (C:\animes), de onde sai a obra que a guarda julga — a pasta-avó do
+        // .ass, via ResolvedorCacheTraducao.animeAPartirDoArquivo. Estavam nomeadas "ZETA" e
+        // "zeta_zz" e NENHUM nome canônico as alcançava: a guarda caía em INDETERMINADO e apenas
+        // avisava, deixando o mesmo clique errado do incidente passar direto. Foram renomeadas
+        // para o nome de exibição de cada obra, e é por isso que resolvem sem apelido novo.
+        mapa.put("Mobile Suit Zeta Gundam", Set.of("gundam_zeta"));
+        mapa.put("Mobile Suit Gundam ZZ", Set.of("gundam_zz"));
         // LACUNA CONHECIDA: uma única pasta guarda os SEIS filmes de Break Blade, que são seis
         // entradas distintas do catálogo. Nenhuma regra determinística escolhe qual delas é —
         // e declarar "Break Blade" nas seis seria colisão de identidade, que derruba o boot.
@@ -258,6 +265,45 @@ class CatalogoIdentidadeObraTest {
         // Obra que este catálogo NÃO tem: Gundam 00 não pode cair em 0080/0083 por parecença.
         assertEquals(Set.of(), gerenciador.idsQueReconhecem("Mobile Suit Gundam 00 Season 2"),
             "Gundam 00 é outra obra e não está no catálogo: o desfecho correto é NÃO reconhecer");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prende o ponto cego encontrado ao preparar as retraduções de Zeta e
+     * ZZ. A obra julgada pela guarda NÃO vem da pasta de cache, e sim da pasta-avó do arquivo de
+     * origem ({@code ResolvedorCacheTraducao.animeAPartirDoArquivo}). As pastas de origem estavam
+     * nomeadas {@code "ZETA"} e {@code "zeta_zz"} — que normalizam para {@code "zeta"} e
+     * {@code "zeta zz"} e não são alcançadas por nenhum nome canônico de nenhuma das duas obras.
+     * O desfecho era INDETERMINADO: aviso, sem bloqueio. Ou seja, para estas duas obras a guarda
+     * do incidente estava DESLIGADA na prática, embora o catálogo as cobrisse pelo nome do grupo
+     * de fansub.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a correção é de NOMEAÇÃO, não de vocabulário — as pastas foram
+     * renomeadas para o nome de exibição de cada obra, que a identidade já deriva. Declarar
+     * {@code apelidosPasta("zeta_zz")} teria "consertado" o sintoma cravando na lore do ZZ um
+     * nome que anuncia Zeta, e essa mentira sobreviveria a todos nós.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se alguém renomear as pastas de volta para a forma
+     * curta, este teste continua verde (as formas curtas seguem sendo lacuna declarada) mas
+     * {@link #pastasReaisResolvemParaAObraCerta()} reprova nas duas entradas canônicas — que é
+     * onde o diagnóstico deve aparecer.
+     */
+    @Test
+    @DisplayName("origem de Zeta e ZZ: o nome canônico resolve; a forma curta do operador não alcança")
+    void pastasDeOrigemDeZetaEZZResolvemPeloNomeCanonico() {
+        assertEquals(Set.of("gundam_zeta"), gerenciador.idsQueReconhecem("Mobile Suit Zeta Gundam"));
+        assertEquals(Set.of("gundam_zz"), gerenciador.idsQueReconhecem("Mobile Suit Gundam ZZ"));
+
+        // As duas obras não podem se reivindicar mutuamente: é o par mínimo Z Gundam × Gundam ZZ
+        // aplicado agora aos nomes de ORIGEM, não só aos do grupo de fansub.
+        assertFalse(gerenciador.idsQueReconhecem("Mobile Suit Zeta Gundam").contains("gundam_zz"));
+        assertFalse(gerenciador.idsQueReconhecem("Mobile Suit Gundam ZZ").contains("gundam_zeta"));
+
+        // Registro do ponto cego: as formas curtas NÃO resolvem. Enquanto as pastas tiverem esses
+        // nomes, a guarda apenas avisa — e um contexto errado no combo grava cache errado.
+        assertEquals(Set.of(), gerenciador.idsQueReconhecem("ZETA"),
+            "\"ZETA\" normaliza para \"zeta\", que nenhum nome canônico de gundam_zeta alcança");
+        assertEquals(Set.of(), gerenciador.idsQueReconhecem("zeta_zz"),
+            "\"zeta_zz\" normaliza para \"zeta zz\", que nenhum nome canônico de gundam_zz alcança");
     }
 
     /**

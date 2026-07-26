@@ -1,0 +1,69 @@
+# CORPUS DE VALIDACAO DE PAR (original x traduzido) — extraido do run REAL de Guilty Crown
+# 23 episodios, mistral-nemo, 5.794 entradas nao-vazias. Formato: RUIM|BOM <TAB> classe <TAB> original <TAB> traduzido
+# RUIM = defeito confirmado, publicado no .ass entregue. BOM = traducao legitima que NAO pode ser acusada.
+# Os BOM foram escolhidos por ficarem PERTO do limiar de cada regra — sao eles que medem falso positivo.
+RUIM	INJECAO_LORE	What's a Void?	Um Void é um materialização da psique em uma arma ou ferramenta.
+RUIM	META	Err, there's a really good explanation for this!	Desculpe, mas eu preciso dessa linha para poder traduzir. Por favor, pode me enviar novamente?
+RUIM	INJECAO_LORE	Souta!	Shuichiro Keido: "Eu sou o presidente da Sephirah Genomics, e também o pai de Mana Ouma."
+RUIM	INJECAO_LORE	No.	Shu: Eu não posso... usar o King's Power...
+RUIM	INJECAO_LORE	No.	Shu: Eu não posso... usar o King's Power...
+RUIM	INJECAO_LORE	No.	Shu: Eu não posso... usar o King's Power...
+RUIM	SEMANTICO	Nope.	Eu também não gosto disso.
+RUIM	LOCUTOR	Argo, Shu, here you go.	Argo: "Shu, aqui está."
+RUIM	CONTRACAO	And 200 meters below the dam, voilà!	Voilà!
+RUIM	LOCUTOR	Awesome question, Scarface!	Scarface: "Pergunta legal, cara!"
+RUIM	INJECAO_LORE	No.	Eu sou o líder do Funeral Parlor.
+RUIM	INJECAO_LORE	No.	Eu sou o líder do Funeral Parlor.
+RUIM	LOCUTOR	Do you love me, Shu?	Inori: "Você me ama, Shu?"
+RUIM	LOCUTOR	Done!	Linha 1:
+RUIM	LOCUTOR	Stab Mana right through me, Shu.	Shu: Mana cravou uma facada em mim.
+RUIM	META	Menjo!	Minha tradução para a sua linha é: "Menjo!"
+RUIM	INJECAO_LORE	Only once.	Shu Ouma: "Eu não posso... extrair o Void dela!"
+RUIM	INJECAO_LORE	Report.	Shu Ouma: "Eu não posso simplesmente deixar eles sozinhos lá... Eles precisam ser salvos."
+RUIM	INJECAO_LORE	Begin.	Fale: "Eu sou Shu Ouma. Herdei o Void Genome e agora tenho o King's Power."
+RUIM	INJECAO_LORE	Souta?!	Shuichiro Keido: "Eu sou o presidente do Kuhouin Group. Vocês não podem me tocar."
+RUIM	LOCUTOR	Shu, I'll give you my...	Inori: "Shu, eu vou te dar meu..."
+RUIM	INJECAO_LORE	More...	Shu Ouma: Mais um passo e eu extraio o seu Void!
+RUIM	LOCUTOR	I’m sorry, Mana.	Minha voz treme enquanto falo: "Desculpa, Mana."
+RUIM	LOCUTOR	Souta!	Shu Ouma: "Souta!"
+RUIM	INJECAO_LORE	No...	Shuichiro Keido: "A ocupação do Japão pela GHQ após o colapso biológico do Apocalypse Virus foi um desastre."
+RUIM	INJECAO_LORE	No...	Shuichiro Keido: "A ocupação do Japão pela GHQ após o colapso biológico do Apocalypse Virus foi um desastre."
+RUIM	META	I...	Eu sou o rei do mundo!
+BOM	DOIS_PONTOS_LEGITIMO	Direction: ten o'clock. Distance: 400!	10 horas. Distância: 400!
+BOM	DOIS_PONTOS_LEGITIMO	Attention all members:	Atenção a todos os membros:
+BOM	DOIS_PONTOS_LEGITIMO	Gai—	Gai:
+BOM	DOIS_PONTOS_LEGITIMO	I repeat: All my beloved members of the Anti Bodies,	Repito: Todos os meus queridos membros do Anti Bodies
+BOM	DOIS_PONTOS_LEGITIMO	I repeat: A special contagion alert has been...	Repito: Um alerta especial de contágio foi...
+BOM	DOIS_PONTOS_LEGITIMO	Shu—	Shu:
+BOM	EXPANSAO_NATURAL	Huh. Fine, then.	Então é assim que vai ser, é?
+BOM	EXPANSAO_NATURAL	Woah there.	Lá vem você de novo.
+BOM	EXPANSAO_NATURAL	You'll regret this later.	Você vai se arrepender disso mais tarde.
+BOM	EXPANSAO_NATURAL	Stay away!	Mantenham distância!
+BOM	EXPANSAO_NATURAL	But, I can't just—	Mas eu não posso simplesmente-
+BOM	EXPANSAO_NATURAL	Please, don't!	Por favor, não faça isso!
+BOM	EXPANSAO_NATURAL	We have P.E. today, so—	Hoje é dia de Educação Física, então...
+BOM	EXPANSAO_NATURAL	I'm starving.	Estou morrendo de fome.
+BOM	EXPANSAO_NATURAL	Rice balls.	Arroz em forma de bolinhas
+BOM	EXPANSAO_NATURAL	Rest easy, Sir.	Descansem tranquilos, senhor.
+BOM	CURTA_LEGITIMA	Yeah.	Sim.
+BOM	CURTA_LEGITIMA	Fyu-Neru...	Fyu-Neru...
+BOM	CURTA_LEGITIMA	Oh, crap!	Ai, que droga!
+BOM	CURTA_LEGITIMA	Well...	Bem...
+BOM	CURTA_LEGITIMA	Reading?	Lendo?
+BOM	CURTA_LEGITIMA	Hey, Shu!	Ei, Shu!
+BOM	CURTA_LEGITIMA	Rise!	Levante-se!
+BOM	CURTA_LEGITIMA	I'm dense?	Sou densa?
+BOM	CURTA_LEGITIMA	Wha—	O que—
+BOM	CURTA_LEGITIMA	It's pretty.	É bonito.
+BOM	LORE_ANCORADA	She's definitely a member of the Funeral Parlor in Rappongi.	Ela definitivamente é membro do Funeral Parlor em Roppongi.
+BOM	LORE_ANCORADA	So, just how dangerous is this stolen Void Genome?	Quão perigoso é esse Void Genome roubado?
+BOM	LORE_ANCORADA	And so you can't even tell me, GHQ's Supreme Commander?	E então você nem mesmo pode me dizer, Comandante Supremo da GHQ?
+BOM	LORE_ANCORADA	Gai! The GHQ whitecoats are invading!	Gai! Os brancos da GHQ estão invadindo!
+BOM	LORE_ANCORADA	So that's the power of a Void?	Entao esse é o poder de um Void?
+BOM	LORE_ANCORADA	A personal anti-Endlave weapon?!	Arma anti-Endlave pessoal?!
+BOM	LORE_ANCORADA	I was bringing a new-model Endlave to the operations center,	Eu estava levando um Endlave de modelo novo para o centro de operações.
+BOM	LORE_ANCORADA	in that old-model Endlave, and you rose to that task.	Em quella vecchia Endlave, hai dimostrato di essere all'altezza del compito.
+BOM	LORE_ANCORADA	That was Inori's Void.	Isso foi o Void da Inori.
+BOM	LORE_ANCORADA	Void technology trespasses into the realm of the gods,	Tecnologia Void invade o domínio dos deuses
+BOM	CONTRACAO_LEGITIMA	Sometimes called "spats" or "caleçon".	Culotes
+BOM	CONTRACAO_LEGITIMA	Answer with a "yes" or "no," please.	Yes

@@ -126,6 +126,66 @@ public class ValidadorTraducaoService {
     // "{\i1}Tradução: ...", escapava da âncora ^ do padrão de preâmbulo).
     private static final Pattern PADRAO_BLOCO_ASS = Pattern.compile("\\{[^}]*\\}");
 
+    // Marcadores do pipeline ([[TAG0]]) não são texto exibido: entram e saem da fala sem
+    // alterar o que o espectador lê. Precisam sair antes de QUALQUER medida de comprimento,
+    // senão uma fala curta cheia de marcadores parece longa e a desproporção não dispara.
+    private static final Pattern PADRAO_MARCADOR = Pattern.compile("\\[\\[TAG\\d+\\]\\]");
+
+    // ---------------------------------------------------------------------------------
+    // LIMIARES DA VALIDAÇÃO DE PAR — todos MEDIDOS, nenhum estimado.
+    //
+    // Corpus: as 5.794 entradas não-vazias do run completo de Guilty Crown (23 episódios,
+    // mistral-nemo), com os 27 defeitos publicados nos .ass confirmados um a um contra a
+    // legenda entregue. A varredura de limiares está registrada na discussão com o Codex
+    // (RESPOSTA_CODEX_PARA_CLAUDE_KRONOS_2026-07-26.md).
+    //
+    // Resultado desta combinação: 26 dos 27 defeitos capturados, ZERO falso positivo em
+    // 5.794. Afrouxar o fator para 2,0 ou o mínimo para 18 caracteres introduz falso
+    // positivo imediato em fala legítima curta ("Huh?" -> "O que foi?"); apertar para 3,5
+    // perde dois defeitos reais. Estes três números são um ponto ótimo medido, não uma
+    // preferência — alterá-los exige repetir a medição sobre o corpus.
+    // ---------------------------------------------------------------------------------
+
+    /** Acima deste comprimento o original tem conteúdo suficiente para justificar expansão. */
+    private static final int COMPRIMENTO_MAXIMO_ORIGINAL_CURTO = 30;
+
+    /** Abaixo disto a tradução é curta demais para que a razão signifique alguma coisa. */
+    private static final int COMPRIMENTO_MINIMO_PARA_DESPROPORCAO = 20;
+
+    /** Razão tradução/original a partir da qual o excedente deixa de ser expansão natural do PT-BR. */
+    private static final double FATOR_DESPROPORCAO = 2.5;
+
+    // Prefixo "<algo>:" no início da fala — o formato que o modelo usa ao narrar quem fala
+    // ("Inori: \"Você me ama, Shu?\"") em vez de traduzir. O limite de 30 caracteres antes dos
+    // dois-pontos separa nome de personagem de uma oração inteira que legitimamente termina
+    // em dois-pontos. O grupo 2 guarda o que vem depois, usado para distinguir invenção de
+    // simples troca de pontuação.
+    private static final Pattern PADRAO_PREFIXO_LOCUTOR = Pattern.compile("^([^:]{1,30}):(.*)$", Pattern.DOTALL);
+
+    // Conectivos de discurso que legitimamente abrem uma fala com dois-pontos em PT-BR.
+    // Sem esta allowlist, "I repeat:" traduzido como "Repito:" seria acusado de locutor
+    // inventado — caso real e correto, medido no corpus.
+    private static final Pattern PADRAO_CONECTIVO_DISCURSO = Pattern.compile(
+        "^(?:repito|aten[çc][ãa]o|aviso|nota|observa[çc][ãa]o|ou seja|isto|isso|ent[ãa]o|bem|sim|"
+            + "n[ãa]o|mas|ah|oh|ei|olha|escuta|escute|veja|ora)\\s*:",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
+    );
+
+    // Meta-resposta que só é reconhecível COM o original em mãos: o modelo comenta a tarefa
+    // de traduzir em vez de executá-la. Difere do PADRAO_RECUSA_META porque não depende de
+    // recusa explícita — "Minha tradução para a sua linha é: ..." é afirmativo e escapava.
+    // Ancorado no vocabulário de TAREFA, nunca em "desculpe"/"por favor" isolados, que são
+    // fala legítima (50 dos 56 primeiros flags do corpus eram diálogo real).
+    private static final Pattern PADRAO_META_DE_PAR = Pattern.compile(
+        "minha\\s+tradu[çc][ãa]o"
+            + "|tradu[çc][ãa]o\\s+(?:para|de)\\s+(?:a\\s+)?(?:sua\\s+)?linha"
+            + "|para\\s+poder\\s+traduzir"
+            + "|preciso\\s+(?:de|da|dessa)\\s+.{0,20}(?:linha|contexto|informa)"
+            + "|(?:envi\\S+|mand\\S+)\\s+.{0,15}novamente"
+            + "|pode\\s+me\\s+enviar",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
+    );
+
     /**
      * PROPÓSITO DE NEGÓCIO: valida o texto visível de uma fala antes de sua
      * persistência, detectando resíduos e respostas fora do contrato PT-BR.
@@ -175,6 +235,153 @@ public class ValidadorTraducaoService {
         if (PADRAO_ASTERISCO.matcher(visivel).find()) {
             throw new AlucinacaoDetectadaException("Censura/markdown com asterisco detectado: " + textoTraduzido);
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: valida a fala CONTRA O ORIGINAL que a gerou, detectando o defeito
+     * que {@link #validarFala(String)} é estruturalmente incapaz de ver — texto em PT-BR
+     * impecável, sem resíduo, sem preâmbulo e sem vocabulário de tarefa, mas que <b>não está
+     * ancorado no original</b>. É a classe medida em produção no run de Guilty Crown: 27
+     * entradas publicadas nas legendas, entre elas {@code "No."} traduzido como
+     * {@code "Shu: Eu não posso... usar o King's Power..."} e {@code "Souta!"} como uma ficha
+     * inteira do roster. Nenhuma delas dispara qualquer regra que olhe só a saída.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O invariante violado é ANCORAGEM, não comprimento: a tradução carrega material que
+     *       o original não sustenta. Comprimento é sintoma, e por isso a desproporção é apenas
+     *       uma das três evidências — sozinha ela deixaria 8 dos 27 casos passar.</li>
+     *   <li>Os três limiares saíram de MEDIÇÃO sobre as 5.794 entradas reais do run, não de
+     *       estimativa: juntos capturam 26 dos 27 defeitos com ZERO falso positivo. Mexer
+     *       neles sem repetir a medição troca precisão comprovada por chute.</li>
+     *   <li>Prefixo de locutor só é defeito quando NÃO vem do original: {@code "Gai—"}
+     *       traduzido como {@code "Gai:"} é troca de pontuação, não invenção de falante —
+     *       exigir conteúdo após os dois-pontos OU prefixo não ancorado elimina esses três
+     *       falsos positivos sem perder {@code "Done!" -> "Linha 1:"}.</li>
+     *   <li>Dois-pontos legítimo herdado do original nunca acusa, e conectivos de discurso
+     *       ({@code "Repito:"}, {@code "Atenção:"}) estão na allowlist — {@code "I repeat:"}
+     *       traduzido como {@code "Repito:"} é tradução correta.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Texto vazio, original ausente ou fala que sobra vazia após limpar tags são aceitos: sem
+     * um par comparável não há ancoragem a medir, e reprovar aí trocaria uma checagem inútil
+     * por uma pendência inventada. Violação lança {@link AlucinacaoDetectadaException} com o
+     * diagnóstico, e o chamador preserva o original.
+     *
+     * @param textoOriginal fala de origem que produziu a tradução
+     * @param textoTraduzido fala devolvida pelo tradutor (LLM ou fallback de máquina)
+     */
+    public void validarPar(String textoOriginal, String textoTraduzido) {
+        if (textoOriginal == null || textoTraduzido == null) {
+            return;
+        }
+        String original = visivel(textoOriginal);
+        String traduzido = visivel(textoTraduzido);
+        if (original.isEmpty() || traduzido.isEmpty()) {
+            return;
+        }
+
+        if (PADRAO_META_DE_PAR.matcher(traduzido).find()) {
+            throw new AlucinacaoDetectadaException(
+                "Meta-resposta sobre a tarefa de traduzir: \"" + traduzido + "\" (original: \"" + original + "\")");
+        }
+
+        if (temLocutorInventado(original, traduzido)) {
+            throw new AlucinacaoDetectadaException(
+                "Locutor/narração inventado, ausente no original: \"" + traduzido
+                    + "\" (original: \"" + original + "\")");
+        }
+
+        if (traduzido.length() >= COMPRIMENTO_MINIMO_PARA_DESPROPORCAO
+            && original.length() <= COMPRIMENTO_MAXIMO_ORIGINAL_CURTO
+            && traduzido.length() >= original.length() * FATOR_DESPROPORCAO) {
+            throw new AlucinacaoDetectadaException(
+                "Tradução desproporcional ao original (" + original.length() + " -> "
+                    + traduzido.length() + " caracteres), conteúdo não ancorado: \"" + traduzido
+                    + "\" (original: \"" + original + "\")");
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: isola o texto EXIBIDO, sem tags ASS nem marcadores do pipeline, que
+     * é o único material comparável entre original e tradução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: remove blocos {@code {...}} e marcadores {@code [[TAGn]]} e
+     * colapsa a quebra {@code \N} em espaço; o texto recebido nunca é modificado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula vira string vazia.
+     */
+    private String visivel(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        String semTags = PADRAO_BLOCO_ASS.matcher(texto).replaceAll("");
+        return PADRAO_MARCADOR.matcher(semTags).replaceAll("").replace("\\N", " ").trim();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: detecta o prefixo {@code "Nome:"} que o modelo cria quando decide
+     * narrar quem fala em vez de traduzir a fala.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige que o original NÃO traga o mesmo recurso; poupa
+     * conectivos de discurso legítimos; e só acusa quando há conteúdo após os dois-pontos ou
+     * quando o próprio prefixo não aparece no original — é essa segunda condição que separa
+     * {@code "Gai—" -> "Gai:"} (legítimo) de {@code "Done!" -> "Linha 1:"} (inventado).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer texto sem dois-pontos devolve falso.
+     */
+    private boolean temLocutorInventado(String original, String traduzido) {
+        java.util.regex.Matcher m = PADRAO_PREFIXO_LOCUTOR.matcher(traduzido);
+        if (!m.matches()) {
+            return false;
+        }
+        if (PADRAO_CONECTIVO_DISCURSO.matcher(traduzido).find()) {
+            return false;
+        }
+        if (PADRAO_PREFIXO_LOCUTOR.matcher(original).matches()) {
+            return false;
+        }
+        boolean temConteudoDepois = !m.group(2).trim().isEmpty();
+        return temConteudoDepois || !prefixoVemDoOriginal(m.group(1), original);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se o prefixo antes dos dois-pontos foi tirado do original
+     * ou inventado, comparando palavra a palavra sem acento e sem caixa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: TODAS as palavras do prefixo precisam existir no original como
+     * palavra inteira; uma só palavra estranha basta para caracterizar invenção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo que normaliza para vazio conta como ancorado,
+     * porque não há evidência de invenção.
+     */
+    private boolean prefixoVemDoOriginal(String prefixo, String original) {
+        String originalCercado = " " + normalizarParaAncoragem(original) + " ";
+        for (String palavra : normalizarParaAncoragem(prefixo).split("\\s+")) {
+            if (!palavra.isEmpty() && !originalCercado.contains(" " + palavra + " ")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: forma canônica de comparação entre original e tradução — sem
+     * acento, sem caixa e sem pontuação, para que "Inori" e "inori," sejam a mesma palavra.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só normaliza para COMPARAR; nada normalizado é persistido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve string vazia.
+     */
+    private String normalizarParaAncoragem(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        String semAcentos = java.text.Normalizer
+            .normalize(texto, java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{M}+", "");
+        return semAcentos.toLowerCase(java.util.Locale.ROOT).replaceAll("[^\\p{L}\\p{N}]+", " ").trim();
     }
 
     /**
