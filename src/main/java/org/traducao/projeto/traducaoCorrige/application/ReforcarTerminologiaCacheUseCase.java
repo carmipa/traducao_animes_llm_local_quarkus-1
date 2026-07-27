@@ -283,7 +283,13 @@ public class ReforcarTerminologiaCacheUseCase {
                 acc.arquivosAlterados++;
             }
             acc.confirmar(pendente);
-            pendente.auditorias.forEach(auditoria::registrar);
+            // A auditoria é o DATASET: cada linha afirma um fato sobre o acervo. Publicar
+            // TERMINOLOGIA_REFORCADA num ensaio faria o histórico atestar uma aplicação que nunca
+            // aconteceu — o arquivo continua com a forma-ruim e o JSONL diz que foi reforçado.
+            // Corrompe justamente o registro que existe para se poder confiar no que foi feito.
+            if (acc.aplicar) {
+                pendente.auditorias.forEach(auditoria::registrar);
+            }
         } catch (Exception e) {
             acc.falhas++;
             log.error("Falha ao reforçar terminologia em {}: {}", arquivo, e.getMessage());

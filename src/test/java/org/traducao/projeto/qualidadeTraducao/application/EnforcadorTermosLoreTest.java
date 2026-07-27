@@ -37,6 +37,34 @@ class EnforcadorTermosLoreTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: prende o furo que a revisão externa achou no teto por caixa. Em
+     * português TODA frase começa com maiúscula, então a caixa na abertura de período é
+     * obrigatória e não distingue o nome próprio da palavra comum. Tratá-la como evidência fazia
+     * o teto vazar exatamente onde ele existe para segurar.
+     */
+    @Test
+    @DisplayName("maiúscula de INÍCIO DE FRASE não é evidência: o teto continua valendo")
+    void maiusculaDeAberturaDePeriodoNaoEscapaDoTeto() {
+        // O inglês traz "Void" UMA vez; as duas ocorrências em PT abrem período.
+        assertEquals("Void é perigoso. Vazio deve ser destruído.",
+            enforcador.reforcar("We must destroy the Void.",
+                "Vazio é perigoso. Vazio deve ser destruído.", Map.of("Vazio", "Void")));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a distinção tem de ser POSICIONAL, não de caixa. Maiúscula no MEIO
+     * da frase foi escolha de quem escreveu — é prova de nome próprio — e continua isenta do
+     * teto, que é o que conserta a fala meio corrigida do caso Axis.
+     */
+    @Test
+    @DisplayName("maiúscula no MEIO da frase segue sendo prova: as duas são restauradas")
+    void maiusculaNoMeioDaFraseSegueIsentaDoTeto() {
+        assertEquals("Precisamos deter o Axis antes que o Axis caia!",
+            enforcador.reforcar("We must stop Axis before it falls!",
+                "Precisamos deter o Eixo antes que o Eixo caia!", Map.of("Eixo", "Axis")));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a contrapartida — a proteção do homógrafo minúsculo NÃO pode
      * afrouxar junto. São os dois casos que motivaram o teto.
      */
