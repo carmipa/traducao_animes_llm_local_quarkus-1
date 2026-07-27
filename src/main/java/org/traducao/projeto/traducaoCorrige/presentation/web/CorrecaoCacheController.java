@@ -17,7 +17,9 @@ import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase;
+import org.traducao.projeto.traducaoCorrige.application.ReforcarTerminologiaCacheUseCase;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
+import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 
 import java.nio.file.Path;
 
@@ -48,6 +50,7 @@ public class CorrecaoCacheController {
     private final RevisarCacheUseCase revisarCacheUseCase;
     private final GerenciadorContexto gerenciadorContexto;
     private final LlmPort llmPort;
+    private final ReforcarTerminologiaCacheUseCase reforcarTerminologiaCacheUseCase;
 
     public CorrecaoCacheController(
             PipelineWebSupport pipelineWebSupport,
@@ -55,13 +58,15 @@ public class CorrecaoCacheController {
             CorrigirComGoogleUseCase corrigirComGoogleUseCase,
             RevisarCacheUseCase revisarCacheUseCase,
             GerenciadorContexto gerenciadorContexto,
-            LlmPort llmPort) {
+            LlmPort llmPort,
+            ReforcarTerminologiaCacheUseCase reforcarTerminologiaCacheUseCase) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.limparCacheUseCase = limparCacheUseCase;
         this.corrigirComGoogleUseCase = corrigirComGoogleUseCase;
         this.revisarCacheUseCase = revisarCacheUseCase;
         this.gerenciadorContexto = gerenciadorContexto;
         this.llmPort = llmPort;
+        this.reforcarTerminologiaCacheUseCase = reforcarTerminologiaCacheUseCase;
     }
 
     /**
@@ -94,6 +99,89 @@ public class CorrecaoCacheController {
 
         return ResponseEntity.ok(new RespostaPadrao(
             "Limpeza de cache aceita pela fila. A conclusão e o status real aparecerão no console."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: ENSAIA o reforço de terminologia sobre o cache já gravado — mede o que
+     * a lore mudaria no acervo sem tocar um byte. É a rota que o operador usa para decidir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: entra na MESMA fila serial das outras operações; nada é escrito.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: 400 para caminho/contexto inválido; falhas por arquivo
+     * aparecem no console sem derrubar o lote.
+     */
+    @PostMapping("/reforcar-terminologia-ensaio")
+    public ResponseEntity<RespostaPadrao> ensaiarReforcoTerminologia(@RequestBody OperacaoRequest req) {
+        return submeterReforco(req, false);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: APLICA o reforço de terminologia ao acervo, com backup e escrita
+     * atômica por arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é uma ROTA SEPARADA do ensaio, de propósito. Escrever sobre
+     * trabalho já pronto não pode ser um booleano que alguém inverte por engano num corpo de
+     * requisição — a ação destrutiva tem endereço próprio e só é alcançada quando se quis chegar
+     * nela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico ao ensaio; arquivo cuja gravação falha
+     * permanece intacto e não entra na contagem.
+     */
+    @PostMapping("/reforcar-terminologia-aplicar")
+    public ResponseEntity<RespostaPadrao> aplicarReforcoTerminologia(@RequestBody OperacaoRequest req) {
+        return submeterReforco(req, true);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: valida e enfileira o reforço, no ensaio ou na aplicação.
+     * <p>INVARIANTES DO DOMÍNIO: mesma validação das demais rotas; o job vai para a fila serial.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve 400 antes de enfileirar.
+     */
+    private ResponseEntity<RespostaPadrao> submeterReforco(OperacaoRequest req, boolean aplicar) {
+        String cacheDir = req.entrada() != null && !req.entrada().isBlank() ? req.entrada() : "cache";
+        Path pathCache = pipelineWebSupport.normalizarCaminho(cacheDir);
+        if (pathCache == null) {
+            return ResponseEntity.badRequest().body(new RespostaPadrao("Caminho de cache inválido: " + cacheDir));
+        }
+        if (req.contextoId() != null && !req.contextoId().isBlank()
+            && !gerenciadorContexto.existeContexto(req.contextoId())) {
+            return ResponseEntity.badRequest().body(new RespostaPadrao(
+                "Contexto desconhecido: \"" + req.contextoId() + "\"."));
+        }
+
+        String rotulo = aplicar ? "Reforço de Terminologia (APLICANDO)" : "Reforço de Terminologia (ensaio)";
+        pipelineWebSupport.submeterJobComRelatorio("correcao", rotulo, () -> {
+            try {
+                imprimirResultadoReforco(
+                    reforcarTerminologiaCacheUseCase.executar(pathCache, req.contextoId(), aplicar));
+            } catch (Exception e) {
+                log.error("Erro no reforço de terminologia", e);
+                System.out.println("\u001B[31m[ERRO] Reforço de terminologia falhou: " + e.getMessage() + "\u001B[0m");
+            }
+        });
+
+        return ResponseEntity.ok(new RespostaPadrao(
+            rotulo + " aceito pela fila. O resultado por termo aparecerá no console."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: imprime o resultado do reforço com o contador POR TERMO, que é a razão
+     * de a operação existir — é ele que separa "o modelo acertou" de "o enforcer consertou".
+     * <p>INVARIANTES DO DOMÍNIO: o modo (ensaio/aplicado) aparece antes dos números, para nunca
+     * se ler um ensaio como se o acervo tivesse sido alterado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só imprime; não decide nada.
+     */
+    private void imprimirResultadoReforco(ResultadoReforcoTerminologia r) {
+        System.out.println("\n" + AnsiCores.CYAN + "REFORÇO DE TERMINOLOGIA — "
+            + (r.aplicado() ? "APLICADO NO ACERVO" : "ENSAIO (nada foi escrito)") + AnsiCores.RESET);
+        System.out.println("  Status: " + r.status());
+        System.out.println("  Arquivos analisados: " + r.arquivosAnalisados()
+            + " | alterados: " + r.arquivosAlterados()
+            + " | pulados (obra não verificável): " + r.arquivosNaoVerificaveis()
+            + " | falhas: " + r.falhas());
+        System.out.println("  Falas alteradas: " + r.falasAlteradas()
+            + " | restaurações: " + r.totalRestauracoes());
+        r.porFrequencia().forEach((termo, n) -> System.out.println("    " + n + "x  " + termo));
     }
 
     /**
