@@ -69,7 +69,7 @@ class ContextoInvalidoC2CaracterizacaoTest {
     void corrigirCacheContextoInvalido() {
         AtomicBoolean enfileirou = new AtomicBoolean(false);
         CorrecaoCacheController controller = new CorrecaoCacheController(
-            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null);
+            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null, null);
 
         ResponseEntity<RespostaPadrao> resposta = controller.limparCache(requisicaoComContextoInvalido());
 
@@ -79,12 +79,37 @@ class ContextoInvalidoC2CaracterizacaoTest {
         assertFalse(enfileirou.get(), "Contexto inválido NÃO pode enfileirar/processar em segundo plano");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: as duas rotas do reforço de terminologia entram na MESMA catraca. A
+     * de APLICAR reescreve o acervo em lote, então deixá-la de fora desta caracterização seria
+     * deixar sem rede justamente a mais destrutiva.
+     */
+    @Test
+    @DisplayName("CorrecaoCacheController./reforcar-terminologia-*: contexto inválido → 400 e NÃO enfileira")
+    void reforcarTerminologiaContextoInvalido() {
+        AtomicBoolean enfileirouEnsaio = new AtomicBoolean(false);
+        ResponseEntity<RespostaPadrao> ensaio = new CorrecaoCacheController(
+            pipelineEspiao(enfileirouEnsaio), null, null, null, gerenciadorSemContextos(), null, null)
+            .ensaiarReforcoTerminologia(requisicaoComContextoInvalido());
+
+        AtomicBoolean enfileirouAplicar = new AtomicBoolean(false);
+        ResponseEntity<RespostaPadrao> aplicar = new CorrecaoCacheController(
+            pipelineEspiao(enfileirouAplicar), null, null, null, gerenciadorSemContextos(), null, null)
+            .aplicarReforcoTerminologia(requisicaoComContextoInvalido());
+
+        assertEquals(400, ensaio.getStatusCode().value());
+        assertEquals(400, aplicar.getStatusCode().value());
+        assertFalse(enfileirouEnsaio.get(), "Contexto inválido NÃO pode enfileirar o ensaio");
+        assertFalse(enfileirouAplicar.get(),
+            "Contexto inválido NÃO pode enfileirar a APLICAÇÃO — esta escreve no acervo");
+    }
+
     @Test
     @DisplayName("CorrecaoCacheController./revisar-cache: contexto inválido → 400 e NÃO enfileira")
     void revisarCacheContextoInvalido() {
         AtomicBoolean enfileirou = new AtomicBoolean(false);
         CorrecaoCacheController controller = new CorrecaoCacheController(
-            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null);
+            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null, null);
 
         ResponseEntity<RespostaPadrao> resposta = controller.revisarCache(requisicaoComContextoInvalido());
 
