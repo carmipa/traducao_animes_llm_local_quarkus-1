@@ -106,9 +106,11 @@ public final class CorrecoesTerminologiaGundamUc {
         Map.entry("Espacenóide", "Spacenoid"),
         Map.entry("Espacenoide", "Spacenoid"),
         Map.entry("Terranóide", "Earthnoid"),
-        Map.entry("Terranoide", "Earthnoid"),
-        Map.entry("Partículas Minovsky", "Minovsky particles"),
-        Map.entry("Particulas Minovsky", "Minovsky particles")
+        Map.entry("Terranoide", "Earthnoid")
+        // "Partículas Minovsky" NÃO entra, por decisão do dono do acervo: a forma em português é
+        // aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de "rifle de
+        // feixe", "arma de feixe" e "unidade móvel". O espelho da revisão também a perdeu, para
+        // os dois catálogos seguirem dizendo a mesma coisa.
     );
 
     private CorrecoesTerminologiaGundamUc() {

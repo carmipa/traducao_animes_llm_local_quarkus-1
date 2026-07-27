@@ -13,6 +13,7 @@ import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
+import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,6 +55,7 @@ class ReforcarTerminologiaCacheUseCaseTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private AuditoriaStub auditoria;
+    private TelemetriaStub telemetria;
     private ReforcarTerminologiaCacheUseCase useCase;
 
     @BeforeEach
@@ -61,11 +63,41 @@ class ReforcarTerminologiaCacheUseCaseTest {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(
             new ContextoZZ(), new ContextoGuiltyCrown()));
         auditoria = new AuditoriaStub();
+        telemetria = new TelemetriaStub();
         useCase = new ReforcarTerminologiaCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")),
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new EnforcadorTermosLore(),
-            auditoria);
+            auditoria,
+            telemetria);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma operação que reescreve o acervo e não aparece em telemetria, log
+     * nem relatório deixa o processo CEGO — não dá para comparar execuções nem saber quando um
+     * termo parou de aparecer. Esta operação nasceu assim, para não abrir aresta arquitetural, e
+     * a porta é o que resolve os dois problemas de uma vez.
+     *
+     * <p>O ENSAIO também é publicado, e rotulado como tal: publicar só a aplicação esconderia
+     * justamente a medição que serve para decidir.
+     */
+    @Test
+    @DisplayName("a operação é publicada em telemetria e relatório — inclusive o ensaio, rotulado")
+    void publicaTelemetriaComContadorPorTermo() throws Exception {
+        escreverCacheZZ();
+
+        useCase.ensaiar(temp.resolve("cache"), null);
+
+        assertEquals(1, telemetria.publicacoes.size(), "toda execução publica exatamente uma vez");
+        var p = telemetria.publicacoes.get(0);
+        assertTrue(p.operacao().contains("ensaio"),
+            () -> "um ensaio lido depois como execução faria acreditar que o acervo mudou: " + p.operacao());
+        assertEquals(1, p.arquivosProcessados());
+        assertEquals(4, p.itensDetectados());
+        assertEquals(0, p.itensCorrigidos(), "em ensaio nada foi corrigido");
+        assertTrue(p.relatorio().contains("ENSAIO (nada foi escrito)"), p::relatorio);
+        assertTrue(p.relatorio().contains("2x  Beam Saber"),
+            () -> "o contador POR TERMO é a razão de a operação existir: " + p.relatorio());
     }
 
     /**
@@ -304,7 +336,7 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new ContextoManutencaoCacheService(
                 new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
                 new ValidadorCompatibilidadeObraContexto()),
-            new EnforcadorTermosLore(), auditoria);
+            new EnforcadorTermosLore(), auditoria, telemetria);
 
         ResultadoReforcoTerminologia r = useCaseQueFalhaAoSalvar.executar(temp.resolve("cache"), null, true);
 
@@ -391,6 +423,22 @@ class ReforcarTerminologiaCacheUseCaseTest {
         public Path salvarAtomico(DocumentoEditavel documento, Sessao sessao) throws java.io.IOException {
             throw new java.io.IOException("There is not enough space on the disk");
         }
+    }
+
+    /** Telemetria em memória: captura o que a operação publicaria, sem escrever no projeto. */
+    private static final class TelemetriaStub implements TelemetriaCorrecaoPort {
+        private final List<Publicacao> publicacoes = new ArrayList<>();
+
+        @Override
+        public void registrar(String operacao, String prefixoRelatorio, Path pastaAlvo,
+                              long duracaoMs, int arquivosProcessados, int itensDetectados,
+                              int itensCorrigidos, String relatorio) {
+            publicacoes.add(new Publicacao(operacao, prefixoRelatorio, arquivosProcessados,
+                itensDetectados, itensCorrigidos, relatorio));
+        }
+
+        private record Publicacao(String operacao, String prefixoRelatorio, int arquivosProcessados,
+                                  int itensDetectados, int itensCorrigidos, String relatorio) {}
     }
 
     /** Auditoria em memória para não escrever artefatos do teste no projeto. */

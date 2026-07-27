@@ -107,6 +107,13 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisorPtOnlyUseCase -> telemetria.TelemetriaService",
         "traducaoCorrige.CorretorCacheCLI -> config.ExecucaoCli",
         "traducaoCorrige.application.LimparCacheUseCase -> telemetria.TelemetriaService",
+        // ADAPTADOR, não acoplamento novo de aplicação: é a FASE 2 do Plano-Mestre aterrissando
+        // no código novo. A aresta para `telemetria` sai de INFRASTRUCTURE, atrás da
+        // TelemetriaCorrecaoPort, e não da camada de aplicação — que é exatamente a diferença
+        // entre a dívida das linhas acima e a forma que o contrato prescreve. O reforço de
+        // terminologia tinha nascido SEM telemetria para não abrir aresta; o preço foi uma
+        // operação que reescreve o acervo e não aparecia em telemetria, log nem relatório.
+        "traducaoCorrige.infrastructure.TelemetriaCorrecaoAdapter -> telemetria.TelemetriaService",
         "traducaoCorrige.presentation.web.CorrecaoCacheController -> raspagemCorrecao.application.CorrigirComGoogleUseCase",
         "traducaoCorrige.presentation.web.CorrecaoCacheController -> raspagemRevisao.application.RevisarCacheUseCase");
 
