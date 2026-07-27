@@ -3,7 +3,9 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
+import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
+import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
@@ -11,7 +13,6 @@ import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevis
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
-import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
@@ -45,11 +46,6 @@ import java.util.stream.Stream;
 @Service
 public class RevisarLegendasUseCase {
 
-    public enum ModoRevisaoLegendas {
-        GOOGLE,
-        LLM_CONCORDANCIA
-    }
-
     /**
      * PROPÓSITO DE NEGÓCIO: fonte de referência que protege o sentido durante a
      * revisão do PT — a legenda EN + cache (AMBOS, comportamento histórico) ou
@@ -78,7 +74,7 @@ public class RevisarLegendasUseCase {
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final GerenciadorContexto gerenciadorContexto;
-    private final TelemetriaRevisaoPort telemetria;
+    private final RelatorioRevisaoService relatorio;
     private final SanitizadorTagsService sanitizadorTags;
     private final ProtecaoLegendaAssService protecaoAss;
     private final ProtetorTermosLoreService protetorLore;
@@ -108,7 +104,7 @@ public class RevisarLegendasUseCase {
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
         GerenciadorContexto gerenciadorContexto,
-        TelemetriaRevisaoPort telemetria,
+        RelatorioRevisaoService relatorio,
         SanitizadorTagsService sanitizadorTags,
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
@@ -127,7 +123,7 @@ public class RevisarLegendasUseCase {
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.gerenciadorContexto = gerenciadorContexto;
-        this.telemetria = telemetria;
+        this.relatorio = relatorio;
         this.sanitizadorTags = sanitizadorTags;
         this.protecaoAss = protecaoAss;
         this.protetorLore = protetorLore;
@@ -284,8 +280,9 @@ public class RevisarLegendasUseCase {
                 Optional<String> erro = validarPastaEntrada(pastaLegendasPt);
                 out(AnsiCores.YELLOW + erro.orElse("Nenhum arquivo .ass/.ssa traduzido encontrado na pasta.")
                     + AnsiCores.RESET);
-                registrarTelemetria(pastaLegendasPt, inicioMs, 0, 0, 0, 0, 0, 0, modo,
-                    detalhesRevisao);
+                out("Relatório salvo em: " + relatorio.registrar(
+                    pastaLegendasPt, System.currentTimeMillis() - inicioMs,
+                    0, 0, 0, 0, 0, 0, modo, detalhesRevisao));
                 return new ResultadoRevisaoLegendas(0, 0, 0, 0);
             }
 
@@ -324,9 +321,10 @@ public class RevisarLegendasUseCase {
         } else {
             out("Falas corrigidas via Google e salvas: " + falasCorrigidas[0]);
         }
-        registrarTelemetria(pastaLegendasPt, inicioMs, arquivosProcessados[0], falasComProblema[0],
-            falasCorrigidas[0], falasAuditadas[0], falasSemOriginal[0], falasPendentes[0], modo,
-            detalhesRevisao);
+        out("Relatório salvo em: " + relatorio.registrar(
+            pastaLegendasPt, System.currentTimeMillis() - inicioMs,
+            arquivosProcessados[0], falasComProblema[0], falasCorrigidas[0], falasAuditadas[0],
+            falasSemOriginal[0], falasPendentes[0], modo, detalhesRevisao));
         return new ResultadoRevisaoLegendas(
             arquivosProcessados[0], falasCorrigidas[0], falasComProblema[0], falasPendentes[0]);
     }
@@ -395,87 +393,6 @@ public class RevisarLegendasUseCase {
             contextoEfetivo,
             gerenciadorContexto.obterLoreAtiva(),
             gerenciadorContexto.termosProtegidosAtivos());
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: encerra a revisão persistindo métricas agregadas e a
-     * explicação por ocorrência para auditoria e evolução do dataset.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: os totais do relatório correspondem ao resultado
-     * devolvido pela operação e detalhes nunca substituem a telemetria canônica.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lista de detalhes vazia ainda produz um
-     * relatório válido com os totais disponíveis.
-     */
-    private void registrarTelemetria(
-        Path pastaLegendasPt,
-        long inicioMs,
-        int arquivos,
-        int problemas,
-        int corrigidas,
-        int auditadas,
-        int semOriginal,
-        int pendentes,
-        ModoRevisaoLegendas modo,
-        List<DetalheRevisao> detalhes
-    ) {
-        long duracaoMs = System.currentTimeMillis() - inicioMs;
-        boolean llm = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA;
-        String nomeOperacao = llm
-            ? "Revisão Concordância (.ass LLM)"
-            : "Revisão Legendas (.ass Google)";
-        String relatorio = llm ? """
-            REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
-            ============================================
-            Pasta: %s
-            Duração: %s
-            Arquivos analisados: %d
-            Falas auditadas: %d
-            Falas sem original EN (ignoradas): %d
-            Problemas detectados: %d
-            Falas corrigidas via LLM: %d
-            Falas pendentes: %d
-            """.formatted(
-            pastaLegendasPt.toAbsolutePath(),
-            formatarDuracaoMs(duracaoMs),
-            arquivos,
-            auditadas,
-            semOriginal,
-            problemas,
-            corrigidas,
-            pendentes
-        ) : """
-            REVISÃO DE LEGENDAS (.ass)
-            ==========================
-            Pasta: %s
-            Duração: %s
-            Arquivos analisados: %d
-            Falas auditadas: %d
-            Falas sem original EN (ignoradas): %d
-            Problemas detectados: %d
-            Falas corrigidas via Google: %d
-            Falas pendentes: %d
-            """.formatted(
-            pastaLegendasPt.toAbsolutePath(),
-            formatarDuracaoMs(duracaoMs),
-            arquivos,
-            auditadas,
-            semOriginal,
-            problemas,
-            corrigidas,
-            pendentes
-        );
-        relatorio += formatarDetalhesRelatorio(detalhes);
-        telemetria.registrarComRelatorio(
-            nomeOperacao, pastaLegendasPt.toAbsolutePath().toString(),
-            llm ? "revisao_concordancia_legendas" : "revisao_legendas",
-            pastaLegendasPt, duracaoMs, arquivos, problemas, corrigidas, relatorio);
-        out("Relatório salvo em: " + telemetria.pastaDeRelatorios(pastaLegendasPt));
-    }
-
-    private String formatarDuracaoMs(long ms) {
-        long segundos = ms / 1000;
-        return segundos >= 60 ? (segundos / 60) + "min " + (segundos % 60) + "s" : segundos + "s";
     }
 
     private void out(String mensagem) {
@@ -1344,68 +1261,8 @@ public class RevisarLegendasUseCase {
             return TentativaRevisaoLegenda.sucesso(restaurado, proposta);
         } catch (AlucinacaoDetectadaException e) {
             return TentativaRevisaoLegenda.pendente(
-                "LLM_VALIDACAO_REJEITADA", mensagemFalha(e), proposta);
+                "LLM_VALIDACAO_REJEITADA", RelatorioRevisaoService.mensagemFalha(e), proposta);
         }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: transforma exceções de validação em mensagens curtas
-     * para o console e para o relatório operacional da revisão.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: nunca expõe stack trace e nunca devolve texto
-     * vazio; a proposta completa continua registrada separadamente no detalhe.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: quando a exceção não possui mensagem,
-     * usa o nome da classe como diagnóstico mínimo.
-     */
-    private String mensagemFalha(Exception erro) {
-        return erro.getMessage() == null || erro.getMessage().isBlank()
-            ? erro.getClass().getSimpleName() : erro.getMessage();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: acrescenta ao relatório final a trilha auditável de
-     * cada correção, rejeição ou bloqueio ocorrido durante a Opção 6.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: cada item identifica arquivo, evento, resultado,
-     * problemas detectados e proposta do modelo; quebras internas são escapadas
-     * para que uma ocorrência permaneça legível em um único bloco.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula ou vazia gera seção explícita
-     * sem detalhes, sem impedir a persistência da telemetria resumida.
-     */
-    private String formatarDetalhesRelatorio(List<DetalheRevisao> detalhes) {
-        StringBuilder texto = new StringBuilder("\nDETALHES POR OCORRÊNCIA\n=======================\n");
-        if (detalhes == null || detalhes.isEmpty()) {
-            return texto.append("Nenhuma ocorrência detalhada registrada.\n").toString();
-        }
-        for (DetalheRevisao detalhe : detalhes) {
-            texto.append("\nArquivo: ").append(detalhe.arquivo()).append('\n')
-                .append("Evento: ").append(detalhe.evento()).append(" | Estilo: ")
-                .append(resumirCampo(detalhe.estilo())).append('\n')
-                .append("Resultado: ").append(detalhe.resultado()).append('\n')
-                .append("Problemas: ").append(String.join(" | ", detalhe.problemas())).append('\n')
-                .append("Diagnóstico: ").append(resumirCampo(detalhe.diagnostico())).append('\n')
-                .append("EN: ").append(resumirCampo(detalhe.original())).append('\n')
-                .append("PT anterior: ").append(resumirCampo(detalhe.antes())).append('\n')
-                .append("Proposta: ").append(resumirCampo(detalhe.depois())).append('\n');
-        }
-        return texto.toString();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: mantém textos de legenda legíveis dentro do relatório
-     * operacional sem perder as quebras ASS relevantes.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: não altera o conteúdo persistido e limita apenas
-     * a representação diagnóstica a 500 caracteres.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: valor ausente é representado por hífen.
-     */
-    private String resumirCampo(String valor) {
-        if (valor == null || valor.isBlank()) return "—";
-        String limpo = valor.replace("\r", "").replace("\n", " ↵ ").strip();
-        return limpo.length() <= 500 ? limpo : limpo.substring(0, 497) + "...";
     }
 
     private void pausaGoogle() {
@@ -1453,22 +1310,6 @@ public class RevisarLegendasUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lista de problemas ausente é normalizada
      * para lista vazia e o record não executa I/O.
      */
-    private record DetalheRevisao(
-        String arquivo,
-        int evento,
-        String estilo,
-        String resultado,
-        List<String> problemas,
-        String diagnostico,
-        String original,
-        String antes,
-        String depois
-    ) {
-        private DetalheRevisao {
-            problemas = problemas == null ? List.of() : List.copyOf(problemas);
-        }
-    }
-
     /**
      * PROPÓSITO DE NEGÓCIO: mantém a identidade e o glossário operacional da
      * obra ativos durante a revisão de um arquivo.
