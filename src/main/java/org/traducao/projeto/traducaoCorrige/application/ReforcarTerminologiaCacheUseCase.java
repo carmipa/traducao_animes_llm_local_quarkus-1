@@ -1,6 +1,7 @@
 package org.traducao.projeto.traducaoCorrige.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.annotation.PostConstruct;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
+import org.traducao.projeto.traducaoCorrige.infrastructure.config.CorrecaoCacheProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,6 +63,7 @@ public class ReforcarTerminologiaCacheUseCase {
     private final EnforcadorTermosLore enforcador;
     private final AuditoriaCorrecaoCachePort auditoria;
     private final TelemetriaCorrecaoPort telemetria;
+    private final CorrecaoCacheProperties propriedades;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as quatro peças da operação — leitura/escrita de cache,
@@ -78,13 +81,33 @@ public class ReforcarTerminologiaCacheUseCase {
         ContextoManutencaoCacheService contextoService,
         EnforcadorTermosLore enforcador,
         AuditoriaCorrecaoCachePort auditoria,
-        TelemetriaCorrecaoPort telemetria
+        TelemetriaCorrecaoPort telemetria,
+        CorrecaoCacheProperties propriedades
     ) {
         this.cacheService = cacheService;
         this.contextoService = contextoService;
         this.enforcador = enforcador;
         this.auditoria = auditoria;
         this.telemetria = telemetria;
+        this.propriedades = propriedades;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: declara no BOOT se a escrita no acervo está autorizada. A receita de
+     * fatia nova do projeto exige capacidade nova com flag OFF e LOG DE ESTADO NO INÍCIO — sem o
+     * log, uma flag desligada vira uma operação que "não funciona" sem ninguém saber por quê, e
+     * uma flag ligada por engano vira escrita silenciosa sobre trabalho pronto.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: roda uma vez, no start; não decide nada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só loga; nunca impede o boot.
+     */
+    @PostConstruct
+    void registrarEstadoInicial() {
+        log.info("[ REFORCO-TERMINOLOGIA ] escrita no acervo {} "
+                + "(correcao-cache.reforco-terminologia-aplicar-habilitado={}). O ensaio roda sempre.",
+            propriedades.reforcoTerminologiaAplicarHabilitado() ? "AUTORIZADA" : "BLOQUEADA",
+            propriedades.reforcoTerminologiaAplicarHabilitado());
     }
 
     /**
@@ -115,6 +138,17 @@ public class ReforcarTerminologiaCacheUseCase {
      */
     public ResultadoReforcoTerminologia executar(Path raizCache, String contextoFallback, boolean aplicar) {
         long inicioMs = System.currentTimeMillis();
+        if (aplicar && !propriedades.reforcoTerminologiaAplicarHabilitado()) {
+            // Recusa ANTES de abrir qualquer arquivo. Escrever sobre trabalho pronto exige
+            // autorização declarada em configuração, não só um clique — e a recusa é ruidosa,
+            // porque uma operação que "não faz nada" em silêncio é indistinguível de um defeito.
+            Acumulador bloqueado = new Acumulador(false);
+            bloqueado.falhas++;
+            log.error("[ REFORCO-TERMINOLOGIA ] APLICAÇÃO RECUSADA: a escrita no acervo está "
+                + "desligada. Ligue correcao-cache.reforco-terminologia-aplicar-habilitado=true "
+                + "para autorizar. O ensaio continua disponível.");
+            return publicar(raizCache, inicioMs, bloqueado);
+        }
         Acumulador acc = new Acumulador(aplicar);
         if (!Files.isDirectory(raizCache)) {
             acc.falhas++;
