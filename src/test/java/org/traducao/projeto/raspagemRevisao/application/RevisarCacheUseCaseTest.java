@@ -19,6 +19,7 @@ import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService;
@@ -74,7 +75,7 @@ class RevisarCacheUseCaseTest {
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
-            new ContextoManutencaoCacheService(contexto), new DetectorConcordanciaService(), llm,
+            new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()), new DetectorConcordanciaService(), llm,
             new ValidadorTraducaoService(), new MascaradorTags(), new ProtecaoLegendaAssService(),
             new AuditoriaStub(mapper), new TelemetriaStub());
 

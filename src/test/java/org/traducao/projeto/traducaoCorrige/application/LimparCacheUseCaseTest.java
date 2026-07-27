@@ -16,6 +16,7 @@ import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
@@ -57,7 +58,7 @@ class LimparCacheUseCaseTest {
         auditoria = new AuditoriaStub(mapper);
         useCase = new LimparCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
-            new ContextoManutencaoCacheService(contexto), auditoria, new TelemetriaStub());
+            new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()), auditoria, new TelemetriaStub());
     }
 
     @Test
