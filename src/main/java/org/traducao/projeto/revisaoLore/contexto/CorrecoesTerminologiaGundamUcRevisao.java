@@ -39,7 +39,36 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         Map.entry("Espacenóide", "Spacenoid"),
         Map.entry("Espacenoide", "Spacenoid"),
         Map.entry("Terranóide", "Earthnoid"),
-        Map.entry("Terranoide", "Earthnoid")
+        Map.entry("Terranoide", "Earthnoid"),
+        // As 23 abaixo vieram do catálogo da TRADUÇÃO, onde já existiam. Este espelho é
+        // deliberadamente uma cópia (fatia não importa fatia), mas ele derivou: as decisões do
+        // dono do acervo sobre "terno", Beam Saber e Normal Suit foram registradas só de um lado
+        // e a revisão de lore passou semanas sem elas. Duplicação consciente exige quem acuse a
+        // divergência — ver ParidadeMapasTerminologiaTest.
+        Map.entry("Novos Tipos", "Newtypes"),
+        Map.entry("Neotipos", "Newtypes"),
+        Map.entry("Velhos Tipos", "Oldtypes"),
+        // "terno" é roupa social: JAMAIS serve para Mobile Suit, em nenhuma combinação.
+        Map.entry("Terno de Combate", "Mobile Suit"),
+        Map.entry("Ternos de Combate", "Mobile Suits"),
+        Map.entry("Espada de Raio", "Beam Saber"),
+        Map.entry("Espadas de Raio", "Beam Sabers"),
+        Map.entry("Sabre de Luz", "Beam Saber"),
+        Map.entry("Sabres de Luz", "Beam Sabers"),
+        Map.entry("Lâmina de Energia", "Beam Saber"),
+        Map.entry("Lâminas de Energia", "Beam Sabers"),
+        Map.entry("Terno Normal", "Normal Suit"),
+        Map.entry("Ternos Normais", "Normal Suits"),
+        Map.entry("Traje Normal", "Normal Suit"),
+        Map.entry("Trajes Normais", "Normal Suits"),
+        Map.entry("Uniforme Normal", "Normal Suit"),
+        Map.entry("Uniformes Normais", "Normal Suits"),
+        Map.entry("Armadura Normal", "Normal Suit"),
+        Map.entry("Armaduras Normais", "Normal Suits"),
+        Map.entry("Roupa Normal", "Normal Suit"),
+        Map.entry("Roupas Normais", "Normal Suits"),
+        Map.entry("Terno Espacial Potenciado", "Powered Spacesuit"),
+        Map.entry("Traje Espacial Potenciado", "Powered Spacesuit")
     );
 
     private CorrecoesTerminologiaGundamUcRevisao() {

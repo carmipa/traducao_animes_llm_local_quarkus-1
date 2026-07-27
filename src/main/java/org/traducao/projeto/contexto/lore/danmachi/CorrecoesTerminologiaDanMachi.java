@@ -17,8 +17,22 @@ import java.util.Map;
  */
 public final class CorrecoesTerminologiaDanMachi {
 
-    private static final Map<String, String> NUCLEO = Map.of(
-        "Família", "Familia"
+    // As nove entradas além de "Família" vieram do catálogo ESPELHO da revisão de lore, onde já
+    // existiam. A duplicação entre os dois catálogos é deliberada (fatia não importa fatia), mas
+    // ela derivou: a tradução ficou com UMA entrada enquanto a revisão tinha dez, então DanMachi
+    // era traduzido sem a política de terminologia que a revisão já aplicava depois. Duplicação
+    // consciente exige quem acuse a divergência — ver ParidadeMapasTerminologiaTest.
+    private static final Map<String, String> NUCLEO = Map.ofEntries(
+        Map.entry("Família", "Familia"),
+        Map.entry("Fálna", "Falna"),
+        Map.entry("Excélia", "Excelia"),
+        Map.entry("Vális", "Valis"),
+        Map.entry("Masmorra", "Dungeon"),
+        Map.entry("Pedra Mágica", "Magic Stone"),
+        Map.entry("Pedra Magica", "Magic Stone"),
+        Map.entry("Jogo de Guerra", "War Game"),
+        Map.entry("Espada Mágica", "Magic Sword"),
+        Map.entry("Espada Magica", "Magic Sword")
     );
 
     private CorrecoesTerminologiaDanMachi() {

@@ -24,12 +24,23 @@ public final class CorrecoesTerminologiaMacross {
      * <p>COMPORTAMENTO EM CASO DE FALHA: sempre o mesmo mapa imutável.
      */
     public static Map<String, String> mapa() {
-        return Map.of(
-            "Valquíria", "Valkyrie",
-            "Valquiria", "Valkyrie",
-            "Veritech", "Valkyrie",
-            "Zentraedi", "Zentradi",
-            "Zentradii", "Zentradi"
+        // As seis últimas vieram do catálogo ESPELHO da revisão de lore, onde já existiam. A
+        // duplicação entre os dois catálogos é deliberada (fatia não importa fatia), mas ela
+        // derivou: a tradução tinha cinco entradas e a revisão onze, então Macross era traduzido
+        // sem "Protocultura"→"Protoculture" e sem as variantes de Meltrandi/Zentradi que a revisão
+        // já corrigia depois. Ver ParidadeMapasTerminologiaTest.
+        return Map.ofEntries(
+            Map.entry("Valquíria", "Valkyrie"),
+            Map.entry("Valquiria", "Valkyrie"),
+            Map.entry("Veritech", "Valkyrie"),
+            Map.entry("Zentraedi", "Zentradi"),
+            Map.entry("Zentradii", "Zentradi"),
+            Map.entry("Protocultura", "Protoculture"),
+            Map.entry("Ataque Minmay", "Minmay Attack"),
+            Map.entry("Ataque de Minmay", "Minmay Attack"),
+            Map.entry("Meltrandy", "Meltrandi"),
+            Map.entry("Meltrandii", "Meltrandi"),
+            Map.entry("Zentrades", "Zentradi")
         );
     }
 }
