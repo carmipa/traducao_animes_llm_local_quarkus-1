@@ -22,7 +22,7 @@ import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCach
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +57,7 @@ class CorrigirComGoogleUseCaseTest {
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
             cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new ProtetorTermosLoreService(), new GoogleStub(),
-            new AuditoriaStub(mapper), new TelemetriaStub());
+            new AuditoriaStub(), new TelemetriaStub());
 
         Path cache = temp.resolve("cache");
         Path arquivo = cache.resolve("ep.cache.json");
@@ -93,7 +93,7 @@ class CorrigirComGoogleUseCaseTest {
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
             cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new ProtetorTermosLoreService(), new GoogleInterrompendoStub(),
-            new AuditoriaStub(mapper), new TelemetriaStub());
+            new AuditoriaStub(), new TelemetriaStub());
         Path cache = temp.resolve("cache-interrupcao");
         Path arquivo = cache.resolve("ep.cache.json");
         Files.createDirectories(cache);
@@ -145,9 +145,8 @@ class CorrigirComGoogleUseCaseTest {
         }
     }
 
-    private static final class AuditoriaStub extends CorrecaoCacheAuditoria {
-        AuditoriaStub(ObjectMapper mapper) { super(mapper); }
-        @Override public synchronized void registrar(EntradaAuditoriaCorrecaoCache entrada) { }
+    private static final class AuditoriaStub implements AuditoriaCorrecaoCachePort {
+        @Override public void registrar(EntradaAuditoriaCorrecaoCache entrada) { }
     }
 
     /**

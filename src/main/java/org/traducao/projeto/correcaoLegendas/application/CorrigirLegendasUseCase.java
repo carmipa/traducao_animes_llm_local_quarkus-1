@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.domain.CorrecaoLegendasRelatorioJson;
 import org.traducao.projeto.correcaoLegendas.domain.LogEventoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.domain.ResultadoCorrecaoLegendas;
-import org.traducao.projeto.correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia;
+import org.traducao.projeto.correcaoLegendas.domain.ports.RelatorioCorrecaoLegendasPort;
 import org.traducao.projeto.correcaoLegendas.domain.ResumoOperacaoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.domain.ports.TelemetriaCorrecaoLegendasPort;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
@@ -47,7 +47,7 @@ public class CorrigirLegendasUseCase {
     private final CorretorTraducaoLlmService corretorLlm;
     private final GerenciadorContexto gerenciadorContexto;
     private final TelemetriaCorrecaoLegendasPort telemetria;
-    private final CorrecaoLegendasLogPersistencia logPersistencia;
+    private final RelatorioCorrecaoLegendasPort relatorioPersistido;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final PoliticaEstiloMusical politicaEstiloMusical;
     private final MascaradorTags mascarador;
@@ -60,7 +60,7 @@ public class CorrigirLegendasUseCase {
         CorretorTraducaoLlmService corretorLlm,
         GerenciadorContexto gerenciadorContexto,
         TelemetriaCorrecaoLegendasPort telemetria,
-        CorrecaoLegendasLogPersistencia logPersistencia,
+        RelatorioCorrecaoLegendasPort relatorioPersistido,
         DetectorEfeitoKaraokeService detectorKaraoke,
         PoliticaEstiloMusical politicaEstiloMusical,
         MascaradorTags mascarador,
@@ -72,7 +72,7 @@ public class CorrigirLegendasUseCase {
         this.corretorLlm = corretorLlm;
         this.gerenciadorContexto = gerenciadorContexto;
         this.telemetria = telemetria;
-        this.logPersistencia = logPersistencia;
+        this.relatorioPersistido = relatorioPersistido;
         this.detectorKaraoke = detectorKaraoke;
         this.politicaEstiloMusical = politicaEstiloMusical;
         this.mascarador = mascarador;
@@ -499,7 +499,7 @@ public class CorrigirLegendasUseCase {
                 resultado,
                 List.copyOf(eventos)
             );
-            relatorioJson = logPersistencia.salvarRelatorioJson(
+            relatorioJson = relatorioPersistido.salvarRelatorioJson(
                 telemetria.pastaDeRelatorios(pastaTraduzida), relatorio).toString();
             out(eventos, "INFO", null, "Relatorio JSON salvo em: " + relatorioJson, AnsiCores.CYAN);
         } catch (Exception e) {

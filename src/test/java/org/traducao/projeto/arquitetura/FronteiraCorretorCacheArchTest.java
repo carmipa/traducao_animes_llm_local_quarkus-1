@@ -85,7 +85,7 @@ class FronteiraCorretorCacheArchTest {
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
+        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort",
         "raspagemRevisao.RevisorLegendasCLI -> config.ExecucaoCli",
         // FASE 2: as QUATRO arestas de application desta fatia sairam. A dependencia para
         // `telemetria` agora nasce so do ADAPTADOR, atras da TelemetriaRevisaoPort.
@@ -96,7 +96,7 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
-        "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
+        "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort",
         "raspagemRevisao.application.RevisarLegendasUseCase -> correcaoLegendas.application.SanitizadorTagsService",
         // Aresta ADICIONADA conscientemente em 2026-07-27 para FECHAR um furo de segurança, não por
         // conveniência: este caso de uso resolvia a lore pelo carimbo do cache sem passar pela
@@ -172,17 +172,19 @@ class FronteiraCorretorCacheArchTest {
      * contrato — {@code application} depende de {@code domain.ports}, nunca de
      * {@code infrastructure} — e são o alvo direto da FASE 2 (portas).
      *
-     * <p>Eram 4; a {@code RecuperacaoExternaPort} eliminou 2. O que ficou é a auditoria de cache,
-     * que espera a própria porta.
+     * <p><b>VAZIA desde 2026-07-27 — a FASE 2 fechou esta lista.</b> Eram 4: a
+     * {@code RecuperacaoExternaPort} eliminou 2 e a {@code AuditoriaCorrecaoCachePort} os outros 2.
+     * Nenhuma camada de aplicação da área alcança mais a infraestrutura de outra fatia.
      *
-     * <p><b>Atenção ao ler esta lista encolhendo:</b> ela mede VIOLAÇÃO DE CAMADA, não
-     * independência entre fatias. O adaptador da revisão continua consumindo o {@code domain.ports}
-     * de {@code raspagemCorrecao} — aresta declarada em {@link #ARESTAS_CONGELADAS}, com o motivo
-     * escrito lá. Zerar esta lista não zera aquela.
+     * <p><b>O que este zero NÃO significa.</b> Esta lista mede VIOLAÇÃO DE CAMADA, não
+     * independência entre fatias. As duas raspagens continuam dependendo de {@code traducaoCorrige}
+     * (agora pelo {@code domain.ports} e pelos tipos de domínio, não pela infraestrutura), e o
+     * adaptador da revisão continua consumindo o {@code domain.ports} de {@code raspagemCorrecao} —
+     * tudo declarado em {@link #ARESTAS_CONGELADAS}, com os motivos escritos lá. Os dois ciclos
+     * internos da área seguem vivos e são a FASE 3. Ler este zero como "as fatias se soltaram"
+     * seria o mesmo erro que a primeira versão desta catraca cometeu ao anunciar 2 ciclos havendo 5.
      */
-    private static final Set<String> INFRA_CRUZADA_CONGELADA = Set.of(
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
-        "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
+    private static final Set<String> INFRA_CRUZADA_CONGELADA = Set.of();
 
     /**
      * Violações de CAMADA dentro da própria fatia: {@code application} alcançando o
@@ -195,10 +197,14 @@ class FronteiraCorretorCacheArchTest {
      * mesma classe, injetava o {@code CorrecaoCacheAuditoria} concreto: a fronteira testada foi
      * respeitada, a não testada foi furada. Enquanto a regra não existir aqui, o teste ensina que
      * o certo é o que ele mede.
+     *
+     * <p><b>VAZIA desde 2026-07-27 — a FASE 2 fechou esta lista.</b> Eram 5: a
+     * {@code RecuperacaoExternaPort} eliminou 3, a {@code AuditoriaCorrecaoCachePort} 1 e a
+     * {@code RelatorioCorrecaoLegendasPort} o último. A lista vazia deixa de registrar dívida e
+     * passa a AFIRMAR a regra: nas quatro fatias da área, {@code application} não alcança
+     * {@code infrastructure} — nem a da própria fatia. Qualquer caso novo reprova nomeando o tipo.
      */
-    private static final Set<String> CAMADA_INTERNA_CONGELADA = Set.of(
-        "correcaoLegendas.application.CorrigirLegendasUseCase -> correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia",
-        "traducaoCorrige.application.LimparCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
+    private static final Set<String> CAMADA_INTERNA_CONGELADA = Set.of();
 
     /**
      * Leitura de CONFIGURAÇÃO pela application — que NÃO é a mesma coisa que os casos acima e não
@@ -337,7 +343,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: acesso ao infrastructure de OUTRA fatia — 2 restantes, alvo da FASE 2")
+    @DisplayName("FASE 2 FECHADA: acesso ao infrastructure de OUTRA fatia — ZERO")
     void acessoCruzadoAInfrastructureCongelado() {
         Set<String> vivos = new TreeSet<>();
         for (String aresta : arestasVivas()) {
@@ -361,8 +367,8 @@ class FronteiraCorretorCacheArchTest {
      * camada que o contrato proíbe ("application depende de domain.ports, nunca de
      * infrastructure").
      *
-     * <p>INVARIANTES DO DOMÍNIO: inventário exato dos casos legados — eram 5 em 2026-07-26 e a
-     * {@code RecuperacaoExternaPort} eliminou os 3 de {@code raspagemCorrecao}. Caso
+     * <p>INVARIANTES DO DOMÍNIO: lista VAZIA — eram 5 casos legados em 2026-07-26 e as portas da
+     * FASE 2 eliminaram todos. Caso
      * NOVO é regressão e reprova nomeando o tipo; caso que SUMIR também reprova, porque a FASE 2
      * do Plano-Mestre existe para eliminá-los com portas e o progresso tem de ser registrado.
      * A checagem olha o pacote de origem terminando em {@code .application} e o de destino
@@ -372,7 +378,7 @@ class FronteiraCorretorCacheArchTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lista a diferença separando regressão de progresso.
      */
     @Test
-    @DisplayName("FASE 0: application -> infrastructure da PRÓPRIA fatia — 2 legados, alvo da FASE 2")
+    @DisplayName("FASE 2 FECHADA: application -> infrastructure da PRÓPRIA fatia — ZERO")
     void camadaInternaApplicationParaInfrastructureCongelada() {
         Set<String> vivos = new TreeSet<>();
         for (JavaClass classe : classesProducao) {

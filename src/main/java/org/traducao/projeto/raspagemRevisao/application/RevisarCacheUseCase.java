@@ -19,7 +19,7 @@ import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCach
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +55,7 @@ public class RevisarCacheUseCase {
     private final ValidadorTraducaoService validador;
     private final MascaradorTags mascaradorTags;
     private final ProtecaoLegendaAssService protecaoAss;
-    private final CorrecaoCacheAuditoria auditoria;
+    private final AuditoriaCorrecaoCachePort auditoria;
     private final TelemetriaRevisaoPort telemetria;
 
     /**
@@ -72,7 +72,7 @@ public class RevisarCacheUseCase {
         ValidadorTraducaoService validador,
         MascaradorTags mascaradorTags,
         ProtecaoLegendaAssService protecaoAss,
-        CorrecaoCacheAuditoria auditoria,
+        AuditoriaCorrecaoCachePort auditoria,
         TelemetriaRevisaoPort telemetria
     ) {
         this.cacheService = cacheService;
