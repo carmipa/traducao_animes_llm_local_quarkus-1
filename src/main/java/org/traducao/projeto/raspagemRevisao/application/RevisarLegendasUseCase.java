@@ -51,7 +51,6 @@ public class RevisarLegendasUseCase {
     private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final AuditorProblemasLegendaService auditor;
     private final ValidadorTraducaoService validador;
-    private final SincronizadorLegendaCacheService sincronizadorCache;
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
@@ -60,6 +59,7 @@ public class RevisarLegendasUseCase {
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
+    private final SincronizacaoPreviaRevisao sincronizacaoPrevia;
     private final FiltroAuditoriaLinha filtroAuditoria;
     private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
     private final PreparadorReferenciaRevisao preparador;
@@ -79,7 +79,6 @@ public class RevisarLegendasUseCase {
         RecuperacaoExternaRevisaoPort recuperacaoExterna,
         AuditorProblemasLegendaService auditor,
         ValidadorTraducaoService validador,
-        SincronizadorLegendaCacheService sincronizadorCache,
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
@@ -88,6 +87,7 @@ public class RevisarLegendasUseCase {
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
+        SincronizacaoPreviaRevisao sincronizacaoPrevia,
         FiltroAuditoriaLinha filtroAuditoria,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
         PreparadorReferenciaRevisao preparador
@@ -96,7 +96,6 @@ public class RevisarLegendasUseCase {
         this.recuperacaoExterna = recuperacaoExterna;
         this.auditor = auditor;
         this.validador = validador;
-        this.sincronizadorCache = sincronizadorCache;
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
@@ -105,6 +104,7 @@ public class RevisarLegendasUseCase {
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
         this.resolvedorArtefatos = resolvedorArtefatos;
+        this.sincronizacaoPrevia = sincronizacaoPrevia;
         this.filtroAuditoria = filtroAuditoria;
         this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
         this.preparador = preparador;
@@ -368,20 +368,13 @@ public class RevisarLegendasUseCase {
         Map<String, String> cacheRevisaoMasc = new HashMap<>();
         Set<String> revisoesSemAlteracao = new LinkedHashSet<>();
         int corrigidasNesteArquivo = 0;
-        FrescorCache frescor = resolvedorArtefatos.compararFrescor(cachePath, arquivoPt);
-        if (frescor == FrescorCache.INDETERMINADO) {
+        SincronizacaoPreviaRevisao.Resultado sincronizacao = sincronizacaoPrevia.sincronizar(
+            documentoPt, entradasCache, cachePath, arquivoPt, contexto, referencia, originaisPorIndice);
+        if (sincronizacao.frescor() == FrescorCache.INDETERMINADO) {
             out(AnsiCores.YELLOW + "  Aviso: não foi possível comparar cache e legenda; "
                 + "sincronização automática desativada." + AnsiCores.RESET);
         }
-        boolean sincronizarCache = frescor == FrescorCache.CACHE_MAIS_NOVO;
-        Set<Integer> indicesCanonicosProtegidos = localizarIndicesCanonicosProtegidos(
-            documentoPt, entradasCache, contexto);
-        // Modo Cache: a sincronização só pode escrever índices com vínculo seguro
-        // (as chaves de originaisPorIndice). AMBOS mantém null = comportamento histórico.
-        Set<Integer> indicesPermitidosSync = referencia == ModoReferenciaRevisao.CACHE
-            ? originaisPorIndice.keySet() : null;
-        SincronizadorLegendaCacheService.Resultado sincronizacao = sincronizadorCache.sincronizar(
-            documentoPt, entradasCache, sincronizarCache, indicesCanonicosProtegidos, indicesPermitidosSync);
+        boolean sincronizarCache = sincronizacao.sincronizou();
         documentoPt = sincronizacao.documento();
         int sincronizadasNesteArquivo = sincronizacao.total();
         int problemasNesteArquivo = 0;
@@ -773,41 +766,6 @@ public class RevisarLegendasUseCase {
      */
     private void registrarSemAlteracao(String chave, Set<String> revisoesSemAlteracao) {
         if (chave != null && !chave.isBlank()) revisoesSemAlteracao.add(chave);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: identifica falas válidas que coincidem com o inglês
-     * apenas porque são formadas exclusivamente por nomes ou termos canônicos.
-     * <p>INVARIANTES DO DOMÍNIO: exige igualdade exata com o original do cache,
-     * evento dialogado e confirmação pelo protetor da lore ativa.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: entradas ausentes retornam conjunto
-     * vazio; nenhuma fala ambígua recebe proteção automática.
-     */
-    private Set<Integer> localizarIndicesCanonicosProtegidos(
-        DocumentoLegenda documento,
-        List<EntradaCache> entradas,
-        ContextoRevisao contexto
-    ) {
-        if (documento == null || entradas == null || entradas.isEmpty() || contexto == null) {
-            return Set.of();
-        }
-        Map<Integer, EntradaCache> porIndice = new HashMap<>();
-        for (EntradaCache entrada : entradas) {
-            porIndice.putIfAbsent(entrada.indice(), entrada);
-        }
-        Set<Integer> protegidos = new LinkedHashSet<>();
-        for (EventoLegenda evento : documento.eventos()) {
-            EntradaCache entrada = porIndice.get(evento.indice());
-            if (!evento.isDialogo() || entrada == null || entrada.original() == null
-                || !entrada.original().equals(evento.texto())) {
-                continue;
-            }
-            if (protetorLore.contemSomenteTermosCanonicos(
-                entrada.original(), contexto.lore(), contexto.termosProtegidos())) {
-                protegidos.add(evento.indice());
-            }
-        }
-        return Set.copyOf(protegidos);
     }
 
     /**

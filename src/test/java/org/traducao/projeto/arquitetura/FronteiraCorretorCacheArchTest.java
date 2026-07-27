@@ -111,6 +111,11 @@ class FronteiraCorretorCacheArchTest {
         // exceção "fala idêntica ao inglês porque é só termo canônico" é conhecimento de lore,
         // e sem ela uma obra com muitos nomes próprios seria bloqueada por estar correta.
         "raspagemRevisao.application.DetectorRetraducaoEmMassaService -> raspagemCorrecao.application.ProtetorTermosLoreService",
+        // FASE 4: a sincronizacao previa levou consigo a protecao de termos canonicos -- falas
+        // que coincidem com o ingles por estarem CERTAS ("Axis" continua "Axis") e nao podem ser
+        // sobrescritas pela ponte 5->6. E conhecimento de lore; mesma direcao e mesma especie das
+        // arestas ja declaradas, agora nascendo tambem da classe que a usa.
+        "raspagemRevisao.application.SincronizacaoPreviaRevisao -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
         // FASE 2, recuperação externa: as duas arestas que este caso de uso tinha para o
         // `infrastructure` da fatia vizinha SUMIRAM — ele agora conhece só a própria
@@ -262,7 +267,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (25, congeladas)")
+    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (26, congeladas)")
     void arestasCrossFatiaCongeladas() {
         Set<String> vivas = arestasVivas();
         Set<String> novas = new TreeSet<>(vivas);
