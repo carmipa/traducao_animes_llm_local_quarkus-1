@@ -21,7 +21,15 @@ public final class CorrecoesTerminologiaGundamUc {
     private static final Map<String, String> NUCLEO = Map.ofEntries(
         Map.entry("Novo Tipo", "Newtype"),
         Map.entry("Neotipo", "Newtype"),
+        // PLURAL: o canônico "Newtype" é palavra ÚNICA e a checagem exige fronteira à direita,
+        // então "Newtypes" no inglês NÃO casa com ele e a restauração nunca dispara. Medido no
+        // run de ZZ: "Is this a meeting of fellow Newtypes?" saiu como "uma reunião de novos
+        // tipos". Mesma lacuna que "Beam Sabers" tinha; as famílias Mobile Suit e Mobile Armor
+        // já traziam singular e plural desde o início.
+        Map.entry("Novos Tipos", "Newtypes"),
+        Map.entry("Neotipos", "Newtypes"),
         Map.entry("Velho Tipo", "Oldtype"),
+        Map.entry("Velhos Tipos", "Oldtypes"),
         Map.entry("Traje Móvel", "Mobile Suit"),
         Map.entry("Robô Móvel", "Mobile Suit"),
         Map.entry("Terno Móvel", "Mobile Suit"),

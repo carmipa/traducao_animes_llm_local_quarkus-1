@@ -103,6 +103,29 @@ class EnforcadorTermosLoreQuebraAssTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a quebra também cai DENTRO de termo composto, e aí tratar só a
+     * fronteira não resolve — {@code Pattern.quote("Quin Mantha")} procura um espaço literal que
+     * não está no texto. Caso real do ep44, o único {@code Quin Mantha} do run: ficou em 66,7%
+     * de preservação nas DUAS gerações, antes e depois de a quebra virar fronteira, porque o
+     * furo era este outro.
+     */
+    @Test
+    @DisplayName("termo COMPOSTO partido pela quebra: \"Quin\\NMantha\" é alcançado")
+    void termoCompostoPartidoPelaQuebra() {
+        assertEquals("Você acha que pode deter a Quin Mantha jogando coisas nela?!",
+            enforcador.reforcar("You think you can stop the Quin\\NMantha by throwing things at it?!",
+                "Você acha que pode deter a Rainha\\NMansa jogando coisas nela?!", MAPA_ZZ));
+
+        // Quebra só do lado do ORIGINAL: o canônico precisa ser reconhecido lá também.
+        assertEquals("A Quin Mantha apareceu!",
+            enforcador.reforcar("The Quin\\NMantha has appeared!", "A Rainha Mansa apareceu!", MAPA_ZZ));
+
+        // Termo composto SEM quebra continua funcionando exatamente como antes.
+        assertEquals("A Quin Mantha apareceu!",
+            enforcador.reforcar("The Quin Mantha has appeared!", "A Rainha Mansa apareceu!", MAPA_ZZ));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a fronteira normal não pode afrouxar. Sem esta prova, a alternativa
      * introduzida para a quebra poderia passar a casar dentro de palavra e corromper o texto.
      */
