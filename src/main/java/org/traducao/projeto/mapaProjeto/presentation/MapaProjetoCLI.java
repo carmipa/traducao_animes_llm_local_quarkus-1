@@ -1,6 +1,6 @@
 package org.traducao.projeto.mapaProjeto.presentation;
 
-import org.traducao.projeto.config.ExecucaoCli;
+import org.traducao.projeto.core.execucao.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.mapaProjeto.application.GeradorMapaProjetoUseCase;
