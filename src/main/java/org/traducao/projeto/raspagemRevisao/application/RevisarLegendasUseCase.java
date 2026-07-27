@@ -3,6 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
+import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
 import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
@@ -40,8 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Service
@@ -67,12 +66,9 @@ public class RevisarLegendasUseCase {
         CACHE
     }
 
-    private static final Set<String> EXTENSOES = Set.of(".ass", ".ssa");
     private static final long PAUSA_GOOGLE_MS = 400;
     private static final int LIMIAR_ABSOLUTO_RETRADUCAO_EM_MASSA = 20;
     private static final int DIVISOR_PROPORCAO_RETRADUCAO_EM_MASSA = 10;
-    private static final Pattern CODIGO_EPISODIO = Pattern.compile("(?i)(S\\d{1,2}E\\d{1,3})");
-    private static final Pattern SUFIXO_PTBR_TRACK = Pattern.compile("(?i)_PT-?BR(_Track\\d+)?$");
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     private final LeitorLegendaAss leitor;
@@ -93,6 +89,7 @@ public class RevisarLegendasUseCase {
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ContextoManutencaoCacheService contextoManutencaoCache;
+    private final ResolvedorArtefatosRevisao resolvedorArtefatos;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -122,7 +119,8 @@ public class RevisarLegendasUseCase {
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
-        ContextoManutencaoCacheService contextoManutencaoCache
+        ContextoManutencaoCacheService contextoManutencaoCache,
+        ResolvedorArtefatosRevisao resolvedorArtefatos
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -142,6 +140,7 @@ public class RevisarLegendasUseCase {
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
         this.contextoManutencaoCache = contextoManutencaoCache;
+        this.resolvedorArtefatos = resolvedorArtefatos;
     }
 
     /**
@@ -158,7 +157,7 @@ public class RevisarLegendasUseCase {
 
         try (Stream<Path> stream = Files.list(pasta)) {
             List<Path> arquivos = stream.filter(Files::isRegularFile).toList();
-            if (arquivos.stream().anyMatch(this::temExtensaoSuportada)) {
+            if (arquivos.stream().anyMatch(resolvedorArtefatos::temExtensaoSuportada)) {
                 return Optional.empty();
             }
 
@@ -282,8 +281,8 @@ public class RevisarLegendasUseCase {
         try (Stream<Path> stream = Files.list(pastaLegendasPt)) {
             List<Path> arquivos = stream
                 .filter(Files::isRegularFile)
-                .filter(this::temExtensaoSuportada)
-                .filter(this::eLegendaTraduzida)
+                .filter(resolvedorArtefatos::temExtensaoSuportada)
+                .filter(resolvedorArtefatos::eLegendaTraduzida)
                 .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                 .toList();
 
@@ -523,7 +522,7 @@ public class RevisarLegendasUseCase {
 
         DocumentoLegenda documentoPt = leitor.ler(arquivoPt);
 
-        Path cachePath = resolverArquivoCache(arquivoPt, cacheDir);
+        Path cachePath = resolvedorArtefatos.resolverArquivoCache(arquivoPt, cacheDir);
         LeitorCacheReferenciaService.DocumentoReferencia cache = carregarDocumentoCache(cachePath);
         List<EntradaCache> entradasCache = cache.entradas();
 
@@ -556,7 +555,7 @@ public class RevisarLegendasUseCase {
             originalPorTraduzido = Map.of();
         } else {
             // Modo "Ambos": .ass EN + cache preenchendo lacunas (comportamento histórico).
-            arquivoEn = resolverArquivoOriginal(arquivoPt, pastaLegendasEn);
+            arquivoEn = resolvedorArtefatos.resolverArquivoOriginal(arquivoPt, pastaLegendasEn);
             originaisPorIndice = carregarOriginaisDeLegenda(arquivoEn);
             originalPorTraduzido = indexarOriginalPorTraduzido(entradasCache);
             for (EntradaCache entrada : entradasCache) {
@@ -612,7 +611,12 @@ public class RevisarLegendasUseCase {
         Map<String, String> cacheRevisaoMasc = new HashMap<>();
         Set<String> revisoesSemAlteracao = new LinkedHashSet<>();
         int corrigidasNesteArquivo = 0;
-        boolean sincronizarCache = cacheMaisNovoQueLegenda(cachePath, arquivoPt);
+        FrescorCache frescor = resolvedorArtefatos.compararFrescor(cachePath, arquivoPt);
+        if (frescor == FrescorCache.INDETERMINADO) {
+            out(AnsiCores.YELLOW + "  Aviso: não foi possível comparar cache e legenda; "
+                + "sincronização automática desativada." + AnsiCores.RESET);
+        }
+        boolean sincronizarCache = frescor == FrescorCache.CACHE_MAIS_NOVO;
         Set<Integer> indicesCanonicosProtegidos = localizarIndicesCanonicosProtegidos(
             documentoPt, entradasCache, contexto);
         // Modo Cache: a sincronização só pode escrever índices com vínculo seguro
@@ -1034,27 +1038,6 @@ public class RevisarLegendasUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: ativa a ponte 5→6 somente quando a manutenção do
-     * cache ocorreu depois da geração da legenda.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: arquivo inexistente ou empate de data não
-     * autoriza sobrescrita da legenda.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de metadados desativa a
-     * sincronização e preserva o ASS atual.
-     */
-    private boolean cacheMaisNovoQueLegenda(Path cache, Path legenda) {
-        if (!Files.isRegularFile(cache) || !Files.isRegularFile(legenda)) return false;
-        try {
-            return Files.getLastModifiedTime(cache).compareTo(Files.getLastModifiedTime(legenda)) > 0;
-        } catch (IOException e) {
-            out(AnsiCores.YELLOW + "  Aviso: não foi possível comparar cache e legenda; "
-                + "sincronização automática desativada." + AnsiCores.RESET);
-            return false;
-        }
-    }
-
-    /**
      * PROPÓSITO DE NEGÓCIO: identifica falas válidas que coincidem com o inglês
      * apenas porque são formadas exclusivamente por nomes ou termos canônicos.
      * <p>INVARIANTES DO DOMÍNIO: exige igualdade exata com o original do cache,
@@ -1319,72 +1302,6 @@ public class RevisarLegendasUseCase {
     ) {}
 
     /**
-     * PROPÓSITO DE NEGÓCIO: localiza deterministicamente o cache correspondente
-     * à legenda PT-BR mesmo quando a raiz contém subpastas por obra.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: candidatos diretos têm prioridade; busca
-     * recursiva é ordenada e nunca seleciona arquivo fora da raiz informada.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de varredura devolve o caminho
-     * esperado, que será tratado como cache ausente pelo leitor.
-     */
-    private Path resolverArquivoCache(Path arquivoPt, Path cacheDir) {
-        String baseLegenda = nomeBaseLegenda(arquivoPt);
-        String baseMidia = normalizarBaseLegenda(baseLegenda);
-        String codigoEpisodio = extrairCodigoEpisodio(baseLegenda);
-
-        for (String candidato : candidatosNomeCache(baseLegenda, baseMidia)) {
-            Path direto = cacheDir.resolve(candidato);
-            if (Files.isRegularFile(direto)) {
-                return direto;
-            }
-        }
-
-        if (Files.isDirectory(cacheDir)) {
-            try (Stream<Path> stream = Files.walk(cacheDir)) {
-                return stream
-                    .filter(Files::isRegularFile)
-                    .filter(p -> correspondeCache(p.getFileName().toString(), baseMidia, codigoEpisodio))
-                    .sorted()
-                    .findFirst()
-                    .orElse(cacheDir.resolve(baseMidia + "_ENG.cache.json"));
-            } catch (IOException e) {
-                return cacheDir.resolve(baseMidia + "_ENG.cache.json");
-            }
-        }
-
-        return cacheDir.resolve(baseMidia + "_ENG.cache.json");
-    }
-
-    private List<String> candidatosNomeCache(String baseLegenda, String baseMidia) {
-        Set<String> candidatos = new LinkedHashSet<>();
-        candidatos.add(baseMidia + "_ENG.cache.json");
-        candidatos.add(baseMidia + ".cache.json");
-        candidatos.add(baseLegenda + ".cache.json");
-        candidatos.add(baseLegenda + "_ENG.cache.json");
-        return List.copyOf(candidatos);
-    }
-
-    private boolean correspondeCache(String nomeArquivo, String baseMidia, String codigoEpisodio) {
-        if (!nomeArquivo.toLowerCase().endsWith(".cache.json")) {
-            return false;
-        }
-        String stem = nomeArquivo.substring(0, nomeArquivo.length() - ".cache.json".length());
-        if (normalizarBaseLegenda(stem).equalsIgnoreCase(baseMidia)) {
-            return true;
-        }
-        return codigoEpisodio != null
-            && nomeArquivo.toUpperCase().contains(codigoEpisodio)
-            && nomeArquivo.toUpperCase().contains("_ENG");
-    }
-
-    private String nomeBaseLegenda(Path arquivoPt) {
-        String nome = arquivoPt.getFileName().toString();
-        String ext = extensaoLegenda(nome);
-        return nome.substring(0, nome.length() - ext.length());
-    }
-
-    /**
      * PROPÓSITO DE NEGÓCIO: fornece à revisão as referências EN/PT e a
      * proveniência produzidas pelas etapas 4 e 5.
      *
@@ -1434,88 +1351,6 @@ public class RevisarLegendasUseCase {
             }
         }
         return mapa;
-    }
-
-    private Path resolverArquivoOriginal(Path arquivoPt, Path pastaLegendasEn) {
-        String nome = arquivoPt.getFileName().toString();
-        String ext = extensaoLegenda(nome);
-        String baseSemPt = normalizarBaseLegenda(nome.substring(0, nome.length() - ext.length()));
-        String codigoEpisodio = extrairCodigoEpisodio(baseSemPt);
-
-        Set<String> candidatos = new LinkedHashSet<>();
-        candidatos.add(baseSemPt + ext);
-        candidatos.add(baseSemPt + "_ENG" + ext);
-        candidatos.add(baseSemPt + "_Eng" + ext);
-        for (int track = 1; track <= 9; track++) {
-            candidatos.add(baseSemPt + "_Track" + track + ext);
-        }
-
-        Matcher ptbrTrack = SUFIXO_PTBR_TRACK.matcher(nome.substring(0, nome.length() - ext.length()));
-        if (ptbrTrack.find()) {
-            String baseMidia = nome.substring(0, ptbrTrack.start());
-            candidatos.add(baseMidia + "_Track2" + ext);
-            candidatos.add(baseMidia + "_Track1" + ext);
-            candidatos.add(baseMidia + ext);
-        }
-
-        for (String candidato : candidatos) {
-            Path path = pastaLegendasEn.resolve(candidato);
-            if (Files.isRegularFile(path) && !path.equals(arquivoPt) && !eLegendaTraduzida(path)) {
-                return path;
-            }
-        }
-
-        if (codigoEpisodio != null && Files.isDirectory(pastaLegendasEn)) {
-            try (Stream<Path> stream = Files.list(pastaLegendasEn)) {
-                return stream
-                    .filter(Files::isRegularFile)
-                    .filter(this::temExtensaoSuportada)
-                    .filter(p -> !p.equals(arquivoPt))
-                    .filter(p -> !eLegendaTraduzida(p))
-                    .filter(p -> p.getFileName().toString().toUpperCase().contains(codigoEpisodio))
-                    .min(Comparator.comparingInt(p -> preferenciaArquivoOriginal(p.getFileName().toString())))
-                    .orElse(pastaLegendasEn.resolve(baseSemPt + ext));
-            } catch (IOException e) {
-                return pastaLegendasEn.resolve(baseSemPt + ext);
-            }
-        }
-
-        return pastaLegendasEn.resolve(baseSemPt + ext);
-    }
-
-    private int preferenciaArquivoOriginal(String nome) {
-        String n = nome.toLowerCase();
-        if (n.contains("_track2")) {
-            return 0;
-        }
-        if (n.contains("_eng")) {
-            return 1;
-        }
-        if (n.contains("_track1")) {
-            return 2;
-        }
-        return 10;
-    }
-
-    private boolean eLegendaTraduzida(Path arquivo) {
-        String nome = arquivo.getFileName().toString().toLowerCase();
-        return nome.contains("_ptbr") || nome.contains("_pt-br");
-    }
-
-    private String normalizarBaseLegenda(String base) {
-        return base
-            .replaceFirst("(?i)_PT-?BR(_Track\\d+)?$", "")
-            .replaceFirst("(?i)_Track\\d+$", "")
-            .replaceFirst("(?i)_ENG$", "");
-    }
-
-    private String extensaoLegenda(String nome) {
-        return nome.toLowerCase().endsWith(".ssa") ? ".ssa" : ".ass";
-    }
-
-    private String extrairCodigoEpisodio(String nome) {
-        Matcher matcher = CODIGO_EPISODIO.matcher(nome);
-        return matcher.find() ? matcher.group(1).toUpperCase() : null;
     }
 
     /**
@@ -1656,11 +1491,6 @@ public class RevisarLegendasUseCase {
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private boolean temExtensaoSuportada(Path arquivo) {
-        String nome = arquivo.getFileName().toString().toLowerCase();
-        return EXTENSOES.stream().anyMatch(nome::endsWith);
     }
 
     /**
