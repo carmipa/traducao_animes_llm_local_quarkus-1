@@ -234,13 +234,7 @@ public class RevisarLegendasUseCase {
         Path pastaBackup = DiretorioBaseKronos.resolver("backups", "revisao-legendas",
             "revisao_" + LocalDateTime.now().format(TS_BACKUP)).toAbsolutePath().normalize();
 
-        int[] arquivosProcessados = {0};
-        int[] falasCorrigidas = {0};
-        int[] falasComProblema = {0};
-        int[] falasAuditadas = {0};
-        int[] falasSemOriginal = {0};
-        int[] falasPendentes = {0};
-        int[] falasSemReferenciaSegura = {0};
+        TotaisLoteRevisao lote = new TotaisLoteRevisao();
         List<DetalheRevisao> detalhesRevisao = new ArrayList<>();
 
         try (Stream<Path> stream = Files.list(pastaLegendasPt)) {
@@ -272,36 +266,34 @@ public class RevisarLegendasUseCase {
                         + "arquivos restantes não foram processados." + AnsiCores.RESET);
                     break;
                 }
-                processarArquivo(
+                lote.somar(processarArquivo(
                     arquivoPt, pastaEn, cacheDir, saidaDir, pastaBackup, modo, referencia,
-                    arquivosProcessados, falasCorrigidas, falasComProblema,
-                    falasAuditadas, falasSemOriginal, falasPendentes,
-                    falasSemReferenciaSegura, contextoId, detalhesRevisao);
+                    contextoId, detalhesRevisao));
             }
         } catch (IOException e) {
             out(AnsiCores.RED + "Erro ao listar legendas: " + e.getMessage() + AnsiCores.RESET);
             throw new RaspagemRevisaoException("Falha ao listar legendas em: " + pastaLegendasPt, e);
         }
 
-        out("Arquivos analisados: " + arquivosProcessados[0]);
-        out("Falas auditadas: " + falasAuditadas[0]);
+        out("Arquivos analisados: " + lote.arquivos());
+        out("Falas auditadas: " + lote.auditadas());
         if (referencia == ModoReferenciaRevisao.CACHE) {
-            out("Falas sem referência segura no cache: " + falasSemReferenciaSegura[0]);
+            out("Falas sem referência segura no cache: " + lote.semReferenciaSegura());
         }
-        out("Falas sem original EN (ignoradas): " + falasSemOriginal[0]);
-        out("Falas com problemas detectados: " + falasComProblema[0]);
-        out("Falas ainda pendentes: " + falasPendentes[0]);
+        out("Falas sem original EN (ignoradas): " + lote.semOriginal());
+        out("Falas com problemas detectados: " + lote.problemas());
+        out("Falas ainda pendentes: " + lote.pendentes());
         if (modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-            out("Falas corrigidas via LLM e salvas: " + falasCorrigidas[0]);
+            out("Falas corrigidas via LLM e salvas: " + lote.corrigidas());
         } else {
-            out("Falas corrigidas via Google e salvas: " + falasCorrigidas[0]);
+            out("Falas corrigidas via Google e salvas: " + lote.corrigidas());
         }
         out("Relatório salvo em: " + relatorio.registrar(
             pastaLegendasPt, System.currentTimeMillis() - inicioMs,
-            arquivosProcessados[0], falasComProblema[0], falasCorrigidas[0], falasAuditadas[0],
-            falasSemOriginal[0], falasPendentes[0], modo, detalhesRevisao));
+            lote.arquivos(), lote.problemas(), lote.corrigidas(), lote.auditadas(),
+            lote.semOriginal(), lote.pendentes(), modo, detalhesRevisao));
         return new ResultadoRevisaoLegendas(
-            arquivosProcessados[0], falasCorrigidas[0], falasComProblema[0], falasPendentes[0]);
+            lote.arquivos(), lote.corrigidas(), lote.problemas(), lote.pendentes());
     }
 
     private void out(String mensagem) {
@@ -319,7 +311,7 @@ public class RevisarLegendasUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: exceções de leitura/escrita interrompem
      * o arquivo atual sem produzir uma substituição parcial.
      */
-    private void processarArquivo(
+    private SessaoRevisaoArquivo processarArquivo(
         Path arquivoPt,
         Path pastaLegendasEn,
         Path cacheDir,
@@ -327,25 +319,19 @@ public class RevisarLegendasUseCase {
         Path pastaBackup,
         ModoRevisaoLegendas modo,
         ModoReferenciaRevisao referencia,
-        int[] totalArquivos,
-        int[] totalCorrigidas,
-        int[] totalProblemas,
-        int[] totalAuditadas,
-        int[] totalSemOriginal,
-        int[] totalPendentes,
-        int[] totalSemReferenciaSegura,
         String contextoFallback,
         List<DetalheRevisao> detalhesRevisao
     ) {
-        totalArquivos[0]++;
+        SessaoRevisaoArquivo sessao = new SessaoRevisaoArquivo();
+        sessao.contarArquivo();
         out("\nAnalisando legenda: " + arquivoPt.getFileName());
 
         PreparacaoReferencia preparacao = preparador.preparar(
             arquivoPt, pastaLegendasEn, cacheDir, referencia, contextoFallback);
         if (preparacao instanceof PreparacaoReferencia.Bloqueada bloqueada) {
-            totalProblemas[0] += bloqueada.problemas();
-            totalPendentes[0] += bloqueada.pendentes();
-            return;
+            sessao.contarProblemas(bloqueada.problemas());
+            sessao.contarPendentes(bloqueada.pendentes());
+            return sessao;
         }
         PreparacaoReferencia.Pronta pronta = (PreparacaoReferencia.Pronta) preparacao;
         DocumentoLegenda documentoPt = pronta.documento();
@@ -359,10 +345,9 @@ public class RevisarLegendasUseCase {
         // Fala sem vinculo seguro e PENDENCIA: no modo Cache nao ha "conclusao com
         // sucesso" enquanto restar fala sem referencia segura. Em AMBOS o conjunto e
         // vazio, entao a conta e a mesma sem ramo por modo.
-        totalSemReferenciaSegura[0] += indicesSemReferenciaSegura.size();
-        totalPendentes[0] += indicesSemReferenciaSegura.size();
+        sessao.contarSemReferenciaSegura(indicesSemReferenciaSegura.size());
+        sessao.contarPendentes(indicesSemReferenciaSegura.size());
 
-        SessaoRevisaoArquivo sessao = new SessaoRevisaoArquivo();
         SincronizacaoPreviaRevisao.Resultado sincronizacao = sincronizacaoPrevia.sincronizar(
             documentoPt, entradasCache, cachePath, arquivoPt, contexto, referencia, originaisPorIndice);
         if (sincronizacao.frescor() == FrescorCache.INDETERMINADO) {
@@ -405,9 +390,9 @@ public class RevisarLegendasUseCase {
                     out(AnsiCores.CYAN + "  Backup anterior: " + gravacao.backup() + AnsiCores.RESET);
                 }
             }
-            totalAuditadas[0] += diagnosticoRetraducao.falasAuditaveis();
-            totalProblemas[0] += diagnosticoRetraducao.falasNaoTraduzidas();
-            totalPendentes[0] += diagnosticoRetraducao.falasNaoTraduzidas();
+            sessao.contarAuditadas(diagnosticoRetraducao.falasAuditaveis());
+            sessao.contarProblemas(diagnosticoRetraducao.falasNaoTraduzidas());
+            sessao.contarPendentes(diagnosticoRetraducao.falasNaoTraduzidas());
             out(AnsiCores.RED + "  [BLOQUEADO] A entrada ainda possui "
                 + diagnosticoRetraducao.falasNaoTraduzidas() + " de "
                 + diagnosticoRetraducao.falasAuditaveis()
@@ -420,7 +405,7 @@ public class RevisarLegendasUseCase {
                 diagnosticoRetraducao.falasNaoTraduzidas() + " de "
                     + diagnosticoRetraducao.falasAuditaveis() + " falas auditáveis",
                 null, null, null));
-            return;
+            return sessao;
         }
 
         boolean interrompido = false;
@@ -653,13 +638,6 @@ public class RevisarLegendasUseCase {
                 mascaradorTags.mascarar(novaTraducao).texto());
         }
 
-        // Os totais do LOTE sobem de uma vez, no fim do arquivo. Antes eram sete `int[]`
-        // incrementados de dentro do laco, em quinze lugares diferentes.
-        totalAuditadas[0] += sessao.auditadas();
-        totalProblemas[0] += sessao.problemas();
-        totalSemOriginal[0] += sessao.semOriginal();
-        totalPendentes[0] += sessao.pendentes();
-
         if (sessao.modificado()) {
             DocumentoLegenda revisado = new DocumentoLegenda(
                 documentoPt.cabecalho(),
@@ -669,7 +647,6 @@ public class RevisarLegendasUseCase {
             );
             PersistenciaLegendaRevisada.Gravacao gravacao = persistencia.gravar(
                 revisado, arquivoPt, saidaDir, pastaBackup);
-            totalCorrigidas[0] += sessao.corrigidas();
             out(AnsiCores.GREEN + "  [OK] sincronizadas=" + sincronizadasNesteArquivo
                 + ", revisadas=" + sessao.corrigidas()
                 + ". Salvo em: " + gravacao.destino().getFileName() + AnsiCores.RESET);
@@ -686,6 +663,7 @@ public class RevisarLegendasUseCase {
             out("  -> Nenhum problema detectado neste arquivo ("
                 + sessao.auditadas() + " falas auditadas).");
         }
+        return sessao;
     }
 
     /**

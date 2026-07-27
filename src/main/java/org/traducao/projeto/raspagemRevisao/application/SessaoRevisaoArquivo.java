@@ -11,7 +11,14 @@ import java.util.Set;
 
 /**
  * PROPÓSITO DE NEGÓCIO: a memória de trabalho da revisão de UM arquivo — a legenda sendo remontada
- * fala a fala, o que já se aprendeu sobre falas repetidas, e a contagem do que aconteceu.
+ * fala a fala, o que já se aprendeu sobre falas repetidas, e TODA a contagem do que aconteceu,
+ * inclusive a que nasce antes do laço (bloqueios, falas sem vínculo seguro).
+ *
+ * <p>Ela é criada no início do arquivo e DEVOLVIDA em toda saída do processamento. Isso não é
+ * estilo: antes, sete {@code int[]} eram recebidos por parâmetro e mutados em treze lugares, e
+ * bastava um {@code return} novo no meio para a contagem daquele arquivo sumir sem erro nenhum.
+ * Devolvendo a sessão, o compilador cobra um valor em cada saída e o que já foi contado vai
+ * junto por construção.
  *
  * <h2>Por que a memória precisa existir</h2>
  * Um episódio repete falas ("Sim.", "Entendido.", bordões). Sem lembrar o que a primeira ocorrência
@@ -45,11 +52,13 @@ public class SessaoRevisaoArquivo {
     private final Map<String, String> correcoesConhecidas = new HashMap<>();
     private final Set<String> semAlteracao = new LinkedHashSet<>();
 
+    private int arquivos;
     private int corrigidas;
     private int auditadas;
     private int problemas;
     private int semOriginal;
     private int pendentes;
+    private int semReferenciaSegura;
     private boolean modificado;
 
     /**
@@ -140,6 +149,40 @@ public class SessaoRevisaoArquivo {
         return chave == null ? null : correcoesConhecidas.get(chave);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: marca que este arquivo foi analisado — mesmo que acabe recusado.
+     * <p>INVARIANTES DO DOMÍNIO: uma vez por arquivo, no início. Um arquivo bloqueado FOI
+     * analisado; não contá-lo faria o relatório dizer que a varredura viu menos do que viu.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public void contarArquivo() {
+        arquivos++;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: contagens que nascem ANTES do laço — bloqueio de preparação, falas sem
+     * vínculo seguro, diagnóstico de retradução em massa.
+     * <p>INVARIANTES DO DOMÍNIO: somam-se às do laço na mesma sessão, porque o relatório do lote
+     * não distingue de onde a pendência veio: ela é do arquivo.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: valores negativos são somados como vieram; a fonte é
+     * interna e não os produz.
+     */
+    public void contarAuditadas(int n) {
+        auditadas += n;
+    }
+
+    public void contarProblemas(int n) {
+        problemas += n;
+    }
+
+    public void contarPendentes(int n) {
+        pendentes += n;
+    }
+
+    public void contarSemReferenciaSegura(int n) {
+        semReferenciaSegura += n;
+    }
+
     /** Conta uma fala que passou pela auditoria. */
     public void contarAuditada() {
         auditadas++;
@@ -193,6 +236,14 @@ public class SessaoRevisaoArquivo {
 
     public int pendentes() {
         return pendentes;
+    }
+
+    public int arquivos() {
+        return arquivos;
+    }
+
+    public int semReferenciaSegura() {
+        return semReferenciaSegura;
     }
 
     public boolean modificado() {
