@@ -9,6 +9,7 @@ import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraCon
 import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -90,17 +91,26 @@ public class ContextoManutencaoCacheService {
      * Ler por id fecha essa janela — o mapa pertence, por construção, ao mesmo contexto que a
      * guarda acabou de aprovar para este arquivo.
      *
+     * <p>Devolve também QUANTO essa identidade pôde ser verificada — se veio do carimbo do próprio
+     * cache e se a pasta é reconhecida por alguma lore. A guarda continua deixando passar o caso
+     * indeterminado, porque falhar fechado ali pararia obras sem vocabulário de pasta declarado;
+     * mas quem vai REESCREVER texto pronto precisa saber a diferença entre "verificado" e
+     * "ninguém contestou". Ver {@link ContextoDoCache}.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: as mesmas de {@link #ativar} — lança
      * {@link IllegalArgumentException} para contexto ausente/desconhecido e obra incompatível.
      *
      * @param documento cache aberto para manutenção
      * @param contextoFallback contexto escolhido na UI, usado só para cache legado
-     * @return fotografia imutável do contexto deste arquivo; nunca {@code null}
+     * @return contexto do arquivo com o grau de verificação da identidade; nunca {@code null}
      */
-    public SnapshotContexto ativarSnapshot(
+    public ContextoDoCache ativarSnapshot(
             CacheManutencaoService.DocumentoEditavel documento, String contextoFallback) {
         ProvenienciaCache proveniencia = documento.proveniencia();
-        String contextoId = proveniencia != null ? proveniencia.contextoId() : contextoFallback;
+        boolean veioDaProveniencia = proveniencia != null
+            && proveniencia.contextoId() != null
+            && !proveniencia.contextoId().isBlank();
+        String contextoId = veioDaProveniencia ? proveniencia.contextoId() : contextoFallback;
         if (contextoId == null || contextoId.isBlank()) {
             throw new IllegalArgumentException(
                 "Cache legado sem proveniência: selecione a Obra / Contexto para processar "
@@ -111,9 +121,10 @@ public class ContextoManutencaoCacheService {
                 "Contexto da proveniência não existe no projeto: \"" + contextoId + "\" em "
                     + documento.arquivo().getFileName());
         }
-        exigirObraCompativel(documento.arquivo(), contextoId);
+        boolean obraReconhecida = exigirObraCompativel(documento.arquivo(), contextoId);
         gerenciadorContexto.definirContextoAtivo(contextoId);
-        return gerenciadorContexto.snapshotPorId(contextoId);
+        return new ContextoDoCache(
+            gerenciadorContexto.snapshotPorId(contextoId), veioDaProveniencia, obraReconhecida);
     }
 
     /**
@@ -138,8 +149,11 @@ public class ContextoManutencaoCacheService {
      *
      * @param arquivoCache caminho do arquivo de cache em manutenção
      * @param contextoId contexto resolvido para este arquivo, ainda não ativado
+     * @return {@code true} quando alguma lore do catálogo RECONHECE a pasta do arquivo — a segunda
+     *         testemunha da identidade da obra, que {@link ContextoDoCache} repassa a quem precisa
+     *         decidir se pode reescrever o texto
      */
-    private void exigirObraCompativel(Path arquivoCache, String contextoId) {
+    private boolean exigirObraCompativel(Path arquivoCache, String contextoId) {
         String obra = obraDoCache(arquivoCache);
         Set<String> reconhecedores = gerenciadorContexto.idsQueReconhecem(obra);
         VeredictoObraContexto veredicto = validadorCompatibilidade.avaliar(obra, contextoId, reconhecedores);
@@ -155,6 +169,9 @@ public class ContextoManutencaoCacheService {
                 validadorCompatibilidade.mensagemDeIndeterminacao(obra, contextoId));
             case CASA -> log.debug("[ CONTEXTO ] Cache da obra \"{}\" confere com \"{}\".", obra, contextoId);
         }
+        // Chegou aqui: DIVERGENTE e AMBIGUO já lançaram. Sobra CASA (pasta reconhecida e batendo)
+        // e INDETERMINADO (ninguém reconheceu). O conjunto de reconhecedores é a resposta direta.
+        return !reconhecedores.isEmpty();
     }
 
     /**

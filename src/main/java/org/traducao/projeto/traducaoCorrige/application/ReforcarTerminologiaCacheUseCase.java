@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
+import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
@@ -163,8 +163,19 @@ public class ReforcarTerminologiaCacheUseCase {
         acc.arquivosAnalisados++;
         try {
             CacheManutencaoService.DocumentoEditavel doc = cacheService.carregar(arquivo);
-            SnapshotContexto contexto = contextoService.ativarSnapshot(doc, contextoFallback);
-            Map<String, String> mapa = contexto.correcoesTerminologia();
+            ContextoDoCache contexto = contextoService.ativarSnapshot(doc, contextoFallback);
+            if (!contexto.identidadeVerificavel()) {
+                // Cache legado, em pasta que nenhuma lore reconhece, com a obra escolhida à mão:
+                // nem o carimbo nem o caminho sustentam a lore. A guarda deixa passar de propósito
+                // (falhar fechado ali pararia obra sem vocabulário declarado), mas reescrever
+                // terminologia sobre um palpite é justamente o dano que a guarda existe para
+                // impedir — só que em lote e sobre trabalho já pronto.
+                acc.arquivosNaoVerificaveis++;
+                log.warn("[ PULADO ] Identidade da obra não verificável (cache sem carimbo em pasta "
+                    + "não reconhecida): {} — terminologia NÃO aplicada.", arquivo);
+                return;
+            }
+            Map<String, String> mapa = contexto.contexto().correcoesTerminologia();
             if (mapa.isEmpty()) {
                 return;
             }
@@ -322,6 +333,7 @@ public class ReforcarTerminologiaCacheUseCase {
         private int arquivosAnalisados;
         private int arquivosAlterados;
         private int falasAlteradas;
+        private int arquivosNaoVerificaveis;
         private int falhas;
 
         Acumulador(boolean aplicar) {
@@ -330,7 +342,7 @@ public class ReforcarTerminologiaCacheUseCase {
 
         ResultadoReforcoTerminologia resultado() {
             return new ResultadoReforcoTerminologia(arquivosAnalisados, arquivosAlterados,
-                falasAlteradas, porTermo, falhas, aplicar);
+                falasAlteradas, porTermo, arquivosNaoVerificaveis, falhas, aplicar);
         }
     }
 }

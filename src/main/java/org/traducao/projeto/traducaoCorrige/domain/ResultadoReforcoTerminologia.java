@@ -35,6 +35,7 @@ import java.util.TreeMap;
  * @param arquivosAlterados arquivos com ao menos uma fala mudada (zero em ensaio)
  * @param falasAlteradas falas em que ao menos um termo foi restaurado
  * @param restauracoesPorTermo termo canônico → quantas restaurações
+ * @param arquivosNaoVerificaveis arquivos PULADOS por não haver testemunha da obra
  * @param falhas arquivos que não puderam ser processados
  * @param aplicado {@code false} para ensaio (dry-run); {@code true} quando o disco foi escrito
  */
@@ -43,6 +44,7 @@ public record ResultadoReforcoTerminologia(
     int arquivosAlterados,
     int falasAlteradas,
     Map<String, Integer> restauracoesPorTermo,
+    int arquivosNaoVerificaveis,
     int falhas,
     boolean aplicado
 ) {
@@ -56,6 +58,7 @@ public record ResultadoReforcoTerminologia(
         arquivosAnalisados = Math.max(0, arquivosAnalisados);
         arquivosAlterados = Math.max(0, arquivosAlterados);
         falasAlteradas = Math.max(0, falasAlteradas);
+        arquivosNaoVerificaveis = Math.max(0, arquivosNaoVerificaveis);
         falhas = Math.max(0, falhas);
         restauracoesPorTermo = restauracoesPorTermo == null
             ? Map.of() : Map.copyOf(restauracoesPorTermo);
@@ -76,7 +79,10 @@ public record ResultadoReforcoTerminologia(
      * corrigido quando nada foi escrito.
      *
      * <p>INVARIANTES DO DOMÍNIO: falha tem precedência sobre tudo; ensaio tem precedência sobre
-     * os desfechos de sucesso; sem arquivos, o status diz isso em vez de fingir sucesso.
+     * os desfechos de sucesso; sem arquivos, o status diz isso em vez de fingir sucesso. E
+     * ARQUIVO PULADO tem precedência sobre "concluído": um lote que não cobriu parte do acervo não
+     * pode se apresentar igual a um que cobriu tudo — cobertura silenciosamente reduzida lida como
+     * "está tudo certo" é como um defeito atravessa uma revisão.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; nunca lança.
      */
@@ -86,6 +92,9 @@ public record ResultadoReforcoTerminologia(
         }
         if (arquivosAnalisados == 0) {
             return "NENHUM_CACHE_ENCONTRADO";
+        }
+        if (arquivosNaoVerificaveis > 0) {
+            return aplicado ? "CONCLUIDO_COM_PULADOS" : "ENSAIO_COM_PULADOS";
         }
         if (!aplicado) {
             return totalRestauracoes() > 0 ? "ENSAIO_COM_PENDENCIAS" : "ENSAIO_SEM_PENDENCIAS";

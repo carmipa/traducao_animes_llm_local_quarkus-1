@@ -196,6 +196,63 @@ class ReforcarTerminologiaCacheUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: cache legado (sem carimbo), em pasta que nenhuma lore reconhece, com a
+     * obra escolhida à mão na tela: nenhuma testemunha sustenta a lore. A guarda obra×contexto
+     * deixa passar de propósito — falhar fechado ali pararia obra sem vocabulário declarado —, mas
+     * reescrever terminologia sobre um palpite é o mesmo dano que a guarda existe para impedir, só
+     * que em lote e sobre trabalho já pronto.
+     *
+     * <p>O cenário é o de uma obra cuja pasta ainda não é reconhecida por lore nenhuma — obra nova,
+     * ou pasta com nome que o catálogo não reivindica — guardando cache antigo, de antes da
+     * proveniência existir. NÃO é o caso de {@code cache/karaoke/}: aquelas pastas já são excluídas
+     * pelo peer {@code cachetraducao} em {@code estaEmSubpastaAuxiliar}, e nunca chegam aqui.
+     */
+    @Test
+    @DisplayName("cache legado em pasta irreconhecível é PULADO, e o status não finge cobertura")
+    void cacheSemTestemunhaDaObraEhPulado() throws Exception {
+        Path cache = temp.resolve("cache/Serie Que Ninguem Declarou/ep01.cache.json");
+        Files.createDirectories(cache.getParent());
+        // Formato LEGADO: array cru, sem envelope de proveniência.
+        Files.writeString(cache, """
+            [{"indice":1,"estilo":"Default","original":"Activate the Beam Saber!","traduzido":"Ative o Sabre de Raio!"}]
+            """);
+        String antes = Files.readString(cache);
+
+        // O operador escolheu ZZ na tela. A pasta "karaoke" nao e reconhecida por lore nenhuma.
+        ResultadoReforcoTerminologia r = useCase.executar(temp.resolve("cache"), "gundam_zz", true);
+
+        assertEquals(antes, Files.readString(cache),
+            "sem testemunha da obra, a terminologia da tela NAO pode ser imposta ao acervo");
+        assertEquals(1, r.arquivosNaoVerificaveis());
+        assertEquals(0, r.falasAlteradas());
+        assertEquals(0, r.falhas(), "pular NAO e falha: o arquivo esta intacto e a decisao foi correta");
+        assertEquals("CONCLUIDO_COM_PULADOS", r.status(),
+            "um lote que nao cobriu parte do acervo nao pode se apresentar igual a um que cobriu tudo");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a contrapartida — cache legado numa pasta que a lore RECONHECE tem
+     * testemunha (o caminho), então segue normalmente. Sem isto, o conserto acima viraria um
+     * bloqueio geral de todo cache legado.
+     */
+    @Test
+    @DisplayName("cache legado em pasta RECONHECIDA segue: o caminho é testemunha suficiente")
+    void cacheLegadoEmPastaReconhecidaSegue() throws Exception {
+        Path cache = temp.resolve("cache/Mobile Suit Gundam ZZ/ep09.cache.json");
+        Files.createDirectories(cache.getParent());
+        Files.writeString(cache, """
+            [{"indice":1,"estilo":"Default","original":"Activate the Beam Saber!","traduzido":"Ative o Sabre de Raio!"}]
+            """);
+
+        ResultadoReforcoTerminologia r = useCase.executar(temp.resolve("cache"), "gundam_zz", true);
+
+        assertEquals(0, r.arquivosNaoVerificaveis());
+        assertEquals(1, r.falasAlteradas());
+        assertEquals("Ative o Beam Saber!",
+            mapper.readTree(cache.toFile()).get(0).path("traduzido").asText());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: o contador é indexado pelo termo CANÔNICO porque várias formas-ruim
      * convergem para o mesmo termo oficial, e o que se mede é a conformidade do termo.
      */
