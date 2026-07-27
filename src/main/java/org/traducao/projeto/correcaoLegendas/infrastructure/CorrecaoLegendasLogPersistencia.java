@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.correcaoLegendas.domain.CorrecaoLegendasRelatorioJson;
-import org.traducao.projeto.telemetria.TelemetriaService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +23,22 @@ public class CorrecaoLegendasLogPersistencia {
         this.objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public Path salvarRelatorioJson(Path pastaEntrada, CorrecaoLegendasRelatorioJson relatorio) throws IOException {
-        Path pastaRelatorios = TelemetriaService.resolverPastaRelatorios(pastaEntrada);
+    /**
+     * PROPÓSITO DE NEGÓCIO: grava o relatório JSON da sessão de correção na pasta de relatórios.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: recebe a pasta JÁ RESOLVIDA. Antes, resolvia-a chamando um
+     * estático da fatia {@code telemetria} — uma aresta entre fatias funcionais nascendo daqui,
+     * só para saber uma convenção de caminho. Quem conhece a convenção é o adaptador de
+     * telemetria; este persistidor só escreve onde mandarem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} — quem chama decide se a
+     * ausência do relatório interrompe a operação (hoje não interrompe).
+     *
+     * @param pastaRelatorios pasta de destino, já resolvida pelo chamador
+     * @param relatorio conteúdo completo da sessão
+     * @return caminho absoluto do arquivo gravado
+     */
+    public Path salvarRelatorioJson(Path pastaRelatorios, CorrecaoLegendasRelatorioJson relatorio) throws IOException {
         Files.createDirectories(pastaRelatorios);
         String timestamp = TIMESTAMP.format(LocalDateTime.now());
         Path arquivo = pastaRelatorios.resolve("correcao_legendas_" + timestamp + ".json");

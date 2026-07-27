@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.correcaoLegendas.domain.CorrecaoLegendasRelatorioJson;
 import org.traducao.projeto.correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.correcaoLegendas.domain.ResumoOperacaoCorrecaoLegendas;
+import org.traducao.projeto.correcaoLegendas.domain.ports.TelemetriaCorrecaoLegendasPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -154,14 +154,18 @@ class CorrigirLegendasUseCaseTest {
         }
     }
 
-    private static class TelemetriaFake extends TelemetriaService {
+    /**
+     * Telemetria em memoria. Com a porta da FASE 2, este teste deixou de precisar da fatia
+     * {@code telemetria} para existir -- criterio de saida da fase.
+     */
+    private static class TelemetriaFake implements TelemetriaCorrecaoLegendasPort {
         @Override
-        public synchronized void registrarOperacao(OperacaoTelemetria operacao) {
+        public void registrarEsalvar(ResumoOperacaoCorrecaoLegendas resumo, Path pastaAlvo) {
         }
 
         @Override
-        public synchronized Path salvar(Path pastaRelatorios) {
-            return pastaRelatorios;
+        public Path pastaDeRelatorios(Path pastaEntrada) {
+            return pastaEntrada;
         }
     }
 

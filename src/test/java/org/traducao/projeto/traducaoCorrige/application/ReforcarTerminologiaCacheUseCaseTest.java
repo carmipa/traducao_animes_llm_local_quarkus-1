@@ -518,9 +518,9 @@ class ReforcarTerminologiaCacheUseCaseTest {
         private final List<Publicacao> publicacoes = new ArrayList<>();
 
         @Override
-        public void registrar(String operacao, String prefixoRelatorio, Path pastaAlvo,
-                              long duracaoMs, int arquivosProcessados, int itensDetectados,
-                              int itensCorrigidos, String relatorio) {
+        public void registrar(String operacao, String detalhe, String prefixoRelatorio,
+                              Path pastaAlvo, long duracaoMs, int arquivosProcessados,
+                              int itensDetectados, int itensCorrigidos, String relatorio) {
             publicacoes.add(new Publicacao(operacao, prefixoRelatorio, arquivosProcessados,
                 itensDetectados, itensCorrigidos, relatorio));
         }

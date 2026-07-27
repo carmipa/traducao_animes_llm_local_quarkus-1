@@ -55,6 +55,7 @@ public class TelemetriaCorrecaoAdapter implements TelemetriaCorrecaoPort {
     @Override
     public void registrar(
         String operacao,
+        String detalhe,
         String prefixoRelatorio,
         Path pastaAlvo,
         long duracaoMs,
@@ -65,7 +66,7 @@ public class TelemetriaCorrecaoAdapter implements TelemetriaCorrecaoPort {
     ) {
         try {
             OperacaoTelemetria op = TelemetriaService.criarOperacao(
-                operacao, "arquivos=" + arquivosProcessados, duracaoMs,
+                operacao, detalhe, duracaoMs,
                 arquivosProcessados, itensDetectados, itensCorrigidos);
             telemetriaService.finalizarOperacao(op, pastaAlvo, prefixoRelatorio, relatorio);
         } catch (Exception e) {

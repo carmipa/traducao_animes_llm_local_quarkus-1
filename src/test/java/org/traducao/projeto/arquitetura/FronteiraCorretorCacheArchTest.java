@@ -72,9 +72,11 @@ class FronteiraCorretorCacheArchTest {
      * Cada linha é dívida declarada, não aprovação.
      */
     private static final Set<String> ARESTAS_CONGELADAS = Set.of(
-        "correcaoLegendas.application.CorrigirLegendasUseCase -> telemetria.TelemetriaService",
-        "correcaoLegendas.domain.CorrecaoLegendasRelatorioJson -> telemetria.OperacaoTelemetria",
-        "correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia -> telemetria.TelemetriaService",
+        // FASE 2, ultima fatia da area: as TRES arestas sairam, inclusive a que nascia no
+        // DOMAIN -- a unica das nove que violava duas regras (dominio puro E fatia nao
+        // depende de fatia). Agora so o ADAPTADOR alcanca `telemetria`.
+        "correcaoLegendas.infrastructure.TelemetriaCorrecaoLegendasAdapter -> telemetria.OperacaoTelemetria",
+        "correcaoLegendas.infrastructure.TelemetriaCorrecaoLegendasAdapter -> telemetria.TelemetriaService",
         "raspagemCorrecao.CorretorRaspagemCLI -> config.ExecucaoCli",
         // FASE 2: esta fatia saiu do TelemetriaService direto. A aresta agora nasce do ADAPTADOR,
         // atras da TelemetriaRaspagemCorrecaoPort -- a diferenca entre a divida e a forma prescrita.
@@ -108,7 +110,6 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",
         "traducaoCorrige.CorretorCacheCLI -> config.ExecucaoCli",
-        "traducaoCorrige.application.LimparCacheUseCase -> telemetria.TelemetriaService",
         // ADAPTADOR, não acoplamento novo de aplicação: é a FASE 2 do Plano-Mestre aterrissando
         // no código novo. A aresta para `telemetria` sai de INFRASTRUCTURE, atrás da
         // TelemetriaCorrecaoPort, e não da camada de aplicação — que é exatamente a diferença

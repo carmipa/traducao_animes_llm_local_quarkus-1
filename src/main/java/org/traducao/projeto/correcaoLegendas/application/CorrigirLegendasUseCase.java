@@ -7,8 +7,8 @@ import org.traducao.projeto.correcaoLegendas.domain.CorrecaoLegendasRelatorioJso
 import org.traducao.projeto.correcaoLegendas.domain.LogEventoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.domain.ResultadoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.correcaoLegendas.domain.ResumoOperacaoCorrecaoLegendas;
+import org.traducao.projeto.correcaoLegendas.domain.ports.TelemetriaCorrecaoLegendasPort;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
@@ -46,7 +46,7 @@ public class CorrigirLegendasUseCase {
     private final SanitizadorTagsService sanitizador;
     private final CorretorTraducaoLlmService corretorLlm;
     private final GerenciadorContexto gerenciadorContexto;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaCorrecaoLegendasPort telemetria;
     private final CorrecaoLegendasLogPersistencia logPersistencia;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final PoliticaEstiloMusical politicaEstiloMusical;
@@ -59,7 +59,7 @@ public class CorrigirLegendasUseCase {
         SanitizadorTagsService sanitizador,
         CorretorTraducaoLlmService corretorLlm,
         GerenciadorContexto gerenciadorContexto,
-        TelemetriaService telemetriaService,
+        TelemetriaCorrecaoLegendasPort telemetria,
         CorrecaoLegendasLogPersistencia logPersistencia,
         DetectorEfeitoKaraokeService detectorKaraoke,
         PoliticaEstiloMusical politicaEstiloMusical,
@@ -71,7 +71,7 @@ public class CorrigirLegendasUseCase {
         this.sanitizador = sanitizador;
         this.corretorLlm = corretorLlm;
         this.gerenciadorContexto = gerenciadorContexto;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
         this.logPersistencia = logPersistencia;
         this.detectorKaraoke = detectorKaraoke;
         this.politicaEstiloMusical = politicaEstiloMusical;
@@ -476,13 +476,16 @@ public class CorrigirLegendasUseCase {
         // (falas), o que distorcia a taxa de sucesso exibida no painel.
         int itensDetectados = resultado.falasCuradas() + resultado.corrigidosLlm() + resultado.traducaoAusente();
         int itensCorrigidos = resultado.falasCuradas() + resultado.corrigidosLlm();
-        OperacaoTelemetria operacao = TelemetriaService.criarOperacao(
+        // O carimbo de tempo nasce AQUI e vai inteiro para os dois destinos -- o JSON do modulo
+        // e o painel. Regera-lo no adaptador faria os dois divergirem por milissegundos.
+        ResumoOperacaoCorrecaoLegendas operacao = new ResumoOperacaoCorrecaoLegendas(
             TIPO_OPERACAO,
             "Original: " + pastaOriginal + " | Traduzida: " + pastaTraduzida,
             tempoTotalMs,
             resultado.totalArquivosAnalisados(),
             itensDetectados,
-            itensCorrigidos
+            itensCorrigidos,
+            java.time.Instant.now().toString()
         );
 
         String relatorioJson = null;
@@ -496,14 +499,14 @@ public class CorrigirLegendasUseCase {
                 resultado,
                 List.copyOf(eventos)
             );
-            relatorioJson = logPersistencia.salvarRelatorioJson(pastaTraduzida, relatorio).toString();
+            relatorioJson = logPersistencia.salvarRelatorioJson(
+                telemetria.pastaDeRelatorios(pastaTraduzida), relatorio).toString();
             out(eventos, "INFO", null, "Relatorio JSON salvo em: " + relatorioJson, AnsiCores.CYAN);
         } catch (Exception e) {
             log.warn("Falha ao salvar relatorio JSON de correcao de legendas: {}", e.getMessage());
         }
 
-        telemetriaService.registrarOperacao(operacao);
-        telemetriaService.salvar(TelemetriaService.resolverPastaRelatorios(pastaTraduzida));
+        telemetria.registrarEsalvar(operacao, pastaTraduzida);
         return new ResultadoCorrecaoLegendas(
             resultado.curados(),
             resultado.falasCuradas(),

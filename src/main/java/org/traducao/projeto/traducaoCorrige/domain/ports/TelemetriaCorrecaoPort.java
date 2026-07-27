@@ -37,6 +37,7 @@ public interface TelemetriaCorrecaoPort {
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
      *
      * @param operacao nome da operação, como aparece na telemetria (ex.: "Reforço de Terminologia")
+     * @param detalhe resumo curto do desfecho (status, pendências, falhas)
      * @param prefixoRelatorio prefixo do arquivo de relatório persistido (ex.: "reforco_terminologia")
      * @param pastaAlvo pasta sobre a qual a operação rodou
      * @param duracaoMs duração total da execução
@@ -47,6 +48,7 @@ public interface TelemetriaCorrecaoPort {
      */
     void registrar(
         String operacao,
+        String detalhe,
         String prefixoRelatorio,
         Path pastaAlvo,
         long duracaoMs,

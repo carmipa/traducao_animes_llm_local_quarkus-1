@@ -192,7 +192,10 @@ public class ReforcarTerminologiaCacheUseCase {
             r.arquivosNaoVerificaveis(), r.falhas(), r.falasAlteradas(), r.totalRestauracoes());
         r.porFrequencia().forEach((termo, n) -> log.info("[{}]   {}x {}", rotulo, n, termo));
 
-        telemetria.registrar(rotulo, OPERACAO.replace('-', '_'), raizCache,
+        telemetria.registrar(rotulo,
+            "status=" + r.status() + "; pulados=" + r.arquivosNaoVerificaveis()
+                + "; falhas=" + r.falhas(),
+            OPERACAO.replace('-', '_'), raizCache,
             System.currentTimeMillis() - inicioMs,
             r.arquivosAnalisados(), r.falasAlteradas(),
             r.aplicado() ? r.falasAlteradas() : 0,
