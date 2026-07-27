@@ -37,9 +37,10 @@ class RevisarLegendasCacheSeguroTest {
     @Inject
     PreparadorReferenciaRevisao preparador;
 
-    /** Ainda necessário: o backup continua sendo responsabilidade do caso de uso. */
+    /** O backup saiu do caso de uso na FASE 4 e agora vive junto da escrita, onde sempre esteve
+     *  o risco: preservar e gravar são a mesma operação. */
     @Inject
-    RevisarLegendasUseCase useCase;
+    PersistenciaLegendaRevisada persistencia;
 
     @Inject
     SincronizadorLegendaCacheService sincronizador;
@@ -192,11 +193,11 @@ class RevisarLegendasCacheSeguroTest {
         Files.writeString(arquivo, "conteudo original");
         Path pastaBackup = tempDir.resolve("bk");
 
-        Path backup = useCase.criarBackupSeSobrescrever(arquivo, arquivo, pastaBackup);
+        Path backup = persistencia.criarBackupSeSobrescrever(arquivo, arquivo, pastaBackup);
         assertNotNull(backup);
         assertTrue(Files.exists(backup));
         assertEquals("conteudo original", Files.readString(backup));
 
-        assertNull(useCase.criarBackupSeSobrescrever(arquivo, tempDir.resolve("outro.ass"), pastaBackup));
+        assertNull(persistencia.criarBackupSeSobrescrever(arquivo, tempDir.resolve("outro.ass"), pastaBackup));
     }
 }
