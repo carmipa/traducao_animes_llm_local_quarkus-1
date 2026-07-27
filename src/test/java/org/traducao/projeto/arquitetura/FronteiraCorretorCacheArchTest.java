@@ -112,6 +112,25 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem");
 
+    /**
+     * Violações de CAMADA dentro da própria fatia: {@code application} alcançando o
+     * {@code infrastructure} do mesmo módulo. O contrato manda depender de {@code domain.ports}.
+     *
+     * <p>Esta catraca nasceu de um ponto cego real. O inventário de arestas e o
+     * {@link #acessoCruzadoAInfrastructureCongelado()} só enxergam o que atravessa a FRONTEIRA
+     * ENTRE fatias — dentro da própria fatia, tudo passava. Um caso de uso novo escrito nesta
+     * sessão declarava no Javadoc que evitava a telemetria "porque o ArchUnit reprovaria" e, na
+     * mesma classe, injetava o {@code CorrecaoCacheAuditoria} concreto: a fronteira testada foi
+     * respeitada, a não testada foi furada. Enquanto a regra não existir aqui, o teste ensina que
+     * o certo é o que ele mede.
+     */
+    private static final Set<String> CAMADA_INTERNA_CONGELADA = Set.of(
+        "correcaoLegendas.application.CorrigirLegendasUseCase -> correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia",
+        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
+        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",
+        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.StatusRaspagem",
+        "traducaoCorrige.application.LimparCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -180,6 +199,56 @@ class FronteiraCorretorCacheArchTest {
             "Uma fatia não pode alcançar o infrastructure de outra: o contrato manda depender de "
                 + "domain.ports. Os 4 casos atuais são dívida declarada e a FASE 2 os remove. "
                 + "Caso novo é regressão.");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha o ponto cego das outras três catracas — elas só enxergam o que
+     * ATRAVESSA a fronteira entre fatias, então {@code application} chamando o
+     * {@code infrastructure} do MESMO módulo passava livre, embora seja a mesma violação de
+     * camada que o contrato proíbe ("application depende de domain.ports, nunca de
+     * infrastructure").
+     *
+     * <p>INVARIANTES DO DOMÍNIO: inventário exato dos 5 casos legados, medido em 2026-07-26. Caso
+     * NOVO é regressão e reprova nomeando o tipo; caso que SUMIR também reprova, porque a FASE 2
+     * do Plano-Mestre existe para eliminá-los com portas e o progresso tem de ser registrado.
+     * A checagem olha o pacote de origem terminando em {@code .application} e o de destino
+     * contendo {@code .infrastructure.} DA MESMA fatia — o caso cross-fatia já é coberto por
+     * {@link #acessoCruzadoAInfrastructureCongelado()} e não é duplicado aqui.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista a diferença separando regressão de progresso.
+     */
+    @Test
+    @DisplayName("FASE 0: application -> infrastructure da PRÓPRIA fatia — 5 casos legados, alvo da FASE 2")
+    void camadaInternaApplicationParaInfrastructureCongelada() {
+        Set<String> vivos = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            String fatia = fatiaDe(classe.getPackageName());
+            if (fatia == null || !AREA.contains(fatia)
+                || !classe.getPackageName().endsWith(".application")) {
+                continue;
+            }
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String pacoteAlvo = dependencia.getTargetClass().getPackageName();
+                if (!pacoteAlvo.startsWith(PREFIXO + fatia + ".infrastructure")) {
+                    continue;
+                }
+                vivos.add(curto(classe.getName()) + " -> "
+                    + curto(dependencia.getTargetClass().getName()));
+            }
+        }
+
+        Set<String> novos = new TreeSet<>(vivos);
+        novos.removeAll(CAMADA_INTERNA_CONGELADA);
+        Set<String> sumiram = new TreeSet<>(CAMADA_INTERNA_CONGELADA);
+        sumiram.removeAll(vivos);
+
+        assertTrue(novos.isEmpty() && sumiram.isEmpty(),
+            () -> "application não pode alcançar infrastructure — nem o da própria fatia. Os 5 casos "
+                + "atuais são dívida declarada que a FASE 2 remove com portas.\n"
+                + (novos.isEmpty() ? "" : "\nNOVOS (regressão — use uma porta em domain/ports):\n  "
+                    + String.join("\n  ", novos))
+                + (sumiram.isEmpty() ? "" : "\nSUMIRAM (progresso — atualize a lista):\n  "
+                    + String.join("\n  ", sumiram)));
     }
 
     /**
