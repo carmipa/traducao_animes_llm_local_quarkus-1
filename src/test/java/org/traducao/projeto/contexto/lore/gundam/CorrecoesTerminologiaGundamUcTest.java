@@ -31,7 +31,7 @@ class CorrecoesTerminologiaGundamUcTest {
      * mapa passou a restaurar a forma plural.
      */
     private static final Set<String> NUCLEO_CANONICOS = Set.of(
-        "Newtype", "Oldtype", "Mobile Suit", "Mobile Suits",
+        "Newtype", "Newtypes", "Oldtype", "Oldtypes", "Mobile Suit", "Mobile Suits",
         "Mobile Armor", "Mobile Armors", "Beam Saber", "Beam Sabers", "Beam Rifle",
         "Normal Suit", "Normal Suits", "Powered Spacesuit");
 
