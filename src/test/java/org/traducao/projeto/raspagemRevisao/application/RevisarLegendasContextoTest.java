@@ -106,7 +106,8 @@ class RevisarLegendasContextoTest {
         return new RevisarLegendasUseCase(
             null, null, null, null, null, null, null, null, null, gerenciador,
             null, null, null, null, null, new ProtetorTermosLoreService(), null,
-            new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()));
+            new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()),
+            new ResolvedorArtefatosRevisao());
     }
 
     /**
