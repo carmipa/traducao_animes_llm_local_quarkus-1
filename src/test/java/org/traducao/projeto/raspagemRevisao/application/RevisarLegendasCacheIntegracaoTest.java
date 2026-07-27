@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.cachetraducao.domain.CacheDocumento;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
@@ -88,7 +89,7 @@ class RevisarLegendasCacheIntegracaoTest {
 
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
-            RevisarLegendasUseCase.ModoRevisaoLegendas.GOOGLE, "danmachi",
+            ModoRevisaoLegendas.GOOGLE, "danmachi",
             RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());
@@ -116,7 +117,7 @@ class RevisarLegendasCacheIntegracaoTest {
 
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
-            RevisarLegendasUseCase.ModoRevisaoLegendas.GOOGLE, "danmachi",
+            ModoRevisaoLegendas.GOOGLE, "danmachi",
             RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());
@@ -145,7 +146,7 @@ class RevisarLegendasCacheIntegracaoTest {
 
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
-            RevisarLegendasUseCase.ModoRevisaoLegendas.GOOGLE, "danmachi",
+            ModoRevisaoLegendas.GOOGLE, "danmachi",
             RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());

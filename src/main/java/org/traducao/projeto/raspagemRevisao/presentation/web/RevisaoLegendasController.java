@@ -15,6 +15,7 @@ import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemRevisao.application.ResultadoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase;
+import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
@@ -113,7 +114,7 @@ public class RevisaoLegendasController {
             try {
                 ResultadoRevisaoLegendas resultado = revisarLegendasUseCase.executar(
                     pathPt, pathEnUso, cacheDir, null,
-                    RevisarLegendasUseCase.ModoRevisaoLegendas.GOOGLE, req.contextoId(), referencia);
+                    ModoRevisaoLegendas.GOOGLE, req.contextoId(), referencia);
                 imprimirResultadoRevisaoLegendas("REVISÃO DE LEGENDAS TRADUZIDAS", resultado);
             } catch (Exception e) {
                 log.error("Erro na revisão de legendas", e);
@@ -187,7 +188,7 @@ public class RevisaoLegendasController {
                     pathEnUso,
                     cacheDir,
                     null,
-                    RevisarLegendasUseCase.ModoRevisaoLegendas.LLM_CONCORDANCIA,
+                    ModoRevisaoLegendas.LLM_CONCORDANCIA,
                     req.contextoId(),
                     referencia
                 );
