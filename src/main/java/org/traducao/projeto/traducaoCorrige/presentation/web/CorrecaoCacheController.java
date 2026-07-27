@@ -11,10 +11,6 @@ import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.presentation.web.OperacaoRequest;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
-import org.traducao.projeto.raspagemCorrecao.application.CorrigirComGoogleUseCase;
-import org.traducao.projeto.raspagemRevisao.application.RevisarCacheUseCase;
-import org.traducao.projeto.llm.domain.StatusLlm;
-import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase;
 import org.traducao.projeto.traducaoCorrige.application.ReforcarTerminologiaCacheUseCase;
@@ -24,19 +20,36 @@ import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import java.nio.file.Path;
 
 /**
- * PROPÓSITO DE NEGÓCIO: expõe à interface web os três modos de manutenção do
- * banco de cache de tradução — limpeza/auditoria local, preenchimento online de
- * lacunas via Google Translate e revisão gramatical via LLM local.
+ * PROPÓSITO DE NEGÓCIO: expõe à interface web as operações de manutenção do banco de cache que
+ * pertencem a ESTA fatia — limpeza/auditoria local e o reforço de terminologia (ensaio e
+ * aplicação).
  *
- * <p>INVARIANTES DO DOMÍNIO: usa a MESMA fila compartilhada via
- * {@link PipelineWebSupport}; o contexto informado, quando presente, é validado
- * antes de enfileirar; a revisão via LLM só prossegue com modelo carregado;
- * nenhuma URL, código HTTP ou nome de campo de DTO é alterado em relação ao
- * controller monolítico original.
+ * <h2>O que saiu daqui, e por quê</h2>
+ * Este controller hospedava também {@code /corrigir-scraping} e {@code /revisar-cache}, cujos casos
+ * de uso pertencem a {@code raspagemCorrecao} e {@code raspagemRevisao}. Era a única das 21
+ * controllers do projeto a importar {@code application} de outra fatia — e era a perna de volta dos
+ * DOIS últimos ciclos da área, porque as duas raspagens já dependem desta fatia na ida.
  *
- * <p>COMPORTAMENTO EM CASO DE FALHA: caminho de cache ou contexto inválido
- * retorna HTTP 400; indisponibilidade do LLM e falhas do job aparecem no console
- * SSE, sem derrubar a fila.
+ * <p>As rotas foram para as fatias donas ({@code CorrecaoRaspagemController} e
+ * {@code RevisaoCacheController}), com URL, método, DTO e código HTTP inalterados: o prefixo
+ * {@code /api} é o mesmo em todos os controllers, então trocar a classe que hospeda a rota não muda
+ * o endereço. O painel web não percebe a diferença — e é assim que tem de ser.
+ *
+ * <p>Não é "um controller por fatia": a fatia gold tem quatro. A regra do contrato é que um
+ * controller não alcance o {@code application} de outra fatia.
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>Usa a MESMA fila compartilhada via {@link PipelineWebSupport}, no canal {@code "correcao"} —
+ *       o mesmo canal das rotas que se mudaram, porque o canal é o console que o painel de Correção
+ *       escuta, não o nome da fatia.</li>
+ *   <li>O contexto informado, quando presente, é validado antes de enfileirar.</li>
+ *   <li>Nenhuma URL, código HTTP ou nome de campo de DTO mudou.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Caminho de cache ou contexto inválido retorna HTTP 400; falhas do job aparecem no console SSE,
+ * sem derrubar a fila.
  */
 @RestController
 @RequestMapping("/api")
@@ -46,26 +59,17 @@ public class CorrecaoCacheController {
 
     private final PipelineWebSupport pipelineWebSupport;
     private final LimparCacheUseCase limparCacheUseCase;
-    private final CorrigirComGoogleUseCase corrigirComGoogleUseCase;
-    private final RevisarCacheUseCase revisarCacheUseCase;
     private final GerenciadorContexto gerenciadorContexto;
-    private final LlmPort llmPort;
     private final ReforcarTerminologiaCacheUseCase reforcarTerminologiaCacheUseCase;
 
     public CorrecaoCacheController(
             PipelineWebSupport pipelineWebSupport,
             LimparCacheUseCase limparCacheUseCase,
-            CorrigirComGoogleUseCase corrigirComGoogleUseCase,
-            RevisarCacheUseCase revisarCacheUseCase,
             GerenciadorContexto gerenciadorContexto,
-            LlmPort llmPort,
             ReforcarTerminologiaCacheUseCase reforcarTerminologiaCacheUseCase) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.limparCacheUseCase = limparCacheUseCase;
-        this.corrigirComGoogleUseCase = corrigirComGoogleUseCase;
-        this.revisarCacheUseCase = revisarCacheUseCase;
         this.gerenciadorContexto = gerenciadorContexto;
-        this.llmPort = llmPort;
         this.reforcarTerminologiaCacheUseCase = reforcarTerminologiaCacheUseCase;
     }
 
@@ -182,76 +186,6 @@ public class CorrecaoCacheController {
         System.out.println("  Falas alteradas: " + r.falasAlteradas()
             + " | restaurações: " + r.totalRestauracoes());
         r.porFrequencia().forEach((termo, n) -> System.out.println("    " + n + "x  " + termo));
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: aceita o preenchimento online de lacunas do cache.
-     * <p>INVARIANTES DO DOMÍNIO: somente contexto conhecido entra na fila; o uso online é explícito.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: retorna 400 antes da fila ou registra falha real no console do job.
-     */
-    @PostMapping("/corrigir-scraping")
-    public ResponseEntity<RespostaPadrao> corrigirScraping(@RequestBody OperacaoRequest req) {
-        String cacheDir = req.entrada() != null && !req.entrada().isBlank() ? req.entrada() : "cache";
-        Path pathCache = pipelineWebSupport.normalizarCaminho(cacheDir);
-        if (pathCache == null) {
-            return ResponseEntity.badRequest().body(new RespostaPadrao("Caminho de cache inválido: " + cacheDir));
-        }
-        if (req.contextoId() != null && !req.contextoId().isBlank()
-            && !gerenciadorContexto.existeContexto(req.contextoId())) {
-            return ResponseEntity.badRequest().body(new RespostaPadrao(
-                "Contexto desconhecido: \"" + req.contextoId() + "\"."));
-        }
-
-        pipelineWebSupport.submeterJobComRelatorio("correcao", "Correção via Google Translate", () -> {
-            try {
-                ResultadoManutencaoCache resultado = corrigirComGoogleUseCase.executar(pathCache, req.contextoId());
-                imprimirResultadoCache("CORREÇÃO ONLINE VIA GOOGLE TRANSLATE", resultado);
-            } catch (Exception e) {
-                log.error("Erro ao executar scraping", e);
-                System.out.println("\u001B[31m[ERRO] Raspagem do Google falhou: " + e.getMessage() + "\u001B[0m");
-            }
-        });
-
-        return ResponseEntity.ok(new RespostaPadrao(
-            "Correção online aceita pela fila. A conclusão e o status real aparecerão no console."));
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: aceita a revisão de concordância do cache via LLM local.
-     * <p>INVARIANTES DO DOMÍNIO: contexto é validado e disponibilidade do modelo é checada antes da revisão.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: rejeita contexto inválido e registra indisponibilidade/status parcial no console.
-     */
-    @PostMapping("/revisar-cache")
-    public ResponseEntity<RespostaPadrao> revisarCache(@RequestBody OperacaoRequest req) {
-        String cacheDir = req.entrada() != null && !req.entrada().isBlank() ? req.entrada() : "cache";
-        Path pathCache = pipelineWebSupport.normalizarCaminho(cacheDir);
-        if (pathCache == null) {
-            return ResponseEntity.badRequest().body(new RespostaPadrao("Caminho de cache inválido: " + cacheDir));
-        }
-
-        if (req.contextoId() != null && !req.contextoId().isBlank() && !gerenciadorContexto.existeContexto(req.contextoId())) {
-            return ResponseEntity.badRequest().body(new RespostaPadrao(
-                "Contexto desconhecido: \"" + req.contextoId() + "\"."));
-        }
-
-        pipelineWebSupport.submeterJobComRelatorio("correcao", "Revisão Gramatical do Cache (LLM)", () -> {
-            try {
-                StatusLlm status = llmPort.verificarDisponibilidade();
-                if (!status.modeloCarregado()) {
-                    System.out.println("\u001B[31m[FAIL] LLM indisponível para revisão: "
-                        + status.mensagem() + "\u001B[0m");
-                    return;
-                }
-                ResultadoManutencaoCache resultado = revisarCacheUseCase.executar(pathCache, req.contextoId());
-                imprimirResultadoCache("REVISÃO GRAMATICAL DO CACHE", resultado);
-            } catch (Exception e) {
-                log.error("Erro na revisão gramatical do cache", e);
-                System.out.println("\u001B[31m[ERRO] Revisão gramatical falhou: " + e.getMessage() + "\u001B[0m");
-            }
-        });
-
-        return ResponseEntity.ok(new RespostaPadrao(
-            "Revisão local aceita pela fila. A conclusão e o status real aparecerão no console."));
     }
 
     /**
