@@ -17,6 +17,7 @@ import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCacheService;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
@@ -55,7 +56,7 @@ class CorrigirComGoogleUseCaseTest {
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
-            cacheService, classificador, new ContextoManutencaoCacheService(contexto),
+            cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new ProtetorTermosLoreService(), new GoogleStub(mapper),
             new AuditoriaStub(mapper), new TelemetriaStub());
 
@@ -91,7 +92,7 @@ class CorrigirComGoogleUseCaseTest {
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups-interrupcao"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
-            cacheService, classificador, new ContextoManutencaoCacheService(contexto),
+            cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new ProtetorTermosLoreService(), new GoogleInterrompendoStub(mapper),
             new AuditoriaStub(mapper), new TelemetriaStub());
         Path cache = temp.resolve("cache-interrupcao");
