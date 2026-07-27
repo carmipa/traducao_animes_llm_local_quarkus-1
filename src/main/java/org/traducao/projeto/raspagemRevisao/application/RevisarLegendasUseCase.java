@@ -23,14 +23,12 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
-import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -49,7 +47,7 @@ public class RevisarLegendasUseCase {
     private static final long PAUSA_GOOGLE_MS = 400;
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
-    private final EscritorLegendaAss escritor;
+    private final PersistenciaLegendaRevisada persistencia;
     private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final AuditorProblemasLegendaService auditor;
     private final ValidadorTraducaoService validador;
@@ -77,7 +75,7 @@ public class RevisarLegendasUseCase {
      * construção do serviço pelo contêiner de injeção.
      */
     public RevisarLegendasUseCase(
-        EscritorLegendaAss escritor,
+        PersistenciaLegendaRevisada persistencia,
         RecuperacaoExternaRevisaoPort recuperacaoExterna,
         AuditorProblemasLegendaService auditor,
         ValidadorTraducaoService validador,
@@ -94,7 +92,7 @@ public class RevisarLegendasUseCase {
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
         PreparadorReferenciaRevisao preparador
     ) {
-        this.escritor = escritor;
+        this.persistencia = persistencia;
         this.recuperacaoExterna = recuperacaoExterna;
         this.auditor = auditor;
         this.validador = validador;
@@ -412,12 +410,13 @@ public class RevisarLegendasUseCase {
             documentoPt, originaisPorIndice, contexto);
         if (diagnosticoRetraducao.deveBloquear()) {
             if (sincronizadasNesteArquivo > 0) {
-                Path destino = saidaDir.resolve(arquivoPt.getFileName());
-                Path backup = criarBackupSeSobrescrever(arquivoPt, destino, pastaBackup);
-                escritor.escrever(destino, documentoPt);
+                PersistenciaLegendaRevisada.Gravacao gravacao = persistencia.gravar(
+                    documentoPt, arquivoPt, saidaDir, pastaBackup);
                 out(AnsiCores.GREEN + "  [RECUPERADO] Traduções disponíveis no cache foram salvas antes do bloqueio."
                     + AnsiCores.RESET);
-                if (backup != null) out(AnsiCores.CYAN + "  Backup anterior: " + backup + AnsiCores.RESET);
+                if (gravacao.backup() != null) {
+                    out(AnsiCores.CYAN + "  Backup anterior: " + gravacao.backup() + AnsiCores.RESET);
+                }
             }
             totalAuditadas[0] += diagnosticoRetraducao.falasAuditaveis();
             totalProblemas[0] += diagnosticoRetraducao.falasNaoTraduzidas();
@@ -696,15 +695,14 @@ public class RevisarLegendasUseCase {
                 documentoPt.quebraDeLinha(),
                 documentoPt.comBom()
             );
-            Path destino = saidaDir.resolve(arquivoPt.getFileName());
-            Path backup = criarBackupSeSobrescrever(arquivoPt, destino, pastaBackup);
-            escritor.escrever(destino, revisado);
+            PersistenciaLegendaRevisada.Gravacao gravacao = persistencia.gravar(
+                revisado, arquivoPt, saidaDir, pastaBackup);
             totalCorrigidas[0] += corrigidasNesteArquivo;
             out(AnsiCores.GREEN + "  [OK] sincronizadas=" + sincronizadasNesteArquivo
                 + ", revisadas=" + corrigidasNesteArquivo
-                + ". Salvo em: " + destino.getFileName() + AnsiCores.RESET);
-            if (backup != null) {
-                out(AnsiCores.CYAN + "  Backup anterior: " + backup + AnsiCores.RESET);
+                + ". Salvo em: " + gravacao.destino().getFileName() + AnsiCores.RESET);
+            if (gravacao.backup() != null) {
+                out(AnsiCores.CYAN + "  Backup anterior: " + gravacao.backup() + AnsiCores.RESET);
             }
         } else if (problemasNesteArquivo > 0) {
             out(AnsiCores.YELLOW + "  Problemas encontrados, mas nenhuma correção aplicada."
@@ -810,35 +808,6 @@ public class RevisarLegendasUseCase {
             }
         }
         return Set.copyOf(protegidos);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: preserva a legenda anterior antes de a Opção 6
-     * sobrescrever o arquivo de trabalho.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: backup só é necessário quando origem e destino
-     * são o mesmo arquivo; a primeira fotografia da sessão nunca é substituída.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lança exceção de domínio e bloqueia a
-     * escrita da nova legenda.
-     */
-    Path criarBackupSeSobrescrever(Path origem, Path destino, Path pastaBackup) {
-        Path origemAbs = origem.toAbsolutePath().normalize();
-        Path destinoAbs = destino.toAbsolutePath().normalize();
-        if (!origemAbs.equals(destinoAbs)) return null;
-        Path backup = pastaBackup.resolve(origem.getFileName()).normalize();
-        if (!backup.startsWith(pastaBackup)) {
-            throw new RaspagemRevisaoException("Caminho de backup inválido para: " + origem);
-        }
-        try {
-            Files.createDirectories(backup.getParent());
-            if (Files.notExists(backup)) {
-                Files.copy(origemAbs, backup, StandardCopyOption.COPY_ATTRIBUTES);
-            }
-            return backup;
-        } catch (IOException e) {
-            throw new RaspagemRevisaoException("Falha ao criar backup da legenda: " + origem, e);
-        }
     }
 
     /**
