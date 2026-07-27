@@ -85,8 +85,11 @@ class FronteiraCorretorCacheArchTest {
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
         "raspagemRevisao.RevisorLegendasCLI -> config.ExecucaoCli",
+        // FASE 2: as QUATRO arestas de application desta fatia sairam. A dependencia para
+        // `telemetria` agora nasce so do ADAPTADOR, atras da TelemetriaRevisaoPort.
+        "raspagemRevisao.infrastructure.TelemetriaRevisaoAdapter -> telemetria.OperacaoTelemetria",
+        "raspagemRevisao.infrastructure.TelemetriaRevisaoAdapter -> telemetria.TelemetriaService",
         "raspagemRevisao.RevisorRaspagemCLI -> config.ExecucaoCli",
-        "raspagemRevisao.application.RevisarCacheUseCase -> telemetria.TelemetriaService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.application.ClassificadorEntradaCacheService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
@@ -104,9 +107,6 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> telemetria.TelemetriaService",
-        "raspagemRevisao.application.RevisorPtOnlyUseCase -> telemetria.OperacaoTelemetria",
-        "raspagemRevisao.application.RevisorPtOnlyUseCase -> telemetria.TelemetriaService",
         "traducaoCorrige.CorretorCacheCLI -> config.ExecucaoCli",
         "traducaoCorrige.application.LimparCacheUseCase -> telemetria.TelemetriaService",
         // ADAPTADOR, não acoplamento novo de aplicação: é a FASE 2 do Plano-Mestre aterrissando

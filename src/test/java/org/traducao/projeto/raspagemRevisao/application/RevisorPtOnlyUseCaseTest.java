@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import java.io.IOException;
@@ -34,11 +33,19 @@ class RevisorPtOnlyUseCaseTest {
         new TelemetriaNoOp());
 
     /** Telemetria no-op para o teste unitário: não persiste em disco (não chama super). */
-    static class TelemetriaNoOp extends TelemetriaService {
-        @Override
-        public synchronized void registrarOperacao(OperacaoTelemetria op) {
-            // no-op: o teste do use case não verifica telemetria (coberta em concordância)
-        }
+    /**
+     * Telemetria em memoria. Com a porta da FASE 2, o teste deixou de precisar da fatia
+     * {@code telemetria} para existir -- criterio de saida da fase.
+     */
+    private static final class TelemetriaNoOp implements TelemetriaRevisaoPort {
+        @Override public void registrarComRelatorio(String operacao, String detalhe,
+            String prefixoRelatorio, Path pastaAlvo, long duracaoMs, int arquivosProcessados,
+            int itensDetectados, int itensCorrigidos, String relatorio) { }
+
+        @Override public void registrar(String operacao, String detalhe, long duracaoMs,
+            int arquivosProcessados, int itensDetectados, int itensCorrigidos) { }
+
+        @Override public Path pastaDeRelatorios(Path pastaEntrada) { return pastaEntrada; }
     }
 
     private static final String CABECALHO = """

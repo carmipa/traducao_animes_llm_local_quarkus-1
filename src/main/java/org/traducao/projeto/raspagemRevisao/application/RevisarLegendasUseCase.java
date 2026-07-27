@@ -8,9 +8,8 @@ import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreServi
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -86,7 +85,7 @@ public class RevisarLegendasUseCase {
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final GerenciadorContexto gerenciadorContexto;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaRevisaoPort telemetria;
     private final SanitizadorTagsService sanitizadorTags;
     private final PoliticaEstiloMusical politicaEstiloMusical;
     private final DetectorEfeitoKaraokeService detectorKaraoke;
@@ -116,7 +115,7 @@ public class RevisarLegendasUseCase {
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
         GerenciadorContexto gerenciadorContexto,
-        TelemetriaService telemetriaService,
+        TelemetriaRevisaoPort telemetria,
         SanitizadorTagsService sanitizadorTags,
         PoliticaEstiloMusical politicaEstiloMusical,
         DetectorEfeitoKaraokeService detectorKaraoke,
@@ -135,7 +134,7 @@ public class RevisarLegendasUseCase {
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.gerenciadorContexto = gerenciadorContexto;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
         this.sanitizadorTags = sanitizadorTags;
         this.politicaEstiloMusical = politicaEstiloMusical;
         this.detectorKaraoke = detectorKaraoke;
@@ -432,14 +431,6 @@ public class RevisarLegendasUseCase {
         String nomeOperacao = llm
             ? "Revisão Concordância (.ass LLM)"
             : "Revisão Legendas (.ass Google)";
-        OperacaoTelemetria operacao = TelemetriaService.criarOperacao(
-            nomeOperacao,
-            pastaLegendasPt.toAbsolutePath().toString(),
-            duracaoMs,
-            arquivos,
-            problemas,
-            corrigidas
-        );
         String relatorio = llm ? """
             REVISÃO DE CONCORDÂNCIA PT-BR (.ass via LLM)
             ============================================
@@ -482,11 +473,11 @@ public class RevisarLegendasUseCase {
             pendentes
         );
         relatorio += formatarDetalhesRelatorio(detalhes);
-        telemetriaService.finalizarOperacao(
-            operacao, pastaLegendasPt,
+        telemetria.registrarComRelatorio(
+            nomeOperacao, pastaLegendasPt.toAbsolutePath().toString(),
             llm ? "revisao_concordancia_legendas" : "revisao_legendas",
-            relatorio);
-        out("Relatório salvo em: " + TelemetriaService.resolverPastaRelatorios(pastaLegendasPt));
+            pastaLegendasPt, duracaoMs, arquivos, problemas, corrigidas, relatorio);
+        out("Relatório salvo em: " + telemetria.pastaDeRelatorios(pastaLegendasPt));
     }
 
     private String formatarDuracaoMs(long ms) {
