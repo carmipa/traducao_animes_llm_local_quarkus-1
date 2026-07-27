@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,9 +72,9 @@ class ContextoManutencaoCacheServiceGuardaObraTest {
 
         var erro = assertThrows(IllegalArgumentException.class, () -> servico.ativar(documento, null));
 
-        assertTrue(erro.getMessage().contains("NÃO confere com o contexto selecionado"),
-            () -> "tem de ser DIVERGÊNCIA, não ambiguidade: os dois consertos são diferentes e as "
-                + "duas mensagens citam os mesmos ids, então só o texto distingue. " + erro.getMessage());
+        assertTrue(erro.getMessage().contains("NÃO confere com a proveniência gravada no cache"),
+            () -> "tem de ser DIVERGÊNCIA por CARIMBO, não ambiguidade: os consertos são diferentes "
+                + "e as mensagens citam os mesmos ids, então só o texto distingue. " + erro.getMessage());
         assertTrue(erro.getMessage().contains("gundam_0083"),
             () -> "a mensagem precisa nomear a lore ESPERADA: " + erro.getMessage());
         assertTrue(erro.getMessage().contains("guilty_crown"),
@@ -97,9 +98,41 @@ class ContextoManutencaoCacheServiceGuardaObraTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a mensagem do bloqueio por CARIMBO precisa instruir um conserto que
+     * funcione. A primeira versão reusava o texto da guarda de tradução — "Selecione o contexto
+     * correto na UI e execute de novo" — e isso é um LAÇO SEM SAÍDA para cache versionado: a
+     * proveniência vence a seleção por construção, então obedecer produz a mensagem byte a byte
+     * idêntica. O mesmo texto também chamava o carimbo de "contexto ATIVO", que é factualmente
+     * falso no instante do bloqueio: a lore reprovada nunca chega a ser ativada.
+     */
+    @Test
+    @DisplayName("bloqueio por carimbo NÃO manda trocar a seleção — isso não desbloquearia nada")
+    void mensagemDeCarimboInstruiConsertoQueFunciona() {
+        var documento = documento("Mobile Suit Gundam 0083", "guilty_crown");
+
+        var semSelecao = assertThrows(IllegalArgumentException.class,
+            () -> servico.ativar(documento, null));
+        // O operador OBEDECE e escolhe a obra certa na UI:
+        var comSelecaoCerta = assertThrows(IllegalArgumentException.class,
+            () -> servico.ativar(documento, "gundam_0083"));
+
+        assertEquals(semSelecao.getMessage(), comSelecaoCerta.getMessage(),
+            "com carimbo, a seleção é ignorada por construção — é por isso que mandar trocá-la é "
+                + "uma instrução impossível, e o teste registra esse fato");
+        assertFalse(semSelecao.getMessage().contains("Selecione o contexto correto na UI"),
+            () -> "instrução que não desbloqueia: " + semSelecao.getMessage());
+        assertFalse(semSelecao.getMessage().contains("contexto ATIVO"),
+            () -> "o carimbo não é o contexto ativo — ele nem chega a ser ativado: "
+                + semSelecao.getMessage());
+        assertTrue(semSelecao.getMessage().contains("CARIMBADO na proveniência"), semSelecao::getMessage);
+        assertTrue(semSelecao.getMessage().contains("mova-o para a pasta da obra correta"),
+            semSelecao::getMessage);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: cache legado não tem carimbo e o operador escolhe a obra na UI. O
      * clique errado tem exatamente o mesmo efeito destrutivo que o carimbo errado, então a guarda
-     * cobre os dois caminhos.
+     * cobre os dois caminhos. Aqui a instrução da UI é a correta — e precisa continuar aparecendo.
      */
     @Test
     @DisplayName("cache legado com fallback da obra errada também bloqueia")
@@ -109,7 +142,9 @@ class ContextoManutencaoCacheServiceGuardaObraTest {
         var erro = assertThrows(IllegalArgumentException.class,
             () -> servico.ativar(legado, "guilty_crown"));
 
-        assertTrue(erro.getMessage().contains("NÃO confere com o contexto selecionado"), erro::getMessage);
+        assertTrue(erro.getMessage().contains("Selecione o contexto correto na UI"),
+            () -> "cache LEGADO: aqui trocar a selecao E o conserto certo, e a instrucao tem de ficar. "
+                + erro.getMessage());
         assertTrue(erro.getMessage().contains("gundam_0083"), erro::getMessage);
     }
 

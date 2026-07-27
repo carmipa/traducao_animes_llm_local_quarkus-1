@@ -10,7 +10,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,18 +24,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code correcaoLegendas} — como rede de segurança da FASE 0 do Plano-Mestre do corretor.
  *
  * <p>Diferente das sete fronteiras já existentes, este teste <b>não afirma que a arquitetura está
- * certa</b>. Ele afirma o contrário: registra a dívida medida em 2026-07-26 (6.723 linhas, 29
- * arestas cross-fatia, 2 ciclos, 4 acessos cruzados a {@code infrastructure}) e impede que ela
- * cresça em silêncio enquanto a refatoração acontece. É o "teste de caracterização antes de mexer"
- * que o contrato arquitetural exige.
+ * certa</b>. Ele afirma o contrário: registra a dívida medida e impede que ela cresça em silêncio
+ * enquanto a refatoração acontece. É o "teste de caracterização antes de mexer" que o contrato
+ * arquitetural exige.
+ *
+ * <h2>O que a primeira versão não enxergava</h2>
+ * A versão de 2026-07-26 lia o grafo SEMPRE pela fatia de ORIGEM, e por isso era cega para tudo
+ * que chegava à área de fora: declarava "exatamente 2 ciclos" quando havia <b>5</b> — os três
+ * ausentes voltavam por {@code config} — e não via nenhuma das arestas ENTRANDO. Uma catraca que
+ * mede menos do que anuncia é pior que catraca nenhuma, porque dá por coberto o que nunca olhou.
+ * As cinco checagens de hoje cobrem os dois sentidos e as duas camadas.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>O inventário de arestas cross-fatia é <b>nominal e exato</b>, por FQN completo. Aresta
  *       nova reprova nomeando o par; aresta que SOME também reprova, porque a dívida encolheu e a
  *       lista tem de registrar o progresso.</li>
- *   <li>Os dois ciclos conhecidos são declarados. Um ciclo NOVO reprova; quebrar um dos dois
- *       reprova também, forçando a atualização quando a FASE 3 acontecer.</li>
+ *   <li>Os 5 ciclos que envolvem a área são declarados, detectados sobre o grafo do projeto
+ *       INTEIRO — ciclo é propriedade do grafo, não da vizinhança de quem se está olhando.</li>
+ *   <li>Quem DEPENDE da área também é congelado, não só de quem a área depende.</li>
+ *   <li>{@code application} não alcança {@code infrastructure} — nem o da própria fatia.</li>
  *   <li>Dependências para {@code core} e para os cinco peers ({@code legenda},
  *       {@code cachetraducao}, {@code contexto}, {@code qualidadeTraducao}, {@code llm}) são
  *       livres — é o contrato do projeto e não conta como dívida.</li>
@@ -106,8 +116,31 @@ class FronteiraCorretorCacheArchTest {
      * foram quebrados. A FASE 3 do Plano-Mestre existe para eliminá-los.
      */
     private static final Set<String> CICLOS_CONGELADOS = Set.of(
+        // Os dois ciclos INTERNOS à área, alvo direto da FASE 3.
         "raspagemCorrecao <-> traducaoCorrige",
-        "raspagemRevisao <-> traducaoCorrige");
+        "raspagemRevisao <-> traducaoCorrige",
+        // Os três com `config`, que a primeira versão desta catraca NÃO ENXERGAVA: ela só
+        // enumerava arestas cuja ORIGEM estava na área, e a perna de volta destes nasce fora
+        // (`config.ModoExecucaoStartup` -> os CLIs da área). O teste afirmava "exatamente 2"
+        // e havia 5 — uma catraca que mede menos do que anuncia é pior que catraca nenhuma,
+        // porque dá por coberto o que não olhou. Mesma forma do `config ⇄ traducao` que a
+        // fase C2 quebrou; estes seguem abertos.
+        "config <-> raspagemCorrecao",
+        "config <-> raspagemRevisao",
+        "config <-> traducaoCorrige");
+
+    /**
+     * Arestas ENTRANDO na área — origem fora, destino dentro. A primeira versão desta catraca
+     * era cega a elas pelo mesmo motivo dos ciclos: {@code arestasVivas()} filtra pela fatia de
+     * ORIGEM. Sem esta lista, qualquer fatia nova podia passar a depender do corretor de cache
+     * sem que o congelamento acusasse — e o propósito declarado dele é justamente impedir que o
+     * acoplamento cresça em silêncio.
+     */
+    private static final Set<String> ARESTAS_ENTRANDO_CONGELADAS = Set.of(
+        "config.ModoExecucaoStartup -> raspagemCorrecao.CorretorRaspagemCLI",
+        "config.ModoExecucaoStartup -> raspagemRevisao.RevisorLegendasCLI",
+        "config.ModoExecucaoStartup -> raspagemRevisao.RevisorRaspagemCLI",
+        "config.ModoExecucaoStartup -> traducaoCorrige.CorretorCacheCLI");
 
     /**
      * Acessos de uma fatia ao {@code infrastructure} de OUTRA. Violam a regra de camada do
@@ -167,30 +200,98 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: exatamente os 2 ciclos conhecidos (FASE 3 do plano existe para quebrá-los)")
+    @DisplayName("FASE 0: exatamente os 5 ciclos que envolvem a área — inclusive os que voltam por fora")
     void ciclosConhecidos() {
-        Set<String> paresVivos = new TreeSet<>();
-        for (String aresta : arestasVivas()) {
-            String origem = fatiaDaEntrada(aresta, true);
-            String destino = fatiaDaEntrada(aresta, false);
-            if (AREA.contains(origem) && AREA.contains(destino)) {
-                paresVivos.add(origem + "->" + destino);
-            }
-        }
+        // O grafo é montado sobre TODAS as fatias, não só as da área: um ciclo cuja perna de
+        // volta nasce fora (config -> CLI da área) é invisível para quem só enumera a saída.
+        Map<String, Set<String>> grafo = grafoEntreFatias();
 
         Set<String> ciclos = new TreeSet<>();
-        for (String par : paresVivos) {
-            String[] p = par.split("->");
-            if (paresVivos.contains(p[1] + "->" + p[0])) {
-                String a = p[0].compareTo(p[1]) <= 0 ? p[0] : p[1];
-                String b = p[0].compareTo(p[1]) <= 0 ? p[1] : p[0];
-                ciclos.add(a + " <-> " + b);
+        for (Map.Entry<String, Set<String>> aresta : grafo.entrySet()) {
+            for (String destino : aresta.getValue()) {
+                if (!grafo.getOrDefault(destino, Set.of()).contains(aresta.getKey())) {
+                    continue;
+                }
+                String origem = aresta.getKey();
+                String a = origem.compareTo(destino) <= 0 ? origem : destino;
+                String b = origem.compareTo(destino) <= 0 ? destino : origem;
+                if (AREA.contains(a) || AREA.contains(b)) {
+                    ciclos.add(a + " <-> " + b);
+                }
             }
         }
 
         assertEquals(CICLOS_CONGELADOS, ciclos,
-            "Ciclo NOVO entre fatias da área é regressão; ciclo quebrado é progresso e exige "
+            "Ciclo NOVO envolvendo a área é regressão; ciclo quebrado é progresso e exige "
                 + "atualizar CICLOS_CONGELADOS. Vivos: " + ciclos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela quem DEPENDE da área, não só de quem a área depende. As três
+     * outras catracas leem o grafo pela fatia de ORIGEM e por isso eram estruturalmente cegas a
+     * este lado — uma fatia nova podia passar a consumir o corretor de cache sem que nada
+     * acusasse, exatamente o crescimento silencioso que este arquivo existe para impedir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os 4 casos atuais são o bootstrap dos CLIs
+     * ({@code config.ModoExecucaoStartup}) e são a perna de volta dos três ciclos com
+     * {@code config}. Aresta nova reprova; aresta que sumir também, para registrar o progresso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: separa regressão de progresso, como as demais.
+     */
+    @Test
+    @DisplayName("FASE 0: arestas ENTRANDO na área — 4 casos, o bootstrap dos CLIs")
+    void arestasEntrandoNaAreaCongeladas() {
+        Set<String> vivas = new TreeSet<>();
+        for (JavaClass classe : classesProducao) {
+            String origemFatia = fatiaDe(classe.getPackageName());
+            if (origemFatia == null || LIVRES.contains(origemFatia) || AREA.contains(origemFatia)) {
+                continue;
+            }
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destinoFatia = fatiaDe(dependencia.getTargetClass().getPackageName());
+                if (destinoFatia == null || !AREA.contains(destinoFatia)) {
+                    continue;
+                }
+                vivas.add(curto(classe.getName()) + " -> " + curto(dependencia.getTargetClass().getName()));
+            }
+        }
+
+        Set<String> novas = new TreeSet<>(vivas);
+        novas.removeAll(ARESTAS_ENTRANDO_CONGELADAS);
+        Set<String> sumiram = new TreeSet<>(ARESTAS_ENTRANDO_CONGELADAS);
+        sumiram.removeAll(vivas);
+
+        assertTrue(novas.isEmpty() && sumiram.isEmpty(),
+            () -> "Quem consome a área de correção de cache também está congelado.\n"
+                + (novas.isEmpty() ? "" : "\nNOVAS (regressão — outra fatia passou a depender da área):\n  "
+                    + String.join("\n  ", novas))
+                + (sumiram.isEmpty() ? "" : "\nSUMIRAM (progresso — atualize a lista):\n  "
+                    + String.join("\n  ", sumiram)));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: grafo fatia→fatia de TODO o projeto, ignorando {@code core} e os
+     * cinco peers. É o insumo da detecção de ciclos, e precisa cobrir o projeto inteiro: ciclo é
+     * uma propriedade do grafo, não da vizinhança de quem se está olhando.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; devolve o que encontrou.
+     */
+    private static Map<String, Set<String>> grafoEntreFatias() {
+        Map<String, Set<String>> grafo = new TreeMap<>();
+        for (JavaClass classe : classesProducao) {
+            String origem = fatiaDe(classe.getPackageName());
+            if (origem == null || LIVRES.contains(origem)) {
+                continue;
+            }
+            for (Dependency dependencia : classe.getDirectDependenciesFromSelf()) {
+                String destino = fatiaDe(dependencia.getTargetClass().getPackageName());
+                if (destino == null || LIVRES.contains(destino) || destino.equals(origem)) {
+                    continue;
+                }
+                grafo.computeIfAbsent(origem, k -> new TreeSet<>()).add(destino);
+            }
+        }
+        return grafo;
     }
 
     @Test
@@ -291,11 +392,6 @@ class FronteiraCorretorCacheArchTest {
         return new TreeSet<>(arestas);
     }
 
-    private static String fatiaDaEntrada(String aresta, boolean origem) {
-        String lado = origem ? aresta.substring(0, aresta.indexOf(" ->")) : aresta.substring(aresta.indexOf("-> ") + 3);
-        int ponto = lado.indexOf('.');
-        return ponto < 0 ? lado : lado.substring(0, ponto);
-    }
 
     private static String curto(String nomeCompleto) {
         int cifrao = nomeCompleto.indexOf('$');

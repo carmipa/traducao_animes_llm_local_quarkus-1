@@ -133,7 +133,8 @@ public class ContextoManutencaoCacheService {
                 "Contexto da proveniência não existe no projeto: \"" + contextoId + "\" em "
                     + documento.arquivo().getFileName());
         }
-        boolean obraReconhecida = exigirObraCompativel(documento.arquivo(), contextoId);
+        boolean obraReconhecida =
+            exigirObraCompativel(documento.arquivo(), contextoId, veioDaProveniencia);
         gerenciadorContexto.definirContextoAtivo(contextoId);
         return new ContextoDoCache(
             gerenciadorContexto.snapshotPorId(contextoId), veioDaProveniencia, obraReconhecida);
@@ -169,20 +170,27 @@ public class ContextoManutencaoCacheService {
      *
      * @param arquivoCache caminho do arquivo de cache em manutenção
      * @param contextoId contexto resolvido para este arquivo, ainda não ativado
+     * @param veioDaProveniencia {@code true} quando o contexto saiu do CARIMBO do cache; muda a
+     *        mensagem de bloqueio, porque com carimbo a seleção da UI não desbloqueia nada
      * @return {@code true} quando alguma lore do catálogo RECONHECE a pasta do arquivo — a segunda
      *         testemunha da identidade da obra, que {@link ContextoDoCache} repassa a quem precisa
      *         decidir se pode reescrever o texto
      * @throws IllegalArgumentException quando a obra da pasta diverge do contexto, ou quando a
      *         identidade é ambígua
      */
-    public boolean exigirObraCompativel(Path arquivoCache, String contextoId) {
+    public boolean exigirObraCompativel(Path arquivoCache, String contextoId, boolean veioDaProveniencia) {
         String obra = obraDoCache(arquivoCache);
         Set<String> reconhecedores = gerenciadorContexto.idsQueReconhecem(obra);
         VeredictoObraContexto veredicto = validadorCompatibilidade.avaliar(obra, contextoId, reconhecedores);
 
         switch (veredicto) {
-            case DIVERGENTE -> throw new IllegalArgumentException(
-                validadorCompatibilidade.mensagemDeBloqueio(
+            // Duas redações porque são dois consertos. Com carimbo, mandar "selecione na UI" é uma
+            // instrução impossível — a proveniência vence a seleção por construção, então obedecer
+            // devolve a MESMA mensagem e o operador fica num laço sem saída.
+            case DIVERGENTE -> throw new IllegalArgumentException(veioDaProveniencia
+                ? validadorCompatibilidade.mensagemDeBloqueioCarimbo(
+                    arquivoCache.toString(), obra, contextoId, reconhecedores)
+                : validadorCompatibilidade.mensagemDeBloqueio(
                     arquivoCache.toString(), obra, contextoId, reconhecedores));
             case AMBIGUO -> throw new IllegalArgumentException(
                 validadorCompatibilidade.mensagemDeAmbiguidade(
