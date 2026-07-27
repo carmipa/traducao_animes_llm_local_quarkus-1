@@ -38,11 +38,11 @@ class RevisarLegendasContextoTest {
     @Test
     void provenienciaDoCacheVenceSelecaoManualIncompativel() {
         GerenciadorContexto gerenciador = catalogo();
-        RevisarLegendasUseCase useCase = useCaseCom(gerenciador);
+        AtivadorContextoRevisao ativador = ativadorCom(gerenciador);
         ProvenienciaCache proveniencia = new ProvenienciaCache(
             1, "gundam_nt", "hash", "modelo", "en", "pt-br");
 
-        ContextoRevisao contexto = useCase.ativarContextoDoArquivo(
+        ContextoRevisao contexto = ativador.ativar(
             proveniencia, "danmachi", Path.of("gundam.cache.json"));
 
         assertEquals("gundam_nt", contexto.id());
@@ -66,14 +66,14 @@ class RevisarLegendasContextoTest {
     @DisplayName("carimbo de outra obra é BLOQUEADO e a lore reprovada não fica ativa")
     void carimboDeOutraObraNaoRevisaSobLoreErrada() {
         GerenciadorContexto gerenciador = catalogo();
-        RevisarLegendasUseCase useCase = useCaseCom(gerenciador);
+        AtivadorContextoRevisao ativador = ativadorCom(gerenciador);
         gerenciador.definirContextoAtivo("gundam_nt");
         ProvenienciaCache carimboErrado = new ProvenienciaCache(
             1, "danmachi", "hash", "modelo", "en", "pt-br");
         Path cacheDeGundam = Path.of("cache", "Gundam Narrative", "ep01.cache.json");
 
         var erro = assertThrows(RaspagemRevisaoException.class,
-            () -> useCase.ativarContextoDoArquivo(carimboErrado, null, cacheDeGundam));
+            () -> ativador.ativar(carimboErrado, null, cacheDeGundam));
 
         assertTrue(erro.getMessage().contains("gundam_nt"), erro::getMessage);
         assertEquals("gundam_nt", gerenciador.obterIdContextoAtivo(),
@@ -88,9 +88,9 @@ class RevisarLegendasContextoTest {
     @DisplayName("pasta e carimbo concordando: a revisão segue")
     void pastaEcarimboConcordandoSegue() {
         GerenciadorContexto gerenciador = catalogo();
-        RevisarLegendasUseCase useCase = useCaseCom(gerenciador);
+        AtivadorContextoRevisao ativador = ativadorCom(gerenciador);
 
-        var contexto = useCase.ativarContextoDoArquivo(
+        var contexto = ativador.ativar(
             new ProvenienciaCache(1, "gundam_nt", "hash", "modelo", "en", "pt-br"),
             null, Path.of("cache", "Gundam Narrative", "ep01.cache.json"));
 
@@ -103,18 +103,16 @@ class RevisarLegendasContextoTest {
             new ContextoTeste("gundam_nt", "Gundam Narrative")));
     }
 
-    private static RevisarLegendasUseCase useCaseCom(GerenciadorContexto gerenciador) {
-        // 18 dependencias; so as quatro que a guarda obra x contexto usa sao reais.
-        return new RevisarLegendasUseCase(
-            null, null, null, null, null, null, null, null, null,
-            gerenciador,                    // gerenciadorContexto
-            null, null, null,
-            new ProtetorTermosLoreService(), // protetorLore
-            null,
-            new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()),
-            new ResolvedorArtefatosRevisao(),
-            null,                           // filtroAuditoria
-            null);                          // detectorRetraducaoEmMassa
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta só o ativador de contexto.
+     * <p>Antes da FASE 4 esta fábrica construía o caso de uso INTEIRO com dezoito argumentos, dos
+     * quais quinze eram {@code null}, para alcançar um método que só precisa de dois colaboradores.
+     * Era o sintoma do acoplamento, não o teste.
+     */
+    private static AtivadorContextoRevisao ativadorCom(GerenciadorContexto gerenciador) {
+        return new AtivadorContextoRevisao(
+            gerenciador,
+            new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()));
     }
 
     /**

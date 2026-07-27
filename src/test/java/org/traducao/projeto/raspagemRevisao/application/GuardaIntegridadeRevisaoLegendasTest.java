@@ -36,8 +36,8 @@ class GuardaIntegridadeRevisaoLegendasTest {
      * teste falha alto em vez de mascarar o acoplamento novo.
      */
     private final RevisarLegendasUseCase guarda = new RevisarLegendasUseCase(
-        null, null, null, null, null, null, null, null, null, null, null, null,
-        new ProtecaoLegendaAssService(),  // o unico colaborador que a guarda usa
+        null, null, null, null, null, null, null, null, null, null, null,
+        new ProtecaoLegendaAssService(),  // 12: o unico colaborador que a guarda usa
         null, null, null, null, null, null);
 
     @Test

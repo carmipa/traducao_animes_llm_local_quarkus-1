@@ -13,7 +13,6 @@ import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
 import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
-import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -23,7 +22,6 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
@@ -75,16 +73,15 @@ public class RevisarLegendasUseCase {
     private final SincronizadorLegendaCacheService sincronizadorCache;
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
-    private final GerenciadorContexto gerenciadorContexto;
     private final RelatorioRevisaoService relatorio;
     private final SanitizadorTagsService sanitizadorTags;
     private final ProtecaoLegendaAssService protecaoAss;
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
-    private final ContextoManutencaoCacheService contextoManutencaoCache;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final FiltroAuditoriaLinha filtroAuditoria;
     private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
+    private final AtivadorContextoRevisao ativadorContexto;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -106,16 +103,15 @@ public class RevisarLegendasUseCase {
         SincronizadorLegendaCacheService sincronizadorCache,
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
-        GerenciadorContexto gerenciadorContexto,
         RelatorioRevisaoService relatorio,
         SanitizadorTagsService sanitizadorTags,
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
-        ContextoManutencaoCacheService contextoManutencaoCache,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
         FiltroAuditoriaLinha filtroAuditoria,
-        DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa
+        DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
+        AtivadorContextoRevisao ativadorContexto
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -126,16 +122,15 @@ public class RevisarLegendasUseCase {
         this.sincronizadorCache = sincronizadorCache;
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
-        this.gerenciadorContexto = gerenciadorContexto;
         this.relatorio = relatorio;
         this.sanitizadorTags = sanitizadorTags;
         this.protecaoAss = protecaoAss;
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
-        this.contextoManutencaoCache = contextoManutencaoCache;
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.filtroAuditoria = filtroAuditoria;
         this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
+        this.ativadorContexto = ativadorContexto;
     }
 
     /**
@@ -334,72 +329,6 @@ public class RevisarLegendasUseCase {
             arquivosProcessados[0], falasCorrigidas[0], falasComProblema[0], falasPendentes[0]);
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: ativa para cada legenda a lore registrada no cache
-     * que a originou, impedindo revisão de uma obra com o contexto de outra.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: proveniência versionada sempre vence a seleção
-     * manual; seleção da interface é fallback apenas para cache legado. E o contexto resolvido —
-     * venha do carimbo, da seleção ou do contexto ativo herdado — ainda precisa BATER COM A OBRA
-     * DA PASTA antes de ser ativado.
-     *
-     * <p>A guarda obra×contexto faltava aqui, e o furo era real: um cache de Gundam 0083 carimbado
-     * com {@code guilty_crown} passava, a lore errada ficava ativa e vazava para o arquivo
-     * seguinte da varredura — reescrevendo o {@code .ass} com a terminologia de outra obra. O
-     * carimbo é uma testemunha, não uma prova: o incidente que originou a guarda mostrou que ele
-     * pode nascer errado. A pasta em que o cache mora é a segunda testemunha.
-     *
-     * <p>A guarda é a MESMA de {@code ContextoManutencaoCacheService} — não uma cópia. Duplicar
-     * aqui a política do veredicto criaria duas guardas que divergem com o tempo, que é como o
-     * reforço de terminologia acabou com duas implementações desiguais.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: contexto inexistente OU obra incompatível interrompem o
-     * arquivo antes de qualquer chamada externa ou sobrescrita da legenda.
-     */
-    ContextoRevisao ativarContextoDoArquivo(
-        ProvenienciaCache proveniencia,
-        String contextoFallback,
-        Path cachePath
-    ) {
-        String contextoProveniencia = proveniencia != null ? proveniencia.contextoId() : null;
-        String contextoEfetivo = contextoProveniencia != null && !contextoProveniencia.isBlank()
-            ? contextoProveniencia : contextoFallback;
-
-        if (contextoProveniencia != null && !contextoProveniencia.isBlank()
-            && contextoFallback != null && !contextoFallback.isBlank()
-            && !contextoProveniencia.equals(contextoFallback)) {
-            out(AnsiCores.YELLOW + "  [CONTEXTO] Seleção manual \"" + contextoFallback
-                + "\" ignorada: a proveniência do cache exige \"" + contextoProveniencia + "\"."
-                + AnsiCores.RESET);
-        }
-        if (contextoEfetivo == null || contextoEfetivo.isBlank()) {
-            contextoEfetivo = gerenciadorContexto.obterIdContextoAtivo();
-            out(AnsiCores.YELLOW + "  [CONTEXTO] Cache legado sem proveniência e sem seleção; "
-                + "usando contexto ativo \"" + contextoEfetivo + "\"." + AnsiCores.RESET);
-        }
-        if (!gerenciadorContexto.existeContexto(contextoEfetivo)) {
-            throw new RaspagemRevisaoException(
-                "Contexto \"" + contextoEfetivo + "\" do cache não existe no projeto: " + cachePath);
-        }
-        // ANTES de definirContextoAtivo: uma lore reprovada não pode chegar a ficar ativa, senão
-        // vaza para o próximo arquivo da varredura mesmo com este bloqueado.
-        try {
-            contextoManutencaoCache.exigirObraCompativel(
-                cachePath, contextoEfetivo, contextoProveniencia != null && !contextoProveniencia.isBlank());
-        } catch (IllegalArgumentException e) {
-            throw new RaspagemRevisaoException(e.getMessage());
-        }
-
-        gerenciadorContexto.definirContextoAtivo(contextoEfetivo);
-        out(AnsiCores.CYAN + "  Contexto ativo: " + gerenciadorContexto.obterNomeContextoAtivo()
-            + " (fonte: " + (contextoProveniencia != null ? "proveniência do cache" : "seleção/fallback")
-            + ")" + AnsiCores.RESET);
-        return new ContextoRevisao(
-            contextoEfetivo,
-            gerenciadorContexto.obterLoreAtiva(),
-            gerenciadorContexto.termosProtegidosAtivos());
-    }
-
     private void out(String mensagem) {
         System.out.println(mensagem);
     }
@@ -454,7 +383,8 @@ public class RevisarLegendasUseCase {
             return;
         }
 
-        ContextoRevisao contexto = ativarContextoDoArquivo(cache.proveniencia(), contextoFallback, cachePath);
+        ContextoRevisao contexto = ativadorContexto.ativar(
+            cache.proveniencia(), contextoFallback, cachePath);
 
         Path arquivoEn;
         Map<Integer, String> originaisPorIndice;

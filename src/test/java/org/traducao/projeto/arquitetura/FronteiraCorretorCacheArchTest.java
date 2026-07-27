@@ -102,7 +102,9 @@ class FronteiraCorretorCacheArchTest {
         // a política do veredicto para cá; duas cópias de uma guarda divergem, e foi assim que o
         // reforço de terminologia acabou com duas implementações desiguais. É a MESMA aresta que
         // RevisarCacheUseCase já tinha para o mesmo tipo, não um acoplamento de espécie nova.
-        "raspagemRevisao.application.RevisarLegendasUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
+        // FASE 4: a aresta MUDOU DE ORIGEM, não de espécie. O ativador de contexto saiu do caso
+        // de uso e levou a guarda consigo; o destino e a direção são os mesmos.
+        "raspagemRevisao.application.AtivadorContextoRevisao -> traducaoCorrige.application.ContextoManutencaoCacheService",
         // FASE 4: o detector de retradução em massa saiu do caso de uso e levou consigo a
         // dependência para o protetor de lore. NÃO é acoplamento novo de espécie: é a MESMA
         // aresta que o caso de uso já tinha, agora nascendo da classe que de fato a usa. A
