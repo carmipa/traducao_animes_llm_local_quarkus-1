@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 
@@ -74,6 +75,30 @@ public class ContextoManutencaoCacheService {
      * para contexto ausente/desconhecido e para obra incompatível, preservando o arquivo.
      */
     public String ativar(CacheManutencaoService.DocumentoEditavel documento, String contextoFallback) {
+        return ativarSnapshot(documento, contextoFallback).id();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma ativação de {@link #ativar}, devolvendo a FOTOGRAFIA do
+     * contexto — prompt, termos protegidos e mapa forma-ruim→canônico — em vez de só o id. É o
+     * que a correção de terminologia sobre cache precisa: o mapa da obra daquele arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o snapshot vem por {@code snapshotPorId(contextoId)}, NÃO do
+     * contexto ativo global. A diferença não é estilística: {@code correcoesTerminologiaAtiva()}
+     * foi removida do {@code GerenciadorContexto} justamente porque ler o mapa do estado global
+     * num segundo momento era a janela por onde uma troca de lore entrava no meio do trabalho.
+     * Ler por id fecha essa janela — o mapa pertence, por construção, ao mesmo contexto que a
+     * guarda acabou de aprovar para este arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: as mesmas de {@link #ativar} — lança
+     * {@link IllegalArgumentException} para contexto ausente/desconhecido e obra incompatível.
+     *
+     * @param documento cache aberto para manutenção
+     * @param contextoFallback contexto escolhido na UI, usado só para cache legado
+     * @return fotografia imutável do contexto deste arquivo; nunca {@code null}
+     */
+    public SnapshotContexto ativarSnapshot(
+            CacheManutencaoService.DocumentoEditavel documento, String contextoFallback) {
         ProvenienciaCache proveniencia = documento.proveniencia();
         String contextoId = proveniencia != null ? proveniencia.contextoId() : contextoFallback;
         if (contextoId == null || contextoId.isBlank()) {
@@ -88,7 +113,7 @@ public class ContextoManutencaoCacheService {
         }
         exigirObraCompativel(documento.arquivo(), contextoId);
         gerenciadorContexto.definirContextoAtivo(contextoId);
-        return contextoId;
+        return gerenciadorContexto.snapshotPorId(contextoId);
     }
 
     /**
