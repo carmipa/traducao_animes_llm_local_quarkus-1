@@ -2,6 +2,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
@@ -41,7 +42,7 @@ class RevisarLegendasContextoTest {
         ProvenienciaCache proveniencia = new ProvenienciaCache(
             1, "gundam_nt", "hash", "modelo", "en", "pt-br");
 
-        RevisarLegendasUseCase.ContextoRevisao contexto = useCase.ativarContextoDoArquivo(
+        ContextoRevisao contexto = useCase.ativarContextoDoArquivo(
             proveniencia, "danmachi", Path.of("gundam.cache.json"));
 
         assertEquals("gundam_nt", contexto.id());
@@ -112,7 +113,8 @@ class RevisarLegendasContextoTest {
             null,
             new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()),
             new ResolvedorArtefatosRevisao(),
-            null);                          // filtroAuditoria
+            null,                           // filtroAuditoria
+            null);                          // detectorRetraducaoEmMassa
     }
 
     /**
