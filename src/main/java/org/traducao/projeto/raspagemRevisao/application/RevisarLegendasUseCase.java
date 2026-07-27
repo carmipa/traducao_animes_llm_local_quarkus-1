@@ -33,8 +33,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -364,10 +362,7 @@ public class RevisarLegendasUseCase {
         totalSemReferenciaSegura[0] += indicesSemReferenciaSegura.size();
         totalPendentes[0] += indicesSemReferenciaSegura.size();
 
-        List<EventoLegenda> eventosAtualizados = new ArrayList<>();
-        Map<String, String> cacheRevisaoMasc = new HashMap<>();
-        Set<String> revisoesSemAlteracao = new LinkedHashSet<>();
-        int corrigidasNesteArquivo = 0;
+        SessaoRevisaoArquivo sessao = new SessaoRevisaoArquivo();
         SincronizacaoPreviaRevisao.Resultado sincronizacao = sincronizacaoPrevia.sincronizar(
             documentoPt, entradasCache, cachePath, arquivoPt, contexto, referencia, originaisPorIndice);
         if (sincronizacao.frescor() == FrescorCache.INDETERMINADO) {
@@ -377,10 +372,9 @@ public class RevisarLegendasUseCase {
         boolean sincronizarCache = sincronizacao.sincronizou();
         documentoPt = sincronizacao.documento();
         int sincronizadasNesteArquivo = sincronizacao.total();
-        int problemasNesteArquivo = 0;
-        int falasAuditadas = 0;
-        int falasSemOriginal = 0;
-        boolean modificado = sincronizadasNesteArquivo > 0;
+        if (sincronizadasNesteArquivo > 0) {
+            sessao.marcarModificado();
+        }
         if (sincronizarCache) {
             out(AnsiCores.CYAN + "  Cache corrigido é mais novo que a legenda; "
                 + "sincronizando traduções antes da revisão." + AnsiCores.RESET);
@@ -440,21 +434,21 @@ public class RevisarLegendasUseCase {
                         + AnsiCores.RESET);
                     interrompido = true;
                 }
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
             if (!evento.isDialogo() || evento.texto() == null) {
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
 
             if (evento.texto().isBlank()) {
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
 
             if (filtroAuditoria.deveIgnorar(evento, evento.texto())) {
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
 
@@ -478,8 +472,7 @@ public class RevisarLegendasUseCase {
             boolean esvaziaria = saneamentoEsvaziariaFala(textoNormalizado, textoCorrigidoKaraoke);
             if (!textoNormalizado.equals(textoCorrigidoKaraoke) && !esvaziaria) {
                 evento = evento.comTexto(textoCorrigidoKaraoke);
-                modificado = true;
-                corrigidasNesteArquivo++;
+                sessao.contarCorrecaoJaAplicada();
                 out("  -> Karaoke corrigido na linha " + evento.indice() + ":");
                 out("     De : " + textoNormalizado);
                 out("     Para: " + textoCorrigidoKaraoke);
@@ -490,16 +483,14 @@ public class RevisarLegendasUseCase {
 
             String traducaoAtual = evento.texto();
             if (!temOriginalEn) {
-                falasSemOriginal++;
-                totalSemOriginal[0]++;
+                sessao.contarSemOriginal();
                 if (modo != ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-                    eventosAtualizados.add(evento);
+                    sessao.manter(evento);
                     continue;
                 }
             }
 
-            falasAuditadas++;
-            totalAuditadas[0]++;
+            sessao.contarAuditada();
 
             if (temOriginalEn
                 && normalizarTexto(originalEn).equals(normalizarTexto(traducaoAtual))
@@ -507,18 +498,17 @@ public class RevisarLegendasUseCase {
                     originalEn, contexto.lore(), contexto.termosProtegidos())) {
                 out("  [LORE] Evento " + evento.indice()
                     + " contém somente nome/termo canônico; mantido sem chamar IA.");
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
 
             ResultadoDeteccaoConcordancia auditoria = auditor.auditar(originalEn, traducaoAtual);
             if (!auditoria.suspeito()) {
-                eventosAtualizados.add(evento);
+                sessao.manter(evento);
                 continue;
             }
 
-            problemasNesteArquivo++;
-            totalProblemas[0]++;
+            sessao.contarProblema();
 
             out("  -> Linha " + evento.indice() + " [" + evento.estilo() + "]:");
             out("     EN: " + AnsiCores.YELLOW + originalEn + AnsiCores.RESET);
@@ -541,21 +531,16 @@ public class RevisarLegendasUseCase {
                     "CORRIGIDA_REGRA_SEGURA", auditoria.motivos(),
                     "Contradição objetiva corrigida localmente, sem chamar LLM ou Google.",
                     originalEn, traducaoAtual, corrigida));
-                eventosAtualizados.add(evento.comTexto(corrigida));
-                corrigidasNesteArquivo++;
-                modificado = true;
-                if (textoMascOriginal != null) {
-                    cacheRevisaoMasc.put(textoMascOriginal, mascaradorTags.mascarar(corrigida).texto());
-                }
+                sessao.corrigir(evento, corrigida);
+                sessao.registrarCorrecao(textoMascOriginal, mascaradorTags.mascarar(corrigida).texto());
                 continue;
             }
-            if (textoMascOriginal != null && revisoesSemAlteracao.contains(textoMascOriginal)) {
-                totalPendentes[0]++;
-                eventosAtualizados.add(evento);
+            if (sessao.jaSabidoSemAlteracao(textoMascOriginal)) {
+                sessao.pendente(evento);
                 continue;
             }
-            if (textoMascOriginal != null && cacheRevisaoMasc.containsKey(textoMascOriginal)) {
-                String respostaMascCorrigida = cacheRevisaoMasc.get(textoMascOriginal);
+            String respostaMascCorrigida = sessao.correcaoConhecida(textoMascOriginal);
+            if (respostaMascCorrigida != null) {
                 MascaradorTags.Mascarado mascTraducaoAtual = mascaradorTags.mascarar(traducaoAtual);
                 String novaTraducaoCache;
                 try {
@@ -565,17 +550,15 @@ public class RevisarLegendasUseCase {
                         + "Cache local ignorado na linha " + evento.indice()
                         + ": marcadores de tags incompatíveis com a tradução atual."
                         + AnsiCores.RESET);
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.pendente(evento);
                     continue;
                 }
 
                 if (novaTraducaoCache.equals(traducaoAtual)
                     || !correcaoEhSegura(
                         originalEn, traducaoAtual, novaTraducaoCache, auditoria, contexto)) {
-                    revisoesSemAlteracao.add(textoMascOriginal);
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.registrarSemAlteracao(textoMascOriginal);
+                    sessao.pendente(evento);
                     continue;
                 }
 
@@ -584,9 +567,7 @@ public class RevisarLegendasUseCase {
                 out("     PT: " + AnsiCores.YELLOW + traducaoAtual + AnsiCores.RESET);
                 out("     PT corrigido: " + AnsiCores.GREEN + novaTraducaoCache + AnsiCores.RESET);
 
-                eventosAtualizados.add(evento.comTexto(novaTraducaoCache));
-                corrigidasNesteArquivo++;
-                modificado = true;
+                sessao.corrigir(evento, novaTraducaoCache);
                 continue;
             }
 
@@ -602,8 +583,7 @@ public class RevisarLegendasUseCase {
                         arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
                         tentativa.codigo(), auditoria.motivos(), tentativa.detalhe(),
                         originalEn, traducaoAtual, tentativa.proposta()));
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.pendente(evento);
                     continue;
                 }
                 novaTraducao = tentativa.revisado().get();
@@ -614,18 +594,16 @@ public class RevisarLegendasUseCase {
                         "LLM_SEM_ALTERACAO", auditoria.motivos(),
                         "O modelo respondeu, mas manteve a tradução atual.",
                         originalEn, traducaoAtual, novaTraducao));
-                    registrarSemAlteracao(textoMascOriginal, revisoesSemAlteracao);
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.registrarSemAlteracao(textoMascOriginal);
+                    sessao.pendente(evento);
                     continue;
                 }
             } else {
                 if (!PoliticaRetraducao.exigeRetraducaoPeloGoogle(auditoria.motivos())) {
                     out("     " + AnsiCores.DIM
                         + "Google não acionado: problema reservado à revisão LLM." + AnsiCores.RESET);
-                    registrarSemAlteracao(textoMascOriginal, revisoesSemAlteracao);
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.registrarSemAlteracao(textoMascOriginal);
+                    sessao.pendente(evento);
                     continue;
                 }
                 ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
@@ -641,9 +619,8 @@ public class RevisarLegendasUseCase {
                     || restauradaGoogle.equals(traducaoAtual)) {
                     out("     " + AnsiCores.DIM + "Google sem alteração aplicável ("
                         + resultadoGoogle.status() + "); mantido." + AnsiCores.RESET);
-                    registrarSemAlteracao(textoMascOriginal, revisoesSemAlteracao);
-                    totalPendentes[0]++;
-                    eventosAtualizados.add(evento);
+                    sessao.registrarSemAlteracao(textoMascOriginal);
+                    sessao.pendente(evento);
                     continue;
                 }
                 novaTraducao = restauradaGoogle;
@@ -659,9 +636,8 @@ public class RevisarLegendasUseCase {
                     modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
                         ? "LLM_REJEITADO_SEM_MELHORIA" : "GOOGLE_REJEITADO_SEM_MELHORIA",
                     auditoria.motivos(), motivo, originalEn, traducaoAtual, novaTraducao));
-                registrarSemAlteracao(textoMascOriginal, revisoesSemAlteracao);
-                totalPendentes[0]++;
-                eventosAtualizados.add(evento);
+                sessao.registrarSemAlteracao(textoMascOriginal);
+                sessao.pendente(evento);
                 continue;
             }
 
@@ -671,41 +647,44 @@ public class RevisarLegendasUseCase {
                 modo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "CORRIGIDA_LLM" : "CORRIGIDA_GOOGLE",
                 auditoria.motivos(), "Correção validada e persistida.",
                 originalEn, traducaoAtual, novaTraducao));
-            eventosAtualizados.add(evento.comTexto(novaTraducao));
-            corrigidasNesteArquivo++;
-            modificado = true;
+            sessao.corrigir(evento, novaTraducao);
 
-            MascaradorTags.Mascarado mascNova = mascaradorTags.mascarar(novaTraducao);
-            if (textoMascOriginal != null) {
-                cacheRevisaoMasc.put(textoMascOriginal, mascNova.texto());
-            }
+            sessao.registrarCorrecao(textoMascOriginal,
+                mascaradorTags.mascarar(novaTraducao).texto());
         }
 
-        if (modificado) {
+        // Os totais do LOTE sobem de uma vez, no fim do arquivo. Antes eram sete `int[]`
+        // incrementados de dentro do laco, em quinze lugares diferentes.
+        totalAuditadas[0] += sessao.auditadas();
+        totalProblemas[0] += sessao.problemas();
+        totalSemOriginal[0] += sessao.semOriginal();
+        totalPendentes[0] += sessao.pendentes();
+
+        if (sessao.modificado()) {
             DocumentoLegenda revisado = new DocumentoLegenda(
                 documentoPt.cabecalho(),
-                eventosAtualizados,
+                sessao.eventos(),
                 documentoPt.quebraDeLinha(),
                 documentoPt.comBom()
             );
             PersistenciaLegendaRevisada.Gravacao gravacao = persistencia.gravar(
                 revisado, arquivoPt, saidaDir, pastaBackup);
-            totalCorrigidas[0] += corrigidasNesteArquivo;
+            totalCorrigidas[0] += sessao.corrigidas();
             out(AnsiCores.GREEN + "  [OK] sincronizadas=" + sincronizadasNesteArquivo
-                + ", revisadas=" + corrigidasNesteArquivo
+                + ", revisadas=" + sessao.corrigidas()
                 + ". Salvo em: " + gravacao.destino().getFileName() + AnsiCores.RESET);
             if (gravacao.backup() != null) {
                 out(AnsiCores.CYAN + "  Backup anterior: " + gravacao.backup() + AnsiCores.RESET);
             }
-        } else if (problemasNesteArquivo > 0) {
+        } else if (sessao.problemas() > 0) {
             out(AnsiCores.YELLOW + "  Problemas encontrados, mas nenhuma correção aplicada."
                 + AnsiCores.RESET);
-        } else if (falasAuditadas == 0 && falasSemOriginal > 0) {
+        } else if (sessao.auditadas() == 0 && sessao.semOriginal() > 0) {
             out(AnsiCores.YELLOW + "  -> Nenhuma fala auditada ("
-                + falasSemOriginal + " ignoradas por falta de original EN)." + AnsiCores.RESET);
+                + sessao.semOriginal() + " ignoradas por falta de original EN)." + AnsiCores.RESET);
         } else {
             out("  -> Nenhum problema detectado neste arquivo ("
-                + falasAuditadas + " falas auditadas).");
+                + sessao.auditadas() + " falas auditadas).");
         }
     }
 
@@ -753,19 +732,6 @@ public class RevisarLegendasUseCase {
         }
         return !posterior.suspeito()
             || posterior.motivos().size() < auditoriaAnterior.motivos().size();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: registra que uma origem já foi analisada e não teve
-     * correção aplicável sem usar o próprio inglês como sentinela textual.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: chave nula — caso de fala sem original — nunca
-     * entra no conjunto compartilhado.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: chave ausente não produz efeito.
-     */
-    private void registrarSemAlteracao(String chave, Set<String> revisoesSemAlteracao) {
-        if (chave != null && !chave.isBlank()) revisoesSemAlteracao.add(chave);
     }
 
     /**
