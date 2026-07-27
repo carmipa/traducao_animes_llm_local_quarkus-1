@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * PROPÓSITO DE NEGÓCIO: reforça DETERMINISTICAMENTE a terminologia oficial de uma obra
@@ -232,11 +233,21 @@ public class EnforcadorTermosLore {
         if (ocorrencias.isEmpty()) {
             return new Restauracao(texto, 0);
         }
-        // Capitalizadas primeiro; desempate pela ordem do documento. Depois reordena por posição
-        // para reconstruir o texto da esquerda para a direita.
-        List<int[]> escolhidas = ocorrencias.stream()
-            .sorted(Comparator.<int[]>comparingInt(o -> o[2]).thenComparingInt(o -> o[0]))
-            .limit(limite)
+        // O TETO vale só para as MINÚSCULAS. Ele existe para proteger o homógrafo comum
+        // ("vazio"=empty vs "Vazio"=Void), e uma forma-ruim CAPITALIZADA no meio da frase já é um
+        // nome próprio — não há homógrafo comum a proteger ali. Limitar as capitalizadas produzia
+        // falas MEIO corrigidas, que é o pior desfecho: medido, "Precisamos deter o Eixo antes que
+        // o Eixo caia!" com "Axis" uma vez no inglês saía "...deter o Axis antes que o Eixo caia!",
+        // e a auditoria seguinte da revisão de lore aprovava a linha como limpa (basta UMA
+        // ocorrência canônica para o detector parar de acusar). Defeito invisível, gravado no .ass
+        // e logado em verde.
+        List<int[]> capitalizadas = ocorrencias.stream().filter(o -> o[2] == 0).toList();
+        int orcamentoMinusculas = Math.max(0, limite - capitalizadas.size());
+        List<int[]> minusculas = ocorrencias.stream()
+            .filter(o -> o[2] == 1)
+            .limit(orcamentoMinusculas)
+            .toList();
+        List<int[]> escolhidas = Stream.concat(capitalizadas.stream(), minusculas.stream())
             .sorted(Comparator.comparingInt(o -> o[0]))
             .toList();
         StringBuilder sb = new StringBuilder(texto.length());

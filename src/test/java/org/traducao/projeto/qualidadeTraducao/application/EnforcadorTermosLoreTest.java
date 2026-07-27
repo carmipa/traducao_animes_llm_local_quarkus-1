@@ -20,6 +20,37 @@ class EnforcadorTermosLoreTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o teto de ocorrências protege o HOMÓGRAFO COMUM MINÚSCULO, e só ele.
+     * Aplicá-lo também às capitalizadas produzia falas MEIO corrigidas — o pior desfecho, porque
+     * a auditoria seguinte da revisão de lore aprova a linha (basta UMA ocorrência canônica para o
+     * detector parar de acusar) e o defeito é gravado no {@code .ass} e logado em verde.
+     *
+     * <p>Caso medido com o mapa real de ZZ ({@code "Eixo"→"Axis"}).
+     */
+    @Test
+    @DisplayName("duas formas-ruim CAPITALIZADAS são ambas restauradas, mesmo com o canônico 1x no EN")
+    void capitalizadasNaoSaoLimitadasPeloTeto() {
+        assertEquals("Precisamos deter o Axis antes que o Axis caia!",
+            enforcador.reforcar("We must stop Axis before it falls!",
+                "Precisamos deter o Eixo antes que o Eixo caia!", Map.of("Eixo", "Axis")));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a contrapartida — a proteção do homógrafo minúsculo NÃO pode
+     * afrouxar junto. São os dois casos que motivaram o teto.
+     */
+    @Test
+    @DisplayName("o homógrafo comum MINÚSCULO continua protegido pelo teto")
+    void minusculaSegueProtegidaPeloTeto() {
+        assertEquals("O Void deixou tudo vazio.",
+            enforcador.reforcar("The Void left everything void.",
+                "O Vazio deixou tudo vazio.", Map.of("Vazio", "Void")));
+        assertEquals("Quattro, há quatro inimigos.",
+            enforcador.reforcar("Quattro, there are four enemies.",
+                "Quatro, há quatro inimigos.", Map.of("Quatro", "Quattro")));
+    }
+
     private static final Map<String, String> MAPA_86 = Map.of(
         "Legião", "Legion",
         "Handler Um", "Handler One",
