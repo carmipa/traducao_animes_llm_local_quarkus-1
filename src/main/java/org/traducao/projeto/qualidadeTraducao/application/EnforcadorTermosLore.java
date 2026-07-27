@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -77,10 +78,41 @@ public class EnforcadorTermosLore {
      * @return a fala traduzida com os termos canônicos restaurados quando aplicável
      */
     public String reforcar(String original, String traduzido, Map<String, String> correcoes) {
+        return reforcarContando(original, traduzido, correcoes).texto();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesmo reforço, informando QUANTAS restaurações foram feitas por termo
+     * canônico. Só quem executa a substituição sabe contá-la: qualquer tentativa de deduzir o
+     * número de fora, comparando o texto antes e depois, é uma segunda implementação da regra e
+     * erra onde a regra é sutil.
+     *
+     * <p>Foi medido: um contador externo que comparava ocorrências do canônico não creditava nada
+     * quando a forma-ruim CONTÉM o canônico — {@code "Plee"→"Ple"} (Gundam ZZ),
+     * {@code "Gouf Customizado"→"Gouf Custom"} (08th MS Team), {@code "Gundam Alexandre"→"Gundam
+     * Alex"} (War in the Pocket), três obras distintas —, porque o canônico já aparecia no texto
+     * antes da troca e o delta dava zero. O relatório saía "nenhuma alteração" tendo reescrito o
+     * arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto devolvido é IDÊNTICO ao de {@link #reforcar}; a contagem
+     * é indexada pelo termo CANÔNICO (várias formas-ruim convergem para o mesmo destino) e soma
+     * exatamente as substituições efetivadas — nunca as tentadas. Texto inalterado devolve mapa
+     * vazio, e mapa vazio com texto alterado é impossível por construção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumentos nulos/vazios devolvem o traduzido com mapa
+     * vazio; não lança.
+     *
+     * @param original o texto original (EN) da fala
+     * @param traduzido a fala já traduzida (PT)
+     * @param correcoes mapa forma-ruim (PT) → termo canônico a restaurar
+     * @return o texto reforçado e quantas restaurações por termo canônico
+     */
+    public Reforco reforcarContando(String original, String traduzido, Map<String, String> correcoes) {
         if (original == null || traduzido == null || correcoes == null || correcoes.isEmpty()) {
-            return traduzido;
+            return new Reforco(traduzido, Map.of());
         }
         String resultado = traduzido;
+        Map<String, Integer> restauracoes = new LinkedHashMap<>();
         // Frases longas primeiro: "Genoma do Vazio" antes de "Vazio".
         var pares = correcoes.entrySet().stream()
             .sorted(Comparator.comparingInt((Map.Entry<String, String> e) ->
@@ -98,10 +130,51 @@ public class EnforcadorTermosLore {
             }
             // Restaura no MÁXIMO tantas formas-ruim quantas o canônico aparece no original,
             // priorizando as capitalizadas — não corrompe o homógrafo comum minúsculo.
-            resultado = restaurarLimitado(resultado, padraoFormaRuim(formaRuim), canonico, ocorrenciasCanonico);
+            Restauracao passo =
+                restaurarLimitado(resultado, padraoFormaRuim(formaRuim), canonico, ocorrenciasCanonico);
+            resultado = passo.texto();
+            if (passo.quantidade() > 0) {
+                restauracoes.merge(canonico, passo.quantidade(), Integer::sum);
+            }
         }
-        return resultado;
+        return new Reforco(resultado, restauracoes);
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: resultado do reforço — o texto e o que foi feito nele.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code restauracoesPorTermo} é imutável e indexado pelo termo
+     * CANÔNICO; a soma dos valores é o número de substituições efetivadas nesta fala.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: record puro, sem I/O; nunca lança.
+     *
+     * @param texto a fala com os termos canônicos restaurados
+     * @param restauracoesPorTermo termo canônico → quantas vezes foi restaurado nesta fala
+     */
+    public record Reforco(String texto, Map<String, Integer> restauracoesPorTermo) {
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: congela o mapa na construção.
+         * <p>INVARIANTES DO DOMÍNIO: mapa nunca nulo e sempre imutável.
+         * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo vira vazio em vez de lançar.
+         */
+        public Reforco {
+            restauracoesPorTermo = restauracoesPorTermo == null
+                ? Map.of() : Map.copyOf(restauracoesPorTermo);
+        }
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: total de substituições nesta fala.
+         * <p>INVARIANTES DO DOMÍNIO: soma dos valores do mapa.
+         * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio devolve zero.
+         */
+        public int total() {
+            return restauracoesPorTermo.values().stream().mapToInt(Integer::intValue).sum();
+        }
+    }
+
+    /** Resultado de uma passada de restauração: o texto novo e quantas trocas ocorreram nele. */
+    private record Restauracao(String texto, int quantidade) {}
 
     /**
      * PROPÓSITO DE NEGÓCIO: conta quantas vezes o ORIGINAL (EN) contém o termo canônico na
@@ -141,11 +214,14 @@ public class EnforcadorTermosLore {
      * inserido literalmente (sem interpretação de regex).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@code limite <= 0} ou ausência de casamento devolve
-     * o texto inalterado.
+     * o texto inalterado e quantidade zero.
+     *
+     * @return o texto após a passada e QUANTAS trocas foram efetivadas — este número é a única
+     *         fonte confiável da contagem, porque é medido onde a substituição acontece
      */
-    private String restaurarLimitado(String texto, Pattern formaRuimPat, String canonico, int limite) {
+    private Restauracao restaurarLimitado(String texto, Pattern formaRuimPat, String canonico, int limite) {
         if (limite <= 0) {
-            return texto;
+            return new Restauracao(texto, 0);
         }
         Matcher m = formaRuimPat.matcher(texto);
         List<int[]> ocorrencias = new ArrayList<>();
@@ -154,7 +230,7 @@ public class EnforcadorTermosLore {
             ocorrencias.add(new int[]{m.start(), m.end(), prioridade});
         }
         if (ocorrencias.isEmpty()) {
-            return texto;
+            return new Restauracao(texto, 0);
         }
         // Capitalizadas primeiro; desempate pela ordem do documento. Depois reordena por posição
         // para reconstruir o texto da esquerda para a direita.
@@ -170,7 +246,7 @@ public class EnforcadorTermosLore {
             ultimo = o[1];
         }
         sb.append(texto, ultimo, texto.length());
-        return sb.toString();
+        return new Restauracao(sb.toString(), escolhidas.size());
     }
 
     /**

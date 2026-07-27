@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,21 +54,6 @@ public class ReforcarTerminologiaCacheUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ReforcarTerminologiaCacheUseCase.class);
     private static final String OPERACAO = "reforco-terminologia";
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: marca o trecho JÁ creditado a um termo, para que um canônico mais
-     * curto contido nele ({@code "Beam Saber"} dentro de {@code "Beam Sabers"}) não o conte
-     * de novo.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: é {@code NUL} porque não ocorre em legenda nem em termo de lore,
-     * e é escrito como ESCAPE, nunca como byte cru. Um caractere de controle literal no fonte faz
-     * o arquivo ser tratado como BINÁRIO por grep e por diff, e sobrevive mal a conversão de
-     * encoding — o valor é o mesmo, a legibilidade do repositório não.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: existe só dentro de {@link #contarPorCanonico}; nunca
-     * alcança o texto gravado no cache.
-     */
-    private static final String SENTINELA_CONSUMIDO = "\0";
 
     private final CacheManutencaoService cacheService;
     private final ContextoManutencaoCacheService contextoService;
@@ -179,24 +164,24 @@ public class ReforcarTerminologiaCacheUseCase {
             if (mapa.isEmpty()) {
                 return;
             }
-            // Do mais LONGO para o mais curto: é o que permite atribuir cada trecho ao termo
-            // certo quando um canônico contém o outro ("Beam Sabers" contém "Beam Saber").
-            List<String> canonicos = mapa.values().stream()
-                .filter(c -> c != null && !c.isEmpty())
-                .distinct()
-                .sorted(Comparator.comparingInt(String::length).reversed())
-                .toList();
-            int alteradas = 0;
+            // Tudo deste arquivo fica PENDENTE até a gravação voltar. Creditar antes seria
+            // publicar números que podem nunca chegar ao disco: medido, um salvarAtomico que
+            // lançava deixava o relatório anunciando "Beam Saber 2x, Axis 1x" com o arquivo
+            // byte a byte intacto — e três linhas de auditoria TERMINOLOGIA_REFORCADA para
+            // falas que não mudaram. Em ensaio não há gravação, então o pendente é confirmado
+            // no fim do arquivo: é isso que mantém o ensaio uma previsão fiel.
+            Pendente pendente = new Pendente();
             for (JsonNode no : doc.entradas()) {
-                if (no instanceof ObjectNode entrada
-                    && reforcarEntrada(entrada, mapa, canonicos, arquivo, doc, contexto.id(), acc)) {
-                    alteradas++;
+                if (no instanceof ObjectNode entrada) {
+                    reforcarEntrada(entrada, mapa, arquivo, doc, contexto.id(), acc.aplicar, pendente);
                 }
             }
-            if (alteradas > 0 && acc.aplicar) {
+            if (pendente.falasAlteradas > 0 && acc.aplicar) {
                 cacheService.salvarAtomico(doc, sessao);
                 acc.arquivosAlterados++;
             }
+            acc.confirmar(pendente);
+            pendente.auditorias.forEach(auditoria::registrar);
         } catch (Exception e) {
             acc.falhas++;
             log.error("Falha ao reforçar terminologia em {}: {}", arquivo, e.getMessage());
@@ -208,122 +193,72 @@ public class ReforcarTerminologiaCacheUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: reforça a terminologia de UMA fala e credita o que foi restaurado.
+     * PROPÓSITO DE NEGÓCIO: reforça a terminologia de UMA fala, registrando no pendente do arquivo
+     * o que o enforcer efetivamente trocou.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o texto novo só é gravado no nó quando {@code aplicar} é
-     * verdadeiro — em ensaio a contagem é idêntica e o documento fica intocado, que é o que
-     * torna o ensaio uma previsão fiel e não uma aproximação.
+     * <p>INVARIANTES DO DOMÍNIO: a contagem vem do PRÓPRIO enforcer
+     * ({@link EnforcadorTermosLore#reforcarContando}), nunca de comparar o texto antes e depois.
+     * Deduzir o número de fora é reimplementar a regra: a versão anterior comparava ocorrências do
+     * canônico e não creditava nada quando a forma-ruim CONTÉM o canônico — {@code "Plee"→"Ple"},
+     * {@code "Gouf Customizado"→"Gouf Custom"}, {@code "Gundam Alexandre"→"Gundam Alex"}, em três
+     * obras do catálogo —, e o relatório saía vazio tendo reescrito o arquivo.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: fala sem original ou sem mudança devolve {@code false}.
+     * <p>O texto novo só é gravado no nó quando {@code aplicar} é verdadeiro; em ensaio a contagem
+     * é idêntica e o documento fica intocado, que é o que torna o ensaio previsão e não estimativa.
      *
-     * @return {@code true} quando a fala mudou
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala sem original ou sem mudança não registra nada.
      */
-    private boolean reforcarEntrada(
-        ObjectNode entrada, Map<String, String> mapa, List<String> canonicos, Path arquivo,
-        CacheManutencaoService.DocumentoEditavel doc, String contextoId, Acumulador acc
+    private void reforcarEntrada(
+        ObjectNode entrada, Map<String, String> mapa, Path arquivo,
+        CacheManutencaoService.DocumentoEditavel doc, String contextoId, boolean aplicar,
+        Pendente pendente
     ) {
         String original = ClassificadorEntradaCacheService.texto(entrada, "original");
         String antes = ClassificadorEntradaCacheService.texto(entrada, "traduzido");
         if (original.isBlank() || antes.isBlank()) {
-            return false;
+            return;
         }
-        String depois = enforcador.reforcar(original, antes, mapa);
-        if (depois.equals(antes)) {
-            return false;
+        EnforcadorTermosLore.Reforco reforco = enforcador.reforcarContando(original, antes, mapa);
+        if (reforco.texto().equals(antes)) {
+            return;
         }
-        creditarTermos(antes, depois, canonicos, acc);
-        acc.falasAlteradas++;
-        if (acc.aplicar) {
-            entrada.put("traduzido", depois);
+        pendente.falasAlteradas++;
+        reforco.restauracoesPorTermo().forEach((termo, n) -> pendente.porTermo.merge(termo, n, Integer::sum));
+        if (aplicar) {
+            entrada.put("traduzido", reforco.texto());
         }
-        auditar(arquivo, entrada, doc.proveniencia(), contextoId, antes, depois);
-        return true;
+        pendente.auditorias.add(
+            entradaAuditoria(arquivo, entrada, doc.proveniencia(), contextoId, antes, reforco.texto()));
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: credita a cada termo canônico quantas vezes ele passou a aparecer.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: conta OCORRÊNCIA LITERAL do canônico, sem fronteira de palavra.
-     * É deliberado: o enforcer insere o canônico literalmente, então a diferença antes→depois já
-     * é exatamente o número de inserções. Recompilar aqui a regex de fronteira do enforcer seria
-     * uma segunda cópia da regra — e cópia de regra foi o que produziu a divergência que esta
-     * fase acabou de eliminar. Contar o literal não depende de conhecer a regra de fronteira.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: delta zero ou negativo não credita nada.
-     */
-    private void creditarTermos(String antes, String depois, List<String> canonicos, Acumulador acc) {
-        Map<String, Integer> naSaida = contarPorCanonico(depois, canonicos);
-        Map<String, Integer> naEntrada = contarPorCanonico(antes, canonicos);
-        for (Map.Entry<String, Integer> par : naSaida.entrySet()) {
-            int delta = par.getValue() - naEntrada.getOrDefault(par.getKey(), 0);
-            if (delta > 0) {
-                acc.porTermo.merge(par.getKey(), delta, Integer::sum);
-            }
-        }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: conta cada termo canônico no texto atribuindo cada trecho a UM
-     * único termo — o mais longo que o cobre.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: os canônicos chegam ordenados do mais LONGO para o mais curto e
-     * cada ocorrência encontrada é consumida (trocada por um sentinela) antes de o próximo termo
-     * ser procurado. Sem isso o contador mente por construção: "Beam Sabers" contém literalmente
-     * "Beam Saber", e os mapas de lore são cheios de pares singular/plural — "Mobile Suit"/
-     * "Mobile Suits", "Newtype"/"Newtypes" —, então o singular seria creditado toda vez que o
-     * plural fosse restaurado. Num relatório cujo propósito é ser um número honesto, inflar o
-     * termo mais comum é o pior defeito possível.
-     *
-     * <p>O sentinela é {@code U+0000}, que não ocorre em legenda nem em termo de lore; ele só
-     * existe dentro deste método e nunca chega ao texto gravado.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: termo nulo/vazio é ignorado; texto sem nenhum canônico
-     * devolve mapa vazio.
-     */
-    private static Map<String, Integer> contarPorCanonico(String texto, List<String> canonicos) {
-        Map<String, Integer> contagem = new HashMap<>();
-        String restante = texto;
-        for (String canonico : canonicos) {
-            int total = contarLiteral(restante, canonico);
-            if (total > 0) {
-                contagem.put(canonico, total);
-                restante = restante.replace(canonico, SENTINELA_CONSUMIDO);
-            }
-        }
-        return contagem;
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: conta ocorrências literais e NÃO sobrepostas de um trecho.
-     * <p>INVARIANTES DO DOMÍNIO: avança o cursor pelo comprimento do alvo; sem regex.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: alvo vazio devolveria laço infinito, por isso o
-     * chamador o descarta antes.
-     */
-    private static int contarLiteral(String texto, String alvo) {
-        int total = 0;
-        for (int i = texto.indexOf(alvo); i >= 0; i = texto.indexOf(alvo, i + alvo.length())) {
-            total++;
-        }
-        return total;
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: registra a troca com a proveniência do arquivo, para o operador poder
-     * conferir cada restauração — inclusive as do ensaio, que é onde ele decide se autoriza.
+     * PROPÓSITO DE NEGÓCIO: monta o registro de auditoria da troca, SEM publicá-lo. A publicação
+     * espera a gravação: {@code TERMINOLOGIA_REFORCADA} tem de significar "chegou ao disco".
      * <p>INVARIANTES DO DOMÍNIO: antes/depois são exatamente os textos observados.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: a auditoria absorve erro de I/O sem parar a varredura.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; não escreve nada.
      */
-    private void auditar(
+    private EntradaAuditoriaCorrecaoCache entradaAuditoria(
         Path arquivo, ObjectNode entrada, ProvenienciaCache prov, String contextoId,
         String antes, String depois
     ) {
-        auditoria.registrar(new EntradaAuditoriaCorrecaoCache(
+        return new EntradaAuditoriaCorrecaoCache(
             Instant.now().toString(), OPERACAO, arquivo.toAbsolutePath().toString(),
             entrada.path("indice").asInt(-1),
             ClassificadorEntradaCacheService.texto(entrada, "estilo"), contextoId,
             prov != null ? prov.contextoHash() : null, prov != null ? prov.modeloLlm() : null,
             "TERMINOLOGIA_REFORCADA", "mapa de terminologia da obra",
-            ClassificadorEntradaCacheService.texto(entrada, "original"), antes, depois, null));
+            ClassificadorEntradaCacheService.texto(entrada, "original"), antes, depois, null);
+    }
+
+    /**
+     * O que UM arquivo produziu, ainda não publicado. Existe para que uma gravação que falha não
+     * deixe números no relatório: sem esta separação, um {@code salvarAtomico} que lançava fazia o
+     * relatório anunciar restaurações com o arquivo intacto no disco.
+     */
+    private static final class Pendente {
+        private final Map<String, Integer> porTermo = new HashMap<>();
+        private final List<EntradaAuditoriaCorrecaoCache> auditorias = new ArrayList<>();
+        private int falasAlteradas;
     }
 
     /** Estado mutável restrito a uma execução síncrona na fila única. */
@@ -338,6 +273,17 @@ public class ReforcarTerminologiaCacheUseCase {
 
         Acumulador(boolean aplicar) {
             this.aplicar = aplicar;
+        }
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: incorpora ao total o que UM arquivo produziu, depois de ele ter
+         * sido efetivamente gravado (ou de o ensaio ter terminado, onde não há o que gravar).
+         * <p>INVARIANTES DO DOMÍNIO: chamado UMA vez por arquivo bem-sucedido; nunca no catch.
+         * <p>COMPORTAMENTO EM CASO DE FALHA: pendente vazio não altera nada.
+         */
+        void confirmar(Pendente pendente) {
+            falasAlteradas += pendente.falasAlteradas;
+            pendente.porTermo.forEach((termo, n) -> porTermo.merge(termo, n, Integer::sum));
         }
 
         ResultadoReforcoTerminologia resultado() {
