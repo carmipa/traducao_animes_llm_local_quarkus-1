@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +25,7 @@ import java.nio.file.StandardOpenOption;
  * já preserva o cache por backup e escrita atômica.
  */
 @Component
-public class CorrecaoCacheAuditoria {
+public class CorrecaoCacheAuditoria implements AuditoriaCorrecaoCachePort {
 
     private static final Logger log = LoggerFactory.getLogger(CorrecaoCacheAuditoria.class);
     private static final Path ARQUIVO = DiretorioBaseKronos.resolver("cache", "auditoria", "correcao_cache.jsonl");
