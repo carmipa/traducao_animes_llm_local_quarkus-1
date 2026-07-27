@@ -107,8 +107,23 @@ class FronteiraCorretorCacheArchTest {
         // RevisarCacheUseCase já tinha para o mesmo tipo, não um acoplamento de espécie nova.
         "raspagemRevisao.application.RevisarLegendasUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",
+        // FASE 2, recuperação externa: as duas arestas que este caso de uso tinha para o
+        // `infrastructure` da fatia vizinha SUMIRAM — ele agora conhece só a própria
+        // RecuperacaoExternaRevisaoPort. As três abaixo são o resíduo, e é preciso ler o que
+        // mudou e o que NÃO mudou:
+        //   MUDOU: a origem saiu de `application` e foi para `infrastructure`, e o destino saiu
+        //   de uma CLASSE CONCRETA de infraestrutura e foi para o `domain.ports` publicado da
+        //   vizinha. A violação de CAMADA acabou; nenhuma aplicação da área alcança mais
+        //   infraestrutura alheia.
+        //   NÃO MUDOU: continua sendo fatia→fatia, que o contrato proíbe. A alternativa era uma
+        //   TERCEIRA cópia das 239 linhas do scraper — as duas que já existem (o scraper e o
+        //   GoogleFallbackAdapter da fatia gold) já divergiram em produção, e o uso aqui é
+        //   idêntico ao da vizinha, sem nenhuma divergência semântica que justificasse a cópia.
+        //   Decidir "dono ou peer" é escolha estrutural com plano próprio; até lá, dívida
+        //   declarada. Catraca verde em infra cruzada NÃO significa que isto fechou.
+        "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.ResultadoRaspagem",
+        "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.StatusRaspagem",
+        "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.ports.RecuperacaoExternaPort",
         "traducaoCorrige.CorretorCacheCLI -> config.ExecucaoCli",
         // ADAPTADOR, não acoplamento novo de aplicação: é a FASE 2 do Plano-Mestre aterrissando
         // no código novo. A aresta para `telemetria` sai de INFRASTRUCTURE, atrás da
@@ -156,12 +171,18 @@ class FronteiraCorretorCacheArchTest {
      * Acessos de uma fatia ao {@code infrastructure} de OUTRA. Violam a regra de camada do
      * contrato — {@code application} depende de {@code domain.ports}, nunca de
      * {@code infrastructure} — e são o alvo direto da FASE 2 (portas).
+     *
+     * <p>Eram 4; a {@code RecuperacaoExternaPort} eliminou 2. O que ficou é a auditoria de cache,
+     * que espera a própria porta.
+     *
+     * <p><b>Atenção ao ler esta lista encolhendo:</b> ela mede VIOLAÇÃO DE CAMADA, não
+     * independência entre fatias. O adaptador da revisão continua consumindo o {@code domain.ports}
+     * de {@code raspagemCorrecao} — aresta declarada em {@link #ARESTAS_CONGELADAS}, com o motivo
+     * escrito lá. Zerar esta lista não zera aquela.
      */
     private static final Set<String> INFRA_CRUZADA_CONGELADA = Set.of(
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
-        "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem");
+        "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
 
     /**
      * Violações de CAMADA dentro da própria fatia: {@code application} alcançando o
@@ -177,9 +198,6 @@ class FronteiraCorretorCacheArchTest {
      */
     private static final Set<String> CAMADA_INTERNA_CONGELADA = Set.of(
         "correcaoLegendas.application.CorrigirLegendasUseCase -> correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia",
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.StatusRaspagem",
         "traducaoCorrige.application.LimparCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
 
     /**
@@ -206,7 +224,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (29, congeladas)")
+    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (28, congeladas)")
     void arestasCrossFatiaCongeladas() {
         Set<String> vivas = arestasVivas();
         Set<String> novas = new TreeSet<>(vivas);
@@ -319,7 +337,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: acesso ao infrastructure de OUTRA fatia — 4 casos, alvo da FASE 2")
+    @DisplayName("FASE 0: acesso ao infrastructure de OUTRA fatia — 2 restantes, alvo da FASE 2")
     void acessoCruzadoAInfrastructureCongelado() {
         Set<String> vivos = new TreeSet<>();
         for (String aresta : arestasVivas()) {
@@ -330,8 +348,10 @@ class FronteiraCorretorCacheArchTest {
         }
         assertEquals(new TreeSet<>(INFRA_CRUZADA_CONGELADA), vivos,
             "Uma fatia não pode alcançar o infrastructure de outra: o contrato manda depender de "
-                + "domain.ports. Os 4 casos atuais são dívida declarada e a FASE 2 os remove. "
-                + "Caso novo é regressão.");
+                + "domain.ports. Eram 4; a RecuperacaoExternaPort eliminou 2. Os 2 que sobraram "
+                + "são dívida declarada e a FASE 2 os remove. Caso novo é regressão. Cuidado ao "
+                + "ler esta lista zerada: ela mede VIOLAÇÃO DE CAMADA, não independência entre "
+                + "fatias — o adaptador da revisão ainda consome o domain.ports da correção.");
     }
 
     /**
@@ -341,7 +361,8 @@ class FronteiraCorretorCacheArchTest {
      * camada que o contrato proíbe ("application depende de domain.ports, nunca de
      * infrastructure").
      *
-     * <p>INVARIANTES DO DOMÍNIO: inventário exato dos 5 casos legados, medido em 2026-07-26. Caso
+     * <p>INVARIANTES DO DOMÍNIO: inventário exato dos casos legados — eram 5 em 2026-07-26 e a
+     * {@code RecuperacaoExternaPort} eliminou os 3 de {@code raspagemCorrecao}. Caso
      * NOVO é regressão e reprova nomeando o tipo; caso que SUMIR também reprova, porque a FASE 2
      * do Plano-Mestre existe para eliminá-los com portas e o progresso tem de ser registrado.
      * A checagem olha o pacote de origem terminando em {@code .application} e o de destino
@@ -351,7 +372,7 @@ class FronteiraCorretorCacheArchTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lista a diferença separando regressão de progresso.
      */
     @Test
-    @DisplayName("FASE 0: application -> infrastructure da PRÓPRIA fatia — 5 casos legados, alvo da FASE 2")
+    @DisplayName("FASE 0: application -> infrastructure da PRÓPRIA fatia — 2 legados, alvo da FASE 2")
     void camadaInternaApplicationParaInfrastructureCongelada() {
         Set<String> vivos = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -380,8 +401,9 @@ class FronteiraCorretorCacheArchTest {
         sumiram.removeAll(vivos);
 
         assertTrue(novos.isEmpty() && sumiram.isEmpty(),
-            () -> "application não pode alcançar infrastructure — nem o da própria fatia. Os 5 casos "
-                + "atuais são dívida declarada que a FASE 2 remove com portas.\n"
+            () -> "application não pode alcançar infrastructure — nem o da própria fatia. Eram 5; "
+                + "a RecuperacaoExternaPort eliminou os 3 de raspagemCorrecao. Os 2 que sobraram "
+                + "são dívida declarada que a FASE 2 remove com portas.\n"
                 + (novos.isEmpty() ? "" : "\nNOVOS (regressão — use uma porta em domain/ports):\n  "
                     + String.join("\n  ", novos))
                 + (sumiram.isEmpty() ? "" : "\nSUMIRAM (progresso — atualize a lista):\n  "

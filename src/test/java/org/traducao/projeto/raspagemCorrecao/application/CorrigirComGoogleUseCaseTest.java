@@ -4,8 +4,8 @@ import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.ResultadoRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.ports.RecuperacaoExternaPort;
 import org.traducao.projeto.raspagemCorrecao.domain.ports.TelemetriaRaspagemCorrecaoPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
@@ -56,7 +56,7 @@ class CorrigirComGoogleUseCaseTest {
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
             cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
-            new ProtetorTermosLoreService(), new GoogleStub(mapper),
+            new ProtetorTermosLoreService(), new GoogleStub(),
             new AuditoriaStub(mapper), new TelemetriaStub());
 
         Path cache = temp.resolve("cache");
@@ -92,7 +92,7 @@ class CorrigirComGoogleUseCaseTest {
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups-interrupcao"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
             cacheService, classificador, new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
-            new ProtetorTermosLoreService(), new GoogleInterrompendoStub(mapper),
+            new ProtetorTermosLoreService(), new GoogleInterrompendoStub(),
             new AuditoriaStub(mapper), new TelemetriaStub());
         Path cache = temp.resolve("cache-interrupcao");
         Path arquivo = cache.resolve("ep.cache.json");
@@ -114,23 +114,23 @@ class CorrigirComGoogleUseCaseTest {
         }
     }
 
-    private static final class GoogleStub extends GoogleTranslateScraper {
-        GoogleStub(ObjectMapper mapper) { super(mapper); }
+    /**
+     * PROPÓSITO DE NEGÓCIO: contingência falsa, sem rede e sem infraestrutura.
+     * <p>INVARIANTES DO DOMÍNIO: implementa a PORTA, não estende o scraper — antes da FASE 2 este
+     * dublê precisava herdar de {@code GoogleTranslateScraper} e carregar um {@code ObjectMapper}
+     * que nunca usava, só para conseguir sobrescrever o método.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    private static final class GoogleStub implements RecuperacaoExternaPort {
         @Override public ResultadoRaspagem traduzir(String textoOriginal) { return ResultadoRaspagem.sucesso("Ajude!"); }
     }
 
-    private static final class GoogleInterrompendoStub extends GoogleTranslateScraper {
-        /**
-         * PROPÓSITO DE NEGÓCIO: cria a contingência falsa sem acesso à rede.
-         * <p>INVARIANTES DO DOMÍNIO: usa apenas o mapper do teste.
-         * <p>COMPORTAMENTO EM CASO DE FALHA: construção delega ao scraper-base.
-         */
-        GoogleInterrompendoStub(ObjectMapper mapper) { super(mapper); }
-        /**
-         * PROPÓSITO DE NEGÓCIO: simula cancelamento logo após uma resposta válida.
-         * <p>INVARIANTES DO DOMÍNIO: resposta permite checkpoint antes da parada.
-         * <p>COMPORTAMENTO EM CASO DE FALHA: marca a thread como interrompida.
-         */
+    /**
+     * PROPÓSITO DE NEGÓCIO: simula cancelamento logo após uma resposta válida.
+     * <p>INVARIANTES DO DOMÍNIO: a resposta permite checkpoint antes da parada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: marca a thread como interrompida.
+     */
+    private static final class GoogleInterrompendoStub implements RecuperacaoExternaPort {
         @Override public ResultadoRaspagem traduzir(String textoOriginal) {
             Thread.currentThread().interrupt();
             return ResultadoRaspagem.sucesso("Ajude!");

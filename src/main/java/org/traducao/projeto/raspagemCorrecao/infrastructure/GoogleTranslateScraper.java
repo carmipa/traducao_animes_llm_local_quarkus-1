@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.raspagemCorrecao.domain.ResultadoRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.StatusRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.ports.RecuperacaoExternaPort;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,17 +24,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Traduz texto via API pública do Google Translate, preservando tags ASS
- * mascaradas e quebras {@code \N}.
- * <p>
- * O retorno é tipado ({@link ResultadoRaspagem}): cada desfecho — sucesso, sem
- * alteração, falha transitória, resposta inválida ou tag corrompida — vira um
- * {@link StatusRaspagem} explícito, em vez de o chamador ter que adivinhar a
- * partir de "o texto voltou igual". O transporte HTTP fica isolado em
- * {@link #executarGet(String)} para poder ser substituído em testes.
+ * PROPÓSITO DE NEGÓCIO: traduz texto via API pública do Google Translate, preservando tags ASS
+ * mascaradas e quebras {@code \N}. É o ADAPTADOR da {@link RecuperacaoExternaPort} — o único
+ * lugar do projeto que sabe que a recuperação externa desta área é um scraping HTTP.
+ *
+ * <p>O retorno é tipado ({@link ResultadoRaspagem}): cada desfecho — sucesso, sem alteração,
+ * falha transitória, resposta inválida ou tag corrompida — vira um {@link StatusRaspagem}
+ * explícito, em vez de o chamador ter que adivinhar a partir de "o texto voltou igual".
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>O transporte HTTP fica isolado em {@link #executarGet(String)} e a espera em
+ *       {@link #dormir(long)}, ambos {@code protected}: são SEAMS DE TESTE, não API. A porta
+ *       isola a aplicação da rede; estes dois isolam a política de desfecho da rede. São dois
+ *       níveis distintos — a porta não torna os seams dispensáveis, e removê-los deixa a política
+ *       de preservação de tags sem teste sem rede.</li>
+ *   <li>NÃO é o mesmo Google do {@code traducao.infrastructure.adapters.GoogleFallbackAdapter},
+ *       e as duas implementações JÁ divergem de propósito (padrão de marcador residual e política
+ *       de retry diferentes, porque os fluxos são diferentes). Unificá-las mudaria desfecho —
+ *       sucesso virando {@code TAG_CORROMPIDA} e vice-versa — em falas reais, sem nenhum teste
+ *       acusando.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Não propaga exceção: todo erro vira status. Ver {@link RecuperacaoExternaPort}.
  */
 @Component
-public class GoogleTranslateScraper {
+public class GoogleTranslateScraper implements RecuperacaoExternaPort {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleTranslateScraper.class);
 
@@ -58,6 +77,13 @@ public class GoogleTranslateScraper {
             .build();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma tentativa lógica, com retry INTERNO só de falha transitória.
+     * <p>INVARIANTES DO DOMÍNIO: no máximo {@value #MAX_TENTATIVAS} idas à rede; honra
+     * {@code Retry-After} quando o servidor manda. Não pausa entre CHAMADAS — isso é do chamador.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; devolve o desfecho da última tentativa.
+     */
+    @Override
     public ResultadoRaspagem traduzir(String textoOriginal) {
         for (int n = 1; ; n++) {
             Tentativa tentativa = tentarTraduzir(textoOriginal);

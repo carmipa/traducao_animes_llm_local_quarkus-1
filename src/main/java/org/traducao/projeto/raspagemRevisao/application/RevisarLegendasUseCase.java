@@ -2,10 +2,10 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
+import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
+import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
@@ -77,7 +77,7 @@ public class RevisarLegendasUseCase {
 
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
-    private final GoogleTranslateScraper googleScraper;
+    private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final AuditorProblemasLegendaService auditor;
     private final ValidadorTraducaoService validador;
     private final LeitorCacheReferenciaService leitorCache;
@@ -107,7 +107,7 @@ public class RevisarLegendasUseCase {
     public RevisarLegendasUseCase(
         LeitorLegendaAss leitor,
         EscritorLegendaAss escritor,
-        GoogleTranslateScraper googleScraper,
+        RecuperacaoExternaRevisaoPort recuperacaoExterna,
         AuditorProblemasLegendaService auditor,
         ValidadorTraducaoService validador,
         LeitorCacheReferenciaService leitorCache,
@@ -126,7 +126,7 @@ public class RevisarLegendasUseCase {
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
-        this.googleScraper = googleScraper;
+        this.recuperacaoExterna = recuperacaoExterna;
         this.auditor = auditor;
         this.validador = validador;
         this.leitorCache = leitorCache;
@@ -875,7 +875,8 @@ public class RevisarLegendasUseCase {
                 }
                 ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
                     originalEn, contexto.lore(), contexto.termosProtegidos());
-                ResultadoRaspagem resultadoGoogle = googleScraper.traduzir(originalProtegido.textoMascarado());
+                ResultadoRecuperacaoExterna resultadoGoogle =
+                    recuperacaoExterna.traduzir(originalProtegido.textoMascarado());
                 pausaGoogle();
 
                 String restauradaGoogle = resultadoGoogle.sucesso()
