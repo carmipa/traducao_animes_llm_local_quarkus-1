@@ -12,6 +12,7 @@ import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
+import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,15 +60,16 @@ public class ReforcarTerminologiaCacheUseCase {
     private final ContextoManutencaoCacheService contextoService;
     private final EnforcadorTermosLore enforcador;
     private final AuditoriaCorrecaoCachePort auditoria;
+    private final TelemetriaCorrecaoPort telemetria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as quatro peças da operação — leitura/escrita de cache,
      * resolução da lore do arquivo, o reforço determinístico e a auditoria.
      *
-     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas. Não há telemetria injetada:
-     * a fatia alcançaria {@code telemetria.TelemetriaService} por dependência direta, e essa
-     * aresta é dívida congelada que a FASE 2 do Plano-Mestre remove com uma porta. Abrir uma
-     * aresta nova aqui reprovaria — corretamente — o {@code FronteiraCorretorCacheArchTest}.
+     * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas. As duas saídas — auditoria e
+     * telemetria — entram por PORTA, não pelo tipo concreto: é o que permite testar esta classe
+     * sem disco e sem a fatia {@code telemetria}, e é a forma que a FASE 2 do Plano-Mestre
+     * prescreve para as quatro fatias da correção.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: não valida os argumentos; a injeção CDI garante os beans.
      */
@@ -75,12 +77,14 @@ public class ReforcarTerminologiaCacheUseCase {
         CacheManutencaoService cacheService,
         ContextoManutencaoCacheService contextoService,
         EnforcadorTermosLore enforcador,
-        AuditoriaCorrecaoCachePort auditoria
+        AuditoriaCorrecaoCachePort auditoria,
+        TelemetriaCorrecaoPort telemetria
     ) {
         this.cacheService = cacheService;
         this.contextoService = contextoService;
         this.enforcador = enforcador;
         this.auditoria = auditoria;
+        this.telemetria = telemetria;
     }
 
     /**
@@ -110,11 +114,12 @@ public class ReforcarTerminologiaCacheUseCase {
      * @param aplicar {@code false} para ensaiar; {@code true} para escrever no disco
      */
     public ResultadoReforcoTerminologia executar(Path raizCache, String contextoFallback, boolean aplicar) {
+        long inicioMs = System.currentTimeMillis();
         Acumulador acc = new Acumulador(aplicar);
         if (!Files.isDirectory(raizCache)) {
             acc.falhas++;
             log.error("Pasta de cache não encontrada: {}", raizCache);
-            return acc.resultado();
+            return publicar(raizCache, inicioMs, acc);
         }
         CacheManutencaoService.Sessao sessao =
             aplicar ? cacheService.iniciarSessao(raizCache, OPERACAO) : null;
@@ -129,7 +134,70 @@ public class ReforcarTerminologiaCacheUseCase {
             acc.falhas++;
             log.error("Falha ao varrer a pasta de cache {}", raizCache, e);
         }
-        return acc.resultado();
+        return publicar(raizCache, inicioMs, acc);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha a execução publicando o resultado em log, telemetria e relatório
+     * persistido. Uma operação que reescreve o acervo e não aparece em lugar nenhum deixa o
+     * processo CEGO — não dá para comparar execuções, nem saber quando um termo parou de aparecer.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o ENSAIO também é publicado, e rotulado como tal. Publicar só a
+     * aplicação esconderia justamente a medição que serve para decidir; omitir o rótulo faria um
+     * ensaio ser lido depois como se o acervo tivesse mudado. {@code itensCorrigidos} é ZERO em
+     * ensaio, porque nada foi corrigido — o que ele mediria está em {@code itensDetectados}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a porta absorve erro de I/O; o resultado é devolvido ao
+     * chamador de qualquer forma.
+     */
+    private ResultadoReforcoTerminologia publicar(Path raizCache, long inicioMs, Acumulador acc) {
+        ResultadoReforcoTerminologia r = acc.resultado();
+        String rotulo = r.aplicado() ? "Reforço de Terminologia" : "Reforço de Terminologia (ensaio)";
+        log.info("[{}] status={} arquivos={} alterados={} pulados={} falhas={} falas={} restaurações={}",
+            rotulo, r.status(), r.arquivosAnalisados(), r.arquivosAlterados(),
+            r.arquivosNaoVerificaveis(), r.falhas(), r.falasAlteradas(), r.totalRestauracoes());
+        r.porFrequencia().forEach((termo, n) -> log.info("[{}]   {}x {}", rotulo, n, termo));
+
+        telemetria.registrar(rotulo, OPERACAO.replace('-', '_'), raizCache,
+            System.currentTimeMillis() - inicioMs,
+            r.arquivosAnalisados(), r.falasAlteradas(),
+            r.aplicado() ? r.falasAlteradas() : 0,
+            relatorioDe(r, raizCache));
+        return r;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta o relatório legível que fica no disco, com o contador POR TERMO
+     * — que é a razão de esta operação existir e o que separa "o modelo acertou" de "o enforcer
+     * consertou".
+     * <p>INVARIANTES DO DOMÍNIO: o modo (ensaio/aplicado) vem ANTES dos números; termos ordenados
+     * do mais restaurado para o menos, com empate por nome, para o arquivo ser comparável entre
+     * execuções.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; sem I/O.
+     */
+    private static String relatorioDe(ResultadoReforcoTerminologia r, Path raizCache) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("REFORÇO DE TERMINOLOGIA SOBRE CACHE JÁ GRAVADO\n")
+            .append("==============================================\n")
+            .append("Modo: ").append(r.aplicado() ? "APLICADO NO ACERVO" : "ENSAIO (nada foi escrito)")
+            .append('\n')
+            .append("Pasta: ").append(raizCache.toAbsolutePath()).append('\n')
+            .append("Status: ").append(r.status()).append('\n')
+            .append("Arquivos analisados: ").append(r.arquivosAnalisados()).append('\n')
+            .append("Arquivos alterados: ").append(r.arquivosAlterados()).append('\n')
+            .append("Arquivos pulados (obra não verificável): ").append(r.arquivosNaoVerificaveis())
+            .append('\n')
+            .append("Falhas: ").append(r.falhas()).append('\n')
+            .append("Falas alteradas: ").append(r.falasAlteradas()).append('\n')
+            .append("Restaurações: ").append(r.totalRestauracoes()).append('\n')
+            .append("\nPor termo canônico:\n");
+        if (r.restauracoesPorTermo().isEmpty()) {
+            sb.append("  (nenhuma)\n");
+        } else {
+            r.porFrequencia().forEach((termo, n) -> sb.append("  ").append(n).append("x  ")
+                .append(termo).append('\n'));
+        }
+        return sb.toString();
     }
 
     /**

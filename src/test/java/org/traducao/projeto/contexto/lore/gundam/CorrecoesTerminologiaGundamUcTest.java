@@ -39,7 +39,10 @@ class CorrecoesTerminologiaGundamUcTest {
         // Century, presentes na lore de toda a era — não termo próprio de uma obra. A isenção
         // desta lista vale só para isso; canônico específico de obra continua obrigado a estar no
         // termosProtegidos dela.
-        "Spacenoid", "Earthnoid", "Minovsky particles");
+        //
+        // "Minovsky particles" NÃO está aqui porque saiu do mapa: o dono do acervo decidiu que
+        // "Partículas Minovsky" é forma aceitável e não deve ser revertida.
+        "Spacenoid", "Earthnoid");
 
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")

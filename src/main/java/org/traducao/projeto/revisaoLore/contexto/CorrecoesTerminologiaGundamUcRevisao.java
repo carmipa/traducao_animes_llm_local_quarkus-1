@@ -34,8 +34,9 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         Map.entry("Sabre de Feixe", "Beam Saber"),
         Map.entry("Fuzil de Feixe", "Beam Rifle"),
         Map.entry("Rifle de Feixe", "Beam Rifle"),
-        Map.entry("Partículas Minovsky", "Minovsky particles"),
-        Map.entry("Particulas Minovsky", "Minovsky particles"),
+        // "Partículas Minovsky" foi REMOVIDA em 2026-07-27 por decisão do dono do acervo: a forma
+        // em português é aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de
+        // "rifle de feixe" e "unidade móvel".
         Map.entry("Espacenóide", "Spacenoid"),
         Map.entry("Espacenoide", "Spacenoid"),
         Map.entry("Terranóide", "Earthnoid"),
