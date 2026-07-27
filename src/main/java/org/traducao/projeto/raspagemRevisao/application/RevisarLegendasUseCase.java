@@ -1202,12 +1202,8 @@ public class RevisarLegendasUseCase {
         if (estilo.contains("sign")) {
             return true;
         }
-        String visivel = extrairTextoVisivel(texto);
+        String visivel = protecaoAss.textoVisivel(texto);
         return estilo.contains("romaji") && visivel.equalsIgnoreCase("you");
-    }
-
-    private static String extrairTextoVisivel(String texto) {
-        return texto == null ? "" : texto.replaceAll("\\{[^}]*\\}", "").replace("\\N", " ").trim();
     }
 
     /**
@@ -1224,9 +1220,9 @@ public class RevisarLegendasUseCase {
      *
      * @return {@code true} se aplicar {@code corrigido} apagaria uma fala que tinha conteúdo
      */
-    static boolean saneamentoEsvaziariaFala(String original, String corrigido) {
-        return !extrairTextoVisivel(original).isBlank()
-            && extrairTextoVisivel(corrigido).isBlank();
+    boolean saneamentoEsvaziariaFala(String original, String corrigido) {
+        return !protecaoAss.textoVisivel(original).isBlank()
+            && protecaoAss.textoVisivel(corrigido).isBlank();
     }
 
     private String normalizarTexto(String texto) {
