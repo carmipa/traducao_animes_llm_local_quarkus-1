@@ -1,6 +1,7 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,38 +17,55 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code "Gai, eu localizei a Inori."} desapareceu). O saneamento de tags de karaokê aplicava o
  * resultado só por ele "ter mudado", sem checar se tinha esvaziado a fala.
  *
+ * <h2>Por que a guarda deixou de ser estática</h2>
+ * A noção de "texto que o espectador lê" existia em QUATRO cópias no projeto, e a desta fatia era
+ * a divergente: não convertia a quebra {@code \h} nem a {@code \n} minúscula em espaço, e aparava
+ * com {@code trim()} em vez de {@code strip()}. A FASE 4 apagou a cópia e passou a consumir o peer
+ * {@code qualidadeTraducao}, que já publicava a definição. Medido antes de trocar: em 34.002 falas
+ * do acervo real, os dois critérios discordam sobre "tem texto visível" em ZERO casos — o
+ * {@code \h} aparece em 61 falas, sempre acompanhado de texto.
+ *
  * <h2>Comportamento em caso de falha</h2>
  * Se a guarda parar de acusar o esvaziamento, uma correção volta a poder destruir legendas.
  */
 class GuardaIntegridadeRevisaoLegendasTest {
 
+    /**
+     * A guarda só precisa do peer que sabe extrair o texto visível; as demais dependências do caso
+     * de uso não participam dela e ficam nulas de propósito — se alguma passar a ser exigida, este
+     * teste falha alto em vez de mascarar o acoplamento novo.
+     */
+    private final RevisarLegendasUseCase guarda = new RevisarLegendasUseCase(
+        null, null, null, null, null, null, null, null, null, null,
+        null, null, null, null, new ProtecaoLegendaAssService(), null, null, null, null);
+
     @Test
     void acusaQuandoACorrecaoApagaUmaFalaComTexto() {
-        assertTrue(RevisarLegendasUseCase.saneamentoEsvaziariaFala("Gai, eu localizei a Inori.", ""),
+        assertTrue(guarda.saneamentoEsvaziariaFala("Gai, eu localizei a Inori.", ""),
             "corrigir para vazio apaga a fala");
-        assertTrue(RevisarLegendasUseCase.saneamentoEsvaziariaFala("{\\i1}Aguarda, eu chego.{\\i0}", "{\\i1}{\\i0}"),
+        assertTrue(guarda.saneamentoEsvaziariaFala("{\\i1}Aguarda, eu chego.{\\i0}", "{\\i1}{\\i0}"),
             "sobrar só tags, sem texto visível, também é apagar a fala");
-        assertTrue(RevisarLegendasUseCase.saneamentoEsvaziariaFala("Certo, pessoal.", "   "),
+        assertTrue(guarda.saneamentoEsvaziariaFala("Certo, pessoal.", "   "),
             "só espaços é vazio visível");
     }
 
     @Test
     void permiteReescritaQueMantemTexto() {
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala("Minha pai precisa disso!", "Meu pai precisa disso!"),
+        assertFalse(guarda.saneamentoEsvaziariaFala("Minha pai precisa disso!", "Meu pai precisa disso!"),
             "correção legítima de concordância continua permitida");
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala("{\\an8}Roger.", "{\\an8}Entendido."),
+        assertFalse(guarda.saneamentoEsvaziariaFala("{\\an8}Roger.", "{\\an8}Entendido."),
             "troca de palavra preservando tag é permitida");
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala("Gai—", "Gai..."),
+        assertFalse(guarda.saneamentoEsvaziariaFala("Gai—", "Gai..."),
             "só pontuação, mas ainda há texto");
     }
 
     @Test
     void naoAcusaQuandoOOriginalJaEraVazio() {
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala("", ""),
+        assertFalse(guarda.saneamentoEsvaziariaFala("", ""),
             "não há fala a proteger");
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala("{\\pos(1,2)}", ""),
+        assertFalse(guarda.saneamentoEsvaziariaFala("{\\pos(1,2)}", ""),
             "linha só de tags (sem texto visível) não tinha o que proteger");
-        assertFalse(RevisarLegendasUseCase.saneamentoEsvaziariaFala(null, null), "nulos degradam para vazio");
+        assertFalse(guarda.saneamentoEsvaziariaFala(null, null), "nulos degradam para vazio");
     }
 
     /**
@@ -57,7 +75,7 @@ class GuardaIntegridadeRevisaoLegendasTest {
      */
     @Test
     void protegeAteConteudoDeDesenhoVetorial() {
-        assertTrue(RevisarLegendasUseCase.saneamentoEsvaziariaFala("{\\p1}m 0 0 l 10 10", ""),
+        assertTrue(guarda.saneamentoEsvaziariaFala("{\\p1}m 0 0 l 10 10", ""),
             "os comandos de desenho ficam fora das chaves e contam como conteúdo — melhor preservar");
     }
 }
