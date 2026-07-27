@@ -1,6 +1,7 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,7 +22,7 @@ class RevisarLegendasProtecaoMassaTest {
      */
     @Test
     void bloqueiaRegressaoRealDeGundamNarrative() {
-        assertTrue(RevisarLegendasUseCase.excedeLimiarRetraducaoEmMassa(1230, 360));
+        assertTrue(PoliticaRetraducao.excedeLimiarRetraducaoEmMassa(1230, 360));
     }
 
     /**
@@ -31,7 +32,7 @@ class RevisarLegendasProtecaoMassaTest {
      */
     @Test
     void permitePoucasPendencias() {
-        assertFalse(RevisarLegendasUseCase.excedeLimiarRetraducaoEmMassa(1230, 3));
-        assertFalse(RevisarLegendasUseCase.excedeLimiarRetraducaoEmMassa(100, 10));
+        assertFalse(PoliticaRetraducao.excedeLimiarRetraducaoEmMassa(1230, 3));
+        assertFalse(PoliticaRetraducao.excedeLimiarRetraducaoEmMassa(100, 10));
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
+import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
 import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
@@ -11,7 +12,6 @@ import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoExc
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
-import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
@@ -25,7 +25,6 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
-import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -67,8 +66,6 @@ public class RevisarLegendasUseCase {
     }
 
     private static final long PAUSA_GOOGLE_MS = 400;
-    private static final int LIMIAR_ABSOLUTO_RETRADUCAO_EM_MASSA = 20;
-    private static final int DIVISOR_PROPORCAO_RETRADUCAO_EM_MASSA = 10;
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     private final LeitorLegendaAss leitor;
@@ -83,13 +80,12 @@ public class RevisarLegendasUseCase {
     private final GerenciadorContexto gerenciadorContexto;
     private final TelemetriaRevisaoPort telemetria;
     private final SanitizadorTagsService sanitizadorTags;
-    private final PoliticaEstiloMusical politicaEstiloMusical;
-    private final DetectorEfeitoKaraokeService detectorKaraoke;
     private final ProtecaoLegendaAssService protecaoAss;
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ContextoManutencaoCacheService contextoManutencaoCache;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
+    private final FiltroAuditoriaLinha filtroAuditoria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -114,13 +110,12 @@ public class RevisarLegendasUseCase {
         GerenciadorContexto gerenciadorContexto,
         TelemetriaRevisaoPort telemetria,
         SanitizadorTagsService sanitizadorTags,
-        PoliticaEstiloMusical politicaEstiloMusical,
-        DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ContextoManutencaoCacheService contextoManutencaoCache,
-        ResolvedorArtefatosRevisao resolvedorArtefatos
+        ResolvedorArtefatosRevisao resolvedorArtefatos,
+        FiltroAuditoriaLinha filtroAuditoria
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -134,13 +129,12 @@ public class RevisarLegendasUseCase {
         this.gerenciadorContexto = gerenciadorContexto;
         this.telemetria = telemetria;
         this.sanitizadorTags = sanitizadorTags;
-        this.politicaEstiloMusical = politicaEstiloMusical;
-        this.detectorKaraoke = detectorKaraoke;
         this.protecaoAss = protecaoAss;
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
         this.contextoManutencaoCache = contextoManutencaoCache;
         this.resolvedorArtefatos = resolvedorArtefatos;
+        this.filtroAuditoria = filtroAuditoria;
     }
 
     /**
@@ -581,7 +575,7 @@ public class RevisarLegendasUseCase {
         if (referencia == ModoReferenciaRevisao.CACHE) {
             long dialogosAuditaveis = documentoPt.eventos().stream()
                 .filter(e -> e.isDialogo() && e.texto() != null && !e.texto().isBlank()
-                    && !deveIgnorarAuditoria(e, e.texto()))
+                    && !filtroAuditoria.deveIgnorar(e, e.texto()))
                 .count();
             // Cache resolvido (por código de episódio, p.ex.) mas que não casa com
             // NENHUMA fala com segurança = cache de outra obra/episódio ou estale.
@@ -702,7 +696,7 @@ public class RevisarLegendasUseCase {
                 continue;
             }
 
-            if (deveIgnorarAuditoria(evento, evento.texto())) {
+            if (filtroAuditoria.deveIgnorar(evento, evento.texto())) {
                 eventosAtualizados.add(evento);
                 continue;
             }
@@ -869,7 +863,7 @@ public class RevisarLegendasUseCase {
                     continue;
                 }
             } else {
-                if (!exigeRetraducao(auditoria)) {
+                if (!PoliticaRetraducao.exigeRetraducaoPeloGoogle(auditoria.motivos())) {
                     out("     " + AnsiCores.DIM
                         + "Google não acionado: problema reservado à revisão LLM." + AnsiCores.RESET);
                     registrarSemAlteracao(textoMascOriginal, revisoesSemAlteracao);
@@ -1006,25 +1000,6 @@ public class RevisarLegendasUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: restringe o Google a falhas objetivas de tradução,
-     * deixando concordância e estilo para o LLM local com lore.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: gênero, pronome e tratamento isolados nunca
-     * provocam retradução completa pelo Google.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: motivo desconhecido retorna falso e a
-     * fala é preservada para inspeção segura.
-     */
-    private boolean exigeRetraducao(ResultadoDeteccaoConcordancia auditoria) {
-        return auditoria.motivos().stream().anyMatch(motivo ->
-            motivo.contains("Resíduo gringo")
-                || motivo.contains("Fala não traduzida")
-                || motivo.contains("Idioma incorreto")
-                || motivo.contains("Preâmbulo")
-                || motivo.contains("Marcador de erro de tradução"));
-    }
-
-    /**
      * PROPÓSITO DE NEGÓCIO: registra que uma origem já foi analisada e não teve
      * correção aplicável sem usar o próprio inglês como sentinela textual.
      *
@@ -1097,7 +1072,7 @@ public class RevisarLegendasUseCase {
         int naoTraduzidas = 0;
         for (EventoLegenda evento : documento.eventos()) {
             if (!evento.isDialogo() || evento.texto() == null || evento.texto().isBlank()
-                || deveIgnorarAuditoria(evento, evento.texto())) {
+                || filtroAuditoria.deveIgnorar(evento, evento.texto())) {
                 continue;
             }
             String original = originaisPorIndice.get(evento.indice());
@@ -1109,25 +1084,12 @@ public class RevisarLegendasUseCase {
                 continue;
             }
             ResultadoDeteccaoConcordancia resultado = auditor.auditar(original, evento.texto());
-            if (resultado.motivos().stream().anyMatch(m -> m.contains("Fala não traduzida"))) {
+            if (resultado.motivos().stream().anyMatch(m -> m.contains(PoliticaRetraducao.NAO_TRADUZIDA))) {
                 naoTraduzidas++;
             }
         }
-        boolean bloquear = excedeLimiarRetraducaoEmMassa(auditaveis, naoTraduzidas);
+        boolean bloquear = PoliticaRetraducao.excedeLimiarRetraducaoEmMassa(auditaveis, naoTraduzidas);
         return new DiagnosticoRetraducao(auditaveis, naoTraduzidas, bloquear);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: aplica o limite operacional que impede a etapa de
-     * revisão de assumir silenciosamente o trabalho da Tradução Local.
-     * <p>INVARIANTES DO DOMÍNIO: exige simultaneamente vinte falas e dez por
-     * cento do material auditável; valores negativos nunca autorizam bloqueio.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: contagens inválidas retornam falso.
-     */
-    static boolean excedeLimiarRetraducaoEmMassa(int falasAuditaveis, int falasNaoTraduzidas) {
-        if (falasAuditaveis <= 0 || falasNaoTraduzidas < 0) return false;
-        return falasNaoTraduzidas >= LIMIAR_ABSOLUTO_RETRADUCAO_EM_MASSA
-            && falasNaoTraduzidas * DIVISOR_PROPORCAO_RETRADUCAO_EM_MASSA >= falasAuditaveis;
     }
 
     /**
@@ -1173,40 +1135,6 @@ public class RevisarLegendasUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: exclui da revisão linguística elementos estruturais,
-     * desenhos, estilos ignorados e karaokê que não representam diálogo PT-BR.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: conteúdo vetorial ASS e efeitos protegidos nunca
-     * são enviados ao Google ou ao LLM; música traduzível continua auditável.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: conteúdo sem texto visível é preservado
-     * e tratado como ignorável, evitando alteração estrutural.
-     */
-    private boolean deveIgnorarAuditoria(EventoLegenda evento, String texto) {
-        if (!mascaradorTags.contemTextoTraduzivel(texto)) {
-            return true;
-        }
-        if (evento.estilo() != null
-            && politicaEstiloMusical.estiloIgnorado(evento.estilo())
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
-            return true;
-        }
-        if (detectorKaraoke.eEfeitoKaraoke(texto)
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
-            return true;
-        }
-        if (protecaoAss.deveIgnorarIntervencaoIa(evento.estilo(), texto)) {
-            return true;
-        }
-        String estilo = evento.estilo() != null ? evento.estilo().toLowerCase() : "";
-        if (estilo.contains("sign")) {
-            return true;
-        }
-        String visivel = protecaoAss.textoVisivel(texto);
-        return estilo.contains("romaji") && visivel.equalsIgnoreCase("you");
-    }
-
-    /**
      * PROPÓSITO DE NEGÓCIO: guarda de integridade das ferramentas que corrigem a legenda PT-BR
      * direto no arquivo (sem inglês nem cache). Uma correção JAMAIS pode transformar uma fala
      * com texto em uma linha vazia — o resultado é uma legenda que some da tela mantendo tempo e
@@ -1240,7 +1168,7 @@ public class RevisarLegendasUseCase {
      *
      * <p>INVARIANTES DO DOMÍNIO: uma entrada só vira referência se houver
      * proveniência válida no cache e ela casar com a fala em índice, estilo e
-     * texto traduzido (normalizado). Placas/karaokê ({@link #deveIgnorarAuditoria})
+     * texto traduzido (normalizado). Placas/karaokê ({@link FiltroAuditoriaLinha#deveIgnorar})
      * não exigem referência e não são marcadas. Falas sem qualquer entrada no
      * índice não são "inseguras" — apenas ficam sem referência.
      *
@@ -1266,7 +1194,7 @@ public class RevisarLegendasUseCase {
             if (!evento.isDialogo() || evento.texto() == null || evento.texto().isBlank()) {
                 continue;
             }
-            if (deveIgnorarAuditoria(evento, evento.texto())) {
+            if (filtroAuditoria.deveIgnorar(evento, evento.texto())) {
                 continue;
             }
             EntradaCache entrada = cachePorIndice.get(evento.indice());
@@ -1374,8 +1302,7 @@ public class RevisarLegendasUseCase {
         MascaradorTags.Mascarado mascOriginal = mascaradorTags.mascarar(originalProtegido.textoMascarado());
         MascaradorTags.Mascarado mascTraduzido = mascaradorTags.mascarar(traducaoProtegida.textoMascarado());
 
-        boolean precisaRetraducaoCompleta = motivos.stream().anyMatch(
-            m -> m.contains("Resíduo gringo") || m.contains("não traduzida"));
+        boolean precisaRetraducaoCompleta = PoliticaRetraducao.exigeRetraducaoCompletaPeloLlm(motivos);
         Optional<String> resposta;
 
         if (precisaRetraducaoCompleta) {
