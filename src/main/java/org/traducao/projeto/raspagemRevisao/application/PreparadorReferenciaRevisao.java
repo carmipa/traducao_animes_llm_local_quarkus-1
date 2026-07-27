@@ -49,6 +49,13 @@ import java.util.Set;
  *       e que o operador leria como outra sequência de eventos.</li>
  *   <li>NÃO muta contadores: devolve deltas no resultado. Antes recebia sete {@code int[]} e
  *       incrementava índice zero.</li>
+ *   <li>A saída deste serviço vai para a CAIXA DE TEXTO DO NAVEGADOR, não só para um terminal:
+ *       o {@code ConsoleRedirector} troca o {@code System.out} do processo por um fluxo que
+ *       duplica tudo para o SSE, e o canal ("correcao") é um {@code ThreadLocal} definido pela
+ *       fila na thread do job. Este serviço é chamado SINCRONAMENTE nessa thread, e é isso que
+ *       faz suas mensagens chegarem ao painel certo. Um {@code parallelStream()} aqui dentro
+ *       mandaria a saída para threads do pool, que não têm o ThreadLocal: as linhas cairiam no
+ *       canal padrão e SUMIRIAM do painel de Correção, sem erro nenhum.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
