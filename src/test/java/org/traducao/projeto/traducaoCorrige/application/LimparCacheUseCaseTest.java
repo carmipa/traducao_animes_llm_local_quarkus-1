@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
@@ -120,11 +119,14 @@ class LimparCacheUseCaseTest {
     }
 
     /** Telemetria sem I/O usada para verificar apenas a regra de negócio. */
-    private static final class TelemetriaStub extends TelemetriaService {
-        @Override public synchronized void finalizarOperacao(
-            OperacaoTelemetria operacao, Path pastaEntrada, String prefixoRelatorio, String conteudoRelatorio) {
-            // deliberadamente sem persistência no teste
-        }
+    /**
+     * Telemetria em memoria. Com a porta da FASE 2, o teste deixou de precisar da fatia
+     * {@code telemetria} para existir -- criterio de saida da fase.
+     */
+    private static final class TelemetriaStub implements TelemetriaCorrecaoPort {
+        @Override public void registrar(String operacao, String detalhe, String prefixoRelatorio,
+                                        Path pastaAlvo, long duracaoMs, int arquivosProcessados,
+                                        int itensDetectados, int itensCorrigidos, String relatorio) { }
     }
 
     /** Lore mínima para provar proteção automática por conteúdo do contexto. */

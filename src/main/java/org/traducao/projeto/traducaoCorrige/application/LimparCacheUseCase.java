@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
@@ -41,7 +40,7 @@ public class LimparCacheUseCase {
     private final ClassificadorEntradaCacheService classificador;
     private final ContextoManutencaoCacheService contextoService;
     private final CorrecaoCacheAuditoria auditoria;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaCorrecaoPort telemetria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe leitura segura, classificação, lore,
@@ -54,13 +53,13 @@ public class LimparCacheUseCase {
         ClassificadorEntradaCacheService classificador,
         ContextoManutencaoCacheService contextoService,
         CorrecaoCacheAuditoria auditoria,
-        TelemetriaService telemetriaService
+        TelemetriaCorrecaoPort telemetria
     ) {
         this.cacheService = cacheService;
         this.classificador = classificador;
         this.contextoService = contextoService;
         this.auditoria = auditoria;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
     }
 
     /**
@@ -208,9 +207,6 @@ public class LimparCacheUseCase {
     private ResultadoManutencaoCache finalizar(Path pasta, long inicioMs, Contadores c) {
         ResultadoManutencaoCache r = c.resultado();
         long duracao = System.currentTimeMillis() - inicioMs;
-        OperacaoTelemetria op = TelemetriaService.criarOperacao(
-            "Limpeza de Cache", "status=" + r.status() + "; falhas=" + r.falhas(), duracao,
-            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos());
         String relatorio = """
             LIMPEZA SEGURA DO CACHE
             =======================
@@ -226,7 +222,10 @@ public class LimparCacheUseCase {
             Observação: execute novamente a Tradução Local para regenerar o ASS/SRT a partir do cache corrigido.
             """.formatted(pasta.toAbsolutePath(), r.status(), r.arquivosAnalisados(), r.arquivosAlterados(),
             r.itensDetectados(), r.itensCorrigidos(), r.itensIgnorados(), r.falhas(), r.cancelado());
-        telemetriaService.finalizarOperacao(op, pasta, "limpeza_cache", relatorio);
+        telemetria.registrar("Limpeza de Cache",
+            "status=" + r.status() + "; falhas=" + r.falhas(),
+            "limpeza_cache", pasta, duracao,
+            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos(), relatorio);
         out("Resultado da limpeza: " + r.status() + " | arquivos=" + r.arquivosAnalisados()
             + " alterados=" + r.arquivosAlterados() + " falhas=" + r.falhas());
         return r;
