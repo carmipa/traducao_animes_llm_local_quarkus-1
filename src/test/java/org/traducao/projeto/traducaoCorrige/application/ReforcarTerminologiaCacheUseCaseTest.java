@@ -103,6 +103,46 @@ class ReforcarTerminologiaCacheUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a auditoria é o DATASET — cada linha afirma um FATO sobre o acervo.
+     * O ensaio publicava {@code TERMINOLOGIA_REFORCADA} para falas que continuavam com a
+     * forma-ruim no disco, o que faz o histórico atestar uma aplicação que nunca aconteceu.
+     * Corrompe justamente o registro que existe para se poder confiar no que foi feito — e
+     * contradizia o invariante escrito no próprio código.
+     *
+     * <p>O ensaio segue publicando TELEMETRIA e RELATÓRIO, que descrevem uma medição; o que ele
+     * não pode publicar é um registro de mudança.
+     */
+    @Test
+    @DisplayName("ENSAIO não grava TERMINOLOGIA_REFORCADA na auditoria — nada chegou ao disco")
+    void ensaioNaoPoluiOdatasetDeAuditoria() throws Exception {
+        escreverCacheZZ();
+
+        useCase.ensaiar(temp.resolve("cache"), null);
+
+        assertTrue(auditoria.entradas.isEmpty(),
+            () -> "o ensaio não alterou o acervo; nenhuma linha pode afirmar que alterou. Gravadas: "
+                + auditoria.entradas.size());
+        assertEquals(1, telemetria.publicacoes.size(),
+            "telemetria e relatório SEGUEM publicando: eles descrevem uma medição, não uma mudança");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a contrapartida — a execução real precisa auditar, senão o conserto
+     * acima teria matado o dataset em vez de corrigi-lo.
+     */
+    @Test
+    @DisplayName("execução real GRAVA a auditoria de cada fala alterada")
+    void execucaoRealAuditaCadaFalaAlterada() throws Exception {
+        escreverCacheZZ();
+
+        useCase.executar(temp.resolve("cache"), null, true);
+
+        assertEquals(4, auditoria.entradas.stream()
+                .filter(e -> "TERMINOLOGIA_REFORCADA".equals(e.resultado())).count(),
+            "as 4 falas que mudaram no disco têm de estar no dataset");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a trava de segurança da receita de fatia nova — capacidade que escreve
      * no acervo nasce DESLIGADA. Com a flag em {@code false} o pedido de aplicação é recusado
      * ANTES de abrir qualquer arquivo, e a recusa é RUIDOSA: uma operação que não faz nada em

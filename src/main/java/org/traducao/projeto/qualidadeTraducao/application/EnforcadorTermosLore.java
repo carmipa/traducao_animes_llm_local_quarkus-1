@@ -227,7 +227,7 @@ public class EnforcadorTermosLore {
         Matcher m = formaRuimPat.matcher(texto);
         List<int[]> ocorrencias = new ArrayList<>();
         while (m.find()) {
-            int prioridade = Character.isUpperCase(texto.charAt(m.start())) ? 0 : 1;
+            int prioridade = maiusculaQueSignificaNomeProprio(texto, m.start()) ? 0 : 1;
             ocorrencias.add(new int[]{m.start(), m.end(), prioridade});
         }
         if (ocorrencias.isEmpty()) {
@@ -258,6 +258,47 @@ public class EnforcadorTermosLore {
         }
         sb.append(texto, ultimo, texto.length());
         return new Restauracao(sb.toString(), escolhidas.size());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se a MAIÚSCULA de uma ocorrência é evidência de nome próprio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só conta a maiúscula que a POSIÇÃO não explica. Em português
+     * toda frase começa com maiúscula, então {@code "Vazio"} abrindo período não distingue o
+     * nome próprio ({@code Void}) da palavra comum ({@code vazio}=empty) — a caixa ali é
+     * obrigatória, não escolhida. Já uma maiúscula no MEIO da frase foi uma decisão de quem
+     * escreveu, e é isso que a torna prova.
+     *
+     * <p>Sem esta distinção o teto vazava: {@code "Vazio é perigoso. Vazio deve ser destruído."}
+     * com {@code Void} uma única vez no inglês restaurava as DUAS, porque as duas estavam
+     * capitalizadas por início de frase. O teto existe justamente para não converter o homógrafo
+     * comum, e a abertura de período era a porta que sobrou.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: índice fora do texto ou caractere não-letra devolve
+     * {@code false} — na dúvida, trata como sem evidência, que é o lado seguro (entra no teto).
+     *
+     * @param texto a fala inteira
+     * @param inicio índice onde a ocorrência começa
+     * @return {@code true} só quando é maiúscula E não é abertura de período
+     */
+    private static boolean maiusculaQueSignificaNomeProprio(String texto, int inicio) {
+        if (inicio < 0 || inicio >= texto.length() || !Character.isUpperCase(texto.charAt(inicio))) {
+            return false;
+        }
+        for (int i = inicio - 1; i >= 0; i--) {
+            char anterior = texto.charAt(i);
+            if (Character.isWhitespace(anterior) || anterior == '"' || anterior == '\''
+                || anterior == '(' || anterior == '-' || anterior == '—') {
+                continue;
+            }
+            // A quebra do ASS é "\N" — dois caracteres — e também abre linha nova.
+            if (anterior == 'N' && i > 0 && texto.charAt(i - 1) == '\\') {
+                return false;
+            }
+            return anterior != '.' && anterior != '!' && anterior != '?' && anterior != ':'
+                && anterior != ';' && anterior != '…';
+        }
+        return false; // só espaço/pontuação antes: é abertura da fala
     }
 
     /**
