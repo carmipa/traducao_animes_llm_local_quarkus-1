@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.traducao.projeto.core.presentation.web.OperacaoRequest;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
+import org.traducao.projeto.raspagemCorrecao.presentation.web.CorrecaoRaspagemController;
+import org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoCacheController;
 import org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController;
@@ -69,7 +71,7 @@ class ContextoInvalidoC2CaracterizacaoTest {
     void corrigirCacheContextoInvalido() {
         AtomicBoolean enfileirou = new AtomicBoolean(false);
         CorrecaoCacheController controller = new CorrecaoCacheController(
-            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null, null);
+            pipelineEspiao(enfileirou), null, gerenciadorSemContextos(), null);
 
         ResponseEntity<RespostaPadrao> resposta = controller.limparCache(requisicaoComContextoInvalido());
 
@@ -89,12 +91,12 @@ class ContextoInvalidoC2CaracterizacaoTest {
     void reforcarTerminologiaContextoInvalido() {
         AtomicBoolean enfileirouEnsaio = new AtomicBoolean(false);
         ResponseEntity<RespostaPadrao> ensaio = new CorrecaoCacheController(
-            pipelineEspiao(enfileirouEnsaio), null, null, null, gerenciadorSemContextos(), null, null)
+            pipelineEspiao(enfileirouEnsaio), null, gerenciadorSemContextos(), null)
             .ensaiarReforcoTerminologia(requisicaoComContextoInvalido());
 
         AtomicBoolean enfileirouAplicar = new AtomicBoolean(false);
         ResponseEntity<RespostaPadrao> aplicar = new CorrecaoCacheController(
-            pipelineEspiao(enfileirouAplicar), null, null, null, gerenciadorSemContextos(), null, null)
+            pipelineEspiao(enfileirouAplicar), null, gerenciadorSemContextos(), null)
             .aplicarReforcoTerminologia(requisicaoComContextoInvalido());
 
         assertEquals(400, ensaio.getStatusCode().value());
@@ -104,17 +106,45 @@ class ContextoInvalidoC2CaracterizacaoTest {
             "Contexto inválido NÃO pode enfileirar a APLICAÇÃO — esta escreve no acervo");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a rota saiu do {@code CorrecaoCacheController} para a fatia dona na
+     * FASE 3, pelo mesmo motivo que moveu as da FASE C2 — e a garantia tem de sobreviver à mudança
+     * de endereço de classe, que é exatamente o que esta suíte existe para provar.
+     */
     @Test
-    @DisplayName("CorrecaoCacheController./revisar-cache: contexto inválido → 400 e NÃO enfileira")
+    @DisplayName("RevisaoCacheController./revisar-cache: contexto inválido → 400 e NÃO enfileira")
     void revisarCacheContextoInvalido() {
         AtomicBoolean enfileirou = new AtomicBoolean(false);
-        CorrecaoCacheController controller = new CorrecaoCacheController(
-            pipelineEspiao(enfileirou), null, null, null, gerenciadorSemContextos(), null, null);
+        RevisaoCacheController controller = new RevisaoCacheController(
+            pipelineEspiao(enfileirou), null, gerenciadorSemContextos(), null);
 
         ResponseEntity<RespostaPadrao> resposta = controller.revisarCache(requisicaoComContextoInvalido());
 
         assertEquals(400, resposta.getStatusCode().value(), "Contexto inválido deve retornar HTTP 400");
+        assertTrue(resposta.getBody().mensagem().contains("Contexto desconhecido"),
+            "A mensagem deve indicar contexto desconhecido");
         assertFalse(enfileirou.get(), "Contexto inválido NÃO pode enfileirar/processar em segundo plano");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha uma LACUNA que já existia antes desta fase — a rota do scraping
+     * nunca esteve nesta caracterização, embora tenha a mesma validação síncrona das irmãs e chame
+     * a rede. Mover a rota sem cobri-la teria repetido o buraco no endereço novo.
+     */
+    @Test
+    @DisplayName("CorrecaoRaspagemController./corrigir-scraping: contexto inválido → 400 e NÃO enfileira")
+    void corrigirScrapingContextoInvalido() {
+        AtomicBoolean enfileirou = new AtomicBoolean(false);
+        CorrecaoRaspagemController controller = new CorrecaoRaspagemController(
+            pipelineEspiao(enfileirou), null, gerenciadorSemContextos());
+
+        ResponseEntity<RespostaPadrao> resposta = controller.corrigirScraping(requisicaoComContextoInvalido());
+
+        assertEquals(400, resposta.getStatusCode().value(), "Contexto inválido deve retornar HTTP 400");
+        assertTrue(resposta.getBody().mensagem().contains("Contexto desconhecido"),
+            "A mensagem deve indicar contexto desconhecido");
+        assertFalse(enfileirou.get(),
+            "Contexto inválido NÃO pode enfileirar — esta rota chega ao Google Translate");
     }
 
     @Test

@@ -128,30 +128,55 @@ class FronteiraCorretorCacheArchTest {
         // terminologia tinha nascido SEM telemetria para não abrir aresta; o preço foi uma
         // operação que reescreve o acervo e não aparecia em telemetria, log nem relatório.
         "traducaoCorrige.infrastructure.TelemetriaCorrecaoAdapter -> telemetria.TelemetriaService",
-        "traducaoCorrige.presentation.web.CorrecaoCacheController -> raspagemCorrecao.application.CorrigirComGoogleUseCase",
-        "traducaoCorrige.presentation.web.CorrecaoCacheController -> raspagemRevisao.application.RevisarCacheUseCase");
+        // FASE 3: as duas arestas que este controller tinha para o `application` das raspagens
+        // SUMIRAM. Eram a unica violacao do padrao em 21 controllers do projeto -- um controller
+        // de uma fatia injetando o caso de uso de outra -- e eram a perna de VOLTA dos dois
+        // ultimos ciclos. As rotas foram para as fatias donas com URL, metodo, DTO e codigo HTTP
+        // inalterados: o prefixo /api e o mesmo em todos, entao trocar a classe que hospeda a
+        // rota nao muda o endereco.
+        //
+        // As duas abaixo sao o que entrou no lugar, e vao na MESMA direcao das arestas de ida que
+        // ja existiam (raspagem -> traducaoCorrige): os controllers novos tipam o retorno dos
+        // proprios casos de uso, que devolvem ResultadoManutencaoCache. Nao ha ciclo. Nao se
+        // duplicou o record: tres operacoes da area devolvem o mesmo resumo verificavel, e tres
+        // copias identicas seriam teatro -- e o precedente da auditoria, nao o das portas de
+        // recuperacao, onde a duplicacao existia para nao por tipo alheio na assinatura da porta.
+        "raspagemCorrecao.presentation.web.CorrecaoRaspagemController -> traducaoCorrige.domain.ResultadoManutencaoCache",
+        "raspagemRevisao.presentation.web.RevisaoCacheController -> traducaoCorrige.domain.ResultadoManutencaoCache");
 
     /**
-     * Os CICLOS que envolvem a área, em forma canônica (par ordenado alfabeticamente). Eram 5;
-     * a FASE 3 quebrou os 3 de {@code config} e restaram os 2 internos.
+     * Os CICLOS que envolvem a área, em forma canônica (par ordenado alfabeticamente).
      *
-     * <p>Os três de {@code config} caíram juntos ao mover {@code ExecucaoCli} de {@code config}
-     * para {@code core.execucao}. Era uma interface de UMA linha, sem framework e sem conhecer
-     * fatia nenhuma, morando em {@code config} por acidente histórico — e era a perna de volta de
-     * SETE ciclos, um por fatia com modo CLI. Com ela no kernel, {@code CLI → core} deixa de ser
-     * aresta (consumo livre por contrato) e o que sobra é {@code config → CLI}, one-way, que é o
-     * que um composition root legitimamente faz.
+     * <p><b>VAZIA desde 2026-07-27 — a FASE 3 fechou esta lista.</b> Eram 5, em dois cortes:
+     * <ol>
+     *   <li><b>Os 3 de {@code config}</b> caíram juntos ao mover {@code ExecucaoCli} de
+     *       {@code config} para {@code core.execucao}. Era uma interface de UMA linha, sem
+     *       framework e sem conhecer fatia nenhuma, morando em {@code config} por acidente
+     *       histórico — e era a perna de volta de SETE ciclos, um por fatia com modo CLI. Com ela
+     *       no kernel, {@code CLI → core} deixa de ser aresta (consumo livre por contrato) e o que
+     *       sobra é {@code config → CLI}, one-way, que é o que um composition root legitimamente
+     *       faz.</li>
+     *   <li><b>Os 2 internos</b> fechavam pelo MESMO ponto: o {@code CorrecaoCacheController} de
+     *       {@code traducaoCorrige} hospedava {@code /corrigir-scraping} e {@code /revisar-cache},
+     *       cujos casos de uso pertencem às raspagens. Era a única das 21 controllers do projeto a
+     *       importar {@code application} de outra fatia. As rotas foram para as fatias donas.</li>
+     * </ol>
      *
-     * <p><b>Não é o padrão-ouro.</b> A fase D-Config zerou {@code config ⇄ traducao} nos DOIS
-     * sentidos, tirando a {@code TradutorCLI} do despachante e dando à fatia bootstrap próprio.
-     * Aqui o despachante continua importando as CLIs. O ciclo morreu, a aresta one-way não.
+     * <p><b>O que este zero NÃO significa.</b> As raspagens continuam dependendo de
+     * {@code traducaoCorrige} — 5 arestas cada, mais as 2 novas dos controllers. O grafo virou um
+     * DAG com {@code traducaoCorrige} como hub de vocabulário da área, e isso é uma escolha, não um
+     * acidente: os três tipos compartilhados ({@code ResultadoManutencaoCache},
+     * {@code EntradaAuditoriaCorrecaoCache}, a porta de auditoria) são o mesmo resumo verificável
+     * das três operações, e triplicá-los seria teatro. Se um dia essa direção incomodar, a saída é
+     * a decisão estrutural que o Plano-Mestre chama de FASE 3(b) — um peer de correção de cache —,
+     * não mais uma porta.
+     *
+     * <p><b>Também não é o padrão-ouro em {@code config}.</b> A fase D-Config zerou
+     * {@code config ⇄ traducao} nos DOIS sentidos, tirando a {@code TradutorCLI} do despachante e
+     * dando à fatia bootstrap próprio. Aqui o despachante continua importando as CLIs: o ciclo
+     * morreu, a aresta one-way não.
      */
-    private static final Set<String> CICLOS_CONGELADOS = Set.of(
-        // Os dois ciclos INTERNOS à área — o que resta da FASE 3. Ambos fecham pelo MESMO ponto:
-        // `traducaoCorrige.presentation.web.CorrecaoCacheController` injeta os casos de uso das
-        // duas raspagens (linhas acima), enquanto elas dependem de `traducaoCorrige` na ida.
-        "raspagemCorrecao <-> traducaoCorrige",
-        "raspagemRevisao <-> traducaoCorrige");
+    private static final Set<String> CICLOS_CONGELADOS = Set.of();
 
     /**
      * Arestas ENTRANDO na área — origem fora, destino dentro. A primeira versão desta catraca
@@ -247,7 +272,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 3: os 2 ciclos internos que restam — os 3 de config foram quebrados")
+    @DisplayName("FASE 3 FECHADA: nenhum ciclo envolvendo a área — ZERO")
     void ciclosConhecidos() {
         // O grafo é montado sobre TODAS as fatias, não só as da área: um ciclo cuja perna de
         // volta nasce fora (config -> CLI da área) é invisível para quem só enumera a saída.
@@ -269,8 +294,8 @@ class FronteiraCorretorCacheArchTest {
         }
 
         assertEquals(CICLOS_CONGELADOS, ciclos,
-            "Ciclo NOVO envolvendo a área é regressão; ciclo quebrado é progresso e exige "
-                + "atualizar CICLOS_CONGELADOS. Vivos: " + ciclos);
+            "Os 5 ciclos da área foram quebrados na FASE 3; a lista vazia AFIRMA isso. Ciclo "
+                + "novo é regressão e o par aparece abaixo. Vivos: " + ciclos);
     }
 
     /**
