@@ -12,7 +12,7 @@ import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +60,7 @@ class ReforcarTerminologiaCacheUseCaseTest {
     void preparar() {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(
             new ContextoZZ(), new ContextoGuiltyCrown()));
-        auditoria = new AuditoriaStub(mapper);
+        auditoria = new AuditoriaStub();
         useCase = new ReforcarTerminologiaCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")),
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
@@ -251,12 +251,8 @@ class ReforcarTerminologiaCacheUseCaseTest {
     }
 
     /** Auditoria em memória para não escrever artefatos do teste no projeto. */
-    private static final class AuditoriaStub extends CorrecaoCacheAuditoria {
+    private static final class AuditoriaStub implements AuditoriaCorrecaoCachePort {
         private final List<EntradaAuditoriaCorrecaoCache> entradas = new ArrayList<>();
-
-        AuditoriaStub(ObjectMapper mapper) {
-            super(mapper);
-        }
 
         @Override
         public void registrar(EntradaAuditoriaCorrecaoCache entrada) {

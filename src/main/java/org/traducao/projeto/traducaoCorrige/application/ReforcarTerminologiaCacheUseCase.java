@@ -11,7 +11,7 @@ import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,10 +55,25 @@ public class ReforcarTerminologiaCacheUseCase {
     private static final Logger log = LoggerFactory.getLogger(ReforcarTerminologiaCacheUseCase.class);
     private static final String OPERACAO = "reforco-terminologia";
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: marca o trecho JÁ creditado a um termo, para que um canônico mais
+     * curto contido nele ({@code "Beam Saber"} dentro de {@code "Beam Sabers"}) não o conte
+     * de novo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é {@code NUL} porque não ocorre em legenda nem em termo de lore,
+     * e é escrito como ESCAPE, nunca como byte cru. Um caractere de controle literal no fonte faz
+     * o arquivo ser tratado como BINÁRIO por grep e por diff, e sobrevive mal a conversão de
+     * encoding — o valor é o mesmo, a legibilidade do repositório não.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: existe só dentro de {@link #contarPorCanonico}; nunca
+     * alcança o texto gravado no cache.
+     */
+    private static final String SENTINELA_CONSUMIDO = "\0";
+
     private final CacheManutencaoService cacheService;
     private final ContextoManutencaoCacheService contextoService;
     private final EnforcadorTermosLore enforcador;
-    private final CorrecaoCacheAuditoria auditoria;
+    private final AuditoriaCorrecaoCachePort auditoria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as quatro peças da operação — leitura/escrita de cache,
@@ -75,7 +90,7 @@ public class ReforcarTerminologiaCacheUseCase {
         CacheManutencaoService cacheService,
         ContextoManutencaoCacheService contextoService,
         EnforcadorTermosLore enforcador,
-        CorrecaoCacheAuditoria auditoria
+        AuditoriaCorrecaoCachePort auditoria
     ) {
         this.cacheService = cacheService;
         this.contextoService = contextoService;
@@ -261,7 +276,7 @@ public class ReforcarTerminologiaCacheUseCase {
             int total = contarLiteral(restante, canonico);
             if (total > 0) {
                 contagem.put(canonico, total);
-                restante = restante.replace(canonico, " ");
+                restante = restante.replace(canonico, SENTINELA_CONSUMIDO);
             }
         }
         return contagem;
