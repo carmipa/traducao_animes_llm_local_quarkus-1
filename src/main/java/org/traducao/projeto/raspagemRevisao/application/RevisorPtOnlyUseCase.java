@@ -7,8 +7,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,13 +55,13 @@ public class RevisorPtOnlyUseCase {
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final RevisorPtOnlyService revisor;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaRevisaoPort telemetria;
 
     public RevisorPtOnlyUseCase(LeitorLegendaAss leitor, EscritorLegendaAss escritor,
-            RevisorPtOnlyService revisor, TelemetriaService telemetriaService) {
+            RevisorPtOnlyService revisor, TelemetriaRevisaoPort telemetria) {
         this.leitor = leitor;
         this.escritor = escritor;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
         this.revisor = revisor;
     }
 
@@ -149,14 +148,9 @@ public class RevisorPtOnlyUseCase {
                 log.warn("Revisão PT-only pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
-        telemetriaService.registrarOperacao(new OperacaoTelemetria(
-            "Revisão PT-only",
+        telemetria.registrar("Revisão PT-only",
             "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
-            System.currentTimeMillis() - inicioMs,
-            analisados,
-            falasAlteradas,
-            falasAlteradas,
-            Instant.now().toString()));
+            System.currentTimeMillis() - inicioMs, analisados, falasAlteradas, falasAlteradas);
         return new ResultadoPtOnly(analisados, alterados, falasAlteradas, List.copyOf(comAsterisco),
             List.copyOf(backups), aplicar);
     }

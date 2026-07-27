@@ -6,8 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemRevisao.domain.ports.TelemetriaRevisaoPort;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
@@ -57,7 +56,7 @@ public class RevisarCacheUseCase {
     private final MascaradorTags mascaradorTags;
     private final ProtecaoLegendaAssService protecaoAss;
     private final CorrecaoCacheAuditoria auditoria;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaRevisaoPort telemetria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe revisão local, validações, persistência e dataset.
@@ -74,7 +73,7 @@ public class RevisarCacheUseCase {
         MascaradorTags mascaradorTags,
         ProtecaoLegendaAssService protecaoAss,
         CorrecaoCacheAuditoria auditoria,
-        TelemetriaService telemetriaService
+        TelemetriaRevisaoPort telemetria
     ) {
         this.cacheService = cacheService;
         this.classificador = classificador;
@@ -85,7 +84,7 @@ public class RevisarCacheUseCase {
         this.mascaradorTags = mascaradorTags;
         this.protecaoAss = protecaoAss;
         this.auditoria = auditoria;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
     }
 
     /**
@@ -361,9 +360,6 @@ public class RevisarCacheUseCase {
     private ResultadoManutencaoCache finalizar(Path pasta, long inicioMs, Contadores c) {
         ResultadoManutencaoCache r = c.resultado();
         long duracao = System.currentTimeMillis() - inicioMs;
-        OperacaoTelemetria op = TelemetriaService.criarOperacao(
-            "Revisão Gramatical (cache LLM)", "status=" + r.status() + "; falhas=" + r.falhas(), duracao,
-            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos());
         String relatorio = """
             REVISÃO GRAMATICAL DO CACHE (LLM LOCAL)
             =======================================
@@ -381,7 +377,10 @@ public class RevisarCacheUseCase {
             """.formatted(pasta.toAbsolutePath(), r.status(), r.arquivosAnalisados(), r.arquivosAlterados(),
             r.itensDetectados(), r.itensCorrigidos(), r.itensIgnorados(), r.falhas(), r.cancelado(),
             r.itensPendentes());
-        telemetriaService.finalizarOperacao(op, pasta, "revisao_gramatical_cache", relatorio);
+        telemetria.registrarComRelatorio("Revisão Gramatical (cache LLM)",
+            "status=" + r.status() + "; falhas=" + r.falhas(),
+            "revisao_gramatical_cache", pasta, duracao,
+            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos(), relatorio);
         out("Resultado da revisão LLM: " + r.status() + " | corrigidas=" + r.itensCorrigidos()
             + " pendentes=" + r.itensPendentes() + " falhas=" + r.falhas());
         return r;
