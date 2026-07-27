@@ -7,6 +7,7 @@ import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
+import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.telemetria.TelemetriaService;
@@ -92,6 +93,7 @@ public class RevisarLegendasUseCase {
     private final ProtecaoLegendaAssService protecaoAss;
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
+    private final ContextoManutencaoCacheService contextoManutencaoCache;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -120,7 +122,8 @@ public class RevisarLegendasUseCase {
         DetectorEfeitoKaraokeService detectorKaraoke,
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
-        CorretorDeterministicoConcordanciaService corretorDeterministico
+        CorretorDeterministicoConcordanciaService corretorDeterministico,
+        ContextoManutencaoCacheService contextoManutencaoCache
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -139,6 +142,7 @@ public class RevisarLegendasUseCase {
         this.protecaoAss = protecaoAss;
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
+        this.contextoManutencaoCache = contextoManutencaoCache;
     }
 
     /**
@@ -340,9 +344,21 @@ public class RevisarLegendasUseCase {
      * que a originou, impedindo revisão de uma obra com o contexto de outra.
      *
      * <p>INVARIANTES DO DOMÍNIO: proveniência versionada sempre vence a seleção
-     * manual; seleção da interface é fallback apenas para cache legado.
+     * manual; seleção da interface é fallback apenas para cache legado. E o contexto resolvido —
+     * venha do carimbo, da seleção ou do contexto ativo herdado — ainda precisa BATER COM A OBRA
+     * DA PASTA antes de ser ativado.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: contexto inexistente interrompe o
+     * <p>A guarda obra×contexto faltava aqui, e o furo era real: um cache de Gundam 0083 carimbado
+     * com {@code guilty_crown} passava, a lore errada ficava ativa e vazava para o arquivo
+     * seguinte da varredura — reescrevendo o {@code .ass} com a terminologia de outra obra. O
+     * carimbo é uma testemunha, não uma prova: o incidente que originou a guarda mostrou que ele
+     * pode nascer errado. A pasta em que o cache mora é a segunda testemunha.
+     *
+     * <p>A guarda é a MESMA de {@code ContextoManutencaoCacheService} — não uma cópia. Duplicar
+     * aqui a política do veredicto criaria duas guardas que divergem com o tempo, que é como o
+     * reforço de terminologia acabou com duas implementações desiguais.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contexto inexistente OU obra incompatível interrompem o
      * arquivo antes de qualquer chamada externa ou sobrescrita da legenda.
      */
     ContextoRevisao ativarContextoDoArquivo(
@@ -369,6 +385,13 @@ public class RevisarLegendasUseCase {
         if (!gerenciadorContexto.existeContexto(contextoEfetivo)) {
             throw new RaspagemRevisaoException(
                 "Contexto \"" + contextoEfetivo + "\" do cache não existe no projeto: " + cachePath);
+        }
+        // ANTES de definirContextoAtivo: uma lore reprovada não pode chegar a ficar ativa, senão
+        // vaza para o próximo arquivo da varredura mesmo com este bloqueado.
+        try {
+            contextoManutencaoCache.exigirObraCompativel(cachePath, contextoEfetivo);
+        } catch (IllegalArgumentException e) {
+            throw new RaspagemRevisaoException(e.getMessage());
         }
 
         gerenciadorContexto.definirContextoAtivo(contextoEfetivo);

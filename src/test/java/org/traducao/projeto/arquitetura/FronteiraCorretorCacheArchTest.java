@@ -81,6 +81,14 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria",
         "raspagemRevisao.application.RevisarLegendasUseCase -> correcaoLegendas.application.SanitizadorTagsService",
+        // Aresta ADICIONADA conscientemente em 2026-07-27 para FECHAR um furo de segurança, não por
+        // conveniência: este caso de uso resolvia a lore pelo carimbo do cache sem passar pela
+        // guarda obra×contexto, então um cache de Gundam 0083 carimbado "guilty_crown" era revisado
+        // sob a lore errada — e ela ficava ativa para o arquivo seguinte. A alternativa era copiar
+        // a política do veredicto para cá; duas cópias de uma guarda divergem, e foi assim que o
+        // reforço de terminologia acabou com duas implementações desiguais. É a MESMA aresta que
+        // RevisarCacheUseCase já tinha para o mesmo tipo, não um acoplamento de espécie nova.
+        "raspagemRevisao.application.RevisarLegendasUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.GoogleTranslateScraper",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.infrastructure.ResultadoRaspagem",

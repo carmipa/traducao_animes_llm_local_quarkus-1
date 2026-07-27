@@ -27,15 +27,27 @@ import java.util.Set;
  * arquivo é contabilizado como falha sem ser modificado.
  *
  * <h2>Por que a guarda obra×contexto também mora aqui</h2>
- * Este é o ÚNICO ponto por onde as três fatias de manutenção de cache
- * ({@code traducaoCorrige}, {@code raspagemCorrecao}, {@code raspagemRevisao}) escolhem
- * sob qual lore vão reinterpretar um cache. A pergunta que a guarda responde aqui é
- * DIFERENTE da que a fatia {@code traducao} responde: lá se desconfia do CLIQUE do
- * operador; aqui se desconfia do PRÓPRIO CARIMBO. O incidente medido nesta árvore provou
- * que a proveniência pode estar fielmente errada — 15 caches de Gundam 0083 gravados com
- * {@code contextoId = "guilty_crown"}. Um corretor que confia no carimbo reativaria a lore
- * errada e "corrigiria" a terminologia de 0083 para a de Guilty Crown, aprofundando o dano
- * em vez de repará-lo. A pasta em que o arquivo mora é a segunda testemunha.
+ * A pergunta que a guarda responde aqui é DIFERENTE da que a fatia {@code traducao} responde:
+ * lá se desconfia do CLIQUE do operador; aqui se desconfia do PRÓPRIO CARIMBO. O incidente
+ * medido nesta árvore provou que a proveniência pode estar fielmente errada — 15 caches de
+ * Gundam 0083 gravados com {@code contextoId = "guilty_crown"}. Um corretor que confia no
+ * carimbo reativaria a lore errada e "corrigiria" a terminologia de 0083 para a de Guilty
+ * Crown, aprofundando o dano em vez de repará-lo. A pasta em que o arquivo mora é a segunda
+ * testemunha.
+ *
+ * <h2>Quem passa por aqui — e a correção de um registro anterior</h2>
+ * A versão original deste texto afirmava que este era o "ÚNICO ponto" por onde as três fatias
+ * de manutenção escolhem a lore. <b>Era falso, e o engano custou caro:</b> uma auditoria
+ * mostrou que {@code raspagemRevisao} tem DOIS pontos de entrada, e o segundo —
+ * {@code RevisarLegendasUseCase}, o menu "Revisar Legendas"/"Revisão de Concordância" —
+ * resolvia a lore pelo carimbo por conta própria, sem guarda nenhuma. Quem lesse este Javadoc
+ * concluiria que a fatia estava coberta e não procuraria o furo.
+ *
+ * <p>Hoje os quatro caminhos passam pela guarda: {@link #ativar} e {@link #ativarSnapshot}
+ * cobrem {@code LimparCacheUseCase}, {@code CorrigirComGoogleUseCase} e
+ * {@code RevisarCacheUseCase}; {@code RevisarLegendasUseCase} chama
+ * {@link #exigirObraCompativel} diretamente, porque monta o contexto por conta própria.
+ * Antes de afirmar cobertura de novo, conte os pontos de ENTRADA, não as fatias.
  */
 @Service
 public class ContextoManutencaoCacheService {
@@ -147,13 +159,23 @@ public class ContextoManutencaoCacheService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link IllegalArgumentException}, que as três
      * fatias já contabilizam como falha do arquivo sem tocá-lo.
      *
+     * <p>É PÚBLICO porque uma segunda fatia precisa da MESMA guarda por um caminho que não passa
+     * por {@link #ativarSnapshot}: {@code raspagemRevisao.RevisarLegendasUseCase} resolve a lore
+     * a partir do carimbo do cache por conta própria. Enquanto esse método era privado, aquele
+     * caminho ficou aberto — carimbo de Guilty Crown num cache de Gundam 0083 passava e a lore
+     * errada ficava ativa. Expor a guarda é o que impede a alternativa pior: reescrever aqui a
+     * política do veredicto e deixar as duas cópias divergirem, que foi exatamente o que
+     * aconteceu com o reforço de terminologia antes de ele virar peer.
+     *
      * @param arquivoCache caminho do arquivo de cache em manutenção
      * @param contextoId contexto resolvido para este arquivo, ainda não ativado
      * @return {@code true} quando alguma lore do catálogo RECONHECE a pasta do arquivo — a segunda
      *         testemunha da identidade da obra, que {@link ContextoDoCache} repassa a quem precisa
      *         decidir se pode reescrever o texto
+     * @throws IllegalArgumentException quando a obra da pasta diverge do contexto, ou quando a
+     *         identidade é ambígua
      */
-    private boolean exigirObraCompativel(Path arquivoCache, String contextoId) {
+    public boolean exigirObraCompativel(Path arquivoCache, String contextoId) {
         String obra = obraDoCache(arquivoCache);
         Set<String> reconhecedores = gerenciadorContexto.idsQueReconhecem(obra);
         VeredictoObraContexto veredicto = validadorCompatibilidade.avaliar(obra, contextoId, reconhecedores);
