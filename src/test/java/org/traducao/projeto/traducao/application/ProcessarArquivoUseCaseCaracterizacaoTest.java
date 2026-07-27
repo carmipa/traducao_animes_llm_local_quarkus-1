@@ -30,6 +30,7 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
+import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
 import org.traducao.projeto.traducao.infrastructure.config.FallbackOnlineProperties;

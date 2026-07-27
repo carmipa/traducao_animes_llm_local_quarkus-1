@@ -301,6 +301,12 @@ class FronteiraTraducaoArchTest {
      */
     private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".qualidadeTraducao.application.DetectorTraducaoIdenticaService",
+        // EnforcadorTermosLore movido de traducao.application para o peer: havia uma SEGUNDA
+        // cópia do algoritmo em revisaoLore, criada por não poder importar desta fatia, e as
+        // duas divergiram em três propriedades (teto de ocorrências, ordem por comprimento,
+        // canônico multi-palavra). Como peer, uma cópia só serve tradução, revisão de lore e a
+        // correção de cache sem nenhuma aresta de dívida.
+        RAIZ + ".qualidadeTraducao.application.EnforcadorTermosLore",
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
         // NormalizadorAcentosComuns movido de traducao.application para o peer: fecha o arco
         // proibido raspagemRevisao.RevisorPtOnlyService -> traducao (INBOUND voltou a 0).
