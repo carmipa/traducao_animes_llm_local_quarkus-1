@@ -389,7 +389,8 @@ public class RevisarLegendasUseCase {
         // ANTES de definirContextoAtivo: uma lore reprovada não pode chegar a ficar ativa, senão
         // vaza para o próximo arquivo da varredura mesmo com este bloqueado.
         try {
-            contextoManutencaoCache.exigirObraCompativel(cachePath, contextoEfetivo);
+            contextoManutencaoCache.exigirObraCompativel(
+                cachePath, contextoEfetivo, contextoProveniencia != null && !contextoProveniencia.isBlank());
         } catch (IllegalArgumentException e) {
             throw new RaspagemRevisaoException(e.getMessage());
         }

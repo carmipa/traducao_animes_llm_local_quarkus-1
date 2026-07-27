@@ -116,6 +116,41 @@ public class ValidadorCompatibilidadeObraContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: redige o bloqueio quando o contexto veio do CARIMBO gravado no
+     * arquivo, e não da seleção do operador. É outra mensagem porque é outro conserto.
+     *
+     * <p>{@link #mensagemDeBloqueio} manda "selecione o contexto correto na UI e execute de novo",
+     * o que é correto para a tradução — lá o contexto vem mesmo da tela. Para um cache VERSIONADO
+     * é uma instrução impossível: o carimbo tem prioridade sobre a seleção por construção, então
+     * trocar a obra na UI produz a mensagem byte a byte idêntica e o operador fica preso num laço
+     * sem saída. Ela também chamava o carimbo de "contexto ATIVO", o que é factualmente falso no
+     * instante do bloqueio: a lore reprovada nunca chega a ser ativada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nomeia o valor pelo que ele é — o carimbo da proveniência — e
+     * instrui os dois consertos que de fato funcionam: corrigir o {@code contextoId} do cache, ou
+     * mover o arquivo para a pasta da obra certa. Não sugere trocar a seleção, e não corrige nada
+     * por conta própria.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: aceita nulos e os imprime como estão.
+     *
+     * @param caminhoArquivo caminho do arquivo bloqueado
+     * @param obraDoArquivo obra reconhecida no caminho
+     * @param contextoCarimbado id gravado na proveniência do cache
+     * @param idsQueReconhecem ids dos contextos que reconhecem a obra
+     * @return mensagem de bloqueio pronta para log e para a saída dinâmica
+     */
+    public String mensagemDeBloqueioCarimbo(String caminhoArquivo, String obraDoArquivo,
+                                            String contextoCarimbado, Set<String> idsQueReconhecem) {
+        return "Obra do arquivo NÃO confere com a proveniência gravada no cache — operação "
+            + "BLOQUEADA para não reinterpretar o cache com a lore errada. Arquivo: " + caminhoArquivo
+            + " | obra reconhecida no caminho: \"" + obraDoArquivo + "\""
+            + " | contexto esperado: " + idsQueReconhecem
+            + " | contexto CARIMBADO na proveniência: \"" + contextoCarimbado + "\"."
+            + " A seleção da UI é IGNORADA para cache versionado: corrija o \"contextoId\" da"
+            + " proveniência deste arquivo, ou mova-o para a pasta da obra correta.";
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: redige a mensagem do bloqueio por AMBIGUIDADE — a pasta é
      * reivindicada por mais de uma obra com a mesma precisão, então o catálogo não consegue
      * nomear uma única obra esperada. A mensagem é endereçada a quem mantém as lores: o
