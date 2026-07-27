@@ -34,8 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code contexto}, {@code llm}). Em particular o detector, que antes dependia de
  *       {@code contexto.infrastructure.GerenciadorContexto}, agora depende só da porta
  *       {@code LoreAtivaPort} do próprio peer.</li>
- *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os oito proprietários
+ *   <li>Inventário nominal EXATO por FQN COMPLETO: exatamente os nove proprietários
  *       top-level ({@code qualidadeTraducao.application.DetectorTraducaoIdenticaService},
+ *       {@code qualidadeTraducao.application.EnforcadorTermosLore},
  *       {@code qualidadeTraducao.application.MascaradorTags},
  *       {@code qualidadeTraducao.application.NormalizadorAcentosComuns},
  *       {@code qualidadeTraducao.application.ProtecaoLegendaAssService},
@@ -109,7 +110,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os oito proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os nove proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -124,6 +125,15 @@ class FronteiraQualidadeTraducaoArchTest {
         }
         assertEquals(new TreeSet<>(List.of(
                 PKG_QT_APPLICATION + ".DetectorTraducaoIdenticaService",
+                // Movido de traducao.application: o reforço determinístico de terminologia existia
+                // em DUAS cópias divergentes — esta e revisaoLore.CorretorLoreDeterministico, que
+                // dizia no Javadoc ter sido reimplementada "porque a arquitetura proíbe uma fatia
+                // importar a outra". Peer NÃO é fatia: consumir daqui é livre por contrato, e foi
+                // a duplicação que produziu a divergência medida (a cópia da revisão trocava TODAS
+                // as ocorrências da forma-ruim, corrompendo "há quatro inimigos" em "há Quattro
+                // inimigos"). Mora neste peer porque opera sobre o TEXTO produzido — o mapa
+                // forma-ruim→canônico continua sendo do peer contexto, dono da lore.
+                PKG_QT_APPLICATION + ".EnforcadorTermosLore",
                 PKG_QT_APPLICATION + ".MascaradorTags",
                 PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
@@ -131,7 +141,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
                 PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os oito proprietários top-level homologados, por FQN "
+            "qualidadeTraducao deve conter EXATAMENTE os nove proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

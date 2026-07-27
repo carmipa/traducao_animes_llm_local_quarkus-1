@@ -2,6 +2,7 @@ package org.traducao.projeto.revisaoLore.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CorretorLoreDeterministicoTest {
 
-    private final CorretorLoreDeterministico corretor = new CorretorLoreDeterministico();
+    private final CorretorLoreDeterministico corretor = new CorretorLoreDeterministico(new EnforcadorTermosLore());
 
     @Test
     @DisplayName("corrige Shin traduzido como Canela quando o original tem Shin")
@@ -130,5 +131,84 @@ class CorretorLoreDeterministicoTest {
 
         assertTrue(corrigida.isEmpty(),
             "com 'Shin' já correto no PT, 'canela' é a especiaria e não pode virar Shin");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prende os três defeitos que existiam SÓ nesta classe, quando ela
+     * carregava uma cópia própria do algoritmo do enforcer. A cópia foi removida e o mapa passou
+     * a ser delegado ao {@link EnforcadorTermosLore}; estes casos provam que a delegação de fato
+     * mudou o comportamento — sem eles, alguém pode reintroduzir a cópia local e a suíte não vê.
+     *
+     * <p>Todos usam entradas REAIS dos mapas de lore em produção.
+     */
+    @Test
+    @DisplayName("teto de ocorrências: 'Quatro' vira Quattro só onde o EN sustenta, não no número")
+    void tetoDeOcorrenciasNaoCorrompeONumeroQuatro() {
+        // "Quatro" é ao mesmo tempo o nome do piloto (Quattro Bajeena, em Zeta/ZZ) e o NÚMERO.
+        // A cópia antiga usava replaceAll e devolvia "Quattro, há Quattro inimigos".
+        var corrigida = corretor.corrigir(
+            "Quattro, there are four enemies.",
+            "Quatro, há quatro inimigos.",
+            Map.of("Quatro", "Quattro"));
+
+        assertTrue(corrigida.isPresent());
+        assertEquals("Quattro, há quatro inimigos.", corrigida.get(),
+            "o canônico aparece 1x no EN, então só UMA restauração é autorizada — e é a capitalizada");
+    }
+
+    @Test
+    @DisplayName("ordem por comprimento: a frase longa é aplicada antes da curta que a contém")
+    void ordemPorComprimentoPreservaOTermoComposto() {
+        // A cópia antiga iterava o mapa sem ordem e devolvia "O Genoma do Void despertou."
+        // O mapa é ORDENADO com a chave curta PRIMEIRO de propósito: com Map.of a ordem de
+        // iteração depende do hash e o teste passaria por sorte metade das vezes, sem provar nada.
+        var corrigida = corretor.corrigir(
+            "The Void Genome awakened.",
+            "O Genoma do Vazio despertou.",
+            curtaPrimeiro("Vazio", "Void", "Genoma do Vazio", "Void Genome"));
+
+        assertTrue(corrigida.isPresent());
+        assertEquals("O Void Genome despertou.", corrigida.get());
+    }
+
+    @Test
+    @DisplayName("canônico multi-palavra: o EN em caixa baixa ainda conta como o termo da lore")
+    void canonicoMultiPalavraReconheceCaixaDiferenteNoIngles() {
+        // A cópia antiga exigia grafia exata para TODO canônico, então "mobile suits" no EN não
+        // reconhecia "Mobile Suits" e a restauração nunca disparava.
+        var corrigida = corretor.corrigir(
+            "Two mobile suits approaching.",
+            "Dois trajes móveis se aproximando.",
+            Map.of("Trajes Móveis", "Mobile Suits"));
+
+        assertTrue(corrigida.isPresent());
+        assertEquals("Dois Mobile Suits se aproximando.", corrigida.get());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a ordenação por comprimento também vale no caminho PT-only, que NÃO
+     * pôde ser delegado — sem o inglês não existe o portão "o original contém o canônico", então
+     * o algoritmo é legitimamente outro. O que não podia continuar diferente era a ordem.
+     */
+    @Test
+    @DisplayName("PT-only: a frase longa também vem antes da curta que a contém")
+    void ptOnlyAplicaFraseLongaPrimeiro() {
+        assertEquals(java.util.Optional.of("Pilotar o Mobile Suit de assalto."),
+            corretor.corrigirPtOnly("Pilotar o Traje Móvel de Assalto.",
+                curtaPrimeiro("Traje Móvel", "Mobile Suit",
+                    "Traje Móvel de Assalto", "Mobile Suit de assalto")));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta o mapa com ordem de iteração GARANTIDA e hostil — a chave curta
+     * antes da longa. Sem isso o teste de ordenação é decidido pelo hash das chaves e passa por
+     * acaso, deixando de provar que a ordenação existe.
+     */
+    private static Map<String, String> curtaPrimeiro(
+            String chaveCurta, String valorCurta, String chaveLonga, String valorLonga) {
+        Map<String, String> mapa = new java.util.LinkedHashMap<>();
+        mapa.put(chaveCurta, valorCurta);
+        mapa.put(chaveLonga, valorLonga);
+        return mapa;
     }
 }

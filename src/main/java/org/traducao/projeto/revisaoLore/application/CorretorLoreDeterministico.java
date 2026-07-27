@@ -1,7 +1,9 @@
 package org.traducao.projeto.revisaoLore.application;
 
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -10,11 +12,28 @@ import java.util.regex.Pattern;
 /**
  * PROPÓSITO DE NEGÓCIO: reforça DETERMINISTICAMENTE a terminologia canônica de lore na
  * revisão (Opção 7), SEM LLM. Cobre casos específicos herdados (nome "Shin" traduzido
- * como "Canela"; "dud rounds" como "rodadas aleatórias") e o mapa genérico da obra ativa
- * (forma-ruim PT → canônico). É o complemento determinístico do prompt de lore: o prompt
- * PEDE ao LLM; esta classe GARANTE nas formas-ruim conhecidas. Espelha, na fatia de
- * revisão de lore, o {@code EnforcadorTermosLore} da fatia de tradução — reimplementado
- * aqui porque a arquitetura proíbe uma fatia importar a outra.
+ * como "Canela"; "dud rounds" como "rodadas aleatórias") e delega o mapa genérico da obra
+ * ativa ao {@link EnforcadorTermosLore}. É o complemento determinístico do prompt de lore:
+ * o prompt PEDE ao LLM; esta classe GARANTE nas formas-ruim conhecidas.
+ *
+ * <h2>Por que o mapa genérico é delegado, e não reimplementado</h2>
+ * Esta classe carregava uma SEGUNDA cópia do algoritmo do enforcer, justificada no
+ * comentário original por "a arquitetura proíbe uma fatia importar a outra". A justificativa
+ * valia para fatia, não para PEER — e o custo apareceu: as duas cópias divergiram em três
+ * propriedades, todas medidas antes desta mudança.
+ * <ul>
+ *   <li><b>Teto de ocorrências.</b> A cópia daqui usava {@code replaceAll}, trocando TODAS as
+ *       ocorrências da forma-ruim. Com {@code "Quatro" → "Quattro"} no mapa de Zeta/ZZ, a fala
+ *       "Quattro, há quatro inimigos" virava "Quattro, há Quattro inimigos" — o NÚMERO quatro
+ *       corrompido. O enforcer restaura no máximo tantas quantas o canônico aparece no EN.</li>
+ *   <li><b>Ordem por comprimento.</b> Sem ordenar as chaves da mais longa para a mais curta,
+ *       {@code "Vazio"→"Void"} destruía {@code "Genoma do Vazio"→"Void Genome"}.</li>
+ *   <li><b>Canônico multi-palavra.</b> A checagem era sensível à caixa para todo termo, então
+ *       o EN "two mobile suits" não reconhecia o canônico "Mobile Suits" e a restauração nunca
+ *       disparava.</li>
+ * </ul>
+ * O mapa forma-ruim→canônico continua sendo do peer {@code contexto}; o ALGORITMO passa a ter
+ * uma implementação só, no peer {@code qualidadeTraducao}, que age sobre o texto produzido.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
@@ -31,6 +50,17 @@ import java.util.regex.Pattern;
  */
 @Component
 public class CorretorLoreDeterministico {
+
+    private final EnforcadorTermosLore enforcadorTermosLore;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: injeta a implementação ÚNICA do reforço de terminologia.
+     * <p>INVARIANTES DO DOMÍNIO: guarda a referência recebida; nenhuma cópia local do algoritmo.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dependência ausente impede o uso do serviço.
+     */
+    public CorretorLoreDeterministico(EnforcadorTermosLore enforcadorTermosLore) {
+        this.enforcadorTermosLore = enforcadorTermosLore;
+    }
 
     private static final Pattern PADRAO_SHIN = Pattern.compile("(?<![\\p{L}\\p{N}])Shin(?![\\p{L}\\p{N}])");
     private static final Pattern PADRAO_CANELA = Pattern.compile("(?<![\\p{L}\\p{N}])[Cc]anela(?![\\p{L}\\p{N}])");
@@ -74,7 +104,7 @@ public class CorretorLoreDeterministico {
             corrigida = PADRAO_RODADAS_ALEATORIAS.matcher(corrigida).replaceAll("munições falhas");
         }
 
-        corrigida = aplicarCorrecoesTerminologia(originalMascarado, corrigida, correcoesTerminologia);
+        corrigida = enforcadorTermosLore.reforcar(originalMascarado, corrigida, correcoesTerminologia);
 
         if (corrigida.equals(traducaoMascarada)) {
             return Optional.empty();
@@ -105,7 +135,15 @@ public class CorretorLoreDeterministico {
             return Optional.empty();
         }
         String resultado = traducaoMascarada;
-        for (Map.Entry<String, String> par : correcoesTerminologia.entrySet()) {
+        // Frases longas primeiro: sem isto "Traje Móvel"→"Mobile Suit" mutila
+        // "Traje Móvel de Combate" antes de a entrada completa ser tentada. Mesma regra que o
+        // EnforcadorTermosLore aplica no caminho com o inglês; aqui não dá para delegar porque
+        // sem o EN não existe o portão "o original contém o canônico".
+        var pares = correcoesTerminologia.entrySet().stream()
+            .sorted(Comparator.comparingInt((Map.Entry<String, String> e) ->
+                e.getKey() == null ? 0 : e.getKey().length()).reversed())
+            .toList();
+        for (Map.Entry<String, String> par : pares) {
             String formaRuim = par.getKey();
             String canonico = par.getValue();
             if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
@@ -126,51 +164,4 @@ public class CorretorLoreDeterministico {
         return resultado.equals(traducaoMascarada) ? Optional.empty() : Optional.of(resultado);
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: aplica o mapa de terminologia da obra, restaurando cada
-     * forma-ruim para o canônico quando o original EN contém o canônico.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: canônico verificado no original por fronteira de palavra
-     * e SENSÍVEL à caixa; forma-ruim substituída por fronteira de palavra IGNORANDO caixa.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo/vazio ou pares inválidos devolvem o
-     * texto inalterado.
-     */
-    private String aplicarCorrecoesTerminologia(String original, String traducao, Map<String, String> correcoes) {
-        if (correcoes == null || correcoes.isEmpty()) {
-            return traducao;
-        }
-        String resultado = traducao;
-        for (Map.Entry<String, String> par : correcoes.entrySet()) {
-            String formaRuim = par.getKey();
-            String canonico = par.getValue();
-            if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
-                continue;
-            }
-            if (!contemTermoCanonico(original, canonico)) {
-                continue;
-            }
-            Pattern formaRuimPat = Pattern.compile(
-                "(?<![\\p{L}\\p{N}])" + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-            if (formaRuimPat.matcher(resultado).find()) {
-                resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));
-            }
-        }
-        return resultado;
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: confirma que o original EN contém o termo canônico na grafia
-     * exata — nome próprio maiúsculo, distinto da palavra comum minúscula.
-     * <p>INVARIANTES DO DOMÍNIO: fronteira de palavra; comparação SENSÍVEL à caixa.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: termo em branco devolve {@code false}.
-     */
-    private boolean contemTermoCanonico(String texto, String termo) {
-        if (termo.isBlank()) {
-            return false;
-        }
-        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
-            .matcher(texto).find();
-    }
 }
