@@ -154,7 +154,7 @@ public class ProcessarArquivoUseCase {
      * Quando a entrada aparenta já estar em PT-BR, a retradução é BLOQUEADA por padrão —
      * evita traduzir de novo uma legenda já traduzida e sobrescrever trabalho bom.
      *
-     * <h2>Invariantes do domínio</h2>
+     * <p><b>Invariantes do domínio</b>
      * <ul>
      *   <li>O contexto chega por PARÂMETRO e é o mesmo objeto para todos os arquivos do lote:
      *       quem resolve é o chamador, UMA vez, a partir do id explicitamente pedido. Este
@@ -170,7 +170,7 @@ public class ProcessarArquivoUseCase {
      *       execução ainda ficar parcial.</li>
      * </ul>
      *
-     * <h2>Comportamento em caso de falha</h2>
+     * <p><b>Comportamento em caso de falha</b>
      * Entrada aparentemente já traduzida sem confirmação → lança
      * {@link EntradaJaTraduzidaException} (o lote registra o arquivo como falha e segue para
      * o próximo); obra do caminho divergente do contexto do job → lança
