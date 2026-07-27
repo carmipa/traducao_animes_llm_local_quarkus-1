@@ -38,7 +38,7 @@ class GuardaIntegridadeRevisaoLegendasTest {
     private final RevisarLegendasUseCase guarda = new RevisarLegendasUseCase(
         null, null, null, null, null, null, null, null, null, null, null, null,
         new ProtecaoLegendaAssService(),  // o unico colaborador que a guarda usa
-        null, null, null, null, null);
+        null, null, null, null, null, null);
 
     @Test
     void acusaQuandoACorrecaoApagaUmaFalaComTexto() {

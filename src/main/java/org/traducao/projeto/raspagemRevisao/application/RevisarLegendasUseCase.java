@@ -3,7 +3,9 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
+import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
+import org.traducao.projeto.raspagemRevisao.domain.DiagnosticoRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
@@ -82,6 +84,7 @@ public class RevisarLegendasUseCase {
     private final ContextoManutencaoCacheService contextoManutencaoCache;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final FiltroAuditoriaLinha filtroAuditoria;
+    private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -111,7 +114,8 @@ public class RevisarLegendasUseCase {
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ContextoManutencaoCacheService contextoManutencaoCache,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
-        FiltroAuditoriaLinha filtroAuditoria
+        FiltroAuditoriaLinha filtroAuditoria,
+        DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -131,6 +135,7 @@ public class RevisarLegendasUseCase {
         this.contextoManutencaoCache = contextoManutencaoCache;
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.filtroAuditoria = filtroAuditoria;
+        this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
     }
 
     /**
@@ -560,7 +565,7 @@ public class RevisarLegendasUseCase {
             }
         }
 
-        DiagnosticoRetraducao diagnosticoRetraducao = diagnosticarRetraducaoEmMassa(
+        DiagnosticoRetraducao diagnosticoRetraducao = detectorRetraducaoEmMassa.diagnosticar(
             documentoPt, originaisPorIndice, contexto);
         if (diagnosticoRetraducao.deveBloquear()) {
             if (sincronizadasNesteArquivo > 0) {
@@ -965,64 +970,6 @@ public class RevisarLegendasUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: detecta quando uma legenda apresentada à etapa de
-     * revisão é, na realidade, um artefato não traduzido ou parcialmente
-     * restaurado do inglês, evitando usar o revisor como tradutor em massa.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: somente diálogos auditáveis com original EN e
-     * igualdade textual efetiva entram na contagem; nomes protegidos pela lore
-     * não são falsamente classificados como falha; o bloqueio exige ao menos
-     * vinte ocorrências e dez por cento das falas auditáveis.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: documento sem base comparável produz
-     * diagnóstico vazio e não bloqueia o fluxo.
-     */
-    private DiagnosticoRetraducao diagnosticarRetraducaoEmMassa(
-        DocumentoLegenda documento,
-        Map<Integer, String> originaisPorIndice,
-        ContextoRevisao contexto
-    ) {
-        if (documento == null || originaisPorIndice == null || originaisPorIndice.isEmpty()) {
-            return new DiagnosticoRetraducao(0, 0, false);
-        }
-        int auditaveis = 0;
-        int naoTraduzidas = 0;
-        for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo() || evento.texto() == null || evento.texto().isBlank()
-                || filtroAuditoria.deveIgnorar(evento, evento.texto())) {
-                continue;
-            }
-            String original = originaisPorIndice.get(evento.indice());
-            if (original == null || original.isBlank()) continue;
-            auditaveis++;
-            if (!normalizarTexto(original).equals(normalizarTexto(evento.texto()))) continue;
-            if (protetorLore.contemSomenteTermosCanonicos(
-                original, contexto.lore(), contexto.termosProtegidos())) {
-                continue;
-            }
-            ResultadoDeteccaoConcordancia resultado = auditor.auditar(original, evento.texto());
-            if (resultado.motivos().stream().anyMatch(m -> m.contains(PoliticaRetraducao.NAO_TRADUZIDA))) {
-                naoTraduzidas++;
-            }
-        }
-        boolean bloquear = PoliticaRetraducao.excedeLimiarRetraducaoEmMassa(auditaveis, naoTraduzidas);
-        return new DiagnosticoRetraducao(auditaveis, naoTraduzidas, bloquear);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: transporta as métricas usadas para separar revisão
-     * linguística de uma retradução acidental do arquivo inteiro.
-     * <p>INVARIANTES DO DOMÍNIO: contadores representam a mesma fotografia do
-     * documento após a recuperação do cache.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: record é imutável e não altera arquivos.
-     */
-    private record DiagnosticoRetraducao(
-        int falasAuditaveis,
-        int falasNaoTraduzidas,
-        boolean deveBloquear
-    ) {}
-
-    /**
      * PROPÓSITO DE NEGÓCIO: preserva a legenda anterior antes de a Opção 6
      * sobrescrever o arquivo de trabalho.
      *
@@ -1310,11 +1257,4 @@ public class RevisarLegendasUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lista de problemas ausente é normalizada
      * para lista vazia e o record não executa I/O.
      */
-    /**
-     * PROPÓSITO DE NEGÓCIO: mantém a identidade e o glossário operacional da
-     * obra ativos durante a revisão de um arquivo.
-     * <p>INVARIANTES DO DOMÍNIO: lore nunca é nula e termos pertencem ao contexto.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: record imutável não executa I/O.
-     */
-    record ContextoRevisao(String id, String lore, Set<String> termosProtegidos) {}
 }

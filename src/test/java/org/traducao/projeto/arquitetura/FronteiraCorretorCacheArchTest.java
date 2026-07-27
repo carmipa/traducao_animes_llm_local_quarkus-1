@@ -103,6 +103,12 @@ class FronteiraCorretorCacheArchTest {
         // reforço de terminologia acabou com duas implementações desiguais. É a MESMA aresta que
         // RevisarCacheUseCase já tinha para o mesmo tipo, não um acoplamento de espécie nova.
         "raspagemRevisao.application.RevisarLegendasUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
+        // FASE 4: o detector de retradução em massa saiu do caso de uso e levou consigo a
+        // dependência para o protetor de lore. NÃO é acoplamento novo de espécie: é a MESMA
+        // aresta que o caso de uso já tinha, agora nascendo da classe que de fato a usa. A
+        // exceção "fala idêntica ao inglês porque é só termo canônico" é conhecimento de lore,
+        // e sem ela uma obra com muitos nomes próprios seria bloqueada por estar correta.
+        "raspagemRevisao.application.DetectorRetraducaoEmMassaService -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
         // FASE 2, recuperação externa: as duas arestas que este caso de uso tinha para o
         // `infrastructure` da fatia vizinha SUMIRAM — ele agora conhece só a própria
@@ -254,7 +260,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (24, congeladas)")
+    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (25, congeladas)")
     void arestasCrossFatiaCongeladas() {
         Set<String> vivas = arestasVivas();
         Set<String> novas = new TreeSet<>(vivas);
