@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper;
 import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemCorrecao.domain.ports.TelemetriaRaspagemCorrecaoPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.traducao.infrastructure.adapters.LoreAtivaContextoAdapter;
@@ -151,9 +150,15 @@ class CorrigirComGoogleUseCaseTest {
         @Override public synchronized void registrar(EntradaAuditoriaCorrecaoCache entrada) { }
     }
 
-    private static final class TelemetriaStub extends TelemetriaService {
-        @Override public synchronized void finalizarOperacao(
-            OperacaoTelemetria operacao, Path pastaEntrada, String prefixoRelatorio, String conteudoRelatorio) { }
+    /**
+     * Telemetria em memoria. Com a porta da FASE 2, o teste deixou de precisar da fatia
+     * {@code telemetria} para existir -- que e exatamente o criterio de saida da fase:
+     * a application da correcao roda em teste sem as dependencias externas.
+     */
+    private static final class TelemetriaStub implements TelemetriaRaspagemCorrecaoPort {
+        @Override public void registrar(String operacao, String detalhe, String prefixoRelatorio,
+                                        Path pastaAlvo, long duracaoMs, int arquivosProcessados,
+                                        int itensDetectados, int itensCorrigidos, String relatorio) { }
     }
 
     private static final class ContextoTeste implements ProvedorContexto {

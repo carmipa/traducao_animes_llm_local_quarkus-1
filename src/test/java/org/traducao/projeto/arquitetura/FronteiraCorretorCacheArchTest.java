@@ -76,7 +76,9 @@ class FronteiraCorretorCacheArchTest {
         "correcaoLegendas.domain.CorrecaoLegendasRelatorioJson -> telemetria.OperacaoTelemetria",
         "correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia -> telemetria.TelemetriaService",
         "raspagemCorrecao.CorretorRaspagemCLI -> config.ExecucaoCli",
-        "raspagemCorrecao.application.CorrigirComGoogleUseCase -> telemetria.TelemetriaService",
+        // FASE 2: esta fatia saiu do TelemetriaService direto. A aresta agora nasce do ADAPTADOR,
+        // atras da TelemetriaRaspagemCorrecaoPort -- a diferenca entre a divida e a forma prescrita.
+        "raspagemCorrecao.infrastructure.TelemetriaRaspagemCorrecaoAdapter -> telemetria.TelemetriaService",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.application.ClassificadorEntradaCacheService",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",

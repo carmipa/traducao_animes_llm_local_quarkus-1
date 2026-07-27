@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper;
 import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
 import org.traducao.projeto.raspagemCorrecao.infrastructure.StatusRaspagem;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.raspagemCorrecao.domain.ports.TelemetriaRaspagemCorrecaoPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
@@ -47,7 +46,7 @@ public class CorrigirComGoogleUseCase {
     private final ProtetorTermosLoreService protetorLore;
     private final GoogleTranslateScraper googleScraper;
     private final CorrecaoCacheAuditoria auditoria;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaRaspagemCorrecaoPort telemetria;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe o reparo online com as proteções do cache.
@@ -61,7 +60,7 @@ public class CorrigirComGoogleUseCase {
         ProtetorTermosLoreService protetorLore,
         GoogleTranslateScraper googleScraper,
         CorrecaoCacheAuditoria auditoria,
-        TelemetriaService telemetriaService
+        TelemetriaRaspagemCorrecaoPort telemetria
     ) {
         this.cacheService = cacheService;
         this.classificador = classificador;
@@ -69,7 +68,7 @@ public class CorrigirComGoogleUseCase {
         this.protetorLore = protetorLore;
         this.googleScraper = googleScraper;
         this.auditoria = auditoria;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
     }
 
     /**
@@ -294,10 +293,6 @@ public class CorrigirComGoogleUseCase {
     private ResultadoManutencaoCache finalizar(Path pasta, long inicioMs, Contadores c) {
         ResultadoManutencaoCache r = c.resultado();
         long duracao = System.currentTimeMillis() - inicioMs;
-        OperacaoTelemetria op = TelemetriaService.criarOperacao(
-            "Correção Google (cache)", "status=" + r.status() + "; pendentes="
-                + r.itensPendentes() + "; falhas=" + r.falhas(), duracao,
-            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos());
         String relatorio = """
             CORREÇÃO ONLINE DO CACHE VIA GOOGLE
             ===================================
@@ -315,7 +310,10 @@ public class CorrigirComGoogleUseCase {
             """.formatted(pasta.toAbsolutePath(), r.status(), r.arquivosAnalisados(), r.arquivosAlterados(),
             r.itensDetectados(), r.itensCorrigidos(), r.itensPendentes(), r.itensIgnorados(),
             r.falhas(), r.cancelado());
-        telemetriaService.finalizarOperacao(op, pasta, "correcao_google_cache", relatorio);
+        telemetria.registrar("Correção Google (cache)",
+            "status=" + r.status() + "; pendentes=" + r.itensPendentes() + "; falhas=" + r.falhas(),
+            "correcao_google_cache", pasta, duracao,
+            r.arquivosAnalisados(), r.itensDetectados(), r.itensCorrigidos(), relatorio);
         out("Resultado da correção Google: " + r.status() + " | corrigidas=" + r.itensCorrigidos()
             + " pendentes=" + r.itensPendentes() + " falhas=" + r.falhas());
         return r;
