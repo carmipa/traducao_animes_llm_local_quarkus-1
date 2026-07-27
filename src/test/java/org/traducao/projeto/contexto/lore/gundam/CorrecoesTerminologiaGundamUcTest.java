@@ -33,7 +33,13 @@ class CorrecoesTerminologiaGundamUcTest {
     private static final Set<String> NUCLEO_CANONICOS = Set.of(
         "Newtype", "Newtypes", "Oldtype", "Oldtypes", "Mobile Suit", "Mobile Suits",
         "Mobile Armor", "Mobile Armors", "Beam Saber", "Beam Sabers", "Beam Rifle",
-        "Normal Suit", "Normal Suits", "Powered Spacesuit");
+        "Normal Suit", "Normal Suits", "Powered Spacesuit",
+        // Entraram no núcleo em 2026-07-27, vindos do catálogo espelho da revisão de lore.
+        // Pertencem aqui pelo mesmo motivo que "Newtype": são vocabulário UNIVERSAL da Universal
+        // Century, presentes na lore de toda a era — não termo próprio de uma obra. A isenção
+        // desta lista vale só para isso; canônico específico de obra continua obrigado a estar no
+        // termosProtegidos dela.
+        "Spacenoid", "Earthnoid", "Minovsky particles");
 
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")

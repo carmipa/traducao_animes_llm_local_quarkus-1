@@ -98,7 +98,17 @@ public final class CorrecoesTerminologiaGundamUc {
         Map.entry("Roupas Normais", "Normal Suits"),
         // Cartão de título "POWERED SPACESUIT" do ep01, única ocorrência observada.
         Map.entry("Terno Espacial Potenciado", "Powered Spacesuit"),
-        Map.entry("Traje Espacial Potenciado", "Powered Spacesuit")
+        Map.entry("Traje Espacial Potenciado", "Powered Spacesuit"),
+        // Vieram do catálogo ESPELHO da revisão de lore, onde já existiam. A duplicação entre os
+        // dois catálogos é deliberada (fatia não importa fatia), mas ela derivou nos DOIS sentidos:
+        // as variantes de Beam Saber e Normal Suit acima só existiam aqui, e estas seis só lá.
+        // Duplicação consciente exige quem acuse a divergência — ver ParidadeMapasTerminologiaTest.
+        Map.entry("Espacenóide", "Spacenoid"),
+        Map.entry("Espacenoide", "Spacenoid"),
+        Map.entry("Terranóide", "Earthnoid"),
+        Map.entry("Terranoide", "Earthnoid"),
+        Map.entry("Partículas Minovsky", "Minovsky particles"),
+        Map.entry("Particulas Minovsky", "Minovsky particles")
     );
 
     private CorrecoesTerminologiaGundamUc() {
