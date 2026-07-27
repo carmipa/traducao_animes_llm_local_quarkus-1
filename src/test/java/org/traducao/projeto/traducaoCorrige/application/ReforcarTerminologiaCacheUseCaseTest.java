@@ -253,6 +253,71 @@ class ReforcarTerminologiaCacheUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: prende o defeito mais grave que este relatório já teve. O contador
+     * era deduzido comparando ocorrências do canônico antes e depois — uma segunda implementação
+     * da regra, feita fora de quem a executa. Quando a forma-ruim CONTÉM o canônico, o canônico
+     * já estava lá antes da troca, o delta dava zero, e o relatório saía vazio TENDO REESCRITO O
+     * ARQUIVO: {@code CONCLUIDO_SEM_ALTERACOES} com {@code arquivosAlterados == 1}.
+     *
+     * <p>Não é hipótese: dos 205 pares do catálogo de lore, três disparam isto, em três obras
+     * distintas — {@code "Plee"→"Ple"} (ZZ), {@code "Gouf Customizado"→"Gouf Custom"} (08th MS
+     * Team) e {@code "Gundam Alexandre"→"Gundam Alex"} (War in the Pocket).
+     *
+     * <p>Hoje a contagem vem do próprio {@code EnforcadorTermosLore}, que sabe quantas
+     * substituições fez. Quem executa é quem conta.
+     */
+    @Test
+    @DisplayName("forma-ruim que CONTÉM o canônico é creditada — e o status não diz 'sem alterações'")
+    void formaRuimQueContemOCanonicoEhCreditada() throws Exception {
+        Path cache = temp.resolve("cache/Mobile Suit Gundam ZZ/ep05.cache.json");
+        Files.createDirectories(cache.getParent());
+        Files.writeString(cache, """
+            {"proveniencia":{"schemaVersion":1,"contextoId":"gundam_zz","contextoHash":"h","modeloLlm":"m","idiomaOrigem":"en","idiomaDestino":"pt-br"},
+             "entradas":[
+               {"indice":1,"estilo":"Default","original":"Ple, are you all right?","traduzido":"Plee, você está bem?"}
+             ]}
+            """);
+
+        ResultadoReforcoTerminologia r = useCase.executar(temp.resolve("cache"), null, true);
+
+        assertEquals("Ple, você está bem?",
+            mapper.readTree(cache.toFile()).path("entradas").get(0).path("traduzido").asText());
+        assertEquals(Map.of("Ple", 1), r.restauracoesPorTermo(),
+            "\"Plee\" contém \"Ple\": o contador antigo via delta zero e não creditava nada");
+        assertEquals("CONCLUIDO", r.status(),
+            "reescreveu o arquivo — não pode se declarar CONCLUIDO_SEM_ALTERACOES");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: se a gravação falha, o disco fica intacto — e o relatório tem de
+     * ficar intacto junto. Creditar antes de salvar fazia o lote anunciar restaurações que nunca
+     * existiram no acervo, e gravar linhas de auditoria {@code TERMINOLOGIA_REFORCADA} para falas
+     * que continuavam com a forma-ruim no arquivo.
+     */
+    @Test
+    @DisplayName("gravação que falha NÃO credita restaurações nem audita como reforçada")
+    void gravacaoQueFalhaNaoCredita() throws Exception {
+        Path cache = escreverCacheZZ();
+        String antes = Files.readString(cache);
+        var useCaseQueFalhaAoSalvar = new ReforcarTerminologiaCacheUseCase(
+            new CacheServiceQueFalhaAoSalvar(mapper, temp.resolve("backups")),
+            new ContextoManutencaoCacheService(
+                new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
+                new ValidadorCompatibilidadeObraContexto()),
+            new EnforcadorTermosLore(), auditoria);
+
+        ResultadoReforcoTerminologia r = useCaseQueFalhaAoSalvar.executar(temp.resolve("cache"), null, true);
+
+        assertEquals(antes, Files.readString(cache), "o disco tem de ficar intacto");
+        assertEquals(1, r.falhas());
+        assertEquals(0, r.falasAlteradas(), "nada chegou ao disco: nada pode ser creditado");
+        assertEquals(Map.of(), r.restauracoesPorTermo());
+        assertTrue(auditoria.entradas.stream().noneMatch(e -> "TERMINOLOGIA_REFORCADA".equals(e.resultado())),
+            "TERMINOLOGIA_REFORCADA tem de significar \"chegou ao disco\"");
+        assertTrue(auditoria.entradas.stream().anyMatch(e -> "FALHA_ARQUIVO".equals(e.resultado())));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: o contador é indexado pelo termo CANÔNICO porque várias formas-ruim
      * convergem para o mesmo termo oficial, e o que se mede é a conformidade do termo.
      */
@@ -307,6 +372,27 @@ class ReforcarTerminologiaCacheUseCaseTest {
         }
     }
 
+    /** Cache cuja gravação atômica sempre falha, para provar que nada é creditado sem disco. */
+    private static final class CacheServiceQueFalhaAoSalvar extends CacheManutencaoService {
+        private final Path backup;
+
+        CacheServiceQueFalhaAoSalvar(ObjectMapper mapper, Path backup) {
+            super(mapper);
+            this.backup = backup;
+        }
+
+        @Override
+        public Sessao iniciarSessao(Path raizCache, String operacao) {
+            return new Sessao(raizCache.toAbsolutePath().normalize(),
+                backup.toAbsolutePath().normalize(), operacao);
+        }
+
+        @Override
+        public Path salvarAtomico(DocumentoEditavel documento, Sessao sessao) throws java.io.IOException {
+            throw new java.io.IOException("There is not enough space on the disk");
+        }
+    }
+
     /** Auditoria em memória para não escrever artefatos do teste no projeto. */
     private static final class AuditoriaStub implements AuditoriaCorrecaoCachePort {
         private final List<EntradaAuditoriaCorrecaoCache> entradas = new ArrayList<>();
@@ -326,7 +412,10 @@ class ReforcarTerminologiaCacheUseCaseTest {
                 "Sabre de Raio", "Beam Saber",
                 "Espada de Raio", "Beam Saber",
                 "Espadas de Raio", "Beam Sabers",
-                "Eixo", "Axis");
+                "Eixo", "Axis",
+                // Par REAL de CorrecoesTerminologiaGundamZz: a forma-ruim CONTÉM o canônico.
+                // É o caso que fazia o contador antigo devolver zero.
+                "Plee", "Ple");
         }
     }
 

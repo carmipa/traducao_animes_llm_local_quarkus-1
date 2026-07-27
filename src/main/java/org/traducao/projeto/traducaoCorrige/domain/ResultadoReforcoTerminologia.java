@@ -96,10 +96,16 @@ public record ResultadoReforcoTerminologia(
         if (arquivosNaoVerificaveis > 0) {
             return aplicado ? "CONCLUIDO_COM_PULADOS" : "ENSAIO_COM_PULADOS";
         }
+        // "Houve mudança" é FALAS ALTERADAS, não o contador de termos. Derivar o status só do
+        // contador já produziu a pior saída possível: uma execução que reescreveu o arquivo e
+        // criou backup se declarando CONCLUIDO_SEM_ALTERACOES, no mesmo record em que
+        // arquivosAlterados valia 1. O contador pode ficar vazio por defeito seu; falasAlteradas
+        // é contado onde a troca acontece, e é o mesmo em ensaio e em execução.
+        boolean mudou = falasAlteradas > 0 || totalRestauracoes() > 0;
         if (!aplicado) {
-            return totalRestauracoes() > 0 ? "ENSAIO_COM_PENDENCIAS" : "ENSAIO_SEM_PENDENCIAS";
+            return mudou ? "ENSAIO_COM_PENDENCIAS" : "ENSAIO_SEM_PENDENCIAS";
         }
-        return totalRestauracoes() > 0 ? "CONCLUIDO" : "CONCLUIDO_SEM_ALTERACOES";
+        return mudou ? "CONCLUIDO" : "CONCLUIDO_SEM_ALTERACOES";
     }
 
     /**
