@@ -103,11 +103,16 @@ class RevisarLegendasContextoTest {
     }
 
     private static RevisarLegendasUseCase useCaseCom(GerenciadorContexto gerenciador) {
+        // 18 dependencias; so as quatro que a guarda obra x contexto usa sao reais.
         return new RevisarLegendasUseCase(
-            null, null, null, null, null, null, null, null, null, gerenciador,
-            null, null, null, null, null, new ProtetorTermosLoreService(), null,
+            null, null, null, null, null, null, null, null, null,
+            gerenciador,                    // gerenciadorContexto
+            null, null, null,
+            new ProtetorTermosLoreService(), // protetorLore
+            null,
             new ContextoManutencaoCacheService(gerenciador, new ValidadorCompatibilidadeObraContexto()),
-            new ResolvedorArtefatosRevisao());
+            new ResolvedorArtefatosRevisao(),
+            null);                          // filtroAuditoria
     }
 
     /**
