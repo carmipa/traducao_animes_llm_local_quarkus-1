@@ -2,7 +2,7 @@ package org.traducao.projeto.legendasExtracao.presentation;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.traducao.projeto.config.ExecucaoCli;
+import org.traducao.projeto.core.execucao.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;

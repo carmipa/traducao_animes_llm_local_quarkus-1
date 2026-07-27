@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.traducao.projeto.core.execucao.ExecucaoCli;
 import org.traducao.projeto.analisadorMidia.presentation.AnalisadorMidiaCLI;
 import org.traducao.projeto.legendasExtracao.presentation.ExtratorCLI;
 import org.traducao.projeto.mapaProjeto.presentation.MapaProjetoCLI;

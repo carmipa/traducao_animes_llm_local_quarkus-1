@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>O inventário de arestas cross-fatia é <b>nominal e exato</b>, por FQN completo. Aresta
  *       nova reprova nomeando o par; aresta que SOME também reprova, porque a dívida encolheu e a
  *       lista tem de registrar o progresso.</li>
- *   <li>Os 5 ciclos que envolvem a área são declarados, detectados sobre o grafo do projeto
+ *   <li>Os ciclos que envolvem a área são declarados, detectados sobre o grafo do projeto
  *       INTEIRO — ciclo é propriedade do grafo, não da vizinhança de quem se está olhando.</li>
  *   <li>Quem DEPENDE da área também é congelado, não só de quem a área depende.</li>
  *   <li>{@code application} não alcança {@code infrastructure} — nem o da própria fatia.</li>
@@ -77,7 +77,6 @@ class FronteiraCorretorCacheArchTest {
         // depende de fatia). Agora so o ADAPTADOR alcanca `telemetria`.
         "correcaoLegendas.infrastructure.TelemetriaCorrecaoLegendasAdapter -> telemetria.OperacaoTelemetria",
         "correcaoLegendas.infrastructure.TelemetriaCorrecaoLegendasAdapter -> telemetria.TelemetriaService",
-        "raspagemCorrecao.CorretorRaspagemCLI -> config.ExecucaoCli",
         // FASE 2: esta fatia saiu do TelemetriaService direto. A aresta agora nasce do ADAPTADOR,
         // atras da TelemetriaRaspagemCorrecaoPort -- a diferenca entre a divida e a forma prescrita.
         "raspagemCorrecao.infrastructure.TelemetriaRaspagemCorrecaoAdapter -> telemetria.TelemetriaService",
@@ -86,12 +85,10 @@ class FronteiraCorretorCacheArchTest {
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort",
-        "raspagemRevisao.RevisorLegendasCLI -> config.ExecucaoCli",
         // FASE 2: as QUATRO arestas de application desta fatia sairam. A dependencia para
         // `telemetria` agora nasce so do ADAPTADOR, atras da TelemetriaRevisaoPort.
         "raspagemRevisao.infrastructure.TelemetriaRevisaoAdapter -> telemetria.OperacaoTelemetria",
         "raspagemRevisao.infrastructure.TelemetriaRevisaoAdapter -> telemetria.TelemetriaService",
-        "raspagemRevisao.RevisorRaspagemCLI -> config.ExecucaoCli",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.application.ClassificadorEntradaCacheService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.application.ContextoManutencaoCacheService",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
@@ -124,7 +121,6 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.ResultadoRaspagem",
         "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.StatusRaspagem",
         "raspagemRevisao.infrastructure.GoogleRecuperacaoExternaAdapter -> raspagemCorrecao.domain.ports.RecuperacaoExternaPort",
-        "traducaoCorrige.CorretorCacheCLI -> config.ExecucaoCli",
         // ADAPTADOR, não acoplamento novo de aplicação: é a FASE 2 do Plano-Mestre aterrissando
         // no código novo. A aresta para `telemetria` sai de INFRASTRUCTURE, atrás da
         // TelemetriaCorrecaoPort, e não da camada de aplicação — que é exatamente a diferença
@@ -136,23 +132,26 @@ class FronteiraCorretorCacheArchTest {
         "traducaoCorrige.presentation.web.CorrecaoCacheController -> raspagemRevisao.application.RevisarCacheUseCase");
 
     /**
-     * Os dois CICLOS conhecidos, em forma canônica (par ordenado alfabeticamente). A fase C2 do
-     * projeto quebrou o {@code config ⇄ traducao} e registrou isso como conquista; estes nunca
-     * foram quebrados. A FASE 3 do Plano-Mestre existe para eliminá-los.
+     * Os CICLOS que envolvem a área, em forma canônica (par ordenado alfabeticamente). Eram 5;
+     * a FASE 3 quebrou os 3 de {@code config} e restaram os 2 internos.
+     *
+     * <p>Os três de {@code config} caíram juntos ao mover {@code ExecucaoCli} de {@code config}
+     * para {@code core.execucao}. Era uma interface de UMA linha, sem framework e sem conhecer
+     * fatia nenhuma, morando em {@code config} por acidente histórico — e era a perna de volta de
+     * SETE ciclos, um por fatia com modo CLI. Com ela no kernel, {@code CLI → core} deixa de ser
+     * aresta (consumo livre por contrato) e o que sobra é {@code config → CLI}, one-way, que é o
+     * que um composition root legitimamente faz.
+     *
+     * <p><b>Não é o padrão-ouro.</b> A fase D-Config zerou {@code config ⇄ traducao} nos DOIS
+     * sentidos, tirando a {@code TradutorCLI} do despachante e dando à fatia bootstrap próprio.
+     * Aqui o despachante continua importando as CLIs. O ciclo morreu, a aresta one-way não.
      */
     private static final Set<String> CICLOS_CONGELADOS = Set.of(
-        // Os dois ciclos INTERNOS à área, alvo direto da FASE 3.
+        // Os dois ciclos INTERNOS à área — o que resta da FASE 3. Ambos fecham pelo MESMO ponto:
+        // `traducaoCorrige.presentation.web.CorrecaoCacheController` injeta os casos de uso das
+        // duas raspagens (linhas acima), enquanto elas dependem de `traducaoCorrige` na ida.
         "raspagemCorrecao <-> traducaoCorrige",
-        "raspagemRevisao <-> traducaoCorrige",
-        // Os três com `config`, que a primeira versão desta catraca NÃO ENXERGAVA: ela só
-        // enumerava arestas cuja ORIGEM estava na área, e a perna de volta destes nasce fora
-        // (`config.ModoExecucaoStartup` -> os CLIs da área). O teste afirmava "exatamente 2"
-        // e havia 5 — uma catraca que mede menos do que anuncia é pior que catraca nenhuma,
-        // porque dá por coberto o que não olhou. Mesma forma do `config ⇄ traducao` que a
-        // fase C2 quebrou; estes seguem abertos.
-        "config <-> raspagemCorrecao",
-        "config <-> raspagemRevisao",
-        "config <-> traducaoCorrige");
+        "raspagemRevisao <-> traducaoCorrige");
 
     /**
      * Arestas ENTRANDO na área — origem fora, destino dentro. A primeira versão desta catraca
@@ -230,7 +229,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (28, congeladas)")
+    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (24, congeladas)")
     void arestasCrossFatiaCongeladas() {
         Set<String> vivas = arestasVivas();
         Set<String> novas = new TreeSet<>(vivas);
@@ -248,7 +247,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: exatamente os 5 ciclos que envolvem a área — inclusive os que voltam por fora")
+    @DisplayName("FASE 3: os 2 ciclos internos que restam — os 3 de config foram quebrados")
     void ciclosConhecidos() {
         // O grafo é montado sobre TODAS as fatias, não só as da área: um ciclo cuja perna de
         // volta nasce fora (config -> CLI da área) é invisível para quem só enumera a saída.
