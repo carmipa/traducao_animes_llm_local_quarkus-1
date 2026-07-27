@@ -246,7 +246,7 @@ public class ValidadorTraducaoService {
      * {@code "Shu: Eu não posso... usar o King's Power..."} e {@code "Souta!"} como uma ficha
      * inteira do roster. Nenhuma delas dispara qualquer regra que olhe só a saída.
      *
-     * <h2>Invariantes do domínio</h2>
+     * <p><b>Invariantes do domínio</b>
      * <ul>
      *   <li>O invariante violado é ANCORAGEM, não comprimento: a tradução carrega material que
      *       o original não sustenta. Comprimento é sintoma, e por isso a desproporção é apenas
@@ -263,7 +263,7 @@ public class ValidadorTraducaoService {
      *       traduzido como {@code "Repito:"} é tradução correta.</li>
      * </ul>
      *
-     * <h2>Comportamento em caso de falha</h2>
+     * <p><b>Comportamento em caso de falha</b>
      * Texto vazio, original ausente ou fala que sobra vazia após limpar tags são aceitos: sem
      * um par comparável não há ancoragem a medir, e reprovar aí trocaria uma checagem inútil
      * por uma pendência inventada. Violação lança {@link AlucinacaoDetectadaException} com o
