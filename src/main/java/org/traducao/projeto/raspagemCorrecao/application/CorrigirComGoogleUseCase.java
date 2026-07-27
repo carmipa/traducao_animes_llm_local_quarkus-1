@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.GoogleTranslateScraper;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.ResultadoRaspagem;
-import org.traducao.projeto.raspagemCorrecao.infrastructure.StatusRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.ResultadoRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.StatusRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.ports.RecuperacaoExternaPort;
 import org.traducao.projeto.raspagemCorrecao.domain.ports.TelemetriaRaspagemCorrecaoPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
@@ -44,7 +44,7 @@ public class CorrigirComGoogleUseCase {
     private final ClassificadorEntradaCacheService classificador;
     private final ContextoManutencaoCacheService contextoService;
     private final ProtetorTermosLoreService protetorLore;
-    private final GoogleTranslateScraper googleScraper;
+    private final RecuperacaoExternaPort recuperacaoExterna;
     private final CorrecaoCacheAuditoria auditoria;
     private final TelemetriaRaspagemCorrecaoPort telemetria;
 
@@ -58,7 +58,7 @@ public class CorrigirComGoogleUseCase {
         ClassificadorEntradaCacheService classificador,
         ContextoManutencaoCacheService contextoService,
         ProtetorTermosLoreService protetorLore,
-        GoogleTranslateScraper googleScraper,
+        RecuperacaoExternaPort recuperacaoExterna,
         CorrecaoCacheAuditoria auditoria,
         TelemetriaRaspagemCorrecaoPort telemetria
     ) {
@@ -66,7 +66,7 @@ public class CorrigirComGoogleUseCase {
         this.classificador = classificador;
         this.contextoService = contextoService;
         this.protetorLore = protetorLore;
-        this.googleScraper = googleScraper;
+        this.recuperacaoExterna = recuperacaoExterna;
         this.auditoria = auditoria;
         this.telemetria = telemetria;
     }
@@ -167,7 +167,7 @@ public class CorrigirComGoogleUseCase {
 
                 ProtetorTermosLoreService.TextoProtegido protegido = protetorLore.mascarar(
                     original, contextoService.loreAtiva(), contextoService.termosProtegidosAtivos());
-                ResultadoRaspagem resposta = googleScraper.traduzir(protegido.textoMascarado());
+                ResultadoRaspagem resposta = recuperacaoExterna.traduzir(protegido.textoMascarado());
                 if (resposta.status() == StatusRaspagem.SUCESSO) {
                     String restaurado = protetorLore.restaurar(resposta.texto(), protegido);
                     if (restaurado == null) {

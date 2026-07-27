@@ -2,6 +2,8 @@ package org.traducao.projeto.raspagemCorrecao.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.traducao.projeto.raspagemCorrecao.domain.ResultadoRaspagem;
+import org.traducao.projeto.raspagemCorrecao.domain.StatusRaspagem;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
