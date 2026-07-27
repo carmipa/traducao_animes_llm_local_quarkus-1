@@ -16,7 +16,7 @@ import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCach
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +45,7 @@ public class CorrigirComGoogleUseCase {
     private final ContextoManutencaoCacheService contextoService;
     private final ProtetorTermosLoreService protetorLore;
     private final RecuperacaoExternaPort recuperacaoExterna;
-    private final CorrecaoCacheAuditoria auditoria;
+    private final AuditoriaCorrecaoCachePort auditoria;
     private final TelemetriaRaspagemCorrecaoPort telemetria;
 
     /**
@@ -59,7 +59,7 @@ public class CorrigirComGoogleUseCase {
         ContextoManutencaoCacheService contextoService,
         ProtetorTermosLoreService protetorLore,
         RecuperacaoExternaPort recuperacaoExterna,
-        CorrecaoCacheAuditoria auditoria,
+        AuditoriaCorrecaoCachePort auditoria,
         TelemetriaRaspagemCorrecaoPort telemetria
     ) {
         this.cacheService = cacheService;

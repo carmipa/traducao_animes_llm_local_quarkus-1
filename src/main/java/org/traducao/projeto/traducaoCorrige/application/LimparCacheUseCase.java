@@ -11,7 +11,7 @@ import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +39,7 @@ public class LimparCacheUseCase {
     private final CacheManutencaoService cacheService;
     private final ClassificadorEntradaCacheService classificador;
     private final ContextoManutencaoCacheService contextoService;
-    private final CorrecaoCacheAuditoria auditoria;
+    private final AuditoriaCorrecaoCachePort auditoria;
     private final TelemetriaCorrecaoPort telemetria;
 
     /**
@@ -52,7 +52,7 @@ public class LimparCacheUseCase {
         CacheManutencaoService cacheService,
         ClassificadorEntradaCacheService classificador,
         ContextoManutencaoCacheService contextoService,
-        CorrecaoCacheAuditoria auditoria,
+        AuditoriaCorrecaoCachePort auditoria,
         TelemetriaCorrecaoPort telemetria
     ) {
         this.cacheService = cacheService;

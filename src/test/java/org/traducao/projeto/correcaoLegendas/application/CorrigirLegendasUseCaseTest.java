@@ -3,7 +3,7 @@ package org.traducao.projeto.correcaoLegendas.application;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.correcaoLegendas.domain.CorrecaoLegendasRelatorioJson;
-import org.traducao.projeto.correcaoLegendas.infrastructure.CorrecaoLegendasLogPersistencia;
+import org.traducao.projeto.correcaoLegendas.domain.ports.RelatorioCorrecaoLegendasPort;
 import org.traducao.projeto.correcaoLegendas.domain.ResumoOperacaoCorrecaoLegendas;
 import org.traducao.projeto.correcaoLegendas.domain.ports.TelemetriaCorrecaoLegendasPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
@@ -169,7 +169,7 @@ class CorrigirLegendasUseCaseTest {
         }
     }
 
-    private static class LogPersistenciaFake extends CorrecaoLegendasLogPersistencia {
+    private static class LogPersistenciaFake implements RelatorioCorrecaoLegendasPort {
         @Override
         public Path salvarRelatorioJson(Path pastaEntrada, CorrecaoLegendasRelatorioJson relatorio) {
             return pastaEntrada.resolve("relatorio-fake.json");

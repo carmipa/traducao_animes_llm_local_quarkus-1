@@ -19,7 +19,7 @@ import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraCon
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,7 +54,7 @@ class LimparCacheUseCaseTest {
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
             new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
-        auditoria = new AuditoriaStub(mapper);
+        auditoria = new AuditoriaStub();
         useCase = new LimparCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()), auditoria, new TelemetriaStub());
@@ -112,10 +112,9 @@ class LimparCacheUseCaseTest {
     }
 
     /** Auditoria em memória para não escrever artefatos do teste no projeto. */
-    private static final class AuditoriaStub extends CorrecaoCacheAuditoria {
+    private static final class AuditoriaStub implements AuditoriaCorrecaoCachePort {
         private final List<EntradaAuditoriaCorrecaoCache> entradas = new ArrayList<>();
-        AuditoriaStub(ObjectMapper mapper) { super(mapper); }
-        @Override public synchronized void registrar(EntradaAuditoriaCorrecaoCache entrada) { entradas.add(entrada); }
+        @Override public void registrar(EntradaAuditoriaCorrecaoCache entrada) { entradas.add(entrada); }
     }
 
     /** Telemetria sem I/O usada para verificar apenas a regra de negócio. */

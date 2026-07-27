@@ -25,7 +25,7 @@ import org.traducao.projeto.traducaoCorrige.application.ClassificadorEntradaCach
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;
-import org.traducao.projeto.traducaoCorrige.infrastructure.CorrecaoCacheAuditoria;
+import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -76,7 +76,7 @@ class RevisarCacheUseCaseTest {
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()), new DetectorConcordanciaService(), llm,
             new ValidadorTraducaoService(), new MascaradorTags(), new ProtecaoLegendaAssService(),
-            new AuditoriaStub(mapper), new TelemetriaStub());
+            new AuditoriaStub(), new TelemetriaStub());
 
         Path cache = temp.resolve("cache");
         Files.createDirectories(cache);
@@ -156,9 +156,8 @@ class RevisarCacheUseCaseTest {
         }
     }
 
-    private static final class AuditoriaStub extends CorrecaoCacheAuditoria {
-        AuditoriaStub(ObjectMapper mapper) { super(mapper); }
-        @Override public synchronized void registrar(EntradaAuditoriaCorrecaoCache entrada) { }
+    private static final class AuditoriaStub implements AuditoriaCorrecaoCachePort {
+        @Override public void registrar(EntradaAuditoriaCorrecaoCache entrada) { }
     }
 
     /**
