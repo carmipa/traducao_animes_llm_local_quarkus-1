@@ -8,6 +8,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
+import org.traducao.projeto.raspagemRevisao.domain.ReferenciaCacheSegura;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,13 +35,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RevisarLegendasCacheSeguroTest {
 
     @Inject
+    PreparadorReferenciaRevisao preparador;
+
+    /** Ainda necessário: o backup continua sendo responsabilidade do caso de uso. */
+    @Inject
     RevisarLegendasUseCase useCase;
 
     @Inject
     SincronizadorLegendaCacheService sincronizador;
 
     private Set<Integer> indicesSeguros(DocumentoLegenda doc, List<EntradaCache> cache, ProvenienciaCache prov) {
-        return useCase.montarReferenciaCacheSegura(doc, cache, prov).originaisPorIndice().keySet();
+        return preparador.montarReferenciaCacheSegura(doc, cache, prov).originaisPorIndice().keySet();
     }
 
     private EventoLegenda dialogo(int indice, String estilo, String texto) {
@@ -68,8 +73,8 @@ class RevisarLegendasCacheSeguroTest {
             new EntradaCache(4, "Sign", "Sign", "Placa", "en", "pt")
         );
 
-        RevisarLegendasUseCase.ReferenciaCacheSegura ref =
-            useCase.montarReferenciaCacheSegura(doc, cache, proveniencia("danmachi"));
+        ReferenciaCacheSegura ref =
+            preparador.montarReferenciaCacheSegura(doc, cache, proveniencia("danmachi"));
 
         assertEquals("Hello world", ref.originaisPorIndice().get(1));
         assertFalse(ref.originaisPorIndice().containsKey(2));
@@ -89,8 +94,8 @@ class RevisarLegendasCacheSeguroTest {
             new EntradaCache(1, "Default", "Hello world", "Olá mundo", "en", "pt")
         );
 
-        RevisarLegendasUseCase.ReferenciaCacheSegura ref =
-            useCase.montarReferenciaCacheSegura(doc, cache, proveniencia(""));
+        ReferenciaCacheSegura ref =
+            preparador.montarReferenciaCacheSegura(doc, cache, proveniencia(""));
 
         assertTrue(ref.originaisPorIndice().isEmpty());
         assertTrue(ref.semReferenciaSegura().contains(1));
@@ -146,8 +151,8 @@ class RevisarLegendasCacheSeguroTest {
         List<EntradaCache> cache = List.of(
             new EntradaCache(1, "Default", "Hello world", "Olá mundo", "en", "pt"));
 
-        RevisarLegendasUseCase.ReferenciaCacheSegura ref =
-            useCase.montarReferenciaCacheSegura(doc, cache, proveniencia(""));
+        ReferenciaCacheSegura ref =
+            preparador.montarReferenciaCacheSegura(doc, cache, proveniencia(""));
         assertTrue(ref.originaisPorIndice().isEmpty());
 
         SincronizadorLegendaCacheService.Resultado r =
@@ -167,8 +172,8 @@ class RevisarLegendasCacheSeguroTest {
         List<EntradaCache> cache = List.of(
             new EntradaCache(1, "Default", "Hello world", "Olá mundo", "en", "pt"));
 
-        RevisarLegendasUseCase.ReferenciaCacheSegura ref =
-            useCase.montarReferenciaCacheSegura(doc, cache, proveniencia("danmachi"));
+        ReferenciaCacheSegura ref =
+            preparador.montarReferenciaCacheSegura(doc, cache, proveniencia("danmachi"));
         assertEquals("Hello world", ref.originaisPorIndice().get(1)); // referência EN disponível
 
         SincronizadorLegendaCacheService.Resultado r =

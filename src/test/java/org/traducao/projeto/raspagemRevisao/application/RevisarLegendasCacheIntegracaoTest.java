@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.cachetraducao.domain.CacheDocumento;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
@@ -90,7 +91,7 @@ class RevisarLegendasCacheIntegracaoTest {
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
             ModoRevisaoLegendas.GOOGLE, "danmachi",
-            RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
+            ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());
         String conteudo = Files.readString(ass, StandardCharsets.UTF_8);
@@ -118,7 +119,7 @@ class RevisarLegendasCacheIntegracaoTest {
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
             ModoRevisaoLegendas.GOOGLE, "danmachi",
-            RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
+            ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());
         assertTrue(resultado.falasPendentes() >= 1, "arquivo sem cache deve ficar pendente");
@@ -147,7 +148,7 @@ class RevisarLegendasCacheIntegracaoTest {
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, null,
             ModoRevisaoLegendas.GOOGLE, "danmachi",
-            RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE);
+            ModoReferenciaRevisao.CACHE);
 
         assertEquals(1, resultado.arquivosAnalisados());
         assertTrue(resultado.falasPendentes() >= 1, "cache que não casa não pode virar sucesso silencioso");

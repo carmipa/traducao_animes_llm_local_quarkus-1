@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
 import org.traducao.projeto.cachetraducao.domain.CacheDocumento;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
@@ -127,7 +128,7 @@ class BloqueioRetraducaoEmMassaCaracterizacaoTest {
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, pastaSaida,
             ModoRevisaoLegendas.GOOGLE, "danmachi",
-            RevisarLegendasUseCase.ModoReferenciaRevisao.AMBOS);
+            ModoReferenciaRevisao.AMBOS);
 
         assertFalse(Files.exists(pastaSaida.resolve("show_PT-BR.ass")),
             "sem nada recuperado, o bloqueio não pode produzir arquivo de saída");
@@ -172,7 +173,7 @@ class BloqueioRetraducaoEmMassaCaracterizacaoTest {
         ResultadoRevisaoLegendas resultado = useCase.executar(
             pastaPt, null, pastaCache, pastaSaida,
             ModoRevisaoLegendas.GOOGLE, "danmachi",
-            RevisarLegendasUseCase.ModoReferenciaRevisao.AMBOS);
+            ModoReferenciaRevisao.AMBOS);
 
         Path destino = pastaSaida.resolve("show_PT-BR.ass");
         assertTrue(Files.exists(destino),

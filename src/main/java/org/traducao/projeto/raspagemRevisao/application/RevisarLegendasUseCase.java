@@ -7,6 +7,8 @@ import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DiagnosticoRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
+import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
+import org.traducao.projeto.raspagemRevisao.domain.PreparacaoReferencia;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
@@ -21,9 +23,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
-import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
-import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
@@ -46,30 +46,13 @@ import java.util.stream.Stream;
 @Service
 public class RevisarLegendasUseCase {
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: fonte de referência que protege o sentido durante a
-     * revisão do PT — a legenda EN + cache (AMBOS, comportamento histórico) ou
-     * exclusivamente o cache (CACHE), com vínculo seguro por entrada.
-     * <p>INVARIANTES DO DOMÍNIO: em CACHE não se usa {@code .ass} EN irmão nem
-     * fallback por texto não validado; só entradas de cache que casam com
-     * segurança (índice + estilo + proveniência + texto) viram referência.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada de cache que não casa marca a
-     * fala como SEM_REFERÊNCIA_SEGURA e nunca é usada em silêncio.
-     */
-    public enum ModoReferenciaRevisao {
-        AMBOS,
-        CACHE
-    }
-
     private static final long PAUSA_GOOGLE_MS = 400;
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
-    private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final AuditorProblemasLegendaService auditor;
     private final ValidadorTraducaoService validador;
-    private final LeitorCacheReferenciaService leitorCache;
     private final SincronizadorLegendaCacheService sincronizadorCache;
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
@@ -81,7 +64,7 @@ public class RevisarLegendasUseCase {
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final FiltroAuditoriaLinha filtroAuditoria;
     private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
-    private final AtivadorContextoRevisao ativadorContexto;
+    private final PreparadorReferenciaRevisao preparador;
 
     /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
@@ -94,12 +77,10 @@ public class RevisarLegendasUseCase {
      * construção do serviço pelo contêiner de injeção.
      */
     public RevisarLegendasUseCase(
-        LeitorLegendaAss leitor,
         EscritorLegendaAss escritor,
         RecuperacaoExternaRevisaoPort recuperacaoExterna,
         AuditorProblemasLegendaService auditor,
         ValidadorTraducaoService validador,
-        LeitorCacheReferenciaService leitorCache,
         SincronizadorLegendaCacheService sincronizadorCache,
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
@@ -111,14 +92,12 @@ public class RevisarLegendasUseCase {
         ResolvedorArtefatosRevisao resolvedorArtefatos,
         FiltroAuditoriaLinha filtroAuditoria,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
-        AtivadorContextoRevisao ativadorContexto
+        PreparadorReferenciaRevisao preparador
     ) {
-        this.leitor = leitor;
         this.escritor = escritor;
         this.recuperacaoExterna = recuperacaoExterna;
         this.auditor = auditor;
         this.validador = validador;
-        this.leitorCache = leitorCache;
         this.sincronizadorCache = sincronizadorCache;
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
@@ -130,7 +109,7 @@ public class RevisarLegendasUseCase {
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.filtroAuditoria = filtroAuditoria;
         this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
-        this.ativadorContexto = ativadorContexto;
+        this.preparador = preparador;
     }
 
     /**
@@ -365,93 +344,27 @@ public class RevisarLegendasUseCase {
         totalArquivos[0]++;
         out("\nAnalisando legenda: " + arquivoPt.getFileName());
 
-        DocumentoLegenda documentoPt = leitor.ler(arquivoPt);
-
-        Path cachePath = resolvedorArtefatos.resolverArquivoCache(arquivoPt, cacheDir);
-        LeitorCacheReferenciaService.DocumentoReferencia cache = carregarDocumentoCache(cachePath);
-        List<EntradaCache> entradasCache = cache.entradas();
-
-        // Modo Cache: sem cache correspondente não há referência possível. O arquivo
-        // fica BLOQUEADO/PENDENTE em vez de ser "revisado" com zero referência segura.
-        if (referencia == ModoReferenciaRevisao.CACHE && entradasCache.isEmpty()) {
-            out(AnsiCores.RED + "  [BLOQUEADO] Modo Cache: nenhum cache correspondente encontrado para "
-                + arquivoPt.getFileName() + " em " + cacheDir.toAbsolutePath()
-                + " (esperado algo como " + cachePath.getFileName() + "). Arquivo não revisado."
-                + AnsiCores.RESET);
-            totalProblemas[0]++;
-            totalPendentes[0]++;
+        PreparacaoReferencia preparacao = preparador.preparar(
+            arquivoPt, pastaLegendasEn, cacheDir, referencia, contextoFallback);
+        if (preparacao instanceof PreparacaoReferencia.Bloqueada bloqueada) {
+            totalProblemas[0] += bloqueada.problemas();
+            totalPendentes[0] += bloqueada.pendentes();
             return;
         }
-
-        ContextoRevisao contexto = ativadorContexto.ativar(
-            cache.proveniencia(), contextoFallback, cachePath);
-
-        Path arquivoEn;
-        Map<Integer, String> originaisPorIndice;
-        Map<String, String> originalPorTraduzido;
-        Set<Integer> indicesSemReferenciaSegura;
-        if (referencia == ModoReferenciaRevisao.CACHE) {
-            // Modo "Cache": referência vem SÓ do cache, com vínculo seguro por entrada.
-            // Sem .ass EN irmão e sem fallback por texto não validado.
-            arquivoEn = null;
-            ReferenciaCacheSegura referenciaCache = montarReferenciaCacheSegura(
-                documentoPt, entradasCache, cache.proveniencia());
-            originaisPorIndice = referenciaCache.originaisPorIndice();
-            indicesSemReferenciaSegura = referenciaCache.semReferenciaSegura();
-            originalPorTraduzido = Map.of();
-        } else {
-            // Modo "Ambos": .ass EN + cache preenchendo lacunas (comportamento histórico).
-            arquivoEn = resolvedorArtefatos.resolverArquivoOriginal(arquivoPt, pastaLegendasEn);
-            originaisPorIndice = carregarOriginaisDeLegenda(arquivoEn);
-            originalPorTraduzido = indexarOriginalPorTraduzido(entradasCache);
-            for (EntradaCache entrada : entradasCache) {
-                if (entrada.original() != null && !entrada.original().isBlank()) {
-                    originaisPorIndice.putIfAbsent(entrada.indice(), entrada.original());
-                }
-            }
-            indicesSemReferenciaSegura = Set.of();
-        }
-
-        if (!entradasCache.isEmpty()) {
-            out("  Cache carregado: " + cachePath.getFileName()
-                + " (" + entradasCache.size() + " entradas EN)");
-        } else {
-            out(AnsiCores.YELLOW + "  Aviso: cache EN não encontrado. Procurado em: "
-                + cacheDir.toAbsolutePath()
-                + " (esperado algo como " + cachePath.getFileName() + ")"
-                + AnsiCores.RESET);
-        }
-        if (arquivoEn != null && Files.isRegularFile(arquivoEn) && !originaisPorIndice.isEmpty()) {
-            out("  Legenda .ass EN: " + arquivoEn.getFileName());
-        }
-        if (referencia == ModoReferenciaRevisao.CACHE) {
-            long dialogosAuditaveis = documentoPt.eventos().stream()
-                .filter(e -> e.isDialogo() && e.texto() != null && !e.texto().isBlank()
-                    && !filtroAuditoria.deveIgnorar(e, e.texto()))
-                .count();
-            // Cache resolvido (por código de episódio, p.ex.) mas que não casa com
-            // NENHUMA fala com segurança = cache de outra obra/episódio ou estale.
-            // Bloqueia em vez de "concluir com sucesso" sem nenhuma referência segura.
-            if (originaisPorIndice.isEmpty() && dialogosAuditaveis > 0) {
-                out(AnsiCores.RED + "  [BLOQUEADO] Modo Cache: o cache resolvido (" + cachePath.getFileName()
-                    + ") não corresponde com segurança a nenhuma das " + dialogosAuditaveis
-                    + " fala(s) de " + arquivoPt.getFileName()
-                    + " (índice/estilo/proveniência/texto divergem). Arquivo não revisado." + AnsiCores.RESET);
-                totalProblemas[0]++;
-                totalPendentes[0]++;
-                return;
-            }
-            if (!indicesSemReferenciaSegura.isEmpty()) {
-                totalSemReferenciaSegura[0] += indicesSemReferenciaSegura.size();
-                // Fala sem vínculo seguro é PENDÊNCIA: no modo Cache não há "conclusão
-                // com sucesso" enquanto restar fala sem referência segura.
-                totalPendentes[0] += indicesSemReferenciaSegura.size();
-                out(AnsiCores.YELLOW + "  [SEM_REFERÊNCIA_SEGURA] " + indicesSemReferenciaSegura.size()
-                    + " fala(s) sem vínculo seguro no cache (índice/estilo/proveniência/texto não conferem); "
-                    + "marcadas como pendentes, nunca comparadas em silêncio. Índices: "
-                    + indicesSemReferenciaSegura + AnsiCores.RESET);
-            }
-        }
+        PreparacaoReferencia.Pronta pronta = (PreparacaoReferencia.Pronta) preparacao;
+        DocumentoLegenda documentoPt = pronta.documento();
+        Path cachePath = pronta.cachePath();
+        List<EntradaCache> entradasCache = pronta.entradasCache();
+        ContextoRevisao contexto = pronta.contexto();
+        Path arquivoEn = pronta.arquivoEn();
+        Map<Integer, String> originaisPorIndice = pronta.originaisPorIndice();
+        Map<String, String> originalPorTraduzido = pronta.originalPorTraduzido();
+        Set<Integer> indicesSemReferenciaSegura = pronta.indicesSemReferenciaSegura();
+        // Fala sem vinculo seguro e PENDENCIA: no modo Cache nao ha "conclusao com
+        // sucesso" enquanto restar fala sem referencia segura. Em AMBOS o conjunto e
+        // vazio, entao a conta e a mesma sem ramo por modo.
+        totalSemReferenciaSegura[0] += indicesSemReferenciaSegura.size();
+        totalPendentes[0] += indicesSemReferenciaSegura.size();
 
         List<EventoLegenda> eventosAtualizados = new ArrayList<>();
         Map<String, String> cacheRevisaoMasc = new HashMap<>();
@@ -953,122 +866,6 @@ public class RevisarLegendasUseCase {
 
     private String normalizarEstilo(String estilo) {
         return estilo == null ? "" : estilo.trim().toLowerCase();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: no modo "Cache", monta a referência EN vindo somente
-     * do cache, aceitando uma entrada como referência de uma fala apenas quando o
-     * vínculo é seguro; o resto fica marcado como SEM_REFERÊNCIA_SEGURA.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: uma entrada só vira referência se houver
-     * proveniência válida no cache e ela casar com a fala em índice, estilo e
-     * texto traduzido (normalizado). Placas/karaokê ({@link FiltroAuditoriaLinha#deveIgnorar})
-     * não exigem referência e não são marcadas. Falas sem qualquer entrada no
-     * índice não são "inseguras" — apenas ficam sem referência.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: proveniência ausente (cache legado) torna
-     * toda fala SEM_REFERÊNCIA_SEGURA, protegendo contra vínculo às cegas.
-     */
-    ReferenciaCacheSegura montarReferenciaCacheSegura(
-        DocumentoLegenda documentoPt,
-        List<EntradaCache> entradasCache,
-        ProvenienciaCache proveniencia
-    ) {
-        Map<Integer, String> originaisPorIndice = new HashMap<>();
-        Set<Integer> semReferenciaSegura = new LinkedHashSet<>();
-
-        Map<Integer, EntradaCache> cachePorIndice = new HashMap<>();
-        for (EntradaCache entrada : entradasCache) {
-            cachePorIndice.putIfAbsent(entrada.indice(), entrada);
-        }
-        boolean provenienciaOk = proveniencia != null
-            && proveniencia.contextoId() != null && !proveniencia.contextoId().isBlank();
-
-        for (EventoLegenda evento : documentoPt.eventos()) {
-            if (!evento.isDialogo() || evento.texto() == null || evento.texto().isBlank()) {
-                continue;
-            }
-            if (filtroAuditoria.deveIgnorar(evento, evento.texto())) {
-                continue;
-            }
-            EntradaCache entrada = cachePorIndice.get(evento.indice());
-            if (entrada == null) {
-                continue; // sem entrada no índice: fala apenas não referenciada, não "insegura"
-            }
-            boolean estiloOk = normalizarEstilo(entrada.estilo()).equals(normalizarEstilo(evento.estilo()));
-            boolean originalOk = entrada.original() != null && !entrada.original().isBlank();
-            // Vínculo seguro coerente com a sincronização: a fala PT atual precisa
-            // corresponder à tradução do cache (já correta) OU ao original inglês do
-            // cache (regrediu ao EN e será restaurada pela sincronização). Qualquer
-            // outro texto indica índice deslocado / outro episódio → inseguro.
-            String ptNormalizado = normalizarTexto(evento.texto());
-            boolean textoOk = (entrada.traduzido() != null
-                    && ptNormalizado.equals(normalizarTexto(entrada.traduzido())))
-                || (originalOk && ptNormalizado.equals(normalizarTexto(entrada.original())));
-            if (provenienciaOk && estiloOk && textoOk && originalOk) {
-                originaisPorIndice.put(evento.indice(), entrada.original());
-            } else {
-                semReferenciaSegura.add(evento.indice());
-            }
-        }
-        return new ReferenciaCacheSegura(originaisPorIndice, semReferenciaSegura);
-    }
-
-    record ReferenciaCacheSegura(
-        Map<Integer, String> originaisPorIndice,
-        Set<Integer> semReferenciaSegura
-    ) {}
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: fornece à revisão as referências EN/PT e a
-     * proveniência produzidas pelas etapas 4 e 5.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: entradas e contexto pertencem ao mesmo documento
-     * e a leitura nunca modifica o banco de cache.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: registra aviso e devolve lista vazia,
-     * permitindo usar uma legenda inglesa externa como fallback.
-     */
-    private LeitorCacheReferenciaService.DocumentoReferencia carregarDocumentoCache(Path cachePath) {
-        if (!Files.isRegularFile(cachePath)) {
-            return new LeitorCacheReferenciaService.DocumentoReferencia(List.of(), null);
-        }
-        try {
-            return leitorCache.carregarDocumento(cachePath);
-        } catch (IOException e) {
-            out(AnsiCores.YELLOW + "  Aviso: não foi possível ler cache "
-                + cachePath.getFileName() + ": " + e.getMessage() + AnsiCores.RESET);
-            return new LeitorCacheReferenciaService.DocumentoReferencia(List.of(), null);
-        }
-    }
-
-    private Map<String, String> indexarOriginalPorTraduzido(List<EntradaCache> entradas) {
-        Map<String, String> mapa = new HashMap<>();
-        for (EntradaCache entrada : entradas) {
-            if (entrada.traduzido() == null || entrada.traduzido().isBlank()) {
-                continue;
-            }
-            if (entrada.original() == null || entrada.original().isBlank()) {
-                continue;
-            }
-            mapa.putIfAbsent(normalizarTexto(entrada.traduzido()), entrada.original());
-        }
-        return mapa;
-    }
-
-    private Map<Integer, String> carregarOriginaisDeLegenda(Path arquivoEn) {
-        Map<Integer, String> mapa = new HashMap<>();
-        if (!Files.isRegularFile(arquivoEn)) {
-            return mapa;
-        }
-
-        DocumentoLegenda docEn = leitor.ler(arquivoEn);
-        for (EventoLegenda evento : docEn.eventos()) {
-            if (evento.isDialogo() && evento.texto() != null && !evento.texto().isBlank()) {
-                mapa.put(evento.indice(), evento.texto());
-            }
-        }
-        return mapa;
     }
 
     /**

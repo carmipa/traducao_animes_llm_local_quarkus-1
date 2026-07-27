@@ -1,5 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.presentation.web;
 
+import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 
 import org.slf4j.Logger;
@@ -101,9 +102,9 @@ public class RevisaoLegendasController {
             return ResponseEntity.badRequest().body(new RespostaPadrao(erroValidacao.get()));
         }
 
-        RevisarLegendasUseCase.ModoReferenciaRevisao referencia = resolverModoReferencia(req.modoReferencia());
+        ModoReferenciaRevisao referencia = resolverModoReferencia(req.modoReferencia());
         final Path cacheDir = resolverCacheDir(referencia, req.caminhoCache());
-        final Path pathEnUso = referencia == RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE ? null : pathEnFinal;
+        final Path pathEnUso = referencia == ModoReferenciaRevisao.CACHE ? null : pathEnFinal;
 
         Optional<String> erroCache = validarCacheDirModo(referencia, cacheDir);
         if (erroCache.isPresent()) {
@@ -166,9 +167,9 @@ public class RevisaoLegendasController {
             return ResponseEntity.badRequest().body(new RespostaPadrao(erroValidacao.get()));
         }
 
-        RevisarLegendasUseCase.ModoReferenciaRevisao referencia = resolverModoReferencia(req.modoReferencia());
+        ModoReferenciaRevisao referencia = resolverModoReferencia(req.modoReferencia());
         final Path cacheDir = resolverCacheDir(referencia, req.caminhoCache());
-        final Path pathEnUso = referencia == RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE ? null : pathEnFinal;
+        final Path pathEnUso = referencia == ModoReferenciaRevisao.CACHE ? null : pathEnFinal;
 
         Optional<String> erroCache = validarCacheDirModo(referencia, cacheDir);
         if (erroCache.isPresent()) {
@@ -266,10 +267,10 @@ public class RevisaoLegendasController {
      * (comportamento histórico e retrocompatível).
      * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula/vazia resulta em AMBOS.
      */
-    private RevisarLegendasUseCase.ModoReferenciaRevisao resolverModoReferencia(String modo) {
+    private ModoReferenciaRevisao resolverModoReferencia(String modo) {
         return modo != null && "CACHE".equalsIgnoreCase(modo.trim())
-            ? RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE
-            : RevisarLegendasUseCase.ModoReferenciaRevisao.AMBOS;
+            ? ModoReferenciaRevisao.CACHE
+            : ModoReferenciaRevisao.AMBOS;
     }
 
     /**
@@ -280,8 +281,8 @@ public class RevisaoLegendasController {
      * <p>COMPORTAMENTO EM CASO DE FALHA: caminho inválido/ausente no modo Cache
      * volta ao padrão {@code cache}.
      */
-    private Path resolverCacheDir(RevisarLegendasUseCase.ModoReferenciaRevisao referencia, String caminhoCache) {
-        if (referencia == RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE) {
+    private Path resolverCacheDir(ModoReferenciaRevisao referencia, String caminhoCache) {
+        if (referencia == ModoReferenciaRevisao.CACHE) {
             Path escolhido = pipelineWebSupport.normalizarCaminho(caminhoCache);
             if (escolhido != null) {
                 return escolhido;
@@ -299,8 +300,8 @@ public class RevisaoLegendasController {
      * ausência de erro devolve {@link Optional#empty()}.
      */
     private Optional<String> validarCacheDirModo(
-            RevisarLegendasUseCase.ModoReferenciaRevisao referencia, Path cacheDir) {
-        if (referencia != RevisarLegendasUseCase.ModoReferenciaRevisao.CACHE) {
+            ModoReferenciaRevisao referencia, Path cacheDir) {
+        if (referencia != ModoReferenciaRevisao.CACHE) {
             return Optional.empty();
         }
         if (cacheDir == null || !java.nio.file.Files.isDirectory(cacheDir)) {
