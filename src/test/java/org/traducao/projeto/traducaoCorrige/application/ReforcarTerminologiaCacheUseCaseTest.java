@@ -14,6 +14,7 @@ import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
+import org.traducao.projeto.traducaoCorrige.infrastructure.config.CorrecaoCacheProperties;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +70,8 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new EnforcadorTermosLore(),
             auditoria,
-            telemetria);
+            telemetria,
+            propriedadesComEscrita(true));
     }
 
     /**
@@ -98,6 +100,41 @@ class ReforcarTerminologiaCacheUseCaseTest {
         assertTrue(p.relatorio().contains("ENSAIO (nada foi escrito)"), p::relatorio);
         assertTrue(p.relatorio().contains("2x  Beam Saber"),
             () -> "o contador POR TERMO é a razão de a operação existir: " + p.relatorio());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a trava de segurança da receita de fatia nova — capacidade que escreve
+     * no acervo nasce DESLIGADA. Com a flag em {@code false} o pedido de aplicação é recusado
+     * ANTES de abrir qualquer arquivo, e a recusa é RUIDOSA: uma operação que não faz nada em
+     * silêncio é indistinguível de um defeito.
+     *
+     * <p>O ENSAIO segue disponível de propósito — ele é read-only e é o instrumento com que se
+     * decide se vale ligar a escrita. Travar os dois deixaria o operador sem como formar a
+     * decisão que a flag existe para exigir dele.
+     */
+    @Test
+    @DisplayName("escrita DESLIGADA: aplicação é recusada sem tocar o disco, e o ensaio continua")
+    void escritaDesligadaRecusaAntesDeAbrirArquivo() throws Exception {
+        Path cache = escreverCacheZZ();
+        String antes = Files.readString(cache);
+        var comEscritaDesligada = new ReforcarTerminologiaCacheUseCase(
+            new CacheServiceTeste(mapper, temp.resolve("backups")),
+            new ContextoManutencaoCacheService(
+                new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
+                new ValidadorCompatibilidadeObraContexto()),
+            new EnforcadorTermosLore(), auditoria, telemetria, propriedadesComEscrita(false));
+
+        ResultadoReforcoTerminologia recusado =
+            comEscritaDesligada.executar(temp.resolve("cache"), null, true);
+
+        assertEquals(antes, Files.readString(cache), "recusa não pode tocar o disco");
+        assertEquals(1, recusado.falhas(), "recusa é falha visível, não silêncio");
+        assertEquals(0, recusado.arquivosAnalisados(), "recusou ANTES de abrir qualquer arquivo");
+        assertEquals("CONCLUIDO_COM_FALHAS", recusado.status());
+
+        ResultadoReforcoTerminologia ensaio =
+            comEscritaDesligada.ensaiar(temp.resolve("cache"), null);
+        assertEquals(4, ensaio.falasAlteradas(), "o ensaio é read-only e não depende da flag");
     }
 
     /**
@@ -336,7 +373,7 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new ContextoManutencaoCacheService(
                 new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
                 new ValidadorCompatibilidadeObraContexto()),
-            new EnforcadorTermosLore(), auditoria, telemetria);
+            new EnforcadorTermosLore(), auditoria, telemetria, propriedadesComEscrita(true));
 
         ResultadoReforcoTerminologia r = useCaseQueFalhaAoSalvar.executar(temp.resolve("cache"), null, true);
 
@@ -423,6 +460,17 @@ class ReforcarTerminologiaCacheUseCaseTest {
         public Path salvarAtomico(DocumentoEditavel documento, Sessao sessao) throws java.io.IOException {
             throw new java.io.IOException("There is not enough space on the disk");
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: os testes rodam com a escrita AUTORIZADA, porque o que eles exercitam
+     * é o comportamento da operação. O padrão de produção e a recusa quando desligada têm teste
+     * proprio -- ver escritaDesligadaRecusaAntesDeAbrirArquivo.
+     */
+    private static CorrecaoCacheProperties propriedadesComEscrita(boolean habilitada) {
+        CorrecaoCacheProperties p = new CorrecaoCacheProperties();
+        p.setReforcoTerminologiaAplicarHabilitado(habilitada);
+        return p;
     }
 
     /** Telemetria em memória: captura o que a operação publicaria, sem escrever no projeto. */

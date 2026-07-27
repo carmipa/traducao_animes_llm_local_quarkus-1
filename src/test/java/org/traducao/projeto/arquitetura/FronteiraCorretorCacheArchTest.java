@@ -179,6 +179,20 @@ class FronteiraCorretorCacheArchTest {
         "raspagemCorrecao.application.CorrigirComGoogleUseCase -> raspagemCorrecao.infrastructure.StatusRaspagem",
         "traducaoCorrige.application.LimparCacheUseCase -> traducaoCorrige.infrastructure.CorrecaoCacheAuditoria");
 
+    /**
+     * Leitura de CONFIGURAÇÃO pela application — que NÃO é a mesma coisa que os casos acima e não
+     * é dívida. A receita do projeto manda o {@code @ConfigurationProperties} morar em
+     * {@code infrastructure/config}, e a fatia GOLD faz exatamente isto
+     * ({@code traducao.application.ProcessarArquivoUseCase} lê {@code TradutorProperties}).
+     *
+     * <p>A distinção importa: os cinco de {@link #CAMADA_INTERNA_CONGELADA} são application
+     * alcançando COMPORTAMENTO em infrastructure — o que a FASE 2 remove com portas. Este é
+     * application lendo VALOR declarado. Misturar os dois numa lista só faria o número de dívidas
+     * mentir, para cima, e faria a FASE 2 parecer inacabável.
+     */
+    private static final Set<String> CONFIG_LIDA_PELA_APPLICATION = Set.of(
+        "traducaoCorrige.application.ReforcarTerminologiaCacheUseCase -> traducaoCorrige.infrastructure.config.CorrecaoCacheProperties");
+
     private static JavaClasses classesProducao;
 
     @BeforeAll
@@ -348,8 +362,12 @@ class FronteiraCorretorCacheArchTest {
                 if (!pacoteAlvo.startsWith(PREFIXO + fatia + ".infrastructure")) {
                     continue;
                 }
-                vivos.add(curto(classe.getName()) + " -> "
-                    + curto(dependencia.getTargetClass().getName()));
+                String aresta = curto(classe.getName()) + " -> "
+                    + curto(dependencia.getTargetClass().getName());
+                // Configuração é lida, não alcançada: fica na lista própria.
+                if (!CONFIG_LIDA_PELA_APPLICATION.contains(aresta)) {
+                    vivos.add(aresta);
+                }
             }
         }
 
