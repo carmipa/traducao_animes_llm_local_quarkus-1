@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -138,5 +139,28 @@ public class ContextoGuiltyCrown implements ProvedorContexto {
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGuiltyCrown.mapa();
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: impede a troca entre o nome e a persona de palco de Inori.
+     *
+     * <p>Medido em 2026-07-28: em <b>20 falas</b> o ingles diz "Inori" e a traducao gravou
+     * "Crow". E "Crow" nao aparece UMA vez no ingles do acervo inteiro da obra -- foi inserido
+     * pelo modelo, autorizado pela propria lore, que declarava a equivalencia sem dizer que ela
+     * e de LEITURA e nao de escrita.
+     *
+     * <p>{@code termosProtegidos()} nao ajudava aqui: a protecao mascara o INGLES antes de
+     * traduzir, e "Crow" nunca esta no ingles.
+     *
+     * <p>INVARIANTES DO DOMINIO: proibicao simetrica -- "Crow" tambem nao pode virar "Inori"
+     * nas falas em que a obra usa a persona.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutavel; sem I/O.
+     */
+    @Override
+    public Set<List<String>> paresInconfundiveis() {
+        return Set.of(
+            List.of("Inori", "Crow")
+        );
     }
 }

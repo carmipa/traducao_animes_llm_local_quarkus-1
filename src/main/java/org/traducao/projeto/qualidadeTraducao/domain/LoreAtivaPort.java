@@ -1,5 +1,6 @@
 package org.traducao.projeto.qualidadeTraducao.domain;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -52,4 +53,28 @@ public interface LoreAtivaPort {
      * @return a lore do contexto ativo, ou a lore neutra da implementação quando não há contexto
      */
     String obterLoreAtiva();
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: pares de termos da obra ativa que NÃO podem ser trocados um pelo
+     * outro por serem entidades distintas de nome parecido ou relacionado — {@code Four} x
+     * {@code Quattro}, {@code Inori} x {@code Crow}, {@code Zeta Gundam} x {@code ZZ Gundam},
+     * {@code Argama} x {@code Nahel Argama}. Cada elemento tem exatamente dois termos e a
+     * proibição vale nas duas direções.
+     *
+     * <p>Existe porque a substituição só é visível comparando a tradução com o ORIGINAL: o
+     * termo trocado é grafia canônica perfeita e passa em toda regra que olhe apenas a saída.
+     * Medido em 2026-07-28: 172 falas em Zeta, 55 e 31 em ZZ, 20 em Guilty Crown.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: reflete o contexto ativo no instante da chamada; a comparação
+     * é do consumidor. Por que PARES e não "todo termo protegido": a regra genérica foi medida
+     * e dispara 1447 vezes em 59.625 falas, quase tudo normalização legítima.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; sem contexto ativo devolve conjunto vazio.
+     * O {@code default} mantém as implementações existentes válidas.
+     *
+     * @return pares inconfundíveis do contexto ativo, possivelmente vazio
+     */
+    default Set<List<String>> paresInconfundiveisAtivos() {
+        return Set.of();
+    }
 }
