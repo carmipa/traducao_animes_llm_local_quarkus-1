@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: testa o fluxo completo de limpeza sobre a pasta cache,
@@ -52,7 +53,7 @@ class LimparCacheUseCaseTest {
     void preparar() {
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         auditoria = new AuditoriaStub();
         useCase = new LimparCacheUseCase(

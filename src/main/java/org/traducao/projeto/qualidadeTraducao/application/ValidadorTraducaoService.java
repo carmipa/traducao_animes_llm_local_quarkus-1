@@ -2,7 +2,12 @@ package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -14,10 +19,45 @@ import java.util.regex.Pattern;
  * <p>COMPORTAMENTO EM CASO DE FALHA: lança
  * {@link AlucinacaoDetectadaException} com diagnóstico e o chamador preserva a
  * tradução anterior.
+ *
+ * <h2>Por que a lore ativa entra aqui, e por porta</h2>
+ * Medido em 2026-07-28 na limpeza de cache de Zeta Gundam: QUATRO traduções
+ * <b>corretas</b> foram apagadas porque continham {@code "The O"} — o mobile suit do
+ * Scirocco. {@code "The"} está em {@link #PADRAO_RESIDUO}, e a regra de resíduo, olhando
+ * só a saída, não tem como saber que aquele {@code "The"} é metade de um nome próprio.
+ * As falas destruídas eram estas, todas traduções perfeitas:
+ * <pre>
+ *   EN "The O, taking off!"                    PT apagado "The O, decolando!"
+ *   EN "Neither The O nor the Qubeley has..."  PT apagado "Nem The O nem o Qubeley..."
+ * </pre>
+ * {@code "The O"} JÁ estava declarado em {@code termosProtegidos()} da obra: a informação
+ * existia e não chegava até aqui.
+ *
+ * <p>A porta {@link LoreAtivaPort} é a forma que este projeto já usa para o mesmo problema
+ * — {@link DetectorTraducaoIdenticaService}, no mesmo pacote, recebe a mesma porta pelo
+ * mesmo motivo. O peer {@code qualidadeTraducao} continua sem importar o peer
+ * {@code contexto}: quem implementa a porta é um adaptador de fora.
+ *
+ * <p>A alternativa — receber {@code Set<String>} por parâmetro em cada chamada — foi
+ * descartada: tornaria a proteção OPCIONAL, dependente de cada chamador lembrar, e o
+ * defeito medido nasceu exatamente de um chamador que não passou o que tinha em mãos.
  */
 @Service
 public class ValidadorTraducaoService {
-    
+
+    private final LoreAtivaPort loreAtiva;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recebe a porta de lore ativa para que nome próprio da obra
+     * deixe de ser confundido com resíduo em inglês.
+     * <p>INVARIANTES DO DOMÍNIO: guarda só a referência; a classe segue sem estado mutável.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a porta nunca lança e degrada para conjunto vazio,
+     * então sem contexto ativo o validador recai no comportamento histórico.
+     */
+    public ValidadorTraducaoService(LoreAtivaPort loreAtiva) {
+        this.loreAtiva = loreAtiva;
+    }
+
     // Regras robustas importadas do pipeline Python, ampliadas após observar em
     // produção o Mistral Nemo deixar fragmentos como "exactly the same" sem
     // traduzir mesmo traduzindo o resto da fala corretamente.
@@ -68,8 +108,22 @@ public class ValidadorTraducaoService {
     // "tradução:"/"saída:" no início cobre o LLM rotulando a resposta (casos reais:
     // linha de karaokê do Gundam Narrative entregue como "Tradução: {\r\pos(488,23)...}ep"
     // e efeito visual devolvido como "Saída: {=68}{\pos(...)}").
+    // Preâmbulo é o LLM falando DA TAREFA em vez de traduzir. Toda alternativa precisa citar
+    // o vocabulário da tarefa (tradução/saída/resposta) ou vir com dois-pontos — senão a regra
+    // condena diálogo legítimo.
+    //
+    // MEDIDO EM 2026-07-28: a alternativa "aqui está a" era solta e apagou uma fala real do
+    // cache — EN "{\be3}Here's the order." traduzido como "{\be3}Aqui está a ordem.", tradução
+    // correta, esvaziada com o motivo "Preâmbulo detectado". Pior, em laço: o Google repunha e
+    // a limpeza seguinte apagava de novo. "Aqui está" é abertura comum de diálogo em português
+    // ("Aqui está a chave", "Aqui está a ordem") e sozinha não distingue nada.
+    //
+    // O conserto exige o vocabulário da tarefa logo depois: "Aqui está a tradução:" continua
+    // pego, "Aqui está a ordem." passa. Não precisa do texto original para decidir.
     private static final Pattern PADRAO_PREAMBULO = Pattern.compile(
-        "^(esta [ée] a tradu|abaixo seguem|aqui está a|tradução solicitada|a tradução seria|"
+        "^(esta [ée] a tradu|abaixo seguem (a|as) tradu|"
+            + "aqui (est[áa]|v[ãa]o) (a |as |o |os )?(tradu|sa[ií]da|resposta|texto traduzido)|"
+            + "tradução solicitada|a tradução seria|"
             + "tradu[çc][ãa]o\\s*:|sa[ií]da\\s*:|resposta\\s*:)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
@@ -204,11 +258,17 @@ public class ValidadorTraducaoService {
             return;
         }
 
-        if (temResiduoRelevante(visivel)) {
+        // As duas regras de RESÍDUO EM INGLÊS julgam palavra a palavra e por isso são as
+        // únicas que confundem nome próprio da obra com inglês não traduzido. Elas — e só
+        // elas — inspecionam o texto sem os termos da lore. As demais regras (preâmbulo,
+        // recusa, asterisco) tratam de vocabulário de TAREFA, que nome próprio não produz.
+        String semTermosDaLore = removerTermosProtegidos(visivel);
+
+        if (temResiduoRelevante(semTermosDaLore)) {
             throw new AlucinacaoDetectadaException("Resíduo gringo detectado: " + textoTraduzido);
         }
 
-        if (PADRAO_CONTRACAO_INGLES.matcher(visivel).find()) {
+        if (PADRAO_CONTRACAO_INGLES.matcher(semTermosDaLore).find()) {
             throw new AlucinacaoDetectadaException("Resíduo gringo detectado (contração): " + textoTraduzido);
         }
 
@@ -393,6 +453,42 @@ public class ValidadorTraducaoService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: ausência de correspondência retorna
      * falso; qualquer resíduo inequívoco retorna verdadeiro.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: tira do texto os termos canônicos da obra ativa antes das regras
+     * de resíduo em inglês, para que {@code "The O"} (mobile suit), {@code "Power of the King"}
+     * e afins deixem de ser lidos como inglês não traduzido.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto RECEBIDO nunca é alterado — o resultado alimenta só a
+     * inspeção, e a mensagem de erro segue citando a fala íntegra. Termos mais longos saem
+     * primeiro: sem isso {@code "The O"} nunca seria removido se algum termo curto o mutilasse
+     * antes. Fronteira alfanumérica e comparação sem caixa; substitui por ESPAÇO, não por vazio,
+     * para não colar as palavras vizinhas e criar um resíduo que não existia.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a porta nunca lança e devolve conjunto vazio sem
+     * contexto ativo — nesse caso o texto volta inalterado e as regras agem como antes.
+     */
+    private String removerTermosProtegidos(String texto) {
+        Set<String> termos = loreAtiva.termosProtegidosAtivos();
+        if (termos == null || termos.isEmpty()) {
+            return texto;
+        }
+        List<String> ordenados = termos.stream()
+            .filter(t -> t != null && !t.isBlank())
+            .sorted(Comparator.comparingInt(String::length).reversed())
+            .toList();
+        String resultado = texto;
+        for (String termo : ordenados) {
+            Pattern padrao = Pattern.compile(
+                "(?<![\\p{L}\\p{N}])" + Pattern.quote(termo.strip()) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher matcher = padrao.matcher(resultado);
+            if (matcher.find()) {
+                resultado = matcher.reset().replaceAll(" ");
+            }
+        }
+        return resultado;
+    }
+
     private boolean temResiduoRelevante(String texto) {
         var matcher = PADRAO_RESIDUO.matcher(texto);
         while (matcher.find()) {

@@ -38,6 +38,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: comprova que uma raiz cache com várias obras ativa a
@@ -70,12 +71,12 @@ class RevisarCacheUseCaseTest {
             new ContextoTeste("gundam", "Gundam", "Amuro Ray")));
         LlmStub llm = new LlmStub(contexto);
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         RevisarCacheUseCase useCase = new RevisarCacheUseCase(
             new CacheServiceTeste(mapper, temp.resolve("backups")), classificador,
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()), new DetectorConcordanciaService(), llm,
-            new ValidadorTraducaoService(), new MascaradorTags(), new ProtecaoLegendaAssService(),
+            new ValidadorTraducaoService(LoreAtivaFake.vazia()), new MascaradorTags(), new ProtecaoLegendaAssService(),
             new AuditoriaStub(), new TelemetriaStub());
 
         Path cache = temp.resolve("cache");

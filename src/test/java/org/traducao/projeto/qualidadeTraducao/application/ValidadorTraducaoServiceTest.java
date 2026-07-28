@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ValidadorTraducaoServiceTest {
 
-    private final ValidadorTraducaoService validador = new ValidadorTraducaoService();
+    private final ValidadorTraducaoService validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
 
     @Test
     void rejeitaRotuloTraducaoNoInicio() {

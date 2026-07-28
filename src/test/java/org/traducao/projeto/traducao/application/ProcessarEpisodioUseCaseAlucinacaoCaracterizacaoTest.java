@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: caracteriza o comportamento REALMENTE observável do
@@ -74,7 +75,7 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
     void falaAlucinadaSofreRejeicaoRetentativaEFallbackSeguro() throws InterruptedException, ExecutionException {
         TelemetriaFake telemetria = new TelemetriaFake();
         // Validador que sempre rejeita a fala como alucinação (simula o LLM alucinando).
-        ValidadorTraducaoService validadorAlucina = new ValidadorTraducaoService() {
+        ValidadorTraducaoService validadorAlucina = new ValidadorTraducaoService(LoreAtivaFake.vazia()) {
             @Override
             public void validarFala(String textoTraduzido) {
                 throw new AlucinacaoDetectadaException("fala alucinada: " + textoTraduzido);
@@ -122,7 +123,7 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
     void marcadorCorrompidoNaPrimeiraTentativaEhRecuperadoNoRetry() throws InterruptedException, ExecutionException {
         TelemetriaFake telemetria = new TelemetriaFake();
         ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(
-            new LlmCorrompeMarcadorPrimeiraVez(), new ValidadorTraducaoService(),
+            new LlmCorrompeMarcadorPrimeiraVez(), new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             new ConsoleUILogger(), telemetria, new MascaradorTags(),
             new ReparadorMarcadoresLlm(new MascaradorTags()));
 

@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 class TraduzirKaraokeUseCaseTest {
 
@@ -113,7 +114,7 @@ class TraduzirKaraokeUseCaseTest {
         useCase.leitor = new LeitorLegendaAss();
         useCase.escritor = new EscritorLegendaAss();
         useCase.mascarador = new MascaradorTags();
-        useCase.validador = new ValidadorTraducaoService();
+        useCase.validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
         useCase.cacheService = new CacheTraducaoService(new ObjectMapper());
         useCase.llmPort = llmFake;
         useCase.gerenciadorContexto = null; // sem CDI: o use case tolera ausência em teste

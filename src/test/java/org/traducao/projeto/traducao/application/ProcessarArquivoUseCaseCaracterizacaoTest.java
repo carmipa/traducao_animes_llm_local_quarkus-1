@@ -66,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: caracteriza o fluxo ponta-a-ponta de
@@ -308,7 +309,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         EscritorLegendaSrt escritorSrt = new EscritorLegendaSrt();
         MascaradorTags mascarador = new MascaradorTags();
         CacheTraducaoService cache = new CacheTraducaoService(new ObjectMapper());
-        ValidadorTraducaoService validador = new ValidadorTraducaoService();
+        ValidadorTraducaoService validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
         GerenciadorContexto gerenciador =
             new GerenciadorContexto(List.of(new ContextoTeste(), new ContextoObraAlheia()));
         this.gerenciadorMontado = gerenciador;

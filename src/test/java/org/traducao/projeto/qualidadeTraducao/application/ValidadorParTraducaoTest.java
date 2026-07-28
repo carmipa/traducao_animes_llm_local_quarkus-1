@@ -49,7 +49,7 @@ class ValidadorParTraducaoTest {
     /** Classe cuja regra foi medida e reprovada por falso positivo; segue descoberta de propósito. */
     private static final String CLASSE_LACUNA_DECLARADA = "CONTRACAO";
 
-    private final ValidadorTraducaoService validador = new ValidadorTraducaoService();
+    private final ValidadorTraducaoService validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
 
     private record Caso(boolean defeito, String classe, String original, String traduzido) {
     }
