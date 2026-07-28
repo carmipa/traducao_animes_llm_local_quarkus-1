@@ -8,7 +8,12 @@ import java.util.Set;
 
 /**
  * PROPÓSITO DE NEGÓCIO: lore agregada dos filmes Macross Delta (Passionate Walküre +
- * Absolute Live!!!!!!) — referência/agregadora, sem {@code @Component} (fora dos 53 CDI).
+ * Absolute Live!!!!!!) — referência/agregadora, sem {@code @Component} (fora do registro CDI).
+ *
+ * <p>Este Javadoc é a fonte do critério que hoje vale para as três agregadoras Macross, e foi
+ * o que impediu que a ausência da anotação fosse "corrigida" em
+ * {@link ContextoMacrossFrontierFilmes} e {@link ContextoMacross7Filmes}. A catraca que torna
+ * o critério executável é {@code CatracaAgregadorasForaDoCdiTest}.
  *
  * <p>INVARIANTES DO DOMÍNIO: Walküre ≠ Valkyrie; filme 1 ≠ filme 2 — preferir contextos
  * específicos ({@code macross_delta_filme1}/{@code macross_delta_filme2});
