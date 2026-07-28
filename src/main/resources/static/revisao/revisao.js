@@ -227,6 +227,9 @@ async function carregarContextos() {
         select.innerHTML = '<option value="">Erro ao carregar — recarregue a página</option>';
         contextosCarregados = false;
     }
+    // Avisa o espelho do alvo nos DOIS caminhos: no sucesso ele mostra a lore que ficou
+    // selecionada por padrão; no erro ele precisa sair de "carregando" e acusar a ausência.
+    select.dispatchEvent(new CustomEvent('kronos:contextos-carregados'));
 }
 
 export function initRevisao() {
@@ -246,6 +249,49 @@ export function initRevisao() {
     if (!inputPt.value.trim() && ultimaPasta) {
         inputPt.value = ultimaPasta;
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: escreve na tela a LORE ATIVA e a pasta antes de qualquer clique.
+     * A lore decide quais nomes ficam protegidos do tradutor externo, e escolher a obra errada
+     * — fácil quando duas séries dividem a mesma pasta — só aparece depois, no arquivo gravado.
+     * O relatório também não registra a lore usada, então a tela é o único lugar onde isso é
+     * visível a tempo.
+     * INVARIANTES DO DOMÍNIO: só lê o estado dos campos; não altera nada nem dispara requisição.
+     * COMPORTAMENTO EM CASO DE FALHA: elementos ausentes fazem a função não ter efeito.
+     */
+    const alvoCaixa = document.getElementById('revisao-alvo');
+    const alvoTexto = document.getElementById('revisao-alvo-texto');
+    const atualizarAlvo = () => {
+        if (!alvoCaixa || !alvoTexto) return;
+        const pasta = inputPt.value.trim();
+        const opcao = contextoSelect?.selectedOptions?.[0];
+        const lore = contextoSelect?.value ? (opcao?.textContent || '').trim() : '';
+        const semLore = !lore;
+        alvoCaixa.classList.toggle('op-alvo-acervo', semLore || !pasta);
+
+        const partes = [];
+        partes.push(semLore
+            ? 'Lore: <strong>nenhuma escolhida</strong> — sem ela os nomes da obra não ficam protegidos '
+              + 'do tradutor externo, e as duas passadas se recusam a começar.'
+            : `Lore ativa: <strong>${lore}</strong>.`);
+        partes.push(pasta
+            ? 'Pasta: <code class="alvo-pasta"></code>'
+            : 'Pasta: <strong>ainda não informada</strong>.');
+        alvoTexto.innerHTML = partes.join(' ');
+        const codigo = alvoTexto.querySelector('.alvo-pasta');
+        if (codigo) codigo.textContent = pasta;
+    };
+
+    ['input', 'change'].forEach(evento => {
+        inputPt.addEventListener(evento, atualizarAlvo);
+        contextoSelect?.addEventListener(evento, atualizarAlvo);
+    });
+    // O "Limpar Campos" compartilhado grava o valor direto, sem disparar evento.
+    document.querySelector('#panel-revisao .btn-clear-form')
+        ?.addEventListener('click', () => setTimeout(atualizarAlvo, 0));
+    // Os contextos chegam por fetch; sem isto o espelho ficaria preso em "nenhuma escolhida".
+    contextoSelect?.addEventListener('kronos:contextos-carregados', atualizarAlvo);
+    atualizarAlvo();
 
     if (btnConcordancia) {
         btnConcordancia.addEventListener('click', async () => {

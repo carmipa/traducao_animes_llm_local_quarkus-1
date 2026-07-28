@@ -651,6 +651,351 @@ span.console-action-icon.material-symbols-outlined {
     flex-wrap: wrap;
 }
 
+/* ==========================================================================
+   CAIXAS DE OPERAÇÃO (.op-*)  —  compartilhado: Correção de Cache, Revisão de Legendas
+
+   Painéis com várias operações traziam todos os botões numa linha só que
+   quebrava, achatando duas relações diferentes — sequência (rode 1, 2, 3) e
+   par travado (ensaie, depois aplique) — em N botões irmãos. Pior: o peso
+   visual não seguia o risco; o botão mais gritante costumava ser o que não
+   escreve nada.
+
+   Cada grupo vira uma CAIXA e cada operação uma LINHA com título, o que faz e
+   SELO de risco. O selo é o ponto: o risco fica escrito, não deduzido da cor.
+   Escopado por .op-caixa (as classes internas nunca aparecem soltas), então
+   não colide com o .op-name/.op-duration da telemetria.
+   ========================================================================== */
+
+/* Espelho do alvo: campo de pasta vazio costuma significar "tudo", que é o
+   oposto do que um campo em branco sugere. Por isso o alvo é escrito. */
+.op-alvo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 18px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.op-alvo-icone {
+    font-size: 18px !important;
+    line-height: 1;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.op-alvo strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.op-alvo code {
+    font-family: var(--font-code);
+    font-size: 0.74rem;
+    overflow-wrap: anywhere;
+}
+
+/* Alvo amplo (raiz do cache, acervo inteiro): atenção, não erro — é uma
+   escolha legítima, só não pode ser silenciosa. */
+.op-alvo.op-alvo-acervo {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.op-alvo.op-alvo-acervo .op-alvo-icone,
+.op-alvo.op-alvo-acervo strong {
+    color: var(--accent-yellow);
+}
+
+/* ---- Cabeçalho da caixa ---- */
+.op-caixa-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.op-caixa-cabecalho h3 {
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.op-caixa-icone {
+    font-size: 20px !important;
+    line-height: 1;
+    color: var(--accent-cyan);
+}
+
+.op-caixa-etiqueta {
+    margin-left: auto;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.op-caixa-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 4px;
+}
+
+.op-caixa-desc strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* A caixa que reescreve trabalho pronto é marcada na moldura, não só no
+   botão: o operador vê o risco antes de chegar ao clique. */
+.op-caixa-perigo {
+    border-color: rgba(244, 63, 94, 0.28);
+}
+
+.op-caixa-perigo .op-caixa-icone {
+    color: var(--accent-red);
+}
+
+.op-caixa-etiqueta-perigo {
+    color: var(--accent-red);
+    border-color: rgba(244, 63, 94, 0.35);
+    background: rgba(244, 63, 94, 0.08);
+}
+
+/* ---- Lista de operações ---- */
+.op-lista {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.op-linha {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.op-linha:first-child {
+    border-top: none;
+    padding-top: 4px;
+}
+
+.op-linha:last-child {
+    padding-bottom: 2px;
+}
+
+/* Marcador da operação. .op-num numera quando a ORDEM importa; .op-marca é o
+   ícone para operações independentes, onde numerar mentiria sobre a relação. */
+.op-num,
+.op-marca {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border-active);
+    background: rgba(255, 255, 255, 0.04);
+    font-family: var(--font-title);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.op-marca .material-symbols-outlined {
+    font-size: 15px !important;
+    line-height: 1;
+}
+
+.op-caixa-perigo .op-num,
+.op-caixa-perigo .op-marca {
+    border-color: rgba(244, 63, 94, 0.35);
+    color: var(--accent-red);
+}
+
+.op-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.op-titulo {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.op-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.op-desc strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ---- Selos de risco ---- */
+.op-selos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.op-selo {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.op-selo-escreve {
+    color: var(--accent-yellow);
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.op-selo-rede {
+    color: var(--accent-blue);
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.op-selo-llm {
+    color: var(--accent-purple);
+    border-color: rgba(167, 139, 250, 0.3);
+    background: rgba(167, 139, 250, 0.08);
+}
+
+.op-selo-seguro {
+    color: var(--accent-green);
+    border-color: rgba(52, 211, 153, 0.3);
+    background: rgba(52, 211, 153, 0.08);
+}
+
+.op-selo-perigo {
+    color: var(--accent-red);
+    border-color: rgba(244, 63, 94, 0.35);
+    background: rgba(244, 63, 94, 0.1);
+}
+
+/* ---- Coluna de ação ---- */
+.op-linha > .btn,
+.op-acao-travada {
+    align-self: center;
+    min-width: 210px;
+}
+
+.op-linha > .btn {
+    justify-content: center;
+}
+
+.op-acao-travada {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.op-acao-travada .btn {
+    width: 100%;
+    justify-content: center;
+    align-self: stretch;
+}
+
+.op-linha .btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.op-linha .btn:disabled:hover {
+    background-color: transparent;
+}
+
+/* Legenda da trava: some quando a pré-condição é satisfeita. */
+.op-trava {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+}
+
+.op-trava.oculto {
+    display: none;
+}
+
+/* Aviso de escopo: o que a operação vai varrer, quando isso surpreende. */
+.op-escopo {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.06);
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.op-escopo .material-symbols-outlined {
+    font-size: 18px !important;
+    line-height: 1.3;
+    color: var(--accent-yellow);
+    flex-shrink: 0;
+}
+
+.op-escopo strong {
+    color: var(--accent-yellow);
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .op-linha {
+        grid-template-columns: auto 1fr;
+    }
+    .op-linha > .btn,
+    .op-acao-travada {
+        grid-column: 1 / -1;
+        min-width: 0;
+        width: 100%;
+    }
+    .op-caixa-cabecalho {
+        flex-wrap: wrap;
+    }
+    .op-caixa-etiqueta {
+        margin-left: 0;
+    }
+}
+
 
 /* ==========================================================================
    CONSOLE DE LOGS MINIMALISTA (TIPO TERMINAL DISCRETO)
