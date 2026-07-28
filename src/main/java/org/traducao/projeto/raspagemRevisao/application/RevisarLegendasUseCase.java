@@ -1,7 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DecisaoFala;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
@@ -38,13 +37,12 @@ public class RevisarLegendasUseCase {
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     private final PersistenciaLegendaRevisada persistencia;
-    private final AuditorProblemasLegendaService auditor;
     private final ProvedorCorrecaoFala provedorCorrecao;
     private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
     private final GuardaCorrecaoSegura guardaCorrecao;
     private final MemoriaCorrecaoArquivo memoriaCorrecao;
-    private final ProtetorTermosLoreService protetorLore;
+    private final TriagemFalaSuspeita triagemFala;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final SincronizacaoPreviaRevisao sincronizacaoPrevia;
@@ -65,13 +63,12 @@ public class RevisarLegendasUseCase {
      */
     public RevisarLegendasUseCase(
         PersistenciaLegendaRevisada persistencia,
-        AuditorProblemasLegendaService auditor,
         ProvedorCorrecaoFala provedorCorrecao,
         MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
         GuardaCorrecaoSegura guardaCorrecao,
         MemoriaCorrecaoArquivo memoriaCorrecao,
-        ProtetorTermosLoreService protetorLore,
+        TriagemFalaSuspeita triagemFala,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
         SincronizacaoPreviaRevisao sincronizacaoPrevia,
@@ -81,13 +78,12 @@ public class RevisarLegendasUseCase {
         PreparadorReferenciaRevisao preparador
     ) {
         this.persistencia = persistencia;
-        this.auditor = auditor;
         this.provedorCorrecao = provedorCorrecao;
         this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
         this.guardaCorrecao = guardaCorrecao;
         this.memoriaCorrecao = memoriaCorrecao;
-        this.protetorLore = protetorLore;
+        this.triagemFala = triagemFala;
         this.corretorDeterministico = corretorDeterministico;
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.sincronizacaoPrevia = sincronizacaoPrevia;
@@ -470,21 +466,15 @@ public class RevisarLegendasUseCase {
 
             sessao.contarAuditada();
 
-            if (temOriginalEn
-                && normalizarTexto(originalEn).equals(normalizarTexto(traducaoAtual))
-                && protetorLore.contemSomenteTermosCanonicos(
-                    originalEn, contexto.lore(), contexto.termosProtegidos())) {
-                out("  [LORE] Evento " + evento.indice()
-                    + " contém somente nome/termo canônico; mantido sem chamar IA.");
-                sessao.manter(evento);
+            // "Está errado?" — pergunta semântica, depois de o filtro já ter dito que é diálogo.
+            TriagemFalaSuspeita.Resultado triagem = triagemFala.triar(
+                evento, originalEn, traducaoAtual, temOriginalEn, contexto);
+            if (triagem instanceof TriagemFalaSuspeita.Resultado.Dispensada dispensada) {
+                aplicar(sessao, evento, dispensada.decisao());
                 continue;
             }
-
-            ResultadoDeteccaoConcordancia auditoria = auditor.auditar(originalEn, traducaoAtual);
-            if (!auditoria.suspeito()) {
-                sessao.manter(evento);
-                continue;
-            }
+            ResultadoDeteccaoConcordancia auditoria =
+                ((TriagemFalaSuspeita.Resultado.Suspeita) triagem).auditoria();
 
             sessao.contarProblema();
 
@@ -622,9 +612,6 @@ public class RevisarLegendasUseCase {
         return true;
     }
 
-    private String normalizarTexto(String texto) {
-        return texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: registra a evidência por fala usada no relatório da

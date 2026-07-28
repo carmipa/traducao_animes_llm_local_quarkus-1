@@ -131,7 +131,10 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.GuardaCorrecaoSegura -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.ProvedorCorrecaoFala -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.SincronizacaoPreviaRevisao -> raspagemCorrecao.application.ProtetorTermosLoreService",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
+        // FASE 4: a aresta do CASO DE USO para o protetor de lore SUMIU -- a excecao "fala identica
+        // ao ingles porque so contem termo canonico" era o unico uso que restava e foi com a
+        // triagem. O orquestrador nao conhece mais lore nenhuma; conhecem as pecas que decidem.
+        "raspagemRevisao.application.TriagemFalaSuspeita -> raspagemCorrecao.application.ProtetorTermosLoreService",
         // FASE 2, recuperação externa: as duas arestas que este caso de uso tinha para o
         // `infrastructure` da fatia vizinha SUMIRAM — ele agora conhece só a própria
         // RecuperacaoExternaRevisaoPort. As três abaixo são o resíduo, e é preciso ler o que
