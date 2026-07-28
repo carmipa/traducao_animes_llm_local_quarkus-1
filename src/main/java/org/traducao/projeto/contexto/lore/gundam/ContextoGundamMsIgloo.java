@@ -39,7 +39,13 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 public class ContextoGundamMsIgloo implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */
-    private static final String LORE = "";
+    private static final String LORE = """
+        - Obra: Mobile Suit Gundam MS IGLOO — The Hidden One Year War / Apocalypse 0079 (OVA, U.C. 0079).
+        - Personagens: Oliver May (homem), Monique Cadillac (mulher), Martin Prochnow (homem), Albert Schacht (homem), Domenico Marquez (homem), Erich Kruger (homem), Hideo Washiya (homem), Jean Xavier (mulher), Aleksandro Hemme (homem), Demeziere Sonnen (homem), Jean Luc Duvall (homem), Werner Holbein (homem), Erwin Cadillac (homem), Herbert von Kuspen (homem), Gihren Zabi (homem).
+        - Faccoes/unidades: Principality of Zeon, 603rd Technical Evaluation Unit, Jotunheim, Earth Federation.
+        - Mobile suits e tecnologia: EMS-10 Zudah, YMT-05 Hildolfr, QCX-76A Jormungand, MSM-07Di Ze'Gok, MP-02A Oggo, MA-05Ad Big Rang, Zaku II, Mobile Suit.
+        - Termos do mundo: One Year War, Principality of Zeon, Earth Federation, Loum, Jaburo, Solomon, A Baoa Qu, Mobile Suit. Mantenha nomes proprios em ingles/romanizados.
+        """;
 
     private static final String PROMPT = ContextoPrompt.montar("Mobile Suit Gundam MS IGLOO", LORE);
 
@@ -59,7 +65,18 @@ public class ContextoGundamMsIgloo implements ProvedorContexto {
      */
     @Override
     public Set<String> termosProtegidos() {
-        return Set.of("Mobile Suit", "Zeon", "Federation");
+        return Set.of(
+            "Oliver May", "Monique Cadillac", "Martin Prochnow", "Albert Schacht",
+            "Domenico Marquez", "Erich Kruger", "Hideo Washiya", "Jean Xavier",
+            "Aleksandro Hemme", "Demeziere Sonnen", "Jean Luc Duvall", "Werner Holbein",
+            "Erwin Cadillac", "Herbert von Kuspen", "Gihren Zabi",
+            "Principality of Zeon", "603rd Technical Evaluation Unit", "Jotunheim",
+            "Earth Federation", "EMS-10 Zudah", "Zudah", "YMT-05 Hildolfr", "Hildolfr",
+            "QCX-76A Jormungand", "Jormungand", "MSM-07Di Ze'Gok", "Ze'Gok",
+            "MP-02A Oggo", "Oggo", "MA-05Ad Big Rang", "Big Rang", "Zaku II",
+            "Mobile Suit", "One Year War", "Zeon", "Federation", "Loum", "Jaburo",
+            "Solomon", "A Baoa Qu"
+        );
     }
 
     /**
