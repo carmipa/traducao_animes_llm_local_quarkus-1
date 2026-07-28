@@ -113,8 +113,14 @@ public class ClassificadorEntradaCacheService {
             }
             return new Classificacao(Status.PROTEGIDA, "Língua original preservada");
         }
-        if (estilo != null && politicaEstiloMusical.estiloIgnorado(estilo)
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(estilo, original)) {
+        // REGRA DE ESCOPO (Paulo, 2026-07-25, ver traducao.SeletorEventosTraduziveis): estilo
+        // musical é veto ABSOLUTO. Música e karaokê — inclusive em inglês — são da fatia
+        // traducaoKaraoke, que sabe lidar com KFX, camadas e timing por sílaba. A exceção
+        // "&& !eKaraokeOuMusicaTraduzivel(...)" que existia aqui readmitia letra em inglês na
+        // correção do cache, ou seja, entregava a uma etapa de MANUTENÇÃO um trabalho que a etapa
+        // de TRADUÇÃO recusa de propósito — e a Opção 4 nem grava essas linhas no cache (medido:
+        // o cache do 08th ep02 tem 267 entradas e zero "Song ENG", contra 70 no .ass).
+        if (estilo != null && politicaEstiloMusical.estiloIgnorado(estilo)) {
             return new Classificacao(Status.PROTEGIDA, "Estilo protegido");
         }
         if (detectorKaraoke.eEfeitoKaraoke(original)

@@ -384,9 +384,12 @@ public class CorrigirLegendasUseCase {
         if (detectorKaraoke.devePreservarKaraokeOriginal(evento.estilo(), texto)) {
             return true;
         }
-        if (evento.estilo() != null
-            && politicaEstiloMusical.estiloIgnorado(evento.estilo())
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
+        // REGRA DE ESCOPO (Paulo, 2026-07-25, ver traducao.SeletorEventosTraduziveis): estilo
+        // musical é veto ABSOLUTO. Música e karaokê — inclusive em inglês — são da fatia
+        // traducaoKaraoke. A exceção "&& !eKaraokeOuMusicaTraduzivel(...)" que existia aqui
+        // readmitia letra em inglês; medida em 2026-07-28 na revisão do Zeta, ela respondeu por
+        // 1.008 dos 1.027 eventos alterados (98,1%), contra 19 falas de diálogo.
+        if (evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo())) {
             return true;
         }
         if (detectorKaraoke.eEfeitoKaraoke(texto)

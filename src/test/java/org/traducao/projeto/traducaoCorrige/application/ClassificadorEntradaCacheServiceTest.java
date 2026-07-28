@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
@@ -111,12 +112,31 @@ class ClassificadorEntradaCacheServiceTest {
             service.classificar(kana).status());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: música em inglês com tradução gravada não é DANO — mas também não é
+     * trabalho desta etapa.
+     *
+     * <p>O teste nasceu para separar {@code ROMAJI_TRADUZIDO} (camada original corrompida, que
+     * precisa ser desfeita) de tradução legítima de letra latina, e essa distinção continua valendo:
+     * a asserção principal segue sendo que o veredicto NÃO é dano.
+     *
+     * <p>O que mudou em 2026-07-28 foi o outro lado. Pela REGRA DE ESCOPO (Paulo, 2026-07-25),
+     * música e karaokê pertencem à fatia {@code traducaoKaraoke}; a correção de cache não decide
+     * sobre eles. Antes esta entrada saía {@code VALIDA} — e "válida" autorizava as etapas
+     * seguintes a reescrevê-la. Medido no mesmo dia: na revisão do Zeta, 1.008 dos 1.027 eventos
+     * alterados eram letra de música, contra 19 falas de diálogo.
+     */
     @Test
-    void musicaEmInglesComTraducaoLegitimaNaoEConfundidaComDano() {
+    void musicaEmInglesNaoEDanoMasTambemNaoEDestaEtapa() {
         ObjectNode legitima = entrada("But no matter how bad a fight we'd have", "Não importa o quanto brigássemos");
         legitima.put("estilo", "Opening");
 
-        assertEquals(ClassificadorEntradaCacheService.Status.VALIDA, service.classificar(legitima).status());
+        ClassificadorEntradaCacheService.Classificacao cls = service.classificar(legitima);
+
+        assertEquals(ClassificadorEntradaCacheService.Status.PROTEGIDA, cls.status(),
+            "estilo musical é veto absoluto: quem cuida de letra é a fatia traducaoKaraoke");
+        assertNotEquals(ClassificadorEntradaCacheService.Status.ROMAJI_TRADUZIDO, cls.status(),
+            "proteger não pode virar acusação de dano — a tradução da letra latina é legítima");
     }
 
     private ObjectNode entrada(String original, String traduzido) {

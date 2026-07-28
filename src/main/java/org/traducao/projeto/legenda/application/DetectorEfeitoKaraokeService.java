@@ -103,10 +103,19 @@ public class DetectorEfeitoKaraokeService {
      * traduzida do OP/ED costuma usar o nome com sublinhado ou dígito ({@code ED_S2},
      * {@code OP_S2}, {@code OP2}), que a fronteira {@code \b} do padrão de decisão não alcança.
      *
-     * <p>INVARIANTES DO DOMÍNIO: candidatar-se ao pareamento NÃO protege nada por si só — quem
-     * protege é o resultado do pareamento, e só quando há par com original identificada. Por isso
-     * este critério pode ser largo sem afrouxar nenhuma decisão existente: nenhum outro fluxo o
-     * consulta.
+     * <p>INVARIANTES DO DOMÍNIO: no pareamento, candidatar-se NÃO protege nada por si só — quem
+     * protege é o resultado do pareamento, e só quando há par com original identificada.
+     *
+     * <p>ATENÇÃO — este Javadoc afirmava que "nenhum outro fluxo o consulta", e isso deixou de ser
+     * verdade: {@code traducao.SeletorEventosTraduziveis} consulta este método como VETO ABSOLUTO
+     * de tradução desde a regra de escopo de 2026-07-25. Um critério largo virou decisão, então a
+     * largura passou a precisar de prova. Ela foi levantada em 2026-07-28 sobre o acervo inteiro:
+     * <b>490 arquivos {@code .ass}, 46 estilos distintos casados por
+     * {@code ESTILO_MUSICA_AMPLO_PATTERN}, e os 46 são musicais de verdade</b> — de
+     * {@code "ED - Romaji"} (222.937 eventos) até {@code "Copy of OP"} (8) e
+     * {@code "Gundam 0083 ED3 Lyrics A"} (6). Zero estilo de diálogo capturado. A medição está
+     * congelada em {@code PadraoMusicaAmploNaoCapturaDialogoTest}: quem alargar o padrão tem de
+     * reexecutá-la, porque agora ela decide o que É traduzido.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: estilo e texto nulos devolvem {@code false}; nunca lança.
      */

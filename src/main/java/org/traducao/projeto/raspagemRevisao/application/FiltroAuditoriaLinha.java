@@ -13,9 +13,9 @@ import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssServ
  * e poderá ser reescrito, então o custo de errar para o lado permissivo é uma placa de tela, um
  * karaokê ou um desenho vetorial voltando alterado.
  *
- * <p>Cinco perguntas, em ordem de custo crescente: tem texto traduzível? o estilo é musical e não é
- * karaokê cantado? é efeito de karaokê? a proteção de ASS manda a IA não encostar? o estilo é de
- * placa ({@code sign})? Só o que sobrevive às cinco é diálogo de verdade.
+ * <p>Cinco perguntas, em ordem de custo crescente: tem texto traduzível? o estilo é musical? é
+ * efeito de karaokê que não seja música latina? a proteção de ASS manda a IA não encostar? o estilo
+ * é de placa ({@code sign})? Só o que sobrevive às cinco é diálogo de verdade.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
@@ -82,8 +82,26 @@ public class FiltroAuditoriaLinha {
      * ignorados e karaokê que não representam diálogo PT-BR.
      *
      * <p>INVARIANTES DO DOMÍNIO: conteúdo vetorial ASS e efeitos protegidos NUNCA são enviados ao
-     * Google ou ao LLM; música traduzível continua auditável — a exceção do karaokê cantado existe
-     * porque letra de abertura É diálogo para o espectador.
+     * Google ou ao LLM. Estilo musical é veto ABSOLUTO — a REGRA DE ESCOPO (Paulo, 2026-07-25,
+     * gravada em {@code traducao.SeletorEventosTraduziveis}) diz que música e karaokê, inclusive em
+     * inglês, pertencem à fatia {@code traducaoKaraoke}, que sabe lidar com KFX, camadas e timing
+     * por sílaba. Aqui não é "não consigo revisar", é "não é meu trabalho".
+     *
+     * <p>Esta guarda tinha uma exceção — {@code && !eKaraokeOuMusicaTraduzivel(...)} — que readmitia
+     * letra em inglês por ela ser "música traduzível". A exceção custou, medida em 2026-07-28:
+     * <ul>
+     *   <li><b>Gundam 08th</b>: 10 dos 13 episódios BLOQUEADOS por retradução em massa. No ep02, as
+     *       70 linhas {@code Song ENG} eram exatamente as 70 "falas iguais ao original" de 335
+     *       auditáveis (21%). O {@code .cache.json} do mesmo episódio tem 267 entradas e ZERO
+     *       {@code Song ENG}: a Opção 4 nunca as traduziu, como manda o escopo. Nenhuma fala de
+     *       diálogo desses 10 arquivos chegou a ser revisada.</li>
+     *   <li><b>Zeta</b>: dos 1.027 eventos que a revisão alterou, <b>1.008 eram {@code Song ENG}</b>
+     *       e 19 eram diálogo. 98,1% da rodada foi gasta na fatia errada.</li>
+     * </ul>
+     *
+     * <p>O predicado {@code eKaraokeOuMusicaTraduzivel} NÃO foi alterado: ele responde "isto é
+     * música latina, não romaji", que é CLASSIFICAÇÃO, e segue servindo à telemetria de pendência e
+     * à auditoria de dano em karaokê. Escopo e classificação divergem aqui de propósito.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conteúdo sem texto visível é tratado como ignorável,
      * evitando alteração estrutural.
@@ -96,9 +114,7 @@ public class FiltroAuditoriaLinha {
         if (!mascaradorTags.contemTextoTraduzivel(texto)) {
             return true;
         }
-        if (evento.estilo() != null
-            && politicaEstiloMusical.estiloIgnorado(evento.estilo())
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(evento.estilo(), texto)) {
+        if (evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo())) {
             return true;
         }
         if (detectorKaraoke.eEfeitoKaraoke(texto)
