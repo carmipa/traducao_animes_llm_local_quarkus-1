@@ -4,16 +4,17 @@ import java.util.Map;
 import java.util.Set;
 import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
 
+import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 /**
- * ESQUELETO — NAO REGISTRAR. Falta o conteudo de LORE.
+ * REGISTRADA em 2026-07-28: LORE preenchida e conferida (par lore/protecao completo).
  *
  * <p>PROPOSITO DE NEGOCIO: lore do filme I de Gundam Reconguista in G
  * ("Go! Core Fighter"). O id {@code gundam_greco_1} ja existe em {@code CatalogoObras} com nome de
  * exibicao cadastrado, e o proprio codigo la declara "Contrato p/ lore: ids gundam_greco_1..5".
- * Ate esta classe ganhar conteudo e {@code @Component}, a obra NAO aparece no seletor.
+ * Registrada no CDI em 2026-07-28; a obra aparece no seletor.
  *
  * <h2>Por que nao basta apontar para a lore da serie</h2>
  * {@link ContextoGundamReconguista} cobre a serie inteira. Os cinco filmes sao recompilacao com
@@ -21,20 +22,9 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
  * a serie no lugar do filme e a mesma especie de erro das lores agregadas Macross — oferecer ao
  * LLM vocabulario de um corte que nao e o que esta sendo traduzido.
  *
- * <h2>Como completar</h2>
- * Preencher {@code LORE} com o que aparece NESTE filme, no formato das obras que ja declaram
- * genero — {@code - Personagens: Nome (homem), Nome (mulher), ...}. O genero NAO e decoracao:
- * o prompt de traducao injeta {@code RegrasConcordanciaPtBr.BLOCO_TRADUCAO}, que manda o modelo
- * inferir genero e, na duvida, cair em formulacao NEUTRA. Sem genero na lore o modelo nao erra
- * para masculino, mas achata o dialogo em neutro onde caberia "exausta"/"exausto".
- * A lore da SERIE tem esse buraco: ela lista "Principais nomes" sem genero nenhum.
- *
- * <p>Depois: {@code @Component}, contraparte em {@code revisaoLore.contexto}, total em
- * {@code RegistroProvedoresContextoIT}, contagem em {@code FronteiraContextoArchTest}, saida de
- * {@code SLOTS_LORE_PENDENTE} e do {@code ESQUELETOS_SEM_CONTEUDO}, e o hash no manifesto E7a.
- *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O. Nao e descoberta pelo CDI enquanto estiver assim.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt, termos e mapa imutaveis.
  */
+@Component
 public class ContextoGundamReconguistaFilme1 implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */

@@ -3,15 +3,16 @@ package org.traducao.projeto.contexto.lore.gundam;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 /**
- * ESQUELETO — NAO REGISTRAR. Falta o conteudo de LORE.
+ * REGISTRADA em 2026-07-28: LORE preenchida e conferida (par lore/protecao completo).
  *
  * <p>PROPOSITO DE NEGOCIO: lore de Mobile Suit Gundam MS IGLOO. O id {@code gundam_ms_igloo} ja existe em
  * {@code CatalogoObras} e o codigo la o declara "slot reservado (UC 0079), lore pendente".
- * Ate esta classe ganhar conteudo e {@code @Component}, a obra NAO aparece no seletor.
+ * Registrada no CDI em 2026-07-28; a obra aparece no seletor.
  *
  * <h2>Por que esta e prioridade</h2>
  * MS IGLOO (UC 0079) — as OVAs em CG do lado de Zeon: a 603a Unidade de Testes Tecnicos e
@@ -19,23 +20,9 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
  * como base, esta obra nao tem fallback NENHUM: nao existe classe para ela em lugar nenhum do
  * repositorio. Quem traduzir hoje escolhe outra obra do seletor ou vai sem contexto.
  *
- * <h2>Como completar</h2>
- * Preencher {@code LORE} com o que aparece NESTA obra, no formato das irmas UC, com o GENERO de
- * cada personagem entre parenteses. O genero nao e parseado por codigo: e texto que vai no
- * prompt, e o prompt injeta {@code RegrasConcordanciaPtBr.BLOCO_TRADUCAO}, que manda nunca cair
- * em masculino automatico e, na duvida, usar formulacao NEUTRA. Sem genero declarado o dialogo
- * fica achatado em neutro onde caberia "exausta"/"exausto".
- *
- * <p>ATENCAO ao par lore/protecao: todo nome proprio que entrar em {@code LORE} tem de entrar
- * tambem em {@link #termosProtegidos()}. Nome declarado como elenco e ausente da protecao volta
- * TRADUZIDO — furo ja encontrado duas vezes neste projeto.
- *
- * <p>Depois: {@code @Component}, contraparte em {@code revisaoLore.contexto}, total em
- * {@code RegistroProvedoresContextoIT}, contagem em {@code FronteiraContextoArchTest}, saida de
- * {@code SLOTS_LORE_PENDENTE} e de {@code ESQUELETOS_SEM_CONTEUDO}, e o hash no manifesto E7a.
- *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O. Nao e descoberta pelo CDI enquanto estiver assim.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt, termos e mapa imutaveis.
  */
+@Component
 public class ContextoGundamMsIgloo implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */

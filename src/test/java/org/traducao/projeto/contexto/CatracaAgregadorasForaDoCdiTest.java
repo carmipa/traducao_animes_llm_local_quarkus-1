@@ -74,13 +74,8 @@ class CatracaAgregadorasForaDoCdiTest {
      * saiu daqui — a lista funciona nos dois sentidos, e sair dela é o "pronto" de cada obra.
      */
     private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of(
-        "gundam_greco_1", "filme I de Reconguista in G — LORE vazia",
-        "gundam_greco_2", "filme II de Reconguista in G — LORE vazia",
-        "gundam_greco_3", "filme III de Reconguista in G — LORE vazia",
-        "gundam_greco_4", "filme IV de Reconguista in G — LORE vazia",
-        "gundam_greco_5", "filme V de Reconguista in G — LORE vazia",
-        "gundam_ms_igloo", "MS IGLOO (UC 0079) — LORE vazia; sem fallback nenhum",
-        "gundam_thunderbolt", "Thunderbolt (UC 0079) — LORE vazia; sem fallback nenhum");
+        "gundam_ms_igloo_2", "MS IGLOO 2: Gravity Front — LORE vazia (ponto de vista da Federação)",
+        "gundam_thunderbolt_bandit", "Thunderbolt: Bandit Flower — LORE vazia (pós-guerra)");
 
     /** Os contextos específicos que devem ser usados NO LUGAR de cada agregadora. */
     private static final Map<String, Set<String>> SUBSTITUTOS = Map.of(
