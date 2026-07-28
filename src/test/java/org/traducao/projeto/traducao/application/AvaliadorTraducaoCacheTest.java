@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: fixa por regressão a política de reuso de cache e a validação
@@ -35,7 +36,7 @@ class AvaliadorTraducaoCacheTest {
     private final AvaliadorTraducaoCache avaliador = new AvaliadorTraducaoCache(
         new MascaradorTags(),
         new DetectorTraducaoIdenticaService(new LoreVazia()),
-        new ValidadorTraducaoService(),
+        new ValidadorTraducaoService(LoreAtivaFake.vazia()),
         new VerificadorIdentificadorNumerico());
 
     /**

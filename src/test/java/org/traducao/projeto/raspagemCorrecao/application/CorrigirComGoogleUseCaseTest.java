@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: prova a regressão central do menu — uma entrada vazia
@@ -51,7 +52,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(
@@ -87,7 +88,7 @@ class CorrigirComGoogleUseCaseTest {
         ObjectMapper mapper = new ObjectMapper();
         GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
         ClassificadorEntradaCacheService classificador = new ClassificadorEntradaCacheService(
-            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(),
+            new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())), new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             new PoliticaEstiloMusical(List.of("Song JP")), new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
         CacheManutencaoService cacheService = new CacheServiceTeste(mapper, temp.resolve("backups-interrupcao"));
         CorrigirComGoogleUseCase useCase = new CorrigirComGoogleUseCase(

@@ -19,6 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: cobre a fronteira que impede o menu de apagar termos
@@ -36,7 +37,7 @@ class ClassificadorEntradaCacheServiceTest {
     private final GerenciadorContexto contexto = new GerenciadorContexto(List.of(new ContextoTeste()));
     private final ClassificadorEntradaCacheService service = new ClassificadorEntradaCacheService(
         new DetectorTraducaoIdenticaService(new LoreAtivaContextoAdapter(contexto, new ContextoCongeladoDaExecucao())),
-        new ValidadorTraducaoService(),
+        new ValidadorTraducaoService(LoreAtivaFake.vazia()),
         new PoliticaEstiloMusical(List.of("Song JP")),
         new DetectorEfeitoKaraokeService(),
         new ProtecaoLegendaAssService()
