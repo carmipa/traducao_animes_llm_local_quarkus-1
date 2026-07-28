@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code qualidadeTraducao.domain} porque IDENTIDADE DE OBRA é assunto deste peer) e
  *       {@code IdentidadeObra} (a identidade canônica derivada de id + nome de exibição, que
  *       deu cobertura de reconhecimento a TODAS as obras do catálogo de uma vez, e não só às
- *       que declaram apelidos à mão); {@code contexto.lore} agrega 77 classes.</li>
+ *       que declaram apelidos à mão); {@code contexto.lore} agrega 79 classes.</li>
  *   <li>{@code contexto.application} é congelado nominalmente em exatamente
  *       {@code ValidadorCompatibilidadeObraContexto} — o serviço que julga se o arquivo
  *       pertence à obra cuja lore está selecionada, movido de
@@ -202,7 +202,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 77 lores em contexto.lore")
+    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 79 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -225,10 +225,10 @@ class FronteiraContextoArchTest {
             () -> "contexto.domain deve conter exatamente os 8 tipos homologados (VeredictoObraContexto entrou "
                 + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
                 + "peer). Encontrado: " + domain);
-        assertEquals(77, lores,
-            "contexto.lore deve agregar exatamente 77 classes de lore: 59 @Component + 3 agregadoras Macross "
-                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 5 esqueletos "
-                + "sem lore ainda (os 5 filmes de Reconguista in G) + 10 mapas de terminologia: "
+        assertEquals(79, lores,
+            "contexto.lore deve agregar exatamente 79 classes de lore: 59 @Component + 3 agregadoras Macross "
+                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 7 esqueletos "
+                + "sem lore ainda (5 filmes de Reconguista in G + MS IGLOO + Thunderbolt) + 10 mapas: "
                 + "GundamUc, GundamZz, DanMachi, Evangelion, GuiltyCrown, Macross, Macross2, MacrossDelta, "
                 + "MacrossDyrl, BreakBlade. Esta contagem soma CLASSES do pacote, nao beans registrados: "
                 + "tirar um @Component nao a muda, adicionar uma classe sim.");

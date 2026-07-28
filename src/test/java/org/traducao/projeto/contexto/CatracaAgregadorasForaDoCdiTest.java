@@ -78,7 +78,9 @@ class CatracaAgregadorasForaDoCdiTest {
         "gundam_greco_2", "filme II de Reconguista in G — LORE vazia",
         "gundam_greco_3", "filme III de Reconguista in G — LORE vazia",
         "gundam_greco_4", "filme IV de Reconguista in G — LORE vazia",
-        "gundam_greco_5", "filme V de Reconguista in G — LORE vazia");
+        "gundam_greco_5", "filme V de Reconguista in G — LORE vazia",
+        "gundam_ms_igloo", "MS IGLOO (UC 0079) — LORE vazia; sem fallback nenhum",
+        "gundam_thunderbolt", "Thunderbolt (UC 0079) — LORE vazia; sem fallback nenhum");
 
     /** Os contextos específicos que devem ser usados NO LUGAR de cada agregadora. */
     private static final Map<String, Set<String>> SUBSTITUTOS = Map.of(
