@@ -94,7 +94,10 @@ class FronteiraCorretorCacheArchTest {
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.ResultadoManutencaoCache",
         "raspagemRevisao.application.RevisarCacheUseCase -> traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort",
-        "raspagemRevisao.application.RevisarLegendasUseCase -> correcaoLegendas.application.SanitizadorTagsService",
+        // FASE 4: a preparacao da fala levou consigo o saneamento de tags. Mesma aresta, mesma
+        // direcao -- agora nascendo da classe que de fato o usa, junto da guarda que impede o
+        // saneamento de esvaziar uma fala.
+        "raspagemRevisao.application.PreparadorFalaRevisao -> correcaoLegendas.application.SanitizadorTagsService",
         // Aresta ADICIONADA conscientemente em 2026-07-27 para FECHAR um furo de segurança, não por
         // conveniência: este caso de uso resolvia a lore pelo carimbo do cache sem passar pela
         // guarda obra×contexto, então um cache de Gundam 0083 carimbado "guilty_crown" era revisado

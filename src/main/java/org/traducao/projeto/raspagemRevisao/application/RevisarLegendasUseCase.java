@@ -1,7 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
@@ -52,13 +51,13 @@ public class RevisarLegendasUseCase {
     private final LlmPort llmPort;
     private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
-    private final SanitizadorTagsService sanitizadorTags;
     private final ProtecaoLegendaAssService protecaoAss;
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final SincronizacaoPreviaRevisao sincronizacaoPrevia;
     private final FiltroAuditoriaLinha filtroAuditoria;
+    private final PreparadorFalaRevisao preparadorFala;
     private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
     private final PreparadorReferenciaRevisao preparador;
 
@@ -80,13 +79,13 @@ public class RevisarLegendasUseCase {
         LlmPort llmPort,
         MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
-        SanitizadorTagsService sanitizadorTags,
         ProtecaoLegendaAssService protecaoAss,
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
         SincronizacaoPreviaRevisao sincronizacaoPrevia,
         FiltroAuditoriaLinha filtroAuditoria,
+        PreparadorFalaRevisao preparadorFala,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
         PreparadorReferenciaRevisao preparador
     ) {
@@ -97,13 +96,13 @@ public class RevisarLegendasUseCase {
         this.llmPort = llmPort;
         this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
-        this.sanitizadorTags = sanitizadorTags;
         this.protecaoAss = protecaoAss;
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.sincronizacaoPrevia = sincronizacaoPrevia;
         this.filtroAuditoria = filtroAuditoria;
+        this.preparadorFala = preparadorFala;
         this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
         this.preparador = preparador;
     }
@@ -422,17 +421,7 @@ public class RevisarLegendasUseCase {
                 sessao.manter(evento);
                 continue;
             }
-            if (!evento.isDialogo() || evento.texto() == null) {
-                sessao.manter(evento);
-                continue;
-            }
-
-            if (evento.texto().isBlank()) {
-                sessao.manter(evento);
-                continue;
-            }
-
-            if (filtroAuditoria.deveIgnorar(evento, evento.texto())) {
+            if (filtroAuditoria.deveIgnorarLinha(evento)) {
                 sessao.manter(evento);
                 continue;
             }
@@ -440,28 +429,20 @@ public class RevisarLegendasUseCase {
             // Localiza o original EN ANTES da correção de karaokê: a busca por
             // texto traduzido usa o texto como está no cache (pré-correção), e o
             // original serve de referência para preservar comentários {...}
-            // legítimos em vez de escapá-los como alucinação.
-            String textoNormalizado = evento.texto();
-            String originalEn = originaisPorIndice.get(evento.indice());
-            if (originalEn == null || originalEn.isBlank()) {
-                originalEn = originalPorTraduzido.get(normalizarTexto(textoNormalizado));
-            }
-            boolean temOriginalEn = originalEn != null && !originalEn.isBlank();
-
-            String textoCorrigidoKaraoke = sanitizadorTags.escaparChavesInvalidas(textoNormalizado, originalEn);
-            // GUARDA DE INTEGRIDADE: uma correção NUNCA pode apagar uma fala. Se o
-            // saneamento de tags deixou o texto VISÍVEL vazio numa linha que tinha
-            // conteúdo, a "correção" destruiria a legenda — mantém-se o original.
-            // Sem esta guarda, um bloco contínuo de diálogo (Guilty Crown ep4, 13:58–20:52)
-            // foi esvaziado: as linhas ficaram com tempo e estilo, mas texto em branco.
-            boolean esvaziaria = saneamentoEsvaziariaFala(textoNormalizado, textoCorrigidoKaraoke);
-            if (!textoNormalizado.equals(textoCorrigidoKaraoke) && !esvaziaria) {
-                evento = evento.comTexto(textoCorrigidoKaraoke);
+            // A ORDEM (original EN antes do saneamento de karaoke) e a GUARDA de esvaziamento
+            // moraram aqui e agora vivem no preparador, com o porque escrito.
+            PreparadorFalaRevisao.FalaPreparada preparo = preparadorFala.preparar(
+                evento, originaisPorIndice, originalPorTraduzido);
+            evento = preparo.evento();
+            String textoNormalizado = preparo.textoAnterior();
+            String originalEn = preparo.originalEn();
+            boolean temOriginalEn = preparo.temOriginalEn();
+            if (preparo.karaokeCorrigido()) {
                 sessao.contarCorrecaoJaAplicada();
                 out("  -> Karaoke corrigido na linha " + evento.indice() + ":");
                 out("     De : " + textoNormalizado);
-                out("     Para: " + textoCorrigidoKaraoke);
-            } else if (esvaziaria) {
+                out("     Para: " + evento.texto());
+            } else if (preparo.karaokeRecusadoPorEsvaziamento()) {
                 out("  [GUARDA] Linha " + evento.indice()
                     + " preservada: o saneamento de tags esvaziaria a fala \"" + textoNormalizado + "\".");
             }
@@ -710,25 +691,6 @@ public class RevisarLegendasUseCase {
         }
         return !posterior.suspeito()
             || posterior.motivos().size() < auditoriaAnterior.motivos().size();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: guarda de integridade das ferramentas que corrigem a legenda PT-BR
-     * direto no arquivo (sem inglês nem cache). Uma correção JAMAIS pode transformar uma fala
-     * com texto em uma linha vazia — o resultado é uma legenda que some da tela mantendo tempo e
-     * estilo. Foi o que apagou um bloco contínuo de diálogo do Guilty Crown ep4 (13:58–20:52).
-     *
-     * <p>INVARIANTES DO DOMÍNIO: só acusa quando o ORIGINAL tinha texto visível e o CORRIGIDO
-     * ficou sem nenhum — reordenar, reescrever ou trocar tags continua permitido; apagar, não.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: nulos degradam para string vazia; nunca lança. Original
-     * já vazio devolve {@code false} (não há fala a proteger).
-     *
-     * @return {@code true} se aplicar {@code corrigido} apagaria uma fala que tinha conteúdo
-     */
-    boolean saneamentoEsvaziariaFala(String original, String corrigido) {
-        return !protecaoAss.textoVisivel(original).isBlank()
-            && protecaoAss.textoVisivel(corrigido).isBlank();
     }
 
     private String normalizarTexto(String texto) {
