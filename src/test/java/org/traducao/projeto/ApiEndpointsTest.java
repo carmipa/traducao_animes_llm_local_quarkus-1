@@ -25,6 +25,56 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @QuarkusTest
 class ApiEndpointsTest {
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: espera a fila de execução esvaziar antes de um teste mexer no
+     * arquivo canônico de telemetria.
+     *
+     * <h2>A corrida que este método fecha</h2>
+     * Vários testes desta classe fazem POST em endpoints que SUBMETEM JOB — {@code /api/traduzir},
+     * {@code /api/revisar-cache}, {@code /api/corrigir-scraping} e outros respondem 200 na hora e
+     * seguem trabalhando em segundo plano. Ao terminar, o job registra telemetria, e o registro
+     * REESCREVE o arquivo canônico a partir do modelo em memória.
+     *
+     * <p>Quando isso cai entre a semeadura e o GET de
+     * {@link #telemetriaExportarRetornaArquivoJson()}, o corpo exportado vem com a operação do
+     * outro teste em vez do conteúdo semeado. Medido em 2026-07-28: o corpo devolvido trazia
+     * {@code {"tipo":"Revisão de Concordância","detalhe":"Pasta: cache (simulado)"}} — job de um
+     * teste vizinho. Falhava de forma reprodutível, e o Javadoc dos dois testes de exportação
+     * afirmava ser independente de ordem, o que não era verdade.
+     *
+     * <p>Esperar por {@code livre} basta porque a telemetria é gravada DENTRO do corpo do job
+     * ({@code PipelineWebSupport.submeterJobComRelatorio} executa {@code corpo.run()} na fila),
+     * então a fila só se declara livre depois de a escrita ter acontecido.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não altera estado; só observa {@code /api/pipeline/status} até
+     * ele responder {@code "livre"}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se a fila não esvaziar dentro do limite, falha o teste
+     * com a causa explícita em vez de deixar a corrida voltar disfarçada de flakiness.
+     */
+    private static void aguardarPipelineOcioso() {
+        long limite = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+        String ultimoEstado = "desconhecido";
+        while (System.nanoTime() < limite) {
+            ultimoEstado = given()
+                .when().get("/api/pipeline/status")
+                .then().statusCode(200)
+                .extract().path("mensagem");
+            if ("livre".equals(ultimoEstado)) {
+                return;
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        throw new AssertionError(
+            "A fila de execução não esvaziou em 30s (último estado: " + ultimoEstado
+                + "); um job de outro teste ainda escreveria telemetria durante este.");
+    }
+
     @Test
     void telemetriaRetornaResumo() {
         given()
@@ -57,6 +107,7 @@ class ApiEndpointsTest {
      */
     @Test
     void telemetriaExportarRetornaArquivoJson() throws Exception {
+        aguardarPipelineOcioso();
         Path arquivoCanonico = TelemetriaService.resolverArquivoTelemetriaCanonico();
         byte[] conteudoAnterior = Files.exists(arquivoCanonico)
             ? Files.readAllBytes(arquivoCanonico) : null;
@@ -101,6 +152,7 @@ class ApiEndpointsTest {
      */
     @Test
     void telemetriaExportarSemArquivoCanonicoRetorna404() throws Exception {
+        aguardarPipelineOcioso();
         Path arquivoCanonico = TelemetriaService.resolverArquivoTelemetriaCanonico();
         byte[] conteudoAnterior = Files.exists(arquivoCanonico)
             ? Files.readAllBytes(arquivoCanonico) : null;
