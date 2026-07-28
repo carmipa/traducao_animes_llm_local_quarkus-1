@@ -54,6 +54,14 @@ public class ContextoGundamZZ implements ProvedorContexto {
         - Argama; Nahel Argama (refit); Endra; Sadalahn; Gwadan quando cruzar.
         - Shangri-La; Axis; Core 3; Dublin; Moon Moon; Tigerbaum quando o dialogo trouxer.
 
+        === Nomes que se parecem e NAO se substituem ===
+        - Original "Argama"      -> saida "Argama".        Nave.
+        - Original "Nahel Argama"-> saida "Nahel Argama".  OUTRA nave, a sucessora.
+        - Original "Zeta Gundam" -> saida "Zeta Gundam".   Mecha do Kamille.
+        - Original "ZZ Gundam"   -> saida "ZZ Gundam".     Mecha do Judau, outro.
+        - A serie usa os quatro. Escreva o que o original escreveu; nao promova nem rebaixe
+          um nome para o outro.
+
         === Mecha ===
         - MSZ-010 ZZ Gundam (NUNCA Zeta Duplo; Double Zeta nao vira "Zeta Duplo");
           Full Armor ZZ quando aparecer; Core Top / Core Base / Core Fighter.
