@@ -15,7 +15,6 @@ import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
-import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.io.IOException;
@@ -37,13 +36,9 @@ public class RevisarLegendasUseCase {
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     private final PersistenciaLegendaRevisada persistencia;
-    private final ProvedorCorrecaoFala provedorCorrecao;
-    private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
-    private final GuardaCorrecaoSegura guardaCorrecao;
-    private final MemoriaCorrecaoArquivo memoriaCorrecao;
     private final TriagemFalaSuspeita triagemFala;
-    private final CorretorDeterministicoConcordanciaService corretorDeterministico;
+    private final CadeiaCorrecaoFala cadeiaCorrecao;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
     private final SincronizacaoPreviaRevisao sincronizacaoPrevia;
     private final FiltroAuditoriaLinha filtroAuditoria;
@@ -63,13 +58,9 @@ public class RevisarLegendasUseCase {
      */
     public RevisarLegendasUseCase(
         PersistenciaLegendaRevisada persistencia,
-        ProvedorCorrecaoFala provedorCorrecao,
-        MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
-        GuardaCorrecaoSegura guardaCorrecao,
-        MemoriaCorrecaoArquivo memoriaCorrecao,
         TriagemFalaSuspeita triagemFala,
-        CorretorDeterministicoConcordanciaService corretorDeterministico,
+        CadeiaCorrecaoFala cadeiaCorrecao,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
         SincronizacaoPreviaRevisao sincronizacaoPrevia,
         FiltroAuditoriaLinha filtroAuditoria,
@@ -78,13 +69,9 @@ public class RevisarLegendasUseCase {
         PreparadorReferenciaRevisao preparador
     ) {
         this.persistencia = persistencia;
-        this.provedorCorrecao = provedorCorrecao;
-        this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
-        this.guardaCorrecao = guardaCorrecao;
-        this.memoriaCorrecao = memoriaCorrecao;
         this.triagemFala = triagemFala;
-        this.corretorDeterministico = corretorDeterministico;
+        this.cadeiaCorrecao = cadeiaCorrecao;
         this.resolvedorArtefatos = resolvedorArtefatos;
         this.sincronizacaoPrevia = sincronizacaoPrevia;
         this.filtroAuditoria = filtroAuditoria;
@@ -484,76 +471,15 @@ public class RevisarLegendasUseCase {
             auditoria.motivos().forEach(m ->
                 out("     " + AnsiCores.DIM + "• " + m + AnsiCores.RESET));
 
-            String textoMascOriginal = temOriginalEn
-                ? mascaradorTags.mascarar(originalEn).texto()
-                : null;
-            Optional<String> correcaoDeterministica = corretorDeterministico.corrigir(
-                originalEn, traducaoAtual);
-            if (correcaoDeterministica.isPresent()
-                && correcaoEhSegura(
-                    originalEn, traducaoAtual, correcaoDeterministica.get(), auditoria, contexto)) {
-                String corrigida = correcaoDeterministica.get();
-                out("     PT corrigido por regra segura: " + AnsiCores.GREEN + corrigida + AnsiCores.RESET);
-                detalhesRevisao.add(new DetalheRevisao(
-                    arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                    "CORRIGIDA_REGRA_SEGURA", auditoria.motivos(),
-                    "Contradição objetiva corrigida localmente, sem chamar LLM ou Google.",
-                    originalEn, traducaoAtual, corrigida));
-                sessao.corrigir(evento, corrigida);
-                sessao.registrarCorrecao(textoMascOriginal, mascaradorTags.mascarar(corrigida).texto());
-                continue;
-            }
-            // Antes de gastar uma chamada externa: esta mesma fala já foi resolvida neste arquivo?
-            Optional<DecisaoFala> daMemoria = memoriaCorrecao.consultar(
-                sessao, evento, textoMascOriginal, originalEn, traducaoAtual, auditoria, contexto);
-            if (daMemoria.isPresent()) {
-                aplicar(sessao, evento, daMemoria.get());
-                continue;
-            }
-
-            ProvedorCorrecaoFala.Resultado candidata = provedorCorrecao.obter(
-                modo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
-            if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada recusada) {
-                out(recusada.mensagem());
-                if (recusada.codigo() != null) {
-                    detalhesRevisao.add(new DetalheRevisao(
-                        arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                        recusada.codigo(), auditoria.motivos(), recusada.detalhe(),
-                        originalEn, traducaoAtual, recusada.proposta()));
-                }
-                if (recusada.registrarSemAlteracao()) {
-                    sessao.registrarSemAlteracao(textoMascOriginal);
-                }
-                sessao.pendente(evento);
-                continue;
-            }
-            String novaTraducao = ((ProvedorCorrecaoFala.Resultado.Obtida) candidata).texto();
-
-            if (!correcaoEhSegura(originalEn, traducaoAtual, novaTraducao, auditoria, contexto)) {
-                String motivo = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
-                    ? "Correção descartada: resposta LLM inválida ou sem melhoria."
-                    : "Correção descartada: resposta Google inválida ou sem melhoria.";
-                out("     " + AnsiCores.YELLOW + motivo + AnsiCores.RESET);
-                detalhesRevisao.add(new DetalheRevisao(
-                    arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                    modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
-                        ? "LLM_REJEITADO_SEM_MELHORIA" : "GOOGLE_REJEITADO_SEM_MELHORIA",
-                    auditoria.motivos(), motivo, originalEn, traducaoAtual, novaTraducao));
-                sessao.registrarSemAlteracao(textoMascOriginal);
-                sessao.pendente(evento);
-                continue;
-            }
-
-            out("     PT corrigido: " + AnsiCores.GREEN + novaTraducao + AnsiCores.RESET);
-            detalhesRevisao.add(new DetalheRevisao(
-                arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                modo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "CORRIGIDA_LLM" : "CORRIGIDA_GOOGLE",
-                auditoria.motivos(), "Correção validada e persistida.",
-                originalEn, traducaoAtual, novaTraducao));
-            sessao.corrigir(evento, novaTraducao);
-
-            sessao.registrarCorrecao(textoMascOriginal,
-                mascaradorTags.mascarar(novaTraducao).texto());
+            // As fontes de correção, da mais barata para a mais cara. A cadeia sabe a ordem e o
+            // porquê dela; aqui só se registra a evidência e se aplica o desfecho.
+            CadeiaCorrecaoFala.Tentativa tentativa = cadeiaCorrecao.decidir(
+                sessao,
+                new CadeiaCorrecaoFala.FalaSuspeita(
+                    evento, originalEn, traducaoAtual, temOriginalEn, auditoria),
+                arquivoPt.getFileName().toString(), modo, contexto);
+            detalhesRevisao.addAll(tentativa.evidencias());
+            aplicar(sessao, evento, tentativa.decisao());
         }
 
         if (sessao.modificado()) {
@@ -583,44 +509,4 @@ public class RevisarLegendasUseCase {
         }
         return sessao;
     }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: submete uma proposta de correção ao portão único
-     * ({@link GuardaCorrecaoSegura}) e narra ao operador o que ele vetou.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: os avisos do portão são impressos AQUI, no
-     * momento da decisão, para caírem entre a narração do problema e a linha
-     * seguinte do laço. O portão não imprime justamente para que essa ordem seja
-     * escolha do laço, e não efeito colateral de quem avalia.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: o portão nunca lança; qualquer desfecho
-     * previsto vira {@code false} e mantém a legenda anterior.
-     */
-    private boolean correcaoEhSegura(
-        String original,
-        String traducaoAtual,
-        String candidata,
-        ResultadoDeteccaoConcordancia auditoriaAnterior,
-        ContextoRevisao contexto
-    ) {
-        GuardaCorrecaoSegura.Veredicto veredicto = guardaCorrecao.avaliar(
-            original, traducaoAtual, candidata, auditoriaAnterior, contexto);
-        if (veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada rejeitada) {
-            rejeitada.avisosAoOperador().forEach(this::out);
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: registra a evidência por fala usada no relatório da
-     * revisão e no futuro dataset de melhoria dos detectores.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: problemas é imutável e cada registro pertence a
-     * um arquivo/evento ou ao bloqueio global do arquivo indicado por evento -1.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lista de problemas ausente é normalizada
-     * para lista vazia e o record não executa I/O.
-     */
 }
