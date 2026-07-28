@@ -12,7 +12,6 @@ import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
-import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
@@ -20,7 +19,6 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
@@ -41,14 +39,12 @@ import java.util.stream.Stream;
 @Service
 public class RevisarLegendasUseCase {
 
-    private static final long PAUSA_GOOGLE_MS = 400;
     private static final DateTimeFormatter TS_BACKUP = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     private final PersistenciaLegendaRevisada persistencia;
-    private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final AuditorProblemasLegendaService auditor;
     private final ValidadorTraducaoService validador;
-    private final LlmPort llmPort;
+    private final ProvedorCorrecaoFala provedorCorrecao;
     private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
     private final ProtecaoLegendaAssService protecaoAss;
@@ -73,10 +69,9 @@ public class RevisarLegendasUseCase {
      */
     public RevisarLegendasUseCase(
         PersistenciaLegendaRevisada persistencia,
-        RecuperacaoExternaRevisaoPort recuperacaoExterna,
         AuditorProblemasLegendaService auditor,
         ValidadorTraducaoService validador,
-        LlmPort llmPort,
+        ProvedorCorrecaoFala provedorCorrecao,
         MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
         ProtecaoLegendaAssService protecaoAss,
@@ -90,10 +85,9 @@ public class RevisarLegendasUseCase {
         PreparadorReferenciaRevisao preparador
     ) {
         this.persistencia = persistencia;
-        this.recuperacaoExterna = recuperacaoExterna;
         this.auditor = auditor;
         this.validador = validador;
-        this.llmPort = llmPort;
+        this.provedorCorrecao = provedorCorrecao;
         this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
         this.protecaoAss = protecaoAss;
@@ -537,60 +531,23 @@ public class RevisarLegendasUseCase {
                 continue;
             }
 
-            String novaTraducao;
-            if (modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-                TentativaRevisaoLegenda tentativa = tentarRevisarConcordancia(
-                    originalEn, traducaoAtual, auditoria.motivos(), contexto);
-                if (tentativa.revisado().isEmpty()) {
-                    out("     " + AnsiCores.RED
-                        + "Revisão não aplicada: " + tentativa.detalhe()
-                        + AnsiCores.RESET);
+            ProvedorCorrecaoFala.Resultado candidata = provedorCorrecao.obter(
+                modo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
+            if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada recusada) {
+                out(recusada.mensagem());
+                if (recusada.codigo() != null) {
                     detalhesRevisao.add(new DetalheRevisao(
                         arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                        tentativa.codigo(), auditoria.motivos(), tentativa.detalhe(),
-                        originalEn, traducaoAtual, tentativa.proposta()));
-                    sessao.pendente(evento);
-                    continue;
+                        recusada.codigo(), auditoria.motivos(), recusada.detalhe(),
+                        originalEn, traducaoAtual, recusada.proposta()));
                 }
-                novaTraducao = tentativa.revisado().get();
-                if (novaTraducao.equals(traducaoAtual)) {
-                    out("     " + AnsiCores.DIM + "LLM manteve o texto original." + AnsiCores.RESET);
-                    detalhesRevisao.add(new DetalheRevisao(
-                        arquivoPt.getFileName().toString(), evento.indice(), evento.estilo(),
-                        "LLM_SEM_ALTERACAO", auditoria.motivos(),
-                        "O modelo respondeu, mas manteve a tradução atual.",
-                        originalEn, traducaoAtual, novaTraducao));
+                if (recusada.registrarSemAlteracao()) {
                     sessao.registrarSemAlteracao(textoMascOriginal);
-                    sessao.pendente(evento);
-                    continue;
                 }
-            } else {
-                if (!PoliticaRetraducao.exigeRetraducaoPeloGoogle(auditoria.motivos())) {
-                    out("     " + AnsiCores.DIM
-                        + "Google não acionado: problema reservado à revisão LLM." + AnsiCores.RESET);
-                    sessao.registrarSemAlteracao(textoMascOriginal);
-                    sessao.pendente(evento);
-                    continue;
-                }
-                ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
-                    originalEn, contexto.lore(), contexto.termosProtegidos());
-                ResultadoRecuperacaoExterna resultadoGoogle =
-                    recuperacaoExterna.traduzir(originalProtegido.textoMascarado());
-                pausaGoogle();
-
-                String restauradaGoogle = resultadoGoogle.sucesso()
-                    ? protetorLore.restaurar(resultadoGoogle.texto(), originalProtegido)
-                    : null;
-                if (!resultadoGoogle.sucesso() || restauradaGoogle == null
-                    || restauradaGoogle.equals(traducaoAtual)) {
-                    out("     " + AnsiCores.DIM + "Google sem alteração aplicável ("
-                        + resultadoGoogle.status() + "); mantido." + AnsiCores.RESET);
-                    sessao.registrarSemAlteracao(textoMascOriginal);
-                    sessao.pendente(evento);
-                    continue;
-                }
-                novaTraducao = restauradaGoogle;
+                sessao.pendente(evento);
+                continue;
             }
+            String novaTraducao = ((ProvedorCorrecaoFala.Resultado.Obtida) candidata).texto();
 
             if (!correcaoEhSegura(originalEn, traducaoAtual, novaTraducao, auditoria, contexto)) {
                 String motivo = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
@@ -699,112 +656,6 @@ public class RevisarLegendasUseCase {
 
     private String normalizarEstilo(String estilo) {
         return estilo == null ? "" : estilo.trim().toLowerCase();
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: solicita ao LLM uma revisão pontual sem permitir que
-     * nomes e termos oficiais definidos pela lore sejam traduzidos.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: tags ASS e termos canônicos são mascarados antes
-     * da chamada e precisam ser restaurados integralmente antes da validação.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: resposta vazia, marcador perdido ou
-     * proposta estruturalmente inválida devolve diagnóstico explícito, sem
-     * confundir rejeição de conteúdo com indisponibilidade do servidor.
-     */
-    private TentativaRevisaoLegenda tentarRevisarConcordancia(
-        String original,
-        String traduzido,
-        List<String> motivos,
-        ContextoRevisao contexto
-    ) {
-        String textoOriginal = original != null ? original : "";
-        ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
-            textoOriginal, contexto.lore(), contexto.termosProtegidos());
-        ProtetorTermosLoreService.TextoProtegido traducaoProtegida = protetorLore.mascarar(
-            traduzido, contexto.lore(), contexto.termosProtegidos());
-        MascaradorTags.Mascarado mascOriginal = mascaradorTags.mascarar(originalProtegido.textoMascarado());
-        MascaradorTags.Mascarado mascTraduzido = mascaradorTags.mascarar(traducaoProtegida.textoMascarado());
-
-        boolean precisaRetraducaoCompleta = PoliticaRetraducao.exigeRetraducaoCompletaPeloLlm(motivos);
-        Optional<String> resposta;
-
-        if (precisaRetraducaoCompleta) {
-            resposta = llmPort.corrigirTraducao(
-                mascOriginal.texto(),
-                mascTraduzido.texto(),
-                String.join(", ", motivos)
-            );
-        } else {
-            resposta = llmPort.revisarConcordancia(
-                mascOriginal.texto(),
-                mascTraduzido.texto(),
-                motivos
-            );
-        }
-
-        if (resposta.isEmpty()) {
-            return TentativaRevisaoLegenda.pendente(
-                "LLM_SEM_CONTEUDO_UTILIZAVEL",
-                "O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.",
-                null);
-        }
-
-        String proposta = resposta.get();
-        try {
-            String desmascarado = mascaradorTags.desmascarar(proposta, mascTraduzido.tags());
-            String restaurado = protetorLore.restaurar(desmascarado, traducaoProtegida);
-            if (restaurado == null) {
-                return TentativaRevisaoLegenda.pendente(
-                    "LLM_MARCADOR_LORE_INCOMPATIVEL",
-                    "A proposta perdeu ou alterou marcador protegido pela lore.", proposta);
-            }
-            validador.validarFala(restaurado);
-            if (protecaoAss.respostaSuspeita(original, restaurado)) {
-                return TentativaRevisaoLegenda.pendente(
-                    "LLM_ESTRUTURA_ASS_SUSPEITA",
-                    "A proposta alterou a estrutura protegida da legenda ASS.", proposta);
-            }
-            return TentativaRevisaoLegenda.sucesso(restaurado, proposta);
-        } catch (AlucinacaoDetectadaException e) {
-            return TentativaRevisaoLegenda.pendente(
-                "LLM_VALIDACAO_REJEITADA", RelatorioRevisaoService.mensagemFalha(e), proposta);
-        }
-    }
-
-    private void pausaGoogle() {
-        try {
-            Thread.sleep(PAUSA_GOOGLE_MS);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: transporta o resultado técnico de uma chamada de
-     * revisão para que console e relatório expliquem por que a fala foi mantida.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: sucesso sempre contém texto revisado; pendência
-     * sempre contém código e diagnóstico, podendo conservar a proposta rejeitada.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: fábricas normalizam valores ausentes e
-     * nunca permitem que a indisponibilidade seja inferida sem evidência.
-     */
-    private record TentativaRevisaoLegenda(
-        Optional<String> revisado,
-        String codigo,
-        String detalhe,
-        String proposta
-    ) {
-        static TentativaRevisaoLegenda sucesso(String revisado, String proposta) {
-            return new TentativaRevisaoLegenda(
-                Optional.of(revisado), "LLM_RESPOSTA_VALIDADA", "Resposta validada.", proposta);
-        }
-
-        static TentativaRevisaoLegenda pendente(String codigo, String detalhe, String proposta) {
-            return new TentativaRevisaoLegenda(
-                Optional.empty(), codigo, detalhe == null ? "Falha não detalhada." : detalhe, proposta);
-        }
     }
 
     /**

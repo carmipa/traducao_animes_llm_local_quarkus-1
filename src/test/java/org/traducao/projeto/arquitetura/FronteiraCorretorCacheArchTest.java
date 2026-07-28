@@ -118,6 +118,10 @@ class FronteiraCorretorCacheArchTest {
         // que coincidem com o ingles por estarem CERTAS ("Axis" continua "Axis") e nao podem ser
         // sobrescritas pela ponte 5->6. E conhecimento de lore; mesma direcao e mesma especie das
         // arestas ja declaradas, agora nascendo tambem da classe que a usa.
+        // FASE 4: o provedor de correcao mascara os termos da lore ANTES de mandar a fala ao LLM
+        // ou ao tradutor externo, e os restaura na volta. Sem isso, um nome proprio volta
+        // traduzido. Mesma direcao e especie das demais.
+        "raspagemRevisao.application.ProvedorCorrecaoFala -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.SincronizacaoPreviaRevisao -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
         // FASE 2, recuperação externa: as duas arestas que este caso de uso tinha para o
@@ -270,7 +274,7 @@ class FronteiraCorretorCacheArchTest {
     }
 
     @Test
-    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (26, congeladas)")
+    @DisplayName("FASE 0: inventário exato das arestas cross-fatia da área de correção (27, congeladas)")
     void arestasCrossFatiaCongeladas() {
         Set<String> vivas = arestasVivas();
         Set<String> novas = new TreeSet<>(vivas);
