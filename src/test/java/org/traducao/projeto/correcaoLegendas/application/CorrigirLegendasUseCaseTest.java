@@ -8,7 +8,6 @@ import org.traducao.projeto.correcaoLegendas.domain.ResumoOperacaoCorrecaoLegend
 import org.traducao.projeto.correcaoLegendas.domain.ports.TelemetriaCorrecaoLegendasPort;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
-import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;

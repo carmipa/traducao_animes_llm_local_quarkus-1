@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
