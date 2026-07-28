@@ -104,6 +104,25 @@ public class CorretorLoreDeterministico {
             corrigida = PADRAO_RODADAS_ALEATORIAS.matcher(corrigida).replaceAll("munições falhas");
         }
 
+        // DIVIDA NOMEADA — "Opcao 7: enforcer antes do mascaramento". Medida em 2026-07-28.
+        //
+        // O enforcer trata a quebra do ASS explicitamente (SEPARADOR_INTERNO aceita espaco OU
+        // "\N"), porque a legenda parte termo composto no meio: "Quin\NMantha", "Char\NAznable".
+        // Nesta chamada esse tratamento NUNCA dispara: o texto chega MASCARADO e o mascarador ja
+        // trocou "\N" por "[[TAGn]]" (MascaradorTags.PADRAO_TAG casa "\\[Nnh]"). O caminho do
+        // reforco de cache passa texto CRU e por isso funciona; aqui, nao.
+        //
+        // Medido no acervo (167 caches): 56.420 falas, 11.799 (20,9%) contem a quebra, 286 tem
+        // termo da lore partido por ela. Isso mede o CENARIO, nao 286 defeitos -- a Revisao so
+        // perde quando a forma-ruim esta no PT E o canonico no EN esta partido, subconjunto
+        // menor. Severidade baixa: quem cobre o acervo hoje e o reforco de cache.
+        //
+        // O CONSERTO NAO E ACEITAR "[[TAGn]]" NO REGEX DO ENFORCER. Isso fecharia o sintoma e
+        // acoplaria o enforcer ao formato do mascarador. A causa e ORDEM DE PIPELINE: o
+        // mascaramento existe para proteger tags do LLM, e o enforcer e deterministico -- ele nao
+        // inventa tag e nao precisa de mascara. A ordem correta seria enforcer/corretor no texto
+        // CRU, mascarar so para a chamada ao LLM, desmascarar, validar. Mexer nisso altera a ordem
+        // de um caminho que hoje funciona, entao nao se faz de raspao.
         corrigida = enforcadorTermosLore.reforcar(originalMascarado, corrigida, correcoesTerminologia);
 
         if (corrigida.equals(traducaoMascarada)) {

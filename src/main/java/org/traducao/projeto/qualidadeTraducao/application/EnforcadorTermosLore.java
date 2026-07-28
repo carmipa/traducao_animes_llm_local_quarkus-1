@@ -27,9 +27,23 @@ import java.util.stream.Stream;
  *       exatamente como definido na lore.</li>
  *   <li>Aplica entradas do mapa da frase mais longa para a mais curta — evita que
  *       "Vazio"→"Void" destrua "Genoma do Vazio"→"Void Genome" antes da frase completa.</li>
- *   <li>Restaura NO MÁXIMO tantas formas-ruim quantas o termo canônico aparece no original,
- *       priorizando as capitalizadas — não corrompe um homógrafo comum minúsculo
- *       (ex.: "O Vazio deixou tudo vazio." → "O Void deixou tudo vazio.", não "tudo Void").</li>
+ *   <li><b>O TETO VALE SÓ PARA AS MINÚSCULAS.</b> Uma forma-ruim CAPITALIZADA é restaurada
+ *       sempre, sem limite; só as minúsculas disputam o orçamento "quantas vezes o canônico
+ *       aparece no original". A razão é que capitalizada no meio da frase já é nome próprio,
+ *       e não há homógrafo comum a proteger ali — o teto existe para o par
+ *       "Vazio"(Void) vs "vazio"(empty), não para "Char Aznable".
+ *       <p>Exemplo do que o teto FAZ: "O Vazio deixou tudo vazio." → "O Void deixou tudo
+ *       vazio.", nunca "tudo Void".
+ *       <p>Exemplo do que ele NÃO faz mais, e por quê: limitar as capitalizadas produzia
+ *       falas MEIO corrigidas — "Precisamos deter o Eixo antes que o Eixo caia!" com "Axis"
+ *       uma vez no inglês saía "...deter o Axis antes que o Eixo caia!", e a auditoria
+ *       seguinte APROVAVA a linha (basta uma ocorrência canônica para o detector parar de
+ *       acusar). Defeito invisível, gravado no .ass e logado em verde.
+ *       <p>Selado por {@code EnforcadorTermosLoreTest.capitalizadasNaoSaoLimitadasPeloTeto} e
+ *       {@code CorretorLoreDeterministicoTest.tetoDeOcorrenciasNaoCorrompeONumeroQuatro}.
+ *       Uma auditoria de 2026-07-27 descreveu o teto como se fosse geral e recomendou
+ *       "criar um teste" que já existia duas vezes — daí esta nota estar aqui e não só
+ *       no método.</li>
  *   <li>Nunca pode deixar a linha PIOR: mapa vazio ou sem casamento devolve o texto
  *       traduzido inalterado (pior caso = comportamento de hoje). Classe sem estado.</li>
  * </ul>
