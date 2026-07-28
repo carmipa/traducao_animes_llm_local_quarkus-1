@@ -1,5 +1,6 @@
 package org.traducao.projeto.contexto.lore.gundam.msteam;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +40,8 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
         === Roster — 08th MS Team / Federacao ===
         - Shiro Amada (m) — comandante da 08th MS Team.
         - Karen Joshua (f) — piloto / medica de campo.
-        - Terry Sanders Jr. (m) — "Shinigami Sanders".
+        - Terry Sanders Jr. (m) — veterano; os companheiros de esquadrao morreram nas missoes
+          anteriores dele, e a tropa comenta isso pelas costas.
         - Eledore Massis (m) — hovertruck (radar/com); grafia Massis (Mathis e variante).
         - Michel Ninorich (m) — hovertruck (navegacao/artilharia); cartas com B.B.
         - Kojima (m) — comandante do Kojima Battalion.
@@ -65,6 +67,13 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
         - 08th MS Team; Kojima Battalion; Earth Federation; Principality of Zeon / Zeon.
         - Frente de selva (Sudeste Asiatico); bases improvisadas; Jaburo quando cruzar.
         - Miller's Report — epilogo/filme; Alice Miller.
+
+        === Sanders e Shinigami: apelido nao substitui o nome ===
+        - Original "Sanders"   -> saida "Sanders".    O nome do personagem.
+        - Original "Shinigami" -> saida "Shinigami".  O apelido, quando o original o usa.
+        - "Shinigami" e como a tropa se refere a ele pelas costas. Isso serve para ENTENDER a
+          cena, nao para escolher o nome: se o original diz "Sanders", a traducao escreve
+          "Sanders".
 
         === Regras duras ===
         - 08th MS Team NUNCA "8o Time MS" / "Oitava Equipe MS" como titulo.
@@ -195,5 +204,40 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
             Map.entry("Batalhão Kojima", "Kojima Battalion"),
             Map.entry("Batalhao Kojima", "Kojima Battalion")
         ));
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: impede a troca entre o nome do personagem e o apelido que a tropa usa
+     * pelas costas dele.
+     *
+     * <p>QUARTA ocorrencia do mesmo padrao, depois de Four/Quattro (Zeta), Zeta Gundam/ZZ Gundam e
+     * Argama/Nahel Argama (ZZ) e Inori/Crow (Guilty Crown): a lore ensinava a RELACAO entre os dois
+     * nomes e o modelo leu isso como licenca para SUBSTITUIR um pelo outro.
+     *
+     * <p>Medido no cache em 2026-07-28, antes desta declaracao:
+     * <pre>
+     *   "Sanders"   no ingles do acervo : 35 ocorrencias
+     *   "Shinigami" no ingles do acervo :  0 ocorrencias
+     *   falas com EN "Sanders" -> PT "Shinigami" (sem "Sanders") : 4
+     * </pre>
+     * Exemplo: {@code "Karen! Sanders! Do you read me?"} virou
+     * {@code "Karen! Shinigami! Me escutam?"}.
+     *
+     * <p>Como "Shinigami" nao aparece UMA vez no ingles, o risco de falso-positivo neste par e
+     * ZERO: nenhuma fala legitima pode disparar a proibicao no sentido Shinigami -> Sanders.
+     * {@code termosProtegidos()} nao ajudava aqui pelo mesmo motivo de sempre — a protecao mascara
+     * o INGLES antes de traduzir, e o termo inserido nunca esta no ingles.
+     *
+     * <p>INVARIANTES DO DOMINIO: proibicao simetrica. "Terry Sanders Jr." contem "Sanders", e
+     * "Shinigami Sanders" tambem — quem consome o par compara por fronteira de palavra sobre o
+     * termo INTEIRO, entao nenhuma dessas formas acusa a si mesma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutavel; sem I/O.
+     */
+    @Override
+    public Set<List<String>> paresInconfundiveis() {
+        return Set.of(
+            List.of("Sanders", "Shinigami")
+        );
     }
 }
