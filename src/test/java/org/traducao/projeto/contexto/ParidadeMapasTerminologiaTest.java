@@ -58,7 +58,11 @@ class ParidadeMapasTerminologiaTest {
         "danmachi_s4", "danmachi_s5", "danmachi_so",
         "eight_six",
         "gundam_cca",
-        "macross_7", "macross_7_encore", "macross_7_filme", "macross_7_filmes",
+        // macross_7_filmes SAIU daqui em 2026-07-27 junto com a saida dela do CDI: fora do
+        // registro, ela nao entra mais na comparacao de catalogos. Nao e paridade
+        // conquistada -- e obra que deixou de ser comparavel. A catraca acusou como
+        // "parou de divergir", que e o comportamento correto dela.
+        "macross_7", "macross_7_encore", "macross_7_filme",
         "macross_dynamite_7", "macross_frontier", "macross_frontier_filme1",
         "macross_frontier_filme2");
 

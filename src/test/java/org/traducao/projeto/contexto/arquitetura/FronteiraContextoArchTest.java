@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code qualidadeTraducao.domain} porque IDENTIDADE DE OBRA é assunto deste peer) e
  *       {@code IdentidadeObra} (a identidade canônica derivada de id + nome de exibição, que
  *       deu cobertura de reconhecimento a TODAS as obras do catálogo de uma vez, e não só às
- *       que declaram apelidos à mão); {@code contexto.lore} agrega 71 classes.</li>
+ *       que declaram apelidos à mão); {@code contexto.lore} agrega 72 classes.</li>
  *   <li>{@code contexto.application} é congelado nominalmente em exatamente
  *       {@code ValidadorCompatibilidadeObraContexto} — o serviço que julga se o arquivo
  *       pertence à obra cuja lore está selecionada, movido de
@@ -202,7 +202,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 71 lores em contexto.lore")
+    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 72 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -225,10 +225,13 @@ class FronteiraContextoArchTest {
             () -> "contexto.domain deve conter exatamente os 8 tipos homologados (VeredictoObraContexto entrou "
                 + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
                 + "peer). Encontrado: " + domain);
-        assertEquals(71, lores,
-            "contexto.lore deve agregar exatamente 71 classes de lore (59 @Component + 2 agregadoras Macross "
-                + "Delta/Frontier Filmes + 10 mapas de terminologia: GundamUc, GundamZz, DanMachi, Evangelion, "
-                + "GuiltyCrown, Macross, Macross2, MacrossDelta, MacrossDyrl, BreakBlade)");
+        assertEquals(72, lores,
+            "contexto.lore deve agregar exatamente 72 classes de lore: 58 @Component + 3 agregadoras Macross "
+                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 1 esqueleto "
+                + "sem lore ainda (MacrossFrontierFilme3, Labyrinth of Time) + 10 mapas de terminologia: "
+                + "GundamUc, GundamZz, DanMachi, Evangelion, GuiltyCrown, Macross, Macross2, MacrossDelta, "
+                + "MacrossDyrl, BreakBlade. Esta contagem soma CLASSES do pacote, nao beans registrados: "
+                + "tirar um @Component nao a muda, adicionar uma classe sim.");
     }
 
     /**
