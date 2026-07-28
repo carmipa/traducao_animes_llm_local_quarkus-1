@@ -53,7 +53,9 @@ public class CatalogoObras {
         Map.entry("gundam_0079", "UC 0079 - Mobile Suit Gundam (0079)"),
         Map.entry("gundam_08ms", "UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
         Map.entry("gundam_ms_igloo", "UC 0079 - Mobile Suit Gundam MS IGLOO"),
+        Map.entry("gundam_ms_igloo_2", "UC 0079 - Mobile Suit Gundam MS IGLOO 2: Gravity Front"),
         Map.entry("gundam_thunderbolt", "UC 0079 - Mobile Suit Gundam Thunderbolt"),
+        Map.entry("gundam_thunderbolt_bandit", "UC 0079 - Mobile Suit Gundam Thunderbolt: Bandit Flower"),
         Map.entry("gundam_0080", "UC 0079 - Mobile Suit Gundam 0080: War in the Pocket"),
         Map.entry("gundam_0083", "UC 0083 - Mobile Suit Gundam 0083: Stardust Memory"),
         Map.entry("gundam_zeta", "UC 0087 - Mobile Suit Zeta Gundam"),
@@ -85,7 +87,8 @@ public class CatalogoObras {
         // Gundam — Universal Century (UC), ordem cronológica; Reconguista (RC) ao fim.
         // gundam_ms_igloo/gundam_thunderbolt: slots reservados (UC 0079), lore pendente.
         "gundam_origin", "gundam_0079", "gundam_08ms",
-        "gundam_ms_igloo", "gundam_thunderbolt",
+        "gundam_ms_igloo", "gundam_ms_igloo_2",
+        "gundam_thunderbolt", "gundam_thunderbolt_bandit",
         "gundam_0080", "gundam_0083", "gundam_zeta", "gundam_zz", "gundam_cca",
         "gundam_unicorn", "gundam_nt", "gundam_hathaway", "gundam_f91", "gundam_victory",
         // Gundam Reconguista in G — Regild Century (RC), submenu próprio (TV + 5 filmes)

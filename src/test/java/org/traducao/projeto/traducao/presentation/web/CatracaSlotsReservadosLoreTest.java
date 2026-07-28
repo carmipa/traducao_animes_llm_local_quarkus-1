@@ -50,15 +50,12 @@ class CatracaSlotsReservadosLoreTest {
      * daqui é o "pronto" auditável de cada uma.
      */
     private static final Map<String, String> SLOTS_LORE_PENDENTE = Map.of(
-        "gundam_ms_igloo",
-        "UC 0079, elenco e mechas próprios (nenhum fallback existe) — PRIORIDADE",
-        "gundam_thunderbolt",
-        "UC 0079, elenco e mechas próprios (nenhum fallback existe) — PRIORIDADE",
-        "gundam_greco_1", "filme de Reconguista in G; a lore da SÉRIE (gundam_greco) existe",
-        "gundam_greco_2", "filme de Reconguista in G; a lore da SÉRIE (gundam_greco) existe",
-        "gundam_greco_3", "filme de Reconguista in G; a lore da SÉRIE (gundam_greco) existe",
-        "gundam_greco_4", "filme de Reconguista in G; a lore da SÉRIE (gundam_greco) existe",
-        "gundam_greco_5", "filme de Reconguista in G; a lore da SÉRIE (gundam_greco) existe"
+        "gundam_ms_igloo_2",
+        "MS IGLOO 2: Gravity Front - ponto de vista da FEDERACAO, elenco outro; separada "
+            + "de gundam_ms_igloo para nao virar lore agregada",
+        "gundam_thunderbolt_bandit",
+        "Bandit Flower - pos-guerra, Atlas Gundam e South Seas Alliance; vocabulario que "
+            + "nao existe no December Sky coberto por gundam_thunderbolt"
     );
 
     /**
