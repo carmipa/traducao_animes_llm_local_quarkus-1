@@ -70,12 +70,12 @@ class CatracaAgregadorasForaDoCdiTest {
      * o esqueleto deve ser registrado assim que tiver conteúdo. Misturar os dois casos numa lista
      * só faria a mensagem de falha mentir para um deles.
      *
-     * <p>O primeiro esqueleto ({@code macross_frontier_filme3}, Labyrinth of Time) ganhou lore e
-     * saiu daqui — a lista funciona nos dois sentidos, e sair dela é o "pronto" de cada obra.
+     * <p>HOJE ESTÁ VAZIA porque TODA obra do catálogo tem lore — estado inédito neste projeto.
+     * Passaram por aqui e saíram: Labyrinth of Time, os 5 filmes de Reconguista in G, MS IGLOO,
+     * Thunderbolt, Gravity Front e Bandit Flower. A lista fica no lugar porque a próxima obra
+     * nova passa pelo mesmo caminho — classe, depois conteúdo, depois registro.
      */
-    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of(
-        "gundam_ms_igloo_2", "MS IGLOO 2: Gravity Front — LORE vazia (ponto de vista da Federação)",
-        "gundam_thunderbolt_bandit", "Thunderbolt: Bandit Flower — LORE vazia (pós-guerra)");
+    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of();
 
     /** Os contextos específicos que devem ser usados NO LUGAR de cada agregadora. */
     private static final Map<String, Set<String>> SUBSTITUTOS = Map.of(

@@ -48,15 +48,13 @@ class CatracaSlotsReservadosLoreTest {
     /**
      * Obras com id, nome de exibição e posição já cadastrados, e lore AINDA não escrita. Sair
      * daqui é o "pronto" auditável de cada uma.
+     *
+     * <p>VAZIA desde 2026-07-28: todo id do catálogo tem lore. Nasceu com 7 (gundam_ms_igloo,
+     * gundam_thunderbolt e gundam_greco_1..5), ganhou 2 na divisão de IGLOO/Thunderbolt, e as 9
+     * saíram. A lista permanece porque a dívida vai voltar — obra nova entra no catálogo antes de
+     * ter lore, e é aqui que isso fica visível em vez de virar comentário solto.
      */
-    private static final Map<String, String> SLOTS_LORE_PENDENTE = Map.of(
-        "gundam_ms_igloo_2",
-        "MS IGLOO 2: Gravity Front - ponto de vista da FEDERACAO, elenco outro; separada "
-            + "de gundam_ms_igloo para nao virar lore agregada",
-        "gundam_thunderbolt_bandit",
-        "Bandit Flower - pos-guerra, Atlas Gundam e South Seas Alliance; vocabulario que "
-            + "nao existe no December Sky coberto por gundam_thunderbolt"
-    );
+    private static final Map<String, String> SLOTS_LORE_PENDENTE = Map.of();
 
     /**
      * Ids que ficam fora do seletor de propósito e NÃO são dívida. Não confundir com o de cima:

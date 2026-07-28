@@ -226,9 +226,9 @@ class FronteiraContextoArchTest {
                 + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
                 + "peer). Encontrado: " + domain);
         assertEquals(81, lores,
-            "contexto.lore deve agregar exatamente 81 classes de lore: 66 @Component + 3 agregadoras Macross "
-                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 2 esqueletos "
-                + "sem lore ainda (MS IGLOO 2 Gravity Front + Thunderbolt Bandit Flower) + 10 mapas: "
+            "contexto.lore deve agregar exatamente 81 classes de lore: 68 @Component + 3 agregadoras Macross "
+                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 0 esqueletos "
+                + "(toda obra do catalogo tem lore) + 10 mapas de terminologia: "
                 + "GundamUc, GundamZz, DanMachi, Evangelion, GuiltyCrown, Macross, Macross2, MacrossDelta, "
                 + "MacrossDyrl, BreakBlade. Esta contagem soma CLASSES do pacote, nao beans registrados: "
                 + "tirar um @Component nao a muda, adicionar uma classe sim.");
