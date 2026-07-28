@@ -35,7 +35,13 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 public class ContextoGundamMsIgloo2 implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */
-    private static final String LORE = "";
+    private static final String LORE = """
+        - Obra: Mobile Suit Gundam MS IGLOO 2: Gravity Front (OVA, U.C. 0079).
+        - Personagens: Ben Barberry (homem), Papa Sidney Lewis (homem), Michael Colmatta (homem), Harman Yandell (homem), Rayban Surat (homem), Arleen Nazon (mulher), Clyde Bettany (homem), Milos Karppi (homem), Doroba Kuzwayo (homem), Elmer Snell (homem), Death Deity (mulher), Kycilia Zabi (mulher).
+        - Faccoes/unidades: Earth Federation, 44th Hybrid Regiment, 301st Tank Squadron, Principality of Zeon.
+        - Mobile suits e tecnologia: RTX-440 Ground Assault Type Guntank, Type 61 Tank, Zaku II, Dabude, Mobile Suit.
+        - Termos do mundo: One Year War, Earth Federation, Principality of Zeon, Odessa, Mobile Suit, White Ogre. Mantenha nomes proprios em ingles/romanizados.
+        """;
 
     private static final String PROMPT = ContextoPrompt.montar("Mobile Suit Gundam MS IGLOO 2: Gravity Front", LORE);
 
@@ -53,7 +59,15 @@ public class ContextoGundamMsIgloo2 implements ProvedorContexto {
      */
     @Override
     public Set<String> termosProtegidos() {
-        return Set.of("Mobile Suit", "Zeon", "Federation");
+        return Set.of(
+            "Ben Barberry", "Papa Sidney Lewis", "Michael Colmatta", "Harman Yandell",
+            "Rayban Surat", "Arleen Nazon", "Clyde Bettany", "Milos Karppi",
+            "Doroba Kuzwayo", "Elmer Snell", "Death Deity", "Kycilia Zabi",
+            "Earth Federation", "44th Hybrid Regiment", "301st Tank Squadron",
+            "Principality of Zeon", "RTX-440 Ground Assault Type Guntank", "RTX-440",
+            "Type 61 Tank", "Type 61", "Zaku II", "Dabude", "Mobile Suit",
+            "One Year War", "Zeon", "Federation", "Odessa", "White Ogre"
+        );
     }
 
     /**
