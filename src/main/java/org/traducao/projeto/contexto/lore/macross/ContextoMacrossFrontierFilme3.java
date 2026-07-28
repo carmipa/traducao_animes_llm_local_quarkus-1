@@ -1,52 +1,46 @@
 package org.traducao.projeto.contexto.lore.macross;
 
+import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
 /**
- * ESQUELETO — NÃO REGISTRAR. Falta o conteúdo de lore, e ele NÃO deve ser preenchido de memória.
+ * PROPÓSITO DE NEGÓCIO: lore de "Macross Frontier: Labyrinth of Time" (Toki no Meikyū, 2021), o
+ * terceiro filme da Frontier. Antes desta classe, traduzir o filme caía em
+ * {@code macross_frontier} — a lore da SÉRIE, que acerta o elenco base mas não conhece nada
+ * específico do filme. A agregadora {@link ContextoMacrossFrontierFilmes} o cobria no papel, mas
+ * está deliberadamente fora do CDI porque mistura os três filmes.
  *
- * <h2>Por que esta classe existe vazia</h2>
- * "Macross Frontier: Labyrinth of Time" (Toki no Meikyū, 2021) é o terceiro filme da Frontier e
- * hoje é a única obra do catálogo Macross SEM contexto próprio. Quem o traduzir cai em
- * {@code macross_frontier}, a lore da SÉRIE — que acerta elenco e mechas, mas não conhece nada
- * que seja específico do filme. A agregadora {@link ContextoMacrossFrontierFilmes} o cobre no
- * papel, mas está deliberadamente fora do CDI porque mistura os três filmes.
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>O gênero de cada personagem entre parênteses NÃO é decoração: é o que a revisão de
+ *       concordância usa para decidir entre "cansado" e "cansada". Personagem sem gênero
+ *       declarado é fala que nunca será corrigida.</li>
+ *   <li>A terminologia da franquia (Valkyrie, Zentradi, Protoculture, Veritech) NÃO se repete
+ *       aqui — vem do mapa compartilhado em {@link #correcoesTerminologia()}.</li>
+ * </ul>
  *
- * <h2>Por que o conteúdo não foi escrito junto</h2>
- * O que entra em {@code LORE} vira PROMPT DE SISTEMA: o texto é enviado ao LLM em toda fala do
- * episódio. Um nome de personagem trocado, uma grafia de mecha errada ou uma canção inventada
- * aqui não quebra teste nenhum — ela se propaga silenciosamente por toda a legenda, e o
- * manifesto E7a congela o erro junto com o resto. Lore preenchida "de cabeça" por quem não
- * assistiu à obra é pior que lore ausente, porque a ausência é visível e o erro não.
+ * <h2>Lacuna conhecida: não há linha de Naves / Mechas</h2>
+ * As irmãs {@link ContextoMacrossFrontierFilme1} e {@link ContextoMacrossFrontierFilme2}
+ * declaram VF-25 Messiah, VF-27 Lucifer, YF-29 Durandal e Vajra. Esta não declara: não foi
+ * possível confirmar aparição de mecha neste filme, que é centrado no concerto e nas fold waves.
  *
- * <h2>Como completar</h2>
- * <ol>
- *   <li>Preencher {@code LORE} no MESMO formato das irmãs — ver
- *       {@link ContextoMacrossFrontierFilme1} e {@link ContextoMacrossFrontierFilme2}: linha de
- *       Obra, linha de Personagens com o gênero de cada um entre parênteses, linha de
- *       Naves/Mechas, e o que for específico deste filme (canções e insertos, se houver).</li>
- *   <li>O gênero de cada personagem NÃO é decoração: é o que a revisão de concordância usa para
- *       decidir "cansado" ou "cansada". Personagem sem gênero declarado é fala sem correção.</li>
- *   <li>Só então acrescentar {@code @Component}.</li>
- *   <li>Rodar {@code ./gradlew test --rerun-tasks}: o total sobe de 58 para 59 em
- *       {@code RegistroProvedoresContextoIT} e o manifesto E7a precisa ganhar a linha
- *       {@code id.macross_frontier_filme3} e um novo {@code aggregate}.</li>
- *   <li>Acrescentar {@code "macross_frontier_filme3"} à ordenação em {@code CatalogoObras},
- *       ao lado de {@code macross_frontier_filme2}.</li>
- * </ol>
+ * <p>A omissão NÃO é neutra e vale saber por quê: o mapa de terminologia da franquia cobre
+ * {@code Valkyrie}, {@code Zentradi}, {@code Meltrandi}, {@code Protoculture} e
+ * {@code Minmay Attack} — e NENHUMA designação de modelo. Quem protege {@code VF-25} e
+ * {@code YF-29} nas irmãs é exatamente a linha de mechas da lore. Se um modelo aparecer em
+ * diálogo deste filme, hoje nada o declara. Acrescentar a linha é a correção, e ela é aditiva.
  *
- * <p>INVARIANTES DO DOMÍNIO: enquanto {@code LORE} estiver vazia, esta classe não pode ser
- * registrada — um prompt de sistema sem lore é pior que o fallback da série, porque o operador
- * acreditaria estar usando a lore do filme.
- *
- * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O. Não é descoberta pelo CDI, então não afeta o
- * registro nem o manifesto enquanto estiver assim.
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; prompt e mapa imutáveis.
  */
+@Component
 public class ContextoMacrossFrontierFilme3 implements ProvedorContexto {
 
-    /** VAZIA DE PROPÓSITO — ver o Javadoc da classe antes de preencher. */
-    private static final String LORE = "";
+    private static final String LORE = """
+        - Obra: Macross Frontier O Filme: Labyrinth of Time (Toki no Meikyū).
+        - Personagens: Alto Saotome (homem), Sheryl Nome (mulher), Ranka Lee (mulher), Michael Blanc (homem), Luca Angeloni (homem), Klan Klang (mulher), Ozma Lee (homem), Nanase Matsuura (mulher).
+        - Canções: Toki no Meikyū (Labyrinth of Time), Sacrifice, Hoshi Kira.
+        """;
 
     private static final String PROMPT = ContextoPrompt.montar(
         "Macross Frontier: Labyrinth of Time (Toki no Meikyū)", LORE);
@@ -61,15 +55,32 @@ public class ContextoMacrossFrontierFilme3 implements ProvedorContexto {
 
     /**
      * PROPÓSITO DE NEGÓCIO: restaura grafias oficiais Macross (Valkyrie/Zentradi) quando o LLM
-     * localiza indevidamente — mapa compartilhado da franquia, igual ao das obras irmãs.
+     * localiza indevidamente — mapa compartilhado da franquia — MAIS os três extras de Fold/Vajra.
      *
-     * <p>INVARIANTES DO DOMÍNIO: este mapa é da FRANQUIA e já está correto; é a única parte
-     * desta classe que não depende do conteúdo pendente.
+     * <h2>Por que esta obra nasce SEM a dívida de paridade das irmãs</h2>
+     * {@code macross_frontier}, {@code macross_frontier_filme1} e {@code macross_frontier_filme2}
+     * estão todas em {@code DIVERGENCIAS_DECLARADAS} do {@code ParidadeMapasTerminologiaTest}: a
+     * Revisão de Lore delas corrige {@code Falha Fold -> Fold Fault} e {@code Vajras -> Vajra},
+     * e a Tradução não. É dívida antiga — a decisão vive num catálogo só.
+     *
+     * <p>Aqui os DOIS lados declaram os mesmos extras, então a obra entra com paridade e não
+     * engorda a lista. A alternativa era tirar os extras da Revisão para casar por baixo, mas o
+     * sentido certo de resolver essa dívida é a Tradução GANHAR a correção, não a Revisão perdê-la.
+     * Quando as irmãs forem niveladas, elas saem da lista pelo mesmo caminho.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: espelho exato de
+     * {@code ContextoRevisaoLoreMacrossFrontierFilme3.correcoesTerminologia()} — os dois lados
+     * são comparados por teste, então mexer num sem o outro reprova.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa imutável; sem I/O.
      */
     @Override
     public java.util.Map<String, String> correcoesTerminologia() {
-        return CorrecoesTerminologiaMacross.mapa();
+        java.util.Map<String, String> mapa =
+            new java.util.LinkedHashMap<>(CorrecoesTerminologiaMacross.mapa());
+        mapa.put("Falha Fold", "Fold Fault");
+        mapa.put("Falha de Fold", "Fold Fault");
+        mapa.put("Vajras", "Vajra");
+        return java.util.Collections.unmodifiableMap(mapa);
     }
 }

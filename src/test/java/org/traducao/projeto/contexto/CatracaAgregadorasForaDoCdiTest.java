@@ -67,13 +67,13 @@ class CatracaAgregadorasForaDoCdiTest {
      * exclusão e por isso mora numa lista separada — a agregadora não deve ser registrada nunca,
      * o esqueleto deve ser registrado assim que tiver conteúdo. Misturar os dois casos numa lista
      * só faria a mensagem de falha mentir para um deles.
+     *
+     * <p>HOJE ESTÁ VAZIA, e isso é progresso, não descuido: o único esqueleto que existiu
+     * ({@code macross_frontier_filme3}, Labyrinth of Time) ganhou lore e foi registrado. A lista
+     * fica no lugar porque a próxima obra sem contexto próprio vai passar pelo mesmo caminho —
+     * classe primeiro, conteúdo depois, registro por último.
      */
-    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of(
-        "macross_frontier_filme3",
-        "a lore de Labyrinth of Time ainda está vazia; registrar agora daria ao operador um prompt "
-            + "de sistema SEM lore, que é pior que o fallback da série porque ele acreditaria estar "
-            + "usando a lore do filme"
-    );
+    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of();
 
     /** Os contextos específicos que devem ser usados NO LUGAR de cada agregadora. */
     private static final Map<String, Set<String>> SUBSTITUTOS = Map.of(
