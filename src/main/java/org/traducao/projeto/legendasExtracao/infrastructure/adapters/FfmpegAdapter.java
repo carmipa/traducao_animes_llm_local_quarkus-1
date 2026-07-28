@@ -2,8 +2,6 @@ package org.traducao.projeto.legendasExtracao.infrastructure.adapters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.legendasExtracao.domain.ExtratorException;
 import org.traducao.projeto.legendasExtracao.domain.FaixaLegenda;
@@ -28,7 +26,6 @@ import java.util.concurrent.TimeoutException;
  */
 @Component
 public class FfmpegAdapter implements ExtratorVideoPort {
-    private static final Logger log = LoggerFactory.getLogger(FfmpegAdapter.class);
     private static final Duration TIMEOUT_IDENTIFICACAO = Duration.ofSeconds(60);
     private static final Duration TIMEOUT_EXTRACAO = Duration.ofMinutes(5);
     private static final Set<String> EXTENSOES_SUPORTADAS = Set.of(

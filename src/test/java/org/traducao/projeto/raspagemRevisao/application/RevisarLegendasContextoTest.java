@@ -3,7 +3,6 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
-import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;

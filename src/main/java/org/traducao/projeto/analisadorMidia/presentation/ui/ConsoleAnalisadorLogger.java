@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.analisadorMidia.domain.*;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
-import java.nio.file.Path;
 
 @Component
 public class ConsoleAnalisadorLogger {

@@ -24,7 +24,6 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * PROPÓSITO DE NEGÓCIO: disponibiliza aos formulários web do KRONOS um seletor
