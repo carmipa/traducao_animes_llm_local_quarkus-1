@@ -3,20 +3,16 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreService;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
+import org.traducao.projeto.raspagemRevisao.domain.DecisaoFala;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DiagnosticoRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.FrescorCache;
 import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.PreparacaoReferencia;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
-import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
-import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
-import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
-import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
-import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
@@ -43,11 +39,11 @@ public class RevisarLegendasUseCase {
 
     private final PersistenciaLegendaRevisada persistencia;
     private final AuditorProblemasLegendaService auditor;
-    private final ValidadorTraducaoService validador;
     private final ProvedorCorrecaoFala provedorCorrecao;
     private final MascaradorTags mascaradorTags;
     private final RelatorioRevisaoService relatorio;
-    private final ProtecaoLegendaAssService protecaoAss;
+    private final GuardaCorrecaoSegura guardaCorrecao;
+    private final MemoriaCorrecaoArquivo memoriaCorrecao;
     private final ProtetorTermosLoreService protetorLore;
     private final CorretorDeterministicoConcordanciaService corretorDeterministico;
     private final ResolvedorArtefatosRevisao resolvedorArtefatos;
@@ -70,11 +66,11 @@ public class RevisarLegendasUseCase {
     public RevisarLegendasUseCase(
         PersistenciaLegendaRevisada persistencia,
         AuditorProblemasLegendaService auditor,
-        ValidadorTraducaoService validador,
         ProvedorCorrecaoFala provedorCorrecao,
         MascaradorTags mascaradorTags,
         RelatorioRevisaoService relatorio,
-        ProtecaoLegendaAssService protecaoAss,
+        GuardaCorrecaoSegura guardaCorrecao,
+        MemoriaCorrecaoArquivo memoriaCorrecao,
         ProtetorTermosLoreService protetorLore,
         CorretorDeterministicoConcordanciaService corretorDeterministico,
         ResolvedorArtefatosRevisao resolvedorArtefatos,
@@ -86,11 +82,11 @@ public class RevisarLegendasUseCase {
     ) {
         this.persistencia = persistencia;
         this.auditor = auditor;
-        this.validador = validador;
         this.provedorCorrecao = provedorCorrecao;
         this.mascaradorTags = mascaradorTags;
         this.relatorio = relatorio;
-        this.protecaoAss = protecaoAss;
+        this.guardaCorrecao = guardaCorrecao;
+        this.memoriaCorrecao = memoriaCorrecao;
         this.protetorLore = protetorLore;
         this.corretorDeterministico = corretorDeterministico;
         this.resolvedorArtefatos = resolvedorArtefatos;
@@ -291,6 +287,28 @@ public class RevisarLegendasUseCase {
 
     private void out(String mensagem) {
         System.out.println(mensagem);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: leva uma decisão já tomada até a legenda — narra ao operador e registra
+     * na sessão do arquivo. É o único lugar onde um desfecho de fala vira efeito.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: narra ANTES de aplicar, porque a mensagem descreve o que está
+     * prestes a acontecer com a linha. O {@code switch} é exaustivo e SEM {@code default}: um quarto
+     * desfecho em {@link DecisaoFala} tem de quebrar a compilação aqui, e não cair num ramo genérico
+     * que manteria a fala em silêncio. Ver em {@link DecisaoFala} por que "parar o arquivo" não é um
+     * desfecho de fala.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não faz I/O de arquivo e não lança; toda gravação acontece
+     * depois, uma vez, quando o documento inteiro está montado.
+     */
+    private void aplicar(SessaoRevisaoArquivo sessao, EventoLegenda evento, DecisaoFala decisao) {
+        decisao.avisosAoOperador().forEach(this::out);
+        switch (decisao) {
+            case DecisaoFala.Manter ignorado -> sessao.manter(evento);
+            case DecisaoFala.Pendente ignorado -> sessao.pendente(evento);
+            case DecisaoFala.Corrigir corrigir -> sessao.corrigir(evento, corrigir.texto());
+        }
     }
 
     /**
@@ -495,39 +513,11 @@ public class RevisarLegendasUseCase {
                 sessao.registrarCorrecao(textoMascOriginal, mascaradorTags.mascarar(corrigida).texto());
                 continue;
             }
-            if (sessao.jaSabidoSemAlteracao(textoMascOriginal)) {
-                sessao.pendente(evento);
-                continue;
-            }
-            String respostaMascCorrigida = sessao.correcaoConhecida(textoMascOriginal);
-            if (respostaMascCorrigida != null) {
-                MascaradorTags.Mascarado mascTraducaoAtual = mascaradorTags.mascarar(traducaoAtual);
-                String novaTraducaoCache;
-                try {
-                    novaTraducaoCache = mascaradorTags.desmascarar(respostaMascCorrigida, mascTraducaoAtual.tags());
-                } catch (AlucinacaoDetectadaException e) {
-                    out("  " + AnsiCores.YELLOW
-                        + "Cache local ignorado na linha " + evento.indice()
-                        + ": marcadores de tags incompatíveis com a tradução atual."
-                        + AnsiCores.RESET);
-                    sessao.pendente(evento);
-                    continue;
-                }
-
-                if (novaTraducaoCache.equals(traducaoAtual)
-                    || !correcaoEhSegura(
-                        originalEn, traducaoAtual, novaTraducaoCache, auditoria, contexto)) {
-                    sessao.registrarSemAlteracao(textoMascOriginal);
-                    sessao.pendente(evento);
-                    continue;
-                }
-
-                out("  -> Linha " + evento.indice() + " [" + evento.estilo() + "] (Reutilizando correção do cache local):");
-                out("     EN: " + AnsiCores.YELLOW + originalEn + AnsiCores.RESET);
-                out("     PT: " + AnsiCores.YELLOW + traducaoAtual + AnsiCores.RESET);
-                out("     PT corrigido: " + AnsiCores.GREEN + novaTraducaoCache + AnsiCores.RESET);
-
-                sessao.corrigir(evento, novaTraducaoCache);
+            // Antes de gastar uma chamada externa: esta mesma fala já foi resolvida neste arquivo?
+            Optional<DecisaoFala> daMemoria = memoriaCorrecao.consultar(
+                sessao, evento, textoMascOriginal, originalEn, traducaoAtual, auditoria, contexto);
+            if (daMemoria.isPresent()) {
+                aplicar(sessao, evento, daMemoria.get());
                 continue;
             }
 
@@ -605,15 +595,16 @@ public class RevisarLegendasUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: decide se uma resposta externa pode substituir a
-     * fala atual sem introduzir alucinação ou piorar a auditoria.
+     * PROPÓSITO DE NEGÓCIO: submete uma proposta de correção ao portão único
+     * ({@link GuardaCorrecaoSegura}) e narra ao operador o que ele vetou.
      *
-     * <p>INVARIANTES DO DOMÍNIO: texto vazio, alteração de termo canônico,
-     * suspeita estrutural, problema novo e resultado sem redução de problemas
-     * são sempre rejeitados.
+     * <p>INVARIANTES DO DOMÍNIO: os avisos do portão são impressos AQUI, no
+     * momento da decisão, para caírem entre a narração do problema e a linha
+     * seguinte do laço. O portão não imprime justamente para que essa ordem seja
+     * escolha do laço, e não efeito colateral de quem avalia.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: validação que lança exceção retorna
-     * {@code false} e mantém a legenda anterior.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: o portão nunca lança; qualquer desfecho
+     * previsto vira {@code false} e mantém a legenda anterior.
      */
     private boolean correcaoEhSegura(
         String original,
@@ -622,40 +613,17 @@ public class RevisarLegendasUseCase {
         ResultadoDeteccaoConcordancia auditoriaAnterior,
         ContextoRevisao contexto
     ) {
-        if (candidata == null || candidata.isBlank() || candidata.equals(traducaoAtual)) return false;
-        List<String> termosAlterados = protetorLore.termosCanonicosAlterados(
-            original, candidata, contexto.lore(), contexto.termosProtegidos());
-        if (!termosAlterados.isEmpty()) {
-            out("     " + AnsiCores.YELLOW
-                + "[LORE] Correção rejeitada: alteraria termo(s) canônico(s): "
-                + String.join(", ", termosAlterados) + AnsiCores.RESET);
+        GuardaCorrecaoSegura.Veredicto veredicto = guardaCorrecao.avaliar(
+            original, traducaoAtual, candidata, auditoriaAnterior, contexto);
+        if (veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada rejeitada) {
+            rejeitada.avisosAoOperador().forEach(this::out);
             return false;
         }
-        try {
-            validador.validarFala(candidata);
-            if (protecaoAss.respostaSuspeita(original, candidata)) return false;
-        } catch (AlucinacaoDetectadaException e) {
-            return false;
-        }
-        ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
-        boolean introduziuProblemaNovo = posterior.motivos().stream()
-            .anyMatch(motivo -> !auditoriaAnterior.motivos().contains(motivo));
-        if (introduziuProblemaNovo) {
-            out("     " + AnsiCores.YELLOW
-                + "Correção rejeitada: a proposta introduziu um problema diferente do original."
-                + AnsiCores.RESET);
-            return false;
-        }
-        return !posterior.suspeito()
-            || posterior.motivos().size() < auditoriaAnterior.motivos().size();
+        return true;
     }
 
     private String normalizarTexto(String texto) {
         return texto == null ? "" : texto.replaceAll("\\s+", " ").trim();
-    }
-
-    private String normalizarEstilo(String estilo) {
-        return estilo == null ? "" : estilo.trim().toLowerCase();
     }
 
     /**

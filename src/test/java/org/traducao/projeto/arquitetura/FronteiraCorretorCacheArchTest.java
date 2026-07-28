@@ -121,6 +121,14 @@ class FronteiraCorretorCacheArchTest {
         // FASE 4: o provedor de correcao mascara os termos da lore ANTES de mandar a fala ao LLM
         // ou ao tradutor externo, e os restaura na volta. Sem isso, um nome proprio volta
         // traduzido. Mesma direcao e especie das demais.
+        // FASE 4: o portao unico de correcao veta qualquer proposta que altere termo canonico, venha
+        // ela da regra deterministica, da memoria do arquivo ou da IA. E a QUINTA classe da revisao
+        // a conhecer o protetor de lore, e o numero em si e o recado desta catraca: decompor um God
+        // Object MULTIPLICA arestas de nivel de classe sem que o acoplamento tenha crescido -- o
+        // caso de uso ja dependia do protetor, so que sozinho. O inventario conta CLASSES, nao
+        // acoplamento; se um dia as cinco incomodarem, a saida e um peer de lore, nao desfazer a
+        // decomposicao.
+        "raspagemRevisao.application.GuardaCorrecaoSegura -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.ProvedorCorrecaoFala -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.SincronizacaoPreviaRevisao -> raspagemCorrecao.application.ProtetorTermosLoreService",
         "raspagemRevisao.application.RevisarLegendasUseCase -> raspagemCorrecao.application.ProtetorTermosLoreService",
