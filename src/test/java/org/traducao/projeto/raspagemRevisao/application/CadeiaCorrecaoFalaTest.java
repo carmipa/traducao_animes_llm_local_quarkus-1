@@ -1,0 +1,155 @@
+package org.traducao.projeto.raspagemRevisao.application;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
+import org.traducao.projeto.raspagemRevisao.domain.DecisaoFala;
+import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
+import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
+import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: prova as duas coisas que a cadeia de correção promete e que nenhum outro
+ * teste consegue afirmar — que as fontes são tentadas na ORDEM DE CUSTO, e que uma tentativa barrada
+ * no meio do caminho não some do console.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: chamada externa é a ÚLTIMA opção. O dublê conta as chamadas, então
+ * "não chamou" é uma afirmação medida, não uma leitura de código.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer chamada externa desnecessária reprova — num lote de
+ * 23 episódios, uma fonte fora de ordem é a diferença entre minutos e dezenas de minutos.
+ */
+@QuarkusTest
+@TestProfile(CadeiaCorrecaoFalaTest.PerfilComTradutorDublado.class)
+class CadeiaCorrecaoFalaTest {
+
+    /** Escopa a alternativa a este teste; um dublê global mudaria a suíte inteira. */
+    public static class PerfilComTradutorDublado implements QuarkusTestProfile {
+        @Override
+        public Set<Class<?>> getEnabledAlternatives() {
+            return Set.of(RecuperacaoExternaContadora.class);
+        }
+    }
+
+    @Inject
+    CadeiaCorrecaoFala cadeia;
+
+    @Inject
+    RecuperacaoExternaContadora tradutorExterno;
+
+    private static final ContextoRevisao SEM_LORE = new ContextoRevisao("teste", "", Set.of());
+
+    @BeforeEach
+    void limpar() {
+        tradutorExterno.reiniciar();
+    }
+
+    private EventoLegenda fala(String texto) {
+        return new EventoLegenda(7, "Dialogue", "Default",
+            "Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,", texto);
+    }
+
+    /**
+     * O motivo NAO e decorativo: o provedor Google so aceita falas cujo motivo esteja na
+     * {@link PoliticaRetraducao} dele. Com um motivo qualquer ("concordancia"), ele RECUSA antes de
+     * tocar a rede -- e um teste que contasse chamadas veria zero por um motivo que nao e o que
+     * queria medir. Descoberto exatamente assim.
+     */
+    private CadeiaCorrecaoFala.FalaSuspeita suspeita(String originalEn, String traducaoAtual) {
+        return new CadeiaCorrecaoFala.FalaSuspeita(fala(traducaoAtual), originalEn, traducaoAtual,
+            true, new ResultadoDeteccaoConcordancia(true, List.of(PoliticaRetraducao.NAO_TRADUZIDA)));
+    }
+
+    private CadeiaCorrecaoFala.Tentativa decidir(SessaoRevisaoArquivo sessao, String en, String pt) {
+        return cadeia.decidir(sessao, suspeita(en, pt), "ep01.ass",
+            ModoRevisaoLegendas.GOOGLE, SEM_LORE);
+    }
+
+    /**
+     * A promessa central: o que uma regra local resolve NÃO vai para a rede. Sem isto, a cadeia
+     * seria só uma sequência de tentativas, e a economia existiria por acidente.
+     */
+    @Test
+    void regraDeterministicaResolveESemNenhumaChamadaExterna() {
+        CadeiaCorrecaoFala.Tentativa tentativa = decidir(
+            new SessaoRevisaoArquivo(), "My dad needs to know!", "Minha mãe precisa saber disso!");
+
+        DecisaoFala.Corrigir corrigir = assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
+        assertEquals("Meu pai precisa saber disso!", corrigir.texto());
+        assertEquals(0, tradutorExterno.chamadas(),
+            "a regra local resolveu: nenhuma fala podia ter ido para a rede");
+    }
+
+    /** A evidência é o que alimenta o relatório e o dataset; sem ela a correção fica invisível. */
+    @Test
+    void correcaoDeterministicaRegistraEvidenciaComOSeuProprioRotulo() {
+        CadeiaCorrecaoFala.Tentativa tentativa = decidir(
+            new SessaoRevisaoArquivo(), "My dad needs to know!", "Minha mãe precisa saber disso!");
+
+        assertEquals(1, tentativa.evidencias().size());
+        assertEquals("CORRIGIDA_REGRA_SEGURA", tentativa.evidencias().get(0).resultado(),
+            "o rótulo distingue no dataset o que custou rede do que não custou");
+    }
+
+    /**
+     * A segunda fonte: a mesma frase, de novo, no mesmo arquivo. A rede é consultada UMA vez.
+     * É o que torna suportável um episódio cheio de bordões repetidos.
+     */
+    @Test
+    void segundaOcorrenciaDaMesmaFalaReaproveitaEmVezDeChamarDeNovo() {
+        SessaoRevisaoArquivo sessao = new SessaoRevisaoArquivo();
+
+        decidir(sessao, "Get out of there!", "Get out of there!");
+        int aposPrimeira = tradutorExterno.chamadas();
+        decidir(sessao, "Get out of there!", "Get out of there!");
+
+        assertEquals(1, aposPrimeira, "a primeira ocorrência precisa mesmo pagar a chamada");
+        assertEquals(1, tradutorExterno.chamadas(),
+            "a segunda ocorrência tinha de sair da memória do arquivo, não da rede");
+    }
+
+    /** A memória morre com o arquivo: outra sessão não herda decisão nenhuma. */
+    @Test
+    void memoriaNaoAtravessaArquivos() {
+        decidir(new SessaoRevisaoArquivo(), "Get out of there!", "Get out of there!");
+        decidir(new SessaoRevisaoArquivo(), "Get out of there!", "Get out of there!");
+
+        assertEquals(2, tradutorExterno.chamadas(),
+            "a mesma frase em OUTRO episódio pode ter outro sujeito e outro gênero");
+    }
+
+    /**
+     * O caso que exigiu acumular os avisos: a regra local propôs, o portão vetou por lore, e a
+     * cadeia SEGUIU. Se o veto não viajasse até a decisão final, a tentativa barrada sumiria do
+     * console e o operador veria a fala ir para a rede sem saber por quê.
+     */
+    @Test
+    void vetoDeUmaFonteAnteriorSobreviveAteADecisaoFinal() {
+        // O termo protegido e procurado no ORIGINAL INGLES e exigido na proposta: a regra local
+        // troca "Minha mãe" por "Meu pai", e com isso "dad" nao sobrevive.
+        ContextoRevisao comLore = new ContextoRevisao("teste", "", Set.of("dad"));
+
+        CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
+            new SessaoRevisaoArquivo(),
+            suspeita("My dad needs to know!", "Minha mãe precisa saber disso!"),
+            "ep01.ass", ModoRevisaoLegendas.GOOGLE, comLore);
+
+        assertFalse(tentativa.decisao().avisosAoOperador().isEmpty(),
+            "o veto da fonte anterior tem de aparecer, mesmo que outra fonte resolva depois");
+        assertTrue(tentativa.decisao().avisosAoOperador().get(0).contains("[LORE]"),
+            "e tem de vir PRIMEIRO: os avisos contam a história na ordem em que aconteceu");
+    }
+}
