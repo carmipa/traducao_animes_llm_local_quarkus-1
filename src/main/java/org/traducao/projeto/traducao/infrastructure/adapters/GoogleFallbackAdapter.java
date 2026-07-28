@@ -60,6 +60,50 @@ public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
     /** Quebras estruturais ASS verificadas por contagem exata na volta do Google. */
     private static final List<String> QUEBRAS = List.of("\\N", "\\n", "\\h");
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda a tag ASS JUNTO COM a adjacência que ela tinha no original —
+     * havia espaço antes? havia depois? — para que a restauração devolva a formatação em vez de
+     * inventá-la.
+     *
+     * <h2>O defeito que este record existe para impedir</h2>
+     * O round-trip era perdedor nas duas pontas. Ao mascarar, o marcador saía sempre com espaço
+     * dos dois lados e {@code replaceAll("\\s+", " ")} colapsava o resto: a adjacência original
+     * morria ali. Ao restaurar, o padrão {@code \s*\[Tn\]\s*} comia TODO espaço em volta. Uma
+     * ponta inventava espaço, a outra apagava todos, e nenhuma sabia o que existia de fato.
+     *
+     * <p>Medido em 2026-07-28 no acervo: das falas com tag NO MEIO da frase, ~70% saíram com as
+     * palavras coladas (110 casos possíveis / 72 defeituosos em Guilty Crown; 20 / 15 em Zeta).
+     * <pre>
+     *   EN "She let {\i1}you{\i0} use the Void Genome."
+     *   PT "Ela deixou{\i1}você{\i0}usar o Void Genome."   renderiza "deixouvocêusar"
+     * </pre>
+     *
+     * <p><b>Por que não bastava "devolver o espaço"</b>: às vezes a tag é MESMO colada, e aí o
+     * comportamento antigo acertava. {@code "President Ou{ba}ma"} tem a tag no meio da palavra e
+     * precisa continuar sem espaço nenhum. Só a adjacência do original separa os dois casos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a adjacência é do TEXTO ORIGINAL, capturada no instante do
+     * mascaramento; o espaço acompanha a tag e não a posição, porque a ordem das palavras muda
+     * entre inglês e português. Tag no início ou no fim da fala não tem vizinho e não ganha
+     * espaço.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: record imutável, sem I/O; índices fora da fala são
+     * tratados como "sem vizinho".
+     */
+    private record TagAncorada(String codigo, boolean espacoAntes, boolean espacoDepois) {
+
+        static TagAncorada de(String original, int inicio, int fim) {
+            boolean antes = inicio > 0 && Character.isWhitespace(original.charAt(inicio - 1));
+            boolean depois = fim < original.length() && Character.isWhitespace(original.charAt(fim));
+            return new TagAncorada(original.substring(inicio, fim), antes, depois);
+        }
+
+        /** A tag com exatamente o espaçamento que ela tinha no original — nem mais, nem menos. */
+        String comAdjacencia() {
+            return (espacoAntes ? " " : "") + codigo + (espacoDepois ? " " : "");
+        }
+    }
+
     private final ObjectMapper mapper;
     private final HttpClient httpClient;
 
@@ -97,13 +141,16 @@ public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
             return ResultadoFallback.naoTentada("fala original vazia");
         }
 
-        List<String> tags = new ArrayList<>();
+        List<TagAncorada> tags = new ArrayList<>();
         Matcher matcher = PADRAO_TAG.matcher(original);
         StringBuilder sb = new StringBuilder();
         int ultimoFim = 0;
         while (matcher.find()) {
             sb.append(original, ultimoFim, matcher.start());
-            tags.add(matcher.group());
+            // A ADJACÊNCIA é capturada AQUI porque é o último instante em que ela existe: o
+            // marcador sai sempre com espaço dos dois lados e a normalização logo abaixo colapsa
+            // o resto, então depois desta linha não há como saber se o original tinha espaço.
+            tags.add(TagAncorada.de(original, matcher.start(), matcher.end()));
             sb.append(" [T").append(tags.size() - 1).append("] ");
             ultimoFim = matcher.end();
         }
@@ -163,7 +210,11 @@ public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
         traduzido = restaurarQuebra(traduzido, "bn", "\\n");
         traduzido = restaurarQuebra(traduzido, "b", "\\N");
         for (int i = 0; i < tags.size(); i++) {
-            traduzido = traduzido.replaceAll("(?i)\\s*\\[t" + i + "\\]\\s*", Matcher.quoteReplacement(tags.get(i)));
+            // O \s* continua comendo todo espaço em volta do marcador — o que o Google devolveu
+            // ali não é confiável. A formatação vem de comAdjacencia(), que sabe o que o ORIGINAL
+            // tinha. Sem isso, "let {\i1}you{\i0} use" voltava como "deixou{\i1}você{\i0}usar".
+            traduzido = traduzido.replaceAll("(?i)\\s*\\[t" + i + "\\]\\s*",
+                Matcher.quoteReplacement(tags.get(i).comAdjacencia()));
         }
         traduzido = traduzido.replace("\\ N", "\\N").replace("\\ n", "\\n").replace("\\ h", "\\h");
 
@@ -173,10 +224,11 @@ public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
         }
         // Contagem EXATA de cada tag e quebra: pega tanto perda quanto DUPLICAÇÃO de marcador
         // pelo Google (um simples contains aceitaria uma tag restaurada em dobro).
-        for (String tag : tags) {
-            if (contarOcorrencias(traduzido, tag) != contarOcorrencias(original, tag)) {
-                log.warn("Fallback Google: contagem da tag ASS {} divergente — fala mantida pendente.", tag);
-                return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.MARCADOR_CORROMPIDO, "contagem da tag ASS " + tag + " divergente");
+        for (TagAncorada tag : tags) {
+            String codigo = tag.codigo();
+            if (contarOcorrencias(traduzido, codigo) != contarOcorrencias(original, codigo)) {
+                log.warn("Fallback Google: contagem da tag ASS {} divergente — fala mantida pendente.", codigo);
+                return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.MARCADOR_CORROMPIDO, "contagem da tag ASS " + codigo + " divergente");
             }
         }
         for (String quebra : QUEBRAS) {
