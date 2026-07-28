@@ -1,5 +1,6 @@
 package org.traducao.projeto.contexto.domain;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,6 +57,43 @@ public interface ProvedorContexto {
      */
     default Map<String, String> correcoesTerminologia() {
         return Map.of();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: pares de termos desta obra que o modelo NÃO pode trocar um pelo
+     * outro, porque são entidades DIFERENTES com nomes parecidos ou relacionados. Cada par é
+     * uma lista de exatamente dois termos; a proibição vale nas duas direções.
+     *
+     * <h2>Por que uma declaração nova, e não mais texto de prompt</h2>
+     * Medido no acervo em 2026-07-28, cada caso com a mesma forma — a lore ensina uma relação
+     * e o modelo a lê como licença para substituir:
+     * <ul>
+     *   <li><b>172 falas</b> em Zeta: {@code Four} (Four Murasame) virou {@code Quatro}
+     *       (numeral) e, em 15 delas, {@code Quattro} — OUTRO personagem. A lore repete três
+     *       vezes "Quattro NUNCA Quatro" e não diz nada sobre {@code Four}.</li>
+     *   <li><b>20 falas</b> em Guilty Crown: {@code Inori} virou {@code Crow}. A lore diz que
+     *       Crow é a persona de palco de Inori; {@code Crow} não aparece UMA vez no inglês do
+     *       acervo inteiro.</li>
+     *   <li><b>55 falas</b> em ZZ: {@code Zeta Gundam} virou {@code ZZ Gundam} — mecha
+     *       diferente. E <b>31</b>: {@code Argama} virou {@code Nahel Argama} — nave diferente.</li>
+     * </ul>
+     *
+     * <p>A regra genérica "termo protegido no PT ausente do EN" foi MEDIDA e descartada:
+     * dispara 1447 vezes em 59.625 falas, e a maioria esmagadora é normalização legítima
+     * ({@code A.E.U.G.}→{@code AEUG}, {@code mobile suit}→{@code Mobile Suit},
+     * {@code Ouma Shu}→{@code Shu Ouma}, {@code Undertaker}→{@code Funeral Parlor}). Como
+     * portão duro rejeitaria tradução correta em massa. Por par, dispara só onde há confusão
+     * real declarada por quem conhece a obra.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: cada elemento tem exatamente dois termos, ambos não vazios;
+     * a relação é simétrica e o consumidor não deve supor ordem. Não é sinônimo nem forma-ruim
+     * — para isso existem {@link #termosProtegidos()} e {@link #correcoesTerminologia()}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: por padrão vazio; obra que não declara nada não muda
+     * de comportamento.
+     */
+    default Set<List<String>> paresInconfundiveis() {
+        return Set.of();
     }
 
     /**

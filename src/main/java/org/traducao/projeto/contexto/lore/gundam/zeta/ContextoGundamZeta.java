@@ -5,6 +5,7 @@ import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -181,5 +182,30 @@ public class ContextoGundamZeta implements ProvedorContexto {
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
             Map.entry("Gundam Mk II", "Gundam Mk-II")
         ));
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: separa as tres superficies que o modelo confundiu em 172 falas
+     * medidas no cache em 2026-07-28 -- "Four" (Four Murasame, personagem), "Quattro"
+     * (Quattro Bajeena / Char) e o numeral "quatro".
+     *
+     * <p>157 falas trocaram "Four" pelo numeral e 15 o trocaram por "Quattro", ou seja, uma
+     * personagem virou OUTRA. Nenhuma dessas 15 tem "Quattro" no ingles: nao vieram do mapa
+     * deterministico (que so age com o canonico no original) -- vieram do modelo, empurrado
+     * pela propria lore, que repetia "NUNCA Quatro" tres vezes e nada dizia sobre "Four".
+     *
+     * <p>INVARIANTES DO DOMINIO: a proibicao e simetrica e vale SO entre os dois termos do par.
+     * O numeral fica de fora de proposito -- "four" minusculo deve ser traduzido normalmente, e
+     * proteger a palavra pegaria as 4 falas em que "Four" abre a frase como numero
+     * ("Four units, confirmed!").
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutavel; sem I/O.
+     */
+    @Override
+    public Set<List<String>> paresInconfundiveis() {
+        return Set.of(
+            List.of("Four", "Quattro"),
+            List.of("Zeta Gundam", "Gundam Mk-II")
+        );
     }
 }

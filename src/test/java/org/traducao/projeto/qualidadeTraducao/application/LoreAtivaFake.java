@@ -25,9 +25,29 @@ public final class LoreAtivaFake implements LoreAtivaPort {
     private static final String LORE_NEUTRA = "";
 
     private final Set<String> termos;
+    private final Set<java.util.List<String>> pares;
 
     private LoreAtivaFake(Set<String> termos) {
+        this(termos, Set.of());
+    }
+
+    private LoreAtivaFake(Set<String> termos, Set<java.util.List<String>> pares) {
         this.termos = termos;
+        this.pares = pares;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: cenário com pares inconfundíveis declarados, para provar que a
+     * troca de uma entidade da obra por outra é acusada.
+     * <p>INVARIANTES DO DOMÍNIO: cada par tem exatamente dois termos; o dublê não valida isso —
+     * quem consome é que ignora par malformado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     *
+     * @param pares pares como declarados em {@code ProvedorContexto.paresInconfundiveis()}
+     */
+    @SafeVarargs
+    public static LoreAtivaFake comPares(java.util.List<String>... pares) {
+        return new LoreAtivaFake(Set.of(), Set.of(pares));
     }
 
     /**
@@ -59,5 +79,10 @@ public final class LoreAtivaFake implements LoreAtivaPort {
     @Override
     public String obterLoreAtiva() {
         return LORE_NEUTRA;
+    }
+
+    @Override
+    public Set<java.util.List<String>> paresInconfundiveisAtivos() {
+        return pares;
     }
 }

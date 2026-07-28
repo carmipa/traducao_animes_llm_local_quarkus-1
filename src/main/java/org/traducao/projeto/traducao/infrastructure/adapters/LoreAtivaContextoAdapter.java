@@ -88,6 +88,22 @@ public class LoreAtivaContextoAdapter implements LoreAtivaPort {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: entrega os pares inconfundíveis da obra ativa ao peer de qualidade.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: diferente dos termos protegidos, NÃO lê do snapshot congelado —
+     * o snapshot foi criado antes desta declaração existir e não a carrega. Ler do gerenciador
+     * significa "a obra ativa agora", o que é correto para uma checagem que roda no reuso de
+     * cache, fora do meio de um episódio. Se um dia o snapshot passar a carregar os pares, este
+     * método deve preferi-lo, como o irmão acima faz.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem contexto ativo devolve conjunto vazio; não lança.
+     */
+    @Override
+    public Set<java.util.List<String>> paresInconfundiveisAtivos() {
+        return gerenciadorContexto.paresInconfundiveisAtivos();
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: expõe ao peer de qualidade a lore da obra que esta execução está
      * de fato traduzindo.
      *

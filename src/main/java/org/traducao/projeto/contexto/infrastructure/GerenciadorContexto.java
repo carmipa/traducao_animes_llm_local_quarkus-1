@@ -266,6 +266,17 @@ public class GerenciadorContexto {
         return this.provedorAtivo != null ? this.provedorAtivo.termosProtegidos() : java.util.Set.of();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: pares de termos da obra ativa que não podem ser trocados um pelo
+     * outro (ver {@code ProvedorContexto.paresInconfundiveis()}).
+     * <p>INVARIANTES DO DOMÍNIO: leitura pura do provedor ativo, sem cache próprio.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem contexto ativo devolve conjunto vazio.
+     */
+    public java.util.Set<java.util.List<String>> paresInconfundiveisAtivos() {
+        return this.provedorAtivo != null
+            ? this.provedorAtivo.paresInconfundiveis() : java.util.Set.of();
+    }
+
     // correcoesTerminologiaAtiva() foi REMOVIDO: seu único consumidor (o reforço
     // determinístico de terminologia em ProcessarArquivoUseCase) passou a ler o mapa do
     // SnapshotContexto congelado da execução. Ler o mapa daqui, no fim do arquivo, era

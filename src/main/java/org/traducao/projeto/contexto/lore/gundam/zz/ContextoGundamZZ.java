@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -130,5 +131,30 @@ public class ContextoGundamZZ implements ProvedorContexto {
     @Override
     public Map<String, String> correcoesTerminologia() {
         return CorrecoesTerminologiaGundamZz.mapa();
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: separa mechas e naves que o modelo trocou entre si, medido no cache
+     * em 2026-07-28.
+     *
+     * <ul>
+     *   <li><b>55 falas</b>: o ingles diz "Zeta Gundam" e a traducao gravou "ZZ Gundam". Sao
+     *       mobile suits DIFERENTES, e a obra usa os dois.</li>
+     *   <li><b>31 falas</b>: o ingles diz "Argama" e a traducao gravou "Nahel Argama". Sao naves
+     *       DIFERENTES -- a Nahel Argama e a sucessora, e as duas aparecem na serie.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMINIO: proibicao simetrica entre os dois termos do par. "Nahel Argama"
+     * contem "Argama" como substring: quem consome o par tem de comparar por fronteira de
+     * palavra sobre o termo INTEIRO, senao toda mencao a Nahel Argama acusaria falsamente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutavel; sem I/O.
+     */
+    @Override
+    public Set<List<String>> paresInconfundiveis() {
+        return Set.of(
+            List.of("Zeta Gundam", "ZZ Gundam"),
+            List.of("Argama", "Nahel Argama")
+        );
     }
 }

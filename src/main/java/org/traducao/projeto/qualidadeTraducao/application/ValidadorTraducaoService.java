@@ -342,6 +342,11 @@ public class ValidadorTraducaoService {
             return;
         }
 
+        String trocado = trocaDeEntidade(original, traduzido);
+        if (trocado != null) {
+            throw new AlucinacaoDetectadaException(trocado);
+        }
+
         if (PADRAO_META_DE_PAR.matcher(traduzido).find()) {
             throw new AlucinacaoDetectadaException(
                 "Meta-resposta sobre a tarefa de traduzir: \"" + traduzido + "\" (original: \"" + original + "\")");
@@ -467,6 +472,76 @@ public class ValidadorTraducaoService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: a porta nunca lança e devolve conjunto vazio sem
      * contexto ativo — nesse caso o texto volta inalterado e as regras agem como antes.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: acusa quando a tradução trocou uma entidade da obra por OUTRA de
+     * nome parecido ou relacionado — o defeito que nenhuma regra sobre a saída consegue ver,
+     * porque o termo trocado é grafia canônica perfeita.
+     *
+     * <h2>O que foi medido</h2>
+     * <pre>
+     *   Zeta   172 falas   "Four" (personagem) -> "Quatro" (numeral) e, em 15, "Quattro" (OUTRO personagem)
+     *   ZZ      55 falas   "Zeta Gundam" -> "ZZ Gundam"        (mecha diferente)
+     *   ZZ      31 falas   "Argama" -> "Nahel Argama"          (nave diferente)
+     *   GC      20 falas   "Inori" -> "Crow"                   ("Crow" nao aparece 1x no ingles do acervo)
+     * </pre>
+     *
+     * <h2>Por que PAR, e não "todo termo protegido"</h2>
+     * A regra genérica "termo protegido no PT ausente do EN" foi medida antes de ser escrita:
+     * dispara <b>1447 vezes em 59.625 falas</b>, e a esmagadora maioria é normalização legítima
+     * — {@code A.E.U.G.}→{@code AEUG}, {@code mobile suit}→{@code Mobile Suit},
+     * {@code Ouma Shu}→{@code Shu Ouma}, {@code Undertaker}→{@code Funeral Parlor}. Como portão
+     * duro, rejeitaria tradução correta em massa. Restringir a pares declarados por quem conhece
+     * a obra troca uma heurística ampla por uma afirmação verificável.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só acusa quando o original contém UM dos dois termos e a tradução contém o OUTRO —
+     *       e o original NÃO contém esse outro. Fala que menciona os dois de verdade
+     *       ("the Argama and the Nahel Argama") não é tocada.</li>
+     *   <li>Comparação por fronteira de palavra sobre o termo INTEIRO, sensível à caixa. É o que
+     *       impede {@code "Nahel Argama"} — que contém {@code "Argama"} — de acusar a si mesma, e
+     *       o que separa o nome {@code "Four"} do numeral {@code "four"}.</li>
+     *   <li>Fala em que o par é simplesmente ausente não custa nada: o laço sai no primeiro teste.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code null} quando não há troca; a porta nunca
+     * lança e sem contexto ativo devolve conjunto vazio, o que desliga a checagem.
+     */
+    private String trocaDeEntidade(String original, String traduzido) {
+        for (List<String> par : loreAtiva.paresInconfundiveisAtivos()) {
+            if (par == null || par.size() != 2) {
+                continue;
+            }
+            String a = par.get(0);
+            String b = par.get(1);
+            String achado = trocou(original, traduzido, a, b);
+            if (achado == null) {
+                achado = trocou(original, traduzido, b, a);
+            }
+            if (achado != null) {
+                return achado;
+            }
+        }
+        return null;
+    }
+
+    /** O original fala de {@code presente} e a tradução respondeu com {@code ausente}. */
+    private static String trocou(String original, String traduzido, String presente, String ausente) {
+        if (!contemTermo(original, presente) || contemTermo(original, ausente)
+            || !contemTermo(traduzido, ausente)) {
+            return null;
+        }
+        return "Entidade trocada: o original diz \"" + presente + "\" e a tradução diz \""
+            + ausente + "\", que é outra entidade desta obra — \"" + traduzido + "\"";
+    }
+
+    /** Fronteira de palavra sobre o termo inteiro, sensível à caixa (separa "Four" de "four"). */
+    private static boolean contemTermo(String texto, String termo) {
+        return texto != null && termo != null && !termo.isBlank()
+            && Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                .matcher(texto).find();
+    }
+
     private String removerTermosProtegidos(String texto) {
         Set<String> termos = loreAtiva.termosProtegidosAtivos();
         if (termos == null || termos.isEmpty()) {
