@@ -70,12 +70,15 @@ class CatracaAgregadorasForaDoCdiTest {
      * o esqueleto deve ser registrado assim que tiver conteúdo. Misturar os dois casos numa lista
      * só faria a mensagem de falha mentir para um deles.
      *
-     * <p>HOJE ESTÁ VAZIA, e isso é progresso, não descuido: o único esqueleto que existiu
-     * ({@code macross_frontier_filme3}, Labyrinth of Time) ganhou lore e foi registrado. A lista
-     * fica no lugar porque a próxima obra sem contexto próprio vai passar pelo mesmo caminho —
-     * classe primeiro, conteúdo depois, registro por último.
+     * <p>O primeiro esqueleto ({@code macross_frontier_filme3}, Labyrinth of Time) ganhou lore e
+     * saiu daqui — a lista funciona nos dois sentidos, e sair dela é o "pronto" de cada obra.
      */
-    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of();
+    private static final Map<String, String> ESQUELETOS_SEM_CONTEUDO = Map.of(
+        "gundam_greco_1", "filme I de Reconguista in G — LORE vazia",
+        "gundam_greco_2", "filme II de Reconguista in G — LORE vazia",
+        "gundam_greco_3", "filme III de Reconguista in G — LORE vazia",
+        "gundam_greco_4", "filme IV de Reconguista in G — LORE vazia",
+        "gundam_greco_5", "filme V de Reconguista in G — LORE vazia");
 
     /** Os contextos específicos que devem ser usados NO LUGAR de cada agregadora. */
     private static final Map<String, Set<String>> SUBSTITUTOS = Map.of(
