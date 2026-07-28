@@ -98,9 +98,50 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda a tag ASS JUNTO COM a adjacência que ela tinha no original —
+     * havia espaço antes? havia depois? — para que a restauração devolva a formatação em vez de
+     * inventá-la.
+     *
+     * <p>DUPLICAÇÃO DELIBERADA: o {@code traducao.infrastructure.adapters.GoogleFallbackAdapter}
+     * tem um gêmeo deste record. Os dois adaptadores já divergem de propósito (marcador residual
+     * e política de retry diferentes, conforme o Javadoc da classe) e unificá-los mudaria
+     * desfecho em falas reais. Vale a pena registrar o que aconteceu: eles divergiram no que era
+     * intencional e CONVERGIRAM no mesmo defeito de espaçamento, que precisou ser consertado
+     * duas vezes. É o custo conhecido da duplicação consciente, pago com os olhos abertos.
+     *
+     * <p>O defeito: ao mascarar, o marcador saía com espaço dos dois lados e o
+     * {@code replaceAll("\\s+", " ")} colapsava o resto; ao restaurar, {@code \s*\[Tn\]\s*} comia
+     * TODO espaço em volta. Uma ponta inventava, a outra apagava, nenhuma sabia o que existia.
+     * Medido em 2026-07-28: ~70% das falas com tag no meio da frase saíam com palavras coladas
+     * ({@code "deixou{\i1}você{\i0}usar"}).
+     *
+     * <p>Devolver espaço sempre também estaria errado: {@code "President Ou{ba}ma"} tem a tag no
+     * meio da palavra e precisa continuar colada. Só a adjacência do original separa os casos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a adjacência é do TEXTO ORIGINAL, capturada no mascaramento; o
+     * espaço acompanha a tag e não a posição, porque a ordem das palavras muda na tradução. Tag
+     * no início ou no fim da fala não tem vizinho e não ganha espaço.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: record imutável, sem I/O.
+     */
+    private record TagAncorada(String codigo, boolean espacoAntes, boolean espacoDepois) {
+
+        static TagAncorada de(String original, int inicio, int fim) {
+            boolean antes = inicio > 0 && Character.isWhitespace(original.charAt(inicio - 1));
+            boolean depois = fim < original.length() && Character.isWhitespace(original.charAt(fim));
+            return new TagAncorada(original.substring(inicio, fim), antes, depois);
+        }
+
+        /** A tag com exatamente o espaçamento que ela tinha no original — nem mais, nem menos. */
+        String comAdjacencia() {
+            return (espacoAntes ? " " : "") + codigo + (espacoDepois ? " " : "");
+        }
+    }
+
     /** Uma única tentativa: mascara tags, chama o transporte e mapeia o desfecho. */
     private Tentativa tentarTraduzir(String textoOriginal) {
-        List<String> tags = new ArrayList<>();
+        List<TagAncorada> tags = new ArrayList<>();
         Pattern patternTags = Pattern.compile("\\{[^}]+\\}");
         Matcher matcher = patternTags.matcher(textoOriginal);
         StringBuilder sb = new StringBuilder();
@@ -108,7 +149,9 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
 
         while (matcher.find()) {
             sb.append(textoOriginal, lastEnd, matcher.start());
-            tags.add(matcher.group());
+            // Adjacência capturada AQUI: o marcador sai com espaço dos dois lados e a
+            // normalização abaixo colapsa o resto — depois desta linha a informação não existe.
+            tags.add(TagAncorada.de(textoOriginal, matcher.start(), matcher.end()));
             sb.append(" [T").append(tags.size() - 1).append("] ");
             lastEnd = matcher.end();
         }
@@ -175,8 +218,12 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
         }
 
         for (int i = 0; i < tags.size(); i++) {
+            // O \s* continua comendo o espaço em volta do marcador — o que o Google devolveu ali
+            // não é confiável. A formatação vem de comAdjacencia(), que sabe o que o ORIGINAL
+            // tinha; sem isso "let {\i1}you{\i0} use" voltava "deixou{\i1}você{\i0}usar".
             String pattern = "(?i)\\s*\\[t" + i + "\\]\\s*";
-            traduzido = traduzido.replaceAll(pattern, Matcher.quoteReplacement(tags.get(i)));
+            traduzido = traduzido.replaceAll(pattern,
+                Matcher.quoteReplacement(tags.get(i).comAdjacencia()));
         }
 
         traduzido = traduzido.replace("\\ N", "\\N").replace("\\ n", "\\N");
@@ -188,9 +235,9 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
             log.warn("Google Translate mutilou marcadores de tag/quebra; mantendo texto original: {}", traduzido);
             return semEspera(ResultadoRaspagem.tagCorrompida(textoOriginal));
         }
-        for (String tag : tags) {
-            if (!traduzido.contains(tag)) {
-                log.warn("Google Translate perdeu a tag ASS {}; mantendo texto original.", tag);
+        for (TagAncorada tag : tags) {
+            if (!traduzido.contains(tag.codigo())) {
+                log.warn("Google Translate perdeu a tag ASS {}; mantendo texto original.", tag.codigo());
                 return semEspera(ResultadoRaspagem.tagCorrompida(textoOriginal));
             }
         }
