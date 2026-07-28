@@ -105,7 +105,7 @@ public class CatalogoObras {
         "macross_anime", "macross_filme1", "macross_dyrl", "macross_filme2", "macross_2",
         "macross_plus", "macross_7", "macross_7_encore", "macross_7_filme", "macross_dynamite_7",
         "macross_7_filmes", "macross_zero", "macross_frontier", "macross_frontier_filme1",
-        "macross_frontier_filme2", "macross_frontier_filmes", "macross_delta",
+        "macross_frontier_filme2", "macross_frontier_filme3", "macross_frontier_filmes", "macross_delta",
         "macross_delta_filme1", "macross_delta_filme2", "macross_delta_filmes",
         // Break Blade (Broken Blade) — 6 filmes na ordem de lançamento.
         // Contrato: ids break_blade_1..6; nome contendo "Break Blade"
