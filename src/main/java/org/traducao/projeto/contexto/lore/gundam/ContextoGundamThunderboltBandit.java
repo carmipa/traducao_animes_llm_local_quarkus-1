@@ -35,7 +35,13 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 public class ContextoGundamThunderboltBandit implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */
-    private static final String LORE = "";
+    private static final String LORE = """
+        - Obra: Mobile Suit Gundam Thunderbolt: Bandit Flower (filme, pos One Year War / U.C. 0080).
+        - Personagens: Io Fleming (homem), Daryl Lorenz (homem), Claudia Peer (mulher), Cornelius KaKa (homem), Bianca Carlyle (mulher), Karla Mitchum (mulher), Vincent Pike (homem), Monica Humphrey (mulher), Levan Fuu (homem), Chow Ming (mulher), Bull (homem).
+        - Faccoes/unidades: Earth Federation, Spartan, South Seas Alliance, Principality of Zeon, Zeon remnants, Republic of Zeon.
+        - Mobile suits e tecnologia: Atlas Gundam, Guncannon Aqua, Psycho Zaku, Reuse P. Device, Acguy, Gogg, Grublo, Gouf, GM, Mobile Suit.
+        - Termos do mundo: South Seas Alliance, Spartan, Reuse P. Device, One Year War, Antarctica, Newtype, Principality of Zeon, Earth Federation, Mobile Suit. Mantenha nomes proprios em ingles/romanizados.
+        """;
 
     private static final String PROMPT = ContextoPrompt.montar("Mobile Suit Gundam Thunderbolt: Bandit Flower", LORE);
 
@@ -53,7 +59,15 @@ public class ContextoGundamThunderboltBandit implements ProvedorContexto {
      */
     @Override
     public Set<String> termosProtegidos() {
-        return Set.of("Mobile Suit", "Zeon", "Federation");
+        return Set.of(
+            "Io Fleming", "Daryl Lorenz", "Claudia Peer", "Cornelius KaKa",
+            "Bianca Carlyle", "Karla Mitchum", "Vincent Pike", "Monica Humphrey",
+            "Levan Fuu", "Chow Ming", "Bull",
+            "Earth Federation", "Spartan", "South Seas Alliance", "Principality of Zeon",
+            "Zeon remnants", "Republic of Zeon", "Atlas Gundam", "Guncannon Aqua",
+            "Psycho Zaku", "Reuse P. Device", "Acguy", "Gogg", "Grublo", "Gouf", "GM",
+            "Mobile Suit", "One Year War", "Antarctica", "Newtype", "Zeon", "Federation"
+        );
     }
 
     /**
