@@ -190,6 +190,42 @@ class ApiEndpointsTest {
             .body("mensagem", is("Caminho de entrada obrigatório."));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: com a escrita no acervo desligada, APLICAR o reforço de terminologia é
+     * recusado na BORDA, com 409, antes de entrar na fila.
+     *
+     * <h2>Por que não basta o job recusar</h2>
+     * Antes de 2026-07-28 a rota respondia 200 ("aceito pela fila") e o job morria 100 ms depois.
+     * O operador via no console <i>"REFORÇO DE TERMINOLOGIA — ENSAIO (nada foi escrito) —
+     * CONCLUIDO_COM_FALHAS — arquivos: 0 — falhas: 1"</i>, sem nenhuma pista do motivo — que ficava
+     * só no log de arquivo. Escrita desligada é PRÉ-CONDIÇÃO: não há o que enfileirar, e a resposta
+     * HTTP é o único lugar onde o operador está olhando no momento do clique.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a mensagem nomeia a propriedade a ligar. Uma recusa que não diz o
+     * que fazer devolve o operador ao mesmo silêncio que ela veio corrigir.
+     *
+     * <p>O ENSAIO segue 200 no mesmo estado de configuração — ele é read-only e é o instrumento com
+     * que se decide se vale ligar a escrita. Sem este segundo caso, o teste passaria com uma
+     * implementação que recusasse as duas rotas.
+     */
+    @Test
+    void aplicarReforcoComEscritaDesligadaRetorna409EnsaioSegue200() {
+        given()
+            .contentType("application/json")
+            .body("{\"entrada\":\"cache\"}")
+            .when().post("/api/reforcar-terminologia-aplicar")
+            .then()
+            .statusCode(409)
+            .body("mensagem", containsString("correcao-cache.reforco-terminologia-aplicar-habilitado"));
+
+        given()
+            .contentType("application/json")
+            .body("{\"entrada\":\"cache\"}")
+            .when().post("/api/reforcar-terminologia-ensaio")
+            .then()
+            .statusCode(200);
+    }
+
     @Test
     void extrairSemEntradaRetornaBadRequest() {
         given()

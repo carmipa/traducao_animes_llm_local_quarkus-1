@@ -22,9 +22,13 @@ import java.util.regex.Pattern;
  *       final de preservação considera TAMBÉM o conteúdo da linha, avaliado pelo
  *       {@code DetectorEfeitoKaraokeService} (ex.: {@code eKaraokeOuMusicaTraduzivel},
  *       {@code devePreservarKaraokeOriginal}), que permanece o proprietário dessa parte.</li>
- *   <li>Letras japonesas e romaji protegidos devem permanecer INTACTOS; a versão em
- *       INGLÊS que acompanha o karaokê PODE continuar traduzível quando o detector
- *       assim determinar.</li>
+ *   <li>Letras japonesas e romaji protegidos devem permanecer INTACTOS. A versão em
+ *       INGLÊS que acompanha o karaokê TAMBÉM não é traduzida pelas etapas de fala:
+ *       pela REGRA DE ESCOPO (Paulo, 2026-07-25), música e karaokê pertencem à fatia
+ *       {@code traducaoKaraoke}. Até 2026-07-28 quatro fluxos abriam exceção para a
+ *       letra latina via {@code eKaraokeOuMusicaTraduzivel}, e o custo foi medido: 10 de
+ *       13 episódios do Gundam 08th bloqueados por retradução em massa, e 1.008 dos
+ *       1.027 eventos que a revisão do Zeta alterou eram letra de música.</li>
  *   <li>Guarda uma cópia IMUTÁVEL da lista recebida, preservando ordem, case,
  *       duplicatas e elementos vazios — sem trim, dedup ou normalização.</li>
  * </ul>

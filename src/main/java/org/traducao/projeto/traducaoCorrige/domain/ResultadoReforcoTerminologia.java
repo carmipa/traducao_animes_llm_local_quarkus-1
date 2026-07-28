@@ -17,9 +17,11 @@ import java.util.TreeMap;
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>{@code aplicado} distingue o ensaio da execução real. Em ensaio ({@code false}) os números
- *       descrevem o que ACONTECERIA e nenhum byte foi tocado no disco — ler um relatório de ensaio
- *       como se fosse execução é o erro que este campo existe para impedir.</li>
+ *   <li>{@code modo} distingue os TRÊS desfechos possíveis — ver {@link ModoReforcoTerminologia}.
+ *       Em {@code ENSAIO} os números descrevem o que ACONTECERIA e nenhum byte foi tocado no disco;
+ *       ler um relatório de ensaio como se fosse execução é o erro que este campo existe para
+ *       impedir. Era um booleano até 2026-07-28, e o booleano fazia a APLICAÇÃO RECUSADA por
+ *       configuração se apresentar como ensaio.</li>
  *   <li>{@code restauracoesPorTermo} é indexado pelo termo CANÔNICO (o destino), não pela
  *       forma-ruim: várias formas-ruim convergem para o mesmo canônico ("Sabre de Raio",
  *       "Espada de Raio" e "Lâmina de Energia" são todas Beam Saber) e o que interessa medir é a
@@ -37,7 +39,7 @@ import java.util.TreeMap;
  * @param restauracoesPorTermo termo canônico → quantas restaurações
  * @param arquivosNaoVerificaveis arquivos PULADOS por não haver testemunha da obra
  * @param falhas arquivos que não puderam ser processados
- * @param aplicado {@code false} para ensaio (dry-run); {@code true} quando o disco foi escrito
+ * @param modo ensaio, aplicação real ou aplicação recusada por configuração
  */
 public record ResultadoReforcoTerminologia(
     int arquivosAnalisados,
@@ -46,12 +48,13 @@ public record ResultadoReforcoTerminologia(
     Map<String, Integer> restauracoesPorTermo,
     int arquivosNaoVerificaveis,
     int falhas,
-    boolean aplicado
+    ModoReforcoTerminologia modo
 ) {
 
     /**
      * PROPÓSITO DE NEGÓCIO: normaliza o record na construção.
-     * <p>INVARIANTES DO DOMÍNIO: totais nunca negativos; mapa nunca nulo e sempre imutável.
+     * <p>INVARIANTES DO DOMÍNIO: totais nunca negativos; mapa nunca nulo e sempre imutável;
+     * {@code modo} nulo degrada para {@code ENSAIO}, o desfecho que não afirma escrita nenhuma.
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança para entrada malformada; corrige.
      */
     public ResultadoReforcoTerminologia {
@@ -62,6 +65,38 @@ public record ResultadoReforcoTerminologia(
         falhas = Math.max(0, falhas);
         restauracoesPorTermo = restauracoesPorTermo == null
             ? Map.of() : Map.copyOf(restauracoesPorTermo);
+        modo = modo == null ? ModoReforcoTerminologia.ENSAIO : modo;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde a única pergunta que a maioria dos chamadores faz — "o disco
+     * foi escrito?". Mantida como derivada para que a introdução do terceiro modo não obrigasse
+     * cada leitor a aprender o enum.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: verdadeiro SÓ em {@link ModoReforcoTerminologia#APLICADO}. Recusa
+     * por configuração é falsa aqui pelo mesmo motivo que o ensaio: nada foi escrito.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; nunca lança.
+     */
+    public boolean aplicado() {
+        return modo == ModoReforcoTerminologia.APLICADO;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o rótulo que o operador lê antes dos números, no console e no relatório
+     * de disco. Mora aqui, e não em cada apresentador, porque duas grafias divergentes do mesmo
+     * desfecho é como um ensaio passa a ser lido como execução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; nunca lança.
+     */
+    public String rotuloModo() {
+        return switch (modo) {
+            case APLICADO -> "APLICADO NO ACERVO";
+            case ENSAIO -> "ENSAIO (nada foi escrito)";
+            case RECUSADO_POR_CONFIG -> "APLICAÇÃO RECUSADA — escrita no acervo desligada "
+                + "(correcao-cache.reforco-terminologia-aplicar-habilitado=false). "
+                + "Nada foi lido nem escrito. O ensaio continua disponível.";
+        };
     }
 
     /**
@@ -87,6 +122,13 @@ public record ResultadoReforcoTerminologia(
      * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; nunca lança.
      */
     public String status() {
+        // Precede tudo, inclusive falhas: a recusa acontece ANTES de abrir o primeiro arquivo, então
+        // não existe falha de processamento que possa competir com ela. Dizer
+        // "CONCLUIDO_COM_FALHAS" aqui mandaria o operador procurar um arquivo quebrado que não
+        // existe, quando o que falta é uma linha de configuração.
+        if (modo == ModoReforcoTerminologia.RECUSADO_POR_CONFIG) {
+            return "RECUSADO_ESCRITA_DESLIGADA";
+        }
         if (falhas > 0) {
             return "CONCLUIDO_COM_FALHAS";
         }
@@ -94,7 +136,7 @@ public record ResultadoReforcoTerminologia(
             return "NENHUM_CACHE_ENCONTRADO";
         }
         if (arquivosNaoVerificaveis > 0) {
-            return aplicado ? "CONCLUIDO_COM_PULADOS" : "ENSAIO_COM_PULADOS";
+            return aplicado() ? "CONCLUIDO_COM_PULADOS" : "ENSAIO_COM_PULADOS";
         }
         // "Houve mudança" é FALAS ALTERADAS, não o contador de termos. Derivar o status só do
         // contador já produziu a pior saída possível: uma execução que reescreveu o arquivo e
@@ -102,7 +144,7 @@ public record ResultadoReforcoTerminologia(
         // arquivosAlterados valia 1. O contador pode ficar vazio por defeito seu; falasAlteradas
         // é contado onde a troca acontece, e é o mesmo em ensaio e em execução.
         boolean mudou = falasAlteradas > 0 || totalRestauracoes() > 0;
-        if (!aplicado) {
+        if (!aplicado()) {
             return mudou ? "ENSAIO_COM_PENDENCIAS" : "ENSAIO_SEM_PENDENCIAS";
         }
         return mudou ? "CONCLUIDO" : "CONCLUIDO_SEM_ALTERACOES";

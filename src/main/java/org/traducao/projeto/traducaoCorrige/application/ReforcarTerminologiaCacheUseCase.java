@@ -11,6 +11,7 @@ import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
+import org.traducao.projeto.traducaoCorrige.domain.ModoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
@@ -111,6 +112,20 @@ public class ReforcarTerminologiaCacheUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: informa se a escrita no acervo está autorizada, para que a borda HTTP
+     * possa RECUSAR o pedido em vez de enfileirar um job que já nasce condenado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é a MESMA fonte que {@link #executar} consulta. Expor a capacidade
+     * — e não a propriedade — mantém a configuração dentro desta fatia: quem chama pergunta "posso
+     * escrever?", não "qual o valor da flag?".
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: leitura simples; nunca lança.
+     */
+    public boolean escritaNoAcervoAutorizada() {
+        return propriedades.reforcoTerminologiaAplicarHabilitado();
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: ensaia o reforço sobre a pasta de cache sem escrever nada — a forma
      * segura de descobrir o que a regra nova mudaria no acervo antes de autorizar a mudança.
      *
@@ -142,14 +157,23 @@ public class ReforcarTerminologiaCacheUseCase {
             // Recusa ANTES de abrir qualquer arquivo. Escrever sobre trabalho pronto exige
             // autorização declarada em configuração, não só um clique — e a recusa é ruidosa,
             // porque uma operação que "não faz nada" em silêncio é indistinguível de um defeito.
-            Acumulador bloqueado = new Acumulador(false);
-            bloqueado.falhas++;
+            //
+            // O desfecho é RECUSADO_POR_CONFIG, não "ensaio com uma falha". Até 2026-07-28 esta
+            // guarda construía o acumulador com aplicar=false e somava falhas++, e o resultado foi
+            // medido em produção: o operador clicou Aplicar duas vezes e leu, nas duas,
+            // "ENSAIO (nada foi escrito) — CONCLUIDO_COM_FALHAS — arquivos: 0 — falhas: 1". A razão
+            // real só existia neste log, que não chega à tela. Ver ModoReforcoTerminologia.
+            //
+            // A rota HTTP recusa antes de enfileirar; esta guarda é a defesa de dentro, para
+            // chamador que não venha pela web.
+            Acumulador bloqueado = new Acumulador(ModoReforcoTerminologia.RECUSADO_POR_CONFIG);
             log.error("[ REFORCO-TERMINOLOGIA ] APLICAÇÃO RECUSADA: a escrita no acervo está "
                 + "desligada. Ligue correcao-cache.reforco-terminologia-aplicar-habilitado=true "
                 + "para autorizar. O ensaio continua disponível.");
             return publicar(raizCache, inicioMs, bloqueado);
         }
-        Acumulador acc = new Acumulador(aplicar);
+        Acumulador acc = new Acumulador(
+            aplicar ? ModoReforcoTerminologia.APLICADO : ModoReforcoTerminologia.ENSAIO);
         if (!Files.isDirectory(raizCache)) {
             acc.falhas++;
             log.error("Pasta de cache não encontrada: {}", raizCache);
@@ -186,7 +210,13 @@ public class ReforcarTerminologiaCacheUseCase {
      */
     private ResultadoReforcoTerminologia publicar(Path raizCache, long inicioMs, Acumulador acc) {
         ResultadoReforcoTerminologia r = acc.resultado();
-        String rotulo = r.aplicado() ? "Reforço de Terminologia" : "Reforço de Terminologia (ensaio)";
+        String rotulo = switch (r.modo()) {
+            case APLICADO -> "Reforço de Terminologia";
+            case ENSAIO -> "Reforço de Terminologia (ensaio)";
+            // A telemetria é histórico: uma recusa arquivada como "(ensaio)" faria a série
+            // temporal afirmar que alguém mediu o acervo quando ninguém abriu um arquivo.
+            case RECUSADO_POR_CONFIG -> "Reforço de Terminologia (RECUSADO)";
+        };
         log.info("[{}] status={} arquivos={} alterados={} pulados={} falhas={} falas={} restaurações={}",
             rotulo, r.status(), r.arquivosAnalisados(), r.arquivosAlterados(),
             r.arquivosNaoVerificaveis(), r.falhas(), r.falasAlteradas(), r.totalRestauracoes());
@@ -216,7 +246,7 @@ public class ReforcarTerminologiaCacheUseCase {
         StringBuilder sb = new StringBuilder();
         sb.append("REFORÇO DE TERMINOLOGIA SOBRE CACHE JÁ GRAVADO\n")
             .append("==============================================\n")
-            .append("Modo: ").append(r.aplicado() ? "APLICADO NO ACERVO" : "ENSAIO (nada foi escrito)")
+            .append("Modo: ").append(r.rotuloModo())
             .append('\n')
             .append("Pasta: ").append(raizCache.toAbsolutePath()).append('\n')
             .append("Status: ").append(r.status()).append('\n')
@@ -374,6 +404,7 @@ public class ReforcarTerminologiaCacheUseCase {
 
     /** Estado mutável restrito a uma execução síncrona na fila única. */
     private static final class Acumulador {
+        private final ModoReforcoTerminologia modo;
         private final boolean aplicar;
         private final Map<String, Integer> porTermo = new HashMap<>();
         private int arquivosAnalisados;
@@ -382,8 +413,11 @@ public class ReforcarTerminologiaCacheUseCase {
         private int arquivosNaoVerificaveis;
         private int falhas;
 
-        Acumulador(boolean aplicar) {
-            this.aplicar = aplicar;
+        Acumulador(ModoReforcoTerminologia modo) {
+            this.modo = modo;
+            // Só APLICADO escreve. Recusa e ensaio compartilham o comportamento de não tocar o
+            // disco, e é justamente por isso que precisam de rótulos diferentes no relatório.
+            this.aplicar = modo == ModoReforcoTerminologia.APLICADO;
         }
 
         /**
@@ -399,7 +433,7 @@ public class ReforcarTerminologiaCacheUseCase {
 
         ResultadoReforcoTerminologia resultado() {
             return new ResultadoReforcoTerminologia(arquivosAnalisados, arquivosAlterados,
-                falasAlteradas, porTermo, arquivosNaoVerificaveis, falhas, aplicar);
+                falasAlteradas, porTermo, arquivosNaoVerificaveis, falhas, modo);
         }
     }
 }

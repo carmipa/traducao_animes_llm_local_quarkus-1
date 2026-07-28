@@ -2,6 +2,7 @@ package org.traducao.projeto.traducaoCorrige.presentation.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -152,6 +153,17 @@ public class CorrecaoCacheController {
             return ResponseEntity.badRequest().body(new RespostaPadrao(
                 "Contexto desconhecido: \"" + req.contextoId() + "\"."));
         }
+        // A escrita desligada é PRÉ-CONDIÇÃO, não desfecho de processamento: nada há para
+        // enfileirar. Enfileirar mesmo assim produzia um job que morria em 100 ms e voltava ao
+        // console como "ENSAIO — CONCLUIDO_COM_FALHAS — 0 arquivos", sem dizer por quê — foi o que
+        // o operador viu duas vezes em 2026-07-28. O caso de uso mantém a mesma guarda por dentro,
+        // para chamador que não venha por esta rota.
+        if (aplicar && !reforcarTerminologiaCacheUseCase.escritaNoAcervoAutorizada()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new RespostaPadrao(
+                "Escrita no acervo DESLIGADA: ligue "
+                    + "correcao-cache.reforco-terminologia-aplicar-habilitado=true para autorizar. "
+                    + "Nada foi lido nem escrito. O ensaio continua disponível."));
+        }
 
         String rotulo = aplicar ? "Reforço de Terminologia (APLICANDO)" : "Reforço de Terminologia (ensaio)";
         pipelineWebSupport.submeterJobComRelatorio("correcao", rotulo, () -> {
@@ -177,7 +189,7 @@ public class CorrecaoCacheController {
      */
     private void imprimirResultadoReforco(ResultadoReforcoTerminologia r) {
         System.out.println("\n" + AnsiCores.CYAN + "REFORÇO DE TERMINOLOGIA — "
-            + (r.aplicado() ? "APLICADO NO ACERVO" : "ENSAIO (nada foi escrito)") + AnsiCores.RESET);
+            + r.rotuloModo() + AnsiCores.RESET);
         System.out.println("  Status: " + r.status());
         System.out.println("  Arquivos analisados: " + r.arquivosAnalisados()
             + " | alterados: " + r.arquivosAlterados()

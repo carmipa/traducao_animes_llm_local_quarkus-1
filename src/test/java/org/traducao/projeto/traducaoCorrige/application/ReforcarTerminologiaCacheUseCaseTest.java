@@ -11,6 +11,7 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
+import org.traducao.projeto.traducaoCorrige.domain.ModoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ports.AuditoriaCorrecaoCachePort;
 import org.traducao.projeto.traducaoCorrige.domain.ports.TelemetriaCorrecaoPort;
@@ -151,9 +152,22 @@ class ReforcarTerminologiaCacheUseCaseTest {
      * <p>O ENSAIO segue disponível de propósito — ele é read-only e é o instrumento com que se
      * decide se vale ligar a escrita. Travar os dois deixaria o operador sem como formar a
      * decisão que a flag existe para exigir dele.
+     *
+     * <h2>O que mudou em 2026-07-28, e por quê</h2>
+     * A recusa era ruidosa no lugar errado. Ela construía o acumulador com {@code aplicar=false} e
+     * somava {@code falhas++}, então vestia a roupa do ensaio: o console web e o relatório de disco
+     * diziam <i>"ENSAIO (nada foi escrito) — CONCLUIDO_COM_FALHAS — arquivos: 0 — falhas: 1"</i>. O
+     * operador clicou "Aplicar" duas vezes naquele dia e leu isso as duas vezes, sem nenhuma pista
+     * do motivo — que existia só no log de arquivo.
+     *
+     * <p>Duas correções, e o teste prende as duas: o desfecho tem NOME próprio
+     * ({@code RECUSADO_ESCRITA_DESLIGADA}), e recusa por configuração não conta como
+     * {@code falhas} — falha é arquivo que quebrou, não flag que você não ligou. A visibilidade não
+     * se perde: ela migrou do contador para o status e para o texto do relatório, que agora nomeia a
+     * propriedade a ligar.
      */
     @Test
-    @DisplayName("escrita DESLIGADA: aplicação é recusada sem tocar o disco, e o ensaio continua")
+    @DisplayName("escrita DESLIGADA: recusa tem nome próprio e não se disfarça de ensaio")
     void escritaDesligadaRecusaAntesDeAbrirArquivo() throws Exception {
         Path cache = escreverCacheZZ();
         String antes = Files.readString(cache);
@@ -164,17 +178,32 @@ class ReforcarTerminologiaCacheUseCaseTest {
                 new ValidadorCompatibilidadeObraContexto()),
             new EnforcadorTermosLore(), auditoria, telemetria, propriedadesComEscrita(false));
 
+        assertFalse(comEscritaDesligada.escritaNoAcervoAutorizada(),
+            "é esta a resposta que a borda HTTP usa para recusar antes de enfileirar");
+
         ResultadoReforcoTerminologia recusado =
             comEscritaDesligada.executar(temp.resolve("cache"), null, true);
 
         assertEquals(antes, Files.readString(cache), "recusa não pode tocar o disco");
-        assertEquals(1, recusado.falhas(), "recusa é falha visível, não silêncio");
         assertEquals(0, recusado.arquivosAnalisados(), "recusou ANTES de abrir qualquer arquivo");
-        assertEquals("CONCLUIDO_COM_FALHAS", recusado.status());
+        assertEquals(ModoReforcoTerminologia.RECUSADO_POR_CONFIG, recusado.modo());
+        assertEquals("RECUSADO_ESCRITA_DESLIGADA", recusado.status(),
+            "o desfecho tem nome próprio — não é ensaio nem lote com arquivo quebrado");
+        assertEquals(0, recusado.falhas(),
+            "recusa por configuração é a trava funcionando; falha é arquivo que quebrou");
+        assertFalse(recusado.aplicado(), "nada foi escrito");
+
+        String relatorio = telemetria.publicacoes.get(0).relatorio();
+        assertFalse(relatorio.contains("ENSAIO"),
+            () -> "uma aplicação recusada não pode se apresentar como ensaio: " + relatorio);
+        assertTrue(relatorio.contains("correcao-cache.reforco-terminologia-aplicar-habilitado"),
+            () -> "o relatório tem de dizer o que ligar, senão o motivo real fica só no log: "
+                + relatorio);
 
         ResultadoReforcoTerminologia ensaio =
             comEscritaDesligada.ensaiar(temp.resolve("cache"), null);
         assertEquals(4, ensaio.falasAlteradas(), "o ensaio é read-only e não depende da flag");
+        assertEquals(ModoReforcoTerminologia.ENSAIO, ensaio.modo());
     }
 
     /**

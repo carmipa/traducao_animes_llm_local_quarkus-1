@@ -174,4 +174,46 @@ class DetectorRetraducaoEmMassaServiceTest {
             "os 35 comentários e a linha em branco não são auditáveis");
         assertTrue(d.deveBloquear(), "25 de 25 bloqueia; se os comentários contassem, não bloquearia");
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reproduz o episódio 02 do Gundam 08th MS Team como ele estava em
+     * 2026-07-28 — 262 falas de diálogo traduzidas e 70 linhas de estilo {@code Song ENG} em inglês,
+     * que é como a letra do OP/ED DEVE ficar enquanto a fatia {@code traducaoKaraoke} não a assume.
+     *
+     * <p>Naquele dia o arquivo foi BLOQUEADO: as 70 linhas de música eram exatamente as 70 "falas
+     * iguais ao original" de 335 auditáveis (21%), e o bloqueio impediu que qualquer uma das 262
+     * falas de diálogo fosse revisada. Aconteceu em 10 dos 13 episódios.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: música não entra no numerador NEM no denominador. Contar dos dois
+     * lados manteria a proporção e o bloqueio; contar só no denominador mascararia arquivo
+     * realmente não traduzido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se a música voltar à contagem, o teste bloqueia um arquivo
+     * cujas 262 falas estão todas traduzidas.
+     */
+    @Test
+    @DisplayName("letra de música em inglês não bloqueia arquivo de diálogo traduzido")
+    void musicaEmInglesNaoContaComoArquivoNaoTraduzido() {
+        Map<Integer, String> originais = new HashMap<>();
+        List<EventoLegenda> eventos = new ArrayList<>();
+        int indice = 0;
+        for (int i = 0; i < 262; i++, indice++) {
+            eventos.add(dialogo(indice, "O comandante mandou sair agora, número " + i + "."));
+            originais.put(indice, fraseInglesa(i));
+        }
+        for (int i = 0; i < 70; i++, indice++) {
+            String letra = "You see the dream shining within the storm, verse " + i + ".";
+            eventos.add(new EventoLegenda(indice, "Dialogue", "Song ENG", "", letra));
+            originais.put(indice, letra);
+        }
+        DocumentoLegenda doc = new DocumentoLegenda("[Events]", eventos, "\n", false);
+
+        DiagnosticoRetraducao d = detector.diagnosticar(doc, originais, CONTEXTO);
+
+        assertEquals(262, d.falasAuditaveis(),
+            "as 70 linhas de música estão fora do escopo desta etapa e não são auditáveis");
+        assertEquals(0, d.falasNaoTraduzidas());
+        assertFalse(d.deveBloquear(),
+            "as 262 falas de diálogo estão traduzidas; bloquear aqui impede a revisão de todas elas");
+    }
 }
