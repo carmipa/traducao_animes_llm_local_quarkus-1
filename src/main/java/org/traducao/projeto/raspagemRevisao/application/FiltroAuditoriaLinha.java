@@ -56,6 +56,28 @@ public class FiltroAuditoriaLinha {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a triagem COMPLETA de uma linha — estrutura e conteúdo juntos. Responde
+     * a única pergunta que o laço de revisão precisa fazer antes de qualquer trabalho: esta linha
+     * entra?
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as checagens estruturais (não é diálogo, texto nulo, texto em
+     * branco) vêm ANTES das de conteúdo, e não por estilo: {@link #deveIgnorar} assume texto
+     * utilizável. No laço, estas três eram {@code if}s separados com desfecho IDÊNTICO — manter a
+     * fala e seguir —, e três formas de dizer a mesma coisa é onde nasce a divergência.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; na dúvida, IGNORA.
+     *
+     * @param evento a linha da legenda
+     * @return {@code true} se a linha NÃO deve entrar na revisão
+     */
+    public boolean deveIgnorarLinha(EventoLegenda evento) {
+        if (!evento.isDialogo() || evento.texto() == null || evento.texto().isBlank()) {
+            return true;
+        }
+        return deveIgnorar(evento, evento.texto());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: exclui da revisão linguística elementos estruturais, desenhos, estilos
      * ignorados e karaokê que não representam diálogo PT-BR.
      *

@@ -35,38 +35,41 @@ class GuardaIntegridadeRevisaoLegendasTest {
      * de uso não participam dela e ficam nulas de propósito — se alguma passar a ser exigida, este
      * teste falha alto em vez de mascarar o acoplamento novo.
      */
-    private final RevisarLegendasUseCase guarda = new RevisarLegendasUseCase(
-        null, null, null, null, null, null, null, null,
-        new ProtecaoLegendaAssService(),  // 9 de 16: o unico colaborador que a guarda usa
-        null, null, null, null, null, null, null);
+    /**
+     * A guarda mudou de casa na FASE 4: vive junto do saneamento de karaokê, que e quem pode
+     * esvaziar a fala. Antes este teste construia o caso de uso INTEIRO com dezesseis
+     * argumentos para alcancar um metodo que precisa de UM colaborador.
+     */
+    private final PreparadorFalaRevisao guarda =
+        new PreparadorFalaRevisao(null, new ProtecaoLegendaAssService());
 
     @Test
     void acusaQuandoACorrecaoApagaUmaFalaComTexto() {
-        assertTrue(guarda.saneamentoEsvaziariaFala("Gai, eu localizei a Inori.", ""),
+        assertTrue(guarda.esvaziariaFala("Gai, eu localizei a Inori.", ""),
             "corrigir para vazio apaga a fala");
-        assertTrue(guarda.saneamentoEsvaziariaFala("{\\i1}Aguarda, eu chego.{\\i0}", "{\\i1}{\\i0}"),
+        assertTrue(guarda.esvaziariaFala("{\\i1}Aguarda, eu chego.{\\i0}", "{\\i1}{\\i0}"),
             "sobrar só tags, sem texto visível, também é apagar a fala");
-        assertTrue(guarda.saneamentoEsvaziariaFala("Certo, pessoal.", "   "),
+        assertTrue(guarda.esvaziariaFala("Certo, pessoal.", "   "),
             "só espaços é vazio visível");
     }
 
     @Test
     void permiteReescritaQueMantemTexto() {
-        assertFalse(guarda.saneamentoEsvaziariaFala("Minha pai precisa disso!", "Meu pai precisa disso!"),
+        assertFalse(guarda.esvaziariaFala("Minha pai precisa disso!", "Meu pai precisa disso!"),
             "correção legítima de concordância continua permitida");
-        assertFalse(guarda.saneamentoEsvaziariaFala("{\\an8}Roger.", "{\\an8}Entendido."),
+        assertFalse(guarda.esvaziariaFala("{\\an8}Roger.", "{\\an8}Entendido."),
             "troca de palavra preservando tag é permitida");
-        assertFalse(guarda.saneamentoEsvaziariaFala("Gai—", "Gai..."),
+        assertFalse(guarda.esvaziariaFala("Gai—", "Gai..."),
             "só pontuação, mas ainda há texto");
     }
 
     @Test
     void naoAcusaQuandoOOriginalJaEraVazio() {
-        assertFalse(guarda.saneamentoEsvaziariaFala("", ""),
+        assertFalse(guarda.esvaziariaFala("", ""),
             "não há fala a proteger");
-        assertFalse(guarda.saneamentoEsvaziariaFala("{\\pos(1,2)}", ""),
+        assertFalse(guarda.esvaziariaFala("{\\pos(1,2)}", ""),
             "linha só de tags (sem texto visível) não tinha o que proteger");
-        assertFalse(guarda.saneamentoEsvaziariaFala(null, null), "nulos degradam para vazio");
+        assertFalse(guarda.esvaziariaFala(null, null), "nulos degradam para vazio");
     }
 
     /**
@@ -76,7 +79,7 @@ class GuardaIntegridadeRevisaoLegendasTest {
      */
     @Test
     void protegeAteConteudoDeDesenhoVetorial() {
-        assertTrue(guarda.saneamentoEsvaziariaFala("{\\p1}m 0 0 l 10 10", ""),
+        assertTrue(guarda.esvaziariaFala("{\\p1}m 0 0 l 10 10", ""),
             "os comandos de desenho ficam fora das chaves e contam como conteúdo — melhor preservar");
     }
 }
