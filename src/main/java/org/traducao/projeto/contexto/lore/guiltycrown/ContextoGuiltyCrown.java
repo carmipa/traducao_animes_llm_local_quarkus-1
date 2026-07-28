@@ -52,7 +52,7 @@ public class ContextoGuiltyCrown implements ProvedorContexto {
 
         === Roster — Funeral Parlor ===
         - Shu Ouma (m) — herda Void Genome; King's Power.
-        - Inori Yuzuriha (f) — cantora; parceira de Shu; tambem Crow no palco quando aparecer.
+        - Inori Yuzuriha (f) — cantora; parceira de Shu.
         - Gai Tsutsugami (m) — lider; Undertaker.
         - Ayase Shinomiya (f) — piloto de Endlave (cadeira de rodas).
         - Tsugumi (f) — hacker / suporte.
@@ -74,8 +74,14 @@ public class ContextoGuiltyCrown implements ProvedorContexto {
 
         === Regras duras ===
         - Funeral Parlor ≠ Undertaker; Void/Void Genome/Endlave/Lost Christmas/Guilty Crown oficiais.
-        - Anti Bodies ≠ Anticorpos; Da'ath mantem apostrofo; Crow e persona de palco de Inori.
-        - Tom: acao, idol/cancao (Inori/Crow), drama adolescente, opressao politica, biologia distopica.
+        - Anti Bodies ≠ Anticorpos; Da'ath mantem apostrofo.
+
+        === Inori e Crow: dois nomes, nenhuma substituicao ===
+        - Original "Inori" -> saida "Inori".
+        - Original "Crow"  -> saida "Crow".
+        - Crow e o nome artistico de Inori no palco. Isso serve para ENTENDER a cena, nao para
+          escolher o nome: se o original nao diz "Crow", a traducao nao introduz "Crow".
+        - Tom: acao, idol/cancao, drama adolescente, opressao politica, biologia distopica.
         """;
 
     private static final String PROMPT = ContextoPrompt.montar("Guilty Crown", LORE);

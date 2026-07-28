@@ -42,7 +42,7 @@ public class ContextoGundamZeta implements ProvedorContexto {
 
         === Roster — AEUG / Argama / Karaba ===
         - Kamille Bidan (m — pronomes masculinos; piada de confusao de genero);
-          Quattro Bajeena / Char Aznable (m — NUNCA Quatro); Bright Noa (m);
+          Quattro Bajeena / Char Aznable (m); Bright Noa (m);
           Emma Sheen (f); Fa Yuiry (f); Reccoa Londe (f — defeita aos Titans depois);
           Katz Kobayashi (m); Henken Bekkener (m); Astonaige Medoz (m);
           Apolly Bay (m); Roberto (m); Torres (m); Wong Lee (m).
@@ -72,9 +72,15 @@ public class ContextoGundamZeta implements ProvedorContexto {
           Psycho Gundam / Psycho Gundam Mk-II.
         - Axis: Qubeley (Haman); Gaza-C quando aparecer.
 
+        === Tres superficies parecidas, tres coisas diferentes ===
+        - Original "Four"    -> saida "Four".     Personagem: Four Murasame.
+        - Original "Quattro" -> saida "Quattro".  Personagem: Quattro Bajeena / Char.
+        - Original "four"    -> saida "quatro".   Numeral.
+        - Nao troque o token do original pelo nome de OUTRO personagem.
+
         === Regras duras ===
-        - Titans nao vira Titãs; Quattro nao vira Quatro; Axis nao vira Eixo;
-          Hyaku Shiki nao vira Cem Estilos; The O nao vira O; Newtype nao vira Novo Tipo.
+        - Titans nao vira Titãs; Axis nao vira Eixo; Hyaku Shiki nao vira Cem Estilos;
+          The O nao vira O; Newtype nao vira Novo Tipo.
         - Kamille masculino; Quattro estrategico; Titans autoritarios; Scirocco manipulador;
           Haman fria/regente Axis.
         """;
