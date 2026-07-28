@@ -63,7 +63,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("Modo Google: cabeçalho, rótulo e ordem das linhas idênticos aos de antes da extração")
     void relatorioDoModoGoogle() {
         servico.registrar(Path.of("C:", "animes", "pt"), 90_000,
-            3, 12, 7, 400, 5, 5, ModoRevisaoLegendas.GOOGLE, List.of());
+            3, 12, 7, 400, 5, 5, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
         assertTrue(r.startsWith("""
@@ -90,6 +90,7 @@ class RelatorioRevisaoServiceTest {
             "REVISÃO DE LEGENDAS (.ass)",
             "==========================",
             "Pasta: <caminho>",
+            "Lore ativa: gundam_zeta",
             "Duração: 1min 30s",
             "Arquivos analisados: 3",
             "Falas auditadas: 400",
@@ -100,6 +101,9 @@ class RelatorioRevisaoServiceTest {
             "",
             "DETALHES POR OCORRÊNCIA",
             "=======================",
+            "Correções detalhadas abaixo: 0 de 7.",
+            "Correção que repete uma fala já corrigida no mesmo arquivo reaproveita a anterior"
+                + " e não gera entrada nova — a evidência está na primeira ocorrência.",
             "Nenhuma ocorrência detalhada registrada.",
             ""), linhas,
             "o relatório inteiro, linha a linha, como era antes da extração");
@@ -109,7 +113,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("Modo LLM: cabeçalho e rótulo próprios — os dois modos não se confundem no histórico")
     void relatorioDoModoLlm() {
         servico.registrar(Path.of("C:", "animes", "pt"), 5_000,
-            1, 2, 2, 10, 0, 0, ModoRevisaoLegendas.LLM_CONCORDANCIA, List.of());
+            1, 2, 2, 10, 0, 0, ModoRevisaoLegendas.LLM_CONCORDANCIA, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
         assertTrue(r.startsWith("""
@@ -126,8 +130,8 @@ class RelatorioRevisaoServiceTest {
     @Test
     @DisplayName("Sem ocorrências, a seção de detalhes aparece dizendo isso — não some")
     void semDetalhesAsecaoContinuaVisivel() {
-        String vazio = RelatorioRevisaoService.formatarDetalhes(List.of());
-        String nulo = RelatorioRevisaoService.formatarDetalhes(null);
+        String vazio = RelatorioRevisaoService.formatarDetalhes(List.of(), 0);
+        String nulo = RelatorioRevisaoService.formatarDetalhes(null, 0);
 
         assertTrue(vazio.contains("DETALHES POR OCORRÊNCIA"));
         assertTrue(vazio.contains("Nenhuma ocorrência detalhada registrada."),
@@ -142,7 +146,7 @@ class RelatorioRevisaoServiceTest {
             List.of("Concordância de gênero"), null, "She is tired.", "ele está cansado.",
             "ela está cansada.");
 
-        String texto = RelatorioRevisaoService.formatarDetalhes(List.of(d));
+        String texto = RelatorioRevisaoService.formatarDetalhes(List.of(d), 0);
 
         assertTrue(texto.contains("Arquivo: ep01.ass"));
         assertTrue(texto.contains("Evento: 42 | Estilo: Default"));
@@ -195,5 +199,71 @@ class RelatorioRevisaoServiceTest {
         assertEquals("59s", RelatorioRevisaoService.formatarDuracao(59_999));
         assertEquals("1min 0s", RelatorioRevisaoService.formatarDuracao(60_000));
         assertEquals("2min 5s", RelatorioRevisaoService.formatarDuracao(125_000));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o relatório precisa dizer QUAL lore rodou. Ela decide quais nomes
+     * ficam protegidos do tradutor externo, e a rodada de 2026-07-28 em Zeta gravou 1024 linhas
+     * sem deixar rastro disso — quando {@code "The O"} saiu como {@code "O O"}, não havia como
+     * saber, pelos artefatos, se a lore selecionada tinha esse termo.
+     */
+    @Test
+    @DisplayName("a lore ativa fica registrada no relatório")
+    void loreAtivaApareceNoRelatorio() {
+        servico.registrar(Path.of("C:", "animes", "pt"), 1_000,
+            1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
+
+        assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: gundam_zeta\n"),
+            "sem a lore no relatório não há como auditar a proteção de nomes depois");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lore ausente tem de ficar VISÍVEL, não virar linha em branco que
+     * passa por "não registrado" e por "não havia lore" ao mesmo tempo.
+     */
+    @Test
+    @DisplayName("sem lore selecionada o relatório diz (nenhuma), não fica em branco")
+    void loreAusenteApareceComoNenhuma() {
+        servico.registrar(Path.of("C:", "animes", "pt"), 1_000,
+            1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "  ", List.of());
+
+        assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: (nenhuma)\n"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha o silêncio medido em 2026-07-28 — o cabeçalho dizia "1024
+     * corrigidas" e o detalhe trazia 519, sem nada explicando a diferença. Quem lia não tinha
+     * como saber se faltava trilha ou se a contagem estava errada (não estava: correção que
+     * repete fala já corrigida reaproveita a anterior e não gera entrada nova).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só conta como coberta a ocorrência de correção aplicada;
+     * bloqueio e recusa estão na mesma lista e não podem inflar o número. Quando o detalhe cobre
+     * tudo, a linha não aparece — nada a explicar.
+     */
+    @Test
+    @DisplayName("o detalhe declara quantas correções ele cobre quando não cobre todas")
+    void detalheDeclaraCoberturaParcial() {
+        DetalheRevisao corrigida = new DetalheRevisao("ep01.ass", 7, "Dialogue",
+            "CORRIGIDA_GOOGLE", List.of("Resíduo gringo"), "ok", "Hello", "Hello", "Olá");
+        DetalheRevisao bloqueada = new DetalheRevisao("ep02.ass", -1, "ARQUIVO",
+            "BLOQUEADO_RETRADUCAO_EM_MASSA", List.of("demais iguais"), "diag", "—", "—", "—");
+
+        String texto = RelatorioRevisaoService.formatarDetalhes(List.of(corrigida, bloqueada), 5);
+
+        assertTrue(texto.contains("Correções detalhadas abaixo: 1 de 5."),
+            "o bloqueio não pode contar como correção coberta:\n" + texto);
+        assertTrue(texto.contains("reaproveita a anterior"), "o mecanismo tem de estar explicado");
+    }
+
+    @Test
+    @DisplayName("quando o detalhe cobre todas as correções, não há linha de cobertura")
+    void coberturaTotalNaoImprimeLinha() {
+        DetalheRevisao corrigida = new DetalheRevisao("ep01.ass", 7, "Dialogue",
+            "CORRIGIDA_GOOGLE", List.of("Resíduo gringo"), "ok", "Hello", "Hello", "Olá");
+
+        String texto = RelatorioRevisaoService.formatarDetalhes(List.of(corrigida), 1);
+
+        assertFalse(texto.contains("Correções detalhadas abaixo"),
+            "sem lacuna não há o que explicar:\n" + texto);
     }
 }

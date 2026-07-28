@@ -223,7 +223,7 @@ public class RevisarLegendasUseCase {
                     + AnsiCores.RESET);
                 out("Relatório salvo em: " + relatorio.registrar(
                     pastaLegendasPt, System.currentTimeMillis() - inicioMs,
-                    0, 0, 0, 0, 0, 0, modo, detalhesRevisao));
+                    0, 0, 0, 0, 0, 0, modo, contextoId, detalhesRevisao));
                 return new ResultadoRevisaoLegendas(0, 0, 0, 0);
             }
 
@@ -263,7 +263,7 @@ public class RevisarLegendasUseCase {
         out("Relatório salvo em: " + relatorio.registrar(
             pastaLegendasPt, System.currentTimeMillis() - inicioMs,
             lote.arquivos(), lote.problemas(), lote.corrigidas(), lote.auditadas(),
-            lote.semOriginal(), lote.pendentes(), modo, detalhesRevisao));
+            lote.semOriginal(), lote.pendentes(), modo, contextoId, detalhesRevisao));
         return new ResultadoRevisaoLegendas(
             lote.arquivos(), lote.corrigidas(), lote.problemas(), lote.pendentes());
     }

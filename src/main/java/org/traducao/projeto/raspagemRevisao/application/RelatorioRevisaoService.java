@@ -56,6 +56,8 @@ public class RelatorioRevisaoService {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: a porta absorve falha de I/O; devolve a pasta consultada.
      *
+     * @param contextoId lore ativa da rodada; sem ela não há como saber depois quais nomes
+     *                   estavam protegidos do tradutor externo
      * @return a pasta onde os relatórios daquela entrada são gravados, para o chamador informar
      */
     public Path registrar(
@@ -68,6 +70,7 @@ public class RelatorioRevisaoService {
         int semOriginal,
         int pendentes,
         ModoRevisaoLegendas modo,
+        String contextoId,
         List<DetalheRevisao> detalhes
     ) {
         boolean llm = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA;
@@ -82,6 +85,7 @@ public class RelatorioRevisaoService {
         String relatorio = """
             %s
             Pasta: %s
+            Lore ativa: %s
             Duração: %s
             Arquivos analisados: %d
             Falas auditadas: %d
@@ -92,6 +96,7 @@ public class RelatorioRevisaoService {
             """.formatted(
             cabecalho,
             pastaLegendasPt.toAbsolutePath(),
+            contextoId == null || contextoId.isBlank() ? "(nenhuma)" : contextoId,
             formatarDuracao(duracaoMs),
             arquivos,
             auditadas,
@@ -101,7 +106,7 @@ public class RelatorioRevisaoService {
             corrigidas,
             pendentes);
 
-        relatorio += formatarDetalhes(detalhes);
+        relatorio += formatarDetalhes(detalhes, corrigidas);
         telemetria.registrarComRelatorio(
             nomeOperacao, pastaLegendasPt.toAbsolutePath().toString(),
             llm ? "revisao_concordancia_legendas" : "revisao_legendas",
@@ -126,11 +131,45 @@ public class RelatorioRevisaoService {
      * <p>INVARIANTES DO DOMÍNIO: cada item identifica arquivo, evento, resultado, problemas e
      * proposta; quebras internas são escapadas para que uma ocorrência fique legível num bloco só.
      *
+     * <p>A seção também declara quantas correções NÃO estão listadas. Uma correção reaproveitada
+     * da memória do arquivo — mesma fala repetida, já corrigida antes na sessão — não gera
+     * {@link DetalheRevisao}, por decisão registrada em {@code CadeiaCorrecaoFala}: a evidência da
+     * primeira ocorrência já consta. O problema era o silêncio: na rodada de 2026-07-28 o
+     * cabeçalho dizia "1024 corrigidas" e o detalhe trazia 519, sem nada explicando os 505 de
+     * diferença (medido depois: 553 falas repetidas dentro dos mesmos arquivos). Quem lê o
+     * relatório não tinha como saber se faltava trilha ou se a contagem estava errada.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula ou vazia gera seção explícita "nenhuma
      * ocorrência" em vez de sumir — a ausência de trilha tem de ser visível.
      */
-    static String formatarDetalhes(List<DetalheRevisao> detalhes) {
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz quantas correções o detalhe cobre, para que a diferença entre o
+     * total do cabeçalho e o que está listado deixe de parecer erro de contagem.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só conta como "detalhada" a ocorrência cujo resultado indica
+     * correção aplicada — bloqueios e recusas também estão na lista e não podem inflar a
+     * cobertura. A linha declara o NÚMERO (que é fato) e explica o MECANISMO em geral, sem
+     * afirmar a causa de cada uma das que faltam: quem contabiliza reaproveitamento é a cadeia
+     * de correção, não o relatório, e inventar aqui uma causa que não foi medida seria pior que
+     * o silêncio que esta linha veio corrigir. Diferença zero não imprime nada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula é tratada como vazia; não lança.
+     */
+    private static String resumoDeCobertura(List<DetalheRevisao> detalhes, int corrigidas) {
+        long detalhadas = detalhes == null ? 0L : detalhes.stream()
+            .filter(d -> d.resultado() != null && d.resultado().startsWith("CORRIGIDA"))
+            .count();
+        if (corrigidas - detalhadas <= 0) {
+            return "";
+        }
+        return "Correções detalhadas abaixo: " + detalhadas + " de " + corrigidas + ".\n"
+            + "Correção que repete uma fala já corrigida no mesmo arquivo reaproveita a anterior"
+            + " e não gera entrada nova — a evidência está na primeira ocorrência.\n";
+    }
+
+    static String formatarDetalhes(List<DetalheRevisao> detalhes, int corrigidas) {
         StringBuilder texto = new StringBuilder("\nDETALHES POR OCORRÊNCIA\n=======================\n");
+        texto.append(resumoDeCobertura(detalhes, corrigidas));
         if (detalhes == null || detalhes.isEmpty()) {
             return texto.append("Nenhuma ocorrência detalhada registrada.\n").toString();
         }
