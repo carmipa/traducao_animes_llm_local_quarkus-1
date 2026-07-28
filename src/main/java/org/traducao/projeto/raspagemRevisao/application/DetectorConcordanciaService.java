@@ -198,6 +198,14 @@ public class DetectorConcordanciaService {
     private static final Pattern SUJEITO_ELA_COM_HE =
         Pattern.compile("\\bela\\s+(" + VERBOS_SUJEITO + ")\\b", FLAGS);
 
+    // SUJEITO INICIAL da fala, ignorando aspas, travessão e reticências de abertura.
+    // A posição é a evidência: quem abre a frase é o sujeito, e sujeito trocado de gênero é
+    // divergência objetiva — não depende de o verbo estar numa lista curada.
+    private static final Pattern ABERTURA_ELE = Pattern.compile("^[\\p{Punct}\\s]*ele\\b", FLAGS);
+    private static final Pattern ABERTURA_ELA = Pattern.compile("^[\\p{Punct}\\s]*ela\\b", FLAGS);
+    private static final Pattern ABERTURA_SHE = Pattern.compile("^[\\p{Punct}\\s]*she\\b", FLAGS);
+    private static final Pattern ABERTURA_HE = Pattern.compile("^[\\p{Punct}\\s]*he\\b", FLAGS);
+
     // "ele"/"ela" como objeto direto/oblíquo (vi ele, com ela, para ele...) é uso
     // pronominal correto em PT-BR mesmo quando o original só menciona o outro
     // gênero (ex.: "She told him" -> "Ela disse a ele"). Por isso esses usos são
@@ -315,10 +323,45 @@ public class DetectorConcordanciaService {
             }
         }
 
+        // SUJEITO INICIAL trocado — regra por POSIÇÃO, não por presença de pronome.
+        //
+        // Nasceu de uma medição incômoda. Ao fechar o guarda da regra larga abaixo (que passou a
+        // exigir ausência de QUALQUER referência masculina), o acerto real do run de 2026-07-28
+        // deixava de ser detectado:
+        //
+        //   EN "She's got a violent older brother, and I happened to know her, so..."
+        //   PT "Ele tem um irmão mais velho violento, ..."     <- "Ele" está errado
+        //
+        // "brother" ancora o masculino e cala a regra larga; SUJEITO_ELE_COM_SHE não pega porque
+        // "tem" não está em VERBOS_SUJEITO — lista curada de propósito, para não acusar meia
+        // legenda. Sem esta regra, o conserto trocaria 6 falsos positivos por 1 defeito real
+        // invisível, o que não é conserto.
+        //
+        // Quem abre a fala é o sujeito. Sujeito de gênero trocado é divergência objetiva e não
+        // depende de o verbo estar em lista nenhuma.
+        if (ABERTURA_SHE.matcher(original).find() && ABERTURA_ELE.matcher(texto).find()) {
+            motivos.add("Fala começa com 'she' no original e com 'ele' na tradução: sujeito trocado");
+        }
+        if (ABERTURA_HE.matcher(original).find() && ABERTURA_ELA.matcher(texto).find()) {
+            motivos.add("Fala começa com 'he' no original e com 'ela' na tradução: sujeito trocado");
+        }
+
         if (SHE_EN.matcher(original).find()) {
             adicionarSeEncontrado(motivos, SUJEITO_ELE_COM_SHE, texto,
                 "Original usa 'she', mas sujeito da tradução é 'ele'");
-            if (!HE_EN.matcher(original).find() && ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()) {
+            // O guarda tem que cobrir TODA referência masculina, não só o pronome "he" — a
+            // mensagem promete "sem referência masculina" e precisa ser verdade. Com \bhe\b a
+            // fala abaixo disparava, porque "him" não casa com "he":
+            //
+            //   EN  "Oh, I know about him!  Hiromi said she saw it all."
+            //   PT  "Eu sei sobre ele! Hiromi disse que viu tudo."      <- CORRETO
+            //   virou "Eu sei sobre ela! ..."                           <- regressão gravada
+            //
+            // Medido em 2026-07-28 no cache de Guilty Crown (07_Track4, evento 10): a proposta
+            // do LLM foi aceita porque o motivo parecia legítimo. A fala tem DUAS referências de
+            // gênero e o detector enxergava só uma.
+            if (!PRONOME_MASCULINO_EN.matcher(original).find()
+                && ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'");
             }
             if (PARTIC_MASC_APOS_VERBO.matcher(texto).find()
@@ -330,7 +373,11 @@ public class DetectorConcordanciaService {
         if (HE_EN.matcher(original).find()) {
             adicionarSeEncontrado(motivos, SUJEITO_ELA_COM_HE, texto,
                 "Original usa 'he', mas sujeito da tradução é 'ela'");
-            if (!SHE_EN.matcher(original).find() && ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()) {
+            // Mesma correção do lado espelhado: \bshe\b não casa "her"/"hers", então
+            // "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem
+            // afirmava não haver referência feminina no original.
+            if (!PRONOME_FEMININO_EN.matcher(original).find()
+                && ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'");
             }
             if (PARTIC_FEM_APOS_VERBO.matcher(texto).find()
