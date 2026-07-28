@@ -17,12 +17,12 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-    <link rel="stylesheet" href="css/base.css?v=5.0">
+    <link rel="stylesheet" href="css/base.css?v=5.1">
     <link rel="stylesheet" href="inicio/inicio.css?v=4.0">
     <link rel="stylesheet" href="analise/analise.css?v=5.0">
     <link rel="stylesheet" href="extracao/extracao.css?v=4.0">
     <link rel="stylesheet" href="traducao/traducao.css?v=4.0">
-    <link rel="stylesheet" href="correcao/correcao.css?v=4.0">
+    <link rel="stylesheet" href="correcao/correcao.css?v=4.1">
     <link rel="stylesheet" href="auditorConteudoLegendas/auditorConteudoLegendas.css?v=4.2">
     <link rel="stylesheet" href="revisao/revisao.css?v=4.2">
     <link rel="stylesheet" href="cura/cura.css?v=4.0">
@@ -837,13 +837,64 @@
                                 </div>
                             </div>
 
+                            <!-- Espelho do alvo: a operação não é reversível, então o que ela vai
+                                 atingir precisa estar escrito na tela, não deduzido do campo vazio. -->
+                            <div class="op-alvo" id="correcao-alvo" role="status" aria-live="polite">
+                                <span class="material-symbols-outlined op-alvo-icone">my_location</span>
+                                <span class="op-alvo-texto" id="correcao-alvo-texto"></span>
+                            </div>
+
                             <div class="correcao-actions">
+                                <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-correcao"
+                                    data-tooltip="Limpa todos os campos e oculta o cartão do anime">
+                                    <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                                    <span>Limpar Campos</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- CAIXA 2 — higienizar o cache: três passos que só fazem sentido nesta ordem.
+                         Limpar abre as lacunas, o Google preenche, o LLM revisa o que sobrou. -->
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">mop</span>
+                            <h3>Higienizar o cache</h3>
+                            <span class="op-caixa-etiqueta">rode na ordem</span>
+                        </div>
+                        <p class="op-caixa-desc">Os três passos agem sobre o alvo escolhido acima e cada um gera backup
+                            antes de escrever. Fora de ordem eles ainda funcionam, mas rendem menos: o Google só preenche
+                            o que a limpeza esvaziou.</p>
+
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-num">1</span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Limpar falhas do cache</span>
+                                    <span class="op-desc">Invalida fallbacks e respostas defeituosas para que voltem à
+                                        fila. Nomes e termos autorizados pela lore são preservados.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">escreve no cache</span>
+                                    </span>
+                                </div>
                                 <button type="button" class="btn btn-secondary btn-yellow" id="btn-limpar-cache"
                                     data-tooltip="Invalida somente fallbacks e respostas defeituosas; nomes e termos autorizados pela lore são preservados.">
                                     <span class="material-symbols-outlined btn-icon">delete_sweep</span>
-                                    <span>Limpar Falhas do Cache</span>
+                                    <span>Limpar falhas</span>
                                 </button>
+                            </li>
 
+                            <li class="op-linha">
+                                <span class="op-num">2</span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Preencher lacunas via Google</span>
+                                    <span class="op-desc">Envia ao Google Translate somente as falas que ficaram vazias
+                                        ou inválidas. É contingência online, não o tradutor principal.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">escreve no cache</span>
+                                        <span class="op-selo op-selo-rede">precisa de internet</span>
+                                    </span>
+                                </div>
                                 <button type="button" class="btn btn-primary btn-yellow" id="btn-scraping-google"
                                     data-tooltip="Preenche traduções vazias ou inválidas enviando somente essas falas ao Google Translate online.">
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
@@ -853,9 +904,21 @@
                                         </path>
                                         <path d="M2 12h20"></path>
                                     </svg>
-                                    <span>Corrigir via Scraping Google</span>
+                                    <span>Preencher via Google</span>
                                 </button>
+                            </li>
 
+                            <li class="op-linha">
+                                <span class="op-num">3</span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Revisar concordância</span>
+                                    <span class="op-desc">Gênero, pronomes, artigos e tratamentos nas falas suspeitas,
+                                        com o LLM local e a lore registrada em cada arquivo.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">escreve no cache</span>
+                                        <span class="op-selo op-selo-llm">LLM local</span>
+                                    </span>
+                                </div>
                                 <button type="button" class="btn btn-primary btn-purple" id="btn-revisar-cache"
                                     data-tooltip="Revisa apenas traduções PT-BR suspeitas com o LLM local e a lore registrada em cada arquivo.">
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
@@ -863,28 +926,64 @@
                                         <path d="M12 20h9"></path>
                                         <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                                     </svg>
-                                    <span>Revisar Concordância do Cache</span>
+                                    <span>Revisar concordância</span>
                                 </button>
+                            </li>
+                        </ol>
+                    </div>
 
-                                <button type="button" class="btn btn-primary" id="btn-reforcar-terminologia-ensaio"
+                    <!-- CAIXA 3 — terminologia: caixa SEPARADA de propósito. Não pertence à sequência
+                         acima e age em lote sobre trabalho já pronto; por isso o aplicar nasce travado. -->
+                    <div class="glass-card op-caixa op-caixa-perigo">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">match_case</span>
+                            <h3>Terminologia oficial da lore</h3>
+                            <span class="op-caixa-etiqueta op-caixa-etiqueta-perigo">ensaio antes</span>
+                        </div>
+                        <p class="op-caixa-desc">Restaura os termos oficiais de cada obra no cache <strong>já
+                            gravado</strong>. Não faz parte da sequência acima — é um passe à parte, em lote, sobre
+                            trabalho pronto. Por isso o aplicar só destrava depois de um ensaio.</p>
+
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-num">1</span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Ensaiar</span>
+                                    <span class="op-desc">Mede quantas vezes cada termo oficial seria restaurado e em
+                                        quais arquivos. Sai tudo no console abaixo.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">não escreve nada</span>
+                                    </span>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-cyan"
+                                    id="btn-reforcar-terminologia-ensaio"
                                     data-tooltip="ENSAIO: mede quantas vezes cada termo oficial da lore seria restaurado no cache já gravado. Não escreve nada.">
                                     <span class="material-symbols-outlined btn-icon">query_stats</span>
-                                    <span>Terminologia: Ensaiar</span>
+                                    <span>Ensaiar</span>
                                 </button>
+                            </li>
 
-                                <button type="button" class="btn btn-danger" id="btn-reforcar-terminologia-aplicar"
-                                    data-tooltip="APLICA a terminologia oficial ao cache já gravado, com backup e escrita atômica. Rode o ensaio antes.">
-                                    <span class="material-symbols-outlined btn-icon">published_with_changes</span>
-                                    <span>Terminologia: Aplicar</span>
-                                </button>
-
-                                <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-correcao"
-                                    data-tooltip="Limpa todos os campos e oculta o cartão do anime">
-                                    <span class="material-symbols-outlined btn-icon">delete_sweep</span>
-                                    <span>Limpar Campos</span>
-                                </button>
-                            </div>
-                        </form>
+                            <li class="op-linha">
+                                <span class="op-num">2</span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Aplicar ao cache</span>
+                                    <span class="op-desc">Grava as trocas que o ensaio mediu, com backup e escrita
+                                        atômica por arquivo.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-perigo">reescreve em lote</span>
+                                    </span>
+                                </div>
+                                <div class="op-acao-travada">
+                                    <button type="button" class="btn btn-danger"
+                                        id="btn-reforcar-terminologia-aplicar" disabled
+                                        data-tooltip="APLICA a terminologia oficial ao cache já gravado, com backup e escrita atômica. Rode o ensaio antes.">
+                                        <span class="material-symbols-outlined btn-icon">published_with_changes</span>
+                                        <span>Aplicar</span>
+                                    </button>
+                                    <span class="op-trava" id="op-trava-terminologia">Destrava após o ensaio</span>
+                                </div>
+                            </li>
+                        </ol>
                     </div>
 
                     <div class="glass-card console-card">
@@ -978,21 +1077,12 @@
                                             class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
                                 </div>
                             </div>
+                            <div class="op-alvo" id="revisao-alvo" role="status" aria-live="polite">
+                                <span class="material-symbols-outlined op-alvo-icone">my_location</span>
+                                <span class="op-alvo-texto" id="revisao-alvo-texto"></span>
+                            </div>
+
                             <div class="correcao-actions">
-                                <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
-                                    data-tooltip="Corrige concordância PT-BR (gênero, pronomes, artigos, tratamentos) via LLM local">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
-                                        stroke-width="2" fill="none">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                    </svg>
-                                    <span>Revisar Concordância (LLM)</span>
-                                </button>
-                                <button type="submit" class="btn btn-primary btn-green" id="btn-revisao-submit"
-                                    data-tooltip="Detecta inglês residual e re-traduz falas problemáticas via Google Translate">
-                                    <span>Corrigir via Scraping Google</span>
-                                    <span class="material-symbols-outlined btn-icon">play_arrow</span>
-                                </button>
                                 <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-revisao"
                                     data-tooltip="Limpa todos os campos e oculta o cartão do anime">
                                     <span class="material-symbols-outlined btn-icon">delete_sweep</span>
@@ -1000,6 +1090,76 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+
+                    <!-- CAIXA DE OPERAÇÕES — duas passadas INDEPENDENTES, não uma sequência.
+                         Por isso marcador de ícone e não número: numerar mentiria sobre a relação. -->
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">edit_note</span>
+                            <h3>Passadas de revisão</h3>
+                            <span class="op-caixa-etiqueta">independentes</span>
+                        </div>
+                        <p class="op-caixa-desc">As duas leem e gravam os <strong>próprios arquivos .ass</strong> — não o
+                            cache. Cada arquivo tocado ganha backup em <code>backups/revisao-legendas/</code> antes da
+                            escrita, e a primeira cópia da sessão nunca é sobrescrita.</p>
+
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">language</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Corrigir inglês residual (Google)</span>
+                                    <span class="op-desc">Acha falas que continuaram em inglês e as re-traduz pelo Google.
+                                        Uma guarda bloqueia o arquivo inteiro quando falas demais estão iguais ao original
+                                        — sinal de tradução que nunca rodou, não de resíduo.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                                        <span class="op-selo op-selo-rede">precisa de internet</span>
+                                    </span>
+                                </div>
+                                <!-- O atributo form= é obrigatório aqui: o botão saiu de dentro do
+                                     formulário para a caixa de operações, e sem ele o submit não dispara. -->
+                                <button type="submit" form="form-revisao" class="btn btn-primary btn-green"
+                                    id="btn-revisao-submit"
+                                    data-tooltip="Detecta inglês residual e re-traduz falas problemáticas via Google Translate">
+                                    <span>Corrigir com Google</span>
+                                    <span class="material-symbols-outlined btn-icon">play_arrow</span>
+                                </button>
+                            </li>
+
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Revisar concordância (LLM local)</span>
+                                    <span class="op-desc">Gênero, pronomes, artigos e tratamentos, usando a lore para saber
+                                        o gênero de cada personagem. Toda proposta passa por um portão que a descarta
+                                        quando não reduz o indício que a motivou.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                                        <span class="op-selo op-selo-llm">LLM local</span>
+                                    </span>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
+                                    data-tooltip="Corrige concordância PT-BR (gênero, pronomes, artigos, tratamentos) via LLM local">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                                        stroke-width="2" fill="none">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                    <span>Revisar concordância</span>
+                                </button>
+                            </li>
+                        </ol>
+
+                        <!-- Medido em 2026-07-28 no Zeta: das 519 correções aplicadas, 504 eram
+                             estilo "Song ENG". A varredura não distingue diálogo de letra de música. -->
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">lyrics</span>
+                            <span><strong>A varredura pega todos os estilos</strong>, inclusive as letras de abertura e
+                                encerramento. Se a legenda tem uma faixa de música em inglês (estilo
+                                <code>Song ENG</code>), ela será tratada como inglês residual e traduzida. Confira o
+                                relatório antes de dar a rodada por boa.</span>
+                        </p>
                     </div>
 
                     <div class="glass-card console-card">

@@ -6,3 +6,7 @@
 
 /* .correcao-actions (linha de botões) é compartilhada entre vários painéis
    do pipeline e está definida em css/base.css */
+
+/* As caixas de operação (.op-caixa, .op-linha, .op-selo, .op-alvo, .op-trava)
+   nasceram neste painel e foram promovidas a css/base.css quando a Revisão de
+   Legendas passou a usar o mesmo desenho. Uma implementação, dois painéis. */
