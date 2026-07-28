@@ -38,7 +38,13 @@ import org.traducao.projeto.contexto.domain.ProvedorContexto;
 public class ContextoGundamReconguistaFilme3 implements ProvedorContexto {
 
     /** VAZIA DE PROPOSITO — ver o Javadoc da classe antes de preencher. */
-    private static final String LORE = "";
+    private static final String LORE = """
+        - Obra: Gundam Reconguista in G III: Legacy from Space.
+        - Personagens: Bellri Zenam (homem), Aida Surugan/Aida Rayhunton (mulher), Raraiya Monday (mulher), Noredo Nug (mulher), Klim Nick (homem), Luin Lee/Mask (homem), Mick Jack (mulher), Cumpa Rusita (homem), Wilmit Zenam (mulher).
+        - Faccoes: Capital Tower, Capital Army, Ameria, Towasanga.
+        - Mobile suits e tecnologia: G-Self, G-Arcane, Montero, Mack Knife, Photon Battery.
+        - Termos do mundo: Capital Tower, Photon Battery, Regild Century, Towasanga, Towasangan, Rayhunton Code, Reconguista, Amerian Army. Mantenha nomes proprios em ingles/romanizados. Nao converter "Reconguista" para "Reconquista"; mantenha Reconguista.
+        """;
 
     private static final String PROMPT = ContextoPrompt.montar(
         "Gundam Reconguista in G III: Legacy from Space", LORE);
@@ -58,7 +64,17 @@ public class ContextoGundamReconguistaFilme3 implements ProvedorContexto {
      */
     @Override
     public Set<String> termosProtegidos() {
-        return new ContextoGundamReconguista().termosProtegidos();
+        Set<String> termos = new java.util.LinkedHashSet<>(
+            new ContextoGundamReconguista().termosProtegidos());
+        // Nomes que ESTE filme declara e o conjunto da serie nao conhece. Sem isto eles
+        // entrariam no prompt como elenco e ficariam SEM protecao contra localizacao --
+        // "Manny Ambassada" poderia voltar como "Embaixadora Manny". Lore que declara e
+        // protecao que nao cobre e o mesmo furo ja registrado na linha de mechas do
+        // Labyrinth of Time.
+        termos.addAll(Set.of(
+            "Amerian Army",
+            "Towasangan"));
+        return java.util.Collections.unmodifiableSet(termos);
     }
 
     /**
