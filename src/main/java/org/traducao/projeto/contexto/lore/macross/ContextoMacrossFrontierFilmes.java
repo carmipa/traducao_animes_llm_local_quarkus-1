@@ -1,9 +1,30 @@
 package org.traducao.projeto.contexto.lore.macross;
 
-import org.springframework.stereotype.Component;
 import org.traducao.projeto.contexto.domain.ContextoPrompt;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 
+/**
+ * PROPÓSITO DE NEGÓCIO: lore agregada dos filmes Macross Frontier (Itsuwari no Utahime /
+ * Itsuka no Tsubasa / Labyrinth of Time) — referência/agregadora, sem {@code @Component}
+ * (fora do registro CDI), pelo mesmo motivo de {@link ContextoMacrossDeltaFilmes}.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: preferir os contextos específicos
+ * ({@code macross_frontier_filme1} / {@code macross_frontier_filme2}) quando o arquivo for
+ * de um filme só. Oferecer a lore misturada no seletor convida a traduzir o primeiro filme
+ * com termos que só aparecem no segundo — que é exatamente o risco que a exclusão evita.
+ * Não entra no manifesto E7a.
+ *
+ * <p>Esta classe estava sem {@code @Component} e SEM esta explicação, mas COM o import da
+ * anotação sobrando — o que a fazia parecer anotação esquecida, e não exclusão deliberada.
+ * A ausência de documentação era o defeito; a ausência da anotação, não.
+ *
+ * <p>LACUNA CONHECIDA: "Labyrinth of Time" (o terceiro filme) não tem contexto próprio, então
+ * hoje só esta agregadora o cobre — e ela não é selecionável. Traduzi-lo cai no
+ * {@code macross_frontier} da série. Registrar ESTA classe não é a correção: seria dar ao
+ * operador uma lore de três filmes misturados. A correção é um contexto próprio para ele.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: sem I/O; mapa de terminologia imutável.
+ */
 public class ContextoMacrossFrontierFilmes implements ProvedorContexto {
 
     private static final String LORE = """

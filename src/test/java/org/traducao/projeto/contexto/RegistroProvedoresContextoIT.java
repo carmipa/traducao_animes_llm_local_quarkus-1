@@ -28,8 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code todosProvedoresContexto} para o peer {@code contexto} NÃO alterou o conjunto
  * injetado, a resolução do manager, a ordenação nem a seleção. O manager agora reside em
  * {@code contexto.infrastructure} e a lista é produzida por
- * {@code contexto.infrastructure.config.ContextoBeansConfig}. As 3 classes agregadoras
- * Macross sem {@code @Component} continuam fora do registro, mantendo exatamente 59 provedores.
+ * {@code contexto.infrastructure.config.ContextoBeansConfig}. As classes agregadoras Macross
+ * sem {@code @Component} continuam fora do registro, mantendo exatamente 59 provedores.
+ *
+ * <p>São DUAS, não três: {@code ContextoMacrossDeltaFilmes} e
+ * {@code ContextoMacrossFrontierFilmes} — 61 implementações de {@code ProvedorContexto} no
+ * código, 59 registradas. O texto dizia "3" e a divergência sobreviveu porque o número que o
+ * teste verifica é o 59, não a contagem de excluídas. Corrigido em 2026-07-27 ao conferir
+ * classe por classe; o terceiro era o stub {@code ContextoMacrossDYRL}, já apagado.
+ *
+ * <p>A exclusão é DELIBERADA e tem motivo de qualidade, escrito em
+ * {@code ContextoMacrossDeltaFilmes}: agregadora mistura a lore de filmes cujos termos NÃO se
+ * sobrepõem, e oferecê-la no seletor convida a traduzir um filme com termos do outro. Quem
+ * mexer aqui não deve "consertar" a ausência da anotação sem ler aquele Javadoc.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
