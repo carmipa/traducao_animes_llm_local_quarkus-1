@@ -124,6 +124,20 @@ public class CatalogoObras {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: os ids que esta tabela conhece, na ordem cronológica cadastrada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: existe para a catraca poder conferir a lista contra os
+     * provedores VIVOS. Alguns ids aqui não têm contexto de lore — são slots reservados com
+     * lore pendente, e a única coisa que registrava isso eram comentários no meio da lista,
+     * que nenhum teste lê. Expor a lista é o que transforma essa dívida em algo verificável.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve a lista imutável; nunca nula.
+     */
+    public List<String> idsCadastrados() {
+        return ORDEM_CRONOLOGICA;
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a franquia da obra, para virar o rótulo do {@code <optgroup>}.
      * <p>INVARIANTES DO DOMÍNIO: primeira palavra-chave encontrada no nome vence; obras sem
      * franquia conhecida (86, Guilty Crown) devolvem string vazia (viram opção solta).

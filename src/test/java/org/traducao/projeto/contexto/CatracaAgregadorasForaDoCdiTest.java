@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.revisaoLore.application.GerenciadorPromptRevisaoLore;
+import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
 
 import java.util.List;
 import java.util.Map;
@@ -85,9 +87,22 @@ class CatracaAgregadorasForaDoCdiTest {
     @Inject
     List<ProvedorContexto> provedores;
 
+    @Inject
+    GerenciadorPromptRevisaoLore catalogoRevisao;
+
+    private String acusar(String catalogo, List<String> intrusas) {
+        return intrusas.stream()
+            .map(id -> "\n  A lore agregada \"" + id + "\" ENTROU no registro CDI da " + catalogo + "."
+                + "\n    Motivo da exclusão: " + AGREGADORAS_FORA_DO_CDI.get(id)
+                + "\n    Use no lugar: " + String.join(", ", SUBSTITUTOS.get(id))
+                + "\n    O Javadoc da classe explica por que isso degrada a legenda. Leia ANTES"
+                + " de alterar este teste.")
+            .collect(Collectors.joining());
+    }
+
     @Test
-    @DisplayName("nenhuma agregadora entrou no registro CDI")
-    void agregadorasContinuamForaDoRegistro() {
+    @DisplayName("nenhuma agregadora entrou no registro da TRADUÇÃO")
+    void agregadorasContinuamForaDoRegistroDeTraducao() {
         Set<String> registrados = provedores.stream()
             .map(ProvedorContexto::getId)
             .collect(Collectors.toSet());
@@ -97,13 +112,36 @@ class CatracaAgregadorasForaDoCdiTest {
             .sorted()
             .toList();
 
-        assertTrue(intrusas.isEmpty(), () -> intrusas.stream()
-            .map(id -> "\n  A lore agregada \"" + id + "\" ENTROU no registro CDI."
-                + "\n    Motivo da exclusão: " + AGREGADORAS_FORA_DO_CDI.get(id)
-                + "\n    Use no lugar: " + String.join(", ", SUBSTITUTOS.get(id))
-                + "\n    Se a intenção era mesmo registrá-la, o Javadoc da classe explica por que"
-                + " isso degrada a tradução. Leia ANTES de alterar este teste.")
-            .collect(Collectors.joining()));
+        assertTrue(intrusas.isEmpty(), () -> acusar("TRADUÇÃO", intrusas));
+    }
+
+    /**
+     * O lado que quase ficou de fora desta catraca. A Opção 7 não retraduz — normaliza termo para
+     * "o padrão oficial da obra" —, e isso parecia torná-la imune à lore misturada.
+     *
+     * <p>No fluxo EN+PT quase é: {@code ValidadorCandidatoLoreService} exige que a sequência nova
+     * apareça no ORIGINAL INGLÊS além da lore, então um termo de outro filme não entra. No fluxo
+     * PT-ONLY esse portão não existe — {@code RevisarLorePtOnlyUseCase} manda o prompt ao LLM com
+     * o original inglês VAZIO. Com a agregadora ali, o modelo pode normalizar um termo de um
+     * título para o canônico de OUTRO, que é literalmente a tarefa que o prompt lhe dá.
+     *
+     * <p>A assimetria "protege a Tradução e deixa a Revisão aberta" era um buraco, não uma
+     * escolha: quem construiu a proteção de um lado só (eu) tinha viés a favor de achar que
+     * bastava. Quatro revisões independentes discordaram e o mecanismo acima confirmou.
+     */
+    @Test
+    @DisplayName("nenhuma agregadora entrou no registro da REVISÃO DE LORE")
+    void agregadorasContinuamForaDoRegistroDeRevisao() {
+        Set<String> registrados = catalogoRevisao.getProvedores().stream()
+            .map(ProvedorPromptRevisaoLore::getId)
+            .collect(Collectors.toSet());
+
+        List<String> intrusas = AGREGADORAS_FORA_DO_CDI.keySet().stream()
+            .filter(registrados::contains)
+            .sorted()
+            .toList();
+
+        assertTrue(intrusas.isEmpty(), () -> acusar("REVISÃO DE LORE", intrusas));
     }
 
     /**
