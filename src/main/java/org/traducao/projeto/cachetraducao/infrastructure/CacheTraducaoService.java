@@ -179,8 +179,14 @@ public class CacheTraducaoService {
             log.info("Cache carregado de {} ({} entradas reaproveitaveis)", arquivoCache, mapa.size());
             return mapa;
         } catch (IOException e) {
-            log.warn("Falha ao ler cache existente em {}, ignorando e traduzindo do zero. Causa: {}",
+            // PRESERVA antes de devolver vazio. O fluxo versionado sempre fez isso; este,
+            // usado pelo karaokê, apenas ignorava — e como o mapa vazio faz o chamador
+            // traduzir do zero e GRAVAR por cima, o arquivo ilegível era destruído na mesma
+            // execução, sem cópia. Um cache guarda horas de GPU: JSON quebrado ainda pode ser
+            // recuperado à mão, sobrescrito não pode.
+            log.error("Cache legado ilegível em {}: {}. Preservando antes de traduzir do zero.",
                 arquivoCache, e.getMessage());
+            preservarCorrompido(arquivoCache);
             return new HashMap<>();
         }
     }

@@ -158,7 +158,15 @@ public final class ProcessoExternoUtil {
             throw new IOException("Falha ao ler saída do processo externo", e.getCause());
         } catch (TimeoutException e) {
             future.cancel(true);
-            return new byte[0];
+            // LANÇA em vez de devolver vazio. Array vazio é indistinguível de "o processo não
+            // escreveu nada", e quem chama isto interpreta a saída: FfprobeAdapter e
+            // MkvToolNixAdapter concluiriam "este MKV não tem faixa de legenda" quando o fato
+            // é "não consegui ler a resposta". Num lote, isso vira episódio pulado em silêncio.
+            // Mesma classe de defeito que o build.gradle já registra: "'0 testes rodaram' tem a
+            // mesma aparência de 'tudo passou'".
+            throw new IOException(
+                "Timeout de 5s ao drenar a saída do processo externo — saída INCOMPLETA, "
+                + "não confundir com saída vazia", e);
         }
     }
 }
