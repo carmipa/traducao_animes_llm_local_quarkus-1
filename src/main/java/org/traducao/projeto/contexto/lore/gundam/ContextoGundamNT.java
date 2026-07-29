@@ -21,7 +21,7 @@ public class ContextoGundamNT implements ProvedorContexto {
 
     private static final String LORE = """
         - Obra: Mobile Suit Gundam NT (Narrative) / Kidou Senshi Gundam NT (filme 2018) —
-          Universal Century U.C. 0097, um ano apos Laplace Incident / Unicorn.
+          Universal Century U.C. 0097, um ano apos o Incidente de Laplace / Unicorn.
         - Premissa: Operation Phoenix Hunt caca o RX-0 Unicorn Gundam 03 Phenex;
           Miracle Children (Jona / Michele / Rita); Shezarr Team vs Sleeves / Zoltan.
         - Tom: drama militar-espiritual, melancolico. Evitar girias modernas.
@@ -52,7 +52,10 @@ public class ContextoGundamNT implements ProvedorContexto {
         - Metis (colonia); Banchi 18; Helium-3 / Minovsky overconcentration quando aparecer.
 
         === Operacoes / legado Unicorn ===
-        - Operation Phoenix Hunt; Laplace's Box; Laplace Incident; Universal Century / U.C.
+        - Operation Phoenix Hunt; Universal Century / U.C.
+        - Caixa de Laplace e Incidente de Laplace: TRADUZIR assim (mesma decisao do Unicorn,
+          Paulo em 2026-07-29). Sao a MESMA caixa e o MESMO atentado das duas obras: nomes
+          diferentes conforme o episodio confundiriam quem assiste na ordem.
 
         === Regras duras ===
         - Narrative / Narrative Gundam / Phenex / Miracle Children / Shezarr oficiais.
@@ -116,7 +119,9 @@ public class ContextoGundamNT implements ProvedorContexto {
             "Earth Federation", "Shezarr", "Shezarr Team",
             "Luio & Co.", "Republic of Zeon", "Sleeves", "Sieg Zeon",
             "Miracle Children", "Metis", "Banchi 18",
-            "Operation Phoenix Hunt", "Laplace's Box", "Laplace Incident",
+            // "Laplace's Box" e "Laplace Incident" saem da protecao junto com o Unicorn:
+            // viram "Caixa de Laplace" e "Incidente de Laplace".
+            "Operation Phoenix Hunt",
             "Universal Century", "Helium-3",
             "Newtype", "Cyber-Newtype", "Oldtype", "Spacenoid", "Earthnoid",
             "Minovsky", "Psycho-Frame", "psycommu", "funnel", "NT-D",
@@ -147,8 +152,6 @@ public class ContextoGundamNT implements ProvedorContexto {
             Map.entry("Manga", "Sleeves"),
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
             Map.entry("Moldura Psiquica", "Psycho-Frame"),
-            Map.entry("Caixa de Laplace", "Laplace's Box"),
-            Map.entry("Incidente de Laplace", "Laplace Incident"),
             Map.entry("Equipe Shezarr", "Shezarr Team"),
             Map.entry("Supressor Silver Bullet", "Silver Bullet Suppressor"),
             Map.entry("Silver Bullet Supressor", "Silver Bullet Suppressor")

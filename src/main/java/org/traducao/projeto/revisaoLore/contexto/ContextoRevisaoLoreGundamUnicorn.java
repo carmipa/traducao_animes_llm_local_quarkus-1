@@ -38,7 +38,8 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
         - Sleeves (NUNCA Mangas); Neo Zeon; Vist Foundation; Anaheim Electronics;
           Londo Bell; ECOAS; Earth Federation.
         - Nahel Argama; Garencieres; Ra Cailum; Rewloola; Musaka; Magallanica;
-          Industrial 7; Palau; Torrington Base; Dakar; Laplace's Box / Laplace Incident.
+          Industrial 7; Palau; Torrington Base; Dakar; Laplace Memorial.
+        - Caixa de Laplace e Incidente de Laplace: em PORTUGUES (Paulo, 2026-07-29).
 
         === Mecha ===
         - Unicorn Gundam (NUNCA Gundam Unicornio); Banshee / Banshee Norn; Sinanju;
@@ -48,8 +49,7 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
         === Termos UC / formas-ruim ===
         - Newtype; Cyber-Newtype; Psycho-Frame; NT-D; Destroy Mode; Minovsky;
           Mobile Suit / Mobile Armor; Axis (NUNCA Eixo).
-        - Mangas → Sleeves; Caixa de Laplace → Laplace's Box;
-          Incidente de Laplace → Laplace Incident; Fundação Vist → Vist Foundation;
+        - Mangas → Sleeves; Fundação Vist → Vist Foundation;
           Gundam Unicórnio → Unicorn Gundam; Frontal Completo → Full Frontal;
           Modo Destruição → Destroy Mode; Moldura Psíquica → Psycho-Frame;
           Novo Tipo → Newtype.
@@ -86,8 +86,6 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
             Map.entry("Manga", "Sleeves"),
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
             Map.entry("Moldura Psiquica", "Psycho-Frame"),
-            Map.entry("Caixa de Laplace", "Laplace's Box"),
-            Map.entry("Incidente de Laplace", "Laplace Incident"),
             Map.entry("Fundação Vist", "Vist Foundation"),
             Map.entry("Fundacao Vist", "Vist Foundation"),
             Map.entry("Gundam Unicórnio", "Unicorn Gundam"),

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ContextosRevisaoLoreCatalogoTest {
@@ -41,7 +42,11 @@ class ContextosRevisaoLoreCatalogoTest {
 
         assertTrue(prompt.contains("Unicorn Gundam"));
         assertTrue(prompt.contains("Full Frontal nao vira"));
-        assertTrue(prompt.contains("Laplace's Box"));
+        // "Laplace's Box" SAIU da proteção em 2026-07-29 (decisão do Paulo): a caixa e o
+        // atentado passam a ser "Caixa de Laplace" e "Incidente de Laplace" em PT-BR.
+        // Laplace Memorial continua em inglês, por ser nome próprio de estação.
+        assertTrue(prompt.contains("Caixa de Laplace"));
+        assertTrue(prompt.contains("Laplace Memorial"));
         assertTrue(prompt.contains("Nahel Argama"));
         assertFalse(prompt.contains("Black Tri-Stars"));
         assertTrue(prompt.contains("Magallanica"));
@@ -49,7 +54,10 @@ class ContextosRevisaoLoreCatalogoTest {
         assertTrue(prompt.contains("Gilboa Sant"));
         assertTrue(prompt.contains("Ra Cailum"));
         assertEquals("Destroy Mode", unicorn.correcoesTerminologia().get("Modo Destruição"));
-        assertEquals("Laplace Incident", unicorn.correcoesTerminologia().get("Incidente de Laplace"));
+        // Sem reversão para inglês: manter o par faria o enforcer desfazer a tradução que
+        // agora é a desejada.
+        assertNull(unicorn.correcoesTerminologia().get("Incidente de Laplace"));
+        assertNull(unicorn.correcoesTerminologia().get("Caixa de Laplace"));
     }
 
     @Test
@@ -123,7 +131,8 @@ class ContextosRevisaoLoreCatalogoTest {
         assertEquals("Ple", zz.correcoesTerminologia().get("Plê"));
 
         assertEquals("Sleeves", unicorn.correcoesTerminologia().get("Mangas"));
-        assertEquals("Laplace's Box", unicorn.correcoesTerminologia().get("Caixa de Laplace"));
+        // Ver promptUnicornProtegeTermosCriticosDaObra: a reversão para inglês foi revogada.
+        assertNull(unicorn.correcoesTerminologia().get("Caixa de Laplace"));
         assertTrue(unicorn.obterPromptSistema().contains("Full Frontal nao vira"));
 
         assertEquals("Phenex", nt.correcoesTerminologia().get("Fênix"));

@@ -19,7 +19,7 @@ import java.util.Map;
 public class ContextoRevisaoLoreGundamNT implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam NT (Narrative), U.C. 0097 — pos-Unicorn / Laplace Incident.
+        - Obra: Mobile Suit Gundam NT (Narrative), U.C. 0097 — pos-Unicorn / Incidente de Laplace.
         - Regra: corrigir APENAS nomenclatura. Operation Phoenix Hunt caca o Phenex.
 
         === Roster ===
@@ -41,12 +41,13 @@ public class ContextoRevisaoLoreGundamNT implements ProvedorPromptRevisaoLore {
 
         === Termos UC / formas-ruim ===
         - Newtype; Cyber-Newtype; Oldtype; Psycho-Frame; NT-D; Minovsky; Spacenoid;
-          Operation Phoenix Hunt; Laplace's Box; Laplace Incident;
-          Mobile Suit / Mobile Armor.
+          Operation Phoenix Hunt; Mobile Suit / Mobile Armor.
+        - Caixa de Laplace e Incidente de Laplace: em PORTUGUES (Paulo, 2026-07-29) — mesma
+          decisao do Unicorn, porque sao a MESMA caixa e o MESMO atentado das duas obras.
         - Fenís/Fênix → Phenex; Operação Caça à Fênix → Operation Phoenix Hunt;
           Crianças Milagrosas → Miracle Children; Gundam Narrativo → Narrative Gundam;
           Mangas → Sleeves; Moldura Psíquica → Psycho-Frame;
-          Caixa de Laplace → Laplace's Box; Equipe Shezarr → Shezarr Team;
+          Equipe Shezarr → Shezarr Team;
           Supressor Silver Bullet → Silver Bullet Suppressor.
         """;
 
@@ -89,8 +90,6 @@ public class ContextoRevisaoLoreGundamNT implements ProvedorPromptRevisaoLore {
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
             Map.entry("Moldura Psiquica", "Psycho-Frame"),
             Map.entry("Gundam Narrativo", "Narrative Gundam"),
-            Map.entry("Caixa de Laplace", "Laplace's Box"),
-            Map.entry("Incidente de Laplace", "Laplace Incident"),
             Map.entry("Equipe Shezarr", "Shezarr Team"),
             Map.entry("Supressor Silver Bullet", "Silver Bullet Suppressor"),
             Map.entry("Silver Bullet Supressor", "Silver Bullet Suppressor")
