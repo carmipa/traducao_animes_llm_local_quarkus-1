@@ -222,11 +222,12 @@ public class TraducaoController {
                 long parcialCount = resultados.stream().filter(r ->
                     r.status() == org.traducao.projeto.traducao.domain.StatusArquivoTraducao.PARCIAL).count();
                 long falhaCount = resultados.size() - okCount - parcialCount;
-                System.out.println("\n========================================================================");
-                System.out.println("  [" + statusLote.getRotulo().toUpperCase() + "] TRADUCAO LOCAL VIA LLM: "
-                    + okCount + " concluído(s), " + parcialCount + " parcial(is), " + falhaCount
-                    + " com falha/bloqueio de " + resultados.size() + " arquivo(s).");
-                System.out.println("========================================================================\n");
+                // Fechamento consolidado: tempo, vazão, destino das falas e pendências por
+                // causa. Os dados já vinham no resultado de cada arquivo e eram descartados
+                // aqui — a contagem de arquivos por status, sozinha, não dizia quanto demorou
+                // nem o que sobrou.
+                System.out.println(org.traducao.projeto.traducao.presentation.ui.RelatorioLoteRenderer.render(
+                    resultados, statusLote.getRotulo().toUpperCase(), propriedades.tamanhoLote()));
                 log.info("[{}] Traducao via LLM finalizada. {} concluido(s), {} parcial(is), {} falha/bloqueio de {}.",
                     statusLote.name(), okCount, parcialCount, falhaCount, resultados.size());
 

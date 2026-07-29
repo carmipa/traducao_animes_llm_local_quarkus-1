@@ -631,10 +631,13 @@ public class ProcessarArquivoUseCase {
         } else {
             log.info("Arquivo traduzido salvo em {} (cache em {})", arquivoSaida, arquivoCache);
         }
+        // Mesmos valores que já iam para a telemetria (linha do registrarTraducao acima):
+        // o relatório de console passa a receber tempo e causa das pendências pelo retorno,
+        // em vez de reler logs/telemetria_traducao.json.
         return new ResultadoTraducaoArquivo(
             arquivoSaida, arquivoEntrada.getFileName().toString(), loreNome,
             eventosTraduziveis.size(), cacheReaproveitavel.size(), traducoesNovasValidas,
-            avisos.size(), status);
+            avisos.size(), status, tempoTotalMs, falhasDistintas.size(), pendenciasPorCausa);
     }
 
 
