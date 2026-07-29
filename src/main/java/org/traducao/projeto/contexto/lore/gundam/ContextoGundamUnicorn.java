@@ -22,7 +22,7 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
     private static final String LORE = """
         - Obra: Mobile Suit Gundam Unicorn (OVA) / Mobile Suit Gundam Unicorn RE:0096 —
           Universal Century 0096.
-        - Premissa: caca a Laplace's Box; Banagher Links e o RX-0 Unicorn Gundam;
+        - Premissa: caca a Caixa de Laplace; Banagher Links e o RX-0 Unicorn Gundam;
           Earth Federation / Londo Bell / ECOAS vs Sleeves (Neo Zeon remnants) e Vist Foundation.
 
         === Nucleo UC ===
@@ -68,8 +68,10 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
 
         === Naves / lugares ===
         - Nahel Argama; Garencieres; Ra Cailum; Rewloola; Musaka; Magallanica;
-          Industrial 7; Palau; Torrington Base; Dakar; Side colonies; Laplace Memorial /
-          Laplace's Box / Laplace Incident.
+          Industrial 7; Palau; Torrington Base; Dakar; Side colonies; Laplace Memorial.
+        - Caixa de Laplace e Incidente de Laplace: TRADUZIR assim. Sao os dois unicos
+          "Laplace" em portugues; Laplace Memorial e La+ (Laplace Program) ficam em ingles,
+          por serem nome proprio de estacao e de sistema.
 
         === Orgs ===
         - Sleeves (NUNCA "Mangas"); Neo Zeon; Vist Foundation; Anaheim Electronics;
@@ -143,7 +145,11 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             // (Side 3/4/6/7 nas lores 0079, Origin, Thunderbolt, War in the Pocket), porque
             // "side" solto é "lado" e viraria letra maiúscula no meio de qualquer frase.
             "Co-Prosperity Sphere",
-            "Laplace's Box", "Laplace Incident", "Industrial 7", "Palau",
+            // DECISÃO (Paulo, 2026-07-29): "Laplace's Box" e "Laplace Incident" SAÍRAM da
+            // proteção — "Caixa de Laplace" e "Incidente de Laplace" soam naturais em PT-BR e
+            // são a forma que o espectador reconhece. Continuam protegidos os que são nome
+            // próprio de lugar/sistema: Laplace Memorial e La+ (Laplace Program).
+            "Industrial 7", "Palau",
             "Torrington Base", "Dakar",
             "Newtype", "Cyber-Newtype", "Oldtype", "Spacenoid",
             "Earthnoid", "Minovsky", "Psycho-Frame",
@@ -167,8 +173,9 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             Map.entry("Manga", "Sleeves"),
             Map.entry("Moldura Psíquica", "Psycho-Frame"),
             Map.entry("Moldura Psiquica", "Psycho-Frame"),
-            Map.entry("Caixa de Laplace", "Laplace's Box"),
-            Map.entry("Incidente de Laplace", "Laplace Incident"),
+            // As duas reversões saíram junto com a proteção: mantê-las faria o enforcer
+            // desfazer a tradução que agora é a desejada, e o par forma-ruim->canônico só
+            // existe para consertar erro, não para impor preferência já revogada.
             Map.entry("Fundação Vist", "Vist Foundation"),
             Map.entry("Fundacao Vist", "Vist Foundation"),
             Map.entry("Gundam Unicórnio", "Unicorn Gundam"),
