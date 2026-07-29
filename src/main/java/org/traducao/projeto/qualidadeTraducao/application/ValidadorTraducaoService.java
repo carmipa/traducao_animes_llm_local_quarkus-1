@@ -577,6 +577,63 @@ public class ValidadorTraducaoService {
             + ausente + "\", que é outra entidade desta obra — \"" + traduzido + "\"";
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: DESFAZ a troca de entidade em vez de descartar a fala. Quando o portão
+     * acusa, ele já sabe as três coisas necessárias para consertar: o termo que o original usa, o
+     * que a tradução colocou no lugar, e a tradução inteira. Recusar joga fora um texto que está
+     * correto em tudo menos numa palavra.
+     *
+     * <p>Medido na retradução do Zeta em 2026-07-29: das 59 falas que ficaram vazias, <b>22 eram
+     * troca de entidade</b>, e as traduções descartadas estavam impecáveis — ritmo, pontuação,
+     * ênfase. Só o nome estava trocado:
+     * <pre>
+     *   EN "Answer me, Four!"        descartado "Responda-me, Quattro!"   -> "Responda-me, Four!"
+     *   EN "Wake up, Four!"          descartado "Acorda, Quattro!"        -> "Acorda, Four!"
+     *   EN "Rendezvous with Char"    descartado "Rendezvous com Quattro"  -> "Rendezvous com Char"
+     * </pre>
+     * Eram as falas da morte da Four Murasame, a cena mais conhecida do episódio, saindo em branco.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só reverte o que {@link #trocou} acusaria — mesma condição, inclusive a guarda de
+     *       preservação. O reparo não pode alcançar fala que o portão deixaria passar.</li>
+     *   <li>Devolve o texto reparado; NÃO decide se ele é aceitável. Quem chama tem de submetê-lo
+     *       ao mesmo portão de novo — reparo que entra sem revalidar é porta dos fundos.</li>
+     *   <li><b>LIMITE CONHECIDO:</b> troca a palavra, não a concordância em volta. "Somente o
+     *       Quattro pode abrir" vira "Somente o Four pode abrir", e Four é mulher — o artigo
+     *       continua no masculino. Fica errado de gênero e certo de identidade; antes ficava
+     *       vazio. Consertar o artigo exigiria saber o gênero de cada termo do par, que a lore
+     *       declara em texto livre e não em campo.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem par declarado, ou sem troca detectável, devolve
+     * {@code null} e nada muda.
+     */
+    public String repararTrocaDeEntidade(String original, String traduzido) {
+        for (List<String> par : loreAtiva.paresInconfundiveisAtivos()) {
+            if (par == null || par.size() != 2) {
+                continue;
+            }
+            String reparado = reverter(original, traduzido, par.get(0), par.get(1));
+            if (reparado == null) {
+                reparado = reverter(original, traduzido, par.get(1), par.get(0));
+            }
+            if (reparado != null) {
+                return reparado;
+            }
+        }
+        return null;
+    }
+
+    /** Devolve a tradução com {@code ausente} trocado por {@code presente}, ou null se não é troca. */
+    private static String reverter(String original, String traduzido, String presente, String ausente) {
+        if (trocou(original, traduzido, presente, ausente) == null) {
+            return null;
+        }
+        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(ausente) + "(?![\\p{L}\\p{N}])")
+            .matcher(traduzido).replaceAll(Matcher.quoteReplacement(presente));
+    }
+
     /** Remove as ocorrências do termo por fronteira de palavra, preservando o resto do texto. */
     private static String semOcorrenciasDe(String texto, String termo) {
         if (texto == null || termo == null || termo.isBlank()) {
