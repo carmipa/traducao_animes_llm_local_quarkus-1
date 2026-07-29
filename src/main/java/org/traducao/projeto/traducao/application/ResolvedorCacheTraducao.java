@@ -3,6 +3,7 @@ package org.traducao.projeto.traducao.application;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
@@ -45,6 +46,7 @@ public class ResolvedorCacheTraducao {
 
     private final PastasExecucao pastasExecucao;
     private final ResolvedorSaidaLegenda resolvedorSaida;
+    private final LlmPort llmPort;
     private final LlmProperties llmPropriedades;
     private final TradutorProperties propriedades;
 
@@ -62,17 +64,20 @@ public class ResolvedorCacheTraducao {
      *
      * @param pastasExecucao raiz de cache/saída resolvidas para a execução
      * @param resolvedorSaida provê a extensão canônica do formato de legenda
-     * @param llmPropriedades configuração de onde vem o modelo efetivamente ativo
+     * @param llmPort porta do LLM — fonte do modelo que REALMENTE respondeu
+     * @param llmPropriedades configuração; só o fallback do modelo, quando a porta não sabe
      * @param propriedades idiomas de origem/destino do carimbo de proveniência
      */
     public ResolvedorCacheTraducao(
         PastasExecucao pastasExecucao,
         ResolvedorSaidaLegenda resolvedorSaida,
+        LlmPort llmPort,
         LlmProperties llmPropriedades,
         TradutorProperties propriedades
     ) {
         this.pastasExecucao = pastasExecucao;
         this.resolvedorSaida = resolvedorSaida;
+        this.llmPort = llmPort;
         this.llmPropriedades = llmPropriedades;
         this.propriedades = propriedades;
     }
@@ -122,10 +127,38 @@ public class ResolvedorCacheTraducao {
             ProvenienciaCache.SCHEMA_ATUAL,
             contexto.id(),
             ProvenienciaCache.hashDe(contexto.promptSistema()),
-            llmPropriedades.model(),
+            modeloEfetivo(),
             propriedades.idiomaOriginal(),
             propriedades.idiomaTraduzido()
         );
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: carimba o cache com o modelo que REALMENTE respondeu, e não com
+     * o que a configuração diz — para que trocar de LLM invalide a geração anterior. É o
+     * invariante que a {@link ProvenienciaCache} existe para garantir e que, até 2026-07-29,
+     * valia para lore e idioma mas NÃO para modelo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a PORTA vence a configuração. Mesma regra de
+     * {@code MontadorTelemetriaTraducao#modeloEfetivo} — as duas leituras precisam concordar,
+     * senão telemetria e cache atribuem a mesma tradução a modelos diferentes.
+     *
+     * <p>Por que a configuração não serve: {@code LlmProperties} é {@code @ConfigurationProperties}
+     * e NÃO é instância compartilhada entre beans. O {@code setModel} que o adaptador chama ao
+     * detectar o modelo carregado muda a cópia DELE; este resolvedor enxerga outra, que continua
+     * com o {@code "current"} do {@code application.yml}. Foi o que deixou 218 dos 279 caches do
+     * acervo carimbados {@code "current"} — corrigidos por migração antes desta mudança entrar,
+     * justamente porque corrigir o código sem migrar invalidaria o acervo inteiro de uma vez.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: porta ausente ou sem modelo resolvido cai na
+     * configuração. Preferível a gravar vazio, que perderia até o rastro da execução.
+     */
+    private String modeloEfetivo() {
+        String daPorta = llmPort != null ? llmPort.modeloAtivo() : null;
+        if (daPorta != null && !daPorta.isBlank()) {
+            return daPorta;
+        }
+        return llmPropriedades.model();
     }
 
     /**
