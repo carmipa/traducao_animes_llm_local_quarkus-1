@@ -134,6 +134,31 @@ public class AvaliadorTraducaoCache {
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve uma justificativa legível; uma tradução
      * válida devolve {@code null}.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: última tentativa antes de descartar — desfaz uma troca de entidade e
+     * submete o resultado ao MESMO portão que acabou de reprovar. Só devolve texto que passa
+     * limpo; qualquer outro desfecho é {@code null} e a fala segue pendente.
+     *
+     * <p>Medido no Zeta em 2026-07-29: 22 das 59 falas descartadas eram troca de entidade, com a
+     * tradução correta em tudo menos no nome. Descartá-las apagou a cena da morte da Four
+     * Murasame — "Responda-me, Quattro!" virou vazio em vez de "Responda-me, Four!".
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a revalidação é obrigatória e não é formalidade. O reparo troca
+     * UMA palavra, e a fala reparada pode falhar por outro motivo que o primeiro veredicto
+     * escondeu — resíduo em inglês, desproporção, locutor inventado. Aceitar sem revalidar
+     * transformaria o portão em porta dos fundos.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code null} sempre que não houver reparo ou o
+     * reparo não passar; nunca lança.
+     */
+    public String repararSePossivel(String original, String traduzido) {
+        String reparado = validador.repararTrocaDeEntidade(original, traduzido);
+        if (reparado == null || reparado.equals(traduzido)) {
+            return null;
+        }
+        return motivoFalhaFinal(original, reparado) == null ? reparado : null;
+    }
+
     public String motivoFalhaFinal(String original, String traduzido) {
         if (traduzido == null || traduzido.isBlank()) {
             return "resposta vazia";

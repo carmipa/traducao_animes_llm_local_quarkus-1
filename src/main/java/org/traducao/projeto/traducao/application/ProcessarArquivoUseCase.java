@@ -432,6 +432,20 @@ public class ProcessarArquivoUseCase {
                 traducoesValidadas.put(original, traduzido);
                 continue;
             }
+            // ANTES de descartar: troca de entidade é a única falha que o sistema sabe CONSERTAR,
+            // porque o portão já identificou o termo certo e o errado. A tradução costuma estar
+            // impecável no resto — medido no Zeta em 2026-07-29, 22 das 59 falas descartadas eram
+            // isto, incluindo a cena da morte da Four Murasame saindo em branco. O reparo passa
+            // pelo MESMO portão; se não passar, a fala segue pendente como antes.
+            String reparado = avaliadorCache.repararSePossivel(original, traduzido);
+            if (reparado != null) {
+                traducoesValidadas.put(original, reparado);
+                String aviso = "Troca de entidade DESFEITA: \"" + traduzido + "\" -> \"" + reparado
+                    + "\". Original: " + original;
+                log.info(aviso);
+                uiLogger.log("[REPARADA] " + aviso);
+                continue;
+            }
             // Uma falha conhecida nunca volta ao banco como se fosse tradução.
             traducoesValidadas.put(original, "");
             falhasDistintas.add(original);
