@@ -126,4 +126,45 @@ class ValidadorTrocaDeEntidadeTest {
 
         assertDoesNotThrow(() -> validador.validarPar("Inori!", "Crow!"));
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: acréscimo NÃO é troca. Achado ao vivo na retradução do 08th
+     * (2026-07-28 20:05): o inglês {@code "So, you're the team killer, Sanders the Reaper."} foi
+     * traduzido como {@code "Sanders, o Ceifador."} — correto, porque o nome do original
+     * SOBREVIVEU e o apelido foi vertido — e o portão condenou. A fala ficou VAZIA no cache.
+     *
+     * <p>O vizinho que precisa continuar caindo está no mesmo teste de propósito: quando o nome
+     * some, é troca de verdade, e é justamente onde ela custa mais — as 4 falas medidas eram
+     * rádio do esquadrão em tratamento direto entre companheiros.
+     */
+    @Test
+    @DisplayName("apelido acrescentado não é troca quando o nome do original sobrevive")
+    void nomePreservadoNaoEhTroca() {
+        var validador = new ValidadorTraducaoService(
+            LoreAtivaFake.comPares(List.of("Sanders", "Ceifador")));
+
+        assertDoesNotThrow(() -> validador.validarPar(
+            "So, you're the team killer, Sanders the Reaper.", "Sanders, o Ceifador."));
+
+        AlucinacaoDetectadaException e = assertThrows(AlucinacaoDetectadaException.class,
+            () -> validador.validarPar("Karen! Sanders! Do you read me?", "Karen! Ceifador! Me escutam?"));
+        assertTrue(e.getMessage().contains("Sanders") && e.getMessage().contains("Ceifador"),
+            "a mensagem tem de nomear os dois tratamentos: " + e.getMessage());
+    }
+
+    /**
+     * A guarda de preservação remove as ocorrências do termo ACUSADO antes de procurar o do
+     * original. Sem essa ordem, o par cujo termo contém o outro cegaria a si mesmo: "Nahel Argama"
+     * contém "Argama", então "Reparem a Nahel Argama" satisfaz {@code contemTermo(.., "Argama")}
+     * por fronteira de palavra, e as 31 falas medidas no ZZ parariam de ser detectadas.
+     */
+    @Test
+    @DisplayName("a guarda de preservação não cega o par cujo termo contém o outro")
+    void guardaDePreservacaoNaoCegaSubstring() {
+        var validador = new ValidadorTraducaoService(
+            LoreAtivaFake.comPares(List.of("Argama", "Nahel Argama")));
+
+        assertThrows(AlucinacaoDetectadaException.class,
+            () -> validador.validarPar("Repair the Argama.", "Reparem a Nahel Argama."));
+    }
 }

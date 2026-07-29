@@ -76,6 +76,16 @@ public class ValidadorTraducaoService {
             + "throughout|till|toward|under|underneath|until|upon|within|although|unless|"
             + "does|did|been|had|went|gone|got|make|made|take|took|saw|seen|thought|transform|"
             + "rather|unknown|ensign|always|never|sometimes|often|usually|really|also|even|"
+            // "only": assinatura medida do LLM local com o "Just" enfático do inglês. Em
+            // 2026-07-28, 33 falas do acervo (58.722 com tradução) traziam "only" cru, sempre
+            // com o mesmo gatilho — "Just" abrindo oração, quase sempre depois de "!":
+            //   "All right! Just try and stop me!"  ->  "Tudo bem!only tentem me impedir!"
+            //   "Never mind the guidance! Just hit them!" -> "Não ligue...!only bati neles!"
+            // Em 13 delas o modelo larga a oração INTEIRA em inglês ("only watch me!"). Nenhum
+            // falso positivo em 36 casos inspecionados: "only" não é palavra do português, e a
+            // régua já roda sobre o texto MENOS os termos de lore, então nome próprio protegido
+            // não chega aqui.
+            + "only|"
             + "every|please|thank|thanks|sorry|feds)\\b",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
@@ -100,6 +110,12 @@ public class ValidadorTraducaoService {
     private static final Pattern PADRAO_OUTRO_IDIOMA = Pattern.compile(
         "\\b(bleu|rouge|noir|blanc|jaune|monde|cœur|coeur|amour|bonjour|merci|"
             + "toujours|déjà|deja|être|avoir|avec|chez|sans|vous|nous|elles|"
+            // "juste": mesma assinatura do "only" acima, mas o vazamento sai em FRANCÊS —
+            // "Just have some." virou "Juste um pouco.", "Just hang in there..." virou
+            // "Juste aguenta aí...". 3 falas no acervo em 2026-07-28, 2 delas criadas na
+            // retradução do 08th no mesmo dia. Não colide com português: a fronteira de palavra
+            // impede que "ajuste"/"reajuste" casem, porque o "a" anterior é caractere de palavra.
+            + "juste|"
             + "très|tres|où|quelque|aujourd'hui)\\b",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
@@ -531,8 +547,29 @@ public class ValidadorTraducaoService {
             || !contemTermo(traduzido, ausente)) {
             return null;
         }
+        // TROCA é o nome SUMIR. Se a tradução PRESERVOU o termo do original, o outro é acréscimo
+        // — e acréscimo pode estar certo. Medido ao vivo em 2026-07-28: o inglês
+        // "Sanders the Reaper" foi traduzido como "Sanders, o Ceifador", que verte o apelido sem
+        // trocar a pessoa, e a fala foi RECUSADA e gravada VAZIA.
+        //
+        // A remoção das ocorrências de `ausente` ANTES de procurar `presente` não é preciosismo:
+        // em "Argama"/"Nahel Argama" o segundo termo CONTÉM o primeiro, então
+        // "Reparem a Nahel Argama" satisfaz contemTermo(.., "Argama") por fronteira de palavra.
+        // Sem remover primeiro, as 31 falas medidas no ZZ parariam de ser detectadas.
+        if (contemTermo(semOcorrenciasDe(traduzido, ausente), presente)) {
+            return null;
+        }
         return "Entidade trocada: o original diz \"" + presente + "\" e a tradução diz \""
             + ausente + "\", que é outra entidade desta obra — \"" + traduzido + "\"";
+    }
+
+    /** Remove as ocorrências do termo por fronteira de palavra, preservando o resto do texto. */
+    private static String semOcorrenciasDe(String texto, String termo) {
+        if (texto == null || termo == null || termo.isBlank()) {
+            return texto == null ? "" : texto;
+        }
+        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+            .matcher(texto).replaceAll(" ");
     }
 
     /** Fronteira de palavra sobre o termo inteiro, sensível à caixa (separa "Four" de "four"). */

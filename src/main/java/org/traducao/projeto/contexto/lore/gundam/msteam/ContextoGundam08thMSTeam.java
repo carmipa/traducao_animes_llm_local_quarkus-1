@@ -68,12 +68,22 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
         - Frente de selva (Sudeste Asiatico); bases improvisadas; Jaburo quando cruzar.
         - Miller's Report — epilogo/filme; Alice Miller.
 
-        === Sanders e Shinigami: apelido nao substitui o nome ===
-        - Original "Sanders"   -> saida "Sanders".    O nome do personagem.
-        - Original "Shinigami" -> saida "Shinigami".  O apelido, quando o original o usa.
-        - "Shinigami" e como a tropa se refere a ele pelas costas. Isso serve para ENTENDER a
-          cena, nao para escolher o nome: se o original diz "Sanders", a traducao escreve
-          "Sanders".
+        === Sanders e o Ceifador: dois tratamentos, nenhuma substituicao ===
+        - Original "Sanders"          -> saida "Sanders".      Nome do personagem.
+        - Original "Reaper"           -> saida "Ceifador".     Apelido, SEMPRE masculino.
+        - Original "Grim Reaper"      -> saida "Ceifador".     Mesma coisa.
+        - NUNCA "Ceifadora", "Irma Mortal", "deusa da morte", "a Morte": Sanders e HOMEM.
+        - NUNCA escrever "Shinigami" na legenda. E o apelido japones original (死神), mas a
+          legenda de destino e em portugues e a localizacao inglesa desta obra ja verteu o
+          termo. Escrever japones aqui troca o idioma de saida.
+        - A obra usa os DOIS tratamentos de proposito, e a escolha e de REGISTRO:
+            . os companheiros de esquadrao o chamam de "Sanders", em tratamento direto
+              ("Sanders! Pull back!", "Karen! Sanders! Do you read me?");
+            . os de fora e os inimigos falam do "Reaper", em terceira pessoa ou provocando
+              ("keep your distance from the Reaper", "Okay, Reaper, now it's time to rest");
+            . ele proprio REJEITA o apelido ("I am not the Grim Reaper!").
+          Trocar um pelo outro apaga essa distincao: "Karen! Ceifador!" num radio de combate
+          soa errado porque quem fala e companheiro dele. Escreva o que o original escreveu.
 
         === Regras duras ===
         - 08th MS Team NUNCA "8o Time MS" / "Oitava Equipe MS" como titulo.
@@ -237,6 +247,17 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
     @Override
     public Set<List<String>> paresInconfundiveis() {
         return Set.of(
+            // O tratamento dos companheiros nao vira o apelido dos de fora. Medido: as 4 falas
+            // corrompidas eram TODAS radio do esquadrao em tratamento direto ("Karen! Sanders! Do
+            // you read me?", "Sanders! Pull back!") -- exatamente onde a troca custa mais.
+            // Depende da guarda de preservacao em ValidadorTraducaoService.trocou: sem ela,
+            // "Sanders, o Ceifador" (traducao CORRETA de "Sanders the Reaper") seria acusado.
+            List.of("Sanders", "Ceifador"),
+            // O apelido dos de fora nao vira o nome. O modelo demonstrou que insere "Sanders"
+            // onde nao ha: medido em 2026-07-28, "Sniper 2!" saiu como "Sanders!".
+            List.of("Reaper", "Sanders"),
+            // Vazamento do japones. "Shinigami" nao aparece UMA vez no ingles do acervo (35
+            // ocorrencias de "Sanders", 0 de "Shinigami"), entao risco de falso-positivo e zero.
             List.of("Sanders", "Shinigami")
         );
     }
