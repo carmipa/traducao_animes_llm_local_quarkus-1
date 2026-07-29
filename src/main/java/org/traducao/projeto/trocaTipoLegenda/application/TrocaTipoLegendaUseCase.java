@@ -13,6 +13,7 @@ import org.traducao.projeto.core.presentation.ui.AnsiCores;
 // falta uma porta para a PASTA de relatorios, junto com a saida de console desta classe.
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.trocaTipoLegenda.domain.ports.ArmazenamentoBackupPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.AuditoriaTrocaFontePort;
 import org.traducao.projeto.trocaTipoLegenda.domain.ports.LegendaIoPort;
 import org.traducao.projeto.trocaTipoLegenda.domain.ports.TelemetriaTrocaPort;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
@@ -21,7 +22,6 @@ import org.traducao.projeto.trocaTipoLegenda.domain.EntradaAuditoriaTrocaFonte;
 import org.traducao.projeto.trocaTipoLegenda.domain.ResultadoGeralAuditoria;
 import org.traducao.projeto.trocaTipoLegenda.domain.ResultadoTrocaFonte;
 import org.traducao.projeto.trocaTipoLegenda.domain.exceptions.TrocaTipoLegendaException;
-import org.traducao.projeto.trocaTipoLegenda.infrastructure.TrocaTipoLegendaAuditoriaCache;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +44,7 @@ public class TrocaTipoLegendaUseCase {
     private final LegendaIoPort legendaIo;
     private final AuditoriaFontesService auditoriaService;
     private final TelemetriaTrocaPort telemetria;
-    private final TrocaTipoLegendaAuditoriaCache auditoriaCache;
+    private final AuditoriaTrocaFontePort auditoriaCache;
     private final ObjectMapper objectMapper;
     private final ArmazenamentoBackupPort backup;
 
@@ -80,7 +80,7 @@ public class TrocaTipoLegendaUseCase {
         LegendaIoPort legendaIo,
         AuditoriaFontesService auditoriaService,
         TelemetriaTrocaPort telemetria,
-        TrocaTipoLegendaAuditoriaCache auditoriaCache,
+        AuditoriaTrocaFontePort auditoriaCache,
         ArmazenamentoBackupPort backup
     ) {
         this.legendaIo = legendaIo;
@@ -105,7 +105,7 @@ public class TrocaTipoLegendaUseCase {
         LegendaIoPort legendaIo,
         AuditoriaFontesService auditoriaService,
         TelemetriaTrocaPort telemetria,
-        TrocaTipoLegendaAuditoriaCache auditoriaCache,
+        AuditoriaTrocaFontePort auditoriaCache,
         ArmazenamentoBackupPort backup
     ) {
         return new TrocaTipoLegendaUseCase(

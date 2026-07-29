@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.trocaTipoLegenda.domain.EntradaAuditoriaTrocaFonte;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.AuditoriaTrocaFontePort;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,9 +16,14 @@ import java.nio.file.StandardOpenOption;
 
 /**
  * Cache append-only para gravação de auditoria histórica e granular de cada alteração de fonte aplicada.
+ *
+ * <p>Passou a implementar {@link AuditoriaTrocaFontePort} em 2026-07-29: o caso de uso
+ * importava esta classe concreta diretamente — {@code application} conhecendo
+ * {@code infrastructure} da própria fatia, achado pelo teste de fronteira e não pela
+ * revisão manual.
  */
 @Component
-public class TrocaTipoLegendaAuditoriaCache {
+public class TrocaTipoLegendaAuditoriaCache implements AuditoriaTrocaFontePort {
 
     private static final Logger log = LoggerFactory.getLogger(TrocaTipoLegendaAuditoriaCache.class);
     private static final Path ARQUIVO_CANONICO =
