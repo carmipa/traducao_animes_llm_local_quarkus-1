@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StatusLoteTraducaoTest {
 
     private static ResultadoTraducaoArquivo comStatus(StatusArquivoTraducao s) {
-        return new ResultadoTraducaoArquivo(null, "ep.ass", "DanMachi", 10, 2, 8, 0, s);
+        return new ResultadoTraducaoArquivo(null, "ep.ass", "DanMachi", 10, 2, 8, 0, s, 0L, 0, List.of());
     }
 
     @Test
