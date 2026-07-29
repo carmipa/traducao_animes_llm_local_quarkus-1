@@ -253,8 +253,16 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
             // Depende da guarda de preservacao em ValidadorTraducaoService.trocou: sem ela,
             // "Sanders, o Ceifador" (traducao CORRETA de "Sanders the Reaper") seria acusado.
             List.of("Sanders", "Ceifador"),
-            // O apelido dos de fora nao vira o nome. O modelo demonstrou que insere "Sanders"
-            // onde nao ha: medido em 2026-07-28, "Sniper 2!" saiu como "Sanders!".
+            // O apelido dos de fora nao vira o nome: EN "the Reaper" -> PT "Sanders".
+            //
+            // ATENCAO ao que este par NAO cobre. A versao anterior deste comentario citava
+            // EN "Sniper 2!" -> PT "Sanders!" como motivacao, e isso era COBERTURA ILUSORIA:
+            // trocou() exige contemTermo(original, presente), e o ingles "Sniper 2!" nao contem
+            // "Reaper" nem "Sanders" — o laco sai no primeiro teste e o par nunca dispara.
+            // Designacao generica virando nome do elenco e OUTRA classe, medida em 2026-07-28 em
+            // ~55 falas de 48.564 pares, com eixo dominante em mecha/nave ("Argama" 19x,
+            // "Gundam" 14x) e nao em pessoa. Nenhum par a resolve, porque nao ha um segundo
+            // termo declarado do outro lado. Segue sem desenho, de proposito.
             List.of("Reaper", "Sanders"),
             // Vazamento do japones. "Shinigami" nao aparece UMA vez no ingles do acervo (35
             // ocorrencias de "Sanders", 0 de "Shinigami"), entao risco de falso-positivo e zero.

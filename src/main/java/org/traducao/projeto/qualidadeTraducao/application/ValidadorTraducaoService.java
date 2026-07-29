@@ -235,9 +235,23 @@ public class ValidadorTraducaoService {
     // Conectivos de discurso que legitimamente abrem uma fala com dois-pontos em PT-BR.
     // Sem esta allowlist, "I repeat:" traduzido como "Repito:" seria acusado de locutor
     // inventado — caso real e correto, medido no corpus.
+    //
+    // O VERBO DE ELOCUÇÃO foi o buraco: a lista só tinha substantivos e interjeições, então
+    // discurso relatado — que em português EXIGE dois-pontos — caía como locutor inventado.
+    // Dois casos medidos, em obras diferentes:
+    //   08th  EN "They said \"Now we're reborn.\""        PT "Eles disseram: \"Agora nascemos...\""
+    //   ZZ    EN "He said, \"That can wait till later!\"" PT "Ele disse: \"Isso pode esperar...\""
+    // No 08th custou 1 das 10 falas vazias da rodada de 2026-07-28. Note que o sujeito vem
+    // ANTES do verbo ("Eles disseram"), então o padrão precisa aceitar o pronome opcional —
+    // casar só o verbo deixaria os dois casos reais de fora.
     private static final Pattern PADRAO_CONECTIVO_DISCURSO = Pattern.compile(
         "^(?:repito|aten[çc][ãa]o|aviso|nota|observa[çc][ãa]o|ou seja|isto|isso|ent[ãa]o|bem|sim|"
-            + "n[ãa]o|mas|ah|oh|ei|olha|escuta|escute|veja|ora)\\s*:",
+            + "n[ãa]o|mas|ah|oh|ei|olha|escuta|escute|veja|ora"
+            + "|(?:(?:ele|ela|eles|elas|voc[êe]|voc[êe]s|eu|n[óo]s)\\s+)?"
+            + "(?:disse|disseram|dizia|diziam|falou|falaram|respondeu|responderam|"
+            + "gritou|gritaram|perguntou|perguntaram|avisou|avisaram|contou|contaram|"
+            + "explicou|explicaram|repetiu|repetiram|pensou|pensaram)"
+            + ")\\s*:",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
 
