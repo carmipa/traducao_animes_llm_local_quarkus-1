@@ -1,26 +1,22 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
-import org.traducao.projeto.core.io.DiretorioBaseKronos;
-
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.util.DuracaoUtil;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
-import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
-import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.trocaTipoLegenda.domain.ResultadoTrocaFonte;
 import org.traducao.projeto.trocaTipoLegenda.domain.exceptions.TrocaTipoLegendaException;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.ArmazenamentoBackupPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.ConsoleTrocaPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.LegendaIoPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.TelemetriaTrocaPort;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -53,36 +49,27 @@ import java.util.stream.Stream;
 public class AchatarEstilosUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(AchatarEstilosUseCase.class);
-    private static final DateTimeFormatter TIMESTAMP_DIR = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+    private static final String OPERACAO = "Achatar Estilos Decorativos";
 
-    private final LeitorLegendaAss leitor;
-    private final EscritorLegendaAss escritor;
+    private final LegendaIoPort legendaIo;
     private final AchatadorEstilosDecorativosService achatador;
-    private final TelemetriaService telemetriaService;
-    private final Path raizBackups;
+    private final TelemetriaTrocaPort telemetria;
+    private final ArmazenamentoBackupPort backup;
+    private final ConsoleTrocaPort console;
 
     @Inject
     public AchatarEstilosUseCase(
-        LeitorLegendaAss leitor,
-        EscritorLegendaAss escritor,
+        LegendaIoPort legendaIo,
         AchatadorEstilosDecorativosService achatador,
-        TelemetriaService telemetriaService
+        TelemetriaTrocaPort telemetria,
+        ArmazenamentoBackupPort backup,
+        ConsoleTrocaPort console
     ) {
-        this(leitor, escritor, achatador, telemetriaService, DiretorioBaseKronos.resolver("backups"));
-    }
-
-    AchatarEstilosUseCase(
-        LeitorLegendaAss leitor,
-        EscritorLegendaAss escritor,
-        AchatadorEstilosDecorativosService achatador,
-        TelemetriaService telemetriaService,
-        Path raizBackups
-    ) {
-        this.leitor = leitor;
-        this.escritor = escritor;
+        this.legendaIo = legendaIo;
         this.achatador = achatador;
-        this.telemetriaService = telemetriaService;
-        this.raizBackups = raizBackups.toAbsolutePath().normalize();
+        this.telemetria = telemetria;
+        this.backup = backup;
+        this.console = console;
     }
 
     /**
@@ -99,42 +86,38 @@ public class AchatarEstilosUseCase {
         long inicioMs = System.currentTimeMillis();
         validarDiretorio(diretorio);
 
-        out(AnsiCores.CYAN + "\n=== Iniciando Achatamento de Estilos Decorativos ===" + AnsiCores.RESET);
-        out("Pasta alvo: " + diretorio.toAbsolutePath());
+        console.titulo("\n=== Iniciando Achatamento de Estilos Decorativos ===");
+        console.info("Pasta alvo: " + diretorio.toAbsolutePath());
 
         List<Path> arquivos = listarLegendas(diretorio);
         if (arquivos.isEmpty()) {
-            out(AnsiCores.YELLOW + "[AVISO] Nenhum arquivo .ass/.ssa encontrado." + AnsiCores.RESET);
-            out(DuracaoUtil.linhaRelatorioFinal("Achatar Estilos Decorativos", inicioMs));
+            console.aviso("[AVISO] Nenhum arquivo .ass/.ssa encontrado.");
+            console.info(DuracaoUtil.linhaRelatorioFinal(OPERACAO, inicioMs));
             return new ResultadoTrocaFonte(0, 0, 0, LocalDateTime.now().toString(), "N/A", null);
         }
 
-        String timestamp = TIMESTAMP_DIR.format(LocalDateTime.now());
-        Path pastaBackup = raizBackups.resolve("achatar_estilos_" + timestamp).normalize();
-        try {
-            Files.createDirectories(pastaBackup);
-            out("Diretório de backup criado: " + pastaBackup);
-        } catch (IOException e) {
-            throw new TrocaTipoLegendaException("Falha ao criar diretório de backup: " + pastaBackup, e);
-        }
+        Path pastaBackup = backup.abrirSessao("achatar_estilos");
+        console.info("Diretório de backup criado: " + pastaBackup);
 
         int totalAlterados = 0;
         int totalFalas = 0;
         int totalSilabas = 0;
         for (Path arq : arquivos) {
             if (Thread.currentThread().isInterrupted()) {
-                out(AnsiCores.YELLOW + "[AVISO] Execução interrompida — arquivos já gravados foram preservados." + AnsiCores.RESET);
+                console.aviso("[AVISO] Execução interrompida — arquivos já gravados foram preservados.");
                 break;
             }
             try {
-                DocumentoLegenda doc = leitor.ler(arq);
+                DocumentoLegenda doc = legendaIo.ler(arq);
                 AchatadorEstilosDecorativosService.Resultado r = achatador.achatar(doc);
                 if (!r.houveAchatamento()) {
-                    out("Arquivo " + arq.getFileName() + " [OK] — sem estilos decorativos. Pulando.");
+                    console.info("Arquivo " + arq.getFileName() + " [OK] — sem estilos decorativos. Pulando.");
                     continue;
                 }
-                Files.copy(arq, pastaBackup.resolve(arq.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-                escritor.escrever(arq, r.documento());
+                // Backup ANTES de escrever, sempre nesta ordem: o achatamento descarta a camada
+                // de timing do karaokê, e sem a cópia intacta essa perda seria definitiva.
+                backup.preservar(pastaBackup, arq);
+                legendaIo.escrever(arq, r.documento());
                 totalAlterados++;
                 totalFalas += r.falasAchatadas();
                 totalSilabas += r.silabasDescartadas();
@@ -143,32 +126,32 @@ public class AchatarEstilosUseCase {
                 String silabas = r.silabasDescartadas() > 0
                     ? "; " + r.silabasDescartadas() + " sílaba(s) de karaokê descartada(s)"
                     : "";
-                out(AnsiCores.GREEN + "  [ACHATADO] " + arq.getFileName() + ": " + r.falasAchatadas()
-                    + " fala(s); estilos " + r.estilosDecorativos() + " -> Default" + silabas + "." + AnsiCores.RESET);
+                console.sucesso("  [ACHATADO] " + arq.getFileName() + ": " + r.falasAchatadas()
+                    + " fala(s); estilos " + r.estilosDecorativos() + " -> Default" + silabas + ".");
             } catch (Exception e) {
-                out(AnsiCores.RED + "  [ERRO] Falha ao achatar " + arq.getFileName() + ": " + e.getMessage() + AnsiCores.RESET);
+                console.erro("  [ERRO] Falha ao achatar " + arq.getFileName() + ": " + e.getMessage());
                 log.error("Erro ao achatar estilos de {}", arq, e);
             }
         }
 
-        out(AnsiCores.GREEN + "\n========================================================================" + AnsiCores.RESET);
-        out(AnsiCores.GREEN + "  [SUCESSO] ACHATAMENTO DE ESTILOS DECORATIVOS FINALIZADO!" + AnsiCores.RESET);
-        out("  • Arquivos analisados : " + arquivos.size());
-        out("  • Arquivos alterados  : " + totalAlterados);
-        out("  • Falas achatadas     : " + totalFalas);
-        out("  • Sílabas descartadas : " + totalSilabas + " (camada de timing de karaokê)");
-        out("  • Pasta de Backup     : " + pastaBackup);
-        out(AnsiCores.GREEN + "========================================================================" + AnsiCores.RESET);
+        console.sucesso("\n========================================================================");
+        console.sucesso("  [SUCESSO] ACHATAMENTO DE ESTILOS DECORATIVOS FINALIZADO!");
+        console.info("  • Arquivos analisados : " + arquivos.size());
+        console.info("  • Arquivos alterados  : " + totalAlterados);
+        console.info("  • Falas achatadas     : " + totalFalas);
+        console.info("  • Sílabas descartadas : " + totalSilabas + " (camada de timing de karaokê)");
+        console.info("  • Pasta de Backup     : " + pastaBackup);
+        console.sucesso("========================================================================");
 
         long duracaoMs = System.currentTimeMillis() - inicioMs;
-        telemetriaService.registrarOperacao(TelemetriaService.criarOperacao(
-            "Achatar Estilos Decorativos",
+        telemetria.registrar(
+            OPERACAO,
             "Diretório: " + diretorio.getFileName() + "; alterados=" + totalAlterados + "; falas=" + totalFalas,
             duracaoMs,
             arquivos.size(),
             totalAlterados,
-            totalFalas));
-        out(DuracaoUtil.linhaRelatorioFinal("Achatar Estilos Decorativos", inicioMs));
+            totalFalas);
+        console.info(DuracaoUtil.linhaRelatorioFinal(OPERACAO, inicioMs));
 
         return new ResultadoTrocaFonte(
             arquivos.size(), totalAlterados, totalFalas, LocalDateTime.now().toString(), pastaBackup.toString(), null);
@@ -198,10 +181,8 @@ public class AchatarEstilosUseCase {
         }
     }
 
-    // System.out é redirecionado ao console SSE quando o controller define o canal
-    // "troca-tipo-legenda" e submete à fila; log.* segue para o terminal do servidor.
-    private void out(String mensagem) {
-        System.out.println(mensagem);
-        log.info(mensagem.replaceAll("\\u001B\\[[0-9;]*m", ""));
-    }
+    // A escrita no console saiu daqui para ConsoleTrocaPort: o redirecionamento ao SSE
+    // (canal "troca-tipo-legenda", definido pelo controller) continua funcionando porque o
+    // adaptador escreve no mesmo System.out. O que mudou é que a cor deixou de ser decidida
+    // aqui — este caso de uso declara sucesso/aviso/erro e não conhece código de escape.
 }
