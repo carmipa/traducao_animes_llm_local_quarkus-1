@@ -19,6 +19,17 @@ tradutor:
     - "ED - Romaji"
     - "ED - English"
     - "ED-ROM"
+    # OPL2 -- camada de karaoke do Gundam Unicorn RE:0096, 3.410 linhas medidas em 2026-07-29
+    # nos 22 episodios. Uma PALAVRA ou SILABA por linha; sem contexto o LLM devolve invencao
+    # ancorada na lore ("sa" virou "Meu nome e Mineva Lao Zabi.").
+    #
+    # E o UNICO estilo do acervo que escapa do veto de musica. Quem veta e
+    # DetectorEfeitoKaraokeService.ESTILO_MUSICA_AMPLO_PATTERN, cujo lookaround e de LETRA
+    # -- (?<!\p{L})(...|op|ed|...)(?!\p{L}) --, entao digito e sublinhado nao quebram o
+    # casamento e OP2/ED2/OP_S2/ED_S2/ED_English JA sao pegos. "OPL2" nao e, porque o "L"
+    # depois de "OP" E letra. Entrada nominal para nao alargar um padrao que hoje decide o
+    # que E traduzido (medicao congelada em PadraoMusicaAmploNaoCapturaDialogoTest).
+    - "OPL2"
   # Protecao de romaji pelo PAREAMENTO das duas camadas de karaoke (romaji e traducao ocupam o
   # mesmo tempo na tela). Sinal PRIMARIO, independente de nome de estilo e de fonte -- que sao
   # normalizados de proposito. DESLIGADA por padrao: com false a decisao do que traduzir fica
