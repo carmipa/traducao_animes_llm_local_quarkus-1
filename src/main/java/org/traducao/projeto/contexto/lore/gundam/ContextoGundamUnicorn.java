@@ -32,8 +32,18 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
         - Mobile Suit vs Mobile Armor — distinguir rigorosamente.
         - Axis (mencoes historicas / Laplace) — NUNCA "Eixo".
 
+        === Audrey e Mineva: a escolha de quem fala ===
+        - Original "Audrey" -> saida "Audrey".   - Original "Mineva" -> saida "Mineva".
+        - Sao a MESMA pessoa: Mineva Lao Zabi se apresenta como Audrey Burne. Mas a obra usa os
+          dois nomes DE PROPOSITO, e a escolha diz quem esta falando e o que pensa dela.
+        - O Banagher a chama de "Audrey" mesmo DEPOIS de saber quem ela e. Nao e ignorancia: e
+          ele escolhendo enxergar a pessoa que ela quis ser, e nao a princesa Zabi. Trocar por
+          "Mineva" ali apaga uma decisao do personagem.
+        - Escreva o nome que o original escreveu. Nao resolva a identidade, nao "corrija" um
+          nome pelo outro, e nao acrescente o que o original nao trouxe.
+
         === Protagonistas / Sleeves ===
-        - Banagher Links (m); Mineva Lao Zabi / Audrey Burne (f);
+        - Banagher Links (m); Mineva Lao Zabi, que se apresenta como Audrey Burne (f);
           Full Frontal (m — NUNCA "Frontal Completo"); Marida Cruz (f — Purge / "Sleeves");
           Suberoa Zinnerman (m); Angelo Sauper (m); Gilboa Sant (m); Tikva Sant (m) quando aparecer;
           Flaste Schole (m); Aaron Terzieff (m); Tomura (m) quando aparecer.
