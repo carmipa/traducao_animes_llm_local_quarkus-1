@@ -64,8 +64,13 @@ class ParesInconfundiveisDeclaradosTest {
             Set.of("Argama", "Nahel Argama")),
         "guilty_crown", Set.of(
             Set.of("Inori", "Crow")),
+        // Três pares para UM personagem, e cada um guarda uma direção diferente do mesmo
+        // invariante — o REGISTRO SOCIAL que a obra usa de propósito: companheiro chama pelo
+        // nome, os de fora usam o apelido, e ele próprio rejeita o apelido.
         "gundam_08ms", Set.of(
-            Set.of("Sanders", "Shinigami"))
+            Set.of("Sanders", "Ceifador"),   // tratamento do esquadrão não vira apelido
+            Set.of("Reaper", "Sanders"),     // apelido não vira nome ("Sniper 2!" saiu "Sanders!")
+            Set.of("Sanders", "Shinigami"))  // e o japonês não vaza para a legenda PT
     );
 
     @Inject
