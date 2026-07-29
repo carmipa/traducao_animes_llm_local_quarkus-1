@@ -101,7 +101,18 @@ public class RemuxerController {
             return ResponseEntity.status(409).body(new RespostaPadrao(
                 "O pipeline já possui uma operação em andamento ou aguardando. Aguarde a conclusão antes de iniciar o Remuxer."));
         }
-        boolean preservarOriginais = Boolean.TRUE.equals(req.preservarLegendasOriginais());
+        // DECISÃO (Paulo, 2026-07-29): legenda original NUNCA é apagada. A traduzida entra como
+        // primeira opção — é ela que abre por padrão no player —, e as que já estavam no arquivo
+        // continuam disponíveis como segunda escolha.
+        //
+        // O padrão anterior era o oposto, nos DOIS lugares: o checkbox da tela nascia desmarcado
+        // e `Boolean.TRUE.equals(null)` também é false, então uma requisição sem o campo mandava
+        // `--no-subtitles` e o remux saía sem as faixas originais. Perder a legenda de origem é
+        // irreversível a partir do arquivo remuxado — o material bruto pode não estar mais lá.
+        //
+        // O campo do DTO continua aceito para não quebrar cliente antigo, e é IGNORADO de
+        // propósito: não existe mais caminho que apague. Há teste nominal afirmando isso.
+        boolean preservarOriginais = true;
         pipelineWebSupport.submeterJobComRelatorio("remuxer", "Remuxer (mkvmerge)", () -> {
             try {
                 RelatorioRemux relatorio = remuxarLoteUseCase.executar(

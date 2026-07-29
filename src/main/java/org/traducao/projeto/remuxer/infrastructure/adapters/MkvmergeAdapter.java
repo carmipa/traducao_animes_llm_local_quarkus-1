@@ -134,42 +134,35 @@ public class MkvmergeAdapter {
      * temporário próprio.
      */
     public void executarRemux(RemuxTarefa tarefa) {
-        executarRemux(tarefa, 0, false);
+        executarRemux(tarefa, 0);
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: executa remux com offset e substituição das legendas
-     * originais, preservando API histórica.
+     * PROPÓSITO DE NEGÓCIO: remuxa uma tarefa em temporário e publica somente após inspeção do
+     * MKV. A legenda PT-BR entra como PRIMEIRA opção; as faixas que já estavam no arquivo são
+     * SEMPRE preservadas como segunda escolha.
      *
-     * <p>INVARIANTES DO DOMÍNIO: PT-BR é marcada como padrão.
+     * <p>INVARIANTES DO DOMÍNIO: saída final não preexistente; temporário fica na mesma pasta;
+     * container final contém vídeo, áudio, a legenda PT-BR e todas as originais.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: destino final anterior é preservado.
+     * <p>Havia um caminho que emitia {@code --no-subtitles} e descartava as faixas de legenda do
+     * MKV. Ele foi REMOVIDO em 2026-07-29 (decisão do Paulo), não desligado: perder a legenda de
+     * origem é irreversível a partir do arquivo remuxado, e o material bruto pode não existir
+     * mais. Um booleano inerte seria pior que a remoção — daria a impressão de escolha onde não
+     * há.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: temporário é apagado no {@code finally}; destino
+     * preexistente recebe exceção específica e nunca é removido.
      */
     public void executarRemux(RemuxTarefa tarefa, long sincronismoMs) {
-        executarRemux(tarefa, sincronismoMs, false);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: remuxa uma tarefa em temporário, opcionalmente
-     * preservando legendas originais, e publica somente após inspeção do MKV.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: saída final não preexistente; temporário fica na
-     * mesma pasta; container final contém vídeo, áudio e legenda PT-BR.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: temporário é apagado no {@code finally};
-     * destino preexistente recebe exceção específica e nunca é removido.
-     */
-    public void executarRemux(RemuxTarefa tarefa, long sincronismoMs, boolean preservarLegendasOriginais) {
         Path destinoFinal = tarefa.caminhoSaida().toAbsolutePath().normalize();
         if (Files.exists(destinoFinal)) {
             throw new SaidaRemuxJaExisteException("MKV final já existe e foi preservado: " + destinoFinal);
         }
         Path temporario = criarCaminhoTemporario(destinoFinal);
         try {
-            List<Integer> legendasOriginais = preservarLegendasOriginais
-                ? identificarIdsLegendas(tarefa.caminhoVideo()) : List.of();
-            List<String> comando = montarComando(
-                tarefa, temporario, sincronismoMs, preservarLegendasOriginais, legendasOriginais);
+            List<Integer> legendasOriginais = identificarIdsLegendas(tarefa.caminhoVideo());
+            List<String> comando = montarComando(tarefa, temporario, sincronismoMs, legendasOriginais);
             ProcessoExternoUtil.Resultado resultado = processoRunner.executar(comando, TIMEOUT_REMUX, true);
             if (resultado.codigoSaida() != 0) {
                 throw new RemuxerException("mkvmerge falhou com código " + resultado.codigoSaida()
@@ -192,8 +185,8 @@ public class MkvmergeAdapter {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: monta argumentos sem shell, com metadata regional
-     * PT-BR genérica e opção explícita sobre legendas originais.
+     * PROPÓSITO DE NEGÓCIO: monta argumentos sem shell, com metadata regional PT-BR genérica.
+     * As legendas originais permanecem no container e apenas deixam de ser a faixa padrão.
      *
      * <p>INVARIANTES DO DOMÍNIO: vídeo/áudio nunca são recodificados; offset atua
      * somente na faixa externa; nome de faixa não cita modelo de IA.
@@ -202,18 +195,15 @@ public class MkvmergeAdapter {
      * ocorre na execução.
      */
     List<String> montarComando(RemuxTarefa tarefa, Path saidaTemporaria, long sincronismoMs,
-                               boolean preservarLegendasOriginais, List<Integer> legendasOriginais) {
+                               List<Integer> legendasOriginais) {
         List<String> comando = new ArrayList<>();
         comando.add(mkvmergePath);
         comando.add("-o");
         comando.add(saidaTemporaria.toString());
-        if (!preservarLegendasOriginais) {
-            comando.add("--no-subtitles");
-        } else {
-            for (Integer idLegenda : legendasOriginais) {
-                comando.add("--default-track-flag");
-                comando.add(idLegenda + ":0");
-            }
+        // As originais ficam, mas perdem o "padrão": quem abre primeiro é a PT-BR.
+        for (Integer idLegenda : legendasOriginais) {
+            comando.add("--default-track-flag");
+            comando.add(idLegenda + ":0");
         }
         comando.add(tarefa.caminhoVideo().toString());
         comando.add("--language");

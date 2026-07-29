@@ -178,7 +178,7 @@ public class RemuxarLoteUseCase {
                 + " -> " + tarefa.caminhoSaida().getFileName());
             try {
                 validarLegenda(tarefa.caminhoLegenda());
-                mkvmergeAdapter.executarRemux(tarefa, sincronismoMs, preservarLegendasOriginais);
+                mkvmergeAdapter.executarRemux(tarefa, sincronismoMs);
                 long bytes = Files.size(tarefa.caminhoSaida());
                 relatorio.registrarSucesso(bytes);
                 console.sucesso("[OK " + (indice + 1) + "/" + plano.tarefas().size()

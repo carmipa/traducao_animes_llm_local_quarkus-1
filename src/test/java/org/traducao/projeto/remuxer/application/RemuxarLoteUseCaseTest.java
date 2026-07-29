@@ -30,7 +30,7 @@ class RemuxarLoteUseCaseTest {
         Cenario cenario = criarCenario(tempDir, "isto não é ASS");
         MkvmergeAdapter adapter = adapterQueFalhaSeExecutado();
 
-        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0, false);
+        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0);
 
         assertEquals(1, relatorio.getErrosLegendaInvalida());
         assertEquals("CONCLUIDO_COM_FALHAS", relatorio.getStatusFinal());
@@ -52,12 +52,12 @@ class RemuxarLoteUseCaseTest {
         MkvmergeAdapter adapter = new AdapterFake() {
             /** PROPÓSITO DE NEGÓCIO: simula colisão de destino. INVARIANTES DO DOMÍNIO: nunca escreve. COMPORTAMENTO EM CASO DE FALHA: lança exceção específica. */
             @Override
-            public void executarRemux(RemuxTarefa tarefa, long sync, boolean preservar) {
+            public void executarRemux(RemuxTarefa tarefa, long sync) {
                 throw new SaidaRemuxJaExisteException("preservado: " + tarefa.caminhoSaida());
             }
         };
 
-        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0, false);
+        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0);
 
         assertEquals("CONCLUIDO_COM_PENDENCIAS", relatorio.getStatusFinal());
         assertEquals(1, relatorio.getSaidasJaExistentes());
@@ -76,7 +76,7 @@ class RemuxarLoteUseCaseTest {
         MkvmergeAdapter adapter = new AdapterFake() {
             /** PROPÓSITO DE NEGÓCIO: simula publicação validada. INVARIANTES DO DOMÍNIO: escreve no destino planejado. COMPORTAMENTO EM CASO DE FALHA: converte I/O em erro de domínio. */
             @Override
-            public void executarRemux(RemuxTarefa tarefa, long sync, boolean preservar) {
+            public void executarRemux(RemuxTarefa tarefa, long sync) {
                 try {
                     Files.writeString(tarefa.caminhoSaida(), "MKV_VALIDADO");
                 } catch (IOException e) {
@@ -85,7 +85,7 @@ class RemuxarLoteUseCaseTest {
             }
         };
 
-        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0, true);
+        RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0);
 
         assertEquals("CONCLUIDO", relatorio.getStatusFinal());
         assertEquals(1, relatorio.getMkvProcessadosSucesso());
@@ -104,13 +104,13 @@ class RemuxarLoteUseCaseTest {
         MkvmergeAdapter adapter = new AdapterFake() {
             /** PROPÓSITO DE NEGÓCIO: simula cancelamento. INVARIANTES DO DOMÍNIO: restaura a flag de interrupção. COMPORTAMENTO EM CASO DE FALHA: lança erro de domínio. */
             @Override
-            public void executarRemux(RemuxTarefa tarefa, long sync, boolean preservar) {
+            public void executarRemux(RemuxTarefa tarefa, long sync) {
                 Thread.currentThread().interrupt();
                 throw new RemuxerException("cancelado");
             }
         };
         try {
-            RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0, false);
+            RelatorioRemux relatorio = criarUseCase(adapter).executar(cenario.videos(), cenario.legendas(), 0);
             assertEquals("CANCELADO", relatorio.getStatusFinal());
             assertEquals(0, relatorio.getMkvProcessadosSucesso());
         } finally {
@@ -171,7 +171,7 @@ class RemuxarLoteUseCaseTest {
         return new AdapterFake() {
             /** PROPÓSITO DE NEGÓCIO: acusa execução proibida. INVARIANTES DO DOMÍNIO: nunca produz arquivo. COMPORTAMENTO EM CASO DE FALHA: lança AssertionError. */
             @Override
-            public void executarRemux(RemuxTarefa tarefa, long sync, boolean preservar) {
+            public void executarRemux(RemuxTarefa tarefa, long sync) {
                 throw new AssertionError("adaptador não deveria executar");
             }
         };
@@ -189,7 +189,7 @@ class RemuxarLoteUseCaseTest {
         /** PROPÓSITO DE NEGÓCIO: aprova infraestrutura no teste. INVARIANTES DO DOMÍNIO: não chama binário. COMPORTAMENTO EM CASO DE FALHA: não lança. */
         @Override public void validarInfraestrutura() { }
         /** PROPÓSITO DE NEGÓCIO: exige especialização do cenário. INVARIANTES DO DOMÍNIO: fake base não publica. COMPORTAMENTO EM CASO DE FALHA: lança AssertionError. */
-        @Override public void executarRemux(RemuxTarefa tarefa, long sync, boolean preservar) {
+        @Override public void executarRemux(RemuxTarefa tarefa, long sync) {
             throw new AssertionError("configure o comportamento do fake");
         }
     }

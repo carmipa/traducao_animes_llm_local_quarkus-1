@@ -30,7 +30,10 @@ export function initRemuxer() {
         const saida = document.getElementById('remuxer-legendas').value.trim();
         const syncOffsetRaw = document.getElementById('remuxer-sync-offset').value.trim();
         const syncOffsetMs = syncOffsetRaw ? parseInt(syncOffsetRaw, 10) : null;
-        const preservarLegendasOriginais = document.getElementById('remuxer-preservar-legendas').checked;
+        // As legendas originais SEMPRE sobrevivem (decisão do Paulo, 2026-07-29). O campo segue
+        // no corpo para não quebrar contrato, e o servidor o ignora — não existe mais caminho
+        // que apague faixa. O checkbox da tela é só informativo, marcado e desabilitado.
+        const preservarLegendasOriginais = true;
 
         if (syncOffsetMs !== null && (!Number.isInteger(syncOffsetMs) || Math.abs(syncOffsetMs) > 86400000)) {
             logNoConsole('console-remuxer', 'Sincronismo inválido: use um inteiro entre -86400000 e 86400000 ms.', 'erro');
@@ -46,9 +49,8 @@ export function initRemuxer() {
         logNoConsole('console-remuxer', `Pasta de Vídeos: ${entrada}`, 'info');
         if (saida) logNoConsole('console-remuxer', `Pasta de Legendas: ${saida}`, 'info');
         if (syncOffsetMs) logNoConsole('console-remuxer', `Sincronismo manual: ${syncOffsetMs}ms`, 'info');
-        logNoConsole('console-remuxer', preservarLegendasOriginais
-            ? 'Faixas originais: serão preservadas.'
-            : 'Faixas originais: serão substituídas pela nova PT-BR.', 'info');
+        logNoConsole('console-remuxer',
+            'Faixas originais: preservadas. A PT-BR entra como primeira opção.', 'info');
 
         try {
             const res = await fetch('/api/remuxar', {
