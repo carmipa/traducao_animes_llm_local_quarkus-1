@@ -781,7 +781,7 @@ public class RenomeadorUseCase {
      * diferentes sejam processadas em paralelo.
      *
      * <p>INVARIANTES DO DOMÍNIO: somente o proprietário do lock executa a ação e
-     * o bloqueio sempre é liberado.
+     * o bloqueio sempre é liberado. A entrada do mapa é PERMANENTE — ver abaixo.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: se a pasta estiver ocupada lança exceção
      * antes da ação; exceções da ação são propagadas após liberar o lock.
@@ -796,8 +796,21 @@ public class RenomeadorUseCase {
         try {
             return acao.get();
         } finally {
+            // NÃO remover a chave do mapa. Havia um `remove(chave, bloqueio)` aqui e ele
+            // QUEBRAVA a exclusão mútua que este método existe para dar:
+            //
+            //   A dá unlock  ->  B faz computeIfAbsent, obtém o MESMO lock, tryLock OK, ENTRA
+            //   A executa remove(chave, lock)      <- tira do mapa o lock que B está segurando
+            //   C faz computeIfAbsent, cria lock NOVO, tryLock OK, ENTRA TAMBÉM
+            //
+            // Dois renomeadores na mesma pasta, chamando Files.move e escrevendo o mesmo
+            // manifesto de reversão. Não é teórico: este caso de uso NÃO passa pela
+            // FilaExecucaoPipeline — roda direto na thread HTTP, e o Quarkus atende
+            // requisições concorrentes. Dois cliques rápidos bastam.
+            //
+            // O custo de manter é uma entrada de mapa por pasta já processada, com um
+            // ReentrantLock ocioso. Desprezível perto de perder arquivos.
             bloqueio.unlock();
-            BLOQUEIOS_POR_PASTA.remove(chave, bloqueio);
         }
     }
 
