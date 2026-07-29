@@ -37,7 +37,7 @@ class MkvmergeAdapterTest {
         MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
             (comando, timeout, mesclar) -> { throw new AssertionError("runner não deveria ser chamado"); });
 
-        assertThrows(SaidaRemuxJaExisteException.class, () -> adapter.executarRemux(tarefa, 0, false));
+        assertThrows(SaidaRemuxJaExisteException.class, () -> adapter.executarRemux(tarefa, 0));
 
         assertEquals("MKV_VALIDO_ANTERIOR", Files.readString(tarefa.caminhoSaida()));
         assertTrue(listarParciais(tempDir).isEmpty());
@@ -56,12 +56,16 @@ class MkvmergeAdapterTest {
         MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
             (comando, timeout, mesclar) -> executarFake(comando, comandos, 0));
 
-        adapter.executarRemux(tarefa, 350, false);
+        adapter.executarRemux(tarefa, 350);
 
         assertTrue(Files.exists(tarefa.caminhoSaida()));
         assertTrue(listarParciais(tempDir).isEmpty());
         List<String> remux = localizarComandoRemux(comandos);
-        assertTrue(remux.contains("--no-subtitles"));
+        // INVERTIDO em 2026-07-29: antes este teste EXIGIA "--no-subtitles". A flag descartava as
+        // faixas de legenda do MKV, e perder a origem e irreversivel a partir do arquivo
+        // remuxado. O caminho foi removido do adaptador, nao desligado.
+        assertFalse(remux.contains("--no-subtitles"),
+            "legenda original nunca e descartada: o caminho destrutivo foi removido");
         assertTrue(remux.contains("0:pt-BR"));
         assertTrue(remux.contains("0:Português (Brasil)"));
         assertTrue(remux.contains("0:350"));
@@ -69,19 +73,23 @@ class MkvmergeAdapterTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: comprova que a opção de preservação remove somente a
-     * flag que descartaria legendas originais.
-     * INVARIANTES DO DOMÍNIO: nova PT-BR continua padrão e identificada.
-     * COMPORTAMENTO EM CASO DE FALHA: presença de --no-subtitles falha o teste.
+     * PROPÓSITO DE NEGÓCIO: a legenda PT-BR entra como PRIMEIRA opcao e as originais continuam no
+     * container como segunda escolha. Nao ha modo, flag ou sobrecarga que as descarte.
+     *
+     * <p>INVARIANTES DO DOMINIO: cada legenda original perde o "padrao" ({@code <id>:0}) e a nova
+     * recebe ({@code 0:1}) -- e reordenacao de preferencia, nao remocao.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: presenca de --no-subtitles, ou ausencia do rebaixamento
+     * das originais, reprova.
      */
     @Test
-    void preservaLegendasOriginaisQuandoSolicitado(@TempDir Path tempDir) throws Exception {
+    void legendasOriginaisSempreSobrevivem(@TempDir Path tempDir) throws Exception {
         RemuxTarefa tarefa = criarTarefa(tempDir);
         List<List<String>> comandos = new ArrayList<>();
         MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
             (comando, timeout, mesclar) -> executarFake(comando, comandos, 0));
 
-        adapter.executarRemux(tarefa, 0, true);
+        adapter.executarRemux(tarefa, 0);
 
         List<String> remux = localizarComandoRemux(comandos);
         assertFalse(remux.contains("--no-subtitles"));
@@ -102,7 +110,7 @@ class MkvmergeAdapterTest {
         MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
             (comando, timeout, mesclar) -> executarFake(comando, new ArrayList<>(), 2));
 
-        assertThrows(RemuxerException.class, () -> adapter.executarRemux(tarefa, 0, false));
+        assertThrows(RemuxerException.class, () -> adapter.executarRemux(tarefa, 0));
 
         assertFalse(Files.exists(tarefa.caminhoSaida()));
         assertTrue(listarParciais(tempDir).isEmpty());
@@ -124,7 +132,7 @@ class MkvmergeAdapterTest {
                 throw new InterruptedException("cancelado");
             });
         try {
-            assertThrows(RemuxerException.class, () -> adapter.executarRemux(tarefa, 0, false));
+            assertThrows(RemuxerException.class, () -> adapter.executarRemux(tarefa, 0));
             assertTrue(Thread.currentThread().isInterrupted());
             assertFalse(Files.exists(tarefa.caminhoSaida()));
             assertTrue(listarParciais(tempDir).isEmpty());
