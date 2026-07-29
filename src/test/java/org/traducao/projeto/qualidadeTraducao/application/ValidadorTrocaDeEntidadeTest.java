@@ -153,6 +153,36 @@ class ValidadorTrocaDeEntidadeTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o par que protege ENREDO, não grafia.
+     *
+     * <p>Char Aznable se apresenta como Quattro Bajeena, e Zeta esconde isso de propósito. Quem
+     * pergunta por "Char" está perguntando pela identidade OCULTA — resolver a charada na
+     * tradução estraga a cena. Medido em 2026-07-28: 34 falas, e ZERO na direção inversa. A
+     * assimetria é a assinatura: não é confusão entre nomes parecidos, é o modelo aplicando
+     * conhecimento de mundo que a cena não autoriza.
+     *
+     * <p>A cena legítima em que alguém revela a identidade ("Quattro Bajeena, or should I say
+     * Char Aznable?") traz os DOIS nomes no inglês, e o portão exige que o original NÃO tenha o
+     * termo acusado — então ela passa. É a asserção que separa esta regra de um apagador de
+     * revelações.
+     */
+    @Test
+    @DisplayName("resolver identidade oculta é troca; a cena que revela de propósito passa")
+    void identidadeOcultaNaoPodeSerResolvida() {
+        var validador = new ValidadorTraducaoService(
+            LoreAtivaFake.comPares(List.of("Char", "Quattro")));
+
+        assertThrows(AlucinacaoDetectadaException.class,
+            () -> validador.validarPar(
+                "Do you know of a man by the name of Char Aznable?",
+                "Sabe de um homem chamado Quattro Bajeena?"));
+
+        assertDoesNotThrow(() -> validador.validarPar(
+            "Quattro Bajeena, or should I say Char Aznable?",
+            "Quattro Bajeena, ou devo dizer Char Aznable?"));
+    }
+
+    /**
      * A guarda de preservação remove as ocorrências do termo ACUSADO antes de procurar o do
      * original. Sem essa ordem, o par cujo termo contém o outro cegaria a si mesmo: "Nahel Argama"
      * contém "Argama", então "Reparem a Nahel Argama" satisfaz {@code contemTermo(.., "Argama")}

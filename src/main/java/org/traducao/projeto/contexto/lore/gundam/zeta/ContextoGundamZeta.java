@@ -74,9 +74,18 @@ public class ContextoGundamZeta implements ProvedorContexto {
 
         === Tres superficies parecidas, tres coisas diferentes ===
         - Original "Four"    -> saida "Four".     Personagem: Four Murasame.
-        - Original "Quattro" -> saida "Quattro".  Personagem: Quattro Bajeena / Char.
+        - Original "Quattro" -> saida "Quattro".  Personagem: Quattro Bajeena.
         - Original "four"    -> saida "quatro".   Numeral.
         - Nao troque o token do original pelo nome de OUTRO personagem.
+
+        === Char e Quattro: a identidade oculta e o eixo da obra ===
+        - Original "Char"    -> saida "Char".
+        - Original "Quattro" -> saida "Quattro".
+        - Nunca "Quattro Aznable" nem "Char Bajeena": esses nomes NAO existem.
+        - Char Aznable se apresenta como Quattro Bajeena, e a obra esconde isso DE PROPOSITO.
+          Quem pergunta "do you know of a man by the name of Char Aznable?" esta perguntando
+          pela identidade OCULTA — trocar por "Quattro Bajeena" entrega o segredo e destroi
+          a cena. Escreva o nome que o original escreveu, sempre, sem resolver a identidade.
 
         === Regras duras ===
         - Titans nao vira Titãs; Axis nao vira Eixo; Hyaku Shiki nao vira Cem Estilos;
@@ -205,13 +214,40 @@ public class ContextoGundamZeta implements ProvedorContexto {
      * proteger a palavra pegaria as 4 falas em que "Four" abre a frase como numero
      * ("Four units, confirmed!").
      *
+     * <h2>Char x Quattro: o unico par aqui que protege ENREDO, e nao grafia</h2>
+     * Medido em 2026-07-28: <b>34 falas</b> em que o ingles diz "Char" e a traducao gravou
+     * "Quattro". A direcao e assimetrica -- 34 num sentido e ZERO no outro --, e a assimetria
+     * denuncia a causa: o modelo nao esta confundindo dois nomes parecidos, esta RESOLVENDO uma
+     * identidade que a obra esconde de proposito.
+     * <pre>
+     *   EN "Do you know of a man by the name of Char Aznable?"
+     *   PT "Sabe de um homem chamado Quattro Bajeena?"        &lt;- entrega o segredo
+     *
+     *   EN "someone like Char Aznable"
+     *   PT "alguem como Quattro Aznable"                      &lt;- quimera; esse nome nao existe
+     * </pre>
+     * Char Aznable se apresenta como Quattro Bajeena, e perguntar por "Char" e perguntar pela
+     * identidade oculta. A traducao que resolve a charada estraga a cena para quem assiste.
+     *
+     * <p>A lore CAUSOU isto, em dois lugares: o roster trazia "Quattro Bajeena / Char Aznable" e
+     * o bloco das tres superficies -- escrito no mesmo dia para separar "Four" do numeral --
+     * explicava quem era Quattro dizendo "Quattro Bajeena / Char". Ensinar a equivalencia para o
+     * modelo ENTENDER virou licenca para ele SUBSTITUIR. Mesmo padrao de Inori/Crow e
+     * Sanders/Shinigami; aqui o custo e o eixo narrativo da obra.
+     *
+     * <p>Seguranca do par, medida antes de declarar: <b>ZERO</b> falas do ingles mencionam "Char"
+     * e "Quattro" juntos, entao nao existe cena legitima ("Quattro Bajeena, or should I say Char
+     * Aznable?") para acusar por engano neste acervo. Com a guarda de preservacao de
+     * {@code trocou()}, uma fala assim tambem nao dispararia.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutavel; sem I/O.
      */
     @Override
     public Set<List<String>> paresInconfundiveis() {
         return Set.of(
             List.of("Four", "Quattro"),
-            List.of("Zeta Gundam", "Gundam Mk-II")
+            List.of("Zeta Gundam", "Gundam Mk-II"),
+            List.of("Char", "Quattro")
         );
     }
 }

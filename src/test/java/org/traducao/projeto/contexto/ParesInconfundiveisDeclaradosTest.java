@@ -58,7 +58,11 @@ class ParesInconfundiveisDeclaradosTest {
     private static final Map<String, Set<Set<String>>> ESPERADO = Map.of(
         "gundam_zeta", Set.of(
             Set.of("Four", "Quattro"),
-            Set.of("Zeta Gundam", "Gundam Mk-II")),
+            Set.of("Zeta Gundam", "Gundam Mk-II"),
+            // O único par do catálogo que protege ENREDO e não grafia: Char Aznable se
+            // apresenta como Quattro Bajeena, e a obra esconde isso de propósito. Medido:
+            // 34 falas com EN "Char" -> PT "Quattro", e ZERO na direção inversa.
+            Set.of("Char", "Quattro")),
         "gundam_zz", Set.of(
             Set.of("Zeta Gundam", "ZZ Gundam"),
             Set.of("Argama", "Nahel Argama")),
