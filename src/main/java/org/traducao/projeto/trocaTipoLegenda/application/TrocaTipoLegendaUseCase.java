@@ -1,19 +1,20 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
-import org.traducao.projeto.core.io.DiretorioBaseKronos;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
-import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
-import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
+// DIVIDA REMANESCENTE: TelemetriaService entra aqui so pelo utilitario estatico
+// resolverPastaRelatorios. O registro de telemetria ja passa por TelemetriaTrocaPort;
+// falta uma porta para a PASTA de relatorios, junto com a saida de console desta classe.
+import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.ArmazenamentoBackupPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.LegendaIoPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.TelemetriaTrocaPort;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaLegendaResultado;
 import org.traducao.projeto.trocaTipoLegenda.domain.EntradaAuditoriaTrocaFonte;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,13 +41,12 @@ public class TrocaTipoLegendaUseCase {
     private static final DateTimeFormatter UTC_FORMATTER = DateTimeFormatter.ISO_INSTANT;
     private static final DateTimeFormatter TIMESTAMP_DIR = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
-    private final LeitorLegendaAss leitor;
-    private final EscritorLegendaAss escritor;
+    private final LegendaIoPort legendaIo;
     private final AuditoriaFontesService auditoriaService;
-    private final TelemetriaService telemetriaService;
+    private final TelemetriaTrocaPort telemetria;
     private final TrocaTipoLegendaAuditoriaCache auditoriaCache;
     private final ObjectMapper objectMapper;
-    private final Path raizBackups;
+    private final ArmazenamentoBackupPort backup;
 
     private static final class SessaoTroca {
         final long inicioMs = System.currentTimeMillis();
@@ -78,55 +77,39 @@ public class TrocaTipoLegendaUseCase {
      */
     @Inject
     public TrocaTipoLegendaUseCase(
-        LeitorLegendaAss leitor,
-        EscritorLegendaAss escritor,
+        LegendaIoPort legendaIo,
         AuditoriaFontesService auditoriaService,
-        TelemetriaService telemetriaService,
-        TrocaTipoLegendaAuditoriaCache auditoriaCache
-    ) {
-        this(leitor, escritor, auditoriaService, telemetriaService, auditoriaCache, DiretorioBaseKronos.resolver("backups"));
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: permite isolar backups em ambiente controlado de teste
-     * sem tocar nos artefatos reais do projeto.
-     * <p>INVARIANTES DO DOMÍNIO: toda sessão permanece dentro da raiz informada.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: raiz nula impede construção útil e falha
-     * ao tentar normalizar o caminho.
-     */
-    private TrocaTipoLegendaUseCase(
-        LeitorLegendaAss leitor,
-        EscritorLegendaAss escritor,
-        AuditoriaFontesService auditoriaService,
-        TelemetriaService telemetriaService,
+        TelemetriaTrocaPort telemetria,
         TrocaTipoLegendaAuditoriaCache auditoriaCache,
-        Path raizBackups
+        ArmazenamentoBackupPort backup
     ) {
-        this.leitor = leitor;
-        this.escritor = escritor;
+        this.legendaIo = legendaIo;
         this.auditoriaService = auditoriaService;
-        this.telemetriaService = telemetriaService;
+        this.telemetria = telemetria;
         this.auditoriaCache = auditoriaCache;
         this.objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        this.raizBackups = raizBackups.toAbsolutePath().normalize();
+        this.backup = backup;
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: cria uma instância de teste com raiz de backup
-     * explicitamente isolada, sem ampliar o contrato público de produção.
-     * <p>INVARIANTES DO DOMÍNIO: a raiz temporária é obrigatória e normalizada.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: caminho nulo falha imediatamente.
+     * PROPÓSITO DE NEGÓCIO: cria uma instância de teste com o armazenamento de backup
+     * isolado, sem ampliar o contrato público de produção.
+     *
+     * <p>Antes recebia uma {@code Path raizBackups} e o caso de uso resolvia diretório e
+     * cópia por conta própria. Agora o isolamento vem de passar outro
+     * {@link ArmazenamentoBackupPort} — o teste troca a implementação, não o caminho.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dependência nula falha na primeira chamada.
      */
     static TrocaTipoLegendaUseCase criarParaTeste(
-        LeitorLegendaAss leitor,
-        EscritorLegendaAss escritor,
+        LegendaIoPort legendaIo,
         AuditoriaFontesService auditoriaService,
-        TelemetriaService telemetriaService,
+        TelemetriaTrocaPort telemetria,
         TrocaTipoLegendaAuditoriaCache auditoriaCache,
-        Path raizBackups
+        ArmazenamentoBackupPort backup
     ) {
         return new TrocaTipoLegendaUseCase(
-            leitor, escritor, auditoriaService, telemetriaService, auditoriaCache, raizBackups);
+            legendaIo, auditoriaService, telemetria, auditoriaCache, backup);
     }
 
     public ResultadoGeralAuditoria escanear(Path diretorio) {
@@ -138,7 +121,7 @@ public class TrocaTipoLegendaUseCase {
 
         for (Path arq : arquivos) {
             try {
-                DocumentoLegenda doc = leitor.ler(arq);
+                DocumentoLegenda doc = legendaIo.ler(arq);
                 List<AuditoriaFonteInfo> fontes = auditoriaService.analisarCabecalho(doc.cabecalho());
                 boolean temProblemas = fontes.stream().anyMatch(AuditoriaFonteInfo::problematica);
                 
@@ -178,14 +161,11 @@ public class TrocaTipoLegendaUseCase {
         }
 
         // Criar pasta de backup automático
+        Path pastaBackup = backup.abrirSessao("troca_tipo_legenda");
+        sessao.out("Diretório de backup criado com sucesso: " + pastaBackup);
+        // Carimbo próprio para NOMEAR os relatórios JSON/MD desta execução. Não é o mesmo
+        // do backup: aquele agora é responsabilidade do ArmazenamentoBackupPort.
         String timestamp = TIMESTAMP_DIR.format(LocalDateTime.now());
-        Path pastaBackup = raizBackups.resolve("troca_tipo_legenda_" + timestamp).normalize();
-        try {
-            Files.createDirectories(pastaBackup);
-            sessao.out("Diretório de backup criado com sucesso: " + pastaBackup);
-        } catch (IOException e) {
-            throw new TrocaTipoLegendaException("Falha ao criar diretório de backup: " + pastaBackup, e);
-        }
 
         int totalAlterados = 0;
         int totalSubstituicoes = 0;
@@ -197,7 +177,7 @@ public class TrocaTipoLegendaUseCase {
             }
 
             try {
-                DocumentoLegenda doc = leitor.ler(arq);
+                DocumentoLegenda doc = legendaIo.ler(arq);
                 List<AuditoriaFonteInfo> fontes = auditoriaService.analisarCabecalho(doc.cabecalho());
                 boolean temProblemas = fontes.stream().anyMatch(AuditoriaFonteInfo::problematica);
                 List<AuditoriaFonteInfo> fontesProblematicas = fontes.stream()
@@ -209,9 +189,9 @@ public class TrocaTipoLegendaUseCase {
                     continue;
                 }
 
-                // Cria o backup
-                Path arqBackup = pastaBackup.resolve(arq.getFileName());
-                Files.copy(arq, arqBackup, StandardCopyOption.REPLACE_EXISTING);
+                // Backup ANTES de escrever: sem a copia intacta, a substituicao de fonte nao
+                // teria volta.
+                backup.preservar(pastaBackup, arq);
 
                 // Executa a substituição no cabeçalho
                 String cabecalhoOriginal = doc.cabecalho();
@@ -229,7 +209,7 @@ public class TrocaTipoLegendaUseCase {
                     );
                     
                     // Escreve com o escritor ASS
-                    escritor.escrever(arq, novoDoc);
+                    legendaIo.escrever(arq, novoDoc);
 
                     // Registra auditoria granular apenas depois da gravação física
                     // ser concluída, para o cache não marcar sucesso se o IO falhar.
@@ -309,17 +289,16 @@ public class TrocaTipoLegendaUseCase {
             sessao.out(AnsiCores.YELLOW + "[AVISO] Falha ao gravar relatórios finais em disco: " + e.getMessage() + AnsiCores.RESET);
         }
 
-        // Registrar na telemetria
-        OperacaoTelemetria op = new OperacaoTelemetria(
+        // Registrar na telemetria. O carimbo de tempo deixou de ser montado aqui: quem o
+        // preenche agora é o adaptador, junto com o resto do registro.
+        telemetria.registrar(
             "Troca de Fontes ASS",
             "Diretório: " + diretorio.getFileName(),
             System.currentTimeMillis() - sessao.inicioMs,
             arquivos.size(),
             totalAlterados,
-            totalSubstituicoes,
-            Instant.now().toString()
+            totalSubstituicoes
         );
-        telemetriaService.registrarOperacao(op);
 
         return resultado;
     }

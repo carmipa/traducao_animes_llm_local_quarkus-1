@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.telemetria.OperacaoTelemetria;
-import org.traducao.projeto.telemetria.TelemetriaService;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.ArmazenamentoBackupPort;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.TelemetriaTrocaPort;
+import org.traducao.projeto.trocaTipoLegenda.infrastructure.ArmazenamentoBackupKronosAdapter;
+import org.traducao.projeto.trocaTipoLegenda.infrastructure.LegendaIoAssAdapter;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaLegendaResultado;
@@ -36,15 +38,18 @@ class TrocaTipoLegendaUseCaseTest {
     private TrocaTipoLegendaUseCase useCase;
     private Path tempDirBackups;
 
-    private static class TelemetriaServiceStub extends TelemetriaService {
+    /**
+     * Antes este stub ESTENDIA TelemetriaService e precisava sobrescrever {@code init()}
+     * junto com o método que interessava — o teste carregava o ciclo de vida de um serviço
+     * de outra fatia só para observar uma chamada. Com TelemetriaTrocaPort ele implementa
+     * a assinatura que o caso de uso realmente usa, e nada mais.
+     */
+    private static class TelemetriaStub implements TelemetriaTrocaPort {
         boolean operacaoRegistrada = false;
 
         @Override
-        public void init() {
-        }
-
-        @Override
-        public synchronized void registrarOperacao(OperacaoTelemetria operacao) {
+        public synchronized void registrar(String tipo, String detalhe, long duracaoMs,
+                                           int arquivosProcessados, int itensDetectados, int itensCorrigidos) {
             this.operacaoRegistrada = true;
         }
     }
@@ -62,7 +67,7 @@ class TrocaTipoLegendaUseCaseTest {
         }
     }
 
-    private final TelemetriaServiceStub telemetriaStub = new TelemetriaServiceStub();
+    private final TelemetriaStub telemetriaStub = new TelemetriaStub();
     private final AuditoriaCacheStub cacheStub = new AuditoriaCacheStub();
 
     /**
@@ -72,14 +77,16 @@ class TrocaTipoLegendaUseCaseTest {
      */
     @BeforeEach
     void setUp(@TempDir Path tempDir) throws IOException {
-        LeitorLegendaAss leitor = new LeitorLegendaAss();
-        EscritorLegendaAss escritor = new EscritorLegendaAss();
         AuditoriaFontesService auditoriaService = new AuditoriaFontesService();
-        
+
         tempDirBackups = tempDir.resolve("backups");
         Files.createDirectories(tempDirBackups);
+        // O isolamento agora vem de passar OUTRO ArmazenamentoBackupPort, e não de injetar
+        // um Path que o caso de uso usaria para resolver diretório e copiar por conta própria.
+        ArmazenamentoBackupPort backup = new ArmazenamentoBackupKronosAdapter(tempDirBackups);
         useCase = TrocaTipoLegendaUseCase.criarParaTeste(
-            leitor, escritor, auditoriaService, telemetriaStub, cacheStub, tempDirBackups);
+            new LegendaIoAssAdapter(new LeitorLegendaAss(), new EscritorLegendaAss()),
+            auditoriaService, telemetriaStub, cacheStub, backup);
     }
 
     @Test
