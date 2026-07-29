@@ -127,6 +127,14 @@ class MkvmergeAdapterTest {
         RemuxTarefa tarefa = criarTarefa(tempDir);
         MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
             (comando, timeout, mesclar) -> {
+                // A identificação (-J) precisa responder: desde que a preservação das legendas
+                // originais deixou de ser opcional (2026-07-29), ela é a PRIMEIRA chamada ao
+                // runner e NÃO tem "-o". Cancelar já nela fazia o fake gravar num caminho
+                // relativo lixo, a exceção sair como IOException e a asserção de interrupção
+                // falhar — sem que o cancelamento do remux chegasse a ser exercido.
+                if (comando.contains("-J")) {
+                    return new ProcessoExternoUtil.Resultado(0, IDENTIFICACAO_VALIDA, new byte[0]);
+                }
                 Path parcial = Path.of(comando.get(comando.indexOf("-o") + 1));
                 Files.writeString(parcial, "PARCIAL");
                 throw new InterruptedException("cancelado");
