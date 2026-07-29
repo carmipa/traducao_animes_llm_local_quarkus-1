@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
+import org.traducao.projeto.trocaTipoLegenda.infrastructure.ClassificadorCamadaMusicalLegendaAdapter;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
@@ -71,9 +72,13 @@ class AchatadorEstilosDecorativosServiceTest {
 
     @BeforeEach
     void setUp() {
+        // O achatador não conhece mais o peer `legenda`: recebe a porta. O adaptador real é
+        // montado aqui só porque este teste quer o comportamento ponta a ponta; um teste de
+        // regra pura pode passar uma classificação fixa, sem levantar o peer.
         DetectorEfeitoKaraokeService detector = new DetectorEfeitoKaraokeService();
         achatador = new AchatadorEstilosDecorativosService(
-            new AuditoriaFontesService(), detector, new ProtecaoCamadasMusicaisService(detector));
+            new AuditoriaFontesService(),
+            new ClassificadorCamadaMusicalLegendaAdapter(detector, new ProtecaoCamadasMusicaisService(detector)));
     }
 
     @Test

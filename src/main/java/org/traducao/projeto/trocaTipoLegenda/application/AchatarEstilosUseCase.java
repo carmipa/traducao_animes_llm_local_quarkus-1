@@ -120,6 +120,7 @@ public class AchatarEstilosUseCase {
 
         int totalAlterados = 0;
         int totalFalas = 0;
+        int totalSilabas = 0;
         for (Path arq : arquivos) {
             if (Thread.currentThread().isInterrupted()) {
                 out(AnsiCores.YELLOW + "[AVISO] Execução interrompida — arquivos já gravados foram preservados." + AnsiCores.RESET);
@@ -136,8 +137,14 @@ public class AchatarEstilosUseCase {
                 escritor.escrever(arq, r.documento());
                 totalAlterados++;
                 totalFalas += r.falasAchatadas();
+                totalSilabas += r.silabasDescartadas();
+                // O descarte é a diferença entre uma abertura legível e 138 legendas de uma
+                // palavra piscando sobre o vídeo — precisa aparecer no console, não só no total.
+                String silabas = r.silabasDescartadas() > 0
+                    ? "; " + r.silabasDescartadas() + " sílaba(s) de karaokê descartada(s)"
+                    : "";
                 out(AnsiCores.GREEN + "  [ACHATADO] " + arq.getFileName() + ": " + r.falasAchatadas()
-                    + " fala(s); estilos " + r.estilosDecorativos() + " -> Default." + AnsiCores.RESET);
+                    + " fala(s); estilos " + r.estilosDecorativos() + " -> Default" + silabas + "." + AnsiCores.RESET);
             } catch (Exception e) {
                 out(AnsiCores.RED + "  [ERRO] Falha ao achatar " + arq.getFileName() + ": " + e.getMessage() + AnsiCores.RESET);
                 log.error("Erro ao achatar estilos de {}", arq, e);
@@ -149,6 +156,7 @@ public class AchatarEstilosUseCase {
         out("  • Arquivos analisados : " + arquivos.size());
         out("  • Arquivos alterados  : " + totalAlterados);
         out("  • Falas achatadas     : " + totalFalas);
+        out("  • Sílabas descartadas : " + totalSilabas + " (camada de timing de karaokê)");
         out("  • Pasta de Backup     : " + pastaBackup);
         out(AnsiCores.GREEN + "========================================================================" + AnsiCores.RESET);
 
