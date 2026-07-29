@@ -79,7 +79,39 @@ public class RecuperarPendenciaFallbackService {
         "mobile", "suit", "suits", "armor", "armour", "beam", "rifle", "saber", "sabre",
         "ground", "type", "custom", "flight", "tank", "attack", "report", "cannon",
         "particle", "mega", "the", "and", "of", "for", "with", "ms", "gm",
-        "base", "white", "side", "new", "old", "class", "unit", "group", "command");
+        "base", "white", "side", "new", "old", "class", "unit", "group", "command",
+        // --- Abaixo: acrescentado em 2026-07-29 por MEDIÇÃO, não por intuição. ---
+        //
+        // Critério, aplicado sobre os 60.336 pares EN/PT do acervo (backup de 2026-07-28):
+        //   (1) o token SOBREVIVE à tradução? Nome próprio sobrevive ("Amuro" continua
+        //       "Amuro"); substantivo comum não ("system" vira "sistema"). Corte: < 25%.
+        //   (2) o token aparece em MINÚSCULA no inglês? Palavra comum sim, nome próprio não.
+        //       Corte: >= 60%. Este segundo eixo é o que separa "system" (98% minúsculo, 0%
+        //       sobrevive) de "Apsaras" (0% sobrevive, mas porque a lore MANDA normalizar
+        //       para "Apsalus") e de "Four" (5% sobrevive, mas porque virar "quatro" é o
+        //       defeito que paresInconfundiveis existe para pegar).
+        //
+        // Sem o eixo (2) a medição mandava incluir "gundam", "sanders" e "char" — o que
+        // desligaria a guarda inteira. Foram três critérios até um separar as categorias.
+        //
+        // Deliberadamente FORA: "08th". Aparece em minúscula e não sobrevive, mas não é
+        // palavra — é fragmento de "08th MS Team", que a lore exige preservar inteiro.
+        "again", "army", "battery", "battle", "between", "boss", "break", "broken",
+        "children", "city", "code", "cold", "colony", "dead", "death", "deep", "destroy",
+        "double", "drop", "dummy", "energy", "entry", "field", "fire", "flare", "fleet",
+        "floor", "fort", "fortress", "freedom", "from", "full", "game", "guard", "hand",
+        "heavy", "hell", "high", "human", "incident", "killing", "king", "knight", "land",
+        "life", "little", "live", "living", "lost", "mass", "memory", "messiah", "military",
+        "monster", "near", "object", "operation", "palace", "path", "point", "power",
+        "residential", "sand", "second", "sector", "ship", "shock", "song", "soon", "sound",
+        "south", "space", "special", "speech", "split", "squadron", "strike", "system",
+        "third", "time", "true", "victory", "waves",
+        // PATENTES, acrescentadas à mão: o eixo (2) as derrubou porque aparecem
+        // capitalizadas ANTES do nome ("Captain Norris"), mas ali "Captain" -> "Capitão" é a
+        // tradução certa. A sobrevivência prova: "captain" 660 ocorrências, 1% sobrevive;
+        // "lieutenant" 494, 1%; "commander" 238, 0%. Exigir que sobrevivam é falso positivo
+        // por construção. Só entram as que a decomposição realmente gera.
+        "captain", "lieutenant", "commander", "admiral", "colonel", "major", "general");
 
     private final FallbackOnlineProperties propriedades;
     private final FallbackTraducaoMaquinaPort fallbackPort;
@@ -183,12 +215,20 @@ public class RecuperarPendenciaFallbackService {
             if (termo == null || termo.isBlank()) {
                 continue;
             }
-            for (String parte : termo.split("[^\\p{L}\\p{N}'-]+")) {
+            String[] partes = termo.split("[^\\p{L}\\p{N}'-]+");
+            // DECLARADO x INCIDENTAL. A allowlist só vale para o que a decomposição PRODUZ.
+            // "Solar System II" gerar "system" é acidente da quebra em tokens; a obra declarar
+            // "Battle" SOZINHO é decisão dela, e decisão da obra vence lista global — senão a
+            // allowlist vira um jeito silencioso de desproteger terminologia que alguém
+            // escolheu proteger. Há teste nomeando exatamente este par de casos.
+            boolean composto = partes.length > 1;
+            for (String parte : partes) {
                 String minusculo = parte.toLowerCase(Locale.ROOT);
                 // Substantivo comum dentro de um termo composto NÃO vira terminologia
                 // obrigatória: "Earth Federation" não pode transformar "earth" em exigência
                 // sobre toda frase que contenha a palavra. Ver PALAVRAS_COMUNS_EM_TERMOS.
-                if (parte.length() >= TAMANHO_MINIMO_NOME && !PALAVRAS_COMUNS_EM_TERMOS.contains(minusculo)) {
+                boolean comumEIncidental = composto && PALAVRAS_COMUNS_EM_TERMOS.contains(minusculo);
+                if (parte.length() >= TAMANHO_MINIMO_NOME && !comumEIncidental) {
                     tokens.add(minusculo);
                 }
             }
