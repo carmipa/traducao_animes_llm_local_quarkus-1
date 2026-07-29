@@ -56,7 +56,10 @@ class ResolvedorCacheTraducaoProvenienciaTest {
             Duration.ofSeconds(5), Duration.ofSeconds(30));
         // pastasExecucao e resolvedorSaida só participam de resolverArquivoCache; a
         // proveniência não os toca, e passá-los nulos deixa isso explícito.
-        return new ResolvedorCacheTraducao(null, null, llmProps, props);
+        // LlmPort nula é DELIBERADO aqui: estes casos verificam contextoId/hash/idiomas, e
+        // com a porta ausente o modelo cai na configuração — o mesmo valor que este teste
+        // sempre esperou. Quem cobre a leitura pela porta é ProvenienciaNuncaGravaCurrentTest.
+        return new ResolvedorCacheTraducao(null, null, null, llmProps, props);
     }
 
     /**
