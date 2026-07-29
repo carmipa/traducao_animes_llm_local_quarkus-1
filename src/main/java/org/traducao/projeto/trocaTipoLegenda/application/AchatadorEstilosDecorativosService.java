@@ -1,12 +1,11 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
 import org.springframework.stereotype.Service;
-import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
-import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService;
-import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
+import org.traducao.projeto.trocaTipoLegenda.domain.ClassificacaoCamadas;
+import org.traducao.projeto.trocaTipoLegenda.domain.ports.ClassificadorCamadaMusicalPort;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -67,17 +66,14 @@ public class AchatadorEstilosDecorativosService {
     private static final Pattern OVERRIDE_LIDER = Pattern.compile("^(?:\\{[^}]*\\})+");
 
     private final AuditoriaFontesService auditoriaFontes;
-    private final DetectorEfeitoKaraokeService detectorKaraoke;
-    private final ProtecaoCamadasMusicaisService protecaoCamadasMusicais;
+    private final ClassificadorCamadaMusicalPort classificadorCamadas;
 
     public AchatadorEstilosDecorativosService(
         AuditoriaFontesService auditoriaFontes,
-        DetectorEfeitoKaraokeService detectorKaraoke,
-        ProtecaoCamadasMusicaisService protecaoCamadasMusicais
+        ClassificadorCamadaMusicalPort classificadorCamadas
     ) {
         this.auditoriaFontes = auditoriaFontes;
-        this.detectorKaraoke = detectorKaraoke;
-        this.protecaoCamadasMusicais = protecaoCamadasMusicais;
+        this.classificadorCamadas = classificadorCamadas;
     }
 
     /**
@@ -94,7 +90,7 @@ public class AchatadorEstilosDecorativosService {
      */
     public Resultado achatar(DocumentoLegenda documento) {
         if (documento == null || documento.cabecalho() == null || documento.eventos() == null) {
-            return new Resultado(documento, 0, List.of());
+            return new Resultado(documento, 0, List.of(), 0);
         }
 
         Map<String, String> fontesPorEstilo = mapaFontes(documento.cabecalho());
@@ -102,20 +98,30 @@ public class AchatadorEstilosDecorativosService {
         String fonteBase = estiloBase == null ? null : fontesPorEstilo.get(estiloBase.toLowerCase(Locale.ROOT));
         int indiceColunaStyle = indiceColunaStyle(documento.cabecalho());
         if (estiloBase == null || fonteBase == null || indiceColunaStyle < 0) {
-            return new Resultado(documento, 0, List.of());
+            return new Resultado(documento, 0, List.of(), 0);
         }
 
         List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
         Set<String> decorativosAchatados = new LinkedHashSet<>();
         int falasAchatadas = 0;
-        // Pré-passe do peer legenda, uma vez por documento: quais linhas são a camada ORIGINAL do
-        // karaokê. Achatá-las jogaria o romaji no estilo do diálogo — rodapé, em cima da fala.
-        ProtecaoCamadas protecao = protecaoCamadasMusicais == null
-            ? ProtecaoCamadas.VAZIA
-            : protecaoCamadasMusicais.calcular(documento);
+        int silabasDescartadas = 0;
+        // Uma pergunta só, por documento, atravessando a porta: quais linhas ficam intactas
+        // (camada original do karaokê) e quais são sílaba de timing.
+        ClassificacaoCamadas camadas = classificadorCamadas == null
+            ? ClassificacaoCamadas.VAZIA
+            : classificadorCamadas.classificar(documento);
 
         for (EventoLegenda evento : documento.eventos()) {
-            if (ehDecorativo(evento, estiloBase, fonteBase, fontesPorEstilo, protecao)) {
+            // Sílaba de timing é DESCARTADA, não achatada. Achatar transformava cada pedaço
+            // ("Do", "you", "feel", "a", "lone") numa legenda branca própria: no Unicorn ep.1
+            // seriam 138 linhas piscando uma palavra por vez sobre o vídeo, no lugar da legenda
+            // normal — pior, na TV, que a tag animada que se queria remover. As 17 linhas com a
+            // frase inteira permanecem e são elas que viram a legenda legível da abertura.
+            if (evento != null && camadas.ehSilabaDeTiming(evento.indice())) {
+                silabasDescartadas++;
+                continue;
+            }
+            if (ehDecorativo(evento, estiloBase, fonteBase, fontesPorEstilo, camadas)) {
                 String novoPrefixo = reescreverColunaEstilo(
                     evento.prefixo(), evento.tipoLinha(), indiceColunaStyle, estiloBase);
                 String novoTexto = removerOverridesLideres(evento.texto());
@@ -128,12 +134,12 @@ public class AchatadorEstilosDecorativosService {
             }
         }
 
-        if (falasAchatadas == 0) {
-            return new Resultado(documento, 0, List.of());
+        if (falasAchatadas == 0 && silabasDescartadas == 0) {
+            return new Resultado(documento, 0, List.of(), 0);
         }
         DocumentoLegenda saida = new DocumentoLegenda(
             documento.cabecalho(), novos, documento.quebraDeLinha(), documento.comBom());
-        return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados));
+        return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados), silabasDescartadas);
     }
 
     /**
@@ -150,16 +156,13 @@ public class AchatadorEstilosDecorativosService {
      * {@code false} (não achata), preservando a fala.
      */
     private boolean ehDecorativo(EventoLegenda evento, String estiloBase, String fonteBase,
-                                 Map<String, String> fontesPorEstilo, ProtecaoCamadas protecao) {
+                                 Map<String, String> fontesPorEstilo, ClassificacaoCamadas camadas) {
         if (evento == null || !evento.isDialogo() || evento.estilo() == null) {
             return false;
         }
         // Proteção por LÍNGUA, não por fonte nem por nome: a razão de existir desta fase.
-        if (protecao != null && protecao.protege(evento.indice())) {
-            return false;
-        }
-        if (detectorKaraoke != null
-            && detectorKaraoke.devePreservarKaraokeOriginal(evento.estilo(), evento.texto())) {
+        // Quem decide é o adaptador atrás da porta; aqui só se consulta o veredito.
+        if (camadas != null && camadas.devePreservar(evento.indice())) {
             return false;
         }
         String estilo = evento.estilo();
@@ -299,22 +302,30 @@ public class AchatadorEstilosDecorativosService {
 
     /**
      * PROPÓSITO DE NEGÓCIO: transporta o documento achatado e o resumo de auditoria
-     * (quantas falas mudaram e quais estilos decorativos foram neutralizados) para o
-     * caso de uso e a telemetria.
+     * (quantas falas mudaram, quais estilos decorativos foram neutralizados e quantas
+     * sílabas de timing saíram) para o caso de uso e a telemetria.
      *
-     * <p>INVARIANTES DO DOMÍNIO: {@code falasAchatadas} é não negativo e igual ao total
-     * de eventos reescritos; {@code estilosDecorativos} é imutável e sem repetição.
+     * <p>INVARIANTES DO DOMÍNIO: os contadores são não negativos; {@code falasAchatadas}
+     * é o total de eventos reescritos e {@code silabasDescartadas} o de eventos
+     * REMOVIDOS; {@code estilosDecorativos} é imutável e sem repetição.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: quando nada é achatado, {@code documento} é o
-     * de entrada, {@code falasAchatadas} é {@code 0} e a lista é vazia.
+     * <p>ATENÇÃO: com {@code silabasDescartadas > 0} a legenda de saída tem MENOS eventos
+     * que a de entrada. Até 2026-07-29 valia "mesmo tamanho e ordem", e a mudança é
+     * deliberada — camada de timing de karaokê não é legenda, é efeito, e mantê-la
+     * achatada produzia uma linha branca por sílaba sobre o vídeo. O original continua
+     * recuperável pelo backup que {@code AchatarEstilosUseCase} grava antes de gravar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: quando nada muda, {@code documento} é o de
+     * entrada, os contadores são {@code 0} e a lista é vazia.
      */
-    public record Resultado(DocumentoLegenda documento, int falasAchatadas, List<String> estilosDecorativos) {
+    public record Resultado(DocumentoLegenda documento, int falasAchatadas,
+                            List<String> estilosDecorativos, int silabasDescartadas) {
         public Resultado {
             estilosDecorativos = estilosDecorativos == null ? List.of() : List.copyOf(estilosDecorativos);
         }
 
         public boolean houveAchatamento() {
-            return falasAchatadas > 0;
+            return falasAchatadas > 0 || silabasDescartadas > 0;
         }
     }
 }
