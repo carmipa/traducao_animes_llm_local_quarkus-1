@@ -75,6 +75,16 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
         - Sleeves (NUNCA "Mangas"); Neo Zeon; Vist Foundation; Anaheim Electronics;
           Londo Bell; ECOAS; Earth Federation / Federation Forces.
 
+        === Titulos de episodio (letreiro na tela) ===
+        - Vem em CAIXA ALTA e sozinho, sem conversa em volta. E o caso em que menos
+          contexto existe para apoiar a traducao, entao va pelo literal e nao invente.
+        - "Red Comet" e o apelido do Char Aznable: mantenha "Red Comet". NUNCA
+          aportuguesar por som ("Comesa", "Cometa do Vermelho").
+        - "Side" com numero (Side 1..7) e colonia espacial e nao se traduz; "side"
+          minusculo, sozinho, e "lado" mesmo. "Co-Prosperity Sphere" fica como esta.
+        - Palavra que voce nao conhece em portugues NAO existe: "Departure" e "Partida",
+          nunca "Departura". Na duvida entre inventar e manter o original, mantenha.
+
         === Regras ===
         - Unicorn Gundam NUNCA "Gundam Unicornio"; Full Frontal NUNCA "Frontal Completo";
           Sleeves NUNCA "Mangas"; Psycho-Frame NUNCA "moldura psicologica" generica.
@@ -124,6 +134,15 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             "Musaka", "Magallanica",
             "Earth Federation", "Sleeves", "Sieg Zeon", "Neo Zeon", "Vist Foundation",
             "Anaheim Electronics", "Londo Bell", "ECOAS",
+            // Apelido do Char. Entrou em 2026-07-29 porque o título do ep.5,
+            // "CLASH WITH THE RED COMET", saiu como "CONFRONTO COM O COMESA DO VERMELHO".
+            // Composto de duas palavras de propósito: "Comet" sozinho é substantivo comum.
+            "Red Comet",
+            // Título do ep.16; sem ele "CO-PROSPERITY SPHERE" virou "Esfera de Prosperidade CO".
+            // NÃO se protege "Side" sozinho: a convenção do acervo é sempre com número
+            // (Side 3/4/6/7 nas lores 0079, Origin, Thunderbolt, War in the Pocket), porque
+            // "side" solto é "lado" e viraria letra maiúscula no meio de qualquer frase.
+            "Co-Prosperity Sphere",
             "Laplace's Box", "Laplace Incident", "Industrial 7", "Palau",
             "Torrington Base", "Dakar",
             "Newtype", "Cyber-Newtype", "Oldtype", "Spacenoid",
