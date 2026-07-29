@@ -105,27 +105,38 @@ public class MascaradorTags {
      *
      * <p>INVARIANTES DO DOMÍNIO: {@code \\p1} dentro de qualquer bloco de tags
      * ativa desenho vetorial; letras dos comandos {@code m/l/b} não contam como
-     * idioma natural.
+     * idioma natural. Exige ao menos uma LETRA: dígito e pontuação não são idioma,
+     * e uma linha sem letra não tem tradução possível — só cópia.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo, vazio ou apenas estrutural
      * devolve {@code false} e permanece intocado no arquivo.
      */
     public boolean contemTextoTraduzivel(String textoOriginal) {
         if (textoOriginal == null || textoOriginal.isBlank()) return false;
-        
+
         // Ignora linhas que ativam desenhos vetoriais (ex: {\p1}m 0 0 l ...)
         if (PADRAO_MODO_DESENHO.matcher(textoOriginal).find()) {
             return false;
         }
-        
+
         String semTags = PADRAO_TAG.matcher(textoOriginal).replaceAll("");
         if (isTypesettingComClipPesado(textoOriginal, semTags)) {
             return false;
         }
 
-        String apenasLetrasOuNumeros = semTags.replaceAll("[^\\p{L}\\d]", "");
-        
-        return !apenasLetrasOuNumeros.isEmpty();
+        // LETRA, não letra-ou-dígito. Uma contagem regressiva ("45...", "5. 4.", "27%!") é
+        // idêntica em qualquer idioma: não há o que traduzir, só o que copiar. Enquanto o
+        // dígito contava como texto, essas linhas iam ao LLM e voltavam como INVENÇÃO — sem
+        // âncora semântica o modelo devolve a lore do prompt de sistema. Medido no Gundam
+        // Unicorn RE:0096 em 2026-07-29: "45..." virou "O Unicorn Gundam, não é?", "8..."
+        // virou "Lembranças... são como areia entre os dedos.", "5. 4." virou "Mineva: Eu sou
+        // Audrey Burne.". As guardas barravam todas, mas só depois de gastar a chamada, e a
+        // fala virava pendência — 23 das 26 pendências dos 22 episódios eram esta classe.
+        // Números continuam protegidos a jusante pela guarda de identificador numérico; aqui
+        // eles simplesmente não entram no fluxo.
+        String apenasLetras = semTags.replaceAll("[^\\p{L}]", "");
+
+        return !apenasLetras.isEmpty();
     }
 
     private boolean isTypesettingComClipPesado(String textoOriginal, String semTags) {
