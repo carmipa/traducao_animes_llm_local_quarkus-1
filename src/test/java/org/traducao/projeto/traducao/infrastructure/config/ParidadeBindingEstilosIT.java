@@ -33,11 +33,15 @@ class ParidadeBindingEstilosIT {
     Optional<List<String>> estilosRaw;
 
     @Test
-    @DisplayName("PREENCHIDO (yml real): Spring == SmallRye == 8 itens na ordem")
+    @DisplayName("PREENCHIDO (yml real): Spring == SmallRye == 9 itens na ordem")
     void preenchido() {
+        // "OPL2" entrou em 2026-07-29: único estilo do acervo que escapa do veto de música
+        // (o "L" depois de "OP" é letra e quebra o lookaround do padrão amplo). Quem mexer no
+        // yml atualiza aqui — a lista é congelada de propósito, para a paridade Spring×SmallRye
+        // ser verificada contra o conteúdo real e não contra "o que o binding devolveu".
         List<String> esperado = List.of(
             "Song JP", "Mobile Suit Gundam", "Char's Counterattack",
-            "OP - Romaji", "OP - English", "ED - Romaji", "ED - English", "ED-ROM");
+            "OP - Romaji", "OP - English", "ED - Romaji", "ED - English", "ED-ROM", "OPL2");
         List<String> spring = tradutorProperties.estilosIgnorados();
         List<String> produtor = estilosRaw.orElse(FALLBACK);
         System.out.println("[E3c-PARIDADE][PREENCHIDO] spring=" + spring + " | smallrye=" + estilosRaw
