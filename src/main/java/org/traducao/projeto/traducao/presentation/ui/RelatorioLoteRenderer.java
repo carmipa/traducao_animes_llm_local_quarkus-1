@@ -6,6 +6,7 @@ import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -92,7 +93,11 @@ public final class RelatorioLoteRenderer {
 
         StringBuilder falas = new StringBuilder(traduziveis + " traduzível(is) → " + peloLlm + " pelo LLM");
         if (traduziveis > 0) {
-            falas.append(String.format(" (%.1f%%)", 100.0 * peloLlm / traduziveis));
+            // pt-BR fixo: o relatório é lido em português e o teste congela "97,6%" /
+            // "100,0%". String.format sem Locale segue o default da JVM e em CI Linux
+            // (en_US) imprimia ponto, falhando a suíte sem mudança de lógica.
+            falas.append(String.format(Locale.forLanguageTag("pt-BR"), " (%.1f%%)",
+                100.0 * peloLlm / traduziveis));
         }
         falas.append(" · ").append(doCache).append(" do cache · ").append(pendentes).append(" pendente(s)");
         sb.append(linha("FALAS", falas.toString()));
