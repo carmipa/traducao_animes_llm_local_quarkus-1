@@ -108,7 +108,19 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
             Map.entry("Cubely", "Qubeley"),
             Map.entry("Qubelei", "Qubeley"),
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
-            Map.entry("Gundam Mk II", "Gundam Mk-II")
+            Map.entry("Gundam Mk II", "Gundam Mk-II"),
+            // ESPELHO EXATO dos extras da Traducao — formas medidas nas 16.778 falas.
+            Map.entry("Super Gundam", "G-Defenser"),
+            Map.entry("Portão de Zedan", "Gate of Zedan"),
+            Map.entry("Portao de Zedan", "Gate of Zedan"),
+            Map.entry("Guerra de Um Ano", "One Year War"),
+            Map.entry("canhão de partículas megas", "Mega Particle Cannon"),
+            Map.entry("mega canhão de partículas", "Mega Particle Cannon"),
+            Map.entry("Incidente da Colônia 30", "Colony 30 Incident"),
+            Map.entry("Incidente da Colonia 30", "Colony 30 Incident"),
+            Map.entry("Palácio Atena", "Palace Athene"),
+            Map.entry("Palacio Atena", "Palace Athene"),
+            Map.entry("Quatro Murasame", "Four Murasame")
         ));
     }
 }

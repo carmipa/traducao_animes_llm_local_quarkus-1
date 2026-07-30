@@ -195,7 +195,50 @@ public class ContextoGundamZeta implements ProvedorContexto {
             Map.entry("Cubely", "Qubeley"),
             Map.entry("Qubelei", "Qubeley"),
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
-            Map.entry("Gundam Mk II", "Gundam Mk-II")
+            Map.entry("Gundam Mk II", "Gundam Mk-II"),
+
+            // ---------------------------------------------------------------------------
+            // Formas-ruim MEDIDAS nas 16.778 falas do acervo (cache, 2026-07-30).
+            // Quinta obra a receber o mapa; a de maior volume absoluto de perdas (433).
+            // ---------------------------------------------------------------------------
+
+            // ERRO SEMÂNTICO, não de grafia: 8 de 19. G-Defenser é a unidade de apoio;
+            // Super Gundam é o Mk-II JÁ acoplado a ela. São coisas diferentes e ambas
+            // existem na obra. Seguro porque ZERO falas trazem as duas no inglês.
+            Map.entry("Super Gundam", "G-Defenser"),
+
+            // "Gate of Zedan" perdido em 30 de 30 — é o nome que a A Baoa Qu recebeu.
+            Map.entry("Portão de Zedan", "Gate of Zedan"),
+            Map.entry("Portao de Zedan", "Gate of Zedan"),
+
+            // 7 de 7. O mapa do 08th já trazia esta entrada; o Zeta não.
+            Map.entry("Guerra de Um Ano", "One Year War"),
+
+            // 4 de 6, nas duas formas que apareceram.
+            Map.entry("canhão de partículas megas", "Mega Particle Cannon"),
+            Map.entry("mega canhão de partículas", "Mega Particle Cannon"),
+
+            // 4 de 4.
+            Map.entry("Incidente da Colônia 30", "Colony 30 Incident"),
+            Map.entry("Incidente da Colonia 30", "Colony 30 Incident"),
+
+            // 2 de 5 — o mobile suit virou residência.
+            Map.entry("Palácio Atena", "Palace Athene"),
+            Map.entry("Palacio Atena", "Palace Athene"),
+
+            // 2 de 8 — "Four" é o NOME da personagem (Four Murasame), não o número.
+            Map.entry("Quatro Murasame", "Four Murasame")
+
+            // NÃO entram, e a medição é a razão:
+            //   A.E.U.G. (178 de 211) -- o PT escreve "AEUG" sem pontos, de forma
+            //     CONSISTENTE nas 178. É formatação, não erro de sentido, e mudá-la
+            //     reescreveria 178 falas publicadas. Decisão do Paulo, não minha.
+            //   Colony Laser (10 de 25) -- entrada seria INERTE: a legenda escreve
+            //     "colony Laser" com c minúsculo nas 24 ocorrências, e o enforcer exige o
+            //     canônico na grafia exata. Mesmo caso de Bio-Computer no F91.
+            //   Earth Federation (33 de 33) -- "Forças Federais da Terra", decisão de
+            //     produto consistente com CCA, F91, Unicorn e 08th.
+            //   Mobile Suit (116 de 301) -- plural ou omissão da fala inteira.
         ));
     }
 
