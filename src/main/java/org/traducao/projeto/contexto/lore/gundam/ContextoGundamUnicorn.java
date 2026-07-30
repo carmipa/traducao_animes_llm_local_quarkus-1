@@ -183,7 +183,73 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             Map.entry("Eixo", "Axis"),
             Map.entry("Frontal Completo", "Full Frontal"),
             Map.entry("Modo Destruição", "Destroy Mode"),
-            Map.entry("Modo Destruicao", "Destroy Mode")
+            Map.entry("Modo Destruicao", "Destroy Mode"),
+
+            // ---------------------------------------------------------------------------
+            // Formas-ruim MEDIDAS nas 5.643 falas dos 22 episódios (cache de 2026-07-29).
+            // termosProtegidos() é permissivo e não impede localização; quem GARANTE é o
+            // EnforcadorTermosLore lendo este mapa. Cada entrada tem fala real por trás.
+            // ---------------------------------------------------------------------------
+
+            // "Unicorn Gundam" perdido em 10 de 45 — o mapa já cobria "Gundam Unicórnio",
+            // mas não a INVERSÃO de ordem nem o híbrido.
+            Map.entry("Gundam Unicorn", "Unicorn Gundam"),
+            Map.entry("Unicórnio Gundam", "Unicorn Gundam"),
+            Map.entry("Unicornio Gundam", "Unicorn Gundam"),
+
+            // "Co-Prosperity Sphere" perdido em 9 de 10, em três formas distintas.
+            Map.entry("Esfera de Co-Prosperidade", "Co-Prosperity Sphere"),
+            Map.entry("Esfera de Prosperidade Comum", "Co-Prosperity Sphere"),
+            Map.entry("Esfera de Prosperidade", "Co-Prosperity Sphere"),
+
+            // A nave ganhou acento francês em 7 de 30.
+            Map.entry("Garencières", "Garencieres"),
+
+            // "Red Comet" perdido em 7 de 9 — é o codinome do Char, não descrição.
+            Map.entry("Cometa Vermelho", "Red Comet"),
+
+            // ÍMÃ entre colônias: "at the colony Industrial 7" saiu "Em Side 7".
+            // Side 7 existe no UC, por isso a guarda importa: só troca quando o inglês
+            // trazia "Industrial 7".
+            Map.entry("Side 7", "Industrial 7"),
+
+            // ÍMÃ entre unidades: "ECOAS can't investigate this by ourselves" saiu
+            // "Londo Bell não pode investigar isso sozinhos" — 2 de 13.
+            Map.entry("Londo Bell", "ECOAS"),
+
+            // Base com ordem invertida e preposição, 4 de 5.
+            Map.entry("Base Torrington", "Torrington Base"),
+            Map.entry("base de Torrington", "Torrington Base"),
+
+            // Ordem invertida em 3 de 7, mesmo defeito medido no Char's Counterattack.
+            Map.entry("Zeon Sieg", "Sieg Zeon"),
+            Map.entry("Siege Zeon", "Sieg Zeon"),
+
+            // Aportuguesamento do termo técnico, 4 de 8.
+            // Só a caixa BAIXA. A legenda também escreve "A Psycommu runaway...", mas o
+            // canônico declarado em termosProtegidos é "psycommu" minúsculo, e o invariante
+            // CorrecoesTerminologiaGundamUcTest exige que todo canônico do mapa esteja
+            // declarado. Declarar "Psycommu" mudaria o hash do manifesto e invalidaria as
+            // 5.643 falas já traduzidas — caro demais por 2 ocorrências. Fica para quando
+            // houver outra mudança de lore desta obra para pagar a invalidação junto.
+            Map.entry("psicommu", "psycommu"),
+
+            // "Spacenoid" perdido em 5 de 7; o núcleo UC cobre "Espacenoide" com N, não a
+            // forma sem ele. O plural fica de fora pelo mesmo motivo do Psycommu acima:
+            // "Spacenoids" não está declarado.
+            Map.entry("Espacoide", "Spacenoid"),
+
+            // Feminino de Newtype — mesma lacuna encontrada no F91: o núcleo UC só traz
+            // "Novo Tipo"/"Neotipo" no masculino.
+            Map.entry("Nova Tipo", "Newtype")
+
+            // NÃO entram, e a medição é a razão:
+            //   Earth Federation — "Federação Terrestre" em 20 de 20, consistente com todo
+            //     o acervo (CCA e F91 idem). É decisão de produto, não defeito.
+            //   Mobile Suit — 17 de 73 são plural ("mobile suits") ou omissão da fala
+            //     inteira; a checagem exige o singular exato.
+            //   Neo Zeon (6/61), Londo Bell (2/22), Nahel Argama (1/60) — taxa baixa e as
+            //     falas mostram pronome/omissão, não localização do termo.
         ));
     }
 }
