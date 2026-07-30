@@ -93,7 +93,27 @@ public class ContextoRevisaoLoreGundamUnicorn implements ProvedorPromptRevisaoLo
             Map.entry("Eixo", "Axis"),
             Map.entry("Frontal Completo", "Full Frontal"),
             Map.entry("Modo Destruição", "Destroy Mode"),
-            Map.entry("Modo Destruicao", "Destroy Mode")
+            Map.entry("Modo Destruicao", "Destroy Mode"),
+            // ESPELHO EXATO dos extras da Tradução — formas-ruim medidas nas 5.643 falas
+            // dos 22 episódios (cache de 2026-07-29). Divergir põe a obra em
+            // DIVERGENCIAS_DECLARADAS do ParidadeMapasTerminologiaTest.
+            Map.entry("Gundam Unicorn", "Unicorn Gundam"),
+            Map.entry("Unicórnio Gundam", "Unicorn Gundam"),
+            Map.entry("Unicornio Gundam", "Unicorn Gundam"),
+            Map.entry("Esfera de Co-Prosperidade", "Co-Prosperity Sphere"),
+            Map.entry("Esfera de Prosperidade Comum", "Co-Prosperity Sphere"),
+            Map.entry("Esfera de Prosperidade", "Co-Prosperity Sphere"),
+            Map.entry("Garencières", "Garencieres"),
+            Map.entry("Cometa Vermelho", "Red Comet"),
+            Map.entry("Side 7", "Industrial 7"),
+            Map.entry("Londo Bell", "ECOAS"),
+            Map.entry("Base Torrington", "Torrington Base"),
+            Map.entry("base de Torrington", "Torrington Base"),
+            Map.entry("Zeon Sieg", "Sieg Zeon"),
+            Map.entry("Siege Zeon", "Sieg Zeon"),
+            Map.entry("psicommu", "psycommu"),
+            Map.entry("Espacoide", "Spacenoid"),
+            Map.entry("Nova Tipo", "Newtype")
         ));
     }
 }
