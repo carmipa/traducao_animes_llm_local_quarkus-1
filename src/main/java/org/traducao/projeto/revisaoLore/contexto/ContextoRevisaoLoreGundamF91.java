@@ -24,12 +24,25 @@ import java.util.Map;
 public class ContextoRevisaoLoreGundamF91 implements ProvedorPromptRevisaoLore {
 
     private static final String LORE = """
-        - Obra: Mobile Suit Gundam F91.
+        - Obra: Mobile Suit Gundam F91, U.C. 0123 (Cosmo Babylonia War).
         - Regra: nomes canonicos NAO sao localizados. Corrija so grafia de lore.
-        - Nomes/termos: F91 Gundam Formula 91, Crossbone Vanguard, VSBR (Variable Speed Beam Rifle), MEPE (Afterimage Effect).
-        - Personagens: Seabook Arno, Cecily Fairchild/Berah Ronah, Carozzo Ronah/Iron Mask, Zabine Chareux, Annamarie Bourget.
-        - Alertas: Iron Mask nao vira "Mascara de Ferro"; Crossbone Vanguard nao vira "Vanguarda Crossbone";
-          Cosmo Babylonia nao vira "Cosmo Babilonia" (forma canônica do mapa desta obra).
+        - Nomes/termos: F91 Gundam Formula 91, Crossbone Vanguard, VSBR (Variable Speed Beam Rifle),
+          MEPE (Afterimage Effect), Bio-Computer, Denan Zon, Denan Gei, Berga-Giros,
+          Vigna-Ghina, Rafflesia.
+        - Personagens: Seabook Arno, Cecily Fairchild/Berah Ronah, Carozzo Ronah/Iron Mask,
+          Zabine Chareux, Annamarie Bourget, Dorel Ronah, Nadia Ronah, Theo Fairchild,
+          Birgit, Reese, Sam, Arthur, Azuma, Leahlee, Monica Arno, Gillet.
+        - Familia Ronah: Carozzo, Dorel, Nadia e Berah sao pessoas DIFERENTES; Iron Mask e
+          o codinome de Carozzo.
+        - Colonias/lugares: Frontier I, Frontier II, Frontier III, Frontier IV, Frontier Side,
+          Richmond, Earth Federation. "Frontier Ill" na legenda e erro de OCR: leia Frontier III.
+        - Naves: Space Ark, Zamouth Garr.
+        - Bugs: armas autonomas, nome proprio.
+        - Cosmo Babylonia (Estado) e Cosmo Aristocracy (doutrina) sao distintos.
+        - Alertas: Iron Mask nao vira "Mascara de Ferro"; Crossbone Vanguard nao vira
+          "Vanguarda Crossbone" nem "Vanguard Crossbone"; Cosmo Babylonia nao vira
+          "Cosmo Babilonia"; Space Ark nao vira "Arca Espacial"; Zamouth Garr nao vira
+          "Garra de Zamouth"; Bugs nao vira "insetos"; Newtype nao vira "Nova Tipo".
         """;
 
     private static final String PROMPT = PromptRevisaoLore.montarPromptSistema(LORE);
@@ -47,10 +60,30 @@ public class ContextoRevisaoLoreGundamF91 implements ProvedorPromptRevisaoLore {
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
+        // ESPELHO EXATO dos extras do lado da Tradução (ContextoGundamF91) — divergir põe a
+        // obra em DIVERGENCIAS_DECLARADAS do ParidadeMapasTerminologiaTest. Formas-ruim
+        // medidas na tradução de 2026-07-30; cada uma tem uma fala real por trás.
         return CorrecoesTerminologiaGundamUcRevisao.comExtras(Map.ofEntries(
             Map.entry("Máscara de Ferro", "Iron Mask"),
             Map.entry("Vanguarda Crossbone", "Crossbone Vanguard"),
-            Map.entry("Cosmo Babilônia", "Cosmo Babylonia")
+            Map.entry("Cosmo Babilônia", "Cosmo Babylonia"),
+            Map.entry("insetos", "Bugs"),
+            Map.entry("Arca Espacial", "Space Ark"),
+            Map.entry("Fronteira I", "Frontier I"),
+            Map.entry("Fronteira II", "Frontier II"),
+            Map.entry("Fronteira III", "Frontier III"),
+            Map.entry("Fronteira IV", "Frontier IV"),
+            Map.entry("IV Fronteira", "Frontier IV"),
+            Map.entry("Garra de Zamouth", "Zamouth Garr"),
+            Map.entry("Zamouth Gar", "Zamouth Garr"),
+            Map.entry("Vanguard Crossbone", "Crossbone Vanguard"),
+            Map.entry("Vanguard da Cruz Branca", "Crossbone Vanguard"),
+            Map.entry("Aristocracia Cósmica", "Cosmo Aristocracy"),
+            Map.entry("Cosmo Aristocracia", "Cosmo Aristocracy"),
+            Map.entry("Babylonia do Cosmo", "Cosmo Babylonia"),
+            Map.entry("Cosmo Babylônia", "Cosmo Babylonia"),
+            Map.entry("Nova Tipo", "Newtype"),
+            Map.entry("Carozzo Ronah", "Iron Mask")
         ));
     }
 }
