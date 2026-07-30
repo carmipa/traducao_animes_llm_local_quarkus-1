@@ -22,20 +22,31 @@ public class ContextoCharsCounterattack implements ProvedorContexto {
 
     private static final String LORE = """
         - Obra: Mobile Suit Gundam: Char's Counterattack — Universal Century 0093.
-        - Facções: Londo Bell, Neo Zeon, Earth Federation, Anaheim Electronics.
-        - Personagens (gênero): Amuro Ray (m), Char Aznable (m), Bright Noa (m),
-          Chan Agi (f), Beltorchika Irma (f), Hathaway Noa (m), Quess Paraya (f),
-          Gyunei Guss (m), Nanai Miguel (f), Adenauer Paraya (m), Kayra Su (f).
-        - Lugares/eventos: Axis (asteroide Neo Zeon), Torrington Base, Luna II;
-          plano de Char de lançar Axis contra a Terra ("Human Purification Theory" /
-          Teoria da Purificação Humana); clímax conhecido como Axis Shock.
+        - Facções: Londo Bell, Neo Zeon, Earth Federation, Anaheim Electronics,
+          Anti-Earth United Government, Titans, Audit Bureau.
+        - Personagens (gênero): Amuro Ray (m), Char Aznable / Casval Deikun (m),
+          Bright Noa (m), Chan Agi (f), Beltorchika Irma (f), Hathaway Noa (m),
+          Quess Paraya (f), Gyunei Guss (m), Nanai Miguel (f), Adenauer Paraya (m),
+          Kayra Su (f), Lalah Sune (f), Cheimin (f), Mirai (f), John Bauer (m),
+          Cameron Bloom (m), Meran (m), Rezin (m), Astonaige (m), Christina (f),
+          Zeon Deikun (m), Artesia (f), Haman (f), Zabi (familia).
+        - Lugares/eventos: Axis (asteroide Neo Zeon), Torrington Base, Luna II,
+          Sweetwater, Londenion, Fifth Luna, Side 1, Side 2, Side 3, Lhasa,
+          Hong Kong, Earthsphere; plano de Char de lançar Axis contra a Terra
+          ("Human Purification Theory" / Teoria da Purificação Humana); clímax
+          conhecido como Axis Shock.
+        - Naves: Ra Cailum / Ra-Cailum, Rewloola, Ra-Chutter, Ra-Kiem, Ra-Zyme,
+          Clop, Musaka.
         - Mobile suits: RX-93 Nu Gundam, MSN-04 Sazabi, Re-GZ, RGM-89 Jegan,
           AMS-119 Geara Doga, MSN-03 Jagd Doga, NZ-333 Alpha Azieru.
         - Termos UC: Newtype (NUNCA "Novo Tipo"), Oldtype, Cyber-Newtype; Spacenoid/Earthnoid;
-          Mobile Suit vs Mobile Armor (Alpha Azieru = MA); psycho-frame / psycoframe, psycommu,
-          funnel; Minovsky; Londo Bell, Neo Zeon, Axis Shock (manter em inglês se aparecer).
+          Mobile Suit vs Mobile Armor (Alpha Azieru = MA); psycho-frame / Psyco-frame /
+          psycoframe, psycommu, funnel; Minovsky; Haro; Londo Bell, Neo Zeon,
+          Axis Shock (manter em inglês se aparecer).
         - Regras: Nu Gundam / Sazabi oficiais; Char e Amuro sem adaptação;
-          Hathaway Noa grafia; Quess/Gyunei/Nanai oficiais.
+          Hathaway Noa grafia; Quess/Gyunei/Nanai oficiais; Londenion NUNCA "Londo Bell";
+          Fifth Luna NUNCA "Quinta Lua"; Side 1/2/3 NUNCA "lado N"; Ra-Chutter / Rezin /
+          Christina grafias oficiais; Audit Bureau forma única.
         - Tom: confronto ideológico final Amuro vs Char; melancolia política; Char carismático/frio, Amuro direto/cansado.
         """;
 
@@ -63,15 +74,24 @@ public class ContextoCharsCounterattack implements ProvedorContexto {
             "Amuro Ray", "Char Aznable", "Bright Noa",
             "Chan Agi", "Beltorchika Irma", "Hathaway Noa",
             "Quess Paraya", "Gyunei Guss", "Nanai Miguel",
+            "Lalah Sune", "Cheimin", "Mirai", "John Bauer",
+            "Cameron Bloom", "Meran", "Rezin", "Astonaige",
+            "Christina", "Zeon Deikun", "Casval Deikun", "Artesia",
+            "Haman", "Zabi",
             "Londo Bell", "Neo Zeon", "Sieg Zeon", "Earth Federation",
-            "Anaheim Electronics", "Axis", "Luna II",
+            "Anaheim Electronics", "Anti-Earth United Government",
+            "Titans", "Audit Bureau",
+            "Axis", "Luna II", "Sweetwater", "Londenion", "Fifth Luna",
+            "Side 1", "Side 2", "Side 3", "Lhasa", "Hong Kong", "Earthsphere",
             "Axis Shock", "Human Purification Theory", "Nu Gundam",
             "Sazabi", "Re-GZ", "Jegan",
             "Geara Doga", "Jagd Doga", "Alpha Azieru",
+            "Ra Cailum", "Ra-Cailum", "Rewloola", "Ra-Chutter",
+            "Ra-Kiem", "Ra-Zyme", "Clop", "Musaka",
             "Newtype", "Oldtype", "Cyber-Newtype",
             "Spacenoid", "Earthnoid", "Mobile Suit",
-            "Mobile Armor", "psycho-frame", "psycommu",
-            "funnel", "Minovsky"
+            "Mobile Armor", "psycho-frame", "Psyco-frame", "psycommu",
+            "funnel", "Minovsky", "Haro"
         );
     }
 
