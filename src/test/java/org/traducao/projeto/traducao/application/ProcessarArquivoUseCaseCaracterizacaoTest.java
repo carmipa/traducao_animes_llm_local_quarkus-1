@@ -353,7 +353,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 new VerificadorIdentificadorNumerico());
         TradutorLotesService tradutorLotes =
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
-                new IsoladorQuebraDialogo());
+                new IsoladorQuebraDialogo(), new DetectorCorrenteFrasePartida(),
+                new GuardaCorrenteTraduzida());
         EnforcadorTermosLore enforcadorTermos = new EnforcadorTermosLore();
         MontadorTelemetriaTraducao montadorTelemetria =
             new MontadorTelemetriaTraducao(llmProps, resolvedorCache, llm);
