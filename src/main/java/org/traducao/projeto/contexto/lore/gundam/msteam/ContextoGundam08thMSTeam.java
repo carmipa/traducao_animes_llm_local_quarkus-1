@@ -212,7 +212,53 @@ public class ContextoGundam08thMSTeam implements ProvedorContexto {
             Map.entry("Operacao Star One", "Operation Star One"),
             Map.entry("Divisão do Extremo Oriente", "Far East Division"),
             Map.entry("Batalhão Kojima", "Kojima Battalion"),
-            Map.entry("Batalhao Kojima", "Kojima Battalion")
+            Map.entry("Batalhao Kojima", "Kojima Battalion"),
+
+            // ---------------------------------------------------------------------------
+            // Formas-ruim MEDIDAS nas 3.621 falas do acervo (cache, 2026-07-30). Esta obra
+            // tinha a PIOR taxa do catálogo: 36,2 perdas por mil falas.
+            //
+            // A causa é ÍMÃ EM ESTADO PURO: termosProtegidos declara DUAS grafias do mesmo
+            // nome, e o modelo escolhe sempre a que a legenda NÃO usa. Consistência total:
+            //
+            //   EN "Apsaras"  -> PT "Apsalus"   26 de 26
+            //   EN "Ginius"   -> PT "Ginias"    15 de 15
+            //   EN "Sakhalin" -> PT "Sahalin"    9 de  9
+            //
+            // Não é o modelo errando: é a lore oferecendo duas opções. Como a guarda do
+            // enforcer é dirigida pelo INGLÊS, a regra aqui é restaurar o que a fonte diz.
+            // Conferido: ZERO falas trazem as duas grafias no inglês, então não há
+            // ping-pong com as entradas que já apontavam para o outro lado.
+            // ---------------------------------------------------------------------------
+            Map.entry("Apsalus", "Apsaras"),
+            Map.entry("Projeto Apsalus", "Apsaras Project"),
+            Map.entry("Ginias", "Ginius"),
+            Map.entry("Sahalin", "Sakhalin"),
+            Map.entry("Aina Sahalin", "Aina Sakhalin"),
+
+            // Nome do esquadrão, 7 de 8 — as formas que apareceram além das já mapeadas.
+            Map.entry("Equipe MS 08", "08th MS Team"),
+            Map.entry("08º Esquadrão MS", "08th MS Team"),
+
+            // O Ball é um pod de combate, não um brinquedo: 6 de 9.
+            // Seguro porque o canônico é "Ball" com maiúscula e o enforcer exige grafia
+            // exata — uma fala sobre "ball" minúsculo nunca dispara.
+            Map.entry("bola", "Ball"),
+
+            // O núcleo UC cobre "Rifle de Feixe", não esta forma: 4 de 4.
+            Map.entry("rifle de raio", "Beam Rifle"),
+
+            // Título de episódio, 3 de 3.
+            Map.entry("Areia Ardente", "Burning Sand"),
+
+            // Sobrenome corrompido, 2 de 4.
+            Map.entry("Kellarny", "Kellerne")
+
+            // NÃO entram, e a medição é a razão:
+            //   Captain Norris / Admiral Yuri — o PT traduz a PATENTE ("Capitão Norris",
+            //     "Almirante Yuri"), que é correto; o termo protegido é que embute o posto.
+            //   Earth Federation — "Federação Terrestre", decisão de produto do acervo.
+            //   Mobile Suit (16/42) e Mobile Armor (2/4) — plural ou omissão da fala.
         ));
     }
 

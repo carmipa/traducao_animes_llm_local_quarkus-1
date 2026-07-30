@@ -114,7 +114,19 @@ public class ContextoRevisaoLoreGundam08thMSTeam implements ProvedorPromptRevisa
             Map.entry("Operacao Star One", "Operation Star One"),
             Map.entry("Divisão do Extremo Oriente", "Far East Division"),
             Map.entry("Batalhão Kojima", "Kojima Battalion"),
-            Map.entry("Batalhao Kojima", "Kojima Battalion")
+            Map.entry("Batalhao Kojima", "Kojima Battalion"),
+            // ESPELHO EXATO dos extras da Traducao — formas medidas nas 3.621 falas.
+            Map.entry("Apsalus", "Apsaras"),
+            Map.entry("Projeto Apsalus", "Apsaras Project"),
+            Map.entry("Ginias", "Ginius"),
+            Map.entry("Sahalin", "Sakhalin"),
+            Map.entry("Aina Sahalin", "Aina Sakhalin"),
+            Map.entry("Equipe MS 08", "08th MS Team"),
+            Map.entry("08º Esquadrão MS", "08th MS Team"),
+            Map.entry("bola", "Ball"),
+            Map.entry("rifle de raio", "Beam Rifle"),
+            Map.entry("Areia Ardente", "Burning Sand"),
+            Map.entry("Kellarny", "Kellerne")
         ));
     }
 }
