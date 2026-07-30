@@ -55,6 +55,8 @@ public class TradutorLotesService {
     private final ProtecaoLegendaAssService protecaoAss;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final IsoladorQuebraDialogo isoladorQuebra;
+    private final DetectorCorrenteFrasePartida detectorCorrente;
+    private final GuardaCorrenteTraduzida guardaCorrente;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as peças do coração do fluxo — mascaramento, tamanho de lote,
@@ -72,6 +74,8 @@ public class TradutorLotesService {
      * @param protecaoAss detecta resposta suspeita em linha ASS pesada
      * @param telemetriaTraducao contabiliza alucinações prevenidas
      * @param isoladorQuebra isola o {@code \N} mid-sentence do diálogo antes do LLM e o reaplica depois
+     * @param detectorCorrente agrupa as falas que formam uma frase partida entre eventos
+     * @param guardaCorrente reprova corrente cujo conteúdo o LLM deslocou entre as linhas
      */
     public TradutorLotesService(
         MascaradorTags mascarador,
@@ -80,7 +84,9 @@ public class TradutorLotesService {
         ProcessarEpisodioUseCase processarEpisodioUseCase,
         ProtecaoLegendaAssService protecaoAss,
         TelemetriaTraducaoPort telemetriaTraducao,
-        IsoladorQuebraDialogo isoladorQuebra
+        IsoladorQuebraDialogo isoladorQuebra,
+        DetectorCorrenteFrasePartida detectorCorrente,
+        GuardaCorrenteTraduzida guardaCorrente
     ) {
         this.mascarador = mascarador;
         this.propriedades = propriedades;
@@ -89,6 +95,8 @@ public class TradutorLotesService {
         this.protecaoAss = protecaoAss;
         this.telemetriaTraducao = telemetriaTraducao;
         this.isoladorQuebra = isoladorQuebra;
+        this.detectorCorrente = detectorCorrente;
+        this.guardaCorrente = guardaCorrente;
     }
 
     /**
@@ -189,13 +197,15 @@ public class TradutorLotesService {
         }
 
         int tamanhoLote = propriedades.tamanhoLote();
-        List<List<String>> chunksRepresentantes = new ArrayList<>();
+        // Com a flag ligada, uma frase partida entre eventos consecutivos vira UM lote, para
+        // o LLM enxergar a frase inteira; o resto continua fatiado pelo tamanho configurado.
+        List<List<String>> chunksRepresentantes = propriedades.agruparFrasePartida()
+            ? detectorCorrente.agrupar(representantes, tamanhoLote)
+            : fatiarPorTamanho(representantes, tamanhoLote);
         List<Lote> lotes = new ArrayList<>();
-        for (int i = 0; i < representantes.size(); i += tamanhoLote) {
-            List<String> chunkReps = representantes.subList(i, Math.min(i + tamanhoLote, representantes.size()));
-            List<String> chunkMascarados = chunkReps.stream().map(textoMascaradoPorOriginal::get).toList();
-            chunksRepresentantes.add(chunkReps);
-            lotes.add(new Lote(lotes.size() + 1, chunkMascarados));
+        for (List<String> chunkReps : chunksRepresentantes) {
+            lotes.add(new Lote(lotes.size() + 1,
+                chunkReps.stream().map(textoMascaradoPorOriginal::get).toList()));
         }
 
         uiLogger.iniciarLotes(lotes.size(), nomeArquivo);
@@ -216,8 +226,90 @@ public class TradutorLotesService {
 
         Map<String, String> mascaradoPorRepresentante = new HashMap<>();
         coletarMascaradoPorRepresentante(resultados, chunksRepresentantes, mascaradoPorRepresentante);
+        if (propriedades.agruparFrasePartida()) {
+            retraduzirCorrentesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal,
+                mascaradoPorRepresentante, promptCongelado);
+        }
         return expandirParaCamadas(
             textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, quebrasPorOriginal, avisos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fatiamento histórico em blocos de tamanho fixo — o caminho de
+     * quando o agrupamento por frase partida está desligado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: preserva a ordem; o último bloco pode ser menor.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista vazia devolve lista vazia.
+     */
+    private List<List<String>> fatiarPorTamanho(List<String> textos, int tamanho) {
+        List<List<String>> blocos = new ArrayList<>();
+        int passo = Math.max(1, tamanho);
+        for (int i = 0; i < textos.size(); i += passo) {
+            blocos.add(textos.subList(i, Math.min(i + passo, textos.size())));
+        }
+        return blocos;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: desfaz o agrupamento das correntes em que o LLM deslocou conteúdo
+     * entre as linhas, retraduzindo aquelas falas UMA A UMA — o comportamento de sempre. O
+     * agrupamento é uma aposta por corrente: quando ela não paga, a corrente volta ao caminho
+     * conhecido em vez de entregar uma legenda com o texto trocado de tempo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só toca correntes (grupos com 2+ falas) que a
+     * {@link GuardaCorrenteTraduzida} reprovou; grupo aprovado permanece byte-idêntico. A
+     * segunda passada usa lotes de UMA linha, onde a divergência de contagem é estruturalmente
+     * improvável.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se a segunda passada falhar (cancelamento, erro do
+     * LLM), a tradução agrupada é MANTIDA — pior que a individual, melhor que fala sem
+     * tradução. A barra de progresso não contabiliza esta passada extra; o total exibido pode
+     * ficar aquém do executado quando há correntes reprovadas.
+     */
+    private void retraduzirCorrentesReprovadas(
+            List<List<String>> chunksRepresentantes, Map<String, String> textoMascaradoPorOriginal,
+            Map<String, String> mascaradoPorRepresentante, String promptCongelado) {
+        List<String> aRefazer = new ArrayList<>();
+        for (List<String> chunk : chunksRepresentantes) {
+            if (chunk.size() < 2) {
+                continue;
+            }
+            List<String> enviados = chunk.stream().map(textoMascaradoPorOriginal::get).toList();
+            List<String> recebidos = chunk.stream().map(mascaradoPorRepresentante::get).toList();
+            if (recebidos.stream().anyMatch(java.util.Objects::isNull)) {
+                continue;
+            }
+            GuardaCorrenteTraduzida.Veredito veredito = guardaCorrente.avaliar(enviados, recebidos);
+            if (!veredito.aceita()) {
+                log.warn("Corrente de {} falas reprovada pela guarda ({}); retraduzindo uma a uma.",
+                    chunk.size(), veredito.motivo());
+                aRefazer.addAll(chunk);
+            }
+        }
+        if (aRefazer.isEmpty()) {
+            return;
+        }
+        uiLogger.log("[ WARN ] " + aRefazer.size()
+            + " fala(s) de frase partida voltaram ao fluxo individual (guarda de deslocamento).");
+        List<List<String>> chunksIndividuais = new ArrayList<>();
+        List<Lote> lotesIndividuais = new ArrayList<>();
+        for (String representante : aRefazer) {
+            chunksIndividuais.add(List.of(representante));
+            lotesIndividuais.add(new Lote(lotesIndividuais.size() + 1,
+                List.of(textoMascaradoPorOriginal.get(representante))));
+        }
+        try {
+            List<TraducaoLote> refeitos =
+                processarEpisodioUseCase.processarEpisodio(lotesIndividuais, promptCongelado);
+            coletarMascaradoPorRepresentante(refeitos, chunksIndividuais, mascaradoPorRepresentante);
+        } catch (Exception e) {
+            log.warn("Segunda passada individual falhou ({}); mantendo a tradução agrupada.",
+                e.getMessage());
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**

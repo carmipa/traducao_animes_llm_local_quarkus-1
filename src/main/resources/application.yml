@@ -8,6 +8,22 @@ tradutor:
   diretorio-cache: cache
   # Quantidade de falas por requisicao ao LLM. Modificado para 1 (linha a linha) para evitar falhas e alucinações.
   tamanho-lote: 1
+  # Agrupa numa MESMA chamada as falas que formam uma frase partida entre eventos consecutivos
+  # ("...realizar uma cerimonia" / "at the Prime Minister's residence"). Com lote 1 o LLM nunca
+  # ve a frase inteira e trata a 2a metade como frase nova: at -> "Ate", to usher -> "Para".
+  #
+  # Medido no Unicorn RE:0096, 22 episodios, 2026-07-29 (583 correntes, 706 ligacoes):
+  #   maiuscula indevida na continuacao ... 93,8% -> ~13%
+  #   conector virado em abertura ........ 29,7% -> ~1%
+  #   chamadas ao LLM .................... 1.289 -> 985 (-23,6%), ja com o fallback
+  #   correntes que passam na contagem ... 69% (as outras 31% voltam ao fluxo de hoje)
+  # Corrente LONGA sai melhor que curta (K=4 deu 3,5% de maiuscula contra 15,8% do K=2),
+  # entao NAO ha teto de agrupamento.
+  #
+  # DESLIGADA por padrao: ligar troca ~30% de conector errado por ~4% de deslocamento de
+  # conteudo -- linha com o texto da vizinha, contagem certa, que a validacao atual NAO pega.
+  # Quem intercepta isso e a GuardaCorrenteTraduzida, devolvendo a corrente ao fluxo individual.
+  agrupar-frase-partida: false
   # Estilos ASS que nao devem ser traduzidos (ex: letra original em romaji
   # usada para karaoke, que deve permanecer no idioma original).
   estilos-ignorados:

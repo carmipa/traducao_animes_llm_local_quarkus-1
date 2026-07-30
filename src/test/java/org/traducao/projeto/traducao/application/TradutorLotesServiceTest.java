@@ -92,7 +92,8 @@ class TradutorLotesServiceTest {
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
                                          FakeUiLogger ui, FakeProtecao protecao, FakeTelemetria telemetria) {
         return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria,
-            new IsoladorQuebraDialogo());
+            new IsoladorQuebraDialogo(), new DetectorCorrenteFrasePartida(),
+            new GuardaCorrenteTraduzida());
     }
 
     /**

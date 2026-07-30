@@ -21,6 +21,14 @@ public class TradutorProperties {
      * do que traduzir fica byte-idêntica à anterior. Ligar exige rodar o A/B do Plano-Mestre.
      */
     private boolean protecaoRomajiPareamento = false;
+    /**
+     * Agrupa numa MESMA chamada ao LLM as falas que formam uma frase partida entre eventos
+     * consecutivos (ver {@code DetectorCorrenteFrasePartida}). DESLIGADA por padrão: com
+     * {@code false} o fatiamento em lotes é byte-idêntico ao anterior. Ligar troca ~30% de
+     * conector errado na junção por ~4% de risco de deslocamento — que a
+     * {@code GuardaCorrenteTraduzida} intercepta devolvendo a corrente ao fluxo normal.
+     */
+    private boolean agruparFrasePartida = false;
 
     public TradutorProperties() {
     }
@@ -62,6 +70,10 @@ public class TradutorProperties {
     public boolean protecaoRomajiPareamento() { return protecaoRomajiPareamento; }
     public boolean isProtecaoRomajiPareamento() { return protecaoRomajiPareamento; }
     public void setProtecaoRomajiPareamento(boolean protecaoRomajiPareamento) { this.protecaoRomajiPareamento = protecaoRomajiPareamento; }
+
+    public boolean agruparFrasePartida() { return agruparFrasePartida; }
+    public boolean isAgruparFrasePartida() { return agruparFrasePartida; }
+    public void setAgruparFrasePartida(boolean agruparFrasePartida) { this.agruparFrasePartida = agruparFrasePartida; }
 
     public String idiomaTraduzido() { return idiomaTraduzido; }
     public String getIdiomaTraduzido() { return idiomaTraduzido; }
