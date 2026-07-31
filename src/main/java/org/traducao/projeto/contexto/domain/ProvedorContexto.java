@@ -140,4 +140,22 @@ public interface ProvedorContexto {
     default boolean reconhecePasta(String nomeDaPasta) {
         return IdentidadeObra.de(this).reconhece(nomeDaPasta);
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se este contexto deve aparecer na lista de OBRAS que a UI
+     * oferece para seleção. Quase todo contexto aparece — a exceção é o contexto genérico de
+     * tradução sem lore, que existe para uma tela própria e cuja presença nos combos das outras
+     * telas seria um convite ao engano: escolher "sem lore" onde havia lore disponível descarta
+     * silenciosamente toda a terminologia da obra.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não aparecer na lista NÃO significa não existir — o id continua
+     * resolvível por {@code existeContexto} e utilizável pelo pipeline. É filtro de APRESENTAÇÃO,
+     * nunca de validade.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: por padrão {@code true}; contexto que não declara nada
+     * continua listado como sempre.
+     */
+    default boolean apareceNaListaDeObras() {
+        return true;
+    }
 }

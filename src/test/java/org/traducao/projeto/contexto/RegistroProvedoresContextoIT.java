@@ -75,6 +75,15 @@ class RegistroProvedoresContextoIT {
 
     private static final String MANIFESTO = "/contexto/manifesto-lore.properties";
 
+    /** Contextos de OBRA — os que a UI oferece para seleção. */
+    private static final int OBRAS = 68;
+    /**
+     * Contextos GENÉRICOS, que não representam obra nenhuma e ficam fora dos combos.
+     * Hoje só {@code sem_lore} (tradução crua de anime ainda sem lore declarada).
+     */
+    private static final Set<String> GENERICOS = Set.of("sem_lore");
+    private static final int TOTAL = OBRAS + GENERICOS.size();
+
     @Inject
     List<ProvedorContexto> provedores;
 
@@ -82,9 +91,22 @@ class RegistroProvedoresContextoIT {
     GerenciadorContexto gerenciador;
 
     @Test
-    @DisplayName("exatamente 68 provedores CDI, sem id nulo/vazio e sem duplicatas")
+    @DisplayName("exatamente 68 obras + 1 contexto genérico, sem id nulo/vazio e sem duplicatas")
     void registroTem68ProvedoresSemDuplicatas() {
-        assertEquals(68, provedores.size(), "esperados 68 provedores CDI (as 3 agregadoras Macross ficam fora -- ver CatracaAgregadorasForaDoCdiTest)");
+        assertEquals(TOTAL, provedores.size(), "esperados " + TOTAL + " provedores CDI = " + OBRAS
+            + " obras + " + GENERICOS.size() + " genérico(s) (as 3 agregadoras Macross ficam fora -- ver CatracaAgregadorasForaDoCdiTest)");
+
+        // A catraca separa as duas populações: uma obra nova tem de entrar como OBRA, e um
+        // contexto genérico novo tem de ser declarado aqui de propósito. Sem esta separação,
+        // um genérico esquecido passaria por obra e sumiria da contagem que protege o catálogo.
+        Set<String> genericosVivos = provedores.stream()
+            .filter(p -> !p.apareceNaListaDeObras())
+            .map(ProvedorContexto::getId)
+            .collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(new TreeSet<>(GENERICOS), genericosVivos,
+            "conjunto de contextos genéricos (fora dos combos de obra) divergiu do declarado");
+        assertEquals(OBRAS, provedores.size() - genericosVivos.size(),
+            "número de contextos de OBRA divergiu");
 
         for (ProvedorContexto p : provedores) {
             assertNotNull(p.getId(), "id nulo em " + p.getClass().getName());
@@ -92,7 +114,7 @@ class RegistroProvedoresContextoIT {
         }
 
         Set<String> unicos = provedores.stream().map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
-        assertEquals(68, unicos.size(), "ids duplicados no registro CDI");
+        assertEquals(TOTAL, unicos.size(), "ids duplicados no registro CDI");
     }
 
     @Test
@@ -122,9 +144,9 @@ class RegistroProvedoresContextoIT {
     }
 
     @Test
-    @DisplayName("GerenciadorContexto recebe os 68 provedores e seleciona um id conhecido; id desconhecido lança")
+    @DisplayName("GerenciadorContexto recebe todos os provedores e seleciona um id conhecido; id desconhecido lança")
     void gerenciadorRecebeESelecionaProvedores() {
-        assertEquals(68, gerenciador.getProvedores().size(), "GerenciadorContexto não recebeu os 68 provedores");
+        assertEquals(TOTAL, gerenciador.getProvedores().size(), "GerenciadorContexto não recebeu os " + TOTAL + " provedores");
         assertTrue(gerenciador.existeContexto("danmachi"), "contexto conhecido deveria existir");
         assertFalse(gerenciador.existeContexto("inexistente_zzz"), "contexto desconhecido não deveria existir");
 
@@ -138,7 +160,7 @@ class RegistroProvedoresContextoIT {
     }
 
     @Test
-    @DisplayName("resolução CDI sem ambiguidade (manager único) nem duplicação (producer único alimenta os 68)")
+    @DisplayName("resolução CDI sem ambiguidade (manager único) nem duplicação (producer único alimenta todos)")
     void resolucaoCdiSemAmbiguidadeNemDuplicacao() {
         // Ambiguidade de bean falharia no deploy do @QuarkusTest; a injeção bem-sucedida
         // do manager único já prova resolução sem ambiguidade.
@@ -146,12 +168,12 @@ class RegistroProvedoresContextoIT {
         assertNotNull(provedores, "List<ProvedorContexto> deve resolver pelo producer");
         // O manager e a injeção direta devem ver EXATAMENTE o mesmo conjunto de 68 — prova de
         // que há um único producer alimentando ambos, sem duplicação de provedores.
-        assertEquals(68, provedores.size(), "injeção direta deve resolver 68 provedores pelo producer");
+        assertEquals(TOTAL, provedores.size(), "injeção direta deve resolver " + TOTAL + " provedores pelo producer");
         assertEquals(provedores.size(), gerenciador.getProvedores().size(),
             "manager e injeção direta devem ver o mesmo número de provedores (producer único, sem duplicação)");
         Set<String> idsManager = gerenciador.getProvedores().stream()
             .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
-        assertEquals(68, idsManager.size(), "manager não pode ter ids duplicados (producer sem duplicação)");
+        assertEquals(TOTAL, idsManager.size(), "manager não pode ter ids duplicados (producer sem duplicação)");
         Set<String> idsInjecao = provedores.stream()
             .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
         assertEquals(idsInjecao, idsManager,

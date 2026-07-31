@@ -18,6 +18,7 @@ import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.contexto.lore.semlore.ContextoSemLore;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Files;
@@ -120,6 +121,16 @@ public class TraducaoController {
 
                 // Configura as pastas compartilhadas
                 String saida = req.saida() != null && !req.saida().isBlank() ? req.saida() : "";
+                // Tradução SEM LORE nunca cai na pasta canônica por omissão: uma tradução crua
+                // (nomes próprios desprotegidos, zero terminologia) não pode virar a versão
+                // definitiva só porque o operador deixou o campo vazio. Saída explícita continua
+                // valendo — quem digitou o caminho sabe o que quer.
+                if (saida.isEmpty() && ContextoSemLore.ID.equals(req.contextoId())) {
+                    Path paiSemLore = pathEntrada.getParent();
+                    saida = (paiSemLore != null ? paiSemLore : pathEntrada)
+                        .resolve("traducao_ptbr_sem_lore").toString();
+                    System.out.println("[33m[SEM LORE] Saída separada: " + saida + "[0m");
+                }
                 pastasExecucao.configurar(req.entrada(), saida, propriedades.diretorioCache(), propriedades);
 
                 // Fotografia ÚNICA do job, resolvida a partir do contextoId EXPLÍCITO da
@@ -169,7 +180,8 @@ public class TraducaoController {
                     System.out.println("Processando arquivo [" + (i + 1) + "/" + arquivos.size() + "]: " + arquivo.getFileName());
                     System.out.println("--------------------------------------------------------------");
                     try {
-                        var resultado = processarArquivoUseCase.processar(arquivo, permitir, contextoDoJob);
+                        var resultado = processarArquivoUseCase.processar(
+                            arquivo, permitir, contextoDoJob, Boolean.TRUE.equals(req.ignorarLoreExistente()));
                         resultados.add(resultado);
                         if (resultado.status() == org.traducao.projeto.traducao.domain.StatusArquivoTraducao.CONCLUIDO) {
                             System.out.println("[OK] Traduzido: " + arquivo.getFileName());

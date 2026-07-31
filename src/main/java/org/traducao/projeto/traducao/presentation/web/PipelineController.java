@@ -13,6 +13,7 @@ import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
@@ -128,6 +129,10 @@ public class PipelineController {
         // do grupo, ou o próprio nome quando título solto) e depois pela ordem cronológica
         // dentro do grupo — a SPA só precisa criar os <optgroup> na troca de grupo.
         List<ContextoResponse> lista = gerenciadorContexto.getProvedores().stream()
+                // O contexto genérico "sem lore" tem tela própria e fica FORA dos combos de
+                // obra: oferecê-lo ao lado das 68 obras convidaria a descartar a terminologia
+                // de uma obra que tem lore declarada.
+                .filter(ProvedorContexto::apareceNaListaDeObras)
                 .map(p -> new ContextoResponse(
                         p.getId(),
                         catalogoObras.nomePadronizado(p.getId(), p.getNomeExibicao()),
