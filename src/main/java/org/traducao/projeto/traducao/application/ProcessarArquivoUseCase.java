@@ -186,6 +186,27 @@ public class ProcessarArquivoUseCase {
     public ResultadoTraducaoArquivo processar(
         Path arquivoEntrada, boolean permitirRetraducao, SnapshotContexto contextoDoJob
     ) throws InterruptedException, ExecutionException {
+        return processar(arquivoEntrada, permitirRetraducao, contextoDoJob, false);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução, com a possibilidade de DISPENSAR o portão de obra.
+     * Existe só para a tradução sem lore: quando o operador escolhe traduzir cru uma pasta cuja
+     * obra JÁ tem lore declarada, a guarda bloquearia — e bloquear é o certo por padrão. A
+     * dispensa é a caixa de escape marcada conscientemente na tela.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a dispensa não é silenciosa — registra {@code [ AVISO ]} em log
+     * e console com a obra e o contexto ativo, para que a decisão apareça no relatório da
+     * execução. Nenhuma outra blindagem é afetada: tags, alucinação, numérico e eco continuam.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico ao da sobrecarga de três argumentos.
+     *
+     * @param ignorarLoreExistente dispensa o portão de compatibilidade obra × contexto
+     */
+    public ResultadoTraducaoArquivo processar(
+        Path arquivoEntrada, boolean permitirRetraducao, SnapshotContexto contextoDoJob,
+        boolean ignorarLoreExistente
+    ) throws InterruptedException, ExecutionException {
         long inicioMs = System.currentTimeMillis();
         if (contextoDoJob == null) {
             throw new IllegalArgumentException(
@@ -195,7 +216,15 @@ public class ProcessarArquivoUseCase {
         // Portão determinístico ANTES de ler a legenda, de chamar o LLM e de escrever cache:
         // arquivo cuja obra é reconhecida por outro contexto é BLOQUEADO aqui. Roda por
         // arquivo (a pasta de entrada pode misturar obras) contra o MESMO snapshot do job.
-        guardaContextoObra.verificar(arquivoEntrada, contextoDoJob);
+        if (ignorarLoreExistente) {
+            String aviso = "Portão de obra DISPENSADO por escolha explícita (tradução sem lore): "
+                + arquivoEntrada + " — contexto ativo \"" + contextoDoJob.id()
+                + "\". A terminologia da obra, se existir, NÃO será aplicada.";
+            log.warn(aviso);
+            uiLogger.log("[ AVISO ] " + aviso);
+        } else {
+            guardaContextoObra.verificar(arquivoEntrada, contextoDoJob);
+        }
         // Ponte para o consumidor legado que ainda lê a lore por ThreadLocal (ver
         // ContextoCongeladoDaExecucao): a validação de cada fala atravessa a porta
         // LoreAtivaPort, que não recebe o snapshot por parâmetro.
@@ -444,6 +473,20 @@ public class ProcessarArquivoUseCase {
                     + "\". Original: " + original;
                 log.info(aviso);
                 uiLogger.log("[REPARADA] " + aviso);
+                continue;
+            }
+            // Segundo resgate: a fala é um NOME e o modelo a devolveu certa, só sem o itálico
+            // que perdeu junto com o marcador. Reprovar aqui republica a fala EM INGLÊS — medido
+            // no 08th em 2026-07-31: 8 das 16 falas com itálico descartado terminaram assim na
+            // tela ("{\i1}Eledore!", "{\i1}Karen!", "{\i1}Sanders...").  Restaurar devolve o
+            // ORIGINAL intacto: texto certo E itálico preservado.
+            String identicaRestaurada = avaliadorCache.restaurarIdenticaSemItalico(original, traduzido);
+            if (identicaRestaurada != null) {
+                traducoesValidadas.put(original, identicaRestaurada);
+                String aviso = "Itálico restaurado em fala-nome: o modelo perdeu a tag mas não mudou"
+                    + " o texto. Publicado o original. Original: " + original;
+                log.info(aviso);
+                uiLogger.log("[RESTAURADA] " + aviso);
                 continue;
             }
             // Uma falha conhecida nunca volta ao banco como se fosse tradução.

@@ -350,7 +350,9 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 new ProtecaoCamadasMusicaisService(detectorKaraoke));
         AvaliadorTraducaoCache avaliadorCache =
             new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador,
-                new VerificadorIdentificadorNumerico());
+                new VerificadorIdentificadorNumerico(),
+                new RestauradorFalaIdenticaSemItalico(mascarador, detectorIdentica,
+                    new DescarteItalicoUltimoRecurso(), LoreAtivaFake.vazia()));
         TradutorLotesService tradutorLotes =
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
                 new IsoladorQuebraDialogo(), new SimplificadorItalicoRedundante(),

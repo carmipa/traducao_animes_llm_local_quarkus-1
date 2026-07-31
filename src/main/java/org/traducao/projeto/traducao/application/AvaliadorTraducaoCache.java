@@ -40,6 +40,7 @@ public class AvaliadorTraducaoCache {
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final ValidadorTraducaoService validador;
     private final VerificadorIdentificadorNumerico verificadorNumerico;
+    private final RestauradorFalaIdenticaSemItalico restauradorIdentica;
 
     /**
      * PROPÓSITO DE NEGÓCIO: injeta as blindagens de qualidade — estrutura de tags, decisão de
@@ -54,17 +55,38 @@ public class AvaliadorTraducaoCache {
      * @param mascarador preserva/compara a estrutura de tags entre original e tradução
      * @param detectorIdentica decide quando uma fala idêntica ao original é legítima
      * @param validador acusa resíduo gringo/preâmbulo lançando {@link AlucinacaoDetectadaException}
+     * @param restauradorIdentica recupera a fala-nome que perdeu só o itálico
      */
     public AvaliadorTraducaoCache(
         MascaradorTags mascarador,
         DetectorTraducaoIdenticaService detectorIdentica,
         ValidadorTraducaoService validador,
-        VerificadorIdentificadorNumerico verificadorNumerico
+        VerificadorIdentificadorNumerico verificadorNumerico,
+        RestauradorFalaIdenticaSemItalico restauradorIdentica
     ) {
         this.mascarador = mascarador;
         this.detectorIdentica = detectorIdentica;
         this.validador = validador;
         this.verificadorNumerico = verificadorNumerico;
+        this.restauradorIdentica = restauradorIdentica;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: segundo resgate do portão, irmão de {@link #repararSePossivel} —
+     * devolve o ORIGINAL intacto quando a fala é um nome próprio que o modelo devolveu certo,
+     * mas sem o itálico que ele perdeu junto com o marcador {@code [[TAGn]]}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: ao contrário do reparo de entidade, aqui NÃO há revalidação —
+     * e não pode haver. O que se publica é o próprio original, byte a byte; submetê-lo ao portão
+     * seria perguntar se a legenda de origem é uma tradução válida, que é a pergunta errada. A
+     * segurança vem de {@link RestauradorFalaIdenticaSemItalico}, que só age quando o texto
+     * visível não mudou e a identidade é legítima.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code null} quando não há restauração segura;
+     * a fala segue pendente. Nunca lança.
+     */
+    public String restaurarIdenticaSemItalico(String original, String traduzido) {
+        return restauradorIdentica.restaurarSePossivel(original, traduzido);
     }
 
     /**

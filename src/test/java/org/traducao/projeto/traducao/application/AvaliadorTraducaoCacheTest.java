@@ -37,7 +37,10 @@ class AvaliadorTraducaoCacheTest {
         new MascaradorTags(),
         new DetectorTraducaoIdenticaService(new LoreVazia()),
         new ValidadorTraducaoService(LoreAtivaFake.vazia()),
-        new VerificadorIdentificadorNumerico());
+        new VerificadorIdentificadorNumerico(),
+        new RestauradorFalaIdenticaSemItalico(new MascaradorTags(),
+            new DetectorTraducaoIdenticaService(new LoreVazia()),
+            new DescarteItalicoUltimoRecurso(), new LoreVazia()));
 
     /**
      * PROPÓSITO DE NEGÓCIO: tradução ausente nunca é reaproveitada.
