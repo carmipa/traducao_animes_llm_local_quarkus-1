@@ -55,6 +55,8 @@ public class TradutorLotesService {
     private final ProtecaoLegendaAssService protecaoAss;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final IsoladorQuebraDialogo isoladorQuebra;
+    private final SimplificadorItalicoRedundante simplificadorItalico;
+    private final DescarteItalicoUltimoRecurso descarteItalico;
     private final DetectorCorrenteFrasePartida detectorCorrente;
     private final GuardaCorrenteTraduzida guardaCorrente;
 
@@ -85,6 +87,8 @@ public class TradutorLotesService {
         ProtecaoLegendaAssService protecaoAss,
         TelemetriaTraducaoPort telemetriaTraducao,
         IsoladorQuebraDialogo isoladorQuebra,
+        SimplificadorItalicoRedundante simplificadorItalico,
+        DescarteItalicoUltimoRecurso descarteItalico,
         DetectorCorrenteFrasePartida detectorCorrente,
         GuardaCorrenteTraduzida guardaCorrente
     ) {
@@ -95,6 +99,8 @@ public class TradutorLotesService {
         this.protecaoAss = protecaoAss;
         this.telemetriaTraducao = telemetriaTraducao;
         this.isoladorQuebra = isoladorQuebra;
+        this.simplificadorItalico = simplificadorItalico;
+        this.descarteItalico = descarteItalico;
         this.detectorCorrente = detectorCorrente;
         this.guardaCorrente = guardaCorrente;
     }
@@ -158,12 +164,16 @@ public class TradutorLotesService {
             // música latina e letreiro (onde \N é quebra visual). KFX e romaji ficam de fora --
             // neles a quebra tem relação com o tempo do efeito. Sem inventário, vale a regra
             // histórica (só o que não é deduplicável, isto é, só diálogo).
-            String textoParaMascarar = original;
+            // ORDEM IMPORTA: o itálico redundante é simplificado ANTES da isolação de quebra.
+            // O padrão de 140 das 212 corrupções medidas é {\i1}A{\i}\N{\i1}B — o par
+            // desliga/religa CERCA a quebra. Se a quebra saísse primeiro, o par deixaria de
+            // ser reconhecível e os 3 marcadores extras seguiriam para o LLM.
+            String textoParaMascarar = simplificadorItalico.simplificar(original);
             boolean quebraIsolavel = textosComQuebraIsolavel == null
                 ? !textosDeduplicaveis.contains(original)
                 : textosComQuebraIsolavel.contains(original);
             if (quebraIsolavel) {
-                IsoladorQuebraDialogo.FalaIsolada isolada = isoladorQuebra.isolar(original);
+                IsoladorQuebraDialogo.FalaIsolada isolada = isoladorQuebra.isolar(textoParaMascarar);
                 if (isolada.quebras() > 0) {
                     textoParaMascarar = isolada.textoSemQuebra();
                     quebrasPorOriginal.put(original, isolada.quebras());
@@ -397,6 +407,18 @@ public class TradutorLotesService {
             }
             return isoladorQuebra.reaplicar(traduzido, quebrasIsoladas);
         } catch (AlucinacaoDetectadaException e) {
+            // ÚLTIMO RECURSO antes de publicar o inglês: se as únicas tags perdidas eram
+            // itálico, entregar a TRADUÇÃO sem ênfase é melhor que entregar o original com
+            // ênfase — o espectador entende a fala. Decisão do Paulo em 2026-07-31; a
+            // medição dos logs mostra 47 de 212 corrupções nessa condição.
+            String semItalico = descarteItalico.salvarSemItalico(tags, traduzidoMascarado);
+            if (semItalico != null) {
+                log.info("Itálico descartado para salvar a tradução (marcador perdido pelo LLM). "
+                    + "Original: \"{}\" -> \"{}\"", original, semItalico);
+                uiLogger.log("[ INFO ] Itálico descartado para preservar a tradução: " + original);
+                avisos.add("Itálico descartado (marcador perdido pelo LLM): " + original);
+                return isoladorQuebra.reaplicar(semItalico, quebrasIsoladas);
+            }
             telemetriaTraducao.registrarAlucinacaoPrevenida();
             log.warn("Tags corrompidas pelo LLM nesta fala — mantendo o texto original sem tradução. Motivo: {}. Original: \"{}\"",
                 e.getMessage(), original);

@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducao.application;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.TraducaoLote;
@@ -92,7 +93,8 @@ class TradutorLotesServiceTest {
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
                                          FakeUiLogger ui, FakeProtecao protecao, FakeTelemetria telemetria) {
         return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria,
-            new IsoladorQuebraDialogo(), new DetectorCorrenteFrasePartida(),
+            new IsoladorQuebraDialogo(), new SimplificadorItalicoRedundante(),
+            new DescarteItalicoUltimoRecurso(), new DetectorCorrenteFrasePartida(),
             new GuardaCorrenteTraduzida());
     }
 
@@ -168,11 +170,41 @@ class TradutorLotesServiceTest {
         List<String> avisos = new ArrayList<>();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), tele);
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", avisos, null);
+        // Tag de POSIÇÃO: continua valendo a regra histórica — mover a legenda na tela não é
+        // detalhe de ênfase, então o original é mantido e a alucinação é contabilizada.
+        Map<String, String> r = s.traduzirPendentes(
+            pendentes("{\\pos(10,20)}Oi"), Set.of(), "ep.ass", avisos, null);
 
-        assertEquals("{\\i1}Oi", r.get("{\\i1}Oi"), "tags corrompidas mantêm o original");
+        assertEquals("{\\pos(10,20)}Oi", r.get("{\\pos(10,20)}Oi"),
+            "tag não-itálica corrompida mantém o original");
         assertEquals(1, avisos.size());
         assertEquals(1, tele.alucinacoesPrevenidas);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela a INVERSÃO de prioridade decidida pelo Paulo em
+     * 2026-07-31 — quando as únicas tags perdidas são itálico, publicar a tradução sem
+     * ênfase é melhor que publicar o original em inglês com ênfase.
+     *
+     * <p>Medido nos logs: 47 das 212 corrupções estão nesta condição, e hoje todas saem
+     * em inglês. Ver {@link DescarteItalicoUltimoRecurso}.
+     */
+    @Test
+    @DisplayName("Itálico corrompido: salva a TRADUÇÃO sem ênfase em vez do inglês")
+    void alucinacaoDeItalicoSalvaTraducaoSemEnfase() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream().map(s -> "Ola").toList();
+        FakeTelemetria tele = new FakeTelemetria();
+        List<String> avisos = new ArrayList<>();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), tele);
+
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", avisos, null);
+
+        assertEquals("Ola", r.get("{\\i1}Oi"),
+            "itálico puro: a tradução vence a formatação");
+        assertEquals(1, avisos.size(), "o descarte é registrado para auditoria");
+        assertEquals(0, tele.alucinacoesPrevenidas,
+            "não é alucinação prevenida: a fala foi SALVA, não descartada");
     }
 
     /**
