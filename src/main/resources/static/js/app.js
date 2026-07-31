@@ -1043,6 +1043,18 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             optObrigatorio.selected = true;
             select.appendChild(optObrigatorio);
 
+            // Nas telas AUXILIARES a lore não muda o resultado — só carrega capa e metadados.
+            // Travá-las sem saída impediria o caso legítimo de analisar uma mídia que não tem
+            // lore nenhuma (foi o que aconteceu na Análise de Mídia). A escolha continua
+            // DELIBERADA: o operador tem de dizer "sem obra", em vez de a tela abrir liberada.
+            if (ehAuxiliar) {
+                const optSemObra = document.createElement('option');
+                optSemObra.value = '';
+                optSemObra.textContent = '— Sem obra (seguir sem capa/lore) —';
+                optSemObra.dataset.liberaTrava = 'true';
+                select.appendChild(optSemObra);
+            }
+
             const fonteContextos = ehRevisaoLore && Array.isArray(contextosRevisaoLore) && contextosRevisaoLore.length > 0
                 ? agruparContextosRevisaoLore(contextosRevisaoLore, contextos)
                 : contextos;
@@ -1058,7 +1070,12 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             });
 
             // Campos de pasta, "Procurar..." e botão de ação ficam inertes até a escolha.
-            travarAteEscolherLore(select, { idsLiberadores: ['sem_lore'] });
+            travarAteEscolherLore(select, {
+                idsLiberadores: ['sem_lore'],
+                textoAviso: ehAuxiliar
+                    ? 'Escolha a obra acima — ou "Sem obra" — para liberar os campos de pasta.'
+                    : 'Escolha a obra acima para liberar os campos de pasta.'
+            });
         });
 
         if (onComplete && typeof onComplete === 'function') {

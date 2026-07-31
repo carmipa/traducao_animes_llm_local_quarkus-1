@@ -49,7 +49,7 @@ export function travarAteEscolherLore(seletor, opcoes = {}) {
     if (primeiraVez) {
         aviso = document.createElement('small');
         aviso.className = AVISO_CLASSE;
-        aviso.textContent = TEXTO_AVISO;
+        aviso.textContent = opcoes.textoAviso || TEXTO_AVISO;
         grupo.appendChild(aviso);
     }
 
@@ -65,6 +65,13 @@ export function travarAteEscolherLore(seletor, opcoes = {}) {
     }
 
     function escolheu() {
+        const opcao = select.selectedOptions && select.selectedOptions[0];
+        // Opção que LIBERA sem ser obra ("— Sem obra —" das telas em que a lore só enfeita
+        // com a capa). Marcada com data-libera-trava porque o `value` dela continua vazio:
+        // quem lê o select para montar a requisição precisa seguir vendo "" como antes.
+        if (opcao && opcao.dataset && opcao.dataset.liberaTrava === 'true') {
+            return true;
+        }
         const valor = select.value;
         if (!valor) {
             return false;
@@ -72,7 +79,6 @@ export function travarAteEscolherLore(seletor, opcoes = {}) {
         if (liberadores.has(valor)) {
             return true;
         }
-        const opcao = select.selectedOptions && select.selectedOptions[0];
         return !(opcao && opcao.disabled);
     }
 
