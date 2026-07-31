@@ -104,7 +104,7 @@ public class CorrigirComGoogleUseCase {
         }
 
         try {
-            var arquivos = cacheService.listarCachesTraducaoBase(diretorioCache);
+            var arquivos = cacheService.listarCachesDaObra(diretorioCache, contextoFallback);
             for (Path arquivo : arquivos) {
                 if (Thread.currentThread().isInterrupted()) {
                     c.cancelado = true;
