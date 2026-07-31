@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       {@code qualidadeTraducao.domain} porque IDENTIDADE DE OBRA é assunto deste peer) e
  *       {@code IdentidadeObra} (a identidade canônica derivada de id + nome de exibição, que
  *       deu cobertura de reconhecimento a TODAS as obras do catálogo de uma vez, e não só às
- *       que declaram apelidos à mão); {@code contexto.lore} agrega 81 classes.</li>
+ *       que declaram apelidos à mão); {@code contexto.lore} agrega 82 classes.</li>
  *   <li>{@code contexto.application} é congelado nominalmente em exatamente
  *       {@code ValidadorCompatibilidadeObraContexto} — o serviço que julga se o arquivo
  *       pertence à obra cuja lore está selecionada, movido de
@@ -202,7 +202,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 81 lores em contexto.lore")
+    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 82 lores em contexto.lore")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -225,8 +225,8 @@ class FronteiraContextoArchTest {
             () -> "contexto.domain deve conter exatamente os 8 tipos homologados (VeredictoObraContexto entrou "
                 + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
                 + "peer). Encontrado: " + domain);
-        assertEquals(81, lores,
-            "contexto.lore deve agregar exatamente 81 classes de lore: 68 @Component + 3 agregadoras Macross "
+        assertEquals(82, lores,
+            "contexto.lore deve agregar exatamente 82 classes de lore: 68 @Component de OBRA + 1 @Component GENERICO (ContextoSemLore, fora dos combos -- ver ProvedorContexto.apareceNaListaDeObras) + 3 agregadoras Macross "
                 + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 0 esqueletos "
                 + "(toda obra do catalogo tem lore) + 10 mapas de terminologia: "
                 + "GundamUc, GundamZz, DanMachi, Evangelion, GuiltyCrown, Macross, Macross2, MacrossDelta, "

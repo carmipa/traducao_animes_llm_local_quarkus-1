@@ -17,7 +17,7 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-    <link rel="stylesheet" href="css/base.css?v=5.1">
+    <link rel="stylesheet" href="css/base.css?v=5.2">
     <link rel="stylesheet" href="inicio/inicio.css?v=4.0">
     <link rel="stylesheet" href="analise/analise.css?v=5.0">
     <link rel="stylesheet" href="extracao/extracao.css?v=4.0">
@@ -116,6 +116,11 @@
                             data-tooltip="Traduza legendas usando IA local com proteção de tags.">
                             <span class="material-symbols-outlined nav-icon">translate</span>
                             <span>4. Tradução Local</span>
+                        </button>
+                        <button class="nav-item" data-target="traducao-sem-lore" id="btn-menu-traducao-sem-lore"
+                            data-tooltip="Traduza um anime que ainda não tem lore declarada — teste rápido, saída separada.">
+                            <span class="material-symbols-outlined nav-icon">bolt</span>
+                            <span>4b. Tradução sem Lore</span>
                         </button>
                         <button class="nav-item" data-target="correcao" id="btn-menu-correcao"
                             data-tooltip="Corrija falhas de cache ou traduções ausentes.">
@@ -799,6 +804,97 @@
                             </div>
                         </div>
                         <div class="console-body" id="console-traducao">
+                            <div class="system-message">Aguardando execução...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4b. PAINEL DE TRADUÇÃO SEM LORE -->
+                <div class="panel" id="panel-traducao-sem-lore">
+                    <div class="glass-card">
+                        <h2>Tradução sem Lore (crua)</h2>
+                        <p class="card-desc">Para o anime que você acabou de baixar e que <strong>ainda não tem lore
+                            declarada</strong> — teste rápido ou pressa. Não exige escolher obra, e por isso não aplica
+                            terminologia nenhuma.</p>
+
+                        <div class="aviso-sem-lore">
+                            <p><strong>O que você perde sem lore:</strong></p>
+                            <ul>
+                                <li><strong>Nomes próprios podem ser traduzidos.</strong> Sem lista de termos
+                                    protegidos, nada impede um personagem chamado <em>Sky</em> virar <em>Céu</em>. O
+                                    prompt pede para manter, mas pedido não é garantia.</li>
+                                <li>Sem reforço determinístico de terminologia e sem correção de grafia canônica.</li>
+                            </ul>
+                            <p><strong>O que continua protegido:</strong> tags ASS/SSA, detecção de alucinação e
+                                meta-resposta, identificadores numéricos, resíduo em inglês e eco do original.</p>
+                            <p>A saída vai para <code>traducao_ptbr_sem_lore</code>, separada da definitiva. Quando você
+                                escrever a lore de verdade, o cache desta execução é descartado sozinho.</p>
+                        </div>
+
+                        <form id="form-traducao-sem-lore" class="standard-form">
+                            <div class="form-group">
+                                <label for="traducao-sem-lore-entrada">Pasta com as legendas ORIGINAIS (.ass / .ssa):
+                                    <span class="help-icon"
+                                        data-tooltip="Pasta com os arquivos de legenda em inglês que serão traduzidos.">?</span></label>
+                                <div class="input-with-button">
+                                    <input type="text" id="traducao-sem-lore-entrada"
+                                        placeholder="Ex: C:\animes\[Grupo] Anime Novo\legendas_eng" required>
+                                    <button type="button" class="btn-procurar" data-target="traducao-sem-lore-entrada"
+                                        data-type="pasta"><span
+                                            class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="traducao-sem-lore-saida">Pasta de SAÍDA (opcional): <span class="help-icon"
+                                        data-tooltip="Vazio cria 'traducao_ptbr_sem_lore' ao lado da pasta de legendas originais, para não se misturar com a tradução definitiva.">?</span></label>
+                                <div class="input-with-button">
+                                    <input type="text" id="traducao-sem-lore-saida"
+                                        placeholder="Deixe vazio p/ criar 'traducao_ptbr_sem_lore' ao lado das originais">
+                                    <button type="button" class="btn-procurar" data-target="traducao-sem-lore-saida"
+                                        data-type="pasta"><span
+                                            class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="traducao-sem-lore-ignorar">
+                                    <input type="checkbox" id="traducao-sem-lore-ignorar">
+                                    Ignorar lore existente desta obra
+                                    <span class="help-icon"
+                                        data-tooltip="Por padrão, se a pasta for de uma obra que JÁ tem lore declarada, a execução é bloqueada e a mensagem diz qual contexto usar. Marque só se quiser mesmo traduzir cru uma obra que tem lore.">?</span>
+                                </label>
+                                <small>Desmarcado, pasta de obra com lore declarada é <strong>bloqueada</strong> — e
+                                    quase sempre é isso que você quer.</small>
+                            </div>
+                            <div class="correcao-actions">
+                                <button type="submit" class="btn btn-primary btn-green"
+                                    data-tooltip="Traduzir sem aplicar lore, com saída separada">
+                                    <span>Traduzir sem Lore</span>
+                                    <span class="material-symbols-outlined btn-icon">play_arrow</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-clear-form"
+                                    data-form="form-traducao-sem-lore" data-tooltip="Limpa todos os campos">
+                                    <span class="material-symbols-outlined btn-icon">delete_sweep</span>
+                                    <span>Limpar Campos</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card console-card">
+                        <div class="console-header">
+                            <h3>Console da Tradução sem Lore</h3>
+                            <div class="console-actions">
+                                <button class="btn-toggle-console" data-target="console-traducao-sem-lore"
+                                    data-tooltip="Alternar altura expandida do console"><span
+                                        class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
+                                <button class="btn-copy-console" data-target="console-traducao-sem-lore"
+                                    data-tooltip="Copiar conteúdo do console"><span
+                                        class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>
+                                <button class="btn-clear-console" data-target="console-traducao-sem-lore"><span
+                                        class="material-symbols-outlined console-action-icon">mop</span>Limpar</button>
+                            </div>
+                        </div>
+                        <div class="console-body" id="console-traducao-sem-lore">
                             <div class="system-message">Aguardando execução...</div>
                         </div>
                     </div>

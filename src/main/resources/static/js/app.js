@@ -7,7 +7,8 @@
 import { initAnalise } from '../analise/analise.js?v=4.0';
 import { initExtracao } from '../extracao/extracao.js?v=3.0';
 import { initAuditorConteudo } from '../auditorConteudoLegendas/auditorConteudoLegendas.js?v=3.9';
-import { initTraducao } from '../traducao/traducao.js?v=3.0';
+import { initTraducao } from '../traducao/traducao.js?v=3.1';
+import { initTraducaoSemLore } from '../traducaoSemLore/traducaoSemLore.js?v=1.0';
 import { initCorrecao } from '../correcao/correcao.js?v=3.1';
 import { initRevisao } from '../revisao/revisao.js?v=3.3';
 import { initCura } from '../cura/cura.js?v=3.0';
@@ -16,6 +17,7 @@ import { initRevisaoConcordancia } from '../revisaoConcordancia/revisaoConcordan
 import { initTrocaTipoLegenda } from '../trocaTipoLegenda/trocaTipoLegenda.js?v=3.0';
 import { initRemuxer } from '../remuxer/remuxer.js?v=3.2';
 import { montarOpcoesContextos } from './selectContextos.js';
+import { travarAteEscolherLore } from './travaLore.js';
 import { initMapa } from '../mapa/mapa.js?v=5.0';
 import { initTelemetria } from '../telemetria/telemetria.js?v=3.1';
 import { initDocumentacao } from '../documentacao/documentacao.js?v=3.0';
@@ -47,6 +49,10 @@ const CONFIG_SECOES = {
     traducao: {
         titulo: "4. Tradução Local via LLM",
         subtitulo: "Traduzir legendas originais em inglês usando inteligência artificial local"
+    },
+    "traducao-sem-lore": {
+        titulo: "4b. Tradução sem Lore",
+        subtitulo: "Tradução crua de anime ainda sem lore declarada — saída separada, terminologia não aplicada"
     },
     correcao: {
         titulo: "5. Correção do Cache de Tradução",
@@ -232,6 +238,7 @@ async function inicializarModulos() {
     await initNovoKaraoke();
     await initTraducaoKaraoke();
     initTraducao();
+    initTraducaoSemLore();
     initCorrecao();
     initRevisao();
     initCura();
@@ -899,6 +906,10 @@ function inicializarMetadadosDinamicos() {
     document.addEventListener('troca-tipo-legenda:painel-carregado', popularContextos);
     document.addEventListener('renomear-arquivos:painel-carregado', popularContextos);
     document.addEventListener('novo-karaoke:painel-carregado', popularContextos);
+    // A Tradução de Karaokê disparava o evento desde sempre, mas ninguém repopulava o
+    // seletor dela: o painel é injetado depois do carregamento inicial, então o combo de
+    // lore ficava vazio. Achado ao pendurar a trava de lore, que depende desse seletor.
+    document.addEventListener('traducao-karaoke:painel-carregado', popularContextos);
 
     mapeamentoFormularios.forEach(item => {
         const input = document.getElementById(item.inputId);
@@ -1017,22 +1028,20 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             const ehAuxiliar = (id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto');
             const ehRevisaoLore = (id === 'revisao-lore-contexto');
             select.innerHTML = '';
-            
-            if (ehAuxiliar) {
-                const optDefault = document.createElement('option');
-                optDefault.value = '';
-                optDefault.textContent = '-- Selecione uma obra para visualizar --';
-                select.appendChild(optDefault);
-            }
 
-            if (ehRevisaoLore) {
-                const optObrigatorio = document.createElement('option');
-                optObrigatorio.value = '';
-                optObrigatorio.textContent = '-- Selecione a obra (obrigatório) --';
-                optObrigatorio.disabled = true;
-                optObrigatorio.selected = true;
-                select.appendChild(optObrigatorio);
-            }
+            // TRAVA DE LORE: TODO seletor abre num marcador desabilitado, inclusive os
+            // auxiliares. Antes, os seletores de lore vinham com a obra `padrao`
+            // pré-selecionada — o operador que não olhasse o combo traduzia com a lore de
+            // OUTRA obra sem perceber, que é justamente o defeito que a trava impede.
+            // Escolher deixou de ser conveniência e passou a ser exigência.
+            const optObrigatorio = document.createElement('option');
+            optObrigatorio.value = '';
+            optObrigatorio.textContent = ehAuxiliar
+                ? '-- Selecione uma obra para visualizar --'
+                : '-- Selecione a obra (obrigatório) --';
+            optObrigatorio.disabled = true;
+            optObrigatorio.selected = true;
+            select.appendChild(optObrigatorio);
 
             const fonteContextos = ehRevisaoLore && Array.isArray(contextosRevisaoLore) && contextosRevisaoLore.length > 0
                 ? agruparContextosRevisaoLore(contextosRevisaoLore, contextos)
@@ -1045,10 +1054,11 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
                 if (ctx.termoMetadata) {
                     opt.dataset.metadataQuery = ctx.termoMetadata;
                 }
-                if (!ehAuxiliar && !ehRevisaoLore && ctx.padrao) {
-                    opt.selected = true;
-                }
+                // `ctx.padrao` deixou de pré-selecionar: ver comentário da trava acima.
             });
+
+            // Campos de pasta, "Procurar..." e botão de ação ficam inertes até a escolha.
+            travarAteEscolherLore(select, { idsLiberadores: ['sem_lore'] });
         });
 
         if (onComplete && typeof onComplete === 'function') {

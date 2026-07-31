@@ -1,5 +1,6 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 import { montarOpcoesContextos } from '../js/selectContextos.js';
+import { travarAteEscolherLore } from '../js/travaLore.js';
 
 let contextosCarregados = false;
 
@@ -95,12 +96,21 @@ async function carregarContextos() {
         }
 
         select.innerHTML = '';
-        // Agrupa por franquia (<optgroup>) na ordem já vinda do backend. Pré-seleciona o
-        // contexto padrão do servidor (ex.: DanMachi) em vez de deixar o navegador pegar a
-        // primeira opção, o que faria a tradução usar a lore errada sem o usuário perceber.
-        montarOpcoesContextos(select, contextos, (opt, ctx) => {
-            if (ctx.padrao) opt.selected = true;
-        });
+        // Agrupa por franquia (<optgroup>) na ordem já vinda do backend.
+        //
+        // NÃO pré-selecciona mais o contexto padrão do servidor. O comentário antigo dizia que
+        // pré-selecionar evitava "usar a lore errada sem o usuário perceber" — mas trocava um
+        // erro por outro: quem não olhasse o combo traduzia TUDO com a lore da obra padrão.
+        // Agora o seletor abre num marcador desabilitado e a trava de lore mantém os campos de
+        // pasta inertes até a escolha ser feita de propósito.
+        const marcador = document.createElement('option');
+        marcador.value = '';
+        marcador.textContent = '-- Selecione a obra (obrigatório) --';
+        marcador.disabled = true;
+        marcador.selected = true;
+        select.appendChild(marcador);
+        montarOpcoesContextos(select, contextos);
+        travarAteEscolherLore(select);
 
         contextosCarregados = true;
     } catch (err) {

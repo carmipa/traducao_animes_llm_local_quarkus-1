@@ -63,7 +63,7 @@ class ContextoInvalidoC2CaracterizacaoTest {
     }
 
     private static OperacaoRequest requisicaoComContextoInvalido() {
-        return new OperacaoRequest("E:\\animes\\entrada", null, CONTEXTO_INEXISTENTE, null, null, null, null);
+        return new OperacaoRequest("E:\\animes\\entrada", null, CONTEXTO_INEXISTENTE, null, null, null, null, null);
     }
 
     @Test

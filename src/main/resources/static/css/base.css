@@ -1999,3 +1999,82 @@ span.console-action-icon.material-symbols-outlined {
         height: 0;
     }
 }
+
+/* ==========================================================================
+   TRAVA DE LORE — enquanto a obra não é escolhida, os campos de pasta e o
+   botão de ação ficam inertes. O aviso explica POR QUE está travado; sem ele
+   o formulário parece quebrado.
+   ========================================================================== */
+
+.trava-lore-aviso {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--accent-yellow);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.trava-lore-aviso::before {
+    content: "▲ ";
+    font-size: 0.7rem;
+}
+
+.trava-lore-aviso.hidden {
+    display: none;
+}
+
+/* Estado inerte: legível, mas claramente fora de uso. Não usa `visibility`
+   nem `pointer-events` sozinhos — o atributo `disabled` é quem garante que o
+   teclado também não alcance o campo. */
+.lore-pendente .input-with-button input:disabled,
+.lore-pendente .btn-procurar:disabled,
+.lore-pendente .btn-primary:disabled,
+.lore-pendente button[type="submit"]:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+
+.lore-pendente .input-with-button input:disabled::placeholder {
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   AVISO DA TRADUÇÃO SEM LORE — o operador precisa saber o que está abrindo
+   mão ANTES de rodar, não depois de ver nome próprio traduzido na tela.
+   ========================================================================== */
+
+.aviso-sem-lore {
+    border: 1px solid var(--accent-yellow);
+    border-left-width: 4px;
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin: 0 0 1.25rem;
+    background: color-mix(in srgb, var(--accent-yellow) 8%, transparent);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.aviso-sem-lore p {
+    margin: 0 0 0.55rem;
+}
+
+.aviso-sem-lore p:last-child {
+    margin-bottom: 0;
+}
+
+.aviso-sem-lore ul {
+    margin: 0 0 0.55rem;
+    padding-left: 1.15rem;
+}
+
+.aviso-sem-lore li {
+    margin-bottom: 0.3rem;
+}
+
+.aviso-sem-lore code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.82em;
+}

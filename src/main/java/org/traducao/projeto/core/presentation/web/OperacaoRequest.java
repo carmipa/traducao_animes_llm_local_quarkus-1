@@ -13,4 +13,5 @@ package org.traducao.projeto.core.presentation.web;
  * cada endpoint decide o fallback seguro ou responde HTTP 400 antes de enfileirar.
  */
 public record OperacaoRequest(String entrada, String saida, String contextoId, Long syncOffsetMs,
-                              Boolean permitirRetraducao, String modoReferencia, String caminhoCache) {}
+                              Boolean permitirRetraducao, String modoReferencia, String caminhoCache,
+                              Boolean ignorarLoreExistente) {}
