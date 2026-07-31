@@ -45,7 +45,10 @@ class AvaliadorReparoRevalidaTest {
             new MascaradorTags(),
             new DetectorTraducaoIdenticaService(new LoreVazia()),
             new ValidadorTraducaoService(LoreAtivaFake.comPares(List.of("Four", "Quattro"))),
-            new VerificadorIdentificadorNumerico());
+            new VerificadorIdentificadorNumerico(),
+            new RestauradorFalaIdenticaSemItalico(new MascaradorTags(),
+                new DetectorTraducaoIdenticaService(new LoreVazia()),
+                new DescarteItalicoUltimoRecurso(), new LoreVazia()));
     }
 
     @Test
