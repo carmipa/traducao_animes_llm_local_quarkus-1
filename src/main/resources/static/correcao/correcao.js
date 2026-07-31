@@ -147,6 +147,45 @@ export function initCorrecao() {
         const body = montarRequisicao();
         const alvoDoDisparo = chaveAlvo();
         const rota = aplicar ? '/api/reforcar-terminologia-aplicar' : '/api/reforcar-terminologia-ensaio';
+
+        /**
+         * A recusa por escrita desligada não é falha: é a trava fazendo o trabalho dela.
+         * Explica O QUE aconteceu, POR QUE a trava existe e O QUE fazer — em vez de
+         * despejar o JSON da resposta atrás de um "Falha:" vermelho.
+         */
+        function explicarEscritaBloqueada(mensagemDoServidor) {
+            const cx = 'console-correcao';
+            logNoConsole(cx, '', 'aviso');
+            logNoConsole(cx, '─────────────────────────────────────────────────────────────', 'aviso');
+            logNoConsole(cx, '  ESCRITA NO ACERVO DESLIGADA — nada foi lido nem escrito', 'aviso');
+            logNoConsole(cx, '─────────────────────────────────────────────────────────────', 'aviso');
+            logNoConsole(cx, '', 'aviso');
+            logNoConsole(cx, '  Isto NÃO é um erro. A trava recusou o pedido ANTES de abrir', 'aviso');
+            logNoConsole(cx, '  qualquer arquivo — seu cache está exatamente como estava.', 'aviso');
+            logNoConsole(cx, '', 'aviso');
+            logNoConsole(cx, '  POR QUE ELA EXISTE', 'aviso');
+            logNoConsole(cx, '  O cache guarda tradução já paga ao LLM e NÃO é versionado', 'aviso');
+            logNoConsole(cx, '  pelo Git. Reescrever por engano não tem "desfazer" — só o', 'aviso');
+            logNoConsole(cx, '  backup por arquivo que a própria operação cria.', 'aviso');
+            logNoConsole(cx, '', 'aviso');
+            logNoConsole(cx, '  O QUE VOCÊ PODE FAZER AGORA', 'aviso');
+            logNoConsole(cx, '  1) O ENSAIO roda sempre e não precisa de autorização.', 'aviso');
+            logNoConsole(cx, '     Ele mostra, arquivo por arquivo, o que mudaria.', 'aviso');
+            logNoConsole(cx, '  2) Se o ensaio acusar 0 alterações, ligar a escrita não', 'aviso');
+            logNoConsole(cx, '     muda nada: falta o mapa de terminologia daquela obra.', 'aviso');
+            logNoConsole(cx, '', 'aviso');
+            logNoConsole(cx, '  PARA AUTORIZAR DE VERDADE', 'aviso');
+            logNoConsole(cx, '  application.yml →', 'aviso');
+            logNoConsole(cx, '      correcao-cache:', 'aviso');
+            logNoConsole(cx, '        reforco-terminologia-aplicar-habilitado: true', 'aviso');
+            logNoConsole(cx, '  A configuração vincula no BOOT: é preciso reiniciar a', 'aviso');
+            logNoConsole(cx, '  aplicação para valer.', 'aviso');
+            logNoConsole(cx, '', 'aviso');
+            if (mensagemDoServidor) {
+                logNoConsole(cx, `  Resposta do servidor: ${mensagemDoServidor}`, 'info');
+            }
+            logNoConsole(cx, '─────────────────────────────────────────────────────────────', 'aviso');
+        }
         logNoConsole('console-correcao',
             aplicar ? 'Aplicando terminologia oficial ao cache...' : 'Ensaiando reforço de terminologia (nada será escrito)...',
             'info');
@@ -159,7 +198,22 @@ export function initCorrecao() {
                 body: JSON.stringify(body)
             });
             if (!res.ok) {
-                throw new Error(await res.text() || 'Erro no reforço de terminologia');
+                const bruto = await res.text();
+                let mensagem = bruto;
+                try {
+                    mensagem = (JSON.parse(bruto) || {}).mensagem || bruto;
+                } catch (_) {
+                    // corpo não-JSON (proxy, 500 cru): mostra como veio, sem esconder.
+                }
+                // 409 é PRÉ-CONDIÇÃO de segurança, não erro de execução: o
+                // CorrecaoCacheController recusa antes de enfileirar e nada foi lido nem
+                // escrito. Tratar como "Falha" em vermelho ensinava errado — o operador via
+                // um erro onde a proteção tinha funcionado.
+                if (res.status === 409) {
+                    explicarEscritaBloqueada(mensagem);
+                    return;
+                }
+                throw new Error(mensagem || 'Erro no reforço de terminologia');
             }
             const dados = await res.json();
             logNoConsole('console-correcao', dados.mensagem || 'Aceito pela fila.', 'sucesso');
