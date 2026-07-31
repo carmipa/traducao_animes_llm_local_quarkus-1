@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
 import java.util.stream.Stream;
@@ -174,6 +175,80 @@ public class CacheManutencaoService {
                 .filter(p -> !estaEmSubpastaAuxiliar(raiz, p.toAbsolutePath().normalize()))
                 .sorted()
                 .toList();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: restringe a manutenção aos caches de UMA obra. A raiz
+     * {@code cache/} guarda o acervo inteiro lado a lado, então uma varredura sem escopo
+     * processa todas as obras de uma vez — a tela pergunta "qual obra?" e o trabalho
+     * acontece nas outras sete. Aqui a resposta da tela passa a valer como FILTRO.
+     *
+     * <p>Não é sobre misturar terminologia: cada arquivo já é corrigido com o mapa da
+     * própria proveniência (ver {@code ContextoManutencaoCacheService#ativarSnapshot}).
+     * É sobre RAIO DE ALCANCE. Medido em 2026-07-30: a raiz tem 172 caches de 8 obras;
+     * uma operação pedida para o Guilty Crown (23 arquivos) reescrevia 172. Com
+     * {@code cache/} fora do versionamento desde {@code 12d720a}, o raio é a última
+     * defesa que sobra.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>{@code contextoId} nulo/em branco devolve TUDO — é o modo de manutenção do
+     *       acervo, que continua existindo e agora é explícito.</li>
+     *   <li>O casamento é pela PROVENIÊNCIA gravada no arquivo, não pelo nome da pasta:
+     *       independe de o usuário apontar o diretório certo ou de o release ter nome
+     *       reconhecível.</li>
+     *   <li>Cache LEGADO (sem proveniência) é mantido na lista, porque é exatamente para
+     *       ele que existe o contexto de fallback; a guarda obra×pasta a jusante ainda
+     *       recusa o que não pertence. Medição de 2026-07-30: zero legados na raiz.</li>
+     *   <li>Arquivo ilegível não interrompe a listagem — entra e falha (ou é recusado) no
+     *       processamento, onde o erro tem contexto para ser reportado.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} da varredura; erro de
+     * leitura de um arquivo individual não remove os demais da lista.
+     *
+     * @param raizCache raiz a varrer
+     * @param contextoId obra escolhida; nulo/em branco significa "todas"
+     * @return caminhos da obra pedida, em ordem determinística
+     */
+    public List<Path> listarCachesDaObra(Path raizCache, String contextoId) throws IOException {
+        List<Path> todos = listarCachesTraducaoBase(raizCache);
+        if (contextoId == null || contextoId.isBlank()) {
+            return todos;
+        }
+        String alvo = contextoId.strip();
+        List<Path> daObra = new ArrayList<>();
+        for (Path arquivo : todos) {
+            if (pertenceAObra(arquivo, alvo)) {
+                daObra.add(arquivo);
+            }
+        }
+        return List.copyOf(daObra);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se um cache pertence à obra pedida, lendo o carimbo de
+     * proveniência do próprio arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o {@code contextoId} da proveniência decide; ausência
+     * de proveniência (formato legado) conta como pertencente, para não tornar o cache
+     * antigo inalcançável pela manutenção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ilegível ou JSON inválido conta como
+     * pertencente — a recusa informada acontece no processamento, não numa listagem
+     * silenciosa.
+     */
+    private boolean pertenceAObra(Path arquivo, String contextoId) {
+        try {
+            ProvenienciaCache proveniencia = carregar(arquivo).proveniencia();
+            if (proveniencia == null || proveniencia.contextoId() == null
+                || proveniencia.contextoId().isBlank()) {
+                return true;
+            }
+            return contextoId.equals(proveniencia.contextoId().strip());
+        } catch (IOException | RuntimeException e) {
+            return true;
         }
     }
 

@@ -182,7 +182,7 @@ public class ReforcarTerminologiaCacheUseCase {
         CacheManutencaoService.Sessao sessao =
             aplicar ? cacheService.iniciarSessao(raizCache, OPERACAO) : null;
         try {
-            for (Path arquivo : cacheService.listarCachesTraducaoBase(raizCache)) {
+            for (Path arquivo : cacheService.listarCachesDaObra(raizCache, contextoFallback)) {
                 if (Thread.currentThread().isInterrupted()) {
                     break;
                 }
