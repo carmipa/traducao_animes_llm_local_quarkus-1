@@ -65,6 +65,8 @@ public class DetectorTraducaoIdenticaService {
         "good", "morning", "night", "help", "me", "you", "away", "back", "welcome"
     );
 
+    private static final Pattern PADRAO_INTERJEICAO = Pattern.compile("^(o+h+|a+h+|u+h+|e+h+|e+r+|h*m+|u+g+h+|t+c+h+|h+m+p+h+)$");
+
     /**
      * Léxico de EVIDÊNCIA: inglês que uma legenda PT-BR tem obrigação de traduzir. Diferente de
      * {@link #PALAVRAS_INGLES_COMUNS} (consultada só para palavra única), este conjunto é o
@@ -395,6 +397,11 @@ public class DetectorTraducaoIdenticaService {
         }
 
         String minusculo = textoLimpo.toLowerCase(Locale.ROOT);
+        
+        if (PADRAO_INTERJEICAO.matcher(minusculo).matches()) {
+            return true;
+        }
+
         if (PALAVRAS_INGLES_COMUNS.contains(minusculo)) {
             return false;
         }

@@ -284,4 +284,34 @@ class DetectorTraducaoIdenticaServiceTest {
         assertFalse(detector.deveManterIdentico("Sieg Zeon! Sieg Zeon! Sieg Zeon! Sieg Zeon!"),
             "sem termos declarados, nada autoriza manter a fala em inglês");
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: interjeições idênticas (Ah, Oh, Hmm) devem ser mantidas
+     * porque são universais e não traduzíveis.
+     * <p>INVARIANTES DO DOMÍNIO: regex precisa ser exata e tolerar alongamento.
+     */
+    @Test
+    void aceitaInterjeicoesDeLinguaInglesa() {
+        String[] aceitas = {"Oh", "Ooooh", "Ah", "Ahhh", "Uh", "Eh", "Er", "Hm", "Hmm", "Ugh", "Tch", "Hmph"};
+        for (String interjeicao : aceitas) {
+            assertTrue(detector.deveManterIdentico(interjeicao), "deve aceitar interjeição: " + interjeicao);
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: palavras normais ou interjeições que têm tradução 
+     * estabelecida não podem vazar pela regra de interjeições.
+     * <p>INVARIANTES DO DOMÍNIO: regex tem âncora de início e fim.
+     */
+    @Test
+    void recusaFalsasInterjeicoesEPalavrasTraduziveis() {
+        // Testando em minúsculas para não acionar a heurística de `Character.isUpperCase`
+        // Assim isolamos que elas não vazam pela regra da Regex de interjeições.
+        // Nota: a palavra "um" foi removida da lista porque ela está mockada como termo de lore
+        // na configuração do teste principal.
+        String[] recusadas = {"ouch", "ahoy", "tough", "hello", "no", "yes", "go", "me", "hey", "wow", "huh"};
+        for (String recusa : recusadas) {
+            assertFalse(detector.deveManterIdentico(recusa), "deve recusar falsa interjeição/traduzível: " + recusa);
+        }
+    }
 }
