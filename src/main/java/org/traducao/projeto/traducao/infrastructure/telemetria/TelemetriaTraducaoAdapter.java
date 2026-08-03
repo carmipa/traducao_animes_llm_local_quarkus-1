@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.core.util.ArquivoAtomicoUtil;
 import org.traducao.projeto.traducao.domain.NormalizadorNomeEpisodio;
+import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducaoDocumento;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
@@ -114,14 +115,61 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: registra a medição de um episódio no arquivo canônico (a FOTO
+     * atual) e no histórico (append puro).
+     *
+     * <h2>Por que um BLOQUEIO não sobrescreve trabalho real</h2>
+     * A FOTO é chaveada pelo nome do episódio, então retraduzir apaga a medição anterior — e
+     * isso é DESEJADO: a foto mostra o estado de agora. Mas uma execução {@code BLOQUEADO} não
+     * é retradução; é um NÃO-EVENTO. O portão de obra×contexto recusa o arquivo antes de ler a
+     * legenda, chamar o LLM ou tocar o cache, e o registro sai com {@code falasTraduzidas = 0},
+     * {@code totalLinhas = 0} e tempo desprezível. Deixá-lo vencer zera no painel um episódio
+     * que está traduzido em disco.
+     *
+     * <p>Medido em 2026-08-03 sobre {@code telemetria_execucoes.jsonl} (754 execuções): das 237
+     * bloqueadas, <b>48 eram o último registro do seu episódio</b> — 47 do Gundam ZZ e 1 do
+     * Char's Counterattack. O painel exibia zero para os 48, apagando <b>17.813 falas
+     * traduzidas</b> de trabalho que existe no disco.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: trabalho real (qualquer status que não {@code BLOQUEADO})
+     * SEMPRE vence bloqueio para a mesma chave. Entre dois registros da mesma natureza, o mais
+     * recente vence, como antes. O HISTÓRICO continua recebendo TODAS as execuções, inclusive as
+     * bloqueadas — é ele que responde "quantas vezes esta obra foi barrada", e essa pergunta
+     * continua respondível.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: telemetria nula é ignorada sem lançar.
+     */
     @Override
     public synchronized void registrarTraducao(TelemetriaTraducao telemetria) {
         if (telemetria == null) {
             return;
         }
-        banco.put(NormalizadorNomeEpisodio.normalizar(telemetria.nomeEpisodio()), telemetria);
-        persistir();
+        String chave = NormalizadorNomeEpisodio.normalizar(telemetria.nomeEpisodio());
+        // Grava quando o registro NOVO representa trabalho, ou quando não há trabalho anterior
+        // a proteger (chave ausente ou já bloqueada). Só o caso "bloqueio por cima de trabalho"
+        // é recusado.
+        if (!ehBloqueado(telemetria) || ehBloqueado(banco.get(chave))) {
+            banco.put(chave, telemetria);
+            persistir();
+        }
+        // O histórico registra TODA execução, inclusive a bloqueada: a foto responde "como está
+        // agora", o histórico responde "o que aconteceu". São perguntas diferentes.
         acrescentarAoHistorico(telemetria);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: um registro representa trabalho de tradução ou apenas a recusa do
+     * portão de obra×contexto?
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code null} conta como bloqueado — assim a primeira medição de
+     * um episódio, bloqueada ou não, sempre entra (não há trabalho anterior para proteger).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: status nulo/desconhecido NÃO é tratado como bloqueio;
+     * na dúvida, o registro é considerado trabalho e preservado.
+     */
+    private static boolean ehBloqueado(TelemetriaTraducao t) {
+        return t == null || StatusArquivoTraducao.BLOQUEADO.name().equals(t.statusFinal());
     }
 
     /**
