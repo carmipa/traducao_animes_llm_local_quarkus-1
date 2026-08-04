@@ -88,13 +88,40 @@ public class DetectorEfeitoKaraokeService {
     }
 
     /**
-     * Estilo cujo NOME indica música (Opening, Ending, Song, Karaoke...).
-     * Usado pelo módulo novoKaraoke para delimitar o que é bloco musical
-     * mesmo quando o evento individual tem poucas tags (ex.: linha inteira
-     * de tradução da letra com apenas {@code \pos}).
+     * PROPÓSITO DE NEGÓCIO: estilo cujo NOME indica música (Opening, Ending, Song, Karaoke...).
+     * Delimita o que é bloco musical mesmo quando o evento individual tem poucas tags — ex.:
+     * linha inteira de tradução da letra com apenas {@code \pos}.
+     *
+     * <h2>Por que a fronteira é por LETRA e não {@code \b}</h2>
+     * Até 2026-08-03 este método usava {@link #ESTILO_MUSICA_PATTERN}, com {@code \b}. Sublinhado
+     * e dígito são caractere de palavra, então {@code OP_S2}, {@code ED_S2}, {@code ED_Romaji1} e
+     * {@code OP2} NÃO eram reconhecidos como música — e os três consumidores deste método erravam
+     * calados:
+     * <ul>
+     *   <li><b>Karaokê Simples</b>: no Guilty Crown, 10 dos 23 episódios passaram pela
+     *       simplificação sem ter NENHUM evento fundido. Delta zero, sem aviso.</li>
+     *   <li><b>Tradução de Karaokê</b>: 323 das 646 linhas de letra da mesma obra eram
+     *       classificadas {@code FORA_DE_MUSICA} e sairiam em inglês — a série troca a
+     *       nomenclatura de estilo na segunda temporada.</li>
+     *   <li><b>Auditoria de sobreposição</b>: camada musical não dispensada da regra.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a largura foi MEDIDA antes de trocar, sobre o acervo inteiro em
+     * 2026-08-03 — 119 estilos distintos, 1.172.425 eventos. Passam a casar <b>14 estilos novos,
+     * 8.018 eventos</b>, e os 14 são musicais sem exceção ({@code ED_Romaji1..5}, {@code OP2},
+     * {@code OP_S2}, {@code ED_S2}, {@code ED_S2_roma}, {@code ED2}, {@code OP_S2_roma},
+     * {@code ED_English}, {@code ED2-English}, {@code ED2-Romaji}). <b>Zero estilo de diálogo é
+     * capturado</b>: {@code Dialogue}, {@code Default}, {@code Mask}, {@code Signs} e
+     * {@code Char's Counterattack} continuam fora, como já ficavam.
+     *
+     * <p>Este método NÃO é o veto de tradução — quem decide o que vai ao LLM é
+     * {@link #podeSerCamadaMusical}, que já usava o padrão largo. A troca aproxima os dois em vez
+     * de afastá-los.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo devolve {@code false}; nunca lança.
      */
     public boolean eEstiloDeMusica(String estilo) {
-        return estilo != null && ESTILO_MUSICA_PATTERN.matcher(estilo).find();
+        return estilo != null && ESTILO_MUSICA_AMPLO_PATTERN.matcher(estilo).find();
     }
 
     /**

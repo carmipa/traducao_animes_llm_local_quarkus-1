@@ -58,13 +58,30 @@ class DetectorEfeitoKaraokeServiceTest {
             "Gundam Narrative Cage"}) {
             assertFalse(detector.eEstiloDeMusica(comum), "não deveria ser música: " + comum);
         }
-        // CONHECIDO E DELIBERADO: as camadas em inglês com sublinhado/dígito (494 linhas no acervo)
-        // seguem fora do conjunto musical. Alargar o padrão de NOME as arrastaria de uma vez para o
-        // simplificador de karaokê e para o fluxo de correção — pertence à fase do karaokê simples.
-        for (String pendente : new String[] {"OP2", "ED_S2", "OP_S2"}) {
-            assertFalse(detector.eEstiloDeMusica(pendente),
-                "mudança consciente de fase futura, não regressão: " + pendente);
+        // A FASE FUTURA CHEGOU (2026-08-03). Este bloco afirmava o contrário e dizia: "alargar o
+        // padrão de NOME as arrastaria de uma vez para o simplificador de karaokê e para o fluxo
+        // de correção — pertence à fase do karaokê simples". É essa fase.
+        //
+        // O que forçou a troca foram TRÊS defeitos do mesmo `\b`, medidos no Guilty Crown:
+        //   - Karaokê Simples: 10 dos 23 episódios passaram sem fundir NENHUM evento;
+        //   - Tradução de Karaokê: 323 das 646 linhas de letra sairiam em inglês;
+        //   - auditoria de sobreposição: camada musical não dispensada da regra.
+        //
+        // A largura foi medida no acervo inteiro antes de trocar: 119 estilos, 1.172.425 eventos.
+        // Passam a casar 14 estilos novos (8.018 eventos) e os 14 são musicais sem exceção; ZERO
+        // estilo de diálogo entra. O bloco de estilos comuns acima é a prova viva disso e continua
+        // valendo sem uma linha alterada.
+        for (String agoraMusical : new String[] {
+            "OP2", "ED_S2", "OP_S2", "ED_S2_roma", "OP_S2_roma", "ED2",
+            "ED_Romaji1", "ED_English", "ED2-English", "ED2-Romaji"}) {
+            assertTrue(detector.eEstiloDeMusica(agoraMusical),
+                "sublinhado e dígito nao podem mais esconder camada musical: " + agoraMusical);
         }
+        // O buraco que SOBRA e continua conhecido: "OP/ED + LETRA" (6.820 eventos de OPL2 no
+        // acervo). O lookaround exige que o caractere seguinte não seja letra, e "L" é letra.
+        // Contornado por nome em `tradutor.estilos-ignorados`; consertar exigiria outra regra.
+        assertFalse(detector.eEstiloDeMusica("OPL2"),
+            "OPL2 segue fora: o buraco da forma OP/ED+LETRA nao foi fechado nesta mudanca");
     }
 
     @Test
