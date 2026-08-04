@@ -5,9 +5,11 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.novoKaraoke.domain.EventoAss;
+import org.traducao.projeto.novoKaraoke.domain.MedicaoEstiloKaraoke;
 import org.traducao.projeto.novoKaraoke.domain.LinhaSimplesKaraoke;
 import org.traducao.projeto.novoKaraoke.domain.NovoKaraokeException;
 import org.traducao.projeto.novoKaraoke.domain.ResultadoConversaoKaraoke;
+import org.traducao.projeto.novoKaraoke.domain.ports.TelemetriaKaraokePort;
 import org.traducao.projeto.core.util.DuracaoUtil;
 import org.traducao.projeto.novoKaraoke.infrastructure.NovoKaraokePersistencia;
 import org.traducao.projeto.telemetria.TelemetriaService;
@@ -50,6 +52,8 @@ public class ConversorKaraokeUseCase {
 
     public static final String CANAL_LOG = "novo-karaoke";
     static final String NOME_ESTILO_SIMPLES = "Karaoke Simples";
+    /** Quebra visual do ASS, usada para separar as duas camadas de um verso pareado. */
+    private static final String QUEBRA_ASS = "\\N";
 
     /** Gap acima deste valor separa duas ocorrências da mesma frase (refrão repetido). */
     private static final long GAP_MESMA_FRASE_CS = 1000; // 10s
@@ -97,6 +101,14 @@ public class ConversorKaraokeUseCase {
     @Inject
     NovoKaraokePersistencia persistencia;
 
+    /**
+     * Medição por arquivo E por estilo. Entra por PORTA justamente porque o defeito desta
+     * fatia é NÃO agir: quem mede o que foi recusado precisa de contrato, não de um serviço
+     * concreto que aceita o que alguém lembrar de mandar.
+     */
+    @Inject
+    TelemetriaKaraokePort telemetriaKaraoke;
+
     public List<ResultadoConversaoKaraoke> simular(Path pastaOrigem, Path pastaDestino) {
         return executar(pastaOrigem, pastaDestino, false);
     }
@@ -143,6 +155,12 @@ public class ConversorKaraokeUseCase {
         if (gravar && !resultados.isEmpty()) {
             registrarTelemetriaEManifesto(pastaOrigem, pastaDestino, resultados, duracaoMs);
         }
+        // A medição por porta fecha SEMPRE, inclusive em ensaio e inclusive com zero resultado:
+        // execução que não produziu nada é justamente o sintoma que precisa aparecer. O registro
+        // acima é o histórico da conversão; este é o dos SINTOMAS, e são perguntas diferentes.
+        telemetriaKaraoke.publicarOperacao(
+            "Karaokê Simples" + (gravar ? "" : " (simulação)"),
+            pastaOrigem, pastaDestino, duracaoMs, resultados.size());
         return resultados;
     }
 
@@ -237,9 +255,16 @@ public class ConversorKaraokeUseCase {
         // mesmo alerta documentado no DetectorEfeitoKaraokeService.
         List<EventoAss> musicais = new ArrayList<>();
         List<EventoAss> dialogo = new ArrayList<>();
+        // MEDIÇÃO DO QUE FOI RECUSADO, e não só do que foi feito: o defeito desta fatia é não
+        // agir, então o número que denuncia é o do estilo que NÃO virou música. Ver
+        // TelemetriaKaraokePort — foi assim que OP_S2/ED_S2 passaram nove dias despercebidos.
+        Map<String, Integer> eventosPorEstilo = new LinkedHashMap<>();
+        Map<String, Boolean> musicalPorEstilo = new LinkedHashMap<>();
         for (EventoAss evento : eventos) {
             boolean musical = detectorKaraoke.eEstiloDeMusica(evento.estilo())
                 || detectorKaraoke.temTagKaraoke(evento.texto());
+            eventosPorEstilo.merge(evento.estilo(), 1, Integer::sum);
+            musicalPorEstilo.merge(evento.estilo(), musical, (a, b) -> a || b);
             if (musical) {
                 musicais.add(evento);
             } else {
@@ -300,7 +325,52 @@ public class ConversorKaraokeUseCase {
             resultado.getEventosKaraokeRemovidos(), resultado.getEventosPreservadosPorSeguranca(),
             resultado.getTamanhoOriginalBytes() / 1024, resultado.getTamanhoNovoBytes() / 1024,
             resultado.getPercentualReducao()));
+        publicarMedicao(nome, eventos.size(), dialogo.size() + preservados.size() + linhasSimples.size(),
+            linhasSimples, eventosPorEstilo, musicalPorEstilo);
         return resultado;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega à porta de telemetria o recorte que localiza um defeito desta
+     * fatia — arquivo E estilo. Publicar o total sozinho não serviria: um arquivo que atravessa
+     * sem mudar nada tem total plausível, e é justamente o sintoma.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: medir NUNCA altera o resultado — este método roda depois de o
+     * arquivo já estar decidido e gravado, e a porta é unidirecional. Falha aqui não pode
+     * interromper a conversão, então a porta absorve.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: delega à porta, que não lança.
+     */
+    private void publicarMedicao(
+        String nome, int eventosEntrada, int eventosSaida, List<LinhaSimplesKaraoke> linhasSimples,
+        Map<String, Integer> eventosPorEstilo, Map<String, Boolean> musicalPorEstilo
+    ) {
+        List<MedicaoEstiloKaraoke> porEstilo = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : eventosPorEstilo.entrySet()) {
+            porEstilo.add(new MedicaoEstiloKaraoke(
+                e.getKey(), e.getValue(),
+                Boolean.TRUE.equals(musicalPorEstilo.get(e.getKey())),
+                0, 0, 0));
+        }
+        int pareadas = 0;
+        int invertidas = 0;
+        for (LinhaSimplesKaraoke linha : linhasSimples) {
+            String texto = linha.texto();
+            if (texto == null || !texto.contains(QUEBRA_ASS)) {
+                continue;
+            }
+            String[] partes = texto.split(java.util.regex.Pattern.quote(QUEBRA_ASS), 2);
+            if (partes.length != 2 || partes[0].isBlank() || partes[1].isBlank()) {
+                continue;
+            }
+            pareadas++;
+            // O ORIGINAL (romaji) deve ficar em cima. Proporção de sílaba japonesa é a mesma
+            // régua que o detector já usa para separar romaji de karaokê em inglês.
+            if (detectorKaraoke.proporcaoRomaji(partes[0]) < detectorKaraoke.proporcaoRomaji(partes[1])) {
+                invertidas++;
+            }
+        }
+        telemetriaKaraoke.publicarArquivo(nome, eventosEntrada, eventosSaida, pareadas, invertidas, porEstilo);
     }
 
     /**

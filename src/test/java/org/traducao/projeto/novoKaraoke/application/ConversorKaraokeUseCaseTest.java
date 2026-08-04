@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.novoKaraoke.domain.ports.TelemetriaKaraokePort;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -249,7 +250,31 @@ class ConversorKaraokeUseCaseTest {
         ConversorKaraokeUseCase conversor = new ConversorKaraokeUseCase();
         conversor.detectorKaraoke = new DetectorEfeitoKaraokeService();
         conversor.logStream = new LogStreamSilencioso();
+        conversor.telemetriaKaraoke = new TelemetriaKaraokeSilenciosa();
         return conversor;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a medição não pode participar do resultado — a suíte usa uma
+     * implementação inerte para provar isso. Se um teste passar a depender do que a telemetria
+     * faz, a porta deixou de ser unidirecional.
+     *
+     * <p>É esta a razão de a medição entrar por PORTA e não pelo serviço concreto: a fatia é
+     * testável sem a fatia {@code telemetria} existir.
+     */
+    private static final class TelemetriaKaraokeSilenciosa implements TelemetriaKaraokePort {
+        @Override
+        public void publicarArquivo(String arquivo, int eventosEntrada, int eventosSaida,
+            int camadasPareadas, int camadasInvertidas,
+            java.util.List<org.traducao.projeto.novoKaraoke.domain.MedicaoEstiloKaraoke> porEstilo) {
+            // inerte de propósito
+        }
+
+        @Override
+        public void publicarOperacao(String operacao, java.nio.file.Path pastaOrigem,
+            java.nio.file.Path pastaDestino, long duracaoMs, int arquivosProcessados) {
+            // inerte de propósito
+        }
     }
 
     private static String cabecalho() {
