@@ -59,11 +59,13 @@ function vincularEventos() {
         const entrada = document.getElementById('novo-karaoke-entrada').value.trim();
         const saida = document.getElementById('novo-karaoke-saida').value.trim();
 
-        if (!entrada || !saida) {
-            mostrarAlerta('Preencha a pasta de entrada e a pasta de destino.', 'aviso');
+        if (!entrada) {
+            mostrarAlerta('Preencha a pasta de entrada.', 'aviso');
             return false;
         }
-        if (entrada.replace(/[\\/]+$/, '').toLowerCase() === saida.replace(/[\\/]+$/, '').toLowerCase()) {
+        // Destino vazio é LEGÍTIMO: o servidor cria 'legenda-simplificada' ao lado das pastas de
+        // legenda da obra. A checagem de "igual à entrada" só faz sentido quando há caminho.
+        if (saida && entrada.replace(/[\\/]+$/, '').toLowerCase() === saida.replace(/[\\/]+$/, '').toLowerCase()) {
             mostrarAlerta('A pasta de destino deve ser DIFERENTE da entrada: os arquivos lidos são preservados para auditoria.', 'aviso');
             return false;
         }

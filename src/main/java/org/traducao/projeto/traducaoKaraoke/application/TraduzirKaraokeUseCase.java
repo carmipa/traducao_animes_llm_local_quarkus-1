@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducaoKaraoke.application;
 
+import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -59,6 +60,27 @@ import java.util.stream.Stream;
  *       reaproveitado em reexecuções, no mesmo padrão da Tradução Local.</li>
  * </ul>
  */
+/*
+ * CRIAÇÃO ANTECIPADA (@Startup), e não preferência de estilo: um bean
+ * @ApplicationScoped só é instanciado na PRIMEIRA chamada, e é nesse momento que os
+ * @ConfigProperty abaixo são resolvidos. O endpoint /simular despacha por
+ * CompletableFuture.runAsync SEM executor, ou seja, no ForkJoinPool.commonPool — cujas
+ * threads são globais da JVM e não carregam o class loader do Quarkus. Numa aplicação
+ * recém-iniciada, o Dry-Run era a primeira chamada, a instanciação caía naquela thread e
+ * morria com "SRCFG00015: No configuration is available for this class loader".
+ *
+ * O defeito só aparecia no Dry-Run: /traduzir passa pela FilaExecucaoPipeline, cujas
+ * threads têm o contexto certo, então bastava traduzir uma vez para o bean nascer bom e o
+ * simulador passar a funcionar — o que fazia o erro parecer intermitente.
+ *
+ * Criar no boot resolve na origem: a instanciação acontece na thread principal do Quarkus,
+ * com configuração disponível, e nenhuma thread de execução volta a instanciar nada. O
+ * construtor é vazio (só injeção de campo), então antecipar não executa trabalho nenhum.
+ *
+ * Isto NÃO revoga a decisão de rodar o /simular fora da fila: ela foi auditada e mantida
+ * por ser read-only. Aquela auditoria perguntou se era SEGURO, não se FUNCIONAVA.
+ */
+@Startup
 @ApplicationScoped
 public class TraduzirKaraokeUseCase {
 
