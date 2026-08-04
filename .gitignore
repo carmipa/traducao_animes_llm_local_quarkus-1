@@ -43,3 +43,8 @@ cache/
 relatorios/
 logs/
 backups/
+
+# Cache do jqwik: guarda as sementes dos contraexemplos para reexecutar primeiro
+# o caso que falhou. E estado de execucao LOCAL — versionar faria uma maquina
+# herdar o historico de falha da outra e mudar a ordem do sorteio sem ninguem pedir.
+.jqwik-database
