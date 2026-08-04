@@ -34,6 +34,15 @@ dependencies {
     // plain (nao o archunit-junit5): usado com JUnit 5 comum + ClassFileImporter.
     // A primeira execucao prova a leitura de bytecode Java 25 (class file major 69).
     testImplementation 'com.tngtech.archunit:archunit:1.4.2'
+
+    // Teste por PROPRIEDADE. Entrou em 2026-08-04 depois que o defeito da quebra \N
+    // do ASS passou por 12 arquivos e a suite ficou verde: os testes de exemplo
+    // congelavam os casos que alguem PENSOU em escrever, e o defeito morava no caso
+    // que ninguem pensou. Medicao do dia: mutando a constante nos 12, so 2 arquivos
+    // quebravam algum teste. Uma propriedade sorteia ONDE a quebra cai e encontra o
+    // contraexemplo sozinha — que e o que faltava. Motor proprio na plataforma JUnit 5,
+    // convive com o Jupiter sem excluir nada.
+    testImplementation 'net.jqwik:jqwik:1.9.2'
 }
 
 group = 'org.traducao.projeto'
