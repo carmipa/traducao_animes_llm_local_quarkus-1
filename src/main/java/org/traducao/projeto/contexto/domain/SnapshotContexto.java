@@ -1,5 +1,6 @@
 package org.traducao.projeto.contexto.domain;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +47,9 @@ import java.util.Set;
  * @param lore apenas a lore/terminologia crua por trás do prompt
  * @param termosProtegidos termos que não devem ser traduzidos nesta obra
  * @param correcoesTerminologia mapa forma-ruim → termo canônico desta obra
+ * @param paresInconfundiveis pares de termos desta obra que NÃO podem ser trocados um pelo
+ *        outro; congelados aqui para que quem corrige o cache JÁ GRAVADO os obtenha da obra
+ *        DONA do arquivo, e não da lore ativa global — que naquele fluxo é outra, ou nenhuma
  */
 public record SnapshotContexto(
     String id,
@@ -53,7 +57,8 @@ public record SnapshotContexto(
     String promptSistema,
     String lore,
     Set<String> termosProtegidos,
-    Map<String, String> correcoesTerminologia
+    Map<String, String> correcoesTerminologia,
+    Set<List<String>> paresInconfundiveis
 ) {
 
     /**
@@ -80,7 +85,8 @@ public record SnapshotContexto(
         PROMPT_NEUTRO,
         ContextoPrompt.obterLore(PROMPT_NEUTRO),
         Set.of(),
-        Map.of()
+        Map.of(),
+        Set.of()
     );
 
     /**
@@ -122,7 +128,8 @@ public record SnapshotContexto(
             prompt,
             ContextoPrompt.obterLore(prompt),
             provedor.termosProtegidos(),
-            provedor.correcoesTerminologia()
+            provedor.correcoesTerminologia(),
+            provedor.paresInconfundiveis()
         );
     }
 }

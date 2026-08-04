@@ -10,6 +10,8 @@ import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraCon
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ModoReforcoTerminologia;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoReforcoTerminologia;
@@ -70,6 +72,7 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new CacheServiceTeste(mapper, temp.resolve("backups")),
             new ContextoManutencaoCacheService(contexto, new ValidadorCompatibilidadeObraContexto()),
             new EnforcadorTermosLore(),
+            new ValidadorTraducaoService(LoreAtivaFake.vazia()),
             auditoria,
             telemetria,
             propriedadesComEscrita(true));
@@ -176,7 +179,8 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new ContextoManutencaoCacheService(
                 new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
                 new ValidadorCompatibilidadeObraContexto()),
-            new EnforcadorTermosLore(), auditoria, telemetria, propriedadesComEscrita(false));
+            new EnforcadorTermosLore(),
+            new ValidadorTraducaoService(LoreAtivaFake.vazia()), auditoria, telemetria, propriedadesComEscrita(false));
 
         assertFalse(comEscritaDesligada.escritaNoAcervoAutorizada(),
             "é esta a resposta que a borda HTTP usa para recusar antes de enfileirar");
@@ -442,7 +446,8 @@ class ReforcarTerminologiaCacheUseCaseTest {
             new ContextoManutencaoCacheService(
                 new GerenciadorContexto(List.of(new ContextoZZ(), new ContextoGuiltyCrown())),
                 new ValidadorCompatibilidadeObraContexto()),
-            new EnforcadorTermosLore(), auditoria, telemetria, propriedadesComEscrita(true));
+            new EnforcadorTermosLore(),
+            new ValidadorTraducaoService(LoreAtivaFake.vazia()), auditoria, telemetria, propriedadesComEscrita(true));
 
         ResultadoReforcoTerminologia r = useCaseQueFalhaAoSalvar.executar(temp.resolve("cache"), null, true);
 
@@ -478,6 +483,82 @@ class ReforcarTerminologiaCacheUseCaseTest {
      * {@code Beam Saber}, uma para o PLURAL {@code Beam Sabers}, uma para {@code Axis}, e uma
      * fala já correta que não pode ser tocada.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: cache com TROCA DE ENTIDADE — o nome escrito está correto, mas é o
+     * nome ERRADO. O mapa de terminologia não alcança isso: ele conserta grafia
+     * ({@code "Plee"→"Ple"}), e aqui nenhuma grafia está errada.
+     *
+     * <p>Medido no cache real do Gundam ZZ em 2026-08-03: de 16.491 falas, 22 têm troca de
+     * entidade — 11 {@code Nahel Argama→Argama} (naves diferentes), 10
+     * {@code Zeta Gundam→ZZ Gundam} (mechas diferentes) e 1 {@code Argama→ZZ Gundam}. Corrigir
+     * isso exigia retraduzir a obra inteira: 16.491 chamadas ao LLM para consertar 22 falas.
+     */
+    private Path escreverCacheTrocaDeEntidade() throws Exception {
+        Path cache = temp.resolve("cache/Mobile Suit Gundam ZZ/ep02.cache.json");
+        Files.createDirectories(cache.getParent());
+        Files.writeString(cache, """
+            {"proveniencia":{"schemaVersion":1,"contextoId":"gundam_zz","contextoHash":"h","modeloLlm":"m","idiomaOrigem":"en","idiomaDestino":"pt-br"},
+             "entradas":[
+               {"indice":1,"estilo":"Default","original":"The Nahel Argama has docked.","traduzido":"A Argama atracou."},
+               {"indice":2,"estilo":"Default","original":"That is the Zeta Gundam!","traduzido":"Aquele e o ZZ Gundam!"},
+               {"indice":3,"estilo":"Default","original":"The Argama set course for Side 1.","traduzido":"A Argama seguiu para Side 1."},
+               {"indice":4,"estilo":"Default","original":"Good morning, Judau.","traduzido":"Bom dia, Judau."}
+             ]}
+            """);
+        return cache;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o reforço sobre cache passa a corrigir TROCA DE ENTIDADE, não só
+     * grafia. Antes desta mudança, {@code paresInconfundiveis()} era consultado apenas no portão
+     * da tradução — cache já gravado carregava a troca para sempre, e a única saída era
+     * retraduzir a obra inteira.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os pares vêm da obra DONA do arquivo (resolvida pelo carimbo de
+     * proveniência), nunca da lore ativa global — este fluxo percorre obra por obra e a lore
+     * ativa pode ser outra, ou nenhuma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala sem troca permanece byte a byte idêntica.
+     */
+    @Test
+    @DisplayName("troca de entidade no cache e corrigida sem retraduzir")
+    void corrigeTrocaDeEntidadeNoCacheGravado() throws Exception {
+        Path cache = escreverCacheTrocaDeEntidade();
+
+        useCase.executar(temp.resolve("cache"), null, true);
+
+        String depois = Files.readString(cache);
+        assertTrue(depois.contains("A Nahel Argama atracou."),
+            () -> "Nahel Argama e OUTRA nave: a troca tem de ser desfeita. " + depois);
+        assertTrue(depois.contains("Aquele e o Zeta Gundam!"),
+            () -> "Zeta Gundam e OUTRO mecha que o ZZ Gundam. " + depois);
+        assertTrue(depois.contains("A Argama seguiu para Side 1."),
+            () -> "fala correta nao pode ser alterada. " + depois);
+        assertTrue(depois.contains("Bom dia, Judau."),
+            () -> "fala sem termo do par nao pode ser tocada. " + depois);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o ensaio continua sendo previsão fiel também para a troca de
+     * entidade — conta, e não escreve um byte.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ensaio que grava faz o operador perder a chance de
+     * revisar antes de mexer no acervo.
+     */
+    @Test
+    @DisplayName("ENSAIO conta a troca de entidade sem escrever no acervo")
+    void ensaioNaoEscreveTrocaDeEntidade() throws Exception {
+        Path cache = escreverCacheTrocaDeEntidade();
+        String antes = Files.readString(cache);
+
+        useCase.ensaiar(temp.resolve("cache"), null);
+
+        assertEquals(antes, Files.readString(cache),
+            "o ensaio nao pode tocar o arquivo");
+        assertTrue(telemetria.publicacoes.get(0).itensDetectados() >= 2,
+            () -> "as duas trocas tinham de ser CONTADAS no ensaio: "
+                + telemetria.publicacoes.get(0).itensDetectados());
+    }
+
     private Path escreverCacheZZ() throws Exception {
         Path cache = temp.resolve("cache/Mobile Suit Gundam ZZ/ep01.cache.json");
         Files.createDirectories(cache.getParent());
@@ -581,6 +662,13 @@ class ReforcarTerminologiaCacheUseCaseTest {
                 // Par REAL de CorrecoesTerminologiaGundamZz: a forma-ruim CONTÉM o canônico.
                 // É o caso que fazia o contador antigo devolver zero.
                 "Plee", "Ple");
+        }
+
+        /** Pares REAIS declarados por ContextoGundamZZ desde 2026-07-28. */
+        @Override public java.util.Set<java.util.List<String>> paresInconfundiveis() {
+            return java.util.Set.of(
+                java.util.List.of("Argama", "Nahel Argama"),
+                java.util.List.of("Zeta Gundam", "ZZ Gundam"));
         }
     }
 

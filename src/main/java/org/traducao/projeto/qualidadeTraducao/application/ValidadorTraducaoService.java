@@ -557,8 +557,13 @@ public class ValidadorTraducaoService {
 
     /** O original fala de {@code presente} e a tradução respondeu com {@code ausente}. */
     private static String trocou(String original, String traduzido, String presente, String ausente) {
-        if (!contemTermo(original, presente) || contemTermo(original, ausente)
-            || !contemTermo(traduzido, ausente)) {
+        // PAR ANINHADO ("Argama" dentro de "Nahel Argama"): a presença de cada termo é apurada
+        // com o termo MAIS LONGO mascarado antes, senão a menção à nave maior conta como menção
+        // à menor e a guarda mata a detecção nas duas direções. Medido no cache do ZZ em
+        // 2026-08-03: 11 falas com "Nahel Argama" traduzido como "Argama" passavam intocadas.
+        if (!contemTermoIsolado(original, presente, ausente)
+            || contemTermoIsolado(original, ausente, presente)
+            || !contemTermoIsolado(traduzido, ausente, presente)) {
             return null;
         }
         // TROCA é o nome SUMIR. Se a tradução PRESERVOU o termo do original, o outro é acréscimo
@@ -610,7 +615,28 @@ public class ValidadorTraducaoService {
      * {@code null} e nada muda.
      */
     public String repararTrocaDeEntidade(String original, String traduzido) {
-        for (List<String> par : loreAtiva.paresInconfundiveisAtivos()) {
+        return repararTrocaDeEntidade(original, traduzido, loreAtiva.paresInconfundiveisAtivos());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesmo reparo, com os pares vindos por PARÂMETRO em vez da lore ativa.
+     * Existe para quem corrige o cache JÁ GRAVADO: aquele fluxo percorre obra por obra e resolve o
+     * contexto de cada arquivo pelo carimbo de proveniência, sem tocar na lore ativa global. Ler
+     * {@code loreAtiva} ali aplicaria os pares da obra ERRADA — ou nenhum, se não houvesse obra
+     * selecionada — sobre trabalho pronto, em lote.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a regra é a mesma da sobrecarga sem pares; só a origem da
+     * declaração muda. Conjunto vazio devolve {@code null} sem examinar nada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pares nulos são tratados como vazio; nunca lança.
+     *
+     * @param pares pares inconfundíveis da obra DONA daquele texto
+     */
+    public String repararTrocaDeEntidade(String original, String traduzido, Set<List<String>> pares) {
+        if (pares == null) {
+            return null;
+        }
+        for (List<String> par : pares) {
             if (par == null || par.size() != 2) {
                 continue;
             }
@@ -632,6 +658,27 @@ public class ValidadorTraducaoService {
         }
         return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(ausente) + "(?![\\p{L}\\p{N}])")
             .matcher(traduzido).replaceAll(Matcher.quoteReplacement(presente));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o texto menciona {@code termo} como ENTIDADE PRÓPRIA, e não apenas
+     * como pedaço do outro termo do par?
+     *
+     * <p>INVARIANTES DO DOMÍNIO: quando {@code outro} CONTÉM {@code termo} ({@code "Nahel Argama"}
+     * contém {@code "Argama"}), as ocorrências do mais longo são mascaradas antes da busca —
+     * casamento mais longo primeiro. Sem isso, "Reparem a Nahel Argama" contaria como menção a
+     * "Argama" por fronteira de palavra, e o par aninhado se acusaria sozinho. Quando os termos
+     * são disjuntos ({@code "Zeta Gundam"}/{@code "ZZ Gundam"}) nada é mascarado e a checagem é a
+     * de sempre.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumentos nulos degradam para {@link #contemTermo}.
+     */
+    private static boolean contemTermoIsolado(String texto, String termo, String outro) {
+        String base = texto;
+        if (outro != null && termo != null && !outro.equals(termo) && contemTermo(outro, termo)) {
+            base = semOcorrenciasDe(texto, outro);
+        }
+        return contemTermo(base, termo);
     }
 
     /** Remove as ocorrências do termo por fronteira de palavra, preservando o resto do texto. */
