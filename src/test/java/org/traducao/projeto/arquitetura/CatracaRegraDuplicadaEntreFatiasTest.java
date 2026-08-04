@@ -65,14 +65,42 @@ class CatracaRegraDuplicadaEntreFatiasTest {
     private static final Pattern DECLARACAO = Pattern.compile(
         "Pattern\\.compile\\(\\s*\"((?:[^\"\\\\]|\\\\.)*)\"", Pattern.DOTALL);
 
+    /**
+     * Constante {@code String} com corpo de regex — {@code static final String X = "..."}.
+     *
+     * <p>Esta segunda forma existe porque a primeira foi CONTORNADA em 2026-08-04. Ao propagar o
+     * conserto da quebra {@code \N} para 12 arquivos, a fronteira saiu de dentro de
+     * {@code Pattern.compile("...")} e virou constante concatenada. O scanner deixou de vê-la, o
+     * total caiu de 14 para 11 e o número foi ajustado — quando a duplicação tinha AUMENTADO: 12
+     * cópias da mesma string, em 6 fatias, invisíveis.
+     *
+     * <p>Catraca que só olha uma forma sintática mede a forma, não a duplicação.
+     */
+    private static final Pattern CONSTANTE_REGEX = Pattern.compile(
+        "static\\s+final\\s+String\\s+\\w+\\s*=\\s*\"((?:[^\"\\\\]|\\\\.)*)\"", Pattern.DOTALL);
+
     /** Abaixo disto o padrão é trivial ({@code \\s+}, {@code ^\\d+}) e não representa regra. */
     private static final int TAMANHO_MINIMO = 12;
 
     /**
-     * Total MEDIDO em 2026-08-04 sobre 142 regras declaradas. Cada uma destas vive em duas ou mais
-     * fatias e nenhuma delas declara a outra - é o inventário da dívida, não um alvo aceitável.
+     * Total MEDIDO em 2026-08-04, contando as DUAS formas de declarar regra. Cada uma destas vive
+     * em duas ou mais fatias e nenhuma delas declara a outra — é o inventário da dívida, não um
+     * alvo aceitável.
+     *
+     * <h2>Histórico deste número, porque ele já enganou</h2>
+     * Nasceu <b>14</b>, contando só literal dentro de {@code Pattern.compile("...")}.
+     *
+     * <p>No mesmo dia, ao propagar o conserto da quebra {@code \N} para 12 arquivos, a fronteira
+     * saiu de dentro do {@code Pattern.compile} e virou constante {@code INICIO_DE_TERMO}
+     * concatenada. O scanner deixou de enxergá-la, o total caiu para <b>11</b> e o número foi
+     * ajustado para 11 — <b>quando a duplicação tinha AUMENTADO</b>: 12 cópias da mesma string,
+     * em 6 fatias, invisíveis à catraca criada no dia anterior para impedir exatamente isso.
+     *
+     * <p>Com o scanner enxergando também constante, o número real é <b>15</b>. A lição está no
+     * scanner, não aqui: catraca que olha uma forma sintática mede a FORMA, não a duplicação — e
+     * escapar dela pode ser acidental, bastando refatorar.
      */
-    private static final int DUPLICADAS_CONHECIDAS = 11;
+    private static final int DUPLICADAS_CONHECIDAS = 15;
 
     @Test
     @DisplayName("nenhuma REGRA nova e duplicada entre fatias sem declaracao")
@@ -142,11 +170,17 @@ class CatracaRegraDuplicadaEntreFatiasTest {
         try (Stream<Path> arquivos = Files.walk(RAIZ)) {
             for (Path arquivo : arquivos.filter(p -> p.toString().endsWith(".java")).toList()) {
                 String fatia = RAIZ.relativize(arquivo).getName(0).toString();
-                Matcher m = DECLARACAO.matcher(Files.readString(arquivo, StandardCharsets.UTF_8));
-                while (m.find()) {
-                    String corpo = m.group(1);
-                    if (corpo.length() >= TAMANHO_MINIMO) {
-                        mapa.computeIfAbsent(corpo, k -> new TreeSet<>()).add(fatia);
+                String fonte = Files.readString(arquivo, StandardCharsets.UTF_8);
+                // As DUAS formas de declarar regra: literal dentro de Pattern.compile e constante
+                // String concatenada depois. Contar só a primeira permite escapar da catraca
+                // movendo o corpo para uma constante — foi o que aconteceu em 2026-08-04.
+                for (Pattern forma : new Pattern[] {DECLARACAO, CONSTANTE_REGEX}) {
+                    Matcher m = forma.matcher(fonte);
+                    while (m.find()) {
+                        String corpo = m.group(1);
+                        if (corpo.length() >= TAMANHO_MINIMO) {
+                            mapa.computeIfAbsent(corpo, k -> new TreeSet<>()).add(fatia);
+                        }
                     }
                 }
             }

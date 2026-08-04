@@ -21,6 +21,17 @@ import java.util.regex.Pattern;
 @Service
 public class CorretorDeterministicoConcordanciaService {
 
+    /**
+     * Fronteira de início do termo, com a quebra {@code \N} do ASS tratada como separador — igual à
+     * de {@code NormalizadorAcentosComuns}, onde o efeito está MEDIDO.
+     *
+     * <p><b>Aqui o efeito é NULO no acervo de hoje, e isso está declarado de propósito.</b> Serve a
+     * um único padrão, {@code ARTIGO_MOBILE_SUIT}. Medido em 2026-08-04 sobre 60.891 falas
+     * traduzidas do cache: 2 casamentos antes, 2 depois. O artigo antes de "mobile suit" nunca cai
+     * logo após a quebra.
+     *
+     * <p>Mantida por consistência; NÃO conta como correção demonstrada.
+     */
     private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
 
     private static final int FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS;

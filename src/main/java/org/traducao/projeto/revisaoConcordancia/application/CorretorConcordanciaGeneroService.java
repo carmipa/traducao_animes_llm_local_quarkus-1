@@ -32,6 +32,27 @@ import java.util.regex.Pattern;
 @Service
 public class CorretorConcordanciaGeneroService {
 
+    /**
+     * Fronteira de início do termo, com a quebra {@code \N} do ASS tratada como separador — igual à
+     * de {@code NormalizadorAcentosComuns}, onde o efeito está MEDIDO.
+     *
+     * <p><b>Aqui o efeito é NULO no acervo de hoje, e isso está declarado de propósito.</b> Medido
+     * em 2026-08-04 sobre 60.891 falas traduzidas do cache, com os padrões INTEIROS (artigo +
+     * substantivo, pronome + verbo de ligação + adjetivo), não com o fragmento do artigo:
+     * <ul>
+     *   <li>artigo MASC + substantivo FEM: 0 antes, 0 depois</li>
+     *   <li>artigo FEM + substantivo MASC: 11 antes, 11 depois</li>
+     *   <li>{@code ela} + adjetivo MASC: 0 antes, 0 depois</li>
+     *   <li>{@code ele} + adjetivo FEM: 0 antes, 0 depois</li>
+     * </ul>
+     * O fansub quebra a linha 24,6% das vezes, mas nunca ENTRE o artigo e o núcleo de gênero
+     * inequívoco — a quebra cai em outro ponto da fala. Contar só o fragmento {@code artigo + \s+}
+     * dá +375 e +268 e sugere ganho que não existe: o par completo é que decide.
+     *
+     * <p>Mantida por consistência e porque a quebra pode cair ali em qualquer acervo novo; NÃO
+     * conta como correção demonstrada. Se alguém precisar reduzir superfície, este é o candidato —
+     * não o de acentos.
+     */
     private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
 
     // Substantivos de gênero INEQUÍVOCO (pessoa/ser com gênero fixo). Ambíguos ficam de fora.
