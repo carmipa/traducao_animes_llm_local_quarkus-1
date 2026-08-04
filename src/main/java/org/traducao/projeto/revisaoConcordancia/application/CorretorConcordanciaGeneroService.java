@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoConcordancia.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -53,7 +55,7 @@ public class CorretorConcordanciaGeneroService {
      * conta como correção demonstrada. Se alguém precisar reduzir superfície, este é o candidato —
      * não o de acentos.
      */
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     // Substantivos de gênero INEQUÍVOCO (pessoa/ser com gênero fixo). Ambíguos ficam de fora.
     private static final String SUBST_FEM =

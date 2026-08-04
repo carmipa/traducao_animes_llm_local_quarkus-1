@@ -1,5 +1,7 @@
 package org.traducao.projeto.qualidadeTraducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
@@ -47,52 +49,7 @@ public class ValidadorTraducaoService {
 
     private final LoreAtivaPort loreAtiva;
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
-
-    /**
-     * Separador entre as palavras de um termo composto: espaço OU a quebra do ASS.
-     *
-     * <p>CÓPIA CONSCIENTE de {@code EnforcadorTermosLore.SEPARADOR_INTERNO}, que a recebeu antes
-     * com medição própria ({@code "Quin Mantha"} preso em 66,7% de preservação no run do ZZ).
-     * As duas fatias não se acoplam de propósito; a cópia está declarada dos dois lados e a
-     * catraca de duplicação a conta.
-     *
-     * <p><b>Aqui ela conserta uma REGRESSÃO introduzida em 2026-08-04.</b> Tratar {@code \N} como
-     * fronteira sem tratá-lo DENTRO do termo fez o reparo enxergar {@code "Nahel\NArgama"} como
-     * menção à {@code "Argama"} — outra nave. Medido com sonda no mesmo dia, com a lore do ZZ:
-     * <ul>
-     *   <li>original {@code "Nahel\NArgama"} + tradução correta → revertia para {@code "Argama"}</li>
-     *   <li>tradução {@code "Nahel\NArgama"} + original inteiro → gerava
-     *       {@code "Nahel\NNahel Argama"}, com o nome DUPLICADO na tela</li>
-     * </ul>
-     * Com a fronteira antiga os dois casos devolviam {@code null}: a regressão nasceu do conserto.
-     * No acervo são <b>435 campos com nome composto partido pela quebra, 230 formas distintas</b>
-     * — {@code Amuro\NRay}, {@code Bask\NOm}, {@code Baund\NDoc}, {@code Anavel\NGato}.
-     */
-    private static final String SEPARADOR_INTERNO = "(?:\\s|\\\\N)+";
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: monta o corpo do padrão de um termo aceitando que a legenda o parta
-     * numa quebra de linha, para {@code "Nahel Argama"} casar com {@code "Nahel\NArgama"}.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: cada palavra continua ESCAPADA ({@code Pattern.quote}), então
-     * termo com metacaractere ({@code "Gaza-C"}, {@code "A.E.U.G."}) segue comparado literalmente;
-     * só o separador entre palavras vira flexível. Termo de uma palavra produz exatamente o mesmo
-     * padrão de antes — o comportamento de nome simples não muda.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: termo vazio devolve padrão vazio; o chamador já barra.
-     */
-    private static String corpoDoTermo(String termo) {
-        String[] palavras = termo.trim().split("\\s+");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < palavras.length; i++) {
-            if (i > 0) {
-                sb.append(SEPARADOR_INTERNO);
-            }
-            sb.append(Pattern.quote(palavras[i]));
-        }
-        return sb.toString();
-    }
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     /**
      * PROPÓSITO DE NEGÓCIO: recebe a porta de lore ativa para que nome próprio da obra
@@ -703,7 +660,7 @@ public class ValidadorTraducaoService {
         if (trocou(original, traduzido, presente, ausente) == null) {
             return null;
         }
-        return Pattern.compile(INICIO_DE_TERMO + corpoDoTermo(ausente) + "(?![\\p{L}\\p{N}])")
+        return Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(ausente) + "(?![\\p{L}\\p{N}])")
             .matcher(traduzido).replaceAll(Matcher.quoteReplacement(presente));
     }
 
@@ -733,14 +690,14 @@ public class ValidadorTraducaoService {
         if (texto == null || termo == null || termo.isBlank()) {
             return texto == null ? "" : texto;
         }
-        return Pattern.compile(INICIO_DE_TERMO + corpoDoTermo(termo) + "(?![\\p{L}\\p{N}])")
+        return Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])")
             .matcher(texto).replaceAll(" ");
     }
 
     /** Fronteira de palavra sobre o termo inteiro, sensível à caixa (separa "Four" de "four"). */
     private static boolean contemTermo(String texto, String termo) {
         return texto != null && termo != null && !termo.isBlank()
-            && Pattern.compile(INICIO_DE_TERMO + corpoDoTermo(termo) + "(?![\\p{L}\\p{N}])")
+            && Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(texto).find();
     }
 
@@ -756,7 +713,7 @@ public class ValidadorTraducaoService {
         String resultado = texto;
         for (String termo : ordenados) {
             Pattern padrao = Pattern.compile(
-                INICIO_DE_TERMO + corpoDoTermo(termo) + "(?![\\p{L}\\p{N}])",
+                INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher matcher = padrao.matcher(resultado);
             if (matcher.find()) {

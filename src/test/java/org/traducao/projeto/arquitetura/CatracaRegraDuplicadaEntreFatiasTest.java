@@ -96,11 +96,20 @@ class CatracaRegraDuplicadaEntreFatiasTest {
      * ajustado para 11 — <b>quando a duplicação tinha AUMENTADO</b>: 12 cópias da mesma string,
      * em 6 fatias, invisíveis à catraca criada no dia anterior para impedir exatamente isso.
      *
-     * <p>Com o scanner enxergando também constante, o número real é <b>15</b>. A lição está no
-     * scanner, não aqui: catraca que olha uma forma sintática mede a FORMA, não a duplicação — e
-     * escapar dela pode ser acidental, bastando refatorar.
+     * <p>Com o scanner enxergando também constante, o número real subiu para <b>15</b>. A lição
+     * está no scanner, não aqui: catraca que olha uma forma sintática mede a FORMA, não a
+     * duplicação — e escapar dela pode ser acidental, bastando refatorar.
+     *
+     * <p>Caiu para <b>14</b> ainda em 04/08, e a queda é DÍVIDA PAGA, não catraca afrouxada: a
+     * mecânica da quebra {@code \N} saiu das 7 fatias para
+     * {@code core.texto.FronteiraTermoAss}. Não é acoplamento novo — {@code core} é consumo livre
+     * por contrato e o grafo ArchUnit o ignora, então nenhuma aresta fatia→fatia nasceu disso.
+     * E não contraria "duplicação consciente &gt; acoplamento": aquilo vale para REGRA DE NEGÓCIO,
+     * que tem versão por fatia. Mecânica de FORMATO não tem — e a cópia dela custou corrupção de
+     * tradução correta, porque uma das metades (o separador interno) só existia num arquivo.
+     * Quem congela isso agora é {@code CatracaFronteiraQuebraAssTest}, sem número para ajustar.
      */
-    private static final int DUPLICADAS_CONHECIDAS = 15;
+    private static final int DUPLICADAS_CONHECIDAS = 14;
 
     @Test
     @DisplayName("nenhuma REGRA nova e duplicada entre fatias sem declaracao")

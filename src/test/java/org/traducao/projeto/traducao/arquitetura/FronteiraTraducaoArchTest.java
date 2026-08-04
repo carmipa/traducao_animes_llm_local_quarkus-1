@@ -165,7 +165,16 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".core.presentation.web.LogStreamService",
         RAIZ + ".core.presentation.ui.AnsiCores",
         RAIZ + ".core.presentation.ui.ConsoleEntrada",
-        RAIZ + ".core.infrastructure.http.JsonHttpClient"
+        RAIZ + ".core.infrastructure.http.JsonHttpClient",
+        // DECIMO TERCEIRO, homologado em 2026-08-04: mecanica de casamento de termo em legenda
+        // ASS. Nao e regra de negocio de fatia nenhuma — e o formato. Vivia copiada em 12
+        // arquivos de 7 fatias, e o problema NAO foi divergirem: foi a copia ser INCOMPLETA. A
+        // fronteira que aceita a quebra \N estava nos 12; o separador interno, que aceita a
+        // quebra DENTRO do termo composto, estava em UM. O resultado foi corrupcao de traducao
+        // correta — "Nahel Argama" revertido para "Argama" num caso, "Nahel\NNahel Argama" na
+        // tela no outro. Medido: 435 campos do acervo com nome composto partido, 230 formas.
+        // Congelado por CatracaFronteiraQuebraAssTest, que exige definicao em UM unico arquivo.
+        RAIZ + ".core.texto.FronteiraTermoAss"
     );
 
     /**

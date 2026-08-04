@@ -1,5 +1,7 @@
 package org.traducao.projeto.qualidadeTraducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
@@ -48,7 +50,7 @@ public class NormalizadorAcentosComuns {
      * <p>A reposição usa {@code appendReplacement} sobre o grupo, e o lookbehind é de largura zero
      * — a quebra não é consumida nem reescrita.
      */
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     // Forma-sem-acento (nunca palavra válida em PT) -> forma acentuada canônica.
     private static final Map<String, String> CORRECOES = Map.ofEntries(

@@ -79,7 +79,8 @@ test {
     // 'kronos.medicao' liga o harness de MEDICAO do acervo (src/test/.../medicao), que le o
     // cache/ real e nao roda na suite normal; 'kronos.medicao.cache' aponta outra raiz.
     ['kronos.benchmark', 'kronos.libre.url', 'kronos.benchmark.cache',
-     'kronos.medicao', 'kronos.medicao.cache'].each { chave ->
+     'kronos.medicao', 'kronos.medicao.cache',
+     'kronos.comparacao', 'kronos.comparacao.obra', 'kronos.comparacao.limite'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
         }
@@ -90,7 +91,24 @@ quarkusDev {
     // Alinha o charset do logger do Quarkus (JBoss LogManager) com o System.out
     // UTF-8 do Application.java; sem isso o terminal/console-web.log mistura o
     // codepage do console Windows com UTF-8 e os acentos viram mojibake.
-    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
+    def args = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
+
+    // SANDBOX operacional: kronos.dir.base redireciona cache/, logs/, relatorios/ e
+    // backups/ para outra raiz (ver DiretorioBaseKronos, que le a property a cada
+    // chamada e vale em producao, nao so em teste). Existe para TROCAR DE MODELO sem
+    // perder o cache do modelo atual: modeloLlm e um dos seis campos de
+    // mesmaProveniencia(), entao carregar outro LLM faz o acervo inteiro deixar de ser
+    // reaproveitado. Com o sandbox, cada modelo escreve o seu proprio cache.
+    //
+    // O Gradle NAO repassa -D para a JVM forkada do quarkusDev; sem esta linha a
+    // property fica na JVM do Gradle e a aplicacao nunca a enxerga.
+    //
+    // ATENCAO: isto protege os ARTEFATOS OPERACIONAIS. A legenda .ass de saida vai para
+    // a pasta escolhida na UI e NAO e redirecionada — aponte outra pasta la tambem.
+    if (System.getProperty('kronos.dir.base') != null) {
+        args << "-Dkronos.dir.base=${System.getProperty('kronos.dir.base')}".toString()
+    }
+    jvmArgs = args
     // O compilador do LIVE-RELOAD não herda o options.encoding do compileJava:
     // sem isto, literais com acento recompilados a quente corrompem (mojibake
     // observado em 2026-07-09 num literal com "í" após hot-reload).
