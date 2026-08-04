@@ -32,6 +32,22 @@ import java.util.regex.Pattern;
 @Component
 public class NormalizadorAcentosComuns {
 
+    /**
+     * Fronteira de início do termo, com a quebra {@code \N} do ASS tratada como separador.
+     *
+     * <p>{@code \N} ocupa DOIS caracteres — contrabarra e a letra {@code N} — e o {@code N} é letra
+     * para {@code \p{L}}. Sem a alternativa, {@code "voce"} colado na quebra vira sufixo de um
+     * {@code "Nvoce"} inexistente e o acento nunca é reposto.
+     *
+     * <p><b>MEDIDO no cache do acervo em 2026-08-04</b> (60.891 falas traduzidas, 24,6% com a
+     * quebra): das 12 formas do dicionário, <b>0</b> sobreviveram SOLTAS e <b>11</b> sobreviveram
+     * COLADAS na quebra. Como este normalizador roda em {@code ProcessarArquivoUseCase} ANTES de
+     * gravar, o cache é experimento natural: forma solta foi SEMPRE corrigida, forma colada NUNCA
+     * foi. As 11 são "para\Nvoce", "voz,\Nnao vai ganhar", "se\Nvoce era um Cyber-Newtype".
+     *
+     * <p>A reposição usa {@code appendReplacement} sobre o grupo, e o lookbehind é de largura zero
+     * — a quebra não é consumida nem reescrita.
+     */
     private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
 
     // Forma-sem-acento (nunca palavra válida em PT) -> forma acentuada canônica.
