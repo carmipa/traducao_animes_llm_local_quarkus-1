@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
+import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 import org.traducao.projeto.traducaoCorrige.domain.EntradaAuditoriaCorrecaoCache;
 import org.traducao.projeto.traducaoCorrige.domain.ModoReforcoTerminologia;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * PROPÓSITO DE NEGÓCIO: aplica a terminologia oficial da obra ao cache JÁ GRAVADO, sem
@@ -62,13 +64,15 @@ public class ReforcarTerminologiaCacheUseCase {
     private final CacheManutencaoService cacheService;
     private final ContextoManutencaoCacheService contextoService;
     private final EnforcadorTermosLore enforcador;
+    private final ValidadorTraducaoService validador;
     private final AuditoriaCorrecaoCachePort auditoria;
     private final TelemetriaCorrecaoPort telemetria;
     private final CorrecaoCacheProperties propriedades;
 
     /**
-     * PROPÓSITO DE NEGÓCIO: injeta as quatro peças da operação — leitura/escrita de cache,
-     * resolução da lore do arquivo, o reforço determinístico e a auditoria.
+     * PROPÓSITO DE NEGÓCIO: injeta as peças da operação — leitura/escrita de cache, resolução da
+     * lore do arquivo, o reforço determinístico de terminologia, o reparo de troca de entidade
+     * e a auditoria.
      *
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas. As duas saídas — auditoria e
      * telemetria — entram por PORTA, não pelo tipo concreto: é o que permite testar esta classe
@@ -81,6 +85,7 @@ public class ReforcarTerminologiaCacheUseCase {
         CacheManutencaoService cacheService,
         ContextoManutencaoCacheService contextoService,
         EnforcadorTermosLore enforcador,
+        ValidadorTraducaoService validador,
         AuditoriaCorrecaoCachePort auditoria,
         TelemetriaCorrecaoPort telemetria,
         CorrecaoCacheProperties propriedades
@@ -88,6 +93,7 @@ public class ReforcarTerminologiaCacheUseCase {
         this.cacheService = cacheService;
         this.contextoService = contextoService;
         this.enforcador = enforcador;
+        this.validador = validador;
         this.auditoria = auditoria;
         this.telemetria = telemetria;
         this.propriedades = propriedades;
@@ -296,7 +302,10 @@ public class ReforcarTerminologiaCacheUseCase {
                 return;
             }
             Map<String, String> mapa = contexto.contexto().correcoesTerminologia();
-            if (mapa.isEmpty()) {
+            // Pares inconfundíveis vêm da MESMA obra resolvida pelo carimbo, nunca da lore ativa
+            // global: este fluxo percorre obra por obra e a lore ativa pode ser outra (ou nenhuma).
+            Set<List<String>> pares = contexto.contexto().paresInconfundiveis();
+            if (mapa.isEmpty() && pares.isEmpty()) {
                 return;
             }
             // Tudo deste arquivo fica PENDENTE até a gravação voltar. Creditar antes seria
@@ -308,7 +317,7 @@ public class ReforcarTerminologiaCacheUseCase {
             Pendente pendente = new Pendente();
             for (JsonNode no : doc.entradas()) {
                 if (no instanceof ObjectNode entrada) {
-                    reforcarEntrada(entrada, mapa, arquivo, doc, contexto.id(), acc.aplicar, pendente);
+                    reforcarEntrada(entrada, mapa, pares, arquivo, doc, contexto.id(), acc.aplicar, pendente);
                 }
             }
             if (pendente.falasAlteradas > 0 && acc.aplicar) {
@@ -350,7 +359,7 @@ public class ReforcarTerminologiaCacheUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: fala sem original ou sem mudança não registra nada.
      */
     private void reforcarEntrada(
-        ObjectNode entrada, Map<String, String> mapa, Path arquivo,
+        ObjectNode entrada, Map<String, String> mapa, Set<List<String>> pares, Path arquivo,
         CacheManutencaoService.DocumentoEditavel doc, String contextoId, boolean aplicar,
         Pendente pendente
     ) {
@@ -360,16 +369,60 @@ public class ReforcarTerminologiaCacheUseCase {
             return;
         }
         EnforcadorTermosLore.Reforco reforco = enforcador.reforcarContando(original, antes, mapa);
-        if (reforco.texto().equals(antes)) {
+        String depois = reforco.texto();
+        // TROCA DE ENTIDADE: o mapa de terminologia conserta GRAFIA ("Plee" -> "Ple"); não alcança
+        // um nome trocado por OUTRO nome válido da mesma obra. Medido no cache do Gundam ZZ em
+        // 2026-08-03: das 16.491 falas, 22 têm troca de entidade — 11 "Nahel Argama" -> "Argama"
+        // (naves diferentes), 10 "Zeta Gundam" -> "ZZ Gundam" (mechas diferentes) e 1
+        // "Argama" -> "ZZ Gundam". Nenhuma delas é alcançada pelo mapa, porque a forma escrita
+        // está correta — errada é a ENTIDADE. Antes disto, corrigi-las exigia retraduzir a obra
+        // inteira; o reparo é determinístico e reaproveita a regra já usada no portão do LLM.
+        String reparado = validador.repararTrocaDeEntidade(original, depois, pares);
+        String termoRestaurado = null;
+        if (reparado != null) {
+            termoRestaurado = termoQueVoltou(depois, reparado, pares);
+            depois = reparado;
+        }
+        if (depois.equals(antes)) {
             return;
         }
         pendente.falasAlteradas++;
         reforco.restauracoesPorTermo().forEach((termo, n) -> pendente.porTermo.merge(termo, n, Integer::sum));
+        // O contador POR TERMO é a razão de a operação existir: sem creditar a entidade
+        // restaurada, o relatório anuncia só os termos do mapa e cala sobre a maior parte das
+        // falas que mudaram — o operador leria "2 termos" para 26 alterações.
+        if (termoRestaurado != null) {
+            pendente.porTermo.merge(termoRestaurado, 1, Integer::sum);
+        }
         if (aplicar) {
-            entrada.put("traduzido", reforco.texto());
+            entrada.put("traduzido", depois);
         }
         pendente.auditorias.add(
-            entradaAuditoria(arquivo, entrada, doc.proveniencia(), contextoId, antes, reforco.texto()));
+            entradaAuditoria(arquivo, entrada, doc.proveniencia(), contextoId, antes, depois));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: descobre QUAL entidade o reparo restaurou, para o contador por termo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o termo restaurado é o que passou a existir no texto reparado
+     * sem existir no anterior. Compara por ocorrência, não por posição — o reparo pode trocar
+     * várias menções na mesma fala.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nenhum termo identificável devolve {@code null} e o
+     * contador simplesmente não credita nada; a fala já foi contada em {@code falasAlteradas}.
+     */
+    private static String termoQueVoltou(String antes, String depois, Set<List<String>> pares) {
+        for (List<String> par : pares) {
+            if (par == null || par.size() != 2) {
+                continue;
+            }
+            for (String termo : par) {
+                if (depois.contains(termo) && !antes.contains(termo)) {
+                    return termo;
+                }
+            }
+        }
+        return null;
     }
 
     /**
