@@ -70,6 +70,31 @@ public class EnforcadorGlossarioFala {
         .toList();
 
     /**
+     * PROPÓSITO DE NEGÓCIO: reduz uma fala à CHAVE que este glossário indexa — sem tags, sem
+     * quebra, sem pontuação, em minúsculas. É a forma pela qual {@code "{\i1}Roger!!"} e
+     * {@code "Roger."} são a mesma fala.
+     *
+     * <p>É público porque o Javadoc de {@link #GLOSSARIO} exige que cada entrada nasça MEDIDA no
+     * acervo, e medir com uma normalização diferente da que o enforcer usa produz contagem que
+     * não vale para ele. Quem mede ({@code medicao.MineracaoGlossarioIT}) chama exatamente esta.
+     * Reimplementar do lado de fora seria a mesma cópia-que-deriva que custou os defeitos de
+     * 03 e 04/08/2026.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem estado; a mesma entrada sempre produz a mesma chave.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}/vazio devolve string vazia; nunca lança.
+     */
+    public static String chaveDeFala(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return "";
+        }
+        return ORNAMENTO.matcher(
+                QUEBRAS.matcher(TAGS_ASS.matcher(texto).replaceAll(" ")).replaceAll(" "))
+            .replaceAll(" ")
+            .strip()
+            .toLowerCase(Locale.ROOT);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: devolve a tradução com a forma canônica quando a fala inteira é um
      * termo do glossário; caso contrário devolve a tradução como veio.
      *
@@ -88,11 +113,7 @@ public class EnforcadorGlossarioFala {
         if (original == null || original.isBlank()) {
             return traduzido;
         }
-        String visivel = ORNAMENTO.matcher(
-                QUEBRAS.matcher(TAGS_ASS.matcher(original).replaceAll(" ")).replaceAll(" "))
-            .replaceAll(" ")
-            .strip()
-            .toLowerCase(Locale.ROOT);
+        String visivel = chaveDeFala(original);
         if (visivel.isEmpty()) {
             return traduzido;
         }
