@@ -51,6 +51,8 @@ import java.util.regex.Pattern;
 @Component
 public class CorretorLoreDeterministico {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private final EnforcadorTermosLore enforcadorTermosLore;
 
     /**
@@ -62,11 +64,11 @@ public class CorretorLoreDeterministico {
         this.enforcadorTermosLore = enforcadorTermosLore;
     }
 
-    private static final Pattern PADRAO_SHIN = Pattern.compile("(?<![\\p{L}\\p{N}])Shin(?![\\p{L}\\p{N}])");
-    private static final Pattern PADRAO_CANELA = Pattern.compile("(?<![\\p{L}\\p{N}])[Cc]anela(?![\\p{L}\\p{N}])");
-    private static final Pattern PADRAO_DUD_ROUNDS = Pattern.compile("(?i)(?<![\\p{L}\\p{N}])dud\\s+rounds?(?![\\p{L}\\p{N}])");
+    private static final Pattern PADRAO_SHIN = Pattern.compile(INICIO_DE_TERMO + "Shin(?![\\p{L}\\p{N}])");
+    private static final Pattern PADRAO_CANELA = Pattern.compile(INICIO_DE_TERMO + "[Cc]anela(?![\\p{L}\\p{N}])");
+    private static final Pattern PADRAO_DUD_ROUNDS = Pattern.compile("(?i)" + INICIO_DE_TERMO + "dud\\s+rounds?(?![\\p{L}\\p{N}])");
     private static final Pattern PADRAO_RODADAS_ALEATORIAS = Pattern.compile(
-        "(?i)(?<![\\p{L}\\p{N}])rodadas\\s+(?:aleat[oó]rias|fracassadas|falsas|dud)(?![\\p{L}\\p{N}])");
+        "(?i)" + INICIO_DE_TERMO + "rodadas\\s+(?:aleat[oó]rias|fracassadas|falsas|dud)(?![\\p{L}\\p{N}])");
 
     /**
      * PROPÓSITO DE NEGÓCIO: restaura terminologia canônica de lore na fala mascarada,
@@ -174,7 +176,7 @@ public class CorretorLoreDeterministico {
                 continue;
             }
             Pattern formaRuimPat = Pattern.compile(
-                "(?<![\\p{L}\\p{N}])" + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
+                INICIO_DE_TERMO + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             if (formaRuimPat.matcher(resultado).find()) {
                 resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));

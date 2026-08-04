@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 @Service
 public class CorretorDeterministicoConcordanciaService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final int FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS;
     private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);
     private static final Pattern FILHO_DA_MAE = Pattern.compile("\\bfilho da mãe\\b", FLAGS);
@@ -30,7 +32,7 @@ public class CorretorDeterministicoConcordanciaService {
     private static final Pattern INSULTO_INTERROMPIDO_EN = Pattern.compile(
         "\\b(?:you\\s+)?son of a\\s*\\.\\.\\.", FLAGS);
     private static final Pattern ARTIGO_MOBILE_SUIT = Pattern.compile(
-        "(?<![\\p{L}\\p{N}])a(?=\\s+mobile\\s+(?:suit|armor)\\b)", FLAGS);
+        INICIO_DE_TERMO + "a(?=\\s+mobile\\s+(?:suit|armor)\\b)", FLAGS);
     private static final Pattern POSSESSIVO_FEM_COM_PARENTE_MASC = Pattern.compile(
         "\\b(minha|sua|nossa)\\s+(pai|filho|irmão)\\b", FLAGS);
     private static final Pattern POSSESSIVO_MASC_COM_PARENTE_FEM = Pattern.compile(

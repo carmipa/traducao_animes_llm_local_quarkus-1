@@ -70,9 +70,9 @@ class CatracaRegraDuplicadaEntreFatiasTest {
 
     /**
      * Total MEDIDO em 2026-08-04 sobre 142 regras declaradas. Cada uma destas vive em duas ou mais
-     * fatias e nenhuma delas declara a outra — é o inventário da dívida, não um alvo aceitável.
+     * fatias e nenhuma delas declara a outra - é o inventário da dívida, não um alvo aceitável.
      */
-    private static final int DUPLICADAS_CONHECIDAS = 14;
+    private static final int DUPLICADAS_CONHECIDAS = 11;
 
     @Test
     @DisplayName("nenhuma REGRA nova e duplicada entre fatias sem declaracao")

@@ -58,6 +58,8 @@ import java.util.stream.Stream;
 @Service
 public class RevisarLorePtOnlyUseCase {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Logger log = LoggerFactory.getLogger(RevisarLorePtOnlyUseCase.class);
     private static final Set<String> EXTENSOES = Set.of(".ass", ".ssa");
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
@@ -249,7 +251,7 @@ public class RevisarLorePtOnlyUseCase {
         if (alternancia.isEmpty()) {
             return null;
         }
-        return Pattern.compile("(?<![\\p{L}\\p{N}])(?:" + alternancia + ")(?![\\p{L}\\p{N}])",
+        return Pattern.compile(INICIO_DE_TERMO + "(?:" + alternancia + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 

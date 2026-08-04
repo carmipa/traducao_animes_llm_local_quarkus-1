@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 @Service
 public class DetectorTermosLoreService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Pattern NOME_PROPRIO = Pattern.compile(
         "\\b(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?)(?:\\s+(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?))*\\b"
     );
@@ -374,7 +376,7 @@ public class DetectorTermosLoreService {
 
     private boolean contemExpressaoInteira(String textoLower, String expressaoLower) {
         return Pattern
-            .compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(expressaoLower) + "(?![\\p{L}\\p{N}])",
+            .compile(INICIO_DE_TERMO + Pattern.quote(expressaoLower) + "(?![\\p{L}\\p{N}])",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
             .matcher(textoLower)
             .find();

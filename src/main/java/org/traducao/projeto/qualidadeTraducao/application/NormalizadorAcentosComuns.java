@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 @Component
 public class NormalizadorAcentosComuns {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     // Forma-sem-acento (nunca palavra válida em PT) -> forma acentuada canônica.
     private static final Map<String, String> CORRECOES = Map.ofEntries(
         Map.entry("nao", "não"),
@@ -55,7 +57,7 @@ public class NormalizadorAcentosComuns {
             .sorted(Comparator.comparingInt(String::length).reversed())
             .reduce((a, b) -> a + "|" + b).orElse("");
         PALAVRA = Pattern.compile(
-            "(?<![\\p{L}\\p{N}])(" + alternancia + ")(?![\\p{L}\\p{N}])",
+            INICIO_DE_TERMO + "(" + alternancia + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 

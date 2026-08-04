@@ -47,6 +47,8 @@ import java.util.regex.Pattern;
 @Component
 public class EnforcadorGlossarioFala {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Pattern TAGS_ASS = Pattern.compile("\\{[^}]*}");
     private static final Pattern QUEBRAS = Pattern.compile("\\\\[Nnh]");
     /** Pontuação e espaços que envolvem a fala sem alterar o termo. */
@@ -99,7 +101,7 @@ public class EnforcadorGlossarioFala {
             // A fala INTEIRA e o termo: reescreve a partir do original para herdar tags e
             // pontuacao, trocando so a palavra. Assim "{\i1}Roger." vira "{\i1}Entendido." e
             // "Roger!!" vira "Entendido!!", sem remontar estrutura na mao.
-            return Pattern.compile("(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+            return Pattern.compile("(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(original)
                 .replaceAll(java.util.regex.Matcher.quoteReplacement(GLOSSARIO.get(termo)));
         }

@@ -47,6 +47,8 @@ public class ValidadorTraducaoService {
 
     private final LoreAtivaPort loreAtiva;
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     /**
      * PROPÓSITO DE NEGÓCIO: recebe a porta de lore ativa para que nome próprio da obra
      * deixe de ser confundido com resíduo em inglês.
@@ -656,7 +658,7 @@ public class ValidadorTraducaoService {
         if (trocou(original, traduzido, presente, ausente) == null) {
             return null;
         }
-        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(ausente) + "(?![\\p{L}\\p{N}])")
+        return Pattern.compile(INICIO_DE_TERMO + Pattern.quote(ausente) + "(?![\\p{L}\\p{N}])")
             .matcher(traduzido).replaceAll(Matcher.quoteReplacement(presente));
     }
 
@@ -686,14 +688,14 @@ public class ValidadorTraducaoService {
         if (texto == null || termo == null || termo.isBlank()) {
             return texto == null ? "" : texto;
         }
-        return Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+        return Pattern.compile(INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
             .matcher(texto).replaceAll(" ");
     }
 
     /** Fronteira de palavra sobre o termo inteiro, sensível à caixa (separa "Four" de "four"). */
     private static boolean contemTermo(String texto, String termo) {
         return texto != null && termo != null && !termo.isBlank()
-            && Pattern.compile("(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+            && Pattern.compile(INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(texto).find();
     }
 
@@ -709,7 +711,7 @@ public class ValidadorTraducaoService {
         String resultado = texto;
         for (String termo : ordenados) {
             Pattern padrao = Pattern.compile(
-                "(?<![\\p{L}\\p{N}])" + Pattern.quote(termo.strip()) + "(?![\\p{L}\\p{N}])",
+                INICIO_DE_TERMO + Pattern.quote(termo.strip()) + "(?![\\p{L}\\p{N}])",
                 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher matcher = padrao.matcher(resultado);
             if (matcher.find()) {
