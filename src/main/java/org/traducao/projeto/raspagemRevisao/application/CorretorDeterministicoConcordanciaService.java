@@ -1,5 +1,7 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +34,7 @@ public class CorretorDeterministicoConcordanciaService {
      *
      * <p>Mantida por consistência; NÃO conta como correção demonstrada.
      */
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final int FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS;
     private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);

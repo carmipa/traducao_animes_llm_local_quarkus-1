@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoLore.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,7 +60,7 @@ import java.util.stream.Stream;
 @Service
 public class RevisarLorePtOnlyUseCase {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final Logger log = LoggerFactory.getLogger(RevisarLorePtOnlyUseCase.class);
     private static final Set<String> EXTENSOES = Set.of(".ass", ".ssa");

@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoLore.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
@@ -51,7 +53,7 @@ import java.util.regex.Pattern;
 @Component
 public class CorretorLoreDeterministico {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private final EnforcadorTermosLore enforcadorTermosLore;
 
@@ -175,9 +177,10 @@ public class CorretorLoreDeterministico {
             if (formaRuim.trim().indexOf(' ') < 0) {
                 continue;
             }
-            Pattern formaRuimPat = Pattern.compile(
-                INICIO_DE_TERMO + Pattern.quote(formaRuim) + "(?![\\p{L}\\p{N}])",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            // Por construcao (o continue acima), TODA forma-ruim aqui e multi-palavra — entao
+            // 100% das regras deste corretor ficavam cegas quando a legenda partia o termo na
+            // virada da linha. Ver FronteiraTermoAss.
+            Pattern formaRuimPat = FronteiraTermoAss.padraoIgnorandoCaixa(formaRuim);
             if (formaRuimPat.matcher(resultado).find()) {
                 resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));
             }

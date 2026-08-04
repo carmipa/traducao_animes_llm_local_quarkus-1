@@ -1,5 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -47,7 +49,7 @@ import java.util.regex.Pattern;
 @Component
 public class EnforcadorGlossarioFala {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final Pattern TAGS_ASS = Pattern.compile("\\{[^}]*}");
     private static final Pattern QUEBRAS = Pattern.compile("\\\\[Nnh]");
@@ -101,7 +103,12 @@ public class EnforcadorGlossarioFala {
             // A fala INTEIRA e o termo: reescreve a partir do original para herdar tags e
             // pontuacao, trocando so a palavra. Assim "{\i1}Roger." vira "{\i1}Entendido." e
             // "Roger!!" vira "Entendido!!", sem remontar estrutura na mao.
-            return Pattern.compile("(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+            // O guarda acima compara `visivel`, que ja trocou a quebra por espaco; a reescrita
+            // roda sobre o ORIGINAL cru. Com termo de uma palavra ("roger") isso e inofensivo,
+            // mas no dia em que o glossario receber uma entrada de duas palavras o replaceAll
+            // nao casaria e devolveria o ORIGINAL EM INGLES no lugar da traducao. Congelado em
+            // GlossarioNaoDevolveOriginalEmInglesTest.
+            return FronteiraTermoAss.padraoIgnorandoCaixa(termo)
                 .matcher(original)
                 .replaceAll(java.util.regex.Matcher.quoteReplacement(GLOSSARIO.get(termo)));
         }

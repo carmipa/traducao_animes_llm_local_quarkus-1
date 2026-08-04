@@ -1,6 +1,7 @@
 package org.traducao.projeto.raspagemCorrecao.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,8 +26,6 @@ import java.util.regex.Pattern;
  */
 @Service
 public class ProtetorTermosLoreService {
-
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
 
     private static final Pattern LINHA_MANTER = Pattern.compile(
         "(?im)^\\s*-\\s*Manter sempre[^:]*:\\s*(.+)$");
@@ -66,8 +65,10 @@ public class ProtetorTermosLoreService {
         Map<String, String> mapa = new LinkedHashMap<>();
         int sequencia = 0;
         for (String termo : termos) {
-            Pattern ocorrencia = Pattern.compile(
-                "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
+            // Termo de lore e MULTI-PALAVRA com frequencia ("Nahel Argama"), e o fansub parte o
+            // nome na virada da linha. Sem o separador flexivel o termo partido nao e mascarado e
+            // vai DESPROTEGIDO ao Google. Medido no acervo: 435 campos, 230 formas distintas.
+            Pattern ocorrencia = FronteiraTermoAss.padraoIgnorandoCaixa(termo);
             Matcher matcher = ocorrencia.matcher(resultado);
             StringBuffer substituido = new StringBuffer();
             boolean encontrou = false;
@@ -129,8 +130,7 @@ public class ProtetorTermosLoreService {
 
         List<String> alterados = new ArrayList<>();
         for (String termo : termosOriginais) {
-            Pattern ocorrencia = Pattern.compile(
-                "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
+            Pattern ocorrencia = FronteiraTermoAss.padraoIgnorandoCaixa(termo);
             if (!ocorrencia.matcher(proposta).find()) alterados.add(termo);
         }
         return List.copyOf(alterados);

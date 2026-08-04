@@ -1,5 +1,7 @@
 package org.traducao.projeto.qualidadeTraducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -66,16 +68,9 @@ public class EnforcadorTermosLore {
     //
     // Só o lado ESQUERDO precisa da alternativa: à direita do termo o caractere da quebra é a
     // barra invertida, que já não é letra nem dígito e portanto não quebra a asserção.
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
-    private static final String FIM_DE_TERMO = "(?![\\p{L}\\p{N}])";
-
-    // A quebra tambem cai DENTRO de termo composto, e ai nao basta tratar a fronteira: a
-    // legenda parte "Quin Mantha" em "Quin\NMantha", e Pattern.quote() procura um ESPACO
-    // literal que nao esta la. Medido no run de ZZ: "Quin Mantha" ficou em 66,7% de preservacao
-    // nas DUAS geracoes, antes e depois de reconhecer a quebra como fronteira — porque o furo
-    // era outro. O separador interno passa a aceitar espaco OU a quebra do ASS.
-    private static final String SEPARADOR_INTERNO = "(?:\\s|\\\\N)+";
+    private static final String FIM_DE_TERMO = FronteiraTermoAss.FIM;
 
     /**
      * PROPÓSITO DE NEGÓCIO: restaura os termos canônicos da lore na fala traduzida.
@@ -210,7 +205,7 @@ public class EnforcadorTermosLore {
         boolean multiPalavra = termo.trim().indexOf(' ') >= 0;
         int flags = multiPalavra ? (Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE) : 0;
         Matcher m = Pattern.compile(
-            INICIO_DE_TERMO + corpoDoTermo(termo) + FIM_DE_TERMO, flags)
+            INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + FIM_DE_TERMO, flags)
             .matcher(texto);
         int total = 0;
         while (m.find()) {
@@ -323,32 +318,8 @@ public class EnforcadorTermosLore {
      */
     private Pattern padraoFormaRuim(String termo) {
         return Pattern.compile(
-            INICIO_DE_TERMO + corpoDoTermo(termo) + FIM_DE_TERMO,
+            INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + FIM_DE_TERMO,
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: monta o corpo do padrão de um termo aceitando que a legenda o parta
-     * numa quebra de linha. Sem isto, {@code "Quin Mantha"} nunca casa com {@code "Quin\NMantha"},
-     * que é como o texto realmente chega quando o termo cai na virada da linha.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: cada palavra continua ESCAPADA ({@code Pattern.quote}), então
-     * um termo com metacaractere de regex ({@code "Gaza-C"}, {@code "A.E.U.G."}) segue sendo
-     * comparado literalmente; só o separador entre palavras vira flexível. Termo de uma palavra
-     * produz exatamente o mesmo padrão de antes.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: termo vazio ou só com espaços devolve padrão vazio, que
-     * não casa com nada — o chamador já trata isso antes.
-     */
-    private static String corpoDoTermo(String termo) {
-        String[] palavras = termo.trim().split("\\s+");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < palavras.length; i++) {
-            if (i > 0) {
-                sb.append(SEPARADOR_INTERNO);
-            }
-            sb.append(Pattern.quote(palavras[i]));
-        }
-        return sb.toString();
-    }
 }

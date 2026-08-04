@@ -1,5 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -49,7 +51,7 @@ import java.util.regex.Pattern;
 @Service
 public class RecuperarPendenciaFallbackService {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final Logger log = LoggerFactory.getLogger(RecuperarPendenciaFallbackService.class);
 
@@ -362,8 +364,10 @@ public class RecuperarPendenciaFallbackService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: ausência devolve {@code false}. Não lança.
      */
     private boolean sobrevive(String nome, String traduzido) {
-        Pattern ocorrencia = Pattern.compile(
-            "(?iu)" + INICIO_DE_TERMO + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
+        // Nome proprio e MULTI-PALAVRA com frequencia, e o fansub parte o nome na virada da
+        // linha. Sem o separador flexivel, "Nahel\NArgama" na traducao conta como nome SUMIDO e
+        // a fala vira pendencia FALSA. Medido no acervo: 435 campos com nome composto partido.
+        Pattern ocorrencia = FronteiraTermoAss.padraoIgnorandoCaixa(nome);
         return ocorrencia.matcher(traduzido).find();
     }
 

@@ -67,6 +67,13 @@ class CatracaFronteiraQuebraAssTest {
     /** Como aparece no fonte: {@code (?<=\\\\N)}. */
     private static final String ALTERNATIVA_QUEBRA = "(?<=" + QUATRO + "N)";
 
+    /** Como aparece no fonte: {@code (?:\\s|\\\\N)+} — a outra metade da mesma mecânica. */
+    private static final String SEPARADOR_INTERNO = "(?:" + DUAS + "s|" + QUATRO + "N)+";
+
+    /** Único arquivo autorizado a DEFINIR a mecânica; todo o resto referencia. */
+    private static final String CASA_DA_MECANICA =
+        Path.of("core", "texto", "FronteiraTermoAss.java").toString();
+
     /** A forma canônica inteira, para a mensagem de falha ser copiável. */
     private static final String FORMA_CANONICA =
         "\"(?:" + ALTERNATIVA_QUEBRA + "|" + LOOKBEHIND_LETRA + ")\"";
@@ -102,41 +109,52 @@ class CatracaFronteiraQuebraAssTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: as declarações são cópia consciente entre fatias — o projeto prefere
-     * duplicar a acoplar —, mas cópia que muda de grafia deixa de ser cópia e vira deriva.
+     * PROPÓSITO DE NEGÓCIO: um ÚNICO arquivo define a mecânica da quebra; todo o resto referencia.
      *
-     * <p>INVARIANTES DO DOMÍNIO: um único texto para todas as declarações de {@code INICIO_DE_TERMO}.
+     * <h2>Por que este invariante substituiu "todas as cópias são idênticas"</h2>
+     * Até 2026-08-04 a fronteira era cópia consciente em 12 arquivos de 7 fatias, e a catraca só
+     * exigia que as cópias não divergissem na grafia. Não bastou: o SEPARADOR INTERNO — a outra
+     * metade da mesma mecânica — existia em UM arquivo só, e a metade que faltava corrompeu
+     * tradução correta. Cópia idêntica não protege contra cópia INCOMPLETA.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lista as variantes encontradas, com quem as declara.
+     * <p>Mecânica de formato ASS não tem versão "por fatia": não é regra de negócio de ninguém.
+     * Por isso mora em {@code core}, que é consumo livre por contrato — centralizar ali não cria
+     * aresta entre fatias e a regra de ouro do projeto (duplicação consciente &gt; acoplamento)
+     * continua valendo para o que É regra de negócio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a alternativa da quebra aparece em EXATAMENTE um arquivo, e ele
+     * é {@link org.traducao.projeto.core.texto.FronteiraTermoAss}. Não há número para ajustar
+     * para baixo — foi assim que a catraca de duplicação foi contornada, com o total caindo de
+     * 14 para 11 no mesmo commit que "consertava" algo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nomeia os arquivos que passaram a definir por conta.
      */
     @Test
-    @DisplayName("todas as declaracoes de INICIO_DE_TERMO usam a forma identica")
-    void declaracoesNaoDivergemNaGrafia() throws IOException {
-        Set<String> formas = new TreeSet<>();
-        List<String> onde = new ArrayList<>();
+    @DisplayName("so FronteiraTermoAss define a mecanica da quebra; o resto referencia")
+    void apenasCoreDefineAFronteira() throws IOException {
+        Set<String> definem = new TreeSet<>();
         varrer((arquivo, linhas) -> {
             for (String linha : linhas) {
-                int igual = linha.indexOf("INICIO_DE_TERMO =");
-                if (igual < 0 || !linha.contains("\"")) {
-                    continue;
+                if (linha.contains(ALTERNATIVA_QUEBRA) || linha.contains(SEPARADOR_INTERNO)) {
+                    definem.add(RAIZ.relativize(arquivo).toString());
                 }
-                String valor = linha.substring(igual).strip();
-                formas.add(valor);
-                onde.add("  " + RAIZ.relativize(arquivo) + "  ->  " + valor);
             }
         });
 
-        assertTrue(onde.size() >= 2, "as declaracoes de INICIO_DE_TERMO sumiram do codigo");
-        assertEquals(1, formas.size(), () -> """
-            AS DECLARACOES DE INICIO_DE_TERMO DIVERGIRAM.
+        assertEquals(Set.of(CASA_DA_MECANICA), definem, () -> """
+            A MECANICA DA QUEBRA \\N VOLTOU A SER DEFINIDA FORA DE core.texto.
 
-            Sao copia consciente entre fatias, e o projeto prefere copia a acoplamento — mas copia
-            que muda de grafia deixa de ser copia e vira deriva silenciosa. Em 2026-08-03 tres
-            defeitos do acervo tiveram essa assinatura: a regra existia em dois lugares, um foi
-            corrigido e o outro ficou.
+            \\N ocupa dois caracteres e o N e letra: a fronteira precisa da alternativa E o termo
+            composto precisa do separador flexivel. Sao DUAS metades da mesma regra, e ter so uma
+            delas foi o que corrompeu traducao correta em 04/08/2026 — revertendo "Nahel Argama"
+            para "Argama" num caso, e produzindo "Nahel\\NNahel Argama" na tela no outro.
 
-            Formas encontradas:
-            """ + String.join(System.lineSeparator(), onde));
+            Use org.traducao.projeto.core.texto.FronteiraTermoAss (INICIO, FIM, SEPARADOR_INTERNO,
+            corpo, padrao, padraoIgnorandoCaixa). core e consumo livre por contrato: referenciar
+            dali NAO cria dependencia entre fatias.
+
+            Definem por conta propria:
+            """ + String.join(System.lineSeparator(), definem));
     }
 
     private interface Visita {

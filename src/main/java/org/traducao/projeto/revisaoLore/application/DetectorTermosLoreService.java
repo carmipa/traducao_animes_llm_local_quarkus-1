@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoLore.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.revisaoLore.domain.ResultadoDeteccaoLore;
 
@@ -24,7 +26,7 @@ import java.util.regex.Pattern;
 @Service
 public class DetectorTermosLoreService {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final Pattern NOME_PROPRIO = Pattern.compile(
         "\\b(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?)(?:\\s+(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?))*\\b"
@@ -375,9 +377,9 @@ public class DetectorTermosLoreService {
     }
 
     private boolean contemExpressaoInteira(String textoLower, String expressaoLower) {
-        return Pattern
-            .compile(INICIO_DE_TERMO + Pattern.quote(expressaoLower) + "(?![\\p{L}\\p{N}])",
-                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+        // Expressao de lore e multi-palavra ("capital tower"); partida pela quebra, deixava de
+        // ser detectada. Ver FronteiraTermoAss.
+        return FronteiraTermoAss.padraoIgnorandoCaixa(expressaoLower)
             .matcher(textoLower)
             .find();
     }

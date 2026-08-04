@@ -1,5 +1,7 @@
 package org.traducao.projeto.qualidadeTraducao.application;
 
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
+
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 @Service
 public class DetectorTraducaoIdenticaService {
 
-    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+    private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     private static final Pattern PADRAO_REMOVE_TAGS_ASS = Pattern.compile("\\{[^}]+}");
     private static final Pattern PADRAO_GAGUEIRA_NOME = Pattern.compile(
@@ -300,7 +302,7 @@ public class DetectorTraducaoIdenticaService {
         String resto = normalizado;
         for (String termo : ordenados) {
             resto = Pattern.compile(
-                    "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                    "(?iu)" + INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(resto).replaceAll(" ");
             if (resto.isBlank()) {
                 return true;
@@ -330,7 +332,8 @@ public class DetectorTraducaoIdenticaService {
             return false;
         }
         Pattern termoInteiro = Pattern.compile(
-            "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termoMinusculo) + "(?![\\p{L}\\p{N}])");
+            "(?iu)" + INICIO_DE_TERMO + FronteiraTermoAss.corpo(termoMinusculo)
+                + "(?![\\p{L}\\p{N}])");
         return termoInteiro.matcher(lore.toLowerCase(Locale.ROOT)).find();
     }
 
@@ -370,7 +373,7 @@ public class DetectorTraducaoIdenticaService {
         for (String termo : ordenados) {
             String antes = resto;
             resto = Pattern.compile(
-                    "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                    "(?iu)" + INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(resto).replaceAll(" ");
             if (!resto.equals(antes)) {
                 casouAlgum = true;
