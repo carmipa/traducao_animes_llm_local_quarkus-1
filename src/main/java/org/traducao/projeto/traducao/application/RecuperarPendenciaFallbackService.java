@@ -49,6 +49,8 @@ import java.util.regex.Pattern;
 @Service
 public class RecuperarPendenciaFallbackService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Logger log = LoggerFactory.getLogger(RecuperarPendenciaFallbackService.class);
 
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^{}]*}");
@@ -361,7 +363,7 @@ public class RecuperarPendenciaFallbackService {
      */
     private boolean sobrevive(String nome, String traduzido) {
         Pattern ocorrencia = Pattern.compile(
-            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
+            "(?iu)" + INICIO_DE_TERMO + Pattern.quote(nome) + "(?![\\p{L}\\p{N}])");
         return ocorrencia.matcher(traduzido).find();
     }
 

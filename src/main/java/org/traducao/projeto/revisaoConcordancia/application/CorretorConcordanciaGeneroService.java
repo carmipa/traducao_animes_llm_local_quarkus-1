@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 @Service
 public class CorretorConcordanciaGeneroService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     // Substantivos de gênero INEQUÍVOCO (pessoa/ser com gênero fixo). Ambíguos ficam de fora.
     private static final String SUBST_FEM =
         "menina|garota|moça|moca|mulher|deusa|princesa|rainha|senhora|irmã|irma|mãe|mae|filha|"
@@ -45,10 +47,10 @@ public class CorretorConcordanciaGeneroService {
     private static final String[] ART_FEM  = {"a", "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa"};
 
     private static final Pattern ART_MASC_COM_SUBST_FEM =
-        Pattern.compile("(?<![\\p{L}\\p{N}])(" + String.join("|", ART_MASC) + ")(\\s+)(" + SUBST_FEM + ")(?![\\p{L}\\p{N}])",
+        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_MASC) + ")(\\s+)(" + SUBST_FEM + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Pattern ART_FEM_COM_SUBST_MASC =
-        Pattern.compile("(?<![\\p{L}\\p{N}])(" + String.join("|", ART_FEM) + ")(\\s+)(" + SUBST_MASC + ")(?![\\p{L}\\p{N}])",
+        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_FEM) + ")(\\s+)(" + SUBST_MASC + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     // Adjetivos/particípios masc ↔ fem (paralelos): base para trocar o predicativo de "ela/ele".
@@ -65,10 +67,10 @@ public class CorretorConcordanciaGeneroService {
 
     private static final String VERBO_LIGACAO = "está|esta|estava|é|era|foi|fica|ficou|parece|continua|se sente";
     private static final Pattern ELA_COM_ADJ_MASC =
-        Pattern.compile("(?<![\\p{L}\\p{N}])(ela)(\\s+(?:" + VERBO_LIGACAO + ")\\s+)(" + String.join("|", ADJ_MASC) + ")(?![\\p{L}\\p{N}])",
+        Pattern.compile(INICIO_DE_TERMO + "(ela)(\\s+(?:" + VERBO_LIGACAO + ")\\s+)(" + String.join("|", ADJ_MASC) + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Pattern ELE_COM_ADJ_FEM =
-        Pattern.compile("(?<![\\p{L}\\p{N}])(ele)(\\s+(?:" + VERBO_LIGACAO + ")\\s+)(" + String.join("|", ADJ_FEM) + ")(?![\\p{L}\\p{N}])",
+        Pattern.compile(INICIO_DE_TERMO + "(ele)(\\s+(?:" + VERBO_LIGACAO + ")\\s+)(" + String.join("|", ADJ_FEM) + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     private static final Map<String, String> FLIP_ART_M2F = mapaFlip(ART_MASC, ART_FEM);

@@ -37,9 +37,11 @@ import java.util.regex.Pattern;
 @Service
 public class DetectorTraducaoIdenticaService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Pattern PADRAO_REMOVE_TAGS_ASS = Pattern.compile("\\{[^}]+}");
     private static final Pattern PADRAO_GAGUEIRA_NOME = Pattern.compile(
-        "(?iu)(?<![\\p{L}\\p{N}])([\\p{L}])-(?=\\1[\\p{L}])");
+        "(?iu)" + INICIO_DE_TERMO + "([\\p{L}])-(?=\\1[\\p{L}])");
     /** Fala só com dígitos e espaços (a pontuação já saiu na limpeza): número não se traduz. */
     private static final Pattern SOMENTE_NUMEROS = Pattern.compile("[\\d\\s]+");
 
@@ -298,7 +300,7 @@ public class DetectorTraducaoIdenticaService {
         String resto = normalizado;
         for (String termo : ordenados) {
             resto = Pattern.compile(
-                    "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                    "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(resto).replaceAll(" ");
             if (resto.isBlank()) {
                 return true;
@@ -328,7 +330,7 @@ public class DetectorTraducaoIdenticaService {
             return false;
         }
         Pattern termoInteiro = Pattern.compile(
-            "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termoMinusculo) + "(?![\\p{L}\\p{N}])");
+            "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termoMinusculo) + "(?![\\p{L}\\p{N}])");
         return termoInteiro.matcher(lore.toLowerCase(Locale.ROOT)).find();
     }
 
@@ -368,7 +370,7 @@ public class DetectorTraducaoIdenticaService {
         for (String termo : ordenados) {
             String antes = resto;
             resto = Pattern.compile(
-                    "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
+                    "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(resto).replaceAll(" ");
             if (!resto.equals(antes)) {
                 casouAlgum = true;

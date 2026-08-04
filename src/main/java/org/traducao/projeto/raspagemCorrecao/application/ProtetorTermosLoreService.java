@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 @Service
 public class ProtetorTermosLoreService {
 
+    private static final String INICIO_DE_TERMO = "(?:(?<=\\\\N)|(?<![\\p{L}\\p{N}]))";
+
     private static final Pattern LINHA_MANTER = Pattern.compile(
         "(?im)^\\s*-\\s*Manter sempre[^:]*:\\s*(.+)$");
     private static final Pattern LINHA_PERSONAGEM = Pattern.compile(
@@ -65,7 +67,7 @@ public class ProtetorTermosLoreService {
         int sequencia = 0;
         for (String termo : termos) {
             Pattern ocorrencia = Pattern.compile(
-                "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
+                "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
             Matcher matcher = ocorrencia.matcher(resultado);
             StringBuffer substituido = new StringBuffer();
             boolean encontrou = false;
@@ -128,7 +130,7 @@ public class ProtetorTermosLoreService {
         List<String> alterados = new ArrayList<>();
         for (String termo : termosOriginais) {
             Pattern ocorrencia = Pattern.compile(
-                "(?iu)(?<![\\p{L}\\p{N}])" + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
+                "(?iu)" + INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])");
             if (!ocorrencia.matcher(proposta).find()) alterados.add(termo);
         }
         return List.copyOf(alterados);
