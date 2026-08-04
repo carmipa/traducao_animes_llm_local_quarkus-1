@@ -745,9 +745,25 @@ public class ConversorKaraokeUseCase {
      */
     private LinhaSimplesKaraoke empilharCamadas(List<LinhaSimplesKaraoke> camadas) {
         List<LinhaSimplesKaraoke> ordenadas = new ArrayList<>(camadas);
-        // A "mais japonesa" primeiro: é a língua original e vai em cima.
-        ordenadas.sort(Comparator.comparing(
-            (LinhaSimplesKaraoke l) -> pareceOriginalJaponesOuRomaji(l.texto()) ? 0 : 1));
+        // A MAIS japonesa em cima — por PROPORÇÃO, não por sim/não.
+        //
+        // Antes o critério era booleano e {@code pareceOriginalJaponesOuRomaji} exige 100% das
+        // palavras serem sílaba Hepburn. Romaji real reprova nisso: "hitoribocchi", "tsudzuku",
+        // "kekkyoku" e "icchatte" têm geminada/dígrafo que a regex de sílaba não cobre, e uma
+        // palavra em seis derruba a linha inteira. As duas camadas empatavam em "não é romaji", o
+        // sort ESTÁVEL preservava a ordem do arquivo, e o inglês subia.
+        //
+        // Medido no Guilty Crown em 2026-08-03: 33 dos 508 versos pareados (6%) saíram com a
+        // tradução acima do original — sempre os MESMOS versos, repetidos em todos os episódios,
+        // porque o defeito é do texto e não do arquivo. Na tela, a legenda troca de posição no
+        // meio da música.
+        //
+        // A proporção é a mesma régua que o DetectorEfeitoKaraokeService já usa (limiar 70%),
+        // criada justamente porque exigir 100% fazia o romaji desta obra vazar. Aqui não há
+        // limiar: compara-se qual das camadas é MAIS romaji, que é a pergunta certa quando o
+        // objetivo é ordenar duas linhas, não classificar uma.
+        ordenadas.sort(Comparator.comparingInt(
+            (LinhaSimplesKaraoke l) -> -detectorKaraoke.proporcaoRomaji(l.texto())));
 
         StringBuilder texto = new StringBuilder();
         long inicio = Long.MAX_VALUE;
