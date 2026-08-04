@@ -76,7 +76,10 @@ test {
     // -D automaticamente, então sem isto o harness de medição (que só liga com
     // -Dkronos.benchmark=true) é silenciosamente pulado — e "0 testes rodaram" tem a
     // mesma aparência de "tudo passou".
-    ['kronos.benchmark', 'kronos.libre.url', 'kronos.benchmark.cache'].each { chave ->
+    // 'kronos.medicao' liga o harness de MEDICAO do acervo (src/test/.../medicao), que le o
+    // cache/ real e nao roda na suite normal; 'kronos.medicao.cache' aponta outra raiz.
+    ['kronos.benchmark', 'kronos.libre.url', 'kronos.benchmark.cache',
+     'kronos.medicao', 'kronos.medicao.cache'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
         }
