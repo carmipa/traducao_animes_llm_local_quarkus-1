@@ -45,6 +45,40 @@ class ConversorKaraokeUseCaseTest {
             Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o ORIGINAL fica em cima e a tradução embaixo — na música inteira, sem
+     * trocar de posição no meio. O espectador não pode ver o japonês ora acima ora abaixo.
+     *
+     * <p>O critério de ordem era booleano e exigia 100% das palavras serem sílaba Hepburn. Romaji
+     * REAL reprova nisso: {@code hitoribocchi}, {@code tsudzuku}, {@code kekkyoku} e
+     * {@code icchatte} têm geminada/dígrafo fora da regex de sílaba, e uma palavra em seis derruba
+     * a linha. As duas camadas empatavam em "não é romaji", o sort ESTÁVEL preservava a ordem do
+     * arquivo, e a linha inglesa subia.
+     *
+     * <p>Medido no Guilty Crown em 2026-08-03: 33 de 508 versos pareados (6%), sempre os MESMOS
+     * versos em todos os episódios — o defeito é do texto, não do arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se voltar a comparar por sim/não, estas linhas invertem.
+     */
+    @Test
+    void romajiComGeminadaFicaAcimaDaTraducaoMesmoNaoSendoSilabaPura() throws Exception {
+        Path origem = tempDir.resolve("ordem-camadas.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        // A linha INGLESA vem PRIMEIRO no arquivo de propósito: é o caso real do ED do Guilty
+        // Crown e o que fazia o sort estável manter a ordem errada.
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:00:01.00,0:00:04.00,Opening,,0,0,0,,{\\pos(100,80)}Now I am all alone\n"
+            + "Dialogue: 0,0:00:01.00,0:00:04.00,Opening,,0,0,0,,{\\pos(100,40)}Soshite watashi wa koushite hitoribocchi de\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Soshite watashi wa koushite hitoribocchi de\\NNow I am all alone"),
+            () -> "o romaji tem de ficar ACIMA da traducao mesmo com 'hitoribocchi' fora da regex "
+                + "de silaba (83% romaji, nao 100%): " + saida);
+    }
+
     @Test
     void preservaAsDuasCamadasNoMesmoTempoELimpaTagsVisiveis() throws Exception {
         Path origem = tempDir.resolve("karaoke.ass");
