@@ -121,12 +121,46 @@ public class Contexto86 implements ProvedorContexto {
      */
     @Override
     public Map<String, String> correcoesTerminologia() {
-        return Map.of(
-            "Legião", "Legion",
-            "Handler Um", "Handler One",
-            "Processador", "Processor",
-            "Cavaleiro da Morte", "Undertaker",
-            "Coveiro", "Undertaker"
+        // MEDIDO no cache do 86 em 2026-08-05, na PRIMEIRA traducao completa da obra pelo KRONOS
+        // (23 episodios, 7.255 falas). As cinco entradas originais cobriam parte do problema; o
+        // modelo produziu outras formas que passaram inteiras. Cada linha abaixo tem a contagem
+        // real ao lado — nenhuma entrou por suposicao.
+        //
+        // Map.ofEntries e nao Map.of: este ultimo aceita no maximo 10 pares.
+        return Map.ofEntries(
+            // LEGION — "Legiao" SEM cedilha era o furo: o mapa so tinha a forma acentuada, e o
+            // modelo escreve as duas. Mesma familia do plural, que tambem faltava.
+            Map.entry("Legião", "Legion"),          // ja existia; 0 restantes
+            Map.entry("Legiao", "Legion"),          // 7
+            Map.entry("Legiões", "Legions"),        // 1
+            Map.entry("Handler Um", "Handler One"),
+
+            // PROCESSOR — o singular ja estava mapeado e ainda restaram 14, porque nas falas em
+            // que o INGLES diz "Processors" a checagem do canonico singular nao casa (a fronteira
+            // a direita barra o "s"). E a mesma lacuna que "Newtypes" teve no nucleo UC.
+            Map.entry("Processador", "Processor"),  // ja existia
+            Map.entry("Processadores", "Processors"), // 12
+
+            // UNDERTAKER — codinome do Shin. O mapa cobria "Cavaleiro da Morte" e "Coveiro", que
+            // NUNCA ocorreram; o modelo inventou outras duas. Sao palavras comuns em PT, e por
+            // isso so a condicao salva: a restauracao exige "Undertaker" no ingles, entao um
+            // carrasco de verdade ou um clima funebre jamais sao tocados.
+            Map.entry("Cavaleiro da Morte", "Undertaker"), // ja existia; 0 ocorrencias
+            Map.entry("Coveiro", "Undertaker"),            // ja existia; 0 ocorrencias
+            Map.entry("Fúnebre", "Undertaker"),            // 4
+            Map.entry("Carrasco", "Undertaker"),           // 1
+
+            // EIGHTY-SIX — o maior volume, e o nome que da titulo a obra. 67 falas chamavam o
+            // grupo de "Oitenta e Seis".
+            Map.entry("Oitenta e Seis", "Eighty-Six"),     // 67
+
+            // SPEARHEAD — esquadrao. "Esquadrao Lanca-Flanco" vira "Esquadrao Spearhead".
+            Map.entry("Lança-Flanco", "Spearhead")         // 5
+
+            // FICA DE FORA: "mecha" (3 ocorrencias), usado no lugar de "Juggernaut". E palavra
+            // comum do genero e aceitavel por contexto — mapea-la reescreveria fala legitima,
+            // que e o dano que este mapa existe para evitar. Mesma regua de "unidade movel" no
+            // nucleo UC. "M1A4" tambem fica: e a designacao oficial do Juggernaut.
         );
     }
 }
