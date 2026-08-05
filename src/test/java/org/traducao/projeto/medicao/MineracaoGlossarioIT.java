@@ -103,6 +103,7 @@ class MineracaoGlossarioIT {
 
         relatarNaoTraduzidas(candidatos);
         relatarDivergentes(candidatos);
+        relatarEvidencia(acervo);
         System.out.printf("%nCortes aplicados: minimo %d ocorrencias, maximo %d palavras, "
                 + "impressao limitada a %d por secao. NENHUMA linha acima e decisao — sao "
                 + "hipoteses com contagem, para aprovacao humana.%n",
@@ -154,6 +155,61 @@ class MineracaoGlossarioIT {
         if (ranking.isEmpty()) {
             System.out.println("    (nenhuma com 3+ formas)");
         }
+    }
+
+    /**
+     * Chaves EN cujas evidências CRUAS interessam. Contagem prova que o padrão existe; só a fala
+     * inteira, com a obra e o arquivo, permite julgar se é DEFEITO ou variação legítima. Sem isto
+     * a lista anterior vira palpite com número do lado — que é exatamente o que ela existe para
+     * substituir.
+     */
+    private static final List<String> SOB_SUSPEITA = List.of(
+        "thank you", "fa", "mobile suit", "i see", "sir", "big brother", "gundam", "captain");
+
+    /** Para cada chave sob suspeita, falas REAIS onde a tradução divergiu da forma dominante. */
+    private static void relatarEvidencia(Acervo acervo) {
+        System.out.printf("%n[3] EVIDENCIA CRUA — a fala inteira, para julgar defeito x variacao%n");
+        for (String alvo : SOB_SUSPEITA) {
+            List<FalaDoAcervo> casos = acervo.falas().stream()
+                .filter(f -> alvo.equals(EnforcadorGlossarioFala.chaveDeFala(f.original())))
+                .toList();
+            if (casos.isEmpty()) {
+                continue;
+            }
+            Map<String, List<FalaDoAcervo>> porTraducao = new LinkedHashMap<>();
+            for (FalaDoAcervo f : casos) {
+                porTraducao.computeIfAbsent(
+                    EnforcadorGlossarioFala.chaveDeFala(f.traduzido()),
+                    k -> new java.util.ArrayList<>()).add(f);
+            }
+            System.out.printf("%n  == \"%s\" (%d falas, %d grafias) ==%n",
+                alvo, casos.size(), porTraducao.size());
+            porTraducao.entrySet().stream()
+                .sorted(Map.Entry.<String, List<FalaDoAcervo>>comparingByValue(
+                    Comparator.comparingInt(List::size)).reversed())
+                .limit(4)
+                .forEach(e -> {
+                    FalaDoAcervo amostra = e.getValue().get(0);
+                    System.out.printf("     %4dx  EN %-34s PT %-34s [%s]%n",
+                        e.getValue().size(), recortarLargo(amostra.original()),
+                        recortarLargo(amostra.traduzido()), recortarLargo(amostra.obra()));
+                });
+        }
+    }
+
+    /**
+     * Tira as tags ASS ANTES de recortar. A primeira versão recortava o texto cru, e em fala de
+     * cartão de título — {@code {\blur0.4\fade(480,0)\fscx120…}} — as tags sozinhas estouravam o
+     * limite: a evidência saía sem uma letra do texto. Duas conclusões foram tiradas em cima
+     * dessa saída vazia antes de alguém reparar. Evidência ilegível é pior que evidência ausente,
+     * porque parece evidência.
+     */
+    private static String recortarLargo(String t) {
+        String limpo = t.replaceAll("\\{[^}]*}", "")
+            .replace("\\N", " ")
+            .replace(System.lineSeparator(), " ")
+            .strip();
+        return limpo.length() <= 34 ? limpo : limpo.substring(0, 34) + "…";
     }
 
     /** As grafias mais frequentes, com a contagem — sem isso a lista não é julgável. */

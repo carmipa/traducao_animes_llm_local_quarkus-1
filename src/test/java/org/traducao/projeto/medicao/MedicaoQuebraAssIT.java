@@ -56,6 +56,19 @@ class MedicaoQuebraAssIT {
     private static final Pattern NOME_PARTIDO = Pattern.compile(
         "(\\p{Lu}\\p{L}+)" + Pattern.quote(QUEBRA) + "(\\p{Lu}\\p{L}+)");
 
+    /**
+     * Mesma forma, mas separada por {@code \h} — o ESPAÇO DURO do ASS, que o fansub usa
+     * justamente para impedir que o nome quebre na virada da linha.
+     *
+     * <p>Medir isto separado não é preciosismo: {@code FronteiraTermoAss.SEPARADOR_INTERNO}
+     * aceita espaço e {@code \N}, e NÃO aceita {@code \h}. Se o acervo usa {@code \h} dentro de
+     * nome composto, a mecânica consertada em 04/08 ainda tem um terceiro furo — e ele seria
+     * encontrado do mesmo jeito que os outros dois: por acaso, meses depois.
+     */
+    private static final String ESPACO_DURO = "\\" + "h";
+    private static final Pattern NOME_COM_ESPACO_DURO = Pattern.compile(
+        "(\\p{Lu}\\p{L}+)" + Pattern.quote(ESPACO_DURO) + "(\\p{Lu}\\p{L}+)");
+
     @Test
     @DisplayName("acervo: alcance da quebra \\N e o que ela ainda esconde")
     void medir() throws IOException {
@@ -105,6 +118,25 @@ class MedicaoQuebraAssIT {
             + "    campos atingidos... %d%n    formas distintas... %d%n", campos, formas.size());
         formas.entrySet().stream().limit(8)
             .forEach(e -> System.out.printf("      %-30s %s%n", e.getKey(), e.getValue()));
+
+        Map<String, String> comEspacoDuro = new LinkedHashMap<>();
+        int camposDuro = 0;
+        for (FalaDoAcervo fala : acervo.falas()) {
+            for (String texto : new String[] {fala.original(), fala.traduzido()}) {
+                Matcher m = NOME_COM_ESPACO_DURO.matcher(texto);
+                if (m.find()) {
+                    camposDuro++;
+                    comEspacoDuro.putIfAbsent(
+                        m.group(1) + ESPACO_DURO + m.group(2), recortar(texto));
+                }
+            }
+        }
+        System.out.printf("%n[2b] NOME COMPOSTO SEPARADO PELO ESPACO DURO \\h%n"
+                + "     (SEPARADOR_INTERNO aceita espaco e \\N; NAO aceita \\h)%n"
+                + "     campos atingidos... %d%n     formas distintas... %d%n",
+            camposDuro, comEspacoDuro.size());
+        comEspacoDuro.entrySet().stream().limit(8)
+            .forEach(e -> System.out.printf("       %-30s %s%n", e.getKey(), e.getValue()));
     }
 
     /**
