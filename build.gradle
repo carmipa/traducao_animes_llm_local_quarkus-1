@@ -78,9 +78,14 @@ test {
     // mesma aparência de "tudo passou".
     // 'kronos.medicao' liga o harness de MEDICAO do acervo (src/test/.../medicao), que le o
     // cache/ real e nao roda na suite normal; 'kronos.medicao.cache' aponta outra raiz.
+    // 'kronos.aplicar.reforco' e a trava DUPLA da unica operacao destes harnesses que ESCREVE no
+    // acervo: alem da config do proprio pipeline, exige uma frase literal na linha de comando,
+    // para que nenhum `gradlew test` distraido reescreva 20 MB de traducao pronta.
     ['kronos.benchmark', 'kronos.libre.url', 'kronos.benchmark.cache',
      'kronos.medicao', 'kronos.medicao.cache',
-     'kronos.comparacao', 'kronos.comparacao.obra', 'kronos.comparacao.limite'].each { chave ->
+     'kronos.comparacao', 'kronos.comparacao.obra', 'kronos.comparacao.limite',
+     'kronos.aplicar.reforco',
+     'correcao-cache.reforco-terminologia-aplicar-habilitado'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
         }
