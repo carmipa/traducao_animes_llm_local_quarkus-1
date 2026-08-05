@@ -91,17 +91,17 @@
                         <button class="nav-item" data-target="analise" id="btn-menu-analise"
                             data-tooltip="Audite faixas, codecs e bitrate dos arquivos de vídeo.">
                             <span class="material-symbols-outlined nav-icon">radar</span>
-                            <span>1. Análise de Mídia</span>
+                            <span>1.1 Análise de Mídia</span>
                         </button>
                         <button class="nav-item" data-target="extracao" id="btn-menu-extracao"
                             data-tooltip="Extraia faixas de legendas (ASS/SRT/PGS) em lote de vídeos (MKV/WebM/MP4/MOV/AVI...).">
                             <span class="material-symbols-outlined nav-icon">download</span>
-                            <span>2. Extração</span>
+                            <span>1.2 Extração</span>
                         </button>
                         <button class="nav-item" data-target="auditor-conteudo" id="btn-menu-auditor-conteudo"
                             data-tooltip="Audite conteúdo das legendas traduzidas (vazamento de efeitos, alucinações de IA).">
                             <span class="material-symbols-outlined nav-icon">content_paste_search</span>
-                            <span>3. Análise de Legenda</span>
+                            <span>1.3 Análise de Legenda</span>
                         </button>
                     </div>
                 </div>
@@ -115,17 +115,17 @@
                         <button class="nav-item" data-target="traducao" id="btn-menu-traducao"
                             data-tooltip="Traduza legendas usando IA local com proteção de tags.">
                             <span class="material-symbols-outlined nav-icon">translate</span>
-                            <span>4. Tradução Local</span>
+                            <span>2.1 Tradução Local</span>
                         </button>
                         <button class="nav-item" data-target="traducao-sem-lore" id="btn-menu-traducao-sem-lore"
                             data-tooltip="Traduza um anime que ainda não tem lore declarada — teste rápido, saída separada.">
                             <span class="material-symbols-outlined nav-icon">bolt</span>
-                            <span>4b. Tradução sem Lore</span>
+                            <span>2.2 Tradução sem Lore</span>
                         </button>
                         <button class="nav-item" data-target="correcao" id="btn-menu-correcao"
                             data-tooltip="Corrija falhas de cache ou traduções ausentes.">
                             <span class="material-symbols-outlined nav-icon">sync</span>
-                            <span>5. Correção Cache</span>
+                            <span>2.3 Correção de Cache</span>
                         </button>
                     </div>
                 </div>
@@ -139,22 +139,17 @@
                         <button class="nav-item" data-target="revisao" id="btn-menu-revisao"
                             data-tooltip="Revise legendas .ass já traduzidas: inglês residual, concordância PT-BR e correção via Google.">
                             <span class="material-symbols-outlined nav-icon">spellcheck</span>
-                            <span>6. Revisão de Legendas</span>
+                            <span>3.1 Revisão de Legendas</span>
                         </button>
                         <button class="nav-item" data-target="revisao-lore" id="btn-menu-revisao-lore"
                             data-tooltip="Revise nomes, locais e termos de lore nas legendas traduzidas usando a lore oficial da obra.">
                             <span class="material-symbols-outlined nav-icon">menu_book</span>
-                            <span>7. Revisão de Lore</span>
+                            <span>3.2 Revisão de Lore</span>
                         </button>
                         <button class="nav-item" data-target="revisao-concordancia" id="btn-menu-revisao-concordancia"
                             data-tooltip="Corrige erros de gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.">
                             <span class="material-symbols-outlined nav-icon">spellcheck</span>
-                            <span>8. Revisão de Concordância</span>
-                        </button>
-                        <button class="nav-item" data-target="troca-tipo-legenda" id="btn-menu-troca-tipo-legenda"
-                            data-tooltip="Audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras para evitar acentuação corrompida.">
-                            <span class="material-symbols-outlined nav-icon">font_download</span>
-                            <span>9. Troca Tipo Legenda</span>
+                            <span>3.3 Revisão de Concordância</span>
                         </button>
                     </div>
                 </div>
@@ -164,21 +159,26 @@
                         <span class="nav-group-titulo">Karaokê</span>
                         <span class="material-symbols-outlined nav-group-seta">expand_more</span>
                     </button>
+                    <!-- ORDEM DELIBERADA: traduzir a letra, corrigir a letra, e SÓ ENTÃO
+                         simplificar. O Karaokê Simples apaga a animação KFX e é IRREVERSÍVEL
+                         para o arquivo de saída — por isso é o último do grupo. Até 05/08/2026
+                         ele era o "10.", primeiro do bloco, e o número dizia o oposto da regra
+                         que a gente segue na prática. -->
                     <div class="nav-group-itens">
-                        <button class="nav-item" data-target="novo-karaoke" id="btn-menu-novo-karaoke"
-                            data-tooltip="Converta karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original.">
-                            <span class="material-symbols-outlined nav-icon">music_off</span>
-                            <span>10. Karaokê Simples</span>
-                        </button>
                         <button class="nav-item" data-target="traducao-karaoke" id="btn-menu-traducao-karaoke"
                             data-tooltip="Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa.">
                             <span class="material-symbols-outlined nav-icon">lyrics</span>
-                            <span>11. Tradução de Karaokê</span>
+                            <span>4.1 Tradução de Karaokê</span>
                         </button>
                         <button class="nav-item" data-target="cura" id="btn-menu-cura"
                             data-tooltip="Corrija a legenda traduzida usando a original como referência segura.">
                             <span class="material-symbols-outlined nav-icon">music_note</span>
-                            <span>12. Correção de Karaoke</span>
+                            <span>4.2 Correção de Karaokê</span>
+                        </button>
+                        <button class="nav-item" data-target="novo-karaoke" id="btn-menu-novo-karaoke"
+                            data-tooltip="POR ÚLTIMO: converte karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original. Apaga a animação — gera pasta nova, mas não dá para desfazer no arquivo gerado.">
+                            <span class="material-symbols-outlined nav-icon">music_off</span>
+                            <span>4.3 Karaokê Simples</span>
                         </button>
                     </div>
                 </div>
@@ -189,15 +189,20 @@
                         <span class="material-symbols-outlined nav-group-seta">expand_more</span>
                     </button>
                     <div class="nav-group-itens">
+                        <button class="nav-item" data-target="troca-tipo-legenda" id="btn-menu-troca-tipo-legenda"
+                            data-tooltip="Audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras para evitar acentuação corrompida.">
+                            <span class="material-symbols-outlined nav-icon">font_download</span>
+                            <span>5.1 Troca de Tipo de Legenda</span>
+                        </button>
                         <button class="nav-item" data-target="remuxer" id="btn-menu-remuxer"
                             data-tooltip="Recombine vídeos originais e as legendas traduzidas.">
                             <span class="material-symbols-outlined nav-icon">layers</span>
-                            <span>13. Remuxer</span>
+                            <span>5.2 Remuxer</span>
                         </button>
                         <button class="nav-item" data-target="renomear-arquivos" id="btn-menu-renomear-arquivos"
                             data-tooltip="Limpe e renomeie arquivos de vídeo e legendas usando um padrão S01E01 com base nos metadados.">
                             <span class="material-symbols-outlined nav-icon">drive_file_rename_outline</span>
-                            <span>14. Renomear Arquivos</span>
+                            <span>5.3 Renomear Arquivos</span>
                         </button>
                     </div>
                 </div>
@@ -335,12 +340,12 @@
                         </div>
                         <div class="pipeline-cards-grid">
 
-                            <!-- Card 1 -->
+                            <!-- 1.1 -->
                             <div class="pipeline-card card-analise"
                                 onclick="document.getElementById('btn-menu-analise').click()"
                                 data-tooltip="Clique para auditar codecs e bitrate">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">01</div>
+                                <div class="card-step-num">1.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">radar</span>
                                 </div>
@@ -349,12 +354,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 2 -->
+                            <!-- 1.2 -->
                             <div class="pipeline-card card-extracao"
                                 onclick="document.getElementById('btn-menu-extracao').click()"
                                 data-tooltip="Clique para extrair as legendas originais">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">02</div>
+                                <div class="card-step-num">1.2</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">download</span>
                                 </div>
@@ -363,26 +368,26 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 3 — Análise de Conteúdo -->
+                            <!-- 1.3 -->
                             <div class="pipeline-card card-auditor-conteudo"
                                 onclick="document.getElementById('btn-menu-auditor-conteudo').click()"
                                 data-tooltip="Clique para auditar conteúdo">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">03</div>
+                                <div class="card-step-num">1.3</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">content_paste_search</span>
                                 </div>
-                                <h4>Análise de Conteúdo</h4>
+                                <h4>Análise de Legenda</h4>
                                 <p>Verifique anomalias de LLM, formatação e metadados nas legendas traduzidas.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 4 — Tradução Local -->
+                            <!-- 2.1 -->
                             <div class="pipeline-card card-traducao"
                                 onclick="document.getElementById('btn-menu-traducao').click()"
                                 data-tooltip="Clique para traduzir com LLM local">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">04</div>
+                                <div class="card-step-num">2.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">translate</span>
                                 </div>
@@ -391,26 +396,41 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 5 — Correção Cache -->
+                            <!-- 2.2 — existia no menu desde sempre e NUNCA teve cartão aqui.
+                                 A home ensinava um fluxo com um passo a menos que o menu. -->
+                            <div class="pipeline-card card-traducao-sem-lore"
+                                onclick="document.getElementById('btn-menu-traducao-sem-lore').click()"
+                                data-tooltip="Clique para traduzir um anime que ainda não tem lore declarada">
+                                <div class="card-glow-bg"></div>
+                                <div class="card-step-num">2.2</div>
+                                <div class="card-icon-container">
+                                    <span class="material-symbols-outlined">bolt</span>
+                                </div>
+                                <h4>Tradução sem Lore</h4>
+                                <p>Traduza uma obra ainda sem lore declarada — teste rápido, com saída em pasta separada.</p>
+                                <span class="card-action-link">Acessar Painel →</span>
+                            </div>
+
+                            <!-- 2.3 -->
                             <div class="pipeline-card card-correcao"
                                 onclick="document.getElementById('btn-menu-correcao').click()"
                                 data-tooltip="Clique para preencher linhas falhas do cache">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">05</div>
+                                <div class="card-step-num">2.3</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">sync</span>
                                 </div>
-                                <h4>Correção Cache</h4>
+                                <h4>Correção de Cache</h4>
                                 <p>Varra e corrija falas vazias ou não traduzidas do banco de cache.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 6 — Revisão de Legendas -->
+                            <!-- 3.1 -->
                             <div class="pipeline-card card-revisao"
                                 onclick="document.getElementById('btn-menu-revisao').click()"
                                 data-tooltip="Clique para revisar legendas .ass já traduzidas">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">06</div>
+                                <div class="card-step-num">3.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">spellcheck</span>
                                 </div>
@@ -419,12 +439,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 7 - Revisão de Lore -->
+                            <!-- 3.2 -->
                             <div class="pipeline-card card-revisao-lore"
                                 onclick="document.getElementById('btn-menu-revisao-lore').click()"
                                 data-tooltip="Clique para revisar termos de lore nas legendas">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">07</div>
+                                <div class="card-step-num">3.2</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">menu_book</span>
                                 </div>
@@ -434,12 +454,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 8 - Revisão de Concordância -->
+                            <!-- 3.3 -->
                             <div class="pipeline-card card-revisao-concordancia"
                                 onclick="document.getElementById('btn-menu-revisao-concordancia').click()"
                                 data-tooltip="Clique para corrigir concordância de gênero na legenda PT-BR">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">08</div>
+                                <div class="card-step-num">3.3</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">spellcheck</span>
                                 </div>
@@ -448,40 +468,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 9 - Troca Tipo Legenda -->
-                            <div class="pipeline-card card-troca-legenda"
-                                onclick="document.getElementById('btn-menu-troca-tipo-legenda').click()"
-                                data-tooltip="Clique para auditar e substituir fontes legadas">
-                                <div class="card-glow-bg"></div>
-                                <div class="card-step-num">09</div>
-                                <div class="card-icon-container">
-                                    <span class="material-symbols-outlined">font_download</span>
-                                </div>
-                                <h4>Troca Tipo Legenda</h4>
-                                <p>Audite e substitua em lote fontes vietnamitas/ANSI por fontes Unicode seguras.</p>
-                                <span class="card-action-link">Acessar Painel →</span>
-                            </div>
-
-                            <!-- Card 10 — Karaokê Simples -->
-                            <div class="pipeline-card card-novo-karaoke"
-                                onclick="document.getElementById('btn-menu-novo-karaoke').click()"
-                                data-tooltip="Clique para converter karaokê KFX em legenda simples">
-                                <div class="card-glow-bg"></div>
-                                <div class="card-step-num">10</div>
-                                <div class="card-icon-container">
-                                    <span class="material-symbols-outlined">music_off</span>
-                                </div>
-                                <h4>Karaokê Simples</h4>
-                                <p>Converta karaokê KFX em linhas simples e limpas, preservando o tempo original.</p>
-                                <span class="card-action-link">Acessar Painel →</span>
-                            </div>
-
-                            <!-- Card 11 — Tradução de Karaokê -->
+                            <!-- 4.1 -->
                             <div class="pipeline-card card-traducao-karaoke"
                                 onclick="document.getElementById('btn-menu-traducao-karaoke').click()"
                                 data-tooltip="Clique para traduzir letras de música mantendo o romaji original">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">11</div>
+                                <div class="card-step-num">4.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">lyrics</span>
                                 </div>
@@ -491,27 +483,55 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 12 - Correção de Karaoke -->
+                            <!-- 4.2 -->
                             <div class="pipeline-card card-cura"
                                 onclick="document.getElementById('btn-menu-cura').click()"
                                 data-tooltip="Clique para corrigir a legenda traduzida">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">12</div>
+                                <div class="card-step-num">4.2</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">music_note</span>
                                 </div>
-                                <h4>Correção de Karaoke</h4>
+                                <h4>Correção de Karaokê</h4>
                                 <p>Corrige a legenda PT-BR sem alterar a original, preservando estrutura, tempos e tags.
                                 </p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 13 -->
+                            <!-- 4.3 — ÚLTIMO do bloco de propósito: apaga a animação KFX. -->
+                            <div class="pipeline-card card-novo-karaoke"
+                                onclick="document.getElementById('btn-menu-novo-karaoke').click()"
+                                data-tooltip="Clique para converter karaokê KFX em legenda simples">
+                                <div class="card-glow-bg"></div>
+                                <div class="card-step-num">4.3</div>
+                                <div class="card-icon-container">
+                                    <span class="material-symbols-outlined">music_off</span>
+                                </div>
+                                <h4>Karaokê Simples</h4>
+                                <p>Por último: converte karaokê KFX em linhas simples, no tempo original. Apaga a animação.</p>
+                                <span class="card-action-link">Acessar Painel →</span>
+                            </div>
+
+                            <!-- 5.1 -->
+                            <div class="pipeline-card card-troca-legenda"
+                                onclick="document.getElementById('btn-menu-troca-tipo-legenda').click()"
+                                data-tooltip="Clique para auditar e substituir fontes legadas">
+                                <div class="card-glow-bg"></div>
+                                <div class="card-step-num">5.1</div>
+                                <div class="card-icon-container">
+                                    <span class="material-symbols-outlined">font_download</span>
+                                </div>
+                                <h4>Troca de Tipo de Legenda</h4>
+                                <p>Audite e substitua em lote fontes vietnamitas/ANSI por fontes Unicode seguras.</p>
+                                <span class="card-action-link">Acessar Painel →</span>
+                            </div>
+
+                            <!-- 5.2 -->
                             <div class="pipeline-card card-remuxer"
                                 onclick="document.getElementById('btn-menu-remuxer').click()"
                                 data-tooltip="Clique para acoplar legendas traduzidas nos vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">13</div>
+                                <div class="card-step-num">5.2</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">layers</span>
                                 </div>
@@ -520,12 +540,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 14 -->
+                            <!-- 5.3 -->
                             <div class="pipeline-card card-renomear-arquivos"
                                 onclick="document.getElementById('btn-menu-renomear-arquivos').click()"
                                 data-tooltip="Clique para renomear e sanitizar arquivos de vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">14</div>
+                                <div class="card-step-num">5.3</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">drive_file_rename_outline</span>
                                 </div>
@@ -534,12 +554,14 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 15 -->
+                            <!-- SISTEMA — não é passo do pipeline, por isso não tem número.
+                                 Badge com travessão: numerar aqui daria a entender que existe
+                                 um "passo 6" a executar, e não existe. -->
                             <div class="pipeline-card card-mapa"
                                 onclick="document.getElementById('btn-menu-mapa').click()"
                                 data-tooltip="Clique para analisar o código Java">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">15</div>
+                                <div class="card-step-num">—</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">account_tree</span>
                                 </div>
@@ -548,12 +570,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- Card 16 -->
+                            <!-- SISTEMA -->
                             <div class="pipeline-card card-telemetria"
                                 onclick="document.getElementById('btn-menu-telemetria').click()"
                                 data-tooltip="Clique para acessar a telemetria">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">16</div>
+                                <div class="card-step-num">—</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">monitoring</span>
                                 </div>
@@ -566,7 +588,7 @@
                     </div>
                 </div>
 
-                <!-- 1. PAINEL DE ANÁLISE DE MÍDIA -->
+                <!-- 1.1 PAINEL DE ANÁLISE DE MÍDIA -->
                 <div class="panel" id="panel-analise">
                     <div class="glass-card">
                         <h2>Iniciar Auditoria de Mídia</h2>
@@ -646,7 +668,7 @@
                     </div>
                 </div>
 
-                <!-- 2. PAINEL DE EXTRAÇÃO -->
+                <!-- 1.2 PAINEL DE EXTRAÇÃO -->
                 <div class="panel" id="panel-extracao">
                     <div class="glass-card">
                         <h2>Extração Industrial de Legendas</h2>
@@ -721,10 +743,10 @@
                     </div>
                 </div>
 
-                <!-- 5. PAINEL DE AUDITORIA DE CONTEÚDO (conteúdo em auditorConteudoLegendas/auditorConteudoLegendas.html) -->
+                <!-- 1.3 PAINEL DE ANÁLISE DE LEGENDA (conteúdo em auditorConteudoLegendas/auditorConteudoLegendas.html) -->
                 <div class="panel" id="panel-auditor-conteudo" data-modulo="auditorConteudoLegendas"></div>
 
-                <!-- 3. PAINEL DE TRADUÇÃO LOCAL -->
+                <!-- 2.1 PAINEL DE TRADUÇÃO LOCAL -->
                 <div class="panel" id="panel-traducao">
                     <div class="glass-card">
                         <h2>Tradução via LLM Local</h2>
@@ -809,7 +831,7 @@
                     </div>
                 </div>
 
-                <!-- 4b. PAINEL DE TRADUÇÃO SEM LORE -->
+                <!-- 2.2 PAINEL DE TRADUÇÃO SEM LORE -->
                 <div class="panel" id="panel-traducao-sem-lore">
                     <div class="glass-card">
                         <h2>Tradução sem Lore (crua)</h2>
@@ -900,7 +922,7 @@
                     </div>
                 </div>
 
-                <!-- 4. PAINEL DE CORREÇÃO -->
+                <!-- 2.3 PAINEL DE CORREÇÃO DE CACHE -->
                 <div class="panel" id="panel-correcao">
                     <div class="glass-card">
                         <h2>Correção do Cache de Tradução</h2>
@@ -1102,7 +1124,7 @@
                     </div>
                 </div>
 
-                <!-- 6. PAINEL DE REVISÃO DE LEGENDAS -->
+                <!-- 3.1 PAINEL DE REVISÃO DE LEGENDAS -->
                 <div class="panel" id="panel-revisao">
                     <div class="glass-card">
                         <h2>Revisão de Legendas</h2>
@@ -1278,7 +1300,7 @@
                     </div>
                 </div>
 
-                <!-- 7. PAINEL DE CORREÇÃO DE KARAOKE -->
+                <!-- 4.2 PAINEL DE CORREÇÃO DE KARAOKÊ -->
                 <div class="panel" id="panel-cura">
                     <div class="glass-card">
                         <h2>Correção de Karaoke</h2>
@@ -1361,16 +1383,16 @@
                     </div>
                 </div>
 
-                <!-- 8. PAINEL DE REVISÃO DE LORE (conteúdo em revisaoLore/revisaoLore.html) -->
+                <!-- 3.2 PAINEL DE REVISÃO DE LORE (conteúdo em revisaoLore/revisaoLore.html) -->
                 <div class="panel" id="panel-revisao-lore" data-modulo="revisaoLore"></div>
 
-                <!-- PAINEL DE REVISÃO DE CONCORDÂNCIA (conteúdo em revisaoConcordancia/revisaoConcordancia.html) -->
+                <!-- 3.3 PAINEL DE REVISÃO DE CONCORDÂNCIA (conteúdo em revisaoConcordancia/revisaoConcordancia.html) -->
                 <div class="panel" id="panel-revisao-concordancia" data-modulo="revisaoConcordancia"></div>
 
-                <!-- 9. PAINEL DE TROCA DE TIPO DE LEGENDA (conteúdo em trocaTipoLegenda/trocaTipoLegenda.html) -->
+                <!-- 5.1 PAINEL DE TROCA DE TIPO DE LEGENDA (conteúdo em trocaTipoLegenda/trocaTipoLegenda.html) -->
                 <div class="panel" id="panel-troca-tipo-legenda" data-modulo="trocaTipoLegenda"></div>
 
-                <!-- 9. PAINEL DE REMUXER -->
+                <!-- 5.2 PAINEL DE REMUXER -->
                 <div class="panel" id="panel-remuxer">
                     <div class="glass-card">
                         <h2>Remuxer Industrial</h2>
@@ -1453,19 +1475,19 @@
                     </div>
                 </div>
 
-                <!-- 10. PAINEL DE LIMPA NOME (SANITIZADOR) -->
+                <!-- 5.3 PAINEL DE RENOMEAR ARQUIVOS (SANITIZADOR) -->
                 <div class="panel" id="panel-renomear-arquivos">
                 </div>
 
-                <!-- PAINEL DO KARAOKÊ SIMPLES (KFX → LEGENDA LIMPA) -->
+                <!-- 4.3 PAINEL DO KARAOKÊ SIMPLES (KFX → LEGENDA LIMPA) -->
                 <div class="panel" id="panel-novo-karaoke" data-modulo="novoKaraoke">
                 </div>
 
-                <!-- PAINEL DA TRADUÇÃO DE KARAOKÊ (ROMAJI + PT-BR JUNTOS) -->
+                <!-- 4.1 PAINEL DA TRADUÇÃO DE KARAOKÊ (ROMAJI + PT-BR JUNTOS) -->
                 <div class="panel" id="panel-traducao-karaoke" data-modulo="traducaoKaraoke">
                 </div>
 
-                <!-- 8. PAINEL DE MAPA DO PROJETO -->
+                <!-- SISTEMA — PAINEL DE MAPA DO PROJETO -->
                 <div class="panel" id="panel-mapa">
                     <div class="glass-card">
                         <h2>Mapeamento de Estrutura & Taxonomia</h2>
@@ -1508,7 +1530,7 @@
                     </div>
                 </div>
 
-                <!-- 10. PAINEL DE TELEMETRIA -->
+                <!-- SISTEMA — PAINEL DE TELEMETRIA -->
                 <div class="panel" id="panel-telemetria">
                     <div class="telemetry-shell">
                         <div class="telemetry-toolbar">
@@ -1760,7 +1782,7 @@
                     </div>
                 </div>
 
-                <!-- 11. PAINEL DE DOCUMENTAÇÃO -->
+                <!-- SISTEMA — PAINEL DE DOCUMENTAÇÃO -->
                 <div class="panel" id="panel-documentacao">
                     <div class="doc-layout">
                         <aside class="doc-sidebar">

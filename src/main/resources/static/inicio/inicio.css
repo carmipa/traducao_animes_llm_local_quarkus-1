@@ -156,11 +156,15 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* O número deixou de ser enfeite: ele É a ordem de execução que se segue na
+   prática (1.1 → 5.3), então precisa ser legível sem passar o mouse. Usa a cor
+   do próprio grupo, e não branco, para o badge reforçar o bloco a que pertence. */
 #panel-inicio .card-step-num {
     font-family: var(--font-code);
-    font-size: 2.2rem;
+    font-size: 1.9rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.05);
+    letter-spacing: -0.02em;
+    color: rgba(var(--card-rgb), 0.22);
     position: absolute;
     top: 12px;
     right: 16px;
@@ -168,7 +172,7 @@
 }
 
 #panel-inicio .pipeline-card:hover .card-step-num {
-    color: rgba(255, 255, 255, 0.09);
+    color: rgba(var(--card-rgb), 0.45);
     transform: scale(1.1);
 }
 
@@ -606,16 +610,36 @@
     background: radial-gradient(circle at 10% 10%, rgba(var(--card-rgb), 0.07), transparent 45%);
 }
 
-#panel-inicio .card-analise            { --card-rgb: 45, 212, 191; }   /* 01 teal      #2dd4bf */
-#panel-inicio .card-extracao           { --card-rgb: 244, 114, 182; }  /* 02 rosa      #f472b6 */
-#panel-inicio .card-traducao           { --card-rgb: 52, 211, 153; }   /* 03 verde     #34d399 */
-#panel-inicio .card-correcao           { --card-rgb: 245, 158, 11; }   /* 04 âmbar     #f59e0b */
-#panel-inicio .card-auditor-conteudo   { --card-rgb: 129, 140, 248; }  /* 05 roxo      #818cf8 */
-#panel-inicio .card-revisao            { --card-rgb: 167, 139, 250; }  /* 06 roxo      #a78bfa */
-#panel-inicio .card-cura               { --card-rgb: 52, 211, 153; }   /* 07 verde     #34d399 */
-#panel-inicio .card-revisao-lore       { --card-rgb: 167, 139, 250; }  /* 08 roxo      #a78bfa */
-#panel-inicio .card-troca-legenda      { --card-rgb: 129, 140, 248; }  /* 09 índigo    #818cf8 */
-#panel-inicio .card-remuxer            { --card-rgb: 56, 189, 248; }   /* 10 ciano     #38bdf8 */
-#panel-inicio .card-renomear-arquivos  { --card-rgb: 251, 191, 36; }   /* 11 âmbar     #fbbf24 */
-#panel-inicio .card-mapa               { --card-rgb: 167, 139, 250; }  /* 12 roxo      #a78bfa */
-#panel-inicio .card-telemetria         { --card-rgb: 45, 212, 191; }   /* 13 teal      #2dd4bf */
+/* UMA COR POR GRUPO — a cor repete a primeira casa do número, para o bloco ser
+   reconhecível antes de ler. Até 05/08/2026 a cor era por cartão e os comentários
+   traziam uma numeração 01–13 que já não batia com o menu nem com a home; havia
+   quatro cartões sem cor nenhuma, caindo no --card-rgb padrão. */
+
+/* 1. PREPARAÇÃO — teal */
+#panel-inicio .card-analise            { --card-rgb: 45, 212, 191; }   /* 1.1 */
+#panel-inicio .card-extracao           { --card-rgb: 45, 212, 191; }   /* 1.2 */
+#panel-inicio .card-auditor-conteudo   { --card-rgb: 45, 212, 191; }   /* 1.3 */
+
+/* 2. TRADUÇÃO — verde */
+#panel-inicio .card-traducao           { --card-rgb: 52, 211, 153; }   /* 2.1 */
+#panel-inicio .card-traducao-sem-lore  { --card-rgb: 52, 211, 153; }   /* 2.2 */
+#panel-inicio .card-correcao           { --card-rgb: 52, 211, 153; }   /* 2.3 */
+
+/* 3. QUALIDADE — roxo */
+#panel-inicio .card-revisao            { --card-rgb: 167, 139, 250; }  /* 3.1 */
+#panel-inicio .card-revisao-lore       { --card-rgb: 167, 139, 250; }  /* 3.2 */
+#panel-inicio .card-revisao-concordancia { --card-rgb: 167, 139, 250; } /* 3.3 */
+
+/* 4. KARAOKÊ — rosa */
+#panel-inicio .card-traducao-karaoke   { --card-rgb: 244, 114, 182; }  /* 4.1 */
+#panel-inicio .card-cura               { --card-rgb: 244, 114, 182; }  /* 4.2 */
+#panel-inicio .card-novo-karaoke       { --card-rgb: 244, 114, 182; }  /* 4.3 */
+
+/* 5. FINALIZAÇÃO — âmbar */
+#panel-inicio .card-troca-legenda      { --card-rgb: 251, 191, 36; }   /* 5.1 */
+#panel-inicio .card-remuxer            { --card-rgb: 251, 191, 36; }   /* 5.2 */
+#panel-inicio .card-renomear-arquivos  { --card-rgb: 251, 191, 36; }   /* 5.3 */
+
+/* SISTEMA — índigo, fora da sequência de propósito */
+#panel-inicio .card-mapa               { --card-rgb: 129, 140, 248; }
+#panel-inicio .card-telemetria         { --card-rgb: 129, 140, 248; }
