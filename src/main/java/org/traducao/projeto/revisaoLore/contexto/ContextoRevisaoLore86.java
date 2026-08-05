@@ -48,7 +48,20 @@ public class ContextoRevisaoLore86 implements ProvedorPromptRevisaoLore {
             Map.entry("Canela", "Shin"),
             Map.entry("Para RAID", "Para-RAID"),
             Map.entry("Para Raid", "Para-RAID"),
-            Map.entry("Jugernaut", "Juggernaut")
+            Map.entry("Jugernaut", "Juggernaut"),
+            // ESPELHO das formas MEDIDAS na primeira traducao completa do 86 pelo KRONOS
+            // (2026-08-05, 23 episodios, 7.255 falas). Contagem ao lado de cada uma.
+            Map.entry("Legiao", "Legion"),              // 7 — sem cedilha; so a acentuada existia
+            Map.entry("Legiões", "Legions"),            // 1 — plural faltava
+            Map.entry("Processadores", "Processors"),   // 12 — plural faltava
+            Map.entry("Fúnebre", "Undertaker"),         // 4
+            Map.entry("Carrasco", "Undertaker"),        // 1
+            Map.entry("Oitenta e Seis", "Eighty-Six"),  // 67 — o nome que da titulo a obra
+            Map.entry("Lança-Flanco", "Spearhead")      // 5
+            // As quatro entradas acima deste bloco ("Canela", "Para RAID", "Para Raid",
+            // "Jugernaut") NAO foram levadas ao catalogo da traducao: medidas no cache do 86,
+            // deram ZERO ocorrencias. Entrada sem medicao e palpite, e a regra vale nos dois
+            // sentidos — inclusive para nao copiar por simetria.
         );
     }
 }
