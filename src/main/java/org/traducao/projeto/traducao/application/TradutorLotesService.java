@@ -191,13 +191,36 @@ public class TradutorLotesService {
         // deduplica — comportamento antigo intacto. Como a chave é o mascarado (mesmo
         // texto E mesma estrutura de tags), nenhuma tradução muda.
         Map<String, String> representantePorMascarado = new LinkedHashMap<>();
+        // Espaço de chaves SEPARADO para o caso só-prefixo. Um mapa próprio em vez de prefixar a
+        // chave com um sentinela: sentinela ou colide com texto real, ou vira caractere de
+        // controle no fonte — a primeira versão desta linha gravou dois bytes NUL no arquivo, que
+        // compilaram e funcionaram, e deixaram o .java binário para qualquer ferramenta de texto.
+        Map<String, String> representantePorVisivel = new LinkedHashMap<>();
         List<String> representantes = new ArrayList<>();
         Map<String, String> representanteDeOriginal = new LinkedHashMap<>();
         for (String original : textosPendentes) {
             String rep = original;
             if (textosDeduplicaveis.contains(original)) {
+                // CHAVE: normalmente o texto MASCARADO — mesmo texto E mesma estrutura de tags.
+                // Conservador de propósito, e por isso NÃO junta camadas de composição: as três
+                // camadas de um cartão diferem justamente na quantidade de tags de prefixo
+                // ({=0}{\an2..} / {\an2..} / {=1}{\an2..}), e cada uma ia ao LLM por conta.
+                //
+                // Medido no acervo em 05/08/2026: 139 grupos com o MESMO texto visível receberam
+                // traduções DIFERENTES na mesma execução — 378 falas. E elas renderizam JUNTAS,
+                // então a divergência aparece na tela:
+                //   "January 7th, Stellar Year 2149" -> "7 de janeiro, Ano Estelar" | "7 de janeiro do Ano Estelar"
+                //   "Sankt Jeder, Federal Republic of Giad" -> correto | "República Federal de Sankt Jeder"
+                //
+                // Quando TODAS as tags da fala são de PREFIXO, a chave passa a ser o texto
+                // VISÍVEL: reaplicar é "prefixo próprio + tradução comum", sem depender de casar
+                // marcador. Com tag no MEIO a chave continua a mascarada, porque ali a tradução
+                // de uma camada não tem onde reencaixar os marcadores da outra. Dos 139 grupos,
+                // 122 (88%) são só-prefixo.
                 String masc = textoMascaradoPorOriginal.get(original);
-                String existente = representantePorMascarado.putIfAbsent(masc, original);
+                String existente = soPrefixo(original)
+                    ? representantePorVisivel.putIfAbsent(semMarcadores(masc), original)
+                    : representantePorMascarado.putIfAbsent(masc, original);
                 rep = existente != null ? existente : original;
             }
             representanteDeOriginal.put(original, rep);
@@ -373,11 +396,67 @@ public class TradutorLotesService {
             if (traduzidoMascarado == null) {
                 continue;
             }
+            // CAMADA SÓ-PREFIXO com representante de OUTRA estrutura de tags: aqui desmascarar
+            // por marcador não serve — o representante tem a contagem DELE, e a camada tem a sua.
+            // A reaplicação correta é literal: prefixo próprio + tradução visível.
+            String reaplicado = reaplicarPorPrefixo(original, rep, traduzidoMascarado, tagsPorTexto);
+            if (reaplicado != null) {
+                traducoes.put(original, reaplicado);
+                continue;
+            }
             traducoes.put(original, desmascararComFallback(
                 original, traduzidoMascarado, tagsPorTexto.get(original),
                 quebrasPorOriginal.getOrDefault(original, 0), avisos));
         }
         return traducoes;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reaplica a tradução comum a uma camada cujas tags são todas de
+     * PREFIXO, quando ela deduplicou com um representante de estrutura de tags DIFERENTE.
+     *
+     * <p>Existe porque a chave de dedup passou a ser o texto VISÍVEL nesse caso: o representante
+     * pode ter duas tags de prefixo e a camada apenas uma. {@code desmascarar} casaria marcador a
+     * marcador e falharia; aqui a reaplicação é literal — o prefixo da PRÓPRIA camada, seguido da
+     * tradução sem marcadores.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só age quando (a) há representante distinto, (b) as duas falas
+     * são só-prefixo e (c) a tradução, tirados os marcadores de prefixo, NÃO tem marcador
+     * sobrando. Faltando qualquer uma, devolve {@code null} e o chamador segue pelo caminho
+     * histórico — o guarda (c) é o que protege de o LLM ter movido um marcador para o meio.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}, nunca exceção.
+     */
+    private String reaplicarPorPrefixo(String original, String rep, String traduzidoMascarado,
+            Map<String, List<String>> tagsPorTexto) {
+        if (rep == null || rep.equals(original) || !soPrefixo(original) || !soPrefixo(rep)) {
+            return null;
+        }
+        String visivel = semMarcadores(traduzidoMascarado);
+        if (visivel.contains("[[TAG")) {
+            return null;   // marcador no meio: não é reaplicação literal, cai no caminho antigo
+        }
+        List<String> tags = tagsPorTexto.get(original);
+        return (tags == null ? "" : String.join("", tags)) + visivel;
+    }
+
+    /**
+     * Todas as tags {@code {...}} da fala estão ANTES do primeiro caractere de texto?
+     *
+     * <p>É a condição que torna a reaplicação literal segura: prefixo próprio + tradução comum.
+     * Tag no MEIO exige casar marcador, e aí a estrutura das duas camadas tem de ser idêntica.
+     */
+    private static boolean soPrefixo(String original) {
+        if (original == null) {
+            return false;
+        }
+        String semPrefixo = original.replaceFirst("^(\\{[^}]*})+", "");
+        return !semPrefixo.contains("{");
+    }
+
+    /** Remove os marcadores {@code [[TAGn]]} do INÍCIO do texto mascarado. */
+    private static String semMarcadores(String mascarado) {
+        return mascarado == null ? "" : mascarado.replaceFirst("^(\\[\\[TAG\\d+]])+", "");
     }
 
     /**

@@ -90,6 +90,98 @@ class TradutorLotesServiceTest {
         return new LinkedHashSet<>(List.of(itens));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: camadas de composição com o MESMO texto visível vão ao LLM UMA vez,
+     * mesmo tendo quantidades diferentes de tag de prefixo — e cada uma volta com o prefixo dela.
+     *
+     * <h2>O caso real</h2>
+     * Cartão de data do 86, três camadas na mesma janela para compor halo, sombra e texto:
+     * <pre>
+     *   {=0}{\an2..}July 30th…   ->  [[TAG0]][[TAG1]]July 30th…   (2 tags)
+     *   {\an2..}July 30th…       ->  [[TAG0]]July 30th…           (1 tag)
+     *   {=1}{\an2..}July 30th…   ->  [[TAG0]][[TAG1]]July 30th…   (2 tags)
+     * </pre>
+     * A chave de dedup era o texto MASCARADO — texto E estrutura de tags. As de 2 tags juntavam
+     * entre si; a de 1 ia sozinha. Resultado medido no acervo em 05/08/2026: <b>139 grupos, 378
+     * falas</b> com o mesmo texto visível recebendo traduções DIFERENTES na mesma execução. E
+     * elas renderizam JUNTAS, então a divergência aparece na tela.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>UMA chamada ao LLM para as três — é a contagem de linhas do lote que prova.</li>
+     *   <li>Cada camada volta com as SUAS tags, na sua quantidade. Nada é remontado.</li>
+     *   <li>Só vale para fala cujas tags são todas de PREFIXO. Com tag no MEIO a chave continua
+     *       a mascarada, porque ali a tradução de uma camada não tem onde reencaixar os
+     *       marcadores da outra.</li>
+     *   <li>Só vale para o subconjunto DEDUPLICÁVEL — diálogo nunca deduplica.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Volta a divergência na tela: a mesma legenda com duas redações sobrepostas.
+     */
+    @Test
+    void camadasDeCompositoComPrefixosDiferentesTraduzemUmaVezSo() throws Exception {
+        String c1 = "{=0}{\\an2}July 30th, Stellar Year 2149";
+        String c2 = "{\\an2}July 30th, Stellar Year 2149";
+        String c3 = "{=1}{\\an2}July 30th, Stellar Year 2149";
+        FakeEpisodio ep = new FakeEpisodio();
+        // O dublê padrão devolve "T:" + mascarado, pondo texto ANTES dos marcadores — coisa que
+        // nenhum LLM real faz, e que a guarda de reaplicação corretamente recusa. Aqui ele traduz
+        // como o modelo traduz: marcadores onde estavam, texto visível trocado.
+        ep.tradutor = l -> l.linhasOriginais().stream()
+            .map(s -> s.replace("July 30th, Stellar Year 2149", "30 de julho, Ano Estelar 2149"))
+            .toList();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(),
+            new FakeProtecao(), new FakeTelemetria());
+
+        Map<String, String> r = s.traduzirPendentes(pendentes(c1, c2, c3),
+            Set.of(c1, c2, c3), "ep.ass", new ArrayList<>(), null);
+
+        long linhasEnviadas = ep.lotesRecebidos.stream()
+            .mapToLong(l -> l.linhasOriginais().size()).sum();
+        assertEquals(1, linhasEnviadas,
+            () -> "as tres camadas sao o MESMO texto visivel: uma chamada basta. Enviadas: "
+                + ep.lotesRecebidos.stream().map(l -> l.linhasOriginais().toString()).toList());
+
+        assertEquals(3, r.size(), "as tres camadas tem de receber traducao");
+        assertTrue(r.get(c1).startsWith("{=0}{\\an2}"), () -> "camada 1 perdeu o prefixo: " + r.get(c1));
+        assertTrue(r.get(c2).startsWith("{\\an2}"), () -> "camada 2 perdeu o prefixo: " + r.get(c2));
+        assertTrue(r.get(c3).startsWith("{=1}{\\an2}"), () -> "camada 3 perdeu o prefixo: " + r.get(c3));
+
+        String visivel1 = r.get(c1).replaceAll("^(\\{[^}]*})+", "");
+        String visivel2 = r.get(c2).replaceAll("^(\\{[^}]*})+", "");
+        String visivel3 = r.get(c3).replaceAll("^(\\{[^}]*})+", "");
+        assertEquals(visivel1, visivel2, "as camadas nao podem divergir no texto");
+        assertEquals(visivel1, visivel3, "as camadas nao podem divergir no texto");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: com tag no MEIO, a dedup por texto visível NÃO se aplica — a chave
+     * continua sendo o mascarado, e camadas de estrutura diferente vão ao LLM separadamente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: ali a tradução de uma camada não tem onde reencaixar os
+     * marcadores da outra; juntar produziria fala sem as tags do meio. É o limite declarado do
+     * conserto: dos 139 grupos divergentes medidos, 122 são só-prefixo e 17 não.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: tag do meio some da legenda, ou o marcador vaza no texto.
+     */
+    @Test
+    void tagNoMeioNaoDeduplicaPorTextoVisivel() throws Exception {
+        String comTagNoMeio = "Vamos {\\i1}agora{\\i0} mesmo";
+        String semTagNoMeio = "{\\an8}Vamos agora mesmo";
+        FakeEpisodio ep = new FakeEpisodio();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(),
+            new FakeProtecao(), new FakeTelemetria());
+
+        s.traduzirPendentes(pendentes(comTagNoMeio, semTagNoMeio),
+            Set.of(comTagNoMeio, semTagNoMeio), "ep.ass", new ArrayList<>(), null);
+
+        long linhasEnviadas = ep.lotesRecebidos.stream()
+            .mapToLong(l -> l.linhasOriginais().size()).sum();
+        assertEquals(2, linhasEnviadas,
+            "fala com tag no MEIO nao pode deduplicar com fala de estrutura diferente");
+    }
+
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
                                          FakeUiLogger ui, FakeProtecao protecao, FakeTelemetria telemetria) {
         return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria,
