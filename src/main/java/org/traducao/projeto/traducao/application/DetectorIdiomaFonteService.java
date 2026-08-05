@@ -1,6 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.core.texto.FronteiraTermoAss;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -37,20 +38,31 @@ public class DetectorIdiomaFonteService {
     // Palavras que só existem em inglês — presença ⇒ NÃO é português (manda traduzir). Lista
     // AMPLIADA (function words de alta frequência sem homógrafo em PT). Excluídos de propósito
     // por colisão com PT: "to" (tô/to), "come" (ele come), "no"/"do"/"me"/"a"/"as" etc.
+    //
+    // A fronteira vem de FronteiraTermoAss porque \N ocupa DOIS caracteres e o N é letra: com
+    // um lookbehind puro, a stopword colada na quebra fica INVISÍVEL. Medido no acervo em
+    // 2026-08-05: 67.923 falas, 6.744 com stopword inglesa colada na quebra, e em 166 delas o
+    // inglês era invisível por inteiro. Dessas 166, ZERO tinham também evidência de PT — ou
+    // seja, nenhuma chegou a ser classificada como já-no-alvo. O defeito é LATENTE, não
+    // realizado, e o conserto é para não depender dessa coincidência.
     private static final Pattern SINAL_INGLES = Pattern.compile(
-        "(?i)(?<![\\p{L}])(the|you|your|and|is|are|was|were|this|that|with|what|have|has"
+        "(?i)" + FronteiraTermoAss.INICIO + "(the|you|your|and|is|are|was|were|this|that|with|what|have|has"
         + "|for|not|it|its|we|they|he|she|will|would|can't|don't|i'm|it's|isn't|of|from|about"
         + "|my|his|him|her|our|them|be|been|go|get|got|here|there|now|when|where|who|how|why"
         + "|make|take|know|want|need|before|after|into|onto|over|just|than|then|does|did|back"
         + "|down|up|out|off|said|only|one|two|but|if|let|way|day|god|hey|yeah|too|gonna|wanna|gotta)"
-        + "(?![\\p{L}])");
+        + FronteiraTermoAss.FIM);
 
     // Stopwords portuguesas sem colisão com inglês — presença ⇒ forte sinal de PT.
+    // Mesma fronteira do sinal inglês, e pelo mesmo motivo: a palavra colada na quebra do ASS
+    // não pode desaparecer da contagem. Aqui a falha era do lado SEGURO (perder evidência de PT
+    // manda traduzir de novo, custo de eco), mas as duas metades da decisão precisam enxergar o
+    // texto com a mesma régua — senão o viés de segurança passa a depender de qual lado falha.
     private static final Pattern SINAL_PORTUGUES = Pattern.compile(
-        "(?i)(?<![\\p{L}])(não|você|vocês|está|então|isso|aquele|aquela|porque|também|já"
+        "(?i)" + FronteiraTermoAss.INICIO + "(não|você|vocês|está|então|isso|aquele|aquela|porque|também|já"
         + "|é|à|dos|das|nas|nos|uma|meu|minha|seu|sua|ele|ela|eles|elas|nós|muito|aqui|agora"
         + "|mesmo|nada|tudo|gente|coisa|verdade|obrigado|obrigada|desculpe|vamos|quê|cadê)"
-        + "(?![\\p{L}])");
+        + FronteiraTermoAss.FIM);
 
     /**
      * PROPÓSITO DE NEGÓCIO: responde se a fala-fonte já está no idioma-alvo e, portanto, deve

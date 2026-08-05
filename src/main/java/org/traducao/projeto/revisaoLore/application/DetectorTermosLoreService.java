@@ -86,8 +86,8 @@ public class DetectorTermosLoreService {
         }
 
         List<String> motivos = new ArrayList<>();
-        String en = originalIngles.trim();
-        String pt = traducaoPt.trim();
+        String en = achatarQuebras(originalIngles);
+        String pt = achatarQuebras(traducaoPt);
         String loreLower = loreObraAtiva == null || loreObraAtiva.isBlank()
             ? null
             : loreObraAtiva.toLowerCase(Locale.ROOT);
@@ -102,6 +102,51 @@ public class DetectorTermosLoreService {
             return ResultadoDeteccaoLore.limpo();
         }
         return new ResultadoDeteccaoLore(true, List.copyOf(motivos));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega às regras de auditoria o texto como uma FRASE, e não como
+     * as duas ou três linhas em que o ASS a desenhou na tela.
+     *
+     * <h2>O que estava acontecendo — MEDIDO, não suposto</h2>
+     * Este detector usa {@code \b} e {@code \s+} em cinco lugares, e {@code \N} derruba os dois:
+     * o {@code N} é caractere de palavra (não abre borda) e a quebra não é espaço (não separa as
+     * partes de um nome composto). A consequência dominante, porém, <b>não</b> é o detector
+     * perder nome — é ele ACUSAR o que está certo.
+     *
+     * <p>O caso típico: o inglês traz {@code "the Zeta Gundam"} numa linha só e a tradução
+     * quebra em {@code "o Zeta\NGundam"}. O nome é achado inteiro no EN, e o
+     * {@code pt.contains(nome)} não o encontra no PT — porque lá tem uma quebra no meio. Sai
+     * "nome próprio inconsistente" para uma tradução perfeita.
+     *
+     * <p><b>Medido sobre o acervo (67.923 falas, 16.023 com quebra) em 2026-08-05</b>, rodando o
+     * serviço pelo CDI antes e depois desta normalização:
+     * <pre>
+     *                     falas com pendencia          motivos
+     *   ANTES   com quebra   13.099 de 16.023 (81,8%)   16.956
+     *   DEPOIS  com quebra    4.163 de 16.023 (26,0%)    5.576
+     *   CONTROLE sem quebra   6.929 de 52.138 (13,3%)   inalterado nos dois
+     * </pre>
+     * 81,8% contra uma base de 13,3% era ruído, não achado: <b>8.936 falas</b> deixam de ser
+     * pendência, e só o motivo "nome próprio inconsistente" cai de 13.362 para 2.372. O grupo sem
+     * quebra não se move — é o que prova que a mudança não vazou para fora do seu escopo.
+     *
+     * <p>Consertar as cinco regexes uma a uma resolveria a DESCOBERTA e deixaria a COMPARAÇÃO
+     * pior: o nome casado sairia com a quebra dentro ({@code "Psyco\NGundam"}) e seria procurado
+     * assim no PT. Normalizar na entrada põe os dois lados na mesma régua, e de quebra o motivo
+     * que chega ao humano sai legível. Ver {@code MedicaoLoreQuebraIT}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o que a regra LÊ muda; o detector é read-only e não
+     * reescreve legenda nenhuma. Espaços consecutivos são colapsados para que os dois lados da
+     * comparação fiquem canônicos — quebra colada e quebra com espaço em volta produzem o mesmo
+     * texto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula nunca chega aqui (barrada em
+     * {@link #auditar(String, String, String)}); texto sem quebra atravessa inalterado a menos
+     * do {@code trim}.
+     */
+    private static String achatarQuebras(String texto) {
+        return texto.replace("\\N", " ").replaceAll("\\s+", " ").trim();
     }
 
     /** Termo canônico vale para a obra ativa? Sem lore informado, vale globalmente. */

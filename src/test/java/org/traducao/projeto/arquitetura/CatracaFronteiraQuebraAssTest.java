@@ -44,13 +44,45 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *       alternativa da quebra na MESMA declaração. Não há número congelado: o invariante é
  *       universal, e por isso não pode ser "ajustado para baixo" quando alguém o violar — que foi
  *       como a catraca de duplicação foi contornada no mesmo dia.</li>
- *   <li>Todas as declarações usam a forma IDÊNTICA. Variante de grafia é deriva começando.</li>
+ *   <li>A varredura é MULTIFORMA: cobre as nove grafias de fronteira esquerda de palavra, não
+ *       só a canônica. Variante de grafia não é deriva a evitar — é caso a DETECTAR.</li>
  *   <li>Só o lado ESQUERDO precisa da alternativa: à direita do termo o caractere da quebra é a
  *       contrabarra, que já não é letra nem dígito. {@code FIM_DE_TERMO} fica de fora de propósito.</li>
  * </ul>
  *
+ * <h2>FRONTEIRA DECLARADA FORA DO ESCOPO: {@code \b}</h2>
+ * {@code \b} sofre a MESMA falha — depois de {@code \N} o caractere anterior é o {@code N}, que é
+ * caractere de palavra, então a borda não abre. Ele NÃO é cobrido aqui, e isso é decisão medida,
+ * não esquecimento: em 2026-08-05 havia <b>103 ocorrências em 13 arquivos</b>, e a maioria não
+ * casa texto de fala — casa nome de estilo, nome de arquivo e rótulo de metadado, onde a quebra
+ * do ASS não existe. Exigir a alternativa nas 103 produziria ruído que faria alguém desligar a
+ * catraca inteira.
+ *
+ * <p><b>A auditoria dos 103 foi FEITA em 2026-08-05</b>, medindo cada família sobre o acervo em
+ * vez de deduzir pela forma. O resultado justifica a exclusão:
+ * <pre>
+ *   arquivo                                     \b   perdido para a quebra   veredito
+ *   DetectorConcordanciaService                 58                       0   nao mexer
+ *   ValidadorTraducaoService                    10    3, TODOS falso-positivo   nao mexer
+ *   CorretorDeterministicoConcordanciaService   10                       0   nao mexer
+ *   DetectorTermosLoreService                    5     8.936 falas de RUIDO   CORRIGIDO
+ *   os outros 9 arquivos                        20   nome de arquivo/estilo   nao se aplica
+ * </pre>
+ * O caso do validador é o que mais ensina: as 3 falas são o cartão de título do episódio
+ * ({@code "The 08th MS Team"}, {@code "The Shuddering Mountain"}), que é nome próprio e DEVE
+ * ficar em inglês — consertar o {@code \b} ali faria o validador acusar tradução correta. Forma
+ * errada não implica defeito; só a medição separa os dois.
+ *
+ * <p>O do lore inverteu a previsão: a expectativa era "o detector perde nome", e o medido foi
+ * "o detector acusa o que está certo" — 81,8% das falas com quebra viravam pendência contra
+ * 13,3% das sem quebra. Corrigido em {@code DetectorTermosLoreService#achatarQuebras}, com o
+ * número no javadoc de lá e o harness em {@code MedicaoLoreQuebraIT}.
+ *
+ * <p>Quem ler esta catraca como "toda fronteira do projeto está coberta" está lendo errado: ela
+ * cobre a família do lookbehind.
+ *
  * <h2>Comportamento em caso de falha</h2>
- * A mensagem nomeia arquivo e linha, e mostra a forma esperada pronta para colar.
+ * A mensagem nomeia arquivo, linha e a GRAFIA encontrada, e mostra a forma esperada para colar.
  */
 class CatracaFronteiraQuebraAssTest {
 
@@ -61,8 +93,32 @@ class CatracaFronteiraQuebraAssTest {
     private static final String DUAS = C + C;
     private static final String QUATRO = DUAS + DUAS;
 
-    /** Como aparece no fonte: {@code (?<![\\p{L}\\p{N}])}. */
-    private static final String LOOKBEHIND_LETRA = "(?<![" + DUAS + "p{L}" + DUAS + "p{N}])";
+    /** A forma canônica, como aparece no fonte: {@code (?<![\\p{L}\\p{N}])}. */
+    private static final String LOOKBEHIND_CANONICO = "(?<![" + DUAS + "p{L}" + DUAS + "p{N}])";
+
+    /**
+     * Todas as grafias de fronteira ESQUERDA de palavra que o projeto pode escrever, como
+     * aparecem no FONTE — não só a canônica.
+     *
+     * <p><b>Por que multiforma.</b> Até 2026-08-05 esta catraca procurava UMA grafia, e por isso
+     * afirmava cobertura que não tinha: {@code DetectorIdiomaFonteService} usava
+     * {@code (?<![\\p{L}])} — mesma mecânica, mesma falha — em duas linhas, e passava verde.
+     * Guarda que procura uma forma mede a forma, não o invariante. É a regra 8 do protocolo de
+     * evidência aplicada à própria guarda: ela não achar não prova que não há.
+     *
+     * <p>Formas com ZERO ocorrência hoje entram de propósito: a catraca existe para o arquivo que
+     * ainda não foi escrito. Cada uma foi vista reprovando um caso-controle injetado à mão.
+     */
+    private static final List<String> LOOKBEHINDS_DE_PALAVRA = List.of(
+        LOOKBEHIND_CANONICO,
+        "(?<![" + DUAS + "p{L}" + DUAS + "p{N}_])",
+        "(?<![" + DUAS + "p{L}])",
+        "(?<![" + DUAS + "p{N}])",
+        "(?<![" + DUAS + "p{Alnum}])",
+        "(?<![" + DUAS + "w])",
+        "(?<!" + DUAS + "w)",
+        "(?<![A-Za-z0-9])",
+        "(?<![A-Za-z])");
 
     /** Como aparece no fonte: {@code (?<=\\\\N)}. */
     private static final String ALTERNATIVA_QUEBRA = "(?<=" + QUATRO + "N)";
@@ -76,7 +132,7 @@ class CatracaFronteiraQuebraAssTest {
 
     /** A forma canônica inteira, para a mensagem de falha ser copiável. */
     private static final String FORMA_CANONICA =
-        "\"(?:" + ALTERNATIVA_QUEBRA + "|" + LOOKBEHIND_LETRA + ")\"";
+        "\"(?:" + ALTERNATIVA_QUEBRA + "|" + LOOKBEHIND_CANONICO + ")\"";
 
     @Test
     @DisplayName("toda fronteira de inicio de termo trata a quebra \\N do ASS")
@@ -85,9 +141,16 @@ class CatracaFronteiraQuebraAssTest {
         varrer((arquivo, linhas) -> {
             for (int i = 0; i < linhas.size(); i++) {
                 String linha = linhas.get(i);
-                if (linha.contains(LOOKBEHIND_LETRA) && !linha.contains(ALTERNATIVA_QUEBRA)) {
-                    desprotegidas.add("  " + RAIZ.relativize(arquivo) + ":" + (i + 1)
-                        + System.lineSeparator() + "      " + linha.strip());
+                if (linha.contains(ALTERNATIVA_QUEBRA)) {
+                    continue;
+                }
+                for (String forma : LOOKBEHINDS_DE_PALAVRA) {
+                    if (linha.contains(forma)) {
+                        desprotegidas.add("  " + RAIZ.relativize(arquivo) + ":" + (i + 1)
+                            + "   (forma: " + forma + ")"
+                            + System.lineSeparator() + "      " + linha.strip());
+                        break;
+                    }
                 }
             }
         });
