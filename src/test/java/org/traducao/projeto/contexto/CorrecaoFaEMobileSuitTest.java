@@ -98,12 +98,39 @@ class CorrecaoFaEMobileSuitTest {
      * paz seriam reescritas.
      */
     @Test
-    @DisplayName("Movel de Combate e unidade movel seguem INTOCADOS por decisao do dono do acervo")
+    @DisplayName("unidade movel segue INTOCADA por decisao do dono do acervo")
     void exclusoesDeliberadasSeguemDeFora() {
-        assertEquals("Móvel de Combate", enforcador.reforcar("MOBILE SUIT", "Móvel de Combate", ZZ),
+        assertEquals("unidade móvel", enforcador.reforcar("mobile suit", "unidade móvel", ZZ),
             "decisao registrada em CorrecoesTerminologiaGundamUc: aceitavel por contexto");
-        assertEquals("unidade móvel", enforcador.reforcar("mobile suit", "unidade móvel", ZZ));
+        assertEquals("unidades móveis", enforcador.reforcar("mobile suits", "unidades móveis", ZZ));
         assertEquals("MS", enforcador.reforcar("Mobile Suit", "MS", ZETA),
             "MS e abreviacao oficial, nao forma-ruim");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: congela a REVISÃO de 05/08/2026 sobre {@code "Móvel de Combate"} —
+     * incluindo o custo que ela cobra.
+     *
+     * <p>A exclusão anterior valia para DIÁLOGO e continua certa lá. O que mudou é que a mesma
+     * forma aparece em <b>8 cartões de título</b>, onde o inglês vem {@code "MOBILE SUIT"} em
+     * caixa alta e não há contexto que a salve: é o nome da franquia escrito errado na tela.
+     * Separação medida no acervo: 8 cartões contra 1 fala de diálogo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o cartão é restaurado; e a fala de diálogo PERDE o "de combate",
+     * porque o inglês dela também traz {@code "combat mobile suit"} e a restauração a alcança.
+     * O segundo caso está aqui com asserção justamente para o custo não virar surpresa depois.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o segundo assert quebrar, alguém tornou a regra
+     * seletiva — o que é bom, e esta nota pode sair.
+     */
+    @Test
+    @DisplayName("Movel de Combate: cartao restaurado, e a fala de dialogo paga o preco")
+    void movelDeCombateEntraComCustoDeclarado() {
+        assertEquals("Mobile Suit", enforcador.reforcar("MOBILE SUIT", "Móvel de Combate", ZZ),
+            "cartao de titulo: o nome da franquia na tela");
+        assertEquals("Meu Geze tem a mobilidade de um Mobile Suit!",
+            enforcador.reforcar("My Geze has the mobility of a combat mobile suit!",
+                "Meu Geze tem a mobilidade de um móvel de combate!", ZZ),
+            "custo aceito: a unica fala de dialogo perde o \"de combate\"");
     }
 }
