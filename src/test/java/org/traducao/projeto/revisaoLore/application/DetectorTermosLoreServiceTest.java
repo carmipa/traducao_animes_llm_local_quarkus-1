@@ -11,6 +11,49 @@ class DetectorTermosLoreServiceTest {
     private final DetectorTermosLoreService detector = new DetectorTermosLoreService();
 
     /**
+     * PROPÓSITO DE NEGÓCIO: uma tradução CORRETA não pode virar pendência só porque o ASS
+     * desenhou o nome em duas linhas. A quebra é decisão de tipografia, não de tradução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o inglês traz o nome inteiro numa linha; o português traz o
+     * MESMO nome com a quebra no meio. As duas metades existem, na ordem certa, sem nada
+     * traduzido — não há o que revisar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem achatar a quebra na entrada, {@code pt.contains}
+     * procura {@code "Zeta Gundam"} num texto que tem {@code "Zeta\NGundam"} e não acha, e sai
+     * "nome próprio inconsistente". Medido no acervo em 2026-08-05: era 81,8% das falas com
+     * quebra acusadas, contra 13,3% das falas sem quebra — 8.936 pendências de ruído.
+     */
+    @Test
+    void quebraDeLinhaDentroDoNomeNaoViraPendencia() {
+        ResultadoDeteccaoLore comQuebraNoPt = detector.auditar(
+            "Now is the time to lure the Zeta Gundam out and finish it!",
+            "Agora é a hora de atrair o Zeta\\NGundam e acabar com ele!");
+        assertFalse(comQuebraNoPt.suspeito(), () -> comQuebraNoPt.motivos().toString());
+
+        ResultadoDeteccaoLore comQuebraNoIngles = detector.auditar(
+            "You must get out of the Psyco\\NGundam's cockpit!",
+            "Você precisa sair da cabine do Psyco Gundam!");
+        assertFalse(comQuebraNoIngles.suspeito(), () -> comQuebraNoIngles.motivos().toString());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: achatar a quebra não pode CEGAR o detector — nome realmente
+     * traduzido continua sendo pendência, com ou sem quebra no meio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é o contra-teste do anterior. Sem ele, trocar
+     * {@code achatarQuebras} por "apagar tudo" passaria verde e o detector viraria enfeite.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: silêncio aqui significa detector cego, não texto limpo.
+     */
+    @Test
+    void nomeTraduzidoContinuaPendenteMesmoComQuebraNoMeio() {
+        ResultadoDeteccaoLore resultado = detector.auditar(
+            "The Zeta Gundam is our last hope.",
+            "O Robô\\NZeta é nossa última esperança.");
+        assertTrue(resultado.suspeito());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: preserva tecnologias oficiais declaradas pela lore.
      * <p>INVARIANTES DO DOMÍNIO: psycho-frame não é resíduo inglês nesta obra.
      * <p>COMPORTAMENTO EM CASO DE FALHA: falso positivo reprova o teste.
