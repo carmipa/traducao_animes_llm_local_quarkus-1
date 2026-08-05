@@ -202,28 +202,23 @@ class WebInterfaceTest {
                 && grupoQualidade < grupoKaraoke && grupoKaraoke < grupoFinalizacao,
             "Ordem dos grupos principais do pipeline ficou inconsistente"
         );
-        org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>3. Análise de Legenda</span>"),
-            "Numeração da Análise de Legenda deve refletir o item 3 da Preparação"
-        );
-        org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>4. Tradução Local</span>")
-                && html.contains("<span>5. Correção Cache</span>"),
-            "Numeração do grupo Tradução (4 e 5) ausente"
-        );
-        // Revisão de Concordância entrou como item 8 do grupo Qualidade (após
-        // 6. Revisão de Legendas e 7. Revisão de Lore), empurrando Troca Tipo
-        // Legenda para 9 e todo o restante do pipeline +1.
         int itemConcordancia = html.indexOf("data-target=\"revisao-concordancia\"");
         org.junit.jupiter.api.Assertions.assertTrue(
             itemConcordancia > grupoQualidade && itemConcordancia < grupoKaraoke,
             "Revisão de Concordância deve ficar no grupo Qualidade"
         );
-        org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>8. Revisão de Concordância</span>")
-                && html.contains("<span>9. Troca Tipo Legenda</span>"),
-            "Numeração do grupo Qualidade (8. Concordância e 9. Troca) ausente"
-        );
+
+        // A NUMERAÇÃO É COBRADA COMO INVARIANTE, NÃO COMO RÓTULO LITERAL.
+        //
+        // Até 05/08/2026 esta guarda congelava a string exata de cada item
+        // ("<span>3. Análise de Legenda</span>"), e isso tinha dois furos: quebrava
+        // a cada renomeação sem que nada estivesse errado, e não via item NOVO
+        // entrando sem número — que é o defeito real, porque foi assim que nasceu
+        // o "4b.". Agora a régua é: no grupo de ordem G, o item de posição N
+        // começa com "G.N ". Vale para os itens que existem hoje e para os que
+        // ainda não foram escritos.
+        verificarNumeracaoPorGrupo(html);
+
         int itemNovoKaraoke = html.indexOf("data-target=\"novo-karaoke\"");
         int itemTraducaoKaraoke = html.indexOf("data-target=\"traducao-karaoke\"");
         int itemCura = html.indexOf("data-target=\"cura\"");
@@ -231,30 +226,78 @@ class WebInterfaceTest {
             itemNovoKaraoke > grupoKaraoke && itemNovoKaraoke < grupoFinalizacao
                 && itemTraducaoKaraoke > grupoKaraoke && itemTraducaoKaraoke < grupoFinalizacao
                 && itemCura > grupoKaraoke && itemCura < grupoFinalizacao,
-            "Karaokê Simples, Tradução de Karaokê e Correção de Karaoke devem ficar no grupo Karaokê"
+            "Karaokê Simples, Tradução de Karaokê e Correção de Karaokê devem ficar no grupo Karaokê"
         );
-        // Decisão 2026-07-09: Tradução de Karaokê é o item 11, logo após o
-        // Karaokê Simples (converte KFX → depois traduz a letra), empurrando
-        // Correção de Karaoke para 12 e a Finalização para 13/14.
+        // Decisão 2026-08-05 (revoga a de 2026-07-09): o Karaokê Simples é o ÚLTIMO
+        // do grupo. Ele apaga a animação KFX e o resultado não se desfaz, então tudo
+        // que precisa da letra — traduzir e corrigir — roda ANTES. Na ordem anterior
+        // ele era o primeiro (10.), e o número dizia o contrário da regra seguida na
+        // prática. Esta asserção existe para a ordem não voltar sozinha.
         org.junit.jupiter.api.Assertions.assertTrue(
-            itemNovoKaraoke < itemTraducaoKaraoke && itemTraducaoKaraoke < itemCura,
-            "Tradução de Karaokê deve ficar entre Karaokê Simples e Correção de Karaoke"
-        );
-        org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>10. Karaokê Simples</span>")
-                && html.contains("<span>11. Tradução de Karaokê</span>")
-                && html.contains("<span>12. Correção de Karaoke</span>"),
-            "Numeração do grupo Karaokê (10, 11 e 12) ausente"
-        );
-        org.junit.jupiter.api.Assertions.assertTrue(
-            html.contains("<span>13. Remuxer</span>")
-                && html.contains("<span>14. Renomear Arquivos</span>"),
-            "Numeração da Finalização (13 e 14) ausente"
+            itemTraducaoKaraoke < itemCura && itemCura < itemNovoKaraoke,
+            "O Karaokê Simples é DESTRUTIVO e tem de ser o último do grupo Karaokê: "
+                + "traduzir (4.1) e corrigir (4.2) vêm antes de simplificar (4.3)"
         );
         org.junit.jupiter.api.Assertions.assertTrue(
             html.contains("data-modulo=\"traducaoKaraoke\""),
             "Shell do módulo Tradução de Karaokê ausente no index"
         );
+    }
+
+    /**
+     * Grupos do pipeline na ordem em que se executam. O grupo {@code sistema} fica de fora
+     * de propósito: Telemetria, Mapa, Documentação e Sobre não são passos, são consulta, e
+     * numerá-los daria a entender que existe um "6." a executar.
+     */
+    private static final java.util.List<String> GRUPOS_PIPELINE =
+        java.util.List.of("preparacao", "traducao", "qualidade", "karaoke", "finalizacao");
+
+    /** Casa o item do menu com o seu rótulo: o {@code <span>} SEM atributo é o texto. */
+    private static final java.util.regex.Pattern ITEM_COM_ROTULO = java.util.regex.Pattern.compile(
+        "data-target=\"([a-z-]+)\"[\\s\\S]*?<span>([^<]+)</span>");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o número do menu é a ordem de execução que se segue na prática.
+     * Aqui ele é cobrado como REGRA — no grupo de ordem G, o item de posição N começa com
+     * {@code "G.N "} — e não como uma lista de rótulos congelados.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: todo item de grupo do pipeline tem número; o número
+     * corresponde à posição REAL no DOM, que é a ordem que o usuário lê. Item novo sem
+     * número reprova, e foi assim que nasceu o antigo "4b.". Grupo vazio também reprova.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a mensagem diz o grupo, o alvo, o número esperado
+     * e o rótulo encontrado — para o conserto não exigir abrir o HTML.
+     */
+    private static void verificarNumeracaoPorGrupo(String html) {
+        int inicioNav = html.indexOf("<nav class=\"nav-menu\">");
+        int fimNav = html.indexOf("</nav>", inicioNav);
+        org.junit.jupiter.api.Assertions.assertTrue(inicioNav >= 0 && fimNav > inicioNav,
+            "nav-menu não encontrado no index — sem ele nada aqui pode ser verificado");
+        String nav = html.substring(inicioNav, fimNav);
+
+        for (int g = 0; g < GRUPOS_PIPELINE.size(); g++) {
+            String grupo = GRUPOS_PIPELINE.get(g);
+            int ini = nav.indexOf("data-grupo=\"" + grupo + "\"");
+            org.junit.jupiter.api.Assertions.assertTrue(ini >= 0, "Grupo ausente: " + grupo);
+
+            int prox = nav.indexOf("data-grupo=\"", ini + 1);
+            String bloco = nav.substring(ini, prox < 0 ? nav.length() : prox);
+
+            java.util.regex.Matcher m = ITEM_COM_ROTULO.matcher(bloco);
+            int posicao = 0;
+            while (m.find()) {
+                posicao++;
+                String esperado = (g + 1) + "." + posicao + " ";
+                String rotulo = m.group(2);
+                org.junit.jupiter.api.Assertions.assertTrue(rotulo.startsWith(esperado),
+                    "Numeração fora da regra no grupo \"" + grupo + "\": o item \""
+                        + m.group(1) + "\" está na posição " + posicao + ", então o rótulo tem de "
+                        + "começar com \"" + esperado + "\" — encontrado: \"" + rotulo + "\". "
+                        + "Se a ordem mudou de propósito, renumere o grupo inteiro.");
+            }
+            org.junit.jupiter.api.Assertions.assertTrue(posicao > 0,
+                "Grupo do pipeline sem nenhum item: " + grupo);
+        }
     }
 
     /**

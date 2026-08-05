@@ -34,66 +34,77 @@ const CONFIG_SECOES = {
         titulo: "Painel Inicial",
         subtitulo: "Orquestrador automatizado e pipeline industrial de processamento de animes"
     },
+    // --- 1. PREPARAÇÃO ---
     analise: {
-        titulo: "1. Análise de Mídia",
+        titulo: "1.1 Análise de Mídia",
         subtitulo: "Auditoria técnica de codecs, sincronia e taxas de bits de vídeos"
     },
     extracao: {
-        titulo: "2. Extração de Legendas",
+        titulo: "1.2 Extração de Legendas",
         subtitulo: "Extração industrial de faixas de legendas embutidas in vídeos (MKV, MP4 e outros)"
     },
     "auditor-conteudo": {
-        titulo: "3. Análise de Legenda",
+        titulo: "1.3 Análise de Legenda",
         subtitulo: "Auditoria de legendas .ass traduzidas: vazamento de efeitos, alucinações de IA e metadados"
     },
+
+    // --- 2. TRADUÇÃO ---
     traducao: {
-        titulo: "4. Tradução Local via LLM",
+        titulo: "2.1 Tradução Local via LLM",
         subtitulo: "Traduzir legendas originais em inglês usando inteligência artificial local"
     },
     "traducao-sem-lore": {
-        titulo: "4b. Tradução sem Lore",
+        titulo: "2.2 Tradução sem Lore",
         subtitulo: "Tradução crua de anime ainda sem lore declarada — saída separada, terminologia não aplicada"
     },
     correcao: {
-        titulo: "5. Correção do Cache de Tradução",
+        titulo: "2.3 Correção do Cache de Tradução",
         subtitulo: "Limpeza de inconsistências e preenchimento via raspagem do Google Tradutor"
     },
+
+    // --- 3. QUALIDADE ---
     revisao: {
-        titulo: "6. Revisão de Legendas",
+        titulo: "3.1 Revisão de Legendas",
         subtitulo: "Concordância PT-BR via LLM local e correção de inglês residual via Google"
     },
     "revisao-lore": {
-        titulo: "7. Revisão de Lore",
+        titulo: "3.2 Revisão de Lore",
         subtitulo: "Padronização de nomes, locais e termos de mundo nas legendas via LLM e lore oficial"
     },
     "revisao-concordancia": {
-        titulo: "8. Revisão de Concordância",
+        titulo: "3.3 Revisão de Concordância",
         subtitulo: "Correção determinística de gênero (o menina → a menina) na legenda PT-BR, sem inglês nem LLM"
     },
-    "troca-tipo-legenda": {
-        titulo: "9. Troca Tipo Legenda",
-        subtitulo: "Auditoria e substituição em lote de fontes vietnamitas ou ANSI legadas por fontes Unicode seguras"
-    },
-    "novo-karaoke": {
-        titulo: "10. Karaokê Simples",
-        subtitulo: "Conversão de karaokê KFX em legendas simples e limpas, preservando o tempo original"
-    },
+
+    // --- 4. KARAOKÊ --- (o simplificador é o 4.3 porque APAGA a animação: vem por último)
     "traducao-karaoke": {
-        titulo: "11. Tradução de Karaokê",
+        titulo: "4.1 Tradução de Karaokê",
         subtitulo: "Letras de música em PT-BR com o japonês/romaji original preservado junto na tela"
     },
     cura: {
-        titulo: "12. Correção de Legendas",
+        titulo: "4.2 Correção de Karaokê",
         subtitulo: "Corrige a legenda PT-BR usando a original como referência imutável"
     },
+    "novo-karaoke": {
+        titulo: "4.3 Karaokê Simples",
+        subtitulo: "Conversão de karaokê KFX em legendas simples e limpas, preservando o tempo original"
+    },
+
+    // --- 5. FINALIZAÇÃO ---
+    "troca-tipo-legenda": {
+        titulo: "5.1 Troca de Tipo de Legenda",
+        subtitulo: "Auditoria e substituição em lote de fontes vietnamitas ou ANSI legadas por fontes Unicode seguras"
+    },
     remuxer: {
-        titulo: "13. Remuxer Industrial",
+        titulo: "5.2 Remuxer Industrial",
         subtitulo: "Junção de vídeos originais e novas legendas traduzidas em novos MKVs"
     },
     "renomear-arquivos": {
-        titulo: "14. Renomear Arquivos de Vídeo",
+        titulo: "5.3 Renomear Arquivos de Vídeo",
         subtitulo: "Limpeza de nomes de arquivo usando regex e metadados S01E01"
     },
+
+    // --- SISTEMA --- (fora da sequência: não são passos do pipeline)
     mapa: {
         titulo: "Mapeamento do Projeto",
         subtitulo: "Auditoria de taxonomia e visualização da árvore de estrutura do código"
