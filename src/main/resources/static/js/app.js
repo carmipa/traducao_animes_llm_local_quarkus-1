@@ -116,6 +116,10 @@ let logsEventSource = null;
 let logsReconnectTimer = null;
 let logsWatchdogTimer = null;
 let seletorCaminhoEmAndamento = false;
+// Identidade da execução do servidor, recebida no batimento (ver LogStreamService).
+// Constante enquanto a aplicação for a mesma; mudar de valor significa REINÍCIO, e o
+// que está no DOM passa a ser o console de uma execução que já morreu.
+let identidadeExecucaoServidor = null;
 const logsPendentesPorConsole = new Map();
 const LIMITE_LOGS_PENDENTES = 1000;
 // Silêncio total (nem heartbeat) por mais que isto ⇒ conexão SSE provavelmente
@@ -308,9 +312,13 @@ function conectarFluxoLugsSSE() {
         });
     }
 
-    // Batimento do servidor (a cada ~15s): não vira log, só confirma que a
-    // conexão está viva e rearma o watchdog. Ver LogStreamService#enviarHeartbeat.
-    eventSource.addEventListener('heartbeat', () => armarWatchdogLogs());
+    // Batimento do servidor (na conexão e a cada ~15s): não vira log. Faz DUAS coisas —
+    // a chegada rearma o watchdog (conexão viva), e o conteúdo diz QUAL execução está do
+    // outro lado. Ver LogStreamService#enviarHeartbeat.
+    eventSource.addEventListener('heartbeat', (event) => {
+        armarWatchdogLogs();
+        aplicarIdentidadeExecucao(event.data);
+    });
 
     // Canal genérico de fallback, para qualquer log que não pertença a uma
     // operação específica das abas acima.
@@ -383,6 +391,37 @@ function limparWatchdogLogs() {
         clearTimeout(logsWatchdogTimer);
         logsWatchdogTimer = null;
     }
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: descartar da tela o console de uma execução que já morreu.
+ * O EventSource reconecta sozinho quando a aplicação reinicia, e sem isto o navegador
+ * continua exibindo o histórico do processo anterior como se fosse do atual — o motivo
+ * pelo qual só um Ctrl+F5 limpava a tela.
+ *
+ * INVARIANTES DO DOMÍNIO: a PRIMEIRA identidade recebida nunca limpa nada (é a conexão
+ * inicial, não uma troca); só limpa quando o valor MUDA. Identidade vazia é ignorada, para
+ * um servidor antigo sem o campo nunca apagar o console de ninguém.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: limpar é operação de tela; nada aqui derruba a conexão
+ * nem interfere no que o servidor está executando.
+ */
+function aplicarIdentidadeExecucao(identidade) {
+    if (!identidade) return;
+
+    if (identidadeExecucaoServidor === null) {
+        identidadeExecucaoServidor = identidade;
+        return;
+    }
+    if (identidadeExecucaoServidor === identidade) return;
+
+    identidadeExecucaoServidor = identidade;
+    logsPendentesPorConsole.clear();
+    document.querySelectorAll('.console-body').forEach((consoleDiv) => {
+        consoleDiv.innerHTML =
+            '<div class="system-message">Aplicação reiniciada. Console limpo, aguardando novos logs...</div>';
+    });
+    console.log('SSE: execução nova do servidor detectada — consoles limpos.');
 }
 
 /**

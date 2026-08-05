@@ -19,6 +19,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,6 +45,24 @@ public class LogStreamService {
     private static final String CHAVE_INTERVALO_HEARTBEAT = "kronos.sse.heartbeat-intervalo-segundos";
     private static final String INTERVALO_HEARTBEAT_PADRAO = "15";
     private static final String CANAL_HEARTBEAT = "heartbeat";
+
+    /**
+     * Identidade desta EXECUÇÃO da aplicação — sorteada uma vez por JVM e constante do início ao
+     * fim dela.
+     *
+     * <p><b>Por que não o relógio.</b> Até 2026-08-05 o batimento carregava
+     * {@code System.currentTimeMillis()}, que prova que a conexão está viva AGORA e não diz QUEM
+     * está do outro lado. Reiniciada a aplicação, o navegador reconecta sozinho e recebe um
+     * batimento indistinguível do anterior: ele conclui "continuo conectado" e mantém no DOM o
+     * console da execução que já morreu. Era por isso que só {@code Ctrl+F5} limpava a tela.
+     *
+     * <p>Trocar o relógio por uma identidade transforma vivacidade ANOTADA em identidade
+     * CALCULADA: a frescura continua vindo da CHEGADA do evento (é ela que rearma o watchdog),
+     * e o dado transportado passa a responder a pergunta que o cliente realmente precisa fazer —
+     * "é a mesma execução de antes?". Valor sorteado, e não instante de boot, para não depender
+     * do relógio nem em dois reinícios dentro do mesmo milissegundo.
+     */
+    private static final String IDENTIDADE_EXECUCAO = UUID.randomUUID().toString();
 
     // Resolvido via DiretorioBaseKronos: logs/console-web.log em produção,
     // redirecionado para árvore descartável sob a suíte de testes.
@@ -114,12 +133,15 @@ public class LogStreamService {
 
     /**
      * PROPÓSITO DE NEGÓCIO: emite um evento SSE {@code heartbeat} para todos os clientes
-     * conectados, mantendo a conexão viva e permitindo ao navegador detectar (via
-     * watchdog) uma conexão zumbi para reconectar.
+     * conectados, mantendo a conexão viva, permitindo ao navegador detectar (via watchdog)
+     * uma conexão zumbi para reconectar, e dizendo a ele QUAL execução está respondendo.
      *
      * <p>INVARIANTES DO DOMÍNIO: NÃO passa por {@link #publicarLog(String, String)} — o
      * heartbeat não é log, não vai para o canal de nenhum console nem para o arquivo
-     * {@code console-web.log}; sem cliente conectado, não faz nada.
+     * {@code console-web.log}; sem cliente conectado, não faz nada. O dado transportado é
+     * {@link #IDENTIDADE_EXECUCAO}, CONSTANTE dentro de uma execução: a frescura do sinal vem
+     * da chegada do evento, nunca do seu conteúdo. Batimento que carrega o relógio prova
+     * apenas que alguém está vivo — e serve verde eterno depois de um reinício.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: sink fechado ou que rejeite o envio é removido
      * da lista de conexões (mesma poda de {@link #publicarLog(String, String)}).
@@ -130,7 +152,7 @@ public class LogStreamService {
         }
         OutboundSseEvent batimento = sse.newEventBuilder()
             .name(CANAL_HEARTBEAT)
-            .data(String.valueOf(System.currentTimeMillis()))
+            .data(IDENTIDADE_EXECUCAO)
             .build();
         for (SseEventSink sink : conexoes) {
             if (sink.isClosed()) {
@@ -145,8 +167,23 @@ public class LogStreamService {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: registra um cliente no fluxo de logs e diz a ele, na hora, QUAL
+     * execução está do outro lado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a identidade sai ANTES da saudação e no mesmo canal do
+     * batimento, para o cliente ter um único ponto de decisão. Mandá-la aqui — e não só no
+     * batimento periódico — é o que torna a troca de execução perceptível de imediato: o
+     * navegador reconecta sozinho após um reinício, e esperar o próximo batimento deixaria
+     * até {@value #INTERVALO_HEARTBEAT_PADRAO}s de console morto na tela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sink que rejeite o envio é removido por
+     * {@link #enviar(SseEventSink, String, String)}; o registro em si não é desfeito, e a poda
+     * seguinte o remove.
+     */
     public void registrar(SseEventSink sink) {
         conexoes.add(sink);
+        enviar(sink, CANAL_HEARTBEAT, IDENTIDADE_EXECUCAO);
         enviar(sink, "sistema", "Conexao de fluxo de logs estabelecida.");
     }
 

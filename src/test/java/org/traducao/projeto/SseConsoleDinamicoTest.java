@@ -12,7 +12,9 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +24,8 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -62,6 +66,43 @@ class SseConsoleDinamicoTest {
             assertTrue(esperar(() -> !coletor.heartbeats.isEmpty(), 8, TimeUnit.SECONDS),
                 "nenhum evento 'heartbeat' recebido — sem keepalive a conexão SSE apodrece "
                     + "em ociosidade e o console para de ser dinâmico");
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o batimento tem de dizer QUAL execução está do outro lado, não só
+     * que alguém está vivo. É o que permite ao navegador perceber que a aplicação reiniciou e
+     * jogar fora o console da execução morta — antes disso, só {@code Ctrl+F5} limpava a tela.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: dentro de UMA execução todos os batimentos carregam o MESMO
+     * valor. É essa constância que dá sentido a "mudou ⇒ reiniciou". A frescura do sinal vem da
+     * CHEGADA do evento (o watchdog do cliente), nunca do conteúdo — por isso o conteúdo pode,
+     * e deve, ser constante.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dois valores distintos na mesma execução significam que
+     * o dado voltou a ser o relógio, e o cliente perde a única forma de distinguir reinício de
+     * continuidade. A checagem "não é só dígitos" pega exatamente a volta de
+     * {@code System.currentTimeMillis()}.
+     */
+    @Test
+    void batimentoCarregaIdentidadeDaExecucaoENaoORelogio() throws Exception {
+        try (SseColetor coletor = new SseColetor(streamUri)) {
+            assertTrue(coletor.conectado.await(5, TimeUnit.SECONDS),
+                "conexão SSE não estabeleceu em 5s");
+            assertTrue(esperar(() -> coletor.heartbeats.size() >= 2, 10, TimeUnit.SECONDS),
+                "não chegaram dois batimentos — sem eles nada se pode afirmar sobre constância");
+
+            Set<String> distintos = new HashSet<>(coletor.heartbeats);
+            assertEquals(1, distintos.size(),
+                () -> "batimentos com conteúdo VARIÁVEL na mesma execução: " + distintos
+                    + ". Isso é o relógio de volta. Vivacidade se prova pela chegada do evento; "
+                    + "o conteúdo existe para identificar a EXECUÇÃO e precisa ser constante.");
+
+            String identidade = distintos.iterator().next();
+            assertFalse(identidade.isBlank(), "batimento sem conteúdo — nada a comparar");
+            assertFalse(identidade.chars().allMatch(Character::isDigit),
+                () -> "batimento carregando só dígitos (" + identidade + ") — é carimbo de tempo, "
+                    + "não identidade de execução");
         }
     }
 
