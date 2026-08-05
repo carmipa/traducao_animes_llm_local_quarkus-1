@@ -296,6 +296,9 @@ public class ConversorKaraokeUseCase {
         linhasSimples.sort(Comparator.comparingLong(LinhaSimplesKaraoke::inicioCs));
         resultado.getLinhasCriadas().addAll(linhasSimples);
 
+        // Achata a tipografia EMPILHADA que sobrou fora da música (cartões de data, letreiros).
+        dialogo = colapsarEmpilhados(dialogo);
+
         // --- monta o arquivo de saída ---
         List<String> saida = montarSaida(cabecalho, idxUltimoEstilo, playResY, dialogo, preservados, linhasSimples);
         String novoConteudo = String.join(crlf ? "\r\n" : "\n", saida) + (crlf ? "\r\n" : "\n");
@@ -371,6 +374,128 @@ public class ConversorKaraokeUseCase {
             }
         }
         telemetriaKaraoke.publicarArquivo(nome, eventosEntrada, eventosSaida, pareadas, invertidas, porEstilo);
+    }
+
+    /** Fração da janela MENOR que precisa coincidir para dois eventos serem a mesma coisa. */
+    private static final double SOBREPOSICAO_EMPILHADO = 0.80;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: colapsa a tipografia EMPILHADA — o mesmo texto renderizado várias
+     * vezes no mesmo instante, em camadas diferentes, para compor halo, sombra e texto.
+     *
+     * <h2>Por que o critério é a LAYER, e não o estilo</h2>
+     * A tentação era alargar {@code eEstiloDeMusica} para pegar {@code Signs}. Medido em
+     * 05/08/2026 nos 23 episódios do 86, isso estava errado por dois lados: o nome do estilo varia
+     * por release ({@code Signs}, {@code Signs----1}, {@code Sign-------3}) e há sobreposição
+     * legítima <b>dentro</b> de estilos de diálogo.
+     *
+     * <p>O que separa sem ambiguidade é a LAYER do ASS. Duas pessoas dizendo a mesma coisa no
+     * mesmo instante ficam na MESMA layer; composição tipográfica usa layers DISTINTAS. Números
+     * do 86:
+     * <pre>
+     *   ESTILO     eventos  sobrepoe  EMPILHADOS(layer distinta)
+     *   Opening      59335     51217       47908
+     *   Ending       12691     11528       11528
+     *   Signs          651       432         326
+     *   Default       7006         2           0   &lt;- mesma layer, intocado
+     * </pre>
+     * Sobreposição sozinha marcaria 63.179; com a layer, 59.762. Os 3.417 de diferença são
+     * exatamente o que não se pode tocar.
+     *
+     * <h2>Qual camada sobrevive, e por quê</h2>
+     * A de MAIOR layer. Convenção do ASS: layer mais alta renderiza por cima. Confirmado no
+     * cartão de data do 86, cujas três camadas são, em ordem:
+     * <pre>
+     *   layer 0   \1a&amp;HFF&amp;  \3a&amp;H30&amp;  \blur5   -> preenchimento TRANSPARENTE = halo
+     *   layer 1   \c&amp;H000000&amp;  \bord1  \blur0.5   -> preto = sombra
+     *   layer 2   (sem cor)                        -> herda &amp;H00FFFFFF do estilo = TEXTO
+     * </pre>
+     * Guardar a primeira renderizaria o halo invisível; a segunda, texto preto. Só a última é
+     * legível sozinha.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só colapsa com texto visível IDÊNTICO, sobreposição ≥ 80% e layer DIFERENTE. Faltando
+     *       qualquer um dos três, os eventos passam intactos.</li>
+     *   <li>Texto visível vazio nunca colapsa: evento decorativo puro não é camada de nada.</li>
+     *   <li>A ordem dos sobreviventes é preservada.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Lista vazia ou sem empilhamento devolve a mesma lista; nunca lança.
+     */
+    private List<EventoAss> colapsarEmpilhados(List<EventoAss> eventos) {
+        if (eventos.size() < 2) {
+            return eventos;
+        }
+        List<EventoAss> ordenados = new ArrayList<>(eventos);
+        ordenados.sort(Comparator.comparingLong(EventoAss::inicioCs));
+        boolean[] descartado = new boolean[ordenados.size()];
+        int colapsados = 0;
+
+        for (int i = 0; i < ordenados.size(); i++) {
+            if (descartado[i]) {
+                continue;
+            }
+            EventoAss base = ordenados.get(i);
+            String visivel = limparArtefatosVisiveis(base.textoVisivel());
+            if (visivel.isBlank()) {
+                continue;
+            }
+            List<Integer> grupo = new ArrayList<>();
+            grupo.add(i);
+            boolean layerDistinta = false;
+            for (int j = i + 1; j < ordenados.size(); j++) {
+                EventoAss outro = ordenados.get(j);
+                if (outro.inicioCs() > base.fimCs()) {
+                    break;   // ordenado por início: daqui em diante não há sobreposição
+                }
+                if (descartado[j]
+                    || !limparArtefatosVisiveis(outro.textoVisivel()).equals(visivel)
+                    || sobreposicaoJanela(base, outro) < SOBREPOSICAO_EMPILHADO) {
+                    continue;
+                }
+                grupo.add(j);
+                if (outro.camada() != base.camada()) {
+                    layerDistinta = true;
+                }
+            }
+            if (grupo.size() < 2 || !layerDistinta) {
+                continue;
+            }
+            int sobrevivente = grupo.stream()
+                .max(Comparator.comparingInt(k -> ordenados.get(k).camada()))
+                .orElse(i);
+            for (int k : grupo) {
+                if (k != sobrevivente) {
+                    descartado[k] = true;
+                    colapsados++;
+                }
+            }
+        }
+
+        if (colapsados == 0) {
+            return eventos;
+        }
+        List<EventoAss> restantes = new ArrayList<>();
+        for (int i = 0; i < ordenados.size(); i++) {
+            if (!descartado[i]) {
+                restantes.add(ordenados.get(i));
+            }
+        }
+        logStream.publicarLog(CANAL_LOG, String.format(
+            "   Tipografia empilhada achatada: %d evento(s) removido(s), %d preservado(s).",
+            colapsados, restantes.size()));
+        return restantes;
+    }
+
+    /** Fração da janela MENOR coberta pela interseção das duas. */
+    private static double sobreposicaoJanela(EventoAss a, EventoAss b) {
+        long inicio = Math.max(a.inicioCs(), b.inicioCs());
+        long fim = Math.min(a.fimCs(), b.fimCs());
+        long comum = Math.max(0, fim - inicio);
+        long menor = Math.max(1, Math.min(a.fimCs() - a.inicioCs(), b.fimCs() - b.inicioCs()));
+        return (double) comum / menor;
     }
 
     /**
