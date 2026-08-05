@@ -55,7 +55,8 @@ import java.util.TreeMap;
 class MedicaoOriginalRepetidoIT {
 
     private record Obra(String nome, int falas, int repetidas, int grupos,
-                        int gruposDivergentes, int falasDivergentes) {
+                        int gruposDivergentes, int falasDivergentes,
+                        int divergentesSoPrefixo, int falasSoPrefixo) {
     }
 
     @Test
@@ -72,12 +73,13 @@ class MedicaoOriginalRepetidoIT {
             porArquivo.computeIfAbsent(f.arquivo().toString(), k -> new ArrayList<>()).add(f);
         }
 
-        Map<String, int[]> porObra = new TreeMap<>();  // [falas, repetidas, grupos, gruposDiv, falasDiv]
+        // [falas, repetidas, grupos, gruposDiv, falasDiv, divSoPrefixo, falasSoPrefixo]
+        Map<String, int[]> porObra = new TreeMap<>();
         List<String> exemplos = new ArrayList<>();
 
         for (List<FalaDoAcervo> falas : porArquivo.values()) {
             String obra = falas.get(0).obra();
-            int[] c = porObra.computeIfAbsent(obra, k -> new int[5]);
+            int[] c = porObra.computeIfAbsent(obra, k -> new int[7]);
             c[0] += falas.size();
 
             // CHAVE = texto VISÍVEL, não o original cru. A primeira versão agrupava pelo cru e
@@ -102,6 +104,16 @@ class MedicaoOriginalRepetidoIT {
                 if (traducoes.size() > 1) {
                     c[3]++;
                     c[4] += grupo.getValue().size();
+                    // SÓ-PREFIXO: todas as tags do grupo estão ANTES do texto, nenhuma no meio.
+                    // É a condição que torna seguro deduplicar pelo texto VISÍVEL: reaplicar é
+                    // "prefixo próprio + tradução comum". Com tag no MEIO, a tradução de uma
+                    // camada não tem onde reencaixar os marcadores da outra — e foi por isso que
+                    // a chave do dedup atual é o MASCARADO (texto + estrutura de tags), que é
+                    // conservador de propósito e por isso não junta camadas de composição.
+                    if (grupo.getValue().stream().allMatch(f -> soPrefixo(f.original()))) {
+                        c[5]++;
+                        c[6] += grupo.getValue().size();
+                    }
                     if (exemplos.size() < 6) {
                         exemplos.add(String.format("  %s%n     EN  %s%n     PT  %s",
                             falas.get(0).arquivo().getFileName(),
@@ -114,7 +126,8 @@ class MedicaoOriginalRepetidoIT {
         }
 
         List<Obra> linhas = new ArrayList<>();
-        porObra.forEach((o, c) -> linhas.add(new Obra(o, c[0], c[1], c[2], c[3], c[4])));
+        porObra.forEach((o, c) ->
+            linhas.add(new Obra(o, c[0], c[1], c[2], c[3], c[4], c[5], c[6])));
 
         System.out.printf("%n%-40s %8s %10s %8s %9s %9s%n",
             "OBRA", "falas", "repetidas", "grupos", "DIVERGEM", "falasDiv");
@@ -134,11 +147,22 @@ class MedicaoOriginalRepetidoIT {
             rep, gru, gru, rep - gru);
         System.out.printf("DIVERGIRAM .... %d grupos, %d falas — MESMO texto, traducoes DIFERENTES%n",
             div, falasDiv);
+        int prefGru = linhas.stream().mapToInt(Obra::divergentesSoPrefixo).sum();
+        int prefFal = linhas.stream().mapToInt(Obra::falasSoPrefixo).sum();
+        System.out.printf("  destes, SO-PREFIXO ... %d grupos, %d falas — tag so ANTES do texto,%n"
+            + "                         onde reaplicar e trivial e o conserto e seguro%n",
+            prefGru, prefFal);
         System.out.println();
         System.out.println("A segunda linha e defeito, nao desperdicio: o cache ja garante texto "
             + "igual -> traducao igual ENTRE execucoes; dentro de uma, nao.");
         System.out.println();
         exemplos.forEach(System.out::println);
+    }
+
+    /** Todas as tags {@code {...}} estão antes do primeiro caractere de texto? */
+    private static boolean soPrefixo(String original) {
+        String semPrefixo = original.replaceFirst("^(\\{[^}]*})+", "");
+        return !semPrefixo.contains("{");
     }
 
     private static String visivel(String t) {
