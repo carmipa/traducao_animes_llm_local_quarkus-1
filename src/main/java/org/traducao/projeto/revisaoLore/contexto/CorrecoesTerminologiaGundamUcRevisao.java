@@ -85,7 +85,13 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         Map.entry("Móvel de Assalto", "Mobile Suit"),
         Map.entry("Móvel de Assento", "Mobile Suit"),
         Map.entry("Móvel de Guerra", "Mobile Suit"),
-        Map.entry("Mobil Suit", "Mobile Suit")
+        Map.entry("Mobil Suit", "Mobile Suit"),
+        // ESPELHO da revisao de 05/08: "Movel de Combate" ENTRA. A exclusao valia para DIALOGO e
+        // continua certa la; o que mudou e que a mesma forma aparece em 8 CARTOES DE TITULO, onde
+        // e o nome da franquia na tela. Separacao medida no acervo: 8 cartoes (EN caixa alta / PT
+        // capitalizado) contra 1 fala de dialogo. Custo aceito e declarado: aquela fala perde o
+        // "de combate". "unidade movel" e "unidades moveis" seguem FORA dos dois catalogos.
+        Map.entry("Móvel de Combate", "Mobile Suit")
     );
 
     private CorrecoesTerminologiaGundamUcRevisao() {

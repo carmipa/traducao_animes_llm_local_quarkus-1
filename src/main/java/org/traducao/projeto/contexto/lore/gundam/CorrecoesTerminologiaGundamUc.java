@@ -127,7 +127,26 @@ public final class CorrecoesTerminologiaGundamUc {
         Map.entry("Móvel de Assalto", "Mobile Suit"),
         Map.entry("Móvel de Assento", "Mobile Suit"),
         Map.entry("Móvel de Guerra", "Mobile Suit"),
-        Map.entry("Mobil Suit", "Mobile Suit")
+        Map.entry("Mobil Suit", "Mobile Suit"),
+        // "MOVEL DE COMBATE" — a exclusao acima foi REVISTA em 05/08/2026, com o numero na mao.
+        //
+        // A regra "aceitavel por contexto" foi escrita pensando em DIALOGO, e continua certa la.
+        // Mas a mesma forma aparece em CARTAO DE TITULO, onde o ingles vem "MOBILE SUIT" em caixa
+        // alta e nao existe contexto que a salve: e o nome da franquia escrito errado na tela.
+        //
+        // MEDIDO no acervo, e a separacao e TOTAL:
+        //     EN-CAIXA-ALTA / PT-Capitalizado ....... 8   (cartao de titulo)
+        //     en-normal     / pt-minusculo .......... 1   (dialogo)
+        //
+        // CUSTO ACEITO, e ele e real: a unica fala de dialogo tem "a combat mobile suit" no
+        // ingles, entao a restauracao TAMBEM a alcanca e ela perde o "de combate":
+        //     EN "My Geze has the mobility of a combat mobile suit!"
+        //     PT "Meu Geze tem a mobilidade de um móvel de combate!"  ->  "...de um Mobile Suit!"
+        // Oito cartoes com o nome da franquia errado valem mais que uma fala perdendo um
+        // adjetivo. Se a leitura mudar, e esta linha unica que sai.
+        //
+        // "unidade movel" e "unidades moveis" seguem FORA — aquela parte da decisao nao mudou.
+        Map.entry("Móvel de Combate", "Mobile Suit")
         // "Partículas Minovsky" NÃO entra, por decisão do dono do acervo: a forma em português é
         // aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de "rifle de
         // feixe", "arma de feixe" e "unidade móvel". O espelho da revisão também a perdeu, para

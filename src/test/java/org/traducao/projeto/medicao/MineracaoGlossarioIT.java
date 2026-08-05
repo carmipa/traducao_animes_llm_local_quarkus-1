@@ -207,6 +207,44 @@ class MineracaoGlossarioIT {
             "Móvel de Combate", "Móvel de Guerra", "Mobil Suit")) {
             relatarColisao(acervo, "Mobile Suit", ruim);
         }
+        relatarCaixaDaFormaRuim(acervo, "Móvel de Combate");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a CAIXA separa cartão de título de diálogo?
+     *
+     * <p>{@code "Móvel de Combate"} é exclusão deliberada do dono do acervo: em DIÁLOGO a forma é
+     * aceitável por contexto. Mas ela também aparece em CARTÃO DE TÍTULO, onde é o nome da
+     * franquia na tela e não há contexto que a salve. O mapa de terminologia não distingue os
+     * dois — a menos que exista um sinal no próprio texto.
+     *
+     * <p>A hipótese é a caixa: o cartão traz o inglês em CAIXA ALTA ({@code "MOBILE SUIT"}) e o
+     * diálogo não. Isto mede a hipótese antes de qualquer mudança — separar por um sinal que não
+     * separa de verdade destruiria as falas de diálogo que a exclusão protege.
+     */
+    private static void relatarCaixaDaFormaRuim(Acervo acervo, String formaRuim) {
+        Map<String, Integer> porCaixa = new TreeMap<>();
+        List<String> amostras = new java.util.ArrayList<>();
+        for (FalaDoAcervo f : acervo.falas()) {
+            String pt = f.traduzido();
+            if (!pt.toLowerCase(java.util.Locale.ROOT)
+                .contains(formaRuim.toLowerCase(java.util.Locale.ROOT))) {
+                continue;
+            }
+            String en = recortarLargo(f.original());
+            String ptVisivel = recortarLargo(pt);
+            boolean enMaiusculo = en.equals(en.toUpperCase(java.util.Locale.ROOT));
+            boolean ptCapitalizado = pt.contains(formaRuim);
+            String chave = (enMaiusculo ? "EN-CAIXA-ALTA" : "en-normal")
+                + " / " + (ptCapitalizado ? "PT-Capitalizado" : "pt-minusculo");
+            porCaixa.merge(chave, 1, Integer::sum);
+            if (amostras.size() < 8) {
+                amostras.add(String.format("     %-30s EN %-30s PT %s", chave, en, ptVisivel));
+            }
+        }
+        System.out.printf("%n  >> CAIXA de \"%s\" — a caixa separa cartao de dialogo?%n", formaRuim);
+        porCaixa.forEach((k, v) -> System.out.printf("     %-34s %d%n", k, v));
+        amostras.forEach(System.out::println);
     }
 
     /**
@@ -228,8 +266,13 @@ class MineracaoGlossarioIT {
      * {@code restaurarLimitado} protege o homógrafo MINÚSCULO por orçamento, não por semântica.
      */
     private static void relatarColisao(Acervo acervo, String canonicoEn, String formaRuimPt) {
+        // (?i) NAO e detalhe: sem ele a comparacao com o canonico e sensivel a caixa e a fala
+        // "a combat mobile suit" (minusculo no ingles) escapa de "Mobile Suit". Foi assim que
+        // este relatorio devolveu ZERO colisao para "Movel de Combate" em 04/08/2026 quando
+        // havia UMA — e o zero seria usado para autorizar a regra. Ferramenta de medicao que
+        // erra para menos e pior que nenhuma: ela produz confianca.
         List<FalaDoAcervo> colisoes = acervo.falas().stream()
-            .filter(f -> f.original().matches("(?s).*\\b" + Pattern.quote(canonicoEn) + "\\b.*"))
+            .filter(f -> f.original().matches("(?si).*\\b" + Pattern.quote(canonicoEn) + "\\b.*"))
             .filter(f -> f.traduzido().toLowerCase(java.util.Locale.ROOT)
                 .contains(formaRuimPt.toLowerCase(java.util.Locale.ROOT)))
             .filter(f -> !EnforcadorGlossarioFala.chaveDeFala(f.traduzido())
