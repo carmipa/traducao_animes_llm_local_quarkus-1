@@ -69,7 +69,23 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         Map.entry("Roupa Normal", "Normal Suit"),
         Map.entry("Roupas Normais", "Normal Suits"),
         Map.entry("Terno Espacial Potenciado", "Powered Spacesuit"),
-        Map.entry("Traje Espacial Potenciado", "Powered Spacesuit")
+        Map.entry("Traje Espacial Potenciado", "Powered Spacesuit"),
+        // ESPELHO das quatro mineradas no acervo em 2026-08-04 e aprovadas pelo dono do acervo.
+        // A fala cujo texto visivel INTEIRO e "Mobile Suit" aparece 149x (ZZ 95, Zeta 54) e a
+        // maioria sao CARTOES DE TITULO, com o ingles em caixa alta: "MOVEL DE ASSALTO" 74x,
+        // "Movel de Assento" 31x, "MOVEL DE GUERRA" 2x, "Mobil Suit" 2x. Colisao medida: ZERO.
+        //
+        // "Movel de Combate" (8x) NAO entra dos dois lados: e a familia que o dono do acervo ja
+        // isentou por ser aceitavel por contexto, junto de "unidade movel". "MS" tambem nao: e
+        // abreviacao oficial.
+        //
+        // Entram AQUI no mesmo commit do outro catalogo de proposito. A nota acima registra que
+        // este espelho ja derivou uma vez por decisao entrar de um lado so; a catraca de paridade
+        // pegou esta em 04/08 antes do commit, que e exatamente para o que ela existe.
+        Map.entry("Móvel de Assalto", "Mobile Suit"),
+        Map.entry("Móvel de Assento", "Mobile Suit"),
+        Map.entry("Móvel de Guerra", "Mobile Suit"),
+        Map.entry("Mobil Suit", "Mobile Suit")
     );
 
     private CorrecoesTerminologiaGundamUcRevisao() {

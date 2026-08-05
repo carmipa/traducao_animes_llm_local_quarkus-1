@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 /**
  * PROPÓSITO DE NEGÓCIO: propor CANDIDATOS a entrada de glossário a partir do acervo, com a
@@ -163,8 +164,7 @@ class MineracaoGlossarioIT {
      * a lista anterior vira palpite com número do lado — que é exatamente o que ela existe para
      * substituir.
      */
-    private static final List<String> SOB_SUSPEITA = List.of(
-        "thank you", "fa", "mobile suit", "i see", "sir", "big brother", "gundam", "captain");
+    private static final List<String> SOB_SUSPEITA = List.of("fa", "mobile suit");
 
     /** Para cada chave sob suspeita, falas REAIS onde a tradução divergiu da forma dominante. */
     private static void relatarEvidencia(Acervo acervo) {
@@ -182,18 +182,30 @@ class MineracaoGlossarioIT {
                     EnforcadorGlossarioFala.chaveDeFala(f.traduzido()),
                     k -> new java.util.ArrayList<>()).add(f);
             }
-            System.out.printf("%n  == \"%s\" (%d falas, %d grafias) ==%n",
-                alvo, casos.size(), porTraducao.size());
+            Map<String, Integer> porObra = new TreeMap<>();
+            casos.forEach(f -> porObra.merge(f.obra(), 1, Integer::sum));
+            System.out.printf("%n  == \"%s\" (%d falas, %d grafias) ==%n     obras: %s%n",
+                alvo, casos.size(), porTraducao.size(),
+                porObra.entrySet().stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                    .map(e -> recortarLargo(e.getKey()) + "=" + e.getValue())
+                    .reduce((a, b) -> a + ", " + b).orElse(""));
             porTraducao.entrySet().stream()
                 .sorted(Map.Entry.<String, List<FalaDoAcervo>>comparingByValue(
                     Comparator.comparingInt(List::size)).reversed())
-                .limit(4)
                 .forEach(e -> {
                     FalaDoAcervo amostra = e.getValue().get(0);
                     System.out.printf("     %4dx  EN %-34s PT %-34s [%s]%n",
                         e.getValue().size(), recortarLargo(amostra.original()),
                         recortarLargo(amostra.traduzido()), recortarLargo(amostra.obra()));
                 });
+        }
+        for (String ruim : List.of("Fogo", "Fala", "Fá", "Pá", "Fale")) {
+            relatarColisao(acervo, "Fa", ruim);
+        }
+        for (String ruim : List.of("Móvel de Assalto", "Móvel de Assento",
+            "Móvel de Combate", "Móvel de Guerra", "Mobil Suit")) {
+            relatarColisao(acervo, "Mobile Suit", ruim);
         }
     }
 
@@ -204,6 +216,33 @@ class MineracaoGlossarioIT {
      * dessa saída vazia antes de alguém reparar. Evidência ilegível é pior que evidência ausente,
      * porque parece evidência.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: risco de COLISÃO de uma correção de terminologia proposta.
+     *
+     * <p>{@code correcoesTerminologia} é condicional — só age quando o ORIGINAL contém o termo
+     * canônico. Mapear {@code "Fogo" -> "Fa"} é seguro para um {@code "Fire!"} qualquer, que
+     * nunca traz "Fa" no inglês. O que NÃO é seguro é a fala que traz as DUAS coisas: o nome Fa
+     * <b>e</b> fogo de verdade ({@code "Fa, fire!"}). Ali a restauração trocaria a palavra errada.
+     *
+     * <p>Contar isso ANTES de aplicar é a diferença entre regra medida e palpite: o teto de
+     * {@code restaurarLimitado} protege o homógrafo MINÚSCULO por orçamento, não por semântica.
+     */
+    private static void relatarColisao(Acervo acervo, String canonicoEn, String formaRuimPt) {
+        List<FalaDoAcervo> colisoes = acervo.falas().stream()
+            .filter(f -> f.original().matches("(?s).*\\b" + Pattern.quote(canonicoEn) + "\\b.*"))
+            .filter(f -> f.traduzido().toLowerCase(java.util.Locale.ROOT)
+                .contains(formaRuimPt.toLowerCase(java.util.Locale.ROOT)))
+            .filter(f -> !EnforcadorGlossarioFala.chaveDeFala(f.traduzido())
+                .equals(formaRuimPt.toLowerCase(java.util.Locale.ROOT)))
+            .toList();
+        System.out.printf("%n  >> COLISAO \"%s\"/\"%s\": %d falas trazem o canonico EN e a "
+                + "forma-ruim PT SEM a fala inteira ser a forma-ruim%n",
+            canonicoEn, formaRuimPt, colisoes.size());
+        colisoes.stream().limit(6).forEach(f -> System.out.printf(
+            "       EN %-40s PT %-40s [%s]%n",
+            recortarLargo(f.original()), recortarLargo(f.traduzido()), f.obra()));
+    }
+
     private static String recortarLargo(String t) {
         String limpo = t.replaceAll("\\{[^}]*}", "")
             .replace("\\N", " ")

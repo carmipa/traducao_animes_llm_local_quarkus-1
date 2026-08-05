@@ -109,6 +109,15 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
             Map.entry("Qubelei", "Qubeley"),
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
             Map.entry("Gundam Mk II", "Gundam Mk-II"),
+            // ESPELHO de FA YUIRY — minerado no acervo em 2026-08-04. O Zeta concentra 43 das 51
+            // falas cujo texto INTEIRO e "Fa", e so 8 preservaram o nome: "Fogo!" 27x, "Fala!"
+            // 7x, "Fá..." 6x, "Pá!" 1x, "Fale!" 1x. Colisao legitima medida: zero.
+            // Justificativa completa e risco residual em CorrecoesTerminologiaGundamZz.
+            Map.entry("Fogo", "Fa"),
+            Map.entry("Fala", "Fa"),
+            Map.entry("Fá", "Fa"),
+            Map.entry("Pá", "Fa"),
+            Map.entry("Fale", "Fa"),
             // ESPELHO EXATO dos extras da Traducao — formas medidas nas 16.778 falas.
             Map.entry("Super Gundam", "G-Defenser"),
             Map.entry("Portão de Zedan", "Gate of Zedan"),

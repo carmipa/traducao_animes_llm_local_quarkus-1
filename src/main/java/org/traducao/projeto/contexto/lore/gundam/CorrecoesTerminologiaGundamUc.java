@@ -106,7 +106,28 @@ public final class CorrecoesTerminologiaGundamUc {
         Map.entry("Espacenóide", "Spacenoid"),
         Map.entry("Espacenoide", "Spacenoid"),
         Map.entry("Terranóide", "Earthnoid"),
-        Map.entry("Terranoide", "Earthnoid")
+        Map.entry("Terranoide", "Earthnoid"),
+        // MINERADAS no acervo em 2026-08-04 (61.051 falas): a fala cujo texto visivel INTEIRO e
+        // "Mobile Suit" aparece 149 vezes, em ZZ (95) e Zeta (54), e a MAIORIA sao CARTOES DE
+        // TITULO -- o ingles vem em caixa alta ("MOBILE SUIT"), texto em tela, nao dialogo. Ali
+        // nao ha contexto que salve: e o nome da franquia sendo reescrito.
+        //
+        //   MOVEL DE ASSALTO  74x     MOVEL DE GUERRA   2x
+        //   Movel de Assento  31x     Mobil Suit        2x   (erro de grafia do proprio canonico)
+        //
+        // COLISAO MEDIDA: ZERO. Nenhuma fala do acervo traz "Mobile Suit" no ingles e uma destas
+        // formas em PT sem ser exatamente este defeito -- entao a restauracao so corrige.
+        //
+        // "Movel de Combate" (8x) FICA DE FORA: e a decisao registrada acima, de que essa familia
+        // e aceitavel por contexto. Confirmada pelo dono do acervo em 04/08 ao aprovar estas
+        // quatro. "MS" (2x) tambem fica: e abreviacao oficial, nao forma-ruim.
+        //
+        // GAP DECLARADO: os PLURAIS destas quatro nao foram medidos e por isso nao entram. E a
+        // mesma lacuna que "Newtypes" teve (ver acima); se aparecerem, medir antes de adicionar.
+        Map.entry("Móvel de Assalto", "Mobile Suit"),
+        Map.entry("Móvel de Assento", "Mobile Suit"),
+        Map.entry("Móvel de Guerra", "Mobile Suit"),
+        Map.entry("Mobil Suit", "Mobile Suit")
         // "Partículas Minovsky" NÃO entra, por decisão do dono do acervo: a forma em português é
         // aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de "rifle de
         // feixe", "arma de feixe" e "unidade móvel". O espelho da revisão também a perdeu, para

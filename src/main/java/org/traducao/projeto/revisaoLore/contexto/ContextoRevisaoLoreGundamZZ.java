@@ -94,7 +94,16 @@ public class ContextoRevisaoLoreGundamZZ implements ProvedorPromptRevisaoLore {
             Map.entry("Neo Zéon", "Neo Zeon"),
             Map.entry("Neo Zeón", "Neo Zeon"),
             Map.entry("Facção Glemy", "Glemy Faction"),
-            Map.entry("Faccao Glemy", "Glemy Faction")
+            Map.entry("Faccao Glemy", "Glemy Faction"),
+            // ESPELHO de FA YUIRY — minerado no acervo em 2026-08-04. A fala cujo texto INTEIRO
+            // e "Fa" aparece 51x (Zeta 43, ZZ 8) e so 8 preservaram o nome: "Fogo!" 27x,
+            // "Fala!" 7x, "Fá..." 6x, "Pá!" 1x, "Fale!" 1x. Colisao legitima medida: zero.
+            // Justificativa completa e risco residual em CorrecoesTerminologiaGundamZz.
+            Map.entry("Fogo", "Fa"),
+            Map.entry("Fala", "Fa"),
+            Map.entry("Fá", "Fa"),
+            Map.entry("Pá", "Fa"),
+            Map.entry("Fale", "Fa")
         ));
     }
 }
