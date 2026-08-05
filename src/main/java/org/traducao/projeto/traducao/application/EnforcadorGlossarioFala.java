@@ -124,14 +124,26 @@ public class EnforcadorGlossarioFala {
             // A fala INTEIRA e o termo: reescreve a partir do original para herdar tags e
             // pontuacao, trocando so a palavra. Assim "{\i1}Roger." vira "{\i1}Entendido." e
             // "Roger!!" vira "Entendido!!", sem remontar estrutura na mao.
-            // O guarda acima compara `visivel`, que ja trocou a quebra por espaco; a reescrita
-            // roda sobre o ORIGINAL cru. Com termo de uma palavra ("roger") isso e inofensivo,
-            // mas no dia em que o glossario receber uma entrada de duas palavras o replaceAll
-            // nao casaria e devolveria o ORIGINAL EM INGLES no lugar da traducao. Congelado em
-            // GlossarioNaoDevolveOriginalEmInglesTest.
-            return FronteiraTermoAss.padraoIgnorandoCaixa(termo)
+            //
+            // ASSIMETRIA PERIGOSA, e o porque da guarda abaixo: quem DECIDE agir e `visivel`,
+            // que ja normalizou \N, \n e \h para espaco; quem REESCREVE e o padrao, que aceita
+            // espaco e \N mas nao \h. Termo de duas palavras separado por \h faria a chave casar
+            // e o replaceAll nao casar — e replaceAll sem casamento devolve a ENTRADA INTACTA,
+            // ou seja, a fala voltaria EM INGLES, descartando a traducao.
+            //
+            // Nao alargamos o separador: medido em 04/08/2026 no acervo (61.051 falas), nome
+            // composto separado por \h aparece ZERO vezes, e regra sem medicao e palpite. A
+            // guarda resolve a CLASSE inteira sem inventar casamento: se a reescrita nao mudou
+            // nada, o glossario nao se aplicou, e o que sai e a traducao — nunca o original.
+            //
+            // A guarda NAO tem teste que a exercite, e isso esta escrito de proposito: com o
+            // glossario atual (uma entrada, uma palavra) o caso e INALCANCAVEL pela API publica.
+            // GlossarioNaoDevolveOriginalEmInglesTest documenta a tentativa e o limite. A versao
+            // anterior deste comentario afirmava estar "congelado" nesse teste — que nao existia.
+            String reescrito = FronteiraTermoAss.padraoIgnorandoCaixa(termo)
                 .matcher(original)
                 .replaceAll(java.util.regex.Matcher.quoteReplacement(GLOSSARIO.get(termo)));
+            return reescrito.equals(original) ? traduzido : reescrito;
         }
         return traduzido;
     }
