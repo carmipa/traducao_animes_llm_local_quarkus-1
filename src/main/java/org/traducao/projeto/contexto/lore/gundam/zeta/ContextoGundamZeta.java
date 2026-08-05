@@ -197,6 +197,22 @@ public class ContextoGundamZeta implements ProvedorContexto {
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
             Map.entry("Gundam Mk II", "Gundam Mk-II"),
 
+            // FA YUIRY — minerado em 2026-08-04. A fala cujo texto INTEIRO e "Fa" aparece 51x
+            // no acervo e o Zeta concentra 43 delas; so 8 preservaram o nome. O modelo le "Fa!"
+            // como palavra comum: "Fogo!" 27x, "Fala!" 7x, "Fá..." 6x, "Pá!" 1x, "Fale!" 1x.
+            // "Fa Yuiry" ja esta em termosProtegidos e nao adiantou — aquele conjunto isenta da
+            // checagem de residuo, nao restaura grafia.
+            //
+            // Seguro por construcao: so dispara com "Fa" no INGLES, e canonico de uma palavra e
+            // comparado com SENSIBILIDADE A CAIXA. Colisao medida no acervo: zero legitima (as 6
+            // encontradas sao o mesmo defeito em fala maior, e a regra as corrige).
+            // Justificativa completa e risco residual em CorrecoesTerminologiaGundamZz.
+            Map.entry("Fogo", "Fa"),
+            Map.entry("Fala", "Fa"),
+            Map.entry("Fá", "Fa"),
+            Map.entry("Pá", "Fa"),
+            Map.entry("Fale", "Fa"),
+
             // ---------------------------------------------------------------------------
             // Formas-ruim MEDIDAS nas 16.778 falas do acervo (cache, 2026-07-30).
             // Quinta obra a receber o mapa; a de maior volume absoluto de perdas (433).
