@@ -43,9 +43,15 @@ const CONFIG_SECOES = {
         titulo: "1.2 Extração de Legendas",
         subtitulo: "Extração industrial de faixas de legendas embutidas in vídeos (MKV, MP4 e outros)"
     },
+    // A troca de fonte é 1.3, e não acabamento: fonte legada guarda bytes que só viram
+    // letra com aquela fonte. Chegando assim ao LLM, ele traduz mojibake. Era 5.1 até 06/08/2026.
+    "troca-tipo-legenda": {
+        titulo: "1.3 Troca de Tipo de Legenda",
+        subtitulo: "Antes de traduzir: substituição em lote de fontes vietnamitas ou ANSI legadas por fontes Unicode seguras"
+    },
     "auditor-conteudo": {
-        titulo: "1.3 Análise de Legenda",
-        subtitulo: "Auditoria de legendas .ass traduzidas: vazamento de efeitos, alucinações de IA e metadados"
+        titulo: "1.4 Análise de Legenda",
+        subtitulo: "Auditoria da legenda: roda sobre a fonte sozinha ou comparando original e tradução"
     },
 
     // --- 2. TRADUÇÃO ---
@@ -91,16 +97,12 @@ const CONFIG_SECOES = {
     },
 
     // --- 5. FINALIZAÇÃO ---
-    "troca-tipo-legenda": {
-        titulo: "5.1 Troca de Tipo de Legenda",
-        subtitulo: "Auditoria e substituição em lote de fontes vietnamitas ou ANSI legadas por fontes Unicode seguras"
-    },
     remuxer: {
-        titulo: "5.2 Remuxer Industrial",
+        titulo: "5.1 Remuxer Industrial",
         subtitulo: "Junção de vídeos originais e novas legendas traduzidas em novos MKVs"
     },
     "renomear-arquivos": {
-        titulo: "5.3 Renomear Arquivos de Vídeo",
+        titulo: "5.2 Renomear Arquivos de Vídeo",
         subtitulo: "Limpeza de nomes de arquivo usando regex e metadados S01E01"
     },
 

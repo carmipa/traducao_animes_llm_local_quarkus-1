@@ -1,6 +1,6 @@
 # 🗺️ Módulo: Mapa do Projeto
 
-[← Metadados de Anime](11-modulo-metadados-anime.md) | [API REST — Referência →](13-api-endpoints.md)
+[← Metadados de Anime](modulo-metadados-anime.md) | [API REST — Referência →](ref-api-endpoints.md)
 
 ---
 
@@ -57,4 +57,4 @@ O `mapa_projeto.md` é um **índice plano gerado automaticamente**, útil para v
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Metadados de Anime](11-modulo-metadados-anime.md) | [API REST — Referência →](13-api-endpoints.md) |
+| [← Metadados de Anime](modulo-metadados-anime.md) | [API REST — Referência →](ref-api-endpoints.md) |

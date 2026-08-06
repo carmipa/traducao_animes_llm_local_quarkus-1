@@ -1,12 +1,12 @@
 # 📖 Módulo: Revisão de Lore
 
-[← Correção de Legendas](07-modulo-cura-tags.md) | [Troca Tipo Legenda →](18-modulo-troca-tipo-legenda.md)
+[← Correção de Legendas](etapa-4.2-cura-tags.md) | [Troca Tipo Legenda →](etapa-1.3-troca-tipo-legenda.md)
 
 ---
 
 ## Para que serve
 
-Painel **"7. Revisão de Lore"** da SPA. Compara cada fala de uma legenda `.ass` **já traduzida** (PT-BR) com a mesma fala na legenda **original em inglês**, e usa o LLM local para corrigir **nomes de personagens, locais, facções, mechas e termos de mundo** que tenham saído fora do padrão oficial da obra — sem tocar em concordância de gênero ou reescrever a fala inteira (isso é papel do [fluxo 3 de Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao)).
+Painel **"7. Revisão de Lore"** da SPA. Compara cada fala de uma legenda `.ass` **já traduzida** (PT-BR) com a mesma fala na legenda **original em inglês**, e usa o LLM local para corrigir **nomes de personagens, locais, facções, mechas e termos de mundo** que tenham saído fora do padrão oficial da obra — sem tocar em concordância de gênero ou reescrever a fala inteira (isso é papel do [fluxo 3 de Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao)).
 
 Diferente da tradução principal, aqui a **seleção de obra é obrigatória**: sem contexto/lore selecionado, o backend recusa a requisição (`400 Bad Request`) — não existe modo "sem lore" para esta operação, porque o propósito inteiro é comparar contra uma lore canônica.
 
@@ -31,7 +31,7 @@ Diferente da tradução principal, aqui a **seleção de obra é obrigatória**:
 | `EntradaAuditoriaRevisaoLore` (`domain`) | Record de cada entrada da trilha de auditoria |
 | `RevisaoLoreController` (`presentation`) | Endpoints REST — lista de contextos e disparo da operação em background |
 
-> ⚠️ **Este módulo tem seu próprio sistema de contextos**, separado do [`ProvedorContexto`](09-contextos-lore.md) usado na tradução principal. Hoje são **45 implementações** de `ProvedorPromptRevisaoLore` em `revisaoLore/contexto/**` — incluindo DanMachi (geral/S4/S5), 86, a linha Gundam (0080, 0083, 08th MS Team, CCA, Narrative, Zeta, ZZ, Unicorn, Origin), Macross (Delta, II), Guilty Crown, Break Blade, Sidonia, entre outras — cobrindo as obras onde a revisão de lore já foi calibrada manualmente. Ainda é um subconjunto dos **61** contextos de tradução ([Contextos & Lore](09-contextos-lore.md)).
+> ⚠️ **Este módulo tem seu próprio sistema de contextos**, separado do [`ProvedorContexto`](modulo-contextos-lore.md) usado na tradução principal. Hoje são **45 implementações** de `ProvedorPromptRevisaoLore` em `revisaoLore/contexto/**` — incluindo DanMachi (geral/S4/S5), 86, a linha Gundam (0080, 0083, 08th MS Team, CCA, Narrative, Zeta, ZZ, Unicorn, Origin), Macross (Delta, II), Guilty Crown, Break Blade, Sidonia, entre outras — cobrindo as obras onde a revisão de lore já foi calibrada manualmente. Ainda é um subconjunto dos **61** contextos de tradução ([Contextos & Lore](modulo-contextos-lore.md)).
 
 ---
 
@@ -79,7 +79,7 @@ A detecção de nomes próprios divide o candidato por **quebras reais de frase*
 O LLM local sofre de *overcorrection*: com o modo "revisar todas as falas" ativo, ele retraduzia diálogos comuns já corretos e introduzia regressões (estrangeirismos, nomes completos artificiais, erros de concordância). A blindagem tem duas camadas:
 
 1. **Prompt endurecido** — proibições explícitas de adicionar sobrenomes ausentes no original, introduzir termos em inglês em fala comum e criar erros gramaticais; fala sem termo de lore deve voltar **idêntica**.
-2. **Descarte estrutural** — se a fala foi ao LLM **sem nenhum motivo heurístico** (revisão preventiva) e o modelo propôs alteração, a proposta é **descartada antes de gravar** (`DESCARTADA_PREVENTIVA_SEM_LORE`); a proposta fica registrada apenas na trilha de auditoria. Melhorias de fluidez do PT-BR são responsabilidade do módulo de [Correção de Legendas](07-modulo-cura-tags.md), não da revisão de lore.
+2. **Descarte estrutural** — se a fala foi ao LLM **sem nenhum motivo heurístico** (revisão preventiva) e o modelo propôs alteração, a proposta é **descartada antes de gravar** (`DESCARTADA_PREVENTIVA_SEM_LORE`); a proposta fica registrada apenas na trilha de auditoria. Melhorias de fluidez do PT-BR são responsabilidade do módulo de [Correção de Legendas](etapa-4.2-cura-tags.md), não da revisão de lore.
 
 A comparação "antes = depois" usa normalização de texto visível (tags ASS, `\N`, caracteres invisíveis) — diferenças que o espectador não vê não contam como correção.
 
@@ -107,7 +107,7 @@ A comparação "antes = depois" usa normalização de texto visível (tags ASS, 
 
 ## Tela da interface
 
-Os dois campos de pasta (original em inglês / traduzida em PT-BR) mais o seletor de obra — que, além de carregar a lore, também exibe a capa/sinopse do anime via [Metadados de Anime](11-modulo-metadados-anime.md), igual aos outros painéis que usam contexto.
+Os dois campos de pasta (original em inglês / traduzida em PT-BR) mais o seletor de obra — que, além de carregar a lore, também exibe a capa/sinopse do anime via [Metadados de Anime](modulo-metadados-anime.md), igual aos outros painéis que usam contexto.
 
 ---
 
@@ -115,4 +115,4 @@ Os dois campos de pasta (original em inglês / traduzida em PT-BR) mais o seleto
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Correção de Legendas](07-modulo-cura-tags.md) | [Troca Tipo Legenda →](18-modulo-troca-tipo-legenda.md) |
+| [← Correção de Legendas](etapa-4.2-cura-tags.md) | [Troca Tipo Legenda →](etapa-1.3-troca-tipo-legenda.md) |

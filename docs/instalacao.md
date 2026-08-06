@@ -1,6 +1,6 @@
 # 🚀 Instalação & Configuração
 
-[← Arquitetura](01-arquitetura.md) | [Análise de Mídia →](03-modulo-analise-midia.md)
+[← Arquitetura](arquitetura.md) | [Análise de Mídia →](etapa-1.1-analise-midia.md)
 
 ---
 
@@ -82,7 +82,7 @@ java -jar build/*-runner.jar
 
 ## Referência completa de configuração
 
-Ver [Configuração — Referência Completa](14-configuracao.md) para todas as chaves de `application.yml`/`application.properties` com valores padrão e explicação.
+Ver [Configuração — Referência Completa](ref-configuracao.md) para todas as chaves de `application.yml`/`application.properties` com valores padrão e explicação.
 
 ---
 
@@ -108,7 +108,7 @@ Ver [Configuração — Referência Completa](14-configuracao.md) para todas as 
 | Diálogo de seleção de pasta não abre | SO não é Windows, ou PowerShell bloqueado por política de execução | Digite o caminho manualmente no campo de texto |
 | Porta 8080 já em uso | Outra instância do app já está rodando | Feche a instância anterior, ou mude `quarkus.http.port` em `application.properties` |
 
-Mais detalhes em [Solução de Problemas](15-solucao-problemas.md).
+Mais detalhes em [Solução de Problemas](ref-solucao-problemas.md).
 
 ---
 
@@ -116,4 +116,4 @@ Mais detalhes em [Solução de Problemas](15-solucao-problemas.md).
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Arquitetura](01-arquitetura.md) | [Análise de Mídia →](03-modulo-analise-midia.md) |
+| [← Arquitetura](arquitetura.md) | [Análise de Mídia →](etapa-1.1-analise-midia.md) |

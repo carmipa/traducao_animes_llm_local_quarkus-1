@@ -618,7 +618,8 @@
 /* 1. PREPARAÇÃO — teal */
 #panel-inicio .card-analise            { --card-rgb: 45, 212, 191; }   /* 1.1 */
 #panel-inicio .card-extracao           { --card-rgb: 45, 212, 191; }   /* 1.2 */
-#panel-inicio .card-auditor-conteudo   { --card-rgb: 45, 212, 191; }   /* 1.3 */
+#panel-inicio .card-troca-legenda      { --card-rgb: 45, 212, 191; }   /* 1.3 — subiu de 5.1 */
+#panel-inicio .card-auditor-conteudo   { --card-rgb: 45, 212, 191; }   /* 1.4 */
 
 /* 2. TRADUÇÃO — verde */
 #panel-inicio .card-traducao           { --card-rgb: 52, 211, 153; }   /* 2.1 */
@@ -636,9 +637,8 @@
 #panel-inicio .card-novo-karaoke       { --card-rgb: 244, 114, 182; }  /* 4.3 */
 
 /* 5. FINALIZAÇÃO — âmbar */
-#panel-inicio .card-troca-legenda      { --card-rgb: 251, 191, 36; }   /* 5.1 */
-#panel-inicio .card-remuxer            { --card-rgb: 251, 191, 36; }   /* 5.2 */
-#panel-inicio .card-renomear-arquivos  { --card-rgb: 251, 191, 36; }   /* 5.3 */
+#panel-inicio .card-remuxer            { --card-rgb: 251, 191, 36; }   /* 5.1 */
+#panel-inicio .card-renomear-arquivos  { --card-rgb: 251, 191, 36; }   /* 5.2 */
 
 /* SISTEMA — índigo, fora da sequência de propósito */
 #panel-inicio .card-mapa               { --card-rgb: 129, 140, 248; }

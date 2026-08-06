@@ -1,6 +1,6 @@
 # 🎬 Módulo: Metadados de Anime
 
-[← Módulo Telemetria](10-modulo-telemetria.md) | [Mapa do Projeto →](12-modulo-mapa-projeto.md)
+[← Módulo Telemetria](modulo-telemetria.md) | [Mapa do Projeto →](modulo-mapa-projeto.md)
 
 ---
 
@@ -31,7 +31,7 @@ graph TD
 ```
 
 - **Normalização do nome:** remove tags de release (`[1080p]`, `(BD)`, `S01E01`, `ENG`, `PTBR` etc.) e extrai o segmento de pasta mais provável como nome do anime.
-- **TMDB** é tentado primeiro (melhor cobertura de sinopse em português), só se `tmdb.api-key` estiver configurada — ver [Configuração](14-configuracao.md).
+- **TMDB** é tentado primeiro (melhor cobertura de sinopse em português), só se `tmdb.api-key` estiver configurada — ver [Configuração](ref-configuracao.md).
 - **AniList** é o fallback público principal, sem chave ou autenticação, e fornece capa, títulos, ano, episódios, nota, sinopse e gêneros.
 - **Jikan/MyAnimeList** permanece como último fallback quando TMDB e AniList não retornam resultado.
 
@@ -67,4 +67,4 @@ Dez painéis possuem `.anime-meta-banner`: Análise, Tradução, Correção do C
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Módulo Telemetria](10-modulo-telemetria.md) | [Mapa do Projeto →](12-modulo-mapa-projeto.md) |
+| [← Módulo Telemetria](modulo-telemetria.md) | [Mapa do Projeto →](modulo-mapa-projeto.md) |

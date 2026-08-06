@@ -1,6 +1,6 @@
 # 🔤 Módulo: Troca Tipo Legenda (Fontes Legadas)
 
-[← Revisão de Lore](16-modulo-revisao-lore.md) | [Remuxer →](08-modulo-remuxer.md)
+[← Revisão de Lore](etapa-3.2-revisao-lore.md) | [Remuxer →](etapa-5.1-remuxer.md)
 
 ---
 
@@ -81,7 +81,7 @@ sequenceDiagram
 ## Pontos de atenção
 
 - A troca altera apenas o cabeçalho `[V4+ Styles]`; tags `\fn` inline nos eventos (raras) precisam de conferência manual — o relatório de auditoria as aponta.
-- Depois da troca, os MKVs finais precisam ser **re-remuxados** ([Remuxer](08-modulo-remuxer.md)) para embutir a legenda corrigida.
+- Depois da troca, os MKVs finais precisam ser **re-remuxados** ([Remuxer](etapa-5.1-remuxer.md)) para embutir a legenda corrigida.
 - Fontes anexadas no MKV original que nenhum estilo referencia mais (ex.: o `Vnantiqb.ttf` órfão) são inofensivas, mas continuam dentro do vídeo até um remux que as descarte.
 - Regra prática ao iniciar **qualquer série nova**: rodar o escaneamento na pasta das legendas extraídas antes de traduzir — fontes `.Vn*`, `VNI-*` e similares quebram a acentuação PT-BR silenciosamente.
 
@@ -91,4 +91,4 @@ sequenceDiagram
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Revisão de Lore](16-modulo-revisao-lore.md) | [Remuxer →](08-modulo-remuxer.md) |
+| [← Revisão de Lore](etapa-3.2-revisao-lore.md) | [Remuxer →](etapa-5.1-remuxer.md) |

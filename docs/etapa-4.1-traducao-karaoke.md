@@ -1,6 +1,6 @@
 # 🎤 Módulo: Tradução de Karaokê (Romaji + PT-BR juntos)
 
-[← Karaokê Simples](21-modulo-karaoke-simples.md) | [Correção de Karaoke →](07-modulo-cura-tags.md)
+[← Karaokê Simples](etapa-4.3-karaoke-simples.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md)
 
 ---
 
@@ -92,8 +92,8 @@ sequenceDiagram
 
 ## Garantias de segurança
 
-- **Entrada intocada**: a saída vai para a pasta irmã `<entrada>-karaoke-ptbr`, com o **mesmo nome de arquivo** (o pareamento do [Remuxer](08-modulo-remuxer.md) continua funcionando).
-- **Cache editável por arquivo** em `cache/karaoke/*.cache.json` — mesmo fluxo de correção manual da [Tradução Local](05-modulo-traducao-llm.md); refrão repetido gasta **uma** chamada de LLM.
+- **Entrada intocada**: a saída vai para a pasta irmã `<entrada>-karaoke-ptbr`, com o **mesmo nome de arquivo** (o pareamento do [Remuxer](etapa-5.1-remuxer.md) continua funcionando).
+- **Cache editável por arquivo** em `cache/karaoke/*.cache.json` — mesmo fluxo de correção manual da [Tradução Local](etapa-2.1-traducao-llm.md); refrão repetido gasta **uma** chamada de LLM.
 - Falha ou alucinação do LLM numa linha **mantém a linha original** com aviso — nunca derruba o arquivo.
 - Diálogos, placas e efeitos KFX passam **byte a byte** — o módulo só toca música.
 - A aplicação roda **na fila única do pipeline** (o contexto de lore ativo e o modelo LLM são estado global).
@@ -115,7 +115,7 @@ sequenceDiagram
 
 ## Pontos de atenção
 
-- O lugar natural do módulo é **depois do [Karaokê Simples](21-modulo-karaoke-simples.md)** (converte o KFX primeiro, traduz a letra depois) e **antes da [Correção de Karaoke](07-modulo-cura-tags.md)**.
+- O lugar natural do módulo é **depois do [Karaokê Simples](etapa-4.3-karaoke-simples.md)** (converte o KFX primeiro, traduz a letra depois) e **antes da [Correção de Karaoke](etapa-4.2-cura-tags.md)**.
 - Estilos rotulados decidem primeiro (`OP - Romaji` preserva, `OP - English` traduz) — a votação por evidência só entra em estilos ambíguos (`Song`, `Insert`).
 - Letra 100% em inglês **cantada no original** (ex.: *"One more time, one more chance"*) é preservada pelo desempate silábico — se ela estiver na camada de tradução com estilo rotulado `English`, é traduzida normalmente.
 
@@ -125,4 +125,4 @@ sequenceDiagram
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Karaokê Simples](21-modulo-karaoke-simples.md) | [Correção de Karaoke →](07-modulo-cura-tags.md) |
+| [← Karaokê Simples](etapa-4.3-karaoke-simples.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md) |

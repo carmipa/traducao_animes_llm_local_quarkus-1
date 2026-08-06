@@ -1,6 +1,6 @@
 # ✂️ Módulo: Extração de Legendas
 
-[← Análise de Mídia](03-modulo-analise-midia.md) | [Tradução Local →](05-modulo-traducao-llm.md)
+[← Análise de Mídia](etapa-1.1-analise-midia.md) | [Tradução Local →](etapa-2.1-traducao-llm.md)
 
 ---
 
@@ -45,7 +45,7 @@ graph TD
 | **ASS** | 1) Palavras-chave no nome da faixa (`dialogue`, `full`, `complete`, `legendado`, `english`); 2) senão, a **última** candidata da lista (geralmente a faixa completa — a primeira costuma ser "signs") |
 | **PGS / SRT** | Faixa marcada `default` ou idioma `por`/`eng`; senão, a **primeira** candidata |
 
-> Essa heurística escolhe a faixa certa *dentro do formato correto* — mas não é uma verificação de conteúdo real. Se o relatório de [Análise de Mídia](03-modulo-analise-midia.md) mostrar múltiplas faixas ASS com títulos ambíguos, vale conferir manualmente qual foi extraída.
+> Essa heurística escolhe a faixa certa *dentro do formato correto* — mas não é uma verificação de conteúdo real. Se o relatório de [Análise de Mídia](etapa-1.1-analise-midia.md) mostrar múltiplas faixas ASS com títulos ambíguos, vale conferir manualmente qual foi extraída.
 
 ---
 
@@ -117,4 +117,4 @@ Exemplo: `Episodio01_Track3.ass`. A pasta de saída padrão é `<pastaVideos>/le
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Análise de Mídia](03-modulo-analise-midia.md) | [Tradução Local →](05-modulo-traducao-llm.md) |
+| [← Análise de Mídia](etapa-1.1-analise-midia.md) | [Tradução Local →](etapa-2.1-traducao-llm.md) |

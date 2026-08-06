@@ -1,6 +1,6 @@
 # 📊 Módulo: Telemetria
 
-[← Contextos & Lore](09-contextos-lore.md) | [Metadados de Anime →](11-modulo-metadados-anime.md)
+[← Contextos & Lore](modulo-contextos-lore.md) | [Metadados de Anime →](modulo-metadados-anime.md)
 
 ---
 
@@ -114,4 +114,4 @@ Configuração em `application.yml` (`telemetria-dataset.repositorio-local` / `r
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Contextos & Lore](09-contextos-lore.md) | [Metadados de Anime →](11-modulo-metadados-anime.md) |
+| [← Contextos & Lore](modulo-contextos-lore.md) | [Metadados de Anime →](modulo-metadados-anime.md) |

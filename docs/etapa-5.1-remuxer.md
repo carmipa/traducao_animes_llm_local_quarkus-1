@@ -1,6 +1,6 @@
 # 📦 Módulo: Remuxer
 
-[← Troca Tipo Legenda](18-modulo-troca-tipo-legenda.md) | [Renomear Arquivos →](19-modulo-renomear-arquivos.md)
+[← Troca Tipo Legenda](etapa-1.3-troca-tipo-legenda.md) | [Renomear Arquivos →](etapa-5.2-renomear-arquivos.md)
 
 ---
 
@@ -56,7 +56,7 @@ Esse valor é passado como `--sync 0:<ms>` ao `mkvmerge`, que desloca **linearme
 
 > ⚠️ O offset é aplicado **igualmente a todos os itens da fila do lote** — não é por arquivo individual. Se o valor foi calculado/ajustado para um episódio específico e a mesma execução processa um lote com outros arquivos (ou um filme com timing diferente), todos recebem o mesmo deslocamento. Confira o campo antes de cada execução, especialmente ao misturar um filme com uma leva de episódios na mesma operação.
 
-O [relatório de Análise de Mídia](03-modulo-analise-midia.md#o-que-é-auditado-por-faixa) já sugere o valor de offset em ms quando detecta um "atraso constante" — use esse número como ponto de partida.
+O [relatório de Análise de Mídia](etapa-1.1-analise-midia.md#o-que-é-auditado-por-faixa) já sugere o valor de offset em ms quando detecta um "atraso constante" — use esse número como ponto de partida.
 
 ---
 
@@ -120,4 +120,4 @@ O endpoint rejeita pasta inválida antes da fila (`400`) e nova solicitação qu
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Troca Tipo Legenda](18-modulo-troca-tipo-legenda.md) | [Renomear Arquivos →](19-modulo-renomear-arquivos.md) |
+| [← Troca Tipo Legenda](etapa-1.3-troca-tipo-legenda.md) | [Renomear Arquivos →](etapa-5.2-renomear-arquivos.md) |
