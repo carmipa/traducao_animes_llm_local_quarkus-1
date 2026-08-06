@@ -1,6 +1,9 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 
-const PAINEL_HTML = 'auditorConteudoLegendas/auditorConteudoLegendas.html?v=3.9';
+// v4.0: entraram as visões de tabela comparativa e gráfico. Subir a versão é obrigatório —
+// sem isso o navegador serve o HTML antigo em cache e os contêineres novos não existem, o
+// que aparece como "a feature não funciona" sem erro nenhum no console.
+const PAINEL_HTML = 'auditorConteudoLegendas/auditorConteudoLegendas.html?v=4.0';
 
 const ORDEM_SEVERIDADE = { CRITICAL: 0, ERROR: 1, WARNING: 2 };
 
@@ -30,8 +33,18 @@ const CONFIG_SEVERIDADE = {
     WARNING: { icone: 'warning', rotulo: 'Aviso', classe: 'warning' }
 };
 
+// Cor por severidade, usada no gráfico. Mantida ao lado de CONFIG_SEVERIDADE de propósito:
+// são a MESMA decisão visual, e separá-las é como duas paletas divergem.
+const COR_SEVERIDADE = {
+    CRITICAL: { fundo: 'rgba(239, 68, 68, 0.75)', borda: '#EF4444' },
+    ERROR: { fundo: 'rgba(249, 115, 22, 0.75)', borda: '#F97316' },
+    WARNING: { fundo: 'rgba(234, 179, 8, 0.75)', borda: '#EAB308' }
+};
+
 let ultimoRelatorio = null;
 let filtroAtual = 'TODOS';
+let visaoAtual = 'cards';
+let graficoAnomalias = null;
 
 async function carregarPainelHtml() {
     const painel = document.getElementById('panel-auditor-conteudo');
@@ -82,6 +95,10 @@ function vincularEventos() {
             setTimeout(() => resetarRelatorioVisual(lista, statusBadge), 0);
         });
     }
+
+    document.querySelectorAll('.auditor-visao-chip').forEach(chip => {
+        chip.addEventListener('click', () => aplicarVisao(chip.dataset.visao));
+    });
 
     vincularAbasModo();
 
@@ -241,6 +258,24 @@ function ocultarResumoFiltrosELimpo() {
         filtros.classList.add('hidden');
     }
     if (limpo) limpo.classList.add('hidden');
+
+    // Tabela e gráfico voltam ao estado inicial junto com o resto: deixar o gráfico da
+    // auditoria anterior na tela depois de limpar o formulário é dado velho passando por novo.
+    const visoes = document.getElementById('auditor-visoes');
+    if (visoes) visoes.classList.add('hidden');
+    const corpo = document.getElementById('auditor-tabela-corpo');
+    if (corpo) corpo.innerHTML = '';
+    ['auditor-tabela-wrap', 'auditor-grafico-wrap'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    if (graficoAnomalias) {
+        graficoAnomalias.destroy();
+        graficoAnomalias = null;
+    }
+    visaoAtual = 'cards';
+    const lista = document.getElementById('auditor-anomalias-lista');
+    if (lista) lista.classList.remove('hidden');
 }
 
 /**
@@ -329,6 +364,9 @@ function renderizarFiltros(relatorio, lista) {
                 c.setAttribute('aria-pressed', String(ativo));
             });
             renderizarLista(relatorio, lista);
+            // A tabela obedece ao MESMO filtro: duas visões do mesmo relatório mostrando
+            // populações diferentes seria a origem exata da confusão que elas vêm resolver.
+            renderizarTabela(relatorio);
         });
 
         filtros.appendChild(chip);
@@ -362,6 +400,225 @@ function renderizarRelatorio(relatorio, lista, statusBadge) {
 
     renderizarFiltros(relatorio, lista);
     renderizarLista(relatorio, lista);
+    renderizarTabela(relatorio);
+    renderizarGrafico(relatorio);
+
+    const visoes = document.getElementById('auditor-visoes');
+    if (visoes) visoes.classList.remove('hidden');
+    aplicarVisao(visaoAtual);
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: dizer se a anomalia JÁ VINHA do arquivo original ou apareceu na
+ * tradução. É a pergunta que o relatório não respondia e que gerou leitura errada: em
+ * 06/08/2026 uma auditoria do Gundam 0080 acusou 25 anomalias, e a tradução respondia por
+ * ZERO — os 12 eventos vazios e os 8 timestamps inválidos eram os mesmos 6 e 4 do Blu-ray,
+ * contados nos dois arquivos.
+ *
+ * INVARIANTES DO DOMÍNIO: a régua é o TEXTO. Se os dois lados têm o mesmo texto, a tradução
+ * não tocou naquela linha e a anomalia é herdada. Sem os dois lados (modo ORIGINAL ou
+ * TRADUZIDO), devolve indefinido em vez de chutar — meia informação apresentada como certeza
+ * é pior que ausência.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: campo ausente cai no ramo indefinido; não lança.
+ */
+function classificarOrigem(anom, todas) {
+    const o = anom.eventoOriginal;
+    const t = anom.eventoTraduzido;
+
+    // Regra COMPARATIVA: só dispara olhando o par, então nenhum lado sozinho é "o" defeito.
+    // Ex.: "Efeito Visual Vazado" acusa que a linha de efeito pesado mudou — e ela mudou
+    // porque foi traduzida. Marcar isso como "introduzido na tradução" seria alarme falso.
+    if (o && t) {
+        return {
+            chave: 'comparativa',
+            rotulo: 'comparativa',
+            dica: 'Regra de par: avalia original e traduzido juntos. Mudança de texto aqui é esperada — o que importa é a estrutura.'
+        };
+    }
+
+    if (o && !t) {
+        return {
+            chave: 'herdado',
+            rotulo: 'da fonte',
+            dica: 'A anomalia está no arquivo ORIGINAL. A tradução não a causou.'
+        };
+    }
+
+    if (t && !o) {
+        // Gêmea: a MESMA regra no MESMO índice também acusada no original significa que a
+        // linha já vinha assim — o auditor apenas a reporta duas vezes, uma por arquivo.
+        const temGemeaNoOriginal = (todas || []).some(outra =>
+            outra !== anom
+            && outra.regra === anom.regra
+            && outra.eventoOriginal
+            && !outra.eventoTraduzido
+            && outra.eventoOriginal.indice === t.indice);
+
+        if (temGemeaNoOriginal) {
+            return {
+                chave: 'herdado',
+                rotulo: 'da fonte',
+                dica: 'A mesma regra acusa o mesmo evento no arquivo original: a linha já vinha assim e está contada nos dois lados.'
+            };
+        }
+        return {
+            chave: 'traducao',
+            rotulo: 'na tradução',
+            dica: 'Só o arquivo traduzido é acusado nesta regra e neste evento — apareceu aqui.'
+        };
+    }
+
+    return { chave: 'indef', rotulo: '—', dica: 'Anomalia sem evento associado; não dá para localizar.' };
+}
+
+/** Extrai `início → fim` do prefixo ASS (`Dialogue: 0,0:05:42.03,0:05:42.07,OP,...`). */
+function tempoDoEvento(evento) {
+    const partes = String(evento?.prefixo ?? '').split(',');
+    return partes.length >= 3 ? `${partes[1]} → ${partes[2]}` : '—';
+}
+
+/** Texto visível: sem tags `{...}`, com a quebra `\N` como espaço. */
+function textoVisivel(evento) {
+    return String(evento?.texto ?? '')
+        .replace(/\{[^}]*\}/g, '')
+        .replace(/\\N/g, ' ')
+        .trim();
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: mostrar as anomalias como comparação linha a linha, com original e
+ * traduzido lado a lado — a leitura que permite julgar um caso sem abrir o `.ass`.
+ *
+ * INVARIANTES DO DOMÍNIO: respeita o filtro de severidade ativo, para os dois modos de
+ * exibição concordarem. Ordena por severidade e depois pelo índice do evento, que é a ordem
+ * em que as falas aparecem no arquivo.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: sem tabela no DOM, não faz nada.
+ */
+function renderizarTabela(relatorio) {
+    const corpo = document.getElementById('auditor-tabela-corpo');
+    if (!corpo) return;
+
+    const visiveis = (relatorio.anomalias || [])
+        .filter(a => filtroAtual === 'TODOS' || a.severidade === filtroAtual)
+        .sort((a, b) => {
+            const ps = (ORDEM_SEVERIDADE[a.severidade] ?? 99) - (ORDEM_SEVERIDADE[b.severidade] ?? 99);
+            if (ps !== 0) return ps;
+            return (a.eventoOriginal?.indice ?? 0) - (b.eventoOriginal?.indice ?? 0);
+        });
+
+    if (!visiveis.length) {
+        corpo.innerHTML = '<tr><td colspan="8" class="auditor-tabela-vazia">Nenhuma anomalia nesta severidade.</td></tr>';
+        return;
+    }
+
+    corpo.innerHTML = visiveis.map(anom => {
+        const origem = classificarOrigem(anom, relatorio.anomalias || []);
+        const cfg = CONFIG_SEVERIDADE[anom.severidade] || { rotulo: anom.severidade, classe: 'warning', icone: 'help' };
+        const ref = anom.eventoOriginal || anom.eventoTraduzido;
+        const original = textoVisivel(anom.eventoOriginal);
+        const traduzido = textoVisivel(anom.eventoTraduzido);
+        const iguais = origem.chave === 'herdado';
+        return `
+            <tr class="auditor-tabela-linha auditor-linha-${cfg.classe}">
+                <td><span class="auditor-origem auditor-origem-${origem.chave}" title="${escapeHtml(origem.dica)}">${escapeHtml(origem.rotulo)}</span></td>
+                <td><span class="auditor-sev-chip auditor-sev-${cfg.classe}" title="${escapeHtml(cfg.rotulo)}"><span class="material-symbols-outlined">${cfg.icone}</span></span></td>
+                <td class="auditor-td-regra" title="${escapeHtml(anom.descricao || '')}">${escapeHtml(anom.regra || '—')}</td>
+                <td class="auditor-td-num">${ref?.indice ?? '—'}</td>
+                <td class="auditor-td-tempo">${escapeHtml(tempoDoEvento(ref))}</td>
+                <td class="auditor-td-estilo">${escapeHtml(ref?.estilo || '—')}</td>
+                <td class="auditor-td-texto">${original ? escapeHtml(original) : '<i class="auditor-td-vazio">(vazio)</i>'}</td>
+                <td class="auditor-td-texto ${iguais ? 'auditor-td-igual' : ''}">${traduzido ? escapeHtml(traduzido) : '<i class="auditor-td-vazio">(vazio)</i>'}</td>
+            </tr>`;
+    }).join('');
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: mostrar de onde vem o VOLUME antes de o operador ler qualquer linha.
+ * Doze linhas idênticas de "Evento de Diálogo Vazio" ocupam a tela sem informar mais do que
+ * uma barra com o número 12.
+ *
+ * INVARIANTES DO DOMÍNIO: usa o total do relatório, não o filtrado — o gráfico é a visão
+ * geral, e filtrar por severidade nele esconderia justamente a comparação entre severidades.
+ * As cores são as mesmas dos chips de severidade.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: sem Chart.js carregado ou sem canvas, escreve o motivo no
+ * lugar do gráfico em vez de ficar em branco — quadro vazio e "sem dados" não podem parecer
+ * a mesma coisa.
+ */
+function renderizarGrafico(relatorio) {
+    const wrap = document.getElementById('auditor-grafico-wrap');
+    const canvas = document.getElementById('auditor-grafico-canvas');
+    const resumo = document.getElementById('auditor-grafico-resumo');
+    if (!wrap || !canvas) return;
+
+    const anomalias = relatorio.anomalias || [];
+
+    if (resumo) {
+        const porOrigem = { herdado: 0, traducao: 0, comparativa: 0, indef: 0 };
+        anomalias.forEach(a => { porOrigem[classificarOrigem(a, anomalias).chave]++; });
+        resumo.innerHTML = `
+            <div class="auditor-grafico-tile"><span>Total</span><strong>${anomalias.length}</strong></div>
+            <div class="auditor-grafico-tile auditor-tile-herdado"><span>Já vinham da fonte</span><strong>${porOrigem.herdado}</strong></div>
+            <div class="auditor-grafico-tile auditor-tile-traducao"><span>Na tradução</span><strong>${porOrigem.traducao}</strong></div>
+            <div class="auditor-grafico-tile auditor-tile-comparativa"><span>Regra de par</span><strong>${porOrigem.comparativa}</strong></div>`;
+    }
+
+    if (typeof Chart === 'undefined') {
+        canvas.insertAdjacentHTML('afterend',
+            '<p class="auditor-grafico-erro">Chart.js não carregou — gráfico indisponível. Os números acima continuam válidos.</p>');
+        return;
+    }
+
+    const regras = [...new Set(anomalias.map(a => a.regra || '—'))];
+    const severidades = ['CRITICAL', 'ERROR', 'WARNING'];
+    const conjuntos = severidades
+        .filter(sev => anomalias.some(a => a.severidade === sev))
+        .map(sev => ({
+            label: CONFIG_SEVERIDADE[sev]?.rotulo || sev,
+            data: regras.map(r => anomalias.filter(a => (a.regra || '—') === r && a.severidade === sev).length),
+            backgroundColor: COR_SEVERIDADE[sev].fundo,
+            borderColor: COR_SEVERIDADE[sev].borda,
+            borderWidth: 1
+        }));
+
+    if (graficoAnomalias) graficoAnomalias.destroy();
+    graficoAnomalias = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: { labels: regras, datasets: conjuntos },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, ticks: { precision: 0, color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                y: { stacked: true, ticks: { color: '#D1D5DB' }, grid: { display: false } }
+            },
+            plugins: {
+                legend: { labels: { color: '#D1D5DB' } },
+                tooltip: { callbacks: { footer: itens => `total na regra: ${itens.reduce((s, i) => s + i.parsed.x, 0)}` } }
+            }
+        }
+    });
+}
+
+/** Alterna entre cards, tabela e gráfico. Os três leem o mesmo relatório. */
+function aplicarVisao(visao) {
+    visaoAtual = visao;
+    const alvos = {
+        cards: document.getElementById('auditor-anomalias-lista'),
+        tabela: document.getElementById('auditor-tabela-wrap'),
+        grafico: document.getElementById('auditor-grafico-wrap')
+    };
+    Object.entries(alvos).forEach(([chave, el]) => {
+        if (el) el.classList.toggle('hidden', chave !== visao);
+    });
+    document.querySelectorAll('.auditor-visao-chip').forEach(chip => {
+        const ativo = chip.dataset.visao === visao;
+        chip.classList.toggle('ativo', ativo);
+        chip.setAttribute('aria-pressed', String(ativo));
+    });
 }
 
 function renderizarLista(relatorio, lista) {

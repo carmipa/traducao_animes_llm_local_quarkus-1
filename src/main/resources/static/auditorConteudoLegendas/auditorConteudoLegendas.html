@@ -77,9 +77,63 @@
         </div>
     </div>
 
+    <!-- Alternador de visão: os mesmos dados em três leituras.
+         Cards = detalhe de uma anomalia. Tabela = comparação linha a linha, com a coluna
+         ORIGEM que separa o que veio da fonte do que a tradução introduziu. Gráfico =
+         distribuição por regra, para ver de onde vem o volume antes de ler qualquer linha. -->
+    <div id="auditor-visoes" class="auditor-visoes hidden" role="group" aria-label="Forma de exibição do relatório">
+        <button type="button" class="auditor-visao-chip ativo" data-visao="cards" aria-pressed="true">
+            <span class="material-symbols-outlined">view_agenda</span>Cards
+        </button>
+        <button type="button" class="auditor-visao-chip" data-visao="tabela" aria-pressed="false">
+            <span class="material-symbols-outlined">table_rows</span>Tabela comparativa
+        </button>
+        <button type="button" class="auditor-visao-chip" data-visao="grafico" aria-pressed="false">
+            <span class="material-symbols-outlined">bar_chart</span>Gráfico
+        </button>
+    </div>
+
     <!-- Lista de cards de anomalia (cada anomalia é um card fechado) -->
     <div id="auditor-anomalias-lista" class="auditor-anomalias-lista">
         <div class="auditor-lista-vazia">Nenhuma auditoria realizada ainda. Execute a auditoria para ver o relatório aqui.</div>
+    </div>
+
+    <!-- Visão TABELA — comparação linha a linha -->
+    <div id="auditor-tabela-wrap" class="auditor-tabela-wrap hidden">
+        <div class="auditor-tabela-legenda">
+            <span class="auditor-origem auditor-origem-herdado">da fonte</span> o texto é idêntico
+            nos dois arquivos — a tradução não tocou nesta linha, então a anomalia já vinha do
+            original.
+            <span class="auditor-origem auditor-origem-traducao">na tradução</span> o texto mudou
+            entre original e traduzido.
+            <span class="auditor-origem auditor-origem-indef">—</span> só um dos lados existe;
+            não dá para comparar.
+        </div>
+        <div class="auditor-tabela-scroll">
+            <table class="auditor-tabela">
+                <thead>
+                    <tr>
+                        <th scope="col">Origem</th>
+                        <th scope="col">Sev.</th>
+                        <th scope="col">Regra</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Tempo</th>
+                        <th scope="col">Estilo</th>
+                        <th scope="col">Original</th>
+                        <th scope="col">Traduzido</th>
+                    </tr>
+                </thead>
+                <tbody id="auditor-tabela-corpo"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Visão GRÁFICO — distribuição por regra -->
+    <div id="auditor-grafico-wrap" class="auditor-grafico-wrap hidden">
+        <div id="auditor-grafico-resumo" class="auditor-grafico-resumo"></div>
+        <div class="auditor-grafico-canvas">
+            <canvas id="auditor-grafico-canvas" aria-label="Anomalias por regra, empilhadas por severidade"></canvas>
+        </div>
     </div>
 </div>
 
