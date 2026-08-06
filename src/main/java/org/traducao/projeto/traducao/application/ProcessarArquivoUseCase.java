@@ -83,6 +83,7 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
+    private final NormalizadorCartaoDataService normalizadorCartaoData;
     private final GuardaContextoObraTraducao guardaContextoObra;
     private final ContextoCongeladoDaExecucao contextoCongelado;
 
@@ -118,6 +119,7 @@ public class ProcessarArquivoUseCase {
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
         NormalizadorAcentosComuns normalizadorAcentos,
+        NormalizadorCartaoDataService normalizadorCartaoData,
         GuardaContextoObraTraducao guardaContextoObra,
         ContextoCongeladoDaExecucao contextoCongelado
     ) {
@@ -145,6 +147,7 @@ public class ProcessarArquivoUseCase {
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
+        this.normalizadorCartaoData = normalizadorCartaoData;
         this.guardaContextoObra = guardaContextoObra;
         this.contextoCongelado = contextoCongelado;
     }
@@ -592,6 +595,7 @@ public class ProcessarArquivoUseCase {
             if (traduzido != null && !traduzido.isBlank()) {
                 String normalizado = normalizadorAspas.normalizar(traducao.getKey(), traduzido);
                 normalizado = normalizadorAcentos.normalizar(normalizado);
+                normalizado = normalizadorCartaoData.normalizar(traducao.getKey(), normalizado);
                 normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
             }

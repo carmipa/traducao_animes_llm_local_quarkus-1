@@ -376,7 +376,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             props, uiLogger,
             pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new EnforcadorGlossarioFala(), new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
-            new NormalizadorAcentosComuns(), guardaContextoObra, contextoCongelado);
+            new NormalizadorAcentosComuns(), new NormalizadorCartaoDataService(), guardaContextoObra, contextoCongelado);
     }
 
     /**
