@@ -1,6 +1,6 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 
-const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.2';
+const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.3';
 
 function escapeHtml(texto) {
     return String(texto ?? '')
@@ -25,6 +25,55 @@ async function carregarPainelHtml() {
     painel.innerHTML = await resposta.text();
     painel.dataset.moduloCarregado = 'true';
     return painel;
+}
+
+/**
+ * Alterna entre as duas ferramentas do menu, que rodam em momentos OPOSTOS do fluxo:
+ * troca de fontes antes de traduzir, achatamento de estilos depois.
+ *
+ * A auditoria de fontes e o card de substituição pertencem à aba 1 — ficam ocultos
+ * enquanto a aba 2 está aberta e voltam ao estado anterior no retorno, para que uma
+ * tabela de fontes não fique pendurada embaixo do botão de achatar.
+ */
+function vincularAbas() {
+    const abas = Array.from(document.querySelectorAll('#panel-troca-tipo-legenda .troca-aba'));
+    if (abas.length === 0) return;
+
+    const cardsDaAbaFontes = () => [
+        document.getElementById('area-auditoria-resultado'),
+        document.getElementById('card-correcao-desbloqueado')
+    ].filter(Boolean);
+
+    // Guarda o que estava visível na aba 1 para restaurar sem "ressuscitar" card fechado.
+    let visiveisNaAbaFontes = null;
+
+    const ativar = (nome) => {
+        abas.forEach(aba => {
+            const ativa = aba.dataset.aba === nome;
+            aba.classList.toggle('ativo', ativa);
+            aba.setAttribute('aria-selected', String(ativa));
+        });
+        document.querySelectorAll('#panel-troca-tipo-legenda .troca-aba-painel').forEach(painel => {
+            painel.classList.toggle('hidden', painel.id !== `painel-aba-${nome}`);
+        });
+
+        if (nome === 'achatador') {
+            if (visiveisNaAbaFontes === null) {
+                visiveisNaAbaFontes = cardsDaAbaFontes()
+                    .filter(card => !card.classList.contains('hidden'))
+                    .map(card => card.id);
+            }
+            cardsDaAbaFontes().forEach(card => card.classList.add('hidden'));
+        } else if (visiveisNaAbaFontes !== null) {
+            const restaurar = visiveisNaAbaFontes;
+            visiveisNaAbaFontes = null;
+            cardsDaAbaFontes()
+                .filter(card => restaurar.includes(card.id))
+                .forEach(card => card.classList.remove('hidden'));
+        }
+    };
+
+    abas.forEach(aba => aba.addEventListener('click', () => ativar(aba.dataset.aba)));
 }
 
 function vincularEventos() {
@@ -302,6 +351,7 @@ function vincularEventos() {
 export async function initTrocaTipoLegenda() {
     try {
         await carregarPainelHtml();
+        vincularAbas();
         vincularEventos();
         document.dispatchEvent(new CustomEvent('troca-tipo-legenda:painel-carregado'));
     } catch (err) {

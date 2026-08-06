@@ -1,7 +1,6 @@
 <div class="glass-card">
     <h2>Menu Troca Tipo Legenda</h2>
-    <p class="card-desc">Varre pastas de legendas <strong>.ass/.ssa</strong> em busca de fontes vietnamitas ou ANSI legadas (como <code>.VnBook-Antiqua</code>, <code>.VnArial</code> e <code>.VnTimes</code>). Essas fontes legacy possuem mapas de caracteres incompatíveis com caracteres acentuados do Português (PT-BR), exibindo Mojibake ou acentos corrompidos no VLC e outros players (libass), mesmo que o arquivo de legenda esteja correto e salvo em UTF-8.</p>
-    <p class="card-hint">Primeiro execute o escaneamento da pasta para auditar os arquivos. Se fontes problemáticas forem encontradas, a área de correção em lote será desbloqueada.</p>
+    <p class="card-desc">Duas ferramentas de <strong>preparo do arquivo .ass/.ssa</strong>, que atuam em momentos diferentes do fluxo: a <strong>troca de fontes legadas</strong> vem <em>antes</em> da tradução, e o <strong>achatamento de estilos</strong> vem <em>depois</em> dela. Escolha a pasta uma vez e use a aba correspondente.</p>
 
     <div class="anime-meta-banner hidden" id="meta-banner-troca-tipo-legenda"></div>
 
@@ -13,28 +12,68 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="troca-tipo-legenda-entrada">Pasta com as legendas (.ass / .ssa): <span class="help-icon" data-tooltip="Caminho absoluto da pasta contendo as legendas ASS/SSA que serão auditadas.">?</span></label>
+            <label for="troca-tipo-legenda-entrada">Pasta com as legendas (.ass / .ssa): <span class="help-icon" data-tooltip="Caminho absoluto da pasta contendo as legendas ASS/SSA. Vale para as duas abas.">?</span></label>
             <div class="input-with-button">
                 <input type="text" id="troca-tipo-legenda-entrada" autocomplete="off" spellcheck="false" placeholder="Ex: E:\animes\Gundam\0083\legendas_ptbr" required>
                 <button type="button" class="btn-procurar" data-target="troca-tipo-legenda-entrada" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
             </div>
         </div>
-        
+    </form>
+</div>
+
+<!-- Abas por MOMENTO DO FLUXO: fontes antes da tradução, achatamento depois. -->
+<div class="glass-card troca-abas-card">
+    <div class="troca-abas" role="tablist" aria-label="Ferramenta de preparo de legenda">
+        <button type="button" class="troca-aba ativo" role="tab" aria-selected="true" data-aba="fontes" id="aba-fontes">
+            <span class="troca-aba-ordem">1</span>
+            <span class="material-symbols-outlined">font_download</span>
+            <span>Troca de Fontes Legadas</span>
+        </button>
+        <button type="button" class="troca-aba" role="tab" aria-selected="false" data-aba="achatador" id="aba-achatador">
+            <span class="troca-aba-ordem">2</span>
+            <span class="material-symbols-outlined">format_color_reset</span>
+            <span>Achatar Estilos Decorativos</span>
+        </button>
+    </div>
+
+    <!-- ABA 1: troca de fontes vietnamitas/ANSI — roda ANTES da tradução -->
+    <section class="troca-aba-painel" id="painel-aba-fontes" role="tabpanel" aria-labelledby="aba-fontes">
+        <span class="troca-momento antes">Antes da tradução</span>
+        <p class="card-desc">Varre pastas de legendas <strong>.ass/.ssa</strong> em busca de fontes vietnamitas ou ANSI legadas (como <code>.VnBook-Antiqua</code>, <code>.VnArial</code> e <code>.VnTimes</code>). Essas fontes legacy possuem mapas de caracteres incompatíveis com caracteres acentuados do Português (PT-BR), exibindo Mojibake ou acentos corrompidos no VLC e outros players (libass), mesmo que o arquivo de legenda esteja correto e salvo em UTF-8.</p>
+        <p class="card-hint">Primeiro execute o escaneamento da pasta para auditar os arquivos. Se fontes problemáticas forem encontradas, a área de correção em lote será desbloqueada.</p>
+
         <div class="correcao-actions">
             <button type="button" class="btn btn-primary btn-cyan" id="btn-escanear-fontes" data-tooltip="Audita os arquivos de legenda em busca de fontes problemáticas">
                 <span class="material-symbols-outlined btn-icon">analytics</span>
                 <span>Escanear Fontes</span>
-            </button>
-            <button type="button" class="btn btn-primary btn-magenta" id="btn-achatar-estilos" data-tooltip="Reatribui estilos decorativos (OP/ED/Sign) ao Default e remove posição/fade — vira legenda branca simples. Grava com backup.">
-                <span class="material-symbols-outlined btn-icon">format_color_reset</span>
-                <span>Achatar Estilos Decorativos</span>
             </button>
             <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-troca-tipo-legenda" data-tooltip="Limpa os campos e oculta os painéis de resultado">
                 <span class="material-symbols-outlined btn-icon">delete_sweep</span>
                 <span>Limpar Campos</span>
             </button>
         </div>
-    </form>
+    </section>
+
+    <!-- ABA 2: achatamento de estilos — DESTRÓI o nome do estilo, roda DEPOIS da tradução -->
+    <section class="troca-aba-painel hidden" id="painel-aba-achatador" role="tabpanel" aria-labelledby="aba-achatador">
+        <span class="troca-momento depois">Depois da tradução</span>
+        <p class="card-desc">Reatribui estilos decorativos (aberturas, encerramentos e placas) ao <code>Default</code> e remove posicionamento, <em>fade</em> e sílabas de karaokê. O resultado é uma legenda branca simples, muito mais leve e fácil de ler — e sem o efeito de animação que atrapalha a leitura. Diálogo comum e o estilo <code>Karaokê Simples</code> não são tocados. Grava no local, com backup automático em <code>backups/</code>.</p>
+
+        <div class="aviso-risco-container">
+            <span class="material-symbols-outlined aviso-risco-icon">schedule</span>
+            <div class="aviso-risco-texto">
+                <h4>Rode esta ferramenta DEPOIS de traduzir</h4>
+                <p>A tradução preserva o romaji pulando estilos declarados por nome (<code>OP - Romaji</code>, <code>ED - Romaji</code>, <code>Song JP</code> e outros) — no acervo isso protege <strong>469.769 falas</strong>. O achatamento renomeia esses estilos para <code>Default</code>, e quem rodar antes da tradução faz o romaji perder a proteção e ir parar no tradutor.</p>
+            </div>
+        </div>
+
+        <div class="correcao-actions">
+            <button type="button" class="btn btn-primary btn-magenta" id="btn-achatar-estilos" data-tooltip="Reatribui estilos decorativos (OP/ED/Sign) ao Default e remove posição/fade — vira legenda branca simples. Grava com backup.">
+                <span class="material-symbols-outlined btn-icon">format_color_reset</span>
+                <span>Achatar Estilos Decorativos</span>
+            </button>
+        </div>
+    </section>
 </div>
 
 <!-- Área de Resultados da Auditoria (Exibida dinamicamente após o escaneamento) -->
@@ -47,7 +86,7 @@
             <button type="button" class="meta-badge hidden" id="btn-toggle-arquivos-ok">Mostrar OK</button>
         </div>
     </div>
-    
+
     <div class="resultado-tabela-container">
         <table class="tabela-auditoria-fontes" id="tabela-fontes">
             <thead>
@@ -97,7 +136,7 @@
 <!-- Console de Logs da Operação -->
 <div class="glass-card console-card">
     <div class="console-header">
-        <h3>Logs da Operação de Fontes</h3>
+        <h3>Logs da Operação</h3>
         <div class="console-actions">
             <button class="btn-toggle-console" data-target="console-troca-tipo-legenda" data-tooltip="Alternar altura expandida do console"><span class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
             <button class="btn-copy-console" data-target="console-troca-tipo-legenda" data-tooltip="Copiar conteúdo do console"><span class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>
