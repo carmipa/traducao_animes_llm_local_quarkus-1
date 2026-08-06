@@ -66,8 +66,15 @@ class MedicaoAuditoriaAcervoIT {
     private static final String RAIZ_PADRAO = "C:\\animes";
     private static final List<String> PASTAS_FONTE =
         List.of("legendas_extraidas_ass", "legendas_eng", "en");
-    private static final List<String> PASTAS_TRADUZIDA =
-        List.of("traducao_ptbr", "legendas_ptbr", "ptbr");
+    /**
+     * Nomes de pasta de saída em uso no acervo. A lista cresceu por MEDIÇÃO, não por
+     * suposição: a primeira versão trazia só os três primeiros e deixou <b>4 obras fora do
+     * inventário</b> — Memories, Break Blade e Patlabor usam {@code traducao_ptbr_sem_lore}
+     * (saída da rota 2.2), e Macross II usa {@code legendas_ptbr_corrigidas}.
+     */
+    private static final List<String> PASTAS_TRADUZIDA = List.of(
+        "traducao_ptbr", "legendas_ptbr", "ptbr",
+        "traducao_ptbr_sem_lore", "legendas_ptbr_corrigidas", "legenda-simplificada");
 
     private static final Pattern PADRAO_TEMPORADA_EPISODIO =
         Pattern.compile("s(\\d{1,2})[\\s._-]?e(\\d{1,3})");
@@ -210,12 +217,27 @@ class MedicaoAuditoriaAcervoIT {
                 if (pai == null) {
                     continue;
                 }
+                Path traduzida = null;
                 for (String nome : PASTAS_TRADUZIDA) {
-                    Path candidata = pai.resolve(nome);
-                    if (Files.isDirectory(candidata)) {
-                        pares.add(new Path[]{fonte, candidata});
+                    Path irma = pai.resolve(nome);
+                    if (Files.isDirectory(irma)) {
+                        traduzida = irma;
                         break;
                     }
+                }
+                if (traduzida == null) {
+                    // O Sidonia guarda a tradução DENTRO da pasta de origem
+                    // (Movie/legendas_eng/ptbr). Procurar só como irmã deixava a obra fora.
+                    for (String nome : PASTAS_TRADUZIDA) {
+                        Path filha = fonte.resolve(nome);
+                        if (Files.isDirectory(filha)) {
+                            traduzida = filha;
+                            break;
+                        }
+                    }
+                }
+                if (traduzida != null) {
+                    pares.add(new Path[]{fonte, traduzida});
                 }
             }
         }
