@@ -1,5 +1,32 @@
-*
-!build/*-runner
-!build/*-runner.jar
-!build/lib/*
-!build/quarkus-app/*
+# O arquivo anterior era o scaffold do Quarkus para a estratégia de copiar um
+# runner JÁ construído no host: `*` seguido de exceções em build/. Com o build
+# multi-stage do Dockerfile isso excluiria src/ e gradle/, e o `COPY src src`
+# falharia. Trocado por lista de exclusão.
+
+.git
+.gradle
+.idea
+.vscode
+*.iml
+build/
+
+# Estado de execução: entra por volume, nunca dentro da imagem. São 2.613
+# arquivos só em backups/ e 500 em relatorios/ — mandar isso para o contexto de
+# build deixaria todo `docker compose build` lento sem entregar nada, e ainda
+# assaria dado de execução dentro de uma camada imutável.
+cache/
+logs/
+relatorios/
+backups/
+entrada/
+saida/
+
+# Segredo: o application-local.yml carrega a chave do TMDB. Ele nunca pode
+# entrar numa camada de imagem — camada de imagem é distribuível e não se apaga.
+src/main/resources/application-local.yml
+.env
+
+# Documentação e artefatos que não afetam o binário.
+docs/
+*.md
+!README.md
