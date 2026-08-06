@@ -456,3 +456,220 @@
         order: 3;
     }
 }
+
+/* ==========================================================================
+   VISÕES DO RELATÓRIO — cards · tabela comparativa · gráfico
+   Os três leem o MESMO relatório. A tabela existe para responder a pergunta
+   que os cards não respondiam: a anomalia veio da fonte ou da tradução?
+   ========================================================================== */
+
+#panel-auditor-conteudo .auditor-visoes{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+#panel-auditor-conteudo .auditor-visao-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: var(--font-main);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+#panel-auditor-conteudo .auditor-visao-chip .material-symbols-outlined{
+    font-size: 16px !important;
+    line-height: 1;
+}
+
+#panel-auditor-conteudo .auditor-visao-chip:hover{
+    border-color: rgba(59, 130, 246, 0.5);
+    color: var(--text-primary);
+}
+
+#panel-auditor-conteudo .auditor-visao-chip.ativo{
+    background: rgba(59, 130, 246, 0.16);
+    border-color: #3B82F6;
+    color: #93C5FD;
+}
+
+/* --- Coluna ORIGEM: a informação que faltava --- */
+
+#panel-auditor-conteudo .auditor-origem{
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-family: var(--font-main);
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: help;
+}
+
+#panel-auditor-conteudo .auditor-origem-herdado{
+    background: rgba(107, 114, 128, 0.18);
+    border: 1px solid rgba(156, 163, 175, 0.45);
+    color: #D1D5DB;
+}
+
+#panel-auditor-conteudo .auditor-origem-traducao{
+    background: rgba(239, 68, 68, 0.16);
+    border: 1px solid rgba(239, 68, 68, 0.55);
+    color: #FCA5A5;
+}
+
+#panel-auditor-conteudo .auditor-origem-indef{
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    color: var(--text-secondary);
+}
+
+/* --- Tabela comparativa --- */
+
+#panel-auditor-conteudo .auditor-tabela-legenda{
+    font-size: 0.76rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+
+#panel-auditor-conteudo .auditor-tabela-scroll{
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+#panel-auditor-conteudo .auditor-tabela{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+#panel-auditor-conteudo .auditor-tabela thead th{
+    position: sticky;
+    top: 0;
+    background: #10141F;
+    text-align: left;
+    font-family: var(--font-main);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+#panel-auditor-conteudo .auditor-tabela td{
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: top;
+}
+
+#panel-auditor-conteudo .auditor-tabela-linha:hover{
+    background: rgba(255, 255, 255, 0.025);
+}
+
+/* Faixa de severidade à esquerda da linha */
+#panel-auditor-conteudo .auditor-linha-critical td:first-child{ box-shadow: inset 3px 0 0 #EF4444; }
+#panel-auditor-conteudo .auditor-linha-error td:first-child{ box-shadow: inset 3px 0 0 #F97316; }
+#panel-auditor-conteudo .auditor-linha-warning td:first-child{ box-shadow: inset 3px 0 0 #EAB308; }
+
+#panel-auditor-conteudo .auditor-sev-chip .material-symbols-outlined{ font-size: 18px !important; }
+#panel-auditor-conteudo .auditor-sev-critical{ color: #EF4444; }
+#panel-auditor-conteudo .auditor-sev-error{ color: #F97316; }
+#panel-auditor-conteudo .auditor-sev-warning{ color: #EAB308; }
+
+#panel-auditor-conteudo .auditor-td-regra{ font-weight: 600; color: var(--text-primary); max-width: 200px; }
+#panel-auditor-conteudo .auditor-td-num,
+#panel-auditor-conteudo .auditor-td-tempo{ font-family: var(--font-code); color: var(--text-secondary); white-space: nowrap; }
+#panel-auditor-conteudo .auditor-td-estilo{ font-family: var(--font-code); font-size: 0.72rem; color: #93C5FD; }
+#panel-auditor-conteudo .auditor-td-texto{ font-family: var(--font-code); font-size: 0.74rem; min-width: 210px; max-width: 380px; }
+#panel-auditor-conteudo .auditor-td-vazio{ color: var(--text-secondary); opacity: 0.6; }
+
+/* Texto idêntico ao original: esmaecido, porque a tradução não mexeu nesta linha */
+#panel-auditor-conteudo .auditor-td-igual{ color: var(--text-secondary); opacity: 0.7; }
+
+#panel-auditor-conteudo .auditor-tabela-vazia{
+    text-align: center;
+    padding: 26px;
+    color: var(--text-secondary);
+}
+
+/* --- Gráfico --- */
+
+#panel-auditor-conteudo .auditor-grafico-resumo{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+#panel-auditor-conteudo .auditor-grafico-tile{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#panel-auditor-conteudo .auditor-grafico-tile span{
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+#panel-auditor-conteudo .auditor-grafico-tile strong{
+    font-family: var(--font-code);
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+#panel-auditor-conteudo .auditor-tile-herdado{ border-color: rgba(156, 163, 175, 0.45); }
+#panel-auditor-conteudo .auditor-tile-herdado strong{ color: #D1D5DB; }
+#panel-auditor-conteudo .auditor-tile-traducao{ border-color: rgba(239, 68, 68, 0.5); }
+#panel-auditor-conteudo .auditor-tile-traducao strong{ color: #FCA5A5; }
+#panel-auditor-conteudo .auditor-tile-indef strong{ color: var(--text-secondary); }
+
+#panel-auditor-conteudo .auditor-grafico-canvas{
+    position: relative;
+    height: 340px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+#panel-auditor-conteudo .auditor-grafico-erro{
+    color: #FCA5A5;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+/* Regra de par: nem herdada nem introduzida — avalia os dois arquivos juntos.
+   Mudanca de texto aqui e esperada (a linha foi traduzida); o que a regra olha e a estrutura. */
+#panel-auditor-conteudo .auditor-origem-comparativa{
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #93C5FD;
+}
+
+#panel-auditor-conteudo .auditor-tile-comparativa{ border-color: rgba(59, 130, 246, 0.5); }
+#panel-auditor-conteudo .auditor-tile-comparativa strong{ color: #93C5FD; }
