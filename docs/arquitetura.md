@@ -1,21 +1,52 @@
 # 📐 Arquitetura do Sistema
 
-[← Voltar ao README](../README.md) | [Instalação & Configuração →](02-instalacao.md)
+[← Voltar ao README](../README.md) | [Instalação & Configuração →](instalacao.md)
 
 ---
 
 ## Visão Geral
 
-O **KRONOS CORE** é uma plataforma monolítica modular construída sobre o **Quarkus** (usando as extensões de compatibilidade Spring — `quarkus-spring-di`, `quarkus-spring-web`, `quarkus-spring-boot-properties`), organizada em **fatias verticais** (*vertical slices*) sob `org.traducao.projeto.*` — hoje são **27 fatias**, cada uma resolvendo uma etapa específica do pipeline de tradução de legendas de anime.
+O **KRONOS CORE** é uma plataforma monolítica modular construída sobre o **Quarkus** (usando as extensões de compatibilidade Spring — `quarkus-spring-di`, `quarkus-spring-web`, `quarkus-spring-boot-properties`), organizada em **fatias verticais** (*vertical slices*) sob `org.traducao.projeto.*` — hoje são **20 fatias funcionais**, cada uma resolvendo uma etapa específica do pipeline de tradução de legendas de anime.
+
+> **Os números desta página são contados, não estimados.** Em 06/08/2026: 20 fatias · 5 peers ·
+> 16 tipos em `core` · 72 lores · 19 controllers com 34 endpoints · 577 classes e 63.942 linhas
+> de Java · 1.440 testes, dos quais 13 são guardas executáveis. Divergência entre um número
+> aqui e o código é bug de documentação, não licença poética.
 
 A arquitetura passou por uma refatoração longa (FASES A–I) que substituiu o antigo monólito de controllers por **fatias isoladas** cujas fronteiras são **congeladas por testes de fitness ArchUnit**. Duas categorias:
 
 - **Fatias funcionais** — uma etapa do pipeline cada (ex.: `traducao`, `legendasExtracao`, `analisadorMidia`, `remuxer`, `revisaoLore`). Uma fatia funcional **não pode** depender de outra: o teste `FronteiraTraducaoArchTest` prova, a cada build, que a Tradução Local tem **ZERO** arestas de saída para outra fatia.
-- **Peers** — bibliotecas internas *importáveis* por qualquer fatia, com a superfície pública **congelada por tipo exato**: `legenda` (modelo + I/O de `.ass`/`.srt`), `cachetraducao` (**dono único** do cache), `contexto` (56+ lores + regras de concordância PT-BR), `qualidadeTraducao` (máscara de tags, validação anti-alucinação) e `llm` (contrato `LlmPort` neutro). Cada peer tem seu próprio `Fronteira<Peer>ArchTest`.
+- **Peers** — bibliotecas internas *importáveis* por qualquer fatia, com a superfície pública **congelada por tipo exato**: `legenda` (modelo + I/O de `.ass`/`.srt`), `cachetraducao` (**dono único** do cache), `contexto` (**72 lores** + regras de concordância PT-BR, 93 classes), `qualidadeTraducao` (máscara de tags, validação anti-alucinação) e `llm` (contrato `LlmPort` neutro). Cada peer tem seu próprio `Fronteira<Peer>ArchTest`.
 
-Abaixo de tudo, `core` (fila de execução, I/O atômico, kernel web/SSE) e `config` (bootstrap de modo) são **infra transversal** — e o `core` é proibido, por regra permanente, de depender de qualquer fatia funcional.
+Abaixo de tudo, `core` (fila de execução, I/O atômico, kernel web/SSE, mecânica de fronteira do formato ASS) e `config` (bootstrap de modo) são **infra transversal** — e o `core` é proibido, por regra permanente, de depender de qualquer fatia funcional.
 
-Na SPA, o menu lateral agrupa os painéis em **6 grupos acordeão** que espelham o fluxo de trabalho: **Preparação** (1. Análise de Mídia, 2. Extração, 3. Análise de Legenda), **Tradução** (4. Tradução Local, 5. Correção Cache), **Qualidade** (6. Revisão de Legendas, 7. Revisão de Lore, 8. Revisão de Concordância, 9. Troca Tipo Legenda), **Karaokê** (10. Karaokê Simples, 11. Tradução de Karaokê, 12. Correção de Karaoke), **Finalização** (13. Remuxer, 14. Renomear Arquivos) e **Sistema** (Telemetria, Mapa do Projeto, Documentação, Sobre). Os grupos são recolhíveis e o estado é lembrado por navegador (`localStorage`).
+### Dois tiers — e a página declara em qual cada fatia está
+
+Estado real vence estado ideal. **9 das 20 fatias têm fronteira ArchUnit própria; 11 não têm** — e isso não é dívida escondida, é o nível onde a refatoração parou:
+
+- **Tier GOLD** — zero aresta funcional de saída, portas próprias para tudo que sai, guarda de fronteira própria congelando cada tipo consumido. Hoje: `traducao` e os cinco peers.
+- **Tier SECUNDÁRIO** — consome os peers pela superfície pública e depende direto de serviços comuns (telemetria, por exemplo), sem guarda própria. **Não é bug: é o nível onde parou.**
+
+> Elevar **uma** fatia secundária ao gold a deixa mais desacoplada que as irmãs e não torna o
+> sistema mais consistente. Se o objetivo for consistência, o certo é um Plano-Mestre que eleve
+> o **tier inteiro** — não uma fatia avulsa porque ela chamou atenção.
+
+### Navegação na SPA
+
+O menu lateral agrupa os painéis em **6 grupos acordeão** que espelham o fluxo de trabalho, com numeração `GRUPO.POSIÇÃO`:
+
+| Grupo | Cor | Painéis |
+|-------|-----|---------|
+| Preparação | teal | `1.1 Análise de Mídia` · `1.2 Extração` · `1.3 Troca de Tipo de Legenda` · `1.4 Análise de Legenda` |
+| Tradução | verde | `2.1 Tradução Local` · `2.2 Tradução sem Lore` · `2.3 Correção de Cache` |
+| Qualidade | roxo | `3.1 Revisão de Legendas` · `3.2 Revisão de Lore` · `3.3 Revisão de Concordância` |
+| Karaokê | rosa | `4.1 Tradução de Karaokê` · `4.2 Correção de Karaokê` · `4.3 Karaokê Simples` |
+| Finalização | âmbar | `5.1 Remuxer` · `5.2 Renomear Arquivos` |
+| Sistema | índigo | `Telemetria` · `Mapa do Projeto` · `Documentação` · `Sobre` — sem número, não são passos |
+
+Os grupos são recolhíveis e o estado é lembrado por navegador (`localStorage`). A numeração é
+cobrada por teste: no grupo de ordem G, o item de posição N tem de começar com `G.N` — ver
+[Catracas e Fronteiras](catracas-e-fronteiras.md).
 
 O desenho segue **Arquitetura Hexagonal (Ports & Adapters)** por módulo: cada pacote tem, tipicamente, `domain/` (modelos e portas), `application/` (casos de uso, orquestração), `infrastructure/` (adapters concretos — ffmpeg, mkvmerge, HTTP client do LM Studio, scraping do Google Translate) e `presentation/` (controllers REST e/ou CLI).
 
@@ -38,43 +69,55 @@ O código é dividido em **fatias funcionais** (uma etapa do pipeline cada) e **
 
 ```mermaid
 graph TB
-    subgraph FUNC["🧩 Fatias funcionais — uma etapa do pipeline cada (NÃO importam umas às outras)"]
+    subgraph FUNC["🧩 20 fatias funcionais — uma etapa do pipeline cada (NÃO importam umas às outras)"]
         direction LR
-        TRAD["🌐 traducao"]
-        EXTR["✂️ legendasExtracao"]
-        MIDIA["🔍 analisadorMidia"]
-        AUD["🔎 auditorConteudoLegendas"]
-        LORE["📖 revisaoLore"]
-        KAR["🎤 novoKaraoke · traducaoKaraoke"]
-        MAIS["… remuxer · renomearArquivos · trocaTipoLegenda ·<br/>telemetria · apiDadosAnime · mapaProjeto · traducaoCorrige ·<br/>raspagemCorrecao · raspagemRevisao · revisaoConcordancia · mcp"]
+        TRAD["🌐 traducao<br/><b>TIER GOLD</b>"]
+        PREP["🔍 analisadorMidia · legendasExtracao<br/>auditorConteudoLegendas"]
+        QUALF["📖 revisaoLore · revisaoConcordancia<br/>raspagemRevisao · raspagemCorrecao<br/>correcaoLegendas · traducaoCorrige"]
+        KAR["🎤 traducaoKaraoke · novoKaraoke"]
+        FIM["📦 trocaTipoLegenda · remuxer · renomearArquivos"]
+        SIS["⚙️ telemetria · mapaProjeto · apiDadosAnime · mcp · sistema"]
     end
 
-    subgraph PEERS["🧱 Peers — importáveis por qualquer fatia · superfície congelada por tipo exato"]
+    subgraph PEERS["🧱 5 peers — importáveis por qualquer fatia · superfície congelada por tipo exato"]
         direction LR
         LEG["legenda<br/>modelo + I/O .ass/.srt"]
         CACHE["cachetraducao<br/>DONO ÚNICO do cache"]
-        CTX["contexto<br/>56+ lores + regras PT-BR"]
+        CTX["contexto<br/>72 lores + regras PT-BR"]
         QUAL["qualidadeTraducao<br/>máscara de tags + validação"]
         LLM["llm<br/>contrato LlmPort neutro"]
     end
 
-    subgraph BASE["⚙️ Infra transversal (core NÃO depende de fatia funcional)"]
+    subgraph BASE["⚙️ Infra transversal — 16 tipos (core NÃO depende de fatia funcional)"]
         direction LR
-        CORE["core<br/>fila · I/O atômico · kernel web/SSE"]
+        CORE["core<br/>fila · I/O atômico · SSE<br/>FronteiraTermoAss"]
         CFG["config<br/>bootstrap de modo"]
     end
 
-    FUNC -->|"importa — arestas congeladas por ArchUnit"| PEERS
+    GUARD["🚦 13 guardas executáveis<br/>9 Fronteira*ArchTest + 4 Catraca*Test<br/><i>reprovam o BUILD ao cruzar a fronteira</i>"]
+
+    FUNC -->|"importa — arestas congeladas por tipo exato"| PEERS
     FUNC --> BASE
     PEERS --> BASE
+    GUARD -.->|congela| FUNC
+    GUARD -.->|congela| PEERS
+    GUARD -.->|congela| BASE
 
     classDef func fill:#312e81,stroke:#818CF8,color:#F9FAFB
+    classDef gold fill:#4c1d95,stroke:#C4B5FD,color:#F9FAFB,stroke-width:3px
     classDef peer fill:#14532d,stroke:#4ADE80,color:#F9FAFB
     classDef base fill:#1e293b,stroke:#6B7280,color:#F9FAFB
-    class TRAD,EXTR,MIDIA,AUD,LORE,KAR,MAIS func
+    classDef guard fill:#7c2d12,stroke:#FB923C,color:#F9FAFB,stroke-width:2px
+    class PREP,QUALF,KAR,FIM,SIS func
+    class TRAD gold
     class LEG,CACHE,CTX,QUAL,LLM peer
     class CORE,CFG base
+    class GUARD guard
 ```
+
+> A seta pontilhada laranja é o que diferencia este desenho de um diagrama de intenção: as
+> guardas **não documentam** a fronteira, elas a **impõem**. Um `CLAUDE.md` pode ser ignorado
+> por qualquer IA que trabalhe no repositório; um teste vermelho, não.
 
 **A fronteira da Tradução Local (`traducao`), congelada por `FronteiraTraducaoArchTest`:** ela consome só os cinco peers + `core`, e tem **ZERO** arestas de saída para outra fatia funcional. Cada TIPO consumido de um peer entra numa allowlist exata; um tipo novo cruzando a fronteira **reprova o build** até homologação intencional documentada.
 
@@ -345,7 +388,7 @@ O projeto foi originalmente escrito sobre Spring Boot e migrado para Quarkus pre
 
 ### Por que LLM local (LM Studio) em vez de API paga?
 
-Tradução de legendas de fã-sub envolve volumes grandes de texto (temporadas inteiras, filmes) e a lore de cada obra é sensível a nuance (nomes próprios, gênero de personagens, tom). Rodar localmente via LM Studio elimina custo por token, elimina limite de rate, e garante que o app **adapta-se dinamicamente ao modelo que o operador tiver carregado** (ver [`tradutor.llm.model: "current"`](14-configuracao.md)) — o operador troca de modelo pela UI do LM Studio para comparar qualidade sem precisar recompilar o app.
+Tradução de legendas de fã-sub envolve volumes grandes de texto (temporadas inteiras, filmes) e a lore de cada obra é sensível a nuance (nomes próprios, gênero de personagens, tom). Rodar localmente via LM Studio elimina custo por token, elimina limite de rate, e garante que o app **adapta-se dinamicamente ao modelo que o operador tiver carregado** (ver [`tradutor.llm.model: "current"`](ref-configuracao.md)) — o operador troca de modelo pela UI do LM Studio para comparar qualidade sem precisar recompilar o app.
 
 ### Por que cache em JSON por arquivo, e não banco de dados?
 
@@ -353,7 +396,7 @@ O cache (`cache/**/*.cache.json`) espelha a estrutura de pastas de entrada do us
 
 ### Por que 3 fluxos distintos de correção/revisão em vez de um só?
 
-Cada fluxo ataca uma fonte de erro diferente com o custo/precisão adequado: **correção de cache** (LLM local, grátis, mas pode repetir o mesmo erro do 1º passe), **correção via Google Translate** (scraping gratuito, baseline melhor que "não traduzido", mas sem entender a lore), e **revisão de concordância PT-BR** (heurística regex + LLM, focada especificamente no problema mais comum de tradução EN→PT-BR: calque de gênero). Ver [Correção & Revisão](06-modulo-correcao-revisao.md) para o comparativo completo.
+Cada fluxo ataca uma fonte de erro diferente com o custo/precisão adequado: **correção de cache** (LLM local, grátis, mas pode repetir o mesmo erro do 1º passe), **correção via Google Translate** (scraping gratuito, baseline melhor que "não traduzido", mas sem entender a lore), e **revisão de concordância PT-BR** (heurística regex + LLM, focada especificamente no problema mais comum de tradução EN→PT-BR: calque de gênero). Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md) para o comparativo completo.
 
 ### Por que SSE (Server-Sent Events) para logs em vez de WebSocket?
 
@@ -365,4 +408,4 @@ Todo o fluxo de logs é **unidirecional** (servidor → navegador) — o operado
 
 | Anterior | Próximo |
 |----------|---------|
-| [← README](../README.md) | [Instalação & Configuração →](02-instalacao.md) |
+| [← README](../README.md) | [Instalação & Configuração →](instalacao.md) |

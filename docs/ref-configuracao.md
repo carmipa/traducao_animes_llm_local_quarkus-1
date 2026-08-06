@@ -1,6 +1,6 @@
 # ⚙️ Configuração — Referência Completa
 
-[← API REST](13-api-endpoints.md) | [Solução de Problemas →](15-solucao-problemas.md)
+[← API REST](ref-api-endpoints.md) | [Solução de Problemas →](ref-solucao-problemas.md)
 
 ---
 
@@ -50,7 +50,7 @@ extrator:
 tmdb:
   api-key: dummy_key                 # Placeholder — chave real fica em application-local.yml
 
-revisao-lore:                        # Stack LLM PRÓPRIA da Revisão de Lore (Opção 7), isolada de tradutor.llm
+revisao-lore:                        # Stack LLM PRÓPRIA da Revisão de Lore (menu 3.2), isolada de tradutor.llm
   llm:
     base-url: "http://127.0.0.1:1234/v1"
     model: "current"
@@ -71,7 +71,7 @@ telemetria-dataset:                  # Repositório do dataset público de telem
     permitir-deteccao-automatica: true
 ```
 
-> ⚠️ **`tradutor.llm.model` deve permanecer sempre `"current"`.** Fixar o id exato de um modelo (ex.: `"mistralai/mistral-nemo-instruct-2407"`) faz o app enviar requisições para esse id específico mesmo quando outro modelo está carregado no LM Studio — e o LM Studio, ao receber uma chamada para um modelo que não está em memória, faz **auto-load (JIT)** dele, resultando em **duas instâncias de modelo carregadas simultaneamente** (consumindo VRAM em dobro). O app já resolve dinamicamente qual modelo está de fato carregado a cada operação — ver [Tradução Local — modelo "coringa"](05-modulo-traducao-llm.md#modelo-coringa-tradutorllmmodel-current) e [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente).
+> ⚠️ **`tradutor.llm.model` deve permanecer sempre `"current"`.** Fixar o id exato de um modelo (ex.: `"mistralai/mistral-nemo-instruct-2407"`) faz o app enviar requisições para esse id específico mesmo quando outro modelo está carregado no LM Studio — e o LM Studio, ao receber uma chamada para um modelo que não está em memória, faz **auto-load (JIT)** dele, resultando em **duas instâncias de modelo carregadas simultaneamente** (consumindo VRAM em dobro). O app já resolve dinamicamente qual modelo está de fato carregado a cada operação — ver [Tradução Local — modelo "coringa"](etapa-2.1-traducao-llm.md#modelo-coringa-tradutorllmmodel-current) e [Solução de Problemas](ref-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente).
 
 O badge **"LLM de Tradução"** no Painel Inicial reflete `tradutor.llm.base-url` — mostra o nome do modelo atualmente carregado no LM Studio (não o valor `"current"` da config):
 
@@ -139,4 +139,4 @@ quarkus.log.file.rotation.max-backup-index=5
 
 | Anterior | Próximo |
 |----------|---------|
-| [← API REST](13-api-endpoints.md) | [Solução de Problemas →](15-solucao-problemas.md) |
+| [← API REST](ref-api-endpoints.md) | [Solução de Problemas →](ref-solucao-problemas.md) |

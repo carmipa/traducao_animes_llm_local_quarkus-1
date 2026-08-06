@@ -1,12 +1,12 @@
 # 🎵 Módulo: Karaokê Simples (KFX → Legenda Limpa)
 
-[← Troca Tipo Legenda](18-modulo-troca-tipo-legenda.md) | [Tradução de Karaokê →](22-modulo-traducao-karaoke.md)
+[← Troca Tipo Legenda](etapa-1.3-troca-tipo-legenda.md) | [Tradução de Karaokê →](etapa-4.1-traducao-karaoke.md)
 
 ---
 
 ## Para que serve
 
-Painel **"10. Karaokê Simples"** da SPA (grupo **Karaokê**). Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** gerados pelo Kara Templater do Aegisub — em legendas simples: **uma linha limpa por frase da música, no mesmo tempo do efeito original**. É o pré-requisito para a [Tradução de Karaokê](22-modulo-traducao-karaoke.md) e alivia players fracos que travam com KFX pesado.
+Painel **"10. Karaokê Simples"** da SPA (grupo **Karaokê**). Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** gerados pelo Kara Templater do Aegisub — em legendas simples: **uma linha limpa por frase da música, no mesmo tempo do efeito original**. É o pré-requisito para a [Tradução de Karaokê](etapa-4.1-traducao-karaoke.md) e alivia players fracos que travam com KFX pesado.
 
 ![Painel de Karaokê Simples](../src/main/resources/static/img/screenshots/karaoke-simples.png)
 
@@ -74,8 +74,8 @@ Operação puramente local (sem LLM, sem estado global) — roda assíncrona for
 ## Pontos de atenção
 
 - KFX **letra-por-letra** (a frase inteira desenhada caractere a caractere) é detectado pelo pico de eventos simultâneos e cortado nos "vales" de concorrência — KFX silábico clássico passa pelo caminho tradicional de gap.
-- Se a música ainda estiver em inglês após a simplificação, o próximo passo natural é a [Tradução de Karaokê](22-modulo-traducao-karaoke.md), que preserva o romaji e traduz só a camada inglesa.
-- Telemetria da operação (tipo `NOVO_KARAOKE`) alimenta o painel de [Telemetria](10-modulo-telemetria.md).
+- Se a música ainda estiver em inglês após a simplificação, o próximo passo natural é a [Tradução de Karaokê](etapa-4.1-traducao-karaoke.md), que preserva o romaji e traduz só a camada inglesa.
+- Telemetria da operação (tipo `NOVO_KARAOKE`) alimenta o painel de [Telemetria](modulo-telemetria.md).
 
 ---
 
@@ -83,4 +83,4 @@ Operação puramente local (sem LLM, sem estado global) — roda assíncrona for
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Troca Tipo Legenda](18-modulo-troca-tipo-legenda.md) | [Tradução de Karaokê →](22-modulo-traducao-karaoke.md) |
+| [← Troca Tipo Legenda](etapa-1.3-troca-tipo-legenda.md) | [Tradução de Karaokê →](etapa-4.1-traducao-karaoke.md) |

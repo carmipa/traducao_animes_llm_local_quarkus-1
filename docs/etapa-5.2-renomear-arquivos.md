@@ -1,6 +1,6 @@
 # 🧹 Módulo: Renomear Arquivos
 
-[← Remuxer](08-modulo-remuxer.md) | [Contextos & Lore →](09-contextos-lore.md)
+[← Remuxer](etapa-5.1-remuxer.md) | [Contextos & Lore →](modulo-contextos-lore.md)
 
 ---
 
@@ -63,7 +63,7 @@ sequenceDiagram
 - **Dry-run primeiro, sempre**: a simulação lista cada `antes → depois` sem tocar em nada.
 - **Undo garantido sem sujar a mídia**: ao aplicar, um manifesto `kronos_undo_renomeacao_<hash>.json` é salvo em `logs/renomear-arquivos/undo/` dentro do projeto; "Reverter" o lê e desfaz os `move` (o manifesto só é apagado se a reversão terminar sem erros).
 - Conflitos (destino já existe) são **pulados com erro logado** — nunca sobrescreve.
-- Cada arquivo renomeado incrementa a métrica `arquivosSanitizados` na [Telemetria](10-modulo-telemetria.md).
+- Cada arquivo renomeado incrementa a métrica `arquivosSanitizados` na [Telemetria](modulo-telemetria.md).
 
 ---
 
@@ -86,7 +86,7 @@ sequenceDiagram
 ## Pontos de atenção
 
 - O padrão gerado assume **S01** fixo — para temporadas ≠ 1, inclua a temporada no nome padrão manualmente ou renomeie por temporada em pastas separadas.
-- Renomear vídeos **depois** de traduzir/remuxar quebra o pareamento vídeo ↔ legenda do [Remuxer](08-modulo-remuxer.md) — o lugar natural do Renomear Arquivos é **antes** da Análise de Mídia ou **após o remux final**, na coleção pronta.
+- Renomear vídeos **depois** de traduzir/remuxar quebra o pareamento vídeo ↔ legenda do [Remuxer](etapa-5.1-remuxer.md) — o lugar natural do Renomear Arquivos é **antes** da Análise de Mídia ou **após o remux final**, na coleção pronta.
 - A pasta alvo de mídia não recebe manifesto, backup ou arquivo operacional do KRONOS. O undo fica em `logs/renomear-arquivos/undo/` dentro do projeto.
 
 ---
@@ -95,4 +95,4 @@ sequenceDiagram
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Remuxer](08-modulo-remuxer.md) | [Contextos & Lore →](09-contextos-lore.md) |
+| [← Remuxer](etapa-5.1-remuxer.md) | [Contextos & Lore →](modulo-contextos-lore.md) |

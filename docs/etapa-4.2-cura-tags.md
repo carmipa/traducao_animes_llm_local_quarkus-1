@@ -1,6 +1,6 @@
 # Modulo: Correcao de Legendas
 
-[<- Correcao & Revisao](06-modulo-correcao-revisao.md) | [Revisao de Lore ->](16-modulo-revisao-lore.md)
+[<- Correcao & Revisao](etapa-2.3-correcao-revisao.md) | [Revisao de Lore ->](etapa-3.2-revisao-lore.md)
 
 ---
 
@@ -151,4 +151,4 @@ Alias legado mantido para compatibilidade.
 
 | Anterior | Proximo |
 |----------|---------|
-| [<- Correcao & Revisao](06-modulo-correcao-revisao.md) | [Revisao de Lore ->](16-modulo-revisao-lore.md) |
+| [<- Correcao & Revisao](etapa-2.3-correcao-revisao.md) | [Revisao de Lore ->](etapa-3.2-revisao-lore.md) |

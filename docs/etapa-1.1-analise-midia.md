@@ -1,6 +1,6 @@
 # 🔍 Módulo: Análise de Mídia
 
-[← Instalação](02-instalacao.md) | [Extração de Legendas →](04-modulo-extracao-legendas.md)
+[← Instalação](instalacao.md) | [Extração de Legendas →](etapa-1.2-extracao-legendas.md)
 
 ---
 
@@ -10,7 +10,7 @@ Primeira etapa do pipeline: **auditoria técnica** de arquivos de vídeo antes d
 
 > ⚠️ Este módulo **não** emite um veredito confiável de sincronismo. O `ffprobe` fornece apenas **metadados técnicos** (durações, codecs, flags). A duração de uma faixa de legenda quando comparada à do vídeo é reportada como **informação**, não como diagnóstico — e frequentemente é um placeholder (igual à do vídeo), não um valor real. Um atraso constante ou uma incompatibilidade entre releases (legenda de um fansub/encode diferente do vídeo) só pode ser confirmado analisando os **eventos temporais da própria legenda**, o que está fora do escopo atual. Qualquer diagnóstico futuro de sincronismo deve ser tratado como **heurística, não como certeza**.
 
-> 📖 Contexto real de uso: numa sessão de suporte, a legenda de um filme (*Gundam Narrative*) chegava "adiantada" desde a primeira fala — a causa raiz era a legenda ter sido extraída de um release/encode diferente (grupo de fansub distinto) do vídeo usado no remux. A análise técnica ajuda a levantar os metadados, mas a confirmação do desalinhamento exigiu inspecionar os tempos dos eventos da legenda. Ver [Solução de Problemas](15-solucao-problemas.md#legenda-dessincronizada-desde-o-inicio).
+> 📖 Contexto real de uso: numa sessão de suporte, a legenda de um filme (*Gundam Narrative*) chegava "adiantada" desde a primeira fala — a causa raiz era a legenda ter sido extraída de um release/encode diferente (grupo de fansub distinto) do vídeo usado no remux. A análise técnica ajuda a levantar os metadados, mas a confirmação do desalinhamento exigiu inspecionar os tempos dos eventos da legenda. Ver [Solução de Problemas](ref-solucao-problemas.md#legenda-dessincronizada-desde-o-inicio).
 
 ![Painel de Análise de Mídia](../src/main/resources/static/img/screenshots/analise-midia.webp)
 
@@ -105,7 +105,7 @@ O resultado sempre abre com uma seção **"FORMATO DE LEGENDA DETECTADO"**, list
 
 `entrada` é obrigatório (pasta ou arquivo de vídeo). `saida` é opcional.
 
-**Resposta imediata:** `200 OK` com `{"mensagem": "Análise de mídia iniciada no servidor."}`. O job roda em segundo plano; o resultado chega via **SSE** no canal `analise-relatorio` como o **JSON do `ResultadoAnaliseLote`** (ver [API REST — Referência](13-api-endpoints.md)).
+**Resposta imediata:** `200 OK` com `{"mensagem": "Análise de mídia iniciada no servidor."}`. O job roda em segundo plano; o resultado chega via **SSE** no canal `analise-relatorio` como o **JSON do `ResultadoAnaliseLote`** (ver [API REST — Referência](ref-api-endpoints.md)).
 
 **Saída em disco:**
 - **Nenhum relatório de análise é gravado automaticamente.** O resultado completo aparece no HTML a partir do JSON estruturado.
@@ -118,4 +118,4 @@ O resultado sempre abre com uma seção **"FORMATO DE LEGENDA DETECTADO"**, list
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Instalação](02-instalacao.md) | [Extração de Legendas →](04-modulo-extracao-legendas.md) |
+| [← Instalação](instalacao.md) | [Extração de Legendas →](etapa-1.2-extracao-legendas.md) |

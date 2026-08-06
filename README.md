@@ -31,7 +31,7 @@ O **KRONOS CORE** é uma plataforma de automação para **tradução industrial 
 - 🔍 **Auditoria técnica de mídia** (ffprobe) com classificação de traduzibilidade das legendas (texto vs. bitmap)
 - ✂️ **Extração em lote** de faixas de legenda (ASS/SRT/PGS) de MKV/MP4/qualquer contêiner comum
 - 🔎 **Análise de Conteúdo de legendas** — 5 regras de auditoria contra anomalias de LLM, efeitos vazados e karaokê danificado, antes e depois da tradução
-- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (56+ contextos)
+- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (**72 contextos**)
 - 🩹 **Três fluxos de correção/revisão** (LLM, Google Translate, heurística de concordância PT-BR)
 - 🧵 **Restauração estrutural de tags ASS** corrompidas por alucinação de IA (Aegisub/Kara Templater)
 - 📖 **Revisão de Lore** pós-tradução — nomes, locais e termos de mundo validados contra a lore oficial da obra, com trilha de auditoria por fala
@@ -52,36 +52,42 @@ Tudo rodando sobre **Java 25 + Quarkus** com uma SPA própria (HTML/CSS/JS puro,
 
 > Clique em qualquer seção para ir à documentação detalhada.
 
-[![Arquitetura](https://img.shields.io/badge/Docs-Arquitetura-3B82F6?style=flat-square&logo=readthedocs&logoColor=white)](docs/01-arquitetura.md)
-[![Instalação](https://img.shields.io/badge/Docs-Instalação-10B981?style=flat-square&logo=bookstack&logoColor=white)](docs/02-instalacao.md)
-[![API REST](https://img.shields.io/badge/Docs-API_REST-8B5CF6?style=flat-square&logo=swagger&logoColor=white)](docs/13-api-endpoints.md)
-[![Configuração](https://img.shields.io/badge/Docs-Configuração-F59E0B?style=flat-square&logo=gnometerminal&logoColor=white)](docs/14-configuracao.md)
-[![Troubleshooting](https://img.shields.io/badge/Docs-Solução_de_Problemas-F43F5E?style=flat-square&logo=githubactions&logoColor=white)](docs/15-solucao-problemas.md)
+[![Arquitetura](https://img.shields.io/badge/Docs-Arquitetura-3B82F6?style=flat-square&logo=readthedocs&logoColor=white)](docs/arquitetura.md)
+[![Instalação](https://img.shields.io/badge/Docs-Instalação-10B981?style=flat-square&logo=bookstack&logoColor=white)](docs/instalacao.md)
+[![API REST](https://img.shields.io/badge/Docs-API_REST-8B5CF6?style=flat-square&logo=swagger&logoColor=white)](docs/ref-api-endpoints.md)
+[![Configuração](https://img.shields.io/badge/Docs-Configuração-F59E0B?style=flat-square&logo=gnometerminal&logoColor=white)](docs/ref-configuracao.md)
+[![Troubleshooting](https://img.shields.io/badge/Docs-Solução_de_Problemas-F43F5E?style=flat-square&logo=githubactions&logoColor=white)](docs/ref-solucao-problemas.md)
+[![Catracas](https://img.shields.io/badge/Docs-Catracas_&_Fronteiras-FB923C?style=flat-square&logo=shieldsdotio&logoColor=white)](docs/catracas-e-fronteiras.md)
 
-| # | Módulo | Descrição |
+A tabela segue a **ordem de execução do pipeline**, e desde 06/08/2026 o **nome do arquivo
+carrega a etapa** (`etapa-1.3-troca-tipo-legenda.md`). O número no nome deixou de ser
+histórico justamente porque numeração que não acompanha a ordem vira mentira silenciosa.
+
+| Passo | Módulo | Descrição |
 |---|--------|-----------|
-| 📐 | [**Arquitetura**](docs/01-arquitetura.md) | Visão geral, diagramas de componentes e fluxos de dados |
-| 🚀 | [**Instalação & Configuração**](docs/02-instalacao.md) | Pré-requisitos, setup local e primeiros passos |
-| 🔍 | [**Análise de Mídia**](docs/03-modulo-analise-midia.md) | Auditoria ffprobe e classificação de traduzibilidade das legendas (texto/bitmap) |
-| ✂️ | [**Extração de Legendas**](docs/04-modulo-extracao-legendas.md) | Extração em lote ASS/SRT/PGS via MKVToolNix/ffmpeg |
-| 🔎 | [**Análise de Conteúdo**](docs/20-modulo-analise-conteudo.md) | Auditoria de anomalias: efeitos vazados, karaokê danificado, alucinações de LLM |
-| 🌐 | [**Tradução Local (LLM)**](docs/05-modulo-traducao-llm.md) | Núcleo: LM Studio, cache, proteção de tags, contextos |
-| 🩹 | [**Correção & Revisão**](docs/06-modulo-correcao-revisao.md) | Os 3 fluxos: LLM, Google Translate, concordância PT-BR |
-| 🧵 | [**Cura de Tags**](docs/07-modulo-cura-tags.md) | Restauração estrutural de tags ASS/Kara Templater |
-| 📖 | [**Revisão de Lore**](docs/16-modulo-revisao-lore.md) | Corrige nomes, locais e termos de lore comparando com o original em inglês |
-| 🔤 | [**Troca Tipo Legenda**](docs/18-modulo-troca-tipo-legenda.md) | Auditoria e troca em lote de fontes legadas (TCVN3/VNI) por fontes Unicode |
-| 🎵 | [**Karaokê Simples**](docs/21-modulo-karaoke-simples.md) | Converte karaokê KFX em linhas simples e limpas, no tempo original |
-| 🎤 | [**Tradução de Karaokê**](docs/22-modulo-traducao-karaoke.md) | Romaji preservado + letra em inglês traduzida para PT-BR, lado a lado |
-| 📦 | [**Remuxer**](docs/08-modulo-remuxer.md) | Combina vídeo + legenda em MKV final |
-| 🧹 | [**Renomear Arquivos**](docs/19-modulo-renomear-arquivos.md) | Renomeação em lote para o padrão `Nome - S01E01`, com dry-run e undo |
-| 🎭 | [**Contextos & Lore**](docs/09-contextos-lore.md) | Sistema de lore por anime — 56+ contextos cadastrados |
-| 📊 | [**Telemetria**](docs/10-modulo-telemetria.md) | Rastreamento de operações e métricas de JVM em tempo real |
-| 🎬 | [**Metadados de Anime**](docs/11-modulo-metadados-anime.md) | Integração Jikan/MAL e TMDB para pôster/sinopse na UI |
-| 🗺️ | [**Mapa do Projeto**](docs/12-modulo-mapa-projeto.md) | Gerador automático do índice de código-fonte |
-| 📋 | [**API REST — Referência**](docs/13-api-endpoints.md) | Todos os endpoints documentados com exemplos |
-| ⚙️ | [**Configuração**](docs/14-configuracao.md) | Referência completa de `application.yml` |
-| 🩺 | [**Solução de Problemas**](docs/15-solucao-problemas.md) | Diagnósticos reais: dessincronismo, LM Studio, SSE |
-| 🧠 | [**Memória de Decisões da IA**](docs/17-memoria-decisoes-ia.md) | Registro das decisões de engenharia tomadas com assistência de IA |
+| — 📐 | [**Arquitetura**](docs/arquitetura.md) | Visão geral, diagramas de componentes e fluxos de dados |
+| — 🚦 | [**Catracas & Fronteiras**](docs/catracas-e-fronteiras.md) | As 13 guardas executáveis que reprovam o build — como a regra sobrevive à troca de IA |
+| — 🚀 | [**Instalação & Configuração**](docs/instalacao.md) | Pré-requisitos, setup local e primeiros passos |
+| **1.1** 🔍 | [**Análise de Mídia**](docs/etapa-1.1-analise-midia.md) | Auditoria ffprobe e classificação de traduzibilidade das legendas (texto/bitmap) |
+| **1.2** ✂️ | [**Extração de Legendas**](docs/etapa-1.2-extracao-legendas.md) | Extração em lote ASS/SRT/PGS via MKVToolNix/ffmpeg |
+| **1.3** 🔤 | [**Troca de Tipo de Legenda**](docs/etapa-1.3-troca-tipo-legenda.md) | Troca fontes legadas (TCVN3/VNI) por Unicode — **antes** de traduzir, para o texto não chegar corrompido ao LLM |
+| **1.4** 🔎 | [**Análise de Legenda**](docs/etapa-1.4-analise-conteudo.md) | Auditoria de anomalias: efeitos vazados, karaokê danificado, alucinações de LLM |
+| **2.1** 🌐 | [**Tradução Local (LLM)**](docs/etapa-2.1-traducao-llm.md) | Núcleo: LM Studio, cache, proteção de tags, contextos |
+| **2.3** 🩹 | [**Correção & Revisão**](docs/etapa-2.3-correcao-revisao.md) | Os 3 fluxos: LLM, Google Translate, concordância PT-BR |
+| **3.2** 📖 | [**Revisão de Lore**](docs/etapa-3.2-revisao-lore.md) | Corrige nomes, locais e termos de lore comparando com o original em inglês |
+| **4.1** 🎤 | [**Tradução de Karaokê**](docs/etapa-4.1-traducao-karaoke.md) | Romaji preservado + letra em inglês traduzida para PT-BR, lado a lado |
+| **4.2** 🧵 | [**Correção de Karaokê**](docs/etapa-4.2-cura-tags.md) | Restauração estrutural de tags ASS/Kara Templater |
+| **4.3** 🎵 | [**Karaokê Simples**](docs/etapa-4.3-karaoke-simples.md) | Converte karaokê KFX em linhas simples, no tempo original. **Destrutivo — último do bloco** |
+| **5.1** 📦 | [**Remuxer**](docs/etapa-5.1-remuxer.md) | Combina vídeo + legenda em MKV final |
+| **5.2** 🧹 | [**Renomear Arquivos**](docs/etapa-5.2-renomear-arquivos.md) | Renomeação em lote para o padrão `Nome - S01E01`, com dry-run e undo |
+| 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **72 contextos** cadastrados |
+| 📊 | [**Telemetria**](docs/modulo-telemetria.md) | Rastreamento de operações e métricas de JVM em tempo real |
+| 🎬 | [**Metadados de Anime**](docs/modulo-metadados-anime.md) | Integração Jikan/MAL e TMDB para pôster/sinopse na UI |
+| 🗺️ | [**Mapa do Projeto**](docs/modulo-mapa-projeto.md) | Gerador automático do índice de código-fonte |
+| 📋 | [**API REST — Referência**](docs/ref-api-endpoints.md) | Todos os endpoints documentados com exemplos |
+| ⚙️ | [**Configuração**](docs/ref-configuracao.md) | Referência completa de `application.yml` |
+| 🩺 | [**Solução de Problemas**](docs/ref-solucao-problemas.md) | Diagnósticos reais: dessincronismo, LM Studio, SSE |
+| 🧠 | [**Memória de Decisões da IA**](docs/ref-memoria-decisoes-ia.md) | Registro das decisões de engenharia tomadas com assistência de IA |
 
 > A mesma navegação está disponível **dentro da aplicação**, no menu **📖 Documentação** da interface web.
 
@@ -108,7 +114,7 @@ cd traducao_animes_llm_local_quarkus
 ./gradlew quarkusDev
 ```
 
-> O servidor sobe em **`http://127.0.0.1:8080`** e o navegador abre automaticamente. Detalhes completos em [Instalação & Configuração](docs/02-instalacao.md).
+> O servidor sobe em **`http://127.0.0.1:8080`** e o navegador abre automaticamente. Detalhes completos em [Instalação & Configuração](docs/instalacao.md).
 
 ---
 
@@ -116,59 +122,106 @@ cd traducao_animes_llm_local_quarkus
 
 ```mermaid
 graph TD
-    SPA["🖥️ SPA — HTML/CSS/JS puro + SSE"] --> CTRL["🎮 ~21 controllers REST<br/>um por fatia (prefixo /api)"]
-    CTRL --> SLICES["🧩 27 fatias verticais<br/>fronteiras congeladas por ArchUnit"]
-    SLICES --> PEERS["🧱 Peers importáveis<br/>legenda · cachetraducao · contexto · qualidadeTraducao · llm"]
-    SLICES --> EXT["🌍 LM Studio (GPU) · MKVToolNix · FFmpeg"]
+    SPA["🖥️ SPA — HTML/CSS/JS puro + SSE<br/>17 telas, sem framework"] --> CTRL["🎮 19 controllers REST<br/>34 endpoints sob /api"]
+    CTRL --> SLICES["🧩 20 fatias verticais<br/>uma etapa do pipeline cada"]
+    SLICES --> PEERS["🧱 5 peers importáveis<br/>legenda · cachetraducao · contexto<br/>qualidadeTraducao · llm"]
+    SLICES --> CORE["⚙️ core — 16 tipos<br/>fila · I/O atômico · SSE · fronteira ASS"]
+    PEERS --> CORE
+    SLICES --> EXT["🌍 LM Studio (GPU)<br/>MKVToolNix · FFmpeg"]
     PEERS --> EXT
+    GUARD["🚦 13 guardas executáveis<br/>9 fronteiras ArchUnit + 4 catracas<br/><i>reprovam o build, não avisam</i>"] -.->|congela as arestas| SLICES
 
     classDef a fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
     classDef b fill:#312e81,stroke:#818CF8,color:#F9FAFB
     classDef c fill:#14532d,stroke:#4ADE80,color:#F9FAFB
     classDef d fill:#0f172a,stroke:#10B981,color:#F9FAFB
+    classDef e fill:#1e293b,stroke:#6B7280,color:#F9FAFB
+    classDef g fill:#7c2d12,stroke:#FB923C,color:#F9FAFB
     class SPA,CTRL a
     class SLICES b
     class PEERS c
     class EXT d
+    class CORE e
+    class GUARD g
 ```
 
-> Diagrama completo com fluxo de dados e decisões de arquitetura em [docs/01-arquitetura.md](docs/01-arquitetura.md).
+> **63.942 linhas de Java em 577 classes**, cobertas por **1.440 testes**. Os números acima são
+> contados, não estimados — se algum divergir do código, é bug de documentação.
+
+> Diagrama completo com fluxo de dados e decisões de arquitetura em [docs/arquitetura.md](docs/arquitetura.md).
 
 ---
 
 ## Pipeline de Trabalho
 
+A numeração `GRUPO.POSIÇÃO` é a mesma do menu da aplicação, e a cor de cada bloco aqui é a
+cor daquele grupo na tela. O número **é** a ordem de execução — não é rótulo decorativo.
+
 ```mermaid
 graph LR
-    A["📼 Vídeo"] --> B["🔍 Análise"]
-    B --> C["✂️ Extração"]
-    C --> AC["🔎 Análise de Conteúdo"]
-    AC --> D["🌐 Tradução"]
-    D --> E["🩹 Correção/Revisão"]
-    E --> F2["📖 Revisão de Lore"]
-    F2 --> F3["🔤 Troca de Fonte"]
-    F3 --> K1["🎵 Karaokê Simples"]
-    K1 --> K2["🎤 Tradução de Karaokê"]
-    K2 --> F["🧵 Correção de Karaoke"]
-    F --> G["📦 Remuxer"]
-    G --> H["🎬 MKV Final"]
-    H -.-> I["🧹 Renomear Arquivos"]
+    A["📼 Vídeo original"]:::midia
 
-    classDef prep fill:#0c4a6e,stroke:#38BDF8,color:#F9FAFB
-    classDef trad fill:#312e81,stroke:#818CF8,color:#F9FAFB
-    classDef qual fill:#14532d,stroke:#4ADE80,color:#F9FAFB
+    subgraph P["1 · PREPARAÇÃO"]
+        direction LR
+        P1["1.1 Análise de Mídia"] --> P2["1.2 Extração"] --> P3["1.3 Troca de Tipo de Legenda"] --> P4["1.4 Análise de Legenda"]
+    end
+
+    subgraph T["2 · TRADUÇÃO"]
+        direction LR
+        T1["2.1 Tradução Local"] --> T3["2.3 Correção de Cache"]
+        T2["2.2 Tradução sem Lore"] --> T3
+    end
+
+    subgraph Q["3 · QUALIDADE"]
+        direction LR
+        Q1["3.1 Revisão de Legendas"] --> Q2["3.2 Revisão de Lore"] --> Q3["3.3 Revisão de Concordância"]
+    end
+
+    subgraph K["4 · KARAOKÊ"]
+        direction LR
+        K1["4.1 Tradução de Karaokê"] --> K2["4.2 Correção de Karaokê"] --> K3["4.3 Karaokê Simples ⚠️"]
+    end
+
+    subgraph F["5 · FINALIZAÇÃO"]
+        direction LR
+        F1["5.1 Remuxer"] --> F2["5.2 Renomear Arquivos"]
+    end
+
+    A --> P1
+    P4 --> T1
+    T3 --> Q1
+    Q3 --> K1
+    K3 --> F1
+    F2 --> Z["🎬 MKV final"]:::midia
+
+    classDef prep fill:#134e4a,stroke:#2DD4BF,color:#F9FAFB
+    classDef trad fill:#064e3b,stroke:#34D399,color:#F9FAFB
+    classDef qual fill:#4c1d95,stroke:#A78BFA,color:#F9FAFB
     classDef kara fill:#831843,stroke:#F472B6,color:#F9FAFB
-    classDef fin fill:#7c2d12,stroke:#FB923C,color:#F9FAFB
+    classDef fin fill:#78350f,stroke:#FBBF24,color:#F9FAFB
     classDef midia fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
-    class B,C,AC prep
-    class D,E trad
-    class F2,F3 qual
-    class K1,K2,F kara
-    class G,I fin
-    class A,H midia
+    class P1,P2,P3,P4 prep
+    class T1,T2,T3 trad
+    class Q1,Q2,Q3 qual
+    class K1,K2,K3 kara
+    class F1,F2 fin
 ```
 
-Cada etapa é **independente e re-executável** — rode só a etapa que precisar, sem repetir o pipeline inteiro. Detalhes em [Arquitetura — Pipeline Completo](docs/01-arquitetura.md#diagrama-de-fluxo--pipeline-completo-visão-de-negócio).
+> **Por que a troca de fonte é `1.3` e não acabamento.** Fonte legada (`.VnTimes` e afins) não é
+> problema de aparência: o arquivo guarda bytes que só viram letra quando renderizados com
+> aquela fonte. Se isso chega ao LLM, ele traduz mojibake com toda a confiança e o defeito só
+> aparece na tela. É pré-requisito da tradução. Estava em `5.1` até 06/08/2026.
+
+Cada etapa é **independente e re-executável** — rode só a que precisar, sem repetir o pipeline
+inteiro. O `2.2 Tradução sem Lore` é rota alternativa ao `2.1`, para obra ainda sem lore
+declarada; escreve em pasta separada e não disputa a saída.
+
+> ⚠️ **O `4.3 Karaokê Simples` é o último do bloco de propósito.** Ele apaga a animação KFX e o
+> arquivo gerado não se desfaz — por isso traduzir (`4.1`) e corrigir (`4.2`) a letra vêm antes.
+> Até 05/08/2026 ele era o "10.", primeiro do grupo, e o número dizia o oposto da regra seguida
+> na prática. Hoje a ordem é cobrada por teste (`WebInterfaceTest`).
+
+Detalhes em [Arquitetura — Pipeline Completo](docs/arquitetura.md#diagrama-de-fluxo--pipeline-completo-visão-de-negócio).
 
 ---
 
@@ -214,16 +267,19 @@ traducao_animes_llm_local_quarkus/
 │   │   ── Peers (importáveis; superfície congelada por ArchUnit) ──
 │   ├── legenda/                 ← Modelo + I/O .ass/.srt
 │   ├── cachetraducao/           ← Dono único do cache (+ proveniência)
-│   ├── contexto/                ← 61 lores + regras de concordância PT-BR
+│   ├── contexto/                ← 72 lores + regras de concordância PT-BR (93 classes)
 │   ├── qualidadeTraducao/       ← Máscara de tags + validação anti-alucinação
 │   ├── llm/                     ← Contrato neutro do LLM (LlmPort)
 │   │   ── Infra transversal ──
-│   ├── core/                    ← FilaExecucaoPipeline, I/O atômico, kernel web/SSE
+│   ├── core/                    ← Fila, I/O atômico, kernel web/SSE, fronteira ASS (16 tipos)
 │   └── config/                  ← Bootstrap (modo WEB vs CLI)
 │
 ├── src/main/resources/static/   ← SPA (HTML/CSS/JS por painel) + img/screenshots
 ├── src/main/resources/application.yml  ← Configuração principal
-├── src/test/                    ← Testes (inclui fitness ArchUnit: Fronteira*ArchTest)
+├── src/test/                    ← 1.440 testes, incluindo:
+│   ├── **/arquitetura/          ←   catracas (Catraca*Test) — padrão perigoso não voltou
+│   ├── **/Fronteira*ArchTest    ←   9 fronteiras ArchUnit por tipo exato
+│   └── **/medicao/              ←   harnesses de medição sobre o acervo (desligados por padrão)
 ├── docs/                        ← Esta documentação
 └── build.gradle
 ```
@@ -234,14 +290,24 @@ traducao_animes_llm_local_quarkus/
 
 A barra lateral organiza os painéis em **6 grupos acordeão** (recolhíveis, com estado lembrado entre visitas), espelhando a ordem do pipeline:
 
-| Grupo | Painéis |
-|-------|---------|
-| 🎬 **Preparação** | `1. Análise de Mídia` · `2. Extração` · `3. Análise de Legenda` |
-| 🌐 **Tradução** | `4. Tradução Local` · `5. Correção Cache` |
-| ✅ **Qualidade** | `6. Revisão de Legendas` · `7. Revisão de Lore` · `8. Revisão de Concordância` · `9. Troca Tipo Legenda` |
-| 🎤 **Karaokê** | `10. Karaokê Simples` · `11. Tradução de Karaokê` · `12. Correção de Karaoke` |
-| 📦 **Finalização** | `13. Remuxer` · `14. Renomear Arquivos` |
-| ⚙️ **Sistema** | `Telemetria` · `Mapa do Projeto` · **`Documentação`** · `Sobre` |
+| Grupo | Cor | Painéis |
+|-------|-----|---------|
+| 🎬 **Preparação** | teal | `1.1 Análise de Mídia` · `1.2 Extração` · `1.3 Troca de Tipo de Legenda` · `1.4 Análise de Legenda` |
+| 🌐 **Tradução** | verde | `2.1 Tradução Local` · `2.2 Tradução sem Lore` · `2.3 Correção de Cache` |
+| ✅ **Qualidade** | roxo | `3.1 Revisão de Legendas` · `3.2 Revisão de Lore` · `3.3 Revisão de Concordância` |
+| 🎤 **Karaokê** | rosa | `4.1 Tradução de Karaokê` · `4.2 Correção de Karaokê` · `4.3 Karaokê Simples` |
+| 📦 **Finalização** | âmbar | `5.1 Remuxer` · `5.2 Renomear Arquivos` |
+| ⚙️ **Sistema** | índigo | `Telemetria` · `Mapa do Projeto` · **`Documentação`** · `Sobre` |
+
+A numeração é `GRUPO.POSIÇÃO`, e a primeira casa identifica o bloco — a cor do cartão na tela
+inicial repete essa mesma casa. O grupo **Sistema** não tem número de propósito: são telas de
+consulta, não passos a executar, e numerá-las sugeriria um "6." que não existe.
+
+> **Por que mudou (05/08/2026).** A numeração anterior era corrida de `1.` a `14.`, com um `4b.`
+> — um item que não coube na régua e ganhou uma letra. Pior: conviviam **quatro** numerações
+> diferentes no repositório (rótulos do menu, comentários do HTML com números repetidos,
+> comentários do CSS e o mapa de títulos do JS), e nenhuma batia com as outras. Hoje a regra é
+> cobrada por teste: no grupo de ordem G, o item de posição N começa com `G.N`.
 
 O menu **Documentação** renderiza esta mesma pasta `docs/` dentro da própria aplicação (incluindo os diagramas Mermaid), sem precisar sair do app ou abrir o GitHub.
 

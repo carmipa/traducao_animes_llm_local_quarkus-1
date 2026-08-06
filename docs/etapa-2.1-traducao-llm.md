@@ -1,6 +1,6 @@
 # 🌐 Módulo: Tradução Local (LLM)
 
-[← Extração de Legendas](04-modulo-extracao-legendas.md) | [Correção & Revisão →](06-modulo-correcao-revisao.md)
+[← Extração de Legendas](etapa-1.2-extracao-legendas.md) | [Correção & Revisão →](etapa-2.3-correcao-revisao.md)
 
 ---
 
@@ -19,17 +19,17 @@ O núcleo do pipeline: traduz cada fala de uma legenda `.ass`/`.ssa` do inglês 
 | `ProcessarArquivoUseCase` (fatia `traducao`, `application`) | Orquestra: lê o `.ass`, separa falas por lote, consulta o cache, envia pendências ao LLM, valida e escreve o `.ass` traduzido |
 | `LlmClientAdapter` (`traducao/infrastructure/adapters`) | Implementa `LlmPort` (peer **`llm`**) — cliente HTTP OpenAI-compatible para o LM Studio; é o **ponto de composição** do peer `llm` |
 | `CacheTraducaoService` / `EntradaCache` / `ProvenienciaCache` (peer **`cachetraducao`**) | **Dono único** do cache: persiste o par original↔traduzido por arquivo e carimba a **proveniência** (ver abaixo) |
-| `GerenciadorContexto` / `ProvedorContexto` (peer **`contexto`**) | Sistema de lore por anime — ver [Contextos & Lore](09-contextos-lore.md) |
+| `GerenciadorContexto` / `ProvedorContexto` (peer **`contexto`**) | Sistema de lore por anime — ver [Contextos & Lore](modulo-contextos-lore.md) |
 | `LeitorLegendaAss` / `EscritorLegendaAss` (peer **`legenda`**) | Parser/escritor do `.ass` — preserva timestamps e formatação **byte a byte**, só troca o campo `Text` |
 | `MascaradorTags` / `ValidadorTraducaoService` / `DetectorTraducaoIdenticaService` (peer **`qualidadeTraducao`**) | Máscara de tags ASS, detecção de resíduo/alucinação e de tradução idêntica ao original (falha silenciosa) |
 
-> As classes de cache, legenda, contexto, qualidade e LLM vivem em **fatias peer próprias** (`cachetraducao`, `legenda`, `contexto`, `qualidadeTraducao`, `llm`), importadas pela Tradução Local por uma fronteira **congelada por ArchUnit** — ver [Arquitetura](01-arquitetura.md#fatias-verticais-peers-e-fronteiras-congeladas-archunit).
+> As classes de cache, legenda, contexto, qualidade e LLM vivem em **fatias peer próprias** (`cachetraducao`, `legenda`, `contexto`, `qualidadeTraducao`, `llm`), importadas pela Tradução Local por uma fronteira **congelada por ArchUnit** — ver [Arquitetura](arquitetura.md#fatias-verticais-peers-e-fronteiras-congeladas-archunit).
 
 ---
 
 ## Por que o parser de `.ass` nunca interpreta timestamps
 
-Uma decisão de design deliberada: `LeitorLegendaAss` separa cada linha `Dialogue:`/`Comment:` em **`prefixo`** (tudo até o penúltimo campo do `Format:` — inclui `Start`, `End`, `Style`, posicionamento) e **`texto`** (só o último campo, que vai para tradução). O parser **nunca decompõe `H:MM:SS.cc`** — o prefixo é tratado como string opaca e devolvido bit a bit idêntico na escrita. Isso garante que **a tradução nunca pode introduzir dessincronização de tempo** — se uma legenda sai dessincronizada depois de traduzida, a causa está em outro lugar (ex.: legenda de origem que já veio de um release diferente do vídeo — ver [Solução de Problemas](15-solucao-problemas.md)).
+Uma decisão de design deliberada: `LeitorLegendaAss` separa cada linha `Dialogue:`/`Comment:` em **`prefixo`** (tudo até o penúltimo campo do `Format:` — inclui `Start`, `End`, `Style`, posicionamento) e **`texto`** (só o último campo, que vai para tradução). O parser **nunca decompõe `H:MM:SS.cc`** — o prefixo é tratado como string opaca e devolvido bit a bit idêntico na escrita. Isso garante que **a tradução nunca pode introduzir dessincronização de tempo** — se uma legenda sai dessincronizada depois de traduzida, a causa está em outro lugar (ex.: legenda de origem que já veio de um release diferente do vídeo — ver [Solução de Problemas](ref-solucao-problemas.md)).
 
 ---
 
@@ -74,7 +74,7 @@ sequenceDiagram
 - **Localização:** `cache/<espelha a pasta de entrada>/<nomeLegenda>.cache.json` — ex. `cache/86/86 Part1/[DB]86_-_01_..._ENG.cache.json`.
 - **Chave de lookup:** o **texto original**, não o índice — se a mesma frase aparecer em falas diferentes, a mesma tradução é reaproveitada (cada evento mantém seu próprio timestamp, então isso nunca afeta sincronismo).
 - **Editável manualmente:** o operador pode abrir o `.cache.json` e corrigir uma tradução na mão; na próxima execução, o valor corrigido é respeitado (não é sobrescrito, a menos que o texto original mude).
-- **Entradas de falha:** quando o LLM devolve o mesmo texto (não traduziu), a entrada é salva com `original == traduzido` — esse é o "fallback de falha" que os 3 fluxos de [Correção & Revisão](06-modulo-correcao-revisao.md) tratam de formas diferentes.
+- **Entradas de falha:** quando o LLM devolve o mesmo texto (não traduziu), a entrada é salva com `original == traduzido` — esse é o "fallback de falha" que os 3 fluxos de [Correção & Revisão](etapa-2.3-correcao-revisao.md) tratam de formas diferentes.
 - **Proveniência (`ProvenienciaCache`):** cada arquivo de cache carrega um hash de proveniência (`contextoHash` = SHA-256 do prompt de sistema/lore, mais modelo e idiomas). Se a **lore ou o modelo mudam**, o cache anterior é **arquivado e não reusado** — a fala é retraduzida sob o contexto atual, em vez de servir uma tradução feita sob outra lore.
 
 ---
@@ -99,7 +99,7 @@ Antes de enviar ao LLM, o `MascaradorTags` substitui blocos `{...}` por marcador
 
 ## Modelo "coringa": `tradutor.llm.model: "current"`
 
-O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"current"`, nunca o id fixo de um modelo (ex. `"mistralai/mistral-nemo-instruct-2407"`). Ao iniciar cada operação, `LlmClientAdapter.verificarDisponibilidade()` consulta o LM Studio para descobrir **qual modelo está de fato carregado em memória** (via a API estendida `/api/v0/models`, que expõe o campo `state: "loaded"`) e adapta o valor em runtime. Isso permite trocar o modelo ativo direto na UI/CLI do LM Studio (`lms load`) sem tocar no `application.yml` nem recompilar — e evita que o app dispare um **auto-load de uma segunda instância de modelo** ao mandar uma requisição para um id que não bate com o que está carregado (ver detalhes técnicos em [Solução de Problemas](15-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente)).
+O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"current"`, nunca o id fixo de um modelo (ex. `"mistralai/mistral-nemo-instruct-2407"`). Ao iniciar cada operação, `LlmClientAdapter.verificarDisponibilidade()` consulta o LM Studio para descobrir **qual modelo está de fato carregado em memória** (via a API estendida `/api/v0/models`, que expõe o campo `state: "loaded"`) e adapta o valor em runtime. Isso permite trocar o modelo ativo direto na UI/CLI do LM Studio (`lms load`) sem tocar no `application.yml` nem recompilar — e evita que o app dispare um **auto-load de uma segunda instância de modelo** ao mandar uma requisição para um id que não bate com o que está carregado (ver detalhes técnicos em [Solução de Problemas](ref-solucao-problemas.md#lm-studio-carregando-dois-modelos-simultaneamente)).
 
 ---
 
@@ -107,7 +107,7 @@ O valor de `tradutor.llm.model` em `application.yml` é **sempre** o literal `"c
 
 Em PT-BR, adjetivos e particípios concordam em gênero com quem fala ("Estou cert**o**" vs "Estou cert**a**"). Só que a fonte `.ass` de fansub **não diz quem fala** — a coluna `Name`/Actor vem vazia (no Gundam 08th MS Team, em 325/325 falas). Como o pipeline traduz **linha a linha** (`lote=1`) e dedup/cacheia por texto original puro, o modelo não tem como inferir o gênero e erra: `Thank you, Norris.` — dito pela **Aina** — vira "Obrigad**o**".
 
-A Tradução Local **não** tenta resolver isso: é responsabilidade da [Revisão de Concordância](06-modulo-correcao-revisao.md), que atua depois, sobre a legenda já traduzida.
+A Tradução Local **não** tenta resolver isso: é responsabilidade da [Revisão de Concordância](etapa-2.3-correcao-revisao.md), que atua depois, sobre a legenda já traduzida.
 
 > Um motor experimental de correção por contexto de cena (piloto D) chegou a viver dentro desta fatia e foi **removido**: era tiro único, sem retry, e descartava o motivo da rejeição — esvaziou 22,6% das falas de diálogo em silêncio. Ver o registro no cérebro do projeto.
 
@@ -149,7 +149,7 @@ Palavra capitalizada comum **não** obriga. A regra anterior — qualquer maiús
 |-------|:-----------:|-----------|
 | `entrada` | ✅ | Pasta com legendas `.ass`/`.ssa` em inglês |
 | `saida` | ⚪ | Pasta de saída para os arquivos `_PT-BR.ass` |
-| `contextoId` | ⚪ | Id de um dos contextos/lore cadastrados (ver [Contextos & Lore](09-contextos-lore.md)); padrão `"danmachi"` |
+| `contextoId` | ⚪ | Id de um dos contextos/lore cadastrados (ver [Contextos & Lore](modulo-contextos-lore.md)); padrão `"danmachi"` |
 
 A resposta imediata é `200 OK` (job assíncrono); o progresso e relatório de cada lote chegam via **SSE** no canal `traducao`.
 
@@ -159,4 +159,4 @@ A resposta imediata é `200 OK` (job assíncrono); o progresso e relatório de c
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Extração de Legendas](04-modulo-extracao-legendas.md) | [Correção & Revisão →](06-modulo-correcao-revisao.md) |
+| [← Extração de Legendas](etapa-1.2-extracao-legendas.md) | [Correção & Revisão →](etapa-2.3-correcao-revisao.md) |

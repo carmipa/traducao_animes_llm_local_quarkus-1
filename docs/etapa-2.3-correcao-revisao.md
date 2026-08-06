@@ -1,6 +1,6 @@
 # 🩹 Módulo: Correção & Revisão
 
-[← Tradução Local](05-modulo-traducao-llm.md) | [Correção de Legendas →](07-modulo-cura-tags.md)
+[← Tradução Local](etapa-2.1-traducao-llm.md) | [Correção de Legendas →](etapa-4.2-cura-tags.md)
 
 ---
 
@@ -42,7 +42,7 @@ graph TD
 
 ## Fluxo 1 — Limpeza de cache (`traducaoCorrige`)
 
-`LimparCacheUseCase` varre `cache/**/*.cache.json` e **remove** (define como vazio) as entradas onde `original.equals(traduzido)` — o padrão de uma tradução que falhou silenciosamente. Não chama nenhum serviço externo; o objetivo é só preparar o terreno para que a próxima execução de [`/api/traduzir`](05-modulo-traducao-llm.md) trate essas falas como pendentes de novo.
+`LimparCacheUseCase` varre `cache/**/*.cache.json` e **remove** (define como vazio) as entradas onde `original.equals(traduzido)` — o padrão de uma tradução que falhou silenciosamente. Não chama nenhum serviço externo; o objetivo é só preparar o terreno para que a próxima execução de [`/api/traduzir`](etapa-2.1-traducao-llm.md) trate essas falas como pendentes de novo.
 
 ---
 
@@ -97,7 +97,7 @@ sequenceDiagram
 
 O painel **"8. Revisão de Concordância"** é uma passada **100% determinística (regex), sem LLM e sem precisar do original em inglês**: `CorretorConcordanciaGeneroService` conserta, direto na pasta `.ass` PT-BR, os casos de gênero **inequívoco** — artigo masculino + substantivo feminino (e vice-versa), `ela` + verbo de ligação + adjetivo masculino (e vice-versa) etc. Por ser barato e sem ambiguidade, roda em **dry-run** por padrão (`aplicar: false` — simula e reporta sem gravar) e só grava quando `aplicar: true`.
 
-É complementar aos fluxos 1–3 (que dependem do LLM e/ou do original): aqui o alvo são erros **óbvios** de concordância que já estão na legenda final, sem depender de saber quem fala. A Tradução Local não corrige gênero — ver a [limitação conhecida](05-modulo-traducao-llm.md#concordância-de-gênero-limitação-conhecida).
+É complementar aos fluxos 1–3 (que dependem do LLM e/ou do original): aqui o alvo são erros **óbvios** de concordância que já estão na legenda final, sem depender de saber quem fala. A Tradução Local não corrige gênero — ver a [limitação conhecida](etapa-2.1-traducao-llm.md#concordância-de-gênero-limitação-conhecida).
 
 ---
 
@@ -118,4 +118,4 @@ O painel **"8. Revisão de Concordância"** é uma passada **100% determinístic
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Tradução Local](05-modulo-traducao-llm.md) | [Correção de Legendas →](07-modulo-cura-tags.md) |
+| [← Tradução Local](etapa-2.1-traducao-llm.md) | [Correção de Legendas →](etapa-4.2-cura-tags.md) |

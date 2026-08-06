@@ -1,6 +1,6 @@
 # 🔎 Módulo: Análise de Conteúdo de Legendas
 
-[← Extração de Legendas](04-modulo-extracao-legendas.md) | [Tradução Local (LLM) →](05-modulo-traducao-llm.md)
+[← Extração de Legendas](etapa-1.2-extracao-legendas.md) | [Tradução Local (LLM) →](etapa-2.1-traducao-llm.md)
 
 ---
 
@@ -77,8 +77,8 @@ Diferente dos jobs longos, a auditoria responde o relatório **na própria requi
 
 ## Pontos de atenção
 
-- A auditoria **nunca altera arquivos** — é 100% leitura; a correção é feita pelos módulos de [Correção](06-modulo-correcao-revisao.md), [Correção de Karaoke](07-modulo-cura-tags.md) e [Karaokê Simples](21-modulo-karaoke-simples.md).
-- A `RegraDanoKaraoke` nasceu do caso real do 86 (Eighty-Six): a faixa original havia sido destruída pela tradução automática de romaji — ver [Memória de Decisões da IA](17-memoria-decisoes-ia.md).
+- A auditoria **nunca altera arquivos** — é 100% leitura; a correção é feita pelos módulos de [Correção](etapa-2.3-correcao-revisao.md), [Correção de Karaoke](etapa-4.2-cura-tags.md) e [Karaokê Simples](etapa-4.3-karaoke-simples.md).
+- A `RegraDanoKaraoke` nasceu do caso real do 86 (Eighty-Six): a faixa original havia sido destruída pela tradução automática de romaji — ver [Memória de Decisões da IA](ref-memoria-decisoes-ia.md).
 - Rode a auditoria **duas vezes** no ciclo: após a extração (linha de base do release) e após a tradução (diff de anomalias introduzidas).
 
 ---
@@ -87,4 +87,4 @@ Diferente dos jobs longos, a auditoria responde o relatório **na própria requi
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Extração de Legendas](04-modulo-extracao-legendas.md) | [Tradução Local (LLM) →](05-modulo-traducao-llm.md) |
+| [← Extração de Legendas](etapa-1.2-extracao-legendas.md) | [Tradução Local (LLM) →](etapa-2.1-traducao-llm.md) |

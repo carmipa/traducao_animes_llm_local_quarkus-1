@@ -98,10 +98,20 @@
                             <span class="material-symbols-outlined nav-icon">download</span>
                             <span>1.2 Extração</span>
                         </button>
+                        <!-- 1.3 ANTES da tradução de propósito: fonte legada (.VnTimes e afins) não é
+                             problema de aparência, é de TEXTO — o arquivo guarda bytes que só viram
+                             letra com aquela fonte. Se isso chega ao LLM, ele traduz mojibake com
+                             toda a confiança. É pré-requisito, não acabamento. Estava em 5.1 até
+                             06/08/2026. -->
+                        <button class="nav-item" data-target="troca-tipo-legenda" id="btn-menu-troca-tipo-legenda"
+                            data-tooltip="ANTES de traduzir: audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras, para o texto não chegar corrompido ao LLM.">
+                            <span class="material-symbols-outlined nav-icon">font_download</span>
+                            <span>1.3 Troca de Tipo de Legenda</span>
+                        </button>
                         <button class="nav-item" data-target="auditor-conteudo" id="btn-menu-auditor-conteudo"
-                            data-tooltip="Audite conteúdo das legendas traduzidas (vazamento de efeitos, alucinações de IA).">
+                            data-tooltip="Audite o conteúdo da legenda — roda sobre a fonte sozinha (modo ORIGINAL) ou comparando com a tradução.">
                             <span class="material-symbols-outlined nav-icon">content_paste_search</span>
-                            <span>1.3 Análise de Legenda</span>
+                            <span>1.4 Análise de Legenda</span>
                         </button>
                     </div>
                 </div>
@@ -189,20 +199,15 @@
                         <span class="material-symbols-outlined nav-group-seta">expand_more</span>
                     </button>
                     <div class="nav-group-itens">
-                        <button class="nav-item" data-target="troca-tipo-legenda" id="btn-menu-troca-tipo-legenda"
-                            data-tooltip="Audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras para evitar acentuação corrompida.">
-                            <span class="material-symbols-outlined nav-icon">font_download</span>
-                            <span>5.1 Troca de Tipo de Legenda</span>
-                        </button>
                         <button class="nav-item" data-target="remuxer" id="btn-menu-remuxer"
                             data-tooltip="Recombine vídeos originais e as legendas traduzidas.">
                             <span class="material-symbols-outlined nav-icon">layers</span>
-                            <span>5.2 Remuxer</span>
+                            <span>5.1 Remuxer</span>
                         </button>
                         <button class="nav-item" data-target="renomear-arquivos" id="btn-menu-renomear-arquivos"
                             data-tooltip="Limpe e renomeie arquivos de vídeo e legendas usando um padrão S01E01 com base nos metadados.">
                             <span class="material-symbols-outlined nav-icon">drive_file_rename_outline</span>
-                            <span>5.3 Renomear Arquivos</span>
+                            <span>5.2 Renomear Arquivos</span>
                         </button>
                     </div>
                 </div>
@@ -368,12 +373,26 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- 1.3 -->
+                            <!-- 1.3 — conserta a FONTE antes de traduzir; ver comentário no menu -->
+                            <div class="pipeline-card card-troca-legenda"
+                                onclick="document.getElementById('btn-menu-troca-tipo-legenda').click()"
+                                data-tooltip="Clique para auditar e substituir fontes legadas">
+                                <div class="card-glow-bg"></div>
+                                <div class="card-step-num">1.3</div>
+                                <div class="card-icon-container">
+                                    <span class="material-symbols-outlined">font_download</span>
+                                </div>
+                                <h4>Troca de Tipo de Legenda</h4>
+                                <p>Antes de traduzir: troca fontes legadas (VNI/ANSI) por Unicode, para o texto não chegar corrompido ao LLM.</p>
+                                <span class="card-action-link">Acessar Painel →</span>
+                            </div>
+
+                            <!-- 1.4 -->
                             <div class="pipeline-card card-auditor-conteudo"
                                 onclick="document.getElementById('btn-menu-auditor-conteudo').click()"
                                 data-tooltip="Clique para auditar conteúdo">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">1.3</div>
+                                <div class="card-step-num">1.4</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">content_paste_search</span>
                                 </div>
@@ -513,25 +532,11 @@
                             </div>
 
                             <!-- 5.1 -->
-                            <div class="pipeline-card card-troca-legenda"
-                                onclick="document.getElementById('btn-menu-troca-tipo-legenda').click()"
-                                data-tooltip="Clique para auditar e substituir fontes legadas">
-                                <div class="card-glow-bg"></div>
-                                <div class="card-step-num">5.1</div>
-                                <div class="card-icon-container">
-                                    <span class="material-symbols-outlined">font_download</span>
-                                </div>
-                                <h4>Troca de Tipo de Legenda</h4>
-                                <p>Audite e substitua em lote fontes vietnamitas/ANSI por fontes Unicode seguras.</p>
-                                <span class="card-action-link">Acessar Painel →</span>
-                            </div>
-
-                            <!-- 5.2 -->
                             <div class="pipeline-card card-remuxer"
                                 onclick="document.getElementById('btn-menu-remuxer').click()"
                                 data-tooltip="Clique para acoplar legendas traduzidas nos vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">5.2</div>
+                                <div class="card-step-num">5.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">layers</span>
                                 </div>
@@ -540,12 +545,12 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- 5.3 -->
+                            <!-- 5.2 -->
                             <div class="pipeline-card card-renomear-arquivos"
                                 onclick="document.getElementById('btn-menu-renomear-arquivos').click()"
                                 data-tooltip="Clique para renomear e sanitizar arquivos de vídeos">
                                 <div class="card-glow-bg"></div>
-                                <div class="card-step-num">5.3</div>
+                                <div class="card-step-num">5.2</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">drive_file_rename_outline</span>
                                 </div>
@@ -743,7 +748,7 @@
                     </div>
                 </div>
 
-                <!-- 1.3 PAINEL DE ANÁLISE DE LEGENDA (conteúdo em auditorConteudoLegendas/auditorConteudoLegendas.html) -->
+                <!-- 1.4 PAINEL DE ANÁLISE DE LEGENDA (conteúdo em auditorConteudoLegendas/auditorConteudoLegendas.html) -->
                 <div class="panel" id="panel-auditor-conteudo" data-modulo="auditorConteudoLegendas"></div>
 
                 <!-- 2.1 PAINEL DE TRADUÇÃO LOCAL -->
@@ -1389,10 +1394,10 @@
                 <!-- 3.3 PAINEL DE REVISÃO DE CONCORDÂNCIA (conteúdo em revisaoConcordancia/revisaoConcordancia.html) -->
                 <div class="panel" id="panel-revisao-concordancia" data-modulo="revisaoConcordancia"></div>
 
-                <!-- 5.1 PAINEL DE TROCA DE TIPO DE LEGENDA (conteúdo em trocaTipoLegenda/trocaTipoLegenda.html) -->
+                <!-- 1.3 PAINEL DE TROCA DE TIPO DE LEGENDA (conteúdo em trocaTipoLegenda/trocaTipoLegenda.html) -->
                 <div class="panel" id="panel-troca-tipo-legenda" data-modulo="trocaTipoLegenda"></div>
 
-                <!-- 5.2 PAINEL DE REMUXER -->
+                <!-- 5.1 PAINEL DE REMUXER -->
                 <div class="panel" id="panel-remuxer">
                     <div class="glass-card">
                         <h2>Remuxer Industrial</h2>
@@ -1475,7 +1480,7 @@
                     </div>
                 </div>
 
-                <!-- 5.3 PAINEL DE RENOMEAR ARQUIVOS (SANITIZADOR) -->
+                <!-- 5.2 PAINEL DE RENOMEAR ARQUIVOS (SANITIZADOR) -->
                 <div class="panel" id="panel-renomear-arquivos">
                 </div>
 
@@ -1795,93 +1800,100 @@
                             <nav class="doc-nav" aria-label="Seções da documentação">
                                 <div class="doc-nav-group">
                                     <span class="doc-nav-group-label">Fundamentos</span>
-                                    <button class="doc-nav-item" data-pagina="01-arquitetura"
+                                    <button class="doc-nav-item" data-pagina="arquitetura"
                                         data-titulo="Arquitetura"><span
                                             class="material-symbols-outlined doc-item-icon">architecture</span>Arquitetura</button>
-                                    <button class="doc-nav-item" data-pagina="02-instalacao"
+                                    <button class="doc-nav-item" data-pagina="catracas-e-fronteiras"
+                                        data-titulo="Catracas & Fronteiras"><span
+                                            class="material-symbols-outlined doc-item-icon">shield_lock</span>Catracas &amp; Fronteiras</button>
+                                    <button class="doc-nav-item" data-pagina="instalacao"
                                         data-titulo="Instalação & Configuração"><span
                                             class="material-symbols-outlined doc-item-icon">rocket_launch</span>Instalação</button>
                                 </div>
                                 <div class="doc-nav-group">
                                     <span class="doc-nav-group-label">Pipeline</span>
-                                    <button class="doc-nav-item" data-pagina="03-modulo-analise-midia"
-                                        data-titulo="Análise de Mídia"><span
-                                            class="material-symbols-outlined doc-item-icon">analytics</span>Análise de
+                                    <!-- ORDEM DO PIPELINE. Desde 06/08/2026 o NOME do arquivo carrega a etapa
+                                         (etapa-1.3-troca-tipo-legenda.md), entao indice e disco contam
+                                         a mesma historia. Reordenar exige renomear -- de proposito: o
+                                         erro fica visivel em vez de silencioso. -->
+                                    <button class="doc-nav-item" data-pagina="etapa-1.1-analise-midia"
+                                        data-titulo="1.1 Análise de Mídia"><span
+                                            class="material-symbols-outlined doc-item-icon">analytics</span>1.1 Análise de
                                         Mídia</button>
-                                    <button class="doc-nav-item" data-pagina="04-modulo-extracao-legendas"
-                                        data-titulo="Extração de Legendas"><span
-                                            class="material-symbols-outlined doc-item-icon">download_for_offline</span>Extração</button>
-                                    <button class="doc-nav-item" data-pagina="20-modulo-analise-conteudo"
-                                        data-titulo="Análise de Conteúdo"><span
-                                            class="material-symbols-outlined doc-item-icon">content_paste_search</span>Análise
-                                        de Conteúdo</button>
-                                    <button class="doc-nav-item" data-pagina="05-modulo-traducao-llm"
-                                        data-titulo="Tradução Local (LLM)"><span
-                                            class="material-symbols-outlined doc-item-icon">translate</span>Tradução
+                                    <button class="doc-nav-item" data-pagina="etapa-1.2-extracao-legendas"
+                                        data-titulo="1.2 Extração de Legendas"><span
+                                            class="material-symbols-outlined doc-item-icon">download_for_offline</span>1.2 Extração</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-1.3-troca-tipo-legenda"
+                                        data-titulo="1.3 Troca de Tipo de Legenda"><span
+                                            class="material-symbols-outlined doc-item-icon">font_download</span>1.3 Troca de
+                                        Tipo de Legenda</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-1.4-analise-conteudo"
+                                        data-titulo="1.4 Análise de Legenda"><span
+                                            class="material-symbols-outlined doc-item-icon">content_paste_search</span>1.4 Análise
+                                        de Legenda</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-2.1-traducao-llm"
+                                        data-titulo="2.1 Tradução Local (LLM)"><span
+                                            class="material-symbols-outlined doc-item-icon">translate</span>2.1 Tradução
                                         Local</button>
-                                    <button class="doc-nav-item" data-pagina="06-modulo-correcao-revisao"
-                                        data-titulo="Correção & Revisão"><span
-                                            class="material-symbols-outlined doc-item-icon">find_replace</span>Correção
-                                        & Revisão</button>
-                                    <button class="doc-nav-item" data-pagina="07-modulo-cura-tags"
-                                        data-titulo="Correção de Legendas"><span
-                                            class="material-symbols-outlined doc-item-icon">music_note</span>Correção de
-                                        Legendas</button>
-                                    <button class="doc-nav-item" data-pagina="16-modulo-revisao-lore"
-                                        data-titulo="Revisão de Lore"><span
-                                            class="material-symbols-outlined doc-item-icon">menu_book</span>Revisão de
+                                    <button class="doc-nav-item" data-pagina="etapa-2.3-correcao-revisao"
+                                        data-titulo="2.3 · 3.x Correção &amp; Revisão"><span
+                                            class="material-symbols-outlined doc-item-icon">find_replace</span>2.3 Correção
+                                        &amp; Revisão</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-3.2-revisao-lore"
+                                        data-titulo="3.2 Revisão de Lore"><span
+                                            class="material-symbols-outlined doc-item-icon">menu_book</span>3.2 Revisão de
                                         Lore</button>
-                                    <button class="doc-nav-item" data-pagina="18-modulo-troca-tipo-legenda"
-                                        data-titulo="Troca Tipo Legenda"><span
-                                            class="material-symbols-outlined doc-item-icon">font_download</span>Troca
-                                        Tipo Legenda</button>
-                                    <button class="doc-nav-item" data-pagina="21-modulo-karaoke-simples"
-                                        data-titulo="Karaokê Simples"><span
-                                            class="material-symbols-outlined doc-item-icon">music_off</span>Karaokê
-                                        Simples</button>
-                                    <button class="doc-nav-item" data-pagina="22-modulo-traducao-karaoke"
-                                        data-titulo="Tradução de Karaokê"><span
-                                            class="material-symbols-outlined doc-item-icon">lyrics</span>Tradução de
+                                    <button class="doc-nav-item" data-pagina="etapa-4.1-traducao-karaoke"
+                                        data-titulo="4.1 Tradução de Karaokê"><span
+                                            class="material-symbols-outlined doc-item-icon">lyrics</span>4.1 Tradução de
                                         Karaokê</button>
-                                    <button class="doc-nav-item" data-pagina="08-modulo-remuxer"
-                                        data-titulo="Remuxer"><span
-                                            class="material-symbols-outlined doc-item-icon">layers</span>Remuxer</button>
-                                    <button class="doc-nav-item" data-pagina="19-modulo-renomear-arquivos"
-                                        data-titulo="Renomear Arquivos"><span
-                                            class="material-symbols-outlined doc-item-icon">cleaning_services</span>Renomear
+                                    <button class="doc-nav-item" data-pagina="etapa-4.2-cura-tags"
+                                        data-titulo="4.2 Correção de Karaokê"><span
+                                            class="material-symbols-outlined doc-item-icon">music_note</span>4.2 Correção de
+                                        Karaokê</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-4.3-karaoke-simples"
+                                        data-titulo="4.3 Karaokê Simples"><span
+                                            class="material-symbols-outlined doc-item-icon">music_off</span>4.3 Karaokê
+                                        Simples</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-5.1-remuxer"
+                                        data-titulo="5.1 Remuxer"><span
+                                            class="material-symbols-outlined doc-item-icon">layers</span>5.1 Remuxer</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-5.2-renomear-arquivos"
+                                        data-titulo="5.2 Renomear Arquivos"><span
+                                            class="material-symbols-outlined doc-item-icon">cleaning_services</span>5.2 Renomear
                                         Arquivos</button>
                                 </div>
                                 <div class="doc-nav-group">
                                     <span class="doc-nav-group-label">Módulos de Apoio</span>
-                                    <button class="doc-nav-item" data-pagina="09-contextos-lore"
+                                    <button class="doc-nav-item" data-pagina="modulo-contextos-lore"
                                         data-titulo="Contextos & Lore"><span
                                             class="material-symbols-outlined doc-item-icon">book</span>Contextos &
                                         Lore</button>
-                                    <button class="doc-nav-item" data-pagina="10-modulo-telemetria"
+                                    <button class="doc-nav-item" data-pagina="modulo-telemetria"
                                         data-titulo="Telemetria"><span
                                             class="material-symbols-outlined doc-item-icon">monitoring</span>Telemetria</button>
-                                    <button class="doc-nav-item" data-pagina="11-modulo-metadados-anime"
+                                    <button class="doc-nav-item" data-pagina="modulo-metadados-anime"
                                         data-titulo="Metadados de Anime"><span
                                             class="material-symbols-outlined doc-item-icon">movie</span>Metadados de
                                         Anime</button>
-                                    <button class="doc-nav-item" data-pagina="12-modulo-mapa-projeto"
+                                    <button class="doc-nav-item" data-pagina="modulo-mapa-projeto"
                                         data-titulo="Mapa do Projeto"><span
                                             class="material-symbols-outlined doc-item-icon">account_tree</span>Mapa do
                                         Projeto</button>
                                 </div>
                                 <div class="doc-nav-group">
                                     <span class="doc-nav-group-label">Referência</span>
-                                    <button class="doc-nav-item" data-pagina="13-api-endpoints"
+                                    <button class="doc-nav-item" data-pagina="ref-api-endpoints"
                                         data-titulo="API REST — Referência"><span
                                             class="material-symbols-outlined doc-item-icon">api</span>API REST</button>
-                                    <button class="doc-nav-item" data-pagina="14-configuracao"
+                                    <button class="doc-nav-item" data-pagina="ref-configuracao"
                                         data-titulo="Configuração"><span
                                             class="material-symbols-outlined doc-item-icon">settings</span>Configuração</button>
-                                    <button class="doc-nav-item" data-pagina="15-solucao-problemas"
+                                    <button class="doc-nav-item" data-pagina="ref-solucao-problemas"
                                         data-titulo="Solução de Problemas"><span
                                             class="material-symbols-outlined doc-item-icon">healing</span>Solução de
                                         Problemas</button>
-                                    <button class="doc-nav-item" data-pagina="17-memoria-decisoes-ia"
+                                    <button class="doc-nav-item" data-pagina="ref-memoria-decisoes-ia"
                                         data-titulo="Memória de Decisões da IA"><span
                                             class="material-symbols-outlined doc-item-icon">psychology</span>Memória
                                         IA</button>
@@ -1916,35 +1928,35 @@
                                     <p>Guia completo do <strong>KRONOS CORE</strong> — arquitetura, todos os módulos do
                                         pipeline, referência de API REST e diagnósticos.</p>
                                     <div class="doc-welcome-grid">
-                                        <a class="doc-welcome-card" data-pagina="01-arquitetura"
+                                        <a class="doc-welcome-card" data-pagina="arquitetura"
                                             data-titulo="Arquitetura" href="javascript:void(0)">
                                             <span class="wc-icon"><span
                                                     class="material-symbols-outlined">architecture</span></span>
                                             <div class="wc-title">Arquitetura</div>
                                             <div class="wc-desc">Diagramas de componentes e fluxos de dados</div>
                                         </a>
-                                        <a class="doc-welcome-card" data-pagina="02-instalacao" data-titulo="Instalação"
+                                        <a class="doc-welcome-card" data-pagina="instalacao" data-titulo="Instalação"
                                             href="javascript:void(0)">
                                             <span class="wc-icon"><span
                                                     class="material-symbols-outlined">rocket_launch</span></span>
                                             <div class="wc-title">Instalação</div>
                                             <div class="wc-desc">Setup rápido e configuração</div>
                                         </a>
-                                        <a class="doc-welcome-card" data-pagina="05-modulo-traducao-llm"
-                                            data-titulo="Tradução Local (LLM)" href="javascript:void(0)">
+                                        <a class="doc-welcome-card" data-pagina="etapa-2.1-traducao-llm"
+                                            data-titulo="2.1 Tradução Local (LLM)" href="javascript:void(0)">
                                             <span class="wc-icon"><span
                                                     class="material-symbols-outlined">translate</span></span>
                                             <div class="wc-title">Tradução Local</div>
                                             <div class="wc-desc">LLM local, cache e proteção de tags</div>
                                         </a>
-                                        <a class="doc-welcome-card" data-pagina="13-api-endpoints"
+                                        <a class="doc-welcome-card" data-pagina="ref-api-endpoints"
                                             data-titulo="API REST — Referência" href="javascript:void(0)">
                                             <span class="wc-icon"><span
                                                     class="material-symbols-outlined">api</span></span>
                                             <div class="wc-title">API REST</div>
                                             <div class="wc-desc">Referência completa de endpoints</div>
                                         </a>
-                                        <a class="doc-welcome-card" data-pagina="15-solucao-problemas"
+                                        <a class="doc-welcome-card" data-pagina="ref-solucao-problemas"
                                             data-titulo="Solução de Problemas" href="javascript:void(0)">
                                             <span class="wc-icon"><span
                                                     class="material-symbols-outlined">healing</span></span>

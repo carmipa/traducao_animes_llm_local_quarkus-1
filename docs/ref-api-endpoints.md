@@ -1,6 +1,6 @@
 # 📋 API REST — Referência Completa
 
-[← Mapa do Projeto](12-modulo-mapa-projeto.md) | [Configuração →](14-configuracao.md)
+[← Mapa do Projeto](modulo-mapa-projeto.md) | [Configuração →](ref-configuracao.md)
 
 ---
 
@@ -23,7 +23,7 @@ Health check simples.
 ---
 
 ### `POST /api/analisar`
-Auditoria técnica de mídia. Ver [Análise de Mídia](03-modulo-analise-midia.md).
+Auditoria técnica de mídia. Ver [Análise de Mídia](etapa-1.1-analise-midia.md).
 
 ```json
 { "entrada": "C:/animes/DanMachi/Season 04", "saida": null }
@@ -33,7 +33,7 @@ Auditoria técnica de mídia. Ver [Análise de Mídia](03-modulo-analise-midia.m
 ---
 
 ### `POST /api/extrair`
-Extração de faixas de legenda. Ver [Extração de Legendas](04-modulo-extracao-legendas.md).
+Extração de faixas de legenda. Ver [Extração de Legendas](etapa-1.2-extracao-legendas.md).
 
 ```json
 { "entrada": "C:/animes/DanMachi/Season 04", "saida": "C:/.../legendas_extraidas", "formato": "ASS" }
@@ -43,7 +43,7 @@ Extração de faixas de legenda. Ver [Extração de Legendas](04-modulo-extracao
 ---
 
 ### `POST /api/traduzir`
-Tradução via LLM local com cache. Ver [Tradução Local](05-modulo-traducao-llm.md).
+Tradução via LLM local com cache. Ver [Tradução Local](etapa-2.1-traducao-llm.md).
 
 ```json
 { "entrada": "C:/.../legendas_extraidas", "saida": "C:/.../legendas-ptbr", "contextoId": "danmachi-s4" }
@@ -53,7 +53,7 @@ Tradução via LLM local com cache. Ver [Tradução Local](05-modulo-traducao-ll
 ---
 
 ### `POST /api/corrigir-cache`
-Limpa entradas de fallback do cache (força retradução). Ver [Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-1--limpeza-de-cache-traducaocorrige).
+Limpa entradas de fallback do cache (força retradução). Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-1--limpeza-de-cache-traducaocorrige).
 
 ```json
 { "entrada": "cache", "contextoId": "danmachi-s4" }
@@ -63,7 +63,7 @@ Limpa entradas de fallback do cache (força retradução). Ver [Correção & Rev
 ---
 
 ### `POST /api/corrigir-scraping`
-Correção de cache via Google Translate. Ver [Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-2--correçãorevisão-via-google-translate-raspagemcorrecao).
+Correção de cache via Google Translate. Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-2--correçãorevisão-via-google-translate-raspagemcorrecao).
 
 ```json
 { "entrada": "cache" }
@@ -73,7 +73,7 @@ Correção de cache via Google Translate. Ver [Correção & Revisão](06-modulo-
 ---
 
 ### `POST /api/revisar-cache`
-Revisão de concordância PT-BR do cache via LLM. Ver [Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao).
+Revisão de concordância PT-BR do cache via LLM. Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao).
 
 ```json
 { "entrada": "cache", "contextoId": "danmachi-s4" }
@@ -103,7 +103,7 @@ Revisão de legendas `.ass` finais via LLM local (modo `LLM_CONCORDANCIA`).
 ---
 
 ### `POST /api/revisar-concordancia`
-Correção **determinística** de concordância de gênero (painel 8), direto na pasta PT-BR — sem LLM e sem o original. `aplicar: false` = dry-run (simula, não grava). Ver [Correção & Revisão](06-modulo-correcao-revisao.md#fluxo-4--concordância-de-gênero-determinística-revisaoconcordancia-painel-8).
+Correção **determinística** de concordância de gênero (painel 8), direto na pasta PT-BR — sem LLM e sem o original. `aplicar: false` = dry-run (simula, não grava). Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-4--concordância-de-gênero-determinística-revisaoconcordancia-painel-8).
 
 ```json
 { "diretorioTraduzido": "C:/.../legendas-ptbr", "aplicar": false }
@@ -113,7 +113,7 @@ Correção **determinística** de concordância de gênero (painel 8), direto na
 ---
 
 ### `POST /api/correcao-legendas`
-Correção estrutural de legendas PT-BR usando a original como referência. Ver [Correção de Legendas](07-modulo-cura-tags.md).
+Correção estrutural de legendas PT-BR usando a original como referência. Ver [Correção de Legendas](etapa-4.2-cura-tags.md).
 
 ### `POST /api/cura-tags`
 Alias legado de compatibilidade para `/api/correcao-legendas`.
@@ -126,7 +126,7 @@ Alias legado de compatibilidade para `/api/correcao-legendas`.
 ---
 
 ### `POST /api/revisar-lore`
-Corrige nomes, locais e termos de lore em legendas `.ass` já traduzidas, comparando com o original em inglês. Ver [Revisão de Lore](16-modulo-revisao-lore.md).
+Corrige nomes, locais e termos de lore em legendas `.ass` já traduzidas, comparando com o original em inglês. Ver [Revisão de Lore](etapa-3.2-revisao-lore.md).
 
 ```json
 { "diretorioOriginal": "E:/.../legendas_eng", "diretorioTraduzido": "E:/.../traducao_ptbr", "contextoId": "gundam_0083", "revisarTodasFalas": false }
@@ -136,7 +136,7 @@ Corrige nomes, locais e termos de lore em legendas `.ass` já traduzidas, compar
 ---
 
 ### `POST /api/troca-legenda/escanear`
-Audita os `.ass`/`.ssa` de uma pasta em busca de fontes legadas (TCVN3/VNI etc.) nos estilos. **Síncrono** (roda dentro da fila do pipeline e devolve o relatório na resposta). Ver [Troca Tipo Legenda](18-modulo-troca-tipo-legenda.md).
+Audita os `.ass`/`.ssa` de uma pasta em busca de fontes legadas (TCVN3/VNI etc.) nos estilos. **Síncrono** (roda dentro da fila do pipeline e devolve o relatório na resposta). Ver [Troca Tipo Legenda](etapa-1.3-troca-tipo-legenda.md).
 
 ```json
 { "diretorioLegendas": "C:/animes/Serie/traducao-ptbr" }
@@ -148,7 +148,7 @@ Aplica em lote as substituições de fontes sugeridas, com backup automático. A
 ---
 
 ### `POST /api/auditoria-conteudo`
-Audita pares original ↔ traduzido com as 5 regras de anomalia (karaokê danificado, efeito vazado, quebra de linha alucinada, metadados, sincronia de estilos). **Síncrono** — devolve o `RelatorioAuditoriaConteudo` na resposta. Ver [Análise de Conteúdo](20-modulo-analise-conteudo.md).
+Audita pares original ↔ traduzido com as 5 regras de anomalia (karaokê danificado, efeito vazado, quebra de linha alucinada, metadados, sincronia de estilos). **Síncrono** — devolve o `RelatorioAuditoriaConteudo` na resposta. Ver [Análise de Conteúdo](etapa-1.4-analise-conteudo.md).
 
 ```json
 { "caminhoOriginal": "C:/animes/Serie/legendas_originais", "caminhoTraduzido": "C:/animes/Serie/legendas-ptbr" }
@@ -159,7 +159,7 @@ Audita pares original ↔ traduzido com as 5 regras de anomalia (karaokê danifi
 
 ### `POST /api/novo-karaoke/simular`
 ### `POST /api/novo-karaoke/aplicar`
-Converte karaokê KFX (milhares de eventos por sílaba/frame) em legendas simples — uma linha limpa por frase, no tempo original. Simulação não grava nada. Ver [Karaokê Simples](21-modulo-karaoke-simples.md).
+Converte karaokê KFX (milhares de eventos por sílaba/frame) em legendas simples — uma linha limpa por frase, no tempo original. Simulação não grava nada. Ver [Karaokê Simples](etapa-4.3-karaoke-simples.md).
 
 ```json
 { "caminhoOrigem": "C:/animes/86/legendas-ptbr", "caminhoDestino": "C:/animes/86/legendas-karaoke-simples" }
@@ -170,7 +170,7 @@ Converte karaokê KFX (milhares de eventos por sílaba/frame) em legendas simple
 
 ### `POST /api/traducao-karaoke/simular`
 ### `POST /api/traducao-karaoke/aplicar`
-Traduz as letras de música preservando o romaji/japonês original: a simulação classifica linha a linha **sem LLM**; a aplicação entra na fila do pipeline e traduz via LLM apenas a camada em inglês, com cache editável em `cache/karaoke/`. Ver [Tradução de Karaokê](22-modulo-traducao-karaoke.md).
+Traduz as letras de música preservando o romaji/japonês original: a simulação classifica linha a linha **sem LLM**; a aplicação entra na fila do pipeline e traduz via LLM apenas a camada em inglês, com cache editável em `cache/karaoke/`. Ver [Tradução de Karaokê](etapa-4.1-traducao-karaoke.md).
 
 ```json
 { "caminhoOrigem": "C:/animes/86/legendas-karaoke-simples", "contextoId": "eight_six" }
@@ -182,7 +182,7 @@ Traduz as letras de música preservando o romaji/japonês original: a simulaçã
 ### `POST /api/renomear-arquivos/simular`
 ### `POST /api/renomear-arquivos/aplicar`
 ### `POST /api/renomear-arquivos/reverter`
-Renomeação em lote de arquivos para o padrão `Nome - S01E01` (dry-run, aplicação com manifesto de undo e reversão). Ver [Renomear Arquivos](19-modulo-renomear-arquivos.md).
+Renomeação em lote de arquivos para o padrão `Nome - S01E01` (dry-run, aplicação com manifesto de undo e reversão). Ver [Renomear Arquivos](etapa-5.2-renomear-arquivos.md).
 
 ```json
 { "caminhoOrigem": "C:/animes/[SubsPlease] Nome Anime", "nomePadrao": "Nome Anime" }
@@ -192,7 +192,7 @@ Renomeação em lote de arquivos para o padrão `Nome - S01E01` (dry-run, aplica
 ---
 
 ### `POST /api/remuxar`
-Combina vídeo + legenda em MKV final. Ver [Remuxer](08-modulo-remuxer.md).
+Combina vídeo + legenda em MKV final. Ver [Remuxer](etapa-5.1-remuxer.md).
 
 ```json
 { "entrada": "C:/animes/Gundam-Narrative-NT", "saida": "C:/.../saida-mkv", "syncOffsetMs": 0, "preservarLegendasOriginais": true }
@@ -216,7 +216,7 @@ Sem payload. **Resposta:** `{"mensagem": "Encerrando a aplicação. ..."}`
 ---
 
 ### `POST /api/mapa`
-Regenera `mapa_projeto.md`. Ver [Mapa do Projeto](12-modulo-mapa-projeto.md).
+Regenera `mapa_projeto.md`. Ver [Mapa do Projeto](modulo-mapa-projeto.md).
 
 Sem payload.
 
@@ -225,30 +225,30 @@ Sem payload.
 ## Dados de Apoio
 
 ### `GET /api/contextos`
-Lista os contextos/lore disponíveis. Ver [Contextos & Lore](09-contextos-lore.md).
+Lista os contextos/lore disponíveis. Ver [Contextos & Lore](modulo-contextos-lore.md).
 
 ```json
 [{ "id": "danmachi", "nome": "DanMachi (Geral)", "padrao": true }]
 ```
 
 ### `GET /api/revisao-lore/contextos`
-Lista os contextos específicos do módulo de [Revisão de Lore](16-modulo-revisao-lore.md) — sistema separado do `/api/contextos` acima, com um subconjunto menor de obras calibradas.
+Lista os contextos específicos do módulo de [Revisão de Lore](etapa-3.2-revisao-lore.md) — sistema separado do `/api/contextos` acima, com um subconjunto menor de obras calibradas.
 
 ```json
 [{ "id": "gundam_0083", "nome": "Gundam 0083 - Revisao de Lore" }]
 ```
 
 ### `GET /api/metadata?caminho=<pasta_ou_nome>`
-Metadados de anime (Jikan/TMDB). Ver [Metadados de Anime](11-modulo-metadados-anime.md).
+Metadados de anime (Jikan/TMDB). Ver [Metadados de Anime](modulo-metadados-anime.md).
 
 ### `GET /api/telemetria`
-Resumo consolidado de telemetria + métricas de JVM. Ver [Telemetria](10-modulo-telemetria.md).
+Resumo consolidado de telemetria + métricas de JVM. Ver [Telemetria](modulo-telemetria.md).
 
 ### `GET /api/telemetria/exportar`
 Download do `logs/telemetria_compartilhada.json` bruto como `kronos_telemetria_segura.json`.
 
 ### `POST /api/telemetria/publicar-dataset`
-Publica a telemetria **sanitizada** (só métricas — sem textos de legenda nem caminhos) como dataset público no repositório dedicado `kronos-anime-translation-telemetry-dataset`: snapshot em `metrics/`, commit e push. Ver [Telemetria](10-modulo-telemetria.md).
+Publica a telemetria **sanitizada** (só métricas — sem textos de legenda nem caminhos) como dataset público no repositório dedicado `kronos-anime-translation-telemetry-dataset`: snapshot em `metrics/`, commit e push. Ver [Telemetria](modulo-telemetria.md).
 
 Sem payload. **Resposta:** `{ "repositorio", "commit", "pushOk", "mensagem" }`
 
@@ -339,4 +339,4 @@ curl http://127.0.0.1:8080/api/telemetria
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Mapa do Projeto](12-modulo-mapa-projeto.md) | [Configuração →](14-configuracao.md) |
+| [← Mapa do Projeto](modulo-mapa-projeto.md) | [Configuração →](ref-configuracao.md) |
