@@ -11,6 +11,13 @@ bin/
 .codex/
 .mcp.json
 
+# --- Ambiente do contêiner (2026-08-06) ---
+# O .env alimenta o docker-compose com o caminho do acervo e o endereço do LM
+# Studio da MÁQUINA, e é o lugar onde credencial acaba parando por hábito.
+# Ignora o arquivo real e preserva o template, mesma regra do application-local.
+.env
+!.env.example
+
 # --- Configuração local da aplicação (contém chaves/credenciais) ---
 # Ignora o arquivo real, mas preserva o template .example versionável.
 application-local.yml

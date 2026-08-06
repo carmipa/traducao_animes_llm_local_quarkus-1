@@ -1,0 +1,67 @@
+# KRONOS CORE — execução local em contêiner.
+#
+# O KRONOS NÃO VAI PARA VPS. Ele roda na máquina de quem usa, conversando com um
+# LM Studio que está no host. Por isso a porta é publicada apenas em 127.0.0.1 e
+# não há proxy, TLS ou rede externa aqui.
+#
+#   docker compose build
+#   docker compose up -d
+#   docker compose logs -f kronos
+#
+# Antes do primeiro `up`, copie `.env.example` para `.env` e confira o caminho
+# do acervo.
+
+services:
+  kronos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kronos-core:local
+    container_name: kronos
+    restart: unless-stopped
+
+    ports:
+      # Preso ao loopback DE PROPÓSITO. Publicar como "8099:8099" exporia a
+      # interface a toda a rede local, e esta aplicação lê e ESCREVE no acervo
+      # de legendas — não há autenticação nenhuma na frente dela.
+      - "127.0.0.1:8099:8099"
+
+    environment:
+      # O LM Studio roda no HOST, fora do contêiner. Dentro do contêiner,
+      # 127.0.0.1 é o próprio contêiner: sem esta variável a tradução morre no
+      # primeiro lote com recusa de conexão.
+      #
+      # DEPENDE de application.yml passar a ler a variável em
+      # tradutor.llm.base-url e revisao-lore.llm.base-url. Enquanto essa mudança
+      # não entrar, o valor aqui é inerte. Ver docs/ref-docker.md.
+      KRONOS_LLM_BASE_URL: "${KRONOS_LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
+      TZ: "America/Sao_Paulo"
+
+    extra_hosts:
+      # Docker Desktop resolve host.docker.internal sozinho; em Docker Engine no
+      # Linux, não. A linha abaixo faz o compose valer nos dois.
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      # O ACERVO. Montado no mesmo ponto que a tradução de caminho da borda
+      # espera. O KRONOS lê E grava aqui (legenda traduzida, backup de
+      # achatamento), então não é somente-leitura.
+      - "${KRONOS_ACERVO:-C:/animes}:/acervo"
+
+      # Estado que precisa sobreviver ao contêiner. Fica como bind mount, e não
+      # como volume nomeado, porque estes arquivos são conferidos, editados e
+      # copiados à mão com frequência — foi editando o JSON do cache que se
+      # corrigiu 53 cartões de data. Volume nomeado esconderia isso dentro do
+      # Docker e tornaria a inspeção um exercício de arqueologia.
+      - ./cache:/app/cache
+      - ./logs:/app/logs
+      - ./relatorios:/app/relatorios
+      - ./backups:/app/backups
+
+    # O pipeline é pesado em CPU e o LM Studio disputa a mesma máquina. Sem teto,
+    # um lote grande deixa o host sem folga e o próprio LLM desacelera — o
+    # contêiner competiria com aquilo de que ele depende.
+    deploy:
+      resources:
+        limits:
+          memory: 4G
