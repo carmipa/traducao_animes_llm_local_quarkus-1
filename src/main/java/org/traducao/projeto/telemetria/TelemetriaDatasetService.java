@@ -62,13 +62,72 @@ public class TelemetriaDatasetService {
     private final AmbienteExecucaoDatasetService ambienteExecucao;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private final ConsolidadorTelemetriaPorFatia consolidador;
+
     public TelemetriaDatasetService(
             TelemetriaService telemetria,
             TelemetriaDatasetProperties propriedades,
-            AmbienteExecucaoDatasetService ambienteExecucao) {
+            AmbienteExecucaoDatasetService ambienteExecucao,
+            ConsolidadorTelemetriaPorFatia consolidador) {
         this.telemetria = telemetria;
         this.propriedades = propriedades;
         this.ambienteExecucao = ambienteExecucao;
+        this.consolidador = consolidador;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: copia para o repositório público um arquivo POR
+     * FATIA, para que cada assunto tenha o próprio dataset em vez de tudo virar
+     * uma lista genérica de seis campos.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Medido em 06/08/2026: das 6.601 operações do acervo, apenas <b>85</b>
+     * chegaram ao repositório público — 1,3% — porque o publicador só olhava para
+     * {@code logs/}. E o que chegava vinha achatado num formato único, sem o campo
+     * livre, que era omitido por carregar caminho absoluto.
+     *
+     * <p>Com o consolidado por fatia, cada dataset carrega o detalhe SANITIZADO:
+     * a medição sobrevive, o caminho não.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: copia apenas fatias que existem — não cria
+     * arquivo vazio para fatia sem dado, porque dataset vazio publicado é ruído
+     * que quem consome precisa aprender a ignorar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fatia ilegível é pulada com aviso; a
+     * publicação das demais continua. Devolve o total de operações copiadas.
+     */
+    private int publicarDatasetsPorFatia(Path pastaMetrics) throws IOException {
+        Path pastaFatias = pastaMetrics.resolve("fatias");
+        Files.createDirectories(pastaFatias);
+
+        Path logs = DiretorioBaseKronos.resolver("logs");
+        if (!Files.isDirectory(logs)) {
+            return 0;
+        }
+
+        int total = 0;
+        try (java.util.stream.Stream<Path> fluxo = Files.list(logs)) {
+            for (Path origem : fluxo
+                    .filter(p -> p.getFileName().toString().startsWith("telemetria_fatia_"))
+                    .sorted().toList()) {
+                try {
+                    com.fasterxml.jackson.databind.JsonNode raiz = mapper.readTree(origem.toFile());
+                    com.fasterxml.jackson.databind.JsonNode ops = raiz.get("operacoes");
+                    int n = ops == null ? 0 : ops.size();
+                    if (n == 0) {
+                        continue;
+                    }
+                    Path destino = pastaFatias.resolve(
+                        origem.getFileName().toString().replace("telemetria_fatia_", "kronos-fatia-"));
+                    mapper.writerWithDefaultPrettyPrinter().writeValue(destino.toFile(), raiz);
+                    total += n;
+                } catch (IOException e) {
+                    log.warn("Consolidado de fatia ilegivel, pulado: {} ({})", origem, e.getMessage());
+                }
+            }
+        }
+        log.info("Datasets por fatia publicados em {}: {} operacao(oes).", pastaFatias, total);
+        return total;
     }
 
     /** Resultado da publicação, devolvido ao painel de Telemetria. */
@@ -175,6 +234,14 @@ public class TelemetriaDatasetService {
         Path repo = Path.of(propriedades.repositorioLocal()).toAbsolutePath().normalize();
         prepararRepositorio(repo);
         garantirDocumentosBase(repo);
+        // A consolidação roda ANTES do snapshot: sem ela, os consolidados de
+        // logs/ estariam com o conteúdo da publicação anterior e o dataset sairia
+        // com um retrato velho sem ninguém notar.
+        try {
+            consolidador.consolidar();
+        } catch (IOException e) {
+            log.warn("Consolidacao por fatia falhou antes de publicar: {}", e.getMessage());
+        }
 
         TelemetriaResumo resumo = telemetria.gerarResumo(DiretorioBaseKronos.resolver("cache"));
         Path pastaMetrics = repo.resolve("metrics");
@@ -186,13 +253,14 @@ public class TelemetriaDatasetService {
         log.info("Dataset de telemetria gerado em {}", arquivo);
 
         int execucoesNovas = acumularExecucoes(pastaMetrics);
+        int operacoesPorFatia = publicarDatasetsPorFatia(pastaMetrics);
 
-        git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE",
-            "metrics/" + NOME_ARQUIVO_DATASET, "metrics/" + NOME_ARQUIVO_EXECUCOES);
+        git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE", "metrics");
         String mensagemCommit = String.format(Locale.ROOT,
-            "dataset: snapshot com %d episódios e %d operações (+%d execução(ões) no acervo)",
+            "dataset: snapshot com %d episódios e %d operações (+%d execução(ões) no acervo, "
+                + "%d operação(ões) por fatia)",
             resumo.totalEpisodios(), resumo.operacoes() != null ? resumo.operacoes().size() : 0,
-            execucoesNovas);
+            execucoesNovas, operacoesPorFatia);
         ProcessoExternoUtil.Resultado commit = git(repo, TIMEOUT_GIT, "commit", "-m", mensagemCommit);
         boolean semMudancas = commit.codigoSaida() != 0
             && saida(commit).toLowerCase(Locale.ROOT).contains("nothing to commit");

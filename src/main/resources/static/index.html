@@ -1576,6 +1576,35 @@
                             </div>
                         </div>
 
+                        <!-- Telemetria POR FATIA. Medido em 06/08/2026: das 6.601 operações
+                             do acervo, 6.488 viviam em 21 pastas de relatório que o publicador
+                             nunca varreu — 1,3% chegava ao dataset público. Cada aba lê o
+                             consolidado da própria fatia e publica o próprio dataset. -->
+                        <section class="glass-card fatias-card">
+                            <div class="card-header-com-stats">
+                                <h3>Telemetria por fatia</h3>
+                                <div class="stats-badges-container">
+                                    <span class="meta-badge" id="fatias-total">—</span>
+                                    <button type="button" class="btn btn-secondary btn-consolidar-fatias"
+                                        id="btn-consolidar-fatias"
+                                        data-tooltip="Reúne a telemetria espalhada em relatorios/ num arquivo por fatia, sanitizada. Não apaga nada e não duplica ao repetir.">
+                                        <span class="material-symbols-outlined btn-icon">merge</span>
+                                        <span>Consolidar</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="fatias-abas" class="fatias-abas" role="tablist"
+                                aria-label="Fatias de telemetria"></div>
+
+                            <p id="fatias-aviso" class="modal-aviso hidden"></p>
+
+                            <div id="fatias-conteudo" class="fatias-conteudo">
+                                <p class="fatias-vazio">Ainda não consolidado. Use <strong>Consolidar</strong>
+                                    para reunir a telemetria das pastas de relatório.</p>
+                            </div>
+                        </section>
+
                         <div class="telemetry-overview-grid">
                             <article class="telemetry-hero-card">
                                 <div class="hero-card-header">
