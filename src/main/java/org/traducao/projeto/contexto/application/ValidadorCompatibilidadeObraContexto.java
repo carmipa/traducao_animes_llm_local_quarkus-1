@@ -1,9 +1,11 @@
 package org.traducao.projeto.contexto.application;
 
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.contexto.domain.IdentidadeObra;
 import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * PROPÓSITO DE NEGÓCIO: julga se o arquivo prestes a ser traduzido pertence à obra cuja
@@ -48,6 +50,16 @@ import java.util.Set;
  */
 @Component
 public class ValidadorCompatibilidadeObraContexto {
+
+    /**
+     * Rótulos ESTRUTURAIS de pasta: nomes que descrevem a posição do arquivo na organização
+     * do acervo, e não a obra. Casam o nome INTEIRO já normalizado — "guilty crown ova" não
+     * casa, "ova" casa. O número é opcional porque tanto {@code "Season 5"} quanto
+     * {@code "Movie"} são igualmente incapazes de identificar obra.
+     */
+    private static final Pattern NOME_ESTRUTURAL = Pattern.compile(
+        "(?:season|temporada|temp|s|movie|movies|filme|filmes|ova|ovas|oad|oads|special|specials"
+        + "|especial|especiais|extra|extras|bonus|part|parte|disc|disco|cd|vol|volume)\\s*\\d*");
 
     /**
      * PROPÓSITO DE NEGÓCIO: compara a obra reconhecida no caminho do arquivo com o contexto
@@ -199,5 +211,76 @@ public class ValidadorCompatibilidadeObraContexto {
             + "a checagem obra×contexto foi PULADA e a tradução segue com o contexto ativo \""
             + contextoAtivoId + "\". Confirme que é a lore certa — a guarda não adivinha a obra "
             + "a partir de um caminho desconhecido.";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece que o nome da pasta é GENÉRICO — {@code "Season 05"},
+     * {@code "Movie"}, {@code "OVA"} —, isto é, um rótulo que QUALQUER obra do acervo pode ter
+     * e que portanto não identifica obra nenhuma. Existe para separar dois casos que hoje
+     * produzem o mesmo aviso e pedem consertos OPOSTOS: "obra ainda sem lore cadastrada"
+     * (cadastre a lore) e "a pasta não diz que obra é esta" (renomeie a pasta).
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Medido em 07/08/2026: metade das pastas de legenda do acervo tinha um nível de temporada
+     * entre a obra e o arquivo, e a obra derivada do caminho saía {@code "Season 05"}. Disso
+     * dependem DUAS coisas — o portão obra×contexto, que se declarava cego e seguia, e o
+     * DIRETÓRIO DE CACHE, que virava {@code cache/Season 5/}, o mesmo já ocupado por 22
+     * arquivos do Gundam Unicorn. Duas obras gravando no mesmo cache é corrupção silenciosa,
+     * e o aviso genérico não dizia nada sobre isso.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Casa o nome INTEIRO normalizado, nunca um pedaço: {@code "Guilty Crown OVA"} e
+     *       {@code "DanMachi Season 05"} são nomes legítimos de obra e NÃO podem casar aqui.
+     *       A diferença é entre a pasta <em>se chamar</em> {@code OVA} e a pasta <em>conter</em>
+     *       a palavra.</li>
+     *   <li>Usa {@link IdentidadeObra#normalizar(String)} — a MESMA normalização do
+     *       reconhecimento. Se as duas divergissem, uma pasta poderia ser genérica para este
+     *       método e específica para o catálogo, ou o contrário.</li>
+     *   <li>NÃO altera o veredicto: pasta genérica continua
+     *       {@link VeredictoObraContexto#INDETERMINADO} e a tradução SEGUE. Só a mensagem muda.
+     *       Bloquear aqui pararia a tradução de quem organiza o acervo assim, e a guarda existe
+     *       para impedir lore errada, não para impor convenção de pastas.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Nulo ou em branco devolve {@code false}: sem nome não há como afirmar que é genérico, e
+     * o aviso comum de indeterminação já cobre o caso. Nunca lança.
+     *
+     * @param obraDoArquivo nome da pasta derivado do caminho do arquivo
+     * @return {@code true} quando o nome inteiro é rótulo estrutural sem identidade de obra
+     */
+    public boolean pastaGenerica(String obraDoArquivo) {
+        if (obraDoArquivo == null || obraDoArquivo.isBlank()) {
+            return false;
+        }
+        return NOME_ESTRUTURAL.matcher(IdentidadeObra.normalizar(obraDoArquivo)).matches();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: redige o aviso da pasta genérica. É outra mensagem porque é OUTRO
+     * CONSERTO: {@link #mensagemDeIndeterminacao} manda confirmar a lore, o que para
+     * {@code "Season 05"} é instrução impossível — não existe e nunca vai existir uma lore
+     * chamada "Season 05". O conserto é renomear a pasta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nomeia o diretório de cache que a pasta genérica produz,
+     * porque a colisão de cache é o dano REAL e silencioso — o aviso de lore o operador lê no
+     * console, o cache compartilhado entre duas obras ele não vê até o resultado sair errado.
+     * Traz um exemplo concreto de renomeação, porque aviso sem conserto vira ruído ignorado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: aceita nulos e os imprime como estão; a mensagem é
+     * diagnóstica e nunca deve, ela própria, quebrar o fluxo.
+     *
+     * @param obraDoArquivo nome genérico derivado do caminho
+     * @param contextoAtivoId id do contexto ativo da execução
+     * @return mensagem de aviso pronta para log e para a saída dinâmica
+     */
+    public String mensagemDePastaGenerica(String obraDoArquivo, String contextoAtivoId) {
+        return "Pasta \"" + obraDoArquivo + "\" tem nome GENÉRICO e não identifica obra alguma —"
+            + " qualquer anime do acervo pode ter uma pasta com esse nome. A checagem obra×contexto"
+            + " foi PULADA e a tradução segue com o contexto ativo \"" + contextoAtivoId + "\"."
+            + " ATENÇÃO: o cache desta execução vai para \"cache/" + obraDoArquivo + "/\", que"
+            + " qualquer outra obra com a mesma estrutura de pastas também usaria. Renomeie a pasta"
+            + " incluindo o nome da obra (ex.: \"DanMachi Season 05\" em vez de \"Season 05\").";
     }
 }
