@@ -6,6 +6,7 @@ import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
 import org.traducao.projeto.apiDadosAnime.infrastructure.adapters.AniListApiClientAdapter;
 import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
 
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -73,7 +74,8 @@ class ObterMetadataAnimeUseCaseTest {
             useCase.extrairNomeTermoBusca("UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
             "o prefixo de linha do tempo nao pode ir para a API");
         assertEquals("Mobile Suit Gundam: The 08th MS Team",
-            useCase.extrairNomeTermoBusca("G:/animes/UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
+            useCase.extrairNomeTermoBusca(
+                Path.of("animes", "UC 0079 - Mobile Suit Gundam: The 08th MS Team").toString()),
             "mesmo caso vindo como caminho completo");
 
         // O numero E o titulo: nao pode ser confundido com prefixo de catalogo.
@@ -97,9 +99,14 @@ class ObterMetadataAnimeUseCaseTest {
 
     @Test
     void mantemLimpezaPadraoDeCaminhoDeArquivo() {
+        String caminho = Path.of(
+            "animes",
+            "[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p)",
+            "Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass"
+        ).toString();
         assertEquals(
             "Mobile Suit Gundam The 08th MS Team",
-            useCase.extrairNomeTermoBusca("C:\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p)\\Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_Track3_PT-BR.ass")
+            useCase.extrairNomeTermoBusca(caminho)
         );
     }
 

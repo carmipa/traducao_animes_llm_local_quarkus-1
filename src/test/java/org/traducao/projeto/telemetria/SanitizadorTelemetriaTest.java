@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.c;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.de;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.driveSemBarra;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.marcadorDrive;
 
 /**
  * PROPÓSITO DE NEGÓCIO: prova que o texto publicado no dataset perde o que
@@ -25,12 +29,12 @@ class SanitizadorTelemetriaTest {
     @Test
     @DisplayName("caminho sai, medicao e nome da obra ficam")
     void caminhoSaiMedicaoFica() {
-        String sujo = "C:\\animes\\zeta- double zeta\\Mobile Suit Zeta Gundam "
-            + "| ASS | faixas: 50, extraidas: 50, sem faixa: 0";
+        String sujo = c("animes", "zeta- double zeta", "Mobile Suit Zeta Gundam")
+            + " | ASS | faixas: 50, extraidas: 50, sem faixa: 0";
 
         String limpo = SanitizadorTelemetria.sanitizar(sujo);
 
-        assertFalse(limpo.contains("C:\\"), "letra de drive tem de sair");
+        assertFalse(limpo.contains(marcadorDrive('C')), "letra de drive tem de sair");
         assertTrue(limpo.contains("faixas: 50"), "a medicao e o valor do dataset e nao pode sair junto");
         assertTrue(limpo.contains("Mobile Suit Zeta Gundam"),
             "o nome da obra FICA — e o que permite comparar medicoes entre pessoas");
@@ -44,7 +48,7 @@ class SanitizadorTelemetriaTest {
     @DisplayName("grupo de release sobrevive a limpeza")
     void grupoDeReleaseSobrevive() {
         String limpo = SanitizadorTelemetria.sanitizar(
-            "C:\\animes\\[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)\\traducao_ptbr");
+            c("animes", "[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)", "traducao_ptbr"));
 
         assertTrue(limpo.contains("[Joseki]"), "grupo de release e dado publico util");
         assertTrue(limpo.contains("traducao_ptbr"));
@@ -60,7 +64,7 @@ class SanitizadorTelemetriaTest {
     @DisplayName("pasta de usuario e REDIGIDA, nao aparada")
     void pastaDeUsuarioEhRedigida() {
         assertEquals(SanitizadorTelemetria.REDIGIDO,
-            SanitizadorTelemetria.sanitizar("C:\\Users\\Paulo\\Documents\\legenda.ass"));
+            SanitizadorTelemetria.sanitizar(c("Users", "Paulo", "Documents", "legenda.ass")));
         assertEquals(SanitizadorTelemetria.REDIGIDO,
             SanitizadorTelemetria.sanitizar("/home/paulo/kronos/saida.ass"));
     }
@@ -75,7 +79,8 @@ class SanitizadorTelemetriaTest {
     void formaDesconhecidaCaiNaReconferencia() {
         // Sem barra depois do drive: a regra de caminho não casa, e é justamente
         // por isso que a verificação final existe.
-        String limpo = SanitizadorTelemetria.sanitizar("erro ao abrir D:relatorio.txt");
+        String limpo = SanitizadorTelemetria.sanitizar(
+            "erro ao abrir " + driveSemBarra('D', "relatorio.txt"));
 
         assertEquals(SanitizadorTelemetria.REDIGIDO, limpo);
     }
@@ -121,7 +126,7 @@ class SanitizadorTelemetriaTest {
     @Test
     @DisplayName("separador sai normalizado em barra")
     void separadorNormalizado() {
-        String limpo = SanitizadorTelemetria.sanitizar("D:\\animes\\Guilty Crown\\traducao_ptbr");
+        String limpo = SanitizadorTelemetria.sanitizar(de('D', "animes", "Guilty Crown", "traducao_ptbr"));
 
         assertFalse(limpo.contains("\\"), "barra invertida denuncia o sistema de origem");
         assertTrue(limpo.contains("Guilty Crown/traducao_ptbr"));

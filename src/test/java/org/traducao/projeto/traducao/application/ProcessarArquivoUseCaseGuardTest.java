@@ -166,10 +166,10 @@ class ProcessarArquivoUseCaseGuardTest {
     @Test
     void detectaCaminhoDeLegendaJaTraduzida() {
         assertTrue(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
-            Path.of("C:\\animes\\DanMachi\\legendas_ptbr\\episodio_PT-BR.ass")));
+            Path.of("animes", "DanMachi", "legendas_ptbr", "episodio_PT-BR.ass")));
         assertTrue(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
-            Path.of("C:\\animes\\DanMachi\\traducao_ptbr\\episodio.ass")));
+            Path.of("animes", "DanMachi", "traducao_ptbr", "episodio.ass")));
         assertFalse(new ProtecaoLegendaAssService().caminhoPareceTraduzido(
-            Path.of("C:\\animes\\DanMachi\\legendas_eng\\episodio_ENG.ass")));
+            Path.of("animes", "DanMachi", "legendas_eng", "episodio_ENG.ass")));
     }
 }

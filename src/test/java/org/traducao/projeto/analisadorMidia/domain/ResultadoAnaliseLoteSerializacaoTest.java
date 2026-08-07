@@ -22,7 +22,7 @@ class ResultadoAnaliseLoteSerializacaoTest {
             "ASS (estilizada)", "ASS", "TEXTO", true, true, false, true, false, false, 1400.0, 0.5);
 
         AuditoriaResultado res = new AuditoriaResultado(
-            Path.of("C:/segredo/local/ep.mkv"), "ep.mkv",
+            Path.of("raiz", "segredo", "local", "ep.mkv"), "ep.mkv",
             new ContainerInfo("matroska", 1000L, 1440.0, 5000L, "libebml"),
             List.of(), List.of(), List.of(leg),
             List.of(new CapituloInfo(1, "Abertura", 0.0, 60.0)),
