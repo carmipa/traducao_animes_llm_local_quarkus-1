@@ -47,7 +47,7 @@ class ContratoJsonRecordsE1Test {
     @Test
     @DisplayName("RemuxRequest: campos JSON exatos e round-trip preservado")
     void contratoRemuxRequest() throws Exception {
-        RemuxRequest original = new RemuxRequest("E:\\videos", "E:\\saida", 500L, true);
+        RemuxRequest original = new RemuxRequest("videos", "saida", 500L, true);
         String json = mapper.writeValueAsString(original);
 
         assertEquals(new TreeSet<>(java.util.List.of(
@@ -60,9 +60,9 @@ class ContratoJsonRecordsE1Test {
 
         // Desserialização a partir do contrato canônico enviado pela interface.
         RemuxRequest doContrato = mapper.readValue(
-            "{\"entrada\":\"E:\\\\v\",\"saida\":\"E:\\\\s\",\"syncOffsetMs\":250,\"preservarLegendasOriginais\":false}",
+            "{\"entrada\":\"v\",\"saida\":\"s\",\"syncOffsetMs\":250,\"preservarLegendasOriginais\":false}",
             RemuxRequest.class);
-        assertEquals("E:\\v", doContrato.entrada());
+        assertEquals("v", doContrato.entrada());
         assertEquals(250L, doContrato.syncOffsetMs());
         assertEquals(false, doContrato.preservarLegendasOriginais());
     }
@@ -70,7 +70,7 @@ class ContratoJsonRecordsE1Test {
     @Test
     @DisplayName("ExtracaoRequest: campos JSON exatos e round-trip preservado")
     void contratoExtracaoRequest() throws Exception {
-        ExtracaoRequest original = new ExtracaoRequest("E:\\videos", "E:\\saida", "ASS");
+        ExtracaoRequest original = new ExtracaoRequest("videos", "saida", "ASS");
         String json = mapper.writeValueAsString(original);
 
         assertEquals(new TreeSet<>(java.util.List.of("entrada", "saida", "formato")),
@@ -81,7 +81,7 @@ class ContratoJsonRecordsE1Test {
         assertEquals(original, volta, "Round-trip de ExtracaoRequest deve preservar todos os valores");
 
         ExtracaoRequest doContrato = mapper.readValue(
-            "{\"entrada\":\"E:\\\\v\",\"saida\":\"E:\\\\s\",\"formato\":\"SRT\"}", ExtracaoRequest.class);
+            "{\"entrada\":\"v\",\"saida\":\"s\",\"formato\":\"SRT\"}", ExtracaoRequest.class);
         assertEquals("SRT", doContrato.formato());
     }
 

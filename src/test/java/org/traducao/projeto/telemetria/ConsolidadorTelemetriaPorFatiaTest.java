@@ -17,6 +17,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.c;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.marcadorDrive;
 
 /**
  * PROPÓSITO DE NEGÓCIO: prova que a telemetria espalhada em {@code relatorios/}
@@ -110,13 +112,14 @@ class ConsolidadorTelemetriaPorFatiaTest {
     @DisplayName("o detalhe e sanitizado ao consolidar, nao depois")
     void detalheSanitizadoNaConsolidacao() throws IOException {
         escrever(relatorios.resolve("obra"),
-            "Limpeza de Cache", "C:\\animes\\[Joseki] Gundam 0083\\cache | 15 arquivos",
+            "Limpeza de Cache",
+            c("animes", "[Joseki] Gundam 0083", "cache") + " | 15 arquivos",
             "2026-08-01T10:00:00");
 
         consolidador.consolidar();
 
         String detalhe = lerFatia("cache").get("operacoes").get(0).get("detalhe").asText();
-        assertFalse(detalhe.contains("C:\\"), "caminho absoluto nao pode entrar no consolidado");
+        assertFalse(detalhe.contains(marcadorDrive('C')), "caminho absoluto nao pode entrar no consolidado");
         assertTrue(detalhe.contains("[Joseki]"), "grupo de release FICA — e o valor do dado");
         assertTrue(detalhe.contains("15 arquivos"), "a medicao nao sai junto com o caminho");
     }
@@ -250,7 +253,8 @@ class ConsolidadorTelemetriaPorFatiaTest {
     void residuoDeTesteEhDescartadoEContado() throws IOException {
         escrever(relatorios.resolve("obra"),
             "Auditoria de Conteudo (.ass)",
-            "C:\\Users\\Paulo\\AppData\\Local\\Temp\\junit-10410939766033011663\\ep02_pt.ass | anomalias=1",
+            c("Users", "Paulo", "AppData", "Local", "Temp",
+                "junit-10410939766033011663", "ep02_pt.ass") + " | anomalias=1",
             "2026-08-01T10:00:00",
             "Auditoria de Conteudo (.ass)", "trabalho de verdade | anomalias=3", "2026-08-01T11:00:00");
 

@@ -179,13 +179,15 @@ class GuardaRaizNavegacaoTest {
 
     /**
      * PROPÓSITO DE NEGÓCIO: é o que permite UMA configuração servir Windows
-     * (C:/animes) e contêiner (/acervo) sem arquivo separado.
+     * (raiz de disco do host) e contêiner (/acervo) sem arquivo separado.
      */
     @Test
     @DisplayName("raiz declarada que nao existe e ignorada, sem derrubar as demais")
     void raizInexistenteEIgnorada(@TempDir Path existente) {
         var guarda = new GuardaRaizNavegacao(new NavegacaoProperties(
-            List.of(existente.toString(), "/caminho-que-nao-existe-em-lugar-nenhum", "Z:/tambem-nao")));
+            List.of(existente.toString(),
+                "/caminho-que-nao-existe-em-lugar-nenhum",
+                existente.resolveSibling("tambem-nao-existe-kronos").toString())));
 
         assertEquals(1, guarda.raizesExistentes().size(),
             "so a raiz existente entra, e a presenca das outras nao quebra nada");

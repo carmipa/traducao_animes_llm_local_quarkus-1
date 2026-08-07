@@ -62,7 +62,7 @@ class RelatorioRevisaoServiceTest {
     @Test
     @DisplayName("Modo Google: cabeçalho, rótulo e ordem das linhas idênticos aos de antes da extração")
     void relatorioDoModoGoogle() {
-        servico.registrar(Path.of("C:", "animes", "pt"), 90_000,
+        servico.registrar(Path.of("animes", "pt"), 90_000,
             3, 12, 7, 400, 5, 5, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
@@ -112,7 +112,7 @@ class RelatorioRevisaoServiceTest {
     @Test
     @DisplayName("Modo LLM: cabeçalho e rótulo próprios — os dois modos não se confundem no histórico")
     void relatorioDoModoLlm() {
-        servico.registrar(Path.of("C:", "animes", "pt"), 5_000,
+        servico.registrar(Path.of("animes", "pt"), 5_000,
             1, 2, 2, 10, 0, 0, ModoRevisaoLegendas.LLM_CONCORDANCIA, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
@@ -210,7 +210,7 @@ class RelatorioRevisaoServiceTest {
     @Test
     @DisplayName("a lore ativa fica registrada no relatório")
     void loreAtivaApareceNoRelatorio() {
-        servico.registrar(Path.of("C:", "animes", "pt"), 1_000,
+        servico.registrar(Path.of("animes", "pt"), 1_000,
             1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
 
         assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: gundam_zeta\n"),
@@ -224,7 +224,7 @@ class RelatorioRevisaoServiceTest {
     @Test
     @DisplayName("sem lore selecionada o relatório diz (nenhuma), não fica em branco")
     void loreAusenteApareceComoNenhuma() {
-        servico.registrar(Path.of("C:", "animes", "pt"), 1_000,
+        servico.registrar(Path.of("animes", "pt"), 1_000,
             1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "  ", List.of());
 
         assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: (nenhuma)\n"));
