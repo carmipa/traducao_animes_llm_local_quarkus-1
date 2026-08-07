@@ -65,12 +65,13 @@ class RenomeadorExclusaoMutuaTest {
     void mapaMantemAChaveDepoisDeLiberar() {
         ConcurrentMap<String, ReentrantLock> mapa = new ConcurrentHashMap<>();
 
-        comBloqueio(mapa, "c:\\animes\\obra", () -> null);
+        String chavePasta = Path.of("animes", "obra").toString();
+        comBloqueio(mapa, chavePasta, () -> null);
 
         assertEquals(1, mapa.size(),
             "a entrada precisa PERMANECER. Removê-la faz a próxima thread criar um lock NOVO "
                 + "e entrar em paralelo com quem obteve o antigo entre o unlock e o remove.");
-        assertFalse(mapa.get("c:\\animes\\obra").isLocked(),
+        assertFalse(mapa.get(chavePasta).isLocked(),
             "o lock continua no mapa, mas liberado — a próxima operação na pasta é permitida");
     }
 

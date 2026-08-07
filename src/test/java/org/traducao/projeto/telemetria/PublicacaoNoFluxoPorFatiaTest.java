@@ -10,6 +10,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.c;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.marcadorDrive;
 
 /**
  * PROPÓSITO DE NEGÓCIO: prova que toda operação registrada por qualquer fatia
@@ -74,10 +76,10 @@ class PublicacaoNoFluxoPorFatiaTest {
         TelemetriaService servico = new TelemetriaService(espiao);
 
         servico.registrarOperacao(operacao("Limpeza de Cache",
-            "C:\\animes\\[Joseki] Mobile Suit Gundam 0083\\traducao_ptbr | 15 arquivos"));
+            c("animes", "[Joseki] Mobile Suit Gundam 0083", "traducao_ptbr") + " | 15 arquivos"));
 
         String detalhe = espiao.recebidos.get(0).campos().get("detalhe");
-        assertFalse(detalhe.contains("C:\\"), "letra de drive nao pode ir ao dataset");
+        assertFalse(detalhe.contains(marcadorDrive('C')), "letra de drive nao pode ir ao dataset");
         assertTrue(detalhe.contains("[Joseki]"), "grupo de release FICA — e o valor do dado");
         assertTrue(detalhe.contains("15 arquivos"), "a medicao nao pode sair junto com o caminho");
     }
@@ -91,7 +93,7 @@ class PublicacaoNoFluxoPorFatiaTest {
         FluxoEspiao espiao = new FluxoEspiao();
         TelemetriaService servico = new TelemetriaService(espiao);
 
-        servico.registrarOperacao(operacao("Renomear Arquivos", "C:\\Users\\Paulo\\Documents\\lote"));
+        servico.registrarOperacao(operacao("Renomear Arquivos", c("Users", "Paulo", "Documents", "lote")));
 
         assertEquals(SanitizadorTelemetria.REDIGIDO, espiao.recebidos.get(0).campos().get("detalhe"));
     }
@@ -125,7 +127,7 @@ class PublicacaoNoFluxoPorFatiaTest {
     void semFluxoContinuaFuncionando() {
         TelemetriaService servico = new TelemetriaService();
 
-        servico.registrarOperacao(operacao("Limpeza de Cache", "C:\\animes\\obra"));
+        servico.registrarOperacao(operacao("Limpeza de Cache", c("animes", "obra")));
 
         assertEquals(FluxoTelemetriaPort.INERTE.status().conectado(), false,
             "a porta inerte se declara desconectada, nunca finge estar de pe");

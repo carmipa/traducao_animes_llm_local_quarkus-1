@@ -3,6 +3,7 @@ package org.traducao.projeto.contexto.application;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
 
+import java.nio.file.Path;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,7 +89,7 @@ class ValidadorCompatibilidadeObraContextoTest {
     @Test
     void mensagemDeBloqueioNomeiaArquivoObraContextoEsperadoEAtivo() {
         String msg = validador.mensagemDeBloqueio(
-            "D:/animes/Gundam 0083/legendas_originais/ep01.ass",
+            Path.of("animes", "Gundam 0083", "legendas_originais", "ep01.ass").toString(),
             "Mobile Suit Gundam 0083", "guilty_crown", Set.of("gundam_0083"));
 
         assertTrue(msg.contains("ep01.ass"), msg);
@@ -120,7 +121,7 @@ class ValidadorCompatibilidadeObraContextoTest {
     @Test
     void mensagemDeAmbiguidadeNomeiaAsObrasEmpatadasEApontaOConsertoNoCatalogo() {
         String msg = validador.mensagemDeAmbiguidade(
-            "D:/animes/Break Blade Movies/legendas_originais/ep01.ass",
+            Path.of("animes", "Break Blade Movies", "legendas_originais", "ep01.ass").toString(),
             "Break Blade Movies", "break_blade_1", Set.of("break_blade_1", "break_blade_2"));
 
         assertTrue(msg.contains("ep01.ass"), msg);

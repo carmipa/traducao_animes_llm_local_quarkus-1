@@ -71,7 +71,8 @@ class KronosMcpToolsTest {
         FakeAnalise fake = new FakeAnalise(loteVazio(), null);
         KronosMcpTools mcp = new KronosMcpTools(fake, fila);
 
-        String resposta = mcp.analisarMidia("Z:/pasta/que/nao/existe/kronos-xyz");
+        String resposta = mcp.analisarMidia(
+            Path.of("pasta", "que", "nao", "existe", "kronos-xyz").toAbsolutePath().toString());
 
         assertTrue(resposta.startsWith("ERRO"), resposta);
         assertEquals(0, fake.chamadas.get());
