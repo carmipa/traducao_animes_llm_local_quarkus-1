@@ -62,3 +62,51 @@
 [  358436ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
 [  358443ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
 [  358443ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  578951ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  578951ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  578951ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  583951ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  583995ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  583995ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  641379ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[  643838ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  643838ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  643838ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  648840ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  648941ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  648942ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  693879ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[  703436ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  703437ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  703437ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  708438ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  708451ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  708452ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  736418ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[  744031ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  744031ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  744031ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  749034ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  749136ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  749137ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  761311ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[  768992ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  768992ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  768992ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  773994ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  774018ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  774019ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  796929ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  796930ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  796930ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  801930ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  801971ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  801971ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[  841817ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[  849364ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[  850674ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[  850674ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  850674ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  855679ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[  855769ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[  855769ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358

@@ -65,7 +65,74 @@ public class NormalizadorAcentosComuns {
         Map.entry("infancia", "infância"),
         Map.entry("ninguem", "ninguém"),
         Map.entry("alguem", "alguém"),
-        Map.entry("porem", "porém")
+        Map.entry("porem", "porém"),
+
+        // ---------------------------------------------------------------
+        // AMPLIAÇÃO DE 07/08/2026 — as seis primeiras foram MEDIDAS.
+        //
+        // Auditadas 10.918 falas das duas obras traduzidas na noite de 06/08
+        // (Gundam 0083 Stardust Memory, 15 eps; Gundam 08th MS Team, 13 eps):
+        // 74 falas (0,68%) saíram com a forma sem acento. A contagem, com a
+        // fronteira que trata a quebra \N do ASS:
+        //
+        //   35x capitao   26x entao   7x estao   3x razao
+        //    1x pressao    1x esquadrao
+        //
+        // "sera" apareceu 1x e ficou de FORA de propósito: pode ser nome
+        // próprio, e a invariante deste mapa exige forma que nunca seja palavra
+        // válida. Uma ocorrência não paga o risco de estragar um nome.
+        //
+        // O resto é a mesma família -ão/-ção, toda com a mesma propriedade: a
+        // forma sem til não existe em português. Entram porque o defeito é do
+        // modelo com a terminação, não com a palavra específica — e esperar
+        // cada uma aparecer numa auditoria seria pagar o erro antes de corrigir.
+        // ---------------------------------------------------------------
+        Map.entry("capitao", "capitão"),
+        Map.entry("capitaes", "capitães"),
+        Map.entry("entao", "então"),
+        Map.entry("estao", "estão"),
+        Map.entry("razao", "razão"),
+        Map.entry("razoes", "razões"),
+        Map.entry("pressao", "pressão"),
+        Map.entry("esquadrao", "esquadrão"),
+        Map.entry("batalhao", "batalhão"),
+
+        Map.entry("irmao", "irmão"),
+        Map.entry("irmaos", "irmãos"),
+        Map.entry("mae", "mãe"),
+        Map.entry("maes", "mães"),
+        Map.entry("coracao", "coração"),
+        Map.entry("tres", "três"),
+        Map.entry("comeco", "começo"),
+
+        Map.entry("missao", "missão"),
+        Map.entry("missoes", "missões"),
+        Map.entry("posicao", "posição"),
+        Map.entry("posicoes", "posições"),
+        Map.entry("atencao", "atenção"),
+        Map.entry("decisao", "decisão"),
+        Map.entry("decisoes", "decisões"),
+        Map.entry("licao", "lição"),
+        Map.entry("nacao", "nação"),
+        Map.entry("uniao", "união"),
+        Map.entry("visao", "visão"),
+        Map.entry("tensao", "tensão"),
+        Map.entry("invasao", "invasão"),
+        Map.entry("explosao", "explosão"),
+        Map.entry("operacao", "operação"),
+        Map.entry("operacoes", "operações"),
+        Map.entry("situacao", "situação"),
+        Map.entry("informacao", "informação"),
+        Map.entry("informacoes", "informações"),
+        Map.entry("explicacao", "explicação"),
+        Map.entry("reacao", "reação"),
+        Map.entry("direcao", "direção"),
+        Map.entry("condicao", "condição"),
+        Map.entry("condicoes", "condições"),
+        Map.entry("destruicao", "destruição"),
+        Map.entry("protecao", "proteção"),
+        Map.entry("confirmacao", "confirmação"),
+        Map.entry("autorizacao", "autorização")
     );
 
     private static final Pattern PALAVRA;
