@@ -2028,6 +2028,34 @@
         </div>
     </div>
 
+    <!-- Navegador de pastas SERVIDO PELO SERVIDOR.
+         Os botões "Procurar..." abriam um diálogo nativo do Windows aberto pelo
+         servidor via powershell.exe — o que só funciona com servidor e usuário na
+         mesma máquina. Dentro de um contêiner Linux não há powershell, Windows
+         Forms nem display, e a escolha de pasta deixaria de existir. Este modal é
+         o caminho que funciona em qualquer lugar; o diálogo nativo virou atalho de
+         conveniência quando disponível. Ver docs/ref-docker.md. -->
+    <div id="modal-navegador" class="modal-overlay hidden" role="dialog" aria-modal="true"
+        aria-labelledby="modal-navegador-titulo">
+        <div class="modal-box modal-navegador-box">
+            <h3 id="modal-navegador-titulo">Escolher pasta</h3>
+            <div class="navegador-barra">
+                <button type="button" id="btn-navegador-subir" class="btn btn-secondary btn-navegador-subir"
+                    data-tooltip="Subir um nível (nunca sai da raiz permitida)">
+                    <span class="material-symbols-outlined btn-icon">arrow_upward</span><span>Subir</span>
+                </button>
+                <code id="navegador-atual" class="navegador-atual">—</code>
+            </div>
+            <div id="navegador-lista" class="navegador-lista" role="listbox"
+                aria-labelledby="modal-navegador-titulo"></div>
+            <p id="navegador-aviso" class="modal-aviso hidden"></p>
+            <div class="modal-acoes">
+                <button id="btn-navegador-cancelar" class="btn btn-secondary" type="button">Cancelar</button>
+                <button id="btn-navegador-confirmar" class="btn btn-primary" type="button">Usar esta pasta</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Cobertura de tela após o encerramento ser confirmado -->
     <div id="overlay-encerrado" class="modal-overlay hidden">
         <div class="modal-box overlay-encerrado-box">
