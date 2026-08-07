@@ -1,6 +1,7 @@
 package org.traducao.projeto.legenda.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.legenda.domain.PadraoEstiloMusical;
 
 import java.util.regex.Pattern;
 
@@ -51,8 +52,10 @@ public class DetectorEfeitoKaraokeService {
     // Mesmas palavras, fronteira por LETRA em vez de \b: alcança "ED_S2", "OP_S2" e "OP2", onde o
     // sublinhado e o dígito são caractere de palavra e derrotam o \b. Usado SÓ como critério de
     // candidatura do pareamento (ver podeSerCamadaMusical) — candidatar-se não protege nada.
-    private static final Pattern ESTILO_MUSICA_AMPLO_PATTERN = Pattern.compile(
-        "(?i)(?<!\\p{L})(song|music|karaoke|opening|ending|theme|insert|op|ed|sing|lyrics?)(?!\\p{L})");
+    // A forma do nome musical mora em legenda.domain.PadraoEstiloMusical desde 07/08/2026.
+    // Este padrao e o de PoliticaEstiloMusical discordavam em 1.385 linhas do acervo, medidas
+    // por MedicaoDivergenciaPadraoMusicalIT: aqui faltavam "romaji" e o plural de "songs"; la
+    // o  nao alcancava OP_S2. Um segundo padrao fora do dono reabre a divergencia.
     // "roma" (abreviação de romaji), além de "romaji"/"romanized"/"romanji": estilos de fansub
     // marcam a faixa romanizada como "OP Roma", "ED Roma L1", "Roma" — e SEM esta forma curta a
     // linha caía na heurística de texto, que falha quando o romaji mistura palavras em inglês
@@ -121,7 +124,7 @@ public class DetectorEfeitoKaraokeService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo devolve {@code false}; nunca lança.
      */
     public boolean eEstiloDeMusica(String estilo) {
-        return estilo != null && ESTILO_MUSICA_AMPLO_PATTERN.matcher(estilo).find();
+        return PadraoEstiloMusical.nomeDeclaraMusica(estilo);
     }
 
     /**
@@ -150,7 +153,7 @@ public class DetectorEfeitoKaraokeService {
         if (temIndicadorDeMusica(estilo, texto)) {
             return true;
         }
-        return estilo != null && ESTILO_MUSICA_AMPLO_PATTERN.matcher(estilo).find();
+        return PadraoEstiloMusical.nomeDeclaraMusica(estilo);
     }
 
     /**

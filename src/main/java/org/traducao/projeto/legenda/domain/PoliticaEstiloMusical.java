@@ -3,7 +3,6 @@ package org.traducao.projeto.legenda.domain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * PROPÓSITO DE NEGÓCIO: política de IDENTIFICAÇÃO de estilos ASS potencialmente
@@ -40,9 +39,6 @@ import java.util.regex.Pattern;
  */
 public final class PoliticaEstiloMusical {
 
-    private static final Pattern PALAVRAS_CHAVE_MUSICA =
-        Pattern.compile("(?i)\\b(song|music|karaoke|romaji|opening|ending|theme|insert|op|ed|sing)\\b");
-
     private final List<String> estilosIgnorados;
 
     public PoliticaEstiloMusical(List<String> estilosIgnorados) {
@@ -69,14 +65,11 @@ public final class PoliticaEstiloMusical {
         if (estilosIgnorados.stream().anyMatch(e -> e.equalsIgnoreCase(estilo))) {
             return true;
         }
-        // 2. Check heurístico de palavras-chave comuns de músicas e karaokês
-        String est = estilo.toLowerCase();
-        if (est.contains("song") || est.contains("music") || est.contains("karaoke")
-            || est.contains("romaji") || est.contains("opening") || est.contains("ending")
-            || est.contains("theme") || est.contains("insert") || est.contains("sing")) {
-            return true;
-        }
-        // Check de limites de palavras para abreviações curtas como OP, ED, OP1, ED2, etc.
-        return PALAVRAS_CHAVE_MUSICA.matcher(estilo).find();
+        // 2. A forma do nome musical é decidida por PadraoEstiloMusical — fonte ÚNICA desde
+        // 07/08/2026. Antes, esta classe tinha a própria heurística (substring + \b) e o
+        // DetectorEfeitoKaraokeService tinha outra (lookaround de letra), e as duas discordavam
+        // em 1.385 linhas do acervo: o \b não alcançava OP_S2 (o "_" é caractere de palavra) e
+        // o lookaround não conhecia "romaji" nem o plural de "songs".
+        return PadraoEstiloMusical.nomeDeclaraMusica(estilo);
     }
 }
