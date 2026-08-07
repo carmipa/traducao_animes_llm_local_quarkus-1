@@ -6,6 +6,7 @@ import org.traducao.projeto.apiDadosAnime.domain.model.AnimeMetadata;
 import org.traducao.projeto.apiDadosAnime.infrastructure.adapters.AniListApiClientAdapter;
 import org.traducao.projeto.apiDadosAnime.infrastructure.config.ApiDadosAnimeHttpProperties;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -73,9 +74,13 @@ class ObterMetadataAnimeUseCaseTest {
         assertEquals("Mobile Suit Gundam: The 08th MS Team",
             useCase.extrairNomeTermoBusca("UC 0079 - Mobile Suit Gundam: The 08th MS Team"),
             "o prefixo de linha do tempo nao pode ir para a API");
+        // String.join(File.separator, ...) e nao Path.of: o titulo da obra contem ":", e
+        // Path.of VALIDA os caracteres do segmento — no Windows ":' so e legal depois da
+        // letra de drive, e a construcao lanca InvalidPathException. Aqui o que se testa e a
+        // extracao do nome a partir de uma STRING de caminho; nao ha arquivo real envolvido.
         assertEquals("Mobile Suit Gundam: The 08th MS Team",
             useCase.extrairNomeTermoBusca(
-                Path.of("animes", "UC 0079 - Mobile Suit Gundam: The 08th MS Team").toString()),
+                String.join(File.separator, "animes", "UC 0079 - Mobile Suit Gundam: The 08th MS Team")),
             "mesmo caso vindo como caminho completo");
 
         // O numero E o titulo: nao pode ser confundido com prefixo de catalogo.
