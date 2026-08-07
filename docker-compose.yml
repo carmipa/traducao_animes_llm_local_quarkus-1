@@ -47,6 +47,13 @@ services:
       # Repositório do dataset de telemetria, montado do host logo abaixo.
       KRONOS_DATASET_REPO: "/dataset"
 
+      # Redis: fluxo AO VIVO de eventos de telemetria, ADITIVO. O
+      # telemetria_execucoes.jsonl continua sendo a fonte do dataset, porque
+      # arquivo em disco sobrevive a kill -9 e Redis com AOF perde os ultimos
+      # milissegundos — para telemetria que vira dataset, perder evento e perder
+      # dado. Sem Redis no ar, tudo funciona como antes.
+      KRONOS_REDIS_URL: "redis://redis:6379"
+
     extra_hosts:
       # Docker Desktop resolve host.docker.internal sozinho; em Docker Engine no
       # Linux, não. A linha abaixo faz o compose valer nos dois.
@@ -82,3 +89,47 @@ services:
       resources:
         limits:
           memory: 4G
+
+    # service_started, NÃO service_healthy. O KRONOS tem de subir mesmo com o
+    # Redis fora do ar — essa é a garantia central do desenho, e amarrar o boot
+    # à saúde do Redis a destruiria logo na primeira linha do compose.
+    depends_on:
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:8-alpine
+    container_name: kronos-redis
+    restart: unless-stopped
+
+    # appendonly liga o AOF: o fluxo sobrevive a reinício do contêiner. `--save ""`
+    # desliga o snapshot RDB, que aqui só duplicaria trabalho — o AOF já cobre, e
+    # a verdade do dataset continua sendo o arquivo JSONL do KRONOS.
+    command: ["redis-server", "--appendonly", "yes", "--save", ""]
+
+    # NÃO publica porta no host. O Redis existe para o KRONOS, e só ele fala com
+    # o Redis pela rede interna do compose. Expor 6379 seria abrir um banco sem
+    # autenticação na máquina de quem usa.
+    expose:
+      - "6379"
+
+    volumes:
+      - redis-dados:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+volumes:
+  # Volume NOMEADO, ao contrário do resto: o AOF é formato interno do Redis, não
+  # se lê nem se conserta à mão. Deixá-lo como bind mount só encheria a pasta do
+  # projeto de arquivo binário opaco.
+  redis-dados:

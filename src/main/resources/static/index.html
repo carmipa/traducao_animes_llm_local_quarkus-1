@@ -310,6 +310,20 @@
                             </div>
                             <span class="status-badge pulse-green">Ativo</span>
                         </div>
+
+                        <!-- Fluxo ao vivo de telemetria (Redis Streams). Desconectado é
+                             estado LEGÍTIMO: o KRONOS funciona inteiro sem ele, e o card
+                             diz isso sem alarde em vez de pintar a tela de vermelho. -->
+                        <div class="stat-widget glow-blue">
+                            <div class="widget-icon">
+                                <span class="material-symbols-outlined">stream</span>
+                            </div>
+                            <div class="widget-info">
+                                <span class="widget-label">Fluxo de Telemetria</span>
+                                <span class="widget-value" id="fluxo-telemetria-valor">Verificando…</span>
+                            </div>
+                            <span class="status-badge pulse-purple" id="fluxo-telemetria-status">Verificando…</span>
+                        </div>
                     </div>
 
                     <!-- Banner Hero Modernizado -->

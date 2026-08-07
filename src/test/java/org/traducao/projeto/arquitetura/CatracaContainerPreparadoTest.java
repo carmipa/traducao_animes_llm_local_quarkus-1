@@ -143,6 +143,63 @@ class CatracaContainerPreparadoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o KRONOS não pode se plugar sozinho num Redis que não
+     * é dele.
+     *
+     * <p>O PREJUÍZO, medido em 06/08/2026: o default era
+     * {@code redis://localhost:6379}, e esta máquina já tinha um
+     * {@code redis-stack-server} de OUTRO projeto escutando nessa porta. No
+     * primeiro boot o KRONOS conectou nele sozinho e o painel reportou
+     * "conectado" — sem ninguém pedir, e sem nada avisar. Pior: o teste de
+     * degradação passou verde justamente porque havia um Redis alheio
+     * respondendo, ou seja, a ausência nunca chegou a ser exercitada.
+     *
+     * <p>É o que a decisão de 03/08 no cérebro proíbe: Redis PRÓPRIO, nunca o
+     * compartilhado, porque reusar cria vínculo de confiança entre projetos.
+     */
+    @Test
+    @DisplayName(".env nao pode carregar configuracao que a aplicacao le")
+    void envNaoCarregaConfiguracaoDaAplicacao() throws IOException {
+        // O PREJUÍZO, medido em 06/08/2026: o .env.example trazia
+        // KRONOS_LLM_BASE_URL=http://host.docker.internal:1234/v1, pensado para o
+        // contêiner. Só que o Quarkus lê .env da pasta de trabalho e trata cada
+        // linha como configuração — a aplicação rodando NO WINDOWS passou a
+        // apontar o LM Studio para um host que só existe dentro do Docker. O
+        // sintoma chegou como teste de integração quebrado, longe da causa.
+        Path exemplo = Path.of(".env.example");
+        assertTrue(Files.isRegularFile(exemplo), ".env.example precisa existir");
+
+        List<String> lidasPelaApp = List.of("KRONOS_LLM_BASE_URL", "KRONOS_REDIS_URL",
+            "KRONOS_DATASET_REPO", "QUARKUS_HTTP_HOST");
+
+        List<String> declaradas = Files.readAllLines(exemplo).stream()
+            .map(String::strip)
+            .filter(l -> !l.startsWith("#") && l.contains("="))
+            .map(l -> l.substring(0, l.indexOf('=')).strip())
+            .filter(lidasPelaApp::contains)
+            .toList();
+
+        assertTrue(declaradas.isEmpty(),
+            "estas chaves sao lidas pela APLICACAO e no .env valeriam tambem fora do conteiner: "
+                + declaradas);
+    }
+
+    @Test
+    @DisplayName("o Redis padrao NAO pode ser localhost — o KRONOS nao adota Redis alheio")
+    void redisPadraoNaoEhLocalhost() throws IOException {
+        Path props = Path.of("src", "main", "resources", "application.properties");
+        String conteudo = Files.readString(props);
+
+        Matcher m = Pattern.compile("(?m)^quarkus\\.redis\\.hosts\\s*=\\s*(.+)$").matcher(conteudo);
+        assertTrue(m.find(), "quarkus.redis.hosts precisa estar declarado");
+
+        String valor = m.group(1);
+        assertFalse(valor.contains("localhost") || valor.contains("127.0.0.1"),
+            "default de Redis apontando para a maquina local faz o KRONOS adotar o Redis de outro "
+                + "projeto que por acaso esteja no ar: " + valor);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: o Dockerfile precisa continuar embutindo os binários
      * externos.
      *
