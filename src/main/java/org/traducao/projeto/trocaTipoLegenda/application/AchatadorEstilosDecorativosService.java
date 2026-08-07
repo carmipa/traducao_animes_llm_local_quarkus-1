@@ -137,9 +137,100 @@ public class AchatadorEstilosDecorativosService {
         if (falasAchatadas == 0 && silabasDescartadas == 0) {
             return new Resultado(documento, 0, List.of(), 0);
         }
+        String cabecalho = carimbar(documento.cabecalho(), estiloBase,
+            decorativosAchatados, falasAchatadas, silabasDescartadas);
         DocumentoLegenda saida = new DocumentoLegenda(
-            documento.cabecalho(), novos, documento.quebraDeLinha(), documento.comBom());
+            cabecalho, novos, documento.quebraDeLinha(), documento.comBom());
         return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados), silabasDescartadas);
+    }
+
+    /** Marca do bloco de carimbo. Serve para reescrever em vez de empilhar. */
+    private static final String MARCA_CARIMBO = "; KRONOS achatou:";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: registra NO PRÓPRIO ARQUIVO o que o achatamento
+     * colapsou, para que quem abrir a legenda meses depois saiba que ela foi
+     * achatada e o que existia antes.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Auditado o acervo em 07/08/2026: no Gundam 0080 a origem tinha
+     * {@code Default 226 · Signs 150 · OP 21} e a saída tem {@code Default 397}.
+     * Depois de achatar, <b>nada no arquivo distingue diálogo de letreiro ou de
+     * música</b> — nem para auditar, nem para uma tradução futura. O Zeta está
+     * nesse estado em 50 de 50 episódios.
+     *
+     * <p>O dado não estava perdido: o achatamento sempre gravou snapshot em
+     * {@code backups/}. Perdida estava a DESCOBERTA — o arquivo achatado não
+     * apontava para lugar nenhum, e quem o encontrasse sozinho não teria como
+     * saber que houve achatamento. Foi assim que eu mesmo, nesta auditoria,
+     * classifiquei 18.431 falas como resíduo de tradução quando eram letra de
+     * música cujo estilo tinha sido apagado.
+     *
+     * <h2>INVARIANTES DO DOMÍNIO</h2>
+     * <ul>
+     *   <li>Escreve como COMENTÁRIO do formato ({@code ;}) dentro de
+     *       {@code [Script Info]}. Player e libass ignoram; o Aegisub já usa a
+     *       mesma convenção no cabeçalho que ele gera.</li>
+     *   <li><b>Idempotente:</b> um carimbo anterior é substituído, nunca
+     *       empilhado. Achatar duas vezes não pode produzir um cabeçalho que
+     *       cresce a cada execução.</li>
+     *   <li>Não registra data nem caminho de backup — data envelhece no arquivo e
+     *       caminho absoluto vazaria a máquina de quem rodou. O que fica é o que
+     *       não muda: quais estilos existiam e quanto foi descartado.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: cabeçalho sem {@code [Script Info]}
+     * recebe o carimbo no início; nunca lança e nunca devolve nulo.
+     */
+    private String carimbar(String cabecalho, String estiloBase,
+                            Set<String> decorativos, int falas, int silabas) {
+        String limpo = removerCarimboAnterior(cabecalho);
+        String quebra = limpo.contains("\r\n") ? "\r\n" : "\n";
+
+        StringBuilder bloco = new StringBuilder();
+        bloco.append(MARCA_CARIMBO).append(' ').append(falas)
+            .append(" fala(s) para o estilo \"").append(estiloBase).append('"');
+        if (silabas > 0) {
+            bloco.append(", ").append(silabas).append(" silaba(s) de timing descartada(s)");
+        }
+        bloco.append(quebra);
+        if (!decorativos.isEmpty()) {
+            bloco.append("; KRONOS estilos originais: ")
+                .append(String.join(", ", decorativos)).append(quebra);
+        }
+        bloco.append("; KRONOS original preservado em backups/ desta execucao").append(quebra);
+
+        int marcador = limpo.indexOf("[Script Info]");
+        if (marcador < 0) {
+            return bloco + limpo;
+        }
+        int fimDaLinha = limpo.indexOf('\n', marcador);
+        if (fimDaLinha < 0) {
+            return limpo + quebra + bloco;
+        }
+        return limpo.substring(0, fimDaLinha + 1) + bloco + limpo.substring(fimDaLinha + 1);
+    }
+
+    /**
+     * Remove um bloco de carimbo anterior. Sem isto, cada achatamento somaria
+     * mais três linhas de comentário e o cabeçalho cresceria sem limite — e o
+     * carimbo mais antigo, já falso, continuaria lá.
+     */
+    private static String removerCarimboAnterior(String cabecalho) {
+        if (cabecalho == null || !cabecalho.contains(MARCA_CARIMBO)) {
+            return cabecalho == null ? "" : cabecalho;
+        }
+        StringBuilder saida = new StringBuilder(cabecalho.length());
+        for (String linha : cabecalho.split("\n", -1)) {
+            if (linha.startsWith("; KRONOS ")) {
+                continue;
+            }
+            if (saida.length() > 0) {
+                saida.append('\n');
+            }
+            saida.append(linha);
+        }
+        return saida.toString();
     }
 
     /**

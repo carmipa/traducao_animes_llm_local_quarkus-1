@@ -155,6 +155,102 @@ class AchatadorEstilosDecorativosServiceTest {
         assertTrue(r.estilosDecorativos().contains("Sign"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o arquivo achatado tem de DIZER que foi achatado e o
+     * que existia antes.
+     *
+     * <p>O PREJUÍZO: auditado o acervo em 07/08/2026, o Gundam 0080 tinha
+     * {@code Default 226 · Signs 150 · OP 21} na origem e {@code Default 397} na
+     * saída. Depois de achatar, nada no arquivo distingue diálogo de letreiro ou
+     * música. Foi assim que 18.431 falas foram classificadas como resíduo de
+     * tradução numa auditoria quando eram letra de música com o estilo apagado.
+     */
+    @Test
+    @DisplayName("o arquivo achatado registra no cabecalho o que foi colapsado")
+    void carimbaNoCabecalho(@TempDir Path dir) throws IOException {
+        DocumentoLegenda doc = lerAss(dir);
+
+        String cabecalho = achatador.achatar(doc).documento().cabecalho();
+
+        assertTrue(cabecalho.contains("; KRONOS achatou:"), "o carimbo tem de existir");
+        assertTrue(cabecalho.contains("backups/"), "tem de apontar onde esta o original");
+
+        // A asserção olha a LINHA do carimbo, não o cabeçalho inteiro. Procurar
+        // "OPL2" no todo passava sozinha: o nome também aparece em [V4+ Styles],
+        // e a primeira versão deste teste sobreviveu à mutação que apagava a
+        // listagem — mesmo defeito de assertiva larga demais que já custou caro
+        // nesta base.
+        String linhaEstilos = cabecalho.lines()
+            .filter(l -> l.startsWith("; KRONOS estilos originais:"))
+            .findFirst()
+            .orElse("");
+        assertTrue(linhaEstilos.contains("OPL2"),
+            "o estilo OPL2 tem de estar NA LINHA do carimbo: [" + linhaEstilos + "]");
+        assertTrue(linhaEstilos.contains("Sign"),
+            "o estilo Sign tem de estar NA LINHA do carimbo: [" + linhaEstilos + "]");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o carimbo é comentário do formato, não conteúdo.
+     * Player e libass ignoram linha iniciada por {@code ;} — o Aegisub usa a mesma
+     * convenção no cabeçalho que ele próprio gera.
+     */
+    @Test
+    @DisplayName("o carimbo entra como COMENTARIO, dentro de [Script Info]")
+    void carimboEhComentarioNaSecaoCerta(@TempDir Path dir) throws IOException {
+        DocumentoLegenda doc = lerAss(dir);
+
+        String cabecalho = achatador.achatar(doc).documento().cabecalho();
+
+        for (String linha : cabecalho.split("\n")) {
+            if (linha.contains("KRONOS")) {
+                assertTrue(linha.startsWith(";"),
+                    "linha do carimbo que nao comeca com ';' vira conteudo para o player: " + linha);
+            }
+        }
+        int scriptInfo = cabecalho.indexOf("[Script Info]");
+        int carimbo = cabecalho.indexOf("; KRONOS achatou:");
+        int estilos = cabecalho.indexOf("[V4+ Styles]");
+        assertTrue(scriptInfo < carimbo && carimbo < estilos,
+            "o carimbo tem de ficar DENTRO de [Script Info], nao solto entre secoes");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: achatar duas vezes não pode empilhar carimbo. Sem
+     * isto o cabeçalho cresceria a cada execução e o carimbo antigo — já falso —
+     * continuaria no arquivo ao lado do novo.
+     */
+    @Test
+    @DisplayName("achatar arquivo que JA tem carimbo substitui, nao empilha")
+    void carimboEhIdempotente(@TempDir Path dir) throws IOException {
+        // A primeira versão deste teste reachatava o resultado da primeira
+        // passada — e um documento já achatado sai por "nada a achatar" ANTES de
+        // carimbar, então o caminho da idempotência nunca era exercitado e a
+        // mutação que a removia passava verde.
+        //
+        // O caso real: um arquivo com carimbo antigo que AINDA tem estilo
+        // decorativo a achatar — acontece quando a lista de decorativos muda ou
+        // quando o operador reprocessa uma pasta com arquivos em estados
+        // diferentes.
+        Path arquivo = dir.resolve("ja-carimbado.ass");
+        String comCarimboAntigo = ASS.replace("[Script Info]", String.join("\n",
+            "[Script Info]",
+            "; KRONOS achatou: 999 fala(s) para o estilo \"Antigo\"",
+            "; KRONOS estilos originais: EstiloQueNaoExisteMais",
+            "; KRONOS original preservado em backups/ desta execucao"));
+        Files.writeString(arquivo, comCarimboAntigo, StandardCharsets.UTF_8);
+
+        String cabecalho = achatador.achatar(leitor.ler(arquivo)).documento().cabecalho();
+
+        int ocorrencias = cabecalho.split("; KRONOS achatou:", -1).length - 1;
+        assertEquals(1, ocorrencias,
+            "o cabecalho ficou com " + ocorrencias + " carimbos; o antigo tinha de ser substituido");
+        assertFalse(cabecalho.contains("EstiloQueNaoExisteMais"),
+            "o carimbo ANTIGO ficou no arquivo ao lado do novo, afirmando algo que nao e mais verdade");
+        assertFalse(cabecalho.contains("999 fala(s)"),
+            "a contagem antiga sobreviveu e agora mente sobre o arquivo");
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);
