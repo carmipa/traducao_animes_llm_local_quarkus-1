@@ -11,6 +11,7 @@ import org.traducao.projeto.traducao.domain.ResumoPendencia;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
+import org.traducao.projeto.legenda.domain.CarimboCabecalhoLegenda;
 import org.traducao.projeto.traducao.domain.exceptions.EntradaJaTraduzidaException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
@@ -622,8 +623,31 @@ public class ProcessarArquivoUseCase {
                 propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
         }
 
+        // Carimbo de proveniencia NO PROPRIO ARQUIVO. Sem ele, "por que esta fala ficou em
+        // ingles?" e "cade as 138 falas que sumiram?" so tem resposta recalculando por fora as
+        // regras que o pipeline ja aplicou por dentro — e recalcular por fora foi a causa das
+        // CINCO conclusoes erradas da auditoria de 07/08/2026, entre elas 18.431 falas
+        // classificadas como residuo de traducao que eram letra de musica.
+        //
+        // So ASS: o SRT nao tem cabecalho para comentario, e inventar um quebraria o formato.
+        String cabecalhoFinal = documento.cabecalho();
+        if (!ehSrt) {
+            int naOrigem = documento.eventos().size();
+            int traduziveis = entradasCache.size();
+            List<String> carimbo = new ArrayList<>();
+            carimbo.add("traduziu: " + naOrigem + " fala(s) na origem, " + traduziveis
+                + " traduzivel(is), " + (naOrigem - traduziveis)
+                + " preservada(s) por regra do pipeline (musica, karaoke, estilo ignorado)");
+            carimbo.add("lore: " + contexto.nomeExibicao() + " (" + contexto.id() + ")");
+            if (!falhasDistintas.isEmpty()) {
+                carimbo.add("pendentes: " + falhasDistintas.size()
+                    + " fala(s) mantida(s) no original — arquivo publicado como parcial");
+            }
+            cabecalhoFinal = CarimboCabecalhoLegenda.aplicar(cabecalhoFinal, carimbo);
+        }
+
         DocumentoLegenda documentoFinal = new DocumentoLegenda(
-            documento.cabecalho(), eventosFinais, documento.quebraDeLinha(), documento.comBom());
+            cabecalhoFinal, eventosFinais, documento.quebraDeLinha(), documento.comBom());
 
         Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
         Path arquivoSaida = resolvedorSaida.selecionar(
