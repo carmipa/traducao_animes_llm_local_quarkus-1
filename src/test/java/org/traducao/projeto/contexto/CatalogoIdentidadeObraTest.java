@@ -89,6 +89,9 @@ class CatalogoIdentidadeObraTest {
             Set.of("gundam_0083"));
         mapa.put("[Joseki] Mobile Suit Gundam The 08th MS Team COMPLETE (1996)(BD AV1 1080p Opus)[Sub Eng]",
             Set.of("gundam_08ms"));
+        // Pasta Joseki de Char's Counterattack: o nome de exibição completo NÃO aparece
+        // na pasta; só o apelido "Char's Counterattack" a alcança (medido 07/08/2026).
+        mapa.put(ApelidoPastaCharsCounterattackTest.PASTA_CCA, Set.of("gundam_cca"));
         mapa.put("[Joseki] Mobile Suit Gundam ZZ COMPLETE (1986)(BD AV1 1080p Opus)[Eng Sub][v2]",
             Set.of("gundam_zz"));
         mapa.put("[Joseki] Mobile Suit Z Gundam COMPLETE (1985)(BD AV1 1080p Opus)[Sub Eng][v2]",
