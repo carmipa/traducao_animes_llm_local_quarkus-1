@@ -43,10 +43,15 @@ public interface FluxoTelemetriaPort {
      * chamador. O evento se perde e a execução segue, porque a alternativa seria
      * uma tradução de horas parar por causa de um registro.
      *
+     * <p>A FATIA decide em qual fluxo o evento entra, e é o que permite o painel
+     * ter uma aba por assunto e cada uma publicar o próprio dataset. Vem de
+     * {@link FatiaTelemetria}, nunca de adivinhação por pacote.
+     *
+     * @param fatia grupo lógico do evento (ex.: {@code "auditoria"}, {@code "cache"})
      * @param tipo rótulo curto do evento (ex.: {@code "episodio-concluido"})
      * @param campos pares chave/valor já sanitizados para publicação
      */
-    void publicar(String tipo, Map<String, String> campos);
+    void publicar(String fatia, String tipo, Map<String, String> campos);
 
     /**
      * PROPÓSITO DE NEGÓCIO: informa se o fluxo está de pé, para a interface poder
@@ -59,4 +64,28 @@ public interface FluxoTelemetriaPort {
      * legível, jamais uma exceção.
      */
     StatusFluxoTelemetria status();
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: implementação INERTE, para quem precisa da porta sem
+     * querer fluxo nenhum — testes e construção manual fora do CDI.
+     *
+     * <p>Existe como objeto-nulo declarado em vez de {@code null} espalhado: um
+     * {@code null} obrigaria cada ponto de publicação a se defender, e basta um
+     * esquecimento para uma operação inteira morrer por causa de telemetria —
+     * exatamente o que os invariantes desta porta proíbem.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code publicar} não faz nada; {@code status}
+     * responde desconectado com motivo explícito, nunca fingindo estar de pé.
+     */
+    FluxoTelemetriaPort INERTE = new FluxoTelemetriaPort() {
+        @Override
+        public void publicar(String fatia, String tipo, Map<String, String> campos) {
+            // Sem fluxo, por escolha de quem construiu este objeto.
+        }
+
+        @Override
+        public StatusFluxoTelemetria status() {
+            return StatusFluxoTelemetria.desconectado("fluxo inerte (nao configurado)");
+        }
+    };
 }

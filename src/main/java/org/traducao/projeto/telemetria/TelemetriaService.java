@@ -169,6 +169,26 @@ public class TelemetriaService {
         broadcast();
     }
 
+    /**
+     * Fluxo ao vivo. Vem por construtor injetado em produção e fica INERTE quando
+     * o serviço é montado à mão — cinco testes fazem isso, e nenhum deles precisa
+     * saber que existe fluxo.
+     */
+    private FluxoTelemetriaPort fluxo = FluxoTelemetriaPort.INERTE;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: construtor usado pelo contêiner, com o fluxo ao vivo
+     * ligado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: porta nula cai no objeto-nulo, nunca em campo
+     * nulo — telemetria não pode ser causa de falha em lugar nenhum.
+     */
+    @jakarta.inject.Inject
+    public TelemetriaService(FluxoTelemetriaPort fluxo) {
+        this();
+        this.fluxo = fluxo == null ? FluxoTelemetriaPort.INERTE : fluxo;
+    }
+
     public TelemetriaService() {
         // Sem INDENT_OUTPUT: o JSON canônico e os payloads SSE são compactos
         // (o arquivo é regravado a cada registro; indentação dobrava o custo).
@@ -261,8 +281,52 @@ public class TelemetriaService {
             log.info("Telemetria de operação registrada: {} — {} ({} arquivos, {} detectados, {} corrigidos)",
                 operacao.tipo(), operacao.detalhe(), valorOuZero(operacao.arquivosProcessados()),
                 valorOuZero(operacao.itensDetectados()), valorOuZero(operacao.itensCorrigidos()));
+            publicarNoFluxo(operacao);
             broadcast();
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: leva a operação ao fluxo AO VIVO da fatia a que ela
+     * pertence, para o painel acompanhar sem esperar o arquivo fechar e para cada
+     * aba publicar o próprio dataset.
+     *
+     * <h2>Por que aqui, e não em cada fatia</h2>
+     * Treze fatias chamam {@code registrarOperacao}. Publicar deste ponto alcança
+     * todas de uma vez, sem criar uma única aresta nova entre elas e sem tocar no
+     * {@link OperacaoTelemetria}, que é contrato compartilhado. A alternativa
+     * — dar a porta a cada fatia — esbarraria nas fronteiras de arquitetura e
+     * multiplicaria por treze o ponto de manutenção.
+     *
+     * <h2>INVARIANTES DO DOMÍNIO</h2>
+     * <ul>
+     *   <li>Tudo que sai daqui passou pelo {@link SanitizadorTelemetria}. O campo
+     *       {@code detalhe} carrega caminho absoluto em 69% dos registros do
+     *       acervo, e este é o ponto onde ele deixa de carregar.</li>
+     *   <li>A fatia vem de {@link FatiaTelemetria}, por casamento nominal do
+     *       tipo — nunca por pacote de origem nem por pedaço de nome.</li>
+     *   <li>Publicar é best-effort: a porta engole toda falha, então este ponto
+     *       não trata erro nem verifica disponibilidade.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nenhuma. Sem Redis, a porta está inerte
+     * ou desconectada e o registro em arquivo segue igual.
+     */
+    private void publicarNoFluxo(OperacaoTelemetria operacao) {
+        Map<String, String> campos = new LinkedHashMap<>();
+        campos.put("detalhe", SanitizadorTelemetria.sanitizar(textoOuVazio(operacao.detalhe())));
+        campos.put("tempoTotalMs",
+            String.valueOf(operacao.tempoTotalMs() == null ? 0L : operacao.tempoTotalMs()));
+        campos.put("arquivosProcessados", String.valueOf(valorOuZero(operacao.arquivosProcessados())));
+        campos.put("itensDetectados", String.valueOf(valorOuZero(operacao.itensDetectados())));
+        campos.put("itensCorrigidos", String.valueOf(valorOuZero(operacao.itensCorrigidos())));
+        campos.put("registradoEm", textoOuVazio(operacao.registradoEm()));
+
+        fluxo.publicar(FatiaTelemetria.de(operacao.tipo()), operacao.tipo(), campos);
+    }
+
+    private static String textoOuVazio(String valor) {
+        return valor == null ? "" : valor;
     }
 
     /**
