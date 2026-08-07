@@ -43,9 +43,13 @@ FROM eclipse-temurin:25-jre-noble
 # fontconfig       : libass pede fontes ao validar legenda com fonte declarada;
 #                    sem isto a falha vem obscura, no meio de um pipeline longo
 # curl             : usado só pelo HEALTHCHECK abaixo
+# git              : o "Publicar Dataset" do painel de Telemetria executa git de
+#                    verdade (init, add, commit, push) sobre o repositório
+#                    dedicado do dataset. Sem o binário, o botão falha com
+#                    "command not found" no meio da publicação.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-        ffmpeg mkvtoolnix fontconfig curl tzdata \
+        ffmpeg mkvtoolnix fontconfig curl git tzdata \
  && rm -rf /var/lib/apt/lists/*
 
 # UTF-8 no processo inteiro. O acervo tem obra com acento e colchete no nome
@@ -74,6 +78,15 @@ RUN groupadd -r kronos && useradd -r -g kronos -d /app kronos \
  && chown -R kronos:kronos /app
 
 USER kronos
+
+# O repositório do dataset é montado do host e chega com dono diferente do
+# usuário do contêiner. O git então recusa QUALQUER comando nele com "detected
+# dubious ownership in repository at '/dataset'" — medido em 06/08/2026, e é o
+# bastante para o botão "Publicar Dataset" falhar inteiro.
+#
+# A exceção é nominal, não coringa: liberar '*' desligaria a protecao para todo
+# repositório que viesse a ser montado aqui.
+RUN git config --global --add safe.directory /dataset
 
 EXPOSE 8099
 

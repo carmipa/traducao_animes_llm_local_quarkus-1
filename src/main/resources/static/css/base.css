@@ -1839,6 +1839,14 @@ span.console-action-icon.material-symbols-outlined {
     flex-shrink: 0;
 }
 
+/* Na raiz não há para onde subir, e o botão fica desabilitado. Sem estado
+   visual, ele parece clicável e o operador conclui que a tela travou em vez de
+   entender que chegou ao limite permitido. */
+.btn-navegador-subir:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* O caminho rola dentro da própria caixa: sem isto, um nome de pasta longo
    empurraria o modal e a página inteira ganharia rolagem horizontal. */
 .navegador-atual {

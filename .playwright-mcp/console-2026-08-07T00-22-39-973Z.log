@@ -1,0 +1,9 @@
+[     617ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:292
+[     625ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:357
+[  263076ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:361
+[  263076ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[  263076ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  266082ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://127.0.0.1:8099/api/telemetria/stream:0
+[  268079ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:292
+[  268137ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:436
+[  268137ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:357

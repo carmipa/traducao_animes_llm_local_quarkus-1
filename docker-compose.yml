@@ -37,6 +37,16 @@ services:
       KRONOS_LLM_BASE_URL: "${KRONOS_LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       TZ: "America/Sao_Paulo"
 
+      # Dentro do contêiner, 127.0.0.1 é só o loopback DELE: a aplicação sobe,
+      # o healthcheck interno passa e o host mesmo assim não alcança nada.
+      # Medido em 06/08/2026 — "Up (healthy)" e conexão recusada ao mesmo tempo.
+      # Ouvir em 0.0.0.0 aqui NÃO abre a aplicação para a rede: quem limita é a
+      # publicação da porta acima, presa a 127.0.0.1 do host.
+      QUARKUS_HTTP_HOST: "0.0.0.0"
+
+      # Repositório do dataset de telemetria, montado do host logo abaixo.
+      KRONOS_DATASET_REPO: "/dataset"
+
     extra_hosts:
       # Docker Desktop resolve host.docker.internal sozinho; em Docker Engine no
       # Linux, não. A linha abaixo faz o compose valer nos dois.
@@ -57,6 +67,13 @@ services:
       - ./logs:/app/logs
       - ./relatorios:/app/relatorios
       - ./backups:/app/backups
+
+      # Repositório dedicado do dataset público de telemetria. Montado do host
+      # para que o commit feito aqui dentro caia no repositório REAL — o push
+      # continua sendo feito do host, porque credencial de git não entra em
+      # contêiner. É a divisão deliberada: o contêiner escreve e versiona, o
+      # host publica.
+      - "${KRONOS_DATASET_REPO_HOST:-../kronos-anime-translation-telemetry-dataset}:/dataset"
 
     # O pipeline é pesado em CPU e o LM Studio disputa a mesma máquina. Sem teto,
     # um lote grande deixa o host sem folga e o próprio LLM desacelera — o
