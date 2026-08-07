@@ -17,6 +17,11 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-config-yaml'
+    // Fluxo AO VIVO de eventos de telemetria (Redis Streams). ADITIVO: o
+    // telemetria_execucoes.jsonl continua sendo a fonte do dataset. O KRONOS
+    // precisa subir e funcionar por inteiro com o Redis fora do ar — ver
+    // RedisFluxoTelemetriaAdapter e o teste de degradacao.
+    implementation 'io.quarkus:quarkus-redis-client'
 
     // Servidor MCP (Model Context Protocol) via transporte SSE/HTTP: expoe o
     // pipeline do KRONOS como ferramentas para clientes MCP (ex.: Claude Code)

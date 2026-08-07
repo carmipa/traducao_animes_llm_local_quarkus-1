@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await inicializarModulos();
     atualizarStatusConexao();
     buscarContadoresGlobais();
+    atualizarCardFluxoTelemetria();
     conectarFluxoLugsSSE();
 
     inicializarMetadadosDinamicos();
@@ -489,6 +490,46 @@ async function buscarContadoresGlobais() {
         
         const dashCacheCount = document.getElementById('dashboard-cache-count');
         if (dashCacheCount) dashCacheCount.textContent = 'Indisponível';
+    }
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: mostra no painel inicial o estado do fluxo ao vivo de
+ * telemetria, ao lado do orquestrador, do LLM e do cache.
+ *
+ * INVARIANTES DO DOMÍNIO: desconectado é estado LEGÍTIMO, não erro — o KRONOS
+ * funciona inteiro sem o fluxo. O card informa, e não alarma. E `eventos = -1`
+ * significa "desconhecido", que vira "—" na tela: zero evento e estado
+ * desconhecido são coisas diferentes e não podem exibir o mesmo número.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: falha de rede pinta "Indisponível" no card e
+ * não propaga — a home não deixa de carregar por causa de um card.
+ */
+async function atualizarCardFluxoTelemetria() {
+    const valor = document.getElementById('fluxo-telemetria-valor');
+    const badge = document.getElementById('fluxo-telemetria-status');
+    if (!valor || !badge) return;
+
+    try {
+        const res = await fetch('/api/fluxo/status');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const d = await res.json();
+
+        if (d.conectado) {
+            const n = Number(d.eventos);
+            valor.textContent = n < 0 ? 'Redis conectado' : `${n.toLocaleString('pt-BR')} eventos`;
+            badge.textContent = 'Conectado';
+            badge.className = 'status-badge pulse-green';
+        } else {
+            valor.textContent = 'Redis desconectado';
+            badge.textContent = 'Desconectado';
+            badge.className = 'status-badge pulse-red';
+            badge.title = d.detalhe || '';
+        }
+    } catch (e) {
+        valor.textContent = 'Indisponível';
+        badge.textContent = 'Indisponível';
+        badge.className = 'status-badge pulse-red';
     }
 }
 
