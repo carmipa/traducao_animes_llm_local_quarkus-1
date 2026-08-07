@@ -252,4 +252,18 @@ public class ContextoGundamUnicorn implements ProvedorContexto {
             //     falas mostram pronome/omissão, não localização do termo.
         ));
     }
+
+    /**
+     * PROPOSITO DE NEGOCIO: nomes de pasta que identificam esta obra.
+     *
+     * <p>O prejuizo, medido em 07/08/2026: a legenda vive em
+     * {@code .../Unicorn Re0096 .../Season 1/legendas_extraidas_ass}, e a obra
+     * derivada do caminho saia "Season 1" - nome que QUALQUER obra pode ter.
+     * Ja existe {@code cache/Season 1/} com 22 arquivos deste anime, e o DanMachi
+     * Season 01 cairia na mesma pasta.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Gundam Unicorn Season 1", "Mobile Suit Gundam Unicorn", "Unicorn Re0096");
+    }
 }
