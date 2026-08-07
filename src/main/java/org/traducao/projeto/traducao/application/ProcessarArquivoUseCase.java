@@ -8,6 +8,7 @@ import org.traducao.projeto.traducao.domain.CategoriaConteudo;
 import org.traducao.projeto.traducao.domain.CausaRaizPendencia;
 import org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo;
 import org.traducao.projeto.traducao.domain.ResumoPendencia;
+import org.traducao.projeto.traducao.domain.FalaNaoTraduzida;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.legenda.application.ProtecaoCamadasMusicaisService.ProtecaoCamadas;
 import org.traducao.projeto.legenda.domain.ArquivoLegendaException;
@@ -94,6 +95,26 @@ public class ProcessarArquivoUseCase {
     // gera em seguida), sem alterar o caminho quente de tradução.
     private static final String PREFIXO_TAGS_CORROMPIDAS =
         "Fala mantida sem tradução (tags corrompidas pelo LLM): ";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai {@code inicio,fim} do prefixo do evento, que é a chave
+     * ESTÁVEL para casar uma fala do dataset com a linha do {@code .ass} publicado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto muda ao traduzir, o instante não — casar por índice
+     * mente quando o arquivo sai reordenado, e foi assim que uma auditoria acusou corrupção
+     * inexistente no Guilty Crown. O prefixo tem a forma
+     * {@code "Dialogue: 0,0:00:01.00,0:00:02.00,Estilo,,0,0,0,,"}: os campos 1 e 2 são os tempos.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou com menos de três campos devolve
+     * string vazia — o registro perde a chave de casamento mas não derruba a tradução.
+     */
+    private static String instanteDe(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null) {
+            return "";
+        }
+        String[] campos = evento.prefixo().split(",");
+        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
+    }
 
     public ProcessarArquivoUseCase(
         LeitorLegendaAss leitor,
@@ -604,9 +625,18 @@ public class ProcessarArquivoUseCase {
 
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
         List<EntradaCache> entradasCache = new ArrayList<>();
+        // Dataset das falas que saem IGUAIS a origem, com o motivo de cada uma. Sem ele, "por
+        // que esta fala esta em ingles?" so tem resposta recalculando por fora as regras que o
+        // pipeline aplicou por dentro — e foi assim que a auditoria de 07/08/2026 classificou
+        // 18.431 falas de letra de musica como residuo de traducao.
+        List<FalaNaoTraduzida> naoTraduzidas = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
+            String instante = instanteDe(evento);
             if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
                 eventosFinais.add(evento);
+                naoTraduzidas.add(new FalaNaoTraduzida(evento.indice(), instante, evento.estilo(),
+                    FalaNaoTraduzida.Motivo.PRESERVADA_POR_REGRA,
+                    "seletor: musica, karaoke, romaji protegido ou estilo em estilos-ignorados"));
                 continue;
             }
             if (!traducoesValidadas.containsKey(evento.texto())) {
@@ -615,8 +645,18 @@ public class ProcessarArquivoUseCase {
                         + " em " + arquivoEntrada);
             }
             String textoValidado = traducoesValidadas.get(evento.texto());
-            String textoFinal = textoValidado == null || textoValidado.isBlank()
-                ? evento.texto() : textoValidado;
+            boolean semTraducaoUtil = textoValidado == null || textoValidado.isBlank();
+            String textoFinal = semTraducaoUtil ? evento.texto() : textoValidado;
+            if (semTraducaoUtil) {
+                naoTraduzidas.add(new FalaNaoTraduzida(evento.indice(), instante, evento.estilo(),
+                    FalaNaoTraduzida.Motivo.PENDENTE,
+                    "sem traducao aproveitavel — marcador corrompido, eco ou estrutura divergente; "
+                        + "a causa-raiz por fala esta na telemetria do episodio"));
+            } else if (textoFinal != null && textoFinal.equals(evento.texto())) {
+                naoTraduzidas.add(new FalaNaoTraduzida(evento.indice(), instante, evento.estilo(),
+                    FalaNaoTraduzida.Motivo.TRADUCAO_IGUAL_AO_ORIGINAL,
+                    "o LLM devolveu texto identico — legitimo em nome proprio e fala de uma palavra"));
+            }
             eventosFinais.add(evento.comTexto(textoFinal));
             entradasCache.add(new EntradaCache(
                 evento.indice(), evento.estilo(), evento.texto(), textoValidado,
@@ -664,6 +704,11 @@ public class ProcessarArquivoUseCase {
         // Substituição atômica da geração: só AQUI o cache ativo deixa de ser o anterior.
         // preservarAnterior fica falso quando a retradução já copiou esta mesma geração no
         // início — do contrário o mesmo arquivo iria duas vezes para backups/traducao-cache.
+        // Depois de a legenda estar em disco: o dataset e ACESSORIO e a porta engole a propria
+        // falha, entao perder o registro nunca custa o arquivo que acabou de ser publicado.
+        telemetriaTraducao.registrarFalasNaoTraduzidas(
+            arquivoSaida, resolvedorCache.animeAPartirDoArquivo(arquivoEntrada), naoTraduzidas);
+
         politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache,
             permitirRetraducao && !cacheAnteriorJaPreservado);
 
