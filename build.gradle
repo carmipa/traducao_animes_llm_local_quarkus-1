@@ -90,6 +90,12 @@ test {
      'kronos.medicao', 'kronos.medicao.cache', 'kronos.medicao.obra', 'kronos.medicao.ass',
      'kronos.comparacao', 'kronos.comparacao.obra', 'kronos.comparacao.limite',
      'kronos.aplicar.reforco',
+     // 'kronos.aplicar.acentos' e a mesma trava dupla para a reposicao de acentos nas
+     // legendas ja traduzidas; 'kronos.acervo' aponta outra raiz que nao C:\animes.
+     // Medido em 07/08/2026: sem estas duas na lista, o -D da linha de comando fica na JVM
+     // do Gradle e nao chega na de teste — o harness rodou em ENSAIO, imprimiu contagem e
+     // exit 0, e "nao gravou nada" ficou com a mesma cara de "gravou".
+     'kronos.aplicar.acentos', 'kronos.acervo',
      'correcao-cache.reforco-terminologia-aplicar-habilitado'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
