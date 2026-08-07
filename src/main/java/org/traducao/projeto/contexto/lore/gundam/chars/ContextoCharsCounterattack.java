@@ -63,6 +63,22 @@ public class ContextoCharsCounterattack implements ProvedorContexto {
         return "Mobile Suit Gundam: Char's Counterattack";
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a pasta Joseki do acervo traz {@code Char's Counterattack}
+     * sem o prefixo completo do nome de exibição — sem este apelido, {@code idsQueReconhecem}
+     * devolve vazio, a guarda fica INDETERMINADA e a lore {@code gundam_cca} fica
+     * inalcançável pelo caminho do arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a frase é a que aparece literalmente na pasta. Declarar
+     * só {@code "Gundam"} seria genérico demais e empataria com outras lores UC.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto imutável; sem I/O.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("Char's Counterattack");
+    }
+
     @Override
     public String obterPromptSistema() {
         return PROMPT;
