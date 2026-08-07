@@ -3,8 +3,8 @@ package org.traducao.projeto.novoKaraoke.presentation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,22 +31,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class DestinoPadraoKaraokeSimplesTest {
 
+    private static Path entradaObra() {
+        return Path.of("animes", "Guilty Crown", "traducao_ptbr");
+    }
+
     @Test
     @DisplayName("destino vazio cria 'legenda-simplificada' IRMA da pasta de entrada")
     void destinoVazioResolveIrmaoDaEntrada() {
-        Path entrada = Paths.get("C:", "animes", "Guilty Crown", "traducao_ptbr");
+        Path entrada = entradaObra();
 
         Path destino = NovoKaraokeController.resolverDestino(entrada, null);
 
-        assertEquals(Paths.get("C:", "animes", "Guilty Crown", "legenda-simplificada"), destino);
-        assertEquals(entrada.getParent(), destino.getParent(),
+        Path paiAbsoluto = entrada.toAbsolutePath().normalize().getParent();
+        assertEquals(paiAbsoluto.resolve("legenda-simplificada"), destino);
+        assertEquals(paiAbsoluto, destino.getParent(),
             "a saida tem de ficar no MESMO nivel das outras pastas de legenda da obra");
     }
 
     @Test
     @DisplayName("string em branco conta como vazio")
     void brancoContaComoVazio() {
-        Path entrada = Paths.get("C:", "animes", "Guilty Crown", "traducao_ptbr");
+        Path entrada = entradaObra();
 
         assertEquals(NovoKaraokeController.resolverDestino(entrada, null),
             NovoKaraokeController.resolverDestino(entrada, "   "));
@@ -55,17 +60,17 @@ class DestinoPadraoKaraokeSimplesTest {
     @Test
     @DisplayName("caminho informado pelo operador vence o padrao")
     void informadoVenceOPadrao() {
-        Path entrada = Paths.get("C:", "animes", "Guilty Crown", "traducao_ptbr");
-        String escolhido = Paths.get("D:", "saida", "minha-pasta").toString();
+        Path entrada = entradaObra();
+        Path escolhido = Path.of("saida", "minha-pasta");
 
-        assertEquals(Paths.get(escolhido),
-            NovoKaraokeController.resolverDestino(entrada, escolhido));
+        assertEquals(escolhido,
+            NovoKaraokeController.resolverDestino(entrada, escolhido.toString()));
     }
 
     @Test
     @DisplayName("o padrao NUNCA fica dentro da entrada — senao a proxima execucao varre a saida")
     void padraoNaoEhFilhoDaEntrada() {
-        Path entrada = Paths.get("C:", "animes", "Guilty Crown", "traducao_ptbr");
+        Path entrada = entradaObra();
 
         Path destino = NovoKaraokeController.resolverDestino(entrada, null);
 
@@ -76,7 +81,7 @@ class DestinoPadraoKaraokeSimplesTest {
     @Test
     @DisplayName("entrada em raiz degrada para dentro dela mesma, sem lancar")
     void entradaEmRaizNaoQuebra() {
-        Path raiz = Paths.get("C:").toAbsolutePath().getRoot();
+        Path raiz = FileSystems.getDefault().getRootDirectories().iterator().next();
 
         Path destino = NovoKaraokeController.resolverDestino(raiz, null);
 

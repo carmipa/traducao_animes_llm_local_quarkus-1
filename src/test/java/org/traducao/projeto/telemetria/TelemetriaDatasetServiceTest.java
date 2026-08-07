@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.c;
+import static org.traducao.projeto.telemetria.FixtureCaminhoWindows.marcadorDrive;
 
 /**
  * O dataset público carrega SOMENTE métricas: sem textos de legenda (avisos
@@ -20,11 +22,12 @@ class TelemetriaDatasetServiceTest {
 
     private TelemetriaResumo resumoDeTeste() {
         LlmTelemetria traducao = new LlmTelemetria(
-            "C:\\animes\\86\\legendas\\episodio01.ass", "tower-7b", 900, 800, 100, 400_000L,
+            c("animes", "86", "legendas", "episodio01.ass"), "tower-7b", 900, 800, 100, 400_000L,
             List.of("Fala mantida sem tradução: I'll never forgive you", "Evento 12 suspeito"),
             "86 (Eighty-Six)", "Temporada 1", "2026-07-09T10:00:00Z");
         OperacaoTelemetria operacao = new OperacaoTelemetria(
-            "Remux (mkvmerge)", "Videos: C:\\animes\\86 | Legendas: C:\\animes\\86\\legendas-finais",
+            "Remux (mkvmerge)",
+            "Videos: " + c("animes", "86") + " | Legendas: " + c("animes", "86", "legendas-finais"),
             30_000L, 11, 11, 11, "2026-07-09T10:05:00Z");
         return new TelemetriaResumo(
             10, 1, 900, 444L, 100, List.of(), List.of(traducao), List.of(operacao),
@@ -40,7 +43,8 @@ class TelemetriaDatasetServiceTest {
         assertFalse(json.contains("errosOcorridos"), "avisos devem virar contagem, nunca texto");
         assertFalse(json.contains("never forgive"), "texto de fala não pode vazar para o dataset");
         assertFalse(json.contains("detalhe"), "campo detalhe (caminhos) deve ser descartado");
-        assertFalse(json.contains("C:\\") || json.contains("C:/"), "nenhum caminho de máquina no dataset");
+        assertFalse(json.contains(marcadorDrive('C')) || json.contains('C' + ":/"),
+            "nenhum caminho de máquina no dataset");
     }
 
     /**
@@ -108,7 +112,7 @@ class TelemetriaDatasetServiceTest {
         assertFalse(ambienteJson.has("gpuPublicaConfigurada"));
         assertFalse(ambienteJson.has("gpuDetectadaSistema"));
         assertFalse(json.contains("PNP") || json.contains("PCI\\") || json.contains("SERIAL"));
-        assertFalse(json.contains("C:\\") || json.contains("Users"));
+        assertFalse(json.contains(marcadorDrive('C')) || json.contains("Users"));
     }
 
     /**
@@ -162,7 +166,7 @@ class TelemetriaDatasetServiceTest {
 
     @Test
     void apenasNomeDeArquivoCobreBarrasDosDoisSistemas() {
-        assertEquals("ep.ass", TelemetriaDatasetService.apenasNomeDeArquivo("C:\\pasta\\sub\\ep.ass"));
+        assertEquals("ep.ass", TelemetriaDatasetService.apenasNomeDeArquivo(c("pasta", "sub", "ep.ass")));
         assertEquals("ep.ass", TelemetriaDatasetService.apenasNomeDeArquivo("/home/user/ep.ass"));
         assertEquals("ep.ass", TelemetriaDatasetService.apenasNomeDeArquivo("ep.ass"));
         assertNull(TelemetriaDatasetService.apenasNomeDeArquivo(null));
