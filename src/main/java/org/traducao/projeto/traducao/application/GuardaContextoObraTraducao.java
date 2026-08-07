@@ -132,7 +132,16 @@ public class GuardaContextoObraTraducao {
             case INDETERMINADO -> {
                 // Só log/console: entrar na lista de avisos do episódio o marcaria PARCIAL,
                 // e "obra sem vocabulário declarado" não é tradução incompleta.
-                String aviso = validadorCompatibilidade.mensagemDeIndeterminacao(obra, contexto.id());
+                //
+                // Dois casos distintos caem aqui e pedem consertos OPOSTOS. "Memories (1995)"
+                // é obra de verdade que ainda não tem lore — o conserto é cadastrar a lore.
+                // "Season 05" não é obra nenhuma: o nome não identifica nada E o cache vai para
+                // cache/Season 5/, colidindo com qualquer outra obra organizada do mesmo jeito.
+                // Emitir o mesmo texto para os dois é saída ambígua, e mandava o operador
+                // procurar uma lore que nunca vai existir.
+                String aviso = validadorCompatibilidade.pastaGenerica(obra)
+                    ? validadorCompatibilidade.mensagemDePastaGenerica(obra, contexto.id())
+                    : validadorCompatibilidade.mensagemDeIndeterminacao(obra, contexto.id());
                 log.warn(aviso);
                 uiLogger.log("[ AVISO ] " + aviso);
             }

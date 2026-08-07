@@ -1,6 +1,7 @@
 package org.traducao.projeto.trocaTipoLegenda.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.legenda.domain.CarimboCabecalhoLegenda;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.trocaTipoLegenda.domain.AuditoriaFonteInfo;
@@ -144,8 +145,6 @@ public class AchatadorEstilosDecorativosService {
         return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados), silabasDescartadas);
     }
 
-    /** Marca do bloco de carimbo. Serve para reescrever em vez de empilhar. */
-    private static final String MARCA_CARIMBO = "; KRONOS achatou:";
 
     /**
      * PROPÓSITO DE NEGÓCIO: registra NO PRÓPRIO ARQUIVO o que o achatamento
@@ -184,54 +183,25 @@ public class AchatadorEstilosDecorativosService {
      */
     private String carimbar(String cabecalho, String estiloBase,
                             Set<String> decorativos, int falas, int silabas) {
-        String limpo = removerCarimboAnterior(cabecalho);
-        String quebra = limpo.contains("\r\n") ? "\r\n" : "\n";
-
-        StringBuilder bloco = new StringBuilder();
-        bloco.append(MARCA_CARIMBO).append(' ').append(falas)
-            .append(" fala(s) para o estilo \"").append(estiloBase).append('"');
+        StringBuilder primeira = new StringBuilder("achatou: ")
+            .append(falas).append(" fala(s) para o estilo \"").append(estiloBase).append('"');
         if (silabas > 0) {
-            bloco.append(", ").append(silabas).append(" silaba(s) de timing descartada(s)");
+            primeira.append(", ").append(silabas).append(" silaba(s) de timing descartada(s)");
         }
-        bloco.append(quebra);
+
+        List<String> linhas = new ArrayList<>();
+        linhas.add(primeira.toString());
         if (!decorativos.isEmpty()) {
-            bloco.append("; KRONOS estilos originais: ")
-                .append(String.join(", ", decorativos)).append(quebra);
+            linhas.add("estilos originais: " + String.join(", ", decorativos));
         }
-        bloco.append("; KRONOS original preservado em backups/ desta execucao").append(quebra);
+        linhas.add("original preservado em backups/ desta execucao");
 
-        int marcador = limpo.indexOf("[Script Info]");
-        if (marcador < 0) {
-            return bloco + limpo;
-        }
-        int fimDaLinha = limpo.indexOf('\n', marcador);
-        if (fimDaLinha < 0) {
-            return limpo + quebra + bloco;
-        }
-        return limpo.substring(0, fimDaLinha + 1) + bloco + limpo.substring(fimDaLinha + 1);
+        return CarimboCabecalhoLegenda.aplicar(cabecalho, linhas);
     }
 
-    /**
-     * Remove um bloco de carimbo anterior. Sem isto, cada achatamento somaria
-     * mais três linhas de comentário e o cabeçalho cresceria sem limite — e o
-     * carimbo mais antigo, já falso, continuaria lá.
-     */
-    private static String removerCarimboAnterior(String cabecalho) {
-        if (cabecalho == null || !cabecalho.contains(MARCA_CARIMBO)) {
-            return cabecalho == null ? "" : cabecalho;
-        }
-        StringBuilder saida = new StringBuilder(cabecalho.length());
-        for (String linha : cabecalho.split("\n", -1)) {
-            if (linha.startsWith("; KRONOS ")) {
-                continue;
-            }
-            if (saida.length() > 0) {
-                saida.append('\n');
-            }
-            saida.append(linha);
-        }
-        return saida.toString();
-    }
+    // A remocao do carimbo anterior mora agora em CarimboCabecalhoLegenda, no peer legenda:
+    // e mecanica de cabecalho ASS, e a traducao passou a precisar dela tambem. Manter a copia
+    // aqui criaria a segunda implementacao da mesma regra.
 
     /**
      * PROPÓSITO DE NEGÓCIO: decide se uma fala carrega estilo decorativo a achatar.
