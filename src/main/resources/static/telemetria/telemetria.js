@@ -44,8 +44,149 @@ function configurarTemaDarkChart() {
     Chart.defaults.scale.ticks.color = '#8b97ad';
 }
 
+/**
+ * PROPÓSITO DE NEGÓCIO: monta as abas de telemetria POR FATIA e mostra as
+ * operações da aba escolhida.
+ *
+ * INVARIANTES DO DOMÍNIO: aba só existe para fatia que tem consolidado — aba
+ * vazia não contribui com ninguém. Nenhuma fatia significa "ainda não
+ * consolidado", e a tela diz isso em vez de exibir abas fantasma.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: falha de rede aparece como aviso no próprio
+ * card e não derruba o resto do painel de telemetria.
+ */
+async function carregarFatias(selecionar) {
+    const abas = document.getElementById('fatias-abas');
+    const conteudo = document.getElementById('fatias-conteudo');
+    const aviso = document.getElementById('fatias-aviso');
+    const total = document.getElementById('fatias-total');
+    if (!abas || !conteudo) return;
+
+    aviso.classList.add('hidden');
+    let dados;
+    try {
+        const res = await fetch('/api/telemetria/fatias');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        dados = await res.json();
+    } catch (err) {
+        aviso.textContent = `Falha ao listar as fatias: ${err.message}`;
+        aviso.classList.remove('hidden');
+        return;
+    }
+
+    const fatias = dados.fatias || [];
+    const soma = fatias.reduce((acc, f) => acc + (f.total || 0), 0);
+    if (total) total.textContent = `${soma.toLocaleString('pt-BR')} operações`;
+
+    abas.innerHTML = '';
+    if (fatias.length === 0) {
+        conteudo.innerHTML = '<p class="fatias-vazio">Ainda não consolidado. Use <strong>Consolidar</strong>'
+            + ' para reunir a telemetria das pastas de relatório.</p>';
+        return;
+    }
+
+    const alvo = selecionar || fatias[0].fatia;
+    for (const f of fatias) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fatia-aba' + (f.fatia === alvo ? ' ativo' : '');
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', String(f.fatia === alvo));
+        b.innerHTML = '<span></span><span class="fatia-contagem"></span>';
+        b.firstElementChild.textContent = f.fatia;
+        b.lastElementChild.textContent = (f.total || 0).toLocaleString('pt-BR');
+        b.onclick = () => carregarFatias(f.fatia);
+        abas.appendChild(b);
+    }
+    await mostrarFatia(alvo);
+}
+
+async function mostrarFatia(fatia) {
+    const conteudo = document.getElementById('fatias-conteudo');
+    conteudo.innerHTML = '<p class="fatias-vazio">Carregando...</p>';
+    let dados;
+    try {
+        const res = await fetch(`/api/telemetria/fatias/${encodeURIComponent(fatia)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        dados = await res.json();
+    } catch (err) {
+        conteudo.innerHTML = '';
+        const p = document.createElement('p');
+        p.className = 'fatias-vazio';
+        p.textContent = `Não foi possível ler a fatia: ${err.message}`;
+        conteudo.appendChild(p);
+        return;
+    }
+
+    const ops = dados.operacoes || [];
+    if (ops.length === 0) {
+        conteudo.innerHTML = '<p class="fatias-vazio">Esta fatia não tem operações registradas.</p>';
+        return;
+    }
+
+    const tabela = document.createElement('table');
+    tabela.className = 'tabela-fatia';
+    tabela.innerHTML = '<thead><tr><th>Tipo</th><th>Detalhe</th><th>Tempo</th>'
+        + '<th>Arquivos</th><th>Detectados</th><th>Corrigidos</th><th>Quando</th></tr></thead>';
+    const corpo = document.createElement('tbody');
+    // Mais recentes primeiro, e teto de 300 linhas: a fatia de auditoria tem
+    // 2.930 operações e renderizar tudo trava a aba sem entregar nada a mais.
+    const visiveis = [...ops].reverse().slice(0, 300);
+    for (const o of visiveis) {
+        const tr = document.createElement('tr');
+        for (const v of [o.tipo, o.detalhe, `${o.tempoTotalMs ?? 0} ms`,
+                         o.arquivosProcessados, o.itensDetectados, o.itensCorrigidos, o.registradoEm]) {
+            const td = document.createElement('td');
+            td.textContent = v === null || v === undefined ? '' : String(v);
+            tr.appendChild(td);
+        }
+        corpo.appendChild(tr);
+    }
+    tabela.appendChild(corpo);
+
+    conteudo.innerHTML = '';
+    if (ops.length > visiveis.length) {
+        const nota = document.createElement('p');
+        nota.className = 'fatias-nota';
+        nota.textContent = `Mostrando as ${visiveis.length} mais recentes de ${ops.length}.`;
+        conteudo.appendChild(nota);
+    }
+    const rolagem = document.createElement('div');
+    rolagem.className = 'tabela-fatia-wrap';
+    rolagem.appendChild(tabela);
+    conteudo.appendChild(rolagem);
+}
+
 export function initTelemetria() {
     configurarTemaDarkChart();
+
+    const btnConsolidar = document.getElementById('btn-consolidar-fatias');
+    if (btnConsolidar) {
+        const rotulo = btnConsolidar.querySelector('span:last-child');
+        btnConsolidar.addEventListener('click', async () => {
+            btnConsolidar.disabled = true;
+            const original = rotulo ? rotulo.textContent : '';
+            if (rotulo) rotulo.textContent = 'Consolidando...';
+            try {
+                const res = await fetch('/api/telemetria/consolidar-fatias', { method: 'POST' });
+                const d = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(d.erro || `HTTP ${res.status}`);
+                // O número BRUTO e o GRAVADO são reportados juntos de propósito:
+                // a diferença é quanto era duplicata, e escondê-la faria o total
+                // parecer menor sem explicação.
+                mostrarAlerta(`Consolidado: ${d.operacoesGravadas} operações de ${d.arquivosLidos} arquivo(s)`
+                    + (d.arquivosPulados ? ` — ${d.arquivosPulados} ilegível(is) pulado(s)` : ''), 'sucesso');
+                await carregarFatias();
+            } catch (err) {
+                mostrarAlerta(`Falha ao consolidar: ${err.message}`, 'erro');
+            } finally {
+                if (rotulo) rotulo.textContent = original;
+                btnConsolidar.disabled = false;
+            }
+        });
+    }
+
+    carregarFatias();
 
     const btnRefresh = document.getElementById('btn-refresh-telemetria');
     if (btnRefresh) {

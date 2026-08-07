@@ -933,3 +933,115 @@
         white-space: normal;
     }
 }
+
+/* ============================================================================
+   TELEMETRIA POR FATIA
+   Medido em 06/08/2026: 6.488 das 6.601 operações do acervo viviam em pastas de
+   relatório que o publicador nunca varreu. Cada aba lê o consolidado da própria
+   fatia — a de auditoria sozinha tem 2.930 operações, e por isso a tabela rola
+   dentro do próprio contêiner em vez de esticar a página.
+   ============================================================================ */
+#panel-telemetria .fatias-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#panel-telemetria .fatias-abas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#panel-telemetria .fatia-aba {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+#panel-telemetria .fatia-aba:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+#panel-telemetria .fatia-aba.ativo {
+    color: var(--accent-cyan);
+    background: rgba(45, 212, 191, 0.12);
+    border-color: rgba(45, 212, 191, 0.5);
+    box-shadow: 0 0 14px rgba(45, 212, 191, 0.14);
+}
+
+#panel-telemetria .fatia-contagem {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+}
+
+#panel-telemetria .fatia-aba.ativo .fatia-contagem {
+    background: rgba(45, 212, 191, 0.22);
+}
+
+/* Rolagem PRÓPRIA: sem isto, uma fatia com 2.930 linhas empurra a largura e a
+   página inteira ganha barra horizontal. */
+#panel-telemetria .tabela-fatia-wrap {
+    max-height: 46vh;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+#panel-telemetria .tabela-fatia {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+#panel-telemetria .tabela-fatia thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 9px 12px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
+}
+
+#panel-telemetria .tabela-fatia td {
+    padding: 7px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    vertical-align: top;
+}
+
+#panel-telemetria .tabela-fatia td:nth-child(n+3):nth-child(-n+6) {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+#panel-telemetria .fatias-vazio,
+#panel-telemetria .fatias-nota {
+    padding: 18px 4px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+#panel-telemetria .fatias-nota {
+    padding: 0 0 8px;
+}
