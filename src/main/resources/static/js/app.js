@@ -1239,8 +1239,166 @@ function inicializarControlesConsole() {
 }
 
 /**
+ * Capacidade de diálogo nativo, perguntada UMA vez e memorizada. A pergunta é
+ * barata; a alternativa — descobrir tentando — custa até 3 minutos de timeout
+ * por clique quando o diálogo não existe (contêiner Linux).
+ */
+let dialogoNativoDisponivel = null;
+
+async function temDialogoNativo() {
+    if (dialogoNativoDisponivel !== null) return dialogoNativoDisponivel;
+    try {
+        const res = await fetch('/api/dialogo/capacidade');
+        dialogoNativoDisponivel = res.ok ? Boolean((await res.json()).nativo) : false;
+    } catch (err) {
+        // Falha fechada: na dúvida, usa o navegador servido pelo servidor, que
+        // funciona em qualquer lugar.
+        dialogoNativoDisponivel = false;
+    }
+    return dialogoNativoDisponivel;
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: abre o navegador de pastas SERVIDO PELO SERVIDOR e
+ * devolve o caminho escolhido — o caminho que funciona onde o diálogo nativo do
+ * Windows não existe, inclusive dentro de um contêiner.
+ *
+ * INVARIANTES DO DOMÍNIO: o que aparece é o que o SERVIDOR enxerga, então o
+ * caminho escolhido já nasce válido para o processo que vai usá-lo. Recusa do
+ * servidor é exibida com o motivo, nunca como lista vazia — pasta sem subpastas
+ * e servidor sem raiz configurada são situações diferentes.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: resolve com `null` no cancelamento; erro de
+ * rede aparece como aviso dentro do modal e mantém a janela aberta para nova
+ * tentativa.
+ */
+function abrirNavegadorPastas(dirInicial, tipo) {
+    const modal = document.getElementById('modal-navegador');
+    const lista = document.getElementById('navegador-lista');
+    const atual = document.getElementById('navegador-atual');
+    const aviso = document.getElementById('navegador-aviso');
+    const btnSubir = document.getElementById('btn-navegador-subir');
+    const btnUsar = document.getElementById('btn-navegador-confirmar');
+    const btnCancelar = document.getElementById('btn-navegador-cancelar');
+    if (!modal || !lista) return Promise.resolve(null);
+
+    const pedeArquivo = tipo === 'arquivo';
+    let caminhoAtual = dirInicial || '';
+    let caminhoPai = '';
+
+    return new Promise((resolve) => {
+        const fechar = (valor) => {
+            modal.classList.add('hidden');
+            btnSubir.onclick = null;
+            btnUsar.onclick = null;
+            btnCancelar.onclick = null;
+            document.removeEventListener('keydown', aoTeclar);
+            resolve(valor);
+        };
+        const aoTeclar = (ev) => { if (ev.key === 'Escape') fechar(null); };
+
+        const mostrarAviso = (texto) => {
+            aviso.textContent = texto;
+            aviso.classList.remove('hidden');
+        };
+
+        const carregar = async (caminho) => {
+            lista.innerHTML = '<div class="navegador-vazio">Carregando...</div>';
+            aviso.classList.add('hidden');
+            const url = `/api/navegador/pastas?tipo=${encodeURIComponent(tipo || 'pasta')}`
+                + (caminho ? `&caminho=${encodeURIComponent(caminho)}` : '');
+            let res;
+            try {
+                res = await fetch(url);
+            } catch (err) {
+                lista.innerHTML = '';
+                mostrarAviso(`Falha de rede ao listar: ${err.message}`);
+                return;
+            }
+            const dados = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                lista.innerHTML = '';
+                mostrarAviso(dados.erro || `O servidor recusou a listagem (HTTP ${res.status}).`);
+                return;
+            }
+
+            caminhoAtual = dados.atual || '';
+            caminhoPai = dados.pai || '';
+            atual.textContent = caminhoAtual || 'Raízes permitidas';
+            btnSubir.disabled = !caminhoPai;
+            // Sem caminho ainda escolhido não há "esta pasta" para usar.
+            btnUsar.disabled = !caminhoAtual;
+
+            const pastas = dados.pastas || [];
+            const arquivos = pedeArquivo ? (dados.arquivos || []) : [];
+            lista.innerHTML = '';
+
+            if (pastas.length === 0 && arquivos.length === 0) {
+                lista.innerHTML = '<div class="navegador-vazio">Esta pasta não tem subpastas.</div>';
+                return;
+            }
+
+            for (const p of pastas) {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'navegador-item';
+                item.innerHTML = `<span class="material-symbols-outlined">folder</span><span></span>`;
+                item.lastElementChild.textContent = p.nome;
+                item.onclick = () => carregar(p.caminho);
+                lista.appendChild(item);
+            }
+            for (const a of arquivos) {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'navegador-item';
+                item.innerHTML = `<span class="material-symbols-outlined">description</span><span></span>`;
+                item.lastElementChild.textContent = a.nome;
+                item.onclick = () => fechar(a.caminho);
+                lista.appendChild(item);
+            }
+        };
+
+        btnSubir.onclick = () => { if (caminhoPai) carregar(caminhoPai); };
+        btnUsar.onclick = () => fechar(caminhoAtual || null);
+        btnCancelar.onclick = () => fechar(null);
+        document.addEventListener('keydown', aoTeclar);
+
+        // Em modo arquivo não existe "usar esta pasta": a escolha só se completa
+        // clicando num arquivo. Deixar o botão visível ofereceria uma saída que
+        // devolveria uma pasta para um campo que espera um arquivo.
+        btnUsar.classList.toggle('hidden', pedeArquivo);
+        modal.classList.remove('hidden');
+        carregar(caminhoAtual);
+    });
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: escolhe UM caminho para um campo de formulário, pelo
+ * meio que existir nesta instalação.
+ *
+ * INVARIANTES DO DOMÍNIO: o diálogo nativo é atalho de conveniência, não
+ * requisito. Quando ele não existe, o navegador do servidor assume — e nenhum
+ * dos 27 botões fica inerte.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: devolve `null`, que o chamador trata como
+ * "usuário não escolheu nada" e deixa o campo intocado.
+ */
+async function escolherCaminho(tipo, dirInicial) {
+    if (await temDialogoNativo()) {
+        const base = tipo === 'arquivo' ? '/api/dialogo/selecionar-arquivo' : '/api/dialogo/selecionar-pasta';
+        const url = dirInicial ? `${base}?dirInicial=${encodeURIComponent(dirInicial)}` : base;
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            return data.caminho || null;
+        }
+    }
+    return abrirNavegadorPastas(dirInicial, tipo);
+}
+
+/**
  * PROPÓSITO DE NEGÓCIO: conecta todos os botões "Procurar..." dos formulários
- * ao seletor nativo centralizado e transfere a escolha para o campo correto.
+ * ao seletor centralizado e transfere a escolha para o campo correto.
  *
  * INVARIANTES DO DOMÍNIO: apenas um seletor pode ficar aberto em toda a SPA;
  * cliques concorrentes não podem enfileirar janelas que apareceriam depois.
@@ -1267,18 +1425,11 @@ function inicializarBotoesProcurarCaminho() {
         seletorCaminhoEmAndamento = true;
 
         try {
-            const endpointBase = tipo === 'arquivo' ? '/api/dialogo/selecionar-arquivo' : '/api/dialogo/selecionar-pasta';
-            const endpoint = dirInicial
-                ? `${endpointBase}?dirInicial=${encodeURIComponent(dirInicial)}`
-                : endpointBase;
-            const res = await fetch(endpoint);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.caminho) {
-                    inputTarget.value = data.caminho;
-                    inputTarget.dispatchEvent(new Event('input', { bubbles: true }));
-                    inputTarget.dispatchEvent(new Event('change', { bubbles: true }));
-                }
+            const caminho = await escolherCaminho(tipo, dirInicial);
+            if (caminho) {
+                inputTarget.value = caminho;
+                inputTarget.dispatchEvent(new Event('input', { bubbles: true }));
+                inputTarget.dispatchEvent(new Event('change', { bubbles: true }));
             }
         } catch (err) {
             console.error('Erro ao abrir seletor nativo:', err);

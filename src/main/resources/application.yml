@@ -1,6 +1,23 @@
 app:
   modo: WEB
 
+# Raizes que o navegador de pastas da interface pode listar (botoes "Procurar...").
+# Substitui o dialogo nativo do Windows, que so funcionava com servidor e usuario
+# na MESMA maquina — dentro de um conteiner Linux nao ha powershell nem display.
+#
+# Caminho FORA destas raizes e recusado com 403, nunca listado. Lista vazia
+# recusa TUDO: a falha e fechada de proposito.
+#
+# As tres entradas convivem porque raiz inexistente e ignorada: a MESMA
+# configuracao serve Windows (C:/animes) e conteiner (/acervo), sem exigir
+# arquivo separado nem variavel de ambiente por ambiente.
+navegador:
+  raizes:
+    - "C:/animes"
+    - "/acervo"
+    # A propria pasta do KRONOS, necessaria para a Correcao de Cache navegar cache/.
+    - "."
+
 tradutor:
   # Pastas padrao para modo WEB (a UI sobrescreve em cada operacao).
   diretorio-entrada: entrada
@@ -23,7 +40,7 @@ tradutor:
   # DESLIGADA por padrao: ligar troca ~30% de conector errado por ~4% de deslocamento de
   # conteudo -- linha com o texto da vizinha, contagem certa, que a validacao atual NAO pega.
   # Quem intercepta isso e a GuardaCorrenteTraduzida, devolvendo a corrente ao fluxo individual.
-  agrupar-frase-partida: false
+  agrupar-frase-partida: true
   # Estilos ASS que nao devem ser traduzidos (ex: letra original em romaji
   # usada para karaoke, que deve permanecer no idioma original).
   estilos-ignorados:
@@ -61,7 +78,12 @@ tradutor:
   fallback-online:
     ativo: true
   llm:
-    base-url: "http://127.0.0.1:1234/v1"
+    # O default preserva a execucao fora de conteiner: sem a variavel, e o mesmo
+    # 127.0.0.1 de sempre. DENTRO do conteiner, 127.0.0.1 e o proprio conteiner e
+    # a traducao morre no primeiro lote com recusa de conexao — por isso o
+    # docker-compose injeta KRONOS_LLM_BASE_URL apontando para
+    # host.docker.internal, que e o host visto de dentro. Ver docs/ref-docker.md.
+    base-url: "${KRONOS_LLM_BASE_URL:http://127.0.0.1:1234/v1}"
     # "current" e proposital: usar o id exato do modelo aqui faz o LM Studio
     # abrir uma segunda instancia via auto-load (JIT) toda vez que o valor nao
     # bate com a instancia ja carregada. O app adapta em runtime para o que
@@ -77,7 +99,10 @@ tradutor:
 # tradutor.llm. Defaults equivalentes ao comportamento efetivo atual.
 revisao-lore:
   llm:
-    base-url: "http://127.0.0.1:1234/v1"
+    # Mesma variavel do tradutor.llm de proposito: e o MESMO LM Studio. Duas
+    # variaveis separadas so criariam a chance de uma ser esquecida e a Opcao 7
+    # falhar sozinha dentro do conteiner, com o resto funcionando.
+    base-url: "${KRONOS_LLM_BASE_URL:http://127.0.0.1:1234/v1}"
     model: "current"
     max-tokens: 2000
     connect-timeout: 5s

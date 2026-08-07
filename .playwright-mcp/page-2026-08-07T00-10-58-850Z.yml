@@ -1,0 +1,298 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - img "Logo" [ref=f4e6]
+        - generic [ref=f4e7]:
+          - heading "KRONOS CORE" [level=2] [ref=f4e8]
+          - generic [ref=f4e9]: Pipeline Industrial
+      - group "Idioma da interface" [ref=f4e11]:
+        - button "Português (Brasil)" [pressed] [ref=f4e12] [cursor=pointer]
+        - button "English (United States)" [ref=f4e13] [cursor=pointer]
+        - button "Español (España)" [ref=f4e14] [cursor=pointer]
+      - navigation [ref=f4e15]:
+        - button "dashboard Painel Inicial Acesse o painel principal com informações gerais do repositório, shields e documentação." [ref=f4e16] [cursor=pointer]:
+          - generic [ref=f4e17]: dashboard
+          - generic [ref=f4e18]: Painel Inicial
+          - text: Acesse o painel principal com informações gerais do repositório, shields e documentação.
+        - generic [ref=f4e19]:
+          - button "Preparação expand_more" [expanded] [ref=f4e20] [cursor=pointer]:
+            - generic [ref=f4e21]: Preparação
+            - generic [ref=f4e22]: expand_more
+          - generic [ref=f4e23]:
+            - button "radar 1.1 Análise de Mídia Audite faixas, codecs e bitrate dos arquivos de vídeo." [ref=f4e24] [cursor=pointer]:
+              - generic [ref=f4e25]: radar
+              - generic [ref=f4e26]: 1.1 Análise de Mídia
+              - text: Audite faixas, codecs e bitrate dos arquivos de vídeo.
+            - button "download 1.2 Extração Extraia faixas de legendas (ASS/SRT/PGS) em lote de vídeos (MKV/WebM/MP4/MOV/AVI...)." [ref=f4e27] [cursor=pointer]:
+              - generic [ref=f4e28]: download
+              - generic [ref=f4e29]: 1.2 Extração
+              - text: Extraia faixas de legendas (ASS/SRT/PGS) em lote de vídeos (MKV/WebM/MP4/MOV/AVI...).
+            - 'button "font_download 1.3 Troca de Tipo de Legenda ANTES de traduzir: audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras, para o texto não chegar corrompido ao LLM." [ref=f4e30] [cursor=pointer]':
+              - generic [ref=f4e31]: font_download
+              - generic [ref=f4e32]: 1.3 Troca de Tipo de Legenda
+              - text: "ANTES de traduzir: audite e substitua fontes legadas (VNI/ANSI) por fontes Unicode seguras, para o texto não chegar corrompido ao LLM."
+            - button "content_paste_search 1.4 Análise de Legenda Audite o conteúdo da legenda — roda sobre a fonte sozinha (modo ORIGINAL) ou comparando com a tradução." [ref=f4e33] [cursor=pointer]:
+              - generic [ref=f4e34]: content_paste_search
+              - generic [ref=f4e35]: 1.4 Análise de Legenda
+              - text: Audite o conteúdo da legenda — roda sobre a fonte sozinha (modo ORIGINAL) ou comparando com a tradução.
+        - generic [ref=f4e36]:
+          - button "Tradução expand_more" [expanded] [ref=f4e37] [cursor=pointer]:
+            - generic [ref=f4e38]: Tradução
+            - generic [ref=f4e39]: expand_more
+          - generic [ref=f4e40]:
+            - button "translate 2.1 Tradução Local Traduza legendas usando IA local com proteção de tags." [ref=f4e41] [cursor=pointer]:
+              - generic [ref=f4e42]: translate
+              - generic [ref=f4e43]: 2.1 Tradução Local
+              - text: Traduza legendas usando IA local com proteção de tags.
+            - button "bolt 2.2 Tradução sem Lore Traduza um anime que ainda não tem lore declarada — teste rápido, saída separada." [ref=f4e44] [cursor=pointer]:
+              - generic [ref=f4e45]: bolt
+              - generic [ref=f4e46]: 2.2 Tradução sem Lore
+              - text: Traduza um anime que ainda não tem lore declarada — teste rápido, saída separada.
+            - button "sync 2.3 Correção de Cache Corrija falhas de cache ou traduções ausentes." [ref=f4e47] [cursor=pointer]:
+              - generic [ref=f4e48]: sync
+              - generic [ref=f4e49]: 2.3 Correção de Cache
+              - text: Corrija falhas de cache ou traduções ausentes.
+        - generic [ref=f4e50]:
+          - button "Qualidade expand_more" [expanded] [ref=f4e51] [cursor=pointer]:
+            - generic [ref=f4e52]: Qualidade
+            - generic [ref=f4e53]: expand_more
+          - generic [ref=f4e54]:
+            - 'button "spellcheck 3.1 Revisão de Legendas Revise legendas .ass já traduzidas: inglês residual, concordância PT-BR e correção via Google." [ref=f4e55] [cursor=pointer]':
+              - generic [ref=f4e56]: spellcheck
+              - generic [ref=f4e57]: 3.1 Revisão de Legendas
+              - text: "Revise legendas .ass já traduzidas: inglês residual, concordância PT-BR e correção via Google."
+            - button "menu_book 3.2 Revisão de Lore Revise nomes, locais e termos de lore nas legendas traduzidas usando a lore oficial da obra." [ref=f4e58] [cursor=pointer]:
+              - generic [ref=f4e59]: menu_book
+              - generic [ref=f4e60]: 3.2 Revisão de Lore
+              - text: Revise nomes, locais e termos de lore nas legendas traduzidas usando a lore oficial da obra.
+            - button "spellcheck 3.3 Revisão de Concordância Corrige erros de gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM." [ref=f4e61] [cursor=pointer]:
+              - generic [ref=f4e62]: spellcheck
+              - generic [ref=f4e63]: 3.3 Revisão de Concordância
+              - text: Corrige erros de gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.
+        - generic [ref=f4e64]:
+          - button "Karaokê expand_more" [expanded] [ref=f4e65] [cursor=pointer]:
+            - generic [ref=f4e66]: Karaokê
+            - generic [ref=f4e67]: expand_more
+          - generic [ref=f4e68]:
+            - button "lyrics 4.1 Tradução de Karaokê Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa." [ref=f4e69] [cursor=pointer]:
+              - generic [ref=f4e70]: lyrics
+              - generic [ref=f4e71]: 4.1 Tradução de Karaokê
+              - text: Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa.
+            - button "music_note 4.2 Correção de Karaokê Corrija a legenda traduzida usando a original como referência segura." [ref=f4e72] [cursor=pointer]:
+              - generic [ref=f4e73]: music_note
+              - generic [ref=f4e74]: 4.2 Correção de Karaokê
+              - text: Corrija a legenda traduzida usando a original como referência segura.
+            - 'button "music_off 4.3 Karaokê Simples POR ÚLTIMO: converte karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original. Apaga a animação — gera pasta nova, mas não dá para desfazer no arquivo gerado." [ref=f4e75] [cursor=pointer]':
+              - generic [ref=f4e76]: music_off
+              - generic [ref=f4e77]: 4.3 Karaokê Simples
+              - text: "POR ÚLTIMO: converte karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original. Apaga a animação — gera pasta nova, mas não dá para desfazer no arquivo gerado."
+        - generic [ref=f4e78]:
+          - button "Finalização expand_more" [expanded] [ref=f4e79] [cursor=pointer]:
+            - generic [ref=f4e80]: Finalização
+            - generic [ref=f4e81]: expand_more
+          - generic [ref=f4e82]:
+            - button "layers 5.1 Remuxer Recombine vídeos originais e as legendas traduzidas." [ref=f4e83] [cursor=pointer]:
+              - generic [ref=f4e84]: layers
+              - generic [ref=f4e85]: 5.1 Remuxer
+              - text: Recombine vídeos originais e as legendas traduzidas.
+            - button "drive_file_rename_outline 5.2 Renomear Arquivos Limpe e renomeie arquivos de vídeo e legendas usando um padrão S01E01 com base nos metadados." [ref=f4e86] [cursor=pointer]:
+              - generic [ref=f4e87]: drive_file_rename_outline
+              - generic [ref=f4e88]: 5.2 Renomear Arquivos
+              - text: Limpe e renomeie arquivos de vídeo e legendas usando um padrão S01E01 com base nos metadados.
+        - generic [ref=f4e89]:
+          - button "Sistema expand_more" [expanded] [ref=f4e90] [cursor=pointer]:
+            - generic [ref=f4e91]: Sistema
+            - generic [ref=f4e92]: expand_more
+          - generic [ref=f4e93]:
+            - button "monitoring Telemetria Monitore hits de cache, tokens e logs em tempo real." [ref=f4e94] [cursor=pointer]:
+              - generic [ref=f4e95]: monitoring
+              - generic [ref=f4e96]: Telemetria
+              - text: Monitore hits de cache, tokens e logs em tempo real.
+            - button "account_tree Mapa do Projeto Exiba a árvore estrutural e taxonomia do código Java." [ref=f4e97] [cursor=pointer]:
+              - generic [ref=f4e98]: account_tree
+              - generic [ref=f4e99]: Mapa do Projeto
+              - text: Exiba a árvore estrutural e taxonomia do código Java.
+            - 'button "description Documentação Documentação técnica completa: arquitetura, módulos, API REST e diagramas." [ref=f4e100] [cursor=pointer]':
+              - generic [ref=f4e101]: description
+              - generic [ref=f4e102]: Documentação
+              - text: "Documentação técnica completa: arquitetura, módulos, API REST e diagramas."
+            - button "person Sobre Conheça o autor do KRONOS CORE — Paulo André Carminati (carmipa)." [ref=f4e103] [cursor=pointer]:
+              - generic [ref=f4e104]: person
+              - generic [ref=f4e105]: Sobre
+              - text: Conheça o autor do KRONOS CORE — Paulo André Carminati (carmipa).
+        - 'button "logout Sair Encerra a aplicação: o trabalho em execução para no próximo ponto seguro (progresso salvo é preservado) e o servidor é desligado." [ref=f4e106] [cursor=pointer]':
+          - generic [ref=f4e107]: logout
+          - generic [ref=f4e108]: Sair
+          - text: "Encerra a aplicação: o trabalho em execução para no próximo ponto seguro (progresso salvo é preservado) e o servidor é desligado."
+      - generic [ref=f4e109]: Backend Online
+    - main [ref=f4e113]:
+      - generic [ref=f4e114]:
+        - generic [ref=f4e115]:
+          - heading "Painel Inicial" [level=1] [ref=f4e116]
+          - paragraph [ref=f4e117]: Orquestrador automatizado e pipeline industrial de processamento de animes
+        - generic [ref=f4e119]:
+          - generic [ref=f4e120]: Cache Local
+          - generic [ref=f4e121]: Carregando...
+      - generic [ref=f4e122]:
+        - generic [ref=f4e123]:
+          - generic [ref=f4e124]:
+            - generic [ref=f4e125]:
+              - generic [ref=f4e126]: dns
+              - generic [ref=f4e128]:
+                - generic [ref=f4e129]: Orquestrador
+                - generic [ref=f4e130]: Java Quarkus
+              - generic [ref=f4e131]: Online
+            - generic [ref=f4e132]:
+              - generic [ref=f4e133]: psychology
+              - generic [ref=f4e135]:
+                - generic [ref=f4e136]: LLM de Tradução
+                - generic "current" [ref=f4e137]
+              - generic [ref=f4e138]: Conectado
+            - generic [ref=f4e139]:
+              - generic [ref=f4e140]: database
+              - generic [ref=f4e142]:
+                - generic [ref=f4e143]: Cache de Legendas
+                - generic [ref=f4e144]: Carregando...
+              - generic [ref=f4e145]: Ativo
+          - generic [ref=f4e146]:
+            - generic [ref=f4e147]:
+              - generic [ref=f4e148]:
+                - generic [ref=f4e149]: AUTOMATION SUITE
+                - heading "KRONOS CORE" [level=2] [ref=f4e150]
+                - paragraph [ref=f4e151]: Pipeline Industrial de Processamento & Tradução de Animes
+              - paragraph [ref=f4e152]: Plataforma integrada para gerenciamento em lote de legendas de animes. Realize auditoria detalhada de faixas de mídia, extração de faixas embutidas (ASS/PGS/SRT), tradução contextualizada por Inteligência Artificial rodando 100% localmente e remuxagem automatizada com preservação de qualidade original.
+            - generic [ref=f4e153]: settings_suggest
+          - generic [ref=f4e157]:
+            - heading "Lógica do Fluxo de Trabalho (Pipeline)" [level=3] [ref=f4e159]
+            - generic [ref=f4e161]:
+              - generic [ref=f4e162] [cursor=pointer]:
+                - generic [ref=f4e163]: "1.1"
+                - generic [ref=f4e164]: radar
+                - heading "Análise de Mídia" [level=4] [ref=f4e166]
+                - paragraph [ref=f4e167]: Audite faixas, codecs e bitrate dos arquivos de vídeo originais.
+                - generic [ref=f4e168]: Acessar Painel →
+                - text: Clique para auditar codecs e bitrate
+              - generic [ref=f4e169] [cursor=pointer]:
+                - generic [ref=f4e170]: "1.2"
+                - generic [ref=f4e171]: download
+                - heading "Extração" [level=4] [ref=f4e173]
+                - paragraph [ref=f4e174]: Extraia faixas de legendas (ASS/PGS/SRT) em lote de arquivos MKV.
+                - generic [ref=f4e175]: Acessar Painel →
+                - text: Clique para extrair as legendas originais
+              - generic [ref=f4e176] [cursor=pointer]:
+                - generic [ref=f4e177]: "1.3"
+                - generic [ref=f4e178]: font_download
+                - heading "Troca de Tipo de Legenda" [level=4] [ref=f4e180]
+                - paragraph [ref=f4e181]: "Antes de traduzir: troca fontes legadas (VNI/ANSI) por Unicode, para o texto não chegar corrompido ao LLM."
+                - generic [ref=f4e182]: Acessar Painel →
+                - text: Clique para auditar e substituir fontes legadas
+              - generic [ref=f4e183] [cursor=pointer]:
+                - generic [ref=f4e184]: "1.4"
+                - generic [ref=f4e185]: content_paste_search
+                - heading "Análise de Legenda" [level=4] [ref=f4e187]
+                - paragraph [ref=f4e188]: Verifique anomalias de LLM, formatação e metadados nas legendas traduzidas.
+                - generic [ref=f4e189]: Acessar Painel →
+                - text: Clique para auditar conteúdo
+              - generic [ref=f4e190] [cursor=pointer]:
+                - generic [ref=f4e191]: "2.1"
+                - generic [ref=f4e192]: translate
+                - heading "Tradução Local" [level=4] [ref=f4e194]
+                - paragraph [ref=f4e195]: Traduza legendas por IA usando LLM local com proteção de estilos.
+                - generic [ref=f4e196]: Acessar Painel →
+                - text: Clique para traduzir com LLM local
+              - generic [ref=f4e197] [cursor=pointer]:
+                - generic [ref=f4e198]: "2.2"
+                - generic [ref=f4e199]: bolt
+                - heading "Tradução sem Lore" [level=4] [ref=f4e201]
+                - paragraph [ref=f4e202]: Traduza uma obra ainda sem lore declarada — teste rápido, com saída em pasta separada.
+                - generic [ref=f4e203]: Acessar Painel →
+                - text: Clique para traduzir um anime que ainda não tem lore declarada
+              - generic [ref=f4e204] [cursor=pointer]:
+                - generic [ref=f4e205]: "2.3"
+                - generic [ref=f4e206]: sync
+                - heading "Correção de Cache" [level=4] [ref=f4e208]
+                - paragraph [ref=f4e209]: Varra e corrija falas vazias ou não traduzidas do banco de cache.
+                - generic [ref=f4e210]: Acessar Painel →
+                - text: Clique para preencher linhas falhas do cache
+              - generic [ref=f4e211] [cursor=pointer]:
+                - generic [ref=f4e212]: "3.1"
+                - generic [ref=f4e213]: spellcheck
+                - heading "Revisão de Legendas" [level=4] [ref=f4e215]
+                - paragraph [ref=f4e216]: Detecte e corrija erros remanescentes nas legendas .ass já traduzidas.
+                - generic [ref=f4e217]: Acessar Painel →
+                - text: Clique para revisar legendas .ass já traduzidas
+              - generic [ref=f4e218] [cursor=pointer]:
+                - generic [ref=f4e219]: "3.2"
+                - generic [ref=f4e220]: menu_book
+                - heading "Revisão de Lore" [level=4] [ref=f4e222]
+                - paragraph [ref=f4e223]: Padronize nomes, locais e termos de mundo nas legendas traduzidas via lore oficial.
+                - generic [ref=f4e224]: Acessar Painel →
+                - text: Clique para revisar termos de lore nas legendas
+              - generic [ref=f4e225] [cursor=pointer]:
+                - generic [ref=f4e226]: "3.3"
+                - generic [ref=f4e227]: spellcheck
+                - heading "Revisão de Concordância" [level=4] [ref=f4e229]
+                - paragraph [ref=f4e230]: Corrige gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.
+                - generic [ref=f4e231]: Acessar Painel →
+                - text: Clique para corrigir concordância de gênero na legenda PT-BR
+              - generic [ref=f4e232] [cursor=pointer]:
+                - generic [ref=f4e233]: "4.1"
+                - generic [ref=f4e234]: lyrics
+                - heading "Tradução de Karaokê" [level=4] [ref=f4e236]
+                - paragraph [ref=f4e237]: Traduza as letras em inglês para PT-BR mantendo o japonês/romaji original junto na tela.
+                - generic [ref=f4e238]: Acessar Painel →
+                - text: Clique para traduzir letras de música mantendo o romaji original
+              - generic [ref=f4e239] [cursor=pointer]:
+                - generic [ref=f4e240]: "4.2"
+                - generic [ref=f4e241]: music_note
+                - heading "Correção de Karaokê" [level=4] [ref=f4e243]
+                - paragraph [ref=f4e244]: Corrige a legenda PT-BR sem alterar a original, preservando estrutura, tempos e tags.
+                - generic [ref=f4e245]: Acessar Painel →
+                - text: Clique para corrigir a legenda traduzida
+              - generic [ref=f4e246] [cursor=pointer]:
+                - generic [ref=f4e247]: "4.3"
+                - generic [ref=f4e248]: music_off
+                - heading "Karaokê Simples" [level=4] [ref=f4e250]
+                - paragraph [ref=f4e251]: "Por último: converte karaokê KFX em linhas simples, no tempo original. Apaga a animação."
+                - generic [ref=f4e252]: Acessar Painel →
+                - text: Clique para converter karaokê KFX em legenda simples
+              - generic [ref=f4e253] [cursor=pointer]:
+                - generic [ref=f4e254]: "5.1"
+                - generic [ref=f4e255]: layers
+                - heading "Remuxer" [level=4] [ref=f4e257]
+                - paragraph [ref=f4e258]: Mescle os vídeos originais e as legendas traduzidas em novos MKVs.
+                - generic [ref=f4e259]: Acessar Painel →
+                - text: Clique para acoplar legendas traduzidas nos vídeos
+              - generic [ref=f4e260] [cursor=pointer]:
+                - generic [ref=f4e261]: "5.2"
+                - generic [ref=f4e262]: drive_file_rename_outline
+                - heading "Renomear Arquivos" [level=4] [ref=f4e264]
+                - paragraph [ref=f4e265]: Sanitize e padronize nomes de arquivos usando regex e metadados oficiais.
+                - generic [ref=f4e266]: Acessar Painel →
+                - text: Clique para renomear e sanitizar arquivos de vídeos
+              - generic [ref=f4e267] [cursor=pointer]:
+                - generic [ref=f4e268]: —
+                - generic [ref=f4e269]: account_tree
+                - heading "Mapa do Projeto" [level=4] [ref=f4e271]
+                - paragraph [ref=f4e272]: Visualize a árvore estrutural e taxonomia de classes Java do projeto.
+                - generic [ref=f4e273]: Acessar Painel →
+                - text: Clique para analisar o código Java
+              - generic [ref=f4e274] [cursor=pointer]:
+                - generic [ref=f4e275]: —
+                - generic [ref=f4e276]: monitoring
+                - heading "Telemetria" [level=4] [ref=f4e278]
+                - paragraph [ref=f4e279]: Monitore hits de cache, tokens e logs em tempo real do sistema.
+                - generic [ref=f4e280]: Acessar Painel →
+                - text: Clique para acessar a telemetria
+        - text: "Selecione a obra para exibir dados e capa do anime. Caminho absoluto da pasta contendo os vídeos a serem auditados por codecs, faixas e sincronia. Diretório onde serão gravados os relatórios da análise. Deixe em branco para salvar por padrão na subpasta 'relatorios' dentro da pasta da mídia. Iniciar varredura técnica de arquivos de mídia Limpa todos os campos e oculta o cartão do anime Alternar altura expandida do console Baixar o resultado da análise como arquivo .txt Copiar conteúdo do console Diretório (busca em subpastas também) onde se encontram os vídeos originais dos quais serão extraídas as faixas de legenda. Suporta MKV/WebM e, via ffmpeg, MP4/MOV/AVI/TS/M2TS/FLV/WMV. Diretório onde as legendas extraídas serão salvas. Deixe em branco para salvar por padrão na subpasta 'legendas_extraidas_[formato]' dentro da pasta da mídia. O formato de destino da extração. Prefira ASS para animes para preservar estilos, fontes e posições dos textos. Dica: rode a Análise de Mídia antes para descobrir o formato e o tipo de cada faixa (texto = traduzível; bitmap = requer OCR). Apenas ASS e SRT seguem para a tradução; PGS é bitmap e não é traduzível. Iniciar extração paralela das faixas de legenda via mkvextract Limpa todos os campos da extração Alternar altura expandida do console Copiar conteúdo do console O arquivo de legenda original (inglês) usado como referência. O formato detectado será exibido no relatório. O arquivo gerado pelo LLM (português). O relatório identifica seu formato e analisa possíveis danos estruturais. Executa o motor de regras de auditoria de conteúdo Limpa os campos e o relatório exibido Exporta o relatório em Markdown (.md) — formato didático para revisão Exporta o relatório em JSON (formato técnico) Alternar altura expandida do console Copiar conteúdo do console Define qual pacote de regras de lore será usado pela LLM. Pasta contendo os arquivos de legenda originais (geralmente em inglês) que serão traduzidos pela LLM. Pasta de destino onde as legendas traduzidas serão salvas. Por padrão (campo vazio), cria a pasta 'traducao_ptbr' no MESMO NÍVEL da pasta de legendas originais (ao lado dela, dentro da pasta da mídia/temporada). Arquiva o cache anterior da pasta selecionada, retraduz integralmente sem reaproveitá-lo e atualiza os arquivos PT-BR. Cache e legenda anteriores recebem backup obrigatório. Iniciar tradução em lote pelo servidor local do LM Studio Limpa todos os campos e oculta o cartão do anime Alternar altura expandida do console Copiar conteúdo do console Pasta com os arquivos de legenda em inglês que serão traduzidos. Vazio cria 'traducao_ptbr_sem_lore' ao lado da pasta de legendas originais, para não se misturar com a tradução definitiva. Por padrão, se a pasta for de uma obra que JÁ tem lore declarada, a execução é bloqueada e a mensagem diz qual contexto usar. Marque só se quiser mesmo traduzir cru uma obra que tem lore. Traduzir sem aplicar lore, com saída separada Limpa todos os campos Alternar altura expandida do console Copiar conteúdo do console Caches novos usam automaticamente a lore registrada na proveniência de cada arquivo. Se houver cache antigo sem proveniência, selecione aqui a obra correta. Caminho do diretório de cache. Deixe vazio para usar a pasta padrão 'cache'. Limpa todos os campos e oculta o cartão do anime Invalida somente fallbacks e respostas defeituosas; nomes e termos autorizados pela lore são preservados. Preenche traduções vazias ou inválidas enviando somente essas falas ao Google Translate online. Revisa apenas traduções PT-BR suspeitas com o LLM local e a lore registrada em cada arquivo. ENSAIO: mede quantas vezes cada termo oficial da lore seria restaurado no cache já gravado. Não escreve nada. APLICA a terminologia oficial ao cache já gravado, com backup e escrita atômica. Rode o ensaio antes. Alternar altura expandida do console Copiar conteúdo do console Define gênero de personagens e regras de tratamento para a revisão de pronomes, artigos e adjetivos. Arquivos *_PT-BR.ass ou *_PTBR_TrackN.ass gerados pela tradução. Se os .ass em inglês estiverem em outra pasta. Vazio = procura na mesma pasta do PT (_Track2.ass, etc.). Pasta com os .cache.json. O campo 'original' de cada entrada faz o papel da legenda em inglês. Vazio = pasta 'cache' padrão do projeto. Limpa todos os campos e oculta o cartão do anime Detecta inglês residual e re-traduz falas problemáticas via Google Translate Corrige concordância PT-BR (gênero, pronomes, artigos, tratamentos) via LLM local Alternar altura expandida do console Copiar conteúdo do console Exibe a capa/dados da obra e ativa a correção de falas suspeitas via LLM local. Vazio = correção estrutural sem LLM. Pasta com as legendas originais usadas como referência. Estes arquivos não são alterados. Pasta com as legendas em português que serão corrigidas. Somente estes arquivos são gravados. Corrige todos os pares original/traduzido encontrados. A original é somente leitura. Limpa todos os campos e oculta o cartão do anime Alternar altura expandida do console Copiar conteúdo do console Caminho da pasta que contém os episódios de vídeo em formato MKV (sem legenda em português). Diretório onde estão as novas legendas ASS traduzidas. Pressione Enter para buscar automaticamente na pasta padrão do projeto. Use quando o vídeo e a legenda vêm de releases/fontes diferentes e a legenda fica atrasada ou adiantada em relação à fala. Positivo atrasa a legenda, negativo adianta. Ex: 350 ou -1200. A legenda PT-BR entra como PRIMEIRA opção — é a que abre por padrão no player. As faixas que já estavam no arquivo continuam disponíveis como segunda escolha. Nenhuma legenda é removida: perder a faixa de origem é irreversível a partir do MKV remuxado. Cria um temporário, valida vídeo/áudio/legenda PT-BR e só então publica o MKV final. Destinos existentes nunca são sobrescritos. Limpa todos os campos do remuxer Alternar altura expandida do console Copiar conteúdo do console Analisa e gera de forma estática o mapa estrutural das classes Java do repositório. Alternar altura expandida do console Baixar o relatório completo do mapa como arquivo .txt Baixar só a árvore de diretórios em Markdown (bloco de código) para colar no GitHub/README Copiar conteúdo do mapa Atualiza as métricas de telemetria agora Faz download do arquivo de telemetria compartilhado para auditoria Gera um snapshot sanitizado (só métricas, sem textos de legenda nem caminhos), commita e faz push para o repositório público kronos-anime-translation-telemetry-dataset no GitHub."
+      - generic [ref=f4e282]:
+        - generic [ref=f4e283]: ✦
+        - text: Desenvolvido por
+        - strong [ref=f4e284]:
+          - link "Paulo André Carminati Abrir página Sobre" [ref=f4e285] [cursor=pointer]:
+            - /url: "#"
+        - link [ref=f4e286] [cursor=pointer]:
+          - /url: https://github.com/carmipa/traducao_animes_llm_local_quarkus
+          - img "GitHub Repo" [ref=f4e287]
+  - text: Subir um nível (nunca sai da raiz permitida)

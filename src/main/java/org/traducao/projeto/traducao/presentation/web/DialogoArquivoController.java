@@ -160,6 +160,49 @@ public class DialogoArquivoController {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: informa à interface se o diálogo NATIVO existe nesta
+     * instalação, para que ela escolha entre abrir a janela do sistema ou o
+     * navegador de pastas servido pelo próprio servidor.
+     *
+     * <h2>Por que a pergunta precisa existir</h2>
+     * Este controller abre um {@code OpenFileDialog} do Windows executando
+     * {@code powershell.exe} NO SERVIDOR — o que só funciona porque servidor e
+     * usuário costumam ser a mesma máquina. Dentro de um contêiner Linux não há
+     * powershell, Windows Forms nem display: os 27 botões "Procurar..." de 8
+     * telas ficariam inertes.
+     *
+     * <p>Sem esta rota, a interface só descobriria a ausência TENTANDO, e a
+     * tentativa custa até 3 minutos de timeout por clique. Perguntar antes é o
+     * que torna a degradação instantânea em vez de dolorosa.
+     *
+     * <h2>INVARIANTES DO DOMÍNIO</h2>
+     * <ul>
+     *   <li>Responde por CAPACIDADE observada — sistema operacional Windows e
+     *       {@code powershell.exe} presente no disco —, nunca por suposição.</li>
+     *   <li>Nunca abre diálogo para responder: a pergunta é barata de propósito e
+     *       pode ser feita a cada carga de página.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dúvida responde
+     * {@code nativo=false}. Falha fechada: dizer que existe um diálogo que não
+     * existe deixaria o operador esperando por uma janela que nunca abre.
+     */
+    @GetMapping("/capacidade")
+    public ResponseEntity<Map<String, Object>> capacidade() {
+        boolean windows = System.getProperty("os.name", "")
+            .toLowerCase(java.util.Locale.ROOT).contains("win");
+        boolean temPowerShell = false;
+        if (windows) {
+            try {
+                temPowerShell = Files.exists(Path.of(resolverPowershell()));
+            } catch (RuntimeException e) {
+                log.debug("PowerShell nao localizado: {}", e.getMessage());
+            }
+        }
+        return ResponseEntity.ok(Map.of("nativo", windows && temPowerShell));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: permite escolher uma pasta local em qualquer formulário.
      * <p>
      * INVARIANTES DO DOMÍNIO: devolve a pasta pai escolhida, preservando caracteres

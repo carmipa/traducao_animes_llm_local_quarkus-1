@@ -36,9 +36,33 @@
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-h1, h2, h3, h4, h5, h6, 
-.widget-value, .card-step-num, .stat-value, 
-.telemetry-insight-card strong, .lore-metric strong, 
+/* ============================================================================
+   UTILITÁRIO GLOBAL DE OCULTAÇÃO
+
+   O projeto NÃO tinha um `.hidden` global — cada tela que precisou de um
+   escreveu o seu, escopado ao próprio painel. Auditado em 06/08/2026: são 27
+   elementos marcados com `class="... hidden"` no HTML, e SEIS painéis sem
+   nenhuma regra que os esconda (trocaTipoLegenda, revisaoLore, novoKaraoke,
+   renomearArquivos, traducaoKaraoke, revisaoConcordancia).
+
+   O efeito visível: em Troca de Tipo de Legenda, o "Resultado da Auditoria" e o
+   card de correção apareciam JÁ ABERTOS ao carregar a tela, antes de qualquer
+   escaneamento; em Revisão de Lore, as duas abas de formulário apareciam
+   empilhadas. O JavaScript adicionava e removia a classe corretamente o tempo
+   todo — só não havia CSS do outro lado.
+
+   `!important` não é preguiça aqui: sem ele, qualquer regra de mesma
+   especificidade declarada DEPOIS (`.navegador-item { display: flex }`, por
+   exemplo) venceria por ordem de cascata e o elemento reapareceria. Um
+   utilitário de ocultação que perde para a ordem do arquivo não é utilitário.
+   ============================================================================ */
+.hidden {
+    display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.widget-value, .card-step-num, .stat-value,
+.telemetry-insight-card strong, .lore-metric strong,
 .welcome-hero-banner h2, .creator-name, .doc-sidebar h3 {
     font-family: var(--font-title);
 }
@@ -1789,6 +1813,100 @@ span.console-action-icon.material-symbols-outlined {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 20px;
+}
+
+/* ============================================================================
+   NAVEGADOR DE PASTAS
+   Modal que substitui o diálogo nativo do Windows onde ele não existe. Precisa
+   ser mais largo que o modal padrão: caminho de acervo é longo por natureza
+   ("[DB]86 Part 2_-_01_(Dual Audio_10bit_BD1080p_x265)") e cortar o texto
+   transformaria a escolha num chute.
+   ============================================================================ */
+.modal-navegador-box {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.navegador-barra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-navegador-subir {
+    flex-shrink: 0;
+}
+
+/* O caminho rola dentro da própria caixa: sem isto, um nome de pasta longo
+   empurraria o modal e a página inteira ganharia rolagem horizontal. */
+.navegador-atual {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.navegador-lista {
+    min-height: 180px;
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.navegador-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 14px;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.navegador-item:last-child {
+    border-bottom: 0;
+}
+
+.navegador-item:hover {
+    background: rgba(45, 212, 191, 0.09);
+    color: var(--accent-cyan);
+}
+
+.navegador-item:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: -2px;
+}
+
+.navegador-item .material-symbols-outlined {
+    font-size: 19px !important;
+    color: var(--accent-yellow);
+}
+
+/* Estado "nada aqui" — texto explícito, nunca uma lista vazia muda. Pasta sem
+   subpastas e servidor sem raiz configurada são situações diferentes, e a
+   mensagem tem de dizer qual das duas é. */
+.navegador-vazio {
+    padding: 28px 16px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
 }
 
 .btn-danger {
