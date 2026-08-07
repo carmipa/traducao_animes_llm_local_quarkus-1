@@ -134,7 +134,14 @@ api-dados-anime:
 # [NomeDoSistema]-telemetry-dataset. O repositório remoto precisa existir no
 # GitHub (criado uma única vez, vazio); o resto é bootstrap automático.
 telemetria-dataset:
-  repositorio-local: ../kronos-anime-translation-telemetry-dataset
+  # Caminho RELATIVO por padrao, que e como funciona fora de conteiner. Dentro do
+  # conteiner "../" resolve para "/" e o repositorio nao existe: o compose monta
+  # o repo do host em /dataset e injeta KRONOS_DATASET_REPO apontando para la,
+  # de modo que o commit feito no conteiner cai no repositorio do HOST.
+  #
+  # O PUSH continua sendo operacao do host, de proposito: credencial de git nao
+  # entra em conteiner. Ver docs/ref-docker.md.
+  repositorio-local: "${KRONOS_DATASET_REPO:../kronos-anime-translation-telemetry-dataset}"
   repositorio-remoto: https://github.com/carmipa/kronos-anime-translation-telemetry-dataset.git
   hardware:
     publicar-ambiente-execucao: true
