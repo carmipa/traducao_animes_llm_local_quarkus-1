@@ -91,4 +91,23 @@ public class ContextoDanMachiS1 implements ProvedorContexto {
             Map.entry("Lilisuka", "Liliruca Arde")
         ));
     }
+
+    /**
+     * PROPOSITO DE NEGOCIO: nomes de pasta que identificam ESTA temporada.
+     *
+     * <p>O prejuizo, medido em 07/08/2026: a pasta chamava-se apenas
+     * {@code Season 05}, e a obra derivada do caminho saia "Season 05". O portao
+     * obra x contexto nao reconhecia nenhuma lore e se declarava CEGO - avisava e
+     * seguia, entao lore errada passaria sem bloqueio. E o mesmo nome vira
+     * diretorio de cache: ja existia {@code cache/Season 1/} com 22 arquivos do
+     * Unicorn, e qualquer obra com pasta {@code Season 1} cairia la dentro.
+     *
+     * <p>INVARIANTES DO DOMINIO: a frase precisa ser ESPECIFICA desta temporada.
+     * Declarar so "DanMachi" faria as oito lores reivindicarem a mesma pasta com
+     * a mesma especificidade - veredicto AMBIGUO, que BLOQUEIA a traducao.
+     */
+    @Override
+    public Set<String> apelidosPasta() {
+        return Set.of("DanMachi Season 01", "DanMachi Season 1");
+    }
 }
