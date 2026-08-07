@@ -202,10 +202,31 @@ class FronteiraTraducaoArchTest {
      *       e normaliza para a classe de topo, por isso não consome uma segunda entrada aqui.
      *       Entrou com a fatia consumindo pela superfície pública do peer, sem tocar em
      *       {@code legenda.infrastructure}.</li>
+     *   <li>Carimbo de proveniência (2026-08-07): {@code CarimboCabecalhoLegenda} — escreve no
+     *       {@code [Script Info]} do próprio arquivo quantas falas existiam na origem, quantas
+     *       eram traduzíveis, quantas foram preservadas por regra do pipeline e qual lore
+     *       decidiu.
+     *       <p><b>Por que entra:</b> carimbar é mecânica de CABEÇALHO ASS — inserir comentário
+     *       depois de {@code [Script Info]}, preservar {@code \r\n}, substituir o carimbo
+     *       anterior em vez de empilhar. O dono do formato é o peer {@code legenda}. A mecânica
+     *       já existia PRIVADA dentro de {@code AchatadorEstilosDecorativosService}; a
+     *       alternativa a homologar este tipo seria COPIÁ-LA para a fatia {@code traducao},
+     *       criando a segunda implementação da mesma regra — a classe de defeito que
+     *       {@code CatracaRegraDuplicadaEntreFatiasTest} existe para contar.
+     *       <p><b>O prejuízo que originou:</b> auditando o acervo em 07/08/2026, cinco
+     *       conclusões erradas saíram de recalcular por fora o que o pipeline decidiu por
+     *       dentro — 18.431 falas dadas como resíduo de tradução (eram letra de música cujo
+     *       estilo o achatamento apagou), 2.898 dadas como perdidas no Unicorn (eram o karaokê
+     *       {@code OPL2} descartado de propósito) e 364 "defeitos" que eram estilos que o
+     *       {@code application.yml} manda ignorar. Em nenhum o dado estava perdido; perdida
+     *       estava a DESCOBERTA, porque o arquivo não declarava nada.
+     *       <p>É {@code domain} puro, sem I/O e sem estado; a fatia consome pela superfície
+     *       pública do peer, sem tocar em {@code legenda.infrastructure}.</li>
      * </ul>
      */
     private static final Set<String> LEGENDA_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".legenda.domain.PoliticaEstiloMusical",
+        RAIZ + ".legenda.domain.CarimboCabecalhoLegenda",
         RAIZ + ".legenda.domain.DocumentoLegenda",
         RAIZ + ".legenda.domain.EventoLegenda",
         RAIZ + ".legenda.domain.ExcecaoLegenda",
