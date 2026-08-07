@@ -75,13 +75,37 @@ class PoliticaEstiloMusicalTest {
         assertTrue(COM_LISTA.estiloIgnorado("OP - English"), "'OP' isolado casa a regex");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: variação numérica colada É música, e passou a ser capturada.
+     *
+     * <h2>Inversão deliberada em 07/08/2026, autorizada por Paulo</h2>
+     * Este teste afirmava o CONTRÁRIO até esta data: {@code assertFalse} em {@code OP1} e
+     * {@code ED2}, com a nota "comportamento HISTÓRICO preservado (E3c não altera a regra)".
+     * O comportamento histórico era o DEFEITO — {@code \bed\b} não alcança {@code ED2} porque
+     * o dígito é caractere de palavra, e {@code ED2} é música de verdade: 207 linhas no acervo.
+     *
+     * <p>A divergência que isso criava foi medida por {@code MedicaoDivergenciaPadraoMusicalIT}:
+     * <b>1.385 linhas em 1.719.242 falas</b>, onde {@code PoliticaEstiloMusical} dizia "não é
+     * música" e {@code DetectorEfeitoKaraokeService} dizia que era. Na auditoria do mesmo dia,
+     * isso produziu 364 falsos "defeitos de tradução" no Gundam Unicorn.
+     *
+     * <p>Com a convergência em {@code PadraoEstiloMusical}, a medição foi a ZERO. As 1.385
+     * linhas afetadas estão em 8 obras — Guilty Crown (633), Gundam ZZ (460), Unicorn (207),
+     * DanMachi (70), Gundam 0083 (15).
+     */
     @Test
-    @DisplayName("variações numéricas coladas NÃO são capturadas (fronteira de palavra — comportamento histórico)")
+    @DisplayName("variação numérica colada É capturada (fronteira de LETRA, desde 07/08/2026)")
     void variacoesNumericasColadas() {
-        // "OP1"/"ED2" não têm fronteira entre a letra e o dígito: a regex \bop\b/\bed\b
-        // exige token isolado. Comportamento HISTÓRICO preservado (E3c não altera a regra).
-        assertFalse(COM_LISTA.estiloIgnorado("OP1"));
-        assertFalse(COM_LISTA.estiloIgnorado("ED2"));
+        assertTrue(COM_LISTA.estiloIgnorado("OP1"),
+            "o dígito é fronteira de letra; com \\b este estilo escapava");
+        assertTrue(COM_LISTA.estiloIgnorado("ED2"),
+            "207 linhas do acervo — é a camada de ending, não diálogo");
+        assertTrue(COM_LISTA.estiloIgnorado("OP_S2"),
+            "o sublinhado é caractere de palavra e derrotava o \\b: 170 linhas");
+
+        // O que NÃO mudou: letra seguida de letra continua fora, senão "Editor" viraria música.
+        assertFalse(COM_LISTA.estiloIgnorado("Editor"));
+        assertFalse(COM_LISTA.estiloIgnorado("Opera"));
     }
 
     @Test
