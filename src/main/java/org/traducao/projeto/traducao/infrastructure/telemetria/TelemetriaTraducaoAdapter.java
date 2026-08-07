@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.core.util.ArquivoAtomicoUtil;
+import org.traducao.projeto.traducao.domain.FalaNaoTraduzida;
 import org.traducao.projeto.traducao.domain.NormalizadorNomeEpisodio;
 import org.traducao.projeto.traducao.domain.StatusArquivoTraducao;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
@@ -299,6 +300,57 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
             log.error("Telemetria da Traducao Local ilegivel e NAO foi possivel preserva-la ({}). "
                 + "Estado iniciado vazio; o arquivo original NAO sera sobrescrito ate nova escrita bem-sucedida. Causa: {}",
                 e.getMessage(), causa.getMessage());
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: grava o dataset das falas que saíram iguais à origem, uma linha
+     * JSON por fala, para que "por que esta fala está em inglês?" tenha resposta no disco.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: um arquivo por episódio, sobrescrito a cada execução — a
+     * última é a que vale, como o próprio {@code .ass}. O nome espelha o do episódio para que
+     * casar dataset e legenda seja olhar dois arquivos de mesmo nome. Escrita ATÔMICA: um
+     * dataset truncado por queda no meio mentiria sobre o que o pipeline fez.
+     *
+     * <p>Lista VAZIA é gravada assim mesmo. É informação: significa "conferi e nenhuma fala
+     * ficou para trás", que é diferente de "não conferi". Arquivo ausente e arquivo vazio não
+     * podem significar a mesma coisa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de I/O é logado e NÃO propaga — perder o dataset
+     * jamais pode custar a legenda que acabou de ser traduzida.
+     */
+    @Override
+    public void registrarFalasNaoTraduzidas(Path arquivoTraduzido, String obra,
+                                            List<FalaNaoTraduzida> falas) {
+        if (arquivoTraduzido == null || falas == null) {
+            return;
+        }
+        try {
+            // A EXTENSAO sai primeiro: o nome do parcial e "Ep_PT-BR.parcial.ass", entao tirar
+            // ".parcial$" antes de ".ass$" nunca casa e o parcial ganharia um dataset proprio —
+            // a auditoria de um arquivo parcial nao encontraria o registro dele.
+            String base = arquivoTraduzido.getFileName().toString()
+                .replaceAll("\\.(ass|srt)$", "")
+                .replaceAll("\\.parcial$", "");
+            Path destino = pasta()
+                .resolve("falas-nao-traduzidas")
+                .resolve(obra == null || obra.isBlank() ? "Desconhecido" : obra)
+                .resolve(base + ".jsonl");
+            Files.createDirectories(destino.getParent());
+
+            StringBuilder conteudo = new StringBuilder();
+            for (FalaNaoTraduzida fala : falas) {
+                conteudo.append(objectMapper.writeValueAsString(fala)).append('\n');
+            }
+
+            Path temporario = destino.resolveSibling(destino.getFileName() + ".tmp");
+            Files.writeString(temporario, conteudo.toString(), StandardCharsets.UTF_8);
+            ArquivoAtomicoUtil.substituirAtomico(temporario, destino);
+            log.debug("[TELEMETRIA] {} fala(s) nao traduzida(s) registrada(s) em {}",
+                falas.size(), destino);
+        } catch (IOException | RuntimeException e) {
+            log.warn("[TELEMETRIA] falha ao gravar o dataset de falas nao traduzidas de {}: {}",
+                arquivoTraduzido, e.toString());
         }
     }
 
