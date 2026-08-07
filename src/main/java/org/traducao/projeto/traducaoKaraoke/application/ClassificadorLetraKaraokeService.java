@@ -159,6 +159,26 @@ public class ClassificadorLetraKaraokeService {
         if (sinaisIngles > sinaisRomaji) {
             return ClasseLinhaKaraoke.TRADUZIVEL_INGLES;
         }
+        // REGRA DE PAULO (2026-08-07): "jamais mexe no japonês, só no inglês".
+        //
+        // TODA palavra silabável em Hepburn e ZERO sinal de inglês: é japonês, e o tamanho da
+        // linha não importa. Sem esta guarda, o desempate abaixo exige três palavras e a linha
+        // curta cai no `else`, que TRADUZ — ou seja, em dúvida o classificador mexia no japonês,
+        // exatamente ao contrário da regra.
+        //
+        // O prejuízo: rodado no Guilty Crown em 07/08/2026, o karaokê vem quebrado uma palavra
+        // por linha e 15 de 15 alterações foram erradas — `yasashikatta` virou "era legal" e
+        // `Kizuite` virou "Crow é o nome de palco", alucinação puxada da lore da obra. No 86,
+        // cuja letra vem em frases inteiras, foram 0 erros em 2.156 linhas.
+        //
+        // Não engole "One more time, one more chance": `one`, `more` e `time` estão em
+        // INGLES_FORTE, então sinaisIngles > 0 e a guarda não dispara.
+        boolean tudoSilabavelSemIngles =
+            totalPalavras > 0 && palavrasSilabaveis == totalPalavras && sinaisIngles == 0;
+        if (tudoSilabavelSemIngles) {
+            return ClasseLinhaKaraoke.ORIGINAL_JAPONES;
+        }
+
         // Empate (0x0 ou 1x1): "One more time, one more chance" é letra
         // original em inglês silabável; frase inglesa comum tem encontros
         // consonantais que derrubam a fração.
