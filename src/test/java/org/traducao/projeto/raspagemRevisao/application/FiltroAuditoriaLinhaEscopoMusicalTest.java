@@ -103,7 +103,28 @@ class FiltroAuditoriaLinhaEscopoMusicalTest {
     }
 
     /**
-     * RESÍDUO CONHECIDO, medido e deliberadamente NÃO fechado aqui.
+     * RESÍDUO FECHADO em 07/08/2026, com autorização de Paulo. O texto abaixo é o registro do
+     * que ele era e por que a decisão anterior de adiar foi revisitada — não o apague.
+     *
+     * <h2>O que mudou</h2>
+     * A pergunta "este estilo declara música?" passou a ter dono único
+     * ({@code legenda.domain.PadraoEstiloMusical}), com fronteira de LETRA em vez de {@code \b}.
+     * A divergência entre os dois donos anteriores estava medida em <b>1.385 linhas de
+     * 1.719.242 falas</b> ({@code MedicaoDivergenciaPadraoMusicalIT}) e foi a ZERO.
+     *
+     * <p>Este teste caiu quando a convergência entrou — <b>funcionando exatamente como o
+     * Javadoc abaixo previa</b>: "se a fase de karaokê alargar o padrão, o teste cai e obriga a
+     * revisitar a caracterização". A implementação foi PARADA, o efeito medido e a decisão
+     * devolvida a Paulo, que autorizou fechar agora.
+     *
+     * <p>Impacto medido no acervo: <b>1.385 linhas em 8 obras</b> — Guilty Crown 633,
+     * Gundam ZZ 460, Unicorn 207, DanMachi 70, Gundam 0083 15. Maior que as 494 previstas,
+     * porque a convergência traz também {@code Other songs}, {@code insertita} e as camadas
+     * {@code _roma}.
+     *
+     * <hr>
+     *
+     * <p>REGISTRO DO QUE ERA — resíduo conhecido, medido e deliberadamente NÃO fechado até 07/08:
      *
      * <p>Este filtro decide por {@code PoliticaEstiloMusical.estiloIgnorado}, cuja regex usa
      * {@code \b}. Sublinhado e dígito são caracteres de palavra, então {@code \bed\b} não alcança
@@ -126,11 +147,11 @@ class FiltroAuditoriaLinhaEscopoMusicalTest {
      * se a fase de karaokê alargar o padrão, o teste cai e obriga a revisitar a caracterização.
      */
     @Test
-    @DisplayName("resíduo conhecido: camadas em inglês com sublinhado/dígito ainda entram")
+    @DisplayName("o residuo da fronteira \\b foi FECHADO em 07/08/2026")
     void residuoConhecidoDaFronteiraComBarraB() {
         for (String estilo : new String[] {"ED_S2", "OP_S2", "OP2", "ED2-English", "ED_English"}) {
-            assertFalse(filtro.deveIgnorar(evento(estilo, LETRA_EN), LETRA_EN),
-                "o resíduo mudou de tamanho — reveja a caracterização da fase de karaokê: " + estilo);
+            assertTrue(filtro.deveIgnorar(evento(estilo, LETRA_EN), LETRA_EN),
+                "camada em inglês do karaokê voltou a entrar na revisão: " + estilo);
         }
     }
 }
