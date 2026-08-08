@@ -84,9 +84,19 @@ public final class FaxinaLogExecucao {
     /**
      * Nome que a faxina reconhece como seu. Ancorado nas duas pontas: um
      * {@code relatorio-kronos-2026.log.bak} largado na pasta NÃO casa e sobrevive.
+     *
+     * <p>Cobre as DUAS formas que o projeto produz, e isso não é acidente:
+     * <ul>
+     *   <li>{@code kronos.log} e {@code kronos.log.2026-08-08-10-52-15} — a forma ATUAL, criada
+     *       pela rotação por boot com sufixo de data ({@code application.yml});</li>
+     *   <li>{@code kronos-20260808-093226.log} — a forma da primeira tentativa, que punha o
+     *       carimbo no nome. Ela falhou (o path é resolvido em build time), mas os arquivos que
+     *       ela chegou a criar existem em disco. Deixar de reconhecê-los os tornaria IMORTAIS,
+     *       e o disco encheria por causa da correção — exatamente o oposto do pedido.</li>
+     * </ul>
      */
     private static final Pattern NOME_DE_LOG_DE_EXECUCAO =
-        Pattern.compile("^kronos-[0-9A-Za-z_.\\-]+\\.log$");
+        Pattern.compile("^kronos(-[0-9A-Za-z_.\\-]+)?\\.log(\\.[0-9]{1,4}(-[0-9]{2}){0,5})?$");
 
     private FaxinaLogExecucao() {
     }
