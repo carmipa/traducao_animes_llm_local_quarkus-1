@@ -182,6 +182,52 @@ class FaxinaLogExecucaoTest {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a faxina precisa reconhecer o nome que a ROTAÇÃO POR BOOT produz —
+     * {@code kronos.log.2026-08-08-10-52-15} —, senão os arquivos de execuções antigas viram
+     * imortais e o disco enche por causa da própria correção que existia para esvaziá-lo.
+     *
+     * <p>Cobre também a forma da primeira tentativa ({@code kronos-<carimbo>.log}), que falhou
+     * mas deixou arquivos reais em disco.
+     */
+    @Test
+    @DisplayName("reconhece as DUAS formas de nome que o projeto ja produziu")
+    void reconheceAsDuasFormasDeNome(@TempDir Path raiz) throws IOException {
+        Path pasta = pastaExecucoes(raiz);
+        Path rotacionado = logComIdade(pasta, "kronos.log.2026-07-01-08-30-00", 30);
+        Path comCarimbo = logComIdade(pasta, "kronos-20260701-083000.log", 30);
+        Path atual = logComIdade(pasta, "kronos.log", 0);
+
+        FaxinaLogExecucao.Resultado r = FaxinaLogExecucao.limpar(raiz, SETE_DIAS, atual);
+
+        assertFalse(Files.exists(rotacionado), "log rotativo por boot tem de ser reconhecido");
+        assertFalse(Files.exists(comCarimbo), "log da forma antiga tambem — senao vive para sempre");
+        assertTrue(Files.exists(atual), "o log da execucao atual continua protegido (LOG-3)");
+        assertEquals(2, r.removidos());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: alargar o padrão de nome não pode abrir a porta para o que não é
+     * nosso. Este teste anda junto com o de cima: um alarga, o outro segura.
+     */
+    @Test
+    @DisplayName("o padrao alargado NAO passou a aceitar arquivo alheio")
+    void padraoAlargadoNaoAceitaAlheio(@TempDir Path raiz) throws IOException {
+        Path pasta = pastaExecucoes(raiz);
+        Path[] intrusos = {
+            logComIdade(pasta, "tradutor.log", 400),
+            logComIdade(pasta, "console-web.log", 400),
+            logComIdade(pasta, "claude-run.log", 400),
+            logComIdade(pasta, "backup-kronos.log", 400),
+            logComIdade(pasta, "kronos.txt", 400)
+        };
+        FaxinaLogExecucao.Resultado r = FaxinaLogExecucao.limpar(raiz, SETE_DIAS, null);
+        for (Path i : intrusos) {
+            assertTrue(Files.exists(i), "padrao alargado engoliu arquivo alheio: " + i.getFileName());
+        }
+        assertEquals(0, r.removidos());
+    }
+
     @Test
     @DisplayName("bytes liberados sao contabilizados")
     void contabilizaBytes(@TempDir Path raiz) throws IOException {

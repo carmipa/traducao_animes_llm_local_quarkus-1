@@ -19,30 +19,38 @@ app:
 quarkus:
   log:
     file:
-      # 'enable' NAO entra aqui: o Quarkus 3.37 o marca como DEPRECIADO e avisa no boot
-      # ("The quarkus.log.file.enable config property is deprecated"). Definir o path ja
-      # liga o handler. Este bloco substitui o que vivia em application.properties
-      # apontando para o arquivo unico logs/tradutor.log.
+      # 'enable' PRECISA estar aqui. O Quarkus 3.37 avisa que a chave e DEPRECIADA, e em
+      # 08/08/2026 eu li isso como "desnecessaria" e a removi — resultado: o handler NAO
+      # subiu e a aplicacao ficou 50 minutos sem gravar log nenhum, silenciosamente.
+      # Depreciada != opcional. Fica, com o warning, ate haver substituta documentada.
+      enable: true
+
+      # CARIMBO DA EXECUCAO NO NOME. O build.gradle gera -Dkronos.log.execucao a cada
+      # lancamento; sem ele (jar solto, IDE) cai em "manual", que a faxina tambem reconhece.
+      #
+      # DUAS TENTATIVAS ERRADAS antes desta, ambas medidas em 08/08/2026 — ficam escritas
+      # porque a proxima pessoa vai considerar as duas:
+      #
+      #   1. Tirar 'enable' porque o Quarkus avisa que esta DEPRECIADO. Depreciado NAO e
+      #      opcional: sem ele o handler nao sobe e a aplicacao fica sem log em arquivo,
+      #      em silencio. Foram 50 minutos assim antes de alguem olhar o disco.
+      #
+      #   2. Trocar por 'file-suffix: .yyyy-MM-dd-HH-mm-ss' com rotate-on-boot, para nao
+      #      depender de interpolacao. NAO COMPILA em runtime: o sufixo faz o Quarkus usar
+      #      PeriodicRotatingFileHandler, que exige um PERIODO valido de rotacao, e segundos
+      #      nao sao periodo — IllegalArgumentException em PeriodicRotatingFileHandler:183,
+      #      e a aplicacao nao sobe. Se voltar a este caminho, a granularidade minima e o dia
+      #      (.yyyy-MM-dd), o que daria um arquivo por DIA, nao por execucao.
       path: "logs/execucoes/kronos-${kronos.log.execucao:manual}.log"
       format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{2.}] (%t) %s%e%n"
       level: DEBUG
-      # Teto por arquivo: uma execucao de 10h ja produziu 26 MB medidos em 07/08.
-      # Passando disso, rotaciona em .1/.2 — o disco nao depende do bom humor do dia.
-      #
-      # A rotacao por TAMANHO nao substitui o nome por execucao: era justamente ela que
-      # falhava no Windows quando duas instancias disputavam logs/tradutor.log
-      # ("O arquivo ja esta sendo usado por outro processo", no boot). Com nome unico por
-      # run, o conflito nao acontece; a rotacao passa a ser so o teto de uma run longa.
       rotation:
+        # Teto por arquivo: uma execucao de 10h ja produziu 26 MB medidos em 07/08.
         max-file-size: 50M
         max-backup-index: 3
-        # NAO rotacionar no boot. O padrao do Quarkus e rotacionar toda vez que o handler
-        # sobe — e em quarkusDev cada HOT RELOAD sobe o handler de novo. Medido em
-        # 08/08/2026: uma unica execucao ja tinha kronos-<carimbo>.log e .log.1 depois de
-        # duas recompilacoes, fragmentando o log DA MESMA run. Isso e o contrario do
-        # pedido ("separado por vezes que o sistema foi executado"): quem separa execucao
-        # aqui e o CARIMBO no nome, nao a rotacao. A rotacao fica sendo so o teto de
-        # tamanho de uma run longa.
+        # NAO rotacionar no boot: quem separa execucao aqui e o CARIMBO no nome. Ligado, o
+        # hot reload do quarkusDev fragmentaria o log DA MESMA run (medido: .log e .log.1
+        # depois de duas recompilacoes).
         rotate-on-boot: false
 
 kronos:
@@ -71,10 +79,17 @@ kronos:
   quarkus:
     log:
       file:
-        # Path para a arvore descartavel da suite, em vez de 'enable: false' (depreciado).
-        # build/ ja e ignorado pelo git e some no clean — se algum @QuarkusTest escrever
-        # log, escreve la, nunca em logs/ de producao.
-        path: "build/tmp/kronos-tests/logs/suite.log"
+        # Path da suite FORA de build/tmp/kronos-tests/logs.
+        #
+        # Aquela pasta e a raiz operacional dos testes (kronos.dir.base), e o
+        # ConsolidadorTelemetriaPorFatia VARRE logs/ dentro dela. Pondo o log da suite ali,
+        # ele virou um arquivo a mais no caminho da telemetria e derrubou 10 testes de
+        # consolidacao de uma vez — medido em 08/08/2026, e exatamente o "cuidado para nao
+        # quebrar a telemetria" que Paulo tinha pedido.
+        #
+        # build/tmp/kronos-log-suite/ nao e varrido por ninguem, continua dentro de build/
+        # (gitignorado, some no clean) e nunca toca logs/ de producao.
+        path: "build/tmp/kronos-log-suite/suite.log"
   kronos:
     log:
       retencao-dias: 0
