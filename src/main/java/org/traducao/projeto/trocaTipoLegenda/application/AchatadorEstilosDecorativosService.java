@@ -63,7 +63,16 @@ public class AchatadorEstilosDecorativosService {
 
     private static final String ESTILO_BASE_PREFERIDO = "Default";
 
-    /** Um ou mais blocos de override ASS colados no começo da fala. */
+    /**
+     * Um ou mais blocos de override ASS colados no começo da fala.
+     *
+     * <p>DUPLICAÇÃO DECLARADA: {@code traducao.domain.TextoSemTags.BORDA_INICIO} tem esta mesma
+     * regex desde 07/08/2026. Não foram unificadas de propósito — unificar criaria aresta entre
+     * {@code trocaTipoLegenda} e {@code traducao}, e o projeto prefere duplicação consciente a
+     * acoplamento. As intenções são OPOSTAS e podem evoluir separadas: aqui o bloco líder é
+     * DESCARTADO (é a frescura visual que esta fase existe para remover); lá ele é PRESERVADO,
+     * para vestir de volta a tradução que voltou do LLM sem tag nenhuma.
+     */
     private static final Pattern OVERRIDE_LIDER = Pattern.compile("^(?:\\{[^}]*\\})+");
 
     private final AuditoriaFontesService auditoriaFontes;
