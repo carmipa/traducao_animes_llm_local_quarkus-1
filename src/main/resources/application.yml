@@ -1,6 +1,65 @@
 app:
   modo: WEB
 
+# LOG EM ARQUIVO, UM POR EXECUCAO (pedido de Paulo, 08/08/2026)
+#
+# O motivo do "um por execucao" nao e espaco, e AUDITORIA: log de execucoes
+# misturadas responde errado. Esta registrado no projeto que auditar uma feature
+# pelo tradutor.log deu 3 resultados errados no MESMO dia. Com um arquivo por run,
+# "o que aconteceu naquela execucao?" volta a ser respondivel.
+#
+# O carimbo vem de -Dkronos.log.execucao, que o build.gradle gera no lancamento.
+# Sem ele (jar solto, IDE), o nome cai em "manual" — que continua sendo um nome
+# que a faxina reconhece, entao nem esse caso vira arquivo imortal.
+#
+# A faxina que apaga os vencidos e core.io.FaxinaLogExecucao, disparada no boot.
+# Ela NAO le este caminho de proposito: tem pasta propria e fixa. Se lesse, apontar
+# o log para uma pasta com outras coisas faria a faxina apagar essas outras coisas
+# — a revisao de erro de boa-fe (regra 15) esta no Javadoc dela.
+quarkus:
+  log:
+    file:
+      enable: true
+      path: "logs/execucoes/kronos-${kronos.log.execucao:manual}.log"
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{2.}] (%t) %s%e%n"
+      level: INFO
+      # Teto por arquivo: uma execucao de 10h ja produziu 26 MB medidos em 07/08.
+      # Passando disso, rotaciona em .1/.2 — o disco nao depende do bom humor do dia.
+      rotation:
+        max-file-size: 50M
+        max-backup-index: 3
+
+kronos:
+  log:
+    # Retencao pedida por Paulo. Zero ou negativo DESLIGA a faxina (nao apaga nada):
+    # desligar jamais pode virar apagar tudo.
+    retencao-dias: 7
+
+# PERFIL DE TESTE: nem log em arquivo, nem faxina.
+#
+# Fica AQUI, e nao em src/test/resources/application.properties, porque aquele arquivo NAO
+# venceu este — medido em 08/08/2026: mesmo com ele presente, a suite recriou
+# logs/execucoes/kronos-manual.log (111 KB, 09:35:40-09:36:19) na arvore operacional REAL.
+# Os 18 testes @QuarkusTest sobem o Quarkus de verdade e o empate de ordinal entre
+# application.yml (main) e application.properties (test) nao resolveu a favor do segundo.
+# O prefixo "%test" e o mecanismo oficial de perfil e tem precedencia garantida.
+#
+# Por que importa: DiretorioBaseKronos redireciona cache/, logs/, relatorios/ e backups/ para
+# build/tmp/kronos-tests, mas quarkus.log.file.path e resolvido pelo Quarkus e NAO passa por
+# aquele ponto unico — escapava da sandbox. E, pior, escrevia tudo no mesmo "manual", que e
+# justamente a mistura de execucoes que o log por execucao existe para acabar.
+#
+# A faxina fica em zero na suite porque ja tem cobertura propria com @TempDir; ativa aqui,
+# seria dar a um teste a chance de apagar arquivo de verdade.
+"%test":
+  quarkus:
+    log:
+      file:
+        enable: false
+  kronos:
+    log:
+      retencao-dias: 0
+
 # Raizes que o navegador de pastas da interface pode listar (botoes "Procurar...").
 # Substitui o dialogo nativo do Windows, que so funcionava com servidor e usuario
 # na MESMA maquina — dentro de um conteiner Linux nao ha powershell nem display.
