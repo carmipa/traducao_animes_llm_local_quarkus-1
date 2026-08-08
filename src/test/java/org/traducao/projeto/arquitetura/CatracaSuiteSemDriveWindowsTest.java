@@ -44,7 +44,13 @@ class CatracaSuiteSemDriveWindowsTest {
         // reprovando um arquivo que ainda nao existia quando ela foi escrita. Mesma natureza
         // dos tres acima: le o acervo real e "C:\animes" e DEFAULT de propriedade de sistema
         // (-Dkronos.acervo), nao caminho de fixture.
-        "MedicaoDivergenciaPadraoMusicalIT.java"
+        "MedicaoDivergenciaPadraoMusicalIT.java",
+        // Entrou em 07/08/2026 pelo mesmo caminho do anterior: a catraca o pegou no primeiro
+        // `gradlew test` e a exceção é NOMINAL, não uma frouxidão de padrão — mede quantas linhas
+        // curtas de música o classificador ainda manda traduzir, lendo o acervo real, e
+        // "C:\animes" é o default de -Dkronos.acervo. Trocar por caminho relativo faria o harness
+        // medir o vazio e reportar "nenhum furo" com a mesma cara de "furo nenhum encontrado".
+        "MedicaoLinhaCurtaKaraokeIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

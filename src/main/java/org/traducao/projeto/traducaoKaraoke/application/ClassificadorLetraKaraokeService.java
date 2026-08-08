@@ -171,8 +171,17 @@ public class ClassificadorLetraKaraokeService {
         // `Kizuite` virou "Crow é o nome de palco", alucinação puxada da lore da obra. No 86,
         // cuja letra vem em frases inteiras, foram 0 erros em 2.156 linhas.
         //
-        // Não engole "One more time, one more chance": `one`, `more` e `time` estão em
-        // INGLES_FORTE, então sinaisIngles > 0 e a guarda não dispara.
+        // CUSTO MEDIDO (MedicaoLinhaCurtaKaraokeIT, 07/08/2026, 1.658 entradas do cache de
+        // karaokê já traduzidas): 5 textos distintos deixam de ser traduzidos por causa desta
+        // guarda. QUATRO são acerto — `yasashikatta`, `Kizuite`, `Hanasanaide` (romaji) e o `to`
+        // que o LLM havia "traduzido" como uma fala inteira da Lena. UM é perda real: `One,`
+        // sozinho numa linha, que virava "Um" e agora fica em inglês. Palavra inglesa curta e
+        // silabável (one, take, shine, name) cai aqui, e Paulo aceitou explicitamente esse preço
+        // em 07/08/2026 — "ainda que ganhemos partes do karaokê japonês em inglês".
+        //
+        // NÃO confundir com "One more time, one more chance", que é preservado pelo desempate
+        // por fração logo abaixo (3+ palavras, todas silabáveis) e já era antes desta guarda:
+        // nenhuma dessas palavras está em INGLES_FORTE — os dois caminhos levam ao mesmo lugar.
         boolean tudoSilabavelSemIngles =
             totalPalavras > 0 && palavrasSilabaveis == totalPalavras && sinaisIngles == 0;
         if (tudoSilabavelSemIngles) {
