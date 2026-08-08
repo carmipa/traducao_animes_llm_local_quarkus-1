@@ -24,6 +24,7 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.TraducaoKaraokeException;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;
@@ -366,6 +367,16 @@ public class TraduzirKaraokeUseCase {
      * registra um aviso — nunca propaga para derrubar o arquivo.
      */
     private String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote) {
+        // Karaokê pintado LETRA A LETRA: o mascarador comum produziria uma dezena de [[TAGn]]
+        // intercalados e o LLM não os devolve na ordem — medido no Guilty Crown em 07/08/2026,
+        // 28 das 31 recusas de uma execução foram exatamente isso, e a única que passou saiu
+        // como "So, eu e evidentementereithyingthathingthatmakes mea whole wholed".
+        // Aqui a linha é decomposta em paleta + texto: o LLM recebe a frase limpa e as MESMAS
+        // cores voltam distribuídas sobre a tradução. Ver GradienteKaraoke.
+        Optional<GradienteKaraoke> gradiente = GradienteKaraoke.decompor(original);
+        if (gradiente.isPresent()) {
+            return traduzirGradiente(gradiente.get(), avisos, sequencialLote);
+        }
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
         TraducaoLote resposta;
         try {
@@ -392,6 +403,53 @@ public class TraduzirKaraokeUseCase {
                 + visivelResumido(original));
             return null;
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: traduz uma linha de karaokê com gradiente de cor por letra, enviando
+     * ao LLM apenas o texto que o espectador lê e devolvendo a tradução vestida com as MESMAS
+     * cores — o efeito visual do fansub sobrevive à tradução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto enviado ao LLM não tem nenhuma tag ASS, portanto não há
+     * marcador para o modelo perder; a paleta é reposicionada, nunca alterada. A validação de
+     * alucinação roda sobre o TEXTO PURO, antes de recompor — validar depois faria as tags de cor
+     * dispararem o detector de resíduo, que foi o outro motivo de recusa observado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de comunicação, resposta inválida ou alucinação
+     * devolvem {@code null} e a linha permanece no idioma original, com aviso — exatamente como no
+     * caminho comum. Nunca devolve linha meio montada.
+     */
+    private String traduzirGradiente(GradienteKaraoke gradiente, List<String> avisos,
+                                     AtomicInteger sequencialLote) {
+        TraducaoLote resposta;
+        try {
+            resposta = llmPort.traduzir(
+                new Lote(sequencialLote.incrementAndGet(), List.of(gradiente.textoVisivel())));
+        } catch (Exception e) {
+            avisos.add("Falha de comunicação com o LLM; letra mantida: " + gradiente.textoVisivel());
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha de karaokê (mantida): "
+                + e.getMessage());
+            return null;
+        }
+        if (resposta == null || !resposta.sucesso()
+            || resposta.linhasTraduzidas() == null || resposta.linhasTraduzidas().isEmpty()) {
+            avisos.add("LLM não retornou tradução; letra mantida: " + gradiente.textoVisivel());
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — letra mantida.");
+            return null;
+        }
+        String traduzido = resposta.linhasTraduzidas().getFirst();
+        try {
+            validador.validarFala(traduzido);
+        } catch (AlucinacaoDetectadaException e) {
+            telemetriaService.registrarAlucinacaoPrevenida();
+            avisos.add("Alucinação detectada (" + e.getMessage() + "); letra mantida: "
+                + gradiente.textoVisivel());
+            logStream.publicarLog(CANAL_LOG,
+                "   [AVISO] Alucinação interceptada na letra — mantida sem tradução: "
+                    + gradiente.textoVisivel());
+            return null;
+        }
+        return gradiente.recompor(traduzido);
     }
 
     /**

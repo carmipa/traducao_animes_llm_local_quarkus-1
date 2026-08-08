@@ -1290,11 +1290,23 @@ async function temDialogoNativo() {
     if (dialogoNativoDisponivel !== null) return dialogoNativoDisponivel;
     try {
         const res = await fetch('/api/dialogo/capacidade');
-        dialogoNativoDisponivel = res.ok ? Boolean((await res.json()).nativo) : false;
+        if (!res.ok) {
+            // NAO memoriza: 404/503 durante o recompile do quarkusDev e transitorio.
+            return false;
+        }
+        dialogoNativoDisponivel = Boolean((await res.json()).nativo);
     } catch (err) {
-        // Falha fechada: na dúvida, usa o navegador servido pelo servidor, que
-        // funciona em qualquer lugar.
-        dialogoNativoDisponivel = false;
+        // Falha fechada NESTE clique, mas NAO memorizada — a resposta continua
+        // sendo o navegador do servidor agora, e a proxima tentativa pergunta de novo.
+        //
+        // O BUG que isto corrige (Paulo, 07/08/2026: "esse modelo atual e horrivel"):
+        // antes, uma unica falha de rede gravava `false` na variavel e TODO clique da
+        // aba passava a abrir o modal, mesmo com o servidor respondendo {"nativo":true}
+        // — so um F5 desfazia. Em quarkusDev isso acontece o tempo todo, porque cada
+        // recompilacao derruba o endpoint por instantes. Memorizar indisponibilidade
+        // transitoria como permanente e o mesmo defeito da regra 13: estado anotado na
+        // execucao em vez de perguntado quando importa.
+        return false;
     }
     return dialogoNativoDisponivel;
 }
