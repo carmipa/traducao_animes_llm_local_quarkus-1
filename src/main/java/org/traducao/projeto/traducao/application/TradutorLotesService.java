@@ -8,6 +8,7 @@ import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.traducao.domain.SaneadorEnfaseDegenerada;
 import org.traducao.projeto.traducao.domain.TextoSemTags;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
@@ -422,12 +423,21 @@ public class TradutorLotesService {
             if (traduzidoMascarado == null) {
                 continue;
             }
+            // SANEAMENTO DE SAÍDA, aplicado aos TRÊS caminhos abaixo. Fica aqui, e não dentro de
+            // um deles, porque o defeito nasce onde ninguém olhava: a tag {\i1}…{\i0} marca UMA
+            // palavra do inglês, em português ela muda de lugar, e o modelo devolve os marcadores
+            // fora de posição. Nenhuma guarda pegava — os marcadores ESTÃO todos lá, o
+            // desmascaramento é bem-sucedido, e a fala passa por íntegra com a ênfase em volta do
+            // vazio. Achado por revisão adversarial em 08/08/2026; medido no acervo (305
+            // arquivos): 16 ênfases vazias e 73 espaços órfãos, e o defeito é ANTERIOR a qualquer
+            // mudança desta data — sai idêntico na tradução antiga e na nova.
             // MOLDURA SEPARADA: a fala viajou sem tag alguma, então não há marcador a casar —
             // veste-se a tradução com o prefixo/sufixo da PRÓPRIA fala. Falha fechada mora no
             // recompor: resposta inútil devolve o original intacto.
             TextoSemTags semTags = semTagsPorOriginal.get(original);
             if (semTags != null) {
-                traducoes.put(original, semTags.recompor(traduzidoMascarado));
+                traducoes.put(original,
+                    SaneadorEnfaseDegenerada.sanear(semTags.recompor(traduzidoMascarado)));
                 continue;
             }
             // CAMADA SÓ-PREFIXO com representante de OUTRA estrutura de tags: aqui desmascarar
@@ -435,12 +445,12 @@ public class TradutorLotesService {
             // A reaplicação correta é literal: prefixo próprio + tradução visível.
             String reaplicado = reaplicarPorPrefixo(original, rep, traduzidoMascarado, tagsPorTexto);
             if (reaplicado != null) {
-                traducoes.put(original, reaplicado);
+                traducoes.put(original, SaneadorEnfaseDegenerada.sanear(reaplicado));
                 continue;
             }
-            traducoes.put(original, desmascararComFallback(
+            traducoes.put(original, SaneadorEnfaseDegenerada.sanear(desmascararComFallback(
                 original, traduzidoMascarado, tagsPorTexto.get(original),
-                quebrasPorOriginal.getOrDefault(original, 0), avisos));
+                quebrasPorOriginal.getOrDefault(original, 0), avisos)));
         }
         return traducoes;
     }
