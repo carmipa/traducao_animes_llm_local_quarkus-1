@@ -1763,3 +1763,143 @@
 [45079123ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
 [45079186ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
 [45079187ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[47224812ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[47228715ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[47228715ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[47233715ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[47233801ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[47233801ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[47394906ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[47394906ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[47399910ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[47399970ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[47399970ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[47445787ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://127.0.0.1:8099/api/status:0
+[47445792ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[47445793ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[47450798ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[47450916ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[47450917ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[47549319ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[47562112ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[47563676ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[47563676ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[47568679ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[47568767ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[47568768ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[47685004ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[47689291ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[47689292ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[47694294ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[47694306ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[47694307ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48022114ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48024820ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48024821ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48029822ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48029832ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48029832ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48067601ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48081710ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48081711ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48086715ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48086725ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48086725ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48136951ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48136953ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48141953ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48141965ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48141965ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48169467ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48182109ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48184065ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48184066ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48189069ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48189169ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48189170ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48249979ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48249979ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48254983ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48255064ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48255064ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48271151ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48282112ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48287199ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48287200ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48292206ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48292331ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48292332ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48320737ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48324821ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48336312ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48336313ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48341320ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48341449ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48341450ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48399754ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48404854ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48413267ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48423329ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48427316ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48427316ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48432321ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48432718ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48432718ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48464975ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48467768ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48482123ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48482748ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48487336ms] [WARNING] Silêncio prolongado no stream SSE (sem heartbeat) — reconectando. @ http://127.0.0.1:8099/js/app.js:393
+[48487337ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48490334ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/logs/stream:0
+[48490334ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48495337ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48495351ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/logs/stream:0
+[48495351ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48500352ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48500372ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48500372ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48531915ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/status:0
+[48542117ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8099/api/llm/status:0
+[48547339ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48547340ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48552345ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48552436ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48552437ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48902830ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://127.0.0.1:8099/api/llm/status:0
+[48902831ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48902832ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48907836ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48907926ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48907927ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48936171ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48936171ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48941175ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48941259ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48941259ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[48989842ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[48989843ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[48994843ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[48997527ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[48997528ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[49022841ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://127.0.0.1:8099/api/llm/status:0
+[49022842ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[49022842ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[49027843ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[49027858ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[49027858ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[49177228ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[49177229ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[49182237ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[49182252ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[49182253ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[49201536ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[49201537ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[49206541ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[49206549ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[49206550ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
+[49295246ms] [WARNING] Erro na conexão de stream SSE, tentando reconectar em 5s... Event @ http://127.0.0.1:8099/js/app.js:362
+[49295247ms] [ERROR] Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING @ http://127.0.0.1:8099/api/logs/stream:0
+[49300254ms] [LOG] Iniciando escuta de Server-Sent Events (SSE) para logs... @ http://127.0.0.1:8099/js/app.js:293
+[49300269ms] [LOG] SSE: execução nova do servidor detectada — consoles limpos. @ http://127.0.0.1:8099/js/app.js:437
+[49300269ms] [LOG] SSE Sistema: Conexao de fluxo de logs estabelecida. @ http://127.0.0.1:8099/js/app.js:358
