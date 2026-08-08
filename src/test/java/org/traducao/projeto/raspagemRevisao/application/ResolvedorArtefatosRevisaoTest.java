@@ -41,6 +41,87 @@ class ResolvedorArtefatosRevisaoTest {
     @TempDir
     Path temp;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o defeito REAL de 08/08/2026, reproduzido com os nomes exatos do log de
+     * produção. O Gundam 0083 carregou o cache do Gundam ZZ porque ambos têm um episódio
+     * {@code S01E02} — e, como a proveniência do cache tem precedência sobre a seleção manual, a
+     * LORE ativa virou a da obra errada.
+     *
+     * <pre>
+     *   Analisando: ...0083 - Stardust Memory - S01E02_5_Track3_PT-BR.ass
+     *   Cache carregado: Mobile.Suit.Gundam.ZZ.S01E02_ENG.cache.json   (289 entradas)
+     *   [CONTEXTO] Seleção manual "gundam_0083" ignorada: a proveniência exige "gundam_zz"
+     * </pre>
+     *
+     * <p>Se este teste voltar a passar como {@code true}, a revisão volta a poder comparar uma obra
+     * com o original de outra — e a injetar terminologia alheia na legenda publicada.
+     */
+    @Test
+    @DisplayName("BUG 08/08: cache de OUTRA obra com o mesmo episodio NAO casa")
+    void cacheDeOutraObraComMesmoEpisodioNaoCasa() {
+        String baseMidia0083 = "Mobile Suit Gundam 0083 - Stardust Memory - S01E02_5";
+
+        assertFalse(ResolvedorArtefatosRevisao.correspondeCache(
+                "Mobile.Suit.Gundam.ZZ.S01E02_ENG.cache.json", baseMidia0083, "S01E02"),
+            "cache do Double Zeta NAO pode casar com arquivo do Stardust Memory");
+
+        for (String alheio : new String[]{
+            "Mobile.Suit.Gundam.ZZ.S01E04_ENG.cache.json",
+            "Mobile Suit Gundam Unicorn - S01E02_ENG.cache.json",
+            "Mobile.Suit.Gundam.The.08th.MS.Team.S01E02_ENG.cache.json"}) {
+            assertFalse(ResolvedorArtefatosRevisao.correspondeCache(alheio, baseMidia0083, "S01E02"),
+                "casou com obra alheia: " + alheio);
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CONTRA-TESTE — a correção não pode cegar o casamento legítimo. O
+     * fallback por episódio existe porque nem toda obra nomeia o cache pela mídia, e ele continua
+     * valendo DENTRO da mesma obra.
+     */
+    @Test
+    @DisplayName("cache da MESMA obra continua casando pelo episodio")
+    void cacheDaMesmaObraContinuaCasando() {
+        String baseMidia = "Mobile Suit Gundam 0083 - Stardust Memory - S01E02";
+
+        assertTrue(ResolvedorArtefatosRevisao.correspondeCache(
+                "Mobile Suit Gundam 0083 - Stardust Memory - S01E02_PTBR_Track3_ENG.cache.json",
+                baseMidia, "S01E02"),
+            "cache da PROPRIA obra tem de casar — senao a fala fica sem referencia");
+
+        assertTrue(ResolvedorArtefatosRevisao.correspondeCache(
+                "Stardust.Memory.S01E02_ENG.cache.json", baseMidia, "S01E02"),
+            "nome abreviado da mesma obra ainda compartilha o token 'stardust'");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as palavras de franquia não podem servir de prova de identidade — se
+     * {@code mobile}, {@code suit} e {@code gundam} contassem, 0083, ZZ, Unicorn e 08th seriam
+     * todos "a mesma obra" e o defeito voltaria por outra porta.
+     */
+    @Test
+    @DisplayName("palavra de franquia nao identifica obra")
+    void palavraDeFranquiaNaoIdentificaObra() {
+        assertFalse(ResolvedorArtefatosRevisao.mesmaObra(
+                "Mobile.Suit.Gundam.ZZ.S01E02_ENG", "Mobile Suit Gundam 0083 - Stardust Memory - S01E02"),
+            "'Mobile Suit Gundam' em comum NAO torna ZZ e 0083 a mesma obra");
+        assertTrue(ResolvedorArtefatosRevisao.mesmaObra(
+                "Mobile.Suit.Gundam.ZZ.S01E07_ENG", "Mobile Suit Gundam ZZ - S01E07"),
+            "'zz' e token distintivo e tem de casar");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: falha fechada. Nome sem nenhum token distintivo não prova identidade de
+     * obra nenhuma — e o viés, num pareamento que alimenta revisão de lore, é RECUSAR.
+     */
+    @Test
+    @DisplayName("FALHA FECHADA: nome generico nao casa com obra alguma")
+    void nomeGenericoNaoCasa() {
+        assertFalse(ResolvedorArtefatosRevisao.mesmaObra("S01E02_ENG", "Mobile Suit Gundam 0083 - S01E02"));
+        assertFalse(ResolvedorArtefatosRevisao.mesmaObra("", "qualquer"));
+        assertFalse(ResolvedorArtefatosRevisao.mesmaObra(null, "qualquer"));
+    }
+
     private final ResolvedorArtefatosRevisao resolvedor = new ResolvedorArtefatosRevisao();
 
     // ---------- normalização de nomes ----------
@@ -104,12 +185,27 @@ class ResolvedorArtefatosRevisaoTest {
             "base e mídia iguais colapsam de 4 para 2 candidatos, sem duplicata");
     }
 
+    /**
+     * ATUALIZADO em 08/08/2026. A asserção do meio afirmava que
+     * {@code correspondeCache("qualquer_S01E01_ENG.cache.json", "outra", "S01E01")} era
+     * {@code true} — obras DIFERENTES casando só pelo código do episódio. Ela documentava o
+     * comportamento que causou o incidente do Gundam 0083 carregando cache do Gundam ZZ (ver
+     * {@link #cacheDeOutraObraComMesmoEpisodioNaoCasa()}), e por isso foi INVERTIDA, não removida:
+     * o caso continua no teste, agora exigindo recusa.
+     *
+     * <p>Isto não é afrouxar a régua — é o contrário. O segundo caminho (código + {@code _ENG})
+     * segue existindo para quem nomeia o cache de outro jeito, mas passou a exigir também
+     * afinidade de obra.
+     */
     @Test
-    @DisplayName("correspondeCache exige extensão de cache e casa por base ou por código+_ENG")
+    @DisplayName("correspondeCache exige extensão, e o código de episódio só vale na MESMA obra")
     void correspondencia() {
         assertTrue(ResolvedorArtefatosRevisao.correspondeCache("ep01_ENG.cache.json", "ep01", "S01E01"));
-        assertTrue(ResolvedorArtefatosRevisao.correspondeCache("qualquer_S01E01_ENG.cache.json", "outra", "S01E01"),
-            "nem toda obra nomeia o cache pela mídia; o código de episódio é o segundo caminho");
+        assertFalse(ResolvedorArtefatosRevisao.correspondeCache("qualquer_S01E01_ENG.cache.json", "outra", "S01E01"),
+            "INVERTIDO em 08/08/2026: episodio igual em obra diferente NAO casa — foi assim que o "
+                + "0083 carregou o cache do ZZ e revisou com a lore errada");
+        assertTrue(ResolvedorArtefatosRevisao.correspondeCache("stardust_S01E01_ENG.cache.json", "stardust memory", "S01E01"),
+            "o segundo caminho continua vivo DENTRO da mesma obra: 'stardust' e o token em comum");
         assertFalse(ResolvedorArtefatosRevisao.correspondeCache("ep01_ENG.json", "ep01", "S01E01"),
             "sem .cache.json não é cache");
         assertFalse(ResolvedorArtefatosRevisao.correspondeCache("qualquer_S01E01.cache.json", "outra", "S01E01"),

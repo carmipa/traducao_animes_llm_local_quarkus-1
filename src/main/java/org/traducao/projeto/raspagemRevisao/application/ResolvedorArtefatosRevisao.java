@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -224,10 +225,36 @@ public class ResolvedorArtefatosRevisao {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: decide se um arquivo encontrado na varredura é o cache do episódio.
-     * <p>INVARIANTES DO DOMÍNIO: casa pela base normalizada OU pelo código de episódio somado à
-     * marca {@code _ENG} — o segundo caminho existe porque nem toda obra nomeia o cache pela mídia.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     * PROPÓSITO DE NEGÓCIO: decide se um arquivo encontrado na varredura é o cache DESTE episódio
+     * DESTA obra.
+     *
+     * <h2>O prejuízo que originou (2026-08-08)</h2>
+     * Até esta data o segundo caminho pedia apenas <b>código de episódio + {@code _ENG}</b>. Como
+     * a busca é um {@code Files.walk} sobre a raiz de {@code cache/}, ela enxerga as subpastas de
+     * TODAS as obras — e {@code S01E02} existe em qualquer série de TV do acervo. Medido no log de
+     * produção do Gundam 0083:
+     * <pre>
+     *   Analisando: ...0083 - Stardust Memory - S01E02_5_Track3_PT-BR.ass
+     *   Cache carregado: Mobile.Suit.Gundam.ZZ.S01E02_ENG.cache.json   (289 entradas)
+     *   [CONTEXTO] Seleção manual "gundam_0083" ignorada: a proveniência exige "gundam_zz"
+     * </pre>
+     * Quatro arquivos do 0083 foram revisados com o cache do <b>Double Zeta</b>. E o efeito não
+     * para no cache: {@code AtivadorContextoRevisao} dá precedência à proveniência sobre a seleção
+     * manual — corretamente —, então a LORE ativa também virou a da obra errada. Nenhum termo de ZZ
+     * chegou a vazar naquela execução (conferido por Paulo, página a página), mas o caminho para
+     * isso estava aberto: bastaria o cache alheio conter um termo canônico.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Casa pela base normalizada (caminho exato, inalterado); OU</li>
+     *   <li>pelo código de episódio <b>E</b> marca {@code _ENG} <b>E</b> afinidade de OBRA. O
+     *       terceiro requisito é o que nasceu aqui: sem ele, episódio igual em série diferente
+     *       casa, e o acervo tem dezenas de {@code S01E02}.</li>
+     *   <li>Na dúvida, NÃO casa: um cache a menos deixa a fala pendente (recuperável); um cache de
+     *       outra obra injeta lore errada na legenda publicada (não recuperável sem auditoria).</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; entrada nula devolve {@code false}.
      */
     static boolean correspondeCache(String nomeArquivo, String baseMidia, String codigoEpisodio) {
         if (!nomeArquivo.toLowerCase().endsWith(SUFIXO_CACHE)) {
@@ -239,7 +266,57 @@ public class ResolvedorArtefatosRevisao {
         }
         return codigoEpisodio != null
             && nomeArquivo.toUpperCase().contains(codigoEpisodio)
-            && nomeArquivo.toUpperCase().contains("_ENG");
+            && nomeArquivo.toUpperCase().contains("_ENG")
+            && mesmaObra(stem, baseMidia);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde "estes dois nomes de arquivo falam da MESMA obra?", para que
+     * o casamento por episódio não atravesse séries.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara os tokens do nome IGNORANDO o que é comum a todo o acervo
+     * — o código do episódio, marcas de faixa/idioma e as palavras de franquia ({@code mobile},
+     * {@code suit}, {@code gundam}), que sozinhas fariam 0083, ZZ, Unicorn e 08th parecerem a mesma
+     * coisa. Sobra o que distingue: {@code 0083}/{@code stardust} contra {@code zz}. Exige ao menos
+     * um token distintivo em comum.
+     *
+     * <p>Quando um dos lados não tem NENHUM token distintivo (nome genérico como
+     * {@code S01E02_ENG}), devolve {@code false} — não há evidência de que seja a mesma obra, e o
+     * viés é recusar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula ou vazia devolve {@code false}; nunca lança.
+     */
+    static boolean mesmaObra(String stemCache, String baseMidia) {
+        Set<String> tokensCache = tokensDistintivos(stemCache);
+        Set<String> tokensMidia = tokensDistintivos(baseMidia);
+        if (tokensCache.isEmpty() || tokensMidia.isEmpty()) {
+            return false;
+        }
+        return tokensCache.stream().anyMatch(tokensMidia::contains);
+    }
+
+    /** Palavras que aparecem em quase toda obra do acervo e por isso não identificam nada. */
+    private static final Set<String> TOKENS_GENERICOS = Set.of(
+        "mobile", "suit", "gundam", "the", "of", "and", "season", "complete",
+        "eng", "ptbr", "pt", "br", "track", "bd", "tv", "ova", "movie", "part");
+
+    private static Set<String> tokensDistintivos(String nome) {
+        if (nome == null || nome.isBlank()) {
+            return Set.of();
+        }
+        Set<String> tokens = new LinkedHashSet<>();
+        for (String bruto : nome.toLowerCase(Locale.ROOT).split("[^0-9a-z]+")) {
+            if (bruto.isBlank() || TOKENS_GENERICOS.contains(bruto)) {
+                continue;
+            }
+            // Codigo de episodio (s01e02, e13) nao identifica obra — e justamente o que confundia.
+            if (bruto.matches("s\\d{1,2}e\\d{1,3}") || bruto.matches("e\\d{1,3}")
+                || bruto.matches("s\\d{1,2}") || bruto.matches("\\d{1,2}")) {
+                continue;
+            }
+            tokens.add(bruto);
+        }
+        return tokens;
     }
 
     /**
