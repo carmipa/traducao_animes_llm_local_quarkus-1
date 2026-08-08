@@ -19,15 +19,31 @@ app:
 quarkus:
   log:
     file:
-      enable: true
+      # 'enable' NAO entra aqui: o Quarkus 3.37 o marca como DEPRECIADO e avisa no boot
+      # ("The quarkus.log.file.enable config property is deprecated"). Definir o path ja
+      # liga o handler. Este bloco substitui o que vivia em application.properties
+      # apontando para o arquivo unico logs/tradutor.log.
       path: "logs/execucoes/kronos-${kronos.log.execucao:manual}.log"
       format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{2.}] (%t) %s%e%n"
-      level: INFO
+      level: DEBUG
       # Teto por arquivo: uma execucao de 10h ja produziu 26 MB medidos em 07/08.
       # Passando disso, rotaciona em .1/.2 — o disco nao depende do bom humor do dia.
+      #
+      # A rotacao por TAMANHO nao substitui o nome por execucao: era justamente ela que
+      # falhava no Windows quando duas instancias disputavam logs/tradutor.log
+      # ("O arquivo ja esta sendo usado por outro processo", no boot). Com nome unico por
+      # run, o conflito nao acontece; a rotacao passa a ser so o teto de uma run longa.
       rotation:
         max-file-size: 50M
         max-backup-index: 3
+        # NAO rotacionar no boot. O padrao do Quarkus e rotacionar toda vez que o handler
+        # sobe — e em quarkusDev cada HOT RELOAD sobe o handler de novo. Medido em
+        # 08/08/2026: uma unica execucao ja tinha kronos-<carimbo>.log e .log.1 depois de
+        # duas recompilacoes, fragmentando o log DA MESMA run. Isso e o contrario do
+        # pedido ("separado por vezes que o sistema foi executado"): quem separa execucao
+        # aqui e o CARIMBO no nome, nao a rotacao. A rotacao fica sendo so o teto de
+        # tamanho de uma run longa.
+        rotate-on-boot: false
 
 kronos:
   log:
@@ -55,7 +71,10 @@ kronos:
   quarkus:
     log:
       file:
-        enable: false
+        # Path para a arvore descartavel da suite, em vez de 'enable: false' (depreciado).
+        # build/ ja e ignorado pelo git e some no clean — se algum @QuarkusTest escrever
+        # log, escreve la, nunca em logs/ de producao.
+        path: "build/tmp/kronos-tests/logs/suite.log"
   kronos:
     log:
       retencao-dias: 0
