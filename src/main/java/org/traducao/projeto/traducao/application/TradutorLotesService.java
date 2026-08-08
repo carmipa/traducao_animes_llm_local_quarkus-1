@@ -8,6 +8,7 @@ import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.traducao.domain.TextoSemTags;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
@@ -19,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -157,6 +159,9 @@ public class TradutorLotesService {
         Map<String, List<String>> tagsPorTexto = new LinkedHashMap<>();
         Map<String, String> textoMascaradoPorOriginal = new LinkedHashMap<>();
         Map<String, Integer> quebrasPorOriginal = new LinkedHashMap<>();
+        // Falas cuja moldura foi SEPARADA em vez de mascarada; a recomposição acontece em
+        // expandirParaCamadas, depois de o desmascaramento comum ter feito suas checagens.
+        Map<String, TextoSemTags> semTagsPorOriginal = new LinkedHashMap<>();
         for (String original : textosPendentes) {
             // Isola o \N mid-sentence ANTES de mascarar, para o LLM traduzir a frase inteira
             // sem marcador no meio; a quebra é reaplicada na tradução em desmascararComFallback.
@@ -178,6 +183,24 @@ public class TradutorLotesService {
                     textoParaMascarar = isolada.textoSemQuebra();
                     quebrasPorOriginal.put(original, isolada.quebras());
                 }
+            }
+            // TAG SÓ NA BORDA: em vez de mascarar, SEPARA. O LLM recebe a frase pura, sem um
+            // único [[TAGn]] para perder, e a moldura é recolocada aqui na volta.
+            //
+            // O prejuízo que motivou (2026-07-22): 393 das 412 falas perdidas — 95% — caíram por
+            // marcador ausente, quase todas com tradução aproveitável; a resposta na época foi o
+            // remendo ReparadorMarcadoresLlm. O corretor de karaokê atacou a CAUSA em 07/08/2026
+            // e a taxa foi de 34% para 100% nas linhas que passaram a viajar sem marcador.
+            // Medido no Guilty Crown: 488 falas de diálogo (8,3%) estão nesta forma; as 87,6% sem
+            // tag nenhuma NÃO entram aqui e seguem byte a byte pelo caminho de sempre.
+            Optional<TextoSemTags> semTags = propriedades.textoPuroAoLlm()
+                ? TextoSemTags.decompor(textoParaMascarar)
+                : Optional.empty();
+            if (semTags.isPresent()) {
+                semTagsPorOriginal.put(original, semTags.get());
+                tagsPorTexto.put(original, List.of());
+                textoMascaradoPorOriginal.put(original, semTags.get().textoLimpo());
+                continue;
             }
             MascaradorTags.Mascarado mascarado = mascarador.mascarar(textoParaMascarar);
             tagsPorTexto.put(original, mascarado.tags());
@@ -251,7 +274,8 @@ public class TradutorLotesService {
                 coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes, mascaradoPorRepresentante);
             }
             Map<String, String> traducoesParciais = expandirParaCamadas(
-                textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, quebrasPorOriginal, avisos);
+                textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto,
+                quebrasPorOriginal, semTagsPorOriginal, avisos);
             throw new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
         } finally {
             uiLogger.finalizar();
@@ -264,7 +288,8 @@ public class TradutorLotesService {
                 mascaradoPorRepresentante, promptCongelado);
         }
         return expandirParaCamadas(
-            textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto, quebrasPorOriginal, avisos);
+            textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto,
+            quebrasPorOriginal, semTagsPorOriginal, avisos);
     }
 
     /**
@@ -388,12 +413,21 @@ public class TradutorLotesService {
     private Map<String, String> expandirParaCamadas(
             LinkedHashSet<String> textosPendentes, Map<String, String> representanteDeOriginal,
             Map<String, String> mascaradoPorRepresentante, Map<String, List<String>> tagsPorTexto,
-            Map<String, Integer> quebrasPorOriginal, List<String> avisos) {
+            Map<String, Integer> quebrasPorOriginal, Map<String, TextoSemTags> semTagsPorOriginal,
+            List<String> avisos) {
         Map<String, String> traducoes = new HashMap<>();
         for (String original : textosPendentes) {
             String rep = representanteDeOriginal.get(original);
             String traduzidoMascarado = mascaradoPorRepresentante.get(rep);
             if (traduzidoMascarado == null) {
+                continue;
+            }
+            // MOLDURA SEPARADA: a fala viajou sem tag alguma, então não há marcador a casar —
+            // veste-se a tradução com o prefixo/sufixo da PRÓPRIA fala. Falha fechada mora no
+            // recompor: resposta inútil devolve o original intacto.
+            TextoSemTags semTags = semTagsPorOriginal.get(original);
+            if (semTags != null) {
+                traducoes.put(original, semTags.recompor(traduzidoMascarado));
                 continue;
             }
             // CAMADA SÓ-PREFIXO com representante de OUTRA estrutura de tags: aqui desmascarar
@@ -446,12 +480,19 @@ public class TradutorLotesService {
      * <p>É a condição que torna a reaplicação literal segura: prefixo próprio + tradução comum.
      * Tag no MEIO exige casar marcador, e aí a estrutura das duas camadas tem de ser idêntica.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: delega ao DONO ÚNICO da pergunta "todas as tags estão na borda?".
+     *
+     * <p>Até 07/08/2026 esta era a implementação em si — um {@code replaceFirst} local. Quando o
+     * mesmo critério passou a ser necessário para decidir o que vai ao LLM como texto puro, manter
+     * a cópia aqui criaria duas regras capazes de divergir, que é a classe de defeito que já custou
+     * a este projeto uma medição errada por 8×. A regra mora em
+     * {@link TextoSemTags}; aqui só se consulta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} devolve {@code false}; nunca lança.
+     */
     private static boolean soPrefixo(String original) {
-        if (original == null) {
-            return false;
-        }
-        String semPrefixo = original.replaceFirst("^(\\{[^}]*})+", "");
-        return !semPrefixo.contains("{");
+        return TextoSemTags.tagsSoNaBorda(original);
     }
 
     /** Remove os marcadores {@code [[TAGn]]} do INÍCIO do texto mascarado. */

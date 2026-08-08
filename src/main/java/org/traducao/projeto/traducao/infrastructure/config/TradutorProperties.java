@@ -30,6 +30,29 @@ public class TradutorProperties {
      */
     private boolean agruparFrasePartida = false;
 
+    /**
+     * Envia ao LLM o TEXTO PURO das falas cujas tags estão todas na BORDA, em vez do texto com
+     * marcadores {@code [[TAGn]]} — a moldura é recolocada aqui na volta (ver
+     * {@code traducao.domain.TextoSemTags}). DESLIGADA por padrão: com {@code false} o caminho é
+     * byte-idêntico ao anterior, e os testes que caracterizam o mascaramento continuam válidos.
+     *
+     * <p>O QUE SE GANHA LIGANDO: o marcador é a causa isolada das falas perdidas. Medido em
+     * 2026-07-22, <b>393 das 412 perdas (95%)</b> foram marcador ausente com tradução aproveitável
+     * — o que motivou o remendo {@code ReparadorMarcadoresLlm}. No corretor de karaokê, em
+     * 07/08/2026, eliminar o marcador levou a taxa de sucesso de <b>34% para 100%</b> nas linhas
+     * que passaram a viajar limpas.
+     *
+     * <p>O QUE ESTÁ EM JOGO: alcança 8,3% das falas de diálogo (488 de 5.869 no Guilty Crown). As
+     * 87,6% sem tag nenhuma não passam por este caminho nem com a flag ligada, e as 4,0% com tag
+     * NO MEIO ficam de fora por decisão — ali a tag marca uma palavra específica e recolocá-la
+     * exigiria alinhamento palavra a palavra entre os dois idiomas.
+     *
+     * <p>Ligada, a fala de borda deixa de passar por {@code marcadoresPreservados} (não há
+     * marcador a preservar) e por {@code desmascarar}; a proteção equivalente passa a ser o
+     * {@code recompor}, que devolve o original intacto quando a resposta é inútil.
+     */
+    private boolean textoPuroAoLlm = false;
+
     public TradutorProperties() {
     }
 
@@ -74,6 +97,10 @@ public class TradutorProperties {
     public boolean agruparFrasePartida() { return agruparFrasePartida; }
     public boolean isAgruparFrasePartida() { return agruparFrasePartida; }
     public void setAgruparFrasePartida(boolean agruparFrasePartida) { this.agruparFrasePartida = agruparFrasePartida; }
+
+    public boolean textoPuroAoLlm() { return textoPuroAoLlm; }
+    public boolean isTextoPuroAoLlm() { return textoPuroAoLlm; }
+    public void setTextoPuroAoLlm(boolean textoPuroAoLlm) { this.textoPuroAoLlm = textoPuroAoLlm; }
 
     public String idiomaTraduzido() { return idiomaTraduzido; }
     public String getIdiomaTraduzido() { return idiomaTraduzido; }

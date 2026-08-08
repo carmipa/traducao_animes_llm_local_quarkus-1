@@ -109,7 +109,25 @@ class CatracaRegraDuplicadaEntreFatiasTest {
      * tradução correta, porque uma das metades (o separador interno) só existia num arquivo.
      * Quem congela isso agora é {@code CatracaFronteiraQuebraAssTest}, sem número para ajustar.
      */
-    private static final int DUPLICADAS_CONHECIDAS = 14;
+    /*
+     * 14 -> 15 em 07/08/2026. A regra que entrou é {@code ^(?:\{[^}]*\})+} — "blocos de override
+     * colados no começo da fala" — que passou a existir em {@code traducao.domain.TextoSemTags}
+     * além de {@code trocaTipoLegenda.AchatadorEstilosDecorativosService}.
+     *
+     * SUBIU, e a cópia está DECLARADA nos dois lados, como esta catraca exige. Não foram
+     * unificadas porque as intenções são OPOSTAS e devem poder evoluir separadas: o achatador
+     * DESCARTA o bloco líder (é a frescura visual que ele existe para remover), enquanto o
+     * TextoSemTags o PRESERVA para vestir de volta a tradução — que agora viaja ao LLM sem
+     * nenhuma tag, eliminando a causa de 393 das 412 falas perdidas em 2026-07-22.
+     * Unificar criaria aresta entre duas fatias que hoje não se conhecem, e o projeto prefere
+     * duplicação consciente a acoplamento.
+     *
+     * Na mesma mudança o número quase subiu DUAS vezes: a primeira versão do TextoSemTags
+     * reimplementava o padrão \k, criando a QUARTA cópia dele. Esta catraca pegou, e a cópia foi
+     * eliminada em vez de declarada — naquela fatia o karaokê já é vetado antes por
+     * SeletorEventosTraduziveis, então o veto local era redundante.
+     */
+    private static final int DUPLICADAS_CONHECIDAS = 15;
 
     @Test
     @DisplayName("nenhuma REGRA nova e duplicada entre fatias sem declaracao")

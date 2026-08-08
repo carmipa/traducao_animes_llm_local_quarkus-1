@@ -248,6 +248,55 @@ class TradutorLotesServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: com {@code tradutor.texto-puro-ao-llm} LIGADA, a fala cujas tags estão
+     * todas na borda viaja SEM marcador nenhum e volta vestida com a moldura original. É o par
+     * exato de {@link #tagsSaoMascaradasAntesDoLlmERestauradasNaResposta()}, sobre a MESMA
+     * entrada — os dois juntos mostram os dois contratos lado a lado.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * O marcador é a causa isolada das falas perdidas: 393 de 412 (95%) em 2026-07-22, e 269 de
+     * 269 no corretor de karaokê em 07/08/2026. Onde ele deixou de viajar, a taxa de sucesso foi
+     * de 34% para 100%.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o LLM passar a receber {@code [[TAG0]]} com a flag
+     * ligada, ou se a moldura não voltar, este teste reprova.
+     */
+    @Test
+    void comFlagLigadaOTextoVaiPuroAoLlmEAMolduraVolta() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream().map(s -> s.replace("Oi mundo", "Ola mundo")).toList();
+        TradutorProperties p = props(20);
+        p.setTextoPuroAoLlm(true);
+        TradutorLotesService s = servico(p, ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        assertEquals("Oi mundo", ep.lotesRecebidos.get(0).linhasOriginais().get(0),
+            "com a flag ligada o LLM recebe a frase PURA — nenhum [[TAGn]] para ele perder");
+        assertEquals("{\\i1}Ola mundo", r.get("{\\i1}Oi mundo"),
+            "a moldura tem de voltar literal, sem depender de o modelo ter repetido marcador");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CONTRA-TESTE do recorte. Com a flag ligada, a fala de tag NO MEIO
+     * continua pelo caminho de mascaramento — ali a tag marca uma palavra específica, e recolocá-la
+     * exigiria alinhamento palavra a palavra entre inglês e português.
+     */
+    @Test
+    void comFlagLigadaTagNoMeioSegueMascarada() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais();
+        TradutorProperties p = props(20);
+        p.setTextoPuroAoLlm(true);
+        TradutorLotesService s = servico(p, ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+
+        s.traduzirPendentes(pendentes("Eu {\\i1}nunca{\\i0} vou"), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        assertTrue(ep.lotesRecebidos.get(0).linhasOriginais().get(0).contains("[[TAG"),
+            "tag no MEIO fica fora do recorte e continua mascarada, mesmo com a flag ligada");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: alucinação de tags (marcador perdido) mantém só aquela fala original,
      * registra aviso e contabiliza na telemetria — sem derrubar o restante.
      * <p>INVARIANTES DO DOMÍNIO: o texto sem marcador reprova o desmascaramento e cai no fallback.
