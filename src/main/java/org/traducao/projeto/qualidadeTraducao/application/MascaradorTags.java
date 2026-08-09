@@ -2,6 +2,7 @@ package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.MarcadorPerdidoException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -227,9 +228,11 @@ public class MascaradorTags {
         }
 
         if (indicesEncontrados.size() != tags.size() || !new HashSet<>(indicesEncontrados).equals(esperados)) {
-            throw new AlucinacaoDetectadaException(
-                "Marcadores de formatacao ([[TAGn]]) corrompidos ou perdidos pelo LLM. Esperado "
-                    + tags.size() + " marcador(es) " + esperados + ", recebido: " + textoTraduzidoMascarado);
+            // Nome proprio para esta causa, em vez de "alucinacao" (08/08/2026): o modelo
+            // frequentemente traduz CERTO e so nao repete o marcador, e chamar isso de alucinacao
+            // manda quem le o log procurar no lugar errado. MarcadorPerdidoException e subclasse
+            // de AlucinacaoDetectadaException, entao todo tratamento existente segue igual.
+            throw new MarcadorPerdidoException(tags.size(), textoTraduzidoMascarado);
         }
 
         StringBuilder resultado = new StringBuilder();

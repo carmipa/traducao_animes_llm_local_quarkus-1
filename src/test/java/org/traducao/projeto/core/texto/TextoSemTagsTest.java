@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.domain;
+package org.traducao.projeto.core.texto;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

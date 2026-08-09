@@ -33,7 +33,7 @@ public class TradutorProperties {
     /**
      * Envia ao LLM o TEXTO PURO das falas cujas tags estão todas na BORDA, em vez do texto com
      * marcadores {@code [[TAGn]]} — a moldura é recolocada aqui na volta (ver
-     * {@code traducao.domain.TextoSemTags}). DESLIGADA por padrão: com {@code false} o caminho é
+     * {@code core.texto.TextoSemTags}). DESLIGADA por padrão: com {@code false} o caminho é
      * byte-idêntico ao anterior, e os testes que caracterizam o mascaramento continuam válidos.
      *
      * <p>O QUE SE GANHA LIGANDO: o marcador é a causa isolada das falas perdidas. Medido em

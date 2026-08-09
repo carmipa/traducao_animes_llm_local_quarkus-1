@@ -139,6 +139,14 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
                 PKG_QT_APPLICATION + ".ValidadorTraducaoService",
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
+                // DÉCIMO, entrou em 08/08/2026. Subclasse de AlucinacaoDetectadaException que dá
+                // NOME PRÓPRIO ao caso "o modelo traduziu certo e só não repetiu o [[TAGn]]".
+                // Não é refinamento estético: no 08th MS Team, 1.258 avisos diziam "Alucinação
+                // detectada" e NENHUM era alucinação — o texto recusado era "Você vê o sonho
+                // brilhando dentro da tempestade". A palavra errada manda quem lê o log procurar
+                // a causa no lugar errado, e foi o que aconteceu por dois dias.
+                // Mora no peer, junto da exceção-mãe e de MascaradorTags, que é quem a lança.
+                PKG_QT_DOMAIN + ".MarcadorPerdidoException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
                 PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
             "qualidadeTraducao deve conter EXATAMENTE os nove proprietários top-level homologados, por FQN "
