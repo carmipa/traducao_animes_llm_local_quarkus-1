@@ -66,7 +66,7 @@ public class AchatadorEstilosDecorativosService {
     /**
      * Um ou mais blocos de override ASS colados no começo da fala.
      *
-     * <p>DUPLICAÇÃO DECLARADA: {@code traducao.domain.TextoSemTags.BORDA_INICIO} tem esta mesma
+     * <p>DUPLICAÇÃO DECLARADA: {@code core.texto.TextoSemTags.BORDA_INICIO} tem esta mesma
      * regex desde 07/08/2026. Não foram unificadas de propósito — unificar criaria aresta entre
      * {@code trocaTipoLegenda} e {@code traducao}, e o projeto prefere duplicação consciente a
      * acoplamento. As intenções são OPOSTAS e podem evoluir separadas: aqui o bloco líder é

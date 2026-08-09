@@ -9,7 +9,7 @@ import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.SaneadorEnfaseDegenerada;
-import org.traducao.projeto.traducao.domain.TextoSemTags;
+import org.traducao.projeto.core.texto.TextoSemTags;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;
 import org.traducao.projeto.traducao.domain.ports.TelemetriaTraducaoPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;

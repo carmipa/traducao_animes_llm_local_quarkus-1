@@ -174,7 +174,21 @@ class FronteiraTraducaoArchTest {
         // correta — "Nahel Argama" revertido para "Argama" num caso, "Nahel\NNahel Argama" na
         // tela no outro. Medido: 435 campos do acervo com nome composto partido, 230 formas.
         // Congelado por CatracaFronteiraQuebraAssTest, que exige definicao em UM unico arquivo.
-        RAIZ + ".core.texto.FronteiraTermoAss"
+        RAIZ + ".core.texto.FronteiraTermoAss",
+        // DECIMO QUARTO, homologado em 2026-08-08. Separa a MOLDURA de tags do texto que o
+        // espectador le, para que ao LLM va a frase pura — sem marcador [[TAGn]] para ele perder.
+        //
+        // Nasceu em traducao.domain e MUDOU-SE para core por imposicao da FronteiraInboundArchTest:
+        // o corretor de karaoke precisou do mesmo mecanismo, e fatia nao importa de fatia. Core e
+        // consumo livre por contrato, e o precedente e o vizinho acima — mecanica de FORMATO nao
+        // pertence a fatia nenhuma.
+        //
+        // O prejuizo que justifica: no 08th MS Team, 1.258 de 1.636 linhas de karaoke (77%) foram
+        // descartadas por falta de UM marcador, com a traducao ja pronta e correta na mao
+        // ("Voce ve o sonho brilhando dentro da tempestade"). Na fatia traducao o mesmo mecanismo
+        // esta atras da flag tradutor.texto-puro-ao-llm; no karaoke e incondicional, porque la
+        // TODA linha tem tag e o mascarador nao tem chance.
+        RAIZ + ".core.texto.TextoSemTags"
     );
 
     /**

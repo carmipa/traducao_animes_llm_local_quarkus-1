@@ -50,7 +50,12 @@ class CatracaSuiteSemDriveWindowsTest {
         // curtas de música o classificador ainda manda traduzir, lendo o acervo real, e
         // "C:\animes" é o default de -Dkronos.acervo. Trocar por caminho relativo faria o harness
         // medir o vazio e reportar "nenhum furo" com a mesma cara de "furo nenhum encontrado".
-        "MedicaoLinhaCurtaKaraokeIT.java"
+        "MedicaoLinhaCurtaKaraokeIT.java",
+        // Entrou em 08/08/2026 respondendo "o problema foi corrigido para TODOS os animes?":
+        // cruza toda legenda x todo cache do acervo real. "C:\animes" e o default de
+        // -Dkronos.acervo; caminho relativo faria o harness medir o vazio e reportar zero
+        // colisoes por nao ter olhado nada.
+        "MedicaoColisaoCacheEntreObrasIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

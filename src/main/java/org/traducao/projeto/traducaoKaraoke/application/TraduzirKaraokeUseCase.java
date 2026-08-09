@@ -12,6 +12,7 @@ import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.domain.MarcadorPerdidoException;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.llm.domain.LlmPort;
@@ -24,6 +25,7 @@ import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
+import org.traducao.projeto.core.texto.TextoSemTags;
 import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.TraducaoKaraokeException;
@@ -377,6 +379,25 @@ public class TraduzirKaraokeUseCase {
         if (gradiente.isPresent()) {
             return traduzirGradiente(gradiente.get(), avisos, sequencialLote);
         }
+
+        // TAG NA BORDA (o caso do 08th MS Team, 08/08/2026): a linha tem UMA tag de prefixo,
+        // vira UM marcador [[TAG0]], e o LLM simplesmente nao o repete. A traducao vinha CERTA e
+        // era jogada fora. Do manifesto daquela execucao — 1.258 de 1.258 avisos, todos iguais:
+        //
+        //   Esperado 1 marcador(es) [0], recebido: Voce ve o sonho brilhando dentro da tempestade
+        //   Esperado 1 marcador(es) [0], recebido: Aguenta firme agora! Nao solta isso.
+        //
+        // Portugues perfeito, descartado por falta de um marcador de controle. Resultado: de
+        // 1.636 linhas detectadas, apenas 378 (23%) chegavam a legenda.
+        //
+        // A saida e a mesma do gradiente e a mesma que Paulo propos em 07/08: NAO mascarar,
+        // SEPARAR. O LLM recebe a frase pura — sem marcador nenhum para perder — e a moldura e
+        // recolocada aqui. TextoSemTags e o dono desse criterio, ja usado pela fatia traducao.
+        Optional<TextoSemTags> semTags = TextoSemTags.decompor(original);
+        if (semTags.isPresent()) {
+            return traduzirTextoPuro(semTags.get(), avisos, sequencialLote);
+        }
+
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
         TraducaoLote resposta;
         try {
@@ -396,6 +417,15 @@ public class TraduzirKaraokeUseCase {
             String traduzido = mascarador.desmascarar(resposta.linhasTraduzidas().getFirst(), mascarado.tags());
             validador.validarFala(traduzido);
             return traduzido;
+        } catch (MarcadorPerdidoException e) {
+            // NAO e alucinacao, e o console nao pode dizer que e (08/08/2026): o modelo traduziu
+            // e so nao repetiu o marcador. Mostrar a TRADUCAO RECUSADA e o que permite ao
+            // operador ver, na hora, que perdeu trabalho bom — e nao lixo.
+            telemetriaService.registrarAlucinacaoPrevenida();
+            avisos.add("Marcador perdido (" + e.getMessage() + "); linha mantida: " + original);
+            logStream.publicarLog(CANAL_LOG, "   [MARCADOR PERDIDO] traducao DESCARTADA por falta de tag: \""
+                + e.traducaoRecusada() + "\"");
+            return null;
         } catch (AlucinacaoDetectadaException e) {
             telemetriaService.registrarAlucinacaoPrevenida();
             avisos.add("Alucinação detectada (" + e.getMessage() + "); linha mantida: " + original);
@@ -403,6 +433,56 @@ public class TraduzirKaraokeUseCase {
                 + visivelResumido(original));
             return null;
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: traduz uma linha de karaokê cujas tags estão todas na BORDA, enviando
+     * ao LLM só a frase e recolocando a moldura na volta.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Execução real no 08th MS Team em 08/08/2026: <b>1.636 linhas detectadas, 378 corrigidas
+     * (23%)</b>. Os 1.258 avisos do manifesto são TODOS o mesmo motivo — marcador
+     * {@code [[TAG0]]} não devolvido pelo modelo — e o texto recusado estava correto em
+     * português. O sistema descartava tradução boa por causa de um marcador de controle.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o texto que sai daqui rumo ao LLM não contém tag ASS nem
+     * marcador, então não existe marcador a perder; a moldura devolvida é a do ORIGINAL, nunca a
+     * que o modelo tenha imaginado. A validação de alucinação roda sobre o texto puro, ANTES de
+     * recompor — validar depois faria a própria tag disparar o detector de resíduo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de comunicação, resposta inválida ou alucinação
+     * devolvem {@code null} e a linha fica no idioma original, com aviso. Nunca linha meio montada.
+     */
+    private String traduzirTextoPuro(TextoSemTags semTags, List<String> avisos,
+                                     AtomicInteger sequencialLote) {
+        TraducaoLote resposta;
+        try {
+            resposta = llmPort.traduzir(
+                new Lote(sequencialLote.incrementAndGet(), List.of(semTags.textoLimpo())));
+        } catch (Exception e) {
+            avisos.add("Falha de comunicação com o LLM; letra mantida: " + semTags.textoLimpo());
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha (mantida): " + e.getMessage());
+            return null;
+        }
+        if (resposta == null || !resposta.sucesso()
+            || resposta.linhasTraduzidas() == null || resposta.linhasTraduzidas().isEmpty()) {
+            avisos.add("LLM não retornou tradução; letra mantida: " + semTags.textoLimpo());
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — letra mantida.");
+            return null;
+        }
+        String traduzido = resposta.linhasTraduzidas().getFirst();
+        try {
+            validador.validarFala(traduzido);
+        } catch (AlucinacaoDetectadaException e) {
+            telemetriaService.registrarAlucinacaoPrevenida();
+            avisos.add("Alucinação detectada (" + e.getMessage() + "); letra mantida: "
+                + semTags.textoLimpo());
+            logStream.publicarLog(CANAL_LOG,
+                "   [AVISO] Alucinação interceptada na letra — mantida sem tradução: "
+                    + semTags.textoLimpo());
+            return null;
+        }
+        return semTags.recompor(traduzido);
     }
 
     /**

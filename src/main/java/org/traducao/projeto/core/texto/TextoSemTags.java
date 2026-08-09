@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.domain;
+package org.traducao.projeto.core.texto;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
