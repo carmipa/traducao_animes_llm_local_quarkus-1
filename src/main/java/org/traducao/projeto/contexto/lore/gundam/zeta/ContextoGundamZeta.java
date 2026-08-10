@@ -48,27 +48,36 @@ public class ContextoGundamZeta implements ProvedorContexto {
           Apolly Bay (m); Roberto (m); Torres (m); Wong Lee (m).
         - Amuro Ray (m); Hayato Kobayashi (m); Mirai Yashima (f); Hathaway Noa (m, crianca);
           Franklin Bidan (m); Hilda Bidan (f); Beltorchika Irma (f) quando aparecer.
+        - Blex Forer; Dr. Hasan; Kai Shiden; Fraw Bow; Shinta; Qum; Haro;
+          Luio Woomin; Stephanie Luio; Ben Wooder; Namicar Cornell.
 
         === Roster — Titans / Scirocco ===
         - Jerid Messa (m); Bask Om (m); Jamitov Hymen (m); Jamaican Daninghan (m);
           Paptimus Scirocco (m); Yazan Gable (m); Buran Blutarch (m);
           Lila Milla Rira (f); Mouar Pharaoh (f); Sarah Zabiarov (f);
           Kacricon Cacooler (m); Gates Capa (m) quando aparecerem.
+        - Tripulantes e pilotos recorrentes: Gady; Siddeley; Batch; Saegusa; Ramsus;
+          Botty; Manack; Hamil; Addis; Dava Baro.
 
         === Roster — Cyber-Newtype / Axis ===
         - Four Murasame (f); Rosamia Badam (f); Haman Karn (f); Mineva Lao Zabi (f, crianca).
+        - Rosammy e o apelido usado por Kamille para Rosamia. Preserve exatamente Rosammy quando
+          o original usar Rosammy; nao normalize o apelido para Rosamia.
 
         === Naves / lugares / eventos ===
-        - Naves: Argama; Radish; Alexandria; Audhumla (Karaba); Jupitris; Gwadan; Dogosse Giar quando aparecer.
+        - Naves: Argama; Mont Blanc; Radish; Alexandria; Audhumla (Karaba); Jupitris;
+          Gwadan; Dogosse Gier; Bosnia; Sudori; Garuda; White Base.
         - Lugares: Gryps / Gate of Zedan; Jaburo; Hong Kong; Dakar; Kilimanjaro; Axis;
-          Shangri-La; Side colonies; Luna II / Von Braun quando o dialogo trouxer.
-        - Eventos: Gryps Conflict; Colony 30 Incident (background); Colony Laser; Dakar Speech (Quattro).
+          Shangri-La; Luna II; Granada; Von Braun City; Green Oasis; Green Noa; Hickory;
+          Amman; New Hong Kong; Murasame Laboratory.
+        - Eventos: Gryps Conflict; Colony 30 Incident (background); Colony Laser;
+          Dakar Speech (Quattro); Operation Apollo; Operation Maelstrom.
 
         === Mecha ===
         - AEUG/Anaheim: MSZ-006 Zeta Gundam; RX-178 Gundam Mk-II / Super Gundam (G-Defenser);
           MSN-00100 Hyaku Shiki (NUNCA Cem Estilos); Rick Dias; Methuss; Nemo; GM II; Dijeh (Amuro).
         - Titans: Hizack; Marasai; Barzam; Gaplant; Gabthley; Hambrabi; Palace Athene;
-          Byarlant; Asshimar; Galbaldy Beta; Messala; The O (NUNCA reduzir a O);
+          Byarlant; Asshimar; Galbaldy Beta; Messala; Baund Doc; The O (NUNCA reduzir a O);
           Psycho Gundam / Psycho Gundam Mk-II.
         - Axis: Qubeley (Haman); Gaza-C quando aparecer.
 
@@ -151,16 +160,31 @@ public class ContextoGundamZeta implements ProvedorContexto {
             "Kacricon Cacooler", "Gates Capa",
             "Hayato Kobayashi", "Mirai Yashima", "Hathaway Noa",
             "Franklin Bidan", "Hilda Bidan",
+            "Blex Forer", "Hasan", "Kai Shiden", "Fraw Bow", "Shinta", "Qum", "Haro",
+            "Luio Woomin", "Stephanie Luio", "Ben Wooder", "Namicar Cornell",
+            "Gady", "Siddeley", "Batch", "Saegusa", "Ramsus", "Botty", "Manack",
+            "Hamil", "Addis", "Dava Baro",
+            // Aliases usados centenas de vezes nas falas. Four, Fa e Bright ficam apenas nas
+            // formas completas: isolados colidem com palavras comuns e a proteção ignora caixa.
+            "Kamille", "Quattro", "Char", "Amuro", "Emma", "Reccoa", "Katz",
+            "Rosammy", "Rosamia", "Sarah", "Jerid", "Scirocco", "Haman", "Mouar",
+            "Yazan", "Apolly", "Lila", "Kacricon", "Bask", "Hayato", "Jamaican",
+            "Astonaige", "Mirai", "Mineva", "Beltorchika", "Paptimus", "Gates",
+            "Buran", "Wong", "Henken", "Blex",
             "AEUG", "A.E.U.G.", "Anti-Earth Union Group", "Titans", "Axis", "Sieg Zeon", "Axis Zeon",
             "Karaba", "Anaheim Electronics", "Earth Federation",
             "Zeta Gundam", "Gundam Mk-II", "Super Gundam", "G-Defenser", "Hyaku Shiki",
             "Rick Dias", "Methuss", "Nemo", "GM II", "Dijeh",
             "Hizack", "Marasai", "Barzam", "Gaplant", "Gabthley", "Hambrabi",
-            "Palace Athene", "Byarlant", "Asshimar", "Galbaldy Beta", "Messala",
+            "Palace Athene", "Byarlant", "Asshimar", "Galbaldy Beta", "Messala", "Baund Doc",
             "Psycho Gundam", "Psycho Gundam Mk-II", "The O", "Qubeley", "Gaza-C",
-            "Argama", "Radish", "Audhumla", "Alexandria", "Jupitris", "Gwadan",
+            "Argama", "Mont Blanc", "Radish", "Audhumla", "Alexandria", "Jupitris", "Gwadan",
+            "Dogosse Gier", "Bosnia", "Sudori", "Garuda", "White Base",
             "Gryps", "Gate of Zedan", "Jaburo", "Dakar", "Kilimanjaro", "Shangri-La",
+            "Granada", "Von Braun City", "Green Oasis", "Green Noa", "Hickory", "Amman",
+            "New Hong Kong", "Murasame", "Murasame Laboratory",
             "Gryps Conflict", "Colony Laser", "Colony 30 Incident", "Dakar Speech",
+            "Operation Apollo", "Operation Maelstrom",
             "Newtype", "Cyber-Newtype", "Oldtype", "Psycommu", "Minovsky",
             "Spacenoid", "Earthnoid", "Mobile Suit", "Mobile Armor",
             "Beam Rifle", "Beam Saber", "Mega Particle Cannon", "One Year War"
@@ -196,6 +220,23 @@ public class ContextoGundamZeta implements ProvedorContexto {
             Map.entry("Qubelei", "Qubeley"),
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
             Map.entry("Gundam Mk II", "Gundam Mk-II"),
+            Map.entry("Dogosse Giar", "Dogosse Gier"),
+            // Formas medidas nos 50 ASS de Zeta em 2026-08-09. O enforcer só aplica quando o
+            // canônico da direita existe no EN, portanto palavras comuns como "Quem" e "Lote"
+            // não são tocadas fora das falas que realmente contêm Qum e Batch.
+            Map.entry("Rosamia", "Rosammy"),
+            Map.entry("Quem", "Qum"),
+            Map.entry("Quim", "Qum"),
+            Map.entry("Mancack", "Manack"),
+            Map.entry("Ramus", "Ramsus"),
+            Map.entry("Lote", "Batch"),
+            Map.entry("Oásis Verde", "Green Oasis"),
+            Map.entry("Oasis Verde", "Green Oasis"),
+            Map.entry("Paraíso Verde", "Green Oasis"),
+            Map.entry("Paraiso Verde", "Green Oasis"),
+            Map.entry("Verde Noa", "Green Noa"),
+            Map.entry("cidade de Von Braun", "Von Braun City"),
+            Map.entry("Nova Hong Kong", "New Hong Kong"),
 
             // FA YUIRY — minerado em 2026-08-04. A fala cujo texto INTEIRO e "Fa" aparece 51x
             // no acervo e o Zeta concentra 43 delas; so 8 preservaram o nome. O modelo le "Fa!"

@@ -292,10 +292,10 @@ public class ValidadorTraducaoService {
             return;
         }
 
-        // As duas regras de RESÍDUO EM INGLÊS julgam palavra a palavra e por isso são as
-        // únicas que confundem nome próprio da obra com inglês não traduzido. Elas — e só
-        // elas — inspecionam o texto sem os termos da lore. As demais regras (preâmbulo,
-        // recusa, asterisco) tratam de vocabulário de TAREFA, que nome próprio não produz.
+        // As regras de RESÍDUO/IDIOMA julgam palavra a palavra e por isso podem confundir nome
+        // próprio da obra com texto não traduzido. Elas — e só elas — inspecionam o texto sem
+        // os termos da lore. As demais regras (preâmbulo, recusa, asterisco) tratam de
+        // vocabulário de TAREFA, que nome próprio não produz.
         String semTermosDaLore = removerTermosProtegidos(visivel);
 
         if (temResiduoRelevante(semTermosDaLore)) {
@@ -306,7 +306,7 @@ public class ValidadorTraducaoService {
             throw new AlucinacaoDetectadaException("Resíduo gringo detectado (contração): " + textoTraduzido);
         }
 
-        if (PADRAO_OUTRO_IDIOMA.matcher(visivel).find()) {
+        if (PADRAO_OUTRO_IDIOMA.matcher(semTermosDaLore).find()) {
             throw new AlucinacaoDetectadaException("Idioma incorreto detectado (não é PT-BR): " + textoTraduzido);
         }
 
