@@ -351,6 +351,9 @@ class FronteiraTraducaoArchTest {
         // canônico multi-palavra). Como peer, uma cópia só serve tradução, revisão de lore e a
         // correção de cache sem nenhuma aresta de dívida.
         RAIZ + ".qualidadeTraducao.application.EnforcadorTermosLore",
+        // IsoladorQuebraDialogo é compartilhado por tradução e revisão: ambas retiram \N antes
+        // do LLM e o recolocam deterministicamente, sem manter duas implementações da regra.
+        RAIZ + ".qualidadeTraducao.application.IsoladorQuebraDialogo",
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
         // NormalizadorAcentosComuns movido de traducao.application para o peer: fecha o arco
         // proibido raspagemRevisao.RevisorPtOnlyService -> traducao (INBOUND voltou a 0).

@@ -34,24 +34,34 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
           Astonaige Medoz; Apolly Bay; Roberto; Torres; Wong Lee;
           Amuro Ray; Hayato Kobayashi; Mirai Yashima; Hathaway Noa;
           Franklin Bidan; Hilda Bidan; Beltorchika Irma.
+        - Blex Forer; Dr. Hasan; Kai Shiden; Fraw Bow; Shinta; Qum; Haro;
+          Luio Woomin; Stephanie Luio; Ben Wooder; Namicar Cornell.
 
         === Roster — Titans / Scirocco ===
         - Jerid Messa; Bask Om; Jamitov Hymen; Jamaican Daninghan; Paptimus Scirocco;
           Yazan Gable; Buran Blutarch; Lila Milla Rira; Mouar Pharaoh; Sarah Zabiarov;
           Kacricon Cacooler; Gates Capa.
+        - Tripulantes e pilotos recorrentes: Gady; Siddeley; Batch; Saegusa; Ramsus;
+          Botty; Manack; Hamil; Addis; Dava Baro.
 
         === Roster — Cyber-Newtype / Axis ===
         - Four Murasame; Rosamia Badam; Haman Karn; Mineva Lao Zabi.
+        - Rosammy e o apelido usado por Kamille para Rosamia. Preserve exatamente Rosammy quando
+          o original usar Rosammy; nao normalize o apelido para Rosamia.
 
         === Naves / lugares / eventos ===
-        - Argama; Radish; Alexandria; Audhumla; Jupitris; Gwadan.
-        - Gryps / Gate of Zedan; Jaburo; Dakar; Kilimanjaro; Axis; Shangri-La.
-        - Gryps Conflict; Colony Laser; Colony 30 Incident; Dakar Speech.
+        - Argama; Mont Blanc; Radish; Alexandria; Audhumla; Jupitris; Gwadan;
+          Dogosse Gier; Bosnia; Sudori; Garuda; White Base.
+        - Gryps / Gate of Zedan; Jaburo; Dakar; Kilimanjaro; Axis; Shangri-La;
+          Granada; Von Braun City; Green Oasis; Green Noa; Hickory; Amman;
+          New Hong Kong; Murasame Laboratory.
+        - Gryps Conflict; Colony Laser; Colony 30 Incident; Dakar Speech;
+          Operation Apollo; Operation Maelstrom.
 
         === Mecha ===
         - Zeta Gundam; Gundam Mk-II / Super Gundam / G-Defenser; Hyaku Shiki (NUNCA Cem Estilos);
           Rick Dias; Methuss; Nemo; Dijeh; Hizack; Marasai; Gaplant; Gabthley; Hambrabi;
-          Palace Athene; Byarlant; Messala; The O (NUNCA reduzir a O);
+          Palace Athene; Byarlant; Messala; Baund Doc; The O (NUNCA reduzir a O);
           Psycho Gundam / Psycho Gundam Mk-II; Qubeley; Gaza-C.
 
         === Formas-ruim (restaurar) ===
@@ -109,6 +119,20 @@ public class ContextoRevisaoLoreGundamZeta implements ProvedorPromptRevisaoLore 
             Map.entry("Qubelei", "Qubeley"),
             Map.entry("Gundam Mark II", "Gundam Mk-II"),
             Map.entry("Gundam Mk II", "Gundam Mk-II"),
+            Map.entry("Dogosse Giar", "Dogosse Gier"),
+            Map.entry("Rosamia", "Rosammy"),
+            Map.entry("Quem", "Qum"),
+            Map.entry("Quim", "Qum"),
+            Map.entry("Mancack", "Manack"),
+            Map.entry("Ramus", "Ramsus"),
+            Map.entry("Lote", "Batch"),
+            Map.entry("Oásis Verde", "Green Oasis"),
+            Map.entry("Oasis Verde", "Green Oasis"),
+            Map.entry("Paraíso Verde", "Green Oasis"),
+            Map.entry("Paraiso Verde", "Green Oasis"),
+            Map.entry("Verde Noa", "Green Noa"),
+            Map.entry("cidade de Von Braun", "Von Braun City"),
+            Map.entry("Nova Hong Kong", "New Hong Kong"),
             // ESPELHO de FA YUIRY — minerado no acervo em 2026-08-04. O Zeta concentra 43 das 51
             // falas cujo texto INTEIRO e "Fa", e so 8 preservaram o nome: "Fogo!" 27x, "Fala!"
             // 7x, "Fá..." 6x, "Pá!" 1x, "Fale!" 1x. Colisao legitima medida: zero.

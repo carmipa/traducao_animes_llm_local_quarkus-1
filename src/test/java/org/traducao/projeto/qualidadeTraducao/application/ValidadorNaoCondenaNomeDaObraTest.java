@@ -85,6 +85,16 @@ class ValidadorNaoCondenaNomeDaObraTest {
 
             assertDoesNotThrow(() -> validador.validarFala("Ela usou o Void Genome ontem"));
         }
+
+        @Test
+        void nomeFrancesCanonicoDaLoreNaoEhConfundidoComIdiomaErrado() {
+            var validador = new ValidadorTraducaoService(LoreAtivaFake.com("Mont Blanc"));
+
+            assertDoesNotThrow(() -> validador.validarFala(
+                "Atualmente no Argama, temos os pilotos do GM da Mont Blanc..."));
+            assertThrows(AlucinacaoDetectadaException.class,
+                () -> validador.validarFala("A aura bleu brilhante apareceu."));
+        }
     }
 
     @Nested
