@@ -17,10 +17,8 @@ import org.traducao.projeto.core.infrastructure.http.JsonHttpClient;
 import org.traducao.projeto.core.infrastructure.http.JsonHttpClient.HttpClientException;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -449,6 +447,8 @@ public class LlmClientAdapter implements LlmPort {
             A traducao abaixo ficou com residuo em ingles, incompleta ou alucinada.
             Retraduza esta fala para PT-BR corretamente, preservando o sentido e os
             marcadores [[TAGn]] literalmente (nao traduza nem remova marcadores).
+            Preserve SOMENTE os marcadores presentes na Traducao atual. Nunca invente
+            ou copie um marcador que nao apareca nela.
 
             Original (ingles):
             %s
@@ -521,14 +521,14 @@ public class LlmClientAdapter implements LlmPort {
         }
 
         List<String> esperados = marcadoresEsperados == null
-            ? List.of() : marcadoresEsperados.stream().distinct().toList();
+            ? List.of() : List.copyOf(marcadoresEsperados);
         for (int i = candidatas.size() - 1; i >= 0; i--) {
             String candidata = candidatas.get(i);
-            if (esperados.stream().allMatch(candidata::contains)) {
+            if (extrairMarcadoresEstatico(candidata).equals(esperados)) {
                 return candidata;
             }
         }
-        return esperados.isEmpty() ? candidatas.getLast() : "";
+        return "";
     }
 
     /**
@@ -542,10 +542,19 @@ public class LlmClientAdapter implements LlmPort {
      * mantém o comportamento de resposta sem tags.
      */
     private List<String> extrairMarcadores(String textoMascarado) {
+        return extrairMarcadoresEstatico(textoMascarado);
+    }
+
+    /**
+     * Extrai todos os marcadores na ordem e com as duplicações recebidas. A comparação exata é
+     * necessária inclusive quando a lista esperada está vazia: nesse caso qualquer {@code TAGn}
+     * presente na resposta foi inventado pelo modelo e precisa provocar uma nova tentativa.
+     */
+    private static List<String> extrairMarcadoresEstatico(String textoMascarado) {
         if (textoMascarado == null || textoMascarado.isBlank()) {
             return List.of();
         }
-        Set<String> marcadores = new LinkedHashSet<>();
+        List<String> marcadores = new ArrayList<>();
         Matcher matcher = MARCADOR_TAG.matcher(textoMascarado);
         while (matcher.find()) {
             marcadores.add(matcher.group());

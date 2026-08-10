@@ -121,7 +121,7 @@ public interface LlmPort {
      * <p>COMPORTAMENTO EM CASO DE FALHA: retorna {@link Optional#empty()} se o LLM falhar
      * ou a resposta for inválida, preservando a tradução anterior.
      *
-     * @param originalInglesMascarado original em inglês, com marcadores de tag
+     * @param originalInglesMascarado original em inglês como referência visível, sem tags ASS
      * @param traducaoPtMascarada tradução PT-BR atual, com marcadores de tag
      * @param problemasDetectados problemas de concordância a corrigir
      * @return a fala revisada, ou vazio quando não há correção aplicável
@@ -141,7 +141,7 @@ public interface LlmPort {
      * <p>COMPORTAMENTO EM CASO DE FALHA: retorna {@link Optional#empty()} se o LLM falhar
      * ou a resposta for inválida, preservando a tradução anterior.
      *
-     * @param originalInglesMascarado original em inglês, com marcadores de tag
+     * @param originalInglesMascarado original em inglês como referência visível, sem tags ASS
      * @param traducaoPtMascarada tradução PT-BR atual, com marcadores de tag
      * @param motivoDetectado motivo que disparou a correção
      * @return a fala corrigida, ou vazio quando não há correção aplicável

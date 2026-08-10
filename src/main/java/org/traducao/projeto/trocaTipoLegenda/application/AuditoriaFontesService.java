@@ -15,8 +15,11 @@ public class AuditoriaFontesService {
     // Mapeamento de fontes vietnamitas/ANSI problemáticas para Arial como padrão seguro.
     private static final Map<String, String> FONTES_PROBLEMATICAS = Map.of(
         ".VnBook-Antiqua", "Arial",
+        "VnBook-Antiqua", "Arial",
         ".VnArial", "Arial",
-        ".VnTimes", "Arial"
+        "VnArial", "Arial",
+        ".VnTimes", "Arial",
+        "VnTimes", "Arial"
     );
 
     public record ResultadoSubstituicaoCabecalho(String cabecalho, int substituicoes) {}
@@ -105,6 +108,14 @@ public class AuditoriaFontesService {
     }
 
     public ResultadoSubstituicaoCabecalho substituirFontesProblematicas(String cabecalho) {
+        return substituirFontes(cabecalho, false);
+    }
+
+    public ResultadoSubstituicaoCabecalho substituirTodasFontesPorArial(String cabecalho) {
+        return substituirFontes(cabecalho, true);
+    }
+
+    private ResultadoSubstituicaoCabecalho substituirFontes(String cabecalho, boolean forcarArial) {
         if (cabecalho == null || cabecalho.isBlank()) {
             return new ResultadoSubstituicaoCabecalho(cabecalho, 0);
         }
@@ -177,7 +188,7 @@ public class AuditoriaFontesService {
             }
 
             String fonteAtual = partes[indexFontname].trim();
-            String fonteNova = fonteSugerida(fonteAtual);
+            String fonteNova = forcarArial ? "Arial" : fonteSugerida(fonteAtual);
             if (!fonteNova.equals(fonteAtual)) {
                 partes[indexFontname] = fonteNova;
                 linhas[i] = prefixo + espacoInicial + String.join(",", partes);

@@ -6,7 +6,7 @@
 
 ## Para que serve
 
-Painel **"9. Troca Tipo Legenda"** da SPA (grupo **Qualidade**). Audita arquivos `.ass`/`.ssa` em busca de **fontes legadas de 8 bits** nos estilos (`Fontname` em `[V4+ Styles]`) e as substitui em lote por fontes Unicode seguras — com backup automático antes de gravar.
+Painel **"9. Troca Tipo Legenda"** da SPA (grupo **Qualidade**). Audita arquivos `.ass`/`.ssa` em busca de **fontes legadas de 8 bits** nos estilos (`Fontname` em `[V4+ Styles]`) e as substitui em lote por fontes Unicode seguras — com backup automático antes de gravar. Mesmo quando a auditoria automática não encontra defeito obrigatório, o operador pode escolher **normalizar manualmente os `Fontname` para Arial** por legibilidade em TV; essa ação não achata estilos, não remove efeitos e não altera textos/tempos.
 
 ![Painel de Troca Tipo Legenda](../src/main/resources/static/img/screenshots/troca-tipo-legenda.png)
 
@@ -68,10 +68,16 @@ sequenceDiagram
 | Endpoint | Payload | Canal SSE |
 |----------|---------|-----------|
 | `POST /api/troca-legenda/escanear` | `{diretorioLegendas}` | — (resposta síncrona) |
-| `POST /api/troca-legenda/aplicar` | `{diretorioLegendas}` | `troca-tipo-legenda` |
+| `POST /api/troca-legenda/aplicar` | `{diretorioLegendas, forcarArial?}` | `troca-tipo-legenda` |
 
 ```json
 { "diretorioLegendas": "C:/animes/[Joseki] Gundam 08th MS Team/traducao-ptbr" }
+```
+
+Para decisão manual de legibilidade:
+
+```json
+{ "diretorioLegendas": "C:/animes/Mobile Suit Zeta Gundam/traducao_ptbr", "forcarArial": true }
 ```
 
 `diretorioLegendas` é **obrigatório** (`400` se ausente).
@@ -84,6 +90,7 @@ sequenceDiagram
 - Depois da troca, os MKVs finais precisam ser **re-remuxados** ([Remuxer](etapa-5.1-remuxer.md)) para embutir a legenda corrigida.
 - Fontes anexadas no MKV original que nenhum estilo referencia mais (ex.: o `Vnantiqb.ttf` órfão) são inofensivas, mas continuam dentro do vídeo até um remux que as descarte.
 - Regra prática ao iniciar **qualquer série nova**: rodar o escaneamento na pasta das legendas extraídas antes de traduzir — fontes `.Vn*`, `VNI-*` e similares quebram a acentuação PT-BR silenciosamente.
+- A normalização manual para Arial mexe somente no campo `Fontname` dos estilos. O **Achatador de Estilos Decorativos** continua sendo uma aba independente na mesma página e não é acionado por essa troca de fonte.
 
 ---
 

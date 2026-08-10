@@ -18,7 +18,9 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
@@ -149,8 +151,8 @@ public class TraduzirKaraokeUseCase {
      * {@code simular} (dry-run, read-only) e {@code aplicar} (grava e chama o LLM) — lista as
      * legendas, classifica cada linha e produz o resumo por arquivo.
      *
-     * <p>INVARIANTES DO DOMÍNIO: só o modo {@code gravar} verifica o LLM, ativa o contexto
-     * (lore) e escreve saída/cache; a simulação não toca estado global nem a GPU/LLM. O
+     * <p>INVARIANTES DO DOMÍNIO: só o modo {@code gravar} verifica o LLM, congela o contexto
+     * escolhido e escreve saída/cache; a simulação não toca estado global nem a GPU/LLM. O
      * contador de lotes ({@code sequencialLote}) é local a esta execução, nunca campo de
      * instância, para não ser perturbado por uma execução concorrente deste bean singleton.
      *
@@ -184,6 +186,8 @@ public class TraduzirKaraokeUseCase {
         }
         logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
 
+        SnapshotContexto contextoJob = null;
+        ProvenienciaCache proveniencia = null;
         if (gravar) {
             StatusLlm status = llmPort.verificarDisponibilidade();
             if (status == null || !status.modeloCarregado()) {
@@ -191,7 +195,10 @@ public class TraduzirKaraokeUseCase {
                     + (status != null ? status.mensagem() : "sem resposta"));
             }
             logStream.publicarLog(CANAL_LOG, "[OK] Servidor LLM ativo.");
-            ativarContexto(contextoId);
+            contextoJob = congelarContexto(contextoId);
+            proveniencia = provenienciaDe(contextoJob);
+            logStream.publicarLog(CANAL_LOG, "[CONTEXTO CONGELADO] " + contextoJob.nomeExibicao()
+                + " | id=" + contextoJob.id() + " | hash=" + proveniencia.contextoHash());
         }
 
         // Contador de lotes local à execução: um use case @ApplicationScoped é
@@ -206,7 +213,8 @@ public class TraduzirKaraokeUseCase {
                 break;
             }
             try {
-                resultados.add(processarArquivo(arquivo, pastaDestino, gravar, sequencialLote));
+                resultados.add(processarArquivo(
+                    arquivo, pastaDestino, gravar, sequencialLote, contextoJob, proveniencia));
             } catch (Exception e) {
                 falhas++;
                 log.error("Falha ao processar {}", arquivo, e);
@@ -229,7 +237,9 @@ public class TraduzirKaraokeUseCase {
             gravar ? "Tradução de Karaokê (LLM)" : "Tradução de Karaokê (simulação)", inicioMs));
 
         if (gravar && !resultados.isEmpty()) {
-            registrarArtefatos(pastaOrigem, pastaDestino, resultados, duracaoMs, musicas, traduzidas + doCache);
+            registrarArtefatos(
+                pastaOrigem, pastaDestino, resultados, duracaoMs, musicas, traduzidas + doCache,
+                contextoJob, proveniencia);
         }
         return resultados;
     }
@@ -249,14 +259,16 @@ public class TraduzirKaraokeUseCase {
      * próximo ponto seguro preservando o que já foi resolvido.
      */
     private ResultadoTraducaoKaraoke processarArquivo(Path arquivo, Path pastaDestino, boolean gravar,
-                                                      AtomicInteger sequencialLote) {
+                                                       AtomicInteger sequencialLote,
+                                                       SnapshotContexto contextoJob,
+                                                       ProvenienciaCache proveniencia) {
         String nome = arquivo.getFileName().toString();
         logStream.publicarLog(CANAL_LOG, "");
         logStream.publicarLog(CANAL_LOG, ">> " + nome);
 
         DocumentoLegenda documento = leitor.ler(arquivo);
         Path arquivoCache = resolverArquivoCache(arquivo);
-        Map<String, String> cacheExistente = cacheService.carregar(arquivoCache);
+        Map<String, String> cacheExistente = carregarCache(arquivoCache, gravar, proveniencia);
 
         int kfx = 0;
         int originais = 0;
@@ -270,6 +282,16 @@ public class TraduzirKaraokeUseCase {
         // Traduções desta execução, deduplicadas por texto original (refrão
         // repetido gasta uma chamada de LLM só).
         Map<String, String> traducoes = new HashMap<>();
+        // Dedup por texto VISÍVEL, para o caso em que a MESMA letra aparece em camadas com tags
+        // diferentes. Sem isto a chave é o texto COM tags, e {\fad(100,100)}You old Earthlings
+        // e {\fad(200,200)}You old Earthlings viram duas chaves — duas chamadas ao LLM e, pior,
+        // duas traduções DIVERGENTES na tela. Observado em arquivo ZZ que estava na pasta de
+        // saída usada pela execução de karaokê em 09/08/2026:
+        //     You old Earthlings, => Vocês, velhos terráqueos,
+        //     You old Earthlings, => Vocês, terrestres velhos
+        // Só vale quando as tags estão na BORDA (TextoSemTags): com tag no meio a tradução de
+        // uma camada não tem onde reencaixar os marcadores da outra.
+        Map<String, String> traducaoPorTextoVisivel = new HashMap<>();
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
 
         for (EventoLegenda evento : documento.eventos()) {
@@ -298,6 +320,23 @@ public class TraduzirKaraokeUseCase {
                     String original = evento.texto();
                     String traduzido = traducoes.get(original);
                     boolean veioDoCache = false;
+
+                    // Mesma letra, moldura diferente: reaproveita a tradução já obtida e veste-a
+                    // com a tag DESTA camada. Evita a segunda chamada ao LLM e, sobretudo, evita
+                    // que duas camadas simultâneas mostrem textos diferentes na tela.
+                    if (traduzido == null) {
+                        Optional<TextoSemTags> molde = TextoSemTags.decompor(original);
+                        if (molde.isPresent()) {
+                            String jaTraduzido = traducaoPorTextoVisivel.get(molde.get().textoLimpo());
+                            if (jaTraduzido != null) {
+                                traduzido = molde.get().recompor(jaTraduzido);
+                                logStream.publicarLog(CANAL_LOG,
+                                    "   [CAMADA] mesma letra ja traduzida nesta execucao: "
+                                        + visivelResumido(traduzido));
+                            }
+                        }
+                    }
+
                     if (traduzido == null) {
                         String cacheado = cacheExistente.get(original);
                         if (cacheado != null && !cacheado.isBlank()) {
@@ -309,7 +348,8 @@ public class TraduzirKaraokeUseCase {
                                 semTraducao++;
                                 continue;
                             }
-                            traduzido = traduzirViaLlm(original, avisos, sequencialLote);
+                            traduzido = traduzirViaLlm(
+                                original, avisos, sequencialLote, contextoJob.promptSistema());
                         }
                     }
                     if (traduzido == null) {
@@ -322,6 +362,12 @@ public class TraduzirKaraokeUseCase {
                         continue;
                     }
                     traducoes.put(original, traduzido);
+                    // Registra pelo texto VISÍVEL para que a próxima camada com a mesma letra
+                    // reaproveite em vez de gastar outra chamada e divergir.
+                    TextoSemTags.decompor(traduzido).ifPresent(t ->
+                        traducaoPorTextoVisivel.putIfAbsent(
+                            TextoSemTags.decompor(original).map(TextoSemTags::textoLimpo).orElse(original),
+                            t.textoLimpo()));
                     eventosFinais.add(evento.comTexto(traduzido));
                     if (veioDoCache) {
                         doCache++;
@@ -341,7 +387,7 @@ public class TraduzirKaraokeUseCase {
             escritor.escrever(destino, new DocumentoLegenda(
                 documento.cabecalho(), eventosFinais, documento.quebraDeLinha(), documento.comBom()));
             nomeDestino = destino.toString();
-            salvarCache(arquivoCache, documento, traducoes);
+            salvarCache(arquivoCache, documento, traducoes, proveniencia);
             logStream.publicarLog(CANAL_LOG, "   [GRAVADO] " + destino);
         }
 
@@ -368,7 +414,8 @@ public class TraduzirKaraokeUseCase {
      * {@link AlucinacaoDetectadaException} devolve {@code null} (mantém a linha original) e
      * registra um aviso — nunca propaga para derrubar o arquivo.
      */
-    private String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote) {
+    private String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote,
+                                  String promptSistemaCongelado) {
         // Karaokê pintado LETRA A LETRA: o mascarador comum produziria uma dezena de [[TAGn]]
         // intercalados e o LLM não os devolve na ordem — medido no Guilty Crown em 07/08/2026,
         // 28 das 31 recusas de uma execução foram exatamente isso, e a única que passou saiu
@@ -377,7 +424,8 @@ public class TraduzirKaraokeUseCase {
         // cores voltam distribuídas sobre a tradução. Ver GradienteKaraoke.
         Optional<GradienteKaraoke> gradiente = GradienteKaraoke.decompor(original);
         if (gradiente.isPresent()) {
-            return traduzirGradiente(gradiente.get(), avisos, sequencialLote);
+            return traduzirGradiente(
+                gradiente.get(), avisos, sequencialLote, promptSistemaCongelado);
         }
 
         // TAG NA BORDA (o caso do 08th MS Team, 08/08/2026): a linha tem UMA tag de prefixo,
@@ -395,13 +443,17 @@ public class TraduzirKaraokeUseCase {
         // recolocada aqui. TextoSemTags e o dono desse criterio, ja usado pela fatia traducao.
         Optional<TextoSemTags> semTags = TextoSemTags.decompor(original);
         if (semTags.isPresent()) {
-            return traduzirTextoPuro(semTags.get(), avisos, sequencialLote);
+            return traduzirTextoPuro(
+                semTags.get(), avisos, sequencialLote, promptSistemaCongelado);
         }
 
         MascaradorTags.Mascarado mascarado = mascarador.mascarar(original);
         TraducaoLote resposta;
         try {
-            resposta = llmPort.traduzir(new Lote(sequencialLote.incrementAndGet(), List.of(mascarado.texto())));
+            resposta = llmPort.traduzir(
+                new Lote(sequencialLote.incrementAndGet(), List.of(mascarado.texto())),
+                null,
+                promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; linha mantida sem tradução: " + original);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha (mantida no idioma original): " + e.getMessage());
@@ -454,11 +506,13 @@ public class TraduzirKaraokeUseCase {
      * devolvem {@code null} e a linha fica no idioma original, com aviso. Nunca linha meio montada.
      */
     private String traduzirTextoPuro(TextoSemTags semTags, List<String> avisos,
-                                     AtomicInteger sequencialLote) {
+                                     AtomicInteger sequencialLote, String promptSistemaCongelado) {
         TraducaoLote resposta;
         try {
             resposta = llmPort.traduzir(
-                new Lote(sequencialLote.incrementAndGet(), List.of(semTags.textoLimpo())));
+                new Lote(sequencialLote.incrementAndGet(), List.of(semTags.textoLimpo())),
+                null,
+                promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; letra mantida: " + semTags.textoLimpo());
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha (mantida): " + e.getMessage());
@@ -500,11 +554,13 @@ public class TraduzirKaraokeUseCase {
      * caminho comum. Nunca devolve linha meio montada.
      */
     private String traduzirGradiente(GradienteKaraoke gradiente, List<String> avisos,
-                                     AtomicInteger sequencialLote) {
+                                     AtomicInteger sequencialLote, String promptSistemaCongelado) {
         TraducaoLote resposta;
         try {
             resposta = llmPort.traduzir(
-                new Lote(sequencialLote.incrementAndGet(), List.of(gradiente.textoVisivel())));
+                new Lote(sequencialLote.incrementAndGet(), List.of(gradiente.textoVisivel())),
+                null,
+                promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; letra mantida: " + gradiente.textoVisivel());
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou nesta linha de karaokê (mantida): "
@@ -537,7 +593,8 @@ public class TraduzirKaraokeUseCase {
      * do arquivo, preservando o fluxo de correção manual: o usuário edita o
      * JSON e a reexecução respeita a edição.
      */
-    private void salvarCache(Path arquivoCache, DocumentoLegenda documento, Map<String, String> traducoes) {
+    private void salvarCache(Path arquivoCache, DocumentoLegenda documento, Map<String, String> traducoes,
+                             ProvenienciaCache proveniencia) {
         if (traducoes.isEmpty()) {
             return;
         }
@@ -551,7 +608,7 @@ public class TraduzirKaraokeUseCase {
                     idiomaTraduzido.filter(s -> !s.isBlank()).orElse("pt-br")));
             }
         }
-        cacheService.salvar(arquivoCache, new ArrayList<>(porOriginal.values()));
+        cacheService.salvar(arquivoCache, proveniencia, new ArrayList<>(porOriginal.values()));
     }
 
     private void registrarArtefatos(
@@ -560,10 +617,13 @@ public class TraduzirKaraokeUseCase {
         List<ResultadoTraducaoKaraoke> resultados,
         long duracaoMs,
         int detectadas,
-        int corrigidas
+        int corrigidas,
+        SnapshotContexto contexto,
+        ProvenienciaCache proveniencia
     ) {
         try {
-            Path manifesto = persistencia.salvarManifesto(pastaOrigem, pastaDestino, resultados, duracaoMs);
+            Path manifesto = persistencia.salvarManifesto(
+                pastaOrigem, pastaDestino, resultados, duracaoMs, contexto, proveniencia);
             if (manifesto != null) {
                 logStream.publicarLog(CANAL_LOG, "Manifesto de auditoria salvo em: " + manifesto);
             }
@@ -573,7 +633,8 @@ public class TraduzirKaraokeUseCase {
         telemetriaService.finalizarOperacao(
             TelemetriaService.criarOperacao(
                 "Tradução de Karaokê (LLM)",
-                "Legendas: " + pastaOrigem + " → " + pastaDestino,
+                "Contexto: " + contexto.nomeExibicao() + " (" + contexto.id() + ") | hash="
+                    + proveniencia.contextoHash() + " | Legendas: " + pastaOrigem + " → " + pastaDestino,
                 duracaoMs,
                 resultados.size(),
                 detectadas,
@@ -602,17 +663,40 @@ public class TraduzirKaraokeUseCase {
         return sb.toString();
     }
 
-    /**
-     * O contexto de lore ativo é estado global lido pelo adapter do LLM ao
-     * montar o prompt — por isso este use case só roda pela fila do pipeline.
-     * (Nulo em testes unitários, onde não há CDI nem chamada real de LLM.)
-     */
-    private void ativarContexto(String contextoId) {
+    /** Congela exatamente a obra escolhida; a pasta não participa da decisão de lore. */
+    private SnapshotContexto congelarContexto(String contextoId) {
         if (gerenciadorContexto == null) {
-            return;
+            throw new TraducaoKaraokeException(
+                "Gerenciador de contexto indisponível; a lore selecionada não pode ser congelada.");
         }
-        gerenciadorContexto.definirContextoAtivo(contextoId);
-        logStream.publicarLog(CANAL_LOG, "[CONTEXTO] Obra ativa: " + gerenciadorContexto.obterNomeContextoAtivo());
+        return gerenciadorContexto.snapshotPorId(contextoId);
+    }
+
+    private ProvenienciaCache provenienciaDe(SnapshotContexto contexto) {
+        String modelo = llmPort.modeloAtivo();
+        return new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL,
+            contexto.id(),
+            ProvenienciaCache.hashDe(contexto.promptSistema()),
+            modelo == null || modelo.isBlank() ? "desconhecido" : modelo,
+            idiomaOriginal.filter(s -> !s.isBlank()).orElse("en"),
+            idiomaTraduzido.filter(s -> !s.isBlank()).orElse("pt-br"));
+    }
+
+    private Map<String, String> carregarCache(
+        Path arquivoCache, boolean gravar, ProvenienciaCache proveniencia
+    ) {
+        if (!gravar) {
+            return Map.of();
+        }
+        CacheTraducaoService.ResultadoCarga carga = cacheService.carregar(arquivoCache, proveniencia);
+        if (carga.migrado()) {
+            cacheService.arquivarGeracaoSemProveniencia(arquivoCache);
+            logStream.publicarLog(CANAL_LOG,
+                "   [CACHE IGNORADO] cache antigo sem contexto/lore foi preservado; linhas serão retraduzidas e carimbadas.");
+            return Map.of();
+        }
+        return carga.mapa();
     }
 
     private List<Path> listarLegendas(Path pasta) {

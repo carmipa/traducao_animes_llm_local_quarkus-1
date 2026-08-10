@@ -3,6 +3,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.llm.domain.LlmPort;
+import org.traducao.projeto.qualidadeTraducao.application.IsoladorQuebraDialogo;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -54,6 +55,7 @@ public class ProvedorCorrecaoFala {
     private final RecuperacaoExternaRevisaoPort recuperacaoExterna;
     private final ProtetorTermosLoreService protetorLore;
     private final MascaradorTags mascaradorTags;
+    private final IsoladorQuebraDialogo isoladorQuebra;
     private final ValidadorTraducaoService validador;
     private final ProtecaoLegendaAssService protecaoAss;
 
@@ -67,12 +69,14 @@ public class ProvedorCorrecaoFala {
             RecuperacaoExternaRevisaoPort recuperacaoExterna,
             ProtetorTermosLoreService protetorLore,
             MascaradorTags mascaradorTags,
+            IsoladorQuebraDialogo isoladorQuebra,
             ValidadorTraducaoService validador,
             ProtecaoLegendaAssService protecaoAss) {
         this.llmPort = llmPort;
         this.recuperacaoExterna = recuperacaoExterna;
         this.protetorLore = protetorLore;
         this.mascaradorTags = mascaradorTags;
+        this.isoladorQuebra = isoladorQuebra;
         this.validador = validador;
         this.protecaoAss = protecaoAss;
     }
@@ -191,21 +195,28 @@ public class ProvedorCorrecaoFala {
     private TentativaRevisaoLegenda tentarRevisarConcordancia(
         String original, String traduzido, List<String> motivos, ContextoRevisao contexto) {
         String textoOriginal = original != null ? original : "";
+        // O inglês é apenas referência semântica. Suas tags não pertencem ao contrato estrutural
+        // da legenda PT e, se virassem [[TAGn]], o modelo poderia copiá-las para uma tradução que
+        // legitimamente não possui nenhuma tag (caso real: Zeta S01E02, evento 628).
+        String originalVisivel = protecaoAss.textoVisivel(textoOriginal);
         ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
-            textoOriginal, contexto.lore(), contexto.termosProtegidos());
+            originalVisivel, contexto.lore(), contexto.termosProtegidos());
+        IsoladorQuebraDialogo.FalaIsolada traducaoIsolada = isoladorQuebra.isolar(traduzido);
         ProtetorTermosLoreService.TextoProtegido traducaoProtegida = protetorLore.mascarar(
-            traduzido, contexto.lore(), contexto.termosProtegidos());
-        MascaradorTags.Mascarado mascOriginal = mascaradorTags.mascarar(originalProtegido.textoMascarado());
+            traducaoIsolada.textoSemQuebra(), contexto.lore(), contexto.termosProtegidos());
         MascaradorTags.Mascarado mascTraduzido = mascaradorTags.mascarar(traducaoProtegida.textoMascarado());
 
         Optional<String> resposta = PoliticaRetraducao.exigeRetraducaoCompletaPeloLlm(motivos)
-            ? llmPort.corrigirTraducao(mascOriginal.texto(), mascTraduzido.texto(), String.join(", ", motivos))
-            : llmPort.revisarConcordancia(mascOriginal.texto(), mascTraduzido.texto(), motivos);
+            ? llmPort.corrigirTraducao(originalProtegido.textoMascarado(), mascTraduzido.texto(),
+                String.join(", ", motivos))
+            : llmPort.revisarConcordancia(
+                originalProtegido.textoMascarado(), mascTraduzido.texto(), motivos);
 
         if (resposta.isEmpty()) {
             return TentativaRevisaoLegenda.pendente(
                 "LLM_SEM_CONTEUDO_UTILIZAVEL",
-                "O servidor não devolveu choices/content utilizável; consulte o log técnico para HTTP ou timeout.",
+                "O LLM não devolveu uma linha final utilizável após as tentativas. A resposta pode "
+                    + "estar vazia ou ter estrutura de marcadores incompatível; consulte o log técnico.",
                 null);
         }
 
@@ -217,6 +228,13 @@ public class ProvedorCorrecaoFala {
                 return TentativaRevisaoLegenda.pendente(
                     "LLM_MARCADOR_LORE_INCOMPATIVEL",
                     "A proposta perdeu ou alterou marcador protegido pela lore.", proposta);
+            }
+            restaurado = isoladorQuebra.reaplicar(restaurado, traducaoIsolada.quebras());
+            if (!mascaradorTags.preservaEstruturaOriginal(traduzido, restaurado)) {
+                return TentativaRevisaoLegenda.pendente(
+                    "LLM_ESTRUTURA_ASS_SUSPEITA",
+                    "A proposta não permitiu restaurar integralmente as tags e quebras da legenda PT.",
+                    proposta);
             }
             validador.validarFala(restaurado);
             if (protecaoAss.respostaSuspeita(original, restaurado)) {

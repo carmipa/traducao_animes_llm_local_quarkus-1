@@ -39,6 +39,7 @@ import org.traducao.projeto.traducao.domain.fallback.ResultadoFallback;
 import org.traducao.projeto.traducao.domain.fallback.StatusFallback;
 import org.traducao.projeto.traducao.domain.ports.FallbackTraducaoMaquinaPort;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.IsoladorQuebraDialogo;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
