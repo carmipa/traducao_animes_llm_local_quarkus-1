@@ -106,7 +106,7 @@ public class AchatadorEstilosDecorativosService {
         Map<String, String> fontesPorEstilo = mapaFontes(documento.cabecalho());
         String estiloBase = determinarEstiloBase(documento, fontesPorEstilo);
         String fonteBase = estiloBase == null ? null : fontesPorEstilo.get(estiloBase.toLowerCase(Locale.ROOT));
-        int indiceColunaStyle = indiceColunaStyle(documento.cabecalho());
+        int indiceColunaStyle = indiceColuna(documento.cabecalho(), "Style");
         if (estiloBase == null || fonteBase == null || indiceColunaStyle < 0) {
             return new Resultado(documento, 0, List.of(), 0);
         }
@@ -266,9 +266,23 @@ public class AchatadorEstilosDecorativosService {
      * PROPÓSITO DE NEGÓCIO: elege o estilo de diálogo principal (a "fonte da verdade"
      * de legibilidade) usado como alvo do achatamento.
      *
-     * <p>INVARIANTES DO DOMÍNIO: prefere {@code Default} quando presente no cabeçalho;
-     * senão, o estilo mais frequente entre as falas {@code Dialogue} que tenha fonte
-     * declarada.
+     * <p>INVARIANTES DO DOMÍNIO: prefere {@code Default} quando presente no cabeçalho.
+     * Na ausência dele, vence o estilo com MAIOR TEMPO DE TELA entre as falas
+     * {@code Dialogue} com fonte declarada — nunca o mais numeroso. Contagem de eventos
+     * só decide quando nenhuma duração pôde ser lida (legenda sem colunas Start/End ou
+     * com tempos ilegíveis), e aí o critério antigo volta como último recurso.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * O critério anterior era "estilo mais frequente" e elegia a DECORAÇÃO como base.
+     * O logo de abertura do Zeta Gundam é animado quadro a quadro: 297 eventos do estilo
+     * {@code Zeta Episode Title}, de 0,04 s cada — 6 segundos de tela no total. Nos
+     * episódios 1, 8 e 14 esses 297 quadros superavam as 205/291/275 falas de diálogo do
+     * episódio, então a decoração ganhava a votação e o achatamento rodava AO CONTRÁRIO:
+     * o diálogo inteiro era jogado no estilo do letreiro (corpo 100, contorno 0, sombra 0,
+     * cinza claro, margem lateral 10), ficando ilegível sobre cena clara. Nos outros 47
+     * episódios o defeito não apareceu por um fio — no episódio 2 foram 298 falas contra
+     * 297 quadros, UMA linha de diferença. Por tempo de tela a separação é de duas ordens
+     * de grandeza (6 s de logo contra ~10 min de diálogo), e não depende de sorte.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: nenhum candidato com fonte conhecida devolve
      * {@code null}, sinalizando a {@link #achatar} para preservar o documento.
@@ -279,12 +293,27 @@ public class AchatadorEstilosDecorativosService {
                 return info.estilo();
             }
         }
+        int colunaInicio = indiceColuna(documento.cabecalho(), "Start");
+        int colunaFim = indiceColuna(documento.cabecalho(), "End");
+
+        Map<String, Long> tempoDeTela = new LinkedHashMap<>();
         Map<String, Integer> frequencia = new LinkedHashMap<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (evento.isDialogo() && evento.estilo() != null
-                && fontesPorEstilo.containsKey(evento.estilo().toLowerCase(Locale.ROOT))) {
-                frequencia.merge(evento.estilo(), 1, Integer::sum);
+            if (!evento.isDialogo() || evento.estilo() == null
+                || !fontesPorEstilo.containsKey(evento.estilo().toLowerCase(Locale.ROOT))) {
+                continue;
             }
+            frequencia.merge(evento.estilo(), 1, Integer::sum);
+            tempoDeTela.merge(evento.estilo(), duracaoEmCentesimos(evento, colunaInicio, colunaFim), Long::sum);
+        }
+
+        String porTempoDeTela = tempoDeTela.entrySet().stream()
+            .filter(entrada -> entrada.getValue() > 0L)
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null);
+        if (porTempoDeTela != null) {
+            return porTempoDeTela;
         }
         return frequencia.entrySet().stream()
             .max(Map.Entry.comparingByValue())
@@ -293,16 +322,106 @@ public class AchatadorEstilosDecorativosService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: localiza a posição (0-based) da coluna Style na seção
-     * {@code [Events]}, necessária para reescrever o estilo dentro do prefixo bruto.
+     * PROPÓSITO DE NEGÓCIO: mede quanto tempo uma fala fica no ar, para que a eleição do
+     * estilo base pese presença na tela em vez de número de linhas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: resultado em centésimos de segundo e nunca negativo —
+     * fim anterior ao início vale {@code 0}. Não interpreta o conteúdo da fala nem altera
+     * o evento.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: coluna ausente, prefixo fora do formato ou tempo
+     * ilegível devolvem {@code 0}, o que faz o estilo apenas não somar tempo — nunca lança
+     * e nunca derruba a eleição inteira por causa de uma linha malformada.
+     */
+    private long duracaoEmCentesimos(EventoLegenda evento, int colunaInicio, int colunaFim) {
+        if (colunaInicio < 0 || colunaFim < 0) {
+            return 0L;
+        }
+        String[] campos = camposDoPrefixo(evento);
+        if (campos == null || colunaInicio >= campos.length || colunaFim >= campos.length) {
+            return 0L;
+        }
+        long inicio = emCentesimos(campos[colunaInicio]);
+        long fim = emCentesimos(campos[colunaFim]);
+        if (inicio < 0L || fim < 0L) {
+            return 0L;
+        }
+        return Math.max(0L, fim - inicio);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: converte o carimbo de tempo do formato ASS ({@code H:MM:SS.CC})
+     * para centésimos de segundo, unidade em que as durações são somadas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: aceita horas com um ou mais dígitos e centésimos com um ou
+     * dois; espaços em volta são tolerados. Não faz aritmética de fuso nem de quadro.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code -1} para nulo, formato inesperado ou
+     * número não parseável, sinalizando "não medi" — que o chamador traduz em duração zero.
+     */
+    private static long emCentesimos(String tempo) {
+        if (tempo == null) {
+            return -1L;
+        }
+        String t = tempo.trim();
+        int primeiroDoisPontos = t.indexOf(':');
+        int segundoDoisPontos = primeiroDoisPontos < 0 ? -1 : t.indexOf(':', primeiroDoisPontos + 1);
+        int ponto = t.lastIndexOf('.');
+        if (primeiroDoisPontos < 0 || segundoDoisPontos < 0 || ponto < segundoDoisPontos) {
+            return -1L;
+        }
+        try {
+            long horas = Long.parseLong(t.substring(0, primeiroDoisPontos));
+            long minutos = Long.parseLong(t.substring(primeiroDoisPontos + 1, segundoDoisPontos));
+            long segundos = Long.parseLong(t.substring(segundoDoisPontos + 1, ponto));
+            String centesimosTexto = t.substring(ponto + 1);
+            long centesimos = Long.parseLong(centesimosTexto);
+            if (centesimosTexto.length() == 1) {
+                centesimos *= 10L;
+            }
+            return ((horas * 60L + minutos) * 60L + segundos) * 100L + centesimos;
+        } catch (NumberFormatException e) {
+            return -1L;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quebra o prefixo estrutural de um evento nas suas colunas, para
+     * que estilo e tempos sejam lidos pelo índice declarado no {@code Format:} do cabeçalho.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não descarta colunas vazias (usa limite negativo no split),
+     * de modo que o índice lido do cabeçalho continua válido. Não modifica o evento.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo, sem o cabeçalho {@code tipo + ": "} ou
+     * que não termine em vírgula devolve {@code null} — o chamador trata como "não medi".
+     */
+    private String[] camposDoPrefixo(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null || evento.tipoLinha() == null) {
+            return null;
+        }
+        String cabeca = evento.tipoLinha() + ": ";
+        String prefixo = evento.prefixo();
+        if (!prefixo.startsWith(cabeca) || !prefixo.endsWith(",")) {
+            return null;
+        }
+        return prefixo.substring(cabeca.length(), prefixo.length() - 1).split(",", -1);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: localiza a posição (0-based) de uma coluna declarada na seção
+     * {@code [Events]} — {@code Style} para reescrever o estilo dentro do prefixo bruto,
+     * {@code Start}/{@code End} para medir o tempo de tela na eleição do estilo base.
      *
      * <p>INVARIANTES DO DOMÍNIO: usa a primeira linha {@code Format:} após {@code [Events]};
-     * comparação de nome de coluna case-insensitive e sem espaços.
+     * comparação de nome de coluna case-insensitive e sem espaços. A ordem das colunas é
+     * lida do arquivo, nunca presumida — legenda com {@code Format:} fora do padrão continua
+     * sendo tratada corretamente.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: seção/coluna ausente devolve {@code -1}, o que
-     * aborta o achatamento sem alterar o documento.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: seção/coluna ausente devolve {@code -1}. Para
+     * {@code Style} isso aborta o achatamento sem alterar o documento; para os tempos, apenas
+     * faz a eleição cair no critério de contagem.
      */
-    private int indiceColunaStyle(String cabecalho) {
+    private int indiceColuna(String cabecalho, String nomeColuna) {
         String[] linhas = cabecalho.split("\r\n|\n", -1);
         boolean emEvents = false;
         for (String linha : linhas) {
@@ -314,7 +433,7 @@ public class AchatadorEstilosDecorativosService {
             if (emEvents && t.regionMatches(true, 0, "Format:", 0, "Format:".length())) {
                 String[] colunas = t.substring(t.indexOf(':') + 1).split(",");
                 for (int i = 0; i < colunas.length; i++) {
-                    if (colunas[i].trim().equalsIgnoreCase("Style")) {
+                    if (colunas[i].trim().equalsIgnoreCase(nomeColuna)) {
                         return i;
                     }
                 }
