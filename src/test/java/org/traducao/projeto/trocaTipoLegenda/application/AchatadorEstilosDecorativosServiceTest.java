@@ -251,6 +251,70 @@ class AchatadorEstilosDecorativosServiceTest {
             "a contagem antiga sobreviveu e agora mente sobre o arquivo");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: sem estilo {@code Default} no cabeçalho, quem vira base do
+     * achatamento é o estilo que mais OCUPA A TELA — nunca o que tem mais linhas.
+     *
+     * <p>O PREJUÍZO: o critério antigo era "estilo mais frequente", e o logo de abertura
+     * do Zeta Gundam é animado quadro a quadro: 297 eventos de {@code Zeta Episode Title},
+     * 0,04 s cada. Nos episódios 1, 8 e 14 esses quadros superavam as 205/291/275 falas do
+     * episódio, a decoração ganhava a votação e o achatamento rodava AO CONTRÁRIO — o
+     * diálogo inteiro ia parar no estilo do letreiro (corpo 100, contorno 0, sombra 0,
+     * cinza), ilegível sobre cena clara. Nos outros 47 episódios escapou por uma linha: no
+     * episódio 2 foram 298 falas contra 297 quadros.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: uma regressão que volte a contar eventos elege
+     * {@code Zeta Episode Title} (5 quadros contra 3 falas) e o teste reprova mostrando o
+     * estilo em que cada linha parou.
+     */
+    @Test
+    @DisplayName("sem Default, a base e' o estilo com mais TEMPO DE TELA, nao o mais numeroso")
+    void baseEhOEstiloComMaisTempoDeTela(@TempDir Path dir) throws IOException {
+        // Fiel ao Zeta: nao existe estilo "Default"; o diálogo tem MENOS linhas (3) que a
+        // animação do logo (5 quadros), mas 9 s de tela contra 0,20 s.
+        String ass = String.join("\n",
+            "[Script Info]",
+            "ScriptType: v4.00+",
+            "",
+            "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+                + "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+                + "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+            "Style: Dialogue,VnBook-Antiqua,75,&H00FFFFFF,&H000000FF,&H0007071A,&HDC060618,0,0,0,0,"
+                + "95,100,0,0,1,3.6,1.8,2,56,56,50,1",
+            "Style: Zeta Episode Title,Arial,100,&H00DDDBDB,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,2,0,1,0,0,2,10,10,45,1",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:00:02.31,0:00:02.35,Zeta Episode Title,,0,0,0,,{\\fs130\\pos(-178,570)}Mobile Suit",
+            "Dialogue: 0,0:00:02.35,0:00:02.39,Zeta Episode Title,,0,0,0,,{\\fs130\\pos(-146,570)}Mobile Suit",
+            "Dialogue: 0,0:00:02.39,0:00:02.43,Zeta Episode Title,,0,0,0,,{\\fs130\\pos(-130,570)}Mobile Suit",
+            "Dialogue: 0,0:00:02.43,0:00:02.47,Zeta Episode Title,,0,0,0,,{\\fs150\\pos(1424,972)}Gundam",
+            "Dialogue: 0,0:00:02.47,0:00:02.51,Zeta Episode Title,,0,0,0,,{\\fs150\\pos(1420,970)}Gundam",
+            "Dialogue: 0,0:02:10.20,0:02:13.20,Dialogue,,0,0,0,,Tenente Apolly. Como vai?",
+            "Dialogue: 0,0:02:13.20,0:02:16.20,Dialogue,,0,0,0,,Ele esta louco?!",
+            "Dialogue: 0,0:02:16.20,0:02:19.20,Dialogue,,0,0,0,,Voce nao precisa da permissao de ninguem.",
+            "");
+        Path arquivo = dir.resolve("zeta.ass");
+        Files.writeString(arquivo, ass, StandardCharsets.UTF_8);
+
+        AchatadorEstilosDecorativosService.Resultado r = achatador.achatar(leitor.ler(arquivo));
+
+        for (EventoLegenda evento : r.documento().eventos()) {
+            assertEquals("Dialogue", evento.estilo(),
+                "a fala [" + evento.texto() + "] parou no estilo \"" + evento.estilo()
+                    + "\"; a base tinha de ser \"Dialogue\", que ocupa 9 s de tela contra 0,20 s"
+                    + " dos 5 quadros do logo");
+        }
+        assertTrue(r.estilosDecorativos().contains("Zeta Episode Title"),
+            "os quadros do logo e' que deveriam ter sido achatados, nao o dialogo");
+        assertEquals("Tenente Apolly. Como vai?", r.documento().eventos().get(5).texto(),
+            "dialogo que ja' esta' na base nao pode ser tocado");
+        assertEquals("Mobile Suit", r.documento().eventos().get(0).texto(),
+            "o quadro do logo perde o \\pos e o \\fs ao ser achatado");
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);
