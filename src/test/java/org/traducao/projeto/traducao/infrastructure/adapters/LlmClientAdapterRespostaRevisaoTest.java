@@ -74,4 +74,25 @@ class LlmClientAdapterRespostaRevisaoTest {
 
         assertEquals("", normalizada);
     }
+
+    /**
+     * Regressão de Zeta S01E02, evento 628: a tradução atual não tinha tags, mas o modelo copiou
+     * {@code [[TAG0]]} da referência inglesa. Zero esperado não significa aceitar qualquer coisa.
+     */
+    @Test
+    void rejeitaMarcadorInventadoQuandoNenhumEraEsperado() {
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
+            "[[TAG0]]Tem a cor de chamas ardendo vividamente...", List.of());
+
+        assertEquals("", normalizada);
+    }
+
+    /** Marcadores iguais, mas reordenados, mudariam a posição dos efeitos no texto final. */
+    @Test
+    void rejeitaMarcadoresForaDaOrdemOriginal() {
+        String normalizada = LlmClientAdapter.normalizarLinhaUnica(
+            "[[TAG1]]Texto[[TAG0]]", List.of("[[TAG0]]", "[[TAG1]]"));
+
+        assertEquals("", normalizada);
+    }
 }

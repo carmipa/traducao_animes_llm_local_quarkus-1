@@ -1,6 +1,6 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 
-const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.3';
+const PAINEL_HTML = 'trocaTipoLegenda/trocaTipoLegenda.html?v=3.4';
 
 function escapeHtml(texto) {
     return String(texto ?? '')
@@ -79,6 +79,7 @@ function vincularAbas() {
 function vincularEventos() {
     const btnEscanear = document.getElementById('btn-escanear-fontes');
     const btnAplicar = document.getElementById('btn-aplicar-substituicoes');
+    const btnForcarArial = document.getElementById('btn-forcar-arial');
     const btnAchatar = document.getElementById('btn-achatar-estilos');
     const btnLimpar = document.querySelector('.btn-clear-form[data-form="form-troca-tipo-legenda"]');
     const inputEntrada = document.getElementById('troca-tipo-legenda-entrada');
@@ -86,6 +87,8 @@ function vincularEventos() {
     const areaResultado = document.getElementById('area-auditoria-resultado');
     const cardCorrecao = document.getElementById('card-correcao-desbloqueado');
     const tabelaFontesCorpo = document.querySelector('#tabela-fontes tbody');
+    const tituloCorrecaoFontes = document.getElementById('titulo-correcao-fontes');
+    const textoCorrecaoFontes = document.getElementById('texto-correcao-fontes');
     
     const badgeTotal = document.getElementById('badge-total-arquivos');
     const badgeProblemas = document.getElementById('badge-arquivos-problemas');
@@ -100,7 +103,7 @@ function vincularEventos() {
         tabelaFontesCorpo.innerHTML = '';
 
         if (!data.arquivos || data.arquivos.length === 0) {
-            tabelaFontesCorpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Nenhum arquivo de legenda encontrado na pasta.</td></tr>`;
+            tabelaFontesCorpo.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Nenhum arquivo de legenda encontrado na pasta.</td></tr>`;
             if (btnToggleOk) btnToggleOk.classList.add('hidden');
             return;
         }
@@ -129,7 +132,7 @@ function vincularEventos() {
         if (arquivosVisiveis.length === 0) {
             tabelaFontesCorpo.innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align:center; color: var(--accent-green); font-weight: 700;">
+                    <td colspan="6" style="text-align:center; color: var(--accent-green); font-weight: 700;">
                         Nenhuma legenda precisa de alteração. ${arquivosOk.length} arquivo(s) estão OK.
                     </td>
                 </tr>
@@ -140,7 +143,9 @@ function vincularEventos() {
         arquivosVisiveis.forEach(arq => {
             const nomeArq = arq.arquivo;
             const nomeArqSeguro = escapeHtml(nomeArq);
+            const tipoLegenda = escapeHtml(arq.tipoLegenda || 'ASS/SSA');
             const fontesProblematicas = (arq.fontes || []).filter(fonteInfo => fonteInfo.problematica);
+            const fontesDoArquivo = (arq.fontes || []);
             const temProblema = fontesProblematicas.length > 0;
             const tr = document.createElement('tr');
             if (temProblema) {
@@ -158,18 +163,23 @@ function vincularEventos() {
                     const fonteSugeridaSegura = escapeHtml(fonteInfo.fonteSugerida);
                     return `<code>${estiloSeguro}: ${fonteAtualSegura} -> ${fonteSugeridaSegura}</code>`;
                 }).join('<br>')
-                : '<span style="color: var(--text-muted);">Nenhuma fonte legacy detectada</span>';
+                : fontesDoArquivo.map(fonteInfo => {
+                    const estiloSeguro = escapeHtml(fonteInfo.estilo);
+                    const fonteAtualSegura = escapeHtml(fonteInfo.fonteAtual);
+                    return `<code>${estiloSeguro}: ${fonteAtualSegura}</code>`;
+                }).join('<br>') || '<span style="color: var(--text-muted);">Sem estilos declarados</span>';
 
             const acaoHtml = temProblema
                 ? '<strong style="color: var(--accent-green);">Substituir por Arial</strong>'
-                : '<span style="color: var(--text-muted);">Manter arquivo</span>';
+                : '<span style="color: var(--text-muted);">OK automático; Arial manual disponível</span>';
 
             const decisaoHtml = temProblema
                 ? '<span class="status-badge pulse-red">Alterar se aplicar lote</span>'
-                : '<span class="status-badge pulse-green">Não alterar</span>';
+                : '<span class="status-badge pulse-green">Operador decide</span>';
 
             tr.innerHTML = `
                 <td class="td-arquivo-legenda" title="${nomeArqSeguro}"><strong>${nomeArqSeguro}</strong></td>
+                <td><span class="meta-badge">${tipoLegenda}</span></td>
                 <td>${diagnosticoHtml}</td>
                 <td>${fontesHtml}</td>
                 <td>${acaoHtml}</td>
@@ -201,9 +211,8 @@ function vincularEventos() {
         // Oculta cards antigos
         areaResultado.classList.add('hidden');
         cardCorrecao.classList.add('hidden');
-        if (btnAplicar) {
-            btnAplicar.disabled = false;
-        }
+        if (btnAplicar) btnAplicar.disabled = false;
+        if (btnForcarArial) btnForcarArial.disabled = false;
         if (btnToggleOk) {
             btnToggleOk.classList.add('hidden');
         }
@@ -238,18 +247,32 @@ function vincularEventos() {
             ultimoResultadoAuditoria = data;
             renderizarTabelaAuditoria(data);
 
-            // Desbloqueia a área de alteração se houver problemas
-            if (data.totalComProblemas > 0) {
+            const temProblemas = data.totalComProblemas > 0;
+            const temArquivos = data.totalArquivosAnalisados > 0;
+
+            if (temArquivos) {
                 cardCorrecao.classList.remove('hidden');
-                if (btnAplicar) {
-                    btnAplicar.disabled = false;
+                if (btnAplicar) btnAplicar.disabled = !temProblemas;
+                if (btnForcarArial) btnForcarArial.disabled = false;
+                if (tituloCorrecaoFontes) {
+                    tituloCorrecaoFontes.textContent = temProblemas
+                        ? 'Fontes Legacy/ANSI Detectadas'
+                        : 'Normalização Manual Disponível';
                 }
+                if (textoCorrecaoFontes) {
+                    textoCorrecaoFontes.textContent = temProblemas
+                        ? 'Alto risco de renderização incorreta de acentos PT-BR. Você pode aplicar a correção automática ou forçar Arial em todos os estilos.'
+                        : 'A auditoria automática não encontrou problema obrigatório, mas você pode trocar os Fontname dos estilos para Arial se a legenda estiver ruim na TV.';
+                }
+            }
+
+            if (temProblemas) {
                 logNoConsole('console-troca-tipo-legenda', `Auditoria concluída: ${data.totalComProblemas} de ${data.totalArquivosAnalisados} arquivos possuem fontes vietnamitas legadas de alto risco. Área de substituição liberada!`, 'aviso');
                 mostrarAlerta('Auditoria concluída! Fontes legadas problemáticas foram detectadas.', 'aviso');
             } else {
-                cardCorrecao.classList.add('hidden');
-                logNoConsole('console-troca-tipo-legenda', `Auditoria concluída: Todos os ${data.totalArquivosAnalisados} arquivos estão com fontes Unicode seguras. Nenhuma ação necessária!`, 'sucesso');
-                mostrarAlerta('Parabéns! Todas as fontes analisadas são Unicode seguras.', 'sucesso');
+                if (!temArquivos) cardCorrecao.classList.add('hidden');
+                logNoConsole('console-troca-tipo-legenda', `Auditoria concluída: ${data.totalArquivosAnalisados} arquivo(s) analisado(s). Normalização manual para Arial disponível.`, 'sucesso');
+                mostrarAlerta('Auditoria concluída. Se quiser, você pode normalizar as fontes para Arial.', 'sucesso');
             }
 
         } catch (err) {
@@ -260,20 +283,30 @@ function vincularEventos() {
         }
     });
 
-    // Ação do Botão: Aplicar Substituições
-    if (btnAplicar) {
-        btnAplicar.addEventListener('click', async () => {
+    const aplicarTrocaFontes = async (forcarArial) => {
             const caminho = inputEntrada.value.trim();
             if (!caminho) return;
+            if (forcarArial) {
+                const ok = window.confirm(
+                    'Forçar Arial troca somente o Fontname dos estilos no cabeçalho ASS/SSA.\n\n'
+                    + 'Não achata estilos, não remove efeitos e não altera os textos/tempos das falas. '
+                    + 'Um backup será criado antes da gravação.\n\nContinuar?');
+                if (!ok) return;
+            }
 
-            logNoConsole('console-troca-tipo-legenda', `Solicitando substituição de fontes em lote no pipeline...`, 'info');
-            btnAplicar.disabled = true;
+            logNoConsole('console-troca-tipo-legenda',
+                forcarArial
+                    ? 'Solicitando normalização manual de fontes para Arial no pipeline...'
+                    : 'Solicitando substituição de fontes em lote no pipeline...',
+                'info');
+            if (forcarArial && btnForcarArial) btnForcarArial.disabled = true;
+            if (!forcarArial && btnAplicar) btnAplicar.disabled = true;
 
             try {
                 const res = await fetch('/api/troca-legenda/aplicar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ diretorioLegendas: caminho })
+                    body: JSON.stringify({ diretorioLegendas: caminho, forcarArial })
                 });
 
                 const data = await res.json().catch(() => ({}));
@@ -283,16 +316,29 @@ function vincularEventos() {
                 }
 
                 logNoConsole('console-troca-tipo-legenda', data.mensagem || 'Substituição iniciada.', 'sucesso');
-                mostrarAlerta('Processo de substituição de fontes iniciado! Acompanhe os logs.', 'sucesso');
-                
+                mostrarAlerta(
+                    forcarArial
+                        ? 'Normalização para Arial iniciada! Acompanhe os logs.'
+                        : 'Processo de substituição de fontes iniciado! Acompanhe os logs.',
+                    'sucesso');
+
                 // Oculta a área de substituição para evitar duplo clique
                 cardCorrecao.classList.add('hidden');
             } catch (err) {
                 logNoConsole('console-troca-tipo-legenda', `Erro: ${err.message}`, 'erro');
                 mostrarAlerta(err.message, 'erro');
-                btnAplicar.disabled = false;
+                if (forcarArial && btnForcarArial) btnForcarArial.disabled = false;
+                if (!forcarArial && btnAplicar) btnAplicar.disabled = false;
             }
-        });
+    };
+
+    // Ação do Botão: Aplicar Substituições
+    if (btnAplicar) {
+        btnAplicar.addEventListener('click', () => aplicarTrocaFontes(false));
+    }
+
+    if (btnForcarArial) {
+        btnForcarArial.addEventListener('click', () => aplicarTrocaFontes(true));
     }
 
     // Ação do Botão: Achatar Estilos Decorativos (OP/ED/Sign -> Default)

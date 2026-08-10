@@ -89,6 +89,38 @@ sequenceDiagram
 
 `RevisarLegendasUseCase` também conserta **"karaoke quebrado"** — chaves `{texto}` sem `\`/`=` na frente — via regex, antes de qualquer chamada externa.
 
+### Contrato de tags entre inglês e PT
+
+Na revisão por LLM, o original inglês é somente referência semântica: suas tags ASS são removidas
+antes do prompt. A estrutura que deve sobreviver vem exclusivamente da legenda PT atual. Assim, se
+o inglês contém `{\blur2...}` e o PT não contém tag, o modelo recebe zero `[[TAGn]]` obrigatórios e
+não pode copiar um marcador do original para a resposta.
+
+A normalização exige igualdade exata de quantidade, ordem e identidade dos marcadores. Resposta que
+perca, duplique, reordene ou invente `[[TAGn]]` é descartada e provoca nova tentativa; nenhuma versão
+estruturalmente divergente é publicada. Este contrato corrige o caso real do Zeta S01E02, evento 628,
+em que uma tradução correta era recusada porque o LLM copiava `[[TAG0]]` existente apenas no inglês.
+
+Quebras internas `\\N` da legenda PT seguem um caminho separado: são retiradas antes da chamada ao
+LLM e recolocadas deterministicamente no limite textual mais equilibrado depois da resposta. Os
+termos canônicos são mascarados pela proteção de lore entre essas duas etapas e restaurados antes da
+validação final. Isso evita que o modelo descarte a quebra sem abrir mão da proteção de nomes.
+
+O detector de idioma também analisa o texto sem os termos já reconhecidos pela lore. Assim,
+`Mont Blanc` (nave incluída no contexto de Zeta) não é confundido com vazamento de francês por causa
+de `blanc`, enquanto francês real, como `aura bleu`, continua sendo rejeitado. A regressão cobre a
+fala real do Zeta S01E07 sobre os pilotos do GM no Argama e preserva exatamente uma quebra `\\N`.
+
+Uma auditoria dos 50 `.ass` ingleses de Zeta ampliou o catálogo operacional com nomes efetivamente
+usados nos diálogos, incluindo `Dogosse Gier`, `Rosammy`, `Haro`, `Shinta`, `Qum`, `Green Noa`,
+`Green Oasis`, `Von Braun City`, `Bosnia`, `Sudori`, `Baund Doc` e o elenco secundário recorrente.
+Aliases curtos ambíguos (`Four`, `Fa` e `Bright`) não são protegidos isoladamente, porque o casamento
+ignora caixa; suas formas completas (`Four Murasame`, `Fa Yuiry`, `Bright Noa`) continuam protegidas.
+O mapa de terminologia, espelhado na Revisão de Lore, também restaura variantes realmente observadas,
+como `Dogosse Giar → Dogosse Gier`, `Quem → Qum`, `Mancack → Manack`, `Ramus → Ramsus` e
+`Rosamia → Rosammy` quando o original inglês contém o canônico correspondente. Esta última regra
+preserva a escolha narrativa: `Rosammy` é o apelido usado por Kamille, não um erro a normalizar.
+
 ![Painel de Revisão de Legendas — fluxos 2 (Google) e 3 (LLM/concordância) sobre .ass já traduzidos](../src/main/resources/static/img/screenshots/revisao-legendas.webp)
 
 ---

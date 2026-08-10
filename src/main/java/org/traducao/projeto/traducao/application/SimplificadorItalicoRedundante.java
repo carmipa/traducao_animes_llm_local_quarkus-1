@@ -1,6 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Component;
+import org.traducao.projeto.qualidadeTraducao.application.IsoladorQuebraDialogo;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

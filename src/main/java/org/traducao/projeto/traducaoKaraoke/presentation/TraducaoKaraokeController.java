@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Endpoints do módulo Tradução de Karaokê. A simulação só lê arquivos e roda
  * async fora da fila (mesmo padrão do Karaokê Simples); a APLICAÇÃO chama o
- * LLM e muda o contexto de lore ativo — estado global —, então
+ * LLM e congela o contexto escolhido para o job inteiro. O trabalho pesado
  * obrigatoriamente entra na {@link FilaExecucaoPipeline}.
  */
 @Path("/api/traducao-karaoke")
@@ -93,8 +93,10 @@ public class TraducaoKaraokeController {
         if (request == null || request.caminhoOrigem() == null || request.caminhoOrigem().trim().isEmpty()) {
             return "Informe a pasta com as legendas que deseja traduzir.";
         }
-        if (exigeContextoValido && request.contextoId() != null && !request.contextoId().isBlank()
-            && !gerenciadorContexto.existeContexto(request.contextoId())) {
+        if (exigeContextoValido && (request.contextoId() == null || request.contextoId().isBlank())) {
+            return "Selecione a obra/contexto que deve ser usado em toda a tradução de karaokê.";
+        }
+        if (exigeContextoValido && !gerenciadorContexto.existeContexto(request.contextoId())) {
             return "Contexto de tradução desconhecido: \"" + request.contextoId()
                 + "\". Recarregue a página e selecione uma obra válida.";
         }

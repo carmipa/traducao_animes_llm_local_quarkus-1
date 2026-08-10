@@ -51,9 +51,10 @@ public class MarcadorPerdidoException extends AlucinacaoDetectadaException {
      * <p>COMPORTAMENTO EM CASO DE FALHA: entradas nulas são aceitas; nunca lança do construtor.
      */
     public MarcadorPerdidoException(int esperados, String traducaoRecusada) {
-        super("Marcador de formatacao [[TAGn]] ausente na resposta do LLM (esperado(s) "
-            + esperados + "). A TRADUCAO pode estar correta e mesmo assim e recusada, porque "
-            + "publicar sem a tag quebraria o layout da legenda. Recebido: "
+        super("Marcadores de formatacao [[TAGn]] incompativeis na resposta do LLM (esperado(s) "
+            + esperados + "). A resposta perdeu, duplicou ou inventou marcador. A TRADUCAO pode "
+            + "estar correta e mesmo assim e recusada, porque publicar com estrutura divergente "
+            + "quebraria o layout da legenda. Recebido: "
             + (traducaoRecusada == null ? "" : traducaoRecusada));
         this.traducaoRecusada = traducaoRecusada == null ? "" : traducaoRecusada;
     }

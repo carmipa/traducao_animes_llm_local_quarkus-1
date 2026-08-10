@@ -92,6 +92,7 @@
             <thead>
                 <tr>
                     <th>Arquivo</th>
+                    <th>Tipo</th>
                     <th>Diagnóstico</th>
                     <th>Fonte(s)</th>
                     <th>Ação Sugerida</th>
@@ -110,8 +111,8 @@
     <div class="aviso-risco-container">
         <span class="material-symbols-outlined aviso-risco-icon">warning</span>
         <div class="aviso-risco-texto">
-            <h4>Fontes Legacy/ANSI Detectadas</h4>
-            <p>Alto risco de renderização incorreta de acentos PT-BR (ex: "Não" aparecendo como "Nóo" no VLC). Recomendamos aplicar a substituição pelas fontes Unicode seguras equivalentes.</p>
+            <h4 id="titulo-correcao-fontes">Fontes Legacy/ANSI Detectadas</h4>
+            <p id="texto-correcao-fontes">Alto risco de renderização incorreta de acentos PT-BR (ex: "Não" aparecendo como "Nóo" no VLC). Recomendamos aplicar a substituição pelas fontes Unicode seguras equivalentes.</p>
         </div>
     </div>
 
@@ -129,6 +130,10 @@
         <button type="button" class="btn btn-primary btn-magenta" id="btn-aplicar-substituicoes" data-tooltip="Aplica as substituições de fontes sugeridas em lote">
             <span class="material-symbols-outlined btn-icon">font_download</span>
             <span>Aplicar Substituições</span>
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-forcar-arial" data-tooltip="Troca manualmente todos os Fontname dos estilos para Arial, com backup. Não achata estilos nem remove efeitos.">
+            <span class="material-symbols-outlined btn-icon">visibility</span>
+            <span>Forçar Arial</span>
         </button>
     </div>
 </div>

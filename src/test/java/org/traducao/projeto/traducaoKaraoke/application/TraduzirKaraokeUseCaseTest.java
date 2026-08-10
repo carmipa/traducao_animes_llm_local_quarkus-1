@@ -13,6 +13,10 @@ import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
@@ -39,11 +43,20 @@ import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 class TraduzirKaraokeUseCaseTest {
 
     private static final String NOME_ARQUIVO = "Anime Teste - S01E01.ass";
+    private static final String CONTEXTO_08TH = "gundam_08ms";
+    private static final String PROMPT_08TH = "PROMPT EXCLUSIVO DO 08TH MS TEAM";
+    private static final String PROMPT_ZZ = "PROMPT EXCLUSIVO DO GUNDAM ZZ";
 
     private Path tempDir;
     private Path pastaEntrada;
     private TraduzirKaraokeUseCase useCase;
     private LlmPortFake llmFake;
+
+    private record ContextoTeste(String id, String nome, String prompt) implements ProvedorContexto {
+        @Override public String getId() { return id; }
+        @Override public String getNomeExibicao() { return nome; }
+        @Override public String obterPromptSistema() { return prompt; }
+    }
 
     /** Traduções fixas com contador de chamadas para provar reuso de cache e dry-run sem LLM. */
     static class LlmPortFake implements LlmPort {
@@ -97,7 +110,14 @@ class TraduzirKaraokeUseCaseTest {
 
     static class MockPersistencia extends TraducaoKaraokePersistencia {
         @Override
-        public Path salvarManifesto(Path origem, Path destino, List<ResultadoTraducaoKaraoke> resultados, long duracaoMs) {
+        public Path salvarManifesto(
+            Path origem,
+            Path destino,
+            List<ResultadoTraducaoKaraoke> resultados,
+            long duracaoMs,
+            SnapshotContexto contexto,
+            ProvenienciaCache proveniencia
+        ) {
             return null; // não grava manifesto em logs/ nos testes
         }
     }
@@ -117,7 +137,9 @@ class TraduzirKaraokeUseCaseTest {
         useCase.validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
         useCase.cacheService = new CacheTraducaoService(new ObjectMapper());
         useCase.llmPort = llmFake;
-        useCase.gerenciadorContexto = null; // sem CDI: o use case tolera ausência em teste
+        useCase.gerenciadorContexto = new GerenciadorContexto(List.of(
+            new ContextoTeste(CONTEXTO_08TH, "Mobile Suit Gundam: The 08th MS Team", PROMPT_08TH),
+            new ContextoTeste("gundam_zz", "Mobile Suit Gundam ZZ", PROMPT_ZZ)));
         useCase.classificador = new ClassificadorLetraKaraokeService(new DetectorEfeitoKaraokeService());
         useCase.logStream = new MockLogStream();
         useCase.telemetriaService = new MockTelemetria();
@@ -156,7 +178,7 @@ class TraduzirKaraokeUseCaseTest {
 
     @Test
     void aplicarTraduzCamadaInglesaEPreservaRomajiEDialogo() throws IOException {
-        List<ResultadoTraducaoKaraoke> resultados = useCase.aplicar(pastaEntrada, null);
+        List<ResultadoTraducaoKaraoke> resultados = useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
 
         assertEquals(1, resultados.size());
         ResultadoTraducaoKaraoke r = resultados.getFirst();
@@ -178,14 +200,73 @@ class TraduzirKaraokeUseCaseTest {
     }
 
     @Test
+    void contextoSelecionadoFicaCongeladoMesmoSeGlobalMudarDuranteExecucao() throws IOException {
+        escreverLegendaDuasLinhasInglesas(pastaEntrada.resolve(NOME_ARQUIVO));
+        List<String> promptsRecebidos = new ArrayList<>();
+
+        useCase.llmPort = new LlmPortFake() {
+            @Override
+            public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
+                promptsRecebidos.add(promptSistemaCongelado);
+                useCase.gerenciadorContexto.definirContextoAtivo("gundam_zz");
+                return super.traduzir(lote);
+            }
+        };
+        useCase.gerenciadorContexto.definirContextoAtivo("gundam_zz");
+
+        useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
+
+        assertEquals(List.of(PROMPT_08TH, PROMPT_08TH), promptsRecebidos,
+            "todas as chamadas devem usar a lore escolhida no início, nunca o contexto global");
+        assertEquals("gundam_zz", useCase.gerenciadorContexto.obterIdContextoAtivo(),
+            "o teste precisa provar que o global realmente estava em outra obra");
+
+        Path cache = tempDir.resolve("cache").resolve("karaoke")
+            .resolve("Anime Teste - S01E01.cache.json");
+        String json = Files.readString(cache, StandardCharsets.UTF_8);
+        assertTrue(json.contains("\"contextoId\" : \"gundam_08ms\""));
+        assertTrue(json.contains(ProvenienciaCache.hashDe(PROMPT_08TH)));
+        assertFalse(json.contains(ProvenienciaCache.hashDe(PROMPT_ZZ)));
+    }
+
+    @Test
     void reexecucaoReaproveitaCacheSemChamarLlmDeNovo() {
-        useCase.aplicar(pastaEntrada, null);
+        useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
         assertEquals(1, llmFake.chamadasTraduzir);
 
-        List<ResultadoTraducaoKaraoke> segunda = useCase.aplicar(pastaEntrada, null);
+        List<ResultadoTraducaoKaraoke> segunda = useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
         assertEquals(1, llmFake.chamadasTraduzir, "segunda execução deve vir 100% do cache");
         assertEquals(1, segunda.getFirst().reaproveitadasCache());
         assertEquals(0, segunda.getFirst().traduzidas());
+    }
+
+    @Test
+    void cacheLegadoSemLoreEhPreservadoMasNaoReaproveitado() throws IOException {
+        Path pastaCache = Files.createDirectories(tempDir.resolve("cache").resolve("karaoke"));
+        Path cache = pastaCache.resolve("Anime Teste - S01E01.cache.json");
+        Files.writeString(cache, """
+            [ {
+              "indice" : 2,
+              "estilo" : "OP - English",
+              "original" : "Even if the world ends tomorrow",
+              "traduzido" : "TRADUCAO DE LORE DESCONHECIDA",
+              "idiomaOriginal" : "en",
+              "idiomaTraduzido" : "pt-br"
+            } ]
+            """, StandardCharsets.UTF_8);
+
+        useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
+
+        assertEquals(1, llmFake.chamadasTraduzir,
+            "cache sem contexto não pode evitar a chamada ao LLM da lore selecionada");
+        String novoCache = Files.readString(cache, StandardCharsets.UTF_8);
+        assertTrue(novoCache.contains("\"contextoId\" : \"gundam_08ms\""));
+        assertFalse(novoCache.contains("TRADUCAO DE LORE DESCONHECIDA"));
+        try (var backups = Files.list(pastaCache)) {
+            assertEquals(1, backups.filter(p -> p.getFileName().toString()
+                .contains(".geracao_anterior_")).count(),
+                "o cache sem proveniência deve continuar recuperável como geração anterior");
+        }
     }
 
     @Test
@@ -274,7 +355,7 @@ class TraduzirKaraokeUseCaseTest {
         AtomicReference<Throwable> falhaAplicador = new AtomicReference<>();
         Thread aplicador = new Thread(() -> {
             try {
-                useCase.aplicar(pastaEntrada, null);
+                useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
             } catch (Throwable t) {
                 falhaAplicador.set(t);
             }

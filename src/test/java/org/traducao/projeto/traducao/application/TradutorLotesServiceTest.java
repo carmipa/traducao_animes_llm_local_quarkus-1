@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.TraducaoLote;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.IsoladorQuebraDialogo;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.traducao.domain.TelemetriaTraducao;
 import org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException;

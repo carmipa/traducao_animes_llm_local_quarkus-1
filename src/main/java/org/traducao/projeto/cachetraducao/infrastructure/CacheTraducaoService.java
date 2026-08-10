@@ -165,6 +165,13 @@ public class CacheTraducaoService {
         }
     }
 
+    /** Preserva um cache legado antes de um fluxo estrito recusá-lo por não ter proveniência. */
+    public void arquivarGeracaoSemProveniencia(Path arquivoCache) {
+        if (arquivoCache != null && Files.exists(arquivoCache)) {
+            arquivarGeracao(arquivoCache, null);
+        }
+    }
+
     // --- Formato antigo (lista pura), mantido para os fluxos que ainda nao
     // --- versionam o cache (ex.: traducao de karaoke). ---
 

@@ -106,6 +106,7 @@ class TrocaTipoLegendaUseCaseTest {
             .filter(a -> a.arquivo().equals("legenda1.ass"))
             .findFirst().orElseThrow();
         assertTrue(arq1.temProblemas());
+        assertEquals("ASS estilizada", arq1.tipoLegenda());
         assertEquals(".VnBook-Antiqua", arq1.fontes().get(1).fonteAtual());
 
         AuditoriaLegendaResultado arq2 = arquivos.stream()
@@ -176,6 +177,31 @@ class TrocaTipoLegendaUseCaseTest {
         assertTrue(conteudoCorrigido.contains("Style: Dialogue,Arial"));
         assertTrue(conteudoCorrigido.contains("Style: Title,Arial"));
         assertFalse(conteudoCorrigido.contains(".VnBook-Antiqua"));
+    }
+
+    @Test
+    void aplicarForcadoTrocaFonteSemProblemaAutomaticoParaArial(@TempDir Path tempDir) throws IOException {
+        criarLegendaDeTeste(tempDir, "legenda-ok.ass", "FrancophilSans");
+
+        ResultadoGeralAuditoria auditoria = useCase.escanear(tempDir);
+        assertEquals(0, auditoria.totalComProblemas());
+        assertFalse(auditoria.arquivos().get(0).temProblemas());
+        assertEquals("ASS estilizada", auditoria.arquivos().get(0).tipoLegenda());
+
+        ResultadoTrocaFonte resultado = useCase.aplicar(tempDir, true);
+
+        assertEquals(1, resultado.totalAnalisados());
+        assertEquals(1, resultado.totalAlterados());
+        assertEquals(1, resultado.totalSubstituicoes());
+        assertEquals(1, cacheStub.registros);
+
+        String conteudoCorrigido = Files.readString(tempDir.resolve("legenda-ok.ass"), StandardCharsets.UTF_8);
+        assertTrue(conteudoCorrigido.contains("Style: Dialogue,Arial"));
+        assertFalse(conteudoCorrigido.contains("FrancophilSans"));
+
+        Path pastaBackup = Path.of(resultado.pastaBackup());
+        String conteudoBackup = Files.readString(pastaBackup.resolve("legenda-ok.ass"), StandardCharsets.UTF_8);
+        assertTrue(conteudoBackup.contains("Style: Dialogue,FrancophilSans"));
     }
 
     private void criarLegendaDeTeste(Path pasta, String nome, String fonte) throws IOException {

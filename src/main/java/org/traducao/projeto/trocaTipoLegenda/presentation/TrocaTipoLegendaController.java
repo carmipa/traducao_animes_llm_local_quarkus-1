@@ -38,7 +38,11 @@ public class TrocaTipoLegendaController {
         this.logStreamService = logStreamService;
     }
 
-    public record TrocaLegendaRequest(String diretorioLegendas) {}
+    public record TrocaLegendaRequest(String diretorioLegendas, Boolean forcarArial) {
+        public boolean deveForcarArial() {
+            return Boolean.TRUE.equals(forcarArial);
+        }
+    }
 
     @PostMapping("/troca-legenda/escanear")
     public ResponseEntity<?> escanearFontes(@RequestBody TrocaLegendaRequest req) {
@@ -73,6 +77,7 @@ public class TrocaTipoLegendaController {
         }
 
         Path diretorio = Path.of(req.diretorioLegendas().trim());
+        boolean forcarArial = req.deveForcarArial();
 
         // Submete à fila única em segundo plano (assíncrono) para gravação física
         // e backups, logando em tempo real no console do SSE.
@@ -80,7 +85,7 @@ public class TrocaTipoLegendaController {
             logStreamService.definirCanalAtual("troca-tipo-legenda");
             long inicioMs = System.currentTimeMillis();
             try {
-                ResultadoTrocaFonte resultado = useCase.aplicar(diretorio);
+                ResultadoTrocaFonte resultado = useCase.aplicar(diretorio, forcarArial);
                 System.out.println("\n[32m========================================================================[0m");
                 System.out.println("[32m  [SUCESSO] TROCA DE FONTES CONCLUÍDA COM SUCESSO![0m");
                 System.out.println("[32m========================================================================[0m");
@@ -95,7 +100,9 @@ public class TrocaTipoLegendaController {
         });
 
         return ResponseEntity.ok(Map.of(
-            "mensagem", "Processo de substituição de fontes iniciado em segundo plano."
+            "mensagem", forcarArial
+                ? "Normalização manual para Arial iniciada em segundo plano."
+                : "Processo de substituição de fontes iniciado em segundo plano."
         ));
     }
 

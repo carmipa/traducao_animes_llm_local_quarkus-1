@@ -95,6 +95,22 @@ class AuditoriaFontesServiceTest {
     }
 
     @Test
+    void reconheceFonteVnBookAntiquaSemPontoComoProblematica() {
+        String cabecalho = """
+            [V4+ Styles]
+            Format: Name, Fontname
+            Style: Dialogue,VnBook-Antiqua
+            """;
+
+        List<AuditoriaFonteInfo> resultado = service.analisarCabecalho(cabecalho);
+
+        assertEquals(1, resultado.size());
+        assertEquals("VnBook-Antiqua", resultado.get(0).fonteAtual());
+        assertEquals("Arial", resultado.get(0).fonteSugerida());
+        assertTrue(resultado.get(0).problematica());
+    }
+
+    @Test
     void substituiApenasCampoFontnameDasLinhasStyle() {
         String cabecalho = """
             [V4+ Styles]
@@ -111,5 +127,24 @@ class AuditoriaFontesServiceTest {
         assertTrue(resultado.cabecalho().contains("Style: .VnBook-Antiqua,Arial,20"));
         assertTrue(resultado.cabecalho().contains("Style: Dialogue,Arial,75"));
         assertTrue(resultado.cabecalho().contains("Comment: .VnBook-Antiqua nao deve ser alterado fora de Style"));
+    }
+
+    @Test
+    void forcaTodasAsFontesParaArialMesmoSemProblemaAutomatico() {
+        String cabecalho = """
+            [V4+ Styles]
+            Format: Name, Fontname, Fontsize
+            Style: Dialogue,Roboto,75
+            Style: Song JP,FrancophilSans,63
+            Style: Already Arial,Arial,50
+            """;
+
+        AuditoriaFontesService.ResultadoSubstituicaoCabecalho resultado =
+            service.substituirTodasFontesPorArial(cabecalho);
+
+        assertEquals(2, resultado.substituicoes());
+        assertTrue(resultado.cabecalho().contains("Style: Dialogue,Arial,75"));
+        assertTrue(resultado.cabecalho().contains("Style: Song JP,Arial,63"));
+        assertTrue(resultado.cabecalho().contains("Style: Already Arial,Arial,50"));
     }
 }

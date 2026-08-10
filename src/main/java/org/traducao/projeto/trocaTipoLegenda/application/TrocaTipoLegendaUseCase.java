@@ -131,6 +131,7 @@ public class TrocaTipoLegendaUseCase {
 
                 resultados.add(new AuditoriaLegendaResultado(
                     arq.getFileName().toString(),
+                    tipoLegenda(arq),
                     fontes,
                     temProblemas
                 ));
@@ -138,6 +139,7 @@ public class TrocaTipoLegendaUseCase {
                 log.warn("Erro ao auditar fontes do arquivo: " + arq.getFileName(), e);
                 resultados.add(new AuditoriaLegendaResultado(
                     arq.getFileName().toString(),
+                    tipoLegenda(arq),
                     List.of(new AuditoriaFonteInfo("ERRO_LEITURA", "N/A", "N/A", false)),
                     false
                 ));
@@ -148,11 +150,21 @@ public class TrocaTipoLegendaUseCase {
     }
 
     public ResultadoTrocaFonte aplicar(Path diretorio) {
+        return aplicar(diretorio, false);
+    }
+
+    public ResultadoTrocaFonte aplicar(Path diretorio, boolean forcarArial) {
         SessaoTroca sessao = new SessaoTroca();
         validarDiretorio(diretorio);
 
-        sessao.out(AnsiCores.CYAN + "\n=== Iniciando Substituição em Lote de Fontes ASS ===" + AnsiCores.RESET);
+        String modo = forcarArial ? "Substituição Manual para Arial" : "Substituição em Lote de Fontes ASS";
+        sessao.out(AnsiCores.CYAN + "\n=== Iniciando " + modo + " ===" + AnsiCores.RESET);
         sessao.out("Pasta alvo: " + diretorio.toAbsolutePath());
+        if (forcarArial) {
+            sessao.out(AnsiCores.YELLOW
+                + "[FORÇADO] O operador solicitou normalizar todos os estilos para Arial, mesmo sem diagnóstico automático."
+                + AnsiCores.RESET);
+        }
 
         List<Path> arquivos = listarLegendas(diretorio);
         if (arquivos.isEmpty()) {
@@ -180,12 +192,16 @@ public class TrocaTipoLegendaUseCase {
                 DocumentoLegenda doc = legendaIo.ler(arq);
                 List<AuditoriaFonteInfo> fontes = auditoriaService.analisarCabecalho(doc.cabecalho());
                 boolean temProblemas = fontes.stream().anyMatch(AuditoriaFonteInfo::problematica);
-                List<AuditoriaFonteInfo> fontesProblematicas = fontes.stream()
-                    .filter(AuditoriaFonteInfo::problematica)
+                List<AuditoriaFonteInfo> fontesAlvo = fontes.stream()
+                    .filter(f -> forcarArial ? !"Arial".equals(f.fonteAtual()) : f.problematica())
                     .toList();
 
-                if (!temProblemas) {
+                if (!forcarArial && !temProblemas) {
                     sessao.out("Arquivo " + arq.getFileName() + " [OK] - Sem fontes legadas problemáticas. Pulando.");
+                    continue;
+                }
+                if (fontesAlvo.isEmpty()) {
+                    sessao.out("Arquivo " + arq.getFileName() + " [OK] - Todos os estilos já estão em Arial. Pulando.");
                     continue;
                 }
 
@@ -196,7 +212,9 @@ public class TrocaTipoLegendaUseCase {
                 // Executa a substituição no cabeçalho
                 String cabecalhoOriginal = doc.cabecalho();
                 AuditoriaFontesService.ResultadoSubstituicaoCabecalho substituicao =
-                    auditoriaService.substituirFontesProblematicas(cabecalhoOriginal);
+                    forcarArial
+                        ? auditoriaService.substituirTodasFontesPorArial(cabecalhoOriginal)
+                        : auditoriaService.substituirFontesProblematicas(cabecalhoOriginal);
                 String cabecalhoNovo = substituicao.cabecalho();
                 int substituicoesNoArquivo = substituicao.substituicoes();
 
@@ -213,9 +231,9 @@ public class TrocaTipoLegendaUseCase {
 
                     // Registra auditoria granular apenas depois da gravação física
                     // ser concluída, para o cache não marcar sucesso se o IO falhar.
-                    for (AuditoriaFonteInfo fonteInfo : fontesProblematicas) {
+                    for (AuditoriaFonteInfo fonteInfo : fontesAlvo) {
                         String fonteLegada = fonteInfo.fonteAtual();
-                        String fonteUnicode = fonteInfo.fonteSugerida();
+                        String fonteUnicode = forcarArial ? "Arial" : fonteInfo.fonteSugerida();
                         EntradaAuditoriaTrocaFonte entrada = new EntradaAuditoriaTrocaFonte(
                             Instant.now().toString(),
                             arq.getFileName().toString(),
@@ -223,11 +241,13 @@ public class TrocaTipoLegendaUseCase {
                             fonteLegada,
                             fonteUnicode,
                             pastaBackup.toString(),
-                            "SUBSTITUIDO"
+                            forcarArial ? "FORCADO_ARIAL" : "SUBSTITUIDO"
                         );
                         auditoriaCache.registrar(entrada);
 
-                        sessao.out("  -> No arquivo: " + arq.getFileName() + " estilo [" + fonteInfo.estilo() + "] substituído: " + fonteLegada + " -> " + fonteUnicode);
+                        sessao.out("  -> No arquivo: " + arq.getFileName() + " estilo [" + fonteInfo.estilo()
+                            + "] substituído: " + fonteLegada + " -> " + fonteUnicode
+                            + (forcarArial ? " (manual)" : ""));
                     }
 
                     totalAlterados++;
@@ -326,6 +346,19 @@ public class TrocaTipoLegendaUseCase {
         }
     }
 
+    private String tipoLegenda(Path arquivo) {
+        String nome = arquivo == null || arquivo.getFileName() == null
+            ? ""
+            : arquivo.getFileName().toString().toLowerCase();
+        if (nome.endsWith(".ass")) {
+            return "ASS estilizada";
+        }
+        if (nome.endsWith(".ssa")) {
+            return "SSA estilizada";
+        }
+        return "DESCONHECIDO";
+    }
+
     private String gerarRelatorioMarkdown(ResultadoTrocaFonte res) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Troca de Fontes ASS\n\n");
@@ -344,7 +377,7 @@ public class TrocaTipoLegendaUseCase {
 
         sb.append("## Resultado\n\n");
         if (res.totalSubstituicoes() > 0) {
-            sb.append("Fontes legacy detectadas foram substituídas por `Arial`. ");
+            sb.append("Fontes detectadas ou escolhidas manualmente foram substituídas por `Arial`. ");
             sb.append("Use o backup para reverter arquivos específicos, se necessário.\n");
         } else {
             sb.append("Nenhuma substituição foi necessária.\n");

@@ -110,7 +110,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os nove proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os onze proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -134,6 +134,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 // inimigos"). Mora neste peer porque opera sobre o TEXTO produzido — o mapa
                 // forma-ruim→canônico continua sendo do peer contexto, dono da lore.
                 PKG_QT_APPLICATION + ".EnforcadorTermosLore",
+                PKG_QT_APPLICATION + ".IsoladorQuebraDialogo",
                 PKG_QT_APPLICATION + ".MascaradorTags",
                 PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
@@ -149,7 +150,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_DOMAIN + ".MarcadorPerdidoException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
                 PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os nove proprietários top-level homologados, por FQN "
+            "qualidadeTraducao deve conter EXATAMENTE os onze proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

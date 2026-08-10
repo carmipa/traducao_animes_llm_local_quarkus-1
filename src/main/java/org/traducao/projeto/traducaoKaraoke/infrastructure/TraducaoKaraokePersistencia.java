@@ -3,6 +3,8 @@ package org.traducao.projeto.traducaoKaraoke.infrastructure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
+import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
 
@@ -36,7 +38,9 @@ public class TraducaoKaraokePersistencia {
         Path pastaOrigem,
         Path pastaDestino,
         List<ResultadoTraducaoKaraoke> resultados,
-        long duracaoMs
+        long duracaoMs,
+        SnapshotContexto contexto,
+        ProvenienciaCache proveniencia
     ) throws IOException {
         Files.createDirectories(PASTA_MANIFESTOS);
 
@@ -45,6 +49,10 @@ public class TraducaoKaraokePersistencia {
         manifesto.put("pastaOrigem", pastaOrigem.toAbsolutePath().toString());
         manifesto.put("pastaDestino", pastaDestino.toAbsolutePath().toString());
         manifesto.put("duracaoMs", duracaoMs);
+        manifesto.put("contextoId", contexto.id());
+        manifesto.put("contextoNome", contexto.nomeExibicao());
+        manifesto.put("contextoHash", proveniencia.contextoHash());
+        manifesto.put("modeloLlm", proveniencia.modeloLlm());
 
         List<Map<String, Object>> arquivos = resultados.stream().map(r -> {
             Map<String, Object> item = new LinkedHashMap<String, Object>();

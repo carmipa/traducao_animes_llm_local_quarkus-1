@@ -78,9 +78,9 @@ sequenceDiagram
 
     Op->>UI: Confere e clica "Traduzir Letras"
     UI->>API: POST /api/traducao-karaoke/aplicar
-    API->>Fila: submete o job (LLM + contexto = estado global)
+    API->>Fila: submete o job de LLM
     Fila->>UC: aplicar(pasta, contextoId)
-    UC->>UC: ativa o contexto de lore da obra
+    UC->>UC: congela a lore escolhida em snapshot imutável
     loop Cada linha TRADUZIVEL_INGLES sem cache
         UC->>LLM: traduzir (1 linha, tags mascaradas)
         LLM-->>UC: PT-BR (validado contra alucinação)
@@ -96,7 +96,8 @@ sequenceDiagram
 - **Cache editável por arquivo** em `cache/karaoke/*.cache.json` — mesmo fluxo de correção manual da [Tradução Local](etapa-2.1-traducao-llm.md); refrão repetido gasta **uma** chamada de LLM.
 - Falha ou alucinação do LLM numa linha **mantém a linha original** com aviso — nunca derruba o arquivo.
 - Diálogos, placas e efeitos KFX passam **byte a byte** — o módulo só toca música.
-- A aplicação roda **na fila única do pipeline** (o contexto de lore ativo e o modelo LLM são estado global).
+- A aplicação roda **na fila única do pipeline**, mas não relê a lore global: o `contextoId` escolhido vira um snapshot imutável e seu prompt é passado explicitamente em todas as chamadas ao LLM.
+- Cache, manifesto e telemetria registram o ID e a proveniência do contexto usado; cache legado sem carimbo não é reaproveitado automaticamente.
 
 ---
 
