@@ -183,6 +183,22 @@ tradutor:
     # estiver carregado (ver LlmClientAdapter.verificarDisponibilidade).
     # Troque o modelo pela UI/lms do LM Studio, nao aqui.
     model: "current"
+    # SEGUNDA OPINIAO. Modelo consultado APENAS na fala que o principal nao conseguiu
+    # traduzir depois de todas as retentativas — ele nunca traduz o episodio.
+    #
+    # VAZIO = DESLIGADO, e e o padrao. Falha fechada: nada de adotar um segundo modelo
+    # porque ele por acaso esta carregado no servidor.
+    #
+    # Ao contrario de `model`, aqui o id e EXPLICITO: o objetivo e justamente pedir um
+    # modelo DIFERENTE do que atende a traducao, e o LM Studio mantera os dois residentes.
+    #
+    # MEDIDO em 11/08/2026 no Zeta: das 6 falas que sobraram pendentes em 50 episodios com
+    # mistral-nemo, CINCO eram discurso citado com aspas internas, e o
+    # towerinstruct-mistral-7b-v0.2 traduziu 3 delas de primeira. Repetir com o mesmo
+    # modelo — o que o laco de temperatura ja faz — nao vencia nenhuma.
+    #
+    # Exemplo: modelo-recuperacao: "towerinstruct-mistral-7b-v0.2"
+    modelo-recuperacao: ""
     temperature: 0.3
     max-tokens: 2000
     connect-timeout: 5s

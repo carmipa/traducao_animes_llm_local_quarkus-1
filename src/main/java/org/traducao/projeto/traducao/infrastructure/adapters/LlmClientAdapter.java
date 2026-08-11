@@ -80,6 +80,16 @@ public class LlmClientAdapter implements LlmPort {
         return modeloResolvido;
     }
 
+    /**
+     * Vem da configuração, e não do que está carregado no servidor: adotar um segundo modelo
+     * só porque ele apareceu carregado seria o mesmo defeito do Redis alheio de 06/08/2026 —
+     * o sistema se plugando sozinho em algo que ninguém pediu.
+     */
+    @Override
+    public String modeloRecuperacao() {
+        return propriedades.modeloRecuperacao();
+    }
+
     @Override
     public StatusLlm verificarDisponibilidade() {
         try {
@@ -211,11 +221,32 @@ public class LlmClientAdapter implements LlmPort {
 
     @Override
     public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
+        return traduzir(lote, temperaturaOverride, promptSistemaCongelado, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução, podendo apontar para OUTRO modelo — é o caminho da
+     * segunda opinião sobre a fala que o modelo principal não venceu.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o override entra no corpo da requisição e em mais nada. Ele
+     * NÃO toca {@code modeloResolvido}, que continua sendo o modelo do episódio para a
+     * telemetria — se o override reescrevesse esse campo, uma recuperação de UMA fala faria o
+     * episódio inteiro constar como traduzido pelo outro modelo. Override nulo ou em branco
+     * usa o configurado, exatamente como antes.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico às demais variantes — o modelo pedido pode
+     * nem estar carregado, e o erro do servidor sobe pelo mesmo caminho de retentativa.
+     */
+    @Override
+    public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado,
+            String modeloOverride) {
         String prompt = montarPrompt(lote);
         String promptSistema = promptSistemaCongelado != null
             ? promptSistemaCongelado : gerenciadorContexto.obterPromptAtivo();
+        String modeloDaChamada = (modeloOverride != null && !modeloOverride.isBlank())
+            ? modeloOverride : propriedades.model();
         ChatRequest request = new ChatRequest(
-            propriedades.model(),
+            modeloDaChamada,
             List.of(
                 new Mensagem("system", promptSistema),
                 new Mensagem("user", prompt)
