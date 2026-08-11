@@ -91,7 +91,16 @@ public final class CorrecoesTerminologiaGundamUcRevisao {
         // e o nome da franquia na tela. Separacao medida no acervo: 8 cartoes (EN caixa alta / PT
         // capitalizado) contra 1 fala de dialogo. Custo aceito e declarado: aquela fala perde o
         // "de combate". "unidade movel" e "unidades moveis" seguem FORA dos dois catalogos.
-        Map.entry("Móvel de Combate", "Mobile Suit")
+        Map.entry("Móvel de Combate", "Mobile Suit"),
+
+        // ESPELHO de CorrecoesTerminologiaGundamUc: "Brilhante" -> "Bright" (Bright Noa), que
+        // entrou lá em 2026-08-11 depois de a correção online do cache do Zeta transformar
+        // "Commander Bright!" em "Comandante Brilhante!". Entra aqui na MESMA data porque a
+        // catraca de paridade existe justamente para impedir que a decisão viva num catálogo só
+        // — foi assim que 23 chaves de Gundam UC ficaram órfãs antes. A medição que a justifica
+        // está no arquivo da tradução: 149 ocorrências de "Bright" no acervo, todas o
+        // personagem, e zero colisão com o adjetivo nos 67 pares conferidos.
+        Map.entry("Brilhante", "Bright")
     );
 
     private CorrecoesTerminologiaGundamUcRevisao() {

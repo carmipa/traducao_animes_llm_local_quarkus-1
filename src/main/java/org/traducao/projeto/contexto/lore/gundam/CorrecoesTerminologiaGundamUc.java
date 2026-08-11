@@ -146,7 +146,25 @@ public final class CorrecoesTerminologiaGundamUc {
         // adjetivo. Se a leitura mudar, e esta linha unica que sai.
         //
         // "unidade movel" e "unidades moveis" seguem FORA — aquela parte da decisao nao mudou.
-        Map.entry("Móvel de Combate", "Mobile Suit")
+        Map.entry("Móvel de Combate", "Mobile Suit"),
+
+        // "BRIGHT" — Bright Noa, capitao da White Base / Argama / Ra Cailum. Entrou em
+        // 2026-08-11 depois que a correcao online do cache do Zeta devolveu "Commander Bright!"
+        // como "Comandante Brilhante!" (ep02) e "- Certo. [Brilhante." (ep33): o nome do
+        // personagem virou adjetivo. "Bright Noa" ja estava no termosProtegidos das obras e NAO
+        // adiantou — aquele conjunto isenta da checagem de residuo, nao restaura grafia, e o
+        // texto que quebra traz "Bright" sozinho, que nem casa a forma composta.
+        //
+        // MEDIDO no acervo antes de entrar, nao imaginado:
+        //     "Bright" maiusculo no ingles ............ 149  (ZZ 77, Zeta 67, CCA 5)
+        //     delas, o adjetivo "bright" ..............   0  — as 149 sao o personagem
+        //     colisao com "brilhante" na MESMA fala ...   0  em 67 pares EN/PT do Zeta
+        //
+        // RISCO RESIDUAL DECLARADO: a forma-ruim e comparada IGNORANDO CAIXA, entao uma fala que
+        // trouxesse "Bright" no ingles E "brilhante" como adjetivo na traducao perderia o
+        // adjetivo. Nao existe uma sequer nos 67 pares medidos; os 82 pares de ZZ e CCA nao
+        // foram pareados por nome de arquivo e seguem NAO conferidos.
+        Map.entry("Brilhante", "Bright")
         // "Partículas Minovsky" NÃO entra, por decisão do dono do acervo: a forma em português é
         // aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de "rifle de
         // feixe", "arma de feixe" e "unidade móvel". O espelho da revisão também a perdeu, para

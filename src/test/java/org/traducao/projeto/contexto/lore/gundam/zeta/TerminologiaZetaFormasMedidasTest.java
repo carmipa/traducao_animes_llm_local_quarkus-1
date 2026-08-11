@@ -107,4 +107,46 @@ class TerminologiaZetaFormasMedidasTest {
             "a legenda escreve 'colony Laser' com c minúsculo nas 24 ocorrências e o "
                 + "enforcer exige o canônico na grafia exata — mesmo caso do Bio-Computer");
     }
+
+    /**
+     * A fala REAL que a correção online do cache devolveu em 2026-08-11, e que motivou a
+     * entrada no núcleo UC. "Bright Noa" já estava no termosProtegidos e não impediu nada:
+     * o texto quebrado traz "Bright" sozinho, que não casa a forma composta.
+     */
+    @Test
+    @DisplayName("Bright é o capitão, não o adjetivo — ep02 da correção online")
+    void restauraBrightDoIncidenteDaCorrecaoOnline() {
+        assertEquals("Comandante Bright!",
+            reforcar("Commander Bright!", "Comandante Brilhante!"));
+    }
+
+    /**
+     * O OUTRO defeito do mesmo incidente (ep33) e o motivo de ele NÃO ser tarefa deste mapa:
+     * o inglês diz "Right", não "Bright" — quem confundiu as duas palavras foi o tradutor
+     * online. Sem o canônico no original, a condicionante manda o enforcer não encostar, e é
+     * isso que tem de acontecer: restaurar aqui inventaria um personagem que a fala não cita.
+     */
+    @Test
+    @DisplayName("ep33 fica intocado — o inglês é 'Right', a confusão foi do tradutor online")
+    void naoInventaBrightOndeOOriginalDizRight() {
+        String defeituoso = "- Certo. [Brilhante.";
+        assertEquals(defeituoso, reforcar("{\\i1}- Right.\\N- Right.", defeituoso),
+            "sem 'Bright' no original o mapa não age — este defeito é de outra etapa");
+    }
+
+    /**
+     * CASO-CONTROLE da entrada acima: a forma-ruim "Brilhante" é comparada ignorando caixa,
+     * então o que impede o estrago é a condicionante do original. Sem "Bright" no inglês, o
+     * adjetivo legítimo tem de sair intacto — em maiúscula ou minúscula.
+     */
+    @Test
+    @DisplayName("adjetivo 'brilhante' fica intacto quando não há Bright no inglês")
+    void naoTocaBrilhanteLegitimo() {
+        String fala = "Que ideia brilhante.";
+        assertEquals(fala, reforcar("What a brilliant idea.", fala),
+            "sem 'Bright' no original a guarda impede a troca");
+        String inicioDeFrase = "Brilhante, Kamille!";
+        assertEquals(inicioDeFrase, reforcar("Brilliant, Kamille!", inicioDeFrase),
+            "maiúscula por posição não é o personagem");
+    }
 }
