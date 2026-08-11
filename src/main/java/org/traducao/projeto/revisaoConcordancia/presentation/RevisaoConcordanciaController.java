@@ -33,15 +33,18 @@ public class RevisaoConcordanciaController {
     private final FilaExecucaoPipeline filaExecucao;
     private final RevisarConcordanciaUseCase revisarConcordanciaUseCase;
     private final LogStreamService logStreamService;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public RevisaoConcordanciaController(
         FilaExecucaoPipeline filaExecucao,
         RevisarConcordanciaUseCase revisarConcordanciaUseCase,
-        LogStreamService logStreamService
+        LogStreamService logStreamService,
+        org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho
     ) {
         this.filaExecucao = filaExecucao;
         this.revisarConcordanciaUseCase = revisarConcordanciaUseCase;
         this.logStreamService = logStreamService;
+        this.guardaCaminho = guardaCaminho;
     }
 
     /**
@@ -63,6 +66,15 @@ public class RevisaoConcordanciaController {
         if (req.diretorioTraduzido() == null || req.diretorioTraduzido().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                 "erro", "Pasta com legendas traduzidas em portugues nao informada."));
+        }
+
+        // ANTES do submeter(): depois da fila a resposta HTTP ja saiu como "revisao
+        // iniciada" e a recusa so viveria no log. Medido em 11/08/2026 — pasta
+        // inexistente devolvia 200 "iniciada".
+        var recusa = guardaCaminho
+            .conferirDiretorio("Pasta com legendas traduzidas em portugues", req.diretorioTraduzido());
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
         }
 
         Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());

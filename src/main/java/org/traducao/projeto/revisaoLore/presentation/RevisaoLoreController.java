@@ -43,6 +43,7 @@ public class RevisaoLoreController {
     private final RevisarLorePtOnlyUseCase revisarLorePtOnlyUseCase;
     private final GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore;
     private final LogStreamService logStreamService;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     /**
      * PROPÓSITO DE NEGÓCIO: conecta fila, revisão, catálogo de contextos e
@@ -56,13 +57,15 @@ public class RevisaoLoreController {
         RevisarLoreUseCase revisarLoreUseCase,
         RevisarLorePtOnlyUseCase revisarLorePtOnlyUseCase,
         GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore,
-        LogStreamService logStreamService
+        LogStreamService logStreamService,
+        org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho
     ) {
         this.filaExecucao = filaExecucao;
         this.revisarLoreUseCase = revisarLoreUseCase;
         this.revisarLorePtOnlyUseCase = revisarLorePtOnlyUseCase;
         this.gerenciadorPromptRevisaoLore = gerenciadorPromptRevisaoLore;
         this.logStreamService = logStreamService;
+        this.guardaCaminho = guardaCaminho;
     }
 
     public record RevisaoLoreRequest(
@@ -137,6 +140,17 @@ public class RevisaoLoreController {
                     + "\". Recarregue a pagina e selecione uma obra valida."));
         }
 
+        // ANTES do submeter(). Depois da fila, a resposta HTTP ja saiu como "revisao
+        // iniciada" e a recusa so existiria no log. Medido em 11/08/2026: pasta
+        // inexistente devolvia 200 "iniciada".
+        var recusa = guardaCaminho
+            .conferirDiretorio("Pasta com legendas originais em ingles", req.diretorioOriginal())
+            .or(() -> guardaCaminho
+                .conferirDiretorio("Pasta com legendas traduzidas em portugues", req.diretorioTraduzido()));
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
+        }
+
         Path pastaOriginal = Path.of(req.diretorioOriginal().trim());
         Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());
         boolean revisarTodas = req.revisarTodasFalas();
@@ -183,6 +197,13 @@ public class RevisaoLoreController {
             return ResponseEntity.badRequest().body(Map.of(
                 "erro", "Prompt de revisao de lore desconhecido: \"" + req.contextoId()
                     + "\". Recarregue a pagina e selecione uma obra valida."));
+        }
+
+        // Mesma recusa da rota completa, pelo mesmo motivo: aqui tambem se enfileira.
+        var recusaPtOnly = guardaCaminho
+            .conferirDiretorio("Pasta com legendas traduzidas em portugues", req.diretorioTraduzido());
+        if (recusaPtOnly.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusaPtOnly.get().mensagem()));
         }
 
         Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());

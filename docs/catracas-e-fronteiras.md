@@ -154,6 +154,27 @@ Isso vale para toda verificação de arquitetura, e vale em dobro para IA com pe
 
 ---
 
+## A catraca da borda assíncrona
+
+`CatracaBordaAssincronaConfereCaminhoTest` — nasceu em 11/08/2026, sondando as bordas com uma
+pasta que não existe em ambiente nenhum. **Sete rotas responderam HTTP 200/202 "iniciada"**
+para trabalho impossível, entre elas as duas que gravam no acervo. A `correcao-legendas` foi
+até o fim e registrou na telemetria canônica `{"arquivosProcessados": 1, "itensCorrigidos": 0}`
+para uma pasta inexistente — "0 corrigidos porque não existe" ficou idêntico a "0 corrigidos
+porque estava tudo certo".
+
+A forma que ela congela: **controller que dispara trabalho em segundo plano
+(`filaExecucao.submeter` / `CompletableFuture.runAsync`) a partir de um caminho vindo do
+usuário tem de referenciar `core.io.GuardaCaminhoEntrada`.** O discriminador é a assincronia,
+não a fatia: rota síncrona não entra na regra, porque a exceção do caso de uso ainda alcança a
+resposta HTTP — e o caso-controle verifica também esse lado, para a catraca não passar a
+cobrar guarda de quem não precisa.
+
+Calibrada contra um controller doente **que compila**: a primeira tentativa trocou o tipo por
+`Object` e quebrou o `compileJava`, o que prova o compilador, não a catraca.
+
+---
+
 ## Guardas que não se chamam "Catraca"
 
 Duas moram fora do pacote `arquitetura` e fazem o mesmo trabalho:
@@ -209,6 +230,49 @@ lembrança — e lembrança não distingue a versão atual da de duas semanas at
 > `OK` e saía `0`. Guarda que descarta o que não entende aprova por cegueira. Hoje linha
 > malformada é defeito, e os três casos doentes (hash errado, hash malformado, contagem
 > errada) foram vistos reprovando.
+
+---
+
+## Definition of Done
+
+Um item só vira `[x]` quando:
+
+1. `.\checar-portao.ps1` sai **0** — não `2`, que significa "não verificou", e não verificar
+   nunca foi aprovar;
+2. a suíte completa passou (`.\gradlew.bat test --rerun-tasks`), e a contagem de testes
+   EXECUTADOS foi conferida — `BUILD SUCCESSFUL` também sai quando nada roda;
+3. o instrumento foi visto reprovando um caso doente, e o caso doente **compila** (mutação que
+   quebra o compilador prova o `javac`, não a guarda);
+4. quando a mudança tem tela ou API, ela foi exercida no que está **servido**, não só no teste —
+   e tela se confere olhando, porque bytes não provam tela;
+5. o que **não** foi feito está dito por escrito, com o motivo.
+
+O quinto item não é formalidade. "Pronto" solto é proibido: o veredito diz o que foi executado,
+o que não foi, e o que continua **não comprovado**.
+
+---
+
+## O que veio do site do Christiano e o que ficou de fora
+
+Em 11/08/2026 a `REGRA-DESTE-DOCKER.md` daquele projeto foi varrida item a item. Entrou o que é
+**método**; ficou o que é **mecanismo de lá**. O registro existe para ninguém reabrir a
+discussão sem argumento novo:
+
+| Item da REGRA | Aqui |
+|---|---|
+| Portão de leitura com SHA-256 | ✅ `.claude/LEITURA-REGRA-ATUAL.md`, conferido pelo script |
+| Endereço único das guardas · três estados | ✅ `checar-portao.ps1` |
+| Evidência é artefato · instrumento precisa de prova | ✅ já era o método daqui |
+| Falha fechada / segredo fora do Git | ✅ `${VAR:?}` no compose, `.env` ignorado |
+| Construir não é publicar · não editar durante o build | ✅ declarado em [ref-docker](ref-docker.md) |
+| Bytes não provam tela | ✅ virou item 4 do Definition of Done |
+| Tela de erro com HTTP real (sem *soft 404*) | ✅ **já cumprido** — medido: `/pagina-que-nao-existe` devolve 404 |
+| Guardas de RLS, tenant, `casa_id` | ❌ não há banco nem inquilino |
+| `build.sh` / `deploy.sh` | ❌ não há publicação: o KRONOS roda na máquina de quem usa |
+| Build sempre capado | 🟡 declarado sem mecanismo — a VM do WSL2 já limita em ≈19,4 GB de 39,7 GB |
+| CSP proibindo estilo inline | ❌ não há CSP, e há 40 `style=` legítimos. Aplicação só no loopback: a guarda não protegeria nada e quebraria o que funciona |
+| Canto inferior direito é território ocupado | 🟡 **medido, sem guarda**: o único ocupante é `.toast-container` (`fixed`, `bottom/right: 24px`), e ele tem `pointer-events: none` sem nenhum `.toast` reativando — ninguém disputa o canto. Sem cicatriz local, guarda é cerimônia |
+| Discrição com cor, nunca `opacity` | ❌ sem incidente correspondente |
 
 ---
 

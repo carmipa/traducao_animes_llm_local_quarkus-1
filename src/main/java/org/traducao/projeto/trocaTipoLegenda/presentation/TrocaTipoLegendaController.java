@@ -25,17 +25,20 @@ public class TrocaTipoLegendaController {
     private final TrocaTipoLegendaUseCase useCase;
     private final AchatarEstilosUseCase achatarUseCase;
     private final LogStreamService logStreamService;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public TrocaTipoLegendaController(
         FilaExecucaoPipeline filaExecucao,
         TrocaTipoLegendaUseCase useCase,
         AchatarEstilosUseCase achatarUseCase,
-        LogStreamService logStreamService
+        LogStreamService logStreamService,
+        org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho
     ) {
         this.filaExecucao = filaExecucao;
         this.useCase = useCase;
         this.achatarUseCase = achatarUseCase;
         this.logStreamService = logStreamService;
+        this.guardaCaminho = guardaCaminho;
     }
 
     public record TrocaLegendaRequest(String diretorioLegendas, Boolean forcarArial) {
@@ -76,6 +79,16 @@ public class TrocaTipoLegendaController {
                 "erro", "Pasta com as legendas originais/traduzidas não informada."));
         }
 
+        // ANTES do submeter(). Esta rota GRAVA no acervo (substitui fontes in-place,
+        // com backup): responder "iniciado em segundo plano" para uma pasta que nao
+        // existe e o pior dos dois mundos — nada acontece e a tela diz que aconteceu.
+        // Medido em 11/08/2026: devolvia 200. A rota /escanear, sincrona, ja recusava.
+        var recusa = guardaCaminho
+            .conferirDiretorio("Pasta com as legendas", req.diretorioLegendas());
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
+        }
+
         Path diretorio = Path.of(req.diretorioLegendas().trim());
         boolean forcarArial = req.deveForcarArial();
 
@@ -111,6 +124,14 @@ public class TrocaTipoLegendaController {
         if (req.diretorioLegendas() == null || req.diretorioLegendas().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                 "erro", "Pasta com as legendas não informada."));
+        }
+
+        // Mesma recusa da troca de fontes, e aqui o dano de deixar passar e maior:
+        // o achatamento reescreve o estilo de TODAS as falas do arquivo.
+        var recusaAchatar = guardaCaminho
+            .conferirDiretorio("Pasta com as legendas", req.diretorioLegendas());
+        if (recusaAchatar.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusaAchatar.get().mensagem()));
         }
 
         Path diretorio = Path.of(req.diretorioLegendas().trim());
