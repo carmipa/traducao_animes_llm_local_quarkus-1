@@ -42,7 +42,13 @@ class CorrecoesTerminologiaGundamUcTest {
         //
         // "Minovsky particles" NÃO está aqui porque saiu do mapa: o dono do acervo decidiu que
         // "Partículas Minovsky" é forma aceitável e não deve ser revertida.
-        "Spacenoid", "Earthnoid");
+        "Spacenoid", "Earthnoid",
+        // "Bright" entra pela MESMA porta que Spacenoid/Earthnoid: é vocabulário da Universal
+        // Century inteira, não termo próprio de uma obra — Bright Noa aparece de 0079 a Unicorn.
+        // As obras trazem "Bright Noa" no termosProtegidos, e a forma composta não casa o
+        // "Bright" sozinho que quebrou no Zeta; exigir o roster aqui reprovaria F91, Victory,
+        // NT e Hathaway, onde o personagem nem aparece.
+        "Bright");
 
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")
