@@ -1,9 +1,9 @@
 # Execução em contêiner
 
-> Estado em 06/08/2026: **artefatos escritos, imagem nunca construída.** As duas
-> mudanças de código que faltam estão listadas em "O que ainda falta". Enquanto
-> elas não entrarem, `docker compose up` sobe a aplicação mas a tradução falha no
-> primeiro lote.
+> Estado em 11/08/2026: **imagem construída e aplicação no ar dentro do
+> contêiner** — `kronos-core:local`, 1,32 GB, boot em 1,4 s, `healthy`, tela
+> conferida no navegador. As provas estão em "O que já foi verificado". Segue
+> faltando uma mudança de código, em "O que ainda falta".
 
 ## Por que existe
 
@@ -54,34 +54,111 @@ depende.
 copiar um runner já construído no host: `*` seguido de exceções em `build/`. Com
 build multi-stage isso excluiria `src/` e o `COPY src src` falharia.
 
+## Falha fechada nos caminhos do host
+
+As duas variáveis que apontam para pasta do HOST são declaradas com `:?`, não
+com `:-`:
+
+```yaml
+- "${KRONOS_ACERVO:?defina KRONOS_ACERVO no .env com a raiz do acervo no host}:/acervo"
+- "${KRONOS_DATASET_REPO_HOST:?...}:/dataset"
+```
+
+**O `:?` não é estilo.** Até 11/08/2026 as duas linhas traziam `:-` com um
+default. **Medido:** `docker compose --env-file /dev/null config` saía **0** e
+imprimia `source: C:/animes` — quem esquecesse o `.env` montava em silêncio um
+caminho que ninguém configurou. Um `C:/animes` que exista e não seja o acervo
+entra sem um aviso; no dataset, uma pasta que não é o repositório real recebe
+`git init/add/commit` do botão "Publicar Dataset" — publicação que reporta
+sucesso sem publicar.
+
+**E caminho errado nunca vira erro — medido em 11/08/2026, com o Docker no ar:**
+
+```bash
+$ docker run --rm -v "D:/caminho/que/nao/existe:/x" alpine ls -la /x
+total 4
+drwxrwxrwx 1 root root 4096 ...  .
+drwxr-xr-x 1 root root 4096 ...  ..
+# a pasta passou a EXISTIR no host, vazia, e o que se escreve nela cai lá
+```
+
+O bind mount para caminho ausente **não é recusado**: o Docker cria a pasta e o
+contêiner a enxerga vazia. Com o default silencioso, portanto, apontar para o
+lugar errado não produzia erro — produzia **acervo vazio**, e o KRONOS reporta
+"nada a traduzir", que é o mesmo sinal de "acervo não montado".
+
+É a mesma regra de falha fechada que a tradução de caminho na borda tem de
+seguir (abaixo), aplicada uma camada antes.
+
+**Custo assumido:** `down`, `logs` e `ps` também interpolam o arquivo, então
+também passam a exigir `.env`. É o preço da recusa explícita, e a mensagem diz
+qual variável falta. Nada no código do KRONOS invoca `docker compose` —
+conferido em 11/08/2026, nenhum `.java`, `.js` ou `.html` o chama.
+
+Congelado por `CatracaContainerPreparadoTest#volumesNaoTemDefaultSilencioso`,
+com caso-controle próprio que cobre as três grafias de default do compose
+(`${VAR}`, `${VAR:-x}`, `${VAR-x}`).
+
 ## O que ainda falta
 
-Duas mudanças de código, adiadas porque exigem reinício da aplicação e havia uma
-tradução em curso em 06/08/2026:
+**Tradução de caminho na borda.** A interface pede caminho absoluto do Windows
+(`C:\animes\[Sokudo] DanMachi\Season 04`), e dentro do contêiner esse caminho não
+existe. O acervo é montado em `/acervo`, então a borda precisa converter.
+**Regra obrigatória: falhar fechado.** Caminho que não puder ser mapeado tem de
+produzir erro explícito, nunca "0 arquivos encontrados" — varredura cega e pasta
+vazia não podem emitir o mesmo sinal.
 
-1. **`application.yml` ler a variável do LM Studio.** As chaves
-   `tradutor.llm.base-url` e `revisao-lore.llm.base-url` apontam fixo para
-   `http://127.0.0.1:1234/v1`. Dentro do contêiner, `127.0.0.1` é o próprio
-   contêiner: a tradução morre no primeiro lote com recusa de conexão. Precisam
-   virar `${KRONOS_LLM_BASE_URL:http://127.0.0.1:1234/v1}` — o default preserva
-   a execução fora do contêiner.
+*(A outra pendência desta lista — `application.yml` ler o endereço do LM Studio —
+foi FEITA: `application.yml:179` e `:198` trazem
+`${KRONOS_LLM_BASE_URL:http://127.0.0.1:1234/v1}`, e
+`CatracaContainerPreparadoTest#enderecoDoLlmSegueConfiguravel` impede a volta do
+valor fixo.)*
 
-2. **Tradução de caminho na borda.** A interface pede caminho absoluto do
-   Windows (`C:\animes\[Sokudo] DanMachi\Season 04`), e dentro do contêiner esse
-   caminho não existe. O acervo é montado em `/acervo`, então a borda precisa
-   converter. **Regra obrigatória: falhar fechado.** Caminho que não puder ser
-   mapeado tem de produzir erro explícito, nunca "0 arquivos encontrados" —
-   varredura cega e pasta vazia não podem emitir o mesmo sinal.
+## A suíte NÃO roda no `docker build`
+
+`Dockerfile:33` compila com `./gradlew build -x test`. **Uma imagem verde não
+prova nada sobre os testes** — a suíte pode estar vermelha há semanas e o
+`docker compose build` continuaria terminando com sucesso.
+
+Quem roda os testes é o host, antes:
+
+```powershell
+.\checar-portao.ps1        # guardas com --rerun-tasks, três estados
+```
+
+Declarado aqui, e não consertado dentro do Dockerfile, porque rodar a suíte no
+build multiplicaria o tempo de imagem e ainda assim rodaria num ambiente que não
+é onde se trabalha.
 
 ## O que já foi verificado
 
+Tudo abaixo em 11/08/2026, Docker 29.3.1, notebook (32 CPU, 39,7 GB).
+
 | Verificação | Resultado |
 |---|---|
-| `docker compose config` | válido, variáveis resolvem nos defaults |
-| Instrumento calibrado | compose doente é **reprovado** ("volumes must be a array") |
+| `docker compose config` com `.env` | válido, resolve `source: C:/animes` e o repo do dataset |
+| `docker compose --env-file /dev/null config` | **recusa**, saída 1: `required variable KRONOS_ACERVO is missing a value` |
+| Bind mount para caminho ausente | **cria a pasta no host e o contêiner a vê vazia** — não recusa |
+| Instrumento calibrado (compose) | compose doente é **reprovado** ("volumes must be a array") |
+| Instrumento calibrado (catraca) | `:-` reinjetado no arquivo REAL ⇒ catraca vermelha em `CatracaContainerPreparadoTest.java:262`; restaurado e conferido por SHA-256 |
 | Porta presa no loopback | `host_ip: 127.0.0.1` no config resolvido |
+| `docker compose build` | ✅ `kronos-core:local`, **1,32 GB** |
+| Binários externos na imagem | `/usr/bin/ffmpeg` · `/usr/bin/ffprobe` · `/usr/bin/mkvextract` · `git` · `curl` |
+| Base e JVM | `eclipse-temurin:25-jre-noble` existe; `openjdk 25.0.3 LTS` dentro do contêiner |
+| Usuário não-root | `uid=999(kronos) gid=999(kronos)` |
+| UTF-8 no runtime | `LANG=C.UTF-8`; `[Sokudo] Pós-operatório ぼくらの` sai íntegro do `echo` no contêiner |
+| Boot | `started in 1.408s. Listening on: http://0.0.0.0:8099`, `HEALTHCHECK` = **healthy** |
+| Acervo montado | 25 entrada(s) em `/acervo`; painel lê **455 arquivos** do cache pelo bind mount |
+| HTTP | `GET http://127.0.0.1:8099/` ⇒ **200** |
+| **Tela** (bytes não provam tela) | conferida no navegador: barra lateral, menu numerado, cartões de estado, hero e CSS aplicados; **0 erro e 0 aviso** no console |
 
-**Não verificado:** a imagem nunca foi construída — o Docker Desktop estava
-parado e o build competiria por CPU com a tradução em curso. Portanto o
-`apt-get` dos binários, a existência da tag `eclipse-temurin:25-jre-noble` e o
-boot da aplicação seguem sem prova.
+**Não verificado:** nenhum episódio foi traduzido de dentro do contêiner. O
+painel exibe o LLM como "conectado" via `host.docker.internal`, mas *exibir
+conectado* não é *ter traduzido* — a tradução de caminho na borda (abaixo)
+continua sendo o que falta para isso valer.
+
+**O build NÃO tem teto próprio.** Aqui ele é limitado pela VM do WSL2
+(≈19,4 GB dos 39,7 GB da máquina), então o host sempre sobra. Num Docker Engine
+sobre Linux, onde o daemon divide a RAM com todo o resto, esse teto não existe e
+o `docker build` precisaria de `--memory`. Fica declarado, sem mecanismo: o
+KRONOS não sai desta máquina.

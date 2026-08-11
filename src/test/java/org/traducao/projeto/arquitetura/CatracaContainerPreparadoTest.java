@@ -229,4 +229,96 @@ class CatracaContainerPreparadoTest {
         assertTrue(basesUbi.isEmpty(),
             "base UBI nao tem ffmpeg nos repositorios; a imagem usa base Debian/Ubuntu de proposito: " + basesUbi);
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: nenhum caminho do HOST pode entrar no contêiner por
+     * default silencioso. Quem não configurou tem de receber uma recusa, não um
+     * palpite.
+     *
+     * <p>O PREJUÍZO, medido em 11/08/2026: as duas linhas de volume traziam
+     * {@code ${KRONOS_ACERVO:-C:/animes}} e
+     * {@code ${KRONOS_DATASET_REPO_HOST:-../kronos-...}}. Sem {@code .env}, o
+     * {@code docker compose config} respondia <b>0</b> e resolvia os defaults —
+     * montava em silêncio um caminho que ninguém configurou. Um {@code C:/animes}
+     * que exista e não seja o acervo entra sem aviso; no dataset, uma pasta que
+     * não é o repositório real recebe {@code git init/add/commit} do botão
+     * "Publicar Dataset", publicação que reporta sucesso sem publicar.
+     *
+     * <p>E caminho errado nunca virava erro. Medido em 11/08/2026 com o Docker no
+     * ar: bind mount para caminho ausente NÃO é recusado — o Docker cria a pasta
+     * e o contêiner a enxerga vazia. Apontar para o lugar errado produzia
+     * "nada a traduzir", o mesmo sinal de "acervo não montado".
+     *
+     * <p>É a regra de falha fechada que {@code docs/ref-docker.md} já exigia da
+     * tradução de caminho na borda, aplicada uma camada antes — e a mesma lição do
+     * {@code ${VAR:?}} da REGRA-DESTE-DOCKER do site do Christiano, onde
+     * {@code ${VAR}} vazio subia o contêiner com senha em branco.
+     *
+     * <p>Prova de fora do teste: {@code docker compose --env-file /dev/null config}
+     * tem de sair <b>1</b> dizendo qual variável falta.
+     */
+    @Test
+    @DisplayName("caminho do host no compose falha FECHADO — nada de default silencioso")
+    void volumesNaoTemDefaultSilencioso() throws IOException {
+        Path compose = Path.of("docker-compose.yml");
+        assertTrue(Files.isRegularFile(compose), "docker-compose.yml na raiz do projeto");
+
+        List<String> silenciosos = defaultsSilenciososEmVolumes(Files.readString(compose));
+        assertTrue(silenciosos.isEmpty(),
+            "variavel de caminho com default silencioso no docker-compose.yml: " + silenciosos
+                + " — troque por ${NOME:?mensagem dizendo o que configurar no .env}");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: provar que a catraca acima enxerga o defeito. Guarda
+     * exercitada só no arquivo são pode estar aprovando por não enxergar nada.
+     *
+     * <p>Cobre as três grafias que o compose aceita para "siga sem valor":
+     * {@code ${VAR}}, {@code ${VAR:-x}} e {@code ${VAR-x}}. Buscar uma só mediria
+     * a forma, não o invariante.
+     */
+    @Test
+    @DisplayName("caso-controle: a catraca de volume reprova as tres grafias de default")
+    void catracaDeVolumeReprovaCasoDoente() {
+        String doente = """
+            services:
+              kronos:
+                volumes:
+                  - "${ACERVO_SEM_NADA}:/acervo"
+                  - "${ACERVO_DOIS_PONTOS:-C:/animes}:/acervo2"
+                  - "${ACERVO_TRACO-../algum/lugar}:/dataset"
+                  - "${ACERVO_CERTO:?configure no .env}:/ok"
+                  - ./cache:/app/cache
+            """;
+
+        List<String> achados = defaultsSilenciososEmVolumes(doente);
+        assertTrue(achados.contains("ACERVO_SEM_NADA"), "nao viu ${VAR} sem valor: " + achados);
+        assertTrue(achados.contains("ACERVO_DOIS_PONTOS"), "nao viu ${VAR:-default}: " + achados);
+        assertTrue(achados.contains("ACERVO_TRACO"), "nao viu ${VAR-default}: " + achados);
+        assertFalse(achados.contains("ACERVO_CERTO"), "reprovou a forma CORRETA ${VAR:?...}: " + achados);
+    }
+
+    /**
+     * Devolve as variáveis interpoladas em linha de volume que NÃO exigem valor.
+     *
+     * <p>Só olha linha de volume ({@code - "..."} com alvo de montagem) porque em
+     * {@code environment:} um default é legítimo — {@code KRONOS_LLM_BASE_URL}
+     * aponta para o LM Studio local e funciona sem ninguém configurar nada.
+     */
+    private static List<String> defaultsSilenciososEmVolumes(String compose) {
+        Pattern interpolacao = Pattern.compile("\\$\\{([A-Za-z_][A-Za-z0-9_]*)([^}]*)}");
+        List<String> silenciosos = new ArrayList<>();
+        for (String linha : compose.lines().map(String::strip).toList()) {
+            if (!linha.startsWith("- ") || !linha.contains("${") || !linha.contains(":/")) {
+                continue;
+            }
+            Matcher m = interpolacao.matcher(linha);
+            while (m.find()) {
+                if (!m.group(2).startsWith(":?")) {
+                    silenciosos.add(m.group(1));
+                }
+            }
+        }
+        return silenciosos;
+    }
 }

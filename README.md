@@ -116,6 +116,17 @@ cd traducao_animes_llm_local_quarkus
 
 > O servidor sobe em **`http://127.0.0.1:8080`** e o navegador abre automaticamente. Detalhes completos em [Instalação & Configuração](docs/instalacao.md).
 
+### Antes de alterar qualquer coisa
+
+```powershell
+.\checar-portao.ps1
+```
+
+Endereço único das guardas, com **três estados**: `0` pode trabalhar · `1` defeito real ·
+`2` **não deu para conferir**. O `2` existe porque "não verificou" não é aprovação. O script
+força `--rerun-tasks` — verde de cache do Gradle é indistinguível de verde de execução.
+Detalhes em [Catracas e Fronteiras](docs/catracas-e-fronteiras.md).
+
 ---
 
 ## Arquitetura em 30 Segundos

@@ -169,6 +169,49 @@ Duas moram fora do pacote `arquitetura` e fazem o mesmo trabalho:
 
 ---
 
+## O endereço único: `checar-portao.ps1`
+
+```powershell
+.\checar-portao.ps1
+```
+
+Um comando roda **todas** as guardas. Guarda que depende de alguém lembrar de rodar é
+documentação com sorte.
+
+**Três estados, nunca dois:**
+
+| Saída | Significado |
+|---|---|
+| `0` | pode trabalhar |
+| `1` | defeito real — guarda vermelha, hash divergente, documento sumido, compilação quebrada |
+| `2` | **não deu para conferir** — sem Java, sem `gradlew`, zero teste selecionado |
+
+O `2` não é detalhe. Sem ele, um ambiente sem Java e um repositório impecável produzem
+exatamente o mesmo silêncio, e "não verificou" passa por aprovação.
+
+**`--rerun-tasks` é obrigatório e o script o impõe.** O prejuízo está registrado: uma IA
+comitou alteração de lore com a suíte "verde" que era `UP-TO-DATE` do cache do Gradle —
+nenhum teste havia rodado. Verde de cache é indistinguível de verde de execução, a não ser
+que se force a execução.
+
+**Cobertura declarada, não presumida.** O filtro pega a convenção de nome (`Catraca*`,
+`Fronteira*`, `Guarda*`) **mais** as duas guardas da seção acima, nomeadas explicitamente no
+script. Guarda nova com nome fora da convenção não entra sozinha — acrescente na lista do
+`$FILTROS`. Medido em 11/08/2026: 154 testes em 31 classes, 30 s.
+
+O passo 1 do portão confere `.claude/LEITURA-REGRA-ATUAL.md`: o SHA-256 e a contagem de linhas
+de cada documento-regra têm de bater com o arquivo em disco. Sem isso, "eu li a regra" é
+lembrança — e lembrança não distingue a versão atual da de duas semanas atrás.
+
+> A própria conferência nasceu com o defeito que ela existe para pegar. Na primeira execução,
+> um hash adulterado para `...FFFF` não casava com o padrão `[0-9a-f]{64}` embutido na regex:
+> a linha era **descartada em silêncio**, o contador caía de 3 para 2 e o portão respondia
+> `OK` e saía `0`. Guarda que descarta o que não entende aprova por cegueira. Hoje linha
+> malformada é defeito, e os três casos doentes (hash errado, hash malformado, contagem
+> errada) foram vistos reprovando.
+
+---
+
 ## Como escrever uma guarda nova
 
 1. **Tenha o prejuízo.** Sem incidente concreto, não entra.

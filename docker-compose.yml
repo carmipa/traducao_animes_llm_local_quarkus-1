@@ -63,7 +63,23 @@ services:
       # O ACERVO. Montado no mesmo ponto que a tradução de caminho da borda
       # espera. O KRONOS lê E grava aqui (legenda traduzida, backup de
       # achatamento), então não é somente-leitura.
-      - "${KRONOS_ACERVO:-C:/animes}:/acervo"
+      #
+      # `:?` E OBRIGATORIO, E NAO E ESTILO. Até 11/08/2026 esta linha era
+      # `${KRONOS_ACERVO:-C:/animes}`.
+      #
+      # MEDIDO em 11/08/2026: `docker compose --env-file /dev/null config` saía
+      # 0 e imprimia `source: C:/animes` — quem esquecesse o `.env` montava, em
+      # silêncio, um caminho que ninguém configurou. Agora sai 1 e diz o que falta.
+      #
+      # TAMBÉM MEDIDO em 11/08/2026, com o Docker no ar: bind mount para caminho
+      # que NÃO existe no host não é recusado — o Docker CRIA a pasta e o
+      # contêiner a enxerga vazia (`ls -la` dentro dela: só `.` e `..`; o que se
+      # escreve ali cai no host). Ou seja, com o default silencioso um caminho
+      # errado nunca produzia erro: produzia acervo vazio, e o KRONOS reporta
+      # "nada a traduzir" — o mesmo sinal de "acervo não montado".
+      # É a regra de falha fechada de docs/ref-docker.md: varredura cega e pasta
+      # vazia não podem emitir o mesmo sinal.
+      - "${KRONOS_ACERVO:?defina KRONOS_ACERVO no .env com a raiz do acervo no host}:/acervo"
 
       # Estado que precisa sobreviver ao contêiner. Fica como bind mount, e não
       # como volume nomeado, porque estes arquivos são conferidos, editados e
@@ -80,7 +96,12 @@ services:
       # continua sendo feito do host, porque credencial de git não entra em
       # contêiner. É a divisão deliberada: o contêiner escreve e versiona, o
       # host publica.
-      - "${KRONOS_DATASET_REPO_HOST:-../kronos-anime-translation-telemetry-dataset}:/dataset"
+      #
+      # `:?` pelo mesmo motivo do acervo, com dano próprio: com o default
+      # silencioso, um host cujo repositório irmão esteja em outro lugar montava
+      # em /dataset uma pasta que não é o repositório real, e "Publicar Dataset"
+      # faria git init/add/commit ali — publicação que reporta sucesso sem publicar.
+      - "${KRONOS_DATASET_REPO_HOST:?defina KRONOS_DATASET_REPO_HOST no .env com o caminho do repositorio do dataset no host}:/dataset"
 
     # O pipeline é pesado em CPU e o LM Studio disputa a mesma máquina. Sem teto,
     # um lote grande deixa o host sem folga e o próprio LLM desacelera — o
