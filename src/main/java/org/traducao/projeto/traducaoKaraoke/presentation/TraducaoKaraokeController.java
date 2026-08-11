@@ -44,6 +44,9 @@ public class TraducaoKaraokeController {
     @Inject
     GerenciadorContexto gerenciadorContexto;
 
+    @Inject
+    org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
+
     @POST
     @Path("/simular")
     public Response simular(TraducaoKaraokeRequest request) {
@@ -92,6 +95,14 @@ public class TraducaoKaraokeController {
     private String validar(TraducaoKaraokeRequest request, boolean exigeContextoValido) {
         if (request == null || request.caminhoOrigem() == null || request.caminhoOrigem().trim().isEmpty()) {
             return "Informe a pasta com as legendas que deseja traduzir.";
+        }
+        // ANTES do CompletableFuture. Depois de enfileirar, a resposta HTTP ja saiu
+        // como "simulacao iniciada" e o unico canal que resta e o log — que ninguem
+        // esta lendo no instante do clique. Medido em 11/08/2026: pasta inexistente
+        // devolvia 200 "iniciada".
+        var recusa = guardaCaminho.conferirDiretorio("A pasta com as legendas", request.caminhoOrigem());
+        if (recusa.isPresent()) {
+            return recusa.get().mensagem();
         }
         if (exigeContextoValido && (request.contextoId() == null || request.contextoId().isBlank())) {
             return "Selecione a obra/contexto que deve ser usado em toda a tradução de karaokê.";

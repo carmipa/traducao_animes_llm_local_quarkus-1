@@ -24,8 +24,8 @@ e é exatamente o tipo de coisa que não se automatiza.
 
 | Documento | Linhas | SHA-256 | Lido em |
 |---|---|---|---|
-| `docs/catracas-e-fronteiras.md` | 229 | `ce94bc2124f2f27077b18b83f937bf58fbfa4db306871a883aa969f9a74f43fb` | 2026-08-11 |
-| `docs/ref-docker.md` | 164 | `07d8bd6feffe12da181b28929e18137fcd86e09f4a0ceed1c9a5aef0f4a606cb` | 2026-08-11 |
+| `docs/catracas-e-fronteiras.md` | 293 | `897e1af58972efcabea5abba1f22ffe1f99e6a174170602b723b810c05e9c8a7` | 2026-08-11 |
+| `docs/ref-docker.md` | 213 | `708287a07545735a2e10fc0ea2123b8fe178c0250b81538d65f3ec57a5cc4910` | 2026-08-11 |
 | `docs/ref-memoria-decisoes-ia.md` | 54 | `a1c890d7b0487227f069ae511a96db4f08eb7cd01ab437b7cf2c860472aedd20` | 2026-08-11 |
 
 ## O que NÃO entra nesta tabela
@@ -59,12 +59,19 @@ O que entrou:
 - **`checar-portao.ps1`**: endereço único das guardas, **três estados** (0/1/2) e
   `--rerun-tasks` obrigatório.
 
-O que ficou de fora, e por quê:
+Na segunda passada, com o Docker no ar, entrou também:
 
-- Guardas de tenant, RLS e `casa_id`: o KRONOS não tem banco nem inquilino. Guarda que não
-  protege nada ensina a ignorar as que protegem.
-- `build.sh` / `deploy.sh` do modelo de lá: aqui não há publicação — o KRONOS roda na máquina
-  de quem usa. "Construir não é publicar" não tem análogo neste projeto.
-- Conferência visual obrigatória por captura de tela: o KRONOS tem interface web, mas o dano
-  documentado de lá (botão flutuante engolindo elemento) não tem incidente correspondente
-  aqui. Sem cicatriz, é cerimônia.
+- **Falha fechada na borda de caminho.** Sondadas 9 rotas com pasta inexistente: **7
+  respondiam HTTP 200/202 "iniciada"** para trabalho impossível, incluindo as duas que gravam
+  no acervo. `core.io.GuardaCaminhoEntrada` recusa antes de enfileirar, congelada por
+  `CatracaBordaAssincronaConfereCaminhoTest`. Não era problema de contêiner: caminho digitado
+  errado no Windows dava o mesmo silêncio.
+- **Definition of Done** e **"Construir não é publicar"**, em
+  [[docs/catracas-e-fronteiras.md]] e [[docs/ref-docker.md]].
+
+A varredura item a item da REGRA de lá — o que entrou, o que ficou e por quê — está na tabela
+"O que veio do site do Christiano e o que ficou de fora" em `docs/catracas-e-fronteiras.md`,
+que é o lugar onde ela é lida por quem for mexer no projeto. Resumo dos "não":
+tenant/RLS/`casa_id` (não há banco), `build.sh`/`deploy.sh` (não há publicação), CSP (não há, e
+os 40 `style=` funcionam numa aplicação só de loopback), canto inferior direito (medido: um só
+ocupante, e sem cicatriz local guarda é cerimônia).

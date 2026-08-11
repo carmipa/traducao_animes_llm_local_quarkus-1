@@ -26,17 +26,20 @@ public class CorrecaoLegendasController {
     private final GerenciadorContexto gerenciadorContexto;
     private final LogStreamService logStreamService;
     private final FilaExecucaoPipeline filaExecucao;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public CorrecaoLegendasController(
         CorrigirLegendasUseCase corrigirLegendasUseCase,
         GerenciadorContexto gerenciadorContexto,
         LogStreamService logStreamService,
-        FilaExecucaoPipeline filaExecucao
+        FilaExecucaoPipeline filaExecucao,
+        org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho
     ) {
         this.corrigirLegendasUseCase = corrigirLegendasUseCase;
         this.gerenciadorContexto = gerenciadorContexto;
         this.logStreamService = logStreamService;
         this.filaExecucao = filaExecucao;
+        this.guardaCaminho = guardaCaminho;
     }
 
     @PostMapping("/correcao-legendas")
@@ -63,6 +66,20 @@ public class CorrecaoLegendasController {
         if (contextoId != null && !contextoId.isBlank() && !gerenciadorContexto.existeContexto(contextoId)) {
             return ResponseEntity.badRequest().body(Map.of(
                 "erro", "Contexto de tradução desconhecido: \"" + contextoId + "\". Recarregue a página e selecione um contexto válido."));
+        }
+
+        // ANTES da fila. Esta rota foi a que MEDIU o pior caso em 11/08/2026: com uma
+        // pasta inexistente ela respondia 202, criava relatorios/<nome-da-pasta-que-nao-
+        // existe>/, gravava o JSON de relatorio e registrava na telemetria canonica
+        // {"arquivosProcessados": 1, "itensCorrigidos": 0} — que o
+        // ConsolidadorTelemetriaPorFatia le. Ali "0 corrigidos porque a pasta nao existe"
+        // ficou identico a "0 corrigidos porque estava tudo certo".
+        var recusa = guardaCaminho
+            .conferirDiretorio("Pasta com as legendas originais/referência", diretorioOriginal)
+            .or(() -> guardaCaminho
+                .conferirDiretorio("Pasta com as legendas traduzidas (PT-BR)", diretorioTraduzido));
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
         }
 
         Path pastaOriginal;

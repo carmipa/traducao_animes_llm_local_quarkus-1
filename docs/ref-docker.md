@@ -99,20 +99,69 @@ Congelado por `CatracaContainerPreparadoTest#volumesNaoTemDefaultSilencioso`,
 com caso-controle próprio que cobre as três grafias de default do compose
 (`${VAR}`, `${VAR:-x}`, `${VAR-x}`).
 
-## O que ainda falta
+## Caminho na borda: recusa com orientação, e por que NÃO se converte
 
-**Tradução de caminho na borda.** A interface pede caminho absoluto do Windows
-(`C:\animes\[Sokudo] DanMachi\Season 04`), e dentro do contêiner esse caminho não
-existe. O acervo é montado em `/acervo`, então a borda precisa converter.
-**Regra obrigatória: falhar fechado.** Caminho que não puder ser mapeado tem de
-produzir erro explícito, nunca "0 arquivos encontrados" — varredura cega e pasta
-vazia não podem emitir o mesmo sinal.
+Esta seção substitui a pendência "tradução de caminho na borda". Ela foi
+medida em 11/08/2026 contra o contêiner no ar, e o que se achou não era o que
+estava escrito aqui.
+
+**O que a pendência dizia:** a borda precisa converter `C:\animes\...` em
+`/acervo/...`, e caminho não mapeável tem de dar erro explícito, nunca
+"0 arquivos encontrados".
+
+**O que a medição mostrou.** Sondando 9 rotas com uma pasta que não existe em
+ambiente nenhum, ninguém devolveu "0 arquivos". O defeito era outro e pior:
+**7 rotas responderam HTTP 200/202 "iniciada"** para trabalho impossível, entre
+elas as duas que GRAVAM no acervo (`/troca-legenda/aplicar` e
+`/troca-legenda/achatar-estilos`). A `correcao-legendas` foi até o fim: criou
+`relatorios/<pasta inexistente>/`, gravou o relatório e registrou na telemetria
+canônica `{"arquivosProcessados": 1, "itensCorrigidos": 0}`.
+
+O discriminador é **assíncrono**, não fatia nem contêiner: as 3 rotas que já
+recusavam com 400 são síncronas, e a exceção do caso de uso ainda alcança a
+resposta HTTP. Depois de `filaExecucao.submeter` ou `CompletableFuture.runAsync`
+a resposta já saiu, e só o log sabe. **Um caminho digitado errado no Windows
+produz exatamente o mesmo silêncio** — nunca foi um problema de Docker.
+
+**Correção:** `core.io.GuardaCaminhoEntrada` recusa na porta, ANTES do
+enfileiramento, com HTTP 400 e o rótulo do campo errado. Congelado por
+`CatracaBordaAssincronaConfereCaminhoTest`.
+
+**A conversão NÃO foi feita, e é decisão, não esquecimento.** O navegador de
+pastas já resolve o caso normal: `navegador.raizes` traz `C:/animes` e `/acervo`,
+raiz inexistente é ignorada, e dentro do contêiner os botões "Procurar" listam
+`/acervo`. Sobra apenas o caminho digitado ou colado à mão — exatamente onde
+converter seria mais perigoso, porque a segunda parte de `C:/animes/86` só é o
+acervo por causa da montagem de hoje, e `D:/PROJETOS/x` viraria `/acervo/x`, um
+palpite com cara de resposta. A guarda diz onde o acervo está montado e devolve
+a escolha a quem sabe: **orienta, não adivinha.**
 
 *(A outra pendência desta lista — `application.yml` ler o endereço do LM Studio —
 foi FEITA: `application.yml:179` e `:198` trazem
 `${KRONOS_LLM_BASE_URL:http://127.0.0.1:1234/v1}`, e
 `CatracaContainerPreparadoTest#enderecoDoLlmSegueConfiguravel` impede a volta do
 valor fixo.)*
+
+## Construir não é publicar
+
+`docker compose build` cria a imagem. **O contêiner continua rodando a anterior**
+até `docker compose up -d`. Nada no log, nos testes ou na imagem denuncia a
+diferença — a tela simplesmente segue com o código velho, e a pergunta que vem é
+"cadê a correção?".
+
+O que responde é comparar o que está SERVIDO com o que foi construído:
+
+```powershell
+docker inspect --format '{{.Image}}' kronos      # o que o contêiner roda
+docker image inspect kronos-core:local --format '{{.Id}}'   # o que foi construído
+```
+
+Iguais, o que está no ar é o que você construiu. Diferentes, faltou o `up -d`.
+
+**E não se edita o fonte durante um build.** O `Dockerfile` faz `COPY src src` no
+começo e compila depois: editar no meio faz a imagem sair com a versão anterior,
+e **nenhum teste pega** — o teste roda no fonte, e o defeito mora na distância
+entre o fonte e a imagem.
 
 ## A suíte NÃO roda no `docker build`
 

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCase;
 import org.traducao.projeto.novoKaraoke.domain.NovoKaraokeException;
+import org.traducao.projeto.core.io.GuardaCaminhoEntrada;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 
 import java.nio.file.Paths;
@@ -41,6 +42,9 @@ public class NovoKaraokeController {
 
     @Inject
     LogStreamService logStream;
+
+    @Inject
+    GuardaCaminhoEntrada guardaCaminho;
 
     @POST
     @Path("/simular")
@@ -109,6 +113,10 @@ public class NovoKaraokeController {
         if (request == null || request.caminhoOrigem() == null || request.caminhoOrigem().trim().isEmpty()) {
             return "Informe a pasta das legendas de origem.";
         }
-        return null;
+        // ANTES do CompletableFuture: depois de enfileirar, a resposta HTTP ja foi
+        // "simulacao iniciada" e so o log saberia da recusa. Medido em 11/08/2026.
+        return guardaCaminho.conferirDiretorio("A pasta das legendas de origem", request.caminhoOrigem())
+            .map(GuardaCaminhoEntrada.Recusa::mensagem)
+            .orElse(null);
     }
 }
