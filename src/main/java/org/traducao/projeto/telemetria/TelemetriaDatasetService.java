@@ -130,6 +130,146 @@ public class TelemetriaDatasetService {
         return total;
     }
 
+    static final List<String> COLUNAS_RESUMO = List.of(
+        "totalEpisodiosTraduzidos", "totalLinhasTraduzidas", "tempoMedioPorLinhaMs",
+        "totalFalasReaproveitadasDoCache", "alucinacoesLlmPrevenidas", "respostasTraducaoRejeitadas",
+        "falhasTraducaoRecuperadas", "fallbacksTraducaoMantidos", "arquivosRenomeados",
+        "totalOperacoesRegistradas");
+
+    static final List<String> COLUNAS_AMBIENTE = List.of(
+        "fabricante", "modeloMaquina", "cpu", "gpuPrincipal", "gpusDetectadas", "ramTotalGb",
+        "sistemaOperacional", "arquitetura", "hardwareColetadoAutomaticamente");
+
+    static final List<String> COLUNAS_TRADUCOES = List.of(
+        "episodio", "anime", "temporada", "modeloLlm", "totalLinhas", "falasTraduzidas",
+        "falasDoCache", "tempoTotalMs", "quantidadeAvisos", "registradoEm");
+
+    static final List<String> COLUNAS_OPERACOES = List.of(
+        "tipo", "tempoTotalMs", "arquivosProcessados", "itensDetectados", "itensCorrigidos",
+        "registradoEm");
+
+    static final List<String> COLUNAS_EXECUCOES = List.of(
+        "registradoEm", "nomeEpisodio", "animeNome", "temporada", "loreNome", "modeloLlm",
+        "statusFinal", "totalLinhas", "falasTraduzidas", "falasDoCache", "tempoTotalMs",
+        "quantidadeAvisos");
+
+    /** Uma linha por AVISO, não por execução: é aqui que mora o diagnóstico com o trecho da fala. */
+    static final List<String> COLUNAS_AVISOS = List.of(
+        "registradoEm", "nomeEpisodio", "animeNome", "ordem", "aviso");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: publica as mesmas métricas em CSV ao lado do JSON, para quem for
+     * analisar o dataset abrir em pandas/R/planilha sem escrever parser de JSON aninhado.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>As tabelas de resumo, ambiente, traduções e operações saem do <b>mesmo
+     *       {@code ObjectNode}</b> gravado como JSON — um só caminho de montagem, uma só
+     *       sanitização. Montar de novo a partir do {@code TelemetriaResumo} criaria a segunda
+     *       implementação da mesma regra, e ela divergiria na primeira mudança de schema.</li>
+     *   <li>{@code kronos-avisos.csv} é <b>tidy data</b>: uma linha por aviso, com
+     *       {@code registradoEm + nomeEpisodio} ligando de volta à execução. Espremer N avisos
+     *       numa célula produziria campo gigante que nenhuma planilha abre e nenhum
+     *       {@code group by} agrega.</li>
+     *   <li>O CSV de avisos carrega o <b>texto do diagnóstico</b>, que inclui trecho de fala —
+     *       publicação DELIBERADA (decisão de 2026-08-10), declarada no README. Não é vazamento:
+     *       é o dado que permite estudar por que uma tradução falhou.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acervo de execuções ausente gera os CSVs derivados do
+     * JSON e pula os dois derivados do JSONL — publicar tabela vazia é melhor que abortar a
+     * publicação inteira. Linha ilegível do acervo é pulada. Devolve o total de linhas de dados
+     * escritas em todos os CSVs.
+     */
+    private int publicarCsv(Path pastaMetrics, ObjectNode dataset) throws IOException {
+        Path pastaCsv = pastaMetrics.resolve("csv");
+        Files.createDirectories(pastaCsv);
+
+        int linhas = 0;
+        linhas += gravarCsv(pastaCsv.resolve("kronos-resumo.csv"),
+            TelemetriaDatasetCsv.deObjeto(dataset.get("resumo"), COLUNAS_RESUMO));
+        linhas += gravarCsv(pastaCsv.resolve("kronos-ambiente-execucao.csv"),
+            TelemetriaDatasetCsv.deObjeto(dataset.get("ambienteExecucao"), COLUNAS_AMBIENTE));
+        linhas += gravarCsv(pastaCsv.resolve("kronos-traducoes-llm.csv"),
+            TelemetriaDatasetCsv.deArray(dataset.get("traducoesLlm"), COLUNAS_TRADUCOES));
+        linhas += gravarCsv(pastaCsv.resolve("kronos-operacoes.csv"),
+            TelemetriaDatasetCsv.deArray(dataset.get("operacoes"), COLUNAS_OPERACOES));
+
+        List<List<String>> execucoes = new ArrayList<>();
+        List<List<String>> avisos = new ArrayList<>();
+        lerAcervoParaCsv(pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES), execucoes, avisos);
+        linhas += gravarCsv(pastaCsv.resolve("kronos-execucoes.csv"),
+            TelemetriaDatasetCsv.deLinhas(COLUNAS_EXECUCOES, execucoes));
+        linhas += gravarCsv(pastaCsv.resolve("kronos-avisos.csv"),
+            TelemetriaDatasetCsv.deLinhas(COLUNAS_AVISOS, avisos));
+
+        log.info("CSVs do dataset publicados em {}: {} linha(s) de dados.", pastaCsv, linhas);
+        return linhas;
+    }
+
+    /** Grava o CSV e devolve quantas linhas de DADOS ele tem (total menos o cabeçalho). */
+    private int gravarCsv(Path destino, String conteudo) throws IOException {
+        Files.writeString(destino, conteudo, StandardCharsets.UTF_8);
+        long total = conteudo.lines().count();
+        return (int) Math.max(0, total - 1);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: desdobra o acervo JSONL nas duas tabelas que ele contém — uma linha
+     * por execução e uma linha por aviso.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a chave {@code registradoEm + nomeEpisodio} aparece nas duas
+     * tabelas, para o join ser possível sem inventar id. {@code ordem} preserva a posição do aviso
+     * dentro da execução, que se perderia num CSV desordenado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ausente devolve as listas como estão (vazias).
+     * Linha ilegível é pulada com log em DEBUG — uma linha corrompida não pode derrubar a tabela.
+     */
+    private void lerAcervoParaCsv(Path acervo, List<List<String>> execucoes, List<List<String>> avisos)
+            throws IOException {
+        if (!Files.exists(acervo)) {
+            return;
+        }
+        for (String linha : Files.readAllLines(acervo, StandardCharsets.UTF_8)) {
+            if (linha == null || linha.isBlank()) {
+                continue;
+            }
+            try {
+                JsonNode no = mapper.readTree(linha);
+                String quando = texto(no, "registradoEm");
+                String episodio = texto(no, "nomeEpisodio");
+                JsonNode erros = no.get("errosOcorridos");
+                int quantidade = erros == null || !erros.isArray() ? 0 : erros.size();
+
+                List<String> exec = new ArrayList<>(COLUNAS_EXECUCOES.size());
+                for (String coluna : COLUNAS_EXECUCOES) {
+                    exec.add("quantidadeAvisos".equals(coluna)
+                        ? String.valueOf(quantidade)
+                        : valorSimples(no, coluna));
+                }
+                execucoes.add(exec);
+
+                if (erros != null && erros.isArray()) {
+                    for (int i = 0; i < erros.size(); i++) {
+                        avisos.add(List.of(
+                            quando == null ? "" : quando,
+                            episodio == null ? "" : episodio,
+                            valorSimples(no, "animeNome"),
+                            String.valueOf(i + 1),
+                            erros.get(i) == null ? "" : erros.get(i).asText()));
+                    }
+                }
+            } catch (IOException e) {
+                log.debug("Linha ilegivel no acervo ao gerar CSV, ignorada: {}", e.getMessage());
+            }
+        }
+    }
+
+    private static String valorSimples(JsonNode no, String campo) {
+        JsonNode v = no.get(campo);
+        return v == null || v.isNull() ? "" : v.asText();
+    }
+
     /** Resultado da publicação, devolvido ao painel de Telemetria. */
     public record ResultadoPublicacao(String repositorio, String commit, boolean pushOk, String mensagem) {}
 
@@ -247,20 +387,23 @@ public class TelemetriaDatasetService {
         Path pastaMetrics = repo.resolve("metrics");
         Files.createDirectories(pastaMetrics);
         Path arquivo = pastaMetrics.resolve(NOME_ARQUIVO_DATASET);
+        // O MESMO nó vai para o JSON e para o CSV: um só caminho de montagem, uma só sanitização.
+        ObjectNode dataset = montarDatasetSanitizado(
+            resumo, mapper, ambienteExecucao.detectar(propriedades.hardware()));
         // Pretty-print proposital: o arquivo é lido por humanos no GitHub.
-        mapper.writerWithDefaultPrettyPrinter().writeValue(arquivo.toFile(),
-            montarDatasetSanitizado(resumo, mapper, ambienteExecucao.detectar(propriedades.hardware())));
+        mapper.writerWithDefaultPrettyPrinter().writeValue(arquivo.toFile(), dataset);
         log.info("Dataset de telemetria gerado em {}", arquivo);
 
         int execucoesNovas = acumularExecucoes(pastaMetrics);
         int operacoesPorFatia = publicarDatasetsPorFatia(pastaMetrics);
+        int linhasCsv = publicarCsv(pastaMetrics, dataset);
 
         git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE", "metrics");
         String mensagemCommit = String.format(Locale.ROOT,
             "dataset: snapshot com %d episódios e %d operações (+%d execução(ões) no acervo, "
-                + "%d operação(ões) por fatia)",
+                + "%d operação(ões) por fatia, %d linha(s) em CSV)",
             resumo.totalEpisodios(), resumo.operacoes() != null ? resumo.operacoes().size() : 0,
-            execucoesNovas, operacoesPorFatia);
+            execucoesNovas, operacoesPorFatia, linhasCsv);
         ProcessoExternoUtil.Resultado commit = git(repo, TIMEOUT_GIT, "commit", "-m", mensagemCommit);
         boolean semMudancas = commit.codigoSaida() != 0
             && saida(commit).toLowerCase(Locale.ROOT).contains("nothing to commit");
@@ -345,10 +488,13 @@ public class TelemetriaDatasetService {
      * itens que a comunidade procura primeiro num repositório de dataset.
      */
     private void garantirDocumentosBase(Path repo) throws IOException {
-        Path readme = repo.resolve("README.md");
-        if (!Files.exists(readme)) {
-            Files.writeString(readme, README_DATASET, StandardCharsets.UTF_8);
-        }
+        // O README é REESCRITO a cada publicação, não criado só uma vez. Ele descreve o formato
+        // dos dados e a política de privacidade — se ficar congelado na primeira publicação,
+        // passa a descrever um dataset que não existe mais. Prejuízo real: em 10/08/2026 o README
+        // ainda afirmava "não publica texto de legenda" enquanto o acervo de execuções publicava
+        // trecho de fala em 1.238 das 1.547 linhas. Documento gerado que não se atualiza vira
+        // afirmação falsa assinada pelo projeto.
+        Files.writeString(repo.resolve("README.md"), README_DATASET, StandardCharsets.UTF_8);
         Path licenca = repo.resolve("LICENSE");
         if (!Files.exists(licenca)) {
             Files.writeString(licenca, textoLicencaMit(), StandardCharsets.UTF_8);
@@ -567,8 +713,32 @@ public class TelemetriaDatasetService {
         ├── README.md
         ├── LICENSE
         └── metrics/
-            └── kronos-telemetria-dataset.json
+            ├── kronos-telemetria-dataset.json     # snapshot (latest state per episode)
+            ├── kronos-telemetria-execucoes.jsonl  # append-only archive, one line per run
+            ├── fatias/                            # per-module consolidated metrics
+            └── csv/                               # same data, tabular
+                ├── kronos-resumo.csv
+                ├── kronos-ambiente-execucao.csv
+                ├── kronos-traducoes-llm.csv
+                ├── kronos-operacoes.csv
+                ├── kronos-execucoes.csv
+                └── kronos-avisos.csv
         ```
+
+        ### CSV Files
+
+        Every metric published as JSON is also published as CSV, generated from the **same
+        in-memory node** — the two formats cannot drift apart.
+
+        - **Encoding** UTF-8, no BOM · **separator** `,` · **quoting** RFC 4180 (embedded quotes
+          doubled) · **line ending** LF.
+        - Real line breaks inside a field are written as the two-character text `\n`, so one
+          physical line is always one record.
+        - `kronos-avisos.csv` is tidy data: **one row per warning**, joinable back to a run by
+          `registradoEm` + `nomeEpisodio`.
+
+        Opening in Excel: import as UTF-8 / comma-separated instead of double-clicking, otherwise
+        accented characters and comma-bearing titles are misread.
 
         ### Data Format
 
@@ -627,9 +797,15 @@ public class TelemetriaDatasetService {
 
         ### Privacy And Anonymization
 
-        This dataset does not publish subtitle text, local machine paths, usernames, hostnames, IP addresses, MAC addresses, serial numbers, device identifiers, credentials, tokens or API keys.
+        This dataset does not publish local machine paths, usernames, hostnames, IP addresses, MAC addresses, serial numbers, device identifiers, credentials, tokens or API keys.
 
-        The only public identifiers are release/work names, local LLM model ids and generic hardware metadata useful for benchmark interpretation.
+        **Subtitle excerpts are published, deliberately and in one place only.** Pipeline warnings in `kronos-telemetria-execucoes.jsonl` and `metrics/csv/kronos-avisos.csv` quote the subtitle line that triggered the failure — for example a line kept untranslated because the model corrupted its ASS tags. Without the line itself, the failure cannot be studied or reproduced, which is the point of publishing translation telemetry at all.
+
+        These are short diagnostic excerpts from fansub subtitle files, published for research into machine-translation failure modes. They are not a translated corpus and no complete subtitle file is redistributed. If you hold rights over a quoted line and want it removed, open an issue.
+
+        The aggregate metrics (`kronos-telemetria-dataset.json` and the other CSVs) contain **no** subtitle text: warnings there are reduced to `quantidadeAvisos`.
+
+        The only other public identifiers are release/work names, local LLM model ids and generic hardware metadata useful for benchmark interpretation.
 
         ### Generation
 
@@ -655,8 +831,32 @@ public class TelemetriaDatasetService {
         ├── README.md
         ├── LICENSE
         └── metrics/
-            └── kronos-telemetria-dataset.json
+            ├── kronos-telemetria-dataset.json     # foto (último estado por episódio)
+            ├── kronos-telemetria-execucoes.jsonl  # acervo append-only, uma linha por execução
+            ├── fatias/                            # consolidado por módulo
+            └── csv/                               # os mesmos dados, em tabela
+                ├── kronos-resumo.csv
+                ├── kronos-ambiente-execucao.csv
+                ├── kronos-traducoes-llm.csv
+                ├── kronos-operacoes.csv
+                ├── kronos-execucoes.csv
+                └── kronos-avisos.csv
         ```
+
+        ### Arquivos CSV
+
+        Toda métrica publicada em JSON é publicada também em CSV, gerada a partir do **mesmo nó em
+        memória** — os dois formatos não têm como divergir.
+
+        - **Codificação** UTF-8 sem BOM · **separador** `,` · **aspas** RFC 4180 (aspas internas
+          duplicadas) · **fim de linha** LF.
+        - Quebra de linha real dentro de campo é gravada como o texto `\n` de dois caracteres, para
+          uma linha física ser sempre um registro.
+        - `kronos-avisos.csv` é tidy data: **uma linha por aviso**, ligada à execução por
+          `registradoEm` + `nomeEpisodio`.
+
+        Abrindo no Excel: importe como UTF-8 / separado por vírgula em vez de dar duplo clique,
+        senão acento e título com vírgula saem errados.
 
         ### Formato Dos Dados
 
@@ -715,9 +915,15 @@ public class TelemetriaDatasetService {
 
         ### Privacidade E Anonimização
 
-        Este dataset não publica texto de legenda, caminhos locais da máquina, nomes de usuário, hostnames, endereços IP, endereços MAC, números de série, identificadores de dispositivo, credenciais, tokens ou chaves de API.
+        Este dataset não publica caminhos locais da máquina, nomes de usuário, hostnames, endereços IP, endereços MAC, números de série, identificadores de dispositivo, credenciais, tokens ou chaves de API.
 
-        Os únicos identificadores públicos são nomes de obras/releases, ids de modelos LLM locais e metadados genéricos de hardware úteis para interpretar benchmarks.
+        **Trechos de legenda SÃO publicados, deliberadamente e num lugar só.** Os avisos do pipeline, em `kronos-telemetria-execucoes.jsonl` e em `metrics/csv/kronos-avisos.csv`, citam a fala que provocou a falha — por exemplo uma linha mantida sem tradução porque o modelo corrompeu as tags ASS. Sem a fala, a falha não pode ser estudada nem reproduzida, que é a razão de publicar telemetria de tradução.
+
+        São trechos curtos de diagnóstico, vindos de legendas de fansub, publicados para pesquisa de modos de falha em tradução automática. Não constituem corpus traduzido e nenhum arquivo de legenda completo é redistribuído. Se você detém direitos sobre uma fala citada e quer removê-la, abra uma issue.
+
+        As métricas agregadas (`kronos-telemetria-dataset.json` e os demais CSVs) **não** contêm texto de legenda: ali os avisos viram apenas `quantidadeAvisos`.
+
+        Fora isso, os únicos identificadores públicos são nomes de obras/releases, ids de modelos LLM locais e metadados genéricos de hardware úteis para interpretar benchmarks.
 
         ### Geração
 
