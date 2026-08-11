@@ -76,6 +76,36 @@ public interface LlmPort {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: variante que troca o MODELO da chamada, para pedir uma segunda
+     * opinião a outro LLM na fala que o modelo principal não conseguiu traduzir. É a única
+     * porta por onde um segundo modelo entra no pipeline — ele nunca traduz o episódio,
+     * apenas a fala já dada como perdida.
+     *
+     * <p>O PREJUÍZO que originou a variante, medido em 11/08/2026 no Zeta: das 6 falas que
+     * sobraram pendentes em 50 episódios com {@code mistral-nemo}, CINCO eram discurso citado
+     * com aspas internas ({@code I just said, "You want to meet Char, don't you?"}), e o
+     * {@code towerinstruct-mistral-7b} traduziu 3 delas na primeira tentativa. Repetir com o
+     * mesmo modelo — o que o laço de temperatura já faz — não vencia nenhuma.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code modeloOverride} nulo ou em branco usa o modelo
+     * configurado, e a implementação default delega a {@link #traduzir(Lote, Double, String)} —
+     * quem não implementa o override NUNCA troca de modelo por acidente. A resposta continua
+     * sujeita à MESMA validação canônica do chamador: segunda opinião não é passe livre.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico a {@link #traduzir(Lote)}.
+     *
+     * @param lote lote de linhas originais a traduzir
+     * @param temperaturaOverride temperatura de amostragem, ou {@code null} para a configurada
+     * @param promptSistemaCongelado prompt de sistema fixado no início do job, ou {@code null}
+     * @param modeloOverride id do modelo a usar nesta chamada, ou {@code null} para o configurado
+     * @return o lote traduzido, com o mesmo {@code idLote}
+     */
+    default TraducaoLote traduzir(Lote lote, Double temperaturaOverride,
+            String promptSistemaCongelado, String modeloOverride) {
+        return traduzir(lote, temperaturaOverride, promptSistemaCongelado);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: verifica, antes de iniciar a tradução, se o servidor LLM local
      * está online e se o modelo configurado está efetivamente carregado — evita descobrir
      * isso só depois de várias tentativas/timeouts já no meio do primeiro episódio.
@@ -111,6 +141,23 @@ public interface LlmPort {
      */
     default String modeloAtivo() {
         return null;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: informa qual modelo deve receber a SEGUNDA OPINIÃO sobre uma fala
+     * que o modelo principal não conseguiu traduzir. Existe para a camada de aplicação
+     * perguntar isso à porta em vez de ler configuração de infraestrutura — quem sabe qual
+     * servidor atende é a implementação.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: vazio significa DESLIGADO, e é o padrão. Falha fechada — o
+     * pipeline não adota um segundo modelo por conta própria só porque ele está carregado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: string vazia; nunca lança, nunca chama a rede.
+     *
+     * @return id do modelo de recuperação, ou vazio quando não há um configurado
+     */
+    default String modeloRecuperacao() {
+        return "";
     }
 
     /**

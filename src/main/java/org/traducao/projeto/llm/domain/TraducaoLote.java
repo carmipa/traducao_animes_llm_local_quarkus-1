@@ -24,11 +24,35 @@ import java.util.List;
  * @param linhasTraduzidas linhas traduzidas, na ordem das originais
  * @param sucesso {@code true} se a tradução é utilizável
  * @param mensagemErro diagnóstico quando {@code sucesso} é {@code false}
+ * @param mascaradosSegundaOpiniao textos MASCARADOS cuja tradução veio de outro modelo
  */
 public record TraducaoLote(
     int idLote,
     List<String> linhasTraduzidas,
     boolean sucesso,
-    String mensagemErro
+    String mensagemErro,
+    List<String> mascaradosSegundaOpiniao
 ) {
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que a lista de segunda opinião nunca seja nula nem
+     * mutável — quem consome decide o que cachear com base nela, e um {@code null} ali
+     * viraria {@code NullPointerException} no meio da gravação do cache.
+     */
+    public TraducaoLote {
+        mascaradosSegundaOpiniao = mascaradosSegundaOpiniao == null
+            ? List.of() : List.copyOf(mascaradosSegundaOpiniao);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: forma normal, para o caminho em que TODA a tradução veio do
+     * modelo principal — que é a esmagadora maioria dos lotes.
+     *
+     * <p>Existe para que acrescentar a segunda opinião não obrigasse a reescrever os dez
+     * pontos de construção espalhados por produção e testes: quem não sabe da segunda
+     * opinião continua construindo como sempre, e recebe lista vazia.
+     */
+    public TraducaoLote(int idLote, List<String> linhasTraduzidas, boolean sucesso, String mensagemErro) {
+        this(idLote, linhasTraduzidas, sucesso, mensagemErro, List.of());
+    }
 }

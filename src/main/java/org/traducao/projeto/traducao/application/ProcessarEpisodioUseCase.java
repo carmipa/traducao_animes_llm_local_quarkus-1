@@ -38,6 +38,23 @@ public class ProcessarEpisodioUseCase {
     // de recuperacao antes de desistir da fala.
     private static final Double[] TEMPERATURA_POR_TENTATIVA = {null, 0.5, 0.7};
 
+    /**
+     * Textos ORIGINAIS que a segunda opinião recuperou no lote em curso, para
+     * {@code traduzirEValidar} carimbá-los no {@link TraducaoLote} e o gravador de cache
+     * saber quais NÃO pode guardar.
+     *
+     * <p>O PORQUÊ de não ir para o cache: {@code ProvenienciaCache} carimba UM
+     * {@code modeloLlm} para o arquivo inteiro. Guardar ali um texto vindo de outro modelo
+     * faria a proveniência mentir, e a execução seguinte reutilizaria a tradução achando que
+     * é do modelo principal. São poucas falas (3 em 50 episódios, medido em 11/08/2026): sai
+     * mais barato recuperá-las de novo a cada execução do que sujar o carimbo.
+     *
+     * <p>ThreadLocal porque os lotes são traduzidos em paralelo, e escopado com
+     * {@code remove()} no {@code finally} porque a thread é de pool e sobrevive ao job.
+     */
+    private static final ThreadLocal<List<String>> SEGUNDA_OPINIAO_DO_LOTE =
+        ThreadLocal.withInitial(ArrayList::new);
+
     private final LlmPort llmPort;
     private final ValidadorTraducaoService validador;
     private final ConsoleUILogger uiLogger;
@@ -133,6 +150,11 @@ public class ProcessarEpisodioUseCase {
      */
     private TraducaoLote traduzirEValidar(Lote lote, String promptSistemaCongelado) {
         MDC.put(MDC_LOTE_ID, String.valueOf(lote.idLote()));
+        // Escopo por lote, no MESMO padrão do MDC acima: a recuperação por segunda opinião
+        // acontece no fundo da recursão de traduzirComDivisao, e é aqui em cima que o
+        // TraducaoLote é montado. ThreadLocal porque os lotes rodam em paralelo — uma coleção
+        // de instância misturaria a segunda opinião de um episódio com a de outro.
+        SEGUNDA_OPINIAO_DO_LOTE.set(new ArrayList<>());
         try {
             List<String> traduzidas = traduzirComDivisao(lote, promptSistemaCongelado);
 
@@ -140,13 +162,18 @@ public class ProcessarEpisodioUseCase {
             uiLogger.log("[ OK ] Lote " + lote.idLote() + " traduzido com sucesso.");
             uiLogger.passoConcluido(1);
 
-            return new TraducaoLote(lote.idLote(), traduzidas, true, null);
+            return new TraducaoLote(lote.idLote(), traduzidas, true, null,
+                SEGUNDA_OPINIAO_DO_LOTE.get());
         } catch (TradutorException | AlucinacaoDetectadaException e) {
             log.error("Falha crítica no lote {}: {}", lote.idLote(), e.getMessage());
             uiLogger.log("[ FAIL ] ERRO CRÍTICO no Lote " + lote.idLote() + ": " + e.getMessage());
             throw e;
         } finally {
             MDC.remove(MDC_LOTE_ID);
+            // remove(), não set(null): thread de pool sobrevive ao job, e um ThreadLocal
+            // deixado para trás vaza para a próxima execução — que herdaria a segunda
+            // opinião de um episódio que nem está mais rodando.
+            SEGUNDA_OPINIAO_DO_LOTE.remove();
         }
     }
 
@@ -217,6 +244,37 @@ public class ProcessarEpisodioUseCase {
             }
         }
 
+        // SEGUNDA OPINIÃO, antes de desistir. O laço acima repete com o MESMO modelo variando
+        // só a temperatura, e há uma classe de fala em que isso nunca vence: medido em
+        // 11/08/2026 no Zeta, das 6 pendências que sobraram em 50 episódios com mistral-nemo,
+        // CINCO eram discurso citado com aspas internas — e o towerinstruct traduziu 3 delas
+        // de primeira. Desligado por padrão (tradutor.llm.modelo-recuperacao vazio).
+        String modeloRecuperacao = llmPort.modeloRecuperacao();
+        if (modeloRecuperacao != null && !modeloRecuperacao.isBlank()) {
+            try {
+                List<String> recuperada = traduzirERevalidarBruto(
+                    lote, null, promptSistemaCongelado, modeloRecuperacao);
+                telemetriaTraducao.registrarFalhaTraducaoRecuperada();
+                // Marca o ORIGINAL para o cache não guardar tradução de outro modelo sob o
+                // carimbo do principal. Ver SEGUNDA_OPINIAO_DO_LOTE.
+                SEGUNDA_OPINIAO_DO_LOTE.get().addAll(lote.linhasOriginais());
+                log.info("Lote {}: recuperado pela segunda opiniao do modelo \"{}\".",
+                    lote.idLote(), modeloRecuperacao);
+                uiLogger.log("[ SEGUNDA-OPINIAO ] Lote " + lote.idLote()
+                    + " recuperado por \"" + modeloRecuperacao + "\": " + lote.linhasOriginais().getFirst());
+                return recuperada;
+            } catch (RuntimeException e) {
+                // Reprovou na MESMA régua do principal: segue pendente, como sem a segunda
+                // opinião. Nunca silenciosa — sem esta linha, um modelo de recuperação mal
+                // configurado ficaria eternamente "ligado e sem efeito", indistinguível de
+                // desligado.
+                log.warn("Lote {}: segunda opiniao de \"{}\" tambem reprovada ({}). Fala segue pendente.",
+                    lote.idLote(), modeloRecuperacao, e.getMessage());
+                uiLogger.log("[ SEGUNDA-OPINIAO ] Lote " + lote.idLote() + " tambem reprovado por \""
+                    + modeloRecuperacao + "\": " + e.getMessage());
+            }
+        }
+
         String original = lote.linhasOriginais().getFirst();
         log.warn("Lote {}: fala não pôde ser traduzida com confiança após tentativas extras ({}). " +
                 "Mantendo o texto original sem tradução: \"{}\"",
@@ -238,7 +296,18 @@ public class ProcessarEpisodioUseCase {
     }
 
     private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
-        TraducaoLote resultado = llmPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado);
+        return traduzirERevalidarBruto(lote, temperaturaOverride, promptSistemaCongelado, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução e a MESMA revalidação, podendo apontar para outro
+     * modelo. É de propósito que a régua seja uma só — segunda opinião não é passe livre, e o
+     * texto que vier do modelo de recuperação passa pelas mesmas checagens de linhas,
+     * marcadores e alucinação que o do principal.
+     */
+    private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride,
+            String promptSistemaCongelado, String modeloOverride) {
+        TraducaoLote resultado = llmPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado, modeloOverride);
 
         if (!resultado.sucesso() || resultado.linhasTraduzidas() == null) {
             throw new TradutorException("Lote " + lote.idLote() + " falhou na comunicação: " + resultado.mensagemErro());

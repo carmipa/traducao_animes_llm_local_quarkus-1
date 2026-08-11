@@ -33,6 +33,31 @@ public class LlmProperties {
     public String getModel() { return model; }
     public void setModel(String model) { if (model != null && !model.isBlank()) this.model = model; }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: id do modelo que recebe a SEGUNDA OPINIÃO — a fala que o modelo
+     * principal não conseguiu traduzir depois de todas as retentativas. Ele nunca traduz o
+     * episódio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: vazio é o padrão e significa DESLIGADO — sem configuração,
+     * o pipeline se comporta exatamente como antes. Falha fechada: nada de adotar um segundo
+     * modelo por conta própria só porque ele está carregado no servidor.
+     *
+     * <p>Ao contrário de {@link #model}, aqui o id é EXPLÍCITO e não {@code "current"}: o
+     * ponto é justamente pedir um modelo diferente do que está atendendo a tradução. O custo
+     * está declarado em docs/ref-configuracao.md — o LM Studio mantém os dois residentes.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: string vazia; nunca nulo.
+     */
+    private String modeloRecuperacao = "";
+
+    public String modeloRecuperacao() { return modeloRecuperacao; }
+    public String getModeloRecuperacao() { return modeloRecuperacao; }
+    public void setModeloRecuperacao(String modeloRecuperacao) {
+        // Aceita branco DE PROPÓSITO, ao contrário dos demais setters: branco é o estado
+        // "desligado", e um setter que o ignorasse tornaria impossível desligar por config.
+        this.modeloRecuperacao = modeloRecuperacao == null ? "" : modeloRecuperacao.trim();
+    }
+
     public double temperature() { return temperature; }
     public double getTemperature() { return temperature; }
     public void setTemperature(double temperature) { if (temperature > 0) this.temperature = temperature; }
