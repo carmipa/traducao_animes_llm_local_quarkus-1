@@ -66,3 +66,8 @@ backups/
 # o caso que falhou. E estado de execucao LOCAL — versionar faria uma maquina
 # herdar o historico de falha da outra e mudar a ordem do sorteio sem ninguem pedir.
 .jqwik-database
+
+# Saida do quarkusDev: `iniciar-kronos-dev.cmd` redireciona stdout/stderr para ca, entao o
+# arquivo NASCE a cada vez que se sobe o modo dev e aparece como nao-rastreado no `git status`
+# de quem so quis rodar a aplicacao. Mesma familia de logs/ — runtime, nunca fonte.
+console-web.log

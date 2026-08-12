@@ -305,6 +305,9 @@ public class LlmClientAdapter implements LlmPort {
         );
 
         Exception ultimaFalha = null;
+        // O servidor RESPONDEU e recusou este pedido (4xx permanente)? É problema desta fala,
+        // não do servidor — e só aqui essa informação existe. Ver TraducaoLote#recusaDaRequisicao.
+        boolean recusaDoServidor = false;
         for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
             try {
                 log.debug("Enviando lote {} ao LLM ({} linha(s)) — tentativa {}/{}",
@@ -347,6 +350,10 @@ public class LlmClientAdapter implements LlmPort {
                 if (isErroPermanente(e.statusCode())) {
                     log.warn("Erro HTTP {} é permanente (não é timeout/rate-limit) — abortando retries do lote {}.",
                         e.statusCode(), lote.idLote());
+                    // Repetir a MESMA requisição não muda o resultado, mas o CHAMADOR ainda tem
+                    // saída: outra temperatura, segunda opinião, ou deixar a fala pendente. Sem
+                    // este marcador ele trata como servidor fora do ar e aborta o episódio.
+                    recusaDoServidor = true;
                     break;
                 }
             } catch (InterruptedException ie) {
@@ -387,7 +394,9 @@ public class LlmClientAdapter implements LlmPort {
             mensagemFinal += ": " + ultimaFalha.getMessage();
         }
         log.error(mensagemFinal);
-        return new TraducaoLote(lote.idLote(), null, false, mensagemFinal);
+        return recusaDoServidor
+            ? TraducaoLote.recusadaPeloServidor(lote.idLote(), mensagemFinal)
+            : new TraducaoLote(lote.idLote(), null, false, mensagemFinal);
     }
 
     /**
