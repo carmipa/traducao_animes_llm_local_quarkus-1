@@ -327,53 +327,75 @@ public class DetectorConcordanciaService {
      * adiciona motivo e preserva a fala para eventual revisão contextual.
      */
     private void detectarPronomesECruzamento(String original, String texto, Set<String> motivos) {
-        if (HER_EN.matcher(original).find()) {
-            adicionarSeEncontrado(motivos, OBJETO_MASC_COM_HER_EN, texto,
-                "Original usa 'her', mas tradução aponta para masculino (ele/o/dele/para ele)");
-            adicionarSeEncontrado(motivos, IMPERATIVO_PARA_ELE_COM_HER, texto,
-                "Original usa 'her', mas imperativo dirige-se a 'ele'");
-            adicionarSeEncontrado(motivos, VI_ELE_COM_HER, texto,
-                "Original usa 'her', mas verbo rege pronome/objeto masculino");
-            if (DELE_COM_HER.matcher(texto).find() && !contemIndicioFemininoPt(texto)) {
-                motivos.add("Original usa 'her', mas tradução usa 'dele' (possessivo masculino)");
-            }
-        }
+        detectarObjetoComHer(original, texto, motivos);
+        detectarObjetoComHim(original, texto, motivos);
+        detectarSujeitoInicialTrocado(original, texto, motivos);
+        detectarSujeitoEPredicadoComShe(original, texto, motivos);
+        detectarSujeitoEPredicadoComHe(original, texto, motivos);
+        detectarPredicadoPorEvidenciaDeGenero(original, texto, motivos);
+    }
 
-        if (HIM_EN.matcher(original).find()) {
-            adicionarSeEncontrado(motivos, OBJETO_FEM_COM_HIM_EN, texto,
-                "Original usa 'him', mas tradução aponta para feminino (ela/a/dela/para ela)");
-            adicionarSeEncontrado(motivos, IMPERATIVO_PARA_ELA_COM_HIM, texto,
-                "Original usa 'him', mas imperativo dirige-se a 'ela'");
-            adicionarSeEncontrado(motivos, VI_ELA_COM_HIM, texto,
-                "Original usa 'him', mas verbo rege pronome/objeto feminino");
-            if (DELA_COM_HIM.matcher(texto).find() && !contemIndicioFemininoPt(texto)) {
-                motivos.add("Original usa 'him', mas tradução usa 'dela' (possessivo feminino)");
-            }
+    /** {@code her} no original × masculino na tradução: objeto, imperativo, regência, possessivo. */
+    private void detectarObjetoComHer(String original, String texto, Set<String> motivos) {
+        if (!HER_EN.matcher(original).find()) {
+            return;
         }
+        adicionarSeEncontrado(motivos, OBJETO_MASC_COM_HER_EN, texto,
+            "Original usa 'her', mas tradução aponta para masculino (ele/o/dele/para ele)");
+        adicionarSeEncontrado(motivos, IMPERATIVO_PARA_ELE_COM_HER, texto,
+            "Original usa 'her', mas imperativo dirige-se a 'ele'");
+        adicionarSeEncontrado(motivos, VI_ELE_COM_HER, texto,
+            "Original usa 'her', mas verbo rege pronome/objeto masculino");
+        if (DELE_COM_HER.matcher(texto).find() && !contemIndicioFemininoPt(texto)) {
+            motivos.add("Original usa 'her', mas tradução usa 'dele' (possessivo masculino)");
+        }
+    }
 
-        // SUJEITO INICIAL trocado — regra por POSIÇÃO, não por presença de pronome.
-        //
-        // Nasceu de uma medição incômoda. Ao fechar o guarda da regra larga abaixo (que passou a
-        // exigir ausência de QUALQUER referência masculina), o acerto real do run de 2026-07-28
-        // deixava de ser detectado:
-        //
-        //   EN "She's got a violent older brother, and I happened to know her, so..."
-        //   PT "Ele tem um irmão mais velho violento, ..."     <- "Ele" está errado
-        //
-        // "brother" ancora o masculino e cala a regra larga; SUJEITO_ELE_COM_SHE não pega porque
-        // "tem" não está em VERBOS_SUJEITO — lista curada de propósito, para não acusar meia
-        // legenda. Sem esta regra, o conserto trocaria 6 falsos positivos por 1 defeito real
-        // invisível, o que não é conserto.
-        //
-        // Quem abre a fala é o sujeito. Sujeito de gênero trocado é divergência objetiva e não
-        // depende de o verbo estar em lista nenhuma.
+    /** Lado espelhado: {@code him} no original × feminino na tradução. */
+    private void detectarObjetoComHim(String original, String texto, Set<String> motivos) {
+        if (!HIM_EN.matcher(original).find()) {
+            return;
+        }
+        adicionarSeEncontrado(motivos, OBJETO_FEM_COM_HIM_EN, texto,
+            "Original usa 'him', mas tradução aponta para feminino (ela/a/dela/para ela)");
+        adicionarSeEncontrado(motivos, IMPERATIVO_PARA_ELA_COM_HIM, texto,
+            "Original usa 'him', mas imperativo dirige-se a 'ela'");
+        adicionarSeEncontrado(motivos, VI_ELA_COM_HIM, texto,
+            "Original usa 'him', mas verbo rege pronome/objeto feminino");
+        if (DELA_COM_HIM.matcher(texto).find() && !contemIndicioFemininoPt(texto)) {
+            motivos.add("Original usa 'him', mas tradução usa 'dela' (possessivo feminino)");
+        }
+    }
+
+    /**
+     * SUJEITO INICIAL trocado — regra por POSIÇÃO, não por presença de pronome.
+     *
+     * <p>Nasceu de uma medição incômoda. Ao fechar o guarda da regra larga (que passou a exigir
+     * ausência de QUALQUER referência masculina), o acerto real do run de 2026-07-28 deixava de
+     * ser detectado:
+     * <pre>
+     *   EN "She's got a violent older brother, and I happened to know her, so..."
+     *   PT "Ele tem um irmão mais velho violento, ..."     &lt;- "Ele" está errado
+     * </pre>
+     * "brother" ancora o masculino e cala a regra larga; {@code SUJEITO_ELE_COM_SHE} não pega
+     * porque "tem" não está em {@code VERBOS_SUJEITO} — lista curada de propósito, para não
+     * acusar meia legenda. Sem esta regra, o conserto trocaria 6 falsos positivos por 1 defeito
+     * real invisível, o que não é conserto.
+     *
+     * <p>Quem abre a fala é o sujeito. Sujeito de gênero trocado é divergência objetiva e não
+     * depende de o verbo estar em lista nenhuma.
+     */
+    private void detectarSujeitoInicialTrocado(String original, String texto, Set<String> motivos) {
         if (ABERTURA_SHE.matcher(original).find() && ABERTURA_ELE.matcher(texto).find()) {
             motivos.add("Fala começa com 'she' no original e com 'ele' na tradução: sujeito trocado");
         }
         if (ABERTURA_HE.matcher(original).find() && ABERTURA_ELA.matcher(texto).find()) {
             motivos.add("Fala começa com 'he' no original e com 'ela' na tradução: sujeito trocado");
         }
+    }
 
+    /** {@code she} no original: sujeito, pronome solto e predicado na tradução. */
+    private void detectarSujeitoEPredicadoComShe(String original, String texto, Set<String> motivos) {
         if (SHE_EN.matcher(original).find()) {
             // A MESMA guarda de referência masculina que a regra 12 linhas abaixo já usa desde
             // 28/07. Ela nasceu da cicatriz descrita ali — "a fala tem DUAS referências de
@@ -413,6 +435,10 @@ public class DetectorConcordanciaService {
             }
         }
 
+    }
+
+    /** Lado espelhado: {@code he} no original: sujeito, pronome solto e predicado. */
+    private void detectarSujeitoEPredicadoComHe(String original, String texto, Set<String> motivos) {
         if (HE_EN.matcher(original).find()) {
             // Lado espelhado da guarda acrescentada acima. A varredura de 12/08 não produziu
             // falso positivo por aqui, mas a assimetria seria dívida: a mesma fala com os
@@ -434,9 +460,18 @@ public class DetectorConcordanciaService {
             }
         }
 
-        // As quatro regras de predicado passam pelo MESMO strip. Aplicá-lo só nas duas de cima
-        // deixaria o E12 acusando por aqui — foi o que a primeira execução mostrou: a fala
-        // trazia DOIS motivos, um de cada par.
+    }
+
+    /**
+     * Predicado julgado pela evidência de gênero do original — mais largo que os dois acima,
+     * porque aceita qualquer referência ({@code her}, {@code sir}, {@code brother}), não só o
+     * pronome sujeito.
+     *
+     * <p>As quatro regras de predicado da classe passam pelo MESMO strip de 1ª/2ª pessoa.
+     * Aplicá-lo só nas duas de cima deixaria o Unicorn E12 acusando por aqui — foi o que a
+     * primeira execução mostrou: a fala trazia DOIS motivos, um de cada par.
+     */
+    private void detectarPredicadoPorEvidenciaDeGenero(String original, String texto, Set<String> motivos) {
         if (PRONOME_FEMININO_EN.matcher(original).find()
             && PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
             && !PRONOME_MASCULINO_EN.matcher(original).find()) {
