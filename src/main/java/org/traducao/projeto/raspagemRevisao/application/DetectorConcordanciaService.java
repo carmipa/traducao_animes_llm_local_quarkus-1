@@ -3,6 +3,8 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.raspagemRevisao.application.concordancia.DetectorAgressividadeIntroduzida;
 import org.traducao.projeto.raspagemRevisao.application.concordancia.DetectorConcordanciaNominal;
+import org.traducao.projeto.raspagemRevisao.application.concordancia.DetectorParentescoInvertido;
+import org.traducao.projeto.raspagemRevisao.application.concordancia.LexicoGenero;
 import org.traducao.projeto.raspagemRevisao.application.concordancia.RegraDeRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 
@@ -83,19 +85,6 @@ public class DetectorConcordanciaService {
     private static final String VERBO_IMPERATIVO =
         "diga|fale|fala|pergunte|pergunte|avise|mande|manda|chame|chama|espere|espera|"
             + "olhe|olha|escute|escuta|veja|ve|ouça|ouca|deixe|deixa";
-
-    private static final Pattern RELACAO_PAI_EN = Pattern.compile("\\b(father|dad|daddy)\\b", FLAGS);
-    private static final Pattern RELACAO_MAE_EN = Pattern.compile("\\b(mother|mom|mommy|mum|mummy)\\b", FLAGS);
-    private static final Pattern RELACAO_FILHO_EN = Pattern.compile("\\bson\\b", FLAGS);
-    private static final Pattern RELACAO_FILHA_EN = Pattern.compile("\\bdaughter\\b", FLAGS);
-    private static final Pattern RELACAO_IRMAO_EN = Pattern.compile("\\bbrother\\b", FLAGS);
-    private static final Pattern RELACAO_IRMA_EN = Pattern.compile("\\bsister\\b", FLAGS);
-    private static final Pattern PAI_PT = Pattern.compile("\\b(pai|papai)\\b", FLAGS);
-    private static final Pattern MAE_PT = Pattern.compile("\\b(mãe|mae|mamãe|mamae)\\b", FLAGS);
-    private static final Pattern FILHO_PT = Pattern.compile("\\bfilho\\b", FLAGS);
-    private static final Pattern FILHA_PT = Pattern.compile("\\bfilha\\b", FLAGS);
-    private static final Pattern IRMAO_PT = Pattern.compile("\\b(irmão|irmao)\\b", FLAGS);
-    private static final Pattern IRMA_PT = Pattern.compile("\\b(irmã|irma)\\b", FLAGS);
     /**
      * As famílias já extraídas para o subpacote {@code concordancia}, atrás do contrato
      * {@link RegraDeRevisao}. Duas listas, e a separação NÃO é estética: as internas ao
@@ -114,23 +103,10 @@ public class DetectorConcordanciaService {
         new DetectorConcordanciaNominal());
 
     private static final List<RegraDeRevisao> REGRAS_QUE_COMPARAM_COM_O_ORIGINAL = List.of(
-        new DetectorAgressividadeIntroduzida());
+        new DetectorAgressividadeIntroduzida(),
+        new DetectorParentescoInvertido());
 
     private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);
-
-    private static final Pattern PRONOME_FEMININO_EN = Pattern.compile(
-        "\\b(she|her|hers|girl|woman|lady|mother|mom|sister|daughter|"
-            + "princess|goddess|queen|heroine|miss|mrs|ms|madam|ma'am|female|wife|aunt|"
-            + "grandma|grandmother|niece|waitress|actress|hostess)\\b", FLAGS);
-
-    private static final Pattern PRONOME_MASCULINO_EN = Pattern.compile(
-        "\\b(he|him|his|boy|man|guy|father|dad|brother|son|prince|god|king|"
-            + "hero|mr|sir|male|husband|uncle|grandpa|grandfather|nephew|waiter|actor)\\b", FLAGS);
-
-    private static final Pattern HER_EN = Pattern.compile("\\bher\\b", FLAGS);
-    private static final Pattern HIM_EN = Pattern.compile("\\bhim\\b", FLAGS);
-    private static final Pattern SHE_EN = Pattern.compile("\\bshe\\b", FLAGS);
-    private static final Pattern HE_EN = Pattern.compile("\\bhe\\b", FLAGS);
 
     private static final Pattern PARTIC_MASC_APOS_VERBO =
         Pattern.compile("\\b(" + VERBO_AUX + "|se sente|me sinto|sinto-me|sinto me)\\s+(" + PARTIC_MASC + ")\\b", FLAGS);
@@ -289,7 +265,6 @@ public class DetectorConcordanciaService {
             String original = removerTagsAss(originalIngles);
             detectarPronomesECruzamento(original, texto, motivos);
             detectarTratamentos(original, texto, motivos);
-            detectarParentesco(original, texto, motivos);
             // Regras que COMPARAM com o inglês. A separação em duas listas não é estética: as
             // de cima rodariam com original nulo e produziriam motivo sem base.
             for (RegraDeRevisao regra : REGRAS_QUE_COMPARAM_COM_O_ORIGINAL) {
@@ -324,7 +299,7 @@ public class DetectorConcordanciaService {
 
     /** {@code her} no original × masculino na tradução: objeto, imperativo, regência, possessivo. */
     private void detectarObjetoComHer(String original, String texto, Set<String> motivos) {
-        if (!HER_EN.matcher(original).find()) {
+        if (!LexicoGenero.HER_EN.matcher(original).find()) {
             return;
         }
         adicionarSeEncontrado(motivos, OBJETO_MASC_COM_HER_EN, texto,
@@ -340,7 +315,7 @@ public class DetectorConcordanciaService {
 
     /** Lado espelhado: {@code him} no original × feminino na tradução. */
     private void detectarObjetoComHim(String original, String texto, Set<String> motivos) {
-        if (!HIM_EN.matcher(original).find()) {
+        if (!LexicoGenero.HIM_EN.matcher(original).find()) {
             return;
         }
         adicionarSeEncontrado(motivos, OBJETO_FEM_COM_HIM_EN, texto,
@@ -383,7 +358,7 @@ public class DetectorConcordanciaService {
 
     /** {@code she} no original: sujeito, pronome solto e predicado na tradução. */
     private void detectarSujeitoEPredicadoComShe(String original, String texto, Set<String> motivos) {
-        if (SHE_EN.matcher(original).find()) {
+        if (LexicoGenero.SHE_EN.matcher(original).find()) {
             // A MESMA guarda de referência masculina que a regra 12 linhas abaixo já usa desde
             // 28/07. Ela nasceu da cicatriz descrita ali — "a fala tem DUAS referências de
             // gênero e o detector enxergava só uma" — mas foi aplicada a UMA das três regras
@@ -397,7 +372,7 @@ public class DetectorConcordanciaService {
             // O original tem "He's" E "her"; o detector via só o "she" e acusava o "Ele está".
             // Foi 1 dos 3 "problemas" que a varredura de 5.620 falas reportou — e os 3 eram
             // falso positivo. Ruído a esse nível ensina a ignorar o relatório inteiro.
-            if (!PRONOME_MASCULINO_EN.matcher(original).find()) {
+            if (!LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()) {
                 adicionarSeEncontrado(motivos, SUJEITO_ELE_COM_SHE, texto,
                     "Original usa 'she', mas sujeito da tradução é 'ele'");
             }
@@ -412,12 +387,12 @@ public class DetectorConcordanciaService {
             // Medido em 2026-07-28 no cache de Guilty Crown (07_Track4, evento 10): a proposta
             // do LLM foi aceita porque o motivo parecia legítimo. A fala tem DUAS referências de
             // gênero e o detector enxergava só uma.
-            if (!PRONOME_MASCULINO_EN.matcher(original).find()
+            if (!LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()
                 && ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'");
             }
             if (PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
-                && !HE_EN.matcher(original).find()) {
+                && !LexicoGenero.HE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante feminino ('she'), mas predicado está no masculino");
             }
         }
@@ -426,23 +401,23 @@ public class DetectorConcordanciaService {
 
     /** Lado espelhado: {@code he} no original: sujeito, pronome solto e predicado. */
     private void detectarSujeitoEPredicadoComHe(String original, String texto, Set<String> motivos) {
-        if (HE_EN.matcher(original).find()) {
+        if (LexicoGenero.HE_EN.matcher(original).find()) {
             // Lado espelhado da guarda acrescentada acima. A varredura de 12/08 não produziu
             // falso positivo por aqui, mas a assimetria seria dívida: a mesma fala com os
             // papéis invertidos ("She's with him, so he'll be fine.") acusaria.
-            if (!PRONOME_FEMININO_EN.matcher(original).find()) {
+            if (!LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()) {
                 adicionarSeEncontrado(motivos, SUJEITO_ELA_COM_HE, texto,
                     "Original usa 'he', mas sujeito da tradução é 'ela'");
             }
             // Mesma correção do lado espelhado: \bshe\b não casa "her"/"hers", então
             // "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem
             // afirmava não haver referência feminina no original.
-            if (!PRONOME_FEMININO_EN.matcher(original).find()
+            if (!LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()
                 && ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'");
             }
             if (PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
-                && !SHE_EN.matcher(original).find()) {
+                && !LexicoGenero.SHE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante masculino ('he'), mas predicado está no feminino");
             }
         }
@@ -459,23 +434,23 @@ public class DetectorConcordanciaService {
      * primeira execução mostrou: a fala trazia DOIS motivos, um de cada par.
      */
     private void detectarPredicadoPorEvidenciaDeGenero(String original, String texto, Set<String> motivos) {
-        if (PRONOME_FEMININO_EN.matcher(original).find()
+        if (LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()
             && PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
-            && !PRONOME_MASCULINO_EN.matcher(original).find()) {
+            && !LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()) {
             motivos.add("Original indica feminino, mas participio/adjetivo predicativo está no masculino");
         }
 
-        if (PRONOME_MASCULINO_EN.matcher(original).find()
+        if (LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()
             && PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
-            && !PRONOME_FEMININO_EN.matcher(original).find()) {
+            && !LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()) {
             motivos.add("Original indica masculino, mas participio/adjetivo predicativo está no feminino");
         }
 
     }
 
     private void detectarTratamentos(String original, String texto, Set<String> motivos) {
-        boolean femEn = PRONOME_FEMININO_EN.matcher(original).find();
-        boolean mascEn = PRONOME_MASCULINO_EN.matcher(original).find();
+        boolean femEn = LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find();
+        boolean mascEn = LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find();
 
         if (femEn && !mascEn) {
             adicionarSeEncontrado(motivos, TRATAMENTO_MASC_COM_FEM_EN, texto,
@@ -498,43 +473,6 @@ public class DetectorConcordanciaService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: referência ambígua não adiciona motivo
      * e a fala permanece inalterada.
      */
-    private void detectarParentesco(String original, String texto, Set<String> motivos) {
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_PAI_EN, RELACAO_MAE_EN, MAE_PT,
-            "Original menciona pai, mas a tradução usa mãe");
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_MAE_EN, RELACAO_PAI_EN, PAI_PT,
-            "Original menciona mãe, mas a tradução usa pai");
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_FILHO_EN, RELACAO_FILHA_EN, FILHA_PT,
-            "Original menciona filho, mas a tradução usa filha");
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_FILHA_EN, RELACAO_FILHO_EN, FILHO_PT,
-            "Original menciona filha, mas a tradução usa filho");
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_IRMAO_EN, RELACAO_IRMA_EN, IRMA_PT,
-            "Original menciona irmão, mas a tradução usa irmã");
-        detectarRelacaoInvertida(original, texto, motivos, RELACAO_IRMA_EN, RELACAO_IRMAO_EN, IRMAO_PT,
-            "Original menciona irmã, mas a tradução usa irmão");
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: aplica uma comparação de parentesco somente quando
-     * a fala inglesa fornece evidência inequívoca da relação.
-     * <p>INVARIANTES DO DOMÍNIO: presença simultânea das duas relações bloqueia
-     * a heurística para evitar associar pessoas diferentes.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não registra diagnóstico especulativo.
-     */
-    private void detectarRelacaoInvertida(
-        String original,
-        String texto,
-        Set<String> motivos,
-        Pattern esperadaEn,
-        Pattern opostaEn,
-        Pattern opostaPt,
-        String descricao
-    ) {
-        if (esperadaEn.matcher(original).find()
-            && !opostaEn.matcher(original).find()
-            && opostaPt.matcher(texto).find()) {
-            motivos.add(descricao);
-        }
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: mantém a intensidade do insulto compatível com o
