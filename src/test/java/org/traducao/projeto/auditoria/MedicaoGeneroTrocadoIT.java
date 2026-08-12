@@ -1,0 +1,175 @@
+package org.traducao.projeto.auditoria;
+
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: mede a terceira forma de erro FLUENTE — o gênero trocado. O inglês
+ * quase não marca gênero e o português marca em quase tudo, então esta é a tradução em que o
+ * modelo mais tem de adivinhar. Um "ele" onde a cena tem uma mulher é português impecável que
+ * troca o personagem.
+ *
+ * <h2>O critério, e o que ele deliberadamente NÃO faz</h2>
+ * Só conta quando o original tem pronome de gênero EXPLÍCITO e a tradução usa o pronome do
+ * gênero OPOSTO. Não tenta inferir gênero de personagem por nome nem por lore: isso exigiria
+ * uma segunda fonte de verdade sobre o elenco, que divergiria da do projeto — o erro que a
+ * regra da medição existe para impedir.
+ *
+ * <p>Consequência assumida, e ela é grande: o número é um PISO estreito. O caso mais comum em
+ * legenda — {@code "You're late"} dito a uma personagem virando "Você está atrasado" — NÃO é
+ * detectado aqui, porque o inglês não marcou nada. Fechar esse buraco depende da ficha de
+ * personagem com gênero, que o projeto tem nos contextos de lore; é o passo seguinte, e está
+ * declarado como tal em vez de simulado com heurística.
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Sem acervo, PULA por {@link Assumptions}.
+ */
+@DisplayName("medição: gênero trocado entre original e tradução")
+class MedicaoGeneroTrocadoIT {
+
+    private static final Path OBRA = Path.of("C:", "animes",
+        "Mobile Suit Gundam Unicorn Re0096 (2016) [Season 1] [BD 1080p HEVC OPUS] [Dual-Audio]",
+        "Gundam Unicorn Season 1");
+    private static final Path ENTRADA_ORIGINAL = Path.of("backups", "troca_tipo_legenda_20260812_113344");
+    private static final Pattern TAGS = Pattern.compile("\\{[^}]*\\}");
+
+    private static final Pattern FEM_EN = Pattern.compile("(?i)\\b(she|her|hers|herself|ma'am|miss|mrs)\\b");
+    private static final Pattern MASC_EN = Pattern.compile("(?i)\\b(he|him|his|himself|sir|mr)\\b");
+    private static final Pattern FEM_PT = Pattern.compile("(?i)\\b(ela|dela|nela|senhora|senhorita)\\b");
+    private static final Pattern MASC_PT = Pattern.compile("(?i)\\b(ele|dele|nele|senhor)\\b");
+
+    private record Caso(String ep, String en, String pt, String tipo) {}
+
+    @Test
+    @DisplayName("conta e lista, nas três versões, os pronomes de gênero invertidos")
+    void generoTrocado() {
+        Assumptions.assumeTrue(Files.isDirectory(ENTRADA_ORIGINAL) && Files.isDirectory(OBRA),
+            "acervo do Unicorn ausente — NÃO VERIFICADO");
+
+        // CONTROLE POSITIVO.
+        assertTrue(trocou("She is the pilot.", "Ele é o piloto."), "instrumento cego: she -> ele");
+        assertTrue(trocou("Tell him to wait.", "Diga a ela para esperar."), "instrumento cego: him -> ela");
+        // CONTROLE NEGATIVO — traducoes corretas e casos ambiguos NAO podem ser acusados.
+        assertFalse(trocou("She is the pilot.", "Ela é a piloto."), "alarme falso: traducao correta");
+        assertFalse(trocou("Tell him to wait.", "Diga a ele para esperar."), "alarme falso: traducao correta");
+        assertFalse(trocou("You're late.", "Você está atrasado."),
+            "alarme falso: original sem marcador de genero fica FORA — e o limite declarado");
+        assertFalse(trocou("She told him to go.", "Ela disse a ele para ir."),
+            "alarme falso: fala com os DOIS generos nao pode ser julgada por presenca");
+
+        LeitorLegendaAss leitor = new LeitorLegendaAss();
+        var detector = new DetectorEfeitoKaraokeService();
+        var politica = new PoliticaEstiloMusical(MedicaoUnicornMistralXAyaIT.estilosIgnoradosDoYml());
+
+        Map<String, Path> engOriginal = porEpisodio(ENTRADA_ORIGINAL);
+        Map<String, Path> engAchatada = porEpisodio(OBRA.resolve("legendas_extraidas_ass"));
+
+        for (String versao : new String[] {"traducao_mistral", "traducao_aya", "traducao_ptbr"}) {
+            Path pasta = OBRA.resolve(versao);
+            if (!Files.isDirectory(pasta)) {
+                continue;
+            }
+            Map<String, Path> eng = "traducao_ptbr".equals(versao) ? engAchatada : engOriginal;
+            Map<String, Path> saida = porEpisodio(pasta);
+            List<Caso> casos = new ArrayList<>();
+            int comGenero = 0;
+
+            for (String ep : eng.keySet().stream().filter(saida::containsKey).sorted().toList()) {
+                List<EventoLegenda> o = eventos(leitor, eng.get(ep));
+                List<EventoLegenda> t = eventos(leitor, saida.get(ep));
+                for (int i = 0; i < Math.min(o.size(), t.size()); i++) {
+                    String en = o.get(i).texto();
+                    String pt = t.get(i).texto();
+                    if (en == null || pt == null) {
+                        continue;
+                    }
+                    if (detector.podeSerCamadaMusical(o.get(i).estilo(), en)
+                        || detector.eEfeitoKaraoke(en)
+                        || politica.estiloIgnorado(o.get(i).estilo())) {
+                        continue;
+                    }
+                    String a = visivel(en);
+                    boolean f = FEM_EN.matcher(a).find();
+                    boolean m = MASC_EN.matcher(a).find();
+                    if (f ^ m) {
+                        comGenero++;
+                    }
+                    if (trocou(en, pt)) {
+                        casos.add(new Caso(ep, a, visivel(pt), f ? "F→M" : "M→F"));
+                    }
+                }
+            }
+            System.out.printf("%n=== %s: %d de %d falas com gênero explícito foram invertidas (%.1f%%) ===%n",
+                versao, casos.size(), comGenero, comGenero == 0 ? 0.0 : 100.0 * casos.size() / comGenero);
+            casos.stream().limit(10).forEach(c ->
+                System.out.printf("   %s %s  EN: \"%s\"%n                PT: \"%s\"%n",
+                    c.ep(), c.tipo(), c.en(), c.pt()));
+        }
+    }
+
+    /**
+     * Só decide quando o original tem UM gênero e a tradução tem só o OPOSTO. Fala com os dois
+     * gêneros ("She told him") é indecidível por presença e fica fora — julgá-la exigiria saber
+     * a quem cada pronome se refere.
+     */
+    private static boolean trocou(String en, String pt) {
+        String a = visivel(en);
+        String b = visivel(pt);
+        if (a.isEmpty() || b.isEmpty()) {
+            return false;
+        }
+        boolean femEn = FEM_EN.matcher(a).find();
+        boolean mascEn = MASC_EN.matcher(a).find();
+        if (femEn == mascEn) {
+            return false;
+        }
+        boolean femPt = FEM_PT.matcher(b).find();
+        boolean mascPt = MASC_PT.matcher(b).find();
+        if (femPt == mascPt) {
+            return false;
+        }
+        return femEn ? mascPt : femPt;
+    }
+
+    private static String visivel(String texto) {
+        return TAGS.matcher(texto == null ? "" : texto).replaceAll("")
+            .replace("\\N", " ").replace("\\n", " ").trim();
+    }
+
+    private static Map<String, Path> porEpisodio(Path pasta) {
+        Map<String, Path> m = new LinkedHashMap<>();
+        try (var s = Files.list(pasta)) {
+            s.filter(p -> p.toString().endsWith(".ass"))
+             .filter(p -> !p.getFileName().toString().contains(".parcial."))
+             .forEach(p -> {
+                 var mm = Pattern.compile("(S\\d{2}E\\d{2})").matcher(p.getFileName().toString());
+                 if (mm.find()) {
+                     m.put(mm.group(1), p);
+                 }
+             });
+        } catch (Exception e) {
+            throw new IllegalStateException("falha ao listar " + pasta, e);
+        }
+        return m;
+    }
+
+    private static List<EventoLegenda> eventos(LeitorLegendaAss leitor, Path arquivo) {
+        return leitor.ler(arquivo).eventos().stream().filter(EventoLegenda::isDialogo).toList();
+    }
+}

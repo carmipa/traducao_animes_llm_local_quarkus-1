@@ -68,7 +68,18 @@ class CatracaSuiteSemDriveWindowsTest {
         "OndeOAchatamentoValeriaIT.java",
         // Entrou em 12/08/2026: mede pergunta do original que virou afirmacao na traducao — o
         // erro FLUENTE, que passa por eco, residuo e pendencia sem ser notado. Le o acervo real.
-        "MedicaoPerguntaQueViraAfirmacaoIT.java"
+        "MedicaoPerguntaQueViraAfirmacaoIT.java",
+        // Entrou em 12/08/2026, irma da anterior: mede negacao do original que sumiu na
+        // traducao — "I can't do it" -> "Eu posso fazer isso" inverte a cena e passa em todos
+        // os validadores. Le o acervo real.
+        "MedicaoNegacaoPerdidaIT.java",
+        // Entrou em 12/08/2026: mede acentuacao obrigatoria faltando no portugues entregue.
+        // Nasceu de "circunstancias" x "circunstancias" na MESMA fala do E02, onde o mistral
+        // acerta e a aya erra — eixo em que os dois nao empatam. Le o acervo real.
+        "MedicaoAcentuacaoFaltanteIT.java",
+        // Entrou em 12/08/2026: mede genero trocado entre original e traducao — o eixo em que o
+        // ingles nao marca e o portugues marca em tudo. Le o acervo real.
+        "MedicaoGeneroTrocadoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
