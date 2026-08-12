@@ -62,6 +62,41 @@ class DetectorTraducaoIdenticaServiceTest {
         assertFalse(detector.deveManterIdentico("Hello!"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: nome próprio CORTADO no meio, com duas letras, não é tradução
+     * faltando. O piso de 3 letras da heurística de nome próprio reprovava esse caso.
+     *
+     * <h2>O custo, medido em 12/08/2026</h2>
+     * A Revisão de Legendas varreu as 5.620 falas do Gundam Unicorn e reportou 3 problemas;
+     * os TRÊS eram falso positivo, e este era um deles — E22, linha 157:
+     * <pre>
+     *   EN  "Ri..."      (começo de "Riddhe", personagem sendo interrompido)
+     *   PT  "Ri..."      -> acusada de "fala não traduzida (idêntica ao original)"
+     * </pre>
+     * Depois de {@code limpar} remover a pontuação sobram DUAS letras, e o piso de três as
+     * reprovava. Relatório que aponta 3 e erra nos 3 ensina a ignorar o relatório.
+     */
+    @Test
+    @org.junit.jupiter.api.DisplayName("Unicorn E22: nome próprio interrompido com duas letras é preservado")
+    void nomeProprioInterrompidoComDuasLetrasEhPreservado() {
+        assertTrue(detector.deveManterIdentico("Ri..."), "\"Ri...\" é o começo de Riddhe");
+        assertTrue(detector.deveManterIdentico("Ba…"), "reticência tipográfica também conta");
+    }
+
+    /**
+     * A CONTRAPROVA: o afrouxamento vale só para fala interrompida, e não alcança palavra
+     * inglesa comum. Sem este par, baixar o piso poderia ter congelado inglês em legenda —
+     * exatamente o vazamento que a régua de evidência existe para impedir.
+     */
+    @Test
+    @org.junit.jupiter.api.DisplayName("contraprova: o piso menor não libera inglês comum nem palavra solta de 2 letras")
+    void afrouxamentoNaoAlcancaInglesComum() {
+        assertFalse(detector.deveManterIdentico("No..."), "'No' é inglês comum, tem de ser traduzido");
+        assertFalse(detector.deveManterIdentico("Go..."), "'Go' é inglês comum, tem de ser traduzido");
+        assertFalse(detector.deveManterIdentico("Hello..."),
+            "reticência não pode absolver palavra inglesa de vocabulário");
+    }
+
     /** Lore com a terminologia UC de Zeon, como as obras da Guerra de Um Ano declaram. */
     private static final class LoreZeon implements LoreAtivaPort {
         @Override

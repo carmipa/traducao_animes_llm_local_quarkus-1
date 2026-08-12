@@ -165,4 +165,48 @@ class DetectorConcordanciaDuasReferenciasTest {
         assertFalse(r.suspeito(),
             "tradução correta acusada no lado espelhado: " + r.motivos());
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: predicado de 1ª/2ª pessoa concorda com quem FALA ou com quem OUVE,
+     * e o inglês não marca nenhum dos dois. {@code "You're right"} não diz se o interlocutor é
+     * homem ou mulher, então um {@code she} na mesma fala — que se refere a TERCEIRA pessoa —
+     * não pode julgar esse predicado.
+     *
+     * <h2>O custo, medido em 12/08/2026</h2>
+     * Unicorn E12, linha 200 — o terceiro dos 3 falsos positivos da varredura de 5.620 falas:
+     * <pre>
+     *   EN  "You're right, she is enslaved."
+     *   PT  "Você está certo, ela está escravizada."     <- CORRETO
+     * </pre>
+     * O {@code escravizada} está no feminino, como deve. O acusado foi o {@code certo}, que
+     * concorda com "você". A fala trouxe DOIS motivos, um de cada par de regras de predicado —
+     * por isso o strip foi aplicado às QUATRO, e não só às duas primeiras.
+     */
+    @Test
+    @DisplayName("Unicorn E12: 'Você está certo' não é julgado pelo 'she' de terceira pessoa")
+    void predicadoDeSegundaPessoaNaoEhJulgadoPeloSheDeTerceira() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "You're right, she is enslaved.",
+            "Você está certo, ela está escravizada.");
+
+        assertFalse(r.suspeito(),
+            "'certo' concorda com 'você', não com 'ela' — e 'escravizada' já está no feminino: "
+                + r.motivos());
+    }
+
+    /**
+     * A CONTRAPROVA: o strip tira da análise apenas o predicado de 1ª/2ª pessoa. Predicado de
+     * TERCEIRA pessoa no gênero errado continua sendo acusado — sem isto, o conserto teria
+     * desligado a regra em vez de afiná-la.
+     */
+    @Test
+    @DisplayName("contraprova: predicado de TERCEIRA pessoa no masculino continua suspeito")
+    void predicadoDeTerceiraPessoaContinuaSuspeito() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "You're right, she is enslaved.",
+            "Você está certo, ela está preocupado.");
+
+        assertTrue(r.suspeito(),
+            "'ela está preocupado' é discordância real de terceira pessoa e tem de acusar");
+    }
 }
