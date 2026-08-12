@@ -108,4 +108,61 @@ class DetectorConcordanciaDuasReferenciasTest {
 
         assertTrue(r.suspeito(), "sem nenhuma âncora feminina, 'ela' deve continuar acusando");
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a MESMA guarda de referência masculina, agora também na regra de
+     * SUJEITO — que era a única das três irmãs que não a tinha.
+     *
+     * <h2>O custo, medido em 12/08/2026</h2>
+     * A Revisão de Legendas varreu as 5.620 falas do Gundam Unicorn e reportou 3 problemas.
+     * <b>Os três eram falso positivo</b>, e este era o primeiro (E08, linha 238):
+     * <pre>
+     *   EN  "He's with her, so she'll be fine."
+     *   PT  "Ele está com ela, então ela estará bem."      <- CORRETO
+     * </pre>
+     * O original tem {@code He's} E {@code her}; o detector via só o {@code she} e acusava o
+     * "Ele está". A guarda que resolve já existia doze linhas abaixo, desde 28/07 — foi
+     * aplicada a uma das três regras e esta ficou de fora.
+     *
+     * <p>Por que importa mais que um número: um relatório que aponta 3 problemas e erra nos 3
+     * ensina a ignorar o relatório. O ruído não é neutro, ele desativa a ferramenta.
+     */
+    @Test
+    @DisplayName("Unicorn E08: 'He's with her' absolve o 'Ele está' — os dois gêneros no original")
+    void heEHerNoOriginalAbsolvemOSujeitoEle() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "He's with her,\\Nso she'll be fine.",
+            "Ele está com ela,\\Nentão ela estará bem.");
+
+        assertFalse(r.suspeito(),
+            "tradução correta acusada: o original tem 'He's' e 'her', não só 'she' — " + r.motivos());
+    }
+
+    /**
+     * A CONTRAPROVA da correção acima: sem âncora masculina no original, a regra de sujeito
+     * continua acusando. Sem este par, "consertar o falso positivo" poderia ter sido apenas
+     * desligar a regra — que é como um alarme falso vira alarme nenhum.
+     */
+    @Test
+    @DisplayName("contraprova: 'she' sozinha no original mantém o sujeito 'ele' suspeito")
+    void sheSozinhaMantemSujeitoEleSuspeito() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "She is with the others, so she'll be fine.",
+            "Ele está com os outros, então ela estará bem.");
+
+        assertTrue(r.suspeito(),
+            "sem referência masculina no original, o sujeito 'Ele está' tem de acusar");
+    }
+
+    /** Lado espelhado da correção, para a assimetria não virar dívida. */
+    @Test
+    @DisplayName("espelho: 'She's with him' absolve o 'Ela está' na tradução")
+    void sheEHimNoOriginalAbsolvemOSujeitoEla() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "She's with him, so he'll be fine.",
+            "Ela está com ele, então ele estará bem.");
+
+        assertFalse(r.suspeito(),
+            "tradução correta acusada no lado espelhado: " + r.motivos());
+    }
 }
