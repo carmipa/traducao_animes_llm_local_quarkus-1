@@ -7,6 +7,24 @@ CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo 
 BRANCH / COMMIT BASE: main — `b78a5cf6` local, ahead 1 de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
+## ESTADO AGORA (2026-08-12, 09:40) — Paulo assumiu a rodada comparativa
+
+- **A 8099 é o quarkusDev com o código de hoje.** O contêiner `kronos` foi PARADO
+  (`docker compose stop kronos`): ele tinha voltado sozinho com o Docker Desktop, tomado a
+  porta e servido a imagem de ontem. Como é dev no host, os caminhos são `C:\animes\...`;
+  se voltar ao contêiner (`docker compose start kronos`), passam a ser `/acervo\...`.
+- **Só a `aya-expanse-8b` está carregada** (`/api/v0/models` → `state: loaded`).
+- **A telemetria DEDUPLICA por `nomeEpisodio` e o mais recente vence**: rodar outro modelo
+  APAGA o registro do anterior. O baseline do mistral foi congelado em
+  `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 episódios). Perdi E01 e
+  E02 do ZZ antes de perceber — congelar ANTES de cada troca de modelo, sempre.
+- Piloto já rodado no ZZ (aya): `_piloto_aya_eng` / `_piloto_aya_saida`, 2 eps.
+  **O cache do ZZ E01/E02 agora é da aya**, não do mistral.
+- Pareado no MESMO episódio (ZZ E02): mistral 285 falas / 0 pend / **4,25 min** ×
+  aya 285 falas / 0 pend / **1,26 min** — 3,37× mais rápida, desfecho idêntico.
+- Onde o tempo vai: **165,8s de 172s (96,4%) é espera pelo LM Studio**. Otimização de JVM/JIT
+  atua sobre os 3,6% restantes — decisão de Paulo de não perseguir isso está medida e correta.
+
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
 **Assim que o LM Studio estiver no ar** (ver BLOQUEIO abaixo), nesta ordem:
