@@ -83,7 +83,10 @@ class CatracaSuiteSemDriveWindowsTest {
         // Entrou em 12/08/2026: fecha o buraco que a anterior declarou — genero IMPLICITO, o
         // participio que discorda do personagem citado. Le a ficha do contexto de producao e o
         // acervo real.
-        "MedicaoGeneroImplicitoIT.java"
+        "MedicaoGeneroImplicitoIT.java",
+        // Entrou em 12/08/2026: gera o gold set para LEITURA HUMANA — os pares mais divergentes
+        // entre mistral e aya, ordenados por suspeita. Le o acervo real.
+        "GoldSetLeituraHumanaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
