@@ -25,6 +25,38 @@ SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 9
 - Onde o tempo vai: **165,8s de 172s (96,4%) é espera pelo LM Studio**. Otimização de JVM/JIT
   atua sobre os 3,6% restantes — decisão de Paulo de não perseguir isso está medida e correta.
 
+## EXPERIMENTO PREPARADO — Paulo executa (2026-08-12, 12:00)
+
+**A aplicação está FORA DO AR de propósito.** Paulo sobe e roda; eu não toco em `src/main`
+enquanto rodar — foi um live-reload meu que matou o E01 do Unicorn às 09:22.
+
+Tudo já preparado e conferido:
+
+| item | estado |
+|---|---|
+| `legendas_eng_achatado` (cópia de trabalho, 22 arquivos) | criada, conferida, **ainda SEM troca de fonte e SEM achatador** |
+| `legendas_extraidas_ass` (entrada original) | INTACTA, 22 arquivos |
+| `traducao_mistral` (backup do Paulo) | intocado |
+| baseline mistral por episódio | `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 eps) |
+| baseline **aya** por episódio | `backups/pre-achatado-20260812/baseline-aya-unicorn.json` (22 eps) |
+| cache da aya | `backups/pre-achatado-20260812/cache-aya/` (22, conferido) |
+
+**Sequência para rodar** (pasta sempre `...\Gundam Unicorn Season 1\legendas_eng_achatado`):
+1. `POST /api/troca-legenda/aplicar` com `forcarArial: true`
+2. `POST /api/troca-legenda/achatar-estilos`
+3. `POST /api/traduzir` com `contextoId: "gundam_zz"`… **NÃO** — é `gundam_uc` ou o do Unicorn:
+   conferir em `GET /api/contextos` antes. Saída: pasta NOVA `traducao_ptbr_achatado`.
+4. Medir com `.\gradlew.bat test --tests "*MedicaoUnicornMistralXAyaIT*" --rerun-tasks`
+   (apontando o harness para a pasta nova).
+
+**O que esperar, medido antes de rodar** — estilos na cópia:
+`Default 5665 · OPL2 3255 · ED2 207 · ED-EN 165 · ED 165 · Sign 23`.
+O achatador decide preservação por `podeSerCamadaMusical`, que **não conhece OPL2** (só a
+lista nominal do yml conhece). Se ele colapsar OPL2 em `Default`, o veto nominal deixa de
+casar na tradução e **3.255 linhas de letra do OP vão ao LLM** — o próprio yml registra o que
+acontece: "sa" virou "Meu nome é Mineva Lao Zabi". É exatamente o ganho/perda que o
+experimento quer medir; a rodada fica bem mais longa por causa dessas linhas.
+
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
 **Assim que o LM Studio estiver no ar** (ver BLOQUEIO abaixo), nesta ordem:
