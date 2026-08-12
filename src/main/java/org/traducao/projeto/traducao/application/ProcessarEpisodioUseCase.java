@@ -11,6 +11,7 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.traducao.domain.exceptions.DivergenciaLinhasException;
 import org.traducao.projeto.traducao.domain.exceptions.MarcadorCorrompidoException;
+import org.traducao.projeto.traducao.domain.exceptions.RequisicaoRecusadaPeloLlmException;
 import org.traducao.projeto.traducao.domain.exceptions.TradutorException;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
@@ -54,6 +55,50 @@ public class ProcessarEpisodioUseCase {
      */
     private static final ThreadLocal<List<String>> SEGUNDA_OPINIAO_DO_LOTE =
         ThreadLocal.withInitial(ArrayList::new);
+
+    /**
+     * Quantas falas seguidas podem terminar RECUSADAS pelo servidor antes de o episódio ser
+     * abortado. Uma fala patológica isolada gasta 1; o servidor recusando tudo (modelo não
+     * carregado, requisição inválida por configuração) gasta este número e para.
+     *
+     * <p>O valor é o menor que ainda distingue os dois casos. Baixá-lo para 1 devolveria o
+     * defeito de 2026-08-11; subi-lo faz um episódio inteiro sair vazio antes de alguém notar.
+     */
+    private static final int MAX_RECUSAS_CONSECUTIVAS = 3;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: distingue "uma fala que o servidor não engole" de "o servidor não
+     * está engolindo nada", contando recusas DEFINITIVAS consecutivas dentro de um episódio.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Qualquer pedido ACEITO pelo servidor zera a contagem — é a prova direta de que ele
+     *       não está recusando tudo.</li>
+     *   <li>Vive por episódio e é usado só na thread que percorre os lotes daquele episódio;
+     *       não é compartilhado entre execuções.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Ao estourar o limite lança {@link TradutorException}, que o caminho existente converte em
+     * {@code TraducaoParcialException} — o episódio para preservando o que já foi traduzido.
+     */
+    private static final class DisjuntorRecusas {
+        private int consecutivas;
+
+        void registrarPedidoAceito() {
+            consecutivas = 0;
+        }
+
+        void registrarRecusaDefinitiva(int idLote) {
+            consecutivas++;
+            if (consecutivas >= MAX_RECUSAS_CONSECUTIVAS) {
+                throw new TradutorException("O servidor LLM recusou " + consecutivas
+                    + " falas seguidas (a última no lote " + idLote + ") sem aceitar nenhum pedido"
+                    + " entre elas. Isso não é fala patológica: é o servidor recusando tudo"
+                    + " (modelo não carregado ou requisição inválida). Episódio interrompido.");
+            }
+        }
+    }
 
     private final LlmPort llmPort;
     private final ValidadorTraducaoService validador;
@@ -106,6 +151,7 @@ public class ProcessarEpisodioUseCase {
         log.info("Iniciando processamento de {} lote(s) de forma sequencial (preservando LM Studio/GPU)", lotes.size());
 
         java.util.List<TraducaoLote> resultado = new java.util.ArrayList<>();
+        DisjuntorRecusas disjuntor = new DisjuntorRecusas();
         for (Lote lote : lotes) {
             // Parada cooperativa (botão "Parar" da UI interrompe a thread da
             // fila): sai pelo mesmo caminho de tradução parcial, que salva no
@@ -116,7 +162,7 @@ public class ProcessarEpisodioUseCase {
                     "Tradução interrompida pelo usuário.", resultado, null);
             }
             try {
-                TraducaoLote tl = traduzirEValidar(lote, promptSistemaCongelado);
+                TraducaoLote tl = traduzirEValidar(lote, promptSistemaCongelado, disjuntor);
                 resultado.add(tl);
             } catch (Exception e) {
                 // Aborta e guarda as traduções parciais que passaram!
@@ -148,7 +194,8 @@ public class ProcessarEpisodioUseCase {
      * {@code TradutorException}; o multi-catch preserva a captura defensiva anterior
      * (embora, no fluxo normal, a alucinação seja absorvida antes por divisão/retry/fallback).
      */
-    private TraducaoLote traduzirEValidar(Lote lote, String promptSistemaCongelado) {
+    private TraducaoLote traduzirEValidar(Lote lote, String promptSistemaCongelado,
+            DisjuntorRecusas disjuntor) {
         MDC.put(MDC_LOTE_ID, String.valueOf(lote.idLote()));
         // Escopo por lote, no MESMO padrão do MDC acima: a recuperação por segunda opinião
         // acontece no fundo da recursão de traduzirComDivisao, e é aqui em cima que o
@@ -156,7 +203,7 @@ public class ProcessarEpisodioUseCase {
         // de instância misturaria a segunda opinião de um episódio com a de outro.
         SEGUNDA_OPINIAO_DO_LOTE.set(new ArrayList<>());
         try {
-            List<String> traduzidas = traduzirComDivisao(lote, promptSistemaCongelado);
+            List<String> traduzidas = traduzirComDivisao(lote, promptSistemaCongelado, disjuntor);
 
             log.debug("Lote {} validado com sucesso", lote.idLote());
             uiLogger.log("[ OK ] Lote " + lote.idLote() + " traduzido com sucesso.");
@@ -179,19 +226,26 @@ public class ProcessarEpisodioUseCase {
 
     /**
      * Tenta traduzir o lote de uma vez; se o LLM devolver a contagem errada de
-     * linhas ou uma fala com resíduo/preâmbulo, divide o lote pela metade e
-     * tenta cada metade recursivamente, isolando o trecho problemático em vez
-     * de descartar o lote inteiro (que pode ter 20+ falas, das quais só 1
-     * costuma ser a culpada).
+     * linhas, uma fala com resíduo/preâmbulo, ou se o servidor RECUSAR o pedido
+     * (HTTP 4xx permanente), divide o lote pela metade e tenta cada metade
+     * recursivamente, isolando o trecho problemático em vez de descartar o lote
+     * inteiro (que pode ter 20+ falas, das quais só 1 costuma ser a culpada).
+     *
+     * <p>A recusa entrou nesta lista em 2026-08-12: ela nasce de UMA fala patológica
+     * (verso de karaokê com um marcador por letra), e tratá-la como "servidor caiu"
+     * custou 373 falas de diálogo no DanMachi E03. Ver
+     * {@link org.traducao.projeto.traducao.domain.exceptions.RequisicaoRecusadaPeloLlmException}.
      */
-    private List<String> traduzirComDivisao(Lote lote, String promptSistemaCongelado) {
+    private List<String> traduzirComDivisao(Lote lote, String promptSistemaCongelado,
+            DisjuntorRecusas disjuntor) {
         if (lote.linhasOriginais().size() <= 1) {
-            return traduzirLinhaUnicaComFallback(lote, promptSistemaCongelado);
+            return traduzirLinhaUnicaComFallback(lote, promptSistemaCongelado, disjuntor);
         }
 
         try {
-            return traduzirERevalidarBruto(lote, null, promptSistemaCongelado);
-        } catch (DivergenciaLinhasException | AlucinacaoDetectadaException e) {
+            return traduzirERevalidarBruto(lote, null, promptSistemaCongelado, null, disjuntor);
+        } catch (DivergenciaLinhasException | AlucinacaoDetectadaException
+                | RequisicaoRecusadaPeloLlmException e) {
             int total = lote.linhasOriginais().size();
             int meio = total / 2;
             log.warn("Lote {} (tamanho {}) falhou na validação ({}). Dividindo em 2 partes e tentando novamente...",
@@ -201,8 +255,9 @@ public class ProcessarEpisodioUseCase {
             Lote primeiraMetade = new Lote(lote.idLote(), lote.linhasOriginais().subList(0, meio));
             Lote segundaMetade = new Lote(lote.idLote(), lote.linhasOriginais().subList(meio, total));
 
-            List<String> traduzidas = new ArrayList<>(traduzirComDivisao(primeiraMetade, promptSistemaCongelado));
-            traduzidas.addAll(traduzirComDivisao(segundaMetade, promptSistemaCongelado));
+            List<String> traduzidas =
+                new ArrayList<>(traduzirComDivisao(primeiraMetade, promptSistemaCongelado, disjuntor));
+            traduzidas.addAll(traduzirComDivisao(segundaMetade, promptSistemaCongelado, disjuntor));
             return traduzidas;
         }
     }
@@ -221,7 +276,8 @@ public class ProcessarEpisodioUseCase {
      * o original), para que o desmascaramento registre a causa-raiz correta em vez de
      * a pendência ser contabilizada como eco — ver {@link MarcadorCorrompidoException}.
      */
-    private List<String> traduzirLinhaUnicaComFallback(Lote lote, String promptSistemaCongelado) {
+    private List<String> traduzirLinhaUnicaComFallback(Lote lote, String promptSistemaCongelado,
+            DisjuntorRecusas disjuntor) {
         if (lote.linhasOriginais().isEmpty()) {
             return List.of();
         }
@@ -232,12 +288,14 @@ public class ProcessarEpisodioUseCase {
             try {
                 Double temperatura = TEMPERATURA_POR_TENTATIVA[
                     Math.min(tentativa - 1, TEMPERATURA_POR_TENTATIVA.length - 1)];
-                List<String> traducao = traduzirERevalidarBruto(lote, temperatura, promptSistemaCongelado);
+                List<String> traducao =
+                    traduzirERevalidarBruto(lote, temperatura, promptSistemaCongelado, null, disjuntor);
                 if (houveRespostaRejeitada) {
                     telemetriaTraducao.registrarFalhaTraducaoRecuperada();
                 }
                 return traducao;
-            } catch (DivergenciaLinhasException | AlucinacaoDetectadaException e) {
+            } catch (DivergenciaLinhasException | AlucinacaoDetectadaException
+                    | RequisicaoRecusadaPeloLlmException e) {
                 ultimaFalha = e;
                 houveRespostaRejeitada = true;
                 telemetriaTraducao.registrarRespostaTraducaoRejeitada();
@@ -253,7 +311,7 @@ public class ProcessarEpisodioUseCase {
         if (modeloRecuperacao != null && !modeloRecuperacao.isBlank()) {
             try {
                 List<String> recuperada = traduzirERevalidarBruto(
-                    lote, null, promptSistemaCongelado, modeloRecuperacao);
+                    lote, null, promptSistemaCongelado, modeloRecuperacao, disjuntor);
                 telemetriaTraducao.registrarFalhaTraducaoRecuperada();
                 // Marca o ORIGINAL para o cache não guardar tradução de outro modelo sob o
                 // carimbo do principal. Ver SEGUNDA_OPINIAO_DO_LOTE.
@@ -273,6 +331,15 @@ public class ProcessarEpisodioUseCase {
                 uiLogger.log("[ SEGUNDA-OPINIAO ] Lote " + lote.idLote() + " tambem reprovado por \""
                     + modeloRecuperacao + "\": " + e.getMessage());
             }
+        }
+
+        // Recusa em SÉRIE não é fala patológica: é o servidor recusando tudo (modelo não
+        // carregado, requisição inválida por configuração). Deixar cada fala virar pendência
+        // produziria um arquivo inteiro sem tradução, em silêncio e devagar — trocaria o dano
+        // do aborto pelo dano pior de um resultado vazio que parece normal. O disjuntor devolve
+        // o aborto quando o padrão deixa de ser pontual, e com diagnóstico próprio.
+        if (ultimaFalha instanceof RequisicaoRecusadaPeloLlmException) {
+            disjuntor.registrarRecusaDefinitiva(lote.idLote());
         }
 
         String original = lote.linhasOriginais().getFirst();
@@ -295,23 +362,35 @@ public class ProcessarEpisodioUseCase {
         return List.of(original);
     }
 
-    private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
-        return traduzirERevalidarBruto(lote, temperaturaOverride, promptSistemaCongelado, null);
-    }
-
     /**
      * PROPÓSITO DE NEGÓCIO: mesma tradução e a MESMA revalidação, podendo apontar para outro
      * modelo. É de propósito que a régua seja uma só — segunda opinião não é passe livre, e o
      * texto que vier do modelo de recuperação passa pelas mesmas checagens de linhas,
      * marcadores e alucinação que o do principal.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: distingue os dois desfechos de {@code sucesso == false}.
+     * Recusa DESTA requisição (HTTP 4xx permanente) vira
+     * {@link RequisicaoRecusadaPeloLlmException}, que os laços de divisão e retentativa
+     * absorvem — a fala fica pendente e o episódio continua. Qualquer outra falha continua
+     * sendo {@link TradutorException}, que aborta: com o servidor fora do ar, insistir só gasta
+     * tempo e a saída parcial é o desfecho correto.
      */
     private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride,
-            String promptSistemaCongelado, String modeloOverride) {
+            String promptSistemaCongelado, String modeloOverride, DisjuntorRecusas disjuntor) {
         TraducaoLote resultado = llmPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado, modeloOverride);
 
         if (!resultado.sucesso() || resultado.linhasTraduzidas() == null) {
+            if (resultado.recusaDaRequisicao()) {
+                throw new RequisicaoRecusadaPeloLlmException("Lote " + lote.idLote()
+                    + " foi recusado pelo servidor LLM: " + resultado.mensagemErro());
+            }
             throw new TradutorException("Lote " + lote.idLote() + " falhou na comunicação: " + resultado.mensagemErro());
         }
+
+        // O servidor ACEITOU um pedido: seja qual for o veredito da validação adiante, ele não
+        // está recusando tudo. Zerar aqui — e não só no sucesso do lote — é o que impede o
+        // disjuntor de somar recusas de falas distantes entre si ao longo do episódio.
+        disjuntor.registrarPedidoAceito();
 
         if (resultado.linhasTraduzidas().size() != lote.linhasOriginais().size()) {
             throw new DivergenciaLinhasException(
