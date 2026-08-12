@@ -81,6 +81,11 @@ class MedicaoUnicornMistralXAyaIT {
     private static final org.traducao.projeto.legenda.domain.PoliticaEstiloMusical POLITICA_DO_YML =
         new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(lerEstilosIgnoradosDoYml());
 
+    /** Exposta para {@link OndeOAchatamentoValeriaIT} — a lista tem um dono só. */
+    static List<String> estilosIgnoradosDoYml() {
+        return lerEstilosIgnoradosDoYml();
+    }
+
     private static List<String> lerEstilosIgnoradosDoYml() {
         Path yml = Path.of("src", "main", "resources", "application.yml");
         List<String> estilos = new ArrayList<>();
