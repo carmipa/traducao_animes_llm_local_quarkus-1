@@ -204,6 +204,37 @@ class MedicaoUnicornMistralXAyaIT {
             }
         }
 
+        // O QUE SAO as falas em eco? 181 de 5.455 e 3,3%, e o numero sozinho nao diz se e
+        // defeito ou se nao havia o que traduzir. Interjeicao e nome proprio saem iguais e estao
+        // CORRETOS; frase inteira saindo igual e o modelo devolvendo a entrada.
+        System.out.println("\n=== AMOSTRA DAS FALAS EM ECO (aya) — defeito ou nada a traduzir? ===");
+        int amostra = 0;
+        for (String ep : pareados) {
+            if (amostra >= 25) {
+                break;
+            }
+            List<EventoLegenda> o = eventos(leitor, eng.get(ep));
+            List<EventoLegenda> t = eventos(leitor, aya.get(ep));
+            var det = new org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService();
+            for (int i = 0; i < Math.min(o.size(), t.size()) && amostra < 25; i++) {
+                String en = o.get(i).texto();
+                String pt = t.get(i).texto();
+                if (en == null || pt == null || en.isBlank()) {
+                    continue;
+                }
+                if (det.podeSerCamadaMusical(o.get(i).estilo(), en) || det.eEfeitoKaraoke(en)
+                    || POLITICA_DO_YML.estiloIgnorado(o.get(i).estilo())) {
+                    continue;
+                }
+                if (en.trim().equals(pt.trim())) {
+                    String visivel = pt.replaceAll("\\{[^}]*\\}", "").trim();
+                    System.out.printf("  %s [%s] %d chars: \"%s\"%n", ep, o.get(i).estilo(),
+                        visivel.length(), visivel.length() > 70 ? visivel.substring(0, 70) + "..." : visivel);
+                    amostra++;
+                }
+            }
+        }
+
         System.out.println("\n=== UNICORN: artefato final, " + pareados.size() + " episódios pareados ===");
         linhas.forEach(System.out::println);
         System.out.printf("  %-14s falas=%d  eco=%d  residuo=%d%n", "MISTRAL",
