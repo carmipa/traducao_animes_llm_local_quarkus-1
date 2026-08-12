@@ -100,6 +100,38 @@ public final class LexicoGenero {
         "diga|fale|fala|pergunte|pergunte|avise|mande|manda|chame|chama|espere|espera|"
             + "olhe|olha|escute|escuta|veja|ve|ouça|ouca|deixe|deixa";
 
+    // ------------------------------------------------------------------
+    // Marcas de gênero do INGLÊS. Vivem aqui porque três famílias de regras as consultam —
+    // pronomes cruzados, tratamentos e predicado —, e uma segunda cópia divergiria.
+    // ------------------------------------------------------------------
+
+    /**
+     * TODA referência feminina, não só o pronome sujeito. A largura é deliberada e tem
+     * cicatriz: a guarda que usava apenas {@code \bshe\b} não casava {@code her}/{@code hers},
+     * e "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem afirmava
+     * não haver referência feminina no original.
+     */
+    public static final Pattern PRONOME_FEMININO_EN = Pattern.compile(
+        "\\b(she|her|hers|girl|woman|lady|mother|mom|sister|daughter|"
+            + "princess|goddess|queen|heroine|miss|mrs|ms|madam|ma'am|female|wife|aunt|"
+            + "grandma|grandmother|niece|waitress|actress|hostess)\\b", FLAGS);
+
+    /**
+     * Espelho do anterior. Mesma cicatriz, medida em 2026-07-28 no Guilty Crown: com
+     * {@code \bhe\b}, a fala "Oh, I know about him! Hiromi said she saw it all." acusava o
+     * "ele" correto, porque {@code him} não casa {@code he} — e a correção foi persistida no
+     * cache como "Eu sei sobre ela".
+     */
+    public static final Pattern PRONOME_MASCULINO_EN = Pattern.compile(
+        "\\b(he|him|his|boy|man|guy|father|dad|brother|son|prince|god|king|"
+            + "hero|mr|sir|male|husband|uncle|grandpa|grandfather|nephew|waiter|actor)\\b", FLAGS);
+
+    /** Pronomes isolados — usados onde a regra precisa da marca EXATA, não da família. */
+    public static final Pattern HER_EN = Pattern.compile("\\bher\\b", FLAGS);
+    public static final Pattern HIM_EN = Pattern.compile("\\bhim\\b", FLAGS);
+    public static final Pattern SHE_EN = Pattern.compile("\\bshe\\b", FLAGS);
+    public static final Pattern HE_EN = Pattern.compile("\\bhe\\b", FLAGS);
+
     private LexicoGenero() {
     }
 }
