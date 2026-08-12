@@ -61,6 +61,7 @@ public class TraducaoController {
     private final PastasExecucao pastasExecucao;
     private final TradutorProperties propriedades;
     private final TelemetriaTraducaoPort telemetriaTraducao;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public TraducaoController(
             PipelineWebSupport pipelineWebSupport,
@@ -69,7 +70,8 @@ public class TraducaoController {
             GerenciadorContexto gerenciadorContexto,
             PastasExecucao pastasExecucao,
             TradutorProperties propriedades,
-            TelemetriaTraducaoPort telemetriaTraducao) {
+            TelemetriaTraducaoPort telemetriaTraducao,
+            org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.processarArquivoUseCase = processarArquivoUseCase;
         this.llmPort = llmPort;
@@ -77,6 +79,7 @@ public class TraducaoController {
         this.pastasExecucao = pastasExecucao;
         this.propriedades = propriedades;
         this.telemetriaTraducao = telemetriaTraducao;
+        this.guardaCaminho = guardaCaminho;
     }
 
     /**
@@ -95,6 +98,19 @@ public class TraducaoController {
         if (!gerenciadorContexto.existeContexto(req.contextoId())) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(
                     "Contexto de tradução desconhecido: \"" + req.contextoId() + "\". Recarregue a página e selecione um contexto válido."));
+        }
+
+        // ANTES do submeter: depois da fila a resposta HTTP já saiu como "tradução iniciada" e a
+        // recusa só viveria no log, que ninguém lê no instante do clique. A checagem que existia
+        // (Files.isDirectory, lá dentro do job) chegava tarde demais.
+        //
+        // Medido em 2026-08-12, nesta rota: um POST com pasta do host contra o KRONOS de contêiner
+        // — que enxerga o acervo em /acervo — devolveu 200 "Tradução via LLM iniciada" e só falhou
+        // depois, no log. A varredura de 11/08 corrigiu 7 rotas e não alcançou esta, porque a
+        // catraca procurava "filaExecucao.submeter" e aqui o disparo é submeterJobComRelatorio.
+        var recusa = guardaCaminho.conferirDiretorio("A pasta de legendas de entrada", req.entrada());
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
 
         pipelineWebSupport.submeterJobComRelatorio("traducao", "Tradução Local via LLM", () -> {

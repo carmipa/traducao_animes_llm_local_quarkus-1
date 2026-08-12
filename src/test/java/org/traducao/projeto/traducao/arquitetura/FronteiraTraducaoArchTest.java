@@ -188,7 +188,23 @@ class FronteiraTraducaoArchTest {
         // ("Voce ve o sonho brilhando dentro da tempestade"). Na fatia traducao o mesmo mecanismo
         // esta atras da flag tradutor.texto-puro-ao-llm; no karaoke e incondicional, porque la
         // TODA linha tem tag e o mascarador nao tem chance.
-        RAIZ + ".core.texto.TextoSemTags"
+        RAIZ + ".core.texto.TextoSemTags",
+        // DECIMO QUINTO, homologado em 2026-08-12. Recusa na PORTA o trabalho que nao tem como
+        // dar certo — pasta inexistente, texto que nao forma caminho, arquivo onde se espera
+        // diretorio. E o unico jeito de a borda assincrona nao responder "iniciada" para o
+        // impossivel: depois do submeterJobComRelatorio a resposta HTTP ja saiu, e o unico canal
+        // que resta e o log, que ninguem le no instante do clique.
+        //
+        // Mesmo precedente dos dois vizinhos acima: e mecanica de BORDA, nao regra de negocio de
+        // fatia nenhuma, e ja e consumida por 7 controllers de fatias distintas — traze-la para a
+        // Traducao Local nao cria aresta entre fatias, so usa a porta compartilhada.
+        //
+        // O prejuizo que justifica, medido nesta rota em 2026-08-12: um POST com caminho do host
+        // contra o KRONOS de conteiner — que enxerga o acervo em /acervo — recebeu HTTP 200
+        // "Traducao via LLM iniciada" e falhou depois, so no log. A varredura de 11/08 fechou 7
+        // rotas e nao alcancou esta porque a catraca procurava "filaExecucao.submeter", e aqui o
+        // disparo e submeterJobComRelatorio: guarda que nao reconhece a forma aprova por cegueira.
+        RAIZ + ".core.io.GuardaCaminhoEntrada"
     );
 
     /**
