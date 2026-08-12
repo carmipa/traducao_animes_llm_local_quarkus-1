@@ -53,16 +53,19 @@ public class AnaliseMidiaController {
     private final AnalisarMidiaUseCase analisarMidiaUseCase;
     private final LogStreamService logStreamService;
     private final ObjectMapper objectMapper;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public AnaliseMidiaController(
             PipelineWebSupport pipelineWebSupport,
             AnalisarMidiaUseCase analisarMidiaUseCase,
             LogStreamService logStreamService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.analisarMidiaUseCase = analisarMidiaUseCase;
         this.logStreamService = logStreamService;
         this.objectMapper = objectMapper;
+        this.guardaCaminho = guardaCaminho;
     }
 
     /**
@@ -72,6 +75,13 @@ public class AnaliseMidiaController {
     public ResponseEntity<RespostaPadrao> analisar(@RequestBody OperacaoRequest req) {
         if (req.entrada() == null || req.entrada().isBlank()) {
             return ResponseEntity.badRequest().body(new RespostaPadrao("Caminho de entrada obrigatório."));
+        }
+
+        // ANTES do submeter: depois da fila a resposta já saiu como "iniciada" e a recusa só
+        // viveria no log. A checagem existente acontece DENTRO do job — tarde demais para a tela.
+        var recusa = guardaCaminho.conferirDiretorio("A pasta de mídia de entrada", req.entrada());
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
 
         pipelineWebSupport.submeterJobComRelatorio("analise", "Análise de Mídia", () -> {

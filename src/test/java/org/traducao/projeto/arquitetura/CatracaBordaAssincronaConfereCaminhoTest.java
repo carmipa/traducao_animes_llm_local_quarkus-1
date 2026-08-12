@@ -48,23 +48,49 @@ class CatracaBordaAssincronaConfereCaminhoTest {
 
     private static final Path FONTE = Path.of("src", "main", "java");
 
-    /** Disparo de trabalho em segundo plano: depois disto a resposta HTTP já foi. */
-    private static final Pattern DISPARO_ASSINCRONO =
-        Pattern.compile("filaExecucao\\.submeter|CompletableFuture\\.runAsync");
+    /**
+     * Disparo de trabalho em segundo plano: depois disto a resposta HTTP já foi.
+     *
+     * <p>{@code submeterJobComRelatorio} entrou em 2026-08-12, e a omissão dele custou caro: a
+     * catraca nasceu enxergando só {@code filaExecucao.submeter} — a forma das 7 rotas
+     * consertadas — e ficou <b>cega para os 8 controllers que enfileiram pelo
+     * PipelineWebSupport</b>, entre eles a Tradução Local, que é a rota principal do projeto.
+     * O defeito reapareceu em runtime: {@code POST /api/traduzir} com pasta inexistente
+     * devolveu 200 "Tradução via LLM iniciada" e só falhou depois, no log.
+     * <b>Guarda que não reconhece a forma aprova por cegueira.</b>
+     */
+    private static final Pattern DISPARO_ASSINCRONO = Pattern.compile(
+        "filaExecucao\\.submeter|CompletableFuture\\.runAsync|submeterJobComRelatorio");
 
     /**
      * Caminho construído a partir de texto que veio da requisição. Cobre as
-     * grafias das duas pilhas que convivem no projeto — JAX-RS com {@code record
-     * Request} e Spring com {@code Map<String,String> payload}.
+     * grafias das três pilhas que convivem no projeto — JAX-RS com {@code record
+     * Request}, Spring com {@code Map<String,String> payload}, e o
+     * {@code pipelineWebSupport.normalizarCaminho(req...)} do caminho compartilhado.
      */
     private static final Pattern CAMINHO_DO_USUARIO = Pattern.compile(
-        "(Paths\\.get|Path\\.of)\\(\\s*(req|request|payload|diretorio|caminho|informado|limpo)");
+        "(Paths\\.get|Path\\.of|normalizarCaminho)\\(\\s*(req|request|payload|diretorio|caminho|informado|limpo)");
 
-    /** Quem confere. Basta a referência: a injeção não compila sem o tipo. */
-    private static final Pattern CONFERE = Pattern.compile("GuardaCaminhoEntrada");
+    /**
+     * Quem confere que a pasta EXISTE. Três formas legítimas convivem no projeto, e exigir
+     * apenas a primeira faria a catraca reprovar código correto:
+     * <ul>
+     *   <li>{@code GuardaCaminhoEntrada} — a porta compartilhada, que ainda ORIENTA (sugere o
+     *       equivalente sob a raiz montada quando o caminho é do host);</li>
+     *   <li>{@code Files.isDirectory} à mão, como o Remuxer;</li>
+     *   <li>uma validação do próprio caso de uso que faz isso, como
+     *       {@code validarPastaEntrada} na revisão de legendas.</li>
+     * </ul>
+     *
+     * <p>Exigir a classe em vez do COMPORTAMENTO acusou dois controllers corretos em
+     * 2026-08-12. <b>Guarda que reprova o certo ensina a desligar o alarme</b> — e aí ela deixa
+     * de proteger os que estão errados de verdade.
+     */
+    private static final Pattern CONFERE = Pattern.compile(
+        "GuardaCaminhoEntrada|Files\\.isDirectory|validarPastaEntrada");
 
     @Test
-    @DisplayName("borda ASSINCRONA que recebe caminho do usuario tem de conferir antes de enfileirar")
+    @DisplayName("borda ASSINCRONA que recebe caminho do usuario tem de conferir ANTES de enfileirar")
     void bordaAssincronaConfereCaminho() throws IOException {
         List<String> desprotegidos = new ArrayList<>();
         int assincronasComCaminho = 0;
@@ -72,12 +98,15 @@ class CatracaBordaAssincronaConfereCaminhoTest {
         try (Stream<Path> arquivos = Files.walk(FONTE)) {
             for (Path p : arquivos.filter(f -> f.toString().endsWith("Controller.java")).toList()) {
                 String fonte = Files.readString(p);
-                if (!DISPARO_ASSINCRONO.matcher(fonte).find()
-                    || !CAMINHO_DO_USUARIO.matcher(fonte).find()) {
+                var disparo = DISPARO_ASSINCRONO.matcher(fonte);
+                if (!disparo.find() || !CAMINHO_DO_USUARIO.matcher(fonte).find()) {
                     continue;
                 }
                 assincronasComCaminho++;
-                if (!CONFERE.matcher(fonte).find()) {
+                // ANTES, não "em algum lugar": a conferência que roda DEPOIS do disparo já
+                // perdeu a resposta HTTP, e foi exatamente esse o defeito do TraducaoController
+                // — ele tinha Files.isDirectory, só que dentro do job.
+                if (!CONFERE.matcher(fonte.substring(0, disparo.start())).find()) {
                     desprotegidos.add(p.getFileName().toString());
                 }
             }
@@ -123,6 +152,38 @@ class CatracaBordaAssincronaConfereCaminhoTest {
                 + "    // org.traducao.projeto.core.io.GuardaCaminhoEntrada\n"
                 + "    Path pasta =");
         assertTrue(CONFERE.matcher(saudavel).find(), "nao reconheceu a forma CORRETA");
+
+        // A POSIÇÃO é o que decide, e este par prova que a catraca enxerga a diferença. As duas
+        // versões abaixo contêm exatamente o mesmo Files.isDirectory; muda só o lado do disparo.
+        String confereDepoisDoDisparo = """
+            @PostMapping("/traduzir")
+            public ResponseEntity<Resposta> traduzir(@RequestBody Req req) {
+                submeterJobComRelatorio("traducao", "Traducao", () -> {
+                    Path p = normalizarCaminho(req.entrada());
+                    if (!Files.isDirectory(p)) { System.out.println("[FAIL]"); return; }
+                    useCase.executar(p);
+                });
+                return ResponseEntity.ok(new Resposta("iniciada"));
+            }
+            """;
+        var d = DISPARO_ASSINCRONO.matcher(confereDepoisDoDisparo);
+        assertTrue(d.find(), "nao viu o submeterJobComRelatorio");
+        assertFalse(CONFERE.matcher(confereDepoisDoDisparo.substring(0, d.start())).find(),
+            "conferencia DEPOIS do disparo nao pode contar: a resposta HTTP ja saiu");
+
+        String confereAntesDoDisparo = """
+            @PostMapping("/remuxar")
+            public ResponseEntity<Resposta> remuxar(@RequestBody Req req) {
+                Path p = normalizarCaminho(req.entrada());
+                if (p == null || !Files.isDirectory(p)) return ResponseEntity.badRequest().build();
+                submeterJobComRelatorio("remuxer", "Remuxer", () -> useCase.executar(p));
+                return ResponseEntity.ok(new Resposta("iniciada"));
+            }
+            """;
+        var a = DISPARO_ASSINCRONO.matcher(confereAntesDoDisparo);
+        assertTrue(a.find(), "nao viu o submeterJobComRelatorio");
+        assertTrue(CONFERE.matcher(confereAntesDoDisparo.substring(0, a.start())).find(),
+            "conferencia a mao ANTES do disparo e legitima — reprova-la seria alarme falso");
 
         // A outra metade do invariante: rota SINCRONA nao entra na regra, porque a
         // excecao do caso de uso ainda alcanca a resposta HTTP. Se esta assercao

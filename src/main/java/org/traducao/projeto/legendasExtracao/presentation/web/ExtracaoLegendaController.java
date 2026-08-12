@@ -48,12 +48,15 @@ public class ExtracaoLegendaController {
 
     private final PipelineWebSupport pipelineWebSupport;
     private final ExtrairLegendaUseCase extrairLegendaUseCase;
+    private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
 
     public ExtracaoLegendaController(
             PipelineWebSupport pipelineWebSupport,
-            ExtrairLegendaUseCase extrairLegendaUseCase) {
+            ExtrairLegendaUseCase extrairLegendaUseCase,
+            org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.extrairLegendaUseCase = extrairLegendaUseCase;
+        this.guardaCaminho = guardaCaminho;
     }
 
     /**
@@ -70,6 +73,15 @@ public class ExtracaoLegendaController {
             formatoSelecionado = FormatoLegenda.fromString(req.formato());
         } catch (FormatoLegendaInvalidoException e) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(e.getMessage()));
+        }
+
+        // ANTES do submeter: aqui a recusa tardia é especialmente traiçoeira, porque uma pasta
+        // inexistente não estoura — ela produz "nenhum arquivo de vídeo encontrado", que é o MESMO
+        // aviso de uma pasta legítima sem vídeo suportado. "Não achei" e "não tinha como achar"
+        // não podem sair pelo mesmo canal.
+        var recusa = guardaCaminho.conferirDiretorio("A pasta de vídeos", req.entrada());
+        if (recusa.isPresent()) {
+            return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
 
         pipelineWebSupport.submeterJobComRelatorio("extracao", "Extração de Legendas", () -> {
