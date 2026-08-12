@@ -73,8 +73,26 @@ public class GuardaCaminhoEntrada {
         /** O caminho não existe aqui. */
         NAO_ENCONTRADO,
         /** Existe, mas é arquivo onde se esperava pasta. */
-        NAO_E_DIRETORIO
+        NAO_E_DIRETORIO,
+        /** Existe e é pasta, mas é a pasta de SAÍDA — traduzir dali destrói o já traduzido. */
+        SAIDA_COMO_ENTRADA
     }
+
+    /**
+     * Nomes de pasta de SAÍDA em uso no acervo. A lista nasceu de MEDIÇÃO, não de suposição:
+     * a primeira versão dela, no harness de auditoria, trazia só os três primeiros e deixou
+     * QUATRO obras fora do inventário — Memories, Break Blade e Patlabor usam
+     * {@code traducao_ptbr_sem_lore} (saída da rota 2.2) e Macross II usa
+     * {@code legendas_ptbr_corrigidas}.
+     *
+     * <p>{@code traducao_mistral} e {@code traducao_aya} entraram em 12/08/2026, quando o
+     * confronto de modelos passou a manter várias traduções da mesma obra lado a lado. São
+     * exatamente as pastas que doem mais se forem sobrescritas: são baseline de comparação.
+     */
+    private static final java.util.Set<String> PASTAS_DE_SAIDA = java.util.Set.of(
+        "traducao_ptbr", "legendas_ptbr", "ptbr", "traducao_ptbr_sem_lore",
+        "legendas_ptbr_corrigidas", "legenda-simplificada",
+        "traducao_mistral", "traducao_aya", "traducao_ptbr_aya", "traducao_ptbr_achatado");
 
     /** Recusa com motivo e mensagem pronta para a tela. */
     public record Recusa(Motivo motivo, String mensagem) {}
@@ -116,6 +134,82 @@ public class GuardaCaminhoEntrada {
         }
         return Optional.of(new Recusa(Motivo.NAO_ENCONTRADO,
             rotulo + ": a pasta " + limpo + " não existe" + orientacao(limpo) + "."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: impede que uma tradução LEIA a pasta onde traduções são GRAVADAS.
+     * É a lente de boa-fé aplicada à porta: ninguém faz isso de propósito, e quem faz não
+     * percebe até o arquivo bom já ter virado o arquivo ruim.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * 06/08/2026: uma tradução apontou para {@code legenda-simplificada}, que é pasta de
+     * SAÍDA, e <b>sobrescreveu 17 arquivos limpos</b>. O código fez exatamente o que foi
+     * mandado — a interface é que permitiu mandar. A anotação da época registra a lição sem
+     * meias palavras: <i>"revisão adversarial acha ataque e é cega para engano de boa-fé"</i>.
+     *
+     * <p>O risco não passou: em 12/08/2026 o mesmo acervo tinha {@code traducao_mistral},
+     * {@code traducao_aya} e {@code traducao_ptbr} lado a lado na mesma obra, sendo duas
+     * delas backup de comparação. Um clique na pasta errada apaga o baseline de um
+     * experimento de dias.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Entrada e saída no MESMO caminho é sempre recusa: a tradução leria o que acabou
+     *       de escrever.</li>
+     *   <li>Pasta cujo nome é de saída conhecida é recusa. A lista nasceu de MEDIÇÃO do
+     *       acervo, não de suposição — a primeira versão dela, com três nomes, deixou quatro
+     *       obras fora de um inventário.</li>
+     *   <li>Recusa ORIENTA: diz qual pasta o operador provavelmente queria.</li>
+     *   <li>Só vale para TRADUZIR. Revisão e correção leem português de propósito, e cobrar
+     *       esta guarda delas seria reprovar o uso correto.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * {@link Optional#empty()} quando a entrada não parece pasta de saída. Nunca lança.
+     *
+     * @param entrada caminho de onde as legendas serão LIDAS
+     * @param saida caminho onde serão gravadas, ou {@code null}/vazio se for o padrão
+     */
+    public Optional<Recusa> conferirEntradaNaoEhSaidaDeTraducao(String entrada, String saida) {
+        if (entrada == null || entrada.isBlank()) {
+            return Optional.empty();
+        }
+        Path pastaEntrada;
+        try {
+            pastaEntrada = Path.of(entrada.trim()).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            return Optional.empty();
+        }
+
+        if (saida != null && !saida.isBlank()) {
+            try {
+                Path pastaSaida = Path.of(saida.trim()).toAbsolutePath().normalize();
+                if (pastaEntrada.equals(pastaSaida)) {
+                    return Optional.of(new Recusa(Motivo.SAIDA_COMO_ENTRADA,
+                        "A pasta de entrada e a de saída são a MESMA (" + pastaEntrada + "). "
+                            + "A tradução leria o que ela mesma acabou de gravar e sobrescreveria "
+                            + "o original. Informe uma pasta de saída diferente."));
+                }
+            } catch (InvalidPathException ignorada) {
+                // Caminho de saída inválido é problema de outra checagem, não desta.
+            }
+        }
+
+        Path nome = pastaEntrada.getFileName();
+        if (nome == null) {
+            return Optional.empty();
+        }
+        String pasta = nome.toString().toLowerCase(java.util.Locale.ROOT);
+        for (String saidaConhecida : PASTAS_DE_SAIDA) {
+            if (pasta.equals(saidaConhecida)) {
+                return Optional.of(new Recusa(Motivo.SAIDA_COMO_ENTRADA,
+                    "A pasta escolhida (" + nome + ") é uma pasta de SAÍDA de tradução — ela contém"
+                        + " o português já traduzido, não o original. Traduzir a partir dela"
+                        + " sobrescreveria o trabalho pronto. A entrada costuma ser"
+                        + " \"legendas_extraidas_ass\" ou \"legendas_eng\", ao lado desta."));
+            }
+        }
+        return Optional.empty();
     }
 
     // NÃO existe um conferirDiretorios(Map). A primeira versão tinha, e a tela com

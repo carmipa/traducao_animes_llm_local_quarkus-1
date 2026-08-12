@@ -108,7 +108,12 @@ public class TraducaoController {
         // — que enxerga o acervo em /acervo — devolveu 200 "Tradução via LLM iniciada" e só falhou
         // depois, no log. A varredura de 11/08 corrigiu 7 rotas e não alcançou esta, porque a
         // catraca procurava "filaExecucao.submeter" e aqui o disparo é submeterJobComRelatorio.
-        var recusa = guardaCaminho.conferirDiretorio("A pasta de legendas de entrada", req.entrada());
+        var recusa = guardaCaminho.conferirDiretorio("A pasta de legendas de entrada", req.entrada())
+            // Lente de BOA-FÉ, não adversarial: ninguém aponta a pasta de saída de propósito.
+            // Em 06/08/2026 uma tradução leu `legenda-simplificada` e sobrescreveu 17 arquivos
+            // limpos; hoje o acervo tem traducao_mistral, traducao_aya e traducao_ptbr na mesma
+            // obra, e as duas primeiras são baseline de um experimento de dias.
+            .or(() -> guardaCaminho.conferirEntradaNaoEhSaidaDeTraducao(req.entrada(), req.saida()));
         if (recusa.isPresent()) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
