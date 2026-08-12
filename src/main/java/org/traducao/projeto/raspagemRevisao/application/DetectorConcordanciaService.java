@@ -222,6 +222,34 @@ public class DetectorConcordanciaService {
         return OBJETO_PRONOMINAL_ELE_ELA.matcher(texto).replaceAll(" ");
     }
 
+    /**
+     * Predicado ligado a sujeito de 1ª ou 2ª pessoa — {@code "Você está certo"},
+     * {@code "Eu estava preocupado"}. O gênero desses concorda com quem FALA ou com quem OUVE,
+     * e o inglês não marca nenhum dos dois: {@code "You're right"} não diz se o interlocutor é
+     * homem ou mulher. Um {@code she} na mesma fala refere-se a terceira pessoa, não a esse
+     * predicado.
+     *
+     * <p>MEDIDO em 12/08/2026, Unicorn E12 linha 200 — 1 dos 3 falsos positivos da varredura:
+     * <pre>
+     *   EN  "You're right, she is enslaved."
+     *   PT  "Você está certo, ela está escravizada."     &lt;- CORRETO
+     * </pre>
+     * O {@code escravizada} está no feminino, como deve; o {@code certo} concorda com "você".
+     * As duas regras de predicado viam só o masculino e o {@code she}.
+     */
+    private static final Pattern PREDICADO_DE_1A_2A_PESSOA = Pattern.compile(
+        "\\b(?:eu|voc[êe]|voc[êe]s|tu|n[óo]s|a\\s+senhora|o\\s+senhor)\\s+(?:" + VERBO_AUX + ")\\s+"
+            + "(?:" + PARTIC_MASC + "|" + PARTIC_FEM + ")\\b", FLAGS);
+
+    /**
+     * Tira da análise os predicados de 1ª/2ª pessoa, no MESMO molde de
+     * {@link #removerObjetoPronominal}: "strip primeiro, depois casa" — lookbehind de largura
+     * variável dá falso-negativo no JDK quando a alternância mistura frase e palavra simples.
+     */
+    private static String removerPredicadoDePrimeiraSegundaPessoa(String texto) {
+        return PREDICADO_DE_1A_2A_PESSOA.matcher(texto).replaceAll(" ");
+    }
+
     private static final Pattern TRATAMENTO_MASC_COM_FEM_EN =
         Pattern.compile("\\b(" + TRATAMENTO_MASC + ")\\b", FLAGS);
 
@@ -379,7 +407,7 @@ public class DetectorConcordanciaService {
                 && ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'");
             }
-            if (PARTIC_MASC_APOS_VERBO.matcher(texto).find()
+            if (PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
                 && !HE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante feminino ('she'), mas predicado está no masculino");
             }
@@ -400,20 +428,23 @@ public class DetectorConcordanciaService {
                 && ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'");
             }
-            if (PARTIC_FEM_APOS_VERBO.matcher(texto).find()
+            if (PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
                 && !SHE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante masculino ('he'), mas predicado está no feminino");
             }
         }
 
+        // As quatro regras de predicado passam pelo MESMO strip. Aplicá-lo só nas duas de cima
+        // deixaria o E12 acusando por aqui — foi o que a primeira execução mostrou: a fala
+        // trazia DOIS motivos, um de cada par.
         if (PRONOME_FEMININO_EN.matcher(original).find()
-            && PARTIC_MASC_APOS_VERBO.matcher(texto).find()
+            && PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
             && !PRONOME_MASCULINO_EN.matcher(original).find()) {
             motivos.add("Original indica feminino, mas participio/adjetivo predicativo está no masculino");
         }
 
         if (PRONOME_MASCULINO_EN.matcher(original).find()
-            && PARTIC_FEM_APOS_VERBO.matcher(texto).find()
+            && PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
             && !PRONOME_FEMININO_EN.matcher(original).find()) {
             motivos.add("Original indica masculino, mas participio/adjetivo predicativo está no feminino");
         }

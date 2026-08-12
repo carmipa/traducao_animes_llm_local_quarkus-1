@@ -47,6 +47,13 @@ public class DetectorTraducaoIdenticaService {
     /** Fala só com dígitos e espaços (a pontuação já saiu na limpeza): número não se traduz. */
     private static final Pattern SOMENTE_NUMEROS = Pattern.compile("[\\d\\s]+");
 
+    /**
+     * Fala cortada no meio — reticências no fim, com ou sem espaço. Em legenda de anime é o
+     * personagem sendo interrompido, e o que sobra costuma ser o começo de um nome próprio.
+     * Usado só para BAIXAR o piso de letras do nome próprio, nunca para aceitar sozinho.
+     */
+    private static final Pattern FALA_INTERROMPIDA = Pattern.compile("(\\.{2,}|…)\\s*$");
+
     private final LoreAtivaPort loreAtiva;
 
     /**
@@ -166,7 +173,7 @@ public class DetectorTraducaoIdenticaService {
 
         String[] palavras = textoLimpo.split("\\s+");
         if (palavras.length == 1) {
-            return deveManterPalavraUnicaIdentica(textoLimpo);
+            return deveManterPalavraUnicaIdentica(textoLimpo, FALA_INTERROMPIDA.matcher(texto).find());
         }
 
         String minusculo = textoLimpo.toLowerCase(Locale.ROOT);
@@ -393,7 +400,7 @@ public class DetectorTraducaoIdenticaService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: evidência insuficiente mantém o termo
      * capitalizado para evitar retradução destrutiva de personagem.
      */
-    private boolean deveManterPalavraUnicaIdentica(String textoLimpo) {
+    private boolean deveManterPalavraUnicaIdentica(String textoLimpo, boolean falaInterrompida) {
         if (textoLimpo.matches("\\d+")) {
             return true;
         }
@@ -402,7 +409,7 @@ public class DetectorTraducaoIdenticaService {
         }
 
         String minusculo = textoLimpo.toLowerCase(Locale.ROOT);
-        
+
         if (PADRAO_INTERJEICAO.matcher(minusculo).matches()) {
             return true;
         }
@@ -411,8 +418,20 @@ public class DetectorTraducaoIdenticaService {
             return false;
         }
 
+        // O piso de 3 letras cai para 2 quando a fala foi INTERROMPIDA. Nome próprio cortado
+        // no meio é o caso mais comum de reticência em legenda de anime, e duas letras não
+        // dão base para exigir tradução.
+        //
+        // Medido em 12/08/2026, Unicorn E22 linha 157: "Ri..." — começo de "Riddhe" — foi
+        // acusada de "fala não traduzida" pela Revisão de Legendas. Depois de `limpar` remover
+        // a pontuação sobram DUAS letras, e o piso de 3 as reprovava. Foi 1 dos 3 achados da
+        // varredura de 5.620 falas, e os 3 eram falso positivo.
+        //
+        // A guarda de PALAVRAS_INGLES_COMUNS continua ANTES desta linha, então "No...",
+        // "Go..." e "So..." seguem sendo mandadas traduzir — o afrouxamento não as alcança.
+        int pisoDeNomeProprio = falaInterrompida ? 2 : 3;
         return termoDoLoreAtivo(minusculo)
-            || (textoLimpo.length() >= 3 && Character.isUpperCase(textoLimpo.charAt(0)));
+            || (textoLimpo.length() >= pisoDeNomeProprio && Character.isUpperCase(textoLimpo.charAt(0)));
     }
 
     /**
