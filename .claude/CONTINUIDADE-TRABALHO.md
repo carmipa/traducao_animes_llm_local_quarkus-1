@@ -49,13 +49,31 @@ Tudo já preparado e conferido:
 4. Medir com `.\gradlew.bat test --tests "*MedicaoUnicornMistralXAyaIT*" --rerun-tasks`
    (apontando o harness para a pasta nova).
 
-**O que esperar, medido antes de rodar** — estilos na cópia:
-`Default 5665 · OPL2 3255 · ED2 207 · ED-EN 165 · ED 165 · Sign 23`.
-O achatador decide preservação por `podeSerCamadaMusical`, que **não conhece OPL2** (só a
-lista nominal do yml conhece). Se ele colapsar OPL2 em `Default`, o veto nominal deixa de
-casar na tradução e **3.255 linhas de letra do OP vão ao LLM** — o próprio yml registra o que
-acontece: "sa" virou "Meu nome é Mineva Lao Zabi". É exatamente o ganho/perda que o
-experimento quer medir; a rodada fica bem mais longa por causa dessas linhas.
+**MINHA PREVISÃO DE RISCO ESTAVA ERRADA — medido em 12/08 11:33, depois de Paulo executar.**
+Eu previ que o achatador colapsaria `OPL2` em `Default`, o veto nominal do yml deixaria de
+casar e 3.255 linhas da letra do OP iriam ao LLM. **Não foi o que aconteceu.**
+
+| estilo | antes | depois do achatamento |
+|---|---|---|
+| Default | 5665 | **5665** (inalterado) |
+| OPL2 | 3255 | **357** |
+| ED2 / ED-EN / ED / Sign | 207 / 165 / 165 / 23 | idênticos |
+
+O achatador **descartou 2.898 sílabas de timing** (KFX estourado, uma sílaba por linha) e
+**preservou o NOME do estilo** nas 357 linhas musicais que restaram. É o
+`ClassificacaoCamadas.silabasDeTiming` fazendo o que promete — "preservar mantém, sílaba
+descarta". Como o nome `OPL2` sobreviveu, o veto nominal do `application.yml` continua
+casando e a letra do OP **não** vai ao LLM. O risco que declarei não se materializou.
+
+Onde eu errei: li o classificador pela porta de PRESERVAÇÃO (`podeSerCamadaMusical`, que de
+fato não conhece OPL2) e não pela de DESCARTE, que é a que agiu aqui. Lição para a próxima:
+antes de prever o efeito de uma operação, medir o antes/depois num arquivo — custa segundos
+e teria evitado o alarme.
+
+Backups do próprio KRONOS conferidos: `backups/troca_tipo_legenda_20260812_113344` (22 ass) e
+`backups/achatar_estilos_20260812_113353` (21 ass — 1 arquivo não precisou de achatamento).
+`traducao_ptbr` da rodada anterior foi renomeada por Paulo para `traducao_aya` (21 arquivos),
+então a comparação de três vias continua possível: mistral × aya × aya-achatado.
 
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
