@@ -4,34 +4,49 @@ TAREFA ORIGINAL: escolher o modelo LLM titular do pipeline, e qual serve para CO
                  as falas que o titular abandona.
 OBJETIVO FINAL:  decisão com artefato, não com impressão.
 CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo de recuperação.
-BRANCH / COMMIT BASE: main — em sincronia com origin/main
+BRANCH / COMMIT BASE: main — `b78a5cf6` local, ahead 1 de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-Paulo pediu (2026-08-11, ao encerrar): **testes complexos com a aya em animações mais
-complexas**. Antes de disparar, nesta ordem:
+**Assim que o LM Studio estiver no ar** (ver BLOQUEIO abaixo), nesta ordem:
 
 1. Conferir que só a aya está carregada:
    `curl -s http://127.0.0.1:8099/api/llm/status`
    (com 2 modelos carregados o KRONOS pega o PRIMEIRO da lista e mede o errado)
-2. Escolher obra que o mistral tenha fechado em **PASSADA ÚNICA** — senão repete a
+2. Subir o KRONOS: `.\iniciar-kronos-dev.cmd` — depois conferir a porta 8099, porque
+   `TaskStop` mata só o wrapper do Gradle e a JVM velha continua servindo código antigo.
+3. Escolher obra que o mistral tenha fechado em **PASSADA ÚNICA** — senão repete a
    assimetria de 5 passadas × 1 que invalidou a comparação do Guilty Crown.
    Candidatas com telemetria de passada única a conferir:
    `Mobile Suit Gundam ZZ` (47 traduzidos), `Gundam Unicorn Season 1`,
    `[Joseki] 0083 Stardust Memory`, `[Joseki] 08th MS Team`
-3. Saída em pasta NOVA (`traducao_ptbr_aya`), nunca sobrescrevendo o que existe.
-4. Backup do cache da obra em `backups/` ANTES — a troca de modelo arquiva o cache
+4. Saída em pasta NOVA (`traducao_ptbr_aya`), nunca sobrescrevendo o que existe.
+5. Backup do cache da obra em `backups/` ANTES — a troca de modelo arquiva o cache
    do mistral (proveniência inclui `modeloLlm`).
+
+## FECHADO COM ARTEFATO (2026-08-12)
+
+- **Recusa do LLM ≠ servidor fora do ar** (`b78a5cf6`). HTTP 4xx permanente vira
+  `RequisicaoRecusadaPeloLlmException` e segue o caminho da pendência; timeout/5xx continua
+  abortando; disjuntor de 3 recusas consecutivas devolve o aborto quando é global.
+  Caso-controle REPROVOU antes do conserto (`TraducaoParcialException` por 1 fala);
+  4 casos novos verdes, com contraprova. **Suíte 1655 testes, 0 falhas, 0 erros, 268 classes.
+  Portão do projeto rc=0, 156 testes em 32 classes de guarda.**
+- **Inventário de estilos do acervo** (`C:\animes`): 1.022 `.ass`, 2.346.132 linhas
+  `Dialogue`, 132 estilos distintos, e só **2 com `\k` no corpo** — `Paradise` (864) e
+  `Dungeons` (2), ambos cobertos pelo CONTEÚDO. Congelado em `EstiloMusicalDoAcervoTest`.
+- **Anotação de 11/08 corrigida:** `Hey World Romaji` NÃO escapa (o padrão casa a forma
+  curta `roma`), e `PadraoEstiloMusical` tem 10 substrings, não só `(op|ed)`.
 
 ## FECHADO COM ARTEFATO (2026-08-11)
 
-- Portão único `checar-portao.ps1` — 3 estados, `--rerun-tasks`. Saída 0, 156 testes/32 classes.
+- Portão único `checar-portao.ps1` — 3 estados, `--rerun-tasks`.
 - Compose falha fechada: `docker compose --env-file /dev/null config` sai **1** (saía 0).
 - 7 rotas assíncronas recusam caminho impossível ANTES de enfileirar (`0f3724b4`).
 - Segunda opinião entre modelos, desligada por padrão (`b1dcf791`, em origin/main).
 - Hotfix do token de template: `<|END_OF_TURN_TOKEN|>` fazia o pipeline descartar tradução
-  CORRETA — era 99% da pendência da aya. Suíte 1647 testes, 0 falhas.
+  CORRETA — era 99% da pendência da aya.
 - Zeta: 22 → 6 pendências, 45/50 concluídos, em 59 s.
 - Confronto de 4 modelos em conteúdo virgem + Guilty Crown inteiro com a aya.
 
@@ -48,30 +63,38 @@ Três medições convergiram para empate ou vantagem de ESFORÇO. Nenhuma estabe
 vantagem de QUALIDADE. Promover a aya se sustenta em custo e confiabilidade do pipeline,
 **não** em "traduz melhor".
 
-## TESTES / GUARDAS
-
-Executados: suíte completa 1647 testes, 0 falhas · portão 0.
-Pendente: nenhum bloqueante.
-
 ## GAPS E BLOQUEIOS REAIS
 
+- 🔴 **BLOQUEIO — LM Studio não sobe por lançamento programado.** O executável sai com
+  código 0 em segundos, sem stdout/stderr, e nenhum processo permanece. Descartados por
+  teste: lock órfão (`llmster-pid.lock` apontava para o PID 20244, morto — movido para
+  `.internal\llmster-pid.lock.orfao-2026-08-12`) e atualização pendente (`pending`
+  desviada e restaurada, sem efeito). Quatro caminhos tentados: `Start-Process` com e sem
+  sandbox, execução direta com redirecionamento, e `cmd /c start`. **Ação de Paulo: abrir o
+  LM Studio pelo ícone e carregar SÓ a `aya-expanse-8b`.** Sem isso, nada do teste de hoje roda.
 - 🔴 `modelo-recuperacao` nunca foi exercitado com a aya. O alvo pronto são as 6 pendências
   do Zeta (E08×2, E15, E17, E33, E38), todas discurso citado com aspas — o tower recuperou
   3 delas. Config: `tradutor.llm.modelo-recuperacao: "aya-expanse-8b"`.
 - 🟡 As 4.249 discordâncias entre mistral e aya no Guilty Crown esperam leitura humana.
 - 🟡 `tradutor.fallback-online.ativo: true` com o comentário acima dizendo "desligado por
-  padrão". O Google esteve no circuito de TODAS as rodadas de hoje. Decisão de Paulo:
-  corrigir o valor ou o comentário.
-- 🟡 Estilo de karaokê batizado com o nome da canção (`Hey World Romaji`, `Other songs`)
-  escapa dos 3 detectores. Uma fala assim ABORTOU um episódio inteiro com o tower.
+  padrão". O Google esteve no circuito de TODAS as rodadas de 11/08. **Decisão de Paulo
+  (é produto): corrigir o valor ou o comentário.** Para o experimento de hoje, o Google
+  precisa estar FORA do circuito, senão mede-se aya+Google.
+- 🟡 Lacuna declarada: estilo com nome próprio de canção e SEM `\k` no corpo
+  (`RISE LIGHT RISE English`, `Logo`) segue invisível aos detectores. Fechar por nome
+  exigiria lista nominal por obra — remendo, não mecanismo. O dano que ela causava
+  (derrubar o episódio) está fechado por `b78a5cf6`.
 - 🟡 Contêiner `kronos` com `restart: unless-stopped` — volta sozinho ao ligar a máquina.
 
 ## NÃO REPETIR
 
-- Vigia de rodada por JANELA DE TEMPO no log: errei duas vezes hoje, anunciando fim de
+- Vigia de rodada por JANELA DE TEMPO no log: errei duas vezes em 11/08, anunciando fim de
   rodada que nem tinha começado. Ancorar em CONTAGEM de conclusões e esperar o número subir.
 - Comparar rodada com cache quente: a rodada de 1min58s parecia hotfix e era cache
   (`falasDoCache=343`). Conferir `falasDoCache` antes de interpretar qualquer resultado.
 - Classificar estilo pela SAÍDA: o achatador colapsa `OP`/`ED`/`Other songs` em `Default`.
   A máscara certa é a lista `PRESERVADA_POR_REGRA` do dataset do pipeline.
-- `glob.glob` em caminho com `[Sokudo]` / `[1080p]`: colchete é classe de caracteres.
+- `glob.glob` / `Get-Content` em caminho com `[Sokudo]` / `[1080p]`: colchete é classe de
+  caracteres. Em PowerShell, usar `-LiteralPath` ou `[System.IO.File]::ReadAllText`.
+- Reimplementar em script o critério que o código de produção já tem. O "é musical?" desta
+  sessão veio de `PadraoEstiloMusical` via teste JUnit; o PowerShell só colheu fato bruto.
