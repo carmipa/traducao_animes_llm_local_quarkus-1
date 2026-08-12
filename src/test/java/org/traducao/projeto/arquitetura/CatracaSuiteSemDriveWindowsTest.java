@@ -55,7 +55,13 @@ class CatracaSuiteSemDriveWindowsTest {
         // cruza toda legenda x todo cache do acervo real. "C:\animes" e o default de
         // -Dkronos.acervo; caminho relativo faria o harness medir o vazio e reportar zero
         // colisoes por nao ter olhado nada.
-        "MedicaoColisaoCacheEntreObrasIT.java"
+        "MedicaoColisaoCacheEntreObrasIT.java",
+        // Entrou em 12/08/2026, e de novo foi a catraca que pegou no primeiro `gradlew test`.
+        // Mesma natureza dos anteriores: compara mistral x aya no ARTEFATO em disco do Gundam
+        // Unicorn, e a pasta da obra e caminho de acervo real, nao fixture. O teste ja e
+        // PULADO por Assumptions quando o acervo nao existe — no conteiner ele nao quebra,
+        // declara "NAO VERIFICADO", que e diferente de passar.
+        "MedicaoUnicornMistralXAyaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
