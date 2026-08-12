@@ -9,7 +9,14 @@ SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 9
 
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-Duas frentes, nesta ordem de valor:
+**O gold set está pronto e é a frente de maior valor:**
+`relatorios/gold-set-unicorn-mistral-x-aya.md` — 60 pares mistral × aya lado a lado, de 1.807
+divergências em 4.497 falas, ordenados por suspeita. Marcar qual está melhor em cada par.
+Nos 6 primeiros já apareceram 3 defeitos que nenhum instrumento via: espanhol da aya
+("Reanudaremos"), inglês residual do mistral ("Hurry!") e o mistral trocando o pseudônimo
+"Audrey Burne" pelo nome verdadeiro "Mineva Lao Zabi" — spoiler narrativo.
+
+Depois, as duas frentes antigas:
 
 1. **Ler o português lado a lado.** É o ÚNICO eixo que nenhuma medição resolve, e agora é o
    que sobrou. As três versões estão em disco na mesma obra:
@@ -71,6 +78,28 @@ Gundam é trabalho sem retorno.
 - `b7abf431` retomada após interrupção: "salvas para retomar" vira fato provado.
 
 Suíte **1672 testes, 0 falhas, 0 erros** (276 classes). Portão do projeto **rc=0**.
+
+## DÍVIDA CONHECIDA E DATADA — extrair os pronomes cruzados (decidido em 12/08 NÃO fazer agora)
+
+A quebra do `DetectorConcordanciaService` parou com 4 das 5 famílias extraídas para
+`raspagemRevisao/application/concordancia/`. Falta o grupo de **pronomes cruzados**.
+
+**Por que paramos, com número:** o que motivou a quebra era manutenção, e isso já foi
+atendido — o maior método saiu de **124 para 41 linhas**, e o grupo já está em 6 métodos
+nomeados com a cicatriz de cada um no Javadoc. O que sobra é arrumação.
+
+Os três cortes feitos eram blocos soltos. Este é ENTRELAÇADO: `PREPOSICOES_OBJETO`,
+`VERBOS_TRANSITIVOS_DIRETOS` e `VERBOS_SUJEITO` alimentam 3 pontos cada;
+`removerPredicadoDePrimeiraSegundaPessoa` tem 4 chamadas; `adicionarSeEncontrado`, 15. E é
+exatamente o código das TRÊS correções de 12/08 — recém-afinado, sem defeito aberto, que
+levou a varredura do Unicorn de 3 falsos positivos a 0.
+
+**Gatilho para fazer:** quando alguém precisar mexer numa regra de pronomes (nova cicatriz,
+novo falso positivo). Aí já se está lendo aquele código com atenção e a extração sai junto.
+
+**Mapa pronto:** mover `PREPOSICOES_OBJETO`, `VERBOS_TRANSITIVOS_DIRETOS`, `VERBOS_SUJEITO`,
+os 4 padrões de objeto/imperativo/regência, os 4 de abertura, os 2 de sujeito,
+`ELE_ISOLADO`/`ELA_ISOLADA` e os dois `remover*`. A fachada cai de 518 para ~250 linhas.
 
 ## GAPS E BLOQUEIOS REAIS
 
