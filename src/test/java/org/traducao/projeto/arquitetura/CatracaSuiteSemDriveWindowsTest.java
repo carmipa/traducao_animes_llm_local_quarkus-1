@@ -65,7 +65,10 @@ class CatracaSuiteSemDriveWindowsTest {
         // Entrou em 12/08/2026, mesma natureza: varre o acervo real para responder em que
         // estilos o achatamento seria a UNICA protecao contra a camada musical ir ao LLM.
         // Tambem e PULADO por Assumptions quando o acervo nao existe.
-        "OndeOAchatamentoValeriaIT.java"
+        "OndeOAchatamentoValeriaIT.java",
+        // Entrou em 12/08/2026: mede pergunta do original que virou afirmacao na traducao — o
+        // erro FLUENTE, que passa por eco, residuo e pendencia sem ser notado. Le o acervo real.
+        "MedicaoPerguntaQueViraAfirmacaoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
