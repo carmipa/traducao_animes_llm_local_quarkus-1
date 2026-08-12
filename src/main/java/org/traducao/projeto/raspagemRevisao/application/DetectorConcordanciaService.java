@@ -1,6 +1,9 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.raspagemRevisao.application.concordancia.DetectorAgressividadeIntroduzida;
+import org.traducao.projeto.raspagemRevisao.application.concordancia.DetectorConcordanciaNominal;
+import org.traducao.projeto.raspagemRevisao.application.concordancia.RegraDeRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 
 import java.util.LinkedHashSet;
@@ -81,24 +84,6 @@ public class DetectorConcordanciaService {
         "diga|fale|fala|pergunte|pergunte|avise|mande|manda|chame|chama|espere|espera|"
             + "olhe|olha|escute|escuta|veja|ve|ouça|ouca|deixe|deixa";
 
-    private static final Pattern ART_MASC_COM_SUBST_FEM =
-        Pattern.compile("\\b(o|um|este|esse|aquele|do|no|ao|pelo|num)\\s+(" + SUBST_FEM + ")\\b", FLAGS);
-
-    private static final Pattern ART_FEM_COM_SUBST_MASC =
-        Pattern.compile("\\b(uma|esta|essa|aquela|da|na|à|pela|numa)\\s+(" + SUBST_MASC + ")\\b", FLAGS);
-
-    private static final Pattern ADJ_MASC_COM_SUBST_FEM =
-        Pattern.compile("\\b(" + ADJ_MASC + ")\\s+(" + SUBST_FEM + ")\\b", FLAGS);
-
-    private static final Pattern ADJ_FEM_COM_SUBST_MASC =
-        Pattern.compile("\\b(" + ADJ_FEM + ")\\s+(" + SUBST_MASC + ")\\b", FLAGS);
-
-    private static final Pattern SUBST_FEM_COM_ADJ_MASC =
-        Pattern.compile("\\b(" + SUBST_FEM + ")\\s+(" + ADJ_MASC_POSPOSTO + ")\\b", FLAGS);
-
-    private static final Pattern SUBST_MASC_COM_ADJ_FEM =
-        Pattern.compile("\\b(" + SUBST_MASC + ")\\s+(" + ADJ_FEM_POSPOSTO + ")\\b", FLAGS);
-
     private static final Pattern RELACAO_PAI_EN = Pattern.compile("\\b(father|dad|daddy)\\b", FLAGS);
     private static final Pattern RELACAO_MAE_EN = Pattern.compile("\\b(mother|mom|mommy|mum|mummy)\\b", FLAGS);
     private static final Pattern RELACAO_FILHO_EN = Pattern.compile("\\bson\\b", FLAGS);
@@ -111,18 +96,27 @@ public class DetectorConcordanciaService {
     private static final Pattern FILHA_PT = Pattern.compile("\\bfilha\\b", FLAGS);
     private static final Pattern IRMAO_PT = Pattern.compile("\\b(irmão|irmao)\\b", FLAGS);
     private static final Pattern IRMA_PT = Pattern.compile("\\b(irmã|irma)\\b", FLAGS);
-    private static final Pattern PROFANIDADE_FORTE_PT = Pattern.compile("\\bfilh[oa] da puta\\b", FLAGS);
-    private static final Pattern PROFANIDADE_FORTE_EN = Pattern.compile(
-        "\\b(son of a (?:bitch|hitch)|motherfucker|fuck(?:er|ing)?|bitch|whore|bastard)\\b"
-            + "|\\bson of a\\s*\\.\\.\\.", FLAGS);
-    private static final Pattern EUFEMISMO_FILHO_DA_MAE = Pattern.compile("\\bfilho da mãe\\b", FLAGS);
-    private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);
+    /**
+     * As famílias já extraídas para o subpacote {@code concordancia}, atrás do contrato
+     * {@link RegraDeRevisao}. Duas listas, e a separação NÃO é estética: as internas ao
+     * português valem sozinhas, as outras precisam do inglês para ter base. Rodar as segundas
+     * com original nulo produziria motivo inventado.
+     *
+     * <p>Campo estático em vez de injeção CDI: os testes constroem
+     * {@code new DetectorConcordanciaService()} sem argumentos, e mudar o construtor por causa
+     * de organização interna seria custo sem ganho. As regras são sem estado, então uma
+     * instância serve a todas as falas.
+     *
+     * <p>Regra nova entra AQUI, não numa chamada solta em {@code analisar} — foi somando
+     * chamada a chamada que o método de pronomes chegou a 124 linhas.
+     */
+    private static final List<RegraDeRevisao> REGRAS_INTERNAS_AO_PORTUGUES = List.of(
+        new DetectorConcordanciaNominal());
 
-    // "a" sozinho fica fora do segundo grupo: é a preposição invariante em gênero
-    // ("disse a ele" / "disse a ela" são ambos corretos), não o artigo feminino —
-    // incluí-lo fazia "a ele" (construção comum e correta) ser sinalizado sempre.
-    private static final Pattern PRONOME_ARTIGO_ERRADO =
-        Pattern.compile("\\b(o|um|do|no|ao|pelo|lo|no)\\s+ela\\b|\\b(uma|da|na|à|pela|la)\\s+ele\\b", FLAGS);
+    private static final List<RegraDeRevisao> REGRAS_QUE_COMPARAM_COM_O_ORIGINAL = List.of(
+        new DetectorAgressividadeIntroduzida());
+
+    private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);
 
     private static final Pattern PRONOME_FEMININO_EN = Pattern.compile(
         "\\b(she|her|hers|girl|woman|lady|mother|mom|sister|daughter|"
@@ -280,7 +274,13 @@ public class DetectorConcordanciaService {
         String texto = removerTagsAss(traducaoPt);
         Set<String> motivos = new LinkedHashSet<>();
 
-        detectarConcordanciaNominal(texto, motivos);
+        // Regras INTERNAS ao português: valem mesmo sem original, porque a discordância é
+        // visível sozinha ("a menino" está errado independentemente do que a fala dizia em
+        // inglês). Já extraídas para o subpacote e chamadas pelo contrato RegraDeRevisao — o
+        // `null` no primeiro argumento é honesto: elas não olham o original.
+        for (RegraDeRevisao regra : REGRAS_INTERNAS_AO_PORTUGUES) {
+            regra.detectar(null, texto, motivos);
+        }
         detectarVerboPredicado(texto, motivos);
         adicionarSeEncontrado(motivos, GRACAS_AO_DEUS, texto,
             "Expressão idiomática inválida; em PT-BR usa-se 'graças a Deus'");
@@ -290,30 +290,17 @@ public class DetectorConcordanciaService {
             detectarPronomesECruzamento(original, texto, motivos);
             detectarTratamentos(original, texto, motivos);
             detectarParentesco(original, texto, motivos);
-            detectarAgressividadeIntroduzida(original, texto, motivos);
+            // Regras que COMPARAM com o inglês. A separação em duas listas não é estética: as
+            // de cima rodariam com original nulo e produziriam motivo sem base.
+            for (RegraDeRevisao regra : REGRAS_QUE_COMPARAM_COM_O_ORIGINAL) {
+                regra.detectar(original, texto, motivos);
+            }
         }
 
         if (motivos.isEmpty()) {
             return ResultadoDeteccaoConcordancia.limpo();
         }
         return new ResultadoDeteccaoConcordancia(true, List.copyOf(motivos));
-    }
-
-    private void detectarConcordanciaNominal(String texto, Set<String> motivos) {
-        adicionarSeEncontrado(motivos, ART_MASC_COM_SUBST_FEM, texto,
-            "Artigo/pronome demonstrativo masculino antes de substantivo feminino");
-        adicionarSeEncontrado(motivos, ART_FEM_COM_SUBST_MASC, texto,
-            "Artigo/pronome demonstrativo feminino antes de substantivo masculino");
-        adicionarSeEncontrado(motivos, ADJ_MASC_COM_SUBST_FEM, texto,
-            "Adjetivo masculino antes de substantivo feminino");
-        adicionarSeEncontrado(motivos, ADJ_FEM_COM_SUBST_MASC, texto,
-            "Adjetivo feminino antes de substantivo masculino");
-        adicionarSeEncontrado(motivos, SUBST_FEM_COM_ADJ_MASC, texto,
-            "Substantivo feminino com adjetivo/particípio masculino");
-        adicionarSeEncontrado(motivos, SUBST_MASC_COM_ADJ_FEM, texto,
-            "Substantivo masculino com adjetivo/particípio feminino");
-        adicionarSeEncontrado(motivos, PRONOME_ARTIGO_ERRADO, texto,
-            "Artigo/pronome oblíquo incompatível (o ela / a ele / lo ela)");
     }
 
     /**
@@ -557,16 +544,6 @@ public class DetectorConcordanciaService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: linguagem não cadastrada não é julgada
      * por esta regra conservadora.
      */
-    private void detectarAgressividadeIntroduzida(String original, String texto, Set<String> motivos) {
-        if (PROFANIDADE_FORTE_PT.matcher(texto).find()
-            && !PROFANIDADE_FORTE_EN.matcher(original).find()) {
-            motivos.add("Tradução introduziu palavrão forte ausente no original");
-        }
-        if (PROFANIDADE_FORTE_EN.matcher(original).find()
-            && EUFEMISMO_FILHO_DA_MAE.matcher(texto).find()) {
-            motivos.add("Insulto forte do original foi suavizado contra a preferência de tradução");
-        }
-    }
 
     private void detectarVerboPredicado(String texto, Set<String> motivos) {
         adicionarSeEncontrado(motivos, ELA_COM_PREDICADO_MASC, texto,
