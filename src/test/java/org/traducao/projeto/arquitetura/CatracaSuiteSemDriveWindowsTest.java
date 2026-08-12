@@ -79,7 +79,11 @@ class CatracaSuiteSemDriveWindowsTest {
         "MedicaoAcentuacaoFaltanteIT.java",
         // Entrou em 12/08/2026: mede genero trocado entre original e traducao — o eixo em que o
         // ingles nao marca e o portugues marca em tudo. Le o acervo real.
-        "MedicaoGeneroTrocadoIT.java"
+        "MedicaoGeneroTrocadoIT.java",
+        // Entrou em 12/08/2026: fecha o buraco que a anterior declarou — genero IMPLICITO, o
+        // participio que discorda do personagem citado. Le a ficha do contexto de producao e o
+        // acervo real.
+        "MedicaoGeneroImplicitoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
