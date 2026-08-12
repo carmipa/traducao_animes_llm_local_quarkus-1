@@ -209,6 +209,55 @@ public class LlmClientAdapter implements LlmPort {
         return a.equals(b) || a.contains(b) || b.contains(a);
     }
 
+    /**
+     * Token de template de chat vazado no corpo da resposta. A forma com barras verticais
+     * cobre Cohere ({@code <|END_OF_TURN_TOKEN|>}), ChatML ({@code <|im_end|>}), Llama
+     * ({@code <|eot_id|>}) e GPT ({@code <|endoftext|>}); a segunda cobre a família Gemma.
+     *
+     * <p>NÃO inclui {@code </s>}: é ambíguo com marcação de texto, e nenhum modelo em uso o
+     * emite. Guarda que apaga conteúdo legítimo é pior que guarda nenhuma.
+     */
+    private static final Pattern TOKEN_DE_CONTROLE =
+        Pattern.compile("<\\|[^|<>]{1,40}\\|>|</?(?:start|end)_of_turn>");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: remove da resposta o token de controle que o servidor deixou
+     * escapar para dentro do texto, para que uma tradução CORRETA não seja descartada por um
+     * artefato de transporte.
+     *
+     * <h2>O prejuízo, medido em 11/08/2026</h2>
+     * Na comparação de modelos sobre DanMachi S01, a {@code aya-expanse-8b} devolveu
+     * {@code "Bell, você não faz ideia de quão sortudo você é.<|END_OF_TURN_TOKEN|>"}. A
+     * tradução estava boa; o token colado no fim quebrava a checagem de marcadores
+     * {@code [[TAGn]]}, a fala era retentada três vezes com temperatura crescente, falhava
+     * pelo mesmo motivo e caía no tradutor de máquina. Resultado: <b>115 das 116 falas
+     * perdidas</b> naquela execução — 99% — eram este token, não tradução ruim. O modelo foi
+     * reprovado por um defeito que era daqui.
+     *
+     * <h2>INVARIANTES DO DOMÍNIO</h2>
+     * <ul>
+     *   <li>Só remove token de CONTROLE, nunca conteúdo. O padrão exige as barras verticais
+     *       ou o nome exato da família Gemma.</li>
+     *   <li>Não decide nada: a validação canônica continua inteira depois daqui. Limpar o
+     *       transporte não é aprovar a tradução.</li>
+     *   <li>Aplica-se aos DOIS pontos que leem {@code message.content()} — tradução de lote e
+     *       revisão de linha única. Corrigir um só deixaria o defeito vivo pela outra porta.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula devolve nulo; texto sem token volta
+     * intacto e sem custo. Nunca lança.
+     */
+    static String limparTokensDeControle(String bruto) {
+        if (bruto == null || bruto.indexOf('<') < 0) {
+            return bruto;
+        }
+        String limpo = TOKEN_DE_CONTROLE.matcher(bruto).replaceAll("");
+        if (!limpo.equals(bruto)) {
+            log.debug("Token de controle do template removido da resposta do LLM.");
+        }
+        return limpo.strip();
+    }
+
     @Override
     public TraducaoLote traduzir(Lote lote) {
         return traduzir(lote, null);
@@ -271,7 +320,8 @@ public class LlmClientAdapter implements LlmPort {
                 }
 
                 Mensagem mensagem = resposta.choices().getFirst().message();
-                String traduzidoText = mensagem != null ? mensagem.content() : null;
+                String traduzidoText = limparTokensDeControle(
+                    mensagem != null ? mensagem.content() : null);
                 if (traduzidoText == null || traduzidoText.isBlank()) {
                     throw new RespostaLlmVaziaException("Conteudo vazio retornado pelo LLM para o lote " + lote.idLote());
                 }
@@ -419,7 +469,8 @@ public class LlmClientAdapter implements LlmPort {
                 }
 
                 Mensagem mensagem = resposta.choices().getFirst().message();
-                String texto = mensagem != null ? mensagem.content() : null;
+                String texto = limparTokensDeControle(
+                    mensagem != null ? mensagem.content() : null);
                 if (texto == null || texto.isBlank()) {
                     log.warn("Resposta LLM com message.content vazio (tentativa {}/{}; modelo={}).",
                         tentativa, MAX_TENTATIVAS_REVISAO, request.model());
