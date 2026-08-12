@@ -347,8 +347,23 @@ public class DetectorConcordanciaService {
         }
 
         if (SHE_EN.matcher(original).find()) {
-            adicionarSeEncontrado(motivos, SUJEITO_ELE_COM_SHE, texto,
-                "Original usa 'she', mas sujeito da tradução é 'ele'");
+            // A MESMA guarda de referência masculina que a regra 12 linhas abaixo já usa desde
+            // 28/07. Ela nasceu da cicatriz descrita ali — "a fala tem DUAS referências de
+            // gênero e o detector enxergava só uma" — mas foi aplicada a UMA das três regras
+            // irmãs, e esta ficou de fora. Toda correção é auditoria, não conserto pontual.
+            //
+            // O custo apareceu em 12/08/2026, na revisão do Unicorn E08 (linha 238):
+            //
+            //   EN  "He's with her, so she'll be fine."
+            //   PT  "Ele está com ela, então ela estará bem."      <- CORRETO
+            //
+            // O original tem "He's" E "her"; o detector via só o "she" e acusava o "Ele está".
+            // Foi 1 dos 3 "problemas" que a varredura de 5.620 falas reportou — e os 3 eram
+            // falso positivo. Ruído a esse nível ensina a ignorar o relatório inteiro.
+            if (!PRONOME_MASCULINO_EN.matcher(original).find()) {
+                adicionarSeEncontrado(motivos, SUJEITO_ELE_COM_SHE, texto,
+                    "Original usa 'she', mas sujeito da tradução é 'ele'");
+            }
             // O guarda tem que cobrir TODA referência masculina, não só o pronome "he" — a
             // mensagem promete "sem referência masculina" e precisa ser verdade. Com \bhe\b a
             // fala abaixo disparava, porque "him" não casa com "he":
@@ -371,8 +386,13 @@ public class DetectorConcordanciaService {
         }
 
         if (HE_EN.matcher(original).find()) {
-            adicionarSeEncontrado(motivos, SUJEITO_ELA_COM_HE, texto,
-                "Original usa 'he', mas sujeito da tradução é 'ela'");
+            // Lado espelhado da guarda acrescentada acima. A varredura de 12/08 não produziu
+            // falso positivo por aqui, mas a assimetria seria dívida: a mesma fala com os
+            // papéis invertidos ("She's with him, so he'll be fine.") acusaria.
+            if (!PRONOME_FEMININO_EN.matcher(original).find()) {
+                adicionarSeEncontrado(motivos, SUJEITO_ELA_COM_HE, texto,
+                    "Original usa 'he', mas sujeito da tradução é 'ela'");
+            }
             // Mesma correção do lado espelhado: \bshe\b não casa "her"/"hers", então
             // "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem
             // afirmava não haver referência feminina no original.
