@@ -132,7 +132,134 @@ public class NormalizadorAcentosComuns {
         Map.entry("destruicao", "destruição"),
         Map.entry("protecao", "proteção"),
         Map.entry("confirmacao", "confirmação"),
-        Map.entry("autorizacao", "autorização")
+        Map.entry("autorizacao", "autorização"),
+
+        // ---------------------------------------------------------------
+        // AMPLIAÇÃO DE 12/08/2026 — MEDIDA no Gundam Unicorn, 22 episódios.
+        //
+        // MedicaoAcentuacaoFaltanteIT comparou as três traduções da MESMA obra e achou o
+        // primeiro eixo em que os modelos divergem para o lado do mistral:
+        //
+        //   mistral   23 de 5.676 falas (0,4%)
+        //   aya      197 de 5.458 falas (3,6%)   <-- 9x mais
+        //
+        // O dicionário acima é todo da família -ão/-ção e não cobria NADA do que a aya erra.
+        // As mais frequentes, contadas: familia 22 · proxima 21 · unica 11 · federacao 10 ·
+        // ultima 9 · maldicao 8 · fundacao 5 · unico 5 · facil 4 · historia 4 · possivel 4.
+        //
+        // Por que isto importa mais que parecer detalhe: erro de acento é corrigível por
+        // MÁQUINA e erro de sentido não é. Com esta rede, o eixo em que a aya perdia deixa de
+        // existir, e o eixo em que ela ganha — inverter pergunta e negação, 10x menos que o
+        // mistral — continua valendo. É o que torna a escolha do titular uma decisão só.
+        //
+        // Mesmo critério de sempre: entra apenas forma cuja grafia sem acento NÃO é palavra
+        // portuguesa. Ficaram DE FORA, mesmo tendo aparecido, todas as que também são verbo:
+        // "publica" (ele publica), "medica" (ele medica), "critica", "pratica", "duvida",
+        // "fabrica", "continua". Trocar essas introduziria erro onde não havia.
+        // ---------------------------------------------------------------
+        Map.entry("familia", "família"),
+        Map.entry("familias", "famílias"),
+        Map.entry("proxima", "próxima"),
+        Map.entry("proximo", "próximo"),
+        Map.entry("proximas", "próximas"),
+        Map.entry("proximos", "próximos"),
+        Map.entry("unica", "única"),
+        Map.entry("unico", "único"),
+        Map.entry("unicas", "únicas"),
+        Map.entry("unicos", "únicos"),
+        Map.entry("ultima", "última"),
+        Map.entry("ultimo", "último"),
+        Map.entry("ultimas", "últimas"),
+        Map.entry("ultimos", "últimos"),
+        Map.entry("historia", "história"),
+        Map.entry("historias", "histórias"),
+        Map.entry("memoria", "memória"),
+        Map.entry("memorias", "memórias"),
+        Map.entry("vitoria", "vitória"),
+        Map.entry("gloria", "glória"),
+        Map.entry("possivel", "possível"),
+        Map.entry("impossivel", "impossível"),
+        Map.entry("responsavel", "responsável"),
+        Map.entry("responsaveis", "responsáveis"),
+        Map.entry("disponivel", "disponível"),
+        Map.entry("terrivel", "terrível"),
+        Map.entry("incrivel", "incrível"),
+        Map.entry("horrivel", "horrível"),
+        Map.entry("nivel", "nível"),
+        Map.entry("niveis", "níveis"),
+        Map.entry("facil", "fácil"),
+        Map.entry("dificil", "difícil"),
+        Map.entry("faceis", "fáceis"),
+        Map.entry("dificeis", "difíceis"),
+        Map.entry("rapido", "rápido"),
+        Map.entry("rapida", "rápida"),
+        Map.entry("proprio", "próprio"),
+        Map.entry("propria", "própria"),
+        Map.entry("proprios", "próprios"),
+        Map.entry("proprias", "próprias"),
+        Map.entry("otimo", "ótimo"),
+        Map.entry("otima", "ótima"),
+        Map.entry("seculo", "século"),
+        Map.entry("seculos", "séculos"),
+        Map.entry("exercito", "exército"),
+        Map.entry("veiculo", "veículo"),
+        Map.entry("veiculos", "veículos"),
+        Map.entry("servico", "serviço"),
+        Map.entry("servicos", "serviços"),
+        Map.entry("inicio", "início"),
+        Map.entry("proposito", "propósito"),
+        Map.entry("logica", "lógica"),
+        Map.entry("logico", "lógico"),
+        Map.entry("musica", "música"),
+        Map.entry("musicas", "músicas"),
+        Map.entry("importancia", "importância"),
+        Map.entry("circunstancia", "circunstância"),
+        Map.entry("circunstancias", "circunstâncias"),
+        Map.entry("experiencia", "experiência"),
+        Map.entry("experiencias", "experiências"),
+        Map.entry("ciencia", "ciência"),
+        Map.entry("consciencia", "consciência"),
+        Map.entry("distancia", "distância"),
+        Map.entry("emergencia", "emergência"),
+        Map.entry("federacao", "federação"),
+        Map.entry("federacoes", "federações"),
+        Map.entry("maldicao", "maldição"),
+        Map.entry("fundacao", "fundação"),
+        Map.entry("ativacao", "ativação"),
+        Map.entry("investigacao", "investigação"),
+        Map.entry("localizacao", "localização"),
+        Map.entry("geracao", "geração"),
+        Map.entry("geracoes", "gerações"),
+        Map.entry("populacao", "população"),
+        Map.entry("estacao", "estação"),
+        Map.entry("ligacao", "ligação"),
+        Map.entry("traicao", "traição"),
+        Map.entry("solucao", "solução"),
+        Map.entry("evacuacao", "evacuação"),
+        Map.entry("formacao", "formação"),
+        Map.entry("comunicacao", "comunicação"),
+        Map.entry("transmissao", "transmissão"),
+        Map.entry("expressao", "expressão"),
+        Map.entry("compreensao", "compreensão"),
+        Map.entry("intencao", "intenção"),
+        Map.entry("excecao", "exceção"),
+        Map.entry("opcao", "opção"),
+        Map.entry("opcoes", "opções"),
+        Map.entry("acao", "ação"),
+        Map.entry("acoes", "ações"),
+        Map.entry("nacoes", "nações"),
+        Map.entry("ilusao", "ilusão"),
+        Map.entry("confusao", "confusão"),
+        Map.entry("conclusao", "conclusão"),
+        Map.entry("ocasiao", "ocasião"),
+        Map.entry("regiao", "região"),
+        Map.entry("regioes", "regiões"),
+        Map.entry("rebeliao", "rebelião"),
+        Map.entry("questao", "questão"),
+        Map.entry("questoes", "questões"),
+        Map.entry("sugestao", "sugestão"),
+        Map.entry("dimensao", "dimensão"),
+        Map.entry("dimensoes", "dimensões")
     );
 
     private static final Pattern PALAVRA;

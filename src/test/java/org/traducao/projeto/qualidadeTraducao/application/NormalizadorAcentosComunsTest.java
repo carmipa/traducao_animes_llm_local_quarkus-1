@@ -65,6 +65,46 @@ class NormalizadorAcentosComunsTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: as formas MEDIDAS no Gundam Unicorn em 12/08/2026, que motivaram a
+     * ampliação para fora da família {@code -ão/-ção}.
+     *
+     * <p>A medição comparou as três traduções da MESMA obra: mistral 23 de 5.676 falas (0,4%)
+     * contra aya 197 de 5.458 (3,6%) — 9× mais. As mais frequentes: {@code familia} 22,
+     * {@code proxima} 21, {@code unica} 11, {@code federacao} 10, {@code ultima} 9. A frase do
+     * primeiro caso é a real do E02, onde o mistral escreveu "circunstâncias" e a aya não.
+     */
+    @Test
+    @DisplayName("as formas medidas no Unicorn: proparoxítonas e -ção fora da lista anterior")
+    void formasMedidasNoUnicorn() {
+        assertEquals("falando com você nessas circunstâncias.",
+            norm.normalizar("falando com você nessas circunstancias."));
+        assertEquals("A família dela é a única que resta.",
+            norm.normalizar("A familia dela é a unica que resta."));
+        assertEquals("Na próxima vez, a última chance.",
+            norm.normalizar("Na proxima vez, a ultima chance."));
+        assertEquals("A Federação decretou a maldição.",
+            norm.normalizar("A Federacao decretou a maldicao."));
+        assertEquals("Não é possível, é muito difícil.",
+            norm.normalizar("Não é possivel, é muito dificil."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que a ampliação de 12/08 NÃO trouxe as formas que também são
+     * verbo. Cada palavra abaixo tem grafia sem acento perfeitamente válida, e trocá-la
+     * introduziria erro onde não havia — o oposto do que este normalizador existe para fazer.
+     *
+     * <p>Guarda que estraga texto correto é pior que guarda nenhuma, e aqui o dano seria
+     * silencioso: "ele publica o relatório" virando "ele pública o relatório" passa por
+     * qualquer validador.
+     */
+    @Test
+    @DisplayName("a ampliação NÃO toca palavra que também é verbo")
+    void naoTocaFormaQueTambemEhVerbo() {
+        String s = "Ele publica e medica, critica a pratica, duvida e continua na fabrica.";
+        assertEquals(s, norm.normalizar(s));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: as seis formas MEDIDAS na auditoria de 07/08/2026.
      *
      * <p>Auditadas 10.918 falas das duas obras traduzidas na noite de 06/08
