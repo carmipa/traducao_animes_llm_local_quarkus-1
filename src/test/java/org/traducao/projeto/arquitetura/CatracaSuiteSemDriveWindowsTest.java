@@ -61,7 +61,11 @@ class CatracaSuiteSemDriveWindowsTest {
         // Unicorn, e a pasta da obra e caminho de acervo real, nao fixture. O teste ja e
         // PULADO por Assumptions quando o acervo nao existe — no conteiner ele nao quebra,
         // declara "NAO VERIFICADO", que e diferente de passar.
-        "MedicaoUnicornMistralXAyaIT.java"
+        "MedicaoUnicornMistralXAyaIT.java",
+        // Entrou em 12/08/2026, mesma natureza: varre o acervo real para responder em que
+        // estilos o achatamento seria a UNICA protecao contra a camada musical ir ao LLM.
+        // Tambem e PULADO por Assumptions quando o acervo nao existe.
+        "OndeOAchatamentoValeriaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
