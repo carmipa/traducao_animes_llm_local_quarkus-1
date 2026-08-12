@@ -4,165 +4,97 @@ TAREFA ORIGINAL: escolher o modelo LLM titular do pipeline, e qual serve para CO
                  as falas que o titular abandona.
 OBJETIVO FINAL:  decisão com artefato, não com impressão.
 CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo de recuperação.
-BRANCH / COMMIT BASE: main — `b78a5cf6` local, ahead 1 de origin/main
+BRANCH / COMMIT BASE: main — `b7abf431`, árvore limpa, ahead de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
-
-## ESTADO AGORA (2026-08-12, 09:40) — Paulo assumiu a rodada comparativa
-
-- **A 8099 é o quarkusDev com o código de hoje.** O contêiner `kronos` foi PARADO
-  (`docker compose stop kronos`): ele tinha voltado sozinho com o Docker Desktop, tomado a
-  porta e servido a imagem de ontem. Como é dev no host, os caminhos são `C:\animes\...`;
-  se voltar ao contêiner (`docker compose start kronos`), passam a ser `/acervo\...`.
-- **Só a `aya-expanse-8b` está carregada** (`/api/v0/models` → `state: loaded`).
-- **A telemetria DEDUPLICA por `nomeEpisodio` e o mais recente vence**: rodar outro modelo
-  APAGA o registro do anterior. O baseline do mistral foi congelado em
-  `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 episódios). Perdi E01 e
-  E02 do ZZ antes de perceber — congelar ANTES de cada troca de modelo, sempre.
-- Piloto já rodado no ZZ (aya): `_piloto_aya_eng` / `_piloto_aya_saida`, 2 eps.
-  **O cache do ZZ E01/E02 agora é da aya**, não do mistral.
-- Pareado no MESMO episódio (ZZ E02): mistral 285 falas / 0 pend / **4,25 min** ×
-  aya 285 falas / 0 pend / **1,26 min** — 3,37× mais rápida, desfecho idêntico.
-- Onde o tempo vai: **165,8s de 172s (96,4%) é espera pelo LM Studio**. Otimização de JVM/JIT
-  atua sobre os 3,6% restantes — decisão de Paulo de não perseguir isso está medida e correta.
-
-## EXPERIMENTO PREPARADO — Paulo executa (2026-08-12, 12:00)
-
-**A aplicação está FORA DO AR de propósito.** Paulo sobe e roda; eu não toco em `src/main`
-enquanto rodar — foi um live-reload meu que matou o E01 do Unicorn às 09:22.
-
-Tudo já preparado e conferido:
-
-| item | estado |
-|---|---|
-| `legendas_eng_achatado` (cópia de trabalho, 22 arquivos) | criada, conferida, **ainda SEM troca de fonte e SEM achatador** |
-| `legendas_extraidas_ass` (entrada original) | INTACTA, 22 arquivos |
-| `traducao_mistral` (backup do Paulo) | intocado |
-| baseline mistral por episódio | `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 eps) |
-| baseline **aya** por episódio | `backups/pre-achatado-20260812/baseline-aya-unicorn.json` (22 eps) |
-| cache da aya | `backups/pre-achatado-20260812/cache-aya/` (22, conferido) |
-
-**Sequência para rodar** (pasta sempre `...\Gundam Unicorn Season 1\legendas_eng_achatado`):
-1. `POST /api/troca-legenda/aplicar` com `forcarArial: true`
-2. `POST /api/troca-legenda/achatar-estilos`
-3. `POST /api/traduzir` com `contextoId: "gundam_zz"`… **NÃO** — é `gundam_uc` ou o do Unicorn:
-   conferir em `GET /api/contextos` antes. Saída: pasta NOVA `traducao_ptbr_achatado`.
-4. Medir com `.\gradlew.bat test --tests "*MedicaoUnicornMistralXAyaIT*" --rerun-tasks`
-   (apontando o harness para a pasta nova).
-
-**MINHA PREVISÃO DE RISCO ESTAVA ERRADA — medido em 12/08 11:33, depois de Paulo executar.**
-Eu previ que o achatador colapsaria `OPL2` em `Default`, o veto nominal do yml deixaria de
-casar e 3.255 linhas da letra do OP iriam ao LLM. **Não foi o que aconteceu.**
-
-| estilo | antes | depois do achatamento |
-|---|---|---|
-| Default | 5665 | **5665** (inalterado) |
-| OPL2 | 3255 | **357** |
-| ED2 / ED-EN / ED / Sign | 207 / 165 / 165 / 23 | idênticos |
-
-O achatador **descartou 2.898 sílabas de timing** (KFX estourado, uma sílaba por linha) e
-**preservou o NOME do estilo** nas 357 linhas musicais que restaram. É o
-`ClassificacaoCamadas.silabasDeTiming` fazendo o que promete — "preservar mantém, sílaba
-descarta". Como o nome `OPL2` sobreviveu, o veto nominal do `application.yml` continua
-casando e a letra do OP **não** vai ao LLM. O risco que declarei não se materializou.
-
-Onde eu errei: li o classificador pela porta de PRESERVAÇÃO (`podeSerCamadaMusical`, que de
-fato não conhece OPL2) e não pela de DESCARTE, que é a que agiu aqui. Lição para a próxima:
-antes de prever o efeito de uma operação, medir o antes/depois num arquivo — custa segundos
-e teria evitado o alarme.
-
-Backups do próprio KRONOS conferidos: `backups/troca_tipo_legenda_20260812_113344` (22 ass) e
-`backups/achatar_estilos_20260812_113353` (21 ass — 1 arquivo não precisou de achatamento).
-`traducao_ptbr` da rodada anterior foi renomeada por Paulo para `traducao_aya` (21 arquivos),
-então a comparação de três vias continua possível: mistral × aya × aya-achatado.
 
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-**Assim que o LM Studio estiver no ar** (ver BLOQUEIO abaixo), nesta ordem:
+Duas frentes, nesta ordem de valor:
 
-1. Conferir que só a aya está carregada:
-   `curl -s http://127.0.0.1:8099/api/llm/status`
-   (com 2 modelos carregados o KRONOS pega o PRIMEIRO da lista e mede o errado)
-2. Subir o KRONOS: `.\iniciar-kronos-dev.cmd` — depois conferir a porta 8099, porque
-   `TaskStop` mata só o wrapper do Gradle e a JVM velha continua servindo código antigo.
-3. Escolher obra que o mistral tenha fechado em **PASSADA ÚNICA** — senão repete a
-   assimetria de 5 passadas × 1 que invalidou a comparação do Guilty Crown.
-   Candidatas com telemetria de passada única a conferir:
-   `Mobile Suit Gundam ZZ` (47 traduzidos), `Gundam Unicorn Season 1`,
-   `[Joseki] 0083 Stardust Memory`, `[Joseki] 08th MS Team`
-4. Saída em pasta NOVA (`traducao_ptbr_aya`), nunca sobrescrevendo o que existe.
-5. Backup do cache da obra em `backups/` ANTES — a troca de modelo arquiva o cache
-   do mistral (proveniência inclui `modeloLlm`).
+1. **Ler o português lado a lado.** É o ÚNICO eixo que nenhuma medição resolve, e agora é o
+   que sobrou. As três versões estão em disco na mesma obra:
+   `C:\animes\Mobile Suit Gundam Unicorn Re0096 (2016) [Season 1] [BD 1080p HEVC OPUS] [Dual-Audio]\Gundam Unicorn Season 1\`
+   → `traducao_mistral` (22) · `traducao_aya` (21) · `traducao_ptbr` (22, fonte+achatado)
+2. **Exercitar o `modelo-recuperacao`** — 🔴 nunca foi feito. Alvo pronto: as 6 pendências do
+   Zeta (E08×2, E15, E17, E33, E38), todas discurso citado com aspas; o tower recuperou 3.
+   Config: `tradutor.llm.modelo-recuperacao: "aya-expanse-8b"`.
+
+Para rodar qualquer coisa: **subir o KRONOS é com Paulo** (`.\iniciar-kronos-dev.cmd`), e eu
+NÃO toco em `src/main` nem rodo Gradle enquanto houver job — foi um live-reload meu que matou
+o E01 do Unicorn às 09:22.
+
+## ESTADO DA BANCADA
+
+- 8099 LIVRE (app desligada). Contêiner `kronos` PARADO de propósito — ele volta sozinho com o
+  Docker Desktop e serve imagem velha; `docker compose start kronos` para religar.
+- LM Studio no ar com **só a aya-expanse-8b** carregada.
+- `legendas_extraidas_ass` está ACHATADA e com fonte trocada (desde 12/08 11:33). O original
+  intacto está em `backups/troca_tipo_legenda_20260812_113344` (22 ass).
+- Baselines de telemetria congelados (a telemetria DEDUPLICA por episódio e o mais recente
+  vence — sempre congelar antes de trocar de modelo):
+  `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 eps) ·
+  `backups/pre-achatado-20260812/baseline-aya-unicorn.json` (22 eps) · `.../cache-aya/` (22).
+
+## O QUE A AUDITORIA DE 12/08 ESTABELECEU
+
+| eixo | mistral | aya | aya+achatado |
+|---|---|---|---|
+| eco no artefato (5.455 falas) | 184 | 181 | 183 |
+| resíduo em inglês | 0 | 0 | 0 |
+| pergunta → afirmação | **34 (4,4%)** | **2 (0,3%)** | 4 (0,5%) |
+| negação perdida | **11 (1,5%)** | **3 (0,4%)** | 4 (0,5%) |
+| acentuação faltando | **23 (0,4%)** | **197 (3,6%)** | 193 (3,4%) |
+| gênero explícito / implícito | 1 (falso pos.) / 0 | 0 / 0 | 0 / 0 |
+| pendências · minutos | 5 · 104,1 | 2 · 30,2 | 2 · 30,4 |
+
+**Os dois modelos erram em eixos OPOSTOS**: o mistral inverte o sentido, a aya erra ortografia.
+E erro de acento é corrigível por máquina; erro de sentido não é — por isso o
+`NormalizadorAcentosComuns` foi ampliado (o eixo em que a aya perdia deixa de existir para as
+PRÓXIMAS traduções; os 197 já gravados só somem com reprocessamento).
+
+**O achatamento não mudou a tradução** (183 × 181, 30,4 × 30,2 min, 2 × 2 pendências). Ele só
+limpa o arquivo: 9.076 → 6.582 eventos, 0,90 → 0,67 MB, karaokê perde a animação e mantém a
+letra. Vale nas obras da família DanMachi, onde a proteção nominal não cobre; no Unicorn e nos
+Gundam é trabalho sem retorno.
 
 ## FECHADO COM ARTEFATO (2026-08-12)
 
-- **Recusa do LLM ≠ servidor fora do ar** (`b78a5cf6`). HTTP 4xx permanente vira
-  `RequisicaoRecusadaPeloLlmException` e segue o caminho da pendência; timeout/5xx continua
-  abortando; disjuntor de 3 recusas consecutivas devolve o aborto quando é global.
-  Caso-controle REPROVOU antes do conserto (`TraducaoParcialException` por 1 fala);
-  4 casos novos verdes, com contraprova. **Suíte 1655 testes, 0 falhas, 0 erros, 268 classes.
-  Portão do projeto rc=0, 156 testes em 32 classes de guarda.**
-- **Inventário de estilos do acervo** (`C:\animes`): 1.022 `.ass`, 2.346.132 linhas
-  `Dialogue`, 132 estilos distintos, e só **2 com `\k` no corpo** — `Paradise` (864) e
-  `Dungeons` (2), ambos cobertos pelo CONTEÚDO. Congelado em `EstiloMusicalDoAcervoTest`.
-- **Anotação de 11/08 corrigida:** `Hey World Romaji` NÃO escapa (o padrão casa a forma
-  curta `roma`), e `PadraoEstiloMusical` tem 10 substrings, não só `(op|ed)`.
+- `b78a5cf6` recusa do LLM (4xx) deixa de abortar o episódio; disjuntor de 3 recusas seguidas.
+- `84296493` a Tradução Local também dizia "iniciada" para pasta inexistente; catraca passou a
+  exigir o COMPORTAMENTO (conferir ANTES do disparo) em vez da presença de uma classe.
+- `43eeb8b0` + `f9070136` medição mistral × aya × achatado no artefato, 3 calibragens.
+- `60d84e5b` onde o achatamento seria a única proteção, no acervo inteiro.
+- `06645ed9` pergunta que virou afirmação — o 1º instrumento para erro FLUENTE.
+- `5586ca40` negação, acentuação, gênero explícito + normalizador de acentos ampliado.
+- `3230692b` gênero IMPLÍCITO lendo a ficha de personagem do contexto de produção.
+- `47b47cb7` boa-fé: traduzir A PARTIR da pasta de saída deixa de ser possível.
+- `b7abf431` retomada após interrupção: "salvas para retomar" vira fato provado.
 
-## FECHADO COM ARTEFATO (2026-08-11)
-
-- Portão único `checar-portao.ps1` — 3 estados, `--rerun-tasks`.
-- Compose falha fechada: `docker compose --env-file /dev/null config` sai **1** (saía 0).
-- 7 rotas assíncronas recusam caminho impossível ANTES de enfileirar (`0f3724b4`).
-- Segunda opinião entre modelos, desligada por padrão (`b1dcf791`, em origin/main).
-- Hotfix do token de template: `<|END_OF_TURN_TOKEN|>` fazia o pipeline descartar tradução
-  CORRETA — era 99% da pendência da aya.
-- Zeta: 22 → 6 pendências, 45/50 concluídos, em 59 s.
-- Confronto de 4 modelos em conteúdo virgem + Guilty Crown inteiro com a aya.
-
-## O QUE A MEDIÇÃO ESTABELECEU
-
-| | |
-|---|---|
-| passada única, mesmos 23 eps | **aya 19 pendências / 12 eps limpos** × mistral 141 / 0 |
-| artefato final (aya 1 passada × mistral 5) | **empate**: 266 × 264 falas em inglês de 5.679 |
-| subconjunto objetivo | **empate**: aya venceu 51, mistral venceu 53 |
-| qualidade do português | **NÃO LIDO** — é o que falta |
-
-Três medições convergiram para empate ou vantagem de ESFORÇO. Nenhuma estabeleceu
-vantagem de QUALIDADE. Promover a aya se sustenta em custo e confiabilidade do pipeline,
-**não** em "traduz melhor".
+Suíte **1672 testes, 0 falhas, 0 erros** (276 classes). Portão do projeto **rc=0**.
 
 ## GAPS E BLOQUEIOS REAIS
 
-- 🔴 **BLOQUEIO — LM Studio não sobe por lançamento programado.** O executável sai com
-  código 0 em segundos, sem stdout/stderr, e nenhum processo permanece. Descartados por
-  teste: lock órfão (`llmster-pid.lock` apontava para o PID 20244, morto — movido para
-  `.internal\llmster-pid.lock.orfao-2026-08-12`) e atualização pendente (`pending`
-  desviada e restaurada, sem efeito). Quatro caminhos tentados: `Start-Process` com e sem
-  sandbox, execução direta com redirecionamento, e `cmd /c start`. **Ação de Paulo: abrir o
-  LM Studio pelo ícone e carregar SÓ a `aya-expanse-8b`.** Sem isso, nada do teste de hoje roda.
-- 🔴 `modelo-recuperacao` nunca foi exercitado com a aya. O alvo pronto são as 6 pendências
-  do Zeta (E08×2, E15, E17, E33, E38), todas discurso citado com aspas — o tower recuperou
-  3 delas. Config: `tradutor.llm.modelo-recuperacao: "aya-expanse-8b"`.
-- 🟡 As 4.249 discordâncias entre mistral e aya no Guilty Crown esperam leitura humana.
+- 🔴 `modelo-recuperacao` nunca exercitado com a aya (ver PRÓXIMA AÇÃO).
+- 🟡 Sem teste: **idempotência da retomada** (rodar 2× produz o mesmo?) e **clique duplo na
+  rota de traduzir** (a fila recusa com 409, caracterizado só para o renomeador). Nenhum dos
+  dois tem dano registrado — por isso ficaram atrás dos três que tinham cicatriz.
 - 🟡 `tradutor.fallback-online.ativo: true` com o comentário acima dizendo "desligado por
-  padrão". O Google esteve no circuito de TODAS as rodadas de 11/08. **Decisão de Paulo
-  (é produto): corrigir o valor ou o comentário.** Para o experimento de hoje, o Google
-  precisa estar FORA do circuito, senão mede-se aya+Google.
-- 🟡 Lacuna declarada: estilo com nome próprio de canção e SEM `\k` no corpo
-  (`RISE LIGHT RISE English`, `Logo`) segue invisível aos detectores. Fechar por nome
-  exigiria lista nominal por obra — remendo, não mecanismo. O dano que ela causava
-  (derrubar o episódio) está fechado por `b78a5cf6`.
-- 🟡 Contêiner `kronos` com `restart: unless-stopped` — volta sozinho ao ligar a máquina.
+  padrão". Decisão de produto: corrigir o valor ou o comentário.
+- 🟡 Lacuna declarada: estilo com nome próprio de canção e SEM `\k` (`RISE LIGHT RISE English`,
+  `Logo`) segue invisível aos detectores. Fechar por nome exigiria lista por obra.
+- 🟡 O piso dos instrumentos novos: nenhum julga se o português está BOM, só se está errado de
+  forma mecânica. `"Audrey é o piloto"` não é acusado (substantivo tem gênero próprio).
 
 ## NÃO REPETIR
 
-- Vigia de rodada por JANELA DE TEMPO no log: errei duas vezes em 11/08, anunciando fim de
-  rodada que nem tinha começado. Ancorar em CONTAGEM de conclusões e esperar o número subir.
-- Comparar rodada com cache quente: a rodada de 1min58s parecia hotfix e era cache
-  (`falasDoCache=343`). Conferir `falasDoCache` antes de interpretar qualquer resultado.
-- Classificar estilo pela SAÍDA: o achatador colapsa `OP`/`ED`/`Other songs` em `Default`.
-  A máscara certa é a lista `PRESERVADA_POR_REGRA` do dataset do pipeline.
-- `glob.glob` / `Get-Content` em caminho com `[Sokudo]` / `[1080p]`: colchete é classe de
-  caracteres. Em PowerShell, usar `-LiteralPath` ou `[System.IO.File]::ReadAllText`.
-- Reimplementar em script o critério que o código de produção já tem. O "é musical?" desta
-  sessão veio de `PadraoEstiloMusical` via teste JUnit; o PowerShell só colheu fato bruto.
+- **Editar `src/main` ou rodar Gradle com job em andamento.** O quarkusDev observa
+  `build/classes`; o reload matou o E01 do Unicorn e criou um "defeito da aya" que era meu.
+- Medir versão achatada contra a entrada ORIGINAL: 2.898 eventos a menos desalinham o
+  pareamento por índice e produzem 77,7% onde o real é 0,5%. Cada saída contra A SUA entrada.
+- Aceitar número de instrumento novo sem controle positivo E negativo. Nesta sessão os
+  controles pegaram: `can't` (a alternância `can` come o `n`), tag question exigindo `?` no
+  fim, `ja[a-z]` casando `jaz`, `[ée]` casando a conjunção "e", janela de 40 chars ligando
+  particípio a sujeito distante, e um teste de retomada que concluía sem interromper.
+- Reimplementar em script critério que a produção já tem. O "é musical?" veio de
+  `PadraoEstiloMusical` + lista nominal do yml, via teste JUnit; o PowerShell só colheu fato bruto.
+- `Get-Content` em caminho com `[Sokudo]`: colchete é classe de caracteres. Usar `-LiteralPath`.
