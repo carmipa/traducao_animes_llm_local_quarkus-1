@@ -57,9 +57,19 @@ class MedicaoUnicornMistralXAyaIT {
     private static final Path OBRA = Path.of("C:", "animes",
         "Mobile Suit Gundam Unicorn Re0096 (2016) [Season 1] [BD 1080p HEVC OPUS] [Dual-Audio]",
         "Gundam Unicorn Season 1");
-    private static final Path ENTRADA = OBRA.resolve("legendas_extraidas_ass");
+    /**
+     * A entrada ORIGINAL, de onde saíram mistral e aya. Ela não está mais em
+     * {@code legendas_extraidas_ass}: em 12/08 11:33 a troca de fonte e o achatamento
+     * reescreveram aquela pasta in-place. O backup que o próprio KRONOS gravou ANTES de tocar
+     * no arquivo é o único lugar onde o original ainda existe — e é por isso que "sem backup,
+     * não grava" é invariante e não recomendação.
+     */
+    private static final Path ENTRADA_ORIGINAL = Path.of("backups", "troca_tipo_legenda_20260812_113344");
+    /** A entrada depois de fonte trocada e estilos achatados — origem da terceira rodada. */
+    private static final Path ENTRADA_ACHATADA = OBRA.resolve("legendas_extraidas_ass");
     private static final Path MISTRAL = OBRA.resolve("traducao_mistral");
-    private static final Path AYA = OBRA.resolve("traducao_ptbr");
+    private static final Path AYA = OBRA.resolve("traducao_aya");
+    private static final Path AYA_ACHATADA = OBRA.resolve("traducao_ptbr");
 
     /**
      * A lista nominal do {@code application.yml}, LIDA do arquivo — não digitada aqui. É o
@@ -111,7 +121,7 @@ class MedicaoUnicornMistralXAyaIT {
     @Test
     @DisplayName("conta eco e resíduo em inglês nos dois lados, pareado por episódio")
     void compararArtefatos() {
-        Assumptions.assumeTrue(Files.isDirectory(ENTRADA) && Files.isDirectory(MISTRAL)
+        Assumptions.assumeTrue(Files.isDirectory(ENTRADA_ORIGINAL) && Files.isDirectory(MISTRAL)
             && Files.isDirectory(AYA), "acervo do Unicorn ausente nesta máquina — NÃO VERIFICADO");
 
         LeitorLegendaAss leitor = new LeitorLegendaAss();
@@ -130,9 +140,11 @@ class MedicaoUnicornMistralXAyaIT {
             "instrumento cego: o validador nao reprovou uma fala inteiramente em ingles, "
                 + "entao um residuo=0 sobre o acervo nao prova nada");
 
-        Map<String, Path> eng = porEpisodio(ENTRADA);
+        Map<String, Path> eng = porEpisodio(ENTRADA_ORIGINAL);
+        Map<String, Path> engAch = porEpisodio(ENTRADA_ACHATADA);
         Map<String, Path> mis = porEpisodio(MISTRAL);
         Map<String, Path> aya = porEpisodio(AYA);
+        Map<String, Path> ayaAch = porEpisodio(AYA_ACHATADA);
 
         List<String> pareados = eng.keySet().stream()
             .filter(mis::containsKey).filter(aya::containsKey).sorted().toList();
@@ -140,6 +152,7 @@ class MedicaoUnicornMistralXAyaIT {
 
         Placar totalM = new Placar(0, 0, 0);
         Placar totalA = new Placar(0, 0, 0);
+        Placar totalAch = new Placar(0, 0, 0);
         List<String> linhas = new ArrayList<>();
 
         // CALIBRAGEM OBRIGATÓRIA: um "eco" de 190 falas por episódio seria absurdo, e a primeira
@@ -162,24 +175,38 @@ class MedicaoUnicornMistralXAyaIT {
             }
         }
 
+        // Cada saída é medida contra A SUA PRÓPRIA entrada. A terceira rodada nasceu do arquivo
+        // já achatado, que tem 2.898 eventos a menos: pareá-la com o original por índice
+        // compararia a fala i com a fala j e produziria um número inventado.
+        int comAchatado = 0;
         for (String ep : pareados) {
             List<EventoLegenda> o = eventos(leitor, eng.get(ep));
             Placar m = medir(o, eventos(leitor, mis.get(ep)), validador);
             Placar a = medir(o, eventos(leitor, aya.get(ep)), validador);
             totalM = totalM.mais(m);
             totalA = totalA.mais(a);
+            String extra = "";
+            if (engAch.containsKey(ep) && ayaAch.containsKey(ep)) {
+                Placar ac = medir(eventos(leitor, engAch.get(ep)),
+                    eventos(leitor, ayaAch.get(ep)), validador);
+                totalAch = totalAch.mais(ac);
+                comAchatado++;
+                extra = String.format("  |  achatado eco=%d res=%d", ac.eco(), ac.residuo());
+            }
             if (m.eco() + m.residuo() + a.eco() + a.residuo() > 0) {
-                linhas.add(String.format("  %s  mistral eco=%d res=%d  |  aya eco=%d res=%d",
-                    ep, m.eco(), m.residuo(), a.eco(), a.residuo()));
+                linhas.add(String.format("  %s  mistral eco=%d res=%d  |  aya eco=%d res=%d%s",
+                    ep, m.eco(), m.residuo(), a.eco(), a.residuo(), extra));
             }
         }
 
         System.out.println("\n=== UNICORN: artefato final, " + pareados.size() + " episódios pareados ===");
         linhas.forEach(System.out::println);
-        System.out.printf("  %-8s falas=%d  eco=%d  residuo=%d%n", "MISTRAL",
+        System.out.printf("  %-14s falas=%d  eco=%d  residuo=%d%n", "MISTRAL",
             totalM.falas(), totalM.eco(), totalM.residuo());
-        System.out.printf("  %-8s falas=%d  eco=%d  residuo=%d%n", "AYA",
+        System.out.printf("  %-14s falas=%d  eco=%d  residuo=%d%n", "AYA",
             totalA.falas(), totalA.eco(), totalA.residuo());
+        System.out.printf("  %-14s falas=%d  eco=%d  residuo=%d   (%d episódios)%n", "AYA+ACHATADO",
+            totalAch.falas(), totalAch.eco(), totalAch.residuo(), comAchatado);
     }
 
     /** Chave = trecho SxxEyy do nome, que é o que os três lados têm em comum. */
