@@ -483,6 +483,88 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: uma execução interrompida no meio não pode custar o trabalho já
+     * feito — a retomada continua de onde parou, sem repetir o que o LLM já traduziu.
+     *
+     * <h2>O prejuízo que originou este teste</h2>
+     * 12/08/2026, 09:22: a aplicação em modo dev recarregou por baixo de uma rodada em
+     * andamento (alguém editou {@code src/main} enquanto o Unicorn traduzia). O episódio E01
+     * morreu com {@code "após 3 tentativa(s): null"} e a mensagem foi
+     * {@code "abortado sem gerar saída (57 linha(s) salvas no cache para retomar)"}.
+     *
+     * <p>Salvar para retomar é o comportamento CERTO, e ele existia — mas
+     * {@code FakeLlmPort(interromperNaPrimeira)} estava construído no harness e <b>nenhum teste
+     * o usava</b>. O mecanismo de recuperação nunca tinha sido exercitado: "salvas para
+     * retomar" era uma promessa da mensagem de log, não um fato provado.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O que já foi traduzido antes da interrupção fica no cache e NÃO volta ao LLM.</li>
+     *   <li>A retomada completa o restante e conclui.</li>
+     *   <li>O resultado final é o mesmo que o de uma execução sem interrupção — retomar não
+     *       pode produzir arquivo diferente de nunca ter parado.</li>
+     * </ul>
+     */
+    @Test
+    void interrupcaoNoMeioRetomaSemRefazerOQueJaFoiTraduzido() throws Exception {
+        // 21 falas, como em cancelamentoNoMeioPreservaProgressoParcialDoPrimeiroLote: com
+        // tamanhoLote=20 elas geram 2 lotes, e a interrupção cooperativa só é percebida ENTRE
+        // lotes. Com 3 falas — a primeira versão deste teste — cabe tudo num lote, o episódio
+        // CONCLUI e o cenário vira um segundo teste de cache, verde e medindo outra coisa.
+        // Foi a asserção `parouDeVerdade` que pegou isso.
+        String[] falas = new String[21];
+        for (int i = 0; i < falas.length; i++) {
+            falas[i] = "Line " + (char) ('A' + i / 26) + (char) ('A' + i % 26);
+        }
+        Path entrada = escreverAss("ep.ass", falas);
+
+        // 1ª execução: o dublê marca a interrupção cooperativa logo após o primeiro lote.
+        FakeLlmPort interrompida = new FakeLlmPort(true);
+        boolean parouDeVerdade = false;
+        try {
+            ResultadoTraducaoArquivo parcial = montar(interrompida)
+                .processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+            parouDeVerdade = parcial.status() != StatusArquivoTraducao.CONCLUIDO;
+        } catch (TraducaoParcialException esperada) {
+            parouDeVerdade = true;
+        } finally {
+            // A interrupção cooperativa marca a thread; sem limpar, a próxima execução herdaria
+            // a marca e "seria interrompida" antes de começar — o teste mediria o próprio lixo.
+            Thread.interrupted();
+        }
+
+        // CALIBRAGEM do próprio teste: sem esta asserção, um dublê que parasse de interromper
+        // faria o cenário virar silenciosamente um SEGUNDO teste de cache — verde, e medindo
+        // outra coisa. É o "0 não é prova" aplicado ao caso-controle.
+        assertTrue(parouDeVerdade,
+            "a primeira execução CONCLUIU: a interrupção não aconteceu e este teste não está "
+                + "medindo retomada nenhuma");
+        assertTrue(interrompida.chamadas.get() >= 1,
+            "a primeira execução precisa ter traduzido algo antes de parar");
+
+        // 2ª execução: mesmo episódio, mesma proveniência. Só o que faltava pode ir ao LLM.
+        FakeLlmPort retomada = new FakeLlmPort();
+        ResultadoTraducaoArquivo r = montar(retomada, new ConsoleUILoggerSilencioso())
+            .processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "a retomada tem de concluir o episódio que a interrupção deixou pela metade");
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(saida), "a retomada tem de publicar a saída final");
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        assertFalse(conteudo.contains("Line AA"), "nenhuma fala pode ficar no idioma original");
+        assertFalse(conteudo.contains("Line AU"), "a fala do 2º lote também tem de ser traduzida");
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertNotNull(tel);
+        assertEquals(20, tel.falasDoCache(),
+            "as 20 falas salvas antes da interrupção têm de vir do CACHE — se vier zero, "
+                + "'salvas para retomar' é só uma frase no log");
+        assertEquals(1, retomada.chamadas.get(),
+            "a retomada só pode chamar o LLM para o que FALTAVA: um lote com a 21ª fala");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: SRT nativo percorre o mesmo pipeline e publica
      * {@code _PT-BR.srt} sem conversão para ASS.
      */
