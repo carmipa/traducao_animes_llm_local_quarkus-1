@@ -47,8 +47,14 @@ o E01 do Unicorn às 09:22.
 - **Faixa 5 `Sign&Songs` nunca foi extraída nem traduzida** (186 eventos só no E01). Todo o acervo
   do Unicorn foi traduzido só da faixa 4 `Dialogue`. Pode ser decisão (música é da fatia de
   karaokê) — não tratado como defeito, fica como pista.
-- O achatamento remove 2.058 textos no total, e a amostra mostra o que são: `Do`, `you`, `feel`,
-  `a`, `lone` — sílabas de KFX, não diálogo. Não perde fala; perde a animação.
+- **NENHUMA FALA FOI PERDIDA — medido no acervo inteiro, não por amostra.** Casando por INSTANTE
+  (o texto muda ao traduzir, o tempo não), as três versões batem com o original:
+  `traducao_mistral` 5.665/5.665 · `traducao_aya` 5.447/5.447 (21 eps; o E01 é o que meu
+  live-reload matou) · `traducao_ptbr` 5.665/5.665. **Zero sem par, zero vazias nas três.**
+  Por estilo, o achatamento removeu 0 de 5.665 `Default`, 0 de `ED`/`ED2`/`ED - EN`/`Sign`, e
+  2.898 de 3.255 `OPL2` (89%) — só a abertura. E a letra sobrevive: o E01 sai de 155 eventos /
+  111 textos para 17 / 17, e os 17 são as 17 linhas da letra. O que se perde é a animação
+  sílaba a sílaba, não o texto.
 - **Achatar DEPOIS da tradução é executável hoje**: `/api/troca-legenda/achatar-estilos` aceita
   qualquer diretório e usa só `conferirDiretorio` — a lista de "pasta de saída" do
   `GuardaCaminhoEntrada` vale só para a tradução, então apontar para `traducao_ptbr` NÃO é
