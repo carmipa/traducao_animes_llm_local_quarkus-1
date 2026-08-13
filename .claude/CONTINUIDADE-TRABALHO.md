@@ -461,3 +461,35 @@ E RARO, e por isso a acao e SINALIZAR e nao construir mecanismo: o corretor orto
 repoe acento, nao traduz. Quem traduz e o LLM; palavra alema perdida numa letra e caso de
 RELATORIO, nao de automacao nova. Mecanismo para caso raro e cerimonia (regra 22).
 
+
+## DEFEITO ABERTO 13/08 — a TROCA DE FONTE nao ajusta o TAMANHO, e o texto estoura
+
+Paulo mostrou a tela: linhas sobrepostas e texto gigante no encerramento do Unicorn.
+
+MEDIDO em traducao_ptbr-karaoke-ptbr, E01 (PlayResX/Y = 1920x1080):
+
+  estilo      fonte   tamanho   margens L/R/V
+  Default     Arial      70        2/0/0      <- V=0 joga na borda
+  Sign        Arial     150
+  OPL2        Arial     130
+  ED          Arial      75
+  ED - EN     Arial      60
+
+Em 1920x1080 o normal e 40-60. A troca de fonte COPIOU o tamanho numerico da fonte
+original (Althea, Androgyne, Dash Horizon, Gandhi Sans) para Arial — e Arial tem metrica
+MUITO maior. O numero foi mantido, a proporcao nao.
+
+Efeito somado: ED (75) e ED - EN (60) desenham quase no mesmo lugar e as duas linhas se
+atropelam. E o "Andlmt" embolado da captura.
+
+O QUE INVESTIGAR ANTES DE MEXER:
+  1. A troca de fonte deve ajustar o tamanho proporcionalmente a metrica da fonte nova, ou
+     manter o tamanho e sofrer isso? Decisao de produto.
+  2. Margem V=0 no Default e intencional ou efeito colateral da troca?
+  3. Conferir de qual EPISODIO e a captura: no E01 medido o "ED - EN" esta em PORTUGUES
+     ("Faça uma pequena pausa"), mas a tela mostra ingles ("And Im calling calling") — pode
+     ser outro episodio com camada nao traduzida.
+
+NAO MEXER sem responder as tres. Trocar tamanho de fonte no acervo inteiro e irreversivel
+sem backup, e o efeito so aparece assistindo.
+
