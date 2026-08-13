@@ -1,4 +1,4 @@
-package org.traducao.projeto.core.texto;
+package org.traducao.projeto.core.texto.dicionarioOrtografia;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
@@ -100,4 +100,6 @@ class HunspellDicionarioAdapterTest {
             "devolver a palavra normalizada quebraria quem for casar com o texto original");
     }
 }
+
+
 
