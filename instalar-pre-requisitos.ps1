@@ -145,7 +145,40 @@ foreach ($idioma in $Idiomas) {
 }
 
 # ---------------------------------------------------------------------------------------------
-# 5. LM Studio — não se instala por script, mas a ausência precisa aparecer
+# 5. MeCab — japonês. OPCIONAL, e a ausência não reprova.
+#
+# Não existe dicionário hunspell para japonês: a língua não separa palavras por espaço, então
+# verificador de lista não funciona — é preciso análise morfológica. O MeCab também NÃO está no
+# Chocolatey; instalador oficial, e na tela "Dictionary Charset" tem de ser UTF-8 (o padrão é
+# SHIFT-JIS, e com ele a saída chega ao Java como lixo, porque todo o resto do projeto é UTF-8).
+#
+# Medido em 13/08/2026: 6 falas com kana/kanji em 94.701 do acervo, cinco delas notas do fansub
+# entre chaves. Por isso é opcional — a detecção por faixa Unicode cobre esse volume.
+# ---------------------------------------------------------------------------------------------
+$mecab = @(
+    'C:\Program Files (x86)\MeCab\bin\mecab.exe',
+    'C:\Program Files\MeCab\bin\mecab.exe',
+    'C:\MeCab\bin\mecab.exe'
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $mecab -and (TemComando 'mecab')) { $mecab = (Get-Command mecab).Source }
+
+if ($mecab) {
+    # CASO-CONTROLE: japonês real tem de sair segmentado com EOS. Binário que responde vazio, ou
+    # com o charset errado, NÃO é instalação boa — e não pode aparecer como OK.
+    $r = try { 'しまった' | & $mecab 2>&1 } catch { $null }
+    if (($r -join "`n") -match 'EOS') {
+        $utf8 = ($r -join "`n") -match '[\p{IsHiragana}\p{IsKatakana}\p{IsCJKUnifiedIdeographs}]'
+        if ($utf8) { Registrar 'mecab (ja)' 'OK' "$mecab — UTF-8 conferido" }
+        else { Registrar 'mecab (ja)' 'NAO-VERIF' 'responde, mas a saída não veio em UTF-8 (reinstale escolhendo UTF-8)' }
+    } else {
+        Registrar 'mecab (ja)' 'NAO-VERIF' 'binário presente mas não segmentou o caso-controle'
+    }
+} else {
+    Registrar 'mecab (ja)' 'OPCIONAL' 'ausente — só faz falta se aparecer japonês em volume'
+}
+
+# ---------------------------------------------------------------------------------------------
+# 6. LM Studio — não se instala por script, mas a ausência precisa aparecer
 # ---------------------------------------------------------------------------------------------
 try {
     $m = Invoke-RestMethod -Uri 'http://localhost:1234/v1/models' -TimeoutSec 5
@@ -159,7 +192,12 @@ try {
 # ---------------------------------------------------------------------------------------------
 Write-Host ""
 $resultado | ForEach-Object {
-    $cor = switch ($_.Estado) { 'OK' { 'Green' } 'FALTA' { 'Red' } default { 'Yellow' } }
+    $cor = switch ($_.Estado) {
+        'OK'       { 'Green' }
+        'FALTA'    { 'Red' }
+        'OPCIONAL' { 'DarkGray' }
+        default    { 'Yellow' }
+    }
     Write-Host ("  {0,-12} {1,-10} {2}" -f $_.Item, $_.Estado, $_.Detalhe) -ForegroundColor $cor
 }
 
