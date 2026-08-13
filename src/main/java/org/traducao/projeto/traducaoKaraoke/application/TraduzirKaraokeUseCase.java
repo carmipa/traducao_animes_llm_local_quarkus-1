@@ -379,14 +379,18 @@ public class TraduzirKaraokeUseCase {
                     //
                     // Medido no Unicorn em 13/08: 88 ocorrencias de acento faltando em 372 linhas ja
                     // traduzidas (ED - EN com 11, ED2 com 77) — 'tras', 'mascara', 'nao', 'voce'.
-                    traducoes.put(original, corrigirAcentos(traduzido));
+                    traducoes.put(original, traduzido);
                     // Registra pelo texto VISÍVEL para que a próxima camada com a mesma letra
                     // reaproveite em vez de gastar outra chamada e divergir.
                     TextoSemTags.decompor(traduzido).ifPresent(t ->
                         traducaoPorTextoVisivel.putIfAbsent(
                             TextoSemTags.decompor(original).map(TextoSemTags::textoLimpo).orElse(original),
                             t.textoLimpo()));
-                    eventosFinais.add(evento.comTexto(traduzido));
+                    // AQUI e nao no traducoes.put(): por este ponto passa TUDO que vai para o arquivo,
+                    // inclusive o que veio do CACHE. Plugado na origem, a rodada de 13/08 17:53 saiu sem
+                    // correcao nenhuma — 40x 'nao', 13x 'voce', 7x 'tras' — porque o karaoke reaproveitou
+                    // cache e a traducao nem passou pelo ponto que eu tinha escolhido.
+                    eventosFinais.add(evento.comTexto(corrigirAcentos(traduzido)));
                     if (veioDoCache) {
                         doCache++;
                         logStream.publicarLog(CANAL_LOG, "   [CACHE] reaproveitada: " + visivelResumido(traduzido));
@@ -769,5 +773,6 @@ public class TraduzirKaraokeUseCase {
         return visivel.length() > 90 ? visivel.substring(0, 87) + "..." : visivel;
     }
 }
+
 
 
