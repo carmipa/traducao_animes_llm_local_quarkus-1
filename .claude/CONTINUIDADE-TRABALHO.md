@@ -9,6 +9,29 @@ SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 9
 
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
+**LM Studio no ar (12/08 noite) com 8 modelos. Medido agora:** sem especificar modelo responde
+`aya-expanse-8b`; pedindo `towerinstruct-mistral-7b-v0.2` o servidor honra o override. É o arranjo
+que a segunda opinião precisa. `model: "current"` no yml significa que o titular é quem o LM Studio
+tiver carregado — não se troca no yml, troca-se na UI do LM Studio.
+
+**A PROVENIÊNCIA DO CACHE DECIDE QUAL OBRA RODAR — conferido, não suposto:**
+
+| obra | `modeloLlm` no cache | com a aya titular |
+|---|---|---|
+| Unicorn (33 caches) | `aya-expanse-8b` | **bate** → minutos |
+| Zeta (82 caches) | `mistralai/mistral-nemo-instruct-2407` | **não bate** → retraduz 50 eps |
+
+Logo: para exercitar a segunda opinião HOJE, o alvo é o **Unicorn** (2 pendências conhecidas, cache
+quente). Para atacar as **6 do Zeta** sem retraduzir tudo, é preciso descarregar a aya no LM Studio
+e deixar o mistral-nemo carregado — aí a proveniência bate e só as 6 vão ao LLM.
+
+1. Subir com `iniciar-kronos-dev-com-recuperacao.cmd` (liga o tower como segunda opinião por
+   variável de ambiente, SEM tocar no `application.yml`, que é falha fechada de propósito).
+2. Conferir no console: `[SEGUNDA-OPINIAO] Ligada: "towerinstruct-mistral-7b-v0.2"`. Se disser
+   DESLIGADA, a variável não chegou — e "nenhuma recuperação" NÃO pode ser lida como "o modelo não
+   serviu" (`d1784665` existe exatamente para isso).
+3. Aplicar a troca de fonte na entrada restaurada e traduzir.
+
 **O gold set está pronto e é a frente de maior valor:**
 `relatorios/gold-set-unicorn-mistral-x-aya.md` — 60 pares mistral × aya lado a lado, de 1.807
 divergências em 4.497 falas, ordenados por suspeita. Marcar qual está melhor em cada par.
