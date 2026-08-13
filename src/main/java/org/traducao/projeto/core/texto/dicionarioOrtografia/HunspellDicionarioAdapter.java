@@ -1,4 +1,4 @@
-package org.traducao.projeto.core.texto;
+package org.traducao.projeto.core.texto.dicionarioOrtografia;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
@@ -80,8 +80,23 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
      */
     @Override
     public Set<String> desconhecidas(Collection<String> palavras) {
+        return sugestoes(palavras).keySet();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma consulta devolve, de uma vez, o que é desconhecido E o que o
+     * hunspell propõe no lugar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as duas informações vêm da MESMA linha da saída do modo
+     * {@code -a} — separá-las em duas chamadas pagaria o arranque do processo duas vezes e
+     * abriria a chance de as respostas divergirem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio e {@link #disponivel()} passa a false.
+     */
+    @Override
+    public java.util.Map<String, Set<String>> sugestoes(Collection<String> palavras) {
         if (palavras == null || palavras.isEmpty()) {
-            return Set.of();
+            return java.util.Map.of();
         }
         Set<String> candidatas = new LinkedHashSet<>(palavras);
         try {
@@ -98,14 +113,14 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
                 }
             }
 
-            Set<String> desconhecidas = new LinkedHashSet<>();
+            java.util.Map<String, Set<String>> achados = new java.util.LinkedHashMap<>();
             try (BufferedReader leitura = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
                 String linha;
                 while ((linha = leitura.readLine()) != null) {
                     String palavra = palavraDaLinha(linha);
                     if (palavra != null && candidatas.contains(palavra)) {
-                        desconhecidas.add(palavra);
+                        achados.put(palavra, sugestoesDaLinha(linha));
                     }
                 }
             }
@@ -114,13 +129,13 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
                 p.destroyForcibly();
                 log.warn("hunspell não respondeu em {}s; nada foi verificado.", TIMEOUT_SEGUNDOS);
                 disponivel = false;
-                return Set.of();
+                return java.util.Map.of();
             }
             disponivel = true;
-            return desconhecidas;
+            return achados;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Set.of();
+            return java.util.Map.of();
         } catch (Exception e) {
             // Só o PRIMEIRO fracasso vira aviso: repetir por episódio encheria o console de ruído
             // sobre um pré-requisito que o operador já sabe que falta.
@@ -129,8 +144,32 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
                         + "Instale com: choco install hunspell.portable", e.getMessage());
             }
             disponivel = false;
+            return java.util.Map.of();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai as formas que o hunspell propõe no lugar da desconhecida.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o modo {@code -a} devolve
+     * {@code & palavra N offset: sug1, sug2} para desconhecida COM sugestão e {@code # palavra
+     * offset} para sem sugestão. A ordem do verificador é preservada — quem consome usa isso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: linha sem {@code ':'} devolve conjunto vazio.
+     */
+    private static Set<String> sugestoesDaLinha(String linha) {
+        int dois = linha.indexOf(':');
+        if (dois < 0 || dois + 1 >= linha.length()) {
             return Set.of();
         }
+        Set<String> s = new LinkedHashSet<>();
+        for (String sug : linha.substring(dois + 1).split(",")) {
+            String limpa = sug.trim();
+            if (!limpa.isEmpty()) {
+                s.add(limpa);
+            }
+        }
+        return s;
     }
 
     /**
@@ -173,4 +212,6 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
         return "hunspell (" + idioma + ")";
     }
 }
+
+
 

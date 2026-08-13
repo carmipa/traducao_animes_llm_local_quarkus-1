@@ -1,4 +1,4 @@
-package org.traducao.projeto.core.texto;
+package org.traducao.projeto.core.texto.dicionarioOrtografia;
 
 import java.util.Collection;
 import java.util.Set;
@@ -50,6 +50,23 @@ public interface DicionarioOrtograficoPort {
     Set<String> desconhecidas(Collection<String> palavras);
 
     /**
+     * PROPÓSITO DE NEGÓCIO: além de dizer o que não conhece, oferece as formas que o dicionário
+     * julga próximas — é o que permite CORRIGIR e não apenas acusar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só aparecem no mapa as palavras desconhecidas; a ordem das
+     * sugestões é a do verificador, da mais provável para a menos. Quem consome decide o que
+     * aceitar, e o critério seguro está em {@code CorretorAcentoPorDicionario}: só vale a
+     * sugestão que, sem acentos, é a MESMA palavra — o que impede {@code colonia} de virar
+     * {@code colonial}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa VAZIO — falha fechada, nenhuma correção proposta.
+     *
+     * @param palavras formas a verificar
+     * @return desconhecida -> sugestões, na ordem do verificador
+     */
+    java.util.Map<String, Set<String>> sugestoes(Collection<String> palavras);
+
+    /**
      * PROPÓSITO DE NEGÓCIO: se há um verificador utilizável agora.
      *
      * <p>INVARIANTES DO DOMÍNIO: é o que separa "o texto está limpo" de "não foi verificado" —
@@ -63,4 +80,6 @@ public interface DicionarioOrtograficoPort {
     /** Como o verificador se identifica no relatório — idioma e origem. Nunca nulo. */
     String descricao();
 }
+
+
 
