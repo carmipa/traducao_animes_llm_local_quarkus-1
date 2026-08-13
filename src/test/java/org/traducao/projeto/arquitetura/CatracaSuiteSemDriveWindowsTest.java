@@ -89,7 +89,10 @@ class CatracaSuiteSemDriveWindowsTest {
         "GoldSetLeituraHumanaIT.java",
         // Entrou em 12/08/2026: mede o que a quebra \N esconde do detector de concordancia,
         // rodando o detector de PRODUCAO duas vezes por fala. Le a pasta de cache real.
-        "MedicaoCegueiraQuebraLinhaIT.java"
+        "MedicaoCegueiraQuebraLinhaIT.java",
+        // Entrou em 12/08/2026: mede o que um ADVERBIO entre o verbo e o participio esconde do
+        // mesmo detector ("Ela esta muito cansado" nao e acusada). Le a pasta de cache real.
+        "MedicaoAdverbioEntreVerboEParticipioIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
