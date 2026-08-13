@@ -380,3 +380,26 @@ Tambem observado: a camada "ED - EN" (letra em ingles do encerramento) foi TRADU
 portugues. Se e intencional no menu de karaoke, ok; se nao, e a camada errada sendo
 traduzida — conferir antes de mexer.
 
+
+### CORRECAO 13/08 — o "ED - EN" traduzido e CORRETO (Paulo). Romaji NUNCA traduz; karaoke
+### INGLES traduz. A duvida que levantei era minha, nao defeito.
+
+MEDIDO por estilo no Unicorn (traducao_ptbr-karaoke-ptbr):
+
+  estilo    linhas  fora-do-PT  natureza                        acao
+  ED           165        396   ROMAJI (kieta, tsunagu, daita)  NAO tocar — outro idioma
+  ED - EN      165         11   portugues traduzido (nao)       CORRIGIR
+  ED2          207         77   portugues traduzido (tras,      CORRIGIR
+                                mascara, nao, voce)
+  OPL2        3255       3381   KFX silaba a silaba (feel,      NAO tocar — nem e frase
+                                lone, hear) — nao e traduzivel
+  Sign          23          0   ok
+
+DEFEITO REAL DIMENSIONADO: 88 ocorrencias de acento faltando em 372 linhas de karaoke JA
+traduzidas para portugues. O corretor esta plugado so no ProcessarArquivoUseCase; o
+karaoke tem use case proprio.
+
+DETALHE QUE IMPORTA NA IMPLEMENTACAO: ED e OPL2 ficam de fora por motivos DIFERENTES — um
+e outro idioma, o outro nem e texto completo (fragmento de silaba). Mesmo criterio para os
+dois nao serve.
+
