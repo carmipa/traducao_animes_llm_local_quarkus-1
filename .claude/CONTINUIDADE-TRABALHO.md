@@ -35,8 +35,27 @@ o E01 do Unicorn às 09:22.
 - 8099 LIVRE (app desligada). Contêiner `kronos` PARADO de propósito — ele volta sozinho com o
   Docker Desktop e serve imagem velha; `docker compose start kronos` para religar.
 - LM Studio no ar com **só a aya-expanse-8b** carregada.
-- `legendas_extraidas_ass` está ACHATADA e com fonte trocada (desde 12/08 11:33). O original
-  intacto está em `backups/troca_tipo_legenda_20260812_113344` (22 ass).
+- `legendas_extraidas_ass` foi RESTAURADA ao ORIGINAL em 12/08 à noite — 22/22 conferidos por
+  hash, 9.480 eventos, fontes originais (Althea, Androgyne, Dash Horizon, Gandhi Sans). O estado
+  anterior (achatado + Arial, 6.582 eventos) está em
+  `backups/achatado-fonte-20260812_estado-anterior`. Falta só APLICAR A TROCA DE FONTE (precisa
+  do KRONOS no ar) e traduzir.
+- **O backup de 11:33 É o material cru**: `mkvextract` da faixa 4 do E01 devolveu hash IDÊNTICO
+  (`481FCD71…`). Não há o que reextrair. E o Unicorn **não tem `\k` em faixa nenhuma** — é KFX
+  pós-template, cada sílaba já é um evento com `\t`/`\move`. Ausência de `\k` aqui NÃO é sinal de
+  achatamento; eu li errado uma vez.
+- **Faixa 5 `Sign&Songs` nunca foi extraída nem traduzida** (186 eventos só no E01). Todo o acervo
+  do Unicorn foi traduzido só da faixa 4 `Dialogue`. Pode ser decisão (música é da fatia de
+  karaokê) — não tratado como defeito, fica como pista.
+- O achatamento remove 2.058 textos no total, e a amostra mostra o que são: `Do`, `you`, `feel`,
+  `a`, `lone` — sílabas de KFX, não diálogo. Não perde fala; perde a animação.
+- **Achatar DEPOIS da tradução é executável hoje**: `/api/troca-legenda/achatar-estilos` aceita
+  qualquer diretório e usa só `conferirDiretorio` — a lista de "pasta de saída" do
+  `GuardaCaminhoEntrada` vale só para a tradução, então apontar para `traducao_ptbr` NÃO é
+  barrado. Grava in-place com backup.
+- ARMADILHA para o próximo run: o cache do Unicorn já tem a aya. Traduzir de novo virá quase todo
+  do cache (minutos, não 30). Ótimo se o objetivo é a legenda final limpa; inútil se o objetivo é
+  medir o modelo — aí precisa de obra virgem ou `permitirRetraducao`.
 - Baselines de telemetria congelados (a telemetria DEDUPLICA por episódio e o mais recente
   vence — sempre congelar antes de trocar de modelo):
   `backups/pre-aya-20260812/baseline-mistral-por-episodio.json` (307 eps) ·
