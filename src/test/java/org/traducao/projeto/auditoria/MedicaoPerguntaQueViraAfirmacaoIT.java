@@ -128,7 +128,12 @@ class MedicaoPerguntaQueViraAfirmacaoIT {
                 System.out.printf("   %s  EN: \"%s\"%n            PT: \"%s\"%n", c.ep(), c.en(), c.pt()));
         }
 
-        assertTrue(!achados.isEmpty(), "instrumento cego: nenhuma versão foi medida");
+        // assumeTrue e NAO assertTrue: nenhuma versao presente significa NAO VERIFICADO, e o
+        // controle positivo la em cima ja provou que o instrumento enxerga. Reprovar aqui
+        // confundiria "as pastas sairam do lugar" com "o detector cegou" — foi o que derrubou a
+        // suite em 13/08, quando as saidas do Unicorn foram movidas.
+        Assumptions.assumeTrue(!achados.isEmpty(),
+            "nenhuma versao traduzida do Unicorn em disco — NAO VERIFICADO");
     }
 
     /**
@@ -158,6 +163,13 @@ class MedicaoPerguntaQueViraAfirmacaoIT {
     }
 
     private static Map<String, Path> porEpisodio(Path pasta) {
+        // Pasta ausente devolve VAZIO em vez de lancar: o acervo e material de trabalho e muda de
+        // lugar. Harness de medicao que REPROVA por acervo ausente confunde 'nao verifiquei' com
+        // 'esta errado' — e foi o que aconteceu em 13/08, quando as pastas do Unicorn sairam do
+        // lugar e dois ITs derrubaram a suite inteira.
+        if (pasta == null || !Files.isDirectory(pasta)) {
+            return new LinkedHashMap<>();
+        }
         Map<String, Path> m = new LinkedHashMap<>();
         try (var s = Files.list(pasta)) {
             s.filter(p -> p.toString().endsWith(".ass"))
@@ -178,3 +190,4 @@ class MedicaoPerguntaQueViraAfirmacaoIT {
         return leitor.ler(arquivo).eventos().stream().filter(EventoLegenda::isDialogo).toList();
     }
 }
+

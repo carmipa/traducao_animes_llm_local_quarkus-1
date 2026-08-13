@@ -153,6 +153,13 @@ class MedicaoGeneroTrocadoIT {
     }
 
     private static Map<String, Path> porEpisodio(Path pasta) {
+        // Pasta ausente devolve VAZIO em vez de lancar: o acervo e material de trabalho e muda de
+        // lugar. Harness de medicao que REPROVA por acervo ausente confunde 'nao verifiquei' com
+        // 'esta errado' — e foi o que aconteceu em 13/08, quando as pastas do Unicorn sairam do
+        // lugar e dois ITs derrubaram a suite inteira.
+        if (pasta == null || !Files.isDirectory(pasta)) {
+            return new LinkedHashMap<>();
+        }
         Map<String, Path> m = new LinkedHashMap<>();
         try (var s = Files.list(pasta)) {
             s.filter(p -> p.toString().endsWith(".ass"))
@@ -173,3 +180,4 @@ class MedicaoGeneroTrocadoIT {
         return leitor.ler(arquivo).eventos().stream().filter(EventoLegenda::isDialogo).toList();
     }
 }
+
