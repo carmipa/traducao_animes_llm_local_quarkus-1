@@ -50,6 +50,21 @@ public class CorretorOrtograficoLegenda {
     private final AtomicInteger corrigidas = new AtomicInteger();
     private final AtomicInteger naoVerificadas = new AtomicInteger();
 
+    /**
+     * Palavra -> correção conhecida. Entrada com valor vazio significa "já perguntei e não há
+     * correção", que é informação tão útil quanto a correção em si.
+     *
+     * <h2>O prejuízo que obrigou a existir, medido</h2>
+     * A primeira versão consultava o dicionário A CADA FALA, e o custo do hunspell é o ARRANQUE do
+     * processo, não a palavra. No Unicorn de 13/08/2026 isso significou 5.643 processos e levou o
+     * episódio inteiro de <b>28m16s para 68m01s</b> — 2,4x mais lento pelo mesmo resultado.
+     *
+     * <p>Uma legenda repete vocabulário à beça: 5.643 falas do Unicorn têm só 4.688 formas
+     * distintas, e a maioria aparece em dezenas de falas. Com o cache, cada forma é perguntada UMA
+     * vez na execução inteira.
+     */
+    private final Map<String, String> memoria = new java.util.concurrent.ConcurrentHashMap<>();
+
     public CorretorOrtograficoLegenda() {
         this.portugues = new HunspellDicionarioAdapter("hunspell", "pt_BR");
         this.classificador = new ClassificadorQuatroIdiomas(
@@ -75,12 +90,38 @@ public class CorretorOrtograficoLegenda {
             if (candidatas.isEmpty()) {
                 return texto;
             }
-            Map<String, Set<String>> sugestoes = portugues.sugestoes(candidatas);
-            if (!portugues.disponivel()) {
-                naoVerificadas.incrementAndGet();
-                return texto;
+
+            // Só o que NUNCA foi perguntado chega ao processo externo. É o que separa 5.643
+            // consultas de algumas dezenas: legenda repete vocabulário, e a resposta do dicionário
+            // para uma palavra não muda no meio da execução.
+            Set<String> inéditas = new java.util.LinkedHashSet<>();
+            for (String c : candidatas) {
+                if (!memoria.containsKey(c)) {
+                    inéditas.add(c);
+                }
             }
-            Map<String, String> acentos = CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes);
+
+            if (!inéditas.isEmpty()) {
+                Map<String, Set<String>> sugestoes = portugues.sugestoes(inéditas);
+                if (!portugues.disponivel()) {
+                    naoVerificadas.incrementAndGet();
+                    return texto;
+                }
+                Map<String, String> novas = CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes);
+                // Guarda TAMBÉM o que não tem correção: "já perguntei e não há" evita repetir a
+                // pergunta, e é a maior parte das palavras.
+                for (String c : inéditas) {
+                    memoria.put(c, novas.getOrDefault(c, ""));
+                }
+            }
+
+            Map<String, String> acentos = new java.util.LinkedHashMap<>();
+            for (String c : candidatas) {
+                String correcao = memoria.get(c);
+                if (correcao != null && !correcao.isEmpty()) {
+                    acentos.put(c, correcao);
+                }
+            }
             if (acentos.isEmpty()) {
                 return texto;
             }
