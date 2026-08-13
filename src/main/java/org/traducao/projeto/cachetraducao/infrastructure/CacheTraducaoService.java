@@ -1,5 +1,6 @@
 package org.traducao.projeto.cachetraducao.infrastructure;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -47,8 +48,28 @@ public class CacheTraducaoService {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: marca {@link ProvenienciaCache} para que campos nulos NÃO sejam
+     * escritos no JSON — hoje isso vale só para {@code modeloHerdado}, presente apenas nos caches
+     * que herdaram traduções de outro modelo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é um MIXIN, e não uma anotação no record, porque
+     * {@code cachetraducao.domain} é puro por contrato de arquitetura e não conhece Jackson —
+     * {@code FronteiraCacheTraducaoArchTest} reprova a anotação lá. Aplicado só a esta classe: um
+     * {@code NON_NULL} global no mapper mudaria também a serialização de {@link EntradaCache},
+     * cujos campos de texto aceitam nulo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem o mixin, o JSON ganha {@code "modeloHerdado":null} em
+     * todo cache regravado e deixa de ser estruturalmente idêntico ao legado —
+     * {@code CompatibilidadeCacheJsonLegadoTest} reprova.
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    abstract static class ProvenienciaSemCamposNulos {
+    }
+
     public CacheTraducaoService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+        this.objectMapper = objectMapper.copy()
+            .addMixIn(ProvenienciaCache.class, ProvenienciaSemCamposNulos.class);
     }
 
     /**
@@ -56,9 +77,25 @@ public class CacheTraducaoService {
      * quantas entradas foram invalidadas por mudanca de proveniencia e se o
      * arquivo veio do formato antigo (lista pura) e sera migrado ao salvar.
      */
-    public record ResultadoCarga(Map<String, String> mapa, int invalidadas, boolean migrado) {
+    public record ResultadoCarga(Map<String, String> mapa, int invalidadas, boolean migrado,
+            String modeloHerdado) {
+
+        /** A forma de sempre: sem herança entre modelos. */
+        public ResultadoCarga(Map<String, String> mapa, int invalidadas, boolean migrado) {
+            this(mapa, invalidadas, migrado, null);
+        }
+
         public static ResultadoCarga vazio() {
-            return new ResultadoCarga(new HashMap<>(), 0, false);
+            return new ResultadoCarga(new HashMap<>(), 0, false, null);
+        }
+
+        /**
+         * Diz se estas entradas vieram de OUTRO modelo. Quem salvar precisa carimbar
+         * {@code herdandoDe(modeloHerdado)}, senão o cache passa a afirmar que o modelo atual
+         * traduziu o que ele apenas herdou.
+         */
+        public boolean herdouDeOutroModelo() {
+            return modeloHerdado != null && !modeloHerdado.isBlank();
         }
     }
 
@@ -77,6 +114,38 @@ public class CacheTraducaoService {
      * arquivo problematico para o lado antes de retornar.
      */
     public ResultadoCarga carregar(Path arquivoCache, ProvenienciaCache provenienciaAtual) {
+        return carregar(arquivoCache, provenienciaAtual, false);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma carga, podendo AUTORIZAR que o modelo atual reaproveite o
+     * trabalho de outro modelo quando lore, prompt, idiomas e schema são idênticos.
+     *
+     * <h2>Para que serve, com o número que a justifica</h2>
+     * Exercitar 6 falas pendentes do Zeta custava retraduzir os 50 episódios — 17.090 falas — só
+     * porque o titular mudou de mistral-nemo para aya. Com o reuso autorizado, o experimento manda
+     * ao LLM apenas o que falta, e comparar modelos numa obra grande deixa de custar uma noite.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>DESLIGADO por padrão: a sobrecarga de dois argumentos passa {@code false}. Falha
+     *       fechada — nenhum fluxo herda tradução de outro modelo sem alguém ter pedido.</li>
+     *   <li>Só o MODELO pode divergir. Lore ou prompt diferentes continuam invalidando, porque aí a
+     *       tradução correta é outra.</li>
+     *   <li>O resultado carrega {@code modeloHerdado} preenchido, e quem salvar DEVE carimbá-lo com
+     *       {@link ProvenienciaCache#herdandoDe}. Sem isso o cache passa a afirmar que o modelo
+     *       atual produziu o que ele apenas herdou — e a comparação entre modelos, que depende da
+     *       proveniência, morre em silêncio.</li>
+     *   <li>A geração anterior é arquivada do mesmo jeito: reuso não dispensa o histórico.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Idêntico à sobrecarga simples: nunca lança, preserva arquivo ilegível, devolve vazio.
+     *
+     * @param permitirReusoEntreModelos autoriza herdar as traduções de outro modelo
+     */
+    public ResultadoCarga carregar(Path arquivoCache, ProvenienciaCache provenienciaAtual,
+            boolean permitirReusoEntreModelos) {
         if (!Files.exists(arquivoCache)) {
             return ResultadoCarga.vazio();
         }
@@ -120,6 +189,23 @@ public class CacheTraducaoService {
             }
             List<EntradaCache> entradas = doc.entradas() != null ? doc.entradas() : List.of();
             if (!provenienciaAtual.mesmaProveniencia(doc.proveniencia())) {
+                // Antes de invalidar: o operador autorizou herdar de outro modelo, e a divergência
+                // é SÓ o modelo? Então o trabalho anterior é reaproveitado — e o cache resultante
+                // vai dizer de quem herdou, porque quem salva carimba com herdandoDe().
+                if (permitirReusoEntreModelos
+                    && provenienciaAtual.divergeSomenteNoModelo(doc.proveniencia())) {
+                    arquivarGeracao(arquivoCache, doc.proveniencia());
+                    Map<String, String> herdado = montarMapa(entradas);
+                    String modeloAnterior = doc.proveniencia().modeloLlm();
+                    log.warn("REUSO ENTRE MODELOS autorizado em {}: {} entrada(s) de \"{}\" "
+                            + "reaproveitada(s) por \"{}\". O cache resultante sera carimbado como "
+                            + "herdado — nao use este arquivo para comparar os dois modelos.",
+                        arquivoCache, herdado.size(), modeloAnterior, provenienciaAtual.modeloLlm());
+                    System.out.println("[CACHE] REUSO ENTRE MODELOS: " + herdado.size()
+                        + " fala(s) de \"" + modeloAnterior + "\" reaproveitada(s) por \""
+                        + provenienciaAtual.modeloLlm() + "\". So o que faltar vai ao LLM.");
+                    return new ResultadoCarga(herdado, 0, false, modeloAnterior);
+                }
                 arquivarGeracao(arquivoCache, doc.proveniencia());
                 log.warn("Proveniencia do cache mudou (lore/modelo) em {} — {} entrada(s) arquivada(s) e NAO reutilizada(s).",
                     arquivoCache, entradas.size());

@@ -300,8 +300,16 @@ public class ProcessarArquivoUseCase {
         // e era isso que deixava o episódio sem cache nenhum se a execução caísse no meio.
         CacheTraducaoService.ResultadoCarga carga = permitirRetraducao
             ? CacheTraducaoService.ResultadoCarga.vazio()
-            : cacheService.carregar(arquivoCache, proveniencia);
+            : cacheService.carregar(arquivoCache, proveniencia, propriedades.reusoEntreModelos());
         Map<String, String> cacheExistente = carga.mapa();
+
+        // Herdou de outro modelo? Então o carimbo tem de dizer isso. Gravar a proveniência SEM a
+        // herança faria o arquivo afirmar que o modelo atual produziu falas que ele apenas
+        // reaproveitou — e a proveniência é o que sustenta comparar modelos. O reuso é autorizado;
+        // a mentira sobre ele, não.
+        if (carga.herdouDeOutroModelo()) {
+            proveniencia = proveniencia.herdandoDe(carga.modeloHerdado());
+        }
 
         // Avisos de falas que ficaram sem tradução confiável (tags corrompidas,
         // resíduo detectado na revalidação final). Alimenta o campo

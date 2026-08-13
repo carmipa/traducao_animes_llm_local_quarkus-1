@@ -312,6 +312,118 @@ class CacheTraducaoServiceTest {
             "a cópia não pode conter a geração nova");
     }
 
+    // ------------------------------------------------------------------------------------------
+    // REUSO ENTRE MODELOS (12/08/2026, pedido do Paulo). Exercitar 6 falas pendentes do Zeta
+    // custava retraduzir 17.090 — só porque o titular mudou. O reuso torna o experimento viável;
+    // o preço é o cache DIZER que herdou, para não mentir sobre quem traduziu o quê.
+    // ------------------------------------------------------------------------------------------
+
+    private static ProvenienciaCache provComModelo(String hash, String modelo) {
+        return new ProvenienciaCache(ProvenienciaCache.SCHEMA_ATUAL, "danmachi", hash, modelo,
+            "en", "pt-BR");
+    }
+
+    /**
+     * O CASO-CONTROLE MAIS IMPORTANTE desta mudança: o acervo já gravado — 94.721 falas em
+     * 12/08/2026, todas sem o campo {@code modeloHerdado} — tem de continuar batendo. Se
+     * {@code mesmaProveniencia} passasse a comparar o campo novo, o campo invalidaria o acervo
+     * inteiro no instante em que nasceu.
+     */
+    @Test
+    void oCampoNOVOnaoInvalidaOacervoJAgravado() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi")));
+
+        assertFalse(Files.readString(f).contains("modeloHerdado"),
+            "o ARQUIVO do caso normal não pode ganhar o campo novo nem como nulo — é o que o mixin "
+                + "NON_NULL garante, e o que mantém os .cache.json byte a byte como sempre foram");
+        assertEquals(1, svc.carregar(f, prov("h1")).mapa().size(),
+            "cache gravado sem modeloHerdado tem de continuar reaproveitável pela forma de 6 campos");
+
+        // E a herança declarada não muda a identidade de reuso: o cache do experimento continua
+        // servindo à execução seguinte do MESMO modelo.
+        svc.salvar(f, prov("h1").herdandoDe("mistral-nemo"), List.of(ent("Hi", "Oi")));
+        assertEquals(1, svc.carregar(f, prov("h1")).mapa().size(),
+            "um cache herdado não pode virar inutilizável para quem o gerou");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: com o reuso autorizado, trocar o modelo reaproveita o trabalho e só o
+     * que faltar vai ao LLM — que é o que torna comparar modelos numa obra grande viável.
+     */
+    @Test
+    void reusoAutorizadoHerdaAsTraducoesDoOutroModelo() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, provComModelo("h1", "mistral-nemo"), List.of(ent("Hi", "Oi"), ent("Bye", "Tchau")));
+
+        CacheTraducaoService.ResultadoCarga r =
+            svc.carregar(f, provComModelo("h1", "aya-expanse-8b"), true);
+
+        assertEquals(2, r.mapa().size(),
+            "REUSO NÃO ACONTECEU: com lore e prompt idênticos e só o modelo diferente, as falas "
+                + "do modelo anterior deveriam ser reaproveitadas");
+        assertEquals("Oi", r.mapa().get("Hi"));
+        assertEquals(0, r.invalidadas(), "reaproveitado não é invalidado");
+        assertTrue(r.herdouDeOutroModelo(), "quem salvar precisa saber que herdou");
+        assertEquals("mistral-nemo", r.modeloHerdado());
+        assertTrue(existeArquivoContendo(".geracao_"),
+            "reuso NÃO dispensa o histórico: a geração anterior continua arquivada");
+    }
+
+    /**
+     * O preço do reuso, e o que impede a proveniência de mentir: o cache resultante declara de quem
+     * herdou. Sem isto, o arquivo afirmaria que a aya traduziu o que o mistral traduziu — e é a
+     * proveniência que sustenta a comparação entre modelos feita no Unicorn em 12/08.
+     */
+    @Test
+    void oCacheHerdadoDECLARAdeQuemHerdou() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, provComModelo("h1", "mistral-nemo"), List.of(ent("Hi", "Oi")));
+
+        ProvenienciaCache aya = provComModelo("h1", "aya-expanse-8b");
+        CacheTraducaoService.ResultadoCarga r = svc.carregar(f, aya, true);
+        svc.salvar(f, aya.herdandoDe(r.modeloHerdado()), List.of(ent("Hi", "Oi")));
+
+        String gravado = Files.readString(f);
+        assertTrue(gravado.contains("mistral-nemo"),
+            "O CACHE ESTÁ MENTINDO: herdou do mistral e não registrou. Uma auditoria futura leria "
+                + "estas falas como produzidas pela aya.\n" + gravado);
+        assertTrue(gravado.contains("aya-expanse-8b"), "o modelo atual continua sendo o carimbo principal");
+    }
+
+    /** FALHA FECHADA: sem autorização explícita, o comportamento é o de sempre — invalida. */
+    @Test
+    void semAutorizacaoOreusoEntreModelosNAOacontece() {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, provComModelo("h1", "mistral-nemo"), List.of(ent("Hi", "Oi")));
+
+        CacheTraducaoService.ResultadoCarga r = svc.carregar(f, provComModelo("h1", "aya-expanse-8b"));
+
+        assertTrue(r.mapa().isEmpty(),
+            "reuso entre modelos não pode acontecer por omissão — o default é falha fechada");
+        assertEquals(1, r.invalidadas());
+        assertFalse(r.herdouDeOutroModelo());
+    }
+
+    /**
+     * O LIMITE do reuso: LORE diferente continua invalidando mesmo com a autorização ligada. A
+     * tradução muda com o prompt, e reaproveitá-la seria servir texto de outra obra — o dano que a
+     * proveniência existe para impedir.
+     */
+    @Test
+    void mesmoAutorizadoLOREdiferenteContinuaInvalidando() {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, provComModelo("h1", "mistral-nemo"), List.of(ent("Hi", "Oi")));
+
+        CacheTraducaoService.ResultadoCarga r =
+            svc.carregar(f, provComModelo("h2", "aya-expanse-8b"), true);
+
+        assertTrue(r.mapa().isEmpty(),
+            "a autorização vale só para o MODELO; lore nova exige retradução, senão a legenda sai "
+                + "com a terminologia da obra errada");
+        assertEquals(1, r.invalidadas());
+    }
+
     /**
      * PROPÓSITO DE NEGÓCIO: trocar o modelo e VOLTAR ATRÁS é o arrependimento mais comum de quem
      * mexe no LM Studio. Enquanto a retradução não concluiu, voltar à proveniência original tem de

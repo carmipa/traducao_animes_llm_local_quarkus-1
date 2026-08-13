@@ -53,7 +53,30 @@ public class TradutorProperties {
      */
     private boolean textoPuroAoLlm = false;
 
+    /**
+     * Autoriza um modelo a REAPROVEITAR o cache produzido por OUTRO modelo, quando lore, prompt,
+     * idiomas e schema são idênticos e só o modelo difere.
+     *
+     * <p>DESLIGADA por padrão, e o motivo é a proveniência: é ela que sustenta comparar modelos —
+     * foi ela que permitiu medir mistral × aya no Unicorn em 12/08/2026. Um reuso silencioso faria
+     * o cache afirmar que a aya traduziu o que o mistral traduziu, de forma invisível e
+     * irreversível, porque o arquivo é regravado.
+     *
+     * <p>Ligada, o cache resultante é carimbado com {@code modeloHerdado} e passa a dizer de quem
+     * herdou — o reuso acontece, e o arquivo continua falando a verdade sobre o que é.
+     *
+     * <p>O caso que a justifica: exercitar as 6 falas pendentes do Zeta custava retraduzir os 50
+     * episódios, 17.090 falas, só porque o titular mudou de mistral-nemo para aya.
+     */
+    private boolean reusoEntreModelos = false;
+
     public TradutorProperties() {
+    }
+
+    public boolean reusoEntreModelos() { return reusoEntreModelos; }
+    public boolean isReusoEntreModelos() { return reusoEntreModelos; }
+    public void setReusoEntreModelos(boolean reusoEntreModelos) {
+        this.reusoEntreModelos = reusoEntreModelos;
     }
 
     public TradutorProperties(String diretorioEntrada, String diretorioSaida, String diretorioCache, int tamanhoLote, List<String> estilosIgnorados, String idiomaOriginal, String idiomaTraduzido) {
