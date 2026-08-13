@@ -358,3 +358,25 @@ os 4 padrões de objeto/imperativo/regência, os 4 de abertura, os 2 de sujeito,
 - Reimplementar em script critério que a produção já tem. O "é musical?" veio de
   `PadraoEstiloMusical` + lista nominal do yml, via teste JUnit; o PowerShell só colheu fato bruto.
 - `Get-Content` em caminho com `[Sokudo]`: colchete é classe de caracteres. Usar `-LiteralPath`.
+
+## ACHADO 13/08 17:33 — o corretor NAO alcanca o karaoke, com caso concreto
+
+Rodada do Paulo: traducao_ptbr (17:20) + traducao_ptbr-karaoke-ptbr (17:33).
+
+CONFIRMADO no dialogo: 440 -> 92 ocorrencias de erro ortografico (79% menos), com o
+mesmo instrumento e o mesmo recorte (so estilo Default) da medicao de ontem.
+
+CONFIRMADO no romaji: o estilo ED do Unicorn e romaji e saiu INTACTO —
+"Furi dake no kotae to eeru tai de ensou o tsunagu". Nenhum acento foi imposto.
+ATENCAO: procurei por "mae" e nao achei, mas isso e AUSENCIA DO CASO, nao prova de
+protecao — o Unicorn nao tem essa palavra. O dano dos 100 "mae" foi em outra obra.
+
+DEFEITO ACHADO, estilo "ED - EN" no E01:
+    "Este sentimento e falso?"        <- deveria ser "é"
+O corretor ortografico esta plugado SO no ProcessarArquivoUseCase; o karaoke tem use case
+proprio e nao passa por ele. E a confirmacao pratica da ideia do Paulo, agora com endereco.
+
+Tambem observado: a camada "ED - EN" (letra em ingles do encerramento) foi TRADUZIDA para
+portugues. Se e intencional no menu de karaoke, ok; se nao, e a camada errada sendo
+traduzida — conferir antes de mexer.
+
