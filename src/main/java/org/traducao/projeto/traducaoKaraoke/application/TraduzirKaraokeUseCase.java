@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -305,6 +306,24 @@ public class TraduzirKaraokeUseCase {
         Map<String, String> traducaoPorTextoVisivel = new HashMap<>();
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
 
+        // Quais instantes JÁ têm uma camada original preservada (japonês/romaji). Precisa ser
+        // calculado ANTES de emitir, porque a decisão de cada linha depende do arquivo inteiro.
+        //
+        // O PREJUÍZO que obriga isto, medido nos 22 do Unicorn em 13/08: nos episódios 13-22 o
+        // encerramento tem UMA camada só (ED2, 23 linhas). Traduzir substituía o evento e a letra
+        // original DESAPARECIA da tela — 22 de 23 linhas, em 10 episódios. Nos episódios 01-12
+        // havia duas camadas (ED romaji + ED - EN inglês) e sobrava a outra por acaso, o que
+        // mascarou o defeito: parecia preservação, era substituição com sorte.
+        Set<String> instantesComOriginalPreservada = new java.util.HashSet<>();
+        for (EventoLegenda ev : documento.eventos()) {
+            if (!ev.isDialogo() || !ev.temTexto()) {
+                continue;
+            }
+            if (classificador.classificar(ev.estilo(), ev.texto()) == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
+                instantesComOriginalPreservada.add(instanteDe(ev));
+            }
+        }
+
         for (EventoLegenda evento : documento.eventos()) {
             ClasseLinhaKaraoke classe = evento.isDialogo() && evento.temTexto()
                 ? classificador.classificar(evento.estilo(), evento.texto())
@@ -390,7 +409,9 @@ public class TraduzirKaraokeUseCase {
                     // inclusive o que veio do CACHE. Plugado na origem, a rodada de 13/08 17:53 saiu sem
                     // correcao nenhuma — 40x 'nao', 13x 'voce', 7x 'tras' — porque o karaoke reaproveitou
                     // cache e a traducao nem passou pelo ponto que eu tinha escolhido.
-                    eventosFinais.add(evento.comTexto(corrigirAcentos(traduzido)));
+                    eventosFinais.add(evento.comTexto(
+                        comOriginalPreservada(evento, corrigirAcentos(traduzido),
+                            instantesComOriginalPreservada)));
                     if (veioDoCache) {
                         doCache++;
                         logStream.publicarLog(CANAL_LOG, "   [CACHE] reaproveitada: " + visivelResumido(traduzido));
@@ -620,6 +641,70 @@ public class TraduzirKaraokeUseCase {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer problema devolve o texto recebido.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: garante que a letra ORIGINAL continue na tela quando não existe uma
+     * camada irmã para preservá-la — empilhando original em cima e tradução embaixo, com a quebra
+     * {@code \N}, que é a promessa deste modo ("romaji em cima, PT-BR embaixo").
+     *
+     * <h2>Por que \N e não um segundo evento</h2>
+     * Dois eventos no MESMO instante desenham um por cima do outro, a menos que se mexa em
+     * {@code MarginV} ou {@code \pos} — e mexer em posição de karaokê é como o timing se perde.
+     * A quebra resolve dentro da própria linha, sem tocar em posicionamento nem em timing.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Se JÁ existe camada original preservada neste instante, NÃO empilha — senão a letra
+     *       apareceria duas vezes. É o caso dos episódios 01-12 do Unicorn, que têm ED romaji
+     *       ao lado do ED - EN.</li>
+     *   <li>A moldura de tags do evento é preservada: o texto original entra como está.</li>
+     *   <li>Tradução igual ao original não empilha — mostrar a mesma frase duas vezes é ruído.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Qualquer entrada nula devolve o traduzido sozinho — o comportamento anterior.
+     */
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai {@code inicio,fim} do prefixo — a chave que identifica DUAS
+     * camadas simultâneas como sendo do mesmo momento da música.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: NÃO usar o prefixo inteiro. Ele carrega o ESTILO, e camadas
+     * irmãs têm estilos diferentes por definição ({@code OP - Romaji} e {@code OP - English}) —
+     * comparar o prefixo faria toda camada parecer solitária. Um teste existente pegou
+     * exatamente isso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou curto devolve string vazia, e o evento
+     * é tratado como sem irmã — o lado que PRESERVA a original.
+     */
+    private static String instanteDe(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null) {
+            return "";
+        }
+        String[] campos = evento.prefixo().split(",");
+        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
+    }
+
+    private String comOriginalPreservada(EventoLegenda evento, String traduzido,
+            Set<String> instantesComOriginalPreservada) {
+        if (evento == null || traduzido == null || traduzido.isBlank()) {
+            return traduzido;
+        }
+        if (instantesComOriginalPreservada.contains(instanteDe(evento))) {
+            return traduzido;
+        }
+        String original = evento.texto();
+        if (original == null || original.isBlank()) {
+            return traduzido;
+        }
+        String visivelOriginal = TextoSemTags.decompor(original)
+            .map(TextoSemTags::textoLimpo).orElse(original).trim();
+        String visivelTraduzido = TextoSemTags.decompor(traduzido)
+            .map(TextoSemTags::textoLimpo).orElse(traduzido).trim();
+        if (visivelOriginal.isEmpty() || visivelOriginal.equalsIgnoreCase(visivelTraduzido)) {
+            return traduzido;
+        }
+        return original + "\\N" + traduzido;
+    }
+
     private String corrigirAcentos(String traduzido) {
         return corretorOrtografico == null ? traduzido : corretorOrtografico.corrigir(traduzido);
     }
