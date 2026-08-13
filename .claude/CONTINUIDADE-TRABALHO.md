@@ -493,3 +493,34 @@ O QUE INVESTIGAR ANTES DE MEXER:
 NAO MEXER sem responder as tres. Trocar tamanho de fonte no acervo inteiro e irreversivel
 sem backup, e o efeito so aparece assistindo.
 
+
+### CORRECAO ao que registrei antes: o OPL2 NAO e intraduzivel — 17 das 155 sao frases
+
+Eu havia escrito "OPL2 -> nao tocar, nem e frase". ERRADO, e o Paulo mostrou na tela: a
+abertura do E01 aparece em INGLES por cima dos creditos.
+
+MEDIDO no E01 (entrada):
+  OPL2: 155 linhas
+     17 com espaco  = FRASES COMPLETAS ("And Im calling calling out your name again")
+    138 palavra unica = fragmentos de KFX ("Do", "you", "feel", "lone")
+
+As 17 sao a letra e SAO traduziveis — sao exatamente as que sobram quando a musica e
+achatada. Os 138 e que devem ser pulados. Hoje as 155 ficam em ingles.
+
+DIAGNOSTICO DA TELA DO PAULO — dois defeitos SOMADOS:
+  1. fonte: Arial 130 no OPL2 onde cabia ~50 (a troca copiou o tamanho da fonte original)
+  2. as 17 frases NAO traduzidas desenhando junto com os 138 fragmentos, todos gigantes
+     -> "And Im calling calling" sobreposto a "And out your name again"
+
+O E01 do Unicorn tem karaoke TOTALMENTE em ingles na abertura (Paulo), entao nao ha camada
+romaji ali para preservar — tudo o que e frase deveria virar portugues.
+
+O resto do E01 esta CERTO, conferido entrada x saida:
+  ED        romaji -> romaji            preservado, correto
+  ED - EN   ingles -> portugues         traduzido, correto
+  Sign      DEPARTURE 0096 -> Partida 0096
+
+CRITERIO SUGERIDO (nao implementado): dentro de estilo musical, linha COM espaco e frase e
+vai ao LLM; linha de palavra unica e fragmento de KFX e fica. Simples, mensuravel, e
+separa 17 de 138 no E01 sem depender de nome de estilo.
+
