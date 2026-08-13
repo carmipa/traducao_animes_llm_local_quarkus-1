@@ -597,3 +597,39 @@ DETALHE QUE DATA A SAIDA: "Por tras da sua mascara" esta sem acento em "tras" �
 que virou caso de teste. Confirma que esta saida e ANTERIOR a correcao movida para o ponto
 certo (eventosFinais.add), e que a app no ar ainda e a de 17:52.
 
+
+## VARREDURA DOS 22 ARQUIVOS (13/08) — o padrao, e a correcao de um diagnostico meu
+
+    ep 01-12   ED        15 linhas    3 traduzidas   12 preservadas
+               ED - EN   15          15              0
+               OPL2      69           0             69
+               Sign       1           1              0
+    ep 13-22   ED2       23          22              1
+               OPL2      69           0             69
+               Sign       1           1              0
+
+CORRIJO O QUE REGISTREI EM 0460bdbe: as 3 linhas do ED NAO sao romaji vazando. Elas estao
+em INGLES na entrada:
+
+    0:22:54.94  "Take off my sought idol"        -> "Tire o meu idolo conquistado."
+    0:22:57.57  "Then I can breathe in so deep"  -> "Entao eu posso respirar tao fundo."
+    0:23:09.95  "Take off my dress and crown..." -> "Tire minha roupa e coroa..."
+
+O ED do Unicorn e MISTO: 12 linhas em romaji + 3 em ingles. O tradutor acertou linha a
+linha DENTRO do mesmo estilo — preservou as 12 japonesas e traduziu as 3 inglesas. Isso e
+comportamento CORRETO, e melhor do que eu supus.
+
+A duplicata da tela aos 23:09 tem outra causa: ED e ED - EN cantam O MESMO TRECHO em
+ingles, as duas foram traduzidas certo, e as duas aparecem juntas dizendo a mesma frase.
+Nao e sobrescrita — e empilhamento de duas camadas legitimamente iguais.
+
+DEFEITOS REAIS QUE SOBRAM, todos confirmados nos 22:
+  1. OPL2: 0 de 69 traduzidas, em TODOS os episodios. Nunca traduziu.
+  2. ED2 (eps 13-22): 22 de 23 traduzidas e a original NAO foi preservada — camada unica
+     substituida em vez de duplicada.
+  3. Duplicata visual quando ED e ED - EN dizem a mesma coisa (eps 01-12).
+  4. Fonte Arial com o tamanho numerico da fonte original.
+
+ESTILOS FALTANDO, conferir se e da obra ou da extracao: E09 sem ED/ED - EN; E18 e E22 sem
+OPL2.
+
