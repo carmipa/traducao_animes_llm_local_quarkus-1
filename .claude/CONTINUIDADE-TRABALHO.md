@@ -524,3 +524,20 @@ CRITERIO SUGERIDO (nao implementado): dentro de estilo musical, linha COM espaco
 vai ao LLM; linha de palavra unica e fragmento de KFX e fica. Simples, mensuravel, e
 separa 17 de 138 no E01 sem depender de nome de estilo.
 
+
+### CONFIRMADO NA TELA 13/08 — o ENCERRAMENTO do E01 ficou perfeito
+
+Paulo assistiu o MKV remuxado. O ED do E01 mostra as duas camadas nos lugares certos:
+
+    "Faça uma pequena pausa."                       <- ED - EN, traduzido
+    "Furi dake no kotae to eeru tai de
+     ensou o tsunagu"                               <- ED, romaji PRESERVADO
+
+Sem sobreposicao, sem estouro de fonte, romaji intacto. E a prova em video de que o
+desenho funciona — traduz a camada inglesa e nao toca na japonesa —, e de que o dano dos
+100 "mae" nao se repetiu.
+
+DELIMITA O DEFEITO: o problema NAO e o karaoke em geral, e so a ABERTURA (OPL2), onde as
+17 frases ficaram em ingles e desenham junto com os 138 fragmentos em Arial 130. O ED, o
+ED - EN e o Sign estao corretos.
+
