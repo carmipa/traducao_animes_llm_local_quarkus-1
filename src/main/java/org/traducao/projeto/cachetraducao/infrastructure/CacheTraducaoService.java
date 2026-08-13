@@ -270,7 +270,19 @@ public class CacheTraducaoService {
             log.info("Geracao anterior do cache copiada para {} (o cache ativo permanece ate a nova geracao ser gravada).",
                 destino);
         } catch (IOException e) {
-            log.warn("Falha ao arquivar a geracao anterior do cache {}: {}", arquivoCache, e.getMessage());
+            // ERROR, e com a CONSEQUÊNCIA escrita: o Javadoc acima garante que nada se perde "por
+            // causa do arquivamento", e isso é verdade AQUI — mas só até o `salvar` seguinte, que
+            // substitui o caminho ativo. Sem a cópia, aquela substituição apaga a geração anterior
+            // para sempre. Um WARN dizendo apenas "falha ao arquivar" não deixa isso visível, e o
+            // gatilho é real nesta máquina: a suíte de 12/08 registrou "not enough space on the
+            // disk" em outro fluxo.
+            log.error("NAO foi possivel arquivar a geracao anterior de {}: {}. O cache ativo segue "
+                    + "intacto AGORA, mas a proxima gravacao vai substitui-lo e esta geracao sera "
+                    + "PERDIDA — copie o arquivo a mao antes de deixar a retraducao terminar.",
+                arquivoCache, e.getMessage());
+            System.out.println("[CACHE] ATENCAO: falha ao arquivar a geracao anterior de "
+                + arquivoCache.getFileName() + " (" + e.getMessage() + "). Se a retraducao "
+                + "terminar, a geracao anterior sera perdida.");
         }
     }
 }
