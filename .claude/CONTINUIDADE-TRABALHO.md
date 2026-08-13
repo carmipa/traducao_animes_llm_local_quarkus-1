@@ -633,3 +633,38 @@ DEFEITOS REAIS QUE SOBRAM, todos confirmados nos 22:
 ESTILOS FALTANDO, conferir se e da obra ou da extracao: E09 sem ED/ED - EN; E18 e E22 sem
 OPL2.
 
+
+## CORRIGIDO 13/08 — OPL2: a marca de efeito nao basta, o discriminador e o TEXTO
+
+ClassificadorLetraKaraokeService devolvia EFEITO_KFX para qualquer linha com tag de efeito.
+No Unicorn TODAS as 155 linhas do OPL2 tem tag — inclusive as 17 que sao a letra inteira.
+Resultado medido: 0 de 69 traduzidas em TODOS os 22 episodios.
+
+Agora: linha com tag de efeito so e KFX se NAO for frase completa. Fragmento e UMA palavra
+visivel ("Do", "you", "feel"); letra e frase (2+). Medido no E01: 17 frases, 138 fragmentos.
+Palavra unica segue preservada, entao o vies de preservar continua de pe.
+
+Suite 1723 / 0 falhas.
+
+## IDEIA DO PAULO (13/08) — TAG DE GUARDA no campo Effect, para auditar sem adivinhar
+
+"e se aplicassemos uma tag de guarda para esses casos, introduzindo ela propositalmente,
+sem bugar o arquivo"
+
+O formato ASS ja tem o lugar: o campo Effect do Dialogue. O renderizador IGNORA qualquer
+valor que nao seja Banner / Scroll up / Scroll down / Karaoke. Escrever ali nao muda um
+pixel.
+
+    Dialogue: 0,0:22:54,OPL2,,0,0,0,KRONOS:LETRA,{\t(..)}And Im calling...
+    Dialogue: 0,0:22:55,OPL2,,0,0,0,KRONOS:KFX,{\t(..)}Do
+
+GANHO: a decisao do classificador fica GRAVADA no arquivo. Auditar vira contagem em vez de
+deducao — passei 13/08 inteiro inferindo por regex se uma linha era letra ou fragmento.
+
+DOIS CUIDADOS (boa-fe):
+  1. "Karaoke" e palavra RESERVADA nesse campo — prefixo proprio (KRONOS:) evita mudar o
+     comportamento de renderizacao da linha.
+  2. Reprocessar nao pode ACUMULAR: sobrescrever a marca, nunca concatenar.
+
+NAO IMPLEMENTADO: mexer na escrita do .ass e o caminho por onde se perde legenda.
+

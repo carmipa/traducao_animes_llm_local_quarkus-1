@@ -86,6 +86,27 @@ public class ClassificadorLetraKaraokeService {
         this.detector = detector;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: separa a LETRA da SÍLABA dentro de um estilo musical com efeito.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: duas ou mais palavras visíveis é frase; uma só é fragmento de
+     * KFX. O critério olha o texto DEPOIS de removidas as tags — {@code {\t(...)}Do} tem uma
+     * palavra, ainda que a linha seja longa em caracteres.
+     *
+     * <p>Medido no Unicorn E01, estilo OPL2: 17 frases e 138 fragmentos em 155 linhas. As 17 são
+     * exatamente as que sobram quando a música é achatada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem palavra visível devolve {@code false}
+     * — na dúvida, fragmento, que é o lado seguro (preserva).
+     */
+    private boolean ehFraseCompleta(String texto) {
+        String visivel = extrairTextoVisivel(texto);
+        if (visivel == null || visivel.isBlank()) {
+            return false;
+        }
+        return visivel.trim().split("\\s+").length >= 2;
+    }
+
     public ClasseLinhaKaraoke classificar(String estilo, String texto) {
         if (texto == null || texto.isBlank()) {
             return ClasseLinhaKaraoke.FORA_DE_MUSICA;
@@ -98,8 +119,21 @@ public class ClassificadorLetraKaraokeService {
         }
         // Sílaba/letra de KFX (cru ou pós-template): traduzir fragmento é
         // destruição garantida — o módulo Karaokê Simples é quem lida com isso.
+        //
+        // MAS a marca de efeito não basta sozinha, e isso custou 22 episódios: no Unicorn TODAS
+        // as 155 linhas do OPL2 carregam tag de efeito, inclusive as 17 que são a LETRA inteira
+        // ("And Im calling calling out your name again"). Com a guarda decidindo só pela tag, o
+        // estilo saía 0 de 69 traduzidas em TODOS os episódios — a abertura ficava em inglês na
+        // tela, e ainda por cima empilhada com os fragmentos dela mesma.
+        //
+        // O discriminador é o TEXTO VISÍVEL, não a tag: fragmento de KFX é UMA palavra ("Do",
+        // "you", "feel", "lone"); letra é frase. Medido no E01: 17 frases contra 138 fragmentos.
+        // Palavra única continua preservada, então o viés de preservar segue de pé — só deixa de
+        // valer para o que comprovadamente não é sílaba.
         if (detector.temTagKaraoke(texto) || detector.eEfeitoKaraoke(texto)) {
-            return ClasseLinhaKaraoke.EFEITO_KFX;
+            if (!ehFraseCompleta(texto)) {
+                return ClasseLinhaKaraoke.EFEITO_KFX;
+            }
         }
 
         String visivel = extrairTextoVisivel(texto);
