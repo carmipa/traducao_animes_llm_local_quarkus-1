@@ -63,6 +63,14 @@ public class NormalizadorAcentosComuns {
         Map.entry("apos", "após"),
         Map.entry("atras", "atrás"),
         Map.entry("infancia", "infância"),
+        // MEDIDA em 13/08/2026 no Zeta: sobrou da regra de terminação, e é segura — "inutil" não
+        // é palavra válida nem nome de ninguém no acervo.
+        Map.entry("inutil", "inútil"),
+        // "irma" -> "irmã" NÃO entra, e a exclusão é medida: são as 10 ocorrências restantes do
+        // Zeta, mas "Irma" é NOME PRÓPRIO no 86 ("o Segundo Tenente Irma"). O dicionário é global e
+        // não sabe de qual obra é a fala — corrigir aqui renomearia a personagem. É o mesmo efeito
+        // ímã entre nomes parecidos que já acusou "Marida" de ser particípio feminino. Fica para o
+        // enforçador de termos de lore, que conhece a obra.
         Map.entry("ninguem", "ninguém"),
         Map.entry("alguem", "alguém"),
         Map.entry("porem", "porém"),
@@ -274,6 +282,29 @@ public class NormalizadorAcentosComuns {
     }
 
     /**
+     * Terminação {@code -cao}/{@code -coes} — a MESMA regra do dicionário aplicada como CLASSE em
+     * vez de lista: nenhuma palavra do português termina assim sem o til.
+     *
+     * <h2>Por que regra e não mais entradas no dicionário</h2>
+     * Em 07/08 e 12/08 o dicionário foi ampliado com as formas MEDIDAS no acervo de então, o que
+     * é palavra a palavra. Medido em 13/08 no Zeta recém-traduzido pela aya: das 119 falas com
+     * acento faltando, o dicionário resolvia <b>ZERO</b> — porque o vocabulário de uma obra nova
+     * não é o da anterior. As que escapavam eram quase todas a mesma terminação
+     * ({@code organizacao}, {@code ambicoes}, {@code cooperacao}, {@code observacao}...).
+     *
+     * <h2>O risco foi medido antes, não suposto</h2>
+     * 151 formas distintas terminadas em {@code -cao}/{@code -coes} no acervo inteiro, 317
+     * ocorrências: <b>todas</b> legitimamente {@code -ção}/{@code -ções}. Nenhum estrangeirismo do
+     * tipo {@code cacao}/{@code macao}, que seriam os falsos positivos plausíveis.
+     *
+     * <p>Exige 3+ letras antes da terminação, mantendo fora fragmentos curtos, e a mesma fronteira
+     * do ASS do resto da classe — {@code \N} colado à palavra não pode esconder a correção.
+     */
+    private static final Pattern TERMINACAO_CAO = Pattern.compile(
+        INICIO_DE_TERMO + "(\\p{L}{3,}?)(coes|cao)(?![\\p{L}\\p{N}])",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    /**
      * PROPÓSITO DE NEGÓCIO: devolve o texto com os acentos repostos nas formas do dicionário.
      * <p>INVARIANTES DO DOMÍNIO: só troca formas do dicionário curado, por fronteira de palavra,
      * preservando a caixa; nada mais é tocado.
@@ -289,6 +320,32 @@ public class NormalizadorAcentosComuns {
             String achado = m.group(1);
             String base = CORRECOES.get(achado.toLowerCase(Locale.ROOT));
             m.appendReplacement(sb, Matcher.quoteReplacement(aplicarCaixa(achado, base)));
+        }
+        m.appendTail(sb);
+        return aplicarTerminacaoCao(sb.toString());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: repõe o til da terminação {@code -ção}/{@code -ções} em qualquer
+     * palavra, sem depender de ela estar no dicionário.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: preserva a caixa do que veio antes da terminação, de modo que
+     * {@code ORGANIZACAO} vire {@code ORGANIZAÇÃO} e {@code Organizacao} vire {@code Organização};
+     * roda DEPOIS do dicionário, então uma forma listada lá continua vencendo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem a terminação volta byte a byte igual.
+     */
+    private static String aplicarTerminacaoCao(String texto) {
+        Matcher m = TERMINACAO_CAO.matcher(texto);
+        StringBuilder sb = new StringBuilder(texto.length());
+        while (m.find()) {
+            String inicio = m.group(1);
+            boolean plural = m.group(2).equalsIgnoreCase("coes");
+            String terminacao = plural ? "ções" : "ção";
+            if (m.group(2).chars().allMatch(Character::isUpperCase)) {
+                terminacao = terminacao.toUpperCase(Locale.ROOT);
+            }
+            m.appendReplacement(sb, Matcher.quoteReplacement(inicio + terminacao));
         }
         m.appendTail(sb);
         return sb.toString();

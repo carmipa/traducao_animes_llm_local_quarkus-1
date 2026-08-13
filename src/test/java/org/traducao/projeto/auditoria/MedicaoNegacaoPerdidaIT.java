@@ -194,7 +194,8 @@ class MedicaoNegacaoPerdidaIT {
         }
     }
 
-    private static boolean perdeuNegacao(String en, String pt) {
+    // package-private: MedicaoZetaMistralXAyaIT aplica o MESMO critério a outra obra.
+    static boolean perdeuNegacao(String en, String pt) {
         String a = visivel(en);
         String b = visivel(pt);
         if (a.isEmpty() || b.isEmpty() || a.equals(b)) {

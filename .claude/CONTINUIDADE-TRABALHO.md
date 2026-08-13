@@ -7,7 +7,45 @@ CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo 
 BRANCH / COMMIT BASE: main — `b7abf431`, árvore limpa, ahead de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
-## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA — retraduzir o Zeta com a aya, para o PAR de comparação
+
+Decisão do Paulo em 13/08: vale retraduzir o Zeta inteiro com a aya. Hoje só o Unicorn tem o par
+mistral × aya lado a lado; com o Zeta a comparação passa a ter DUAS obras, e o Zeta é maior e tem
+as 6 pendências conhecidas.
+
+**A saída TEM de ir para pasta separada.** É o que tornou a auditoria do Unicorn possível.
+
+```
+C:\animes\Mobile Suit Zeta Gundam\        (atenção: NÃO é "Mobile Suit Gundam ZZ", outra obra)
+  legendas_extraidas_ass   50 ass   <- entrada
+  traducao_ptbr            56 ass   <- saída do MISTRAL. NÃO sobrescrever: é metade da comparação
+  backup_traducao          68 ass
+  → saída da aya: traducao_aya      (mesmo padrão do Unicorn)
+```
+
+- **Custo medido, não estimado no chute**: 17.036 falas no cache do Zeta, a 178 falas/min (ritmo
+  real da última rodada do Unicorn) ≈ **96 min**.
+- **NÃO ligar o reuso entre modelos nesta rodada.** Ele existe para exercitar pendência barato; se
+  a aya herdar do mistral, não há o que comparar. As duas coisas se excluem.
+- A app no ar (subiu 13/08 00:00) é ANTERIOR às features de ontem à noite — e para esta rodada
+  isso não importa: retraduzir com aya funciona nela. Só o experimento de reuso + segunda opinião
+  exige reiniciar pelo `.cmd` próprio.
+- Baseline do cache do mistral protegido em `backups/cache-zeta-mistral-20260812` (82/82, com
+  estrutura de pastas). O sistema também arquiva `.geracao_*.json` sozinho ao trocar de modelo.
+- Telemetria: os 350 registros atuais estão com o campo `anime` VAZIO, então não há baseline do
+  Zeta a congelar — e é um defeito de dado a olhar depois, porque a dedup por episódio depende
+  desse campo.
+
+## O QUE FICOU PARA TRÁS NO ACOMPANHAMENTO (erro meu, corrigido)
+
+Reportei 19 concluídos / 2 parciais / 1 falha / 30m11s como se fosse da rodada de 13/08. É de
+**12/08**: o `console-web.log` parou de ser escrito em 12/08 11:07 e a saída do Unicorn é de
+12/08 11:35–12:04. A app de hoje subiu por outro caminho e não escreve nesse arquivo. **Instrumento
+certo para estado vivo é a API (`/api/status`, `/api/llm/status`), não o log.** E a falha do E01
+naquele log é o reload de 12/08 já registrado — não houve reload meu em 13/08 (zero commits e zero
+`.class` recompilados entre 09h e 10h).
+
+## PRÓXIMA AÇÃO EXECUTÁVEL (frentes anteriores)
 
 **LM Studio no ar (12/08 noite) com 8 modelos. Medido agora:** sem especificar modelo responde
 `aya-expanse-8b`; pedindo `towerinstruct-mistral-7b-v0.2` o servidor honra o override. É o arranjo
