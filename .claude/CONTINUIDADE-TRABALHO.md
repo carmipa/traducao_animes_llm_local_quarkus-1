@@ -7,6 +7,41 @@ CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo 
 BRANCH / COMMIT BASE: main — `b7abf431`, árvore limpa, ahead de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
+## PRÓXIMA IDEIA COM DANO MEDIDO — os dicionários no KARAOKÊ (Paulo, 13/08)
+
+Fecha um prejuízo já pago: o `NormalizadorAcentosComuns` transformou `mae` em `mãe` **100 vezes
+nos 50 episódios**, e `mae` é romaji (前), não português. Ver
+[[karaoke-corretor-traduz-e-acento-ima-no-romaji]].
+
+**O dicionário de romaji resolve** — medido em 13/08:
+
+```
+palavra   PT     EN     ROMAJI
+mae       nao    nao    SIM     <- exatamente o caso do dano
+kimi      nao    nao    SIM        kokoro, yume, hikari, tsubasa, kaze: idem
+```
+
+**MAS a mesma medição achou a armadilha, e ela inverte o dano:**
+
+```
+sora      SIM em PT   e SIM em ROMAJI
+nada      SIM em PT   e SIM em ROMAJI
+sera      SIM em PT   e SIM em ROMAJI
+```
+
+Ligar o romaji sem cuidado deixaria de corrigir `sera → será` em fala legítima em português.
+
+**O desenho certo: o ESTILO decide, o dicionário confirma.**
+
+```
+linha de estilo musical/romaji  ->  romaji manda, NÃO acentuar
+linha de diálogo                ->  português manda, como hoje
+```
+
+O projeto já classifica isso (`PadraoEstiloMusical`, `DetectorEfeitoKaraokeService`, pareamento
+de camadas). O dicionário entra como confirmação — numa linha já reconhecida como romaji, ele
+explica POR QUE `mae` não pode ser tocada. Nunca como decisor sozinho.
+
 ## ESTADO AO FIM DE 13/08 — mesa limpa, pronto para rodar do zero
 
 Paulo apagou as saídas do Unicorn DE PROPÓSITO, para rodar do zero. Não houve perda acidental.
