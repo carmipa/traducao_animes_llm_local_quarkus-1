@@ -1,6 +1,5 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
-import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
@@ -35,8 +34,11 @@ import java.util.List;
  * <h2>Comportamento em caso de falha</h2>
  * Nunca lança e nunca acessa rede.
  */
+// SEM @Priority de propósito: no Arc, alternativa com prioridade é habilitada GLOBALMENTE, o que
+// tornaria falsa a primeira linha dos invariantes abaixo — o dublê valeria para a suíte inteira,
+// não só para quem o declara. Descoberto em 12/08/2026, quando um segundo bean de LlmPort com
+// @Priority fez GrafoCdiTraducaoIT reprovar por ambiguidade no contrato.
 @Alternative
-@Priority(1)
 @ApplicationScoped
 public class RecuperacaoExternaContadora implements RecuperacaoExternaRevisaoPort {
 
