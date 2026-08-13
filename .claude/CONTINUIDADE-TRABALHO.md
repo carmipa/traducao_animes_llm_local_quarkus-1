@@ -7,6 +7,44 @@ CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo 
 BRANCH / COMMIT BASE: main — `b7abf431`, árvore limpa, ahead de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
+## 13/08 — ORTOGRAFIA SAIU DO LLM: o que está PRONTO e o que falta LIGAR
+
+**A porta existe, está testada e NÃO está plugada no pipeline.** Ninguém chama
+`DicionarioOrtograficoPort` ainda. É a próxima ação, e tem uma correção de desenho a aplicar
+ANTES (ver o alerta abaixo).
+
+| peça | onde | estado |
+|---|---|---|
+| regra `-ção`/`-ções` | `NormalizadorAcentosComuns` | ✅ ligada, 105 de 119 no Zeta |
+| `DicionarioOrtograficoPort` | `core.texto` | ✅ testada, ❌ **não plugada** |
+| `HunspellDicionarioAdapter` | `core.texto` | ✅ 5 testes, falha fechada com 3 estados |
+| `instalar-pre-requisitos.ps1` | raiz | ✅ 9 OK / 0 FALTA nesta máquina |
+
+Dicionários em `C:\Hunspell\`: `pt_BR` (4.373 KB) · `en_US` (539 KB) · `de_DE` (4.255 KB).
+Instalados por `choco install hunspell.portable` + download do repositório do LibreOffice. O
+alemão tem nome próprio: o pacote é `de_DE_frami`, e pedir `de_DE` devolve **404**.
+
+**ALERTA DE DESENHO, medido e ainda NÃO corrigido:** `Resonância` (grafia errada; o certo é
+*ressonância*) foi reprovada pelo `pt_BR` e **aceita** pelo `de_DE`. Cada dicionário novo é uma
+chance de erro real passar. Antes de plugar: os secundários têm de **ROTULAR, não aprovar** — só
+o `pt_BR` decide se está errado; `en_US`/`de_DE` dizem que TIPO de não-português é aquilo, o que
+muda a AÇÃO e não o veredito.
+
+**Medido no Zeta/aya (6.736 formas em minúscula, 66s):** 6.408 ok em PT · 22 resíduo de inglês
+(`suit`, `suits`, `shuttle`, `cockpit`, `booster`) · **306 erro real** (`opiniao`, `antiaerea`,
+`reuniao`, `serao`, `aereo`, `crianca`, `assembléia`, `necessario`). Limite: palavra que é forma
+sem acento em PT e existe em inglês escapa (`area`, `video`, `radio`, `sera`).
+
+**O alemão paga, e a percepção é do Paulo:** 155 formas capitalizadas do acervo que SÓ o alemão
+reconhece — `Kamille` 950 (camomila), `Katz` 256, `Braun` 54, `Gier` 34, `Sieg` 23, `Nordlicht`
+20, `Engel` 6. No 86 os Legion são nomeados em alemão direto.
+
+**Japonês:** 6 falas com kana/kanji em 94.701 — cinco são notas do fansub entre chaves, uma é um
+kanji solto (`那 nave...`). Não existe hunspell `ja` (japonês não separa palavras por espaço) e
+`choco install mecab` não existe. Paulo instalando o MeCab por fora em 13/08; se entrar, encaixa
+no MESMO padrão (ProcessBuilder atrás de porta, zero dependência no build) — o instalador oficial
+põe em `C:\Program Files (x86)\MeCab\bin`, fora do PATH.
+
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA — retraduzir o Zeta com a aya, para o PAR de comparação
 
 Decisão do Paulo em 13/08: vale retraduzir o Zeta inteiro com a aya. Hoje só o Unicorn tem o par
