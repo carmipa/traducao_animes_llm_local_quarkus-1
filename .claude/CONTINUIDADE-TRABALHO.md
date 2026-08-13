@@ -668,3 +668,30 @@ DOIS CUIDADOS (boa-fe):
 
 NAO IMPLEMENTADO: mexer na escrita do .ass e o caminho por onde se perde legenda.
 
+
+## TESTE EM ARQUIVO REAL 13/08 18:55 — E01 + E22, com os dois consertos
+
+Traducao: 2 concluidos, 0 pendencias, 5m34s. Karaoke: 2 arquivos.
+
+OPL2 do E01 — era 0 de 69 traduzidas em TODOS os episodios. Agora:
+    128 fragmentos intactos        (Do, you, feel, lone)  -> preservacao mantida
+      6 frases EMPILHADAS          original\Ntraducao
+     11 frases traduzidas sem empilhar
+
+    "Do you feel alone\NVoce se sente sozinho?"
+    "Can you hear me now\NVoce pode me ouvir agora?"
+    "Let light shine through\NDeixe a luz brilhar atraves."
+
+ED do E01 — romaji PRESERVADO, sem traducao colada (tem irma ED - EN, entao nao empilha).
+ED - EN    — traduzido sem empilhar, correto pelo mesmo motivo.
+
+DUAS COISAS ABERTAS, medidas mas NAO explicadas:
+
+1. As 11 frases do OPL2 que traduziram SEM empilhar. O classificador as viu com camada irma
+   no mesmo instante. Pode estar certo (OPL2 simultaneo ao ED) ou ser o mesmo casamento
+   acidental que mascarou o defeito antes. NAO afirmar sem medir.
+
+2. O E22 NAO TEM ED2 — so OPL2 e Sign. O estilo de camada unica esta nos episodios 13 a 21.
+   Entao o conserto do ED2 tem teste unitario mas NAO foi exercitado em arquivo real. Para
+   fechar, o episodio certo e o E13 ou o E19, nao o E22.
+
