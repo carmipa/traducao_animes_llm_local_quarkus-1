@@ -446,3 +446,18 @@ sugestao que e A MESMA PALAVRA ACENTUADA. "mascara -> mascara-com-acento" entra;
 "mascara -> mascarada" nunca. Aplicado ao karaoke, mexe nas 88 ocorrencias medidas e passa
 ao largo de kieta, gonna, Nordlicht e das silabas do OPL2.
 
+
+#### CORRECAO na regra do alemao (Paulo, 13/08): depende da FAIXA
+
+Eu havia registrado "DE -> preservar" para o karaoke. ERRADO. Na faixa TRADUZIDA o alemao
+remanescente e traducao que faltou, nao termo a proteger.
+
+  dialogo             DE -> PRESERVAR   e lore (Nerv, Seele, Nordlicht, Kamille)
+  karaoke EN/ED2      DE -> SINALIZAR   a faixa existe para virar portugues; alemao ali e
+                                        pendencia. Excecao: nome de lore, que a protecao de
+                                        termos ja cobre antes.
+
+E RARO, e por isso a acao e SINALIZAR e nao construir mecanismo: o corretor ortografico
+repoe acento, nao traduz. Quem traduz e o LLM; palavra alema perdida numa letra e caso de
+RELATORIO, nao de automacao nova. Mecanismo para caso raro e cerimonia (regra 22).
+
