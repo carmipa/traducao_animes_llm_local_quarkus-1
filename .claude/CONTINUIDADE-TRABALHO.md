@@ -7,6 +7,35 @@ CRITÉRIO DE ENCERRAMENTO: leitura da qualidade do português + teste do modelo 
 BRANCH / COMMIT BASE: main — `b7abf431`, árvore limpa, ahead de origin/main
 SHA-256 DOS DOCUMENTOS-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402)
 
+## ESTADO AO FIM DE 13/08 — mesa limpa, pronto para rodar do zero
+
+Paulo apagou as saídas do Unicorn DE PROPÓSITO, para rodar do zero. Não houve perda acidental.
+Sobrou `legendas_extraidas_ass` (22 ass, fontes ORIGINAIS, sem achatar) — que é exatamente a
+entrada que se quer.
+
+- **Tudo parado**: 8099 livre, nenhum Java do KRONOS, nenhum hunspell pendurado.
+- **Suíte 1718 / 0 falhas / 26 pulados.** Os pulados são os harnesses de auditoria dizendo
+  "acervo ausente, NÃO VERIFIQUEI" — comportamento novo e correto.
+- **Backups intactos**: `unicorn-ass-aya-20260812` (a versão de 12/08) ·
+  `troca_tipo_legenda_20260812_113344` (entrada original, hash conferido contra o MKV) ·
+  `cache-unicorn-aya-20260813` (33 caches) · `cache-zeta-mistral-20260812` (82/82).
+
+**O pipeline mudou desde a última tradução completa** — o próximo run é o primeiro com tudo:
+
+| peça | efeito medido |
+|---|---|
+| regra `-ção` no normalizador | 440 → 231 ocorrências de erro no diálogo |
+| dicionário do sistema (hunspell pt_BR) | 231 → **91** — 79% no total |
+| memória do corretor | E01 em **73s**; antes da memória eram 3m05s/arquivo |
+| deadlock do hunspell corrigido | leitura em thread; era travamento à espera de acontecer |
+
+**Para rodar**: subir pelo `.cmd` e disparar pela UI, entrada `legendas_extraidas_ass`, contexto
+`gundam_unicorn`. **Usar pasta de saída SEPARADA** se quiser comparar depois — foi assim que a
+comparação das três versões existiu.
+
+**Não medido ainda**: o tempo total do episódio COM a memória. O E01 saiu em 73s, o que sugere
+voltar aos ~28 min do lote inteiro, mas isso é expectativa, não medição.
+
 ## 13/08 — ORTOGRAFIA SAIU DO LLM: o que está PRONTO e o que falta LIGAR
 
 **A porta existe, está testada e NÃO está plugada no pipeline.** Ninguém chama
