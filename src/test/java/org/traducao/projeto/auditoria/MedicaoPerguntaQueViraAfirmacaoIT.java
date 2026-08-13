@@ -137,7 +137,9 @@ class MedicaoPerguntaQueViraAfirmacaoIT {
      * original (isso é eco, medido por outro instrumento — contar duas vezes o mesmo defeito
      * em duas métricas infla o diagnóstico).
      */
-    private static boolean perdeuInterrogacao(String en, String pt) {
+    // package-private: MedicaoZetaMistralXAyaIT aplica o MESMO critério a outra obra. Reimplementar
+    // produziria uma segunda verdade que divergiria desta — o erro que a regra de medição proíbe.
+    static boolean perdeuInterrogacao(String en, String pt) {
         String a = visivel(en);
         String b = visivel(pt);
         if (a.isEmpty() || b.isEmpty() || a.equals(b)) {

@@ -156,11 +156,12 @@ class MedicaoAcentuacaoFaltanteIT {
         }
     }
 
-    private static boolean temFalta(String texto) {
+    // package-private: MedicaoZetaMistralXAyaIT aplica o MESMO critério a outra obra.
+    static boolean temFalta(String texto) {
         return SEM_ACENTO.matcher(texto).find() || TERMINACAO_SEM_TIL.matcher(texto).find();
     }
 
-    private static String visivel(String texto) {
+    static String visivel(String texto) {
         return TAGS.matcher(texto == null ? "" : texto).replaceAll("")
             .replace("\\N", " ").replace("\\n", " ").trim();
     }

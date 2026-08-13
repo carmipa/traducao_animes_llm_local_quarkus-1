@@ -92,7 +92,10 @@ class CatracaSuiteSemDriveWindowsTest {
         "MedicaoCegueiraQuebraLinhaIT.java",
         // Entrou em 12/08/2026: mede o que um ADVERBIO entre o verbo e o participio esconde do
         // mesmo detector ("Ela esta muito cansado" nao e acusada). Le a pasta de cache real.
-        "MedicaoAdverbioEntreVerboEParticipioIT.java"
+        "MedicaoAdverbioEntreVerboEParticipioIT.java",
+        // Entrou em 13/08/2026: repete no Zeta a comparacao mistral x aya do Unicorn, sobre o
+        // CACHE (a retraducao gravou por cima do .ass). Le cache/ e backups/ reais.
+        "MedicaoZetaMistralXAyaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
