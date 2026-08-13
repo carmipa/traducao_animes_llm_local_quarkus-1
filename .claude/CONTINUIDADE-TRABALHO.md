@@ -107,6 +107,37 @@ Gundam é trabalho sem retorno.
 
 Suíte **1688 testes, 0 falhas, 0 erros**. Portão do projeto **rc=0**.
 
+## OS DOIS 🔴 FECHADOS NO MECANISMO (`dd87f53d`) — e o que continua aberto
+
+Cada gap era duas perguntas coladas. Separá-las fechou metade sem depender da infraestrutura:
+
+| gap | mecanismo funciona? | qual modelo se sai melhor? |
+|---|---|---|
+| segunda opinião | ✅ `SegundaOpiniaoModeloRecuperacaoTest` (3 casos) | 🔴 precisa do LM Studio |
+| correção via LLM | ✅ `CorrecaoViaLlmChegaAoArquivoTest` (3 casos) | 🔴 precisa do LM Studio |
+
+O caso-controle da segunda opinião é a fala REAL do Zeta (`I just said, "You want to meet Char,
+don't you?"`). Os testes de "ligado" e "desligado" se calibram mutuamente: só muda a config e o
+desfecho inverte — mecanismo morto daria o mesmo nos dois.
+
+**Para exercitar com modelo real, falta uma DECISÃO sua**: qual segundo modelo carregar. O
+`application.yml` traz `modelo-recuperacao: ""` (desligado, falha fechada). O tower recuperou 3
+das 6 do Zeta em 11/08; a aya nunca foi testada nesse papel. Com dois modelos carregados o KRONOS
+pega o primeiro — ver [[confronto-modelos-danmachi-virgem]].
+
+## DUAS LACUNAS DE DETECÇÃO REAIS, AMBAS COM INCIDÊNCIA ZERO NO ACERVO
+
+Padrão que apareceu duas vezes hoje: o mecanismo tem furo provado por controle positivo, e o
+acervo não tem o caso. As duas ficam declaradas e NÃO corrigidas — alargar padrão de concordância
+sem prejuízo medido é como os 3 falsos positivos consertados hoje de manhã (regra 14).
+
+- **quebra `\N` colada** — corrigida no CORRETOR (`74bc45d3`) porque o custo era zero; cegueira
+  residual medida = 0 de 18.940 falas com `\N`.
+- **advérbio entre verbo e particípio** — `"Ela está muito cansado"` NÃO é detectada, porque
+  `ELA_COM_PREDICADO_MASC` exige o particípio colado ao verbo. Medido: **0 defeitos escondidos**
+  em 1.324 falas com verbo+advérbio. `MedicaoAdverbioEntreVerboEParticipioIT` guarda o número.
+  Descoberta por um teste REPROVANDO, não por leitura de código.
+
 ## O QUE AINDA NÃO FOI PROVADO NO CORRETOR (a pergunta do Paulo, respondida pela metade)
 
 `CorrecaoChegaAoArquivoTest` prova o elo **determinístico**. O que segue sem prova é a correção
