@@ -27,18 +27,39 @@ public class CorretorDeterministicoConcordanciaService {
      * Fronteira de início do termo, com a quebra {@code \N} do ASS tratada como separador — igual à
      * de {@code NormalizadorAcentosComuns}, onde o efeito está MEDIDO.
      *
-     * <p><b>Aqui o efeito é NULO no acervo de hoje, e isso está declarado de propósito.</b> Serve a
-     * um único padrão, {@code ARTIGO_MOBILE_SUIT}. Medido em 2026-08-04 sobre 60.891 falas
-     * traduzidas do cache: 2 casamentos antes, 2 depois. O artigo antes de "mobile suit" nunca cai
-     * logo após a quebra.
+     * <p><b>Servia a um único padrão até 12/08/2026, e o custo disso apareceu.</b> O detector
+     * normaliza a quebra antes de analisar ({@code removerTagsAss} troca {@code \N} por espaço),
+     * mas ESTE corretor recebia o texto CRU. O resultado era o pior desfecho possível: o detector
+     * acusava "Original menciona pai, mas a tradução usa mãe" em {@code "Minha\Nmãe"}, e a regra
+     * que sabe consertar isso não casava, porque o {@code N} da quebra cola na palavra e mata o
+     * {@code \b}. A fala ia parar no LLM — ou em pendência — tendo conserto local de graça.
      *
-     * <p>Mantida por consistência; NÃO conta como correção demonstrada.
+     * <p>Medido no cache em 12/08/2026: 94.721 falas traduzidas, 18.470 com a quebra colada a uma
+     * letra. Não é caso de borda: é 1 em cada 5 falas do acervo.
      */
     private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
+    /** Fim do termo. À direita da palavra a quebra começa por contrabarra, que já não é letra. */
+    private static final String FIM_DE_TERMO = FronteiraTermoAss.FIM;
+
+    /**
+     * Espaço OU quebra entre duas palavras do mesmo padrão. Fica em GRUPO nos possessivos porque a
+     * substituição precisa devolvê-lo como estava: trocar {@code \N} por espaço ao corrigir a
+     * concordância juntaria as duas linhas da legenda e estouraria a caixa na tela — consertar a
+     * gramática quebrando a diagramação é dano, não correção.
+     */
+    private static final String SEPARADOR = FronteiraTermoAss.SEPARADOR_INTERNO;
+
     private static final int FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS;
-    private static final Pattern GRACAS_AO_DEUS = Pattern.compile("\\bgraças ao deus\\b", FLAGS);
-    private static final Pattern FILHO_DA_MAE = Pattern.compile("\\bfilho da mãe\\b", FLAGS);
+
+    // As duas expressões idiomáticas ganham a FRONTEIRA, não o separador interno: a substituição
+    // delas é uma string fixa, e flexibilizar o miolo faria "graças ao\Ndeus" virar "graças a Deus"
+    // numa linha só. Lacuna declarada, não esquecida — a forma partida NO MEIO da expressão segue
+    // sem conserto local, e o LLM continua alcançando-a.
+    private static final Pattern GRACAS_AO_DEUS =
+        Pattern.compile(INICIO_DE_TERMO + "graças ao deus" + FIM_DE_TERMO, FLAGS);
+    private static final Pattern FILHO_DA_MAE =
+        Pattern.compile(INICIO_DE_TERMO + "filho da mãe" + FIM_DE_TERMO, FLAGS);
     private static final Pattern PORRA_ISOLADA = Pattern.compile("^\\s*porra!\\s*$", FLAGS);
     private static final Pattern INSULTO_FORTE_EN = Pattern.compile(
         "\\bson of a (?:bitch|hitch)\\b|\\bson of a\\s*\\.\\.\\.", FLAGS);
@@ -46,10 +67,12 @@ public class CorretorDeterministicoConcordanciaService {
         "\\b(?:you\\s+)?son of a\\s*\\.\\.\\.", FLAGS);
     private static final Pattern ARTIGO_MOBILE_SUIT = Pattern.compile(
         INICIO_DE_TERMO + "a(?=\\s+mobile\\s+(?:suit|armor)\\b)", FLAGS);
+    // Três grupos, e o do MEIO é o separador: ele volta como estava na substituição. Sem isso a
+    // correção de "Minha\Npai" devolveria "Meu pai" numa linha só.
     private static final Pattern POSSESSIVO_FEM_COM_PARENTE_MASC = Pattern.compile(
-        "\\b(minha|sua|nossa)\\s+(pai|filho|irmão)\\b", FLAGS);
+        INICIO_DE_TERMO + "(minha|sua|nossa)(" + SEPARADOR + ")(pai|filho|irmão)" + FIM_DE_TERMO, FLAGS);
     private static final Pattern POSSESSIVO_MASC_COM_PARENTE_FEM = Pattern.compile(
-        "\\b(meu|seu|nosso)\\s+(mãe|filha|irmã)\\b", FLAGS);
+        INICIO_DE_TERMO + "(meu|seu|nosso)(" + SEPARADOR + ")(mãe|filha|irmã)" + FIM_DE_TERMO, FLAGS);
 
     private static final List<RegraParentesco> REGRAS_PARENTESCO = List.of(
         regra("father|dad|daddy", "mother|mom|mommy|mum|mummy", "mãe|mae|mamãe|mamae", "pai"),
@@ -114,7 +137,8 @@ public class CorretorDeterministicoConcordanciaService {
                 case "sua" -> "seu";
                 default -> "nosso";
             };
-            return capitalizarComo(resultado.group(1), possessivo) + " " + resultado.group(2);
+            return capitalizarComo(resultado.group(1), possessivo)
+                + Matcher.quoteReplacement(resultado.group(2)) + resultado.group(3);
         });
         return POSSESSIVO_MASC_COM_PARENTE_FEM.matcher(ajustado).replaceAll(resultado -> {
             String possessivo = switch (resultado.group(1).toLowerCase()) {
@@ -122,7 +146,8 @@ public class CorretorDeterministicoConcordanciaService {
                 case "seu" -> "sua";
                 default -> "nossa";
             };
-            return capitalizarComo(resultado.group(1), possessivo) + " " + resultado.group(2);
+            return capitalizarComo(resultado.group(1), possessivo)
+                + Matcher.quoteReplacement(resultado.group(2)) + resultado.group(3);
         });
     }
 
@@ -157,7 +182,10 @@ public class CorretorDeterministicoConcordanciaService {
         return new RegraParentesco(
             Pattern.compile("\\b(?:" + esperadaEn + ")\\b", FLAGS),
             Pattern.compile("\\b(?:" + opostaEn + ")\\b", FLAGS),
-            Pattern.compile("\\b(?:" + incorretaPt + ")\\b", FLAGS),
+            // Só o lado PT ganha a fronteira do ASS: o inglês vem do cache como referência e não
+            // carrega a quebra da legenda traduzida. Aqui está o casamento que faltava — o
+            // detector acusava "Minha\Nmãe" e esta regra não a alcançava.
+            Pattern.compile(INICIO_DE_TERMO + "(?:" + incorretaPt + ")" + FIM_DE_TERMO, FLAGS),
             corretaPt);
     }
 
