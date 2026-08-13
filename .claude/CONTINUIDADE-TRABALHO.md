@@ -403,3 +403,25 @@ DETALHE QUE IMPORTA NA IMPLEMENTACAO: ED e OPL2 ficam de fora por motivos DIFERE
 e outro idioma, o outro nem e texto completo (fragmento de silaba). Mesmo criterio para os
 dois nao serve.
 
+
+### AMPLIACAO (Paulo, 13/08): no karaoke sao os QUATRO dicionarios, nao so o pt_BR
+
+Musica de anime mistura idioma na MESMA linha. Evidencia no proprio Unicorn: o ED2 tem
+"gonna" e "one" convivendo com portugues correto. E o projeto ja registrou code-switch real
+no Gundam 08th ("Song JP"). Ver [[karaoke-86-sem-codeswitching]].
+
+Consultar so o portugues no karaoke produziria o dano inverso do atual: "corrigir" a letra
+da musica. O classificador completo ja existe e resolve —
+core.texto.dicionarioOrtografia.ClassificadorQuatroIdiomas.
+
+  palavra valida em PT        -> ok
+  sem acento, existe com      -> CORRIGIR
+  valida em EN                -> preservar (e a letra)
+  valida em DE                -> preservar (anime usa alemao a beca)
+  valida em ROMAJI            -> preservar (mae, kimi, kokoro)
+  nenhum idioma reconhece     -> nao tocar, so reportar
+
+A DIFERENCA ENTRE AS FATIAS, e ela e o ponto: no dialogo, palavra em ingles provavelmente e
+RESIDUO de traducao; no karaoke, e A LETRA. Mesmo dicionario, decisao oposta. Quem decide e
+a fatia; o dicionario so informa — que e o motivo de ele viver no core sem acoplar ninguem.
+
