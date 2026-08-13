@@ -569,3 +569,31 @@ putIfAbsent casar linhas que nao sao a mesma letra.
 RISCO: e o dano de sobrescrever camada original, da mesma familia dos 100 "mae". Aqui e
 pior, porque perde a letra em romaji inteira naquela linha.
 
+
+## O DEFEITO CENTRAL (Paulo, 13/08): nao preserva a faixa ORIGINAL quando ha UMA camada so
+
+"ele nao ta preservando a faixa de karaoke original, esta traduzindo tudo ou nao traduzindo"
+
+E13, encerramento — MEDIDO entrada x saida:
+
+    ED2    "Behind your mask"   ->  "Por tras da sua mascara"   traduziu e a ORIGINAL SUMIU
+    OPL2   "Do you feel alone"  ->  "Do you feel alone"         nao traduziu nada
+    (o E13 NAO tem camada ED em romaji)
+
+A DIFERENCA ENTRE OS EPISODIOS EXPLICA TUDO:
+  E01: DUAS camadas (ED romaji + ED - EN ingles) -> traduz uma, preserva a outra. Funciona.
+  E13: UMA camada so (ED2 ingles)                -> traduziu e a original desapareceu.
+
+Com uma camada so, o correto e DUPLICAR — manter a original e acrescentar a traducao
+embaixo, que e a promessa do modo "romaji em cima, PT-BR embaixo". Substituir apaga o
+karaoke da tela.
+
+OS TRES DEFEITOS SAO O MESMO ERRO POR LADOS OPOSTOS:
+  ED2 do E13        substituiu a original      -> devia preservar E acrescentar
+  ED do E01 23:09   substituiu o romaji        -> devia preservar
+  OPL2              nao traduziu nada          -> devia traduzir as 17 frases
+
+DETALHE QUE DATA A SAIDA: "Por tras da sua mascara" esta sem acento em "tras" — e a linha
+que virou caso de teste. Confirma que esta saida e ANTERIOR a correcao movida para o ponto
+certo (eventosFinais.add), e que a app no ar ainda e a de 17:52.
+
