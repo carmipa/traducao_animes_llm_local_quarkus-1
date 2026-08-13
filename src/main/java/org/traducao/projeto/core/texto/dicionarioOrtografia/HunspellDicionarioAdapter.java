@@ -101,8 +101,32 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
         Set<String> candidatas = new LinkedHashSet<>(palavras);
         try {
             ProcessBuilder pb = new ProcessBuilder(executavel, "-a", "-d", idioma, "-i", "UTF-8");
-            pb.redirectErrorStream(false);
+            pb.redirectErrorStream(true);
             Process p = pb.start();
+
+            // A LEITURA VAI PARA OUTRA THREAD, e isto não é elegância: escrever tudo e só depois
+            // ler é DEADLOCK. O buffer do pipe no Windows tem alguns KB; quando a resposta do
+            // hunspell o enche, ele bloqueia esperando alguém ler, e eu bloqueio esperando
+            // escrever. Nenhum dos dois sai, e o waitFor com timeout nem chega a ser chamado —
+            // ele está DEPOIS. Com 4.688 formas de um episódio a saída passa de 200 KB, muito
+            // além do buffer.
+            java.util.Map<String, Set<String>> achados = new java.util.concurrent.ConcurrentHashMap<>();
+            Thread leitor = new Thread(() -> {
+                try (BufferedReader leitura = new BufferedReader(
+                        new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                    String linha;
+                    while ((linha = leitura.readLine()) != null) {
+                        String palavra = palavraDaLinha(linha);
+                        if (palavra != null && candidatas.contains(palavra)) {
+                            achados.put(palavra, sugestoesDaLinha(linha));
+                        }
+                    }
+                } catch (Exception ignorado) {
+                    // Fim de stream por processo encerrado é desfecho normal aqui.
+                }
+            }, "hunspell-" + idioma);
+            leitor.setDaemon(true);
+            leitor.start();
 
             try (BufferedWriter escrita = new BufferedWriter(
                     new OutputStreamWriter(p.getOutputStream(), StandardCharsets.UTF_8))) {
@@ -113,17 +137,9 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
                 }
             }
 
-            java.util.Map<String, Set<String>> achados = new java.util.LinkedHashMap<>();
-            try (BufferedReader leitura = new BufferedReader(
-                    new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
-                String linha;
-                while ((linha = leitura.readLine()) != null) {
-                    String palavra = palavraDaLinha(linha);
-                    if (palavra != null && candidatas.contains(palavra)) {
-                        achados.put(palavra, sugestoesDaLinha(linha));
-                    }
-                }
-            }
+            // O leitor precisa terminar de drenar ANTES de o resultado ser lido, senão a última
+            // parte da resposta se perde e palavras erradas passariam como válidas.
+            leitor.join(TimeUnit.SECONDS.toMillis(TIMEOUT_SEGUNDOS));
 
             if (!p.waitFor(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS)) {
                 p.destroyForcibly();

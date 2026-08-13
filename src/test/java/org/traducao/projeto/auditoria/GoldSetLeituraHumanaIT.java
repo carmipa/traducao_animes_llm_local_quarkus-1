@@ -93,6 +93,11 @@ class GoldSetLeituraHumanaIT {
         Map<String, Path> eng = porEpisodio(ENTRADA);
         Map<String, Path> mis = porEpisodio(OBRA.resolve("traducao_mistral"));
         Map<String, Path> aya = porEpisodio(OBRA.resolve("traducao_aya"));
+        // O gold set COMPARA duas versões: sem as duas em disco não há o que gerar, e isso é NÃO
+        // VERIFICADO. O acervo é material de trabalho e muda de lugar — em 13/08 as saídas do
+        // Unicorn saíram da obra e este harness derrubou a suíte inteira por isso.
+        Assumptions.assumeTrue(!mis.isEmpty() && !aya.isEmpty(),
+            "as duas versões a comparar não estão em disco — NÃO VERIFICADO");
 
         List<Par> pares = new ArrayList<>();
         int comparadas = 0;
@@ -205,6 +210,13 @@ class GoldSetLeituraHumanaIT {
     }
 
     private static Map<String, Path> porEpisodio(Path pasta) {
+        // Pasta ausente devolve VAZIO em vez de lancar: o acervo e material de trabalho e muda de
+        // lugar. Harness de medicao que REPROVA por acervo ausente confunde 'nao verifiquei' com
+        // 'esta errado' — e foi o que aconteceu em 13/08, quando as pastas do Unicorn sairam do
+        // lugar e dois ITs derrubaram a suite inteira.
+        if (pasta == null || !Files.isDirectory(pasta)) {
+            return new LinkedHashMap<>();
+        }
         Map<String, Path> m = new LinkedHashMap<>();
         try (var s = Files.list(pasta)) {
             s.filter(p -> p.toString().endsWith(".ass"))
@@ -225,3 +237,4 @@ class GoldSetLeituraHumanaIT {
         return leitor.ler(arquivo).eventos().stream().filter(EventoLegenda::isDialogo).toList();
     }
 }
+
