@@ -541,3 +541,31 @@ DELIMITA O DEFEITO: o problema NAO e o karaoke em geral, e so a ABERTURA (OPL2),
 17 frases ficaram em ingles e desenham junto com os 138 fragmentos em Arial 130. O ED, o
 ED - EN e o Sign estao corretos.
 
+
+## DEFEITO GRAVE 13/08 — o ROMAJI foi traduzido numa linha, com o texto do ED - EN
+
+Paulo viu na tela: a mesma frase em portugues em CIMA e EMBAIXO, ao mesmo tempo.
+
+EVIDENCIA no E01 (traducao_ptbr-karaoke-ptbr):
+
+    ED         0:23:09.95   Tire minha roupa e coroa, entao posso dormir profundamente.
+    ED - EN    0:23:09.95   Tire minha roupa e coroa, entao posso dormir profundamente.
+
+MESMO texto, MESMO instante, nas DUAS camadas. E aos 0:22:16 o mesmo estilo ED esta
+CORRETO, em romaji ("Furi dake no kotae to eeru tai de\Nensou o tsunagu").
+
+Logo: NAO e o estilo inteiro que vaza — e uma LINHA. Isso aponta para o reaproveitamento
+por texto visivel do TraduzirKaraokeUseCase ("Mesma letra, moldura diferente: reaproveita a
+traducao ja obtida", traducaoPorTextoVisivel). Se a linha do romaji e a do ingles colidem
+nessa chave, a traducao do ingles e aplicada NAS DUAS.
+
+E o que explica a contradicao aparente das duas capturas: aos 22:16 o encerramento esta
+perfeito (romaji preservado), aos 23:09 esta duplicado.
+
+INVESTIGAR (nao feito): por que as duas linhas colidem na chave de texto visivel. Hipotese
+a testar primeiro — TextoSemTags.decompor devolvendo vazio ou igual para as duas, fazendo o
+putIfAbsent casar linhas que nao sao a mesma letra.
+
+RISCO: e o dano de sobrescrever camada original, da mesma familia dos 100 "mae". Aqui e
+pior, porque perde a letra em romaji inteira naquela linha.
+
