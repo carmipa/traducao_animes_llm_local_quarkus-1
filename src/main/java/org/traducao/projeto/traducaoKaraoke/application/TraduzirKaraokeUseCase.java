@@ -119,6 +119,17 @@ public class TraduzirKaraokeUseCase {
     @Inject
     ClassificadorLetraKaraokeService classificador;
 
+    /**
+     * Repõe acento nas linhas que ESTA fatia traduziu para português.
+     *
+     * <p>Vem de {@code core}, que é consumo livre por contrato — não cria aresta para a fatia
+     * {@code traducao}. É o mesmo precedente de {@code TextoSemTags}, que nasceu em
+     * {@code traducao.domain} e mudou-se para o core justamente quando o karaokê precisou dele.
+     * Ortografia é mecânica de idioma; nem a tradução nem o karaokê são donos do português.
+     */
+    @Inject
+    org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico;
+
     @Inject
     LogStreamService logStream;
 
@@ -361,7 +372,14 @@ public class TraduzirKaraokeUseCase {
                         }
                         continue;
                     }
-                    traducoes.put(original, traduzido);
+                    // PRESERVACAO E O DEFAULT AQUI: so chega neste ponto o que JA foi traduzido — romaji e
+                    // os fragmentos de KFX nem entram no mapa. E o corretor so aceita a sugestao que e A
+                    // MESMA PALAVRA ACENTUADA, entao 'gonna', 'kieta' e 'Nordlicht' passam intactos: nao
+                    // existe versao acentuada deles para o dicionario oferecer.
+                    //
+                    // Medido no Unicorn em 13/08: 88 ocorrencias de acento faltando em 372 linhas ja
+                    // traduzidas (ED - EN com 11, ED2 com 77) — 'tras', 'mascara', 'nao', 'voce'.
+                    traducoes.put(original, corrigirAcentos(traduzido));
                     // Registra pelo texto VISÍVEL para que a próxima camada com a mesma letra
                     // reaproveite em vez de gastar outra chamada e divergir.
                     TextoSemTags.decompor(traduzido).ifPresent(t ->
@@ -589,6 +607,19 @@ public class TraduzirKaraokeUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: repõe acento na linha que ESTA fatia acabou de traduzir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem o corretor injetado — construção manual em teste, mesmo
+     * caso de {@code SeletorEventosTraduziveis} — devolve o texto INTACTO. Preservação é o
+     * default do karaokê, então a ausência do corretor não pode virar exceção no meio de uma
+     * tradução que já custou chamadas ao LLM.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer problema devolve o texto recebido.
+     */
+    private String corrigirAcentos(String traduzido) {
+        return corretorOrtografico == null ? traduzido : corretorOrtografico.corrigir(traduzido);
+    }
+    /**
      * Persiste TODAS as traduções aplicadas (novas e reaproveitadas) no cache
      * do arquivo, preservando o fluxo de correção manual: o usuário edita o
      * JSON e a reexecução respeita a edição.
@@ -738,3 +769,5 @@ public class TraduzirKaraokeUseCase {
         return visivel.length() > 90 ? visivel.substring(0, 87) + "..." : visivel;
     }
 }
+
+
