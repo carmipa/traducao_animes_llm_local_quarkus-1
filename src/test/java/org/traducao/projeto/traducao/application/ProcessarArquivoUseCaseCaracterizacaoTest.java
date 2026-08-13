@@ -377,7 +377,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             props, uiLogger,
             pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new EnforcadorGlossarioFala(), new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
-            new NormalizadorAcentosComuns(), new NormalizadorCartaoDataService(), guardaContextoObra, contextoCongelado);
+            new NormalizadorAcentosComuns(),
+            new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda(), new NormalizadorCartaoDataService(), guardaContextoObra, contextoCongelado);
     }
 
     /**
@@ -1355,3 +1356,4 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         }
     }
 }
+
