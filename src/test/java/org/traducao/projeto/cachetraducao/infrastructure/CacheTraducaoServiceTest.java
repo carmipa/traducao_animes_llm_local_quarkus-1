@@ -232,4 +232,110 @@ class CacheTraducaoServiceTest {
         svc.salvar(f, List.of(ent("Hi", "Oi")));
         assertEquals("Oi", svc.carregar(f).get("Hi"));
     }
+
+    // ------------------------------------------------------------------------------------------
+    // LENTE DE BOA-FÉ (regra 15): os testes acima provam que o arquivo .geracao_ é CRIADO. Nenhum
+    // prova que ele SERVE. A promessa feita ao operador — "o trabalho daquela geração continua
+    // recuperável" — só é verdadeira se o arquivo voltar a ser um cache carregável, e é nisso que
+    // ele vai confiar depois de horas de LLM.
+    // ------------------------------------------------------------------------------------------
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o arquivo de geração é um BACKUP de verdade, não um despejo. Recolocado
+     * no caminho ativo, ele volta a servir para a proveniência que o gerou, com as mesmas falas.
+     *
+     * <p>É a pergunta de boa-fé aplicada ao cache: o operador troca o modelo sem perceber, perde a
+     * geração anterior do caminho ativo, e vai buscar o {@code .geracao_}. Se o que ele encontrar
+     * for ilegível, truncado ou sem proveniência, a promessa do Javadoc de {@code arquivarGeracao}
+     * é falsa — e ele só descobre no pior momento possível.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reprova se o arquivamento gravar algo que o próprio
+     * serviço não consegue reler, ou se as falas não voltarem.
+     */
+    @Test
+    void oArquivoDeGeracaoVOLTAaSERvirComoCache() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi"), ent("Bye", "Tchau")));
+
+        svc.carregar(f, prov("h2"));                        // troca de lore: arquiva a geração h1
+        svc.salvar(f, prov("h2"), List.of(ent("Hi", "Olá"))); // a retradução conclui e ocupa o ativo
+
+        Path arquivada;
+        try (Stream<Path> s = Files.list(dir)) {
+            arquivada = s.filter(p -> p.getFileName().toString().contains(".geracao_"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("nenhuma geração foi arquivada"));
+        }
+
+        // O operador faz o que qualquer um faria: devolve a cópia ao caminho ativo.
+        Path restaurado = dir.resolve("restaurado.cache.json");
+        Files.copy(arquivada, restaurado);
+        CacheTraducaoService.ResultadoCarga r = svc.carregar(restaurado, prov("h1"));
+
+        assertEquals(2, r.mapa().size(),
+            "O BACKUP NÃO SERVE. O .geracao_ foi criado, mas recolocado no lugar não devolve as "
+                + "falas — a promessa de 'continua recuperável' seria falsa justamente para quem "
+                + "acabou de perder horas de LLM.");
+        assertEquals("Oi", r.mapa().get("Hi"), "a tradução da geração antiga tem de voltar íntegra");
+        assertEquals("Tchau", r.mapa().get("Bye"));
+        assertEquals(0, r.invalidadas(),
+            "recolocado sob a proveniência que o gerou, o arquivo é reuso legítimo, não invalidação");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o arquivamento não pode COMER a geração ativa. Se a cópia falhasse e o
+     * fluxo seguisse, o {@code salvar} seguinte sobrescreveria o ativo e a geração anterior sumiria
+     * — este teste fixa que, no caminho normal, o ativo e a cópia coexistem com conteúdos DISTINTOS.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se os dois tiverem o mesmo conteúdo, ou o ativo ainda for o
+     * antigo, a troca de gerações deixou de ser transacional.
+     */
+    @Test
+    void aCopiaEOAtivoCoexistemComConteudosDIFERENTES() throws IOException {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi")));
+
+        svc.carregar(f, prov("h2"));
+        svc.salvar(f, prov("h2"), List.of(ent("Hi", "Olá")));
+
+        Path arquivada;
+        try (Stream<Path> s = Files.list(dir)) {
+            arquivada = s.filter(p -> p.getFileName().toString().contains(".geracao_"))
+                .findFirst().orElseThrow(() -> new AssertionError("nenhuma geração arquivada"));
+        }
+
+        assertTrue(Files.readString(f).contains("Olá"), "o ativo tem de ser a geração NOVA");
+        assertTrue(Files.readString(arquivada).contains("Oi"),
+            "a cópia tem de ser a geração ANTIGA — se trouxer 'Olá', o arquivamento aconteceu "
+                + "depois da sobrescrita e não guardou nada de útil");
+        assertFalse(Files.readString(arquivada).contains("Olá"),
+            "a cópia não pode conter a geração nova");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: trocar o modelo e VOLTAR ATRÁS é o arrependimento mais comum de quem
+     * mexe no LM Studio. Enquanto a retradução não concluiu, voltar à proveniência original tem de
+     * devolver o cache inteiro — sem custo, sem perda, sem precisar do backup.
+     *
+     * <p>Complementa {@code interrupcaoAposInvalidarPorProvenienciaPreservaOCacheAtivoIntacto}: lá
+     * a execução morre; aqui ela continua, e o operador simplesmente corrige o modelo.
+     */
+    @Test
+    void trocarOModeloEVoltarAtrasNaoCustaNada() {
+        Path f = dir.resolve("ep.cache.json");
+        ProvenienciaCache comGemma = prov("h1");
+        ProvenienciaCache comAya = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "danmachi", "h1", "aya-expanse-8b", "en", "pt-BR");
+        svc.salvar(f, comGemma, List.of(ent("Hi", "Oi"), ent("Bye", "Tchau")));
+
+        CacheTraducaoService.ResultadoCarga trocado = svc.carregar(f, comAya);
+        assertTrue(trocado.mapa().isEmpty(), "modelo diferente não reaproveita — é o invariante");
+        assertEquals(2, trocado.invalidadas());
+
+        CacheTraducaoService.ResultadoCarga voltou = svc.carregar(f, comGemma);
+        assertEquals(2, voltou.mapa().size(),
+            "voltar ao modelo original tem de devolver o cache inteiro: enquanto nada foi salvo, "
+                + "nenhuma tradução se perdeu e o operador não paga pelo arrependimento");
+        assertEquals(0, voltou.invalidadas());
+    }
 }
