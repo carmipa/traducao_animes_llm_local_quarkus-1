@@ -86,7 +86,10 @@ class CatracaSuiteSemDriveWindowsTest {
         "MedicaoGeneroImplicitoIT.java",
         // Entrou em 12/08/2026: gera o gold set para LEITURA HUMANA — os pares mais divergentes
         // entre mistral e aya, ordenados por suspeita. Le o acervo real.
-        "GoldSetLeituraHumanaIT.java"
+        "GoldSetLeituraHumanaIT.java",
+        // Entrou em 12/08/2026: mede o que a quebra \N esconde do detector de concordancia,
+        // rodando o detector de PRODUCAO duas vezes por fala. Le a pasta de cache real.
+        "MedicaoCegueiraQuebraLinhaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
