@@ -76,8 +76,20 @@ Gundam é trabalho sem retorno.
 - `3230692b` gênero IMPLÍCITO lendo a ficha de personagem do contexto de produção.
 - `47b47cb7` boa-fé: traduzir A PARTIR da pasta de saída deixa de ser possível.
 - `b7abf431` retomada após interrupção: "salvas para retomar" vira fato provado.
+- `74bc45d3` o corretor de concordância CORRIGE — provado até o byte, sem LLM. E a lente
+  adversarial achou o furo: o detector normaliza `\N` e enxerga "Minha\Nmãe"; o CORRETOR recebia
+  o texto cru e não alcançava. Ganho no acervo **ZERO** e declarado (2 corrigíveis, os mesmos 2).
 
-Suíte **1672 testes, 0 falhas, 0 erros** (276 classes). Portão do projeto **rc=0**.
+Suíte **1688 testes, 0 falhas, 0 erros**. Portão do projeto **rc=0**.
+
+## O QUE AINDA NÃO FOI PROVADO NO CORRETOR (a pergunta do Paulo, respondida pela metade)
+
+`CorrecaoChegaAoArquivoTest` prova o elo **determinístico**. O que segue sem prova é a correção
+via **LLM** — que é a única rota para a maioria das classes de defeito, porque a regra local só
+cobre parentesco, "graças a Deus", insulto forte e o artigo de mobile suit. Concordância nominal
+("Ela está cansado") é DETECTADA e não tem conserto local: depende do modelo.
+
+Alvo pronto para fechar isso: as 6 pendências do Zeta + o `modelo-recuperacao`, que segue 🔴.
 
 ## DÍVIDA CONHECIDA E DATADA — extrair os pronomes cruzados (decidido em 12/08 NÃO fazer agora)
 
