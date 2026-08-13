@@ -34,9 +34,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * e o artigo de mobile suit.
  *
  * <h2>O defeito escolhido é o que NÃO tem conserto local</h2>
- * {@code "Ela está muito cansado"} é detectada pela concordância nominal e nenhuma regra
- * determinística a resolve — foi exatamente o caso que o teste anterior deixou registrado como
- * limite, preservando a fala sem corrigi-la. Aqui ela chega ao modelo.
+ * {@code "Ela está cansado"} é detectada pela concordância nominal e nenhuma regra determinística
+ * a resolve — foi exatamente o caso que o teste anterior deixou registrado como limite,
+ * preservando a fala sem corrigi-la. Aqui ela chega ao modelo.
+ *
+ * <p>O caso começou como {@code "Ela está MUITO cansado"} e o LLM nunca era consultado: zero
+ * chamadas. A fala não estava sendo detectada, porque o padrão exige o particípio imediatamente
+ * após o verbo. Erro meu na montagem — mas virou a lacuna medida em
+ * {@code MedicaoAdverbioEntreVerboEParticipioIT} (0 casos no acervo).
  *
  * <h2>O que este teste prova, e o que continua aberto</h2>
  * Prova o MECANISMO: detectar → mascarar → pedir ao modelo → desmascarar → julgar na

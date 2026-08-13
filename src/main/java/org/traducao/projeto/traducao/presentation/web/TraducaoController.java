@@ -140,6 +140,17 @@ public class TraducaoController {
                 }
                 System.out.println("\u001B[32m[OK] Servidor LLM ativo.\u001B[0m");
 
+                // Regra 12: "ligado e sem efeito" e "desligado" NÃO podem dar o mesmo sinal. Sem
+                // esta linha, um lote sem nenhuma recuperação é indistinguível de um modelo de
+                // recuperação mal configurado — e o operador só descobriria lendo o yml. O próprio
+                // ProcessarEpisodioUseCase já declara essa preocupação no catch da segunda opinião:
+                // "um modelo de recuperação mal configurado ficaria eternamente ligado e sem
+                // efeito, indistinguível de desligado".
+                String segundaOpiniao = llmPort.modeloRecuperacao();
+                System.out.println(segundaOpiniao == null || segundaOpiniao.isBlank()
+                    ? "[SEGUNDA-OPINIAO] DESLIGADA (tradutor.llm.modelo-recuperacao vazio)."
+                    : "[SEGUNDA-OPINIAO] Ligada: \"" + segundaOpiniao + "\".");
+
                 // Configura as pastas compartilhadas
                 String saida = req.saida() != null && !req.saida().isBlank() ? req.saida() : "";
                 // Tradução SEM LORE nunca cai na pasta canônica por omissão: uma tradução crua
