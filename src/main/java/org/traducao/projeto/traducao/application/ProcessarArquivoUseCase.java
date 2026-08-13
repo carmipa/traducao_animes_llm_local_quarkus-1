@@ -85,6 +85,7 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
+    private final org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico;
     private final NormalizadorCartaoDataService normalizadorCartaoData;
     private final GuardaContextoObraTraducao guardaContextoObra;
     private final ContextoCongeladoDaExecucao contextoCongelado;
@@ -141,6 +142,7 @@ public class ProcessarArquivoUseCase {
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
         NormalizadorAcentosComuns normalizadorAcentos,
+        org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico,
         NormalizadorCartaoDataService normalizadorCartaoData,
         GuardaContextoObraTraducao guardaContextoObra,
         ContextoCongeladoDaExecucao contextoCongelado
@@ -169,6 +171,7 @@ public class ProcessarArquivoUseCase {
         this.detectorIdiomaFonte = detectorIdiomaFonte;
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
+        this.corretorOrtografico = corretorOrtografico;
         this.normalizadorCartaoData = normalizadorCartaoData;
         this.guardaContextoObra = guardaContextoObra;
         this.contextoCongelado = contextoCongelado;
@@ -625,6 +628,11 @@ public class ProcessarArquivoUseCase {
             if (traduzido != null && !traduzido.isBlank()) {
                 String normalizado = normalizadorAspas.normalizar(traducao.getKey(), traduzido);
                 normalizado = normalizadorAcentos.normalizar(normalizado);
+                // DEPOIS do normalizador determinístico, e não antes: o que a lista e a regra de
+                // terminação já resolvem não chega a custar consulta ao dicionário. Sobra o que
+                // nenhuma regra alcança — fatidico, minimo, aereo, psicicas, medidos no Unicorn em
+                // 13/08/2026, quando o dicionário manual resolvia ZERO das 119 faltas do Zeta.
+                normalizado = corretorOrtografico.corrigir(normalizado);
                 normalizado = normalizadorCartaoData.normalizar(traducao.getKey(), normalizado);
                 normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
@@ -772,3 +780,4 @@ public class ProcessarArquivoUseCase {
 
 
 }
+

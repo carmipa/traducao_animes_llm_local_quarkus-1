@@ -73,7 +73,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         ProcessarArquivoAlucina() {
             super(null, null, null, null, null, null, null, null, null, null,
                   null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                  null, null);
+                  null, null, null);
         }
         @Override
         public ResultadoTraducaoArquivo processar(
@@ -124,3 +124,4 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
             "relatório deve listar os dois arquivos com falha");
     }
 }
+

@@ -204,7 +204,28 @@ class FronteiraTraducaoArchTest {
         // "Traducao via LLM iniciada" e falhou depois, so no log. A varredura de 11/08 fechou 7
         // rotas e nao alcancou esta porque a catraca procurava "filaExecucao.submeter", e aqui o
         // disparo e submeterJobComRelatorio: guarda que nao reconhece a forma aprova por cegueira.
-        RAIZ + ".core.io.GuardaCaminhoEntrada"
+        RAIZ + ".core.io.GuardaCaminhoEntrada",
+        // DECIMO SEXTO ao VIGESIMO, homologados em 2026-08-13: o subpacote dicionarioOrtografia.
+        //
+        // Mesmo precedente de FronteiraTermoAss e TextoSemTags — ortografia e mecanica de IDIOMA,
+        // nao regra de negocio de fatia nenhuma. A traducao usa, a revisao vai usar, o corretor de
+        // karaoke usaria; nenhuma delas e dona do portugues.
+        //
+        // O prejuizo que justifica, MEDIDO: o NormalizadorAcentosComuns corrige por LISTA, montada
+        // com o que foi medido em cada obra. Em 13/08, sobre o Zeta recem-traduzido pela aya, essa
+        // lista resolvia ZERO das 119 falas com acento faltando — o vocabulario de uma obra nova
+        // nao e o da anterior. A regra de terminacao -cao fechou 105; as ~200 formas restantes
+        // (colonia 53, sera 32, area 14, opiniao 10, assembleia — grafia pre-acordo) so um
+        // dicionario completo alcanca.
+        //
+        // Falha fechada com TRES estados: sem hunspell instalado, nada e corrigido E o corretor se
+        // declara indisponivel. "Nao verifiquei" nunca vira "esta limpo".
+        RAIZ + ".core.texto.dicionarioOrtografia.DicionarioOrtograficoPort",
+        RAIZ + ".core.texto.dicionarioOrtografia.HunspellDicionarioAdapter",
+        RAIZ + ".core.texto.dicionarioOrtografia.CorretorAcentoPorDicionario",
+        RAIZ + ".core.texto.dicionarioOrtografia.ClassificadorQuatroIdiomas",
+        RAIZ + ".core.texto.dicionarioOrtografia.VeredictoPalavra",
+        RAIZ + ".core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda"
     );
 
     /**
