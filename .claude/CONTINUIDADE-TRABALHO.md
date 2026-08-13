@@ -425,3 +425,24 @@ A DIFERENCA ENTRE AS FATIAS, e ela e o ponto: no dialogo, palavra em ingles prov
 RESIDUO de traducao; no karaoke, e A LETRA. Mesmo dicionario, decisao oposta. Quem decide e
 a fatia; o dicionario so informa — que e o motivo de ele viver no core sem acoplar ninguem.
 
+
+### O PRINCIPIO QUE REGE A IMPLEMENTACAO NO KARAOKE (Paulo, 13/08)
+
+"A mesma regra da traducao tem de ser mantida, mas aqui em PRESERVACAO do karaoke."
+
+As garantias sao as mesmas; o DEFAULT se inverte. Na traducao o pipeline AGE e as guardas
+seguram o exagero. No karaoke o default e NAO TOCAR, e so se mexe no inequivoco — porque
+erro ali nao e palavra torta, e animacao quebrada: timing por silaba, camadas pareadas, KFX.
+
+  garantia                      karaoke
+  falha fechada, 3 estados      igual — sem dicionario nao corrige e DECLARA
+  nao perder fala               igual — contar linhas antes e depois
+  backup antes de sobrescrever  igual
+  tag e \N byte a byte          igual, e vale dobrado: \k e timing sao intocaveis
+  NA DUVIDA                     traducao tenta; KARAOKE PRESERVA
+
+O criterio do CorretorAcentoPorDicionario ja e conservador do jeito certo: so aceita a
+sugestao que e A MESMA PALAVRA ACENTUADA. "mascara -> mascara-com-acento" entra;
+"mascara -> mascarada" nunca. Aplicado ao karaoke, mexe nas 88 ocorrencias medidas e passa
+ao largo de kieta, gonna, Nordlicht e das silabas do OPL2.
+
