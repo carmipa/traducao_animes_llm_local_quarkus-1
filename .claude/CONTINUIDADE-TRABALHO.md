@@ -695,3 +695,25 @@ DUAS COISAS ABERTAS, medidas mas NAO explicadas:
    Entao o conserto do ED2 tem teste unitario mas NAO foi exercitado em arquivo real. Para
    fechar, o episodio certo e o E13 ou o E19, nao o E22.
 
+
+### FECHADO EM ARQUIVO REAL — E13/ED2, o caso de CAMADA UNICA
+
+    antes:  22 de 23 linhas com a original APAGADA
+    agora:  22 de 23 EMPILHADAS (original\Ntraducao), 1 sem empilhar (tem irma no instante)
+
+    "Behind your mask\NPor tras-com-acento da sua mascara"
+    "I don't wanna be like you\NEu nao-com-til quero ser como voce-com-acento."
+    "The feud between us escalates deeper\NA rivalidade entre nos se intensifica ainda mais."
+
+O numero que era o dano virou o numero do acerto.
+
+E o corretor ortografico aparece na mesma linha: "tras" saiu ACENTUADO (era "tras" na
+saida de 17:53), e "mascara" continua sem acento — o teto que o teste ja fixava, porque
+"mascara" E palavra em portugues (verbo mascarar) e o dicionario nao sabe que ali era o
+substantivo.
+
+OS TRES DEFEITOS DO KARAOKE, agora provados em disco:
+  OPL2 0/69 em todos      -> 6 frases empilhadas, 128 fragmentos intactos (E01)
+  ED2 camada unica        -> 22 de 23 empilhadas (E13)
+  corretor nao alcancava  -> "tras" acentuado na saida
+
