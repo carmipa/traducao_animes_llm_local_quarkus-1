@@ -118,7 +118,25 @@ public class TraducaoController {
             return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
 
-        pipelineWebSupport.submeterJobComRelatorio("traducao", "Tradução Local via LLM", () -> {
+        // O CANAL SSE SEGUE O CONTEXTO, e não pode voltar a ser literal.
+        //
+        // Esta rota serve DUAS telas: "2.1 Tradução Local" e "2.2 Tradução sem Lore". Enquanto o
+        // canal era o literal "traducao", todo o progresso da tradução SEM LORE era entregue ao
+        // console da 2.1 — a 2.2 exibia as linhas que o próprio JS dela escreve e depois ficava
+        // MUDA para sempre, porque o consoleMap do frontend não tinha entrada para ela e o
+        // fallback genérico descartava a linha em silêncio ao não achar o destino.
+        //
+        // Medido em 14/08/2026 no Memories: 192 lotes traduzidos em ~3 minutos, todos publicados
+        // em "[traducao]" (logs/console-web.log), com a tela 2.2 aberta e parada nas 7 linhas
+        // iniciais. O operador concluiu que havia travado e matou o processo — perdendo o
+        // arquivo em curso, porque o cache só é gravado ao fim de cada arquivo.
+        //
+        // O critério é o MESMO da escolha de pasta de saída, mais abaixo neste método: não há
+        // segunda régua para "isto é sem lore?".
+        boolean semLore = ContextoSemLore.ID.equals(req.contextoId());
+        String canalSse = semLore ? "traducao-sem-lore" : "traducao";
+        String nomeOperacao = semLore ? "Tradução sem Lore via LLM" : "Tradução Local via LLM";
+        pipelineWebSupport.submeterJobComRelatorio(canalSse, nomeOperacao, () -> {
             try {
                 Path pathEntrada = pipelineWebSupport.normalizarCaminho(req.entrada());
                 if (pathEntrada == null) {
