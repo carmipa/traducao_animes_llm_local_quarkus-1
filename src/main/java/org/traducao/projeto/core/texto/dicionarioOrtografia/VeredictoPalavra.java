@@ -42,6 +42,19 @@ public enum VeredictoPalavra {
      * de seis acusações no primeiro run — só {@code Aoshima} era nome de verdade.
      */
     TERMO_FRANCES("revisar"),
+    /**
+     * Japonês escrito em alfabeto latino, reconhecido pelo dicionário {@code ja_ROMAJI} gerado do
+     * IPADIC (129.745 formas). Distinto de {@link #JAPONES}, que se reconhece pela ESCRITA (kana e
+     * kanji) e não precisa de dicionário.
+     *
+     * <h2>Por que NÃO equivale a "pode sumir da tradução"</h2>
+     * O {@code .dic} do IPADIC é morfológico e inclui NOME PRÓPRIO à beça — começa em
+     * {@code aarajima}, {@code aatsukawa}, e reconhece {@code Aoshima}, que é personagem do
+     * {@code Memories}. Tratar romaji como "palavra conhecida, logo não é nome da obra" cegaria o
+     * detector de nome próprio exatamente no caso mais comum em anime. Por isso este veredicto
+     * rotula, e o detector continua acusando — romaji some da legenda é defeito do mesmo jeito.
+     */
+    ROMAJI("preservar"),
 
     /** Contém kana ou kanji: japonês de verdade no meio da legenda. */
     JAPONES("revisar"),

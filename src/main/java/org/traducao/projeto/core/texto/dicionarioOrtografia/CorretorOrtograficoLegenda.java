@@ -71,11 +71,15 @@ public class CorretorOrtograficoLegenda {
         // dele. Não é preciosismo: no primeiro run do Memories pela faixa francesa, o detector de
         // nome próprio acusou seis palavras e cinco eram francês comum (Dieu, Octobre, Juillet,
         // Maman, Californie), porque sem este dicionário elas não pertencem a idioma nenhum.
+        // O ja_ROMAJI é gerado do IPADIC pelo gerar-dicionario-romaji.ps1 (129.745 formas) e
+        // rotula japonês escrito em alfabeto latino, que nenhum dos outros reconhece. Ligado no
+        // mesmo passo em que se instala: dicionário parado em C:\Hunspell não classifica nada.
         this.classificador = new ClassificadorQuatroIdiomas(
             portugues,
             new HunspellDicionarioAdapter("hunspell", "en_US"),
             new HunspellDicionarioAdapter("hunspell", "de_DE"),
-            new HunspellDicionarioAdapter("hunspell", "fr_FR"));
+            new HunspellDicionarioAdapter("hunspell", "fr_FR"),
+            new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI"));
     }
 
     /**

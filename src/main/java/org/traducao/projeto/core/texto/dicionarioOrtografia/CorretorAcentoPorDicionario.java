@@ -46,7 +46,25 @@ import java.util.regex.Pattern;
  */
 public final class CorretorAcentoPorDicionario {
 
-    /** Palavras candidatas: 4+ letras, para não gastar consulta com artigo e preposição. */
+    /**
+     * Palavras candidatas: 4+ letras, para não gastar consulta com artigo e preposição.
+     *
+     * <h2>NÃO baixe para 3, e a tentativa está documentada porque quase passou</h2>
+     * Em 14/08/2026 a tradução do 86 saiu com 48 ocorrências de {@code sao} e 11 de {@code vao}
+     * sem acento, e a causa parecia ser este filtro. A medição de risco olhou as 151 formas de
+     * três letras do diálogo, viu que a regra de identidade de {@link #apenasAcentuacoes}
+     * rejeitava as perigosas ({@code san->sã}, {@code six->sic}, {@code two->tão}) e concluiu que
+     * três seria seguro.
+     *
+     * <p>A suíte derrubou: {@code mae} vira {@code mãe}, e {@code mae} é <b>前</b> em romaji. O
+     * dano já é conhecido do projeto — 100 ocorrências nos 50 episódios do Unicorn. A medição
+     * tinha olhado só o português; o acervo é bilíngue por natureza, e romaji de três letras é
+     * comum ({@code mae}, {@code kai}, {@code yme}).
+     *
+     * <p>O conserto de {@code são} e {@code vão} foi feito onde não há esse risco: a lista
+     * NOMINAL de {@code NormalizadorAcentosComuns}, que é a mesma casa de {@code nao} e
+     * {@code voce} — e ambas dão zero ocorrência no acervo justamente por estarem lá.
+     */
     private static final Pattern PALAVRA = Pattern.compile("\\p{L}{4,}");
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
 
