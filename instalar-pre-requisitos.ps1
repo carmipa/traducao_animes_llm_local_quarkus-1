@@ -37,7 +37,11 @@ $origemDicionarios = @{
     'en_US' = @{ pasta = 'en';    arquivo = 'en_US' }
     'de_DE' = @{ pasta = 'de';    arquivo = 'de_DE_frami' }
     'es_ES' = @{ pasta = 'es';    arquivo = 'es_ES' }
-    'fr_FR' = @{ pasta = 'fr_FR'; arquivo = 'fr' }
+    # O frances tem um NIVEL A MAIS: fr_FR e uma extensao empacotada do LibreOffice (tem
+    # description.xml, ui/, META-INF/) e os dicionarios moram em fr_FR/dictionaries/. Pedir
+    # fr_FR/fr.dic devolve 404 — mesma classe de surpresa do de_DE_frami, conferida em
+    # 14/08/2026 listando o repositorio em vez de adivinhar o caminho.
+    'fr_FR' = @{ pasta = 'fr_FR/dictionaries'; arquivo = 'fr' }
     'it_IT' = @{ pasta = 'it_IT'; arquivo = 'it_IT' }
 }
 
