@@ -73,6 +73,7 @@ class FronteiraQualidadeTraducaoArchTest {
     private static final String PKG_QUALIDADE = RAIZ + ".qualidadeTraducao";
     private static final String PKG_QT_DOMAIN = RAIZ + ".qualidadeTraducao.domain";
     private static final String PKG_QT_APPLICATION = RAIZ + ".qualidadeTraducao.application";
+    private static final String PKG_QT_NOME_PROPRIO = PKG_QT_APPLICATION + ".nomeProprio";
     private static final String PKG_QT_INFRA = RAIZ + ".qualidadeTraducao.infrastructure";
 
     private static JavaClasses classesProducao;
@@ -149,8 +150,20 @@ class FronteiraQualidadeTraducaoArchTest {
                 // Mora no peer, junto da exceção-mãe e de MascaradorTags, que é quem a lança.
                 PKG_QT_DOMAIN + ".MarcadorPerdidoException",
                 PKG_QT_DOMAIN + ".ExcecaoQualidadeTraducao",
-                PKG_QT_DOMAIN + ".LoreAtivaPort")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os onze proprietários top-level homologados, por FQN "
+                PKG_QT_DOMAIN + ".LoreAtivaPort",
+                // DÉCIMO SEGUNDO AO DÉCIMO QUARTO, entraram em 13/08/2026 como o subpacote
+                // nomeProprio. Cobrem o buraco declarado no Javadoc de ContextoSemLore: sem lore,
+                // correcoesTerminologia() é VAZIO e nada além da instrução em prosa impede o
+                // modelo de traduzir nome de personagem. Medem, não corrigem.
+                //
+                // Moram neste peer pelo mesmo critério de EnforcadorTermosLore e
+                // NormalizadorAcentosComuns: operam sobre o TEXTO PRODUZIDO. Não guardam nada de
+                // identidade de obra — não sabem QUAL obra é, só perguntam ao dicionário se a
+                // palavra pertence a algum dos quatro idiomas.
+                PKG_QT_NOME_PROPRIO + ".DetectorNomeProprioTraduzido",
+                PKG_QT_NOME_PROPRIO + ".ExtratorCandidatosNomeProprio",
+                PKG_QT_NOME_PROPRIO + ".VeredictoNomeProprio")), topLevelsFqn,
+            "qualidadeTraducao deve conter EXATAMENTE os quatorze proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

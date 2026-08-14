@@ -95,7 +95,12 @@ class CatracaSuiteSemDriveWindowsTest {
         "MedicaoAdverbioEntreVerboEParticipioIT.java",
         // Entrou em 13/08/2026: repete no Zeta a comparacao mistral x aya do Unicorn, sobre o
         // CACHE (a retraducao gravou por cima do .ass). Le cache/ e backups/ reais.
-        "MedicaoZetaMistralXAyaIT.java"
+        "MedicaoZetaMistralXAyaIT.java",
+        // Entrou em 13/08/2026: mede o VOLUME que o detector de nome proprio produz num acervo
+        // real antes de o numero dele ser usado para julgar qualquer coisa — a versao anterior
+        // dessa ideia foi removida por 57,7% de falso positivo, e o erro de metodo foi nao medir
+        // primeiro. Le as legendas do Memories (1995); PULADO por Assumptions se a pasta faltar.
+        "MedicaoNomeProprioAcervoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

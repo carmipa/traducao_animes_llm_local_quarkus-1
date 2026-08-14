@@ -89,6 +89,8 @@ public class ProcessarArquivoUseCase {
     private final NormalizadorCartaoDataService normalizadorCartaoData;
     private final GuardaContextoObraTraducao guardaContextoObra;
     private final ContextoCongeladoDaExecucao contextoCongelado;
+    private final org.traducao.projeto.qualidadeTraducao.application.nomeProprio
+        .DetectorNomeProprioTraduzido detectorNomeProprio;
 
     // Prefixo EXATO do aviso emitido por TradutorLotesService.desmascararComFallback
     // quando o LLM corrompe os marcadores [[TAGn]]. Usado só para o KPI: identifica
@@ -109,6 +111,25 @@ public class ProcessarArquivoUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou com menos de três campos devolve
      * string vazia — o registro perde a chave de casamento mas não derruba a tradução.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: condensa os nomes perdidos numa linha legível de log.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: no máximo oito nomes distintos; o excedente vira contagem. Log de
+     * episódio com centenas de nomes não é lido por ninguém, e o detalhe completo já vai para o
+     * relatório.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo ou vazio devolve string vazia.
+     */
+    private static String resumirNomesPerdidos(Map<String, List<String>> perdidos) {
+        if (perdidos == null || perdidos.isEmpty()) {
+            return "";
+        }
+        java.util.LinkedHashSet<String> distintos = new java.util.LinkedHashSet<>();
+        perdidos.values().forEach(distintos::addAll);
+        String amostra = distintos.stream().limit(8).collect(java.util.stream.Collectors.joining(", "));
+        return distintos.size() > 8 ? amostra + " (+" + (distintos.size() - 8) + ")" : amostra;
+    }
+
     private static String instanteDe(EventoLegenda evento) {
         if (evento == null || evento.prefixo() == null) {
             return "";
@@ -145,7 +166,9 @@ public class ProcessarArquivoUseCase {
         org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico,
         NormalizadorCartaoDataService normalizadorCartaoData,
         GuardaContextoObraTraducao guardaContextoObra,
-        ContextoCongeladoDaExecucao contextoCongelado
+        ContextoCongeladoDaExecucao contextoCongelado,
+        org.traducao.projeto.qualidadeTraducao.application.nomeProprio
+            .DetectorNomeProprioTraduzido detectorNomeProprio
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -175,6 +198,7 @@ public class ProcessarArquivoUseCase {
         this.normalizadorCartaoData = normalizadorCartaoData;
         this.guardaContextoObra = guardaContextoObra;
         this.contextoCongelado = contextoCongelado;
+        this.detectorNomeProprio = detectorNomeProprio;
     }
 
     /**
@@ -637,6 +661,32 @@ public class ProcessarArquivoUseCase {
                 normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
             }
+        }
+
+        // DIAGNÓSTICO de nome próprio traduzido. Só mede: não reescreve nenhuma fala, porque a
+        // versão anterior desta ideia — "toda palavra capitalizada tem de sobreviver" — foi
+        // removida do projeto por gerar 323 falso positivo em 560 pendências (57,7%). O que mudou
+        // foi passar a existir dicionário de quatro idiomas para separar Sky, que não é palavra de
+        // idioma nenhum, de Never, que é inglês comum capitalizado.
+        //
+        // Vale sobretudo SEM LORE: ali correcoesTerminologia() é vazio por definição e nada além
+        // da instrução em prosa impede o modelo de traduzir nome de personagem. Roda também com
+        // lore para os dois números serem comparáveis. Uma consulta ao dicionário por EXECUÇÃO.
+        //
+        // O número é PISO, não teto: nome próprio que também é palavra comum escapa. Medido em
+        // 13/08/2026 no Memories — "Heinz", 17 falas, passa ileso porque en_US e de_DE conhecem a
+        // palavra. Pegá-lo exigiria acusar toda capitalizada, que é o falso positivo de 57,7%.
+        var nomesProprios = detectorNomeProprio.verificarLote(traducoesValidadas);
+        if (!nomesProprios.verificado()) {
+            uiLogger.log("[ INFO ] Nomes próprios: NÃO VERIFICADO (dicionário indisponível) — "
+                + "ausência de aviso aqui não significa que nenhum nome foi traduzido.");
+        } else if (nomesProprios.temPerda()) {
+            String aviso = nomesProprios.totalPerdidos() + " nome(s) próprio(s) do original ausente(s) "
+                + "da tradução em " + nomesProprios.falasAfetadas() + " fala(s), de "
+                + nomesProprios.candidatasExaminadas() + " candidata(s) examinada(s): "
+                + resumirNomesPerdidos(nomesProprios.perdidos());
+            log.info(aviso);
+            uiLogger.log("[ INFO ] " + aviso);
         }
 
         List<EventoLegenda> eventosFinais = new ArrayList<>(documento.eventos().size());
