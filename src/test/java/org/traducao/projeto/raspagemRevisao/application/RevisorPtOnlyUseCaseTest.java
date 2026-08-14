@@ -29,7 +29,7 @@ class RevisorPtOnlyUseCaseTest {
 
     private final RevisorPtOnlyUseCase useCase = new RevisorPtOnlyUseCase(
         new LeitorLegendaAss(), new EscritorLegendaAss(),
-        new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService()),
+        new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService(), new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
         new TelemetriaNoOp());
 
     /** Telemetria no-op para o teste unitário: não persiste em disco (não chama super). */
@@ -117,3 +117,4 @@ class RevisorPtOnlyUseCaseTest {
         assertEquals(0, r.arquivosAnalisados());
     }
 }
+

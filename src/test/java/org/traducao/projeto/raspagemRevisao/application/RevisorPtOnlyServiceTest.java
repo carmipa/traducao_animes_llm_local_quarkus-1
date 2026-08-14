@@ -19,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RevisorPtOnlyServiceTest {
 
-    private final RevisorPtOnlyService svc = new RevisorPtOnlyService(
-        new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService());
+    private final RevisorPtOnlyService svc = new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService(), new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda());
 
     @Test
     @DisplayName("repõe acentos inequívocos sem o inglês")
@@ -61,3 +60,4 @@ class RevisorPtOnlyServiceTest {
         assertFalse(r.temAsterisco());
     }
 }
+

@@ -37,13 +37,24 @@ public class RevisorPtOnlyService {
 
     private final NormalizadorAcentosComuns acentos;
     private final CorretorDeterministicoConcordanciaService concordancia;
+    
+    /**
+     * O dicionario do SISTEMA, que alcanca o que a lista nao alcanca.
+     *
+     * <p>A REVISAO e onde ele vale mais: e o unico caminho para corrigir o acervo JA
+     * traduzido sem reprocessar tudo. Medido em 13/08/2026 — as 119 falas do Zeta com acento
+     * faltando ja estao GRAVADAS, e a regra de terminacao so vale para traducao nova.
+     */
+    private final org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda dicionario;
 
     public RevisorPtOnlyService(
         NormalizadorAcentosComuns acentos,
-        CorretorDeterministicoConcordanciaService concordancia
+        CorretorDeterministicoConcordanciaService concordancia,
+        org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda dicionario
     ) {
         this.acentos = acentos;
         this.concordancia = concordancia;
+        this.dicionario = dicionario;
     }
 
     /**
@@ -68,8 +79,13 @@ public class RevisorPtOnlyService {
         String r = acentos.normalizar(pt);
         r = QUEBRA_ANTES_PONTUACAO.matcher(r).replaceAll("$1\\\\N");
         r = concordancia.corrigir(null, r).orElse(r);
+        // DEPOIS dos deterministicos: o que a lista e a regra ja resolveram nao gasta consulta.
+        // Sem hunspell instalado devolve o texto intacto e se declara indisponivel — a revisao
+        // nunca apresenta 'sem erros' quando na verdade nao verificou.
+        r = dicionario == null ? r : dicionario.corrigir(r);
         String visivel = TAG_ASS.matcher(r).replaceAll("");
         boolean temAsterisco = ASTERISCO.matcher(visivel).find();
         return new ResultadoFala(r, !r.equals(pt), temAsterisco);
     }
 }
+
