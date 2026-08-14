@@ -252,9 +252,21 @@ public class ValidadorTraducaoService {
         "^(?:repito|aten[çc][ãa]o|aviso|nota|observa[çc][ãa]o|ou seja|isto|isso|ent[ãa]o|bem|sim|"
             + "n[ãa]o|mas|ah|oh|ei|olha|escuta|escute|veja|ora"
             + "|(?:(?:ele|ela|eles|elas|voc[êe]|voc[êe]s|eu|n[óo]s)\\s+)?"
+            // Pronome oblíquo OPCIONAL entre sujeito e verbo: "Ela O saudara com", "Ele ME
+            // disse". Sem isto, "Ela o saudara" não casa e a fala vira pendência — foi o caso
+            // do ep 06 do 86 em 14/08/2026.
+            + "(?:(?:o|a|os|as|lhe|lhes|me|te|nos|vos)\\s+)?"
             + "(?:disse|disseram|dizia|diziam|falou|falaram|respondeu|responderam|"
             + "gritou|gritaram|perguntou|perguntaram|avisou|avisaram|contou|contaram|"
-            + "explicou|explicaram|repetiu|repetiram|pensou|pensaram)"
+            + "explicou|explicaram|repetiu|repetiram|pensou|pensaram"
+            // Terceira leva, 14/08/2026, medida no 86: duas falas viraram pendência por aqui,
+            // e as duas eram tradução CORRETA de conectivo que existe no original.
+            //   ep 07  EN "She means, ..."          PT "Ela quer dizer: \"Depois que fomos mortos.\""
+            //   ep 06  EN "She greeted him with..." PT "Ela o saudara com: \"E uma manha...\""
+            // O verbo composto ("quer dizer") e o pronome oblíquo entre sujeito e verbo ("o
+            // saudara") não casavam a lista, que só previa verbo simples logo após o pronome.
+            + "|quer dizer|queria dizer|quis dizer|significa|significava"
+            + "|saudou|saudara|saudaram|cumprimentou|chamou|chamaram|murmurou|sussurrou)"
             + ")\\s*:",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
