@@ -47,6 +47,7 @@ public final class ClassificadorQuatroIdiomas {
     private final DicionarioOrtograficoPort ingles;
     private final DicionarioOrtograficoPort alemao;
     private final DicionarioOrtograficoPort frances;
+    private final DicionarioOrtograficoPort romaji;
 
     /**
      * PROPÓSITO DE NEGÓCIO: recebe um verificador por idioma ocidental; o japonês não precisa de
@@ -74,10 +75,26 @@ public final class ClassificadorQuatroIdiomas {
     public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
             DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao,
             DicionarioOrtograficoPort frances) {
+        this(portugues, ingles, alemao, frances, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a forma completa, com o dicionário de ROMAJI — japonês escrito em
+     * alfabeto latino, que nenhum dos outros reconhece e que aparece em toda legenda de anime.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o romaji é consultado por ÚLTIMO e produz
+     * {@link VeredictoPalavra#ROMAJI}, que NÃO isenta a palavra da checagem de nome próprio — o
+     * dicionário do IPADIC é cheio de sobrenome japonês e trata-lo como "palavra comum" cegaria o
+     * detector no caso mais frequente do acervo.
+     */
+    public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
+            DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao,
+            DicionarioOrtograficoPort frances, DicionarioOrtograficoPort romaji) {
         this.portugues = portugues;
         this.ingles = ingles;
         this.alemao = alemao;
         this.frances = frances;
+        this.romaji = romaji;
     }
 
     /**
@@ -114,9 +131,12 @@ public final class ClassificadorQuatroIdiomas {
         Set<String> naoDe = restantes.isEmpty() ? Set.of() : alemao.desconhecidas(restantes);
         Set<String> naoFr = (restantes.isEmpty() || frances == null)
             ? Set.of() : frances.desconhecidas(restantes);
+        Set<String> naoRomaji = (restantes.isEmpty() || romaji == null)
+            ? Set.of() : romaji.desconhecidas(restantes);
 
         for (String p : paraConsultar) {
-            fora.put(p, vereditoDe(p, naoPt.keySet(), comAcento, naoEn, naoDe, naoFr, restantes));
+            fora.put(p, vereditoDe(p, naoPt.keySet(), comAcento, naoEn, naoDe, naoFr, naoRomaji,
+                restantes));
         }
         return fora;
     }
@@ -151,7 +171,8 @@ public final class ClassificadorQuatroIdiomas {
      * cai em {@link VeredictoPalavra#DESCONHECIDA}.
      */
     private VeredictoPalavra vereditoDe(String palavra, Set<String> naoPt, Set<String> comAcento,
-            Set<String> naoEn, Set<String> naoDe, Set<String> naoFr, Set<String> restantes) {
+            Set<String> naoEn, Set<String> naoDe, Set<String> naoFr, Set<String> naoRomaji,
+            Set<String> restantes) {
         if (!naoPt.contains(palavra)) {
             return VeredictoPalavra.PORTUGUES_OK;
         }
@@ -173,6 +194,12 @@ public final class ClassificadorQuatroIdiomas {
         // casos a palavra deixa de ser DESCONHECIDA, e é isso que o detector de nome próprio lê.
         if (frances != null && frances.disponivel() && !naoFr.contains(palavra)) {
             return VeredictoPalavra.TERMO_FRANCES;
+        }
+        // O romaji fecha a fila, e o rótulo NÃO isenta de nada: quem lê este veredicto para
+        // decidir sobre nome próprio precisa tratá-lo como candidato, porque o IPADIC reconhece
+        // sobrenome japonês (Aoshima, e o .dic abre em aarajima/aatsukawa).
+        if (romaji != null && romaji.disponivel() && !naoRomaji.contains(palavra)) {
+            return VeredictoPalavra.ROMAJI;
         }
         return VeredictoPalavra.DESCONHECIDA;
     }

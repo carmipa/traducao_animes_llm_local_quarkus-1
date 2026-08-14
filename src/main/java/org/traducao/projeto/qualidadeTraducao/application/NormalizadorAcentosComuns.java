@@ -55,6 +55,17 @@ public class NormalizadorAcentosComuns {
     // Forma-sem-acento (nunca palavra válida em PT) -> forma acentuada canônica.
     private static final Map<String, String> CORRECOES = Map.ofEntries(
         Map.entry("nao", "não"),
+        // "sao" e "vao" entraram em 14/08/2026, medidas na tradução do 86: 48 e 11 ocorrências
+        // chegaram à legenda sem acento, contra 1 na versão de 07/08. Elas caíam no vão entre os
+        // dois mecanismos — não estavam nesta lista e têm 3 letras, abaixo do filtro do
+        // dicionário. Baixar aquele filtro foi tentado e REPROVADO pela suíte: levaria "mae"
+        // (前 em romaji) a virar "mãe", dano já medido em 100 ocorrências no Unicorn. Aqui é
+        // nominal e por isso não alcança romaji.
+        //
+        // "São" com maiúscula sobrevive: a substituição preserva a caixa, e o par São Paulo /
+        // San Magnólia não colide — "san" não está nesta lista.
+        Map.entry("sao", "são"),
+        Map.entry("vao", "vão"),
         Map.entry("voce", "você"),
         Map.entry("voces", "vocês"),
         Map.entry("tambem", "também"),

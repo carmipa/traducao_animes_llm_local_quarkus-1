@@ -149,7 +149,16 @@ public class DetectorNomeProprioTraduzido {
                 // existe para impedir.
                 return null;
             }
-            if (v == VeredictoPalavra.DESCONHECIDA) {
+            // ROMAJI entra JUNTO com DESCONHECIDA, e isso não é descuido.
+            //
+            // O dicionário ja_ROMAJI vem do IPADIC, que é morfológico e cheio de nome próprio —
+            // ele reconhece "Aoshima", personagem do Memories, e o arquivo abre em "aarajima",
+            // "aatsukawa". Se ROMAJI significasse "palavra conhecida, logo não é nome da obra", o
+            // detector ficaria cego justamente no caso mais comum em anime: nome japonês.
+            //
+            // E há a razão positiva: romaji que some da tradução é defeito do mesmo jeito. Romaji
+            // não se traduz — é a regra do karaokê do projeto, e vale para o diálogo também.
+            if (v == VeredictoPalavra.DESCONHECIDA || v == VeredictoPalavra.ROMAJI) {
                 desconhecidas.add(palavra);
             }
         }

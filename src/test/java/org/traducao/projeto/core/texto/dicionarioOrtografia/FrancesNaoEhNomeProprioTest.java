@@ -9,6 +9,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: impede que palavra francesa comum seja tomada por nome próprio inventado
@@ -77,9 +78,14 @@ class FrancesNaoEhNomeProprioTest {
             v.values().stream().noneMatch(x -> x == VeredictoPalavra.NAO_VERIFICADO),
             "algum dicionário indisponível — NÃO VERIFICADO");
 
-        assertEquals(VeredictoPalavra.DESCONHECIDA, v.get("Aoshima"),
-            "o dicionário francês cegou o detector: Aoshima é nome próprio de verdade e precisa "
-                + "continuar sendo acusável");
+        // Aoshima é reconhecido pelo dicionário ja_ROMAJI (o IPADIC é cheio de sobrenome
+        // japonês), então sai como ROMAJI e não como DESCONHECIDA. Os DOIS vereditos são
+        // tratados como candidato a nome próprio por DetectorNomeProprioTraduzido — a acusação
+        // continua acontecendo, que é o que este teste protege. Ver RomajiRotulaMasNaoIsentaTest.
+        assertTrue(v.get("Aoshima") == VeredictoPalavra.DESCONHECIDA
+                || v.get("Aoshima") == VeredictoPalavra.ROMAJI,
+            "o dicionário cegou o detector: Aoshima é nome próprio de verdade e precisa continuar "
+                + "acusável. Veredicto: " + v.get("Aoshima"));
         assertEquals(VeredictoPalavra.DESCONHECIDA, v.get("Blackwood"));
     }
 
