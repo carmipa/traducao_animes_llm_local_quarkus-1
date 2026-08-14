@@ -46,19 +46,38 @@ public final class ClassificadorQuatroIdiomas {
     private final DicionarioOrtograficoPort portugues;
     private final DicionarioOrtograficoPort ingles;
     private final DicionarioOrtograficoPort alemao;
+    private final DicionarioOrtograficoPort frances;
 
     /**
      * PROPÓSITO DE NEGÓCIO: recebe um verificador por idioma ocidental; o japonês não precisa de
      * dicionário porque se reconhece pela escrita.
      *
      * <p>INVARIANTES DO DOMÍNIO: qualquer um pode estar indisponível, e o classificador continua
-     * funcionando com o que sobrou — declarando o que não pôde julgar.
+     * funcionando com o que sobrou — declarando o que não pôde julgar. O francês pode ser
+     * {@code null} nas chamadas antigas, e nesse caso simplesmente não rotula.
      */
     public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
             DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao) {
+        this(portugues, ingles, alemao, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma coisa, com o francês — necessário desde que o acervo passou a
+     * ter obra traduzida A PARTIR do francês.
+     *
+     * <h2>O prejuízo que obrigou a existir</h2>
+     * No primeiro run do {@code Memories} a partir da faixa francesa, o detector de nome próprio
+     * acusou seis palavras e CINCO eram francês comum — {@code Dieu}, {@code Octobre},
+     * {@code Juillet}, {@code Maman}, {@code Californie}. Sem dicionário francês elas não são
+     * palavra de idioma nenhum, que é exatamente a assinatura de nome inventado da obra.
+     */
+    public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
+            DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao,
+            DicionarioOrtograficoPort frances) {
         this.portugues = portugues;
         this.ingles = ingles;
         this.alemao = alemao;
+        this.frances = frances;
     }
 
     /**
@@ -93,9 +112,11 @@ public final class ClassificadorQuatroIdiomas {
 
         Set<String> naoEn = restantes.isEmpty() ? Set.of() : ingles.desconhecidas(restantes);
         Set<String> naoDe = restantes.isEmpty() ? Set.of() : alemao.desconhecidas(restantes);
+        Set<String> naoFr = (restantes.isEmpty() || frances == null)
+            ? Set.of() : frances.desconhecidas(restantes);
 
         for (String p : paraConsultar) {
-            fora.put(p, vereditoDe(p, naoPt.keySet(), comAcento, naoEn, naoDe, restantes));
+            fora.put(p, vereditoDe(p, naoPt.keySet(), comAcento, naoEn, naoDe, naoFr, restantes));
         }
         return fora;
     }
@@ -130,7 +151,7 @@ public final class ClassificadorQuatroIdiomas {
      * cai em {@link VeredictoPalavra#DESCONHECIDA}.
      */
     private VeredictoPalavra vereditoDe(String palavra, Set<String> naoPt, Set<String> comAcento,
-            Set<String> naoEn, Set<String> naoDe, Set<String> restantes) {
+            Set<String> naoEn, Set<String> naoDe, Set<String> naoFr, Set<String> restantes) {
         if (!naoPt.contains(palavra)) {
             return VeredictoPalavra.PORTUGUES_OK;
         }
@@ -145,6 +166,13 @@ public final class ClassificadorQuatroIdiomas {
         }
         if (alemao.disponivel() && !naoDe.contains(palavra)) {
             return VeredictoPalavra.TERMO_ALEMAO;
+        }
+        // O francês vem por ÚLTIMO de propósito: é o dicionário mais recente e o menos usado como
+        // origem. Ordem diferente mudaria o rótulo de palavras que existem em mais de um idioma
+        // (o clássico "important", que é inglês e francês) sem mudar o que importa — em todos os
+        // casos a palavra deixa de ser DESCONHECIDA, e é isso que o detector de nome próprio lê.
+        if (frances != null && frances.disponivel() && !naoFr.contains(palavra)) {
+            return VeredictoPalavra.TERMO_FRANCES;
         }
         return VeredictoPalavra.DESCONHECIDA;
     }
