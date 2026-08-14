@@ -300,8 +300,14 @@ public class NormalizadorAcentosComuns {
      * <p>Exige 3+ letras antes da terminação, mantendo fora fragmentos curtos, e a mesma fronteira
      * do ASS do resto da classe — {@code \N} colado à palavra não pode esconder a correção.
      */
+    // [cç] e NÃO ç? — o opcional casaria "-ao" e "-oes" sozinhos, e o risco medido em 13/08 cobriu
+    // apenas as terminações com C/Ç (151 formas no acervo, todas legítimas). Terminação "-ao" solta
+    // é outro conjunto, não medido, e alargar sem medir é como se produz alarme falso em massa.
+    //
+    // O cedilha entrou porque a saída de 20:30 trouxe 5 formas com Ç e sem til — "atenuaçao",
+    // "admiraçao", "evacuaçao", "salvaçao", "recuperaçao": o modelo acerta a cedilha e erra o til.
     private static final Pattern TERMINACAO_CAO = Pattern.compile(
-        INICIO_DE_TERMO + "(\\p{L}{3,}?)(coes|cao)(?![\\p{L}\\p{N}])",
+        INICIO_DE_TERMO + "(\\p{L}{3,}?)([cç]oes|[cç]ao)(?![\\p{L}\\p{N}])",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     /**
@@ -340,7 +346,8 @@ public class NormalizadorAcentosComuns {
         StringBuilder sb = new StringBuilder(texto.length());
         while (m.find()) {
             String inicio = m.group(1);
-            boolean plural = m.group(2).equalsIgnoreCase("coes");
+            // endsWith e não equals: o grupo agora pode vir com C ou Ç ("coes" ou "çoes").
+            boolean plural = m.group(2).toLowerCase(Locale.ROOT).endsWith("oes");
             String terminacao = plural ? "ções" : "ção";
             if (m.group(2).chars().allMatch(Character::isUpperCase)) {
                 terminacao = terminacao.toUpperCase(Locale.ROOT);
