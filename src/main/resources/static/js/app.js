@@ -305,6 +305,12 @@ function conectarFluxoLugsSSE() {
         'extracao': 'console-extracao',
         'auditor-conteudo': 'console-auditor-conteudo',
         'traducao': 'console-traducao',
+        // Sem esta entrada a tela 2.2 fica MUDA: não é só falta de listener nomeado — o canal
+        // genérico de fallback resolve o destino por consoleMap[aba ativa], não acha nada e
+        // descarta a linha sem erro. Em 14/08/2026 isso mandou 192 lotes de progresso da
+        // tradução sem lore para o console da 2.1. Emparelhada com o canal escolhido em
+        // TraducaoController; as duas pontas nascem e mudam juntas.
+        'traducao-sem-lore': 'console-traducao-sem-lore',
         'correcao': 'console-correcao',
         'revisao': 'console-revisao',
         'revisao-lore': 'console-revisao-lore',
