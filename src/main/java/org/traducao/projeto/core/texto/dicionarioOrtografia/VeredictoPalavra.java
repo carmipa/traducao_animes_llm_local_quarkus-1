@@ -34,6 +34,14 @@ public enum VeredictoPalavra {
 
     /** Não é português e é alemão válido: quase sempre nome ou termo de lore. Preservar. */
     TERMO_ALEMAO("preservar"),
+    /**
+     * Palavra que o dicionário francês reconhece. Entrou em 14/08/2026, quando o acervo passou a
+     * ter obra traduzida A PARTIR do francês: sem esta pergunta, {@code Dieu}, {@code Octobre},
+     * {@code Juillet}, {@code Maman} e {@code Californie} caíam em {@link #DESCONHECIDA} e o
+     * detector de nome próprio as tratava como nome inventado da obra. São cinco falsos positivos
+     * de seis acusações no primeiro run — só {@code Aoshima} era nome de verdade.
+     */
+    TERMO_FRANCES("revisar"),
 
     /** Contém kana ou kanji: japonês de verdade no meio da legenda. */
     JAPONES("revisar"),
