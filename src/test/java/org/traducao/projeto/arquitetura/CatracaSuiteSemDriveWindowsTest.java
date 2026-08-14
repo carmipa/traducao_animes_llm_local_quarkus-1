@@ -100,7 +100,10 @@ class CatracaSuiteSemDriveWindowsTest {
         // real antes de o numero dele ser usado para julgar qualquer coisa — a versao anterior
         // dessa ideia foi removida por 57,7% de falso positivo, e o erro de metodo foi nao medir
         // primeiro. Le as legendas do Memories (1995); PULADO por Assumptions se a pasta faltar.
-        "MedicaoNomeProprioAcervoIT.java"
+        "MedicaoNomeProprioAcervoIT.java",
+        // Entrou em 14/08/2026: mede quantas falas em FRANCES o pipeline daria por ja
+        // traduzidas e nunca enviaria ao LLM. Le as legendas do Memories (1995).
+        "MedicaoFonteFrancesaIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

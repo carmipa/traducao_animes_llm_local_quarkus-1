@@ -53,6 +53,60 @@ public class DetectorIdiomaFonteService {
         + "|down|up|out|off|said|only|one|two|but|if|let|way|day|god|hey|yeah|too|gonna|wanna|gotta)"
         + FronteiraTermoAss.FIM);
 
+    // Stopwords FRANCESAS sem colisão com português — presença ⇒ NÃO é português (manda traduzir).
+    //
+    // O PREJUÍZO QUE OBRIGOU A EXISTIR, medido em 14/08/2026 nas faixas francesas do Memories:
+    // 208 de 963 falas (21,6%) eram classificadas como "já no idioma-alvo" e NUNCA chegariam ao
+    // LLM — ficariam em francês no arquivo final sem sequer virar pendência. Na mesma medição a
+    // faixa INGLESA dos mesmos três filmes deu 0 de 2.402 (0,0%), o que prova que o furo é
+    // específico do francês, não frouxidão geral do detector.
+    //
+    // A causa são as duas vias abaixo, ambas calibradas só contra fonte inglesa:
+    //   - SINAL_PORTUGUES traz "à" e "nos", que são francês corrente ("Nous rentrons à la base");
+    //   - o ramo por diacríticos aceita é/è/ê/à/ç/ô, que o francês usa o tempo todo
+    //     ("Je reviens bientôt, Cécile." tem dois acentos em palavra minúscula).
+    //
+    // Lista CONSERVADORA: cada forma foi conferida como inexistente em português. Ficaram de
+    // fora, de propósito, os homógrafos "de", "se", "me", "te", "la", "ou", "mais" e "que" —
+    // acusar qualquer um deles mandaria retraduzir fala portuguesa legítima, que é o dano oposto.
+    private static final Pattern SINAL_FRANCES = Pattern.compile(
+        "(?i)" + FronteiraTermoAss.INICIO + "(le|les|des|du|est|sont|vous|nous|je|ne|pas|qui"
+        + "|dans|avec|sur|elle|elles|il|ils|une|être|très|bien|tout|toute|moi|toi|lui|leur"
+        + "|cette|ces|mon|ton|aux|au|on|et|donc|alors|quoi|oui|non|rien|encore|aussi|comme"
+        + "|quand|faut|peut|veux|sais|suis|était|avait|fait|chose|toujours|ici"
+        + "|maintenant|parce|pourquoi|comment|beaucoup|peu|trop|assez|déjà|puis|depuis"
+        // Segunda leva, 14/08/2026: formas colhidas nas 21 falas que sobraram da primeira
+        // medição ("O.K., frappez à la porte pour voir", "Ça explique cet abominable décor",
+        // "Transmettez ça à notre armée"). Mesmo critério das anteriores — nenhuma é palavra
+        // portuguesa. Continuam FORA "tu", "me", "la", "en", "mais" e "entre", que são.
+        + "|pour|ça|cet|un|notre|votre|tes|ses|soyez|êtes|avez|allez|ont|sommes"
+        // QUATRO FORMAS SAÍRAM DAQUI depois de entrarem por engano, e as três primeiras foram
+        // pegas medindo contra legenda PORTUGUESA do acervo, não por releitura:
+        //   partir  — português corrente ("vamos partir");
+        //   jamais  — português corrente, mesma grafia ("a Federação jamais abandonará");
+        //   mes     — é "mês" SEM ACENTO ("Cheguei aqui ha um mes");
+        //   sera    — é "será" SEM ACENTO ("você sera enviado para a batalha");
+        //   vos     — pronome português ("eu vos digo"), e "vós" sem acento.
+        // As duas do meio são o agravante deste acervo em particular: falta acento em parte das
+        // traduções, e forma portuguesa desacentuada cai exatamente na grafia francesa. Palavra
+        // candidata a esta lista precisa ser conferida SEM acento também.
+        + "|sans|sous|vers|autre|autres|même|chez|quelque|quelques|sûr|prêt|prêts|trouver"
+        + "|dire|faire|voir|savoir|venir|donner|monde|temps|homme|femme|jour|nuit)"
+        + FronteiraTermoAss.FIM);
+
+    // ELISÃO com apóstrofo — assinatura estrutural do francês que o português não tem.
+    // "c'est", "l'a", "d'un", "qu'il", "j'ai", "n'est", "s'enfoncer". Pega a fala francesa curta
+    // que não tem nenhuma stopword da lista acima, e é barata: uma consoante elidível, apóstrofo,
+    // vogal. O inglês elide com apóstrofo também ("don't", "it's"), mas ali o padrão é
+    // LETRA+'+consoante/s no FIM da palavra, não consoante isolada no começo.
+    //
+    // A fronteira vem de FronteiraTermoAss, e não de um lookbehind próprio, pelo mesmo motivo dos
+    // dois padrões acima: o \N da quebra ASS termina em N, que é LETRA. Com "(?<![\p{L}])" a
+    // elisão colada na quebra — "...avant\Nqu'il puisse..." — ficaria invisível, que é justamente
+    // a forma como ela aparece na legenda real do Memories.
+    private static final Pattern ELISAO_FRANCESA = Pattern.compile(
+        "(?i)" + FronteiraTermoAss.INICIO + "(?:[cdjlmnst]|qu)'\\p{L}");
+
     // Stopwords portuguesas sem colisão com inglês — presença ⇒ forte sinal de PT.
     // Mesma fronteira do sinal inglês, e pelo mesmo motivo: a palavra colada na quebra do ASS
     // não pode desaparecer da contagem. Aqui a falha era do lado SEGURO (perder evidência de PT
@@ -94,6 +148,12 @@ public class DetectorIdiomaFonteService {
             return false;
         }
         if (SINAL_INGLES.matcher(limpo).find()) {
+            return false;
+        }
+        // ANTES do sinal português, e a ordem é o conserto: "Nous rentrons à la base" casa "à" na
+        // lista PT e sairia como já-traduzida. Perguntar primeiro se é francês resolve as duas
+        // vias de uma vez, porque quem chega aqui com stopword francesa ou elisão não é PT.
+        if (SINAL_FRANCES.matcher(limpo).find() || ELISAO_FRANCESA.matcher(limpo).find()) {
             return false;
         }
         if (SINAL_PORTUGUES.matcher(limpo).find()) {
