@@ -397,6 +397,13 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".qualidadeTraducao.application.NormalizadorAcentosComuns",
         RAIZ + ".qualidadeTraducao.application.ProtecaoLegendaAssService",
         RAIZ + ".qualidadeTraducao.application.ValidadorTraducaoService",
+        // Subpacote nomeProprio, 13/08/2026: mede nome próprio do original que não chegou à
+        // tradução. Só o detector e o veredito cruzam a fronteira — o extrator é
+        // package-private e fica dentro do peer, de propósito: a heurística de capitalização
+        // sozinha é o que produziu 57,7% de falso positivo na versão anterior desta ideia, e
+        // fora do peer alguém a usaria sem o filtro do dicionário que a torna utilizável.
+        RAIZ + ".qualidadeTraducao.application.nomeProprio.DetectorNomeProprioTraduzido",
+        RAIZ + ".qualidadeTraducao.application.nomeProprio.VeredictoNomeProprio",
         RAIZ + ".qualidadeTraducao.domain.AlucinacaoDetectadaException",
         RAIZ + ".qualidadeTraducao.domain.LoreAtivaPort"
     );

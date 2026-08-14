@@ -73,7 +73,7 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         ProcessarArquivoAlucina() {
             super(null, null, null, null, null, null, null, null, null, null,
                   null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                  null, null, null);
+                  null, null, null, null);
         }
         @Override
         public ResultadoTraducaoArquivo processar(
