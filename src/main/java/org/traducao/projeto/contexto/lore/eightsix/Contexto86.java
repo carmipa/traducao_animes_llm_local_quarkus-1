@@ -170,7 +170,26 @@ public class Contexto86 implements ProvedorContexto {
             // (57,7%); enquanto isso nao mudar, a entrada medida e o mecanismo disponivel.
             Map.entry("Esquadroe de Ponta", "Spearhead"),  // 1
             Map.entry("Esquadroa de Ponta", "Spearhead"),  // 1
-            Map.entry("Espada-Faca", "Spearhead")          // 1
+            Map.entry("Espada-Faca", "Spearhead"),         // 1
+
+            // FASE 1 DA FONTE ÚNICA DE LORE (2026-08-15) — as quatro entradas abaixo já existiam
+            // no catálogo da REVISÃO de lore desta mesma obra e a tradução não as tinha. Quem
+            // traduz não enxergava o que quem revisa aprendeu, e é a tradução que escreve o .ass.
+            //
+            // O EFEITO NO ACERVO DE HOJE É ZERO, e isso está MEDIDO, não suposto
+            // (MedicaoEfeitoDaUniaoDeLoreIT): nenhuma das quatro ocorre nas 16.120 falas já
+            // traduzidas do 86. O ganho é nas traduções FUTURAS — dizer o contrário seria
+            // prometer ganho que a medição não mostra.
+            //
+            // "Canela" é o caso que exigiu olhar antes de confiar: é homógrafo da parte do corpo
+            // em português. Ela é segura pelo MECANISMO, não por sorte — contarCanonico usa
+            // flags=0 para canônico de uma palavra, então só dispara com "Shin" MAIÚSCULO no
+            // inglês; a canela do corpo é "shin" minúsculo e nunca conta. É a mesma separação que
+            // SpearheadMinusculoContinuaTraduzidoTest congela para "spearhead".
+            Map.entry("Canela", "Shin"),
+            Map.entry("Jugernaut", "Juggernaut"),
+            Map.entry("Para RAID", "Para-RAID"),
+            Map.entry("Para Raid", "Para-RAID")
 
             // FICA DE FORA: "mecha" (3 ocorrencias), usado no lugar de "Juggernaut". E palavra
             // comum do genero e aceitavel por contexto — mapea-la reescreveria fala legitima,
