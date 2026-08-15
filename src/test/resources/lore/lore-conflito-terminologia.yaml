@@ -1,0 +1,18 @@
+# CASO DOENTE, montado à mão: a MESMA forma-ruim apontando para canônicos DIFERENTES nos
+# dois lados. Existe para provar que o carregamento falha FECHADO em vez de deixar um dos
+# lados vencer em silêncio — que é o defeito que a unificação da terminologia veio acabar.
+#
+# Não é lore de obra real e nunca é lido em produção: só o teste da catraca aponta para cá.
+obras:
+  - id: obra_de_teste
+    nome: Obra de Teste
+    prompt: prompt qualquer
+    correcoesTerminologia:
+      Lanca-Flanco: Spearhead
+
+revisao:
+  - id: obra_de_teste
+    nome: Obra de Teste - Revisao de Lore
+    prompt: prompt de revisao qualquer
+    correcoesTerminologia:
+      Lanca-Flanco: Ponta de Lanca

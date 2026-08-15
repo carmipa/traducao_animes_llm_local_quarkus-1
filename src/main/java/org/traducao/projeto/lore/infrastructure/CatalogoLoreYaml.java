@@ -90,7 +90,30 @@ public final class CatalogoLoreYaml {
                 "Arquivo de lore sem a lista \"obras\", ou com ela vazia: " + recurso);
         }
 
+        // Lê o lado da REVISÃO ANTES de montar as obras: a terminologia dos dois lados é
+        // unificada por id, e para unificar é preciso ter os dois em mãos.
+        List<Map<String, Object>> itensRevisao = new ArrayList<>();
+        Object listaRevisao = mapa.get("revisao");
+        if (listaRevisao instanceof List<?> brutos) {
+            for (Object item : brutos) {
+                if (!(item instanceof Map<?, ?> obra)) {
+                    throw new IllegalStateException("Entrada de revisão que não é mapa em " + recurso);
+                }
+                itensRevisao.add((Map<String, Object>) obra);
+            }
+        }
+        Map<String, Map<String, String>> terminologiaRevisao = new LinkedHashMap<>();
+        Set<String> idsRevisao = new LinkedHashSet<>();
+        for (Map<String, Object> o : itensRevisao) {
+            String id = texto(o, "id", recurso);
+            if (!idsRevisao.add(id)) {
+                throw new IllegalStateException("Id repetido no lado da revisão: " + id);
+            }
+            terminologiaRevisao.put(id, mapaDeTexto(o.get("correcoesTerminologia")));
+        }
+
         List<ProvedorContexto> carregadas = new ArrayList<>(itens.size());
+        Map<String, Map<String, String>> terminologiaUnificada = new LinkedHashMap<>();
         Set<String> idsVistos = new LinkedHashSet<>();
         for (Object item : itens) {
             if (!(item instanceof Map<?, ?> obra)) {
@@ -101,6 +124,10 @@ public final class CatalogoLoreYaml {
             if (!idsVistos.add(id)) {
                 throw new IllegalStateException("Id de obra repetido no arquivo de lore: " + id);
             }
+            Map<String, String> unificada = unificarTerminologia(
+                id, mapaDeTexto(o.get("correcoesTerminologia")),
+                terminologiaRevisao.getOrDefault(id, Map.of()), recurso);
+            terminologiaUnificada.put(id, unificada);
             carregadas.add(new ObraDeArquivo(
                 id,
                 texto(o, "nome", recurso),
@@ -108,31 +135,76 @@ public final class CatalogoLoreYaml {
                 conjunto(o.get("apelidosPasta")),
                 conjunto(o.get("termosProtegidos")),
                 pares(o.get("paresInconfundiveis")),
-                mapaDeTexto(o.get("correcoesTerminologia")),
+                unificada,
                 !(o.get("apareceNaLista") instanceof Boolean b) || b));
         }
         this.obras = List.copyOf(carregadas);
 
         // FASE E — o lado da REVISÃO, no MESMO arquivo, sob a chave "revisao".
         List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> revisoes = new ArrayList<>();
-        Object listaRevisao = mapa.get("revisao");
-        if (listaRevisao instanceof List<?> itensRevisao) {
-            Set<String> idsRevisao = new LinkedHashSet<>();
-            for (Object item : itensRevisao) {
-                if (!(item instanceof Map<?, ?> obra)) {
-                    throw new IllegalStateException("Entrada de revisão que não é mapa em " + recurso);
-                }
-                Map<String, Object> o = (Map<String, Object>) obra;
-                String id = texto(o, "id", recurso);
-                if (!idsRevisao.add(id)) {
-                    throw new IllegalStateException("Id repetido no lado da revisão: " + id);
-                }
-                revisoes.add(new RevisaoDeArquivo(
-                    id, texto(o, "nome", recurso), texto(o, "prompt", recurso),
-                    mapaDeTexto(o.get("correcoesTerminologia"))));
-            }
+        for (Map<String, Object> o : itensRevisao) {
+            String id = texto(o, "id", recurso);
+            // O MESMO mapa que a tradução recebe. Obra que só existe do lado da revisão não
+            // tem par para unificar e fica com o próprio — não se inventa contraparte.
+            Map<String, String> unificada = terminologiaUnificada.containsKey(id)
+                ? terminologiaUnificada.get(id)
+                : terminologiaRevisao.getOrDefault(id, Map.of());
+            revisoes.add(new RevisaoDeArquivo(
+                id, texto(o, "nome", recurso), texto(o, "prompt", recurso), unificada));
         }
         this.obrasRevisao = List.copyOf(revisoes);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: funde a terminologia dos dois lados da mesma obra num mapa só, para
+     * que quem TRADUZ enxergue tudo o que quem REVISA aprendeu, e vice-versa.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Decisão de Paulo em 2026-08-15: <i>"a lore tem de ser compartilhada, é a única exceção.
+     * Se não, temos problemas que não valem a pena."</i> O gatilho foi {@code Spearhead} sair
+     * como {@code Esquadroe de Ponta} na legenda final do 86 — a revisão conhecia
+     * {@code Canela→Shin}, {@code Para RAID→Para-RAID} e {@code Jugernaut→Juggernaut}, e a
+     * tradução não. Medido antes de unificar: <b>17 de 68 obras divergentes, 18 entradas só na
+     * tradução, 65 só na revisão, ZERO conflito</b>. Juntar os dois arquivos num só resolveu o
+     * LUGAR e não a VERDADE: as duas seções continuavam sendo lidas separadamente.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A fusão é SIMÉTRICA e acontece no carregamento: os dois lados recebem a mesma
+     *       instância. Divergir deixa de ser possível, em vez de depender de alguém lembrar de
+     *       cadastrar dos dois lados.</li>
+     *   <li><b>Conflito falha FECHADO.</b> Mesma forma-ruim apontando para canônicos diferentes
+     *       é duas verdades sobre a mesma coisa — exatamente o que esta decisão existe para
+     *       acabar. A medição encontrou zero; se um aparecer, é defeito de cadastro e o boot
+     *       para, em vez de um dos lados vencer em silêncio.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Conflito lança {@link IllegalStateException} nomeando obra, chave e os dois valores.
+     *
+     * @param id identificador da obra, usado só na mensagem de erro
+     * @param daTraducao mapa declarado sob {@code obras}
+     * @param daRevisao mapa declarado sob {@code revisao} para o mesmo id
+     * @param recurso caminho do arquivo, para a mensagem de erro
+     * @return mapa imutável com a união das duas entradas
+     */
+    private static Map<String, String> unificarTerminologia(
+            String id, Map<String, String> daTraducao, Map<String, String> daRevisao, String recurso) {
+        if (daRevisao.isEmpty()) {
+            return daTraducao;
+        }
+        Map<String, String> uniao = new LinkedHashMap<>(daTraducao);
+        for (Map.Entry<String, String> e : daRevisao.entrySet()) {
+            String jaExistente = uniao.putIfAbsent(e.getKey(), e.getValue());
+            if (jaExistente != null && !jaExistente.equals(e.getValue())) {
+                throw new IllegalStateException(
+                    "Terminologia de lore em CONFLITO na obra \"" + id + "\" de " + recurso
+                        + ": a forma \"" + e.getKey() + "\" aponta para \"" + jaExistente
+                        + "\" em obras e para \"" + e.getValue() + "\" em revisao. "
+                        + "São duas verdades sobre o mesmo termo — corrija o arquivo.");
+            }
+        }
+        return Map.copyOf(uniao);
     }
 
     /**

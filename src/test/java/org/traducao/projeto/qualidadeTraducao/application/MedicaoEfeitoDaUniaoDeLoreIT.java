@@ -88,26 +88,31 @@ class MedicaoEfeitoDaUniaoDeLoreIT {
         }
         assertTrue(!traducaoPorId.isEmpty(), "NÃO VERIFICADO: nenhum ProvedorContexto no CDI");
 
-        // O DELTA: por obra, o que a revisão conhece e a tradução não. É exatamente o que a
-        // união acrescentaria ao lado que escreve o .ass.
+        // O DELTA: por obra, o que a revisão conhece e a seção `obras` NÃO declarava sozinha.
+        // É exatamente o que a união acrescentou ao lado que escreve o .ass.
+        //
+        // Lido do YAML CRU, e não dos provedores já carregados. A partir de 2026-08-15 o
+        // CatalogoLoreYaml unifica a terminologia no carregamento e entrega a MESMA instância
+        // aos dois lados — perguntar aos provedores devolveria delta zero por construção, e
+        // esta medição passaria a responder "nada a acrescentar" quando a resposta certa é
+        // "eu perdi a capacidade de medir". O próprio assert abaixo recusa esse zero; a
+        // correção é olhar a fonte, que continua declarando as duas seções em separado.
+        Map<String, Map<String, String>> secaoObras = terminologiaDeclarada("obras");
+        Map<String, Map<String, String>> secaoRevisao = terminologiaDeclarada("revisao");
         Map<String, Map<String, String>> deltaPorObra = new TreeMap<>();
-        for (ProvedorPromptRevisaoLore r : catalogoRevisao.getProvedores()) {
-            ProvedorContexto t = traducaoPorId.get(r.getId());
-            if (t == null) {
+        for (Map.Entry<String, Map<String, String>> r : secaoRevisao.entrySet()) {
+            if (!traducaoPorId.containsKey(r.getKey())) {
                 continue;
             }
-            Map<String, String> daRevisao = r.correcoesTerminologia();
-            Map<String, String> daTraducao = t.correcoesTerminologia();
+            Map<String, String> daTraducao = secaoObras.getOrDefault(r.getKey(), Map.of());
             Map<String, String> delta = new LinkedHashMap<>();
-            if (daRevisao != null) {
-                daRevisao.forEach((formaRuim, canonico) -> {
-                    if (daTraducao == null || !daTraducao.containsKey(formaRuim)) {
-                        delta.put(formaRuim, canonico);
-                    }
-                });
-            }
+            r.getValue().forEach((formaRuim, canonico) -> {
+                if (!daTraducao.containsKey(formaRuim)) {
+                    delta.put(formaRuim, canonico);
+                }
+            });
             if (!delta.isEmpty()) {
-                deltaPorObra.put(r.getId(), delta);
+                deltaPorObra.put(r.getKey(), delta);
             }
         }
         int entradasNoDelta = deltaPorObra.values().stream().mapToInt(Map::size).sum();
@@ -236,5 +241,37 @@ class MedicaoEfeitoDaUniaoDeLoreIT {
 
     private static String corte(String s) {
         return s.length() > 110 ? s.substring(0, 110) + "…" : s;
+    }
+
+    /**
+     * Lê a terminologia como o ARQUIVO a declara, seção por seção, sem passar pelo
+     * {@code CatalogoLoreYaml} — que hoje unifica as duas no carregamento e devolveria os dois
+     * lados idênticos, apagando justamente o delta que esta medição existe para mostrar.
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Map<String, String>> terminologiaDeclarada(String secao) {
+        Object raiz;
+        try (java.io.InputStream in = MedicaoEfeitoDaUniaoDeLoreIT.class
+                .getResourceAsStream(org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml.RECURSO)) {
+            raiz = new org.yaml.snakeyaml.Yaml().load(
+                new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("não consegui ler o lore.yaml para medir o delta", e);
+        }
+        Map<String, Map<String, String>> porObra = new TreeMap<>();
+        Object lista = ((Map<String, Object>) raiz).get(secao);
+        if (!(lista instanceof List<?> itens)) {
+            return porObra;
+        }
+        for (Object item : itens) {
+            Map<String, Object> o = (Map<String, Object>) item;
+            if (!(o.get("correcoesTerminologia") instanceof Map<?, ?> m) || m.isEmpty()) {
+                continue;
+            }
+            Map<String, String> entradas = new LinkedHashMap<>();
+            m.forEach((k, v) -> entradas.put(String.valueOf(k), String.valueOf(v)));
+            porObra.put(String.valueOf(o.get("id")), entradas);
+        }
+        return porObra;
     }
 }
