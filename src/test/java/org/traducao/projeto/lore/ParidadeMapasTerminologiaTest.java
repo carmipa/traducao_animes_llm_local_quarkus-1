@@ -49,22 +49,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ParidadeMapasTerminologiaTest {
 
     /**
-     * Obras cujos mapas AINDA divergem por ausência, medidas em 2026-07-27. Os núcleos das três
-     * franquias já foram unificados; o que resta são EXTRAS por obra/temporada, que serão
-     * reconciliados um a um. Cada id aqui é dívida nomeada, não aprovação.
+     * Obras cujos mapas AINDA divergem por ausência. **VAZIO desde 2026-08-15** — a dívida
+     * inteira foi paga de uma vez, e esta catraca foi quem exigiu o registro.
+     *
+     * <p>As 17 obras que viviam aqui (as oito de DanMachi, as sete de Macross, {@code eight_six}
+     * e {@code gundam_cca}) pararam de divergir quando a terminologia passou a ser unificada no
+     * CARREGAMENTO, em {@code CatalogoLoreYaml#unificarTerminologia}. Antes disso a lore já
+     * morava num arquivo só, e mesmo assim as duas seções eram lidas em separado: o
+     * {@code lore.yaml} resolveu o LUGAR, e a divergência só caiu a zero quando os dois lados
+     * passaram a receber a MESMA instância do mapa.
+     *
+     * <p>Ordem de Paulo que autorizou: <i>"a lore tem de ser compartilhada, é a única exceção.
+     * Se não, temos problemas que não valem a pena."</i> Medido antes: 17 de 68 obras
+     * divergentes, 18 entradas só na tradução, 65 só na revisão, ZERO conflito — por isso
+     * unificar foi UNIÃO, sem nada a descartar.
+     *
+     * <p><b>Lista vazia aqui é conquista, não desligamento.</b> A catraca segue viva e reprova
+     * obra nova que divergir; e a divergência por ausência agora é impossível por construção,
+     * congelada em {@code CatracaTerminologiaDeLoreUnificadaTest}.
      */
-    private static final Set<String> DIVERGENCIAS_DECLARADAS = Set.of(
-        "danmachi", "danmachi_movie", "danmachi_s1", "danmachi_s2", "danmachi_s3",
-        "danmachi_s4", "danmachi_s5", "danmachi_so",
-        "eight_six",
-        "gundam_cca",
-        // macross_7_filmes SAIU daqui em 2026-07-27 junto com a saida dela do CDI: fora do
-        // registro, ela nao entra mais na comparacao de catalogos. Nao e paridade
-        // conquistada -- e obra que deixou de ser comparavel. A catraca acusou como
-        // "parou de divergir", que e o comportamento correto dela.
-        "macross_7", "macross_7_encore", "macross_7_filme",
-        "macross_dynamite_7", "macross_frontier", "macross_frontier_filme1",
-        "macross_frontier_filme2");
+    private static final Set<String> DIVERGENCIAS_DECLARADAS = Set.of();
 
     @Inject
     List<ProvedorContexto> catalogoTraducao;
