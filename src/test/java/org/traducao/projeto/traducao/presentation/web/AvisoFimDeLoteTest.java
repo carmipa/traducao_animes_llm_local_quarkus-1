@@ -2,7 +2,7 @@ package org.traducao.projeto.traducao.presentation.web;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.core.io.GuardaCaminhoEntrada;
 import org.traducao.projeto.core.presentation.web.LogStreamService;

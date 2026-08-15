@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
-import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto;
+import org.traducao.projeto.lore.domain.VeredictoObraContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.domain.ContextoDoCache;
 
 import java.nio.file.Path;

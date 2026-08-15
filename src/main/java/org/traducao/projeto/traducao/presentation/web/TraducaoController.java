@@ -16,9 +16,9 @@ import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
-import org.traducao.projeto.contexto.domain.ProvedorContexto;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Files;

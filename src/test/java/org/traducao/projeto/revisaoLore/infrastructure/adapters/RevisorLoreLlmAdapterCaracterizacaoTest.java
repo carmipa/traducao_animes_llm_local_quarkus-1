@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
+import org.traducao.projeto.lore.domain.PromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.infrastructure.config.RevisaoLoreLlmProperties;
 
 import java.time.Duration;

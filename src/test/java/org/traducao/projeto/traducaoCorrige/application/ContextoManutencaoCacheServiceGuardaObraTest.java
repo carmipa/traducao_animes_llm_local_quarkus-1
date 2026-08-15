@@ -6,9 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheManutencaoService;
-import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
-import org.traducao.projeto.contexto.domain.ProvedorContexto;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 
 import java.nio.file.Path;
 import java.util.List;

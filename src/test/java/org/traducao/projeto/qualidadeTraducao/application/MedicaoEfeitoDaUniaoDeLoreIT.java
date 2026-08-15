@@ -6,7 +6,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
 import org.traducao.projeto.revisaoLore.application.GerenciadorPromptRevisaoLore;
 import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
 

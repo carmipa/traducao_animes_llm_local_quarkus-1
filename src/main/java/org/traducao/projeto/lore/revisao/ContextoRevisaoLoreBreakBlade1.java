@@ -3,7 +3,7 @@ package org.traducao.projeto.lore.revisao;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
+import org.traducao.projeto.lore.domain.PromptRevisaoLore;
 import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
 
 /**

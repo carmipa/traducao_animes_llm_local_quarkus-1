@@ -2,7 +2,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;

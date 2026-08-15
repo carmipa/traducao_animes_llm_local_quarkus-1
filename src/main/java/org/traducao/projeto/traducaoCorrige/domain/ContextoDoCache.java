@@ -1,6 +1,6 @@
 package org.traducao.projeto.traducaoCorrige.domain;
 
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
 
 /**
  * PROPÓSITO DE NEGÓCIO: o contexto resolvido para um arquivo de cache, junto com QUANTO ele pode

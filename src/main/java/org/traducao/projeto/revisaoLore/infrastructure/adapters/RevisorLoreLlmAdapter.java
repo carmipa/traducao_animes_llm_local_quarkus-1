@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.revisaoLore.application.PromptRevisaoLore;
+import org.traducao.projeto.lore.domain.PromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLoreLlm;
 import org.traducao.projeto.revisaoLore.domain.ports.RevisorLoreLlmPort;
 import org.traducao.projeto.revisaoLore.infrastructure.config.RevisaoLoreLlmProperties;

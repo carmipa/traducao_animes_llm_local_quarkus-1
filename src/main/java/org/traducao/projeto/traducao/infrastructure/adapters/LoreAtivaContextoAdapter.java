@@ -1,8 +1,8 @@
 package org.traducao.projeto.traducao.infrastructure.adapters;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort;
 import org.traducao.projeto.traducao.application.ContextoCongeladoDaExecucao;
 

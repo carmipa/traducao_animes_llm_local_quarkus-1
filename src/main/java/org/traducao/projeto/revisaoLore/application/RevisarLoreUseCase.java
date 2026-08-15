@@ -1,5 +1,7 @@
 package org.traducao.projeto.revisaoLore.application;
 
+import org.traducao.projeto.lore.domain.PromptRevisaoLore;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -162,7 +162,7 @@ class MedicaoGeneroImplicitoIT {
     /** Lê o elenco da ficha do contexto de PRODUÇÃO. Nenhuma lista de personagens mora aqui. */
     private static Map<String, Character> elencoDoContexto() {
         Map<String, Character> elenco = new LinkedHashMap<>();
-        Matcher m = FICHA.matcher(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_unicorn").obterPromptSistema());
+        Matcher m = FICHA.matcher(org.traducao.projeto.lore.LoreDeTeste.obra("gundam_unicorn").obterPromptSistema());
         while (m.find()) {
             elenco.put(m.group(1).trim(), m.group(2).charAt(0));
         }

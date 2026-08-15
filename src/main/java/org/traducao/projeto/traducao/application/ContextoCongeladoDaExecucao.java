@@ -1,7 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
 
 /**
  * PROPÓSITO DE NEGÓCIO: PONTE TEMPORÁRIA — mantém, enquanto um arquivo é traduzido, qual

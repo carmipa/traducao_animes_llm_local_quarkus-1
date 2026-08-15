@@ -9,7 +9,7 @@ import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.raspagemCorrecao.presentation.web.CorrecaoRaspagemController;
 import org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoCacheController;
 import org.traducao.projeto.raspagemRevisao.presentation.web.RevisaoLegendasController;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.presentation.web.CorrecaoCacheController;
 
 import java.nio.file.Path;
