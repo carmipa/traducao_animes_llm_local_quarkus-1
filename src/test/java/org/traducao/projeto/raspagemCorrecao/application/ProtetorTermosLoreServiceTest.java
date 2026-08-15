@@ -1,7 +1,6 @@
 package org.traducao.projeto.raspagemCorrecao.application;
 
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.contexto.lore.gundam.ContextoGundamNT;
 
 import java.util.List;
 import java.util.Set;
@@ -129,7 +128,7 @@ class ProtetorTermosLoreServiceTest {
      */
     @Test
     void reconheceIdentificadoresCanonicosPendentesDeGundamNt() {
-        ContextoGundamNT contexto = new ContextoGundamNT();
+        org.traducao.projeto.contexto.domain.ProvedorContexto contexto = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_nt");
         String lore = contexto.obterPromptSistema();
 
         assertTrue(service.contemSomenteTermosCanonicos(

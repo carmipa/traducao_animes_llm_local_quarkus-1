@@ -3,7 +3,6 @@ package org.traducao.projeto.auditoria;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.contexto.lore.gundam.ContextoGundamUnicorn;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
@@ -163,7 +162,7 @@ class MedicaoGeneroImplicitoIT {
     /** Lê o elenco da ficha do contexto de PRODUÇÃO. Nenhuma lista de personagens mora aqui. */
     private static Map<String, Character> elencoDoContexto() {
         Map<String, Character> elenco = new LinkedHashMap<>();
-        Matcher m = FICHA.matcher(new ContextoGundamUnicorn().obterPromptSistema());
+        Matcher m = FICHA.matcher(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_unicorn").obterPromptSistema());
         while (m.find()) {
             elenco.put(m.group(1).trim(), m.group(2).charAt(0));
         }

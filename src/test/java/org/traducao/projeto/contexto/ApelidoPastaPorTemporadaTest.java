@@ -4,15 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachi;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiOrion;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiS1;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiS2;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiS3;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiS4;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiS5;
-import org.traducao.projeto.contexto.lore.danmachi.ContextoDanMachiSwordOratoria;
-import org.traducao.projeto.contexto.lore.gundam.ContextoGundamUnicorn;
 
 import java.util.List;
 import java.util.Set;
@@ -45,9 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ApelidoPastaPorTemporadaTest {
 
     private static final List<ProvedorContexto> DANMACHI = List.of(
-        new ContextoDanMachi(), new ContextoDanMachiS1(), new ContextoDanMachiS2(),
-        new ContextoDanMachiS3(), new ContextoDanMachiS4(), new ContextoDanMachiS5(),
-        new ContextoDanMachiSwordOratoria(), new ContextoDanMachiOrion());
+        org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi"), org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_s1"), org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_s2"),
+        org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_s3"), org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_s4"), org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_s5"),
+        org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_so"), org.traducao.projeto.contexto.LoreDeTeste.obra("danmachi_movie"));
 
     private static GerenciadorContexto acervo() {
         return new GerenciadorContexto(DANMACHI);
@@ -112,7 +103,7 @@ class ApelidoPastaPorTemporadaTest {
     @DisplayName("o Unicorn identifica a pasta dele, e nao colide com DanMachi")
     void unicornIdentificaSemColidir() {
         List<ProvedorContexto> todos = new java.util.ArrayList<>(DANMACHI);
-        todos.add(new ContextoGundamUnicorn());
+        todos.add(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_unicorn"));
         GerenciadorContexto g = new GerenciadorContexto(todos);
 
         assertEquals(Set.of("gundam_unicorn"), g.idsQueReconhecem("Gundam Unicorn Season 1"));

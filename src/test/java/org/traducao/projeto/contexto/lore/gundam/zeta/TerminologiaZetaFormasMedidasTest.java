@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TerminologiaZetaFormasMedidasTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
-    private final Map<String, String> correcoes = new ContextoGundamZeta().correcoesTerminologia();
+    private final Map<String, String> correcoes = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_zeta").correcoesTerminologia();
 
     private String reforcar(String original, String traduzido) {
         return enforcador.reforcar(original, traduzido, correcoes);

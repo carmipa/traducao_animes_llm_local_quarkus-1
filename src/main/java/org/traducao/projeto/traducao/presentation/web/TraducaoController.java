@@ -16,9 +16,9 @@ import org.traducao.projeto.traducao.application.ProcessarArquivoUseCase;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
+import org.traducao.projeto.contexto.domain.ProvedorContexto;
 import org.traducao.projeto.contexto.domain.SnapshotContexto;
 import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
-import org.traducao.projeto.contexto.lore.semlore.ContextoSemLore;
 import org.traducao.projeto.traducao.presentation.ui.PastasExecucao;
 
 import java.nio.file.Files;
@@ -155,7 +155,7 @@ public class TraducaoController {
         //
         // O critério é o MESMO da escolha de pasta de saída, mais abaixo neste método: não há
         // segunda régua para "isto é sem lore?".
-        boolean semLore = ContextoSemLore.ID.equals(req.contextoId());
+        boolean semLore = ProvedorContexto.ID_SEM_LORE.equals(req.contextoId());
         String canalSse = semLore ? "traducao-sem-lore" : "traducao";
         String nomeOperacao = semLore ? "Tradução sem Lore via LLM" : "Tradução Local via LLM";
         pipelineWebSupport.submeterJobComRelatorio(canalSse, nomeOperacao, () -> {
@@ -209,7 +209,7 @@ public class TraducaoController {
                 // (nomes próprios desprotegidos, zero terminologia) não pode virar a versão
                 // definitiva só porque o operador deixou o campo vazio. Saída explícita continua
                 // valendo — quem digitou o caminho sabe o que quer.
-                if (saida.isEmpty() && ContextoSemLore.ID.equals(req.contextoId())) {
+                if (saida.isEmpty() && ProvedorContexto.ID_SEM_LORE.equals(req.contextoId())) {
                     Path paiSemLore = pathEntrada.getParent();
                     saida = (paiSemLore != null ? paiSemLore : pathEntrada)
                         .resolve("traducao_ptbr_sem_lore").toString();

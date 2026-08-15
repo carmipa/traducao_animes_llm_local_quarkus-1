@@ -211,7 +211,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("estrutura homologada: 8 tipos em domain (5 da E7b + SnapshotContexto + VeredictoObraContexto + IdentidadeObra) e 82 lores em contexto.lore")
+    @DisplayName("estrutura homologada: 8 tipos em domain e 5 classes residuais em contexto.lore (eram 82 até a lore virar arquivo)")
     void estruturaHomologada() {
         TreeSet<String> domain = new TreeSet<>();
         int lores = 0;
@@ -234,13 +234,22 @@ class FronteiraContextoArchTest {
             () -> "contexto.domain deve conter exatamente os 8 tipos homologados (VeredictoObraContexto entrou "
                 + "vindo de qualidadeTraducao.domain e IdentidadeObra nasceu aqui: identidade de obra é deste "
                 + "peer). Encontrado: " + domain);
-        assertEquals(82, lores,
-            "contexto.lore deve agregar exatamente 82 classes de lore: 68 @Component de OBRA + 1 @Component GENERICO (ContextoSemLore, fora dos combos -- ver ProvedorContexto.apareceNaListaDeObras) + 3 agregadoras Macross "
-                + "FORA do CDI (Delta/Frontier/7 Filmes -- ver CatracaAgregadorasForaDoCdiTest) + 0 esqueletos "
-                + "(toda obra do catalogo tem lore) + 10 mapas de terminologia: "
-                + "GundamUc, GundamZz, DanMachi, Evangelion, GuiltyCrown, Macross, Macross2, MacrossDelta, "
-                + "MacrossDyrl, BreakBlade. Esta contagem soma CLASSES do pacote, nao beans registrados: "
-                + "tirar um @Component nao a muda, adicionar uma classe sim.");
+        assertEquals(5, lores,
+            "contexto.lore deve conter exatamente 5 classes. Eram 82 ate 2026-08-15, quando as 69 "
+                + "obras do CDI e os 9 mapas de terminologia que elas consumiam viraram o ARQUIVO "
+                + "UNICO /lore/lore-traducao.yaml (ordem de Paulo: 'todas as lores devem ficar em "
+                + "um unico arquivo'). Sobraram 4, e o motivo de cada uma e o mesmo: elas NAO estao "
+                + "no arquivo.\n"
+                + "  ContextoMacross7Filmes / MacrossFrontierFilmes / MacrossDeltaFilmes -- as 3 "
+                + "agregadoras que ficam FORA do CDI de proposito (ver CatracaAgregadorasForaDoCdiTest). "
+                + "O gerador le os provedores REGISTRADOS, entao nunca as viu: apaga-las perderia lore "
+                + "que o arquivo nao tem.\n"
+                + "  CorrecoesTerminologiaMacross e CorrecoesTerminologiaMacrossDelta -- sao os mapas que as 3\n"
+                + "  chamam; saem junto com elas, nao antes. A segunda so apareceu quando o compilador\n"
+                + "  reprovou: a primeira lista de preservacao tinha so a primeira, e a agregadora Delta usa outra.\n"
+                + "Trazer as 3 para o arquivo e decisao propria, porque exige representar 'obra fora do "
+                + "registro' no YAML sem quebrar a contagem de 69 provedores. Ate la, este numero e 4 e "
+                + "qualquer quinta classe aqui reprova.");
     }
 
     /**

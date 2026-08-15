@@ -2,8 +2,6 @@ package org.traducao.projeto.contexto;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.contexto.lore.gundam.zeta.ContextoGundamZeta;
-import org.traducao.projeto.contexto.lore.gundam.zz.CorrecoesTerminologiaGundamZz;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
 import java.util.Map;
@@ -42,8 +40,8 @@ class CorrecaoFaEMobileSuitTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
 
-    private static final Map<String, String> ZZ = CorrecoesTerminologiaGundamZz.mapa();
-    private static final Map<String, String> ZETA = new ContextoGundamZeta().correcoesTerminologia();
+    private static final Map<String, String> ZZ = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_zz");
+    private static final Map<String, String> ZETA = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_zeta").correcoesTerminologia();
 
     @Test
     @DisplayName("Fa: o nome e restaurado nas cinco formas medidas")

@@ -47,14 +47,14 @@ class MedicaoDivergenciaEntreCatalogosDeLoreIT {
     // Instance<>, e não List<>: é como a produção coleta os provedores de revisão
     // (GerenciadorPromptRevisaoLore). Com List<> o Arc não resolve e o teste nem sobe.
     @Inject
-    jakarta.enterprise.inject.Instance<ProvedorContexto> instTraducao;
+    java.util.List<ProvedorContexto> catalogoTraducao;
 
     @Inject
     jakarta.enterprise.inject.Instance<ProvedorPromptRevisaoLore> instRevisao;
 
     @Test
     void medirDivergencia() {
-        java.util.List<ProvedorContexto> daTraducao = instTraducao.stream().toList();
+        java.util.List<ProvedorContexto> daTraducao = catalogoTraducao;
         java.util.List<ProvedorPromptRevisaoLore> daRevisao = instRevisao.stream().toList();
         assertTrue(!daTraducao.isEmpty(), "NÃO VERIFICADO: nenhum ProvedorContexto no CDI");
         assertTrue(!daRevisao.isEmpty(), "NÃO VERIFICADO: nenhum ProvedorPromptRevisaoLore no CDI");

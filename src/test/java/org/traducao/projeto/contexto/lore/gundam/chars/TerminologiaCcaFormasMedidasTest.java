@@ -30,7 +30,7 @@ class TerminologiaCcaFormasMedidasTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
     private final Map<String, String> correcoes =
-        new ContextoCharsCounterattack().correcoesTerminologia();
+        org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_cca").correcoesTerminologia();
 
     private String reforcar(String original, String traduzido) {
         return enforcador.reforcar(original, traduzido, correcoes);

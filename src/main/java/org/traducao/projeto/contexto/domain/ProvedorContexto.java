@@ -21,6 +21,21 @@ import java.util.Set;
  * ({@code GerenciadorContexto}), não por esta interface.
  */
 public interface ProvedorContexto {
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: id RESERVADO da tradução sem lore declarada — o anime acabou de ser
+     * baixado e a intenção é ver como fica. É também o valor que libera a trava de lore na UI.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: vive no CONTRATO, e não na classe que o implementa, porque a
+     * lore está migrando de 82 classes Java para um arquivo de dados — quem precisa do id não
+     * pode depender de uma classe que vai deixar de existir. Era a ÚNICA amarra concreta a uma
+     * lore em todo o projeto ({@code TraducaoController} importava {@code ContextoSemLore} só
+     * por esta constante); tirá-la daqui reabriria essa amarra.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: constante; não há falha possível.
+     */
+    String ID_SEM_LORE = "sem_lore";
+
     /**
      * Retorna o ID único para seleção via UI.
      */

@@ -30,7 +30,7 @@ class Terminologia08thFormasMedidasTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
     private final Map<String, String> correcoes =
-        new ContextoGundam08thMSTeam().correcoesTerminologia();
+        org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_08ms").correcoesTerminologia();
 
     private String reforcar(String original, String traduzido) {
         return enforcador.reforcar(original, traduzido, correcoes);
