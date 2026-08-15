@@ -155,12 +155,36 @@ public class Contexto86 implements ProvedorContexto {
             Map.entry("Oitenta e Seis", "Eighty-Six"),     // 67
 
             // SPEARHEAD — esquadrao. "Esquadrao Lanca-Flanco" vira "Esquadrao Spearhead".
-            Map.entry("Lança-Flanco", "Spearhead")         // 5
+            Map.entry("Lança-Flanco", "Spearhead"),        // 5
+
+            // SPEARHEAD, segunda leva — MEDIDO na retraducao completa de 2026-08-15 (23
+            // episodios, aya-expanse-8b): das 27 ocorrencias de "Spearhead" no ingles, 23
+            // sobreviveram e 4 nao. "Lanca-Flanco" nao apareceu nenhuma vez nesta rodada; o
+            // modelo inventou tres formas NOVAS, e duas delas nem sao palavras:
+            //   "Officially called the Spearhead Squadron."   -> "...como Esquadroe de Ponta."
+            //   "This is the captain of the Spearhead Squadron." -> "...do Esquadroa de Ponta."
+            //   "Spearhead."                                  -> "Espada-Faca."
+            // Mapear forma errada uma a uma e jogo de gato e rato — na proxima rodada vem uma
+            // quarta. A alternativa, restaurar todo nome proprio automaticamente, JA foi
+            // tentada e removida deste projeto por gerar 323 falso positivo em 560 pendencias
+            // (57,7%); enquanto isso nao mudar, a entrada medida e o mecanismo disponivel.
+            Map.entry("Esquadroe de Ponta", "Spearhead"),  // 1
+            Map.entry("Esquadroa de Ponta", "Spearhead"),  // 1
+            Map.entry("Espada-Faca", "Spearhead")          // 1
 
             // FICA DE FORA: "mecha" (3 ocorrencias), usado no lugar de "Juggernaut". E palavra
             // comum do genero e aceitavel por contexto — mapea-la reescreveria fala legitima,
             // que e o dano que este mapa existe para evitar. Mesma regua de "unidade movel" no
             // nucleo UC. "M1A4" tambem fica: e a designacao oficial do Juggernaut.
+            //
+            // FICA DE FORA TAMBEM: "ponta de lanca". A quarta ocorrencia perdida na medicao de
+            // 15/08 foi o ep 06 da Part 2 — ingles "A spearhead.", MINUSCULO, traduzido como "A
+            // ponta de lanca.". Ali a palavra e a arma, nao o esquadrao, e a traducao esta
+            // CERTA: mapea-la trocaria uma linha boa por uma errada, exatamente o oposto do que
+            // se quer. O mecanismo ja separa os dois sozinho — contarCanonico usa flags=0 para
+            // termo de uma palavra, entao "Spearhead" nunca casa com "spearhead" minusculo e a
+            // entrada nem chega a disparar naquela fala. A distincao esta congelada em
+            // SpearheadMinusculoContinuaTraduzidoTest.
         );
     }
 }
