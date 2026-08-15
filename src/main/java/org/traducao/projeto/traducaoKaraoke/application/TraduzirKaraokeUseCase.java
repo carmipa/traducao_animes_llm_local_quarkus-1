@@ -26,7 +26,11 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.traducaoKaraoke.domain.AcentosLetraKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.DesfechoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.FalhaArquivoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.StatusExecucaoKaraoke;
 import org.traducao.projeto.core.texto.TextoSemTags;
 import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
@@ -183,77 +187,134 @@ public class TraduzirKaraokeUseCase {
         }
         Path pastaDestino = resolverPastaSaida(pastaOrigem);
         logStream.publicarLog(CANAL_LOG, "Pasta de destino (criada automaticamente): " + pastaDestino);
-        if (gravar) {
-            try {
-                Files.createDirectories(pastaDestino);
-            } catch (IOException e) {
-                throw new TraducaoKaraokeException("Não foi possível criar a pasta de destino: " + pastaDestino, e);
-            }
-        }
 
-        List<Path> arquivos = listarLegendas(pastaOrigem);
-        if (arquivos.isEmpty()) {
-            logStream.publicarLog(CANAL_LOG, "Nenhum arquivo .ass/.ssa encontrado na pasta.");
-            return List.of();
-        }
-        logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
-
+        List<ResultadoTraducaoKaraoke> resultados = new ArrayList<>();
+        List<FalhaArquivoKaraoke> falhas = new ArrayList<>();
+        // Holder porque a informação nasce lá dentro, em carregarCache, e precisa subir até o
+        // manifesto: proveniência divergente significa que TUDO foi retraduzido, e sem esse sinal
+        // um pico de tempo e de custo fica sem explicação no histórico.
+        java.util.concurrent.atomic.AtomicBoolean cacheIgnorado =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+        StatusExecucaoKaraoke status = StatusExecucaoKaraoke.COMPLETA;
+        String motivo = null;
         SnapshotContexto contextoJob = null;
         ProvenienciaCache proveniencia = null;
-        if (gravar) {
-            StatusLlm status = llmPort.verificarDisponibilidade();
-            if (status == null || !status.modeloCarregado()) {
-                throw new TraducaoKaraokeException("Servidor LLM indisponível: "
-                    + (status != null ? status.mensagem() : "sem resposta"));
+        boolean houveLinhaCorrigivel = false;
+
+        try {
+            if (gravar) {
+                try {
+                    Files.createDirectories(pastaDestino);
+                } catch (IOException e) {
+                    throw new TraducaoKaraokeException("Não foi possível criar a pasta de destino: " + pastaDestino, e);
+                }
             }
-            logStream.publicarLog(CANAL_LOG, "[OK] Servidor LLM ativo.");
-            contextoJob = congelarContexto(contextoId);
-            proveniencia = provenienciaDe(contextoJob);
-            logStream.publicarLog(CANAL_LOG, "[CONTEXTO CONGELADO] " + contextoJob.nomeExibicao()
-                + " | id=" + contextoJob.id() + " | hash=" + proveniencia.contextoHash());
-        }
 
-        // Contador de lotes local à execução: um use case @ApplicationScoped é
-        // singleton, então um campo de instância seria compartilhado entre
-        // execuções concorrentes (simular fora da fila + aplicar na fila).
-        AtomicInteger sequencialLote = new AtomicInteger();
-        List<ResultadoTraducaoKaraoke> resultados = new ArrayList<>();
-        int falhas = 0;
-        for (Path arquivo : arquivos) {
-            if (Thread.currentThread().isInterrupted()) {
-                logStream.publicarLog(CANAL_LOG, "[INTERROMPIDO] Execução cancelada; arquivos já gravados foram preservados.");
-                break;
+            List<Path> arquivos = listarLegendas(pastaOrigem);
+            if (arquivos.isEmpty()) {
+                logStream.publicarLog(CANAL_LOG, "Nenhum arquivo .ass/.ssa encontrado na pasta.");
+                return List.of();
             }
-            try {
-                resultados.add(processarArquivo(
-                    arquivo, pastaDestino, gravar, sequencialLote, contextoJob, proveniencia));
-            } catch (Exception e) {
-                falhas++;
-                log.error("Falha ao processar {}", arquivo, e);
-                logStream.publicarLog(CANAL_LOG, "[ERRO] " + arquivo.getFileName() + ": " + e.getMessage());
+            logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
+
+            if (gravar) {
+                StatusLlm statusLlm = llmPort.verificarDisponibilidade();
+                if (statusLlm == null || !statusLlm.modeloCarregado()) {
+                    throw new TraducaoKaraokeException("Servidor LLM indisponível: "
+                        + (statusLlm != null ? statusLlm.mensagem() : "sem resposta"));
+                }
+                logStream.publicarLog(CANAL_LOG, "[OK] Servidor LLM ativo.");
+                contextoJob = congelarContexto(contextoId);
+                proveniencia = provenienciaDe(contextoJob);
+                logStream.publicarLog(CANAL_LOG, "[CONTEXTO CONGELADO] " + contextoJob.nomeExibicao()
+                    + " | id=" + contextoJob.id() + " | hash=" + proveniencia.contextoHash());
             }
-        }
 
-        long duracaoMs = System.currentTimeMillis() - inicioMs;
-        int musicas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::paraTraduzir).sum();
-        int traduzidas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::traduzidas).sum();
-        int doCache = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::reaproveitadasCache).sum();
-        int preservadas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::preservadasOriginalJapones).sum();
+            // Contador de lotes local à execução: um use case @ApplicationScoped é
+            // singleton, então um campo de instância seria compartilhado entre
+            // execuções concorrentes (simular fora da fila + aplicar na fila).
+            AtomicInteger sequencialLote = new AtomicInteger();
+            for (Path arquivo : arquivos) {
+                if (Thread.currentThread().isInterrupted()) {
+                    status = StatusExecucaoKaraoke.INTERROMPIDA;
+                    motivo = "Execução cancelada entre arquivos; o que já foi gravado está preservado.";
+                    logStream.publicarLog(CANAL_LOG, "[INTERROMPIDO] " + motivo);
+                    break;
+                }
+                try {
+                    ResultadoTraducaoKaraoke r = processarArquivo(
+                        arquivo, pastaDestino, gravar, sequencialLote, contextoJob, proveniencia,
+                        cacheIgnorado);
+                    resultados.add(r);
+                    houveLinhaCorrigivel = houveLinhaCorrigivel
+                        || r.traduzidas() + r.reaproveitadasCache() > 0;
+                } catch (Exception e) {
+                    // O arquivo que quebra NÃO pode sumir do manifesto: até 14/08/2026 ele virava
+                    // só um contador e uma linha de console, e quem auditasse depois via 23 de 25
+                    // sem nenhum vestígio dos outros dois.
+                    falhas.add(new FalhaArquivoKaraoke(
+                        arquivo.getFileName().toString(),
+                        e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+                    log.error("Falha ao processar {}", arquivo, e);
+                    logStream.publicarLog(CANAL_LOG, "[ERRO] " + arquivo.getFileName() + ": " + e.getMessage());
+                }
+            }
+        } catch (RuntimeException e) {
+            // ABORTADA é o "não verificou" desta fatia. A exceção segue para o chamador — mas
+            // agora deixa artefato antes, no finally, em vez de existir só numa linha de log.
+            status = StatusExecucaoKaraoke.ABORTADA;
+            motivo = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+            throw e;
+        } finally {
+            long duracaoMs = System.currentTimeMillis() - inicioMs;
+            int musicas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::paraTraduzir).sum();
+            int traduzidas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::traduzidas).sum();
+            int doCache = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::reaproveitadasCache).sum();
+            int preservadas = resultados.stream().mapToInt(ResultadoTraducaoKaraoke::preservadasOriginalJapones).sum();
 
-        logStream.publicarLog(CANAL_LOG, "==============================================================");
-        logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
-            "[%s] %s concluída: %d arquivo(s), %d falha(s) | letras originais preservadas: %d | traduzíveis: %d (LLM: %d, cache: %d)",
-            falhas == 0 ? "SUCESSO" : "ATENÇÃO", modo, resultados.size(), falhas, preservadas, musicas, traduzidas, doCache));
-        logStream.publicarLog(CANAL_LOG, "==============================================================");
-        logStream.publicarLog(CANAL_LOG, DuracaoUtil.linhaRelatorioFinal(
-            gravar ? "Tradução de Karaokê (LLM)" : "Tradução de Karaokê (simulação)", inicioMs));
+            logStream.publicarLog(CANAL_LOG, "==============================================================");
+            logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
+                "[%s] %s %s: %d arquivo(s), %d falha(s) | letras originais preservadas: %d | traduzíveis: %d (LLM: %d, cache: %d)",
+                status == StatusExecucaoKaraoke.COMPLETA && falhas.isEmpty() ? "SUCESSO" : "ATENÇÃO",
+                modo, status.name().toLowerCase(Locale.ROOT), resultados.size(), falhas.size(),
+                preservadas, musicas, traduzidas, doCache));
+            for (FalhaArquivoKaraoke f : falhas) {
+                logStream.publicarLog(CANAL_LOG, "   [FALHOU] " + f.arquivo() + " — " + f.motivo());
+            }
+            logStream.publicarLog(CANAL_LOG, "==============================================================");
+            logStream.publicarLog(CANAL_LOG, DuracaoUtil.linhaRelatorioFinal(
+                gravar ? "Tradução de Karaokê (LLM)" : "Tradução de Karaokê (simulação)", inicioMs));
 
-        if (gravar && !resultados.isEmpty()) {
-            registrarArtefatos(
-                pastaOrigem, pastaDestino, resultados, duracaoMs, musicas, traduzidas + doCache,
-                contextoJob, proveniencia);
+            // SEMPRE, e não só quando houve resultado: execução abortada com zero arquivo é
+            // justamente a que mais precisa deixar rastro.
+            if (gravar) {
+                registrarArtefatos(
+                    pastaOrigem, pastaDestino, resultados, duracaoMs, musicas, traduzidas + doCache,
+                    contextoJob, proveniencia,
+                    new DesfechoKaraoke(status, motivo, falhas, cacheIgnorado.get(),
+                        estadoDoDicionario(houveLinhaCorrigivel)));
+            }
         }
         return resultados;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde em TRÊS estados se a ortografia foi conferida nesta execução.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code disponivel()} do corretor é {@code false} tanto quando o
+     * hunspell falta quanto quando ninguém perguntou nada — fundir os dois faria "0 acento
+     * reposto" parecer sempre bom resultado. Por isso só vira AUSENTE/DISPONIVEL quando ALGUMA
+     * linha chegou a passar pelo corretor.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem corretor injetado, devolve NAO_CONSULTADO.
+     */
+    private DesfechoKaraoke.EstadoDicionario estadoDoDicionario(boolean houveLinhaCorrigivel) {
+        if (corretorOrtografico == null || !houveLinhaCorrigivel) {
+            return DesfechoKaraoke.EstadoDicionario.NAO_CONSULTADO;
+        }
+        return corretorOrtografico.disponivel()
+            ? DesfechoKaraoke.EstadoDicionario.DISPONIVEL
+            : DesfechoKaraoke.EstadoDicionario.AUSENTE;
     }
 
     /**
@@ -273,14 +334,15 @@ public class TraduzirKaraokeUseCase {
     private ResultadoTraducaoKaraoke processarArquivo(Path arquivo, Path pastaDestino, boolean gravar,
                                                        AtomicInteger sequencialLote,
                                                        SnapshotContexto contextoJob,
-                                                       ProvenienciaCache proveniencia) {
+                                                       ProvenienciaCache proveniencia,
+                                                       java.util.concurrent.atomic.AtomicBoolean cacheIgnorado) {
         String nome = arquivo.getFileName().toString();
         logStream.publicarLog(CANAL_LOG, "");
         logStream.publicarLog(CANAL_LOG, ">> " + nome);
 
         DocumentoLegenda documento = leitor.ler(arquivo);
         Path arquivoCache = resolverArquivoCache(arquivo);
-        Map<String, String> cacheExistente = carregarCache(arquivoCache, gravar, proveniencia);
+        Map<String, String> cacheExistente = carregarCache(arquivoCache, gravar, proveniencia, cacheIgnorado);
 
         int kfx = 0;
         int originais = 0;
@@ -289,6 +351,10 @@ public class TraduzirKaraokeUseCase {
         int doCache = 0;
         int traduzidas = 0;
         int semTraducao = 0;
+        // TELEMETRIA DA FATIA: o defeito do acento tem de aparecer NA HORA, na fatia onde nasce.
+        // Sem este número, as 5 falas do 86 que saíram com "nao" sem acento em 14/08/2026 só
+        // apareceriam para quem lesse o .ass — e apareceram mesmo, semanas depois.
+        int acentosRepostos = 0;
         List<String> avisos = new ArrayList<>();
 
         // Traduções desta execução, deduplicadas por texto original (refrão
@@ -409,9 +475,12 @@ public class TraduzirKaraokeUseCase {
                     // inclusive o que veio do CACHE. Plugado na origem, a rodada de 13/08 17:53 saiu sem
                     // correcao nenhuma — 40x 'nao', 13x 'voce', 7x 'tras' — porque o karaoke reaproveitou
                     // cache e a traducao nem passou pelo ponto que eu tinha escolhido.
+                    String comAcento = corrigirAcentos(traduzido);
+                    if (!comAcento.equals(traduzido)) {
+                        acentosRepostos++;
+                    }
                     eventosFinais.add(evento.comTexto(
-                        comOriginalPreservada(evento, corrigirAcentos(traduzido),
-                            instantesComOriginalPreservada)));
+                        comOriginalPreservada(evento, comAcento, instantesComOriginalPreservada)));
                     if (veioDoCache) {
                         doCache++;
                         logStream.publicarLog(CANAL_LOG, "   [CACHE] reaproveitada: " + visivelResumido(traduzido));
@@ -435,12 +504,17 @@ public class TraduzirKaraokeUseCase {
         }
 
         logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
-            "   Resumo: %d evento(s) | KFX preservado: %d | letra original: %d | já PT: %d | traduzível: %d (LLM %d, cache %d, sem tradução %d)",
-            documento.eventos().size(), kfx, originais, jaPt, paraTraduzir, traduzidas, doCache, semTraducao));
+            "   Resumo: %d evento(s) | KFX preservado: %d | letra original: %d | já PT: %d | traduzível: %d (LLM %d, cache %d, sem tradução %d) | acento reposto: %s",
+            documento.eventos().size(), kfx, originais, jaPt, paraTraduzir, traduzidas, doCache, semTraducao,
+            // Três estados, nunca dois: sem hunspell, "0 corrigidas" e "não pude verificar" são
+            // coisas diferentes e não podem imprimir o mesmo sinal.
+            corretorOrtografico != null && !corretorOrtografico.disponivel()
+                ? acentosRepostos + " (dicionário AUSENTE — NÃO VERIFICADO)"
+                : String.valueOf(acentosRepostos)));
 
         return new ResultadoTraducaoKaraoke(
             nome, nomeDestino, documento.eventos().size(), kfx, originais, jaPt,
-            paraTraduzir, doCache, traduzidas, semTraducao, List.copyOf(avisos));
+            paraTraduzir, doCache, traduzidas, semTraducao, acentosRepostos, List.copyOf(avisos));
     }
 
     /**
@@ -705,8 +779,30 @@ public class TraduzirKaraokeUseCase {
         return original + "\\N" + traduzido;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: repõe acento na camada portuguesa da letra, em duas redes que se
+     * completam — a lista NOMINAL desta fatia e, depois, o dicionário do sistema.
+     *
+     * <h2>Por que a lista é da FATIA e não a de {@code qualidadeTraducao}</h2>
+     * Regra de Paulo, 2026-08-14: <i>camada de desacoplamento resolve o problema dela e não o
+     * atravessa para as outras</i>. A lista do diálogo tem 162 entradas e QUATRO delas são romaji
+     * válido — {@code ate}, {@code mae}, {@code nao}, {@code sao}, medidas contra o dicionário
+     * {@code ja_ROMAJI}. No diálogo isso é inofensivo, porque lá não existe camada japonesa;
+     * arrastá-la para cá traria de volta o dano do Unicorn ({@code mae} = 前 virou {@code mãe}
+     * 100 vezes). Ver {@link AcentosLetraKaraoke}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: recebe SÓ o texto traduzido — a linha original é anexada depois,
+     * em {@link #comOriginalPreservada}. Trocar essa ordem devolve o defeito do Unicorn, e
+     * {@code CorretorNaoAlcancaRomajiDoKaraokeTest} congela isso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem o corretor injetado — construção manual em teste — a
+     * lista nominal ainda vale e o texto volta sem exceção. Preservação é o default do karaokê.
+     */
     private String corrigirAcentos(String traduzido) {
-        return corretorOrtografico == null ? traduzido : corretorOrtografico.corrigir(traduzido);
+        String pelaListaDaFatia = AcentosLetraKaraoke.repor(traduzido);
+        return corretorOrtografico == null
+            ? pelaListaDaFatia
+            : corretorOrtografico.corrigir(pelaListaDaFatia);
     }
     /**
      * Persiste TODAS as traduções aplicadas (novas e reaproveitadas) no cache
@@ -739,35 +835,64 @@ public class TraduzirKaraokeUseCase {
         int detectadas,
         int corrigidas,
         SnapshotContexto contexto,
-        ProvenienciaCache proveniencia
+        ProvenienciaCache proveniencia,
+        DesfechoKaraoke desfecho
     ) {
         try {
             Path manifesto = persistencia.salvarManifesto(
-                pastaOrigem, pastaDestino, resultados, duracaoMs, contexto, proveniencia);
+                pastaOrigem, pastaDestino, resultados, duracaoMs, contexto, proveniencia, desfecho);
             if (manifesto != null) {
                 logStream.publicarLog(CANAL_LOG, "Manifesto de auditoria salvo em: " + manifesto);
             }
-        } catch (IOException e) {
-            log.warn("Falha ao salvar manifesto da tradução de karaokê: {}", e.getMessage());
+        } catch (IOException | RuntimeException e) {
+            // ERROR, não WARN, e também no console: este é o artefato que prova todo o resto.
+            // Perdê-lo em silêncio é ficar sem auditoria justamente na execução que deu errado.
+            log.error("Falha ao salvar o manifesto da tradução de karaokê", e);
+            logStream.publicarLog(CANAL_LOG,
+                "[ERRO] MANIFESTO NÃO SALVO — esta execução ficou SEM auditoria: " + e.getMessage());
         }
+        // Contexto é nulo quando a execução abortou antes de congelá-lo (LLM fora do ar). O
+        // registro tem de sobreviver a isso: era exatamente a execução sem rastro nenhum.
+        String descricaoContexto = contexto == null
+            ? "Contexto NÃO congelado (execução " + desfecho.status() + ")"
+            : "Contexto: " + contexto.nomeExibicao() + " (" + contexto.id() + ") | hash="
+                + (proveniencia == null ? "-" : proveniencia.contextoHash());
         telemetriaService.finalizarOperacao(
             TelemetriaService.criarOperacao(
                 "Tradução de Karaokê (LLM)",
-                "Contexto: " + contexto.nomeExibicao() + " (" + contexto.id() + ") | hash="
-                    + proveniencia.contextoHash() + " | Legendas: " + pastaOrigem + " → " + pastaDestino,
+                "[" + desfecho.status() + "] " + descricaoContexto
+                    + " | Legendas: " + pastaOrigem + " → " + pastaDestino
+                    + (desfecho.falhas().isEmpty() ? "" : " | falhas: " + desfecho.falhas().size()),
                 duracaoMs,
                 resultados.size(),
                 detectadas,
                 corrigidas),
             pastaOrigem,
             "traducao_karaoke",
-            montarRelatorio(pastaOrigem, pastaDestino, resultados, duracaoMs));
+            montarRelatorio(pastaOrigem, pastaDestino, resultados, duracaoMs, desfecho));
     }
 
     private String montarRelatorio(
-        Path pastaOrigem, Path pastaDestino, List<ResultadoTraducaoKaraoke> resultados, long duracaoMs) {
+        Path pastaOrigem, Path pastaDestino, List<ResultadoTraducaoKaraoke> resultados, long duracaoMs,
+        DesfechoKaraoke desfecho) {
         StringBuilder sb = new StringBuilder();
         sb.append("Tradução de Karaokê — letras originais preservadas + tradução PT-BR\n");
+        // O desfecho encabeça o relatório: é a primeira pergunta de quem o abre.
+        sb.append("Status: ").append(desfecho.status());
+        if (desfecho.motivo() != null) {
+            sb.append(" — ").append(desfecho.motivo());
+        }
+        sb.append('\n');
+        sb.append("Dicionário: ").append(desfecho.estadoDicionario()).append('\n');
+        if (desfecho.cacheIgnorado()) {
+            sb.append("Cache IGNORADO nesta execução (proveniência divergente): tudo retraduzido\n");
+        }
+        if (!desfecho.falhas().isEmpty()) {
+            sb.append("Arquivos com FALHA: ").append(desfecho.falhas().size()).append('\n');
+            for (FalhaArquivoKaraoke f : desfecho.falhas()) {
+                sb.append("  - ").append(f.arquivo()).append(" — ").append(f.motivo()).append('\n');
+            }
+        }
         sb.append("Origem: ").append(pastaOrigem.toAbsolutePath()).append('\n');
         sb.append("Destino: ").append(pastaDestino.toAbsolutePath()).append('\n');
         sb.append("Duração: ").append(duracaoMs).append(" ms\n\n");
@@ -777,6 +902,7 @@ public class TraduzirKaraokeUseCase {
                 .append(" | traduzidas (LLM): ").append(r.traduzidas())
                 .append(" | cache: ").append(r.reaproveitadasCache())
                 .append(" | sem tradução: ").append(r.mantidasSemTraducao())
+                .append(" | acento reposto: ").append(r.acentosRepostos())
                 .append(" | avisos: ").append(r.avisos().size())
                 .append('\n');
         }
@@ -804,7 +930,8 @@ public class TraduzirKaraokeUseCase {
     }
 
     private Map<String, String> carregarCache(
-        Path arquivoCache, boolean gravar, ProvenienciaCache proveniencia
+        Path arquivoCache, boolean gravar, ProvenienciaCache proveniencia,
+        java.util.concurrent.atomic.AtomicBoolean cacheIgnorado
     ) {
         if (!gravar) {
             return Map.of();
@@ -812,6 +939,9 @@ public class TraduzirKaraokeUseCase {
         CacheTraducaoService.ResultadoCarga carga = cacheService.carregar(arquivoCache, proveniencia);
         if (carga.migrado()) {
             cacheService.arquivarGeracaoSemProveniencia(arquivoCache);
+            // Sobe para o manifesto: descartar o cache multiplica tempo e chamadas ao LLM, e sem
+            // esse sinal o pico aparece no histórico sem explicação nenhuma.
+            cacheIgnorado.set(true);
             logStream.publicarLog(CANAL_LOG,
                 "   [CACHE IGNORADO] cache antigo sem contexto/lore foi preservado; linhas serão retraduzidas e carimbadas.");
             return Map.of();

@@ -1,5 +1,231 @@
 # CONTINUIDADE — KRONOS
 
+---
+
+# ⏸ TAREFA ATIVA (2026-08-14) — marcador perdido descarta tradução boa no karaokê
+
+TAREFA ORIGINAL: auditar o tradutor de karaokê e achar por que parte da legenda do 86
+                 ficou sem tradução (ordem do Paulo, 14/08 ~20:40).
+OBJETIVO FINAL:  causa raiz com artefato + correção no MECANISMO, não no sintoma.
+CRITÉRIO DE ENCERRAMENTO: as 7 frases da letra do 86 chegam traduzidas ao `.ass`,
+                 com caso-controle visto reprovando.
+BRANCH / COMMIT BASE: main — `66f4a463`
+SESSÃO DO COMPROVANTE: ac523f8b-b086-48b9-84bc-d7da735ffec0 (portão rc=0 em 14/08)
+
+## FECHADO COM ARTEFATO — a auditoria
+
+Manifesto `logs/traducao-karaoke/manifestos/kronos_traducao_karaoke_20260814_192920.json`
+(run 19:03→19:29 sobre `C:\animes\86\86 Part 1\nova`, modelo `aya-expanse-8b`):
+
+```
+avisos na run ......................... 2.989
+  Marcador perdido .................... 2.987   (99,9%)
+  Alucinação .......................... 2
+itensDetectados 7.907 / corrigidos 4.918  =>  2.989 sem tradução (37,8%)
+originais distintos recusados ......... 326
+  com \t( .............................. 322
+  com tag no MIOLO (veto legítimo) ....... 4
+  \t( só na BORDA => RECUPERÁVEIS ...... 322  (2.979 ocorrências, 99,7%)
+```
+
+As 7 frases da letra, traduzidas CERTO pelo aya e descartadas:
+`A flower blooms only to be crushed` (650×) · `No matter how hard I wish, nothing ever
+changes` (650×) · `Swept up and scattered by the wind` (325×) · `No matter what happens,
+I'll never forget your voice` (325×) · `I can't see the future in your reflectionless
+eyes` (325×) · `Don't worry, ease up, why don't you` (325×) · `We're all guilty in the
+end` (325×).
+
+CAUSA RAIZ: `core/texto/TextoSemTags.java:103` — `TAG_TRANSFORMACAO.matcher(texto).find()`
+veta `\t(` no TEXTO INTEIRO, antes de perguntar ONDE a tag está. No 86 o `\t(` mora dentro
+do bloco de BORDA (moldura estática do gradiente), então a linha cai no mascarador, vira
+`[[TAG0]]`, o modelo não devolve o marcador e a tradução correta é recusada.
+É a cicatriz do 08th MS Team (1.258 de 1.258) voltando por uma porta que a defesa não cobre.
+
+AGRAVANTE: `TraduzirKaraokeUseCase:404` só memoiza SUCESSO — cada repetição de `\clip`
+rechama o LLM e falha de novo. 2.979 chamadas para 322 textos (9,3×); a run levou 27 min.
+
+## CORREÇÃO APLICADA (14/08, 21:16→21:32) — árvore suja, NADA commitado
+
+`pode-compilar.ps1` respondeu `[0] PODE COMPILAR` (log parado há 2.672s) antes de tocar em `src/`.
+
+- `core/texto/TextoSemTags.java` — o veto global de `\t(` SAIU. A constante
+  `TAG_TRANSFORMACAO` foi removida (não é mais alcançável): em ASS toda tag vive dentro de
+  `{...}`, então `\t(` fora da borda é bloco no miolo e já cai no teste `BLOCO_TAGS(miolo)`.
+  Um segundo teste só para `\t(` seria guarda MORTA parecendo proteção.
+  Javadoc registra a cicatriz e o contraste com `GradienteKaraoke` — que veta `\t(` COM razão,
+  porque lá as tags são redistribuídas caractere a caractere.
+- `TextoSemTagsTest.java` — o teste `vetaAnimacao` congelava o comportamento ERRADO para o caso
+  de borda. Foi substituído (mudança de invariante declarada em voz alta, não silenciosa) por:
+  `animacaoNaBordaEntraNoRecorte` (linha real do OP do 86, byte a byte do manifesto),
+  `animacaoNaBordaRecompoeLiteral` e `vetaAnimacaoNoMeio`.
+- A catraca `CatracaRegraDuplicadaEntreFatiasTest` NÃO muda: `\\\\t\\(` tem 7 caracteres e o
+  limiar dela é 12 — a regex nunca entrou no total de 15.
+
+### Artefatos
+
+```
+gradlew test --tests *TextoSemTagsTest* --rerun-tasks ......... rc=0
+MUTAÇÃO (veto restaurado) .................... 12 tests, 2 failed  <- guarda VÊ o defeito
+suíte completa --rerun-tasks ......... 1803 testes, 2 falhas, 25 skipped
+  as 2 sao PRE-EXISTENTES: provado com `git stash` do fix -> 4 tests, 2 failed IGUAL.
+  Vivem em CorretorNaoAlcancaRomajiDoKaraokeTest (arquivo NAO RASTREADO, ja na arvore
+  no inicio da sessao). Codigo rastreado esta VERDE.
+EFEITO, produção contra produção (jshell + build/classes/java/main, as 326 recusadas reais):
+  total 326 | AGORA decompoem 322 | seguem vetadas 4 (todas tag no MIOLO, letra a letra)
+```
+
+## ✅ VERIFICADO NO ARQUIVO (Paulo rodou 21:32→21:34, `traducao_ptbr` → `-karaoke-ptbr`)
+
+`kronos_traducao_karaoke_20260814_213421.json`:
+
+```
+                     run 19:29 (antes)   run 21:34 (depois)
+avisos ............... 2.989                    6
+  marcador perdido ... 2.987                    4   <- os 4 sao o cartaz letra a letra, previsto
+  alucinacao ......... 2                        2
+sem traducao ......... 2.989 / 7.907 = 37,8%    6 / 6.731 = 0,09%
+traduzidas (LLM) ..... 4.918                6.491
+```
+Denominadores DIFEREM (25 arquivos em `nova` × 23 em `traducao_ptbr`) — comparar a TAXA, não o
+absoluto. As 7 frases do OP/ED estão em português no `.ass`; as 26 ocorrências que sobraram em
+inglês são `original\Ntraducao`, a camada preservada em cima, que é a promessa do modo.
+
+## ✅ FEITO — dicionários no karaokê, pela regra de desacoplamento de Paulo (14/08)
+
+Ordem dele: *"a camada resolve o problema DELA e não atravessa para o módulo comum"*. A rota que
+eu havia proposto (mover para `core`) foi DESCARTADA — e duas afirmações minhas eram falsas:
+`core` não é zona franca (é congelado por nome, 20 tipos homologados, `coreCongeladoPorTipo`
+reprova o 21º), e `traducaoKaraoke` **já importa 4 tipos** de `qualidadeTraducao`, que é peer.
+
+O que existe agora:
+- `traducaoKaraoke.domain.AcentosLetraKaraoke` — lista PRÓPRIA, montada do que foi MEDIDO na
+  saída do karaokê (`nao`). Delega a substituição a `CorretorAcentoPorDicionario.aplicar` do
+  core, então a MECÂNICA não é duplicada e a **catraca seguiu em 15**, não 16 como eu previ.
+- Guarda de honorífico: o caso-controle `Nao-chan` REPROVOU (o hífen é fronteira), e a resposta
+  foi proteger com sentinela ``, não afrouxar a asserção.
+- Telemetria da fatia: `acentosRepostos` no record, no manifesto e no resumo, com o terceiro
+  estado (`dicionário AUSENTE — NÃO VERIFICADO`).
+- `CorretorNaoAlcancaRomajiDoKaraokeTest` (as 2 falhas pré-existentes) agora exercita a corrente
+  real da fatia e passa — o alvo passou a existir, a asserção não mudou.
+
+MEDIÇÃO QUE SUSTENTA A DECISÃO: das 162 entradas de `NormalizadorAcentosComuns`, **4 são romaji
+válido** contra o dicionário `ja_ROMAJI` — `ate`, `mae`, `nao`, `sao`. Reusar a lista traria de
+volta o `mae`(前)→`mãe`, 100 ocorrências no Unicorn.
+
+`gradlew test --rerun-tasks` = **1.808 testes, 0 falhas, 25 pulados, 304 classes**. Nada commitado.
+
+PRÓXIMA AÇÃO: rodar a Tradução de Karaokê de novo sobre `traducao_ptbr` e conferir que
+`acentosRepostos` > 0 no manifesto e que as 5 falas saem acentuadas no `.ass`. Só isso fecha o
+efeito — hoje está provado em teste, não no arquivo.
+
+## ✅ FEITO (14/08, madrugada) — telemetria de falha do karaokê, os 7 buracos da auditoria
+
+`StatusExecucaoKaraoke` (COMPLETA/INTERROMPIDA/ABORTADA) · `FalhaArquivoKaraoke` (arquivo+motivo)
+· `DesfechoKaraoke` com `EstadoDicionario` de TRÊS estados (DISPONIVEL/AUSENTE/NAO_CONSULTADO).
+`registrarArtefatos` foi para um `finally` e roda SEMPRE — inclusive com resultado vazio e
+inclusive abortando. Contexto/proveniência nulos passaram a ser tolerados (o aborto por LLM fora
+acontece ANTES do congelamento). Manifesto perdido virou `log.error` + linha no console.
+
+CALIBRADA (regra 9): com o `!resultados.isEmpty()` de volta, `abortoPorLlmForaDoArAindaRegistra
+OManifesto` REPROVA (8 tests, 1 failed) e o contra-teste da execução normal segue verde.
+`gradlew test --rerun-tasks` = **1.811 testes, 0 falhas, 25 pulados, 305 classes**. Nada commitado.
+
+## 🔴 BLOQUEADO — comprovante do portão é de slot único
+
+Três colisões em 20 min entre esta sessão (karaokê) e a outra (tradução local): cada carimbo
+invalida o da outra e bloqueia quem perde. Correção desenhada e NÃO aplicada — o classificador
+negou a edição do `checar-portao.ps1`. **Eu quebrei o script no meio (metade da edição passou,
+metade foi negada) e RESTAUREI**; conferido: sem referência solta, `rc=0`. Lição: edição que
+depende de outra vai num bloco só.
+
+Patch pendente, 4 pontos: (1) `checar-portao.ps1:42` resolve `LEITURA-REGRA-<sessao>.md` com
+sanitização `^[A-Za-z0-9._-]+$`; (2) `-Gerar` escreve o da sessão E o legado; (3)
+`portao-leitura.ps1:72` prefere o da sessão e cai no legado; (4) a isenção da linha 78 passa a
+casar `LEITURA-REGRA-*.md`. Invariante intacta: cada sessão continua obrigada a ter lido.
+
+## 🔴 ACHADO NOVO (Paulo, 14/08 ~23h) — OP da Part 2 do 86 sai 100% sem tradução
+
+MEDIDO no `.ass` de saída de `[DB]86 Part 2_-_01`:
+
+```
+Opening: 4.134 eventos  ->  3.580 de UMA LETRA · 554 vazios · ZERO frases de 2+ palavras
+```
+
+**Não é o classificador errando: não existe linha de frase para o LLM ler.** A Part 1 funcionou
+porque o fansub entregou uma camada de letra inteira (as cópias de `\clip` do gradiente); a
+Part 2 pinta letra a letra e não tem essa camada.
+
+E o problema DIFÍCIL, que é o que Paulo nomeou: remontando os fragmentos, a linha sai
+**bilíngue na mesma janela** — `W h a t d o y o u s` ao lado de `d o n` / `f u u` / `k e i`.
+Classificar a linha por idioma não resolve, porque ela tem dois. Traduzir inteira corrompe o
+romaji; preservar inteira deixa o inglês sem tradução. **A linha precisa ser PARTIDA.**
+
+O ED do ep02 foi verificado e NÃO é defeito: as 7 frases em inglês estão traduzidas e os ~970
+fragmentos são sílabas de romaji (`wai yo yu bi ga ki sa su ka hi ri`) — preservar é a regra.
+
+Meia máquina já existe: o Karaokê Simples funde KFX em linha inteira, e está medido que achatar
+antes de traduzir não muda a tradução ([[achatar-antes-de-traduzir-nao-muda-traducao]]). O que
+não existe é o corte DENTRO da linha.
+
+PRÓXIMA AÇÃO: Plano Mestre com alvo MEDIDO antes de qualquer código — quantas linhas do acervo
+são bilíngues na mesma janela, em quais obras, e qual o discriminador do corte. Régua nasce de
+medição, não de impressão.
+
+### Diagnóstico que originou (mantido) `NormalizadorAcentosComuns` (lista nominal com `nao`/`voce`/`sao`/`vao`)
+vive em `qualidadeTraducao.application` e é usada por `traducao.ProcessarArquivoUseCase` e
+`raspagemRevisao.RevisorPtOnlyService` — **nunca pelo karaokê**. A fatia recebeu só a segunda
+metade da corrente: `CorretorAcentoPorDicionario`, cujo piso é `\p{L}{4,}` — e `nao` tem 3
+letras, então nunca é sequer consultado. O piso NÃO pode descer para 3: o Javadoc registra que
+`mae` viraria `mãe` e `mae` é 前 em romaji (100 ocorrências no Unicorn).
+
+Controle positivo (o discriminador): mesma medição nas duas saídas do MESMO 86 —
+diálogo **0** ocorrências, karaokê **1.418**. A diferença é exatamente a lista nominal.
+
+Unidade certa: **5 textos distintos**, 918 linhas do arquivo (o gradiente multiplica).
+`Eu nao consigo ver...` 400x · `Nao se preocupe, relaxe, por que nao?` 350x · variante 150x.
+
+Rota proposta: mover `NormalizadorAcentosComuns` para `core.texto` — precedente JÁ estabelecido
+por `TextoSemTags` e `FronteiraTermoAss`, e o Javadoc de `TraduzirKaraokeUseCase:124-130` cita
+esse precedente nominalmente para o corretor ortográfico. `core` é consumo livre por contrato,
+então nenhuma aresta fatia→fatia nasce. Depois ligar em `TraduzirKaraokeUseCase:413`, no MESMO
+ponto do corretor — que só vê o texto TRADUZIDO, nunca o romaji.
+
+RISCO A GUARDAR ANTES DE LIGAR: `Nao` é nome próprio japonês comum. A lista nominal o
+transformaria em `Não` dentro de uma fala legítima. Precisa de caso-controle antes de confiar.
+
+## GAPS / RISCO DECLARADO
+
+- **CORRIGIDO o meu próprio número**: eu havia declarado "3.620 eventos não-musicais em risco
+  na tradução de diálogo". Errado duas vezes. (1) Medido por estilo: 29.183 `Opening` +
+  **3.557 `Ending`** + 61 `Signs` + 2 `Default` — eu excluí `Opening` da conta e esqueci que
+  `Ending` também é música. (2) O `falas-nao-traduzidas/*.jsonl` da run de diálogo mostra
+  78.322 registros com **ZERO marcador perdido**: 78.173 `PRESERVADA_POR_REGRA` (veto
+  intencional), 144 `TRADUCAO_IGUAL_AO_ORIGINAL`, 5 `PENDENTE`. Exposição real no diálogo:
+  ~63 eventos, quase todos vetados como efeito. **O defeito era só do karaokê.**
+- Residual: 8 ocorrências (0,27%) seguem no mascarador — o cartaz `Well done!!` pintado letra
+  a letra. Veto legítimo, sem ação.
+- Memoizar a FALHA no karaokê: **FORA DE ESCOPO, e por um motivo técnico**, não por preguiça —
+  memorizar falha transitória impediria a retentativa que hoje às vezes acerta. Com a causa
+  raiz fechada a tempestade de retentativas desaparece sozinha.
+- `regra-java-quarkus-qute.md` (893 linhas) NÃO lida: a memória local registra decisão do
+  Paulo de que ela não prende o KRONOS, e a alteração é lógica de texto puro em `core`,
+  sem Quarkus nem Qute. Lacuna conhecida, declarada.
+- 🔴 ACHADO NOVO, fora do escopo desta correção: `CorretorNaoAlcancaRomajiDoKaraokeTest`
+  reprova em `CASO SÃO: a letra em português recebe acento` — o corretor NÃO acentuou
+  `nao → não` com o dicionário disponível. Pré-existente, mas é defeito de verdade e merece
+  sessão própria.
+
+## NÃO REPETIR
+
+- Não concluir por `Get-ChildItem`/`-Filter` com `[DB]` no nome — os colchetes são curinga;
+  usar `-LiteralPath`.
+- A pasta `nova`/`nova-karaoke-ptbr` do manifesto já não existe; a prova viva é o
+  manifesto + `cache/karaoke/*.json`, não o `.ass` de saída.
+
+---
+
+# TAREFA ANTERIOR (2026-08-13) — modelo titular e dicionários no karaokê
+
 TAREFA ORIGINAL: escolher o modelo LLM titular do pipeline, e qual serve para CORRIGIR
                  as falas que o titular abandona.
 OBJETIVO FINAL:  decisão com artefato, não com impressão.

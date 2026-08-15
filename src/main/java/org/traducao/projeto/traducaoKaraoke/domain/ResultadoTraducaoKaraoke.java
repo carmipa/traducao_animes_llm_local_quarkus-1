@@ -17,6 +17,14 @@ public record ResultadoTraducaoKaraoke(
     int reaproveitadasCache,
     int traduzidas,
     int mantidasSemTraducao,
+    /**
+     * Falas em que a camada portuguesa teve acento REPOSTO nesta fatia — o efeito medido do
+     * {@link AcentosLetraKaraoke} mais o do dicionário. Existe para que o defeito apareça na
+     * telemetria DA FATIA no momento em que acontece, em vez de ser descoberto meses depois
+     * lendo o {@code .ass}: na tradução do 86 de 2026-08-14, 5 falas distintas saíram com
+     * {@code nao} sem acento e ninguém tinha um número para olhar.
+     */
+    int acentosRepostos,
     List<String> avisos
 ) {
 }
