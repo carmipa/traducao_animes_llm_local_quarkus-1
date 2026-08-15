@@ -7,7 +7,7 @@
 import { initAnalise } from '../analise/analise.js?v=4.0';
 import { initExtracao } from '../extracao/extracao.js?v=3.0';
 import { initAuditorConteudo } from '../auditorConteudoLegendas/auditorConteudoLegendas.js?v=3.9';
-import { initTraducao } from '../traducao/traducao.js?v=3.1';
+import { initTraducao } from '../traducao/traducao.js?v=3.2';
 import { initTraducaoSemLore } from '../traducaoSemLore/traducaoSemLore.js?v=1.0';
 import { initCorrecao } from '../correcao/correcao.js?v=3.1';
 import { initRevisao } from '../revisao/revisao.js?v=3.3';
@@ -331,6 +331,23 @@ function conectarFluxoLugsSSE() {
             verificarAlertaSSE(event.data);
         });
     }
+
+    // FIM DO LOTE DE TRADUÇÃO: canal próprio, emparelhado com TraducaoController#SUFIXO_CANAL_FIM.
+    // As duas pontas nascem e mudam juntas, pelo mesmo motivo registrado no consoleMap acima —
+    // faltar a entrada de um canal aqui não dá erro, deixa a tela MUDA.
+    //
+    // Este arquivo só ROTEIA o sinal; o que fazer com ele (som, toast) é decisão da tela, que
+    // escuta o evento de janela. Sem isso, o aviso sonoro de uma fatia moraria no arquivo comum.
+    ['traducao', 'traducao-sem-lore'].forEach((canal) => {
+        eventSource.addEventListener(`${canal}-finalizada`, (event) => {
+            // Corpo do evento: "<desfecho>|<veredito do som da máquina>" — emparelhado com
+            // TraducaoController#SEPARADOR_EVENTO. Aqui não se interpreta nada: rotear é o
+            // trabalho deste arquivo, decidir o que fazer é da tela.
+            window.dispatchEvent(new CustomEvent('kronos:traducao-finalizada', {
+                detail: { canal: canal, dados: event.data }
+            }));
+        });
+    });
 
     // Batimento do servidor (na conexão e a cada ~15s): não vira log. Faz DUAS coisas —
     // a chegada rearma o watchdog (conexão viva), e o conteúdo diz QUAL execução está do
