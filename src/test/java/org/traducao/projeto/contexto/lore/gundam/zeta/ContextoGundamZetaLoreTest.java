@@ -12,7 +12,7 @@ class ContextoGundamZetaLoreTest {
 
     @Test
     void protegeTermosRecorrentesMedidosNosCinquentaEpisodios() {
-        ContextoGundamZeta contexto = new ContextoGundamZeta();
+        org.traducao.projeto.contexto.domain.ProvedorContexto contexto = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_zeta");
         Set<String> protegidos = contexto.termosProtegidos();
 
         Set.of(
@@ -27,7 +27,7 @@ class ContextoGundamZetaLoreTest {
 
     @Test
     void naoProtegeAliasesCurtosAmbiguos() {
-        Set<String> protegidos = new ContextoGundamZeta().termosProtegidos();
+        Set<String> protegidos = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_zeta").termosProtegidos();
 
         assertFalse(protegidos.contains("Four"));
         assertFalse(protegidos.contains("Fa"));
@@ -36,7 +36,7 @@ class ContextoGundamZetaLoreTest {
 
     @Test
     void corrigeSomenteVariantesMedidasQuandoOCanonicoExistirNoIngles() {
-        var correcoes = new ContextoGundamZeta().correcoesTerminologia();
+        var correcoes = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_zeta").correcoesTerminologia();
 
         assertTrue("Dogosse Gier".equals(correcoes.get("Dogosse Giar")));
         assertTrue("Rosammy".equals(correcoes.get("Rosamia")));

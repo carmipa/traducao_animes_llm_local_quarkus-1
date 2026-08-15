@@ -53,7 +53,7 @@ class CorrecoesTerminologiaGundamUcTest {
     @Test
     @DisplayName("nucleo cobre os termos UC canonicos")
     void nucleoCobreTermosUc() {
-        Map<String, String> m = CorrecoesTerminologiaGundamUc.mapa();
+        Map<String, String> m = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo");
         assertEquals("Newtype", m.get("Novo Tipo"));
         assertEquals("Oldtype", m.get("Velho Tipo"));
         assertEquals("Mobile Suit", m.get("Traje Móvel"));
@@ -65,7 +65,7 @@ class CorrecoesTerminologiaGundamUcTest {
     @Test
     @DisplayName("comExtras mescla os extras sem perder o nucleo")
     void comExtrasMesclaSemPerderNucleo() {
-        Map<String, String> m = CorrecoesTerminologiaGundamUc.comExtras(Map.of("Eixo", "Axis"));
+        Map<String, String> m = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_cca");
         assertEquals("Axis", m.get("Eixo"));
         assertEquals("Newtype", m.get("Novo Tipo"));
     }
@@ -74,12 +74,12 @@ class CorrecoesTerminologiaGundamUcTest {
     @DisplayName("INVARIANTE: canonico de extra da obra esta no termosProtegidos")
     void canonicoDeExtraEstaNoRoster() {
         // Contextos do pacote gundam (sem subpacote) — cobrem os extras representativos.
-        verificarConsistencia(new ContextoGundamF91());
-        verificarConsistencia(new ContextoGundamVictory());
-        verificarConsistencia(new ContextoGundamUnicorn());
-        verificarConsistencia(new ContextoGundamNT());
-        verificarConsistencia(new ContextoGundamOrigin());
-        verificarConsistencia(new ContextoGundamHathaway());
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_f91"));
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_victory"));
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_unicorn"));
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_nt"));
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_origin"));
+        verificarConsistencia(org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_hathaway"));
     }
 
     private void verificarConsistencia(ProvedorContexto ctx) {

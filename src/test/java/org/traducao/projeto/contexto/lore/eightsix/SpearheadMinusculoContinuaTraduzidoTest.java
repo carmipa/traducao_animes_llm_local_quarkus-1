@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SpearheadMinusculoContinuaTraduzidoTest {
 
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
-    private final Map<String, String> correcoes = new Contexto86().correcoesTerminologia();
+    private final Map<String, String> correcoes = org.traducao.projeto.contexto.LoreDeTeste.obra("eight_six").correcoesTerminologia();
 
     /** As três falas REAIS que saíram erradas na retradução de 15/08. */
     @Test

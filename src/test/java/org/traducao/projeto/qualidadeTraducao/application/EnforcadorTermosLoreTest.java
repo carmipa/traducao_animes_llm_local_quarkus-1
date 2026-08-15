@@ -235,7 +235,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Break Blade: restaura un-sorcerer/Delphine/Valkyrie Squadron")
     void restauraBreakBlade() {
-        var mapa = org.traducao.projeto.contexto.lore.breakblade.CorrecoesTerminologiaBreakBlade.mapa();
+        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("break_blade_1");
         assertEquals(
             "Rygart é un-sorcerer e pilota a Delphine.",
             enforcador.reforcar(
@@ -259,7 +259,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Macross Delta: restaura Walküre/Var Syndrome/Delta Flight")
     void restauraMacrossDelta() {
-        var mapa = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacrossDelta.mapa();
+        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_delta");
         assertEquals(
             "A Walküre canta contra a Var Syndrome.",
             enforcador.reforcar(
@@ -283,7 +283,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Origin/Zeta/Unicorn/DYRL: restaura formas-ruim canônicas")
     void restauraUcEMacrossClasse() {
-        var origin = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
+        var origin = comNucleoUc(
             Map.ofEntries(
                 Map.entry("Base Branca", "White Base"),
                 Map.entry("Zion", "Zeon"),
@@ -303,8 +303,7 @@ class EnforcadorTermosLoreTest {
                 "Triângulo Negro e Eduardo Mass.",
                 origin));
 
-        var zeta = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
-            Map.of("Cem Estilos", "Hyaku Shiki", "Titãs", "Titans"));
+        var zeta = comNucleoUc(Map.of("Cem Estilos", "Hyaku Shiki", "Titãs", "Titans"));
         assertEquals(
             "Titans pilotam o Hyaku Shiki.",
             enforcador.reforcar(
@@ -312,8 +311,7 @@ class EnforcadorTermosLoreTest {
                 "Titãs pilotam o Cem Estilos.",
                 zeta));
 
-        var unicorn = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.comExtras(
-            Map.of("Mangas", "Sleeves", "Caixa de Laplace", "Laplace's Box"));
+        var unicorn = comNucleoUc(Map.of("Mangas", "Sleeves", "Caixa de Laplace", "Laplace's Box"));
         assertEquals(
             "Os Sleeves querem a Laplace's Box.",
             enforcador.reforcar(
@@ -321,7 +319,7 @@ class EnforcadorTermosLoreTest {
                 "Os Mangas querem a Caixa de Laplace.",
                 unicorn));
 
-        var dyrl = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacrossDyrl.mapa();
+        var dyrl = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_filme1");
         assertEquals(
             "Protoculture une Zentradi e Meltrandi.",
             enforcador.reforcar(
@@ -329,7 +327,7 @@ class EnforcadorTermosLoreTest {
                 "Protocultura une Zentradi e Meltrandi.",
                 dyrl));
 
-        var m2 = org.traducao.projeto.contexto.lore.macross.CorrecoesTerminologiaMacross2.mapa();
+        var m2 = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_2");
         assertEquals(
             "A Emulator canta o Minmay Attack.",
             enforcador.reforcar(
@@ -341,7 +339,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Guilty Crown: restaura Funerária/Vazio/Coveiro canônicos")
     void restauraGuiltyCrown() {
-        var mapa = org.traducao.projeto.contexto.lore.guiltycrown.CorrecoesTerminologiaGuiltyCrown.mapa();
+        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("guilty_crown");
         assertEquals(
             "Ele entrou na Funeral Parlor com o Void Genome.",
             enforcador.reforcar(
@@ -403,7 +401,7 @@ class EnforcadorTermosLoreTest {
     void restauraCompostoMeioTraduzidoMobileSuits() {
         // O LLM meio-traduziu ("Mobile"->"Móveis", manteve "Suits") e o EN veio minúsculo
         // ("Mobile suits!"). Termo multi-palavra é reconhecido case-insensitive no original.
-        var mapa = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.mapa();
+        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo");
         assertEquals("Mobile Suits!",
             enforcador.reforcar("Mobile suits!", "Móveis Suits!", mapa));
     }
@@ -414,8 +412,30 @@ class EnforcadorTermosLoreTest {
         // Termo técnico composto não colide com palavra comum como um nome próprio de 1 palavra;
         // por isso a checagem do canônico é case-insensitive para multi-palavra (Void/Titans, de
         // 1 palavra, seguem SENSÍVEIS à caixa — cobertos por naoAlteraTitasMitologicos/homografo).
-        var mapa = org.traducao.projeto.contexto.lore.gundam.CorrecoesTerminologiaGundamUc.mapa();
+        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo");
         assertEquals("Lance o Mobile Suit.",
             enforcador.reforcar("Deploy the mobile suit.", "Lance o traje móvel.", mapa));
     }
-}
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconstrói o que {@code CorrecoesTerminologiaGundamUc.comExtras()}
+     * fazia, agora que aquela classe não existe — a lore virou o arquivo único em 2026-08-15.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: núcleo UC + extras, extras vencendo, exatamente como o método
+     * deletado. O núcleo vem de {@code gundam_ms_igloo}, que é uma das quatro obras que usavam
+     * o núcleo PURO, sem extras próprios — logo o mapa dela NO ARQUIVO é o núcleo.
+     *
+     * <p>Por que não usar a obra real (ex.: {@code gundam_unicorn}) e pronto: estes casos testam
+     * o ENFORCADOR com um mapa montado à mão, não o conteúdo do catálogo. Um deles usa
+     * {@code "Caixa de Laplace" -> "Laplace's Box"}, que a lore real do Unicorn NÃO tem — trocar
+     * pelo mapa da obra mudaria silenciosamente o que está sendo provado, e o teste passaria a
+     * falar de outra coisa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: id ausente reprova em {@code LoreDeTeste}.
+     */
+    private static Map<String, String> comNucleoUc(Map<String, String> extras) {
+        Map<String, String> combinado =
+            new java.util.LinkedHashMap<>(org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo"));
+        combinado.putAll(extras);
+        return java.util.Collections.unmodifiableMap(combinado);
+    }}
