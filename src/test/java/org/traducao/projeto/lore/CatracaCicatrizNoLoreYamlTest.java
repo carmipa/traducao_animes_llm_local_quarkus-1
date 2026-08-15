@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * comentário — seja apagada em silêncio por alguém que regenere o YAML e copie por cima.
  *
  * <h2>O risco concreto que ela cobre</h2>
- * O `lore-traducao.yaml` é <b>gerado</b> por {@code GeradorLoreYamlIT}, e o gerado tem
+ * O `lore.yaml` é <b>gerado</b> por {@code GeradorLoreYamlIT}, e o gerado tem
  * <b>ZERO comentário</b>. As 377 linhas de cicatriz foram migradas À MÃO das classes Java em
  * 2026-08-15: são as contagens medidas ({@code # 67}, {@code # ja existia; 0 ocorrencias}), o
  * histórico do Spearhead e as decisões de "FICA DE FORA" com o motivo. Um único
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DisplayName("CATRACA: a cicatriz do arquivo de lore só pode CRESCER")
 class CatracaCicatrizNoLoreYamlTest {
 
-    private static final String RECURSO = "/lore/lore-traducao.yaml";
+    private static final String RECURSO = "/lore/lore.yaml";
 
     /**
      * Linhas de comentário no arquivo em 2026-08-15, depois da migração das 8 classes que
@@ -72,9 +72,9 @@ class CatracaCicatrizNoLoreYamlTest {
         assertTrue(comentarios >= PISO,
             () -> "A CICATRIZ do arquivo de lore encolheu: " + comentarios + " linhas de "
                 + "comentário, piso é " + PISO + " (sumiram " + (PISO - comentarios) + ").\n"
-                + "A causa quase certa é alguém ter copiado build/tmp/lore-traducao.yaml por "
+                + "A causa quase certa é alguém ter copiado build/tmp/lore.yaml por "
                 + "cima: o gerado tem ZERO comentário.\n"
-                + "Recuperar: `git checkout -- src/main/resources/lore/lore-traducao.yaml` e, se "
+                + "Recuperar: `git checkout -- src/main/resources/lore/lore.yaml` e, se "
                 + "os DADOS precisavam mesmo ser regenerados, aplicar a regeneração preservando "
                 + "os comentários em vez de sobrescrever o arquivo inteiro.");
     }

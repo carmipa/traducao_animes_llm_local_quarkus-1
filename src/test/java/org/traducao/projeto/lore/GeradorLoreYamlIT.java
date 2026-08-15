@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DisplayName("FASE B: gera o arquivo único de lore da tradução e prova a ida e volta")
 class GeradorLoreYamlIT {
 
-    private static final Path SAIDA = Path.of("build", "tmp", "lore-traducao.yaml");
+    private static final Path SAIDA = Path.of("build", "tmp", "lore.yaml");
 
     /**
      * FASE E: o lado da REVISÃO, emitido no MESMO arquivo. Sai separado em {@code build/tmp/}

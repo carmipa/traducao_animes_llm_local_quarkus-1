@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * PROPÓSITO DE NEGÓCIO: entrega ao resto do sistema a lista de obras com lore. Desde 2026-08-15
- * ela vem do ARQUIVO ÚNICO ({@code /lore/lore-traducao.yaml}), e não mais de 78 classes Java
+ * ela vem do ARQUIVO ÚNICO ({@code /lore/lore.yaml}), e não mais de 78 classes Java
  * descobertas por CDI — ordem de Paulo: <i>"todas as lores devem ficar em um único arquivo"</i>.
  *
  * <h2>O que mudou, e o que NÃO mudou</h2>
@@ -52,5 +52,22 @@ public class ContextoBeansConfig {
     @Bean
     public List<ProvedorContexto> todosProvedoresContexto() {
         return catalogo.obras();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: expõe o lado da REVISÃO de lore, lido do MESMO arquivo. É o que
+     * fecha a FASE E: a lore de uma obra deixa de ser a UNIÃO de dois pacotes e passa a existir
+     * inteira num lugar só.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: lista imutável. Pode ser vazia sem derrubar a aplicação —
+     * diferente do lado da tradução, cuja ausência é fatal. Sem lore de tradução o pipeline
+     * traduziria sem lore nenhuma e gravaria o resultado; sem lore de revisão a Opção 7
+     * simplesmente não tem obra a oferecer, e quem consome já trata catálogo vazio.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a leitura já ocorreu na construção; aqui não lança.
+     */
+    @Bean
+    public List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> todosProvedoresRevisaoLore() {
+        return catalogo.obrasRevisao();
     }
 }

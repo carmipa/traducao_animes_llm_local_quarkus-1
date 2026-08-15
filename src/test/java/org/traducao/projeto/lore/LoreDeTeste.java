@@ -74,4 +74,39 @@ public final class LoreDeTeste {
     public static Map<String, String> terminologia(String id) {
         return obra(id).correcoesTerminologia();
     }
+
+    private static final Map<String, org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore>
+        REVISAO_POR_ID = carregarRevisao();
+
+    private static Map<String, org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> carregarRevisao() {
+        Map<String, org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> m = new LinkedHashMap<>();
+        for (var p : new CatalogoLoreYaml().obrasRevisao()) {
+            m.put(p.getId(), p);
+        }
+        return m;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a obra do lado da REVISÃO de lore, pelo id — substitui o
+     * {@code new ContextoRevisaoLoreX()} depois que as 80 classes viraram o arquivo único.
+     * <p>INVARIANTES DO DOMÍNIO: id desconhecido reprova nomeando o id.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code fail} com o id e quantas obras foram carregadas.
+     */
+    public static org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore revisao(String id) {
+        var p = REVISAO_POR_ID.get(id);
+        if (p == null) {
+            fail("Obra de REVISÃO de lore \"" + id + "\" não existe no arquivo único ("
+                + REVISAO_POR_ID.size() + " carregadas).");
+        }
+        return p;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: atalho para o mapa de terminologia do lado da revisão.
+     * <p>INVARIANTES DO DOMÍNIO: mesmas de {@link #revisao(String)}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idem.
+     */
+    public static Map<String, String> terminologiaRevisao(String id) {
+        return revisao(id).correcoesTerminologia();
+    }
 }

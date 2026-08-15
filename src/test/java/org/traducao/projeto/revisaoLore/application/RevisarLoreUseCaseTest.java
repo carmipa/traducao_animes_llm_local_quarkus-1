@@ -2,8 +2,6 @@ package org.traducao.projeto.revisaoLore.application;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.lore.revisao.ContextoRevisaoLore86;
-import org.traducao.projeto.lore.revisao.ContextoRevisaoLoreGundamZeta;
 import org.traducao.projeto.revisaoLore.domain.ResultadoDeteccaoLore;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLore;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
@@ -258,7 +256,7 @@ class RevisarLoreUseCaseTest {
 
     @Test
     void contexto86ExpoeMapaDeTerminologia() {
-        Map<String, String> mapa = new ContextoRevisaoLore86().correcoesTerminologia();
+        Map<String, String> mapa = org.traducao.projeto.lore.LoreDeTeste.revisao("eight_six").correcoesTerminologia();
         assertEquals("Legion", mapa.get("Legião"));
         assertEquals("Undertaker", mapa.get("Coveiro"));
         assertEquals("Handler One", mapa.get("Handler Um"));
@@ -266,7 +264,7 @@ class RevisarLoreUseCaseTest {
 
     @Test
     void contextoZetaExpoeMapaDeTerminologia() {
-        Map<String, String> mapa = new ContextoRevisaoLoreGundamZeta().correcoesTerminologia();
+        Map<String, String> mapa = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zeta").correcoesTerminologia();
         assertEquals("Titans", mapa.get("Titãs"));
         assertEquals("Quattro", mapa.get("Quatro"));
         assertEquals("Axis", mapa.get("Eixo"));

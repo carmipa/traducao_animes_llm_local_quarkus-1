@@ -48,9 +48,10 @@ import java.util.Set;
 public final class CatalogoLoreYaml {
 
     /** Recurso único da lore de tradução, empacotado no jar. */
-    public static final String RECURSO = "/lore/lore-traducao.yaml";
+    public static final String RECURSO = "/lore/lore.yaml";
 
     private final List<ProvedorContexto> obras;
+    private final List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> obrasRevisao;
 
     /**
      * PROPÓSITO DE NEGÓCIO: carrega o catálogo do recurso padrão.
@@ -111,6 +112,71 @@ public final class CatalogoLoreYaml {
                 !(o.get("apareceNaLista") instanceof Boolean b) || b));
         }
         this.obras = List.copyOf(carregadas);
+
+        // FASE E — o lado da REVISÃO, no MESMO arquivo, sob a chave "revisao".
+        List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> revisoes = new ArrayList<>();
+        Object listaRevisao = mapa.get("revisao");
+        if (listaRevisao instanceof List<?> itensRevisao) {
+            Set<String> idsRevisao = new LinkedHashSet<>();
+            for (Object item : itensRevisao) {
+                if (!(item instanceof Map<?, ?> obra)) {
+                    throw new IllegalStateException("Entrada de revisão que não é mapa em " + recurso);
+                }
+                Map<String, Object> o = (Map<String, Object>) obra;
+                String id = texto(o, "id", recurso);
+                if (!idsRevisao.add(id)) {
+                    throw new IllegalStateException("Id repetido no lado da revisão: " + id);
+                }
+                revisoes.add(new RevisaoDeArquivo(
+                    id, texto(o, "nome", recurso), texto(o, "prompt", recurso),
+                    mapaDeTexto(o.get("correcoesTerminologia"))));
+            }
+        }
+        this.obrasRevisao = List.copyOf(revisoes);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as obras do lado da REVISÃO de lore, lidas do MESMO arquivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: lista imutável. Pode ser VAZIA sem lançar — o lado da revisão é
+     * opcional no arquivo, e um arquivo só com tradução é válido. É diferente do lado da
+     * tradução, cuja ausência derruba a aplicação: sem lore de tradução o pipeline traduziria
+     * sem lore nenhuma; sem lore de revisão a Opção 7 simplesmente não tem obra para oferecer, e
+     * quem consome já trata catálogo vazio.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: id repetido ou obra sem id/nome/prompt lançam na carga.
+     */
+    public List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> obrasRevisao() {
+        return obrasRevisao;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma obra do lado da revisão, pelo contrato que a Opção 7 consome.
+     * <p>INVARIANTES DO DOMÍNIO: campos imutáveis; sem I/O.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    private record RevisaoDeArquivo(String id, String nome, String prompt, Map<String, String> correcoes)
+        implements org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore {
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String getNomeExibicao() {
+            return nome;
+        }
+
+        @Override
+        public String obterPromptSistema() {
+            return prompt;
+        }
+
+        @Override
+        public Map<String, String> correcoesTerminologia() {
+            return correcoes;
+        }
     }
 
     /**

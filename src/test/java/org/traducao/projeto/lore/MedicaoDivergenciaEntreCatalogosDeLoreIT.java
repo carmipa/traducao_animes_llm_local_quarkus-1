@@ -50,12 +50,12 @@ class MedicaoDivergenciaEntreCatalogosDeLoreIT {
     java.util.List<ProvedorContexto> catalogoTraducao;
 
     @Inject
-    jakarta.enterprise.inject.Instance<ProvedorPromptRevisaoLore> instRevisao;
+    java.util.List<ProvedorPromptRevisaoLore> catalogoRevisao;
 
     @Test
     void medirDivergencia() {
         java.util.List<ProvedorContexto> daTraducao = catalogoTraducao;
-        java.util.List<ProvedorPromptRevisaoLore> daRevisao = instRevisao.stream().toList();
+        java.util.List<ProvedorPromptRevisaoLore> daRevisao = catalogoRevisao;
         assertTrue(!daTraducao.isEmpty(), "NÃO VERIFICADO: nenhum ProvedorContexto no CDI");
         assertTrue(!daRevisao.isEmpty(), "NÃO VERIFICADO: nenhum ProvedorPromptRevisaoLore no CDI");
 

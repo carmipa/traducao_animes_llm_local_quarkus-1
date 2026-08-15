@@ -17,10 +17,10 @@ class ContextosRevisaoLoreCatalogoTest {
     @Test
     void novosContextosPossuemIdsUnicosENomesDeRevisao() {
         List<ProvedorPromptRevisaoLore> provedores = List.of(
-            new ContextoRevisaoLoreGundamUnicorn(),
-            new ContextoRevisaoLoreGundamZeta(),
-            new ContextoRevisaoLoreGundamZZ(),
-            new ContextoRevisaoLoreGuiltyCrown()
+            org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_unicorn"),
+            org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zeta"),
+            org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zz"),
+            org.traducao.projeto.lore.LoreDeTeste.revisao("guilty_crown")
         );
 
         Set<String> ids = provedores.stream()
@@ -37,7 +37,7 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptUnicornProtegeTermosCriticosDaObra() {
-        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
+        var unicorn = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_unicorn");
         String prompt = unicorn.obterPromptSistema();
 
         assertTrue(prompt.contains("Unicorn Gundam"));
@@ -62,7 +62,7 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptZetaProtegeTermosCriticosDaObra() {
-        var zeta = new ContextoRevisaoLoreGundamZeta();
+        var zeta = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zeta");
         String prompt = zeta.obterPromptSistema();
 
         assertTrue(prompt.contains("A.E.U.G."));
@@ -85,7 +85,7 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptZzProtegeTermosCriticosDaObra() {
-        var zz = new ContextoRevisaoLoreGundamZZ();
+        var zz = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zz");
         String prompt = zz.obterPromptSistema();
 
         assertTrue(prompt.contains("Double Zeta nao vira"));
@@ -106,13 +106,13 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void contextosUcEMacrossClasseRevisaoExcepcionais() {
-        var origin = new ContextoRevisaoLoreGundamOrigin();
-        var zeta = new ContextoRevisaoLoreGundamZeta();
-        var zz = new ContextoRevisaoLoreGundamZZ();
-        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
-        var nt = new ContextoRevisaoLoreGundamNT();
-        var m2 = new ContextoRevisaoLoreMacross2();
-        var dyrl = new ContextoRevisaoLoreMacrossFilme1();
+        var origin = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_origin");
+        var zeta = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zeta");
+        var zz = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_zz");
+        var unicorn = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_unicorn");
+        var nt = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_nt");
+        var m2 = org.traducao.projeto.lore.LoreDeTeste.revisao("macross_2");
+        var dyrl = org.traducao.projeto.lore.LoreDeTeste.revisao("macross_filme1");
 
         assertEquals("gundam_origin", origin.getId());
         assertTrue(origin.obterPromptSistema().contains("Casval Rem Deikun"));
@@ -156,14 +156,14 @@ class ContextosRevisaoLoreCatalogoTest {
 
         assertEquals("Protoculture", dyrl.correcoesTerminologia().get("Protocultura"));
         assertTrue(dyrl.obterPromptSistema().contains("Meltrandi"));
-        assertEquals("Protoculture", new ContextoRevisaoLoreMacrossDYRL().correcoesTerminologia().get("Protocultura"));
+        assertEquals("Protoculture", org.traducao.projeto.lore.LoreDeTeste.revisao("macross_dyrl").correcoesTerminologia().get("Protocultura"));
     }
 
     @Test
     void contextosMacrossDeltaRevisaoExcepcionais() {
-        var tv = new ContextoRevisaoLoreMacrossDelta();
-        var f1 = new ContextoRevisaoLoreMacrossDeltaFilme1();
-        var f2 = new ContextoRevisaoLoreMacrossDeltaFilme2();
+        var tv = org.traducao.projeto.lore.LoreDeTeste.revisao("macross_delta");
+        var f1 = org.traducao.projeto.lore.LoreDeTeste.revisao("macross_delta_filme1");
+        var f2 = org.traducao.projeto.lore.LoreDeTeste.revisao("macross_delta_filme2");
         var filmes = new ContextoRevisaoLoreMacrossDeltaFilmes();
 
         assertEquals("macross_delta", tv.getId());
@@ -194,12 +194,12 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void contextosBreakBladeRevisaoExcepcionais() {
-        var f1 = new ContextoRevisaoLoreBreakBlade1();
-        var f2 = new ContextoRevisaoLoreBreakBlade2();
-        var f3 = new ContextoRevisaoLoreBreakBlade3();
-        var f4 = new ContextoRevisaoLoreBreakBlade4();
-        var f5 = new ContextoRevisaoLoreBreakBlade5();
-        var f6 = new ContextoRevisaoLoreBreakBlade6();
+        var f1 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_1");
+        var f2 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_2");
+        var f3 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_3");
+        var f4 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_4");
+        var f5 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_5");
+        var f6 = org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_6");
 
         assertEquals("break_blade_1", f1.getId());
         assertEquals("break_blade_2", f2.getId());
@@ -235,7 +235,7 @@ class ContextosRevisaoLoreCatalogoTest {
 
     @Test
     void promptGuiltyCrownProtegeTermosCriticosDaObra() {
-        var ctx = new ContextoRevisaoLoreGuiltyCrown();
+        var ctx = org.traducao.projeto.lore.LoreDeTeste.revisao("guilty_crown");
         String prompt = ctx.obterPromptSistema();
 
         assertTrue(prompt.contains("Guilty Crown"));
