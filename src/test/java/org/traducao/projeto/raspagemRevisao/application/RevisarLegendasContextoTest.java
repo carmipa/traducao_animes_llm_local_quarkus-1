@@ -3,11 +3,11 @@ package org.traducao.projeto.raspagemRevisao.application;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
-import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
-import org.traducao.projeto.contexto.domain.ContextoPrompt;
-import org.traducao.projeto.contexto.domain.ProvedorContexto;
+import org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto;
+import org.traducao.projeto.lore.domain.ContextoPrompt;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.raspagemRevisao.domain.exceptions.RaspagemRevisaoException;
 import org.traducao.projeto.traducaoCorrige.application.ContextoManutencaoCacheService;
 

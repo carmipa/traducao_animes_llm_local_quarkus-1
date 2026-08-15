@@ -2,9 +2,9 @@ package org.traducao.projeto.traducao.application;
 
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.domain.ContextoPrompt;
-import org.traducao.projeto.contexto.domain.ProvedorContexto;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.ContextoPrompt;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
 import org.traducao.projeto.traducao.infrastructure.config.LlmProperties;
 import org.traducao.projeto.traducao.infrastructure.config.TradutorProperties;
 

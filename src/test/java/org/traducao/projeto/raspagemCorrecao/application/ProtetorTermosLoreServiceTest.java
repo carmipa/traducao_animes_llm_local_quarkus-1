@@ -128,7 +128,7 @@ class ProtetorTermosLoreServiceTest {
      */
     @Test
     void reconheceIdentificadoresCanonicosPendentesDeGundamNt() {
-        org.traducao.projeto.contexto.domain.ProvedorContexto contexto = org.traducao.projeto.contexto.LoreDeTeste.obra("gundam_nt");
+        org.traducao.projeto.lore.domain.ProvedorContexto contexto = org.traducao.projeto.lore.LoreDeTeste.obra("gundam_nt");
         String lore = contexto.obterPromptSistema();
 
         assertTrue(service.contemSomenteTermosCanonicos(

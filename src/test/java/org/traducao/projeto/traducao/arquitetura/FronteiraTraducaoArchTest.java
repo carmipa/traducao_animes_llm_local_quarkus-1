@@ -96,7 +96,7 @@ class FronteiraTraducaoArchTest {
     private static final String FATIA_CONFIG = "config";
     private static final String FATIA_LEGENDA = "legenda";
     private static final String FATIA_CACHETRADUCAO = "cachetraducao";
-    private static final String FATIA_CONTEXTO = "contexto";
+    private static final String FATIA_CONTEXTO = "lore";
     private static final String FATIA_QUALIDADETRADUCAO = "qualidadeTraducao";
     private static final String FATIA_LLM = "llm";
 
@@ -121,7 +121,7 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
         RAIZ + ".traducao.infrastructure.dtos.RecordsLlm",
         LLM_ADAPTER,
-        RAIZ + ".contexto.infrastructure.GerenciadorContexto"
+        RAIZ + ".lore.infrastructure.GerenciadorContexto"
     );
 
     // Pacote do módulo de telemetria. Após a FASE C2 (TelemetriaController movido para
@@ -341,19 +341,19 @@ class FronteiraTraducaoArchTest {
      * agregadoras Macross, {@code ExcecaoContexto} e {@code ContextoBeansConfig} NÃO entram.
      */
     private static final Set<String> CONTEXTO_TIPOS_CONGELADOS = Set.of(
-        RAIZ + ".contexto.infrastructure.GerenciadorContexto",
-        RAIZ + ".contexto.domain.ProvedorContexto",
-        RAIZ + ".contexto.domain.RegrasConcordanciaPtBr",
+        RAIZ + ".lore.infrastructure.GerenciadorContexto",
+        RAIZ + ".lore.domain.ProvedorContexto",
+        RAIZ + ".lore.domain.RegrasConcordanciaPtBr",
         // A fotografia imutável do contexto, congelada UMA vez por JOB no ponto de entrada
         // (TraducaoController/TradutorCLI) e trafegada por PARÂMETRO por ProcessarArquivoUseCase,
         // ResolvedorCacheTraducao, GuardaContextoObraTraducao, ContextoCongeladoDaExecucao
         // (ponte legada) e LoreAtivaContextoAdapter.
-        RAIZ + ".contexto.domain.SnapshotContexto",
+        RAIZ + ".lore.domain.SnapshotContexto",
         // Guarda obra×contexto (identidade de obra pertence ao peer contexto): o validador
         // que emite o veredicto e redige as mensagens, e o próprio veredicto. Consumidos
         // SOMENTE por GuardaContextoObraTraducao, o tradutor de veredicto em efeito da fatia.
-        RAIZ + ".contexto.application.ValidadorCompatibilidadeObraContexto",
-        RAIZ + ".contexto.domain.VeredictoObraContexto"
+        RAIZ + ".lore.application.ValidadorCompatibilidadeObraContexto",
+        RAIZ + ".lore.domain.VeredictoObraContexto"
     );
 
     /**
@@ -625,8 +625,8 @@ class FronteiraTraducaoArchTest {
     @DisplayName("obra×contexto entra em traducao SÓ pelo GuardaContextoObraTraducao (a fatia traduz veredicto em efeito, não julga)")
     void obraContextoEntraSoPelaGuardaDaTraducao() {
         Set<String> tiposDoVeredicto = Set.of(
-            RAIZ + ".contexto.application.ValidadorCompatibilidadeObraContexto",
-            RAIZ + ".contexto.domain.VeredictoObraContexto");
+            RAIZ + ".lore.application.ValidadorCompatibilidadeObraContexto",
+            RAIZ + ".lore.domain.VeredictoObraContexto");
         String guardaAutorizada = RAIZ + ".traducao.application.GuardaContextoObraTraducao";
 
         Set<String> violacoes = new TreeSet<>();
@@ -680,7 +680,7 @@ class FronteiraTraducaoArchTest {
     @Test
     @DisplayName("contexto do job entra por PARÂMETRO: em traducao.application só a guarda obra×contexto conhece o GerenciadorContexto")
     void contextoDoJobEntraPorParametroNaoPeloGerenciador() {
-        String gerenciador = RAIZ + ".contexto.infrastructure.GerenciadorContexto";
+        String gerenciador = RAIZ + ".lore.infrastructure.GerenciadorContexto";
         String guardaAutorizada = RAIZ + ".traducao.application.GuardaContextoObraTraducao";
         String pkgApplication = RAIZ + ".traducao.application";
 

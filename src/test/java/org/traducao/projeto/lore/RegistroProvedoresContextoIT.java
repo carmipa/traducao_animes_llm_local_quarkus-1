@@ -1,0 +1,182 @@
+package org.traducao.projeto.lore;
+
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.traducao.projeto.lore.domain.ContextoNaoEncontradoException;
+import org.traducao.projeto.lore.domain.ProvedorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
+
+import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * PROPÓSITO DE NEGÓCIO: caracteriza a descoberta e resolução CDI dos provedores de
+ * contexto após a E7b, provando que mover o {@code GerenciadorContexto} e o producer
+ * {@code todosProvedoresContexto} para o peer {@code contexto} NÃO alterou o conjunto
+ * injetado, a resolução do manager, a ordenação nem a seleção. O manager agora reside em
+ * {@code contexto.infrastructure} e a lista é produzida por
+ * {@code contexto.infrastructure.config.ContextoBeansConfig}. As classes agregadoras Macross
+ * sem {@code @Component} ficam fora do registro: 68 implementações de {@code ProvedorContexto}
+ * no código, 68 registradas, 3 agregadoras excluídas.
+ *
+ * <p>Histórico deste número, porque ele já enganou. Nasceu 53 e subiu conforme lores novas
+ * entraram, até 68. Em 2026-07-27 caiu para 58, quando {@code ContextoMacross7Filmes} saiu do
+ * CDI: ela era a única agregadora registrada — por omissão, não por decisão —, e uma auditoria
+ * termo a termo mostrou que a lore dela declara termos que as três específicas não declaram
+ * ({@code Elma}, {@code Graham} e as baleias espaciais aparecem só na do Dynamite 7;
+ * {@code Pedro} só na do Galaxy's Calling Me!), a MESMA sobreposição que já mantinha as outras
+ * duas fora. Custo medido antes de remover: ZERO caches carimbados com {@code macross_7_filmes}.
+ * No mesmo dia voltou a 68, quando {@code macross_frontier_filme3} (Labyrinth of Time) ganhou
+ * lore e entrou — a obra existia no catálogo Macross sem contexto próprio e caía na lore da
+ * série.
+ *
+ * <p>A exclusão é DELIBERADA e o motivo é QUALIDADE DE TRADUÇÃO, não arquitetura: a lore
+ * agregada mistura obras cujos termos não se sobrepõem, e oferecê-la no seletor convida a
+ * traduzir um filme com termos do outro — dano que aparece na legenda, não no build. Quem
+ * mexer aqui não deve "consertar" a ausência da anotação; ver
+ * {@code CatracaAgregadorasForaDoCdiTest}, que nomeia cada uma e diz o porquê na falha.
+ *
+ * <p>Este teste guarda o TOTAL — é ele que pega uma lore nova que alguém esqueceu de registrar.
+ * A catraca nominal guarda a INTENÇÃO. Bumpar o número aqui sem olhar a catraca desfaz a
+ * decisão em silêncio, que foi exatamente o risco que motivou criá-la.
+ *
+ * <h2>Invariantes do domínio</h2>
+ * <ul>
+ *   <li>Exatamente 68 provedores CDI; nenhum id nulo/vazio; nenhum id duplicado.</li>
+ *   <li>{@code GerenciadorContexto} resolve sem ambiguidade e a {@code List<ProvedorContexto>}
+ *       resolve pelo producer sem duplicação (o manager e a injeção direta veem os mesmos 68).</li>
+ *   <li>A lista ordenada de ids é idêntica ao baseline
+ *       ({@code /lore/manifesto-lore.properties}).</li>
+ *   <li>Ids canônicos de Danmachi, Gundam e Macross presentes.</li>
+ *   <li>O {@code GerenciadorContexto} recebe os 68 provedores e seleciona um id conhecido;
+ *       um id desconhecido lança {@code ContextoNaoEncontradoException}.</li>
+ * </ul>
+ *
+ * <h2>Comportamento em caso de falha</h2>
+ * Qualquer divergência de contagem, id duplicado/ausente, ambiguidade/duplicação de bean
+ * ou falha de seleção reprova o teste — sinal de que a migração quebrou a resolução CDI.
+ */
+@QuarkusTest
+@DisplayName("E7b: registro e resolução CDI dos provedores de contexto (68, sem ambiguidade/duplicação, seleção viva)")
+class RegistroProvedoresContextoIT {
+
+    private static final String MANIFESTO = "/lore/manifesto-lore.properties";
+
+    /** Contextos de OBRA — os que a UI oferece para seleção. */
+    private static final int OBRAS = 68;
+    /**
+     * Contextos GENÉRICOS, que não representam obra nenhuma e ficam fora dos combos.
+     * Hoje só {@code sem_lore} (tradução crua de anime ainda sem lore declarada).
+     */
+    private static final Set<String> GENERICOS = Set.of("sem_lore");
+    private static final int TOTAL = OBRAS + GENERICOS.size();
+
+    @Inject
+    List<ProvedorContexto> provedores;
+
+    @Inject
+    GerenciadorContexto gerenciador;
+
+    @Test
+    @DisplayName("exatamente 68 obras + 1 contexto genérico, sem id nulo/vazio e sem duplicatas")
+    void registroTem68ProvedoresSemDuplicatas() {
+        assertEquals(TOTAL, provedores.size(), "esperados " + TOTAL + " provedores CDI = " + OBRAS
+            + " obras + " + GENERICOS.size() + " genérico(s) (as 3 agregadoras Macross ficam fora -- ver CatracaAgregadorasForaDoCdiTest)");
+
+        // A catraca separa as duas populações: uma obra nova tem de entrar como OBRA, e um
+        // contexto genérico novo tem de ser declarado aqui de propósito. Sem esta separação,
+        // um genérico esquecido passaria por obra e sumiria da contagem que protege o catálogo.
+        Set<String> genericosVivos = provedores.stream()
+            .filter(p -> !p.apareceNaListaDeObras())
+            .map(ProvedorContexto::getId)
+            .collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(new TreeSet<>(GENERICOS), genericosVivos,
+            "conjunto de contextos genéricos (fora dos combos de obra) divergiu do declarado");
+        assertEquals(OBRAS, provedores.size() - genericosVivos.size(),
+            "número de contextos de OBRA divergiu");
+
+        for (ProvedorContexto p : provedores) {
+            assertNotNull(p.getId(), "id nulo em " + p.getClass().getName());
+            assertFalse(p.getId().isBlank(), "id vazio em " + p.getClass().getName());
+        }
+
+        Set<String> unicos = provedores.stream().map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(TOTAL, unicos.size(), "ids duplicados no registro CDI");
+    }
+
+    @Test
+    @DisplayName("lista ordenada de ids é idêntica ao baseline pré-move")
+    void idsBatemComBaselinePreMove() throws Exception {
+        Properties esperado = new Properties();
+        try (InputStream in = getClass().getResourceAsStream(MANIFESTO)) {
+            assertNotNull(in, "Manifesto pré-move não encontrado: " + MANIFESTO);
+            esperado.load(in);
+        }
+        String idsVivos = provedores.stream()
+            .map(ProvedorContexto::getId)
+            .sorted(Comparator.naturalOrder())
+            .collect(Collectors.joining(","));
+        assertEquals(esperado.getProperty("ids"), idsVivos, "conjunto/ordem de ids divergiu do baseline");
+    }
+
+    @Test
+    @DisplayName("ids canônicos de Danmachi, Gundam e Macross estão presentes")
+    void idsCanonicosPresentes() {
+        Set<String> ids = provedores.stream().map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertTrue(ids.contains("danmachi"), "id canônico de Danmachi ausente");
+        assertTrue(ids.contains("gundam_0079"), "id canônico de Gundam ausente");
+        assertTrue(ids.contains("macross_frontier"), "id canônico de Macross ausente");
+        assertTrue(ids.contains("break_blade_1"), "id canônico Break Blade filme 1 ausente");
+        assertTrue(ids.contains("break_blade_6"), "id canônico Break Blade filme 6 ausente");
+    }
+
+    @Test
+    @DisplayName("GerenciadorContexto recebe todos os provedores e seleciona um id conhecido; id desconhecido lança")
+    void gerenciadorRecebeESelecionaProvedores() {
+        assertEquals(TOTAL, gerenciador.getProvedores().size(), "GerenciadorContexto não recebeu os " + TOTAL + " provedores");
+        assertTrue(gerenciador.existeContexto("danmachi"), "contexto conhecido deveria existir");
+        assertFalse(gerenciador.existeContexto("inexistente_zzz"), "contexto desconhecido não deveria existir");
+
+        ProvedorContexto selecionado = gerenciador.definirContextoAtivo("gundam_0079");
+        assertEquals("gundam_0079", selecionado.getId(), "seleção não retornou o provedor esperado");
+        assertEquals("gundam_0079", gerenciador.obterIdContextoAtivo(), "id ativo não reflete a seleção");
+
+        assertThrows(ContextoNaoEncontradoException.class,
+            () -> gerenciador.definirContextoAtivo("inexistente_zzz"),
+            "id desconhecido deve lançar ContextoNaoEncontradoException");
+    }
+
+    @Test
+    @DisplayName("resolução CDI sem ambiguidade (manager único) nem duplicação (producer único alimenta todos)")
+    void resolucaoCdiSemAmbiguidadeNemDuplicacao() {
+        // Ambiguidade de bean falharia no deploy do @QuarkusTest; a injeção bem-sucedida
+        // do manager único já prova resolução sem ambiguidade.
+        assertNotNull(gerenciador, "GerenciadorContexto deve resolver como bean único (sem ambiguidade)");
+        assertNotNull(provedores, "List<ProvedorContexto> deve resolver pelo producer");
+        // O manager e a injeção direta devem ver EXATAMENTE o mesmo conjunto de 68 — prova de
+        // que há um único producer alimentando ambos, sem duplicação de provedores.
+        assertEquals(TOTAL, provedores.size(), "injeção direta deve resolver " + TOTAL + " provedores pelo producer");
+        assertEquals(provedores.size(), gerenciador.getProvedores().size(),
+            "manager e injeção direta devem ver o mesmo número de provedores (producer único, sem duplicação)");
+        Set<String> idsManager = gerenciador.getProvedores().stream()
+            .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(TOTAL, idsManager.size(), "manager não pode ter ids duplicados (producer sem duplicação)");
+        Set<String> idsInjecao = provedores.stream()
+            .map(ProvedorContexto::getId).collect(Collectors.toCollection(TreeSet::new));
+        assertEquals(idsInjecao, idsManager,
+            "o conjunto de ids visto pelo manager deve ser idêntico ao da injeção direta");
+    }
+}

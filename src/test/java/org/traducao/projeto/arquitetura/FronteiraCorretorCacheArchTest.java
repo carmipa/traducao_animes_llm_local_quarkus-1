@@ -65,7 +65,7 @@ class FronteiraCorretorCacheArchTest {
 
     /** Consumo livre por contrato: kernel técnico e os cinco peers compartilhados. */
     private static final Set<String> LIVRES = Set.of(
-        "core", "legenda", "cachetraducao", "contexto", "qualidadeTraducao", "llm");
+        "core", "legenda", "cachetraducao", "lore", "qualidadeTraducao", "llm");
 
     /**
      * Inventário CONGELADO das arestas para outras fatias funcionais, medido em 2026-07-26.
@@ -105,7 +105,7 @@ class FronteiraCorretorCacheArchTest {
         // a política do veredicto para cá; duas cópias de uma guarda divergem, e foi assim que o
         // reforço de terminologia acabou com duas implementações desiguais. É a MESMA aresta que
         // RevisarCacheUseCase já tinha para o mesmo tipo, não um acoplamento de espécie nova.
-        // FASE 4: a aresta MUDOU DE ORIGEM, não de espécie. O ativador de contexto saiu do caso
+        // FASE 4: a aresta MUDOU DE ORIGEM, não de espécie. O ativador de lore saiu do caso
         // de uso e levou a guarda consigo; o destino e a direção são os mesmos.
         "raspagemRevisao.application.AtivadorContextoRevisao -> traducaoCorrige.application.ContextoManutencaoCacheService",
         // FASE 4: o detector de retradução em massa saiu do caso de uso e levou consigo a

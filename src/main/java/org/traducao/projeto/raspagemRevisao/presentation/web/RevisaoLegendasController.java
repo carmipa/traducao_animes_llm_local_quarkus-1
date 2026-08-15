@@ -19,7 +19,7 @@ import org.traducao.projeto.raspagemRevisao.application.RevisarLegendasUseCase;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.LlmPort;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 
 import java.nio.file.Path;
 import java.util.Optional;

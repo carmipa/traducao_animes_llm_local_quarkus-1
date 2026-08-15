@@ -12,7 +12,7 @@ import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.presentation.web.OperacaoRequest;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase;
 import org.traducao.projeto.traducaoCorrige.application.ReforcarTerminologiaCacheUseCase;
 import org.traducao.projeto.traducaoCorrige.domain.ResultadoManutencaoCache;

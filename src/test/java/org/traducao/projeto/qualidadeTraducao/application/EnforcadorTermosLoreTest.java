@@ -235,7 +235,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Break Blade: restaura un-sorcerer/Delphine/Valkyrie Squadron")
     void restauraBreakBlade() {
-        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("break_blade_1");
+        var mapa = org.traducao.projeto.lore.LoreDeTeste.terminologia("break_blade_1");
         assertEquals(
             "Rygart é un-sorcerer e pilota a Delphine.",
             enforcador.reforcar(
@@ -259,7 +259,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Macross Delta: restaura Walküre/Var Syndrome/Delta Flight")
     void restauraMacrossDelta() {
-        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_delta");
+        var mapa = org.traducao.projeto.lore.LoreDeTeste.terminologia("macross_delta");
         assertEquals(
             "A Walküre canta contra a Var Syndrome.",
             enforcador.reforcar(
@@ -319,7 +319,7 @@ class EnforcadorTermosLoreTest {
                 "Os Mangas querem a Caixa de Laplace.",
                 unicorn));
 
-        var dyrl = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_filme1");
+        var dyrl = org.traducao.projeto.lore.LoreDeTeste.terminologia("macross_filme1");
         assertEquals(
             "Protoculture une Zentradi e Meltrandi.",
             enforcador.reforcar(
@@ -327,7 +327,7 @@ class EnforcadorTermosLoreTest {
                 "Protocultura une Zentradi e Meltrandi.",
                 dyrl));
 
-        var m2 = org.traducao.projeto.contexto.LoreDeTeste.terminologia("macross_2");
+        var m2 = org.traducao.projeto.lore.LoreDeTeste.terminologia("macross_2");
         assertEquals(
             "A Emulator canta o Minmay Attack.",
             enforcador.reforcar(
@@ -339,7 +339,7 @@ class EnforcadorTermosLoreTest {
     @Test
     @DisplayName("Guilty Crown: restaura Funerária/Vazio/Coveiro canônicos")
     void restauraGuiltyCrown() {
-        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("guilty_crown");
+        var mapa = org.traducao.projeto.lore.LoreDeTeste.terminologia("guilty_crown");
         assertEquals(
             "Ele entrou na Funeral Parlor com o Void Genome.",
             enforcador.reforcar(
@@ -401,7 +401,7 @@ class EnforcadorTermosLoreTest {
     void restauraCompostoMeioTraduzidoMobileSuits() {
         // O LLM meio-traduziu ("Mobile"->"Móveis", manteve "Suits") e o EN veio minúsculo
         // ("Mobile suits!"). Termo multi-palavra é reconhecido case-insensitive no original.
-        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo");
+        var mapa = org.traducao.projeto.lore.LoreDeTeste.terminologia("gundam_ms_igloo");
         assertEquals("Mobile Suits!",
             enforcador.reforcar("Mobile suits!", "Móveis Suits!", mapa));
     }
@@ -412,7 +412,7 @@ class EnforcadorTermosLoreTest {
         // Termo técnico composto não colide com palavra comum como um nome próprio de 1 palavra;
         // por isso a checagem do canônico é case-insensitive para multi-palavra (Void/Titans, de
         // 1 palavra, seguem SENSÍVEIS à caixa — cobertos por naoAlteraTitasMitologicos/homografo).
-        var mapa = org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo");
+        var mapa = org.traducao.projeto.lore.LoreDeTeste.terminologia("gundam_ms_igloo");
         assertEquals("Lance o Mobile Suit.",
             enforcador.reforcar("Deploy the mobile suit.", "Lance o traje móvel.", mapa));
     }
@@ -435,7 +435,7 @@ class EnforcadorTermosLoreTest {
      */
     private static Map<String, String> comNucleoUc(Map<String, String> extras) {
         Map<String, String> combinado =
-            new java.util.LinkedHashMap<>(org.traducao.projeto.contexto.LoreDeTeste.terminologia("gundam_ms_igloo"));
+            new java.util.LinkedHashMap<>(org.traducao.projeto.lore.LoreDeTeste.terminologia("gundam_ms_igloo"));
         combinado.putAll(extras);
         return java.util.Collections.unmodifiableMap(combinado);
     }}

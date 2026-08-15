@@ -3,10 +3,10 @@ package org.traducao.projeto.traducao.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.contexto.application.ValidadorCompatibilidadeObraContexto;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
-import org.traducao.projeto.contexto.domain.VeredictoObraContexto;
-import org.traducao.projeto.contexto.infrastructure.GerenciadorContexto;
+import org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.VeredictoObraContexto;
+import org.traducao.projeto.lore.infrastructure.GerenciadorContexto;
 import org.traducao.projeto.traducao.domain.exceptions.ObraDivergenteDoContextoException;
 import org.traducao.projeto.traducao.presentation.ui.ConsoleUILogger;
 

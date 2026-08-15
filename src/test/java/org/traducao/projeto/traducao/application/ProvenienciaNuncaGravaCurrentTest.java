@@ -3,7 +3,7 @@ package org.traducao.projeto.traducao.application;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.StatusLlm;

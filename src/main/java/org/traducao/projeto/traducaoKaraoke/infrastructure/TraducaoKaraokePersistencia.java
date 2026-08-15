@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
-import org.traducao.projeto.contexto.domain.SnapshotContexto;
+import org.traducao.projeto.lore.domain.SnapshotContexto;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.DesfechoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
