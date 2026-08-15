@@ -23,7 +23,7 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
     @Test
     @DisplayName("Gundam UC (0080/0083/08th/CCA) têm o mapa UC + extras próprios")
     void gundamUcTemMapa() {
-        var rev0080 = new ContextoRevisaoLoreGundam0080();
+        var rev0080 = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_0080");
         Map<String, String> m0080 = rev0080.correcoesTerminologia();
         assertEquals("Mobile Suit", m0080.get("Traje Móvel"));
         assertEquals("Gundam Alex", m0080.get("Gundam Alexandre"));
@@ -36,7 +36,7 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertTrue(rev0080.obterPromptSistema().contains("Libot colony"));
         assertTrue(rev0080.obterPromptSistema().contains("GM Cold Districts Type"));
 
-        var rev0083 = new ContextoRevisaoLoreGundam0083();
+        var rev0083 = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_0083");
         Map<String, String> m0083 = rev0083.correcoesTerminologia();
         assertEquals("Mobile Suit", m0083.get("Traje Móvel"));
         assertEquals("Delaz Fleet", m0083.get("Frota Delaz"));
@@ -49,7 +49,7 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertTrue(rev0083.obterPromptSistema().contains("Nightmare of Solomon"));
         assertTrue(rev0083.obterPromptSistema().contains("La Vie en Rose"));
 
-        var rev08th = new ContextoRevisaoLoreGundam08thMSTeam();
+        var rev08th = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_08ms");
         Map<String, String> m08th = rev08th.correcoesTerminologia();
         assertEquals("Mobile Suit", m08th.get("Traje Móvel"), "08th deve herdar o núcleo UC");
         assertEquals("Gouf Custom", m08th.get("Gouf Personalizado"), "08th deve ter o extra Gouf Custom");
@@ -68,7 +68,7 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertTrue(prompt08th.contains("Sakhalin") || prompt08th.contains("Apsaras"),
             "aliases da fansub EN devem constar no prompt");
 
-        Map<String, String> cca = new ContextoRevisaoLoreGundamCCA().correcoesTerminologia();
+        Map<String, String> cca = org.traducao.projeto.lore.LoreDeTeste.revisao("gundam_cca").correcoesTerminologia();
         assertEquals("Mobile Suit", cca.get("Traje Móvel"), "CCA deve herdar o núcleo UC");
         assertEquals("Axis", cca.get("Eixo"), "CCA deve ter o extra Eixo→Axis");
         assertEquals("Nu Gundam", cca.get("Novo Gundam"));
@@ -78,7 +78,14 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
     @Test
     @DisplayName("DanMachi — núcleo enriquecido (Familia/Falna/Dungeon/Excelia/Valis)")
     void danMachiNucleoEnriquecido() {
-        Map<String, String> nucleo = CorrecoesTerminologiaDanMachiRevisao.mapa();
+        // Antes isto lia CorrecoesTerminologiaDanMachiRevisao.mapa(), o núcleo NU. Aquela classe
+        // não existe mais (a lore virou arquivo em 2026-08-15) e, ao contrário dos outros
+        // núcleos, este NUNCA foi usado puro: toda obra DanMachi acrescenta extras. Não há obra
+        // cujo mapa SEJA o núcleo. A substituição continua provando o que o teste diz provar
+        // porque as asserções abaixo são todas de entradas DO NÚCLEO, e o mapa da obra é
+        // superconjunto dele — o que mudou é que agora um extra a mais não passa despercebido
+        // aqui, ele simplesmente não é afirmado.
+        Map<String, String> nucleo = org.traducao.projeto.lore.LoreDeTeste.terminologiaRevisao("danmachi");
         assertEquals("Familia", nucleo.get("Família"));
         assertEquals("Falna", nucleo.get("Fálna"));
         assertEquals("Dungeon", nucleo.get("Masmorra"));
@@ -91,52 +98,52 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
     @Test
     @DisplayName("DanMachi — todas as temporadas/filme/SO com mapa + extras")
     void danMachiTodasTemporadasTemMapa() {
-        assertEquals("Familia", new ContextoRevisaoLoreDanMachi().correcoesTerminologia().get("Família"));
-        assertEquals("Familia", new ContextoRevisaoLoreDanMachiS4().correcoesTerminologia().get("Família"));
-        assertEquals("Familia", new ContextoRevisaoLoreDanMachiS5().correcoesTerminologia().get("Família"));
+        assertEquals("Familia", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi").correcoesTerminologia().get("Família"));
+        assertEquals("Familia", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s4").correcoesTerminologia().get("Família"));
+        assertEquals("Familia", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s5").correcoesTerminologia().get("Família"));
 
-        assertEquals("Liliruca Arde", new ContextoRevisaoLoreDanMachiS1().correcoesTerminologia().get("Lilisuka"));
-        assertEquals("Bell Cranel", new ContextoRevisaoLoreDanMachiS1().correcoesTerminologia().get("Sino Cranel"));
+        assertEquals("Liliruca Arde", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s1").correcoesTerminologia().get("Lilisuka"));
+        assertEquals("Bell Cranel", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s1").correcoesTerminologia().get("Sino Cranel"));
 
-        assertEquals("Liliruca Arde", new ContextoRevisaoLoreDanMachiS2().correcoesTerminologia().get("Lilisuka"));
-        assertEquals("Haruhime Sanjouno", new ContextoRevisaoLoreDanMachiS2().correcoesTerminologia().get("Haruhime Sanjono"));
+        assertEquals("Liliruca Arde", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s2").correcoesTerminologia().get("Lilisuka"));
+        assertEquals("Haruhime Sanjouno", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s2").correcoesTerminologia().get("Haruhime Sanjono"));
 
-        assertEquals("Liliruca Arde", new ContextoRevisaoLoreDanMachiS3().correcoesTerminologia().get("Liriruca"));
-        assertEquals("Xenos", new ContextoRevisaoLoreDanMachiS4().correcoesTerminologia().get("Alienígenas"));
-        assertEquals("Juggernaut", new ContextoRevisaoLoreDanMachiS4().correcoesTerminologia().get("Jugernaut"));
+        assertEquals("Liliruca Arde", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s3").correcoesTerminologia().get("Liriruca"));
+        assertEquals("Xenos", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s4").correcoesTerminologia().get("Alienígenas"));
+        assertEquals("Juggernaut", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s4").correcoesTerminologia().get("Jugernaut"));
 
-        assertEquals("Freya Familia", new ContextoRevisaoLoreDanMachiS5().correcoesTerminologia().get("Família Freya"));
-        assertEquals("Hostess of Fertility", new ContextoRevisaoLoreDanMachiS5().correcoesTerminologia().get("Anfitriã da Fertilidade"));
+        assertEquals("Freya Familia", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s5").correcoesTerminologia().get("Família Freya"));
+        assertEquals("Hostess of Fertility", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s5").correcoesTerminologia().get("Anfitriã da Fertilidade"));
 
-        assertEquals("Aiz Wallenstein", new ContextoRevisaoLoreDanMachiSwordOratoria().correcoesTerminologia().get("Ais Wallenstein"));
-        assertEquals("Sword Princess", new ContextoRevisaoLoreDanMachiSwordOratoria().correcoesTerminologia().get("Princesa Espadachim"));
+        assertEquals("Aiz Wallenstein", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_so").correcoesTerminologia().get("Ais Wallenstein"));
+        assertEquals("Sword Princess", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_so").correcoesTerminologia().get("Princesa Espadachim"));
 
-        assertEquals("Liliruca Arde", new ContextoRevisaoLoreDanMachiOrion().correcoesTerminologia().get("Lilisuka"));
-        assertEquals("Liliruca Arde", new ContextoRevisaoLoreDanMachiOrion().correcoesTerminologia().get("Liriruca"));
+        assertEquals("Liliruca Arde", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_movie").correcoesTerminologia().get("Lilisuka"));
+        assertEquals("Liliruca Arde", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_movie").correcoesTerminologia().get("Liriruca"));
     }
 
     @Test
     @DisplayName("86 e Macross base enriquecidos")
     void oitoSeisEMacrossEnriquecidos() {
-        Map<String, String> m86 = new ContextoRevisaoLore86().correcoesTerminologia();
+        Map<String, String> m86 = org.traducao.projeto.lore.LoreDeTeste.revisao("eight_six").correcoesTerminologia();
         assertEquals("Legion", m86.get("Legião"));
         assertEquals("Shin", m86.get("Canela"));
         assertEquals("Para-RAID", m86.get("Para RAID"));
         assertEquals("Juggernaut", m86.get("Jugernaut"));
 
-        Map<String, String> macross = CorrecoesTerminologiaMacrossRevisao.mapa();
+        Map<String, String> macross = org.traducao.projeto.lore.LoreDeTeste.terminologiaRevisao("macross_anime");
         assertEquals("Valkyrie", macross.get("Valquíria"));
         assertEquals("Protoculture", macross.get("Protocultura"));
         assertEquals("Minmay Attack", macross.get("Ataque Minmay"));
         assertEquals("Meltrandi", macross.get("Meltrandy"));
         assertTrue(macross.size() >= 8);
-        assertFalse(new ContextoRevisaoLoreMacrossFrontier().correcoesTerminologia().isEmpty());
+        assertFalse(org.traducao.projeto.lore.LoreDeTeste.revisao("macross_frontier").correcoesTerminologia().isEmpty());
     }
 
     @Test
     @DisplayName("Break Blade — mapa un-sorcerer/Delphine/Krisna/Valkyrie Squadron")
     void breakBladeMapaEnriquecido() {
-        Map<String, String> nucleo = CorrecoesTerminologiaBreakBladeRevisao.mapa();
+        Map<String, String> nucleo = org.traducao.projeto.lore.LoreDeTeste.terminologiaRevisao("break_blade_1");
         assertEquals("un-sorcerer", nucleo.get("Não-feiticeiro"));
         assertEquals("Delphine", nucleo.get("Delfine"));
         assertEquals("Delphine", nucleo.get("Delphing"));
@@ -148,20 +155,20 @@ class ContextosRevisaoLoreMapaTerminologiaTest {
         assertEquals("Quartz", nucleo.get("Quartzo"));
 
         assertEquals("un-sorcerer",
-            new ContextoRevisaoLoreBreakBlade1().correcoesTerminologia().get("Sem-magia"));
+            org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_1").correcoesTerminologia().get("Sem-magia"));
         assertEquals("Broken Blade",
-            new ContextoRevisaoLoreBreakBlade6().correcoesTerminologia().get("Lâmina Quebrada"));
+            org.traducao.projeto.lore.LoreDeTeste.revisao("break_blade_6").correcoesTerminologia().get("Lâmina Quebrada"));
     }
 
     @Test
     @DisplayName("ids DanMachi revisao cobrem S1–S5, SO e filme")
     void idsDanMachiRevisaoCompletos() {
-        assertEquals("danmachi_s1", new ContextoRevisaoLoreDanMachiS1().getId());
-        assertEquals("danmachi_s2", new ContextoRevisaoLoreDanMachiS2().getId());
-        assertEquals("danmachi_s3", new ContextoRevisaoLoreDanMachiS3().getId());
-        assertEquals("danmachi_s4", new ContextoRevisaoLoreDanMachiS4().getId());
-        assertEquals("danmachi_s5", new ContextoRevisaoLoreDanMachiS5().getId());
-        assertEquals("danmachi_so", new ContextoRevisaoLoreDanMachiSwordOratoria().getId());
-        assertEquals("danmachi_movie", new ContextoRevisaoLoreDanMachiOrion().getId());
+        assertEquals("danmachi_s1", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s1").getId());
+        assertEquals("danmachi_s2", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s2").getId());
+        assertEquals("danmachi_s3", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s3").getId());
+        assertEquals("danmachi_s4", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s4").getId());
+        assertEquals("danmachi_s5", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_s5").getId());
+        assertEquals("danmachi_so", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_so").getId());
+        assertEquals("danmachi_movie", org.traducao.projeto.lore.LoreDeTeste.revisao("danmachi_movie").getId());
     }
 }

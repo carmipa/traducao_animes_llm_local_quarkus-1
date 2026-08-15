@@ -237,7 +237,7 @@ class FronteiraContextoArchTest {
         assertEquals(5, lores,
             "contexto.lore deve conter exatamente 5 classes. Eram 82 ate 2026-08-15, quando as 69 "
                 + "obras do CDI e os 9 mapas de terminologia que elas consumiam viraram o ARQUIVO "
-                + "UNICO /lore/lore-traducao.yaml (ordem de Paulo: 'todas as lores devem ficar em "
+                + "UNICO /lore/lore.yaml (ordem de Paulo: 'todas as lores devem ficar em "
                 + "um unico arquivo'). Sobraram 4, e o motivo de cada uma e o mesmo: elas NAO estao "
                 + "no arquivo.\n"
                 + "  ContextoMacross7Filmes / MacrossFrontierFilmes / MacrossDeltaFilmes -- as 3 "

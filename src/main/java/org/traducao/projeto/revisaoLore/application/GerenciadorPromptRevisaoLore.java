@@ -1,6 +1,5 @@
 package org.traducao.projeto.revisaoLore.application;
 
-import jakarta.enterprise.inject.Instance;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.revisaoLore.domain.exceptions.RevisaoLoreException;
 import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
@@ -16,7 +15,19 @@ public class GerenciadorPromptRevisaoLore {
 
     private final List<ProvedorPromptRevisaoLore> provedores;
 
-    public GerenciadorPromptRevisaoLore(Instance<ProvedorPromptRevisaoLore> provedores) {
+    /**
+     * PROPÓSITO DE NEGÓCIO: recebe o catálogo de lore da revisão. Desde a FASE E (2026-08-15)
+     * ele vem de uma {@code List} produzida a partir do ARQUIVO ÚNICO, e não mais de 80 beans
+     * {@code @Component} descobertos um a um.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: era {@code Instance<>} e virou {@code List<>} por NECESSIDADE,
+     * não por estilo — apagadas as 80 classes, não existem mais beans individuais do tipo, e um
+     * {@code Instance<>} passaria a resolver VAZIO em silêncio. O mesmo já aconteceu no lado da
+     * tradução e foi pego por um harness reprovando; aqui foi corrigido junto com a deleção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ids duplicados lançam na construção, como antes.
+     */
+    public GerenciadorPromptRevisaoLore(List<ProvedorPromptRevisaoLore> provedores) {
         this.provedores = provedores.stream()
             .sorted(Comparator.comparing(ProvedorPromptRevisaoLore::getNomeExibicao, String.CASE_INSENSITIVE_ORDER))
             .toList();
