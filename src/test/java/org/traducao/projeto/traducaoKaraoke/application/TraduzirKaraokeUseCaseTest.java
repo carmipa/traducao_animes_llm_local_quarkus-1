@@ -21,7 +21,10 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.traducaoKaraoke.domain.DesfechoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.StatusExecucaoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.TraducaoKaraokeException;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;
 
 import java.io.IOException;
@@ -51,6 +54,7 @@ class TraduzirKaraokeUseCaseTest {
     private Path pastaEntrada;
     private TraduzirKaraokeUseCase useCase;
     private LlmPortFake llmFake;
+    private MockPersistencia persistenciaMock;
 
     private record ContextoTeste(String id, String nome, String prompt) implements ProvedorContexto {
         @Override public String getId() { return id; }
@@ -109,6 +113,9 @@ class TraduzirKaraokeUseCaseTest {
     }
 
     static class MockPersistencia extends TraducaoKaraokePersistencia {
+        /** Guarda o desfecho para os testes de telemetria de falha. */
+        final AtomicReference<DesfechoKaraoke> desfechoCapturado = new AtomicReference<>();
+
         @Override
         public Path salvarManifesto(
             Path origem,
@@ -116,9 +123,19 @@ class TraduzirKaraokeUseCaseTest {
             List<ResultadoTraducaoKaraoke> resultados,
             long duracaoMs,
             SnapshotContexto contexto,
-            ProvenienciaCache proveniencia
+            ProvenienciaCache proveniencia,
+            DesfechoKaraoke desfecho
         ) {
+            desfechoCapturado.set(desfecho);
             return null; // não grava manifesto em logs/ nos testes
+        }
+    }
+
+    /** Servidor de LLM fora do ar: {@code null} é o que o pipeline trata como indisponível. */
+    static class LlmForaDoAr extends LlmPortFake {
+        @Override
+        public StatusLlm verificarDisponibilidade() {
+            return null;
         }
     }
 
@@ -143,7 +160,8 @@ class TraduzirKaraokeUseCaseTest {
         useCase.classificador = new ClassificadorLetraKaraokeService(new DetectorEfeitoKaraokeService());
         useCase.logStream = new MockLogStream();
         useCase.telemetriaService = new MockTelemetria();
-        useCase.persistencia = new MockPersistencia();
+        persistenciaMock = new MockPersistencia();
+        useCase.persistencia = persistenciaMock;
         useCase.idiomaOriginal = Optional.empty();
         useCase.idiomaTraduzido = Optional.empty();
         useCase.diretorioCache = Optional.of(tempDir.resolve("cache").toString());
@@ -174,6 +192,51 @@ class TraduzirKaraokeUseCaseTest {
             "Dialogue: 0,0:01:00.00,0:01:05.00,OP - English,,0,0,0,,Even if the world ends tomorrow",
             "");
         Files.writeString(destino, conteudo, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * CASO DOENTE da telemetria de falha, 2026-08-14.
+     *
+     * <p>O registro do manifesto era condicionado a {@code !resultados.isEmpty()} e vinha DEPOIS
+     * do laço. Consequência medida na auditoria: LLM fora do ar, destino não criável ou todos os
+     * arquivos falhando produziam <b>zero artefato</b> — o pior desfecho possível saía
+     * indistinguível de "não havia nada a fazer", e o motivo vivia só numa linha de texto dentro
+     * de um log de 78 MB. Se alguém devolver aquela condição ou tirar o {@code finally}, este
+     * teste cai.
+     */
+    @Test
+    void abortoPorLlmForaDoArAindaRegistraOManifesto() {
+        useCase.llmPort = new LlmForaDoAr();
+
+        assertThrows(TraducaoKaraokeException.class, () -> useCase.aplicar(pastaEntrada, CONTEXTO_08TH),
+            "o chamador continua sabendo que deu errado — o rastro é ADICIONAL, não substituto");
+
+        DesfechoKaraoke desfecho = persistenciaMock.desfechoCapturado.get();
+        assertNotNull(desfecho, "NENHUM manifesto foi registrado numa execucao abortada, "
+            + "e essa e justamente a execucao que mais precisa de rastro");
+        assertEquals(StatusExecucaoKaraoke.ABORTADA, desfecho.status());
+        assertTrue(desfecho.motivo() != null && desfecho.motivo().contains("LLM"),
+            "o motivo tem de dizer o que houve, nao 'erro desconhecido': " + desfecho.motivo());
+        assertEquals(DesfechoKaraoke.EstadoDicionario.NAO_CONSULTADO, desfecho.estadoDicionario(),
+            "abortou antes de traduzir qualquer linha: o dicionario NAO foi consultado, "
+                + "que e diferente de estar ausente");
+        assertTrue(desfecho.falhas().isEmpty(),
+            "nenhum arquivo chegou a ser processado — lista vazia aqui e informacao, nao omissao");
+    }
+
+    /**
+     * CONTRA-TESTE do anterior. Sem ele, um {@code status} preso em {@code ABORTADA} passaria
+     * despercebido — a guarda tem de saber dizer NÃO e também SIM.
+     */
+    @Test
+    void execucaoNormalRegistraManifestoComoCompleta() {
+        useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
+
+        DesfechoKaraoke desfecho = persistenciaMock.desfechoCapturado.get();
+        assertNotNull(desfecho, "execucao normal tambem tem de registrar desfecho");
+        assertEquals(StatusExecucaoKaraoke.COMPLETA, desfecho.status());
+        assertNull(desfecho.motivo(), "execucao completa nao tem motivo de aborto");
+        assertTrue(desfecho.falhas().isEmpty(), "nenhum arquivo falhou nesta legenda de teste");
     }
 
     @Test
