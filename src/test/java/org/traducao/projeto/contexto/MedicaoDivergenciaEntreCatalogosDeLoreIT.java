@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.contexto.domain.ProvedorContexto;
-import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
+import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
 
 import java.util.Map;
 import java.util.Set;
