@@ -57,10 +57,59 @@ class TextoSemTagsTest {
             TextoSemTags.decompor("{\\an8}O portao{\\b1} fechou{\\b0} agora{\\an0}"));
     }
 
+    /**
+     * A linha REAL do OP do 86, copiada byte a byte do manifesto
+     * {@code kronos_traducao_karaoke_20260814_192920.json}. Até 2026-08-14 esta classe a vetava
+     * por conter {@code \t(}, ela caía no mascarador, o modelo não devolvia o {@code [[TAG0]]} e a
+     * tradução — <b>correta</b> — era descartada. Só esta frase perdeu 650 traduções numa execução.
+     *
+     * <p>Este é o CASO DOENTE do conserto: se alguém restaurar o veto por texto inteiro, ele cai.
+     */
     @Test
-    @DisplayName("VETO: \\t( (animacao) nao entra — ali a tag nao e moldura estatica")
-    void vetaAnimacao() {
-        assertEquals(Optional.empty(), TextoSemTags.decompor("{\\t(0,500,\\frx30)}Titulo"));
+    @DisplayName("CASO DOENTE: \\t( na BORDA entra no recorte — a linha real do OP do 86")
+    void animacaoNaBordaEntraNoRecorte() {
+        String real = "{\\an2\\pos(960,170)\\c&H002F68&\\2c&HC4B2AD&\\blur3.5"
+            + "\\t(-301,-300,\\3c&HAAA618&)\\t(2100,2300,\\3c&H2F68D1&)"
+            + "\\t(-301,-300,\\c&HAAA618&)\\t(2100,2300,\\c&H2F68D1&)}A flower blooms only to be crushed";
+
+        TextoSemTags t = TextoSemTags.decompor(real).orElseThrow(
+            () -> new AssertionError("a linha do 86 voltou a ser vetada — 2.979 traducoes corretas "
+                + "foram descartadas assim em 14/08/2026"));
+        assertEquals("A flower blooms only to be crushed", t.textoLimpo(),
+            "ao LLM vai so a frase: sem chave, sem \\t(, sem marcador");
+        assertEquals("", t.sufixo());
+        assertEquals(real.substring(0, real.indexOf('}') + 1), t.prefixo(),
+            "a moldura animada volta LITERAL — nada e redistribuido nesta classe");
+    }
+
+    /**
+     * O outro lado do caso-controle: a animação volta a vestir a tradução sem perder uma cor, e o
+     * {@code \t(} continua exatamente onde estava.
+     */
+    @Test
+    @DisplayName("a moldura animada veste a traducao sem alterar nenhuma tag")
+    void animacaoNaBordaRecompoeLiteral() {
+        String real = "{\\an2\\pos(960,170)\\blur3.5\\t(-301,-300,\\3c&HAAA618&)}"
+            + "A flower blooms only to be crushed";
+        TextoSemTags t = TextoSemTags.decompor(real).orElseThrow();
+        assertEquals("{\\an2\\pos(960,170)\\blur3.5\\t(-301,-300,\\3c&HAAA618&)}"
+            + "Uma flor desabrocha apenas para ser esmagada",
+            t.recompor("Uma flor desabrocha apenas para ser esmagada"));
+    }
+
+    /**
+     * CASO SÃO que NÃO pode passar: {@code \t(} no MEIO segue vetado. Ali a animação pertence a uma
+     * palavra específica, e recolocá-la exigiria alinhamento palavra a palavra — o mesmo motivo de
+     * qualquer tag no miolo. Sem este teste, o conserto acima viraria licença geral.
+     */
+    @Test
+    @DisplayName("VETO mantido: \\t( no MEIO continua fora do recorte")
+    void vetaAnimacaoNoMeio() {
+        assertEquals(Optional.empty(),
+            TextoSemTags.decompor("Eu {\\t(0,500,\\fs40)}nunca{\\r} vou embora"),
+            "a animacao pertence a 'nunca'; em portugues a palavra muda de lugar e de tamanho");
+        assertEquals(Optional.empty(),
+            TextoSemTags.decompor("{\\an8}O portao {\\t(0,500,\\frx30)}fechou agora"));
     }
 
     /**

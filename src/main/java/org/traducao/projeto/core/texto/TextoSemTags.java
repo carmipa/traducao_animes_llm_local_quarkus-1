@@ -20,6 +20,14 @@ import java.util.regex.Pattern;
  *   <li>corretor de karaokê, 07/08/2026: <b>269 de 269</b> recusas pelo mesmo motivo. Ali a causa
  *       foi eliminada em vez de remendada ({@code GradienteKaraoke}), e a taxa de sucesso subiu de
  *       <b>34% para 100%</b> nas linhas que passaram a viajar sem marcador.</li>
+ *   <li>tradução de karaokê do 86, 2026-08-14: <b>2.987 recusas numa única execução</b> — 99,9%
+ *       de todos os avisos — e <b>2.979 delas (99,7%) causadas por ESTA classe</b>, que vetava a
+ *       linha por conter {@code \t(} quando a animação estava só na BORDA. Eram 7 frases do OP/ED
+ *       repetidas nas fatias de {@code \clip}, todas traduzidas CERTO pelo modelo e jogadas fora:
+ *       {@code A flower blooms only to be crushed} saiu como "Uma flor desabrocha apenas para ser
+ *       esmagada" e foi descartada <b>650 vezes</b>. Das 326 linhas distintas recusadas, apenas
+ *       <b>4</b> tinham tag no meio — o veto legítimo. Artefato:
+ *       {@code logs/traducao-karaoke/manifestos/kronos_traducao_karaoke_20260814_192920.json}.</li>
  * </ul>
  * Medido no Guilty Crown em 07/08/2026: das 5.869 falas de diálogo, <b>488 (8,3%)</b> têm tag só
  * na borda — o recorte desta classe. Outras 234 (4,0%) têm tag no meio e ficam de fora, e 87,6%
@@ -42,7 +50,15 @@ import java.util.regex.Pattern;
  *   <li>Só decompõe quando TODA tag está na BORDA (prefixo ou sufixo). Tag no MEIO marca uma
  *       palavra específica ({@code Eu {\i1}nunca{\i0} vou}), e recolocá-la exigiria alinhamento
  *       palavra a palavra entre inglês e português — fora de escopo, por decisão declarada.</li>
- *   <li>Transformação animada ({@code \t(}) veta: ali a tag não é moldura estática.</li>
+ *   <li><b>Transformação animada ({@code \t(}) NÃO veta por si só</b> — corrigido em 2026-08-14.
+ *       Ela anima a linha INTEIRA ao longo do tempo, não uma palavra, e aqui a moldura volta
+ *       LITERAL (nada é redistribuído), então traduzir dentro dela é seguro. O veto anterior
+ *       olhava o texto INTEIRO e derrubava a linha mesmo com o {@code \t(} dentro do bloco de
+ *       BORDA. Quando o {@code \t(} está no MEIO ele continua vetado — pelo mesmo teste que veta
+ *       qualquer tag no miolo, que é onde a regra sempre pertenceu.
+ *       <p><b>NÃO confundir com {@code GradienteKaraoke}</b>, que veta {@code \t(} com razão: lá
+ *       as tags são REDISTRIBUÍDAS caractere a caractere sobre a tradução, e animação amarrada ao
+ *       tempo do áudio quebraria. Vetos homônimos, justificativas opostas.</li>
  *   <li>Prefixo e sufixo saem literais; nada é inventado, reordenado ou alterado.</li>
  *   <li>É o DONO ÚNICO da pergunta "as tags estão todas na borda?" — {@code TradutorLotesService}
  *       delega a {@link #tagsSoNaBorda(String)} em vez de manter a própria cópia.</li>
@@ -57,7 +73,6 @@ import java.util.regex.Pattern;
 public record TextoSemTags(String prefixo, String textoLimpo, String sufixo, String original) {
 
     private static final Pattern BLOCO_TAGS = Pattern.compile("\\{[^}]*\\}");
-    private static final Pattern TAG_TRANSFORMACAO = Pattern.compile("\\\\t\\(");
     /**
      * DUPLICAÇÃO DECLARADA: {@code AchatadorEstilosDecorativosService.OVERRIDE_LIDER}
      * (fatia {@code trocaTipoLegenda}) tem esta mesma regex. Não foram unificadas de propósito —
@@ -94,22 +109,22 @@ public record TextoSemTags(String prefixo, String textoLimpo, String sufixo, Str
      * nenhuma NÃO entra (o caminho comum já é o correto para ele).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@link Optional#empty()} para entrada nula/vazia, tag no
-     * meio, {@code \t(} ou texto visível em branco. Nunca lança.
+     * meio — inclusive {@code \t(} fora da borda — ou texto visível em branco. Nunca lança.
      */
     public static Optional<TextoSemTags> decompor(String texto) {
         if (texto == null || texto.isBlank()) {
             return Optional.empty();
         }
-        if (TAG_TRANSFORMACAO.matcher(texto).find()) {
-            return Optional.empty();
-        }
-
         String prefixo = casar(BORDA_INICIO, texto);
         String semPrefixo = texto.substring(prefixo.length());
         String sufixo = casar(BORDA_FIM, semPrefixo);
         String miolo = semPrefixo.substring(0, semPrefixo.length() - sufixo.length());
 
         // Tag sobrando no MIOLO marca palavra: fora do recorte, segue pelo mascarador.
+        //
+        // Este é o veto ÚNICO, e ele já cobre a animação: em ASS toda tag de override vive dentro
+        // de {...}, então um \t( fora da borda é necessariamente um bloco no miolo e cai aqui. Um
+        // segundo teste só para \t( seria inalcançável — guarda morta que parece proteção.
         if (BLOCO_TAGS.matcher(miolo).find()) {
             return Optional.empty();
         }
