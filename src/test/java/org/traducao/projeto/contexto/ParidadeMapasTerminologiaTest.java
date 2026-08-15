@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PROPÓSITO DE NEGÓCIO: acusa quando os DOIS catálogos de terminologia — o da tradução
- * ({@code contexto.lore}) e o espelho da revisão de lore ({@code revisaoLore.contexto}) —
- * discordam sobre a mesma obra.
+ * ({@code contexto.lore}) e o da revisão de lore ({@code lore.revisao}) — discordam sobre a
+ * mesma obra.
  *
  * <h2>Por que este teste existe</h2>
  * A duplicação entre os catálogos é DELIBERADA: {@code revisaoLore} é uma fatia e o contrato

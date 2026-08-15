@@ -2,8 +2,8 @@ package org.traducao.projeto.revisaoLore.application;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.traducao.projeto.revisaoLore.contexto.ContextoRevisaoLore86;
-import org.traducao.projeto.revisaoLore.contexto.ContextoRevisaoLoreGundamZeta;
+import org.traducao.projeto.lore.revisao.ContextoRevisaoLore86;
+import org.traducao.projeto.lore.revisao.ContextoRevisaoLoreGundamZeta;
 import org.traducao.projeto.revisaoLore.domain.ResultadoDeteccaoLore;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLore;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;

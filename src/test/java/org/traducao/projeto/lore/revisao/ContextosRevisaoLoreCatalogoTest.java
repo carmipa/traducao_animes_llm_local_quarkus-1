@@ -1,0 +1,260 @@
+package org.traducao.projeto.lore.revisao;
+
+import org.junit.jupiter.api.Test;
+import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class ContextosRevisaoLoreCatalogoTest {
+
+    @Test
+    void novosContextosPossuemIdsUnicosENomesDeRevisao() {
+        List<ProvedorPromptRevisaoLore> provedores = List.of(
+            new ContextoRevisaoLoreGundamUnicorn(),
+            new ContextoRevisaoLoreGundamZeta(),
+            new ContextoRevisaoLoreGundamZZ(),
+            new ContextoRevisaoLoreGuiltyCrown()
+        );
+
+        Set<String> ids = provedores.stream()
+            .map(ProvedorPromptRevisaoLore::getId)
+            .collect(Collectors.toSet());
+
+        assertEquals(provedores.size(), ids.size());
+        assertTrue(ids.contains("gundam_unicorn"));
+        assertTrue(ids.contains("gundam_zeta"));
+        assertTrue(ids.contains("gundam_zz"));
+        assertTrue(ids.contains("guilty_crown"));
+        provedores.forEach(provedor -> assertTrue(provedor.getNomeExibicao().contains("Revisao de Lore")));
+    }
+
+    @Test
+    void promptUnicornProtegeTermosCriticosDaObra() {
+        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
+        String prompt = unicorn.obterPromptSistema();
+
+        assertTrue(prompt.contains("Unicorn Gundam"));
+        assertTrue(prompt.contains("Full Frontal nao vira"));
+        // "Laplace's Box" SAIU da proteção em 2026-07-29 (decisão do Paulo): a caixa e o
+        // atentado passam a ser "Caixa de Laplace" e "Incidente de Laplace" em PT-BR.
+        // Laplace Memorial continua em inglês, por ser nome próprio de estação.
+        assertTrue(prompt.contains("Caixa de Laplace"));
+        assertTrue(prompt.contains("Laplace Memorial"));
+        assertTrue(prompt.contains("Nahel Argama"));
+        assertFalse(prompt.contains("Black Tri-Stars"));
+        assertTrue(prompt.contains("Magallanica"));
+        assertTrue(prompt.contains("Garencieres"));
+        assertTrue(prompt.contains("Gilboa Sant"));
+        assertTrue(prompt.contains("Ra Cailum"));
+        assertEquals("Destroy Mode", unicorn.correcoesTerminologia().get("Modo Destruição"));
+        // Sem reversão para inglês: manter o par faria o enforcer desfazer a tradução que
+        // agora é a desejada.
+        assertNull(unicorn.correcoesTerminologia().get("Incidente de Laplace"));
+        assertNull(unicorn.correcoesTerminologia().get("Caixa de Laplace"));
+    }
+
+    @Test
+    void promptZetaProtegeTermosCriticosDaObra() {
+        var zeta = new ContextoRevisaoLoreGundamZeta();
+        String prompt = zeta.obterPromptSistema();
+
+        assertTrue(prompt.contains("A.E.U.G."));
+        assertTrue(prompt.contains("Hyaku Shiki nao vira"));
+        assertTrue(prompt.contains("The O nao vira"));
+        assertTrue(prompt.contains("Titans nao vira"));
+        assertTrue(prompt.contains("Quattro nao vira"));
+        assertTrue(prompt.contains("Audhumla"));
+        assertTrue(prompt.contains("Bask Om"));
+        assertTrue(prompt.contains("Gryps Conflict"));
+        assertTrue(prompt.contains("Mineva Lao Zabi"));
+        assertTrue(prompt.contains("Gate of Zedan"));
+        assertTrue(prompt.contains("Psycho Gundam"));
+        assertTrue(prompt.contains("Dakar Speech"));
+        assertEquals("AEUG", zeta.correcoesTerminologia().get("União Anti-Terra"));
+        assertEquals("Gryps Conflict", zeta.correcoesTerminologia().get("Conflito de Gryps"));
+        assertEquals("Psycho Gundam", zeta.correcoesTerminologia().get("Psico Gundam"));
+        assertEquals("Gundam Mk-II", zeta.correcoesTerminologia().get("Gundam Mark II"));
+    }
+
+    @Test
+    void promptZzProtegeTermosCriticosDaObra() {
+        var zz = new ContextoRevisaoLoreGundamZZ();
+        String prompt = zz.obterPromptSistema();
+
+        assertTrue(prompt.contains("Double Zeta nao vira"));
+        assertTrue(prompt.contains("Quin Mantha nao vira"));
+        assertTrue(prompt.contains("Lady Haman"));
+        assertTrue(prompt.contains("Blue Corps"));
+        assertTrue(prompt.contains("Axis nao vira"));
+        assertTrue(prompt.contains("Glemy Faction"));
+        assertTrue(prompt.contains("Nahel Argama"));
+        assertTrue(prompt.contains("Elpeo Ple"));
+        assertTrue(prompt.contains("Rakan Dahkaran"));
+        assertEquals("Axis", zz.correcoesTerminologia().get("Eixo"));
+        assertEquals("Lady Haman", zz.correcoesTerminologia().get("Senhorita Haman"));
+        assertEquals("Blue Corps", zz.correcoesTerminologia().get("Corpo Azul"));
+        assertEquals("ZZ Gundam", zz.correcoesTerminologia().get("Zeta Duplo"));
+        assertEquals("Glemy Faction", zz.correcoesTerminologia().get("Facção Glemy"));
+    }
+
+    @Test
+    void contextosUcEMacrossClasseRevisaoExcepcionais() {
+        var origin = new ContextoRevisaoLoreGundamOrigin();
+        var zeta = new ContextoRevisaoLoreGundamZeta();
+        var zz = new ContextoRevisaoLoreGundamZZ();
+        var unicorn = new ContextoRevisaoLoreGundamUnicorn();
+        var nt = new ContextoRevisaoLoreGundamNT();
+        var m2 = new ContextoRevisaoLoreMacross2();
+        var dyrl = new ContextoRevisaoLoreMacrossFilme1();
+
+        assertEquals("gundam_origin", origin.getId());
+        assertTrue(origin.obterPromptSistema().contains("Casval Rem Deikun"));
+        assertTrue(origin.obterPromptSistema().contains("Black Tri-Stars"));
+        assertTrue(origin.obterPromptSistema().contains("Don Teabolo Mass"));
+        assertTrue(origin.obterPromptSistema().contains("Battle of Loum"));
+        assertEquals("White Base", origin.correcoesTerminologia().get("Base Branca"));
+        assertEquals("Black Tri-Stars", origin.correcoesTerminologia().get("Triângulo Negro"));
+        assertEquals("Edouard Mass", origin.correcoesTerminologia().get("Eduardo Mass"));
+        assertEquals("One Year War", origin.correcoesTerminologia().get("Guerra de Um Ano"));
+
+        assertEquals("Hyaku Shiki", zeta.correcoesTerminologia().get("Cem Estilos"));
+        assertEquals("Titans", zeta.correcoesTerminologia().get("Titãs"));
+
+        assertEquals("Quin Mantha", zz.correcoesTerminologia().get("Rainha Mansa"));
+        assertEquals("Ple", zz.correcoesTerminologia().get("Plê"));
+
+        assertEquals("Sleeves", unicorn.correcoesTerminologia().get("Mangas"));
+        // Ver promptUnicornProtegeTermosCriticosDaObra: a reversão para inglês foi revogada.
+        assertNull(unicorn.correcoesTerminologia().get("Caixa de Laplace"));
+        assertTrue(unicorn.obterPromptSistema().contains("Full Frontal nao vira"));
+
+        assertEquals("Phenex", nt.correcoesTerminologia().get("Fênix"));
+        assertEquals("Miracle Children", nt.correcoesTerminologia().get("Crianças Milagrosas"));
+        assertEquals("Narrative Gundam", nt.correcoesTerminologia().get("Gundam Narrativo"));
+        assertEquals("Shezarr Team", nt.correcoesTerminologia().get("Equipe Shezarr"));
+        assertEquals("Silver Bullet Suppressor", nt.correcoesTerminologia().get("Supressor Silver Bullet"));
+        assertTrue(nt.obterPromptSistema().contains("Operation Phoenix Hunt"));
+        assertTrue(nt.obterPromptSistema().contains("Brick Teclato"));
+        assertTrue(nt.obterPromptSistema().contains("Shezarr Team"));
+        assertTrue(nt.obterPromptSistema().contains("II Neo Zeong"));
+
+        assertEquals("Emulator", m2.correcoesTerminologia().get("Emulador"));
+        assertEquals("Minmay Attack", m2.correcoesTerminologia().get("Ataque Minmay"));
+        assertEquals("Marduk", m2.correcoesTerminologia().get("Marduque"));
+        assertEquals("Song Energy", m2.correcoesTerminologia().get("Energia da Canção"));
+        assertEquals("Metal Siren", m2.correcoesTerminologia().get("Sereia de Metal"));
+        assertTrue(m2.obterPromptSistema().contains("Lord Feff"));
+        assertTrue(m2.obterPromptSistema().contains("VF-2SS Valkyrie II"));
+        assertTrue(m2.obterPromptSistema().contains("Gigamesh"));
+
+        assertEquals("Protoculture", dyrl.correcoesTerminologia().get("Protocultura"));
+        assertTrue(dyrl.obterPromptSistema().contains("Meltrandi"));
+        assertEquals("Protoculture", new ContextoRevisaoLoreMacrossDYRL().correcoesTerminologia().get("Protocultura"));
+    }
+
+    @Test
+    void contextosMacrossDeltaRevisaoExcepcionais() {
+        var tv = new ContextoRevisaoLoreMacrossDelta();
+        var f1 = new ContextoRevisaoLoreMacrossDeltaFilme1();
+        var f2 = new ContextoRevisaoLoreMacrossDeltaFilme2();
+        var filmes = new ContextoRevisaoLoreMacrossDeltaFilmes();
+
+        assertEquals("macross_delta", tv.getId());
+        assertEquals("macross_delta_filme1", f1.getId());
+        assertEquals("macross_delta_filme2", f2.getId());
+        assertEquals("macross_delta_filmes", filmes.getId());
+
+        assertTrue(tv.obterPromptSistema().contains("Aerial Knights"));
+        assertTrue(tv.obterPromptSistema().contains("Ernest Johnson"));
+        assertTrue(tv.obterPromptSistema().contains("Windermere Kingdom"));
+        assertTrue(f1.obterPromptSistema().contains("Passionate Walküre"));
+        assertTrue(f2.obterPromptSistema().contains("Yami_Q_Ray"));
+        assertTrue(f2.obterPromptSistema().contains("Heimdall"));
+        assertTrue(f2.obterPromptSistema().contains("Star Singer"));
+        assertFalse(f1.obterPromptSistema().contains("Yami_Q_Ray"));
+        assertTrue(filmes.obterPromptSistema().contains("Absolute Live"));
+        assertTrue(filmes.obterPromptSistema().contains("Passionate Walküre"));
+
+        assertEquals("Walküre", tv.correcoesTerminologia().get("Walkure"));
+        assertEquals("Var Syndrome", tv.correcoesTerminologia().get("Síndrome Var"));
+        assertEquals("Delta Flight", f1.correcoesTerminologia().get("Esquadrão Delta"));
+        assertEquals("Fold Waves", f2.correcoesTerminologia().get("Ondas Fold"));
+        assertEquals("Windermere Kingdom", tv.correcoesTerminologia().get("Reino de Windermere"));
+        assertEquals("Aerial Knights", tv.correcoesTerminologia().get("Cavaleiros do Ar"));
+        assertEquals("Heimdall", f2.correcoesTerminologia().get("Heimdal"));
+        assertEquals("Yami_Q_Ray", f2.correcoesTerminologia().get("Yami Q Ray"));
+    }
+
+    @Test
+    void contextosBreakBladeRevisaoExcepcionais() {
+        var f1 = new ContextoRevisaoLoreBreakBlade1();
+        var f2 = new ContextoRevisaoLoreBreakBlade2();
+        var f3 = new ContextoRevisaoLoreBreakBlade3();
+        var f4 = new ContextoRevisaoLoreBreakBlade4();
+        var f5 = new ContextoRevisaoLoreBreakBlade5();
+        var f6 = new ContextoRevisaoLoreBreakBlade6();
+
+        assertEquals("break_blade_1", f1.getId());
+        assertEquals("break_blade_2", f2.getId());
+        assertEquals("break_blade_3", f3.getId());
+        assertEquals("break_blade_4", f4.getId());
+        assertEquals("break_blade_5", f5.getId());
+        assertEquals("break_blade_6", f6.getId());
+
+        assertTrue(f1.getNomeExibicao().contains("Break Blade"));
+        assertTrue(f1.getNomeExibicao().contains("Revisao de Lore"));
+        assertTrue(f1.obterPromptSistema().contains("Delphine"));
+        assertTrue(f1.obterPromptSistema().contains("un-sorcerer"));
+        assertTrue(f2.obterPromptSistema().contains("Heavy Knight"));
+        assertTrue(f2.obterPromptSistema().contains("Lee"));
+        assertTrue(f3.obterPromptSistema().contains("Cleo Saburafu"));
+        assertTrue(f3.obterPromptSistema().contains("Narvi"));
+        assertTrue(f4.obterPromptSistema().contains("Borcuse"));
+        assertTrue(f4.obterPromptSistema().contains("Girge"));
+        assertTrue(f5.obterPromptSistema().contains("Hykelion"));
+        assertTrue(f5.obterPromptSistema().contains("Regatz"));
+        assertTrue(f6.obterPromptSistema().contains("Fortress of Lamentation"));
+        assertTrue(f6.obterPromptSistema().contains("Greta"));
+        assertFalse(f1.obterPromptSistema().contains("Hykelion"));
+        assertFalse(f3.obterPromptSistema().contains("Borcuse"));
+
+        assertEquals("Delphine", f1.correcoesTerminologia().get("Delfine"));
+        assertEquals("un-sorcerer", f2.correcoesTerminologia().get("Não-feiticeiro"));
+        assertEquals("Valkyrie Squadron", f3.correcoesTerminologia().get("Esquadrão Valquíria"));
+        assertEquals("Hykelion", f4.correcoesTerminologia().get("Hykélion"));
+        assertEquals("Kingdom of Krisna", f5.correcoesTerminologia().get("Reino de Krishna"));
+        assertEquals("Orlando Empire", f6.correcoesTerminologia().get("Império de Orlando"));
+    }
+
+    @Test
+    void promptGuiltyCrownProtegeTermosCriticosDaObra() {
+        var ctx = new ContextoRevisaoLoreGuiltyCrown();
+        String prompt = ctx.obterPromptSistema();
+
+        assertTrue(prompt.contains("Guilty Crown"));
+        assertTrue(prompt.contains("Void Genome"));
+        assertTrue(prompt.contains("Funeral Parlor"));
+        assertTrue(prompt.contains("Apocalypse Virus"));
+        assertTrue(prompt.contains("Shuichiro Keido"));
+        assertTrue(prompt.contains("Shibungi"));
+        assertTrue(prompt.contains("Argo Tsukishima"));
+        assertTrue(prompt.contains("Oogumo"));
+        assertTrue(prompt.contains("Crow"));
+        assertTrue(prompt.contains("Second Hand"));
+        assertTrue(prompt.contains("Roppongi Fort"));
+        assertEquals("Funeral Parlor", ctx.correcoesTerminologia().get("Funerária"));
+        assertEquals("Void Genome", ctx.correcoesTerminologia().get("Genoma do Vazio"));
+        assertEquals("Undertaker", ctx.correcoesTerminologia().get("Coveiro"));
+        assertEquals("Genomic Resonance", ctx.correcoesTerminologia().get("Ressonância Genômica"));
+        assertEquals("Second Hand", ctx.correcoesTerminologia().get("Segunda Mão"));
+        assertEquals("Endlave", ctx.correcoesTerminologia().get("Endslave"));
+        assertEquals("Anti Bodies", ctx.correcoesTerminologia().get("Anticorpos"));
+    }
+}

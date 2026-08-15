@@ -3,7 +3,7 @@ package org.traducao.projeto.revisaoLore.application;
 import jakarta.enterprise.inject.Instance;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.revisaoLore.domain.exceptions.RevisaoLoreException;
-import org.traducao.projeto.revisaoLore.domain.ports.ProvedorPromptRevisaoLore;
+import org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore;
 
 import java.util.Comparator;
 import java.util.List;
