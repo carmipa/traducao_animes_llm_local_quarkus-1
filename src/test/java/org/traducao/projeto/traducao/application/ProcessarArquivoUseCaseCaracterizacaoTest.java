@@ -437,6 +437,59 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * PROPÓSITO DE NEGÓCIO: um episódio ASS sem pendências é traduzido, publicado
      * como {@code _PT-BR.ass} e marcado como {@code CONCLUIDO}, com o cache gravado.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: o console SEMPRE diz o que a lore e o dicionário fizeram — mesmo
+     * (e principalmente) quando não fizeram nada.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Pergunta de Paulo em 2026-08-15: <i>"mas dicionário e lores estão todos logados agora,
+     * testados e funcionando?"</i>. Estavam plugados e testados; <b>logados não</b>. A tradução
+     * chamava {@code reforcar()}, que joga a contagem fora, enquanto {@code reforcarContando()}
+     * já existia e era usado por outra fatia. O efeito: uma run em que a lore restaurou 40
+     * termos e uma em que ela não fez nada imprimiam a MESMA coisa — nada. E o dicionário
+     * ausente era indistinguível de dicionário sem trabalho a fazer.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Toda execução emite uma linha {@code [ LORE ]} e uma {@code [ ORTOGRAFIA ]}.
+     *       Silêncio é proibido: é o sinal ambíguo que a regra da saída vazia veta.</li>
+     *   <li>O dicionário fala em TRÊS estados — indisponível, ativo sem correção, ativo com
+     *       N correções —, nunca em dois.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Reprovar aqui significa que o operador voltou a não ter como saber, olhando o console, se
+     * a lore e a ortografia agiram na legenda que acabou de ser gravada.
+     */
+    @Test
+    void oConsoleDizSempreOQueALoreEODicionarioFizeram() throws Exception {
+        List<String> ditas = new java.util.ArrayList<>();
+        ConsoleUILogger espiao = new ConsoleUILogger() {
+            @Override
+            public synchronized void log(String mensagem) {
+                ditas.add(mensagem);
+            }
+        };
+        FakeLlmPort llm = new FakeLlmPort();
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+
+        montar(llm, espiao).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(ditas.stream().anyMatch(l -> l.contains("[ LORE ]")),
+            () -> "nenhuma linha [ LORE ]: a run nao diz se a lore agiu. Ditas:\n"
+                + String.join("\n", ditas));
+        assertTrue(ditas.stream().anyMatch(l -> l.contains("[ ORTOGRAFIA ]")),
+            () -> "nenhuma linha [ ORTOGRAFIA ]: dicionario ausente ficaria indistinguivel de "
+                + "dicionario sem trabalho. Ditas:\n" + String.join("\n", ditas));
+
+        // O terceiro estado precisa estar DITO, não subentendido: ou o dicionário se declara
+        // indisponível, ou declara quantas falas corrigiu.
+        String ortografia = ditas.stream().filter(l -> l.contains("[ ORTOGRAFIA ]")).findFirst().orElseThrow();
+        assertTrue(ortografia.contains("INDISPONÍVEL") || ortografia.contains("corrigida")
+                || ortografia.contains("0 fala corrigida"),
+            "a linha de ortografia precisa dizer o estado, nao so existir: " + ortografia);
+    }
+
     @Test
     void assFluxoCompletoCacheMissConcluido() throws Exception {
         FakeLlmPort llm = new FakeLlmPort();

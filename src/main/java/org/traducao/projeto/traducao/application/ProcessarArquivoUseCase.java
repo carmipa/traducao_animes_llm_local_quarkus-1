@@ -626,13 +626,48 @@ public class ProcessarArquivoUseCase {
         // "Coveiro" -> "Undertaker"): restaura a grafia oficial nas traduções válidas SEM
         // depender do modelo. Só age quando o original contém o termo canônico; mapa vazio
         // (outra obra) é no-op. Não altera pendências (falas em branco são ignoradas).
+        //
+        // O REFORÇO É CONTADO E DITO EM VOZ ALTA, e isto não é enfeite de log.
+        //
+        // Até 2026-08-15 esta chamada usava `reforcar`, que joga a contagem fora — enquanto
+        // `reforcarContando` já existia e era usada por outra fatia. O efeito prático: uma run
+        // em que a lore restaurou 40 termos e uma em que ela não fez NADA imprimiam a mesma
+        // coisa, que é nada. "Ligado e sem efeito" ficava indistinguível de "desligado",
+        // exatamente o que a regra da saída ambígua proíbe — e foi assim que `Spearhead` chegou
+        // à legenda final do 86 como "Esquadroe de Ponta" sem ninguém notar no console.
+        //
+        // Três estados aqui também: mapa VAZIO é "esta obra não declara terminologia", que é
+        // diferente de "declarou e nada casou". Os dois saem escritos.
         Map<String, String> correcoesLore = contexto.correcoesTerminologia();
-        if (!correcoesLore.isEmpty()) {
+        if (correcoesLore.isEmpty()) {
+            uiLogger.log("[ LORE ] " + contexto.nomeExibicao()
+                + ": nenhum termo de terminologia declarado — nada a reforçar nesta obra.");
+        } else {
+            Map<String, Integer> restauradosPorTermo = new java.util.TreeMap<>();
             for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
                 String traduzido = traducao.getValue();
                 if (traduzido != null && !traduzido.isBlank()) {
-                    traducao.setValue(enforcadorTermosLore.reforcar(traducao.getKey(), traduzido, correcoesLore));
+                    var reforco = enforcadorTermosLore.reforcarContando(
+                        traducao.getKey(), traduzido, correcoesLore);
+                    traducao.setValue(reforco.texto());
+                    reforco.restauracoesPorTermo()
+                        .forEach((termo, n) -> restauradosPorTermo.merge(termo, n, Integer::sum));
                 }
+            }
+            int total = restauradosPorTermo.values().stream().mapToInt(Integer::intValue).sum();
+            if (total == 0) {
+                uiLogger.log("[ LORE ] " + contexto.nomeExibicao() + ": " + correcoesLore.size()
+                    + " termo(s) no glossário, 0 restauração — o modelo não errou nenhum aqui.");
+            } else {
+                String detalhe = restauradosPorTermo.entrySet().stream()
+                    .sorted(java.util.Map.Entry.<String, Integer>comparingByValue().reversed())
+                    .limit(8)
+                    .map(e -> e.getKey() + "×" + e.getValue())
+                    .collect(java.util.stream.Collectors.joining(", "));
+                uiLogger.log("[ LORE ] " + contexto.nomeExibicao() + ": " + total
+                    + " termo(s) restaurado(s) de " + correcoesLore.size()
+                    + " no glossário — " + detalhe
+                    + (restauradosPorTermo.size() > 8 ? ", …" : ""));
             }
         }
 
@@ -647,6 +682,7 @@ public class ProcessarArquivoUseCase {
         //      partir do ORIGINAL e reescreve a fala inteira — é o único ponto capaz de corrigir
         //      tradução alucinada ("Shiro: Roger!") e erro semântico ("Rogério."), que passam
         //      limpos por todas as outras guardas justamente por não serem iguais ao original.
+        int corrigidasPeloDicionario = 0;
         for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
             String traduzido = traducao.getValue();
             if (traduzido != null && !traduzido.isBlank()) {
@@ -656,11 +692,32 @@ public class ProcessarArquivoUseCase {
                 // terminação já resolvem não chega a custar consulta ao dicionário. Sobra o que
                 // nenhuma regra alcança — fatidico, minimo, aereo, psicicas, medidos no Unicorn em
                 // 13/08/2026, quando o dicionário manual resolvia ZERO das 119 faltas do Zeta.
+                String antesDoDicionario = normalizado;
                 normalizado = corretorOrtografico.corrigir(normalizado);
+                if (!normalizado.equals(antesDoDicionario)) {
+                    corrigidasPeloDicionario++;
+                }
                 normalizado = normalizadorCartaoData.normalizar(traducao.getKey(), normalizado);
                 normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
             }
+        }
+
+        // O DICIONÁRIO DIZ O QUE FEZ, em TRÊS estados — e o terceiro é o que faltava.
+        //
+        // Sem esta linha, "o hunspell corrigiu 0 palavras" e "o hunspell não está instalado"
+        // produziam o mesmo silêncio no console da Tradução Local. Quem rodasse numa máquina
+        // sem o dicionário veria a run inteira passar sem nenhum aviso e concluiria que a
+        // ortografia foi conferida. A fatia de karaokê já dizia isso desde 14/08; a tradução,
+        // que é quem escreve a legenda final, não.
+        if (!corretorOrtografico.disponivel()) {
+            uiLogger.log("[ ORTOGRAFIA ] Dicionário do sistema INDISPONÍVEL — a ortografia NÃO foi "
+                + "verificada nesta execução. Ausência de correção aqui não significa texto correto.");
+        } else if (corrigidasPeloDicionario == 0) {
+            uiLogger.log("[ ORTOGRAFIA ] Dicionário ativo, 0 fala corrigida — nada a repor neste arquivo.");
+        } else {
+            uiLogger.log("[ ORTOGRAFIA ] Dicionário ativo: " + corrigidasPeloDicionario
+                + " fala(s) com ortografia corrigida.");
         }
 
         // DIAGNÓSTICO de nome próprio traduzido. Só mede: não reescreve nenhuma fala, porque a
