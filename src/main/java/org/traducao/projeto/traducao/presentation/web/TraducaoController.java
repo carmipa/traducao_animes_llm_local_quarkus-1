@@ -62,6 +62,24 @@ public class TraducaoController {
     private final TradutorProperties propriedades;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
+    private final org.traducao.projeto.core.presentation.web.LogStreamService logStreamService;
+    private final org.traducao.projeto.traducao.infrastructure.AvisoSonoroSistema avisoSonoro;
+
+    /**
+     * Sufixo do canal SSE que anuncia o FIM do lote — {@code traducao-finalizada} e
+     * {@code traducao-sem-lore-finalizada}. Canal próprio, e não uma linha de console: quem
+     * espera o fim precisa de um sinal com chave estável, não de um texto de apresentação.
+     */
+    static final String SUFIXO_CANAL_FIM = "-finalizada";
+
+    /** Quantos toques o aviso de fim dá. Pedido de Paulo: três. */
+    static final int TOQUES_FIM_DE_LOTE = 3;
+
+    /**
+     * Separa o desfecho do veredito do som no corpo do evento. Barra vertical porque nenhum
+     * rótulo de {@code StatusLoteTraducao} a contém — a chave do filtro tem de ser inequívoca.
+     */
+    static final String SEPARADOR_EVENTO = "|";
 
     public TraducaoController(
             PipelineWebSupport pipelineWebSupport,
@@ -71,7 +89,9 @@ public class TraducaoController {
             PastasExecucao pastasExecucao,
             TradutorProperties propriedades,
             TelemetriaTraducaoPort telemetriaTraducao,
-            org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho) {
+            org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho,
+            org.traducao.projeto.core.presentation.web.LogStreamService logStreamService,
+            org.traducao.projeto.traducao.infrastructure.AvisoSonoroSistema avisoSonoro) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.processarArquivoUseCase = processarArquivoUseCase;
         this.llmPort = llmPort;
@@ -80,6 +100,8 @@ public class TraducaoController {
         this.propriedades = propriedades;
         this.telemetriaTraducao = telemetriaTraducao;
         this.guardaCaminho = guardaCaminho;
+        this.logStreamService = logStreamService;
+        this.avisoSonoro = avisoSonoro;
     }
 
     /**
@@ -137,6 +159,18 @@ public class TraducaoController {
         String canalSse = semLore ? "traducao-sem-lore" : "traducao";
         String nomeOperacao = semLore ? "Tradução sem Lore via LLM" : "Tradução Local via LLM";
         pipelineWebSupport.submeterJobComRelatorio(canalSse, nomeOperacao, () -> {
+            // AVISO DE FIM DE LOTE — o operador sai de perto durante um lote que dura de meia
+            // hora a duas. O sinal precisa de EVENTO PRÓPRIO: casar a string do banner
+            // "[CONCLUÍDO] TRADUÇÃO LOCAL VIA LLM" seria filtrar pela APRESENTAÇÃO, e qualquer
+            // ajuste de rótulo emudeceria o aviso sem ninguém perceber — a chave do filtro tem
+            // de ser a chave da COISA.
+            //
+            // Mora no finally porque os QUATRO returns antecipados deste corpo (caminho
+            // inválido, pasta inexistente, LLM offline, zero arquivos) também encerram a
+            // espera. São justamente os piores: o lote morre em dois segundos e quem foi fazer
+            // outra coisa continua esperando por horas. Terminar mal e terminar bem avisam
+            // igual; o que muda é o desfecho que vai no evento.
+            String desfecho = "ENCERRADO SEM RELATÓRIO";
             try {
                 Path pathEntrada = pipelineWebSupport.normalizarCaminho(req.entrada());
                 if (pathEntrada == null) {
@@ -288,14 +322,31 @@ public class TraducaoController {
                 // causa. Os dados já vinham no resultado de cada arquivo e eram descartados
                 // aqui — a contagem de arquivos por status, sozinha, não dizia quanto demorou
                 // nem o que sobrou.
+                String rotuloStatus = statusLote.getRotulo().toUpperCase();
                 System.out.println(org.traducao.projeto.traducao.presentation.ui.RelatorioLoteRenderer.render(
-                    resultados, statusLote.getRotulo().toUpperCase(), propriedades.tamanhoLote()));
+                    resultados, rotuloStatus, propriedades.tamanhoLote()));
                 log.info("[{}] Traducao via LLM finalizada. {} concluido(s), {} parcial(is), {} falha/bloqueio de {}.",
                     statusLote.name(), okCount, parcialCount, falhaCount, resultados.size());
+                desfecho = rotuloStatus;
 
             } catch (Exception e) {
                 log.error("Erro na tradução em background", e);
+                desfecho = "FALHA GERAL";
                 System.out.println("\u001B[31m[ERRO] Falha geral no tradutor: " + e.getMessage() + "\u001B[0m");
+            } finally {
+                // A MÁQUINA avisa primeiro — é ela que continua ali quando o operador fechou o
+                // navegador e foi programar. O evento leva ao frontend o desfecho E o veredito
+                // do som, para a tela só tocar quando a máquina não conseguiu: dois avisos
+                // simultâneos viram barulho, e nenhum aviso é o defeito que isto vem resolver.
+                //
+                // Custo MEDIDO nesta máquina em 2026-08-15: 2,80s de fila no fim de um lote de
+                // até duas horas — os três toques somam 1,35s e o resto é o arranque do
+                // PowerShell. Teto de 10s. Tocar DEPOIS de publicar deixaria o frontend sem o
+                // veredito e faria a tela tocar por cima da máquina.
+                org.traducao.projeto.traducao.infrastructure.AvisoSonoroSistema.Resultado som =
+                    avisoSonoro.tocar(TOQUES_FIM_DE_LOTE);
+                logStreamService.publicarLog(canalSse + SUFIXO_CANAL_FIM,
+                    desfecho + SEPARADOR_EVENTO + som);
             }
         });
 
