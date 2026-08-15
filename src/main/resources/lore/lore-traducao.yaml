@@ -1,3 +1,146 @@
+# =====================================================================================
+# ARQUIVO UNICO DE LORE — TRADUCAO
+#
+# Gerado dos provedores REAIS por GeradorLoreYamlIT (nunca digitado), e a geracao so
+# escreve depois de provar IDA E VOLTA campo a campo. As CICATRIZES abaixo e ao longo do
+# arquivo foram migradas a mao das classes Java em 2026-08-15 — sao medicao real, nao
+# comentario decorativo, e sao o motivo de o formato ser YAML e nao JSON.
+#
+# ATENCAO: regenerar este arquivo com o gerador produz ZERO comentario. Copiar o gerado
+# por cima APAGA toda a cicatriz. A catraca CatracaCicatrizNoLoreYamlTest existe para que
+# isso reprove o build em vez de passar em silencio.
+# =====================================================================================
+
+# ===== CICATRIZ: NUCLEO UC — compartilhado pelas obras do Universal Century — de CorrecoesTerminologiaGundamUc.java =====
+# PLURAL: o canônico "Newtype" é palavra ÚNICA e a checagem exige fronteira à direita,
+# então "Newtypes" no inglês NÃO casa com ele e a restauração nunca dispara. Medido no
+# run de ZZ: "Is this a meeting of fellow Newtypes?" saiu como "uma reunião de novos
+# tipos". Mesma lacuna que "Beam Sabers" tinha; as famílias Mobile Suit e Mobile Armor
+# já traziam singular e plural desde o início.
+# Compostos MEIO-traduzidos (o LLM localiza "Mobile"->"Móvel"/"Móveis" mas mantém "Suit"),
+# e os plurais das formas-ruim acima — o canônico plural "Mobile Suits" casa o EN
+# "Mobile suits" (checagem multi-palavra é case-insensitive no EnforcadorTermosLore).
+# "terno" é roupa social: JAMAIS serve para Mobile Suit, em nenhuma combinação — decisão
+# do dono do acervo. "Terno Móvel" já estava coberto; falta a variante sem o adjetivo.
+# Variantes de "Beam Saber" MEDIDAS no run completo de Gundam ZZ (47 episódios, 16.716
+# pares), não imaginadas: o termo sobreviveu em 0% das 7 ocorrências e NENHUMA destas
+# formas estava aqui, por isso passaram inteiras.
+# 
+# "sabre de luz" é terminologia de OUTRA franquia e apareceu 3 vezes; as demais são
+# localizações plausíveis mas fora do glossário UC.
+# 
+# Decisão do dono do acervo sobre "Mobile Suit", registrada porque a fronteira aqui é
+# fina e não se deduz do código:
+#   - o canônico é "Mobile Suit" e as entradas acima que o restauram FICAM, incluindo
+#     "Traje Móvel" e "Terno Móvel";
+#   - mas "móvel de combate", "unidade móvel" e "unidades móveis" são aceitáveis por
+#     contexto e por isso NÃO entram no mapa. Foram 101 falas do run de ZZ que este
+#     enforcer deixará em paz de propósito — reescrevê-las seria corromper tradução
+#     legítima, que é o dano que ele existe para evitar.
+# Mesma lógica para "Beam Rifle": "rifle de feixe" e "arma de feixe" passam.
+# NORMAL SUIT / POWERED SUIT — o traje pressurizado do piloto.
+# Medido no run completo de ZZ: 23 ocorrências de "normal suit" no inglês e ZERO
+# preservadas. O termo não estava na lore, nem no termosProtegidos, nem aqui: nada o
+# protegia, e o modelo produziu NOVE renderizações diferentes para a mesma coisa
+# ("terno normal", "traje normal", "uniforme normal", "armadura normal", "roupa
+# normal"...). O custo não é só terminológico: a mesma peça muda de nome entre
+# episódios e o espectador perde o referente.
+# 
+# As entradas abaixo cobrem as variantes LEXICAIS, que é o que restauração determinística
+# sabe fazer. Onde o modelo troca o traje por outro substantivo do universo, o mapa não
+# alcança — isso é leitura de cena, não variante de palavra, e exige revisão humana.
+# Cartão de título "POWERED SPACESUIT" do ep01, única ocorrência observada.
+# Vieram do catálogo ESPELHO da revisão de lore, onde já existiam. A duplicação entre os
+# dois catálogos é deliberada (fatia não importa fatia), mas ela derivou nos DOIS sentidos:
+# as variantes de Beam Saber e Normal Suit acima só existiam aqui, e estas seis só lá.
+# Duplicação consciente exige quem acuse a divergência — ver ParidadeMapasTerminologiaTest.
+# MINERADAS no acervo em 2026-08-04 (61.051 falas): a fala cujo texto visivel INTEIRO e
+# "Mobile Suit" aparece 149 vezes, em ZZ (95) e Zeta (54), e a MAIORIA sao CARTOES DE
+# TITULO -- o ingles vem em caixa alta ("MOBILE SUIT"), texto em tela, nao dialogo. Ali
+# nao ha contexto que salve: e o nome da franquia sendo reescrito.
+# 
+#   MOVEL DE ASSALTO  74x     MOVEL DE GUERRA   2x
+#   Movel de Assento  31x     Mobil Suit        2x   (erro de grafia do proprio canonico)
+# 
+# COLISAO MEDIDA: ZERO. Nenhuma fala do acervo traz "Mobile Suit" no ingles e uma destas
+# formas em PT sem ser exatamente este defeito -- entao a restauracao so corrige.
+# 
+# "Movel de Combate" (8x) FICA DE FORA: e a decisao registrada acima, de que essa familia
+# e aceitavel por contexto. Confirmada pelo dono do acervo em 04/08 ao aprovar estas
+# quatro. "MS" (2x) tambem fica: e abreviacao oficial, nao forma-ruim.
+# 
+# GAP DECLARADO: os PLURAIS destas quatro nao foram medidos e por isso nao entram. E a
+# mesma lacuna que "Newtypes" teve (ver acima); se aparecerem, medir antes de adicionar.
+# "MOVEL DE COMBATE" — a exclusao acima foi REVISTA em 05/08/2026, com o numero na mao.
+# 
+# A regra "aceitavel por contexto" foi escrita pensando em DIALOGO, e continua certa la.
+# Mas a mesma forma aparece em CARTAO DE TITULO, onde o ingles vem "MOBILE SUIT" em caixa
+# alta e nao existe contexto que a salve: e o nome da franquia escrito errado na tela.
+# 
+# MEDIDO no acervo, e a separacao e TOTAL:
+#     EN-CAIXA-ALTA / PT-Capitalizado ....... 8   (cartao de titulo)
+#     en-normal     / pt-minusculo .......... 1   (dialogo)
+# 
+# CUSTO ACEITO, e ele e real: a unica fala de dialogo tem "a combat mobile suit" no
+# ingles, entao a restauracao TAMBEM a alcanca e ela perde o "de combate":
+#     EN "My Geze has the mobility of a combat mobile suit!"
+#     PT "Meu Geze tem a mobilidade de um móvel de combate!"  ->  "...de um Mobile Suit!"
+# Oito cartoes com o nome da franquia errado valem mais que uma fala perdendo um
+# adjetivo. Se a leitura mudar, e esta linha unica que sai.
+# 
+# "unidade movel" e "unidades moveis" seguem FORA — aquela parte da decisao nao mudou.
+# "BRIGHT" — Bright Noa, capitao da White Base / Argama / Ra Cailum. Entrou em
+# 2026-08-11 depois que a correcao online do cache do Zeta devolveu "Commander Bright!"
+# como "Comandante Brilhante!" (ep02) e "- Certo. [Brilhante." (ep33): o nome do
+# personagem virou adjetivo. "Bright Noa" ja estava no termosProtegidos das obras e NAO
+# adiantou — aquele conjunto isenta da checagem de residuo, nao restaura grafia, e o
+# texto que quebra traz "Bright" sozinho, que nem casa a forma composta.
+# 
+# MEDIDO no acervo antes de entrar, nao imaginado:
+#     "Bright" maiusculo no ingles ............ 149  (ZZ 77, Zeta 67, CCA 5)
+#     delas, o adjetivo "bright" ..............   0  — as 149 sao o personagem
+#     colisao com "brilhante" na MESMA fala ...   0  em 67 pares EN/PT do Zeta
+# 
+# RISCO RESIDUAL DECLARADO: a forma-ruim e comparada IGNORANDO CAIXA, entao uma fala que
+# trouxesse "Bright" no ingles E "brilhante" como adjetivo na traducao perderia o
+# adjetivo. Nao existe uma sequer nos 67 pares medidos; os 82 pares de ZZ e CCA nao
+# foram pareados por nome de arquivo e seguem NAO conferidos.
+# "Partículas Minovsky" NÃO entra, por decisão do dono do acervo: a forma em português é
+# aceitável e forçar o inglês corromperia tradução legítima. Mesma régua de "rifle de
+# feixe", "arma de feixe" e "unidade móvel". O espelho da revisão também a perdeu, para
+# os dois catálogos seguirem dizendo a mesma coisa.
+
+# ===== CICATRIZ: NUCLEO ZZ — de CorrecoesTerminologiaGundamZz.java =====
+# ---------------------------------------------------------------------------
+# FA YUIRY. Minerado no acervo em 2026-08-04: a fala cujo texto INTEIRO e "Fa"
+# aparece 51 vezes (Zeta 43, ZZ 8) e so 8 preservaram o nome. O modelo le "Fa!"
+# como palavra comum e produz cinco coisas diferentes:
+# 
+#   Fogo!  27x     Fa...  ->  Fá...  6x     Pá!   1x
+#   Fala!   7x                             Fale!  1x
+# 
+# "Fa Yuiry" JA esta em termosProtegidos desde sempre, e nao adiantou: aquele
+# conjunto isenta o termo da checagem de residuo, nao restaura grafia. Quem
+# restaura e este mapa.
+# 
+# SEGURANCA: a restauracao so dispara quando o INGLES contem "Fa", e o canonico
+# e de UMA palavra -- entao a checagem e SENSIVEL A CAIXA e "fa" minusculo nunca
+# casa. Um "Fire!" qualquer jamais e tocado, porque nao traz "Fa" no original.
+# 
+# COLISAO MEDIDA no acervo: 6 falas trazem "Fa" no ingles e uma destas formas em
+# PT dentro de fala MAIOR -- e as 6 sao o MESMO defeito, nao colisao legitima:
+#   EN "Fa! Katz!"                -> PT "Fala, Katz!"
+#   EN "Fa, taking off!"          -> PT "Fá, decolando!"
+#   EN "Fa! We're outnumbered!"   -> PT "Fogo! Estamos em menor número!"
+# A regra corrige as seis.
+# 
+# RISCO RESIDUAL DECLARADO: "Fala" e "Fale" sao palavras comuns em PT. Se um dia
+# uma fala trouxer "Fa" no ingles E um "fala" MINUSCULO legitimo ("Fa, escute
+# minha fala"), o orcamento de minusculas de restaurarLimitado pode troca-lo.
+# Hoje isso e ZERO no acervo; se aparecer, o sintoma sera "Fa" no meio da frase.
+# 
+# "Faça isso" (1x) fica de fora: nao e variante do nome, e outra frase inteira.
+
 obras:
  - id: break_blade_1
    nome: Break Blade - Filme 1 - O Tempo do Despertar
@@ -1758,26 +1901,66 @@ obras:
     - Theoto Rikka
     - Undertaker
     - Vladilena Milize
+   # MEDIDO no cache do 86 em 2026-08-05, na PRIMEIRA traducao completa da obra pelo KRONOS
+   # (23 episodios, 7.255 falas). As cinco entradas originais cobriam parte do problema; o
+   # modelo produziu outras formas que passaram inteiras. Cada numero ao lado e contagem
+   # real — nenhuma entrada entrou por suposicao.
+   #
+   # LEGION: "Legiao" SEM cedilha era o furo — o mapa so tinha a forma acentuada, e o modelo
+   # escreve as duas. Mesma familia do plural, que tambem faltava.
+   # PROCESSOR: o singular ja estava mapeado e ainda restaram 14, porque nas falas em que o
+   # INGLES diz "Processors" a checagem do canonico singular nao casa (a fronteira a direita
+   # barra o "s"). Mesma lacuna que "Newtypes" teve no nucleo UC.
+   # UNDERTAKER: codinome do Shin. O mapa cobria "Cavaleiro da Morte" e "Coveiro", que NUNCA
+   # ocorreram; o modelo inventou outras duas. Sao palavras comuns em PT, e por isso so a
+   # condicao salva: a restauracao exige "Undertaker" no ingles, entao um carrasco de verdade
+   # ou um clima funebre jamais sao tocados.
+   # SPEARHEAD, segunda leva: MEDIDO na retraducao de 2026-08-15 (aya-expanse-8b) — das 27
+   # ocorrencias de "Spearhead" no ingles, 23 sobreviveram e 4 nao. "Lanca-Flanco" nao
+   # apareceu nenhuma vez nessa rodada; o modelo inventou tres formas NOVAS, duas das quais
+   # nem sao palavras:
+   #   "Officially called the Spearhead Squadron."       -> "...como Esquadroe de Ponta."
+   #   "This is the captain of the Spearhead Squadron."  -> "...do Esquadroa de Ponta."
+   #   "Spearhead."                                      -> "Espada-Faca."
+   # Mapear forma errada uma a uma e jogo de gato e rato — na proxima rodada vem uma quarta.
+   # A alternativa, restaurar todo nome proprio automaticamente, JA foi tentada e removida
+   # deste projeto por gerar 323 falso positivo em 560 pendencias (57,7%).
+   #
+   # FICA DE FORA: "mecha" (3 ocorrencias), usado no lugar de "Juggernaut". E palavra comum
+   # do genero e aceitavel por contexto — mapea-la reescreveria fala legitima, que e o dano
+   # que este mapa existe para evitar. "M1A4" tambem fica: e a designacao oficial do Juggernaut.
+   #
+   # FICA DE FORA TAMBEM: "ponta de lanca". A quarta ocorrencia perdida em 15/08 foi o ep 06
+   # da Part 2 — ingles "A spearhead.", MINUSCULO, traduzido como "A ponta de lanca.". Ali a
+   # palavra e a arma, nao o esquadrao, e a traducao esta CERTA. O mecanismo ja separa os dois
+   # sozinho: contarCanonico usa flags=0 para termo de UMA palavra, entao "Spearhead" nunca
+   # casa com "spearhead" minusculo. Congelado em SpearheadMinusculoContinuaTraduzidoTest.
+   #
+   # As quatro marcadas [UNIAO 15/08] vinham do catalogo da REVISAO e a traducao nao as tinha.
+   # Efeito no acervo de hoje: ZERO, e isso esta MEDIDO (MedicaoEfeitoDaUniaoDeLoreIT) — nao
+   # ocorrem em nenhuma das 16.120 falas ja traduzidas. O ganho e nas traducoes FUTURAS.
+   # "Canela" e homografo da parte do corpo em portugues, e e segura pelo MECANISMO, nao por
+   # sorte: so dispara com "Shin" MAIUSCULO no ingles; a canela do corpo la e "shin" minusculo.
    correcoesTerminologia:
-     Canela: Shin
-     Carrasco: Undertaker
-     Cavaleiro da Morte: Undertaker
-     Coveiro: Undertaker
-     Espada-Faca: Spearhead
-     Esquadroa de Ponta: Spearhead
-     Esquadroe de Ponta: Spearhead
-     Fúnebre: Undertaker
+     Canela: Shin                        # [UNIAO 15/08] homografo — protegido pela caixa
+     Carrasco: Undertaker                # 1
+     Cavaleiro da Morte: Undertaker      # ja existia; 0 ocorrencias
+     Coveiro: Undertaker                 # ja existia; 0 ocorrencias
+     Espada-Faca: Spearhead              # 1
+     Esquadroa de Ponta: Spearhead       # 1
+     Esquadroe de Ponta: Spearhead       # 1  <- o defeito que Paulo viu na legenda
+     Fúnebre: Undertaker                 # 4
      Handler Um: Handler One
-     Jugernaut: Juggernaut
-     Lança-Flanco: Spearhead
-     Legiao: Legion
-     Legião: Legion
-     Legiões: Legions
-     Oitenta e Seis: Eighty-Six
-     Para RAID: Para-RAID
-     Para Raid: Para-RAID
-     Processador: Processor
-     Processadores: Processors
+     Jugernaut: Juggernaut               # [UNIAO 15/08]
+     Lança-Flanco: Spearhead             # 5
+     Legiao: Legion                      # 7  <- o furo: sem cedilha
+     Legião: Legion                      # ja existia; 0 restantes
+     Legiões: Legions                    # 1
+     Oitenta e Seis: Eighty-Six          # 67 — o maior volume, e o nome que da titulo a obra
+     Para RAID: Para-RAID                # [UNIAO 15/08]
+     Para Raid: Para-RAID                # [UNIAO 15/08]
+     Processador: Processor              # ja existia
+     Processadores: Processors           # 12
    prompt: |
      Voce e um tradutor especializado em legendas de anime, traduzindo do ingles para portugues do Brasil.
      Contexto ativo da obra: 86 - Eighty-Six.
@@ -3222,6 +3405,57 @@ obras:
        - Sanders
     -  - Sanders
        - Shinigami
+   # ===== CICATRIZ MIGRADA de ContextoGundam08thMSTeam.java (2026-08-15) =====
+   # Federation / 08th
+   # Zeon
+   # Civilians
+   # Mecha / ships
+   # Orgs / places / ops
+   # ---------------------------------------------------------------------------
+   # Formas-ruim MEDIDAS nas 3.621 falas do acervo (cache, 2026-07-30). Esta obra
+   # tinha a PIOR taxa do catálogo: 36,2 perdas por mil falas.
+   # 
+   # A causa é ÍMÃ EM ESTADO PURO: termosProtegidos declara DUAS grafias do mesmo
+   # nome, e o modelo escolhe sempre a que a legenda NÃO usa. Consistência total:
+   # 
+   #   EN "Apsaras"  -> PT "Apsalus"   26 de 26
+   #   EN "Ginius"   -> PT "Ginias"    15 de 15
+   #   EN "Sakhalin" -> PT "Sahalin"    9 de  9
+   # 
+   # Não é o modelo errando: é a lore oferecendo duas opções. Como a guarda do
+   # enforcer é dirigida pelo INGLÊS, a regra aqui é restaurar o que a fonte diz.
+   # Conferido: ZERO falas trazem as duas grafias no inglês, então não há
+   # ping-pong com as entradas que já apontavam para o outro lado.
+   # ---------------------------------------------------------------------------
+   # Nome do esquadrão, 7 de 8 — as formas que apareceram além das já mapeadas.
+   # O Ball é um pod de combate, não um brinquedo: 6 de 9.
+   # Seguro porque o canônico é "Ball" com maiúscula e o enforcer exige grafia
+   # exata — uma fala sobre "ball" minúsculo nunca dispara.
+   # O núcleo UC cobre "Rifle de Feixe", não esta forma: 4 de 4.
+   # Título de episódio, 3 de 3.
+   # Sobrenome corrompido, 2 de 4.
+   # NÃO entram, e a medição é a razão:
+   #   Captain Norris / Admiral Yuri — o PT traduz a PATENTE ("Capitão Norris",
+   #     "Almirante Yuri"), que é correto; o termo protegido é que embute o posto.
+   #   Earth Federation — "Federação Terrestre", decisão de produto do acervo.
+   #   Mobile Suit (16/42) e Mobile Armor (2/4) — plural ou omissão da fala.
+   # O tratamento dos companheiros nao vira o apelido dos de fora. Medido: as 4 falas
+   # corrompidas eram TODAS radio do esquadrao em tratamento direto ("Karen! Sanders! Do
+   # you read me?", "Sanders! Pull back!") -- exatamente onde a troca custa mais.
+   # Depende da guarda de preservacao em ValidadorTraducaoService.trocou: sem ela,
+   # "Sanders, o Ceifador" (traducao CORRETA de "Sanders the Reaper") seria acusado.
+   # O apelido dos de fora nao vira o nome: EN "the Reaper" -> PT "Sanders".
+   # 
+   # ATENCAO ao que este par NAO cobre. A versao anterior deste comentario citava
+   # EN "Sniper 2!" -> PT "Sanders!" como motivacao, e isso era COBERTURA ILUSORIA:
+   # trocou() exige contemTermo(original, presente), e o ingles "Sniper 2!" nao contem
+   # "Reaper" nem "Sanders" — o laco sai no primeiro teste e o par nunca dispara.
+   # Designacao generica virando nome do elenco e OUTRA classe, medida em 2026-07-28 em
+   # ~55 falas de 48.564 pares, com eixo dominante em mecha/nave ("Argama" 19x,
+   # "Gundam" 14x) e nao em pessoa. Nenhum par a resolve, porque nao ha um segundo
+   # termo declarado do outro lado. Segue sem desenho, de proposito.
+   # Vazamento do japones. "Shinigami" nao aparece UMA vez no ingles do acervo (35
+   # ocorrencias de "Sanders", 0 de "Shinigami"), entao risco de falso-positivo e zero.
    correcoesTerminologia:
      08º Esquadrão MS: 08th MS Team
      8o Time MS: 08th MS Team
@@ -3498,6 +3732,34 @@ obras:
     - funnel
     - psycho-frame
     - psycommu
+   # ===== CICATRIZ MIGRADA de ContextoCharsCounterattack.java (2026-08-15) =====
+   # ---------------------------------------------------------------------------
+   # Formas-ruim MEDIDAS na tradução do filme em 2026-07-30, com a lore completa
+   # já ativa. Estar em termosProtegidos() NÃO impede a localização: aquele
+   # conjunto é PERMISSIVO (os validadores o removem do texto antes de procurar
+   # resíduo), enquanto quem GARANTE é o EnforcadorTermosLore lendo este mapa.
+   # Cada entrada abaixo tem uma fala real por trás; nada foi imaginado.
+   # ---------------------------------------------------------------------------
+   # "Fifth Luna" perdido em 7 de 7 falas — o asteroide vira substantivo comum.
+   # "Luna II" perdido em 10 de 18.
+   # Aglomerados coloniais: "Side 1" 3/3, "Side 2" 3/4.
+   # "Earthsphere" perdido em 2 de 2, nas duas grafias que apareceram.
+   # Grafia livre do termo do filme (que é SEM h, ao contrário de psycho-frame).
+   # Ordem das palavras invertida em 4 de 5: "Sieg Zeon!" saiu "Zeon Sieg!".
+   # Londenion: três invenções distintas numa única execução.
+   # "Londres" é Londres de verdade em português — só não aqui: o enforcer exige
+   # que o EN da fala contenha "Londenion" para trocar, então uma fala sobre a
+   # capital inglesa nunca é tocada.
+   # Proteger "Londenion" não desfez a atração com "Londo Bell" — INVERTEU o
+   # sentido dela. Medido: "Send it to the Londo Bell!" saiu "Mande para o
+   # Londenion!". Esta entrada desfaz esse caso.
+   # NÃO existe a entrada inversa ("Londo Bell" -> "Londenion"), e a ausência é
+   # deliberada. A outra metade da troca é "Side 1's Londenion" saindo como
+   # "Londo Bell's Londenion": ali o "Londo Bell" errado veio de "Side 1", não de
+   # "Londenion". Como o enforcer decide pela forma-ruim, ele não distingue as
+   # duas origens — a entrada inversa produzia "Londenion's Londenion.", trocando
+   # um erro por outro. Verificado por teste: ver o caso documentado em
+   # TerminologiaCcaFormasMedidasTest#trocaSide1PorLondoBellNaoEhCorrigivelPeloMapa.
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -3683,6 +3945,34 @@ obras:
     - Vigna-Ghina
     - Zabine Chareux
     - Zamouth Garr
+   # ===== CICATRIZ MIGRADA de ContextoGundamF91.java (2026-08-15) =====
+   # Medidos na legenda do filme (2.171 falas) em 2026-07-30: 84 de 109 nomes
+   # proprios NAO estavam cadastrados. Os abaixo tem ocorrencia confirmada.
+   # ---------------------------------------------------------------------------
+   # Formas-ruim MEDIDAS na tradução de 2026-07-30 (2.069 falas). Estar em
+   # termosProtegidos() NÃO impede a localização — aquele conjunto é permissivo;
+   # quem GARANTE é o EnforcadorTermosLore lendo este mapa. Cada entrada tem uma
+   # fala real por trás.
+   # ---------------------------------------------------------------------------
+   # O pior caso do filme: as armas autônomas de extermínio viraram bichos.
+   # "...be finished before the Bugs are activated?" -> "antes que os insetos
+   # sejam ativados?". Perdido em 5 de 6 falas.
+   # "Space Ark" perdido em 11 de 12 — e com gênero errado ("no Arca Espacial").
+   # Colônias: "Frontier" perdido em 11 de 21, em várias formas.
+   # Nave confundida com parte do corpo: "Garra de Zamouth", "Zamouth Gar".
+   # Ordem invertida e invenção: "Vanguard Crossbone", "Vanguard da Cruz Branca".
+   # Doutrina (Aristocracy) vs Estado (Babylonia): perdidos em 2/2 e 2/7.
+   # NÃO existe entrada para "bio-computador". As 2 falas do filme escrevem
+   # "bio-computer" em MINÚSCULA ("your old lady designed its bio-computer"), e o
+   # enforcer exige o canônico na grafia exata — "Bio-Computer" nunca casaria.
+   # Minúscula ali é substantivo comum, e "bio-computador" é tradução legítima.
+   # O mapa base do UC cobre "Novo Tipo"/"Neotipo" mas não o FEMININO, e o filme
+   # produziu "Nova Tipo" em 2 de 9 falas ("Is it a Newtype?" -> "É um Nova Tipo?").
+   # ÍMÃ entre dois termos protegidos: "Iron Mask!" saiu "Carozzo Ronah!" em 2 de
+   # 10 falas. São a mesma pessoa, mas a fala usa o codinome de propósito.
+   # LIMITE: "Dorel Ronah?" também saiu "Carozzo Ronah", e a chave é a forma-ruim
+   # — não dá para mapear "Carozzo Ronah" para dois canônicos no mesmo mapa.
+   # Escolhida a de maior frequência; ver TerminologiaF91FormasMedidasTest.
    correcoesTerminologia:
      Arca Espacial: Space Ark
      Aristocracia Cósmica: Cosmo Aristocracy
@@ -6176,6 +6466,57 @@ obras:
     - Vist Foundation
     - funnel
     - psycommu
+   # ===== CICATRIZ MIGRADA de ContextoGundamUnicorn.java (2026-08-15) =====
+   # Apelido do Char. Entrou em 2026-07-29 porque o título do ep.5,
+   # "CLASH WITH THE RED COMET", saiu como "CONFRONTO COM O COMESA DO VERMELHO".
+   # Composto de duas palavras de propósito: "Comet" sozinho é substantivo comum.
+   # Título do ep.16; sem ele "CO-PROSPERITY SPHERE" virou "Esfera de Prosperidade CO".
+   # NÃO se protege "Side" sozinho: a convenção do acervo é sempre com número
+   # (Side 3/4/6/7 nas lores 0079, Origin, Thunderbolt, War in the Pocket), porque
+   # "side" solto é "lado" e viraria letra maiúscula no meio de qualquer frase.
+   # DECISÃO (Paulo, 2026-07-29): "Laplace's Box" e "Laplace Incident" SAÍRAM da
+   # proteção — "Caixa de Laplace" e "Incidente de Laplace" soam naturais em PT-BR e
+   # são a forma que o espectador reconhece. Continuam protegidos os que são nome
+   # próprio de lugar/sistema: Laplace Memorial e La+ (Laplace Program).
+   # As duas reversões saíram junto com a proteção: mantê-las faria o enforcer
+   # desfazer a tradução que agora é a desejada, e o par forma-ruim->canônico só
+   # existe para consertar erro, não para impor preferência já revogada.
+   # ---------------------------------------------------------------------------
+   # Formas-ruim MEDIDAS nas 5.643 falas dos 22 episódios (cache de 2026-07-29).
+   # termosProtegidos() é permissivo e não impede localização; quem GARANTE é o
+   # EnforcadorTermosLore lendo este mapa. Cada entrada tem fala real por trás.
+   # ---------------------------------------------------------------------------
+   # "Unicorn Gundam" perdido em 10 de 45 — o mapa já cobria "Gundam Unicórnio",
+   # mas não a INVERSÃO de ordem nem o híbrido.
+   # "Co-Prosperity Sphere" perdido em 9 de 10, em três formas distintas.
+   # A nave ganhou acento francês em 7 de 30.
+   # "Red Comet" perdido em 7 de 9 — é o codinome do Char, não descrição.
+   # ÍMÃ entre colônias: "at the colony Industrial 7" saiu "Em Side 7".
+   # Side 7 existe no UC, por isso a guarda importa: só troca quando o inglês
+   # trazia "Industrial 7".
+   # ÍMÃ entre unidades: "ECOAS can't investigate this by ourselves" saiu
+   # "Londo Bell não pode investigar isso sozinhos" — 2 de 13.
+   # Base com ordem invertida e preposição, 4 de 5.
+   # Ordem invertida em 3 de 7, mesmo defeito medido no Char's Counterattack.
+   # Aportuguesamento do termo técnico, 4 de 8.
+   # Só a caixa BAIXA. A legenda também escreve "A Psycommu runaway...", mas o
+   # canônico declarado em termosProtegidos é "psycommu" minúsculo, e o invariante
+   # CorrecoesTerminologiaGundamUcTest exige que todo canônico do mapa esteja
+   # declarado. Declarar "Psycommu" mudaria o hash do manifesto e invalidaria as
+   # 5.643 falas já traduzidas — caro demais por 2 ocorrências. Fica para quando
+   # houver outra mudança de lore desta obra para pagar a invalidação junto.
+   # "Spacenoid" perdido em 5 de 7; o núcleo UC cobre "Espacenoide" com N, não a
+   # forma sem ele. O plural fica de fora pelo mesmo motivo do Psycommu acima:
+   # "Spacenoids" não está declarado.
+   # Feminino de Newtype — mesma lacuna encontrada no F91: o núcleo UC só traz
+   # "Novo Tipo"/"Neotipo" no masculino.
+   # NÃO entram, e a medição é a razão:
+   #   Earth Federation — "Federação Terrestre" em 20 de 20, consistente com todo
+   #     o acervo (CCA e F91 idem). É decisão de produto, não defeito.
+   #   Mobile Suit — 17 de 73 são plural ("mobile suits") ou omissão da fala
+   #     inteira; a checagem exige o singular exato.
+   #   Neo Zeon (6/61), Londo Bell (2/22), Nahel Argama (1/60) — taxa baixa e as
+   #     falas mostram pronome/omissão, não localização do termo.
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -6687,6 +7028,45 @@ obras:
        - Quattro
     -  - Gundam Mk-II
        - Zeta Gundam
+   # ===== CICATRIZ MIGRADA de ContextoGundamZeta.java (2026-08-15) =====
+   # Aliases usados centenas de vezes nas falas. Four, Fa e Bright ficam apenas nas
+   # formas completas: isolados colidem com palavras comuns e a proteção ignora caixa.
+   # Formas medidas nos 50 ASS de Zeta em 2026-08-09. O enforcer só aplica quando o
+   # canônico da direita existe no EN, portanto palavras comuns como "Quem" e "Lote"
+   # não são tocadas fora das falas que realmente contêm Qum e Batch.
+   # FA YUIRY — minerado em 2026-08-04. A fala cujo texto INTEIRO e "Fa" aparece 51x
+   # no acervo e o Zeta concentra 43 delas; so 8 preservaram o nome. O modelo le "Fa!"
+   # como palavra comum: "Fogo!" 27x, "Fala!" 7x, "Fá..." 6x, "Pá!" 1x, "Fale!" 1x.
+   # "Fa Yuiry" ja esta em termosProtegidos e nao adiantou — aquele conjunto isenta da
+   # checagem de residuo, nao restaura grafia.
+   # 
+   # Seguro por construcao: so dispara com "Fa" no INGLES, e canonico de uma palavra e
+   # comparado com SENSIBILIDADE A CAIXA. Colisao medida no acervo: zero legitima (as 6
+   # encontradas sao o mesmo defeito em fala maior, e a regra as corrige).
+   # Justificativa completa e risco residual em CorrecoesTerminologiaGundamZz.
+   # ---------------------------------------------------------------------------
+   # Formas-ruim MEDIDAS nas 16.778 falas do acervo (cache, 2026-07-30).
+   # Quinta obra a receber o mapa; a de maior volume absoluto de perdas (433).
+   # ---------------------------------------------------------------------------
+   # ERRO SEMÂNTICO, não de grafia: 8 de 19. G-Defenser é a unidade de apoio;
+   # Super Gundam é o Mk-II JÁ acoplado a ela. São coisas diferentes e ambas
+   # existem na obra. Seguro porque ZERO falas trazem as duas no inglês.
+   # "Gate of Zedan" perdido em 30 de 30 — é o nome que a A Baoa Qu recebeu.
+   # 7 de 7. O mapa do 08th já trazia esta entrada; o Zeta não.
+   # 4 de 6, nas duas formas que apareceram.
+   # 4 de 4.
+   # 2 de 5 — o mobile suit virou residência.
+   # 2 de 8 — "Four" é o NOME da personagem (Four Murasame), não o número.
+   # NÃO entram, e a medição é a razão:
+   #   A.E.U.G. (178 de 211) -- o PT escreve "AEUG" sem pontos, de forma
+   #     CONSISTENTE nas 178. É formatação, não erro de sentido, e mudá-la
+   #     reescreveria 178 falas publicadas. Decisão do Paulo, não minha.
+   #   Colony Laser (10 de 25) -- entrada seria INERTE: a legenda escreve
+   #     "colony Laser" com c minúsculo nas 24 ocorrências, e o enforcer exige o
+   #     canônico na grafia exata. Mesmo caso de Bio-Computer no F91.
+   #   Earth Federation (33 de 33) -- "Forças Federais da Terra", decisão de
+   #     produto consistente com CCA, F91, Unicorn e 08th.
+   #   Mobile Suit (116 de 301) -- plural ou omissão da fala inteira.
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
