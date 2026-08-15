@@ -1,0 +1,5 @@
+# DOENTE de proposito: obra sem o prompt de sistema.
+# Ela subiria e o LLM traduziria essa obra sem instrucao nenhuma.
+obras:
+ - id: eight_six
+   nome: 86 (Eighty-Six)

@@ -169,7 +169,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("contexto.infrastructure é congelado NOMINALMENTE (E7b): exatamente GerenciadorContexto e ContextoBeansConfig")
+    @DisplayName("contexto.infrastructure é congelado NOMINALMENTE (E7b): GerenciadorContexto, ContextoBeansConfig e CatalogoLoreYaml")
     void infraestruturaCongeladaNominalmente() {
         TreeSet<String> infra = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -185,9 +185,18 @@ class FronteiraContextoArchTest {
                 infra.add(nome.substring(nome.lastIndexOf('.') + 1));
             }
         }
-        assertEquals(new TreeSet<>(List.of("ContextoBeansConfig", "GerenciadorContexto")), infra,
-            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto e ContextoBeansConfig "
-                + "(sem liberação genérica de infrastructure; qualquer terceira classe reprova). Encontrado: " + infra);
+        // CatalogoLoreYaml entrou em 2026-08-15, e a entrada é DELIBERADA: é a ordem de Paulo de
+        // pôr todas as lores num arquivo único, e o leitor desse arquivo é infraestrutura do peer
+        // — mesma natureza do GerenciadorContexto, que também só orquestra o catálogo.
+        //
+        // A catraca funcionou como devia e vale registrar: ela reprovou a classe nova ANTES de
+        // qualquer commit, obrigando a declaração em vez de deixar o pacote crescer sozinho. É
+        // exatamente para isso que o congelamento é NOMINAL e não "infrastructure liberado".
+        assertEquals(
+            new TreeSet<>(List.of("CatalogoLoreYaml", "ContextoBeansConfig", "GerenciadorContexto")), infra,
+            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto, ContextoBeansConfig "
+                + "e CatalogoLoreYaml (sem liberação genérica de infrastructure; qualquer quarta "
+                + "classe reprova). Encontrado: " + infra);
     }
 
     @Test

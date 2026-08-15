@@ -1,0 +1,7 @@
+# DOENTE de proposito: o arquivo e YAML valido, mas nao tem a lista "obras".
+# Sem falha fechada o leitor devolveria catalogo vazio e a traducao rodaria SEM lore.
+lores:
+ - id: eight_six
+   nome: 86
+   prompt: |
+     texto

@@ -1,0 +1,11 @@
+# DOENTE de proposito: duas obras com o mesmo id.
+# Sem a checagem, a segunda venceria em silencio e uma lore inteira sumiria do catalogo.
+obras:
+ - id: eight_six
+   nome: 86 (Eighty-Six)
+   prompt: |
+     primeiro
+ - id: eight_six
+   nome: 86 outra vez
+   prompt: |
+     segundo
