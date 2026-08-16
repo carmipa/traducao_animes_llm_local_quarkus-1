@@ -66,6 +66,17 @@ public final class CorretorAcentoPorDicionario {
      * {@code voce} — e ambas dão zero ocorrência no acervo justamente por estarem lá.
      */
     private static final Pattern PALAVRA = Pattern.compile("\\p{L}{4,}");
+
+    /**
+     * As formas em que o {@code ão} chega destruído, medidas na saída do 86 em 2026-08-15:
+     * {@code Esquadroao}, {@code Esquadroo}, {@code Esquadroe}, {@code Esquadroa}. A ordem
+     * importa — {@code oao} vem primeiro para não ser cortado como {@code ao} pela alternativa
+     * mais curta.
+     */
+    private static final Pattern TERMINACAO_QUEBRADA = Pattern.compile("(?:oao|oo|oe|oa)$");
+
+    /** Piso do resultado: sem ele, uma sílaba de romaji como {@code paoa} viraria {@code pão}. */
+    private static final int MINIMO_RESULTADO = 6;
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
 
     private final DicionarioOrtograficoPort dicionario;
@@ -169,7 +180,84 @@ public final class CorretorAcentoPorDicionario {
             return texto;
         }
         Map<String, Set<String>> sugestoes = dicionario.sugestoes(cands);
-        return aplicar(texto, apenasAcentuacoes(sugestoes));
+        Map<String, String> correcoes = new LinkedHashMap<>(apenasAcentuacoes(sugestoes));
+        correcoes.putAll(reparosDeTerminacaoAo(cands, correcoes.keySet()));
+        return aplicar(texto, correcoes);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: conserta o {@code ão} que o modelo destrói — {@code Esquadroo},
+     * {@code Esquadroe}, {@code Esquadroa}, {@code Esquadroao} no lugar de {@code Esquadrão}.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Medido na tradução do 86 Part 1 em 2026-08-15, depois de a lore ser unificada: o termo
+     * {@code Spearhead} foi restaurado com sucesso, e mesmo assim a legenda saiu com
+     * <i>"Como comandante do <b>Esquadroo</b> Spearhead"</i>. O cache prova que quem escreveu
+     * assim foi o MODELO — e o mesmo modelo escreve {@code Esquadrão} corretamente em outras
+     * falas. Dez ocorrências em onze episódios. Não é termo de lore: é palavra comum do
+     * português, e por isso nenhum glossário deveria precisar conhecê-la.
+     *
+     * <h2>Por que não pedir a sugestão ao dicionário</h2>
+     * Medido antes de escolher o desenho, e o resultado descarta a rota óbvia: o hunspell
+     * detecta as quatro formas como erro, mas a sugestão CERTA não é a primeira em nenhuma
+     * delas, e em três das quatro nem aparece na lista. Aplicar a primeira sugestão produziria
+     * {@code Esquadro-o} e {@code Esquadro a} — pior que o defeito.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li><b>O dicionário é o VALIDADOR nas duas pontas.</b> Só entra palavra que ele
+     *       REJEITA, e só sai troca que ele ACEITA. A regra não tem como inventar palavra.</li>
+     *   <li>Não toca no que a passada de acento já resolveu — aquela é mais específica.</li>
+     *   <li>Piso de {@value #MINIMO_RESULTADO} letras no resultado: sem ele, uma sílaba de
+     *       romaji como {@code paoa} viraria {@code pão}. O piso mantém a regra no território
+     *       de palavra longa, que é onde o defeito foi medido ({@code Esquadr} + {@code ão}).</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Dicionário indisponível devolve mapa vazio — a passada inteira é no-op e o texto sai
+     * intacto, nunca corrompido por palpite.
+     *
+     * @param candidatas palavras extraídas do texto
+     * @param jaCorrigidas palavras que a passada de acentuação já resolveu
+     * @return de-para apenas das trocas que o dicionário aceitou
+     */
+    private Map<String, String> reparosDeTerminacaoAo(Set<String> candidatas, Set<String> jaCorrigidas) {
+        Set<String> suspeitas = new LinkedHashSet<>();
+        for (String palavra : candidatas) {
+            if (!jaCorrigidas.contains(palavra) && TERMINACAO_QUEBRADA.matcher(palavra).find()) {
+                suspeitas.add(palavra);
+            }
+        }
+        if (suspeitas.isEmpty()) {
+            return Map.of();
+        }
+        // Só as que o dicionário NÃO conhece: palavra válida terminada em -oa/-oe/-oo
+        // ("pessoa", "canoa", "heroe" não; mas "lagoa" sim) jamais é tocada.
+        Set<String> desconhecidas = dicionario.desconhecidas(suspeitas);
+        Map<String, String> propostas = new LinkedHashMap<>();
+        for (String errada : desconhecidas) {
+            Matcher m = TERMINACAO_QUEBRADA.matcher(errada);
+            if (!m.find()) {
+                continue;
+            }
+            String proposta = errada.substring(0, m.start()) + "ão";
+            if (proposta.length() >= MINIMO_RESULTADO) {
+                propostas.put(errada, proposta);
+            }
+        }
+        if (propostas.isEmpty()) {
+            return Map.of();
+        }
+        // A segunda trava: o resultado precisa EXISTIR. "Npessoa" -> "Npessão" é recusado aqui,
+        // e foi o único falso positivo que a medição do 86 encontrou.
+        Set<String> invalidas = dicionario.desconhecidas(new LinkedHashSet<>(propostas.values()));
+        Map<String, String> aceitas = new LinkedHashMap<>();
+        propostas.forEach((errada, proposta) -> {
+            if (!invalidas.contains(proposta)) {
+                aceitas.put(errada, proposta);
+            }
+        });
+        return aceitas;
     }
 
     /** Forma sem diacrítico, para comparar "é a mesma palavra?" sem depender do acento. */
