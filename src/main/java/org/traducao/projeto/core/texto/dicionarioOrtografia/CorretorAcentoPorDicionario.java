@@ -181,7 +181,7 @@ public final class CorretorAcentoPorDicionario {
         }
         Map<String, Set<String>> sugestoes = dicionario.sugestoes(cands);
         Map<String, String> correcoes = new LinkedHashMap<>(apenasAcentuacoes(sugestoes));
-        correcoes.putAll(reparosDeTerminacaoAo(cands, correcoes.keySet()));
+        correcoes.putAll(reparosDeTerminacaoAo(dicionario, cands, correcoes.keySet()));
         return aplicar(texto, correcoes);
     }
 
@@ -221,7 +221,8 @@ public final class CorretorAcentoPorDicionario {
      * @param jaCorrigidas palavras que a passada de acentuação já resolveu
      * @return de-para apenas das trocas que o dicionário aceitou
      */
-    private Map<String, String> reparosDeTerminacaoAo(Set<String> candidatas, Set<String> jaCorrigidas) {
+    public static Map<String, String> reparosDeTerminacaoAo(
+            DicionarioOrtograficoPort dicionario, Set<String> candidatas, Set<String> jaCorrigidas) {
         Set<String> suspeitas = new LinkedHashSet<>();
         for (String palavra : candidatas) {
             if (!jaCorrigidas.contains(palavra) && TERMINACAO_QUEBRADA.matcher(palavra).find()) {
