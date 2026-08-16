@@ -99,7 +99,12 @@ public class ProvedorCorrecaoFala {
          *
          * @param mensagem o que dizer ao operador, já formatado
          * @param registrarSemAlteracao se vale lembrar que este texto não rende, para não repetir
-         * @param codigo código do detalhe de auditoria, ou {@code null} quando não gera detalhe
+         * @param codigo código do detalhe de auditoria. <b>Nunca {@code null}</b> — recusa sem
+         *        código não gera {@code DetalheRevisao}, e a fala continua contada em
+         *        "Pendentes: N" sem aparecer em lugar nenhum. Medido em 2026-08-16 no 86: a
+         *        passada Google reportou <b>2 pendentes e ZERO detalhes</b>, porque os dois
+         *        caminhos de recusa deste modo passavam {@code null}. "Nada a fazer" e "não
+         *        consegui" produziam o mesmo sinal
          * @param detalhe explicação técnica para o relatório
          * @param proposta o que o provedor devolveu e foi rejeitado, quando houve
          */
@@ -160,7 +165,9 @@ public class ProvedorCorrecaoFala {
             return new Resultado.Recusada(
                 "     " + AnsiCores.DIM + "Google não acionado: problema reservado à revisão LLM."
                     + AnsiCores.RESET,
-                true, null, null, null);
+                true, "GOOGLE_NAO_ACIONADO",
+                "O motivo não é falha objetiva de tradução, e o Google não conhece a lore. "
+                    + "A fala é trabalho da passada LLM desta mesma tela.", null);
         }
         ProtetorTermosLoreService.TextoProtegido originalProtegido = protetorLore.mascarar(
             originalEn, contexto.lore(), contexto.termosProtegidos());
@@ -175,7 +182,10 @@ public class ProvedorCorrecaoFala {
             return new Resultado.Recusada(
                 "     " + AnsiCores.DIM + "Google sem alteração aplicável ("
                     + resultado.status() + "); mantido." + AnsiCores.RESET,
-                true, null, null, null);
+                true, "GOOGLE_SEM_ALTERACAO",
+                "Google respondeu " + resultado.status() + " e não produziu texto aplicável "
+                    + "(falha, marcador de lore perdido ou resposta igual à fala atual).",
+                restaurada);
         }
         return new Resultado.Obtida(restaurada);
     }

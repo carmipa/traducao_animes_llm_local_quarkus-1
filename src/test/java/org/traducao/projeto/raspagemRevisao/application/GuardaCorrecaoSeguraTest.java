@@ -30,6 +30,14 @@ class GuardaCorrecaoSeguraTest {
     @Inject
     GuardaCorrecaoSegura guarda;
 
+    /**
+     * O MESMO auditor que a produção usa. Motivo escrito à mão no teste não casa com o
+     * vocabulário real, e a comparação "problema novo?" passa a acusar tudo — foi assim que a
+     * última pergunta do portão ficou sem teste apesar de existir um com esse nome.
+     */
+    @Inject
+    AuditorProblemasLegendaService auditor;
+
     private static final ContextoRevisao SEM_LORE = new ContextoRevisao("teste", "", Set.of());
 
     private ContextoRevisao comTermo(String termo) {
@@ -47,6 +55,10 @@ class GuardaCorrecaoSeguraTest {
     private List<String> avisos(GuardaCorrecaoSegura.Veredicto veredicto) {
         return assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, veredicto)
             .avisosAoOperador();
+    }
+
+    private GuardaCorrecaoSegura.MotivoRecusa motivo(GuardaCorrecaoSegura.Veredicto veredicto) {
+        return assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, veredicto).motivo();
     }
 
     @Test
@@ -134,6 +146,54 @@ class GuardaCorrecaoSeguraTest {
         assertEquals(1, avisos(veredicto).size());
         assertTrue(avisos(veredicto).get(0).contains("repete uma palavra"),
             "o operador precisa saber POR QUE a correção foi barrada, senão parece defeito da fila");
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.REPETICAO_INTRODUZIDA, motivo(veredicto),
+            "sem o motivo tipado o relatório volta a dizer só 'sem melhoria'");
+    }
+
+    /**
+     * O motivo viaja com a recusa INCLUSIVE quando ela é silenciosa no console. Silencioso é sobre
+     * o console; o relatório continua tendo de dizer por que a fala ficou pendente — e é isso que
+     * separa "não havia o que fazer" de "não consegui".
+     */
+    @Test
+    void todaRecusaCarregaOMotivoTipado() {
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.VAZIA_OU_IGUAL,
+            motivo(guarda.avaliar("He is tired.", "Ele está cansada.", "   ",
+                suspeitaCom("concordância de gênero"), SEM_LORE)));
+
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.TERMO_CANONICO,
+            motivo(guarda.avaliar("The Hyaku Shiki is ready.", "O Hyaku Shiki está pronta.",
+                "O Cem Tipos está pronto.", suspeitaCom("concordância de gênero"),
+                comTermo("Hyaku Shiki"))));
+
+        // Descoberto ao escrever este teste, e vale registrar: esta proposta NÃO chega ao
+        // "sem melhoria". Ela é barrada antes, por PROBLEMA_NOVO — trocar "Ele está cansada"
+        // por "Ela está cansado" inverte o defeito em vez de repeti-lo. O teste vizinho
+        // propostaQueNaoMelhoraAAuditoriaEhRejeitada, que só afirma "não passou", nunca
+        // exercitou a última pergunta apesar do nome. O motivo tipado é o que tornou isso visível.
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.PROBLEMA_NOVO,
+            motivo(guarda.avaliar("He is tired.", "Ele está cansada.", "Ela está cansado.",
+                suspeitaCom("concordância de gênero"), SEM_LORE)));
+    }
+
+    /**
+     * A ÚLTIMA pergunta do portão, exercitada de verdade — e ela exige o vocabulário REAL de
+     * motivos, não uma string sintética: {@code SEM_MELHORIA} só é alcançado quando a proposta
+     * não traz problema novo E repete exatamente os motivos que a fala já tinha. Com motivo
+     * inventado no teste, qualquer motivo apurado pelo auditor conta como "novo" e a execução
+     * para uma pergunta antes.
+     */
+    @Test
+    void propostaComOMesmoDefeitoDoOriginalParaNaUltimaPergunta() {
+        String en = "He is tired.";
+        String atual = "Ele está cansada.";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            en, atual, "Ele está cansada!", auditor.auditar(en, atual), SEM_LORE);
+
+        assertFalse(aprovou(veredicto));
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.SEM_MELHORIA, motivo(veredicto),
+            "mudar a pontuação e manter o defeito gasta chamada externa e backup para nada");
     }
 
     /**

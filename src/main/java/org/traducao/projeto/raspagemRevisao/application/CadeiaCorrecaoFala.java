@@ -197,16 +197,15 @@ public class CadeiaCorrecaoFala {
             originalEn, traducaoAtual, novaTraducao, auditoria, contexto);
         if (veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada rejeitada) {
             avisos.addAll(rejeitada.avisosAoOperador());
-            String motivo = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
-                ? "Correção descartada: resposta LLM inválida ou sem melhoria."
-                : "Correção descartada: resposta Google inválida ou sem melhoria.";
+            String provedor = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "LLM" : "Google";
+            String motivo = "Correção do " + provedor + " descartada pelo portão: "
+                + rejeitada.motivo().descricao() + ".";
             avisos.add("     " + AnsiCores.YELLOW + motivo + AnsiCores.RESET);
             sessao.registrarSemAlteracao(textoMascOriginal);
             return new Tentativa(
                 new DecisaoFala.Pendente(avisos),
                 List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
-                    modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
-                        ? "LLM_REJEITADO_SEM_MELHORIA" : "GOOGLE_REJEITADO_SEM_MELHORIA",
+                    rejeitada.motivo().codigo(),
                     auditoria.motivos(), motivo, originalEn, traducaoAtual, novaTraducao)));
         }
 

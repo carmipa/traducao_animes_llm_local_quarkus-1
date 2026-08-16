@@ -88,8 +88,9 @@ public class GuardaCorrecaoSegura {
          * A proposta foi vetada e a fala atual permanece.
          *
          * @param avisosAoOperador mensagens a imprimir, na ordem; vazia quando a rejeição é silenciosa
+         * @param motivo QUAL das seis perguntas barrou, para o relatório dizer mais que "sem melhoria"
          */
-        record Rejeitada(List<String> avisosAoOperador) implements Veredicto {
+        record Rejeitada(List<String> avisosAoOperador, MotivoRecusa motivo) implements Veredicto {
 
             /** PROPÓSITO DE NEGÓCIO: normaliza a lista para imutável, blindando o chamador. */
             public Rejeitada {
@@ -98,8 +99,78 @@ public class GuardaCorrecaoSegura {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: nomeia a pergunta que vetou a proposta, para o relatório poder dizer
+     * POR QUE a fala continua pendente.
+     *
+     * <h2>Por que existe</h2>
+     * O portão sabia disso e jogava fora: toda recusa virava o mesmo
+     * {@code LLM_REJEITADO_SEM_MELHORIA} no relatório. Medido em 2026-08-16 no 86 — a guarda de
+     * repetição barrou duas propostas e o operador leu "resposta LLM inválida ou sem melhoria",
+     * que não distingue alucinação de termo de lore alterado nem de advérbio dobrado. Sem o
+     * motivo tipado não há como saber qual pergunta reprova mais, e portanto não há como afinar
+     * nenhuma delas com medição.
+     *
+     * <p>É {@code enum} e não texto porque o relatório e as guardas comparam por identidade; o
+     * vocabulário de motivos por substring desta fatia já custou caro
+     * ({@code PoliticaRetraducao}, "contrato por SUBSTRING").
+     */
+    public enum MotivoRecusa {
+
+        /** Proposta vazia, nula ou idêntica à fala atual. */
+        VAZIA_OU_IGUAL("REVISAO_PROPOSTA_VAZIA_OU_IGUAL",
+            "o provedor devolveu texto vazio ou igual ao que já está na legenda"),
+
+        /** A proposta alteraria um termo canônico da lore. */
+        TERMO_CANONICO("REVISAO_TERMO_CANONICO_ALTERADO",
+            "a proposta alteraria um termo canônico da lore"),
+
+        /** Alucinação detectada ou estrutura ASS suspeita. */
+        ALUCINACAO_OU_SUSPEITA("REVISAO_ALUCINACAO_OU_ESTRUTURA",
+            "a proposta foi barrada como alucinação ou estrutura ASS suspeita"),
+
+        /** A proposta repete palavra que a fala não repetia. */
+        REPETICAO_INTRODUZIDA("REVISAO_REPETICAO_INTRODUZIDA",
+            "a proposta repete uma palavra que a fala não repetia"),
+
+        /** A proposta trouxe um problema de auditoria que a fala não tinha. */
+        PROBLEMA_NOVO("REVISAO_PROBLEMA_NOVO",
+            "a proposta introduziu um problema que a fala não tinha"),
+
+        /** A proposta continua suspeita e não reduziu os motivos. */
+        SEM_MELHORIA("REVISAO_SEM_MELHORIA",
+            "a proposta continua suspeita e não reduziu os motivos da auditoria");
+
+        private final String codigo;
+        private final String descricao;
+
+        MotivoRecusa(String codigo, String descricao) {
+            this.codigo = codigo;
+            this.descricao = descricao;
+        }
+
+        /** PROPÓSITO DE NEGÓCIO: o código que vai para o {@code DetalheRevisao} e para o dataset. */
+        public String codigo() {
+            return codigo;
+        }
+
+        /** PROPÓSITO DE NEGÓCIO: a frase que o operador lê no relatório, em vez do nome da constante. */
+        public String descricao() {
+            return descricao;
+        }
+    }
+
     private static final Veredicto APROVADA = new Veredicto.Aprovada();
-    private static final Veredicto REJEITADA_EM_SILENCIO = new Veredicto.Rejeitada(List.of());
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: rejeição que não fala com o operador, mas ainda declara o motivo.
+     * <p>INVARIANTES DO DOMÍNIO: silenciosa é sobre o CONSOLE, não sobre o relatório — a fala
+     * continua sendo contada como pendente, e pendência sem causa registrada é a saída vazia
+     * ambígua que este código existe para não produzir.
+     */
+    private static Veredicto silenciosa(MotivoRecusa motivo) {
+        return new Veredicto.Rejeitada(List.of(), motivo);
+    }
 
     /**
      * Piso de letras para uma palavra contar na checagem de repetição introduzida. Abaixo dele estão
@@ -135,27 +206,29 @@ public class GuardaCorrecaoSegura {
         ContextoRevisao contexto
     ) {
         if (candidata == null || candidata.isBlank() || candidata.equals(traducaoAtual)) {
-            return REJEITADA_EM_SILENCIO;
+            return silenciosa(MotivoRecusa.VAZIA_OU_IGUAL);
         }
         List<String> termosAlterados = protetorLore.termosCanonicosAlterados(
             original, candidata, contexto.lore(), contexto.termosProtegidos());
         if (!termosAlterados.isEmpty()) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "[LORE] Correção rejeitada: alteraria termo(s) canônico(s): "
-                + String.join(", ", termosAlterados) + AnsiCores.RESET));
+                + String.join(", ", termosAlterados) + AnsiCores.RESET),
+                MotivoRecusa.TERMO_CANONICO);
         }
         try {
             validador.validarFala(candidata);
             if (protecaoAss.respostaSuspeita(original, candidata)) {
-                return REJEITADA_EM_SILENCIO;
+                return silenciosa(MotivoRecusa.ALUCINACAO_OU_SUSPEITA);
             }
         } catch (AlucinacaoDetectadaException e) {
-            return REJEITADA_EM_SILENCIO;
+            return silenciosa(MotivoRecusa.ALUCINACAO_OU_SUSPEITA);
         }
         if (repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata)) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "Correção rejeitada: a proposta repete uma palavra que a fala não repetia."
-                + AnsiCores.RESET));
+                + AnsiCores.RESET),
+                MotivoRecusa.REPETICAO_INTRODUZIDA);
         }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
         boolean introduziuProblemaNovo = posterior.motivos().stream()
@@ -163,11 +236,12 @@ public class GuardaCorrecaoSegura {
         if (introduziuProblemaNovo) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "Correção rejeitada: a proposta introduziu um problema diferente do original."
-                + AnsiCores.RESET));
+                + AnsiCores.RESET),
+                MotivoRecusa.PROBLEMA_NOVO);
         }
         boolean melhorou = !posterior.suspeito()
             || posterior.motivos().size() < auditoriaAnterior.motivos().size();
-        return melhorou ? APROVADA : REJEITADA_EM_SILENCIO;
+        return melhorou ? APROVADA : silenciosa(MotivoRecusa.SEM_MELHORIA);
     }
 
     /**

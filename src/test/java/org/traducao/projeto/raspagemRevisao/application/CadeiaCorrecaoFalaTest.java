@@ -152,4 +152,35 @@ class CadeiaCorrecaoFalaTest {
         assertTrue(tentativa.decisao().avisosAoOperador().get(0).contains("[LORE]"),
             "e tem de vir PRIMEIRO: os avisos contam a história na ordem em que aconteceu");
     }
+
+    /**
+     * O DEFEITO MEDIDO EM 2026-08-16, e reproduzido de propósito aqui: a passada Google do 86
+     * reportou <b>"Problemas detectados: 2 · Falas pendentes: 2"</b> seguido de <b>"Nenhuma
+     * ocorrência detalhada registrada"</b>. Motivo de concordância não é falha objetiva, então o
+     * Google não é acionado — e a recusa saía com código {@code null}, que não gera
+     * {@link org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao}. A fala era CONTADA como
+     * pendente e não aparecia em lugar nenhum.
+     *
+     * <p>É a regra da saída vazia ambígua: "nada a fazer aqui" e "não consegui" não podem produzir
+     * o mesmo sinal. O operador precisa saber que a fala é trabalho da OUTRA passada da mesma tela.
+     */
+    @Test
+    void googleNaoAcionadoDeixaEvidenciaEmVezDePendenciaInvisivel() {
+        String pt = "Provavelmente, ele apenas pensa que ela é uma boa cama.";
+        CadeiaCorrecaoFala.FalaSuspeita concordancia = new CadeiaCorrecaoFala.FalaSuspeita(
+            fala(pt), "It probably just thinks that he's a good bed.", pt, true,
+            new ResultadoDeteccaoConcordancia(true,
+                List.of("Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'")));
+
+        CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
+            new SessaoRevisaoArquivo(), concordancia, "ep01.ass",
+            ModoRevisaoLegendas.GOOGLE, SEM_LORE);
+
+        assertInstanceOf(DecisaoFala.Pendente.class, tentativa.decisao());
+        assertEquals(1, tentativa.evidencias().size(),
+            "pendência contada sem evidência é a saída vazia ambígua que o relatório não pode produzir");
+        assertEquals("GOOGLE_NAO_ACIONADO", tentativa.evidencias().get(0).resultado());
+        assertEquals(0, tradutorExterno.chamadas(),
+            "concordância sem lore não pode ir para o tradutor externo — ele devolveria nome próprio traduzido");
+    }
 }
