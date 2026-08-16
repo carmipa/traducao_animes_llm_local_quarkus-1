@@ -83,6 +83,31 @@ public class CorretorOrtograficoLegenda {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: costura para o teste exercitar ESTE caminho — o que a Tradução
+     * Local percorre de verdade — sem depender de haver hunspell instalado na máquina.
+     *
+     * <h2>Por que a costura existe</h2>
+     * O reparo de terminação nasceu dentro de {@code CorretorAcentoPorDicionario#corrigir()},
+     * que o pipeline NÃO chama: ele consome apenas os helpers estáticos daquela classe. O teste
+     * passava exercitando o método direto enquanto a legenda continuava saindo com
+     * {@code Esquadroo}. Sem um jeito de instanciar este corretor com dicionário controlado, o
+     * caminho real seguiria sem teste — e foi exatamente ali que o defeito morava.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o classificador de quatro idiomas recebe o MESMO dicionário em
+     * todas as posições. Serve para exercitar a correção, não para classificar idioma — teste
+     * que dependa da classificação usa o construtor real.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico ao construtor de produção.
+     *
+     * @param dicionario dicionário de português a consultar
+     */
+    CorretorOrtograficoLegenda(DicionarioOrtograficoPort dicionario) {
+        this.portugues = dicionario;
+        this.classificador = new ClassificadorQuatroIdiomas(
+            dicionario, dicionario, dicionario, dicionario, dicionario);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: devolve a fala com os acentos que faltavam, sem tocar em mais nada.
      *
      * <p>INVARIANTES DO DOMÍNIO: só palavras classificadas como {@code ACENTO_FALTANDO} são
@@ -116,7 +141,20 @@ public class CorretorOrtograficoLegenda {
                     naoVerificadas.incrementAndGet();
                     return texto;
                 }
-                Map<String, String> novas = CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes);
+                Map<String, String> novas =
+                    new java.util.LinkedHashMap<>(CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes));
+
+                // O REPARO DE TERMINAÇÃO ENTRA AQUI, e não só no corrigir() de instância do
+                // CorretorAcentoPorDicionario — porque é ESTE método que a Tradução Local chama.
+                //
+                // A primeira versão do reparo ficou naquele outro corrigir(), que a produção não
+                // usa: o pipeline consome apenas os helpers estáticos daqui. O teste passava
+                // exercitando o método direto enquanto a legenda continuava saindo com
+                // "Esquadroo". Foi Paulo quem perguntou "e por que o reparo não está ligado?" —
+                // código verde num caminho que ninguém percorre é a definição de guarda cega.
+                novas.putAll(CorretorAcentoPorDicionario.reparosDeTerminacaoAo(
+                    portugues, inéditas, novas.keySet()));
+
                 // Guarda TAMBÉM o que não tem correção: "já perguntei e não há" evita repetir a
                 // pergunta, e é a maior parte das palavras.
                 for (String c : inéditas) {

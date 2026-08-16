@@ -85,6 +85,35 @@ class ReparoDeTerminacaoAoTest {
     private final CorretorAcentoPorDicionario corretor =
         new CorretorAcentoPorDicionario(new DicionarioDeMentira());
 
+    /**
+     * O CAMINHO DE PRODUÇÃO. A Tradução Local não chama o {@code corrigir()} acima — ela chama
+     * {@link CorretorOrtograficoLegenda}, que consome apenas os helpers ESTÁTICOS do corretor de
+     * acento. A primeira versão deste reparo vivia só no outro caminho: os testes passavam e a
+     * legenda continuava saindo com {@code Esquadroo}. Estes casos rodam pela porta que o
+     * pipeline usa de verdade.
+     */
+    private final CorretorOrtograficoLegenda deProducao =
+        new CorretorOrtograficoLegenda(new DicionarioDeMentira());
+
+    @Test
+    @DisplayName("CAMINHO DE PRODUÇÃO: o corretor que a tradução chama também conserta")
+    void oCaminhoQueAProducaoUsaTambemConserta() {
+        assertEquals("Como comandante do Esquadrão Spearhead, farei o meu melhor.",
+            deProducao.corrigir("Como comandante do Esquadroo Spearhead, farei o meu melhor."),
+            "o reparo existe mas nao esta no caminho que a Traducao Local percorre");
+        assertEquals("Este é o comandante do Esquadrão Spearhead.",
+            deProducao.corrigir("Este é o comandante do Esquadroao Spearhead."));
+    }
+
+    @Test
+    @DisplayName("CAMINHO DE PRODUÇÃO: nome próprio continua intocado")
+    void oCaminhoDeProducaoNaoCorrompeNomeProprio() {
+        // Suberoa Zuno e Gilboa sao do Unicorn: 25 ocorrencias que a segunda trava salvou.
+        assertEquals("Suberoa Zuno e Gilboa chegaram.",
+            deProducao.corrigir("Suberoa Zuno e Gilboa chegaram."),
+            "o reparo corrompeu nome proprio no caminho de producao");
+    }
+
     /** As quatro formas REAIS medidas na saída do 86. */
     @Test
     @DisplayName("CASO DOENTE: as quatro formas do 86 voltam a ser Esquadrão")
