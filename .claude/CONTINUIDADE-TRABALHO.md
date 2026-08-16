@@ -250,10 +250,56 @@ existe corpus de propostas históricas — só as 4 de hoje. O que foi medido é
 legítima já existente nas falas, que a régua comparativa protege por construção). Para virar
 medição de verdade seria preciso registrar as propostas recusadas ao longo do uso.
 
-## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+## ✅ PENDÊNCIA INVISÍVEL E RÓTULO GENÉRICO — FECHADOS (16/08)
 
-1. Levar o motivo específico da recusa para o `DetalheRevisao` (gap 🟡 do rótulo genérico).
-2. Fechar o gap da pendência sem detalhe (`CadeiaCorrecaoFala:187`) — frente própria.
+**INVARIANTE DECLARADA — INV-REVISAO-EVIDENCIA-001:** nenhuma fala contada como PENDENTE pode
+existir sem linha de evidência no relatório. *Dano se quebrado:* o operador lê "Pendentes: N",
+não tem como agir, e "nada a fazer aqui" fica idêntico a "não consegui". *Camadas:* código
+obrigatório no provedor · motivo tipado no portão · testes com mutação.
+
+**A CAUSA, achada no código e reproduzida por medição** (não deduzida): `ProvedorCorrecaoFala`
+tinha DOIS caminhos de recusa com `codigo=null`, e recusa sem código não gera `DetalheRevisao`.
+Reproduzido na hora: passada Google no 86 Part 1 = **2 detectados, 2 pendentes, ZERO detalhes**
+— 100% das pendências invisíveis. `RevisarLegendasUseCase:292` conta TODA `DecisaoFala.Pendente`,
+com ou sem evidência, o que mata a objeção de "vai inflar o relatório": a fala já era contada.
+
+**OPÇÕES CONSIDERADAS, e por que as outras foram descartadas:**
+
+| opção | veredito |
+|---|---|
+| A — dar código às duas recusas nulas | **escolhida**, resolve 100% do medido, +0 na contagem |
+| B — motivo tipado no portão | **escolhida**, resolve o rótulo genérico e torna auditável qual pergunta reprova mais |
+| C — invariante "toda decisão gera evidência" | descartada: quebraria o reaproveitamento de memória, que é intencional e documentado |
+| D — resumo agregado por motivo | descartada: diz por quê e não diz QUAL fala; o operador continua sem poder agir |
+| E — guarda de relatório (`pendentes>0 ⟹ detalhes>0`) | adiada: A+B a tornam redundante hoje; vira catraca quando houver 2º produtor de recusa |
+
+**FEITO:** `GOOGLE_NAO_ACIONADO` e `GOOGLE_SEM_ALTERACAO` no provedor · `MotivoRecusa` (enum de
+6 valores com código e descrição) viajando dentro de `Veredicto.Rejeitada` · `CadeiaCorrecaoFala`
+usa o código do motivo em vez de `LLM_REJEITADO_SEM_MELHORIA`.
+
+```
+MUTACAO (codigo de volta para null) ..... 6 tests, 1 failed — so o caso doente
+suite completa --rerun-tasks ............ 1.845 testes, 0 falhas, 25 pulados, 318 classes
+FLUXO REAL, mesmo relatorio de antes:
+   antes : "Pendentes: 2"  +  "Nenhuma ocorrencia detalhada registrada."
+   agora : as 2 nomeadas, com Resultado=GOOGLE_NAO_ACIONADO, o motivo da auditoria,
+           o EN, o PT e o diagnostico que diz o que fazer (rodar a passada LLM)
+```
+
+**ACHADO DE BRINDE, do motivo tipado:** o teste `propostaQueNaoMelhoraAAuditoriaEhRejeitada`
+**nunca exercitou** a pergunta do nome dele — a proposta é barrada antes, por `PROBLEMA_NOVO`.
+Só apareceu porque o veredito passou a dizer QUAL pergunta barrou. Corrigido, e criado
+`propostaComOMesmoDefeitoDoOriginalParaNaUltimaPergunta`, que injeta o auditor REAL: com motivo
+sintético qualquer motivo apurado conta como "novo" e a execução para uma pergunta antes.
+
+## 🟡 NÃO COMPROVADO desta rodada
+
+O rótulo tipado na recusa do PORTÃO está provado em teste, **não no arquivo**: em produção as 2
+falas param antes, no provedor (`LLM_SEM_ALTERACAO` / `LLM_SEM_CONTEUDO_UTILIZAVEL`). Provar no
+fluxo real exigiria plantar de volta a proposta ruim no acervo, e não vale desestabilizar a
+legenda por isso.
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 3. Só então **4.1 Tradução de Karaokê**, que é terminal e gera a pasta irmã final. Com a aya
    carregada, e não o mistral.
 
