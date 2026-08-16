@@ -9,12 +9,15 @@ import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoServi
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * PROPÓSITO DE NEGÓCIO: o portão único por onde passa TODA proposta de correção antes de substituir
  * uma fala já publicada. Não importa de onde a proposta veio — corretor determinístico, memória de
- * correções deste arquivo, LLM ou Google —, ela responde às mesmas cinco perguntas.
+ * correções deste arquivo, LLM ou Google —, ela responde às mesmas seis perguntas.
  *
  * <h2>Por que é uma peça só</h2>
  * Havia três chamadas ao mesmo método privado dentro do laço de falas. Se cada origem de correção
@@ -69,7 +72,7 @@ public class GuardaCorrecaoSegura {
      * PROPÓSITO DE NEGÓCIO: o veredicto do portão sobre uma proposta de correção.
      *
      * <p>INVARIANTES DO DOMÍNIO: {@code Rejeitada} carrega os avisos que o operador precisa ver, e a
-     * lista VAZIA é um estado legítimo — três das cinco rejeições são silenciosas porque o desfecho
+     * lista VAZIA é um estado legítimo — três das seis rejeições são silenciosas porque o desfecho
      * já aparece na linha PENDENTE do relatório. Usar {@code null} para "sem aviso" obrigaria todo
      * chamador a lembrar de checar.
      */
@@ -97,9 +100,17 @@ public class GuardaCorrecaoSegura {
     private static final Veredicto REJEITADA_EM_SILENCIO = new Veredicto.Rejeitada(List.of());
 
     /**
-     * PROPÓSITO DE NEGÓCIO: submete uma proposta às cinco perguntas, na ordem de custo crescente —
+     * Piso de letras para uma palavra contar na checagem de repetição introduzida. Abaixo dele estão
+     * as palavras que o português repete por gramática — {@code que}, {@code de}, {@code ela} —, cuja
+     * repetição não é sinal de defeito nenhum.
+     */
+    private static final int PISO_PALAVRA_LONGA = 4;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: submete uma proposta às seis perguntas, na ordem de custo crescente —
      * é vazia ou igual? mexeu em termo canônico? é alucinação ou resposta estruturalmente suspeita?
-     * introduziu um problema que não existia? sobrou problema demais?
+     * repetiu palavra que a fala não repetia? introduziu um problema que não existia? sobrou
+     * problema demais?
      *
      * <p>INVARIANTES DO DOMÍNIO: a última pergunta é a que dá sentido às outras — aceitar exige
      * MELHORA MENSURÁVEL. Uma proposta que continua suspeita só passa se resolveu mais problemas do
@@ -139,6 +150,11 @@ public class GuardaCorrecaoSegura {
         } catch (AlucinacaoDetectadaException e) {
             return REJEITADA_EM_SILENCIO;
         }
+        if (repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata)) {
+            return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
+                + "Correção rejeitada: a proposta repete uma palavra que a fala não repetia."
+                + AnsiCores.RESET));
+        }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
         boolean introduziuProblemaNovo = posterior.motivos().stream()
             .anyMatch(motivo -> !auditoriaAnterior.motivos().contains(motivo));
@@ -150,5 +166,79 @@ public class GuardaCorrecaoSegura {
         boolean melhorou = !posterior.suspeito()
             || posterior.motivos().size() < auditoriaAnterior.motivos().size();
         return melhorou ? APROVADA : REJEITADA_EM_SILENCIO;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recusa a proposta que conserta o defeito medido e estraga a leitura,
+     * repetindo uma palavra que a fala não repetia.
+     *
+     * <h2>Por que é COMPARATIVA e nunca absoluta</h2>
+     * Repetição legítima é comum em fala: medidas <b>197 das 7.022</b> falas de diálogo do 86
+     * (2,81%) já repetem uma palavra longa — {@code "Pare, pare!"}, {@code "Certo, certo."},
+     * {@code "nossas unidades de combate não tripuladas"} depois de {@code "unidades de tamanho de
+     * batalhão"}. Uma régua absoluta reprovaria as 197, e <b>guarda que reprova texto correto ensina
+     * a desligar a guarda</b>. Por isso só conta o que a PROPOSTA acrescenta: repetição que já
+     * existia na fala atual passa intacta.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O piso de {@value #PISO_PALAVRA_LONGA} letras exclui o que se repete por gramática
+     *       ({@code que}, {@code de}, {@code ela}), não por defeito.</li>
+     *   <li>Usa {@code protecaoAss.textoVisivel} em vez de regex própria: o texto entre chaves do ASS
+     *       não é fala, e escrever aqui um segundo extrator criaria a divergência que a catraca de
+     *       regra duplicada entre fatias existe para impedir.</li>
+     * </ul>
+     *
+     * <h2>O prejuízo que a originou — 2026-08-16, 86 Part 1</h2>
+     * O detector acusou CERTO ({@code he} no inglês, {@code ela} na tradução) e o LLM devolveu
+     * {@code "Provavelmente, ela provavelmente pensa que ele é uma boa cama."}: gênero corrigido,
+     * advérbio dobrado. Rodada a mesma opção de menu outra vez, a via "consertou" apagando o sujeito
+     * — {@code "Provavelmente, provavelmente pensa que ele é uma boa cama."} As duas foram gravadas
+     * porque este portão media concordância e <b>não media regressão de fluência</b>. Nenhuma outra
+     * opção do menu enxergava o defeito: a passada Google reauditou as mesmas 3.469 falas e não
+     * tocou nelas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo, vazio ou sem palavra longa devolve
+     * {@code false} — na ausência de sinal o portão não inventa veto, e as outras cinco perguntas
+     * seguem valendo.
+     *
+     * @param traducaoAtual a fala como está hoje na legenda
+     * @param candidata a proposta de substituição
+     * @return {@code true} quando a proposta acrescenta uma repetição inexistente na fala atual
+     */
+    private boolean repetiuPalavraQueAFalaNaoRepetia(String traducaoAtual, String candidata) {
+        Map<String, Integer> antes = contarPalavrasLongas(traducaoAtual);
+        Map<String, Integer> depois = contarPalavrasLongas(candidata);
+        for (Map.Entry<String, Integer> palavra : depois.entrySet()) {
+            if (palavra.getValue() >= 2 && palavra.getValue() > antes.getOrDefault(palavra.getKey(), 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: conta quantas vezes cada palavra longa aparece no texto visível da fala.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara em minúsculas para que {@code "Provavelmente"} e
+     * {@code "provavelmente"} sejam a MESMA palavra — foi exatamente essa a forma do defeito medido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem texto visível devolve mapa vazio.
+     */
+    private Map<String, Integer> contarPalavrasLongas(String texto) {
+        Map<String, Integer> contagem = new HashMap<>();
+        if (texto == null) {
+            return contagem;
+        }
+        String visivel = protecaoAss.textoVisivel(texto);
+        if (visivel == null || visivel.isBlank()) {
+            return contagem;
+        }
+        for (String palavra : visivel.toLowerCase(Locale.ROOT).split("[^\\p{L}]+")) {
+            if (palavra.length() >= PISO_PALAVRA_LONGA) {
+                contagem.merge(palavra, 1, Integer::sum);
+            }
+        }
+        return contagem;
     }
 }
