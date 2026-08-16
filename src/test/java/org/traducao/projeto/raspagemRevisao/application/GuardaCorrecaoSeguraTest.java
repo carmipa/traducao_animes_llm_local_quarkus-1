@@ -155,6 +155,41 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * O FURO que a lente adversarial achou sobre a própria guarda: o piso de 4 letras deixa passar
+     * {@code "ele ele"}. Não é hipótese — na 2ª rodada o mistral devolveu
+     * {@code "Provavelmente, provavelmente pensa…"}, adjacente, e só não escapou porque a palavra é
+     * longa. A adjacência fecha isso sem baixar o piso.
+     */
+    @Test
+    void propostaQueColaPalavraCurtaRepetidaEhRejeitada() {
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "He thinks she is tired.", "Ele pensa que ela está cansado.",
+            "Ele ele pensa que ela está cansada.",
+            suspeitaCom("concordância de gênero"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto), "'ele ele' escapava do piso de 4 letras");
+        assertTrue(avisos(veredicto).get(0).contains("repete uma palavra"));
+    }
+
+    /**
+     * O contra-teste que protege o TRABALHO PRINCIPAL da 3.1, e é o motivo de a adjacência ser
+     * exigida em vez de simplesmente baixar o piso: corrigir pronome legitimamente ACRESCENTA o
+     * sujeito, e {@code ele} passa de 1 para 2 sem nenhum defeito. Piso baixo reprovaria justamente
+     * a correção que a ferramenta existe para fazer; a adjacência não, porque pronome acrescentado
+     * nunca cola no anterior.
+     */
+    @Test
+    void pronomeAcrescentadoLongeDoOutroNaoBarraACorrecao() {
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "He said he would come.", "Ele disse que viria cansada.",
+            "Ele disse que ele viria cansado.",
+            suspeitaCom("concordância de gênero"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto),
+            "acrescentar o pronome é o trabalho da 3.1: barrar aqui inutilizaria a ferramenta");
+    }
+
+    /**
      * A lista de avisos é entregue ao laço, que a imprime. Se fosse mutável, um chamador distraído
      * poderia alterar a narração de uma decisão já tomada.
      */
