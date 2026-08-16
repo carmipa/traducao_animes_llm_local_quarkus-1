@@ -10,9 +10,11 @@ import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaExceptio
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * PROPÓSITO DE NEGÓCIO: o portão único por onde passa TODA proposta de correção antes de substituir
@@ -214,7 +216,49 @@ public class GuardaCorrecaoSegura {
                 return true;
             }
         }
-        return false;
+        return !colarPalavrasIguais(traducaoAtual).containsAll(colarPalavrasIguais(candidata));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as palavras que a fala cola em si mesmas — {@code "Pare, pare!"} —,
+     * para a checagem anterior enxergar também o que o piso de {@value #PISO_PALAVRA_LONGA} letras
+     * deixa passar.
+     *
+     * <h2>Por que precisa existir, e por que só na forma ADJACENTE</h2>
+     * O piso de 4 letras não é folga: é o que impede a guarda de barrar a correção mais comum desta
+     * ferramenta. Uma correção de pronome legitimamente acrescenta o sujeito —
+     * {@code "Ele disse que viria"} → {@code "Ele disse que ele viria"} —, e {@code ele} passaria de
+     * 1 para 2. Baixar o piso reprovaria exatamente o trabalho que a 3.1 existe para fazer.
+     *
+     * <p>A adjacência não tem esse problema: pronome acrescentado nunca cola no anterior. E o furo é
+     * real, não hipotético — na 2ª rodada o mistral-nemo devolveu
+     * {@code "Provavelmente, provavelmente pensa…"}, adjacente; só não escapou porque a palavra é
+     * longa. Com palavra curta escaparia.
+     *
+     * <p>MEDIDO no 86 (2026-08-16): <b>57 das 7.022</b> falas de diálogo (0,81%) já colam palavras
+     * iguais, e TODAS legítimas — {@code "Sim, sim."}, {@code "Certo, certo."},
+     * {@code "Manhã! Manhã!"}, {@code "Buá! Buá!"}. Elas passam porque a comparação é do que a
+     * PROPOSTA acrescenta: o que já estava colado na fala atual continua permitido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem texto visível devolve conjunto vazio, e
+     * conjunto vazio nunca acusa — {@code containsAll(vazio)} é sempre verdadeiro.
+     */
+    private Set<String> colarPalavrasIguais(String texto) {
+        Set<String> coladas = new HashSet<>();
+        if (texto == null) {
+            return coladas;
+        }
+        String visivel = protecaoAss.textoVisivel(texto);
+        if (visivel == null || visivel.isBlank()) {
+            return coladas;
+        }
+        String[] palavras = visivel.toLowerCase(Locale.ROOT).split("[^\\p{L}]+");
+        for (int i = 1; i < palavras.length; i++) {
+            if (!palavras[i].isEmpty() && palavras[i].equals(palavras[i - 1])) {
+                coladas.add(palavras[i]);
+            }
+        }
+        return coladas;
     }
 
     /**

@@ -204,6 +204,52 @@ O ep11 deu `LLM_SEM_CONTEUDO_UTILIZAVEL` nas DUAS rodadas da aya, e é a única 
 `{\i1}` no início. Mesma frase, mesma lore, mesmo modelo — o que difere é a tag. Um caso não é
 medição; se repetir em outra obra, é a cicatriz do marcador perdido voltando por outra porta.
 
+## ✅ RITO COMPLETO APLICADO SOBRE O TRABALHO DESTA SESSÃO (16/08, ordem de Paulo)
+
+**PARTE A — refutar as próprias conclusões.**
+
+| lente | alvo | veredito |
+|---|---|---|
+| o instrumento mediu o certo? | minha edição manual nos 2 `.ass` | **sobrevive** — diff byte a byte: 1 linha alterada por arquivo, contagem de linhas e de eventos IDÊNTICAS (2841/2667 e 2024/1758) |
+| explicação mais simples? | "faltou tradução = 1 fala" | **sobrevive, e agora com prova** — os 143 `TRADUCAO_IGUAL_AO_ORIGINAL` mapeados: **143 de 143 seguem PT==EN** e são nome próprio (`Vladilena Milizé`, `Shin! Shinei Nouzen!`, `Daiya…`, `Humbert!`). Fecha o `Não comprovado` anterior |
+| que dano passou? | a guarda que EU escrevi | **DERRUBADA** — piso de 4 letras deixava `ele ele` passar |
+
+**CALIBRAÇÃO DO DESLOCAMENTO** (o mapeamento acima só vale porque o instrumento discrimina):
+
+```
+offset 0 ->  27 de 143 identicos (18,9%)     offset 2 -> 143 de 143 (100,0%)   <- o certo
+offset 1 ->  26 de 143 (18,2%)               offset 3 ->  26 de 143 (18,2%)
+```
+
+**PARTE B — revisão de design da guarda nova.**
+
+- **Adversarial:** achou o furo do piso. **FECHADO** com a regra de adjacência (`colarPalavrasIguais`),
+  e o furo não era hipótese: na 2ª rodada o mistral devolveu `"Provavelmente, provavelmente pensa…"`,
+  adjacente — só não escapou porque a palavra é longa.
+- **Boa-fé:** baixar o piso reprovaria a correção que a 3.1 MAIS faz — acrescentar pronome
+  (`"Ele disse que viria"` → `"…que ele viria"`, `ele` de 1 para 2). Por isso a régua exige
+  ADJACÊNCIA em vez de piso menor, e há teste dedicado (`pronomeAcrescentadoLongeDoOutroNaoBarra…`).
+  Medido: 57 das 7.022 falas (0,81%) já colam palavras iguais, **todas legítimas** (`Sim, sim.`,
+  `Certo, certo.`, `Manhã! Manhã!`, `Buá! Buá!`) — e passam, porque a comparação é do que a proposta
+  ACRESCENTA.
+- **Falha operacional:** eu introduzi chamada nova a `protecaoAss.textoVisivel` num método cujo
+  contrato diz "nunca lança". Conferido em `ProtecaoLegendaAssService:178-188`: trata `null`, só faz
+  `replaceAll`/`replace`/`strip`, sem caminho de exceção. **Invariante intacta.**
+
+```
+MUTACAO da regra de adjacencia (isolada, `false &&`) ... 10 tests, 1 failed
+   reprovou SO propostaQueColaPalavraCurtaRepetidaEhRejeitada
+suite completa --rerun-tasks ..... 1.842 testes, 0 falhas, 25 pulados, 318 classes
+FLUXO REAL depois da mudanca ..... 2 detectados, 0 gravados, 0 arquivos alterados (sem regressao)
+```
+
+## 🟡 O QUE O RITO NÃO CONSEGUIU MEDIR — lacuna conhecida, não silenciosa
+
+O **falso positivo da guarda nova** não tem como ser medido no acervo: ela julga PROPOSTAS, e não
+existe corpus de propostas históricas — só as 4 de hoje. O que foi medido é o proxy (repetição
+legítima já existente nas falas, que a régua comparativa protege por construção). Para virar
+medição de verdade seria preciso registrar as propostas recusadas ao longo do uso.
+
 ## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
 1. Levar o motivo específico da recusa para o `DetalheRevisao` (gap 🟡 do rótulo genérico).
