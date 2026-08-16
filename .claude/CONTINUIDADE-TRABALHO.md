@@ -2,6 +2,646 @@
 
 ---
 
+# ⏸ 2026-08-16 — 3.1 REVISÃO DE LEGENDAS RODADA NO 86 (sessão `335d5be0`, portão rc=0)
+
+TAREFA ORIGINAL: Paulo, 16/08 — *"nessa sessão só mexeremos com revisão legendas 3.1"*, com o
+                 objetivo declarado de *"revisão se faltou tradução do anime, não dos karaokês"*.
+                 Karaokê (4.1) fica por último, de propósito.
+BRANCH / COMMIT BASE: main — `6b9bf1e8`, ahead 4 de origin/main.
+
+## O MAPA DO MENU, conferido no `index.html` (armadilha de nome — não repetir o engano)
+
+```
+3.1 Revisão de Legendas      -> raspagemRevisao      TEM veto absoluto de música
+3.3 Revisão de Concordância  -> revisaoConcordancia  NÃO tem veto de música
+```
+E dentro da PRÓPRIA 3.1 há dois botões: `/api/revisar-legendas` (Google) e
+`/api/revisar-legendas-concordancia` (LLM). O segundo tem nome quase igual ao da 3.3 e **não é**
+a 3.3. Escolher por semelhança de nome leva ao módulo errado.
+
+## O VETO DE MÚSICA DA 3.1 — perguntado à produção, não lido
+
+`jshell` sobre `build/classes/java/main`, `PadraoEstiloMusical.nomeDeclaraMusica`:
+```
+Opening -> true   Ending -> true   Song JP -> true      <- vetados em FiltroAuditoriaLinha:117
+Default -> false  Default - Alt -> false                <- auditados  (controle negativo)
+Signs   -> false  (cai no veto de "sign", linha 128)
+OPL2    -> false  <- confirma a lacuna já conhecida da regex; o 86 não tem esse estilo
+```
+Por isso os 85,1% / 93,0% de eventos musicais do 86 **não chegam** na 3.1. Aquele número é da
+3.3, e só dela.
+
+## FECHADO COM ARTEFATO — 4 passadas, 23 episódios
+
+```
+                        auditadas  detectados  corrigidas  pendentes  arquivos alterados
+Part 1  LLM  16:29:51      3.469        4           4          0            4
+Part 1  Google 16:39:06    3.469        1           0          1            0
+Part 2  LLM  16:39:53      3.552        0           0          0            0
+Part 2  Google 16:40:1x    3.552        0           0          0            0
+```
+Relatórios em `relatorios/traducao_ptbr/`. Backup da única passada que escreveu:
+`backups/revisao-legendas/revisao_20260816_162939_318` (4 arquivos).
+
+**O teto que eu previ antes de rodar bateu com a produção:** 3.469 (previsto 3.469) e
+3.552 (previsto 3.553).
+
+## RESPOSTA À PERGUNTA DO PAULO — "faltou tradução do anime?"
+
+Do log de `falas-nao-traduzidas` da tradução de hoje (08:09→08:48), SÓ os arquivos de hoje:
+```
+78.321 registros | 78.173 PRESERVADA_POR_REGRA (99,81%, veto de música/karaokê intencional)
+                 |    143 TRADUCAO_IGUAL_AO_ORIGINAL |  5 PENDENTE
+```
+**Praticamente não faltou.** Em 23 episódios, UMA fala de diálogo estava em inglês cru, e a 3.1
+a recuperou:
+```
+ep06 evento 62   EN     : She'll greet you with, "And a fine morning to you!"
+                 ANTES  : (idêntico ao inglês)
+                 DEPOIS : Ela lhe dará as boas-vindas com um "Bom dia para você!"
+```
+
+## 🔴 DANO QUE A PASSADA LLM CAUSOU — 2 linhas, e NENHUMA opção do menu enxerga
+
+```
+EN     : It probably just thinks that he's a good bed.
+ANTES  : Provavelmente, ele apenas pensa que ela é uma boa cama.      <- gênero trocado
+DEPOIS : Provavelmente, ela provavelmente pensa que ele é uma boa cama.   (ep03 evento 271)
+DEPOIS : {\i1}Provavelmente ele provavelmente pensa que é uma boa cama.   (ep11 evento 222)
+```
+O detector estava CERTO (o original diz `he`, a tradução dizia `ela`). A `GuardaCorrecaoSegura`
+mede concordância e **não mede regressão de fluência**, então aceitou a proposta que acerta o
+gênero e dobra o advérbio.
+
+MEDIDO: a passada Google reauditou as MESMAS 3.469 falas depois disso e **não tocou nas duas**
+(0 arquivos alterados). Varrida a base inteira por detector de repetição: só existe
+`DetectorTraducaoIdenticaService.PADRAO_GAGUEIRA_NOME`, que NORMALIZA gagueira de nome para
+comparar ("Sh-Shin"), não corrige advérbio dobrado. **Não há opção de menu que repare isso.**
+
+## 🔴 GAP NOVO — pendência sem detalhe é saída vazia ambígua (regra 12)
+
+`revisao_legendas_20260816_163906.txt`: `Problemas detectados: 1 · Falas pendentes: 1` e
+`DETALHES POR OCORRÊNCIA: Nenhuma ocorrência detalhada registrada.` O operador não tem como
+saber QUAL fala. Causa provável, por leitura: `CadeiaCorrecaoFala:187` só cria `DetalheRevisao`
+quando `recusada.codigo() != null` — recusa sem código vira pendência invisível. NÃO comprovado
+(não isolei a fala).
+
+## ERRO MEU, CORRIGIDO E COM A CAUSA ACHADA
+
+Tentei apontar as falas pelo índice do log `falas-nao-traduzidas` e mostrei linhas erradas. O
+relatório oficial deu a causa: **deslocamento constante de 2** (log `Evento: 62` = 60º evento
+`Dialogue:` do arquivo). Os números 143/5 são da produção e valem; a lista de exemplos que
+publiquei no chat, não.
+
+## ✅ O MENU RODADO DE NOVO PIOROU — e por isso a correção foi para o MECANISMO
+
+Ordem de Paulo: *"para isso temos as opções de menu do sistema para serem usadas"* e *"nesse caso
+é legenda então acho que isso vale a pena em 3.1"*. Testado antes de aceitar: 2ª passada LLM na
+Part 1 (16:45), o detector acusou a MESMA fala (o `ela` ainda estava lá) e a via "consertou"
+**apagando o sujeito** — `"Provavelmente, provavelmente pensa que ele é uma boa cama."`
+**A opção de menu não é idempotente nesta classe: degrada a cada rodada.**
+
+ep03 e ep11 **restaurados** do backup `revisao_20260816_162939_318`. O estado degradado ficou em
+`%TEMP%\claude\...\335d5be0...\scratchpad\estado-degradado` para auditoria. Mantidos: o ganho do
+ep06 (resíduo inglês traduzido) e a troca do ep02 (`filho da puta`→`seu merda`, escolha de texto).
+
+## ✅ SEXTA PERGUNTA DO PORTÃO — `GuardaCorrecaoSegura` (árvore suja, NADA commitado)
+
+A régua é **COMPARATIVA**, e a medição é a razão: 197 das 7.022 falas de diálogo do 86 (**2,81%**)
+já repetem palavra longa — `Pare, pare!`, `Certo, certo.`, `unidades … unidades`. Régua absoluta
+reprovaria as 197, e guarda que reprova texto correto ensina a desligar a guarda. Só conta o que a
+PROPOSTA acrescenta; piso de 4 letras exclui repetição gramatical (`que`, `de`, `ela`).
+
+Reusa `protecaoAss.textoVisivel` em vez de regex nova — a catraca de regra duplicada entre fatias
+não se mexeu.
+
+```
+gradlew test --tests *GuardaCorrecaoSeguraTest* --rerun-tasks ... rc=0
+MUTACAO (regra desligada com `false &&`) ................. 8 tests, 1 failed
+   reprovou SO propostaQueDobraAdverbioEhRejeitadaEAvisaOperador
+   o contra-teste repeticaoQueJaExistiaNaFalaNaoBarraACorrecao seguiu VERDE
+   -> a guarda VE o defeito e NAO e alarme falso
+suite completa --rerun-tasks ...... 1.840 testes, 0 falhas, 25 pulados, 318 classes
+```
+
+## ✅ PROVADO NO FLUXO REAL — 3.1 rodada com a guarda nova (16:57, relatório `...165702`)
+
+O LLM propôs **exatamente o mesmo texto ruim** e o portão recusou os dois:
+
+```
+Problemas detectados: 2 | Corrigidas via LLM: 0 | Pendentes: 2
+ep03 ev.271  LLM_REJEITADO_SEM_MELHORIA   proposta: "Provavelmente, ela provavelmente pensa..."
+ep11 ev.222  LLM_REJEITADO_SEM_MELHORIA   proposta: "{\i1}Provavelmente ele provavelmente pensa..."
+arquivos alterados: 0 | backups novos: 0 | as 2 falas intactas no .ass
+```
+
+O ciclo que degradava a cada rodada **parou**: a fala fica PENDENTE e visível no relatório, com a
+proposta registrada para o operador julgar, em vez de ser gravada.
+
+## 🟡 GAP MENOR, declarado
+
+O relatório rotula a recusa como `LLM_REJEITADO_SEM_MELHORIA` e imprime o diagnóstico genérico
+"resposta LLM inválida ou sem melhoria". O motivo específico ("repete uma palavra que a fala não
+repetia") sai no CONSOLE, via `avisosAoOperador`, e não entra no `DetalheRevisao`. Quem ler só o
+arquivo de relatório não sabe qual das seis perguntas barrou.
+
+## ✅ MODELO: aya-expanse-8b É MELHOR QUE mistral-nemo NESTA PASSADA (medido, 16/08)
+
+Paulo trocou o modelo. Comparação nas MESMAS 2 falas, mesmo ponto de partida:
+
+```
+                mistral-nemo                              aya-expanse-8b
+ep03  "…ela provavelmente pensa que ele…"  RECUSADA   "…ela apenas pensa que é…"  APROVADA
+ep11  "…ele provavelmente pensa que é…"    RECUSADA   LLM_SEM_CONTEUDO_UTILIZAVEL (pendente honesta)
+```
+
+Dois motivos, e o segundo importa tanto quanto o primeiro: a aya não dobra advérbio, **e quando
+não consegue ela declara** em vez de devolver frase estragada. O mistral produziu lixo confiante
+nas duas.
+
+**ALCANCE DO TESTE, declarado:** o modelo NÃO muda o que é detectado — a detecção é determinística
+(`AuditorProblemasLegendaService`). Ele muda só a PROPOSTA. Por isso a Part 2 segue em zero e não
+precisa de nova rodada, e a comparação vale para estas 2 falas, não para o acervo.
+
+**ARMADILHA DE MEDIÇÃO PAGA NESTA SESSÃO:** `/v1/models` lista o CATÁLOGO baixado (5 ids), não o
+que está em memória. Quem confere estado real é `/api/v0/models` (campo `state`). Eu afirmei
+"cinco modelos carregados" e era UM. O próprio `LlmClientAdapter:96-99` já documenta a diferença.
+E `escolherEntreCarregados:191` cai em `carregados.get(0)` porque o configurado é `"current"` e não
+casa com id nenhum — **trocar de modelo exige DESCARREGAR o anterior**, não só subir outro.
+
+## ✅ TEXTO FINAL DAS 2 FALAS — escrito por decisão de Paulo (16/08, "sim")
+
+```
+ep03  Provavelmente ela só acha que ele é uma boa cama.
+ep11  {\i1}Provavelmente ela só acha que ele é uma boa cama.
+```
+
+Edição direta no `.ass` porque **nenhuma opção do menu escreve texto de autor** — o menu propõe e
+julga, não redige. Feita com troca de ocorrência ÚNICA conferida (`1 ocorrência` em cada arquivo,
+abortaria se fosse diferente), BOM UTF-8 e CRLF preservados, tag `{\i1}` intacta. Cópia do estado
+anterior em `%TEMP%\claude\…\scratchpad\antes-texto-paulo`.
+
+**VALIDAÇÃO INDEPENDENTE:** rodada a 3.1 de novo depois da edição, a aya devolveu
+`LLM_SEM_ALTERACAO` no ep03 — *"o modelo respondeu, mas manteve a tradução atual"*, propondo texto
+IDÊNTICO ao escrito. Um modelo independente não achou o que mudar.
+
+## 🟡 FALSO POSITIVO DE CLASSE CONHECIDA — não perseguir
+
+As 2 falas **continuam sendo detectadas** e sempre serão:
+
+```
+Problemas: Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'
+```
+
+O inglês diz `It … he` sobre um animal; o português exige gênero, e a gata é `ela`. A regra do
+auditor não tem como saber o gênero do bicho em PT. É **falso positivo estrutural de EN→PT**, não
+defeito da legenda — e o desfecho é o correto: fala preservada, pendência visível. Um dos dois
+motivos anteriores sumiu com o texto novo (eram 2, ficou 1).
+
+## 🟡 PADRÃO A OBSERVAR, sem ação
+
+O ep11 deu `LLM_SEM_CONTEUDO_UTILIZAVEL` nas DUAS rodadas da aya, e é a única das duas que tem
+`{\i1}` no início. Mesma frase, mesma lore, mesmo modelo — o que difere é a tag. Um caso não é
+medição; se repetir em outra obra, é a cicatriz do marcador perdido voltando por outra porta.
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+1. Levar o motivo específico da recusa para o `DetalheRevisao` (gap 🟡 do rótulo genérico).
+2. Fechar o gap da pendência sem detalhe (`CadeiaCorrecaoFala:187`) — frente própria.
+3. Só então **4.1 Tradução de Karaokê**, que é terminal e gera a pasta irmã final. Com a aya
+   carregada, e não o mistral.
+
+## NÃO REPETIR
+
+- Não mapear fala pelo índice do `falas-nao-traduzidas` sem descontar o deslocamento de 2 —
+  e sem conferir contra o relatório oficial da revisão.
+- Não medir estilo musical com regex própria: perguntar a `PadraoEstiloMusical` via `jshell`
+  sobre `build/classes/java/main`. Minha regex concordou por acaso neste acervo.
+- A pasta `logs/falas-nao-traduzidas/86 Part 1` tem 23 arquivos para 11 episódios: 12 são de
+  14/08, quando os eps da Part 2 moravam na pasta da Part 1. Filtrar por data, sempre.
+
+---
+
+> **DUAS SESSÕES EM PARALELO em 2026-08-15.** Paulo dividiu o trabalho: uma sessão só na
+> **Tradução Local** (esta seção) e outra só no **Karaokê** (as seções abaixo). Consequências
+> operacionais medidas: o comprovante `~/.claude/LEITURA-REGRA-ATUAL.md` é ARQUIVO ÚNICO e as
+> duas sessões se sobrescrevem (aconteceu 3×); a árvore de trabalho é compartilhada e o
+> `:compileJava` chegou a reprovar por edição em curso da outra frente. Commitar SÓ os
+> próprios arquivos, nominalmente.
+
+---
+
+# ✅ FECHADO (2026-08-15) — aviso sonoro de fim de lote na Tradução Local
+
+TAREFA ORIGINAL: "ao fim da tradução nesse menu, forçar o computador a dar um alerta sonoro
+                 que toca 3x" (Paulo, 15/08). Inspiração declarada: o som de fim de tarefa do
+                 Antigravity — *"mas aqui estamos no VS Code"*, e foi essa frase que definiu o
+                 desenho.
+COMMIT: `79531dc0` (5 arquivos, nada da outra frente junto). Suíte 1811/0 falhas/305 classes.
+
+## O desenho, e o que ele RECUSA
+
+Máquina primeiro (`AvisoSonoroSistema`, PowerShell `[console]::beep`, três estados), navegador
+como SEGUNDA VIA — o veredito do som viaja no corpo do evento (`<desfecho>|<TOCOU|...>`) para a
+tela não tocar por cima. Beep de navegador sozinho não serve a quem fechou o navegador e foi
+programar: depende de aba aberta, autoplay liberado e aba fora do mudo.
+
+Duas alternativas recusadas, com o motivo:
+- **casar a string do banner** `[CONCLUÍDO] TRADUÇÃO LOCAL VIA LLM` — rótulo é apresentação;
+  trocar a palavra emudeceria o aviso sem quebrar nada visível;
+- **tocar só no sucesso** — o corpo do job tem QUATRO returns antecipados e são os piores
+  casos: morre em 2s e quem saiu de perto espera horas. O aviso mora no `finally`.
+
+## FECHADO COM ARTEFATO
+
+```
+beep real (o mesmo comando que o Java monta) .... exit=0, 2,80s, AUDÍVEL (Paulo confirmou)
+AvisoFimDeLoteTest ............................. tests=1 failures=0
+MUTAÇÃO (publicar só no sucesso) ............... 1 test, 1 failed  <- a guarda VÊ o defeito
+suíte --rerun-tasks ............................ 1811 testes, 0 falhas, 25 pulados, 305 classes
+FLUXO REAL, app no ar, pasta vazia de propósito:
+  06:43:01.844 [traducao]            Nenhum arquivo de legenda encontrado   <- saída antecipada
+  06:43:03.450 [traducao-finalizada] ENCERRADO SEM RELATÓRIO|TOCOU
+  06:43:03.457 [traducao]            [RELATÓRIO FINAL] Tempo total: 1,6s
+```
+
+Os DOIS caminhos antecipados estão provados por instrumentos diferentes: LLM offline no teste
+unitário, zero arquivos no fluxo real (o LLM estava ONLINE nessa execução).
+
+## NÃO COMPROVADO
+
+- **A tela**: o evento saiu, mas o toast e a linha de console não foram vistos no navegador
+  (Playwright fora do ar nesta sessão). O beep da máquina não depende disso.
+- **O caminho `CONCLUÍDO`**: só se prova na primeira tradução de verdade que terminar bem.
+
+## GAPS DECLARADOS (nenhum corrigido, todos conhecidos)
+
+- 🔴 JVM morta no meio (live-reload, kill) não roda o `finally`: sem aviso. Sem correção
+  possível de dentro do processo.
+- 🟡 Em contêiner Linux não há som na máquina; o navegador assume — e se ele também estiver
+  fechado, ninguém avisa.
+- 🟡 `TOCOU` significa "o comando rodou", não "foi ouvido". Máquina sem dispositivo de áudio
+  daria exit 0 e a tela suprimiria o beep dela.
+- 🟡 Três toques IGUAIS no sucesso e na falha: quem ouve de longe assume que deu certo. A tela
+  distingue, o som não. Decisão de produto pendente de Paulo (toque grave para falha?).
+- 🟡 Duplo clique em Traduzir enfileira dois lotes → dois avisos. Defeito pré-existente; o que
+  mudou é que agora ele é audível.
+- FORA DE ESCOPO: a tela **2.2 Tradução sem Lore** recebe o evento e ainda não o escuta. O
+  backend já publica para ela; falta só o ouvinte no `traducaoSemLore.js`.
+
+## ARMADILHAS DE INSTRUMENTO DESTA SESSÃO (não repetir)
+
+- **`curl` por Git Bash mangla caminho do Windows.** O POST com `C:\...` chegava com o JSON
+  corrompido e a rota devolvia **400 com corpo VAZIO e sem exceção no log** — que parece
+  defeito da aplicação e é do instrumento. O que denunciou foi a mensagem de recusa mostrando
+  `C:\nao-existe-xyz` com o `\n` virado quebra de linha real. Usar `Invoke-RestMethod` do
+  PowerShell para qualquer POST com caminho.
+- **`app.js` é carregado SEM `?v=`**, de propósito (`index.html:2114` — `?v=` ali duplicaria o
+  orquestrador e os listeners). Depois de alterar `app.js`, só **Ctrl+Shift+R** traz a versão
+  nova; e como o import versionado do módulo mora DENTRO do `app.js`, um `app.js` em cache
+  também esconde o `?v=` novo dos módulos.
+
+---
+
+# 🔴 ORDEM DE PAULO (2026-08-15) — TODAS AS LORES EM UM ARQUIVO ÚNICO
+
+*"todas as lores devem ficar em um unico arquivo!"*
+
+**Isto SUBSTITUI a FASE 1 entrada a entrada abaixo.** Com arquivo único os dois catálogos
+colapsam **por construção** — as 16 obras que faltavam unificar deixam de ser trabalho.
+
+## O que foi MEDIDO antes de propor forma
+
+```
+162 arquivos · 11.369 linhas · 596 KB      (82 tradução + 80 revisão)
+lógica condicional ................ ZERO   -> a lore é DADO, não comportamento
+   (única exceção: 5 filmes do Reconguista reusam termosProtegidos da série — também é dado)
+Javadoc de método ................. 3.285 linhas -> some (os métodos viram 2 classes genéricas)
+comentário INLINE (cicatriz) ......   477 linhas -> TEM de sobreviver
+   89% em 8 arquivos: CorrecoesTerminologiaGundamUc 97 · Contexto86 56 · 08thMSTeam 50 ·
+   Unicorn 50 · Zeta 38 · GundamZz 29 · CharsCounterattack 27 · F91 27
+```
+
+**FORMATO: YAML.** A razão é a cicatriz — YAML aceita comentário, JSON não. Em JSON as 477
+linhas morreriam ou virariam campo de texto morto. SnakeYAML 2.6 **já está no classpath** por
+`quarkus-config-yaml`; não entra dependência nova.
+
+## FASES (escopo FECHADO)
+
+- **✅ FASE A — FEITA, commit `00a1539b`.** Congelar os 3 campos que nenhuma guarda cobria.
+- **FASE B — gerar o YAML A PARTIR dos provedores reais** (nunca digitado), com os DOIS mapas
+  de terminologia lado a lado (`correcoesTraducao` / `correcoesRevisao`), e migrar as 477
+  linhas de cicatriz como comentário.
+- **FASE C — 2 classes genéricas** que leem o arquivo e produzem os 69+69 provedores por CDI.
+- **FASE D — apagar as 162 classes**, com as guardas verdes provando equivalência.
+- **FASE E — unificar os dois mapas DENTRO do arquivo** (aí sim a decisão de terminologia).
+- **FASE F — `lore` vira PACOTE IRMÃO de primeiro nível** (Paulo, 15/08): *"o certo era ele se
+  tornar um pacote irmão e ser aproveitado por todos"* + *"ao invés de `revisaoLore` ele passaria
+  a se chamar `lore`, e o `revisaoLore` continua como função interna à parte"*.
+
+  ```
+  org.traducao.projeto.lore          PACOTE IRMÃO — toda a lore, consumida por todos
+  org.traducao.projeto.revisaoLore   FATIA — só a FUNÇÃO de revisão (25 arquivos)
+  org.traducao.projeto.contexto      12 de maquinaria, absorvidos por `lore`
+  ```
+
+  O achado que simplifica: **o irmão já existe em função, só não no nome.**
+  `contexto` = 94 arquivos (82 lore + 12 maquinaria) · `revisaoLore` = 105 (80 lore + 25 função).
+  Os dois devolvem o dado e ficam com a função. Renomear toca import de **26 consumidores** e as
+  regras ArchUnit — por isso vai **depois** de D e E, quando as 162 classes já não existirem e o
+  diff for pequeno.
+
+  Registrado no vault: [[decisoes/2026-08-15-lore-arquivo-unico-e-fonte-unica]] (commit `4bfad03`).
+
+**POR QUE B E E SÃO SEPARADAS, e não fazer as duas de uma vez:** a FASE B tem de ser MOVE PURO
+— só assim as guardas provam "nada mudou". Unir os mapas no mesmo passo é uma MUDANÇA, e aí
+uma falha não distingue "o move quebrou" de "a união quebrou". É o mesmo motivo pelo qual a
+E7a moveu o peer com gate de hash antes de tocar em conteúdo.
+
+## AS TRÊS REDES QUE JÁ EXISTEM E ESTÃO CALIBRADAS
+
+```
+manifesto-lore.properties ......... prompt + nome + termosProtegidos (hash por obra)
+baseline-terminologia-lore.tsv .... 4.104 entradas de terminologia      (78f41df0)
+baseline-campos-lore.tsv .......... 108 linhas: apelido, par, visibilidade (00a1539b)
+```
+Um arquivo único que passe nas TRÊS provou que não mexeu em nada. **Não reescrever nenhum dos
+dois `.tsv` durante as fases** — eles continuarem verdes *é* a prova.
+
+## RISCO RESIDUAL DECLARADO
+
+Arquivo de ~10 mil linhas é ímã de conflito entre as duas sessões que trabalham nesta árvore.
+Não muda a decisão; quem editar tem de fazê-lo por obra, nunca em bloco.
+
+## ✅ FASES B e C — FEITAS, commit `80669af8` (pushado)
+
+```
+src/main/resources/lore/lore-traducao.yaml ... 69 obras · 8.923 linhas · 523.476 bytes
+GeradorLoreYamlIT ..... gera dos provedores REAIS e prova IDA E VOLTA (aborta sem escrever)
+CatalogoLoreYaml ...... leitor, falha FECHADA, 4 fixtures doentes versionadas
+EquivalenciaLoreYamlIT  69/69 obras × 7 campos == classes Java  <- É O PORTÃO DA FASE D
+   calibrado: nome/prompt/entrada alterados => rc=1 apontando obra e campo; real => rc=0
+suíte --rerun-tasks ... 1.824 testes, 0 falhas, 25 pulados, 315 classes
+```
+
+A catraca `FronteiraContextoArchTest` **reprovou a classe nova antes do commit** (congelamento
+nominal de `contexto.infrastructure`). Não é alarme falso — `CatalogoLoreYaml` entrou na lista
+de propósito, com o motivo escrito no teste.
+
+## 🔴 RISCO QUE EU CRIEI, e a guarda que ele exige ANTES da próxima etapa
+
+O YAML é **gerado**, e as 477 linhas de cicatriz vão ser escritas **à mão** dentro dele. Quem
+rodar o gerador e copiar por cima **apaga todas** — e o arquivo continuaria passando em TODAS
+as guardas de hoje, porque nenhuma delas olha comentário. Seria perda silenciosa da parte mais
+valiosa da lore.
+
+**Antes de migrar a primeira cicatriz:** guarda que conta as linhas de comentário do
+`lore-traducao.yaml` com **linha de base como catraca** (só sobe). Arquivo regenerado, sem
+comentário, tem de REPROVAR. Sem ela a migração é trabalho que qualquer `Copy-Item` distraído
+desfaz.
+
+## ⚠️ ORDEM OBRIGATÓRIA DAS DUAS ÚLTIMAS FASES
+
+**A cicatriz migra ANTES de a FASE D apagar as classes.** Se apagar primeiro, as 477 linhas
+saem da árvore viva e passam a existir só no histórico do git — que é onde ninguém lê antes de
+mexer numa lore. É a regra 4 (olhar antes de destruir) aplicada ao que não é código.
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+1. **Guarda de comentário** do `lore-traducao.yaml`, catraca com linha de base, calibrada
+   contra o arquivo regenerado (que tem ZERO comentário e tem de reprovar).
+2. **Migrar a cicatriz**, obra a obra, começando pelos 8 que são 89% dela:
+   `CorrecoesTerminologiaGundamUc` 97 · `Contexto86` 56 · `ContextoGundam08thMSTeam` 50 ·
+   `ContextoGundamUnicorn` 50 · `ContextoGundamZeta` 38 · `CorrecoesTerminologiaGundamZz` 29 ·
+   `ContextoCharsCounterattack` 27 · `ContextoGundamF91` 27.
+3. **FASE D:** trocar `ContextoBeansConfig` para produzir de `CatalogoLoreYaml` e apagar as 82
+   classes, com `EquivalenciaLoreYamlIT` verde antes e as três redes verdes depois.
+4. **FASE E:** a revisão (80 arquivos) entra no mesmo arquivo, e aí os dois mapas se unem.
+
+---
+
+# 🆕 FRENTE ABERTA PARA SESSÃO PRÓPRIA — fonte única de terminologia de lore
+
+Paulo decidiu em 2026-08-15, com estas palavras: *"a lore tem de ser compartilhada, é a única
+exceção. Se não, temos problemas que não valem a pena."* E pediu que esta frente rode em
+**assistente novo**, separada da Tradução Local e do Karaokê. O que segue é tudo o que ela
+precisa para começar sem repetir medição.
+
+## O QUE JÁ ESTÁ MEDIDO (não remedir — os harnesses estão commitados em `2bba92a7`)
+
+```
+MedicaoDivergenciaEntreCatalogosDeLoreIT
+  68 obras nos DOIS catalogos | 17 divergentes (25%)
+  18 entradas so na TRADUCAO | 69 so na REVISAO | ZERO conflito
+  -> unificar e UNIAO, nao arbitragem
+
+MedicaoTermoDeLorePerdidoIT
+  100.220 pares | 1.547 termos de lore ausentes na traducao (1,54%)
+  Zeta 3,31% (pior) | 86 0,62% | A.E.U.G. 209 · Mobile Suit 226 · Freya Familia 69
+```
+
+## OS TRÊS FATOS QUE DISPENSAM REABRIR A DISCUSSÃO ARQUITETURAL
+
+1. **Não precisa de brecha.** `contexto` é PEER; fatia → peer é a seta legal do modelo. SEIS
+   fatias já consomem esse peer (traducao, traducaoKaraoke, traducaoCorrige, raspagemRevisao,
+   raspagemCorrecao, correcaoLegendas). `revisaoLore` é a única que não.
+2. **A guarda não proíbe.** `FronteiraTraducaoArchTest:830-852` bloqueia lista NOMINAL —
+   `LlmPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsLlm/LlmClientAdapter/GerenciadorContexto`.
+   `ProvedorContexto`, o contrato público do peer, NÃO está nela.
+3. **A regra de arquitetura já previa.** O princípio raiz é "duplicação consciente >
+   acoplamento", com exceção explícita para *"invariantes onde divergir é bug, não evolução"*.
+   Lore é isso: `Spearhead` é `Spearhead` nos dois lados.
+
+## PLANO MESTRE (escopo FECHADO — não ampliar durante a execução)
+
+- **✅ FASE 0 — FECHADA COM ARTEFATO em 2026-08-15, commit `78f41df0`** (sessão
+  `a1057386`, portão rc=0). Congelou, por obra, o mapa efetivo dos dois lados.
+- **FASE 1 — união.** As 69 da revisão + as 18 da tradução passam a viver no peer `contexto`.
+  Zero conflito a arbitrar.
+- **FASE 2 — revisão lê do peer.** `ProvedorPromptRevisaoLore.correcoesTerminologia()` deixa de
+  ter implementação própria e delega por id. Os 68 arquivos perdem o mapa e MANTÊM o prompt.
+- **FASE 3 — guarda.** Catraca: nenhum `ContextoRevisaoLore*` pode declarar
+  `correcoesTerminologia()`. E liberar `ProvedorContexto` nominalmente na fronteira, mantendo
+  `GerenciadorContexto` proibido — a FASE D-Lore quis separar o AGREGADOR, não o contrato.
+
+**FORA DE ESCOPO, declarado:** o PROMPT continua duplicado de propósito (revisão ≠ tradução);
+o gatilho de retentativa por termo perdido é frente própria e esta não depende dele.
+
+**RISCO RESIDUAL:** as 69 entradas novas passam a agir na tradução. Cada uma só dispara com o
+canônico presente no inglês em grafia exata, então o risco é baixo — mas "baixo" não é
+"medido", e é para isso que a FASE 0 existe.
+
+**ARMADILHA JÁ PAGA, não repetir:** `termosProtegidos()` NÃO protege — só remove o termo antes
+das checagens de resíduo. Quem restaura é `correcoesTerminologia()` via `EnforcadorTermosLore`.
+
+## ✅ FASE 0 — FECHADA COM ARTEFATO (`78f41df0`)
+
+`BaselineTerminologiaLoreIT` + `src/test/resources/contexto/baseline-terminologia-lore.tsv`.
+
+O BURACO QUE ELA FECHOU, e que ninguém tinha visto: o manifesto que já protegia as lores
+(`/contexto/manifesto-lore.properties`, de `ProtecaoConteudoLoreTest`) hasheia **id + nome +
+prompt + termosProtegidos** e **NÃO cobre `correcoesTerminologia()`** — exatamente o mapa que
+a unificação vai mexer. O congelamento não existia.
+
+```
+snapshot vivo, dos provedores REAIS pelo CDI ... 4.104 entradas
+   TRADUCAO 2.021 · REVISAO 2.083
+suíte --rerun-tasks ........... 1.819 testes, 0 falhas, 25 pulados, 311 classes
+```
+
+CALIBRAÇÃO (4 doentes reprovando + 1 são aprovando — a contra-prova importa):
+
+```
+baseline AUSENTE ............. rc=1  NÃO VERIFICADO, que não é aprovação
+entrada PERDIDA .............. rc=1
+canônico MUDOU ............... rc=1
+TRUNCADO sem mexer no total ... rc=1  <- o modo que aprovaria por cegueira
+baseline REAL ................ rc=0
+```
+
+**É CATRACA DE UM LADO SÓ, e isso decide como a FASE 1 se prova:** o baseline é subconjunto
+obrigatório do estado vivo. Acrescentar é livre (é o que a união faz); perder ou trocar
+canônico reprova. **NÃO reescrever o `.tsv` na FASE 1** — ele continuar valendo depois da
+união É a prova de que nada se perdeu. Regenerar é copiar
+`build/tmp/baseline-terminologia-lore.gerado.tsv`, que a própria execução regrava; digitar
+entrada à mão é como as duas cópias divergiram para começo de conversa.
+
+O lado da revisão é lido pelo `GerenciadorPromptRevisaoLore` (o agregador de PRODUÇÃO), não
+por coleta própria — a guarda mede o que o pipeline enxerga.
+
+## ⚠️ O NÚMERO QUE MUDA A PREMISSA DA FASE 1 (`711f7f03`)
+
+`MedicaoEfeitoDaUniaoDeLoreIT` aplicou o `EnforcadorTermosLore` REAL sobre o cache real, com
+SOMENTE o delta (o que a revisão tem e a tradução não):
+
+```
+obras com delta ...... 17   (medidas 6 · SEM ACERVO 11)
+entradas no delta .... 69   (45 delas em obra sem acervo — NÃO VERIFICADAS)
+pares lidos .......... 28.437 em 506 caches
+REESCREVERIA ......... 9 falas (0,032%), TODAS em DanMachi S5
+                       8x Freya Familia · 1x Goddess of Beauty
+86 (Eighty-Six) ...... 0 de 16.120
+```
+
+**O ganho da união NÃO é retroativo, e é ZERO justamente no 86** — a obra cujo
+`Spearhead → Esquadroe de Ponta` originou a decisão. As 4 entradas que só a revisão do 86
+conhece (`Canela`, `Jugernaut`, `Para RAID`, `Para Raid`) não ocorrem em nenhuma das 16.120
+falas já traduzidas. O valor da união está nas traduções **FUTURAS**. Isso não invalida a
+decisão do Paulo — invalida a frase "ganho imediato e medido" com que a FASE 1 foi escrita.
+
+**DECISÃO DE PRODUTO ISOLADA, do Paulo (não é bloqueio técnico):** o delta traz EPÍTETO, não só
+nome próprio. Medido na amostra:
+
+```
+"...tomada pela Deusa da Beleza e seu poder de charme"
+             -> "...tomada pela Goddess of Beauty e seu poder de charme"
+```
+
+Nome próprio é inequívoco (`Sino Cranel → Bell Cranel` — o modelo traduziu "Bell" como "sino";
+`Familia Freya → Freya Familia`; `Canela → Shin`). Epíteto em inglês no meio da frase em
+português **atrapalha ler**, que é a régua do Paulo. Candidatos a ficar de fora:
+`Deusa da Beleza`, `Deusa da Fertilidade`, `Anfitria/Anfitriã da Fertilidade`.
+
+## ✅ DECISÃO DE PAULO (15/08) — epíteto FICA DE FORA da união
+
+Só **nome próprio** entra na tradução. Epíteto continua no catálogo da REVISÃO, onde já está —
+nada se perde, e o baseline da FASE 0 prova isso continuando verde. Fora, por essa régua:
+`Deusa da Beleza`→Goddess of Beauty · `Deusa da Fertilidade`→Goddess of Fertility ·
+`Anfitria/Anfitriã da Fertilidade`→Hostess of Fertility (os quatro que ele julgou) e
+`Princesa Espadachim`→Sword Princess (**aplicação minha da régra dele, não da lista literal** —
+é epíteto de personagem, mesma família; se ele discordar, entra).
+
+## ⏳ FASE 1 — EM ANDAMENTO: 1 obra de 17 feita
+
+**FEITO: `eight_six` — commit `206c2134`.** 4 entradas (`Canela`→Shin, `Jugernaut`→Juggernaut,
+`Para RAID`/`Para Raid`→Para-RAID). Suíte 1.820/0. Baseline verde SEM reescrita.
+
+**O DELTA COMPLETO, já extraído e conferido contra o harness (69 em obras nos DOIS catálogos):**
+está em `src/test/resources/contexto/baseline-terminologia-lore.tsv` — as linhas `REVISAO` cuja
+`(obra, forma-ruim)` não tem par `TRADUCAO`.
+
+⚠️ **ARMADILHA DE INSTRUMENTO JÁ PAGA, não repetir:** ao extrair o delta do `.tsv` com tabela
+hash do PowerShell, ela é **case-insensitive por padrão** e `Para RAID` engoliu `Para Raid` —
+deu 68 onde a produção diz 69. Usar
+`[System.Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)`.
+O sinal que denunciou foi o total não bater com o harness; sem essa conferência, `Para Raid`
+teria ficado de fora em silêncio.
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA (frente da lore)
+
+**FASE 1, obra 2: `gundam_cca`.** `ContextoCharsCounterattack:105` já usa
+`CorrecoesTerminologiaGundamUc.comExtras(...)` — acrescentar ao bloco de extras:
+`Contra-ataque do Char`/`Contraataque do Char`→`Char's Counterattack`,
+`Moldura Psiquica`/`Moldura Psíquica`→`Psycho-Frame`, `Novo Gundam`→`Nu Gundam`.
+
+**Depois, as duas famílias Macross — e elas exigem um passo a mais, já diagnosticado:** as 7
+obras chamam `CorrecoesTerminologiaMacross.mapa()` e essa classe **NÃO tem `comExtras`** (só
+`mapa()`). Os deltas DIFEREM entre as famílias, então despejar tudo no mapa comum daria à
+Frontier termos do Macross 7:
+
+```
+macross_7 · _encore · _filme · dynamite_7   Energia da Cancao/Canção -> Song Energy
+                                            Protodemonios/Protodemônios/Protodevilns -> Protodeviln
+macross_frontier · _filme1 · _filme2        Falha Fold/Falha de Fold -> Fold Fault · Vajras -> Vajra
+```
+
+Criar `comExtras` em `CorrecoesTerminologiaMacross` espelhando o padrão de
+`CorrecoesTerminologiaDanMachi:56` e `CorrecoesTerminologiaGundamUc`, e ligar por obra.
+
+**Por último, DanMachi (8 obras).** Todas chamam `CorrecoesTerminologiaDanMachi.mapa()`, que
+**já tem `comExtras`** — usar por temporada, espelhando o escopo da revisão:
+`Sino Cranel`→Bell Cranel (todas as 8) · `Lilisuka`/`Liriruca`→Liliruca Arde (geral, s2, s4, s5)
+· `Haruhime Sanjono`/`Haruhime Sanjouono`→Haruhime Sanjouno (s2) · `Alienigenas`/`Alienígenas`→
+Xenos, `Andares Profundos`→Deep Floors, `Jugernaut`→Juggernaut (s4) ·
+`Familia Freya`/`Família Freya`→Freya Familia (s5) · `Ais Wallenstein`→Aiz Wallenstein (so).
+
+**FORA DA UNIÃO, declarado:** `macross_dyrl` tem 11 entradas e existe **só** no catálogo da
+revisão — não há provedor de tradução com esse id (o `manifesto-lore.properties` não o lista).
+Não é entrada perdida; é obra sem contraparte, e criar contexto de tradução para ela é frente
+própria.
+
+**CRITÉRIO DE ENCERRAMENTO CORRIGIDO:** a FASE 1 sozinha **não** zera a divergência — depois
+dela a tradução vira superconjunto e as obras continuam divergindo *no outro sentido* (entradas
+que só a tradução tem). O zero só chega na FASE 2, quando a revisão passa a ler do peer. A
+`ParidadeMapasTerminologiaTest` reprova nos dois sentidos de propósito: obra que parar de
+divergir tem de sair de `DIVERGENCIAS_DECLARADAS` no mesmo commit. Critério de fechamento da fase: `MedicaoDivergenciaEntreCatalogosDeLoreIT` sai de
+**17 obras divergentes para 0**, `BaselineTerminologiaLoreIT` segue verde SEM ser reescrito, e
+`ParidadeMapasTerminologiaTest` acusa as 17 em `DIVERGENCIAS_DECLARADAS` como "PARARAM de
+divergir" — que é a catraca registrando progresso, e cada id sai da lista no mesmo commit.
+
+ATENÇÃO PARA A FASE 1: `ParidadeMapasTerminologiaTest` reprova **nos dois sentidos** de
+propósito. Obra que deixa de divergir e continua na lista reprova. Não é regressão — é a
+catraca pedindo que o progresso seja registrado.
+
+---
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA (Tradução Local, esta sessão)
+
+⚠️ **CORRIGIDO EM 15/08 — esta ação JÁ FOI FEITA e o texto abaixo estava desatualizado.**
+Dizia que o `DicionarioOrtograficoPort` existia e que "NINGUÉM a chama". Conferido no código,
+não no documento: `CorretorOrtograficoLegenda` está injetado em
+`traducao.ProcessarArquivoUseCase:88` **e** em `traducaoKaraoke.TraduzirKaraokeUseCase:136`,
+além de `raspagemRevisao.RevisorPtOnlyService` e `qualidadeTraducao...DetectorNomeProprio
+Traduzido`. Foi ligado pelo commit `62a48c3d` ("corretor por dicionario LIGADO ao pipeline de
+traducao"). Quem ler o texto antigo refaz trabalho pronto.
+
+Texto original, preservado como registro: *"plugar o `DicionarioOrtograficoPort` no pipeline da
+Tradução Local — a porta existe, tem 5 testes e falha fechada em 3 estados, e NINGUÉM a chama.
+Antes de ligar, aplicar a correção de desenho já medida: só o `pt_BR` reprova; `en_US`/`de_DE`
+apenas ROTULAM o tipo de não-português (o `de_DE` aceitou `Resonância`, que é grafia errada).
+Prejuízo que justifica: 306 erros reais medidos no Zeta/aya e 197 acentos faltando no
+Unicorn."*
+
+**O que dela CONTINUA aberto:** a correção de desenho dos dicionários secundários — só o
+`pt_BR` deve reprovar, `en_US`/`de_DE` devem ROTULAR e não aprovar. Isso não foi verificado.
+
+Obra do dia: **86**, em `C:\animes\86` — Part 1 com 11 mkv + 11 `.ass`, Part 2 com 12 mkv +
+12 `.ass`, saída anterior apagada por Paulo de propósito. ATENÇÃO: o cache do 86 continua em
+`cache/`, então uma tradução nova vem quase toda de lá em minutos — ótimo para legenda final,
+inútil para medir modelo (aí é `permitirRetraducao`).
+
+---
+
 # ⏸ TAREFA ATIVA (2026-08-14) — marcador perdido descarta tradução boa no karaokê
 
 TAREFA ORIGINAL: auditar o tradutor de karaokê e achar por que parte da legenda do 86
@@ -299,9 +939,11 @@ voltar aos ~28 min do lote inteiro, mas isso é expectativa, não medição.
 
 ## 13/08 — ORTOGRAFIA SAIU DO LLM: o que está PRONTO e o que falta LIGAR
 
-**A porta existe, está testada e NÃO está plugada no pipeline.** Ninguém chama
-`DicionarioOrtograficoPort` ainda. É a próxima ação, e tem uma correção de desenho a aplicar
-ANTES (ver o alerta abaixo).
+⚠️ **DESATUALIZADO — corrigido em 15/08, ocorrência irmã da de cima.** Era verdade em 13/08 e
+deixou de ser em `62a48c3d`: `CorretorOrtograficoLegenda` está plugado em
+`ProcessarArquivoUseCase:88`, `TraduzirKaraokeUseCase:136`, `RevisorPtOnlyService` e
+`DetectorNomeProprioTraduzido`. Texto original: *"A porta existe, está testada e NÃO está
+plugada no pipeline. Ninguém chama `DicionarioOrtograficoPort` ainda."*
 
 | peça | onde | estado |
 |---|---|---|

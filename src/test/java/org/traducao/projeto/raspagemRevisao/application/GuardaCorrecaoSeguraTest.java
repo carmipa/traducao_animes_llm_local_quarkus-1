@@ -117,6 +117,44 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * O CASO REAL, byte a byte do relatório de 2026-08-16 (86 Part 1, ep03, evento 271). O detector
+     * acertou — o inglês diz {@code he} e a tradução dizia {@code ela} —, e a proposta do LLM
+     * conserta o gênero DOBRANDO o advérbio. Antes desta guarda a fala foi gravada assim; rodando a
+     * mesma opção de menu de novo, a via seguinte apagou o sujeito.
+     */
+    @Test
+    void propostaQueDobraAdverbioEhRejeitadaEAvisaOperador() {
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "It probably just thinks that he's a good bed.",
+            "Provavelmente, ele apenas pensa que ela é uma boa cama.",
+            "Provavelmente, ela provavelmente pensa que ele é uma boa cama.",
+            suspeitaCom("concordância de gênero"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto), "proposta que dobra o advérbio não pode entrar na legenda");
+        assertEquals(1, avisos(veredicto).size());
+        assertTrue(avisos(veredicto).get(0).contains("repete uma palavra"),
+            "o operador precisa saber POR QUE a correção foi barrada, senão parece defeito da fila");
+    }
+
+    /**
+     * O contra-teste que impede a guarda de virar alarme falso, e ele é o mais importante dos dois:
+     * repetição legítima existe em 197 das 7.022 falas de diálogo do 86 (2,81%) — {@code "Pare,
+     * pare!"}, {@code "Certo, certo."}. A régua é COMPARATIVA: repetição que a fala já tinha passa,
+     * porque a proposta não a introduziu. Uma régua absoluta reprovaria as 197.
+     */
+    @Test
+    void repeticaoQueJaExistiaNaFalaNaoBarraACorrecao() {
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "Stop, stop! He is tired.",
+            "Pare, pare! Ele está cansada.",
+            "Pare, pare! Ele está cansado.",
+            suspeitaCom("concordância de gênero"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto),
+            "a repetição já estava na fala: barrar aqui é o alarme falso que faz desligar a guarda");
+    }
+
+    /**
      * A lista de avisos é entregue ao laço, que a imprime. Se fosse mutável, um chamador distraído
      * poderia alterar a narração de uma decisão já tomada.
      */
