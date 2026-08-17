@@ -54,6 +54,21 @@ class ProvedorCorrecaoFalaMarcadoresTest {
         assertEquals("It has the color of vividly blazing flames...", llm.traducaoRecebida);
     }
 
+    /**
+     * ESTE TESTE VIROU O CONTRA-TESTE DO ESPELHO em 2026-08-16, e o papel novo merece registro
+     * porque ele pegou um defeito de desenho meu.
+     *
+     * <p>A rota do espelho ({@code ProvedorCorrecaoFala}) retraduz a linha INTEIRA a partir do
+     * inglês quando o marcador se perde. Eu a havia liberado pelo MOTIVO da auditoria, que inclui
+     * "resíduo gringo" — e resíduo aparece em fala <b>já traduzida</b>. Aqui o PT é
+     * {@code "{\i1}O piloto voltou."}, uma tradução legítima: com o portão frouxo, o espelho
+     * disparava e o modelo passava a receber {@code "The pilot returned."} em vez de
+     * {@code "[[TAG0]]O piloto voltou."} — ou seja, a tradução boa seria jogada fora para consertar
+     * uma palavra. Este teste reprovou exatamente assim.
+     *
+     * <p>O portão passou a ser a COMPARAÇÃO com o original (ideia de Paulo): o espelho só entra
+     * quando o texto visível do PT ainda é, letra por letra, o texto visível do inglês.
+     */
     @Test
     void preservaComoMarcadorSomenteATagExistenteNoPt() {
         LlmCapturador llm = executar(

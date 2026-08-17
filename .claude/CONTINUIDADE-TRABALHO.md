@@ -2,6 +2,71 @@
 
 ---
 
+# ✅ FEITO — ESPELHO DE ESTRUTURA (decisão de Paulo, 2026-08-16 noite)
+
+```
+espelho ligado em ProvedorCorrecaoFala.obterDoLlm
+   portao de entrada: o texto VISIVEL do PT ainda e, letra por letra, o do ingles
+   pedido refeito com o texto visivel do original -> nao ha marcador a perder
+   remontagem: prefixo de tags do original + traducao   (enfase inline SAI, Paulo autorizou)
+
+MUTACAO (espelho desligado) ..... 1 test failed — falaNaoTraduzidaComTagInlineSaiTraduzidaPeloEspelho
+suite completa --rerun-tasks .... 1.848 testes, 0 falhas, 25 pulados, 318 classes
+```
+
+**DEFEITO DE DESENHO MEU, pego por `ProvedorCorrecaoFalaMarcadoresTest`:** eu liberei o espelho
+pelo MOTIVO da auditoria (`exigeRetraducaoCompletaPeloLlm`), que inclui "resíduo gringo" — e
+resíduo aparece em fala JÁ TRADUZIDA. O espelho retraduz a linha inteira: jogaria fora tradução
+boa para consertar uma palavra. O portão virou a COMPARAÇÃO com o original, que é a segunda ideia
+de Paulo na mesma conversa. Aquele teste é o contra-teste, e foi VISTO reprovando na versão frouxa.
+
+🟡 **NÃO EXECUTADO:** o espelho não rodou no acervo (KRONOS fora do ar). Provado em teste e
+ponta-a-ponta com dublê. **PRÓXIMA AÇÃO:** subir o KRONOS e rodar a 3.1 no Guilty Crown — esperado:
+as 4 falas com tag inline saem traduzidas, sem itálico.
+
+---
+
+# (histórico) ESPELHO — o plano, antes de executar
+
+**IDEIA DELE, e ela ELIMINA o cache do plano:** *"e as legendas originais não existem para servir
+de espelho? o cache falha, não é uma solução muito melhor?"* — está certo, e por três motivos
+medidos:
+
+```
+cache -> 8 entradas por episodio, blobs de 6.511 a 11.315 caracteres   (por LOTE)
+.ass  -> uma linha por fala, com a estrutura de tag EXATA              (por FALA)
+e o .ass original JA esta carregado: "Legenda .ass EN: Guilty Crown - 12_Track4.ass"
+```
+
+**O DEFEITO A FECHAR** (4 falas no Guilty Crown, corrida de 22:31): fala NÃO TRADUZIDA com tag
+inline. O mascarador vira `{\i1}` em `[[TAG0]]`, o modelo não devolve o marcador, e a proposta é
+recusada com `LLM_SEM_CONTEUDO_UTILIZAVEL`; o Google devolve `TAG_CORROMPIDA`. **As duas etapas
+falham na mesma classe** — a classe que a tela existe para resolver.
+
+**DECISÃO DE PRODUTO — opção A, pela régua "legível, não perfeito":** preservar o bloco de tags
+INICIAL (posicionamento, `{\an8}` — perder isso move a legenda na tela) e **abrir mão da ênfase
+inline**. Fala em português sem itálico lê-se; fala inteira em inglês, não.
+
+```
+EN  What {\i1}is{\i0} this?!    ->    PT  O que é isso?!        (perde o italico, entrega a fala)
+EN  {\an8}I knew it...          ->    PT  {\an8}Eu sabia...     (mantem o \an8, que e posicao)
+```
+
+**POR QUE NÃO RECOLOCAR A ÊNFASE:** a palavra enfatizada muda de lugar em português; recolocar por
+posição italiciza a palavra errada. Guarda que erra em silêncio é pior que capacidade perdida.
+
+**ONDE:** `ProvedorCorrecaoFala.obterDoLlm` — quando a 1ª tentativa volta sem conteúdo utilizável
+E o motivo é retradução completa (`PoliticaRetraducao.exigeRetraducaoCompletaPeloLlm`), refazer o
+pedido com o texto VISÍVEL do original (sem marcador nenhum, então não há o que perder) e remontar
+`prefixo de tags do original + tradução`.
+
+**ESCOPO FECHADO:** só vale para fala não traduzida. Fala já traduzida com tag continua pelo
+caminho de hoje — ali a ênfase existe e não se joga fora.
+
+---
+
+---
+
 # 🔴 EM ANDAMENTO (2026-08-16, fim da sessão `335d5be0`) — SIMPLIFICAÇÃO DA 3.1
 
 DECISÃO DE PAULO: *"nesse menu temos de apenas traduzir tudo o que faltou! usando o motor de
