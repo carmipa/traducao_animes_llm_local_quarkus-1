@@ -17,7 +17,6 @@ import org.traducao.projeto.revisaoLore.infrastructure.RevisaoLoreLogPersistenci
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.telemetria.TelemetriaService;
-import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLoreLlm;
@@ -28,7 +27,6 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
-import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -71,7 +69,6 @@ public class RevisarLoreUseCase {
     // (que desloca os tempos em segundos).
     private static final long ALINHAMENTO_TOLERANCIA_MS = 500;
     private static final Pattern PADRAO_TEMPO_ASS = Pattern.compile("(\\d+):(\\d{2}):(\\d{2})[.,](\\d{2})");
-    private static final Pattern PADRAO_DESENHO_VETORIAL = Pattern.compile("\\\\p[1-9]\\d*");
     private static final Pattern PADRAO_TAG_ASS = Pattern.compile("\\{[^}]*}");
     private static final Pattern PADRAO_INVISIVEIS = Pattern.compile("[\\u200B\\u200C\\u200D\\uFEFF]");
 
@@ -85,8 +82,7 @@ public class RevisarLoreUseCase {
     private final TelemetriaService telemetriaService;
     private final RevisaoLoreLogPersistencia logPersistencia;
     private final RevisaoLoreAuditoriaCache auditoriaCache;
-    private final PoliticaEstiloMusical politicaEstiloMusical;
-    private final DetectorEfeitoKaraokeService detectorKaraoke;
+    private final AlcanceRevisaoLore alcance;
     private final ProtecaoLegendaAssService protecaoAss;
     private final CorretorLoreDeterministico corretorLore;
 
@@ -141,8 +137,7 @@ public class RevisarLoreUseCase {
         TelemetriaService telemetriaService,
         RevisaoLoreLogPersistencia logPersistencia,
         RevisaoLoreAuditoriaCache auditoriaCache,
-        PoliticaEstiloMusical politicaEstiloMusical,
-        DetectorEfeitoKaraokeService detectorKaraoke,
+        AlcanceRevisaoLore alcance,
         ProtecaoLegendaAssService protecaoAss,
         CorretorLoreDeterministico corretorLore
     ) {
@@ -156,8 +151,7 @@ public class RevisarLoreUseCase {
         this.telemetriaService = telemetriaService;
         this.logPersistencia = logPersistencia;
         this.auditoriaCache = auditoriaCache;
-        this.politicaEstiloMusical = politicaEstiloMusical;
-        this.detectorKaraoke = detectorKaraoke;
+        this.alcance = alcance;
         this.protecaoAss = protecaoAss;
         this.corretorLore = corretorLore;
     }
@@ -1047,27 +1041,20 @@ public class RevisarLoreUseCase {
         return total;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se este PAR EN/PT entra na auditoria de lore.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o alcance (música, karaokê, desenho vetorial, typesetting) é
+     * perguntado ao {@link AlcanceRevisaoLore}, que é o dono ÚNICO da resposta e serve também à
+     * aba PT-only. O julgamento é feito sobre o evento ORIGINAL — é ele que descreve o que a
+     * linha é na obra, e restyle da PT é legítimo. Ao par se exige apenas que o lado PT seja
+     * diálogo com texto, senão não há o que comparar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer campo ausente devolve {@code false} (fora do
+     * alcance), preservando a legenda.
+     */
     private boolean ehEventoAuditavelLore(EventoLegenda original, EventoLegenda traduzido) {
-        if (!original.isDialogo() || !traduzido.isDialogo()
-            || !original.temTexto() || !traduzido.temTexto()) {
-            return false;
-        }
-
-        String textoOriginal = original.texto();
-        if (politicaEstiloMusical.estiloIgnorado(original.estilo())) {
-            return false;
-        }
-        if (PADRAO_DESENHO_VETORIAL.matcher(textoOriginal).find()) {
-            return false;
-        }
-        if (protecaoAss.deveIgnorarIntervencaoIa(original.estilo(), textoOriginal)) {
-            return false;
-        }
-        if (detectorKaraoke.eEfeitoKaraoke(textoOriginal)
-            && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(original.estilo(), textoOriginal)) {
-            return false;
-        }
-        return mascarador.contemTextoTraduzivel(textoOriginal);
+        return alcance.estaNoAlcance(original) && traduzido.isDialogo() && traduzido.temTexto();
     }
 
     private static boolean mesmaFalaVisivel(String revisada, String atual) {
