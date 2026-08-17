@@ -217,7 +217,14 @@ public class CadeiaCorrecaoFala {
         boolean primeiraPediuMemoria = false;
         if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada primeira
             && modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-            avisos.add(primeira.mensagem());
+            // NÃO reusar primeira.mensagem() aqui: ela é VERMELHA, e vermelho é desfecho de falha.
+            // Numa cascata a 1ª etapa não resolver é passagem de bastão, não erro — Paulo viu a
+            // linha vermelha no console de 16/08 numa fala que o Google corrigiu logo em seguida,
+            // e ler "erro" onde houve sucesso é o alarme falso que faz desligar o alarme.
+            // O motivo continua inteiro no relatório, via DetalheRevisao logo abaixo.
+            avisos.add("     " + AnsiCores.DIM + "1ª etapa (LLM) não resolveu"
+                + (primeira.detalhe() == null ? "" : ": " + primeira.detalhe())
+                + " — passando para o Google." + AnsiCores.RESET);
             if (primeira.codigo() != null) {
                 evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
                     primeira.codigo(), auditoria.motivos(), primeira.detalhe(),

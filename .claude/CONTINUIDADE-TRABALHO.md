@@ -35,9 +35,28 @@ suite completa --rerun-tasks .... 1.851 testes, 0 falhas, 25 pulados, 318 classe
 catraca de arquitetura .......... VERDE, sem aresta nova
 ```
 
-🟡 **NÃO EXECUTADO:** não rodou no acervo. Esperado na próxima corrida do Guilty Crown: a fala do
-`Apocalypse Virus` sai traduzida, e as pendências caem de 3 para 2 (as duas de concordância, que
-são da 3.3).
+## ✅ PROVADO NO ACERVO — Guilty Crown, 23:32
+
+```
+[23:32:18] Revisão não aplicada: O LLM não devolveu uma linha final utilizável...   <- via normal falhou
+[23:32:18] PT corrigido: Dedicaremos nossos maiores esforços para erradicar o Apocalypse Virus
+```
+
+O espelho entrou, a frase saiu em português e o termo canônico **sobreviveu**. Pendências
+**3 → 2**, exatamente como previsto. As 2 restantes são de concordância — trabalho da 3.3.
+
+## O PLACAR DA NOITE NO GUILTY CROWN (23 arquivos, 5.754 falas)
+
+```
+                     detectados  corrigidas  pendentes
+inicio (22:12)           14           6          8
+depois do escopo          7           0          7
+depois do espelho         7           4          3
+depois do dicionario      3           1          2   <- so concordancia, que e da 3.3
+```
+
+**A 3.1 está fazendo exatamente o trabalho dela, e nada além dele.** É idempotente: rodar de novo
+não muda nada.
 
 ---
 
