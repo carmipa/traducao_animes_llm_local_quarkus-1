@@ -81,6 +81,52 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * FOUR MURASAME — a decisão do Paulo em 17/08: *"usa a própria regra do sistema, nada de
+     * reescrever"*.
+     *
+     * <p>O mapa de terminologia NÃO podia resolver: ele é indexado pela forma ERRADA, e a chave
+     * {@code Quatro} já pertence ao Quattro Bajeena (o Char). Dois personagens chegam ao
+     * português como a mesma palavra, e o mapa não sabe separá-los. A REGRA sabe, porque olha o
+     * inglês: se o original tem {@code Four} e a proposta não tem, a proposta é recusada e a fala
+     * fica como está.
+     *
+     * <p>Medido nos 50 ASS do Zeta: 188 falas com {@code Four} maiúsculo isolado, das quais 126
+     * já viraram {@code Quatro} no acervo. Esta regra NÃO conserta essas — reparo seria reescrita,
+     * e reescrever foi vetado. Ela impede que novas quebrem.
+     */
+    @Test
+    void propostaQueTraduzOnomeFourEhRecusada() {
+        ContextoRevisao zeta = comTermo("Four");
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "Four could be to me what that person was to Amuro.",
+            "Four could be to me what that person was to Amuro.",
+            "Quatro poderia ser para mim o que aquela pessoa foi para Amuro.",
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), zeta);
+
+        assertFalse(aprovou(veredicto), "Four Murasame é personagem, não numeral");
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.TERMO_CANONICO, motivo(veredicto));
+    }
+
+    /**
+     * O CONTRA-CASO: a MESMA fala, com o nome preservado, passa. Sem isto a entrada nova seria
+     * só um jeito de deixar tudo em inglês para sempre.
+     */
+    @Test
+    void mesmaFalaComOnomeFourPreservadoPassa() {
+        ContextoRevisao zeta = comTermo("Four");
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "Four could be to me what that person was to Amuro.",
+            "Four could be to me what that person was to Amuro.",
+            "Four poderia ser para mim o que aquela pessoa foi para Amuro.",
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), zeta);
+
+        assertTrue(aprovou(veredicto),
+            "com o nome preservado a tradução tem de entrar. Veredicto: " + veredicto);
+    }
+
+    /**
      * O EFEITO COLATERAL da correção acima, pego em PRODUÇÃO no mesmo dia: destravada a
      * tradução, o Google devolveu a fala com o {@code \N} e três tags a menos — duas linhas de
      * legenda viraram uma linha longa com itálico que nunca fecha. As cinco perguntas antigas

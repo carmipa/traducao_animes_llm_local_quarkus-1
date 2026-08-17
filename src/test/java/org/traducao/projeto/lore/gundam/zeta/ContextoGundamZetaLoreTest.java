@@ -25,11 +25,32 @@ class ContextoGundamZetaLoreTest {
         assertFalse(contexto.obterPromptSistema().contains("Dogosse Giar"));
     }
 
+    /**
+     * {@code Fa} e {@code Bright} seguem FORA: isolados colidem com palavra comum e a proteção
+     * ignora caixa.
+     *
+     * <h2>Por que FOUR saiu desta lista em 2026-08-17</h2>
+     * A regra era a mesma para os três, mas ninguém havia MEDIDO a colisão da {@code Four}.
+     * Medição nos 50 {@code .ass} do Zeta contra o espelho inglês:
+     * <ul>
+     *   <li>{@code Four} maiúsculo isolado (fora de {@code Side Four}): <b>188 falas</b>, e são
+     *       a personagem Four Murasame;</li>
+     *   <li>{@code four} minúsculo (numeral): <b>9 falas</b>, todas JÁ corretas no acervo;</li>
+     *   <li><b>126 das 188 já viraram {@code Quatro}</b> — o nome da personagem está quebrado no
+     *       acervo desde antes desta mudança.</li>
+     * </ul>
+     * 188 contra 9 inverte a conta que justificava a exclusão. Decisão do Paulo, com o número na
+     * mão: <i>"usa a própria regra do sistema, nada de reescrever"</i> — a regra RECUSA a proposta
+     * que perdeu o termo, e recusar numa das 9 significa manter o que já está certo.
+     *
+     * <p><b>Isto NÃO é catraca baixada para o código passar.</b> {@code Fa} e {@code Bright}
+     * continuam barrados e sem medição; quem quiser tirá-los da lista mede primeiro, como se fez
+     * aqui. Ver {@code FourMurasameProtegidaNoZetaTest}.
+     */
     @Test
     void naoProtegeAliasesCurtosAmbiguos() {
         Set<String> protegidos = org.traducao.projeto.lore.LoreDeTeste.obra("gundam_zeta").termosProtegidos();
 
-        assertFalse(protegidos.contains("Four"));
         assertFalse(protegidos.contains("Fa"));
         assertFalse(protegidos.contains("Bright"));
     }
