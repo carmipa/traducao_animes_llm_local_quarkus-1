@@ -2,6 +2,37 @@
 
 ---
 
+# ✅ FEITO (2026-08-16) — VETO DE MÚSICA NA 3.3, o último 🔴 da etapa 3
+
+Era o único vermelho, e é o **pré-requisito** para a 3.3 receber a concordância que a 3.1 passou a
+encaminhar. Das três telas da etapa 3, só ela não vetava música.
+
+**O PREJUÍZO MEDIDO ANTES DA GUARDA** (86, 2026-08-16): a tela via **22.568 de 26.524** eventos na
+Part 1 (85,1%) e **49.458 de 53.175** na Part 2 (93,0%) — quase tudo sílaba solta de karaokê. E ela
+mexe em GÊNERO, que é onde a heurística mais erra.
+
+`RevisarConcordanciaUseCase` passa a perguntar a `PoliticaEstiloMusical` — o **dono** da regra, que
+é peer — em vez de ter lista própria. Segunda lista divergiria em silêncio no dia em que um estilo
+novo entrasse, e o sinal só apareceria numa legenda estragada.
+
+```
+MUTACAO (veto desligado) ........ 1 test failed — estiloMusicalNaoEhTocadoPorEstaTela
+   o contra-teste aMesmaFalaEmDialogoContinuaSendoCorrigida seguiu VERDE
+   (ele e o que separa "vetou musica" de "parou de funcionar")
+suite completa --rerun-tasks .... 1.850 testes, 0 falhas, 25 pulados, 318 classes
+```
+
+🟡 **NÃO EXECUTADO:** não rodou no acervo. A 3.3 tem dry-run (`simular`) na tela — rodar no 86 e
+conferir que as falas musicais deixam de aparecer é a prova que falta.
+
+**AGORA A ETAPA 3 ESTÁ COERENTE:** 3.1 = falta de tradução · 3.2 = lore · 3.3 = concordância, e as
+três vetam música. O passo 4 do plano (mover a concordância da 3.1 para a 3.3 de vez) deixou de
+estar bloqueado.
+
+---
+
+---
+
 # ✅ FEITO — ESPELHO DE ESTRUTURA (decisão de Paulo, 2026-08-16 noite)
 
 ```

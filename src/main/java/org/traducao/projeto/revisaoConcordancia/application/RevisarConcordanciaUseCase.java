@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
@@ -34,6 +35,14 @@ import java.util.stream.Stream;
  * <ul>
  *   <li>Só correções determinísticas de gênero inequívoco (via {@link CorretorConcordanciaGeneroService});
  *       não usa inglês nem LLM.</li>
+ *   <li><b>Estilo musical é veto ABSOLUTO.</b> Música e karaokê pertencem à fatia
+ *       {@code traducaoKaraoke}, que sabe lidar com KFX, camadas e tempo por sílaba. Aqui não é
+ *       "não consigo revisar", é "não é meu trabalho" — a mesma regra de escopo que
+ *       {@code traducao.SeletorEventosTraduziveis} e {@code raspagemRevisao.FiltroAuditoriaLinha}
+ *       já aplicam. Medido em 2026-08-16 no 86, ANTES desta guarda existir: esta tela via
+ *       <b>22.568 de 26.524</b> eventos na Part 1 (85,1%) e <b>49.458 de 53.175</b> na Part 2
+ *       (93,0%) — quase tudo sílaba solta de karaokê, e a tela mexe em GÊNERO, que é onde a
+ *       heurística mais erra.</li>
  *   <li>NUNCA sobrescreve sem backup: cada arquivo alterado é copiado para subpasta timestampada
  *       antes de regravar; {@code aplicar=false} é dry-run (não escreve).</li>
  *   <li>Só reescreve arquivos que mudaram; eventos sem texto passam intactos; a estrutura do
@@ -57,13 +66,38 @@ public class RevisarConcordanciaUseCase {
     private final CorretorConcordanciaGeneroService corretor;
     private final TelemetriaService telemetriaService;
 
+    /**
+     * O MESMO juiz de estilo musical que as outras telas usam. É peer ({@code legenda.domain}), e
+     * consultá-lo é o oposto de reescrever a regra aqui: a forma do nome musical tem UM dono desde
+     * 07/08/2026, e uma segunda lista divergiria em silêncio no dia em que um estilo novo entrasse.
+     */
+    private final PoliticaEstiloMusical politicaEstiloMusical;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se a fala é música/karaokê — e portanto NÃO é trabalho desta
+     * tela.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao dono da regra ({@link PoliticaEstiloMusical}), que é
+     * peer, em vez de reimplementar a forma do nome musical. Uma segunda lista aqui divergiria em
+     * silêncio no dia em que um estilo novo entrasse no acervo — e o sinal disso só apareceria numa
+     * legenda estragada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo {@code null} devolve {@code false} e a fala segue
+     * para o corretor, como sempre seguiu — a guarda não inventa veto onde não há nome de estilo.
+     */
+    private boolean eMusica(EventoLegenda evento) {
+        return evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo());
+    }
+
     public RevisarConcordanciaUseCase(
         LeitorLegendaAss leitor, EscritorLegendaAss escritor,
-        CorretorConcordanciaGeneroService corretor, TelemetriaService telemetriaService) {
+        CorretorConcordanciaGeneroService corretor, TelemetriaService telemetriaService,
+        PoliticaEstiloMusical politicaEstiloMusical) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.corretor = corretor;
         this.telemetriaService = telemetriaService;
+        this.politicaEstiloMusical = politicaEstiloMusical;
     }
 
     /**
@@ -102,7 +136,7 @@ public class RevisarConcordanciaUseCase {
                 List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
                 int corrigidasArq = 0;
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (!evento.temTexto()) {
+                    if (!evento.temTexto() || eMusica(evento)) {
                         novos.add(evento);
                         continue;
                     }
