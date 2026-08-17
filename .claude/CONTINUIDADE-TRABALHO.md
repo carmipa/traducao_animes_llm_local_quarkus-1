@@ -222,7 +222,42 @@ falasDescartadas .... 0       (se fosse aqui, a proposta teria morrido numa trav
 sem indício de lore é incapaz de alterar a legenda. Remover essa chamada não perde capacidade
 nenhuma — só deixa de gastar o modelo local.
 
+## ✅ C e D FECHADOS — a 3.2 faz uma coisa só
+
+**C:** fala inteira em inglês continua avisada e registrada (`ENCAMINHADA_OPCAO_6`), mas saiu de
+`falasSinalizadas` (não foi a heurística de lore que a achou) e de `falasPendentes` (fazia a tela
+fechar amarela por trabalho da 3.1).
+
+**D:** a ordem virou — corretor determinístico em **toda** fala no alcance, sempre; LLM **só** na
+que a heurística acusou e o mapa não resolveu. Checkbox fora do HTML e do JS. A flag
+`revisarTodasFalas` sobrevive como **rótulo** de relatório/auditoria (para não invalidar dataset
+antigo) e não decide mais nada.
+
+**O teste que caiu, e por que é a prova:** `LlmEmFalaSemIndicioDeLoreEInerteTest` nascera
+afirmando `chamadas == 1` — e existia para provar que aquela chamada era INERTE. Foi essa prova
+que autorizou removê-la; com a remoção, ele reprovou. Reescrito para `chamadas == 0`, que é
+asserção **mais forte**, mantendo o par com `falasSemAlteracao == 1` que prova que a fala foi
+auditada e não pulada.
+
+```
+suite completa --rerun-tasks .. 332 classes, 1.897 testes, 0 falhas, 28 pulados
+```
+
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+**Rodar a 3.2 no acervo** com o KRONOS no ar (LM Studio carregado — o LLM é acoplado por decisão
+de Paulo) numa obra com delta conhecido, e conferir que as 10 falas medidas aparecem corrigidas:
+CCA (`Zeon Sieg`→`Sieg Zeon`, `psycoframe`→`Psyco-frame`) e DanMachi S05 (`Familia Freya`).
+🟡 **NÃO EXECUTADO** nesta sessão: tudo está provado em teste e medição, não em corrida real.
+
+Depois, na ordem: **E** (roster hardcoded de 100+ termos no detector → perguntar à lore da obra,
+medindo cobertura antes/depois) · **F/G** (o visual da 3.1 na página de lore: combo travando os
+campos, campos numerados com o destino de escrita em negrito, cartão "Lore ativa", passadas em
+cartões com etiquetas, cor no padrão internacional, ruído agregado por arquivo) · e a
+**decomposição do `processarArquivo`** (2.316 bytes, 7,1× o teto de inline), que ficou menor
+depois destes cortes — refatorar antes de cortar teria sido reorganizar código que ia sair.
+
+### (histórico) o que a próxima ação era antes de C e D
 
 **Medir antes de trocar.** A remoção da flag `revisarTodasFalas` tem uma parte que NÃO é neutra: o
 corretor determinístico só alcança fala não sinalizada quando o modo está ligado (o `continue` da
