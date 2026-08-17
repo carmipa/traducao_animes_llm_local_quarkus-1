@@ -3,6 +3,7 @@ package org.traducao.projeto.qualidadeTraducao.application;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -41,6 +42,9 @@ public class ProtecaoLegendaAssService {
         "\\\\(?:t\\(|pos\\(|move\\(|i?clip\\(|org\\(|fad\\(|fr[xyz]|blur|bord|[13]c&)",
         Pattern.CASE_INSENSITIVE
     );
+    /** Corpo de fonte a partir do qual a linha e letreiro, nao fala. Calibrado no acervo. */
+    private static final int CORPO_DE_FONTE_DE_CARTAZ = 100;
+    private static final Pattern PADRAO_CORPO_DE_FONTE = Pattern.compile("\\\\fs(\\d+)");
     private static final Pattern PADRAO_CLIP_LONGO = Pattern.compile(
         "\\\\i?clip\\([^)]{300,}\\)",
         Pattern.CASE_INSENSITIVE | Pattern.DOTALL
@@ -92,6 +96,50 @@ public class ProtecaoLegendaAssService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer argumento {@code null} ou tradução
      * sem texto visível retorna {@code false}, preservando a resposta.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece a linha que é LETREIRO — título de episódio, placa, cartaz
+     * — e não fala. Existe para a tela 3.2, que corrige lore em DIÁLOGO e não tem o que fazer num
+     * letreiro já traduzido.
+     *
+     * <h2>Por que é um método novo, e não um afrouxamento do bloqueio existente</h2>
+     * {@code deveBloquearAntesDoLlm} exige {@code clip} longo na última porta, e por isso deixa
+     * passar cartaz posicionado sem clip. A tentação é tirar o {@code clip} de lá — e isso
+     * QUEBRARIA A TRADUÇÃO: ela precisa mandar cartaz ao modelo, e é por isso que os letreiros do
+     * acervo estão em português. Aquela regra serve a quem TRADUZ; esta serve a quem REVISA LORE.
+     * A camada resolve o problema dela.
+     *
+     * <h2>Medido antes de existir, no acervo (17/08/2026)</h2>
+     * <pre>
+     *   232 arquivos PT · 76.929 linhas no alcance da 3.2 · 114 delas com s&gt;=100
+     *   amostra: [Sign] "Elas chamaram isso de Gundam" · [Sign] "A cacada de Full Frontal."
+     *   e no 08th: {s200lur1\pos}NEXT EPISODE -> "Proximo episodio."  (10 acusacoes)
+     * </pre>
+     * Todas traduzidas CORRETAMENTE — a tela só produzia ruído nelas. O corte por corpo de fonte
+     * foi calibrado no acervo inteiro: {@code s>=100} é cartaz, {@code 60-99} é letra de
+     * música e {@code <60} é diálogo com fonte customizada ("Not an anime.").
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige a CONJUNÇÃO de estilo técnico declarado e typesetting
+     * pesado de verdade — estilo sozinho não basta, porque nome de estilo é convenção de fansub e
+     * varia; tag pesada sozinha também não, porque diálogo legítimo usa {@code \pos}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto {@code null} devolve {@code false} — na dúvida a
+     * linha continua sendo olhada, que é o lado seguro para uma tela que só LÊ.
+     */
+    public boolean ehLetreiroDeCartaz(String estilo, String texto) {
+        if (texto == null) {
+            return false;
+        }
+        boolean estiloTecnico = estilo != null && PADRAO_ESTILO_TECNICO.matcher(estilo).find();
+        if (!estiloTecnico) {
+            return false;
+        }
+        if (!PADRAO_TAG_ASS_PESADA.matcher(texto).find()) {
+            return false;
+        }
+        Matcher corpo = PADRAO_CORPO_DE_FONTE.matcher(texto);
+        return corpo.find() && Integer.parseInt(corpo.group(1)) >= CORPO_DE_FONTE_DE_CARTAZ;
+    }
+
     public boolean respostaSuspeita(String original, String traduzido) {
         return respostaAssPesadaSuspeita(original, traduzido);
     }

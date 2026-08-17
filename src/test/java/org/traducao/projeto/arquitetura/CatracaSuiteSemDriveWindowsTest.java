@@ -114,7 +114,11 @@ class CatracaSuiteSemDriveWindowsTest {
         // alterarem o acervo — quantos motivos vem das regras que saem, e quantas falas o
         // corretor deterministico passaria a corrigir fora da heuristica. Mesma natureza:
         // "C:\animes" e o default de -Dkronos.acervo, e caminho relativo mediria o vazio.
-        "MedicaoEscopoDaRevisaoLoreIT.java"
+        "MedicaoEscopoDaRevisaoLoreIT.java",
+        // Entrou em 17/08/2026: mede quanto CARTAZ (s>=100) sobrevive a todos os vetos e chega
+        // na tela 3.2 — o achado do "NEXT EPISODE" do 08th. Mesma natureza das demais:
+        // "C:nimes" e o default de -Dkronos.acervo, e caminho relativo mediria o vazio.
+        "MedicaoCartazNoAlcanceDaLoreIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
