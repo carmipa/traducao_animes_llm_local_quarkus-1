@@ -7,7 +7,6 @@ import org.traducao.projeto.revisaoLore.domain.ResultadoDeteccaoLore;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +30,6 @@ public class DetectorTermosLoreService {
     private static final Pattern NOME_PROPRIO = Pattern.compile(
         "\\b(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?)(?:\\s+(?:[A-Z][A-Za-z0-9'’.-]{2,}|[A-Z]{2,}(?:-[A-Z0-9]+)?))*\\b"
     );
-    private static final Pattern PALAVRA_LATINA = Pattern.compile("\\b[A-Za-z]{3,}\\b");
     private static final Map<String, List<String>> TRADUCOES_LITERAIS_SUSPEITAS = criarTraducoesLiteraisSuspeitas();
     private static final Map<String, List<String>> TERMOS_TRADUZIVEIS_ACEITOS = criarTermosTraduziveisAceitos();
     private static final Set<String> TERMOS_LORE_SOLTEIROS_RELEVANTES = Set.of(
@@ -62,9 +60,6 @@ public class DetectorTermosLoreService {
         "thanks", "thank", "hello", "goodbye", "always", "never", "every", "second", "father",
         "laugh", "heaven", "chairman", "minister", "princess", "commander", "ensign", "adm"
     );
-    private static final Set<String> COGNATOS_VALIDOS_PT = Set.of(
-        "chance", "cosmos", "crime", "ideal", "item", "monitor", "normal", "real", "superior"
-    );
 
     public ResultadoDeteccaoLore auditar(String originalIngles, String traducaoPt) {
         return auditar(originalIngles, traducaoPt, null);
@@ -92,11 +87,22 @@ public class DetectorTermosLoreService {
             ? null
             : loreObraAtiva.toLowerCase(Locale.ROOT);
 
+        // As TRES regras de lore, e so elas. Escopo fechado por Paulo em 17/08/2026: a 3.2 acusa
+        // nome, local e termo canonico da obra ativa — nada mais.
+        //
+        // Sairam daqui, com o volume medido no acervo (MedicaoEscopoDaRevisaoLoreIT, 22 obras,
+        // 75.419 falas, 10.080 motivos):
+        //   detectarNomesInglesRemanescentes  1.606 motivos (15,9%) — acusava QUALQUER palavra
+        //       inglesa >=4 letras que sobrasse no PT. Isso e FALTA DE TRADUCAO, e falta de
+        //       traducao e a tela 3.1. Acusar aqui fazia a 3.2 ficar amarela por trabalho alheio.
+        //   detectarTermosMaiusculosSuspeitos   816 motivos (8,1%) — acusava qualquer palavra em
+        //       CAIXA ALTA >=3 letras como "pode indicar lore fora do padrao". Um grito "PARE!"
+        //       virava motivo. Palpite sobre formatacao, nao nome nem local.
+        //
+        // Juntas eram 2.422 motivos: 24,0% de todo o ruido que a tela produzia.
         detectarTraducoesLiteraisSuspeitas(en, pt, motivos, loreLower);
         detectarTermosTraduziveisEmIngles(en, pt, motivos);
-        detectarNomesInglesRemanescentes(en, pt, motivos, loreLower);
         detectarNomesPropriosDivergentes(en, pt, motivos, loreLower);
-        detectarTermosMaiusculosSuspeitos(pt, motivos);
 
         if (motivos.isEmpty()) {
             return ResultadoDeteccaoLore.limpo();
@@ -152,49 +158,6 @@ public class DetectorTermosLoreService {
     /** Termo canônico vale para a obra ativa? Sem lore informado, vale globalmente. */
     private boolean loreMenciona(String loreLower, String termo) {
         return loreLower == null || contemExpressaoInteira(loreLower, termo);
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: identifica palavras inglesas copiadas na tradução
-     * sem confundi-las com termos oficiais ou cognatos válidos em português.
-     * <p>INVARIANTES DO DOMÍNIO: nomes próprios são tratados em etapa própria e
-     * palavras declaradas pela lore ativa permanecem protegidas.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: não produz motivo quando não existe
-     * candidato inequívoco; nunca altera o texto recebido.
-     */
-    private void detectarNomesInglesRemanescentes(
-        String en, String pt, List<String> motivos, String loreLower) {
-        Matcher matcher = PALAVRA_LATINA.matcher(en);
-        Set<String> candidatos = new LinkedHashSet<>();
-        Set<String> tokensNomeProprio = tokensDeNomesProprios(en);
-        while (matcher.find()) {
-            String palavra = matcher.group().toLowerCase(Locale.ROOT);
-            if (palavra.matches("tag\\d+")) {
-                continue;
-            }
-            if (palavra.length() >= 4
-                && !PALAVRAS_IGNORADAS.contains(palavra)
-                && !COGNATOS_VALIDOS_PT.contains(palavra)
-                && !tokensNomeProprio.contains(palavra)) {
-                candidatos.add(palavra);
-            }
-        }
-
-        String ptLower = pt.toLowerCase(Locale.ROOT);
-        for (String candidato : candidatos) {
-            if (contemPalavraInteira(ptLower, candidato) && !loreMencionaExclusivamente(loreLower, candidato)) {
-                motivos.add("Possivel nome/termo em ingles remanescente na traducao: \"" + candidato + "\"");
-            }
-        }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: reconhece um termo que a obra manda preservar.
-     * <p>INVARIANTES DO DOMÍNIO: exige correspondência integral na lore ativa.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: lore ausente retorna falso.
-     */
-    private boolean loreMencionaExclusivamente(String loreLower, String termo) {
-        return loreLower != null && contemExpressaoInteira(loreLower, termo);
     }
 
     private void detectarTermosTraduziveisEmIngles(String en, String pt, List<String> motivos) {
@@ -258,17 +221,6 @@ public class DetectorTermosLoreService {
         }
     }
 
-    private void detectarTermosMaiusculosSuspeitos(String pt, List<String> motivos) {
-        Matcher matcher = Pattern.compile("\\b[A-Z]{2,}\\b").matcher(pt);
-        while (matcher.find()) {
-            String token = matcher.group();
-            if (token.length() >= 3 && !token.equals("ASS") && !token.equals("SSA")) {
-                motivos.add("Sigla ou termo todo em maiusculas pode indicar lore fora do padrao: \"" + token + "\"");
-                break;
-            }
-        }
-    }
-
     private boolean contemVarianteAproximada(String pt, String nome) {
         String[] partes = nome.split("\\s+");
         if (partes.length == 1) {
@@ -281,20 +233,6 @@ public class DetectorTermosLoreService {
             }
         }
         return encontrados >= Math.max(1, partes.length - 1);
-    }
-
-    private Set<String> tokensDeNomesProprios(String en) {
-        Set<String> tokens = new LinkedHashSet<>();
-        Matcher matcher = NOME_PROPRIO.matcher(en);
-        while (matcher.find()) {
-            for (String parte : limparCandidatoNomeProprio(matcher.group()).split("\\s+")) {
-                String normalizada = normalizarTokenNome(parte);
-                if (normalizada.length() >= 3 && !normalizada.matches("tag\\d+")) {
-                    tokens.add(normalizada);
-                }
-            }
-        }
-        return tokens;
     }
 
     private String removerArtigoInicialIngles(String nome) {

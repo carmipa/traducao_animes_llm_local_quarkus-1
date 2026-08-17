@@ -169,8 +169,8 @@ A/B/C/D se fazem por edição dirigida, um método por vez, com a suíte entre e
 
 | # | item | onde | por que sai |
 |---|---|---|---|
-| A | acusar palavra em CAIXA ALTA | `DetectorTermosLoreService.detectarTermosMaiusculosSuspeitos` | qualquer grito "PARE!" vira motivo; não é nome nem local |
-| B | acusar resíduo genérico em inglês | `detectarNomesInglesRemanescentes` | é FALTA DE TRADUÇÃO — trabalho da 3.1 |
+| A | ✅ FEITO — acusar palavra em CAIXA ALTA | `DetectorTermosLoreService.detectarTermosMaiusculosSuspeitos` | qualquer grito "PARE!" vira motivo; não é nome nem local |
+| B | ✅ FEITO — acusar resíduo genérico em inglês | `detectarNomesInglesRemanescentes` | é FALTA DE TRADUÇÃO — trabalho da 3.1 |
 | C | encaminhar fala não traduzida à Opção 6 | `RevisarLoreUseCase.ehFalaNaoTraduzida` | idem; e hoje INFLA `falasSinalizadas` e vira pendência, deixando a 3.2 amarela por problema alheio |
 | D | checkbox "Revisar todas as falas" | flag `revisarTodasFalas` | **DECIDIDO por Paulo:** *"nada de checkbox, deixa ele habilitado por padrão, o sistema que determina isso"*. O operador não escolhe: o determinístico varre TUDO no alcance, sempre; o LLM entra só em fala suspeita. A parte LLM do modo antigo está **PROVADA inerte** com o caso de uso real (proposta em fala limpa nunca chega ao arquivo) — e "último recurso" não é "recurso preventivo" |
 | E | roster de lore hardcoded no detector | `TERMOS_LORE_SOLTEIROS_RELEVANTES` (100+ termos misturando Gundam/86/Macross), `TRADUCOES_LITERAIS_SUSPEITAS` (17), `TERMOS_TRADUZIVEIS_ACEITOS` (11) | SEGUNDA cópia da lore em código, contra a decisão de 15/08 (lore = arquivo único). Exige medir cobertura antes e depois |
@@ -195,6 +195,23 @@ falasDescartadas .... 0       (se fosse aqui, a proposta teria morrido numa trav
 **Conclusão provada, não inferida:** no modo "Revisar todas as falas", a chamada ao LLM em fala
 sem indício de lore é incapaz de alterar a legenda. Remover essa chamada não perde capacidade
 nenhuma — só deixa de gastar o modelo local.
+
+## ✅ A e B CORTADOS (2.422 motivos, 24,0% do ruído) — e a cobertura que faltava
+
+Cortes por **edição dirigida**, um método por vez. Saíram ,
+ e os órfãos (, ,
+, ).
+
+**ACHADO NO CAMINHO:** os testes passaram **verde de primeira**, e a razão não é boa — as duas
+regras **não tinham um único teste**. 2.422 motivos por corrida no acervo, produzidos por código
+sem cobertura. Não havia o que quebrar.
+
+ é a cobertura que faltava, escrita no sentido contrário: reprova se
+elas VOLTAREM. Caso-controle nos dois sentidos no mesmo arquivo — as duas falas que saíram do
+escopo têm de sair limpas **e** as três regras que ficaram têm de continuar acusando, senão um
+detector inteiramente cego passaria.
+
+
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
@@ -263,6 +280,23 @@ Suíte: 326 classes, 1.885 testes, 0 falhas.
 ## Próxima frente
 
 3.3 Revisão de Concordância (para onde a 3.1 roteia o que não é dela) ou 4.1 Tradução de Karaokê.
+
+## ✅ A e B CORTADOS (2.422 motivos, 24,0% do ruído) — e a cobertura que faltava
+
+Cortes por **edição dirigida**, um método por vez. Saíram ,
+ e os órfãos (, ,
+, ).
+
+**ACHADO NO CAMINHO:** os testes passaram **verde de primeira**, e a razão não é boa — as duas
+regras **não tinham um único teste**. 2.422 motivos por corrida no acervo, produzidos por código
+sem cobertura. Não havia o que quebrar.
+
+ é a cobertura que faltava, escrita no sentido contrário: reprova se
+elas VOLTAREM. Caso-controle nos dois sentidos no mesmo arquivo — as duas falas que saíram do
+escopo têm de sair limpas **e** as três regras que ficaram têm de continuar acusando, senão um
+detector inteiramente cego passaria.
+
+
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
