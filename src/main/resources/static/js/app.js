@@ -652,14 +652,73 @@ function logNoConsoleFormatado(consoleId, rawMessage) {
     linhaLog.className = 'log-line';
     linhaLog.innerHTML = `<span style="color: var(--text-muted); font-size: 0.75rem;">[${timestamp}]</span> ${htmlMensagem}`;
     
+    // Se o operador SUBIU para ler alguma coisa, a decisão de rolar é dele. Medido antes de
+    // inserir a linha, senão a altura nova já teria mudado a conta.
+    const estavaNoFim = seguindoOFim(consoleDiv);
+
     consoleDiv.appendChild(linhaLog);
-    
+
     // Proteção extrema contra travamentos: Limita a 1000 linhas visíveis no console HTML
     while (consoleDiv.childElementCount > 1000) {
         consoleDiv.removeChild(consoleDiv.firstChild);
     }
 
-    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    if (estavaNoFim) {
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        esconderAvisoDeNovasLinhas(consoleDiv);
+    } else {
+        mostrarAvisoDeNovasLinhas(consoleDiv);
+    }
+}
+
+/**
+ * PROPÓSITO DE NEGÓCIO: o console estava PRESO no fim. Cada linha nova executava
+ * `scrollTop = scrollHeight` sem condição, então subir para reler era impossível: a linha
+ * seguinte jogava o operador de volta para baixo.
+ *
+ * <p>Prejuízo relatado pelo Paulo em 17/08/2026: "o cli no navegador sobe sem parar e não
+ * permite voltar a ele, por isso que víamos errado também". Combinado com o `EN:`/`PT:` que
+ * saíam da mesma cor, o resultado foi um dia inteiro investigando um problema inexistente —
+ * ele só tinha o relance de linhas em inglês passando, sem poder parar e conferir.
+ *
+ * INVARIANTES DO DOMÍNIO: a folga de 40px absorve arredondamento de zoom e meia-linha; quem
+ * está no fim continua sendo levado junto, que é o comportamento útil durante a corrida.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: elemento sem rolagem (conteúdo menor que a caixa) conta como
+ * "no fim", então console curto segue rolando normalmente.
+ */
+function seguindoOFim(el) {
+    const FOLGA_PX = 40;
+    return el.scrollHeight - el.scrollTop - el.clientHeight <= FOLGA_PX;
+}
+
+/** O aviso só existe quando o operador está lendo lá em cima; some sozinho ao voltar ao fim. */
+function mostrarAvisoDeNovasLinhas(consoleDiv) {
+    const painel = consoleDiv.parentElement;
+    if (!painel) return;
+    let aviso = painel.querySelector('.console-novas-linhas');
+    if (!aviso) {
+        painel.style.position = painel.style.position || 'relative';
+        aviso = document.createElement('button');
+        aviso.type = 'button';
+        aviso.className = 'console-novas-linhas';
+        aviso.textContent = '↓ novas linhas — clique para voltar ao fim';
+        aviso.addEventListener('click', () => {
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            esconderAvisoDeNovasLinhas(consoleDiv);
+        });
+        painel.appendChild(aviso);
+        // Voltar ao fim rolando com o mouse também tira o aviso, sem precisar do clique.
+        consoleDiv.addEventListener('scroll', () => {
+            if (seguindoOFim(consoleDiv)) esconderAvisoDeNovasLinhas(consoleDiv);
+        });
+    }
+    aviso.style.display = 'block';
+}
+
+function esconderAvisoDeNovasLinhas(consoleDiv) {
+    const aviso = consoleDiv.parentElement?.querySelector('.console-novas-linhas');
+    if (aviso) aviso.style.display = 'none';
 }
 
 /**
