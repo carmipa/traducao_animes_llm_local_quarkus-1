@@ -243,7 +243,48 @@ auditada e não pulada.
 suite completa --rerun-tasks .. 332 classes, 1.897 testes, 0 falhas, 28 pulados
 ```
 
-## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA — REMOVER A ABA PT-ONLY (autorizado por Paulo)
+
+> *"pode tirar a aba e as opções que não são válidas, deixando mais limpa a tela"* — 17/08.
+
+**A medição que decidiu** (varredura do acervo com controle positivo):
+
+```
+pastas traducao_ptbr no acervo ......... 23
+delas, com pasta de ingles irma ........ 23   <- TODAS
+sem ingles (o caso que a aba atende) ....  0
+```
+
+As 5 obras que pareciam justificá-la (Break Blade 1,3,4,5,6) **têm** `legendas_eng/…_Track3.ass`.
+O que falta nelas é a TRADUÇÃO — só existe `_PT-BR.parcial.ass`, e `.parcial` não é entrega, por
+isso o pareamento não casava. Não era "obra sem inglês"; era tradução pela metade.
+
+**Ordem da remoção** (12 arquivos mapeados; fazer nesta sequência e rodar a suíte ao fim):
+
+1. **Java produção:** apagar `RevisarLorePtOnlyUseCase`; no `RevisaoLoreController` remover o
+   endpoint `/api/revisar-lore-ptonly`, o record `RevisaoLorePtOnlyRequest`, o campo injetado e
+   `imprimirBannerPtOnly`; em `CorretorLoreDeterministico` apagar `corrigirPtOnly` (só a aba o
+   usa — conferido).
+2. **Tela:** em `revisaoLore.html` tirar a barra `.lore-tabs`, o `form-revisao-lore-ptonly` e a
+   **passada 2** do cartão; sobrando uma aba só, o `.lore-tab-panel` do form que fica perde a
+   classe. Em `revisaoLore.js`: `vincularAbas`, `vincularEventosPtOnly`, o atalho
+   `btn-passada-lore-ptonly` e o trecho do cartão de lore ativa que lê a aba ativa.
+3. **Catraca:** `CatracaEscritaDeFalaVetaMusicaLoreTest` passa a ter **uma** porta em
+   `PORTAS_CONHECIDAS` — e é ela que vai reprovar se algum resquício continuar escrevendo.
+4. **Testes que somem com o alvo:** `RevisarLorePtOnlyUseCaseTest`, `LorePtOnlyVetaMusicaTest`,
+   `MedicaoExposicaoMusicalRevisaoLorePtOnlyIT` (e a entrada dele em
+   `CatracaSuiteSemDriveWindowsTest`), os dois testes `revisarLorePtOnly*` do `ApiEndpointsTest`,
+   e o caso de `corrigirPtOnly` em `CorretorLoreDeterministicoTest`.
+5. ⚠️ **CONFERIR ANTES:** o grep casou `ContextoRevisaoLoreMacross*Filmes` e
+   `CatracaAgregadorasForaDoCdiTest` — quase certo que é falso positivo do padrão, mas **abrir e
+   confirmar** antes de tocar em qualquer uma delas.
+6. `AlcanceRevisaoLore` **FICA** — a porta que sobra continua consultando ele.
+
+**Nota de honestidade para o commit:** o `MedicaoExposicaoMusicalRevisaoLorePtOnlyIT` mediu as
+246.246 linhas que justificaram o veto de hoje. Ele sai porque o alvo sai, não porque o número
+deixou de valer — o número vira parte da mensagem do commit, senão a cicatriz some com o arquivo.
+
+## ▶ DEPOIS DISSO
 
 **Rodar a 3.2 no acervo** com o KRONOS no ar (LM Studio carregado — o LLM é acoplado por decisão
 de Paulo) numa obra com delta conhecido, e conferir que as 10 falas medidas aparecem corrigidas:
