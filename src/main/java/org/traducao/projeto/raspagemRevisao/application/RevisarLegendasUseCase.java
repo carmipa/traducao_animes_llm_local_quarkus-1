@@ -54,6 +54,14 @@ public class RevisarLegendasUseCase {
     private final ResumoAlteracaoPorEstilo resumoPorEstilo;
 
     /**
+     * Quem monta as linhas que o operador LÊ. Mora fora daqui porque a tela do reaproveitamento
+     * de cache imprime o mesmo achado, e duas formatações divergem com o tempo — foi assim que
+     * {@code EN:} e {@code PT:} acabaram os dois em amarelo e o operador passou um dia achando
+     * que a ferramenta não traduzia.
+     */
+    private final ApresentacaoFalaSuspeita apresentacao;
+
+    /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
      * cache versionado, validação linguística, proteção ASS e persistência segura.
      *
@@ -74,9 +82,11 @@ public class RevisarLegendasUseCase {
         PreparadorFalaRevisao preparadorFala,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
         PreparadorReferenciaRevisao preparador,
-        ResumoAlteracaoPorEstilo resumoPorEstilo
+        ResumoAlteracaoPorEstilo resumoPorEstilo,
+        ApresentacaoFalaSuspeita apresentacao
     ) {
         this.resumoPorEstilo = resumoPorEstilo;
+        this.apresentacao = apresentacao;
         this.persistencia = persistencia;
         this.relatorio = relatorio;
         this.triagemFala = triagemFala;
@@ -526,11 +536,8 @@ public class RevisarLegendasUseCase {
 
             sessao.contarProblema();
 
-            out("  -> Linha " + evento.indice() + " [" + evento.estilo() + "]:");
-            out("     EN: " + AnsiCores.YELLOW + originalEn + AnsiCores.RESET);
-            out("     PT: " + AnsiCores.YELLOW + traducaoAtual + AnsiCores.RESET);
-            auditoria.motivos().forEach(m ->
-                out("     " + AnsiCores.DIM + "• " + m + AnsiCores.RESET));
+            apresentacao.linhas(evento.indice(), evento.estilo(), originalEn, traducaoAtual,
+                auditoria.motivos()).forEach(this::out);
 
             // As fontes de correção, da mais barata para a mais cara. A cadeia sabe a ordem e o
             // porquê dela; aqui só se registra a evidência e se aplica o desfecho.

@@ -50,6 +50,9 @@ public class MemoriaCorrecaoArquivo {
     private final MascaradorTags mascaradorTags;
     private final GuardaCorrecaoSegura guardaCorrecao;
 
+    /** A MESMA apresentação da tela principal — uma formatação só, senão as duas divergem. */
+    private final ApresentacaoFalaSuspeita apresentacao;
+
     /**
      * PROPÓSITO DE NEGÓCIO: reúne o mascarador de tags e o portão único de correção.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
@@ -57,9 +60,11 @@ public class MemoriaCorrecaoArquivo {
      */
     public MemoriaCorrecaoArquivo(
             MascaradorTags mascaradorTags,
-            GuardaCorrecaoSegura guardaCorrecao) {
+            GuardaCorrecaoSegura guardaCorrecao,
+            ApresentacaoFalaSuspeita apresentacao) {
         this.mascaradorTags = mascaradorTags;
         this.guardaCorrecao = guardaCorrecao;
+        this.apresentacao = apresentacao;
     }
 
     /**
@@ -118,11 +123,13 @@ public class MemoriaCorrecaoArquivo {
             return Optional.of(new DecisaoFala.Pendente(rejeitada.avisosAoOperador()));
         }
 
-        return Optional.of(new DecisaoFala.Corrigir(novaTraducaoCache, List.of(
-            "  -> Linha " + evento.indice() + " [" + evento.estilo()
-                + "] (Reutilizando correção do cache local):",
-            "     EN: " + AnsiCores.YELLOW + originalEn + AnsiCores.RESET,
-            "     PT: " + AnsiCores.YELLOW + traducaoAtual + AnsiCores.RESET,
-            "     PT corrigido: " + AnsiCores.GREEN + novaTraducaoCache + AnsiCores.RESET)));
+        // A MESMA apresentação da tela principal: o inglês é referência apagada, o português é
+        // estado. Formatar aqui de novo foi como as duas telas divergiram até 17/08/2026.
+        List<String> evidencias = new java.util.ArrayList<>(apresentacao.linhas(
+            evento.indice(), evento.estilo(), originalEn, traducaoAtual, auditoria.motivos()));
+        evidencias.add("     " + AnsiCores.DIM + "(reutilizando correção do cache local)"
+            + AnsiCores.RESET);
+        evidencias.add("     PT corrigido: " + AnsiCores.GREEN + novaTraducaoCache + AnsiCores.RESET);
+        return Optional.of(new DecisaoFala.Corrigir(novaTraducaoCache, List.copyOf(evidencias)));
     }
 }
