@@ -79,6 +79,48 @@ uma asserção extra de que o próprio `AlcanceRevisaoLore` continua consultando
 **Limite declarado:** a catraca prova que a CHAMADA existe; quem prova que ela FUNCIONA é o
 `LorePtOnlyVetaMusicaTest` (a mutação passou na catraca e reprovou no teste de comportamento).
 
+## MÉTODOS PEQUENOS PARA O JIT — ordem de Paulo, 17/08, com o bytecode MEDIDO
+
+> *"nessa arte do projeto podemos criar classes com métodos pequenos para nos aproveitarmos do
+> JIT, pois é um caso claro de aproveitamento dele"*
+
+Medido com `javap -c -p` sobre `build/classes/java/main` da fatia — **364 métodos**:
+
+```
+ bytes        metodo                                  quando roda
+  2316  >>>   RevisarLoreUseCase.processarArquivo     POR ARQUIVO, com o laco POR FALA dentro
+  1445  >>>   DetectorTermosLoreService.static{}      1x no carregamento da classe
+  1040  >>>   RevisarLoreUseCase.executar             1x por sessao
+   764  >>>   RevisarLorePtOnlyUseCase.executar       1x por sessao
+   441  >>>   RevisorLoreLlmAdapter.postarLinhaUnica  por chamada de rede (a rede domina)
+   333  >>>   primeiraDivergenciaEstrutural           por arquivo
+```
+
+Limiares do HotSpot: **35** = `MaxInlineSize` (inline até frio) · **325** = `FreqInlineSize`
+(inline só se quente) · **8000** = `DontCompileHugeMethods` (acima disso **nunca compila**).
+
+**Leitura honesta:** 6 métodos passam de 325 e **nenhum** passa de 8000 — nada está sendo
+excluído da compilação. Dos 6, **só UM está em caminho realmente quente**: o
+`processarArquivo`, com **7,1× o teto**, e é ele que carrega o laço por fala (milhares de
+execuções por corrida). Os outros cinco rodam uma vez por sessão, por arquivo ou atrás de rede.
+
+🟡 **`Inferência, não evidência direta`** quanto ao GANHO: medi TAMANHO, não desempenho. Que
+métodos menores rendam JIT melhor aqui é plausível e é a razão da ordem, mas não foi medido —
+exigiria `-XX:+PrintInlining` ou benchmark. O ganho **certo e imediato** da quebra é outro, e
+não depende de JIT nenhum: hoje as ~14 saídas do laço só são alcançáveis rodando o caso de uso
+inteiro; viradas métodos nomeados, cada uma ganha teste próprio.
+
+**Como isso casa com o resto da fila:** a decomposição do `processarArquivo` é o VEÍCULO para
+tirar A, B, C e D — cada saída vira um método com nome, e o que sai de escopo sai apagando um
+método inteiro em vez de um `if` no meio de 300 linhas.
+
+**ARMADILHA DE INSTRUMENTO PAGA AQUI:** a primeira versão da medição reportou **1.445 bytes num
+lambda de uma linha**. Número implausível denunciou o parser: `static {};` não casava a regex de
+assinatura, e os offsets do bloco estático eram somados ao método anterior. O `javap` cru mostra
+o lambda com **6 bytes**. Corrigido e re-rodado com dois controles (o lambda trivial precisa sair
+minúsculo; o `static{}` precisa aparecer separado). **Nenhum número desta seção vem da primeira
+rodada.**
+
 ## FILA — o que ainda sai ("o resto tiramos tudo")
 
 | # | item | onde | por que sai |
@@ -86,7 +128,7 @@ uma asserção extra de que o próprio `AlcanceRevisaoLore` continua consultando
 | A | acusar palavra em CAIXA ALTA | `DetectorTermosLoreService.detectarTermosMaiusculosSuspeitos` | qualquer grito "PARE!" vira motivo; não é nome nem local |
 | B | acusar resíduo genérico em inglês | `detectarNomesInglesRemanescentes` | é FALTA DE TRADUÇÃO — trabalho da 3.1 |
 | C | encaminhar fala não traduzida à Opção 6 | `RevisarLoreUseCase.ehFalaNaoTraduzida` | idem; e hoje INFLA `falasSinalizadas` e vira pendência, deixando a 3.2 amarela por problema alheio |
-| D | checkbox "Revisar todas as falas" (parte LLM) | flag `revisarTodasFalas` | **PROVADO** com o caso de uso real: proposta em fala sem indício de lore nunca chega ao arquivo. Chamada com efeito nulo POR CONSTRUÇÃO — e "último recurso" não é "recurso preventivo". O ganho real do modo é o corretor determinístico alcançar fala não sinalizada: isso vira padrão, sem checkbox |
+| D | checkbox "Revisar todas as falas" | flag `revisarTodasFalas` | **DECIDIDO por Paulo:** *"nada de checkbox, deixa ele habilitado por padrão, o sistema que determina isso"*. O operador não escolhe: o determinístico varre TUDO no alcance, sempre; o LLM entra só em fala suspeita. A parte LLM do modo antigo está **PROVADA inerte** com o caso de uso real (proposta em fala limpa nunca chega ao arquivo) — e "último recurso" não é "recurso preventivo" |
 | E | roster de lore hardcoded no detector | `TERMOS_LORE_SOLTEIROS_RELEVANTES` (100+ termos misturando Gundam/86/Macross), `TRADUCOES_LITERAIS_SUSPEITAS` (17), `TERMOS_TRADUZIVEIS_ACEITOS` (11) | SEGUNDA cópia da lore em código, contra a decisão de 15/08 (lore = arquivo único). Exige medir cobertura antes e depois |
 | F | visual da 3.1 na 3.2 | `static/revisaoLore/revisaoLore.html` + `.js` | pedido do Paulo com print: combo de obra travando os campos (`travaLore.js`), campos numerados com o destino de escrita em negrito, cartão "Lore ativa", passadas em cartões com etiquetas e botão próprio, faixa de aviso |
 | G | console no padrão da 3.1 | `RevisarLoreUseCase.sessao.out` | cor padrão internacional (verde=corrigida, amarelo=pendente, VERMELHO só erro), referência EN em apagado × estado colorido, ruído agregado por arquivo (hoje imprime uma linha DIM por fala auditada), `[ESTILOS] N linha(s) alterada(s)` por arquivo gravado |
