@@ -6900,6 +6900,27 @@ obras:
     - Emma
     - Emma Sheen
     - Fa Yuiry
+    # FOUR isolada — entrou em 2026-08-17 por DECISÃO do Paulo: "usa a própria regra do sistema,
+    # nada de reescrever". A regra aqui RECUSA a proposta que perdeu o termo; ela NÃO reescreve
+    # nada, e por isso não colide com "Quatro: Quattro" (o Char), cuja chave no mapa de correção
+    # já está ocupada. Dois personagens chegam ao PT como a mesma palavra e o mapa não sabe
+    # separá-los; a recusa sabe, porque olha o INGLÊS.
+    #
+    # MEDIDO nos 50 ASS do Zeta em 17/08/2026, contra o espelho inglês:
+    #   Four maiúsculo isolado (fora de "Side Four") ... 188 falas
+    #     nome PRESERVADO no PT ......................... 62
+    #     nome virado em "Quatro" ....................... 126  <- passivo JÁ existente
+    #   four minúsculo (numeral) ........................ 9
+    #
+    # CUSTO ACEITO: a comparação ignora caixa, então uma proposta para fala cujo inglês diz
+    # "four" numeral também é recusada e a fala fica como está. São ~5 casos identificados
+    # ("Four units!", "Four minutes to atmospheric entry", "Four... three...", "Four o'clock",
+    # "Four Marine Hizacks") e todos JÁ estão corretos no acervo — recusar uma proposta neles
+    # significa manter o que já está bom, não estragar.
+    #
+    # O QUE ESTA ENTRADA NÃO FAZ: não conserta as 126 já quebradas. Reparo é reescrita, e Paulo
+    # vetou reescrever. Ela impede que NOVAS falas quebrem o nome.
+    - Four
     - Four Murasame
     - Franklin Bidan
     - Fraw Bow
@@ -7029,8 +7050,11 @@ obras:
     -  - Gundam Mk-II
        - Zeta Gundam
    # ===== CICATRIZ MIGRADA de ContextoGundamZeta.java (2026-08-15) =====
-   # Aliases usados centenas de vezes nas falas. Four, Fa e Bright ficam apenas nas
+   # Aliases usados centenas de vezes nas falas. Fa e Bright ficam apenas nas
    # formas completas: isolados colidem com palavras comuns e a proteção ignora caixa.
+   # FOUR SAIU DESTA RESSALVA em 2026-08-17: a colisão foi MEDIDA e é de 9 falas (numeral
+   # minúsculo) contra 188 do nome, e todas as 9 já estão corretas no acervo — recusar uma
+   # proposta nelas mantém o que já está bom. Ver a justificativa completa em termosProtegidos.
    # Formas medidas nos 50 ASS de Zeta em 2026-08-09. O enforcer só aplica quando o
    # canônico da direita existe no EN, portanto palavras comuns como "Quem" e "Lote"
    # não são tocadas fora das falas que realmente contêm Qum e Batch.
