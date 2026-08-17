@@ -32,6 +32,16 @@ import java.util.List;
  * foi feita, conclui errado sobre o próprio acervo. Achado de boa-fé vira mecanismo, não
  * comentário.
  *
+ * <h2>Convenção de cor — padrão internacional, pedido do Paulo (17/08/2026)</h2>
+ * <ul>
+ *   <li><b>VERDE</b> — a fala está traduzida (é o texto português sob análise, e o
+ *       {@code PT corrigido});</li>
+ *   <li><b>AMARELO</b> — a fala NÃO está traduzida (o selo {@code [NÃO TRADUZIDA]} e a linha
+ *       {@code na legenda} quando ela ainda é o inglês);</li>
+ *   <li><b>VERMELHO</b> — erro, e só erro. Gastar vermelho no que não é erro tira dele o poder de
+ *       parar o olho quando o erro aparecer de verdade.</li>
+ * </ul>
+ *
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>O inglês é sempre REFERÊNCIA e sai apagado ({@code DIM}) com rótulo que diz isso; o
@@ -50,7 +60,7 @@ import java.util.List;
 public class ApresentacaoFalaSuspeita {
 
     /** Marca que o olho pega antes de ler qualquer motivo. */
-    private static final String SELO_EM_INGLES = "  [AINDA EM INGLÊS]";
+    private static final String SELO_EM_INGLES = "  [NÃO TRADUZIDA]";
 
     /**
      * PROPÓSITO DE NEGÓCIO: a fala continua no idioma de origem — e isso é o defeito, não a
@@ -84,9 +94,13 @@ public class ApresentacaoFalaSuspeita {
         boolean emIngles = aindaEmIngles(motivos);
         List<String> saida = new ArrayList<>();
         saida.add("  -> Linha " + indice + " [" + estilo + "]:"
-            + (emIngles ? AnsiCores.RED + SELO_EM_INGLES + AnsiCores.RESET : ""));
+            + (emIngles ? AnsiCores.YELLOW + SELO_EM_INGLES + AnsiCores.RESET : ""));
         saida.add("     " + AnsiCores.DIM + "referência EN: " + texto(originalEn) + AnsiCores.RESET);
-        saida.add("     na legenda  : " + (emIngles ? AnsiCores.RED : AnsiCores.YELLOW)
+        // Convenção de cor pedida pelo Paulo em 17/08/2026, e ela é a internacional:
+        // VERDE traduzida · AMARELO não traduzida · VERMELHO erro. A versão anterior desta classe
+        // usava vermelho para "não traduzida", e gastar o vermelho no que não é erro tira dele o
+        // poder de parar o olho quando o erro aparecer de verdade.
+        saida.add("     na legenda  : " + (emIngles ? AnsiCores.YELLOW : AnsiCores.GREEN)
             + texto(traducaoAtual) + AnsiCores.RESET);
         if (motivos != null) {
             for (String m : motivos) {
