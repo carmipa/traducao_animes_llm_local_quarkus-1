@@ -1,5 +1,43 @@
 # CONTINUIDADE — KRONOS
 
+# ✅ 3.1 REVISÃO DE LEGENDAS — FECHADA em 2026-08-17
+
+**Status honesto: `VALIDADO NO ESCOPO TESTADO`.** Não é "perfeita"; é que tudo o que a tela
+promete fazer foi medido fazendo, e o que ela não faz está declarado abaixo.
+
+## O que ficou provado, com artefato
+
+| propriedade | prova |
+|---|---|
+| música é veto absoluto | 4 portas de escrita inventariadas, 2 consertadas, catraca nominal com mutação |
+| o acervo não tem passivo | 23 obras medidas, **22 com ZERO**; Guilty Crown teve 283 linhas reparadas |
+| corrida cega não passa por sucesso | pasta EN errada devolve `CONCLUIDO_SEM_REFERENCIA`, não verde |
+| traduz o que faltou | a regra de repetição parou de recusar tradução de fala em inglês |
+| não estraga estrutura | proposta que perde `\N` é rejeitada (7ª pergunta do portão) |
+| é idempotente | 16 corridas em 8 obras num dia: **1 escrita**, e era fala legitimamente pendente |
+| a tela não engana | auditoria linha a linha: **10 de 10** batendo com o disco; cor no padrão, rolagem livre, ruído agregado |
+
+Suíte: 326 classes, 1.885 testes, 0 falhas.
+
+## 🔴 Aberto e DECLARADO (nada disso impede usar a tela)
+
+1. **`Side Four` → `Lado Four`** — Paulo quer `Lado Quatro`. Falta MECANISMO (exceção de contexto
+   "`Four` protegido, exceto precedido de `Side`"), não configuração. 3 topônimos × 188 usos do
+   nome. Detalhe no `lore.yaml`.
+2. **126 falas do Zeta** com `Quatro` no lugar do nome — reparo é reescrita, **vetado por Paulo**.
+   A regra impede novas; não conserta as antigas.
+3. **3 cartões de próximo episódio no ZZ** (E35, E41, E42) ainda em inglês.
+4. **Char's Counterattack** achatado para estilo vetado — **fora de escopo por decisão do Paulo**
+   ("quando eu for mexer nele eu traduzo tudo do zero"). A retradução resolve sozinha.
+5. **`Ha ha ha ha ha!`** acusado como não traduzida — gargalhada é idêntica nos dois idiomas.
+   Ruído conhecido, 1 ocorrência.
+6. **Console duplica linha no log** (7×, cresce dentro do processo) — ouvinte acumulando por
+   reconexão. **NÃO medido** se chega ao navegador do Paulo.
+
+## Próxima frente
+
+3.3 Revisão de Concordância (para onde a 3.1 roteia o que não é dela) ou 4.1 Tradução de Karaokê.
+
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
 **Decisão do Paulo, pendente:** `Four` (personagem Four Murasame) sai como `Quatro` quando a fala
