@@ -247,8 +247,34 @@ public class DetectorTermosLoreService {
         return removerPrefixoComumIngles(removerArtigoInicialIngles(removerPossessivoIngles(nome))).strip();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: tira da frente do candidato as palavras que o inglês capitaliza por
+     * posição, e que NÃO fazem parte do nome — numeral, demonstrativo e <b>possessivo</b>.
+     *
+     * <h2>Os possessivos entraram em 17/08/2026, e o prejuízo foi medido</h2>
+     * Sem eles, {@code "Our Reaper"} era tratado como nome próprio COMPOSTO, e a regra de composto
+     * exige que todas as partes apareçam no português. Como {@code Our} vira {@code Nosso} — que é
+     * a tradução certa —, a fala era acusada para sempre. Duas consequências opostas, as duas
+     * vistas na mesma corrida da tela 3.2 no 86:
+     * <ul>
+     *   <li><b>bloqueava conserto real:</b> no ep10 ev.149 o corretor determinístico trocava
+     *       {@code "Nosso Juggernaut"} por {@code "Nosso Reaper"} — o apelido do piloto estava no
+     *       lugar do nome do MECHA — e a re-auditoria acusava de novo, então a correção era
+     *       DESCARTADA e a legenda ficava errada;</li>
+     *   <li><b>criava falso positivo:</b> {@code "His Juggernaut"} → {@code "Seu Juggernaut"} está
+     *       correto e era acusado pelo mesmo motivo.</li>
+     * </ul>
+     * Medido no 86 (11 arquivos, 3.476 falas): 82 acusações de composto, das quais <b>2</b> por
+     * possessivo — uma de cada tipo acima. Volume baixo, efeito dos dois lados.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: remove só do INÍCIO e só uma vez, como já fazia com o artigo
+     * ({@code the/a/an}); o resto do nome fica intacto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome sem prefixo atravessa inalterado.
+     */
     private String removerPrefixoComumIngles(String nome) {
-        return nome.replaceFirst("(?i)^(one|two|three|four|five|six|seven|eight|nine|ten|all|these|those|this|that|some|any)\\s+", "");
+        return nome.replaceFirst("(?i)^(one|two|three|four|five|six|seven|eight|nine|ten|all|these|those|this|that|some|any"
+            + "|our|my|his|her|their|your|its)\\s+", "");
     }
 
     private boolean deveIgnorarNomeProprio(String nome, boolean inicioEfetivoDaFala, String loreLower) {
