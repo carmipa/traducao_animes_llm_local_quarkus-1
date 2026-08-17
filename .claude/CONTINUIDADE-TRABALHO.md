@@ -11,7 +11,26 @@
 > de 3.1 nessa página de lore!"* — com o print da tela da 3.1 como referência.
 
 **A frase da tela:** corrigir nome, local e termo canônico da lore da obra ativa na legenda
-PT-BR. Nada além disso.
+PT-BR, **por comparação determinística de palavras**, com o **LLM como último recurso**. Nada
+além disso.
+
+## O LUGAR DO LLM — decidido em três passos por Paulo, 17/08, e FECHADO
+
+1. *"correção de lore acho que nem é caso de chamar o llm, mas verificação de palavras de forma
+   determinística"*
+2. Apontei a **única perda real**: sem LLM, a 3.2 corrige o que está no mapa de terminologia da
+   obra e mais nada — nome fora do `lore.yaml` vira pendência. Ele: *"então nesse caso mudo a
+   opinião e vale sim a pena manter ele como último ratio"*.
+3. *"pode deixar ele acoplado, no caso o LLM, porque o projeto em si depende dele!"*
+
+**Desenho final: determinístico primeiro, LLM só no que o mapa não alcançou.** É o que o código
+já faz — a mudança que sobra é a de ESFORÇO, e é para MENOS: **não** construir modo degradado.
+
+🟡 **ACEITO CONSCIENTE, não lacuna esquecida.** `RevisarLoreUseCase:179` aborta a sessão inteira
+quando o LM Studio não tem modelo carregado — inclusive a correção determinística, que não depende
+de rede nenhuma. Eu levantei; Paulo reafirmou que o LLM fica acoplado porque o KRONOS inteiro
+depende dele. **Não reabrir sem ele pedir.** Uma tentativa de desacoplar foi começada e
+**revertida** nesta sessão (`git checkout`), sem chegar a commit.
 
 ## ✅ ITEM 1 FECHADO — a 2ª porta de escrita da 3.2 não perguntava se era música
 
@@ -67,7 +86,7 @@ uma asserção extra de que o próprio `AlcanceRevisaoLore` continua consultando
 | A | acusar palavra em CAIXA ALTA | `DetectorTermosLoreService.detectarTermosMaiusculosSuspeitos` | qualquer grito "PARE!" vira motivo; não é nome nem local |
 | B | acusar resíduo genérico em inglês | `detectarNomesInglesRemanescentes` | é FALTA DE TRADUÇÃO — trabalho da 3.1 |
 | C | encaminhar fala não traduzida à Opção 6 | `RevisarLoreUseCase.ehFalaNaoTraduzida` | idem; e hoje INFLA `falasSinalizadas` e vira pendência, deixando a 3.2 amarela por problema alheio |
-| D | checkbox "Revisar todas as falas" (parte LLM) | flag `revisarTodasFalas` | proposta em fala sem indício de lore é SEMPRE descartada em `RevisarLoreUseCase:703` (`suspeito==false` ⟺ `motivos` vazio). Chamada cara com efeito nulo POR CONSTRUÇÃO. O ganho real do modo é o corretor determinístico alcançar fala não sinalizada — isso vira padrão, sem checkbox |
+| D | checkbox "Revisar todas as falas" (parte LLM) | flag `revisarTodasFalas` | **PROVADO** com o caso de uso real: proposta em fala sem indício de lore nunca chega ao arquivo. Chamada com efeito nulo POR CONSTRUÇÃO — e "último recurso" não é "recurso preventivo". O ganho real do modo é o corretor determinístico alcançar fala não sinalizada: isso vira padrão, sem checkbox |
 | E | roster de lore hardcoded no detector | `TERMOS_LORE_SOLTEIROS_RELEVANTES` (100+ termos misturando Gundam/86/Macross), `TRADUCOES_LITERAIS_SUSPEITAS` (17), `TERMOS_TRADUZIVEIS_ACEITOS` (11) | SEGUNDA cópia da lore em código, contra a decisão de 15/08 (lore = arquivo único). Exige medir cobertura antes e depois |
 | F | visual da 3.1 na 3.2 | `static/revisaoLore/revisaoLore.html` + `.js` | pedido do Paulo com print: combo de obra travando os campos (`travaLore.js`), campos numerados com o destino de escrita em negrito, cartão "Lore ativa", passadas em cartões com etiquetas e botão próprio, faixa de aviso |
 | G | console no padrão da 3.1 | `RevisarLoreUseCase.sessao.out` | cor padrão internacional (verde=corrigida, amarelo=pendente, VERMELHO só erro), referência EN em apagado × estado colorido, ruído agregado por arquivo (hoje imprime uma linha DIM por fala auditada), `[ESTILOS] N linha(s) alterada(s)` por arquivo gravado |
