@@ -165,6 +165,32 @@ o javadoc anterior. A heurística de recuo comeu **199 linhas** e levou junto
 estrago). **Transformação em lote sem guarda que aborta é o que a regra proíbe** — os cortes de
 A/B/C/D se fazem por edição dirigida, um método por vez, com a suíte entre eles.
 
+## ✅ A e B CORTADOS — 2.422 motivos, 24,0% do ruído da tela
+
+Cortes por **edição dirigida**, um método por vez, com a suíte entre eles. Saíram
+`detectarTermosMaiusculosSuspeitos`, `detectarNomesInglesRemanescentes` e os órfãos
+(`PALAVRA_LATINA`, `COGNATOS_VALIDOS_PT`, `tokensDeNomesProprios`, `loreMencionaExclusivamente`).
+
+**ACHADO NO CAMINHO:** a suíte passou **verde de primeira** — e a razão não é boa. As duas regras
+**não tinham um único teste**. 2.422 motivos por corrida no acervo, produzidos por código sem
+cobertura nenhuma. Não havia o que quebrar.
+
+`EscopoDaRevisaoLoreTest` é a cobertura que faltava, escrita no sentido contrário: reprova se
+elas VOLTAREM, e a mensagem carrega o volume que cada uma produzia. Caso-controle nos DOIS
+sentidos no mesmo arquivo — as falas fora de escopo têm de sair limpas **e** as três regras que
+ficaram têm de continuar acusando, senão um detector inteiramente cego passaria.
+
+```
+MUTACAO (detectarNomesPropriosDivergentes desligada) .. 1 failed
+   CONTROLE POSITIVO: nome proprio composto quebrado continua sendo acusado
+   -> os controles ENXERGAM; nao sao assercao decorativa
+suite completa --rerun-tasks ......................... 332 classes, 1.897 testes, 0 falhas
+```
+
+⚠️ **NÃO REPETIR:** heredoc de `git commit` e `python -c` com aspas duplas **expandem crase** no
+bash — foi assim que a primeira versão desta seção foi gravada com os nomes de classe apagados e
+o bloco duplicado. Texto com crase vai por `Write`/`Edit`, nunca por heredoc de shell.
+
 ## FILA — o que ainda sai ("o resto tiramos tudo")
 
 | # | item | onde | por que sai |
@@ -195,23 +221,6 @@ falasDescartadas .... 0       (se fosse aqui, a proposta teria morrido numa trav
 **Conclusão provada, não inferida:** no modo "Revisar todas as falas", a chamada ao LLM em fala
 sem indício de lore é incapaz de alterar a legenda. Remover essa chamada não perde capacidade
 nenhuma — só deixa de gastar o modelo local.
-
-## ✅ A e B CORTADOS (2.422 motivos, 24,0% do ruído) — e a cobertura que faltava
-
-Cortes por **edição dirigida**, um método por vez. Saíram ,
- e os órfãos (, ,
-, ).
-
-**ACHADO NO CAMINHO:** os testes passaram **verde de primeira**, e a razão não é boa — as duas
-regras **não tinham um único teste**. 2.422 motivos por corrida no acervo, produzidos por código
-sem cobertura. Não havia o que quebrar.
-
- é a cobertura que faltava, escrita no sentido contrário: reprova se
-elas VOLTAREM. Caso-controle nos dois sentidos no mesmo arquivo — as duas falas que saíram do
-escopo têm de sair limpas **e** as três regras que ficaram têm de continuar acusando, senão um
-detector inteiramente cego passaria.
-
-
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
@@ -280,23 +289,6 @@ Suíte: 326 classes, 1.885 testes, 0 falhas.
 ## Próxima frente
 
 3.3 Revisão de Concordância (para onde a 3.1 roteia o que não é dela) ou 4.1 Tradução de Karaokê.
-
-## ✅ A e B CORTADOS (2.422 motivos, 24,0% do ruído) — e a cobertura que faltava
-
-Cortes por **edição dirigida**, um método por vez. Saíram ,
- e os órfãos (, ,
-, ).
-
-**ACHADO NO CAMINHO:** os testes passaram **verde de primeira**, e a razão não é boa — as duas
-regras **não tinham um único teste**. 2.422 motivos por corrida no acervo, produzidos por código
-sem cobertura. Não havia o que quebrar.
-
- é a cobertura que faltava, escrita no sentido contrário: reprova se
-elas VOLTAREM. Caso-controle nos dois sentidos no mesmo arquivo — as duas falas que saíram do
-escopo têm de sair limpas **e** as três regras que ficaram têm de continuar acusando, senão um
-detector inteiramente cego passaria.
-
-
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
