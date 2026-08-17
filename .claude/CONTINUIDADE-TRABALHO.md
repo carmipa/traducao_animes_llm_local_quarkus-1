@@ -275,9 +275,24 @@ isso o pareamento não casava. Não era "obra sem inglês"; era tradução pela 
    `MedicaoExposicaoMusicalRevisaoLorePtOnlyIT` (e a entrada dele em
    `CatracaSuiteSemDriveWindowsTest`), os dois testes `revisarLorePtOnly*` do `ApiEndpointsTest`,
    e o caso de `corrigirPtOnly` em `CorretorLoreDeterministicoTest`.
-5. ⚠️ **CONFERIR ANTES:** o grep casou `ContextoRevisaoLoreMacross*Filmes` e
-   `CatracaAgregadorasForaDoCdiTest` — quase certo que é falso positivo do padrão, mas **abrir e
-   confirmar** antes de tocar em qualquer uma delas.
+5. 🔴 **NÃO ERAM FALSOS POSITIVOS — e este passo virou o mais delicado.** Conferido: as três
+   `ContextoRevisaoLoreMacross*Filmes` e a `CatracaAgregadorasForaDoCdiTest` citam
+   `RevisarLorePtOnlyUseCase` como **a razão de as 3 agregadoras Macross ficarem FORA do CDI**:
+
+   > *"No fluxo EN+PT quase é seguro: o `ValidadorCandidatoLoreService` exige que a sequência nova
+   > apareça no ORIGINAL INGLÊS além da lore. **No fluxo PT-ONLY esse portão não existe** — o
+   > `RevisarLorePtOnlyUseCase` manda o prompt ao LLM com o original inglês VAZIO. Com a agregadora
+   > ali, o modelo pode normalizar um termo de um título para o canônico de OUTRO."*
+
+   Tirar a aba **remove o risco que justifica aquela catraca**. Três desfechos possíveis, e a
+   escolha é de Paulo porque mexe em lore:
+   - **manter as agregadoras fora do CDI** e reescrever o porquê (conservador, custo zero);
+   - reavaliar se elas podem voltar, agora que o fluxo sem portão morreu;
+   - manter e declarar como risco residual até alguém medir.
+
+   **O que NÃO fazer:** apagar o texto da catraca junto com a aba. O raciocínio dela some, a
+   catraca continua verde, e ninguém mais sabe por que aquelas três classes estão fora do CDI —
+   que é a forma clássica de uma proteção virar mistério e depois ser removida por engano.
 6. `AlcanceRevisaoLore` **FICA** — a porta que sobra continua consultando ele.
 
 **Nota de honestidade para o commit:** o `MedicaoExposicaoMusicalRevisaoLorePtOnlyIT` mediu as
