@@ -253,6 +253,18 @@ public class RevisarLoreUseCase {
         // falta de traducao, trabalho da 3.1. Contá-la aqui fazia a 3.2 fechar amarela por
         // pendencia que nunca foi dela.
         int falasPendentes = falasSemResposta[0] + falasDescartadas[0];
+
+        // CEGUEIRA — regra 12: "nada a corrigir" e "nao comparei nada" NAO podem dar o mesmo
+        // sinal. Se TODA fala auditada saiu como identica ao original, a tela nao comparou coisa
+        // alguma: ou o par esta errado, ou a pasta apontada nao e a traducao. Sem esta linha o
+        // lote fecharia CONCLUIDO, em VERDE — que foi exatamente o defeito que a 3.1 pagou para
+        // eliminar com o CONCLUIDO_SEM_REFERENCIA, e que o item C de hoje reabriu aqui ao tirar
+        // as encaminhadas da conta de pendencias.
+        if (falasAuditadas[0] > 0 && falasEncaminhadasOpcao6[0] == falasAuditadas[0]) {
+            erros.add("CEGO: as " + falasAuditadas[0] + " falas auditadas estavam IDENTICAS ao "
+                + "original — nenhuma foi comparada de verdade. Confira se a 2a pasta e mesmo a "
+                + "traducao PT-BR e se ela corresponde a 1a. Nada foi gravado.");
+        }
         StatusRevisaoLore statusFinal = determinarStatus(semArquivos, cancelado[0], erros, falasPendentes);
 
         sessao.out("Arquivos analisados: " + arquivosAnalisados[0]);
@@ -381,6 +393,33 @@ public class RevisarLoreUseCase {
         if (!Files.isDirectory(pastaOriginal) || !Files.isDirectory(pastaTraduzida)) {
             throw new RevisaoLoreException(
                 "Pastas nao encontradas — esperava original em " + pastaOriginal + " e traduzida em " + pastaTraduzida);
+        }
+        if (mesmaPasta(pastaOriginal, pastaTraduzida)) {
+            throw new RevisaoLoreException(
+                "As duas pastas apontam para o MESMO lugar (" + pastaTraduzida.toAbsolutePath()
+                    + "). Cada arquivo seria comparado consigo mesmo: toda fala pareceria "
+                    + "\"identica ao original\" e a tela fecharia sem ter comparado NADA. "
+                    + "Informe a pasta em ingles no 1o campo e a pasta PT-BR no 2o.");
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece que os dois campos de pasta apontam para o mesmo lugar —
+     * o erro de boa-fé que faz cada arquivo ser comparado CONSIGO MESMO.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao sistema de arquivos ({@link Files#isSameFile}), que
+     * enxerga junction, link simbólico e grafias diferentes do mesmo caminho — comparar texto
+     * deixaria passar {@code C:\a} contra {@code C:\a\.} e contra a junction que aponta para ela.
+     * Só cai na comparação normalizada quando o sistema de arquivos não responde.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link IOException} degrada para a comparação de
+     * caminho absoluto normalizado; nunca lança.
+     */
+    private static boolean mesmaPasta(Path a, Path b) {
+        try {
+            return Files.isSameFile(a, b);
+        } catch (IOException e) {
+            return a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize());
         }
     }
 
