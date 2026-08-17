@@ -182,6 +182,11 @@ public class RevisarLoreUseCase {
         String nomePromptRevisao = gerenciadorPromptRevisaoLore.obterNome(contextoId);
         String promptSistemaRevisaoLore = gerenciadorPromptRevisaoLore.obterPromptSistema(contextoId);
         String loreCanonica = PromptRevisaoLore.extrairLoreCanonica(promptSistemaRevisaoLore);
+        // As traducoes PT-BR que a OBRA declara como aceitas. Sem elas o detector acusa traducao
+        // correta: no 86, "Federacy"->"Federacao" e "Reaper"->"Ceifador" respondiam por dezenas
+        // de pendencias que nao eram defeito. Lido uma vez por sessao, nao por fala.
+        Map<String, java.util.List<String>> equivalenciasDaObra =
+            gerenciadorPromptRevisaoLore.obterPrompt(contextoId).equivalenciasAceitas();
 
         sessao.out(AnsiCores.CYAN + "\n=== Revisao de Lore (nomes, locais e terminologia) ===" + AnsiCores.RESET);
         sessao.out("Inicio UTC: " + UTC_FORMATTER.format(Instant.now()));
@@ -233,7 +238,7 @@ public class RevisarLoreUseCase {
                 Path arqOriginal = originais.get(indiceArquivo);
                 processarArquivo(
                     sessao, arqOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
-                    revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, pastaBackup,
+                    revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, equivalenciasDaObra, pastaBackup,
                     indiceArquivo + 1, originais.size(), totalFalasGlobais,
                     arquivosAnalisados, arquivosAlterados, falasAuditadas, falasSinalizadas,
                     falasCorrigidas, falasSemAlteracao, falasSemResposta, falasDescartadas,
@@ -440,6 +445,7 @@ public class RevisarLoreUseCase {
         boolean revisarTodasFalas,
         String promptSistemaRevisaoLore,
         String loreCanonica,
+        Map<String, java.util.List<String>> equivalenciasDaObra,
         Path pastaBackup,
         int indiceArquivo,
         int totalArquivos,
@@ -562,7 +568,7 @@ public class RevisarLoreUseCase {
                 // O prompt de lore da obra ativa contextualiza a heurística: regras
                 // de outra franquia (ex.: "freedom"→"liberdade" do SEED) não disparam.
                 ResultadoDeteccaoLore deteccao = detector.auditar(
-                    mascaraEn.texto(), mascaraPt.texto(), loreCanonica);
+                    mascaraEn.texto(), mascaraPt.texto(), loreCanonica, equivalenciasDaObra);
 
                 // ITEM D (17/08/2026) — "nada de checkbox, deixa ele habilitado por padrao, o
                 // sistema que determina isso". O corretor DETERMINISTICO roda em TODA fala no
@@ -590,7 +596,7 @@ public class RevisarLoreUseCase {
                     }
 
                     ResultadoDeteccaoLore deteccaoPosterior = detector.auditar(
-                        mascaraEn.texto(), mascarador.mascarar(revisada).texto(), loreCanonica);
+                        mascaraEn.texto(), mascarador.mascarar(revisada).texto(), loreCanonica, equivalenciasDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
                         sessao.out(AnsiCores.YELLOW + marcadorFala
@@ -745,7 +751,7 @@ public class RevisarLoreUseCase {
                 if (deteccao.suspeito()) {
                     String revisadaMascarada = mascarador.mascarar(revisada).texto();
                     ResultadoDeteccaoLore deteccaoPosterior = detector.auditar(
-                        mascaraEn.texto(), revisadaMascarada, loreCanonica);
+                        mascaraEn.texto(), revisadaMascarada, loreCanonica, equivalenciasDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
                         sessao.out(AnsiCores.YELLOW + marcadorFala

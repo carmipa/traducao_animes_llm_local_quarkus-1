@@ -1948,6 +1948,29 @@ obras:
    # ocorrem em nenhuma das 16.120 falas ja traduzidas. O ganho e nas traducoes FUTURAS.
    # "Canela" e homografo da parte do corpo em portugues, e e segura pelo MECANISMO, nao por
    # sorte: so dispara com "Shin" MAIUSCULO no ingles; a canela do corpo la e "shin" minusculo.
+   # EQUIVALENCIAS ACEITAS — o oposto de correcoesTerminologia: aqui o termo PT esta CERTO e a
+   # tela para de acusar. Nao escreve nada na legenda.
+   #
+   # MEDIDO em 17/08/2026, na corrida da 3.2 nas duas temporadas (543 pendencias):
+   #   Republic  113x no EN  ->  "Republica" 59x no PT gravado
+   #   Federacy   49x        ->  "Federacao" 48x   (48 de 49: a traducao ja e consistente)
+   #   Empire     14x        ->  "Imperio"   14x   (14 de 14)
+   #   Reaper     17x        ->  "Ceifador"  24x   epiteto, e decisao de Paulo de 15/08:
+   #                                               "epiteto fica fora da traducao"
+   # Nenhuma delas e defeito. Mapea-las em correcoesTerminologia escreveria ~90 falas e repetiria
+   # o erro do "Ceifador -> Reaper" revertido no mesmo dia.
+   equivalenciasAceitas:
+     Reaper:
+      - Ceifador
+     Federacy:
+      - Federacao
+      - Federação
+     Republic:
+      - Republica
+      - República
+     Empire:
+      - Imperio
+      - Império
    correcoesTerminologia:
      Canela: Shin                        # [UNIAO 15/08] homografo — protegido pela caixa
      Carrasco: Undertaker                # 1

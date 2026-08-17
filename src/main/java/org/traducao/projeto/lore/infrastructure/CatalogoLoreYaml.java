@@ -150,7 +150,8 @@ public final class CatalogoLoreYaml {
                 ? terminologiaUnificada.get(id)
                 : terminologiaRevisao.getOrDefault(id, Map.of());
             revisoes.add(new RevisaoDeArquivo(
-                id, texto(o, "nome", recurso), texto(o, "prompt", recurso), unificada));
+                id, texto(o, "nome", recurso), texto(o, "prompt", recurso), unificada,
+                mapaDeListas(o.get("equivalenciasAceitas"))));
         }
         this.obrasRevisao = List.copyOf(revisoes);
     }
@@ -227,7 +228,8 @@ public final class CatalogoLoreYaml {
      * <p>INVARIANTES DO DOMÍNIO: campos imutáveis; sem I/O.
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
      */
-    private record RevisaoDeArquivo(String id, String nome, String prompt, Map<String, String> correcoes)
+    private record RevisaoDeArquivo(String id, String nome, String prompt, Map<String, String> correcoes,
+        Map<String, List<String>> equivalencias)
         implements org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore {
 
         @Override
@@ -248,6 +250,11 @@ public final class CatalogoLoreYaml {
         @Override
         public Map<String, String> correcoesTerminologia() {
             return correcoes;
+        }
+
+        @Override
+        public Map<String, List<String>> equivalenciasAceitas() {
+            return equivalencias;
         }
     }
 
@@ -283,6 +290,28 @@ public final class CatalogoLoreYaml {
             return Map.of();
         }
         return Map.copyOf((Map<String, String>) v);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lê o mapa "termo do inglês -> formas PT-BR aceitas" do arquivo.
+     * <p>INVARIANTES DO DOMÍNIO: chaves e valores normalizados para MINÚSCULAS, porque é assim
+     * que o detector compara; mapa e listas imutáveis.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: ausente devolve mapa vazio — que significa "a obra não
+     * declara equivalência", nunca "aceite qualquer coisa".
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, List<String>> mapaDeListas(Object v) {
+        if (v == null) {
+            return Map.of();
+        }
+        Map<String, List<String>> resultado = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : ((Map<String, Object>) v).entrySet()) {
+            List<String> formas = ((List<String>) e.getValue()).stream()
+                .map(f -> f.toLowerCase(java.util.Locale.ROOT))
+                .toList();
+            resultado.put(e.getKey().toLowerCase(java.util.Locale.ROOT), List.copyOf(formas));
+        }
+        return Map.copyOf(resultado);
     }
 
     @SuppressWarnings("unchecked")

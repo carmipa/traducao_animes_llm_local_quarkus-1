@@ -75,6 +75,28 @@ public class DetectorTermosLoreService {
      * limpo e nenhuma alteração é autorizada diretamente por este detector.
      */
     public ResultadoDeteccaoLore auditar(String originalIngles, String traducaoPt, String loreObraAtiva) {
+        return auditar(originalIngles, traducaoPt, loreObraAtiva, Map.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma auditoria, agora sabendo quais traduções PT-BR a OBRA declara
+     * como aceitas — o que impede a tela de acusar tradução correta.
+     *
+     * <h2>Por que este parâmetro existe — medido em 17/08/2026</h2>
+     * O 86 fechou com 543 pendências e quase nenhuma era defeito: {@code Federacy}→{@code
+     * Federação}, {@code Republic}→{@code República}, {@code Empire}→{@code Império},
+     * {@code Reaper}→{@code Ceifador}. Todas corretas, todas acusadas, porque o único catálogo de
+     * equivalências era o {@link #TERMOS_TRADUZIVEIS_ACEITOS} HARDCODED aqui — que mistura
+     * Gundam, 86 e Macross e é uma segunda cópia da lore dentro do código.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as equivalências da obra têm precedência e SOMAM ao mapa global;
+     * mapa vazio reproduz exatamente o comportamento anterior. Declarar equivalência NÃO escreve
+     * na legenda — só cala a acusação.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo é tratado como vazio.
+     */
+    public ResultadoDeteccaoLore auditar(String originalIngles, String traducaoPt, String loreObraAtiva,
+                                         Map<String, List<String>> equivalenciasDaObra) {
         if (originalIngles == null || originalIngles.isBlank()
             || traducaoPt == null || traducaoPt.isBlank()) {
             return ResultadoDeteccaoLore.limpo();
@@ -102,7 +124,7 @@ public class DetectorTermosLoreService {
         // Juntas eram 2.422 motivos: 24,0% de todo o ruido que a tela produzia.
         detectarTraducoesLiteraisSuspeitas(en, pt, motivos, loreLower);
         detectarTermosTraduziveisEmIngles(en, pt, motivos);
-        detectarNomesPropriosDivergentes(en, pt, motivos, loreLower);
+        detectarNomesPropriosDivergentes(en, pt, motivos, loreLower, equivalenciasDaObra);
 
         if (motivos.isEmpty()) {
             return ResultadoDeteccaoLore.limpo();
@@ -195,7 +217,8 @@ public class DetectorTermosLoreService {
         }
     }
 
-    private void detectarNomesPropriosDivergentes(String en, String pt, List<String> motivos, String loreLower) {
+    private void detectarNomesPropriosDivergentes(String en, String pt, List<String> motivos, String loreLower,
+            Map<String, List<String>> equivalenciasDaObra) {
         Matcher matcherEn = NOME_PROPRIO.matcher(en);
         while (matcherEn.find()) {
             String grupo = matcherEn.group();
@@ -206,7 +229,7 @@ public class DetectorTermosLoreService {
                 String nome = limparCandidatoNomeProprio(subNomeRaw);
                 int indexNoOriginal = en.indexOf(subNomeRaw);
                 if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, indexNoOriginal >= 0 ? indexNoOriginal : matcherEn.start()), loreLower)
-                    || traducaoAceitaParaTermo(nome, pt)) {
+                    || traducaoAceitaParaTermo(nome, pt, equivalenciasDaObra)) {
                     continue;
                 }
                 if (pt.contains(nome)) {
@@ -323,8 +346,13 @@ public class DetectorTermosLoreService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: parte não comprovada retorna falso e
      * mantém a fala sinalizada para análise segura.
      */
-    private boolean traducaoAceitaParaTermo(String nome, String pt) {
+    private boolean traducaoAceitaParaTermo(String nome, String pt, Map<String, List<String>> daObra) {
         String ptLower = pt.toLowerCase(Locale.ROOT);
+        // A obra vem PRIMEIRO: ela conhece a propria terminologia melhor que o mapa global.
+        List<String> declaradas = daObra == null ? null : daObra.get(nome.toLowerCase(Locale.ROOT));
+        if (declaradas != null && contemAlgumaExpressao(ptLower, declaradas)) {
+            return true;
+        }
         List<String> aceitas = TERMOS_TRADUZIVEIS_ACEITOS.get(nome.toLowerCase(Locale.ROOT));
         if (aceitas != null && contemAlgumaExpressao(ptLower, aceitas)) {
             return true;
@@ -339,7 +367,9 @@ public class DetectorTermosLoreService {
             if (normalizada.isBlank()) {
                 continue;
             }
-            List<String> variantes = TERMOS_TRADUZIVEIS_ACEITOS.get(normalizada);
+            List<String> variantes = daObra != null && daObra.containsKey(normalizada)
+                ? daObra.get(normalizada)
+                : TERMOS_TRADUZIVEIS_ACEITOS.get(normalizada);
             boolean presenteOriginal = contemExpressaoInteira(ptLower, normalizada);
             boolean presenteTraduzida = variantes != null && contemAlgumaExpressao(ptLower, variantes);
             if (!presenteOriginal && !presenteTraduzida) {
