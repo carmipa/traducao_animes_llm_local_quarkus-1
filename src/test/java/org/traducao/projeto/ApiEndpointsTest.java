@@ -403,15 +403,34 @@ class ApiEndpointsTest {
             .body("find { it.id == 'guilty_crown' }.nome", containsString("Revisao de Lore"));
     }
 
+    /**
+     * As duas pastas precisam ser DIFERENTES. Este teste mandava {@code cache} nos dois campos —
+     * por conveniência, não por intenção — e passou a receber 400 em 17/08/2026, quando a rota
+     * ganhou a recusa de pastas iguais. Não é regressão: comparar uma pasta consigo mesma faz
+     * cada arquivo ser conferido contra ele próprio, toda fala parece "idêntica ao original" e a
+     * tela fecharia sem ter comparado nada. O teste foi corrigido para o que ele sempre quis
+     * afirmar — contexto válido enfileira —, não afrouxado.
+     */
     @Test
     void revisarLoreIniciaComContextoValido() {
+        given()
+            .contentType("application/json")
+            .body("{\"diretorioOriginal\":\"cache\",\"diretorioTraduzido\":\"logs\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
+            .when().post("/api/revisar-lore")
+            .then()
+            .statusCode(200)
+            .body("mensagem", containsString("Revisao de lore iniciada"));
+    }
+
+    @Test
+    void revisarLoreComAsDuasPastasIguaisRetornaBadRequest() {
         given()
             .contentType("application/json")
             .body("{\"diretorioOriginal\":\"cache\",\"diretorioTraduzido\":\"cache\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
             .when().post("/api/revisar-lore")
             .then()
-            .statusCode(200)
-            .body("mensagem", containsString("Revisao de lore iniciada"));
+            .statusCode(400)
+            .body("erro", containsString("mesmo lugar"));
     }
 
     @Test

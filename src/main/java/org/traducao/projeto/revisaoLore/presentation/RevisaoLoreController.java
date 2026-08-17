@@ -153,6 +153,18 @@ public class RevisaoLoreController {
 
         Path pastaOriginal = Path.of(req.diretorioOriginal().trim());
         Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());
+
+        // ANTES do submeter(), pela mesma razao da guarda de caminho acima: depois da fila a
+        // resposta HTTP ja saiu como "revisao iniciada" e a recusa so existiria no log. O caso de
+        // boa-fe: as duas pastas iguais fazem cada arquivo ser comparado CONSIGO MESMO, e a tela
+        // fecharia sem ter comparado nada. O use case tambem recusa — esta e a camada que devolve
+        // 400 na tela, aquela e a que protege quem chama por outro caminho.
+        if (mesmaPasta(pastaOriginal, pastaTraduzida)) {
+            return ResponseEntity.badRequest().body(Map.of("erro",
+                "As duas pastas apontam para o mesmo lugar. Informe a pasta com as legendas em "
+                    + "INGLES no 1o campo e a pasta com as legendas PT-BR no 2o — comparar uma "
+                    + "pasta consigo mesma nao revisa nada."));
+        }
         boolean revisarTodas = req.revisarTodasFalas();
 
         filaExecucao.submeter(() -> {
@@ -297,6 +309,22 @@ public class RevisaoLoreController {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece que os dois campos apontam para a mesma pasta.
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao sistema de arquivos, que enxerga junction, link e
+     * grafias diferentes do mesmo caminho; comparar texto deixaria passar {@code C:\a} contra
+     * {@code C:\a\.}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem resposta do sistema de arquivos, compara o caminho
+     * absoluto normalizado; nunca lança.
+     */
+    private static boolean mesmaPasta(Path a, Path b) {
+        try {
+            return java.nio.file.Files.isSameFile(a, b);
+        } catch (java.io.IOException e) {
+            return a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize());
+        }
+    }
+
     private void imprimirFalha(String mensagem) {
         System.out.println("\n" + AnsiCores.RED + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.RED + "  [" + StatusRevisaoLore.FALHOU.rotulo().toUpperCase()
