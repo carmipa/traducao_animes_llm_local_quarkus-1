@@ -53,7 +53,7 @@ class ApresentacaoFalaSuspeitaTest {
         String saida = tela(apresentacao.linhas(3, "Dialogue", EN_CONCORDANCIA, PT_CONCORDANCIA,
             List.of("Original usa 'her', mas tradução aponta para masculino")));
 
-        assertFalse(saida.contains("AINDA EM INGLÊS"),
+        assertFalse(saida.contains("NÃO TRADUZIDA"),
             "o português está CORRETO aqui; marcar como inglês é alarme falso");
         assertTrue(saida.contains(AnsiCores.DIM + "referência EN: "),
             "o inglês tem de sair rotulado como referência e apagado, para o olho pular");
@@ -66,10 +66,24 @@ class ApresentacaoFalaSuspeitaTest {
         String saida = tela(apresentacao.linhas(9, "Dialogue", EN_NAO_TRADUZIDA, EN_NAO_TRADUZIDA,
             List.of("Fala não traduzida (idêntica ao original em inglês): " + EN_NAO_TRADUZIDA)));
 
-        assertTrue(saida.contains("AINDA EM INGLÊS"),
+        assertTrue(saida.contains("NÃO TRADUZIDA"),
             "esta é a que o operador precisa enxergar sem ler o motivo");
-        assertTrue(saida.contains(AnsiCores.RED),
-            "a linha da legenda tem de destoar quando ELA é o defeito");
+        assertTrue(saida.contains(AnsiCores.YELLOW),
+            "não traduzida é AMARELO no padrão internacional (verde traduzida, vermelho erro)");
+        assertFalse(saida.contains(AnsiCores.RED),
+            "vermelho é reservado a ERRO: gastá-lo aqui tira dele o poder de parar o olho");
+    }
+
+    /** A convenção de cor, dita por Paulo: verde traduzida · amarelo não traduzida · vermelho erro. */
+    @Test
+    @DisplayName("fala traduzida sai em VERDE, nao em amarelo")
+    void falaTraduzidaSaiEmVerde() {
+        String saida = tela(apresentacao.linhas(3, "Dialogue", EN_CONCORDANCIA, PT_CONCORDANCIA,
+            List.of("Original usa 'her', mas tradução aponta para masculino")));
+
+        assertTrue(saida.contains(AnsiCores.GREEN),
+            "o texto ESTÁ traduzido — o achado é de concordância, não de tradução faltando");
+        assertFalse(saida.contains(AnsiCores.RED), "e não é erro");
     }
 
     /**
@@ -108,7 +122,7 @@ class ApresentacaoFalaSuspeitaTest {
         while (m.find()) {
             codigos.append(m.group());
         }
-        return codigos + (saida.contains("AINDA EM INGLÊS") ? "|SELO" : "|");
+        return codigos + (saida.contains("NÃO TRADUZIDA") ? "|SELO" : "|");
     }
 
     /** Motivos nulos não podem derrubar a tela nem inventar selo. */
@@ -117,7 +131,7 @@ class ApresentacaoFalaSuspeitaTest {
     void motivosNulosNaoInventamSelo() {
         String saida = tela(apresentacao.linhas(1, "Default", "A", "B", null));
 
-        assertFalse(saida.contains("AINDA EM INGLÊS"));
+        assertFalse(saida.contains("NÃO TRADUZIDA"));
         assertFalse(apresentacao.aindaEmIngles(null));
     }
 }

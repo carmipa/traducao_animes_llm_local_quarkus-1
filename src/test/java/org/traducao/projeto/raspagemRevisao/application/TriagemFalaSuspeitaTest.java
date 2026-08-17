@@ -45,17 +45,37 @@ class TriagemFalaSuspeitaTest {
     /**
      * O coração da exceção: "Hyaku Shiki" em PT é "Hyaku Shiki". Idêntico ao inglês aqui é CERTO,
      * não é tradução que faltou.
+     *
+     * <h2>Por que a mensagem por evento saiu em 17/08/2026</h2>
+     * A dispensa é MARCADA para o caso de uso contar, e não narrada linha a linha. Uma corrida do
+     * Zeta produzia <b>1.053</b> mensagens "Evento N contém somente nome/termo canônico" — e elas
+     * enterravam os 10 achados que pediam ação do operador. Paulo, vendo a tela: <i>"por isso me
+     * confundia"</i>. A informação não sumiu: virou uma linha por arquivo, com o total.
      */
     @Test
     void falaIdenticaAoInglesPorSerSoTermoCanonicoEhDispensada() {
         TriagemFalaSuspeita.Resultado resultado = triagem.triar(
             fala("Hyaku Shiki"), "Hyaku Shiki", "Hyaku Shiki", true, contextoCom("Hyaku Shiki"));
 
-        DecisaoFala decisao = dispensa(resultado);
-        assertInstanceOf(DecisaoFala.Manter.class, decisao, "dispensar é sempre manter");
-        assertEquals(1, decisao.avisosAoOperador().size(),
-            "o operador precisa ver por que uma fala igual ao inglês não foi tocada");
-        assertTrue(decisao.avisosAoOperador().get(0).contains("[LORE]"));
+        var dispensada = assertInstanceOf(
+            TriagemFalaSuspeita.Resultado.Dispensada.class, resultado);
+        assertInstanceOf(DecisaoFala.Manter.class, dispensada.decisao(), "dispensar é sempre manter");
+        assertTrue(dispensada.somenteTermoCanonico(),
+            "sem esta marca o caso de uso não tem o que contar, e o motivo da dispensa some");
+        assertEquals(0, dispensada.decisao().avisosAoOperador().size(),
+            "narrar por evento rendeu 1.053 linhas de 'nada aconteceu' numa corrida do Zeta");
+    }
+
+    /** Dispensa comum (nada suspeito) NÃO pode ser contada como termo canônico. */
+    @Test
+    void dispensaComumNaoEhMarcadaComoTermoCanonico() {
+        TriagemFalaSuspeita.Resultado resultado = triagem.triar(
+            fala("Bom dia."), "Good morning.", "Bom dia.", true, contextoCom("Hyaku Shiki"));
+
+        var dispensada = assertInstanceOf(
+            TriagemFalaSuspeita.Resultado.Dispensada.class, resultado);
+        assertFalse(dispensada.somenteTermoCanonico(),
+            "contar isto inflaria o total e o número perderia sentido");
     }
 
     /**

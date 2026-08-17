@@ -473,6 +473,10 @@ public class RevisarLegendasUseCase {
             return sessao;
         }
 
+        // Quantas falas eram só nome/termo da lore. CONTADAS, não narradas: uma linha por evento
+        // rendia 1.053 mensagens de "nada aconteceu" numa corrida do Zeta, e elas enterravam os
+        // 10 achados que pediam ação. Paulo, 17/08/2026: "por isso me confundia".
+        int soTermoCanonico = 0;
         boolean interrompido = false;
         for (EventoLegenda evento : documentoPt.eventos()) {
             // Parada cooperativa no meio do arquivo: as falas restantes entram
@@ -528,6 +532,9 @@ public class RevisarLegendasUseCase {
             TriagemFalaSuspeita.Resultado triagem = triagemFala.triar(
                 evento, originalEn, traducaoAtual, temOriginalEn, contexto);
             if (triagem instanceof TriagemFalaSuspeita.Resultado.Dispensada dispensada) {
+                if (dispensada.somenteTermoCanonico()) {
+                    soTermoCanonico++;
+                }
                 aplicar(sessao, evento, dispensada.decisao());
                 continue;
             }
@@ -548,6 +555,11 @@ public class RevisarLegendasUseCase {
                 arquivoPt.getFileName().toString(), modo, contexto);
             detalhesRevisao.addAll(tentativa.evidencias());
             aplicar(sessao, evento, tentativa.decisao());
+        }
+
+        if (soTermoCanonico > 0) {
+            out("  " + AnsiCores.DIM + "[LORE] " + soTermoCanonico
+                + " fala(s) eram só nome/termo canônico e não foram à IA." + AnsiCores.RESET);
         }
 
         if (sessao.modificado()) {

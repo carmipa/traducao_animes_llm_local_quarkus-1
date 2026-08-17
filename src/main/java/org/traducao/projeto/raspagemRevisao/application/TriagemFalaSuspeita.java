@@ -73,8 +73,15 @@ public class TriagemFalaSuspeita {
          * A fala não precisa de correção.
          *
          * @param decisao sempre um {@link DecisaoFala.Manter}, com a narração quando houver
+         * @param somenteTermoCanonico a fala era só nome/termo da lore e por isso nem foi à IA —
+         *     marcado para o caso de uso CONTAR em vez de narrar cada uma
          */
-        record Dispensada(DecisaoFala decisao) implements Resultado {
+        record Dispensada(DecisaoFala decisao, boolean somenteTermoCanonico) implements Resultado {
+
+            /** A dispensa comum: nada a relatar, nada a contar. */
+            Dispensada(DecisaoFala decisao) {
+                this(decisao, false);
+            }
         }
 
         /**
@@ -113,9 +120,10 @@ public class TriagemFalaSuspeita {
             && normalizar(originalEn).equals(normalizar(traducaoAtual))
             && protetorLore.contemSomenteTermosCanonicos(
                 originalEn, contexto.lore(), contexto.termosProtegidos())) {
-            return new Resultado.Dispensada(new DecisaoFala.Manter(List.of(
-                "  [LORE] Evento " + evento.indice()
-                    + " contém somente nome/termo canônico; mantido sem chamar IA.")));
+            // NÃO narra por evento: numa corrida do Zeta isso produziu 1.053 linhas dizendo "nada
+            // aconteceu aqui", e elas enterravam os 10 achados que pediam ação. O caso de uso
+            // CONTA e imprime uma linha por arquivo. Paulo, 17/08/2026: "por isso me confundia".
+            return new Resultado.Dispensada(new DecisaoFala.Manter(List.of()), true);
         }
 
         ResultadoDeteccaoConcordancia auditoria = auditor.auditar(originalEn, traducaoAtual);
