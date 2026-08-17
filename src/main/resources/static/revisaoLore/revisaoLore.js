@@ -196,12 +196,63 @@ function vincularEventosPtOnly() {
     });
 }
 
+/**
+ * PROPÓSITO DE NEGÓCIO: mostra, o tempo todo, QUAL lore está ativa e para QUAL pasta ela vai
+ * escrever — no mesmo cartão que a 3.1 usa. Sem isto o operador escolhe a obra num combo lá em
+ * cima e perde a confirmação de vista ao preencher as pastas, que é onde o erro custa caro.
+ * INVARIANTES: lê a obra do próprio <select> e a pasta do campo que SERÁ REESCRITO.
+ * COMPORTAMENTO EM CASO DE FALHA: elemento ausente devolve sem lançar — a tela perde o cartão,
+ * nunca o carregamento.
+ */
+function ligarCartaoLoreAtiva() {
+    const alvo = document.getElementById('revisao-lore-alvo-texto');
+    const select = document.getElementById('revisao-lore-contexto');
+    const pastaComIngles = document.getElementById('revisao-lore-entrada-traduzida');
+    const pastaPtOnly = document.getElementById('revisao-lore-ptonly-entrada-traduzida');
+    if (!alvo || !select) return;
+
+    const pintar = () => {
+        const obra = select.options[select.selectedIndex]?.text || '';
+        const escolheu = !!select.value;
+        const abaPtOnly = document.querySelector('.lore-tab.active')?.dataset.tab === 'pt-only';
+        const pasta = ((abaPtOnly ? pastaPtOnly : pastaComIngles)?.value || '').trim();
+        alvo.innerHTML = escolheu
+            ? `Lore ativa: <strong>${obra}</strong>. Pasta: <strong>${pasta || 'ainda não informada'}</strong>.`
+            : 'Lore ativa: <strong>nenhuma</strong>. Escolha a obra para liberar os campos.';
+    };
+
+    select.addEventListener('change', pintar);
+    [pastaComIngles, pastaPtOnly].forEach(c => c && c.addEventListener('input', pintar));
+    document.querySelectorAll('.lore-tab').forEach(t => t.addEventListener('click', () => setTimeout(pintar, 0)));
+    pintar();
+}
+
+/** Rola até um formulário e o destaca — os botões da caixa de passadas apontam para eles. */
+function ligarAtalhosDasPassadas() {
+    const ir = (idBotaoAba, idFoco) => {
+        document.querySelector(`.lore-tab[data-tab="${idBotaoAba}"]`)?.click();
+        const campo = document.getElementById(idFoco);
+        campo?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        campo?.focus();
+    };
+    document.getElementById('btn-passada-lore-com-ingles')
+        ?.addEventListener('click', () => ir('com-ingles', 'revisao-lore-entrada-original'));
+    document.getElementById('btn-passada-lore-ptonly')
+        ?.addEventListener('click', () => ir('pt-only', 'revisao-lore-ptonly-entrada-traduzida'));
+}
+
 export async function initRevisaoLore() {
     try {
         await carregarPainelHtml();
         vincularEventos();
         vincularAbas();
         vincularEventosPtOnly();
+        ligarCartaoLoreAtiva();
+        ligarAtalhosDasPassadas();
+        // A trava cobre o .panel INTEIRO, e e por isso que ela serve aqui: esta tela tem DOIS
+        // formularios e UM seletor de obra — travar so o form mais proximo deixaria o outro aberto.
+        const { travarAteEscolherLore } = await import('../js/travaLore.js');
+        travarAteEscolherLore('revisao-lore-contexto');
         document.dispatchEvent(new CustomEvent('revisao-lore:painel-carregado'));
     } catch (err) {
         console.error('[Revisão de Lore] Erro ao carregar painel:', err);
