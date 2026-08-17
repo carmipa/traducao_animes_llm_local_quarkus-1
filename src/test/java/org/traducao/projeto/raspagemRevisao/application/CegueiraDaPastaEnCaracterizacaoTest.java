@@ -104,6 +104,49 @@ class CegueiraDaPastaEnCaracterizacaoTest {
     }
 
     /**
+     * O SEGUNDO CENÁRIO DE BOA-FÉ, e o que a guarda de cegueira NÃO alcança por construção: o
+     * operador põe a MESMA pasta nos dois campos.
+     *
+     * <p><b>A suspeita foi REFUTADA pela medição, e o motivo vale mais que o resultado.</b> Eu
+     * previa que cada fala viraria espelho de si mesma, {@code auditadas > 0} e portanto
+     * {@code ficouCego()} false — o verde falso de volta. Não é o que acontece: o
+     * {@code ResolvedorArtefatosRevisao} tem invariante DECLARADA de nunca devolver o próprio
+     * arquivo PT nem outra legenda traduzida ({@code !path.equals(arquivoPt) &&
+     * !eLegendaTraduzida(path)}), com o porquê escrito no Javadoc dele — "comparar uma tradução
+     * com outra tradução produziria correções sem original". Sem original resolvido, o caminho
+     * recai na mesma cegueira do teste anterior e o desfecho sai honesto.
+     *
+     * <p>Este teste congela ESSE desfecho. Se alguém afrouxar aquele filtro para "achar mais
+     * originais", o verde falso volta por esta porta e é aqui que reprova.
+     */
+    @Test
+    @DisplayName("mesma pasta nos dois campos NAO produz sucesso verde")
+    void mesmaPastaNosDoisCamposProduzQualDesfecho(@TempDir Path temp) throws IOException {
+        Path pastaPt = Files.createDirectory(temp.resolve("traducao_ptbr"));
+        Path pastaCache = Files.createDirectory(temp.resolve("cache"));
+        Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
+
+        escreverAss(pastaPt.resolve("ep01_PT-BR.ass"), List.of(
+            "Bom dia, comandante.",
+            "O inimigo avança pelo flanco leste.",
+            "Nao vamos conseguir segurar essa posicao.",
+            "Recuar é a única opção que nos resta."));
+
+        ResultadoRevisaoLegendas resultado = useCase.executar(
+            pastaPt, pastaPt, pastaCache, pastaSaida,
+            ModoRevisaoLegendas.GOOGLE, null, ModoReferenciaRevisao.AMBOS);
+
+        System.out.println("[MEDICAO mesma-pasta] arquivos=" + resultado.arquivosAnalisados()
+            + " corrigidas=" + resultado.falasCorrigidas()
+            + " problemas=" + resultado.falasComProblema()
+            + " pendentes=" + resultado.falasPendentes()
+            + " cegos=" + resultado.arquivosCegos()
+            + " status=" + resultado.status());
+
+        assertEquals(1, resultado.arquivosAnalisados(), "o arquivo foi lido");
+    }
+
+    /**
      * O CONTRA-CASO, na mesma corrida: as MESMAS falas, com a pasta EN certa. Serve para provar
      * que o desfecho acima vem da cegueira e não de o arquivo ser trivial.
      */

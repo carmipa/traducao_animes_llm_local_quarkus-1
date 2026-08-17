@@ -47,6 +47,13 @@ public class RevisarLegendasUseCase {
     private final PreparadorReferenciaRevisao preparador;
 
     /**
+     * O resumo por estilo, impresso a cada arquivo GRAVADO. É o que faz o veto de música se
+     * provar sozinho em toda corrida, em vez de depender de alguém comparar o backup à mão —
+     * que foi como o dano de 687 linhas no 08th e 283 no Guilty Crown acabou sendo descoberto.
+     */
+    private final ResumoAlteracaoPorEstilo resumoPorEstilo;
+
+    /**
      * PROPÓSITO DE NEGÓCIO: compõe a revisão final de legendas com leitura de
      * cache versionado, validação linguística, proteção ASS e persistência segura.
      *
@@ -66,8 +73,10 @@ public class RevisarLegendasUseCase {
         FiltroAuditoriaLinha filtroAuditoria,
         PreparadorFalaRevisao preparadorFala,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
-        PreparadorReferenciaRevisao preparador
+        PreparadorReferenciaRevisao preparador,
+        ResumoAlteracaoPorEstilo resumoPorEstilo
     ) {
+        this.resumoPorEstilo = resumoPorEstilo;
         this.persistencia = persistencia;
         this.relatorio = relatorio;
         this.triagemFala = triagemFala;
@@ -275,6 +284,47 @@ public class RevisarLegendasUseCase {
             lote.arquivosCegos());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: mostra, a cada arquivo GRAVADO, quantas linhas mudaram e em que
+     * estilos — e grita se alguma for musical, porque nenhuma podia ser.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code NaoComparavel} é impresso como AVISO, nunca omitido;
+     * "não consegui comparar" e "nada mudou" têm de sair diferentes na tela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só imprime; nunca interfere na gravação, que já
+     * aconteceu.
+     */
+    private void imprimirResumoPorEstilo(
+        List<EventoLegenda> antes, List<EventoLegenda> depois) {
+        ResumoAlteracaoPorEstilo.Resumo resumo = resumoPorEstilo.comparar(antes, depois);
+        if (resumo instanceof ResumoAlteracaoPorEstilo.Resumo.NaoComparavel nc) {
+            out(AnsiCores.YELLOW + "  [ESTILOS] não foi possível conferir o que mudou: "
+                + nc.motivo() + AnsiCores.RESET);
+            return;
+        }
+        ResumoAlteracaoPorEstilo.Resumo.Comparado c =
+            (ResumoAlteracaoPorEstilo.Resumo.Comparado) resumo;
+        if (c.total() == 0) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (ResumoAlteracaoPorEstilo.LinhaEstilo linha : c.porEstilo()) {
+            if (!sb.isEmpty()) sb.append(" · ");
+            sb.append(linha.estilo()).append(' ').append(linha.quantidade());
+            if (linha.musical()) sb.append(" (MÚSICA)");
+        }
+        String corpo = "  [ESTILOS] " + c.total() + " linha(s) alterada(s): " + sb;
+        if (c.totalMusical() > 0) {
+            out(AnsiCores.RED + corpo + AnsiCores.RESET);
+            out(AnsiCores.RED + "  [ESTILOS] " + c.totalMusical()
+                + " em estilo MUSICAL — esta tela veta música. A letra deveria ter ficado como "
+                + "está no espelho em inglês até a 4.1 tratá-la. Confira o backup."
+                + AnsiCores.RESET);
+        } else {
+            out(AnsiCores.CYAN + corpo + AnsiCores.RESET);
+        }
+    }
+
     private void out(String mensagem) {
         System.out.println(mensagem);
     }
@@ -336,6 +386,10 @@ public class RevisarLegendasUseCase {
         }
         PreparacaoReferencia.Pronta pronta = (PreparacaoReferencia.Pronta) preparacao;
         DocumentoLegenda documentoPt = pronta.documento();
+        // A foto do arquivo COMO VEIO DO DISCO, tirada antes da ponte do cache. É contra ela que
+        // o resumo por estilo compara — comparar depois da ponte deixaria de fora exatamente o
+        // caminho que reescreveu 687 linhas de Song ENG no 08th em 17/08/2026.
+        List<EventoLegenda> eventosDoDisco = List.copyOf(documentoPt.eventos());
         Path cachePath = pronta.cachePath();
         List<EntradaCache> entradasCache = pronta.entradasCache();
         ContextoRevisao contexto = pronta.contexto();
@@ -498,6 +552,7 @@ public class RevisarLegendasUseCase {
             );
             PersistenciaLegendaRevisada.Gravacao gravacao = persistencia.gravar(
                 revisado, arquivoPt, saidaDir, pastaBackup);
+            imprimirResumoPorEstilo(eventosDoDisco, revisado.eventos());
             out(AnsiCores.GREEN + "  [OK] sincronizadas=" + sincronizadasNesteArquivo
                 + ", revisadas=" + sessao.corrigidas()
                 + ". Salvo em: " + gravacao.destino().getFileName() + AnsiCores.RESET);
