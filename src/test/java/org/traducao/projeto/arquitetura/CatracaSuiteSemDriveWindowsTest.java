@@ -109,7 +109,14 @@ class CatracaSuiteSemDriveWindowsTest {
         // traducao_ptbr divergem do espelho ingles. "C:\animes" e o default de -Dkronos.acervo;
         // caminho relativo faria o harness medir o vazio e reportar "sem passivo" — exatamente o
         // sinal que ele existe para nao dar. REPROVA quando o acervo falta, em vez de zerar.
-        "MedicaoMusicaDivergenteDoEspelhoIT.java"
+        "MedicaoMusicaDivergenteDoEspelhoIT.java",
+        // Entrou em 17/08/2026, e pela TERCEIRA vez foi esta catraca que pegou no primeiro
+        // `gradlew test` — desta vez um arquivo escrito na mesma sessao em que ela reprovou os
+        // dois anteriores. Mede o que a aba PT-only da 3.2 alcanca em estilo musical no acervo
+        // (246.246 linhas antes do veto). Mesma natureza das demais: "C:\animes" e o default de
+        // -Dkronos.acervo, e caminho relativo faria o harness medir o vazio e reportar "nenhuma
+        // exposicao" — o zero tranquilizador que a regra 8 proibe. REPROVA quando o acervo falta.
+        "MedicaoExposicaoMusicalRevisaoLorePtOnlyIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

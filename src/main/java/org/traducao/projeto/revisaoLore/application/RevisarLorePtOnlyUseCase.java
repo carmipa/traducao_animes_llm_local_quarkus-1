@@ -70,6 +70,7 @@ public class RevisarLorePtOnlyUseCase {
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final MascaradorTags mascarador;
+    private final AlcanceRevisaoLore alcance;
     private final CorretorLoreDeterministico corretorLore;
     private final RevisorLoreLlmPort revisorLoreLlm;
     private final GerenciadorPromptRevisaoLore gerenciadorPrompt;
@@ -80,6 +81,7 @@ public class RevisarLorePtOnlyUseCase {
         LeitorLegendaAss leitor,
         EscritorLegendaAss escritor,
         MascaradorTags mascarador,
+        AlcanceRevisaoLore alcance,
         CorretorLoreDeterministico corretorLore,
         RevisorLoreLlmPort revisorLoreLlm,
         GerenciadorPromptRevisaoLore gerenciadorPrompt,
@@ -89,6 +91,7 @@ public class RevisarLorePtOnlyUseCase {
         this.leitor = leitor;
         this.escritor = escritor;
         this.mascarador = mascarador;
+        this.alcance = alcance;
         this.corretorLore = corretorLore;
         this.revisorLoreLlm = revisorLoreLlm;
         this.gerenciadorPrompt = gerenciadorPrompt;
@@ -168,7 +171,11 @@ public class RevisarLorePtOnlyUseCase {
                 List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
                 int corrigidasArq = 0;
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (!evento.temTexto()) {
+                    // O MESMO alcance da aba "Com inglês", perguntado ao mesmo dono. Antes daqui
+                    // o filtro era só temTexto(): musica, karaoke e desenho vetorial entravam, e
+                    // esta aba GRAVA. Medido em 17/08/2026: 246.246 linhas de estilo musical do
+                    // acervo estavam ao alcance dela.
+                    if (!alcance.estaNoAlcance(evento)) {
                         novos.add(evento);
                         continue;
                     }

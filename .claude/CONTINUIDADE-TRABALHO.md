@@ -1,5 +1,91 @@
 # CONTINUIDADE — KRONOS
 
+# ▶ EM ANDAMENTO — 3.2 REVISÃO DE LORE (aberta em 2026-08-17, sessão `78943c66`)
+
+## ESCOPO FECHADO POR PAULO, palavras dele
+
+> *"3.2 revisão de lore deve apenas servir para corrigir nomes, locais etc da lore da animação
+> que estamos trabalhando, mas nada além disso! é um escopo bem fechado! o resto tiramos tudo!"*
+
+> *"podemos usar os mesmos carimbos, lógica de página e correções visuais que aplicamos dentro
+> de 3.1 nessa página de lore!"* — com o print da tela da 3.1 como referência.
+
+**A frase da tela:** corrigir nome, local e termo canônico da lore da obra ativa na legenda
+PT-BR. Nada além disso.
+
+## ✅ ITEM 1 FECHADO — a 2ª porta de escrita da 3.2 não perguntava se era música
+
+A fatia tem DUAS portas (`RevisarLoreUseCase`, aba "Com inglês", e `RevisarLorePtOnlyUseCase`,
+aba PT-only). A segunda filtrava só `temTexto()`: sem juiz de estilo musical, sem `isDialogo()`,
+sem karaokê, sem desenho vetorial — e **grava** no `.ass`, com "Apenas simular" DESMARCADO por
+padrão na interface.
+
+**Por que ninguém tinha visto:** a `CatracaEscritaDeFalaVetaMusicaTest` varre o prefixo
+`org/traducao/projeto/raspagemRevisao` — a fatia da 3.1. A `revisaoLore` estava inteiramente
+fora dela, e o relatório daquela catraca é verde por construção fora do seu prefixo.
+
+**MEDIDO** (`MedicaoExposicaoMusicalRevisaoLorePtOnlyIT`, 22 obras do acervo):
+
+```
+246.246  linhas de estilo musical ao ALCANCE da aba PT-only
+     0   reescritas HOJE pela camada deterministica FORA do Char's Counterattack
+    29   no CCA — que e o filme ACHATADO, entao ali sao DIALOGO com nome de estilo vetado
+```
+
+Calibração: o laço do harness foi conferido contra o **próprio caso de uso em dry-run** na mesma
+pasta — `harness == corrigidas + descartadas` em **22 de 22 obras**. Controle positivo:
+246.246 > 0 (acervo sem música acusaria o instrumento).
+
+**Leitura honesta:** dano gravado hoje é ZERO. O que estava aberto é a SUPERFÍCIE — a camada 2
+(LLM PT-only) reescreve a linha inteira e decide sobre qualquer uma das 246.246 por um portão de
+homógrafo. É o estado exato em que a ponte do cache da 3.1 esteve até morder 687 linhas
+`Song ENG` do 08th MS Team, e o mesmo motivo pelo qual o `RevisorPtOnlyUseCase` ganhou veto
+sendo inalcançável por menu.
+
+**Mecanismo:** `AlcanceRevisaoLore` — dono ÚNICO da pergunta "esta linha está ao alcance da
+3.2?", consultado pelas DUAS portas. Não decide o que é música: pergunta à `PoliticaEstiloMusical`.
+A aba "Com inglês" passou a delegar (comportamento idêntico); a PT-only ganhou o veto.
+
+```
+MUTACAO (veto desligado com `false &&`) .. 1 failed — LorePtOnlyVetaMusicaTest:96
+   "A LETRA DE MUSICA FOI REESCRITA"
+   o contra-teste do MESMO metodo (dialogo corrigido) e o que separa
+   "vetou musica" de "quebrou a tela"
+suite da fatia .......................... 47 testes, 0 falhas
+```
+
+Catraca nova: `CatracaEscritaDeFalaVetaMusicaLoreTest` — inventário nominal das 2 portas da
+fatia, com caso-controle (árvore em `@TempDir` com escrita plantada, leitura e outra fatia) e
+uma asserção extra de que o próprio `AlcanceRevisaoLore` continua consultando o juiz de música.
+**Limite declarado:** a catraca prova que a CHAMADA existe; quem prova que ela FUNCIONA é o
+`LorePtOnlyVetaMusicaTest` (a mutação passou na catraca e reprovou no teste de comportamento).
+
+## FILA — o que ainda sai ("o resto tiramos tudo")
+
+| # | item | onde | por que sai |
+|---|---|---|---|
+| A | acusar palavra em CAIXA ALTA | `DetectorTermosLoreService.detectarTermosMaiusculosSuspeitos` | qualquer grito "PARE!" vira motivo; não é nome nem local |
+| B | acusar resíduo genérico em inglês | `detectarNomesInglesRemanescentes` | é FALTA DE TRADUÇÃO — trabalho da 3.1 |
+| C | encaminhar fala não traduzida à Opção 6 | `RevisarLoreUseCase.ehFalaNaoTraduzida` | idem; e hoje INFLA `falasSinalizadas` e vira pendência, deixando a 3.2 amarela por problema alheio |
+| D | checkbox "Revisar todas as falas" (parte LLM) | flag `revisarTodasFalas` | proposta em fala sem indício de lore é SEMPRE descartada em `RevisarLoreUseCase:703` (`suspeito==false` ⟺ `motivos` vazio). Chamada cara com efeito nulo POR CONSTRUÇÃO. O ganho real do modo é o corretor determinístico alcançar fala não sinalizada — isso vira padrão, sem checkbox |
+| E | roster de lore hardcoded no detector | `TERMOS_LORE_SOLTEIROS_RELEVANTES` (100+ termos misturando Gundam/86/Macross), `TRADUCOES_LITERAIS_SUSPEITAS` (17), `TERMOS_TRADUZIVEIS_ACEITOS` (11) | SEGUNDA cópia da lore em código, contra a decisão de 15/08 (lore = arquivo único). Exige medir cobertura antes e depois |
+| F | visual da 3.1 na 3.2 | `static/revisaoLore/revisaoLore.html` + `.js` | pedido do Paulo com print: combo de obra travando os campos (`travaLore.js`), campos numerados com o destino de escrita em negrito, cartão "Lore ativa", passadas em cartões com etiquetas e botão próprio, faixa de aviso |
+| G | console no padrão da 3.1 | `RevisarLoreUseCase.sessao.out` | cor padrão internacional (verde=corrigida, amarelo=pendente, VERMELHO só erro), referência EN em apagado × estado colorido, ruído agregado por arquivo (hoje imprime uma linha DIM por fala auditada), `[ESTILOS] N linha(s) alterada(s)` por arquivo gravado |
+
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+Item D primeiro, porque é o único que se prova sem medir nada: escrever o teste que fixa
+`RevisarLoreUseCase:703` (proposta do LLM em fala sem motivo de lore NUNCA é gravada) e, com ele
+verde, remover a chamada ao LLM no ramo `revisarTodasFalas && !deteccao.suspeito()`, mantendo o
+corretor determinístico rodando em TODA fala no alcance. Depois A, B e C na mesma passada de
+`DetectorTermosLoreService`, medindo quantos motivos saem do acervo.
+
+**NÃO REPETIR:** não medir a exposição da PT-only com `Get-ChildItem -Filter` — metade do acervo
+tem `[` no nome. O harness usa `Files.walk` + `Files.list` e resolve o contexto pelo
+`GerenciadorContexto.idsQueReconhecem`, que é a produção.
+
+---
+
 # ✅ 3.1 REVISÃO DE LEGENDAS — FECHADA em 2026-08-17
 
 **Status honesto: `VALIDADO NO ESCOPO TESTADO`.** Não é "perfeita"; é que tudo o que a tela
