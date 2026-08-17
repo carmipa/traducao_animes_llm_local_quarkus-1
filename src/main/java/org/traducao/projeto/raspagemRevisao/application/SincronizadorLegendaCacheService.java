@@ -27,6 +27,48 @@ import java.util.Set;
 public class SincronizadorLegendaCacheService {
 
     /**
+     * O juiz de estilo musical, que é peer e é o MESMO das outras telas.
+     *
+     * <h2>Por que ele precisou entrar aqui — prejuízo medido em 2026-08-17</h2>
+     * A tela 3.1 declara que <b>música é veto absoluto</b>, e o
+     * {@code FiltroAuditoriaLinha} garante isso na AUDITORIA. Mas esta sincronização roda
+     * <b>antes</b> dela e só perguntava {@code evento.isDialogo()} — que significa "a linha é
+     * {@code Dialogue:}", e NÃO "o estilo é diálogo". Karaokê passava direto.
+     *
+     * <p>Medido no Gundam 08th MS Team: uma única corrida reescreveu <b>693 linhas, das quais 687
+     * eram estilo {@code Song ENG}</b> (99,1%) — a letra inteira do ED de 13 episódios, traduzida
+     * a partir de um cache da era ANTERIOR ao veto, e com erro visível
+     * ({@code "you were watching"} virou {@code "Estamos assistindo"}). O log ainda anunciava
+     * {@code [CACHE/RECUPERADO]}, que soa como coisa boa.
+     *
+     * <p><b>São duas medições diferentes, e não se confundem:</b> a de cima é a deste defeito, no
+     * <b>08th MS Team em 17/08/2026</b>. A do Zeta registrada no {@code FiltroAuditoriaLinha}
+     * (1.008 de 1.027 alterações em {@code Song ENG}, 28/07/2026) é ANTERIOR e foi o que motivou o
+     * veto na AUDITORIA — a mesma classe de dano, por outra porta, um mês antes.
+     *
+     * <p>É invariante declarada numa camada e furada em outra. A regra do Paulo que a fecha:
+     * <i>a legenda original em inglês é o espelho, e a música fica como está nela até a 4.1
+     * tratá-la</i>.
+     */
+    private final org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical;
+
+    public SincronizadorLegendaCacheService(
+        org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical) {
+        this.politicaEstiloMusical = politicaEstiloMusical;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala é música/karaokê, e portanto NÃO pode ser escrita por esta
+     * ponte — nem quando o cache tem tradução para ela.
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao dono da regra em vez de ter lista própria.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo devolve {@code false} e a fala segue o
+     * caminho de antes — a guarda não inventa veto onde não há nome de estilo.
+     */
+    private boolean eMusica(EventoLegenda evento) {
+        return evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: transporta o documento sincronizado e os índices
      * alterados para log, métricas e decisão de persistência.
      * <p>INVARIANTES DO DOMÍNIO: índices são imutáveis e não contêm duplicatas.
@@ -124,7 +166,8 @@ public class SincronizadorLegendaCacheService {
                 && entrada.original().equals(evento.texto())
                 && !protegidos.contains(evento.indice());
             boolean podeAplicar = permitido && (autorizado || regrediuAoOriginal);
-            if (podeAplicar && evento.isDialogo() && entrada != null && entrada.traduzido() != null
+            if (podeAplicar && evento.isDialogo() && !eMusica(evento)
+                && entrada != null && entrada.traduzido() != null
                 && !entrada.traduzido().isBlank() && !entrada.traduzido().equals(evento.texto())) {
                 atualizados.add(evento.comTexto(entrada.traduzido()));
                 indices.add(evento.indice());

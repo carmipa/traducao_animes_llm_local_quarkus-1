@@ -2,6 +2,59 @@
 
 ---
 
+# 🔴→✅ 2026-08-17 — A PONTE DO CACHE FURAVA O VETO DE MÚSICA (dano REAL no acervo)
+
+**COMO APARECEU:** Paulo rodou a 3.1 no **Gundam 08th MS Team** e o log mostrou 20, 58, 60, 76, 90
+falas `[CACHE/RECUPERADO]` por episódio. Medido no backup que a própria corrida criou:
+
+```
+linhas efetivamente alteradas: 693
+   687  Song ENG     <- 99,1% MUSICA
+     6  Dialogue
+```
+
+Amostra do que entrou, restaurado de cache da era ANTERIOR ao veto:
+```
+ANTES : were watching the sun rise.
+DEPOIS: Estamos assistindo o sol nascer.        <- trocou pessoa e tempo verbal
+```
+
+**A CAUSA:** `SincronizadorLegendaCacheService:127` só perguntava `evento.isDialogo()` — que
+responde *"a linha é `Dialogue:`"*, e **não** *"o estilo é diálogo"*. A tela declara veto ABSOLUTO
+de música na auditoria (`FiltroAuditoriaLinha:117`) e furava a própria invariante nesta ponte, que
+roda ANTES dela. E o console anunciava `[CACHE/RECUPERADO]`, que soa como coisa boa.
+
+**NÃO CONFUNDIR AS DUAS MEDIÇÕES:** esta é do 08th MS Team, 17/08. A do Zeta (1.008 de 1.027 em
+`Song ENG`) é de 28/07 e está no `FiltroAuditoriaLinha` — mesma classe de dano, outra porta, um
+mês antes. Foi ela que motivou o veto na auditoria.
+
+**ACERVO REPARADO, cirurgicamente:** 687 linhas de música revertidas ao inglês (o espelho), as
+**6 correções de diálogo preservadas**. Estado pré-revert guardado em
+`%TEMP%\claude\…\scratchpad\08th-antes-do-revert`.
+⚠️ **ERRO MEU NO REPARO, pego e corrigido:** o `WriteAllLines` gravou **sem BOM** nos 13 arquivos.
+Restaurado; conferido `BOM=True`, contagem de eventos idêntica e o E01 voltou byte a byte
+(44.639 → 44.639). **Sempre conferir BOM e CRLF depois de regravar `.ass`.**
+
+**MECANISMO:** o veto entrou na ponte, perguntando à `PoliticaEstiloMusical` — o dono da regra.
+
+```
+MUTACAO (veto desligado) ..... 1 test failed — naoRestauraDoCacheUmaFalaDeEstiloMusical
+   o contra-teste do mesmo metodo (dialogo ao lado continua sincronizando) seguiu VERDE
+suite completa --rerun-tasks .. 1.852 testes, 0 falhas, 25 pulados, 318 classes
+```
+
+## ⚠️ ANTES DE SEGUIR PARA AS OUTRAS OBRAS
+
+O cache do acervo tem letra de música traduzida pela revisão ANTIGA. Com o veto na ponte, ela não
+volta mais para o `.ass` — mas **as obras já rodadas antes de hoje podem ter música escrita** pelo
+mesmo caminho. **Não medido.** Zeta (50 arquivos) e ZZ (47) são os maiores candidatos.
+**PRÓXIMA AÇÃO:** varrer as pastas `traducao_ptbr` do acervo contando linhas de estilo musical que
+estejam em português, para saber o tamanho real do passivo antes de tocar em qualquer uma.
+
+---
+
+---
+
 # ✅ 2026-08-16 23:41 — A 3.1 FECHADA E PROVADA EM DUAS OBRAS
 
 ```
