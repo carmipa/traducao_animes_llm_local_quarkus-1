@@ -34,7 +34,43 @@ public class ConsoleRedirector {
         this.logStreamService = logStreamService;
     }
 
+    /**
+     * Marca de que o redirecionamento JÁ está instalado neste processo.
+     *
+     * <p>É propriedade de SISTEMA, e não campo estático, de propósito: o live reload do Quarkus
+     * recarrega as classes, e um {@code static boolean} voltaria a {@code false} a cada reload —
+     * que é justamente o momento em que a proteção precisa valer.
+     */
+    static final String MARCA_INSTALADO = "kronos.console.redirecionado";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: instalar UMA vez o espelho do console para o painel web.
+     *
+     * <h2>O defeito que este guard fecha — medido em 17/08/2026</h2>
+     * A versão anterior fazia {@code System.setOut(new PrintStream(... System.out ...))} a cada
+     * {@link StartupEvent}. No dev mode, cada live reload dispara o evento de novo, e o
+     * {@code System.out} de então <b>já é o redirecionador anterior</b> — então as camadas se
+     * EMPILHAM, e cada linha passa por todas elas, publicando uma vez por camada.
+     *
+     * <p>Medido numa corrida da 3.2 no 86, depois de várias recompilações na mesma sessão:
+     * <pre>
+     *   14.512 linhas no canal [console]  +  7.256 em [revisao-lore]  =  3 copias por linha
+     *   linhas com prefixo [UTC (do log.info): 0  -> a duplicacao NAO vinha do logger
+     * </pre>
+     * É a mesma anomalia que a tela 3.1 registrou como "console duplica linha (7×, cresce dentro
+     * do processo)" sem achar a causa: ela cresce porque cada reload acrescenta uma camada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: instala no máximo um redirecionador por processo; a marca é
+     * propriedade de sistema para sobreviver ao recarregamento de classes.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: já instalado, retorna sem tocar em {@code System.out} —
+     * o espelho existente continua servindo o painel.
+     */
     void onStart(@Observes StartupEvent event) {
+        if (Boolean.getBoolean(MARCA_INSTALADO)) {
+            return;
+        }
+        System.setProperty(MARCA_INSTALADO, "true");
         PrintStream originalOut = System.out;
         System.setOut(new PrintStream(new DoubleOutputStream(originalOut, this::publicarLog), true, StandardCharsets.UTF_8));
     }
