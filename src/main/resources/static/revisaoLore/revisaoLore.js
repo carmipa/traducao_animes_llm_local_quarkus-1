@@ -52,7 +52,6 @@ function vincularEventos() {
     const inputOriginal = document.getElementById('revisao-lore-entrada-original');
     const inputTraduzida = document.getElementById('revisao-lore-entrada-traduzida');
     const selectContexto = document.getElementById('revisao-lore-contexto');
-    const chkTodasFalas = document.getElementById('revisao-lore-todas-falas');
 
     if (!btnIniciar || !inputOriginal || !inputTraduzida || !selectContexto) return;
 
@@ -70,7 +69,9 @@ function vincularEventos() {
             return;
         }
 
-        const revisarTodasFalas = chkTodasFalas ? chkTodasFalas.checked : false;
+        // Sem checkbox desde 17/08/2026: o sistema determina. O corretor deterministico varre
+        // TODA fala no alcance, sempre; o LLM entra so na que a heuristica de lore acusou.
+        const revisarTodasFalas = true;
         const nomeObra = selectContexto.options[selectContexto.selectedIndex]?.text || contextoId;
 
         logNoConsole('console-revisao-lore', `Iniciando revisão de lore — Obra: ${nomeObra}`, 'info');

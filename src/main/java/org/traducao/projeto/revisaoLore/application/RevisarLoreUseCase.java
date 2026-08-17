@@ -188,9 +188,11 @@ public class RevisarLoreUseCase {
         sessao.out("Pasta original (EN): " + pastaOriginal.toAbsolutePath());
         sessao.out("Pasta traduzida (PT-BR): " + pastaTraduzida.toAbsolutePath());
         sessao.out("Prompt de revisao de lore ativo: " + nomePromptRevisao + " (" + contextoId + ")");
-        sessao.out(revisarTodasFalas
-            ? "Modo: revisar TODAS as falas com dialogo"
-            : "Modo: revisar apenas falas sinalizadas pela heuristica");
+        // O modo deixou de ser escolha do operador em 17/08/2026 ("nada de checkbox, o sistema
+        // que determina isso"). A flag sobrevive apenas como ROTULO no relatorio e na auditoria,
+        // para nao invalidar dataset antigo; ela nao decide mais nada no laco.
+        sessao.out("Modo: corretor deterministico em TODA fala no alcance; "
+            + "LLM (ultimo recurso) so nas sinalizadas pela heuristica de lore");
 
         int[] arquivosAnalisados = {0};
         int[] arquivosAlterados = {0};
@@ -247,7 +249,10 @@ public class RevisarLoreUseCase {
         // Pendentes = falas sinalizadas cujo problema NÃO foi resolvido (LLM sem
         // resposta ou correção proposta barrada por trava). Ficam como estavam,
         // ainda merecendo revisão humana — distinto de "conforme" e "corrigida".
-        int falasPendentes = falasSemResposta[0] + falasDescartadas[0] + falasEncaminhadasOpcao6[0];
+        // falasEncaminhadasOpcao6 SAIU da conta em 17/08/2026 (item C): fala inteira em ingles e
+        // falta de traducao, trabalho da 3.1. Contá-la aqui fazia a 3.2 fechar amarela por
+        // pendencia que nunca foi dela.
+        int falasPendentes = falasSemResposta[0] + falasDescartadas[0];
         StatusRevisaoLore statusFinal = determinarStatus(semArquivos, cancelado[0], erros, falasPendentes);
 
         sessao.out("Arquivos analisados: " + arquivosAnalisados[0]);
@@ -495,8 +500,11 @@ public class RevisarLoreUseCase {
                 MascaradorTags.Mascarado mascaraEn = mascarador.mascarar(textoEn);
                 MascaradorTags.Mascarado mascaraPt = mascarador.mascarar(textoPt);
 
+                // FORA DO ESCOPO (item C, 17/08/2026): fala inteira em ingles e FALTA DE
+                // TRADUCAO, que e a tela 3.1. A 3.2 avisa e segue — nao conta como sinalizada
+                // (nao foi a heuristica de lore que a achou) e nao entra em falasPendentes, que
+                // deixava a tela amarela por trabalho alheio.
                 if (ehFalaNaoTraduzida(mascaraEn.texto(), mascaraPt.texto())) {
-                    falasSinalizadas[0]++;
                     falasEncaminhadasOpcao6[0]++;
                     sessao.out(AnsiCores.YELLOW + marcadorFala
                         + " [FORA DO ESCOPO DE LORE] PT-BR está idêntico ao original EN; "
@@ -516,14 +524,16 @@ public class RevisarLoreUseCase {
                 // de outra franquia (ex.: "freedom"→"liberdade" do SEED) não disparam.
                 ResultadoDeteccaoLore deteccao = detector.auditar(
                     mascaraEn.texto(), mascaraPt.texto(), loreCanonica);
-                if (!revisarTodasFalas && !deteccao.suspeito()) {
-                    falasSemAlteracao[0]++;
-                    sessao.out(AnsiCores.DIM + marcadorFala + " limpo pela heuristica" + AnsiCores.RESET);
-                    novosEventos.add(evtTraduzido);
-                    continue;
-                }
 
-                falasSinalizadas[0]++;
+                // ITEM D (17/08/2026) — "nada de checkbox, deixa ele habilitado por padrao, o
+                // sistema que determina isso". O corretor DETERMINISTICO roda em TODA fala no
+                // alcance, sempre: ele e seguro por construcao (so restaura o canonico quando o
+                // INGLES o contem na grafia exata) e nao custa rede. Antes ele so alcancava fala
+                // sinalizada, porque o `continue` da heuristica vinha primeiro.
+                // MEDIDO no acervo antes de mudar (MedicaoEscopoDaRevisaoLoreIT, 22 obras,
+                // 75.419 falas): o delta e de 10 falas (0,013%), e sao erros REAIS que a
+                // heuristica nao pega — "Zeon Sieg"->"Sieg Zeon", "psycoframe"->"Psyco-frame",
+                // "Familia Freya"->"Freya Familia".
                 Map<String, String> correcoesLore = gerenciadorPromptRevisaoLore.correcoesTerminologia(contextoId);
                 Optional<String> correcaoDeterministica =
                     corretorLore.corrigir(mascaraEn.texto(), mascaraPt.texto(), correcoesLore);
@@ -572,6 +582,19 @@ public class RevisarLoreUseCase {
                     continue;
                 }
 
+                // O LLM e ULTIMO RECURSO: so entra na fala que a heuristica de lore ACUSOU e que
+                // o mapa de terminologia nao resolveu. Chamar em fala limpa era gasto com efeito
+                // NULO — provado com o caso de uso real em LlmEmFalaSemIndicioDeLoreEInerteTest:
+                // a proposta e sempre descartada mais abaixo, quando deteccao.motivos() esta
+                // vazio. "Ultimo recurso" nao e "recurso preventivo".
+                if (!deteccao.suspeito()) {
+                    falasSemAlteracao[0]++;
+                    sessao.out(AnsiCores.DIM + marcadorFala + " limpo pela heuristica" + AnsiCores.RESET);
+                    novosEventos.add(evtTraduzido);
+                    continue;
+                }
+
+                falasSinalizadas[0]++;
                 sessao.out(AnsiCores.YELLOW + marcadorFala + " enviada ao LLM | motivos: "
                     + formatarMotivos(deteccao.motivos()) + AnsiCores.RESET);
 

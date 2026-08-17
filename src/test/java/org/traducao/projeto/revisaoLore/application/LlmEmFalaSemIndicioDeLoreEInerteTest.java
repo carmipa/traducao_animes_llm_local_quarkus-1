@@ -106,7 +106,7 @@ class LlmEmFalaSemIndicioDeLoreEInerteTest {
     @Inject CorretorLoreDeterministico corretorLore;
 
     @Test
-    @DisplayName("no modo todas as falas, a proposta do LLM em fala limpa NAO chega ao arquivo")
+    @DisplayName("fala sem indicio de lore nao vai ao LLM, e nada e gravado nela")
     void propostaEmFalaSemIndicioDeLoreNuncaEGravada(@TempDir Path base) throws IOException {
         // CALIBRACAO 1: a fala precisa ser limpa para o detector de PRODUCAO. Se ela for suspeita,
         // o caminho exercitado passa a ser outro e o teste nao prova nada.
@@ -150,11 +150,20 @@ class LlmEmFalaSemIndicioDeLoreEInerteTest {
 
         ResultadoRevisaoLore resultado = useCase.executar(pastaEn, pastaPt, CONTEXTO, true);
 
-        // CALIBRACAO 2: se o LLM nunca foi chamado, "nao gravou" seria trivial e nao provaria que
-        // a chamada e inerte — provaria que ela nao aconteceu.
-        assertEquals(1, chamadas.get(),
-            "o LLM tinha de ter sido chamado UMA vez no modo 'todas as falas'; foi chamado "
-                + chamadas.get() + " vez(es)");
+        // O CONTRATO NOVO (17/08/2026): o LLM e ULTIMO RECURSO e NAO e chamado em fala limpa.
+        //
+        // Este teste nasceu afirmando o contrario — `chamadas == 1` — e era verdade: o modo
+        // "todas as falas" mandava toda fala ao modelo. Ele existia para PROVAR que aquela
+        // chamada era inerte, e foi essa prova que autorizou remove-la. Quando a remocao entrou,
+        // ele reprovou: teste que cai nem sempre e regressao, as vezes e o teste que codificava a
+        // regra velha. Reescrito, e nao afrouxado — a assercao ficou MAIS forte (zero, nao "nao
+        // gravou"), e o par com falasSemAlteracao==1 abaixo continua provando que a fala foi
+        // auditada de verdade, e nao pulada.
+        assertEquals(0, chamadas.get(),
+            "o LLM foi chamado " + chamadas.get() + " vez(es) numa fala SEM indicio de lore. Ele e "
+                + "ultimo recurso: so entra na fala que a heuristica acusou e que o mapa de "
+                + "terminologia nao resolveu. Chamar aqui e gasto com efeito nulo POR CONSTRUCAO — "
+                + "a proposta seria descartada logo abaixo, porque deteccao.motivos() esta vazio.");
 
         assertEquals(antes, Files.readString(arquivoPt, StandardCharsets.UTF_8),
             "A PROPOSTA CHEGOU AO ARQUIVO. O modo 'todas as falas' passaria a alterar legenda em "
