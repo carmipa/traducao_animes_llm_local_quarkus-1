@@ -99,6 +99,10 @@ class TriagemFalaSuspeitaTest {
     /**
      * A auditoria vem JUNTO da suspeita porque é a base de comparação do portão de segurança.
      * Se viesse vazia, qualquer proposta pareceria melhoria.
+     *
+     * <p>A triagem continua entregando TODOS os defeitos, inclusive os que não são do escopo da
+     * tela: quem corta por escopo é a cadeia, e o corte é sobre gastar rede, não sobre enxergar.
+     * Cortar aqui tiraria junto a correção determinística, que é local e grátis.
      */
     @Test
     void suspeitaEntregaAAuditoriaComOsMotivos() {

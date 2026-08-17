@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -65,11 +66,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestProfile(CorrecaoViaLlmChegaAoArquivoTest.PerfilComLlmDublado.class)
 class CorrecaoViaLlmChegaAoArquivoTest {
 
-    /** Escopa a alternativa a este teste; um dublê global mudaria a suíte inteira. */
+    /**
+     * Escopa as alternativas a este teste; um dublê global mudaria a suíte inteira.
+     *
+     * <p>O tradutor externo entrou aqui em 2026-08-16 junto com a CASCATA: quando o LLM recusa, a
+     * 2ª etapa é o Google — e sem o dublê este teste passaria a bater na REDE de verdade.
+     */
     public static class PerfilComLlmDublado implements QuarkusTestProfile {
         @Override
         public Set<Class<?>> getEnabledAlternatives() {
-            return Set.of(LlmCorretorDublado.class);
+            return Set.of(LlmCorretorDublado.class, RecuperacaoExternaContadora.class);
         }
     }
 
@@ -78,6 +84,9 @@ class CorrecaoViaLlmChegaAoArquivoTest {
 
     @Inject
     LlmCorretorDublado llm;
+
+    @Inject
+    RecuperacaoExternaContadora tradutorExterno;
 
     @Inject
     ObjectMapper mapper;
@@ -96,9 +105,16 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         """;
 
+    /**
+     * Os dublês são {@code @ApplicationScoped} e SOBREVIVEM aos testes. Esquecer um deles aqui
+     * custou uma investigação inteira em 2026-08-16: o contador do tradutor externo vazou do teste
+     * da cascata para o vizinho, e o resultado parecia produção quebrada — "a fala foi resolvida
+     * pelo LLM E desceu para o Google". Era o instrumento, não o pipeline.
+     */
     @BeforeEach
     void limparDuble() {
         llm.reiniciar();
+        tradutorExterno.reiniciar();
     }
 
     private record Fala(String ingles, String portugues) {
@@ -143,12 +159,19 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         return conteudo.lines().filter(l -> l.startsWith("Dialogue:")).count();
     }
 
+    /**
+     * FIXTURE TROCADA em 2026-08-16, com o motivo em voz alta: era {@code "Ela está cansado."} —
+     * concordância pura, que saiu do escopo desta tela por decisão de Paulo (a 3.3 é a dona). A
+     * propriedade que este teste protege não mudou: <b>defeito sem conserto local vai ao LLM e a
+     * correção CHEGA ao arquivo</b>. Só o exemplo precisava passar a ser do escopo novo — uma fala
+     * que não foi traduzida.
+     */
     @Test
     @DisplayName("o defeito sem conserto local vai ao LLM e VOLTA corrigido no .ass")
     void concordanciaNominalCorrigidaPeloLlmChegaAoArquivo(@TempDir Path temp) throws IOException {
-        llm.ensinar("cansado", "cansada");
+        llm.ensinar("Get out of there!", "Saia daí!");
         Path pastaPt = montar(temp, List.of(
-            new Fala("She is very tired.", "Ela está cansado."),
+            new Fala("Get out of there!", "Get out of there!"),
             new Fala("The weather is nice today.", "O tempo está bom hoje.")));
 
         String saida = revisar(temp, pastaPt).orElseThrow(() -> new AssertionError(
@@ -156,38 +179,48 @@ class CorrecaoViaLlmChegaAoArquivoTest {
                 + "correção certa, e mesmo assim nada chegou ao arquivo — é assim que a fatia "
                 + "falharia se a guarda rejeitasse correção legítima ou a escrita fosse cegada."));
 
-        assertTrue(saida.contains("Ela está cansada."),
+        assertTrue(saida.contains("Saia daí!"),
             "a correção do modelo não chegou ao arquivo:\n" + saida);
         assertTrue(saida.contains("O tempo está bom hoje."),
             "a fala sã ao lado foi alterada");
         assertEquals(2, contarDialogos(saida), "nenhuma fala pode sumir na gravação");
         assertEquals(1, llm.chamadas(),
             "só a fala defeituosa pode ir ao modelo — consultar a sã custa segundos e cota");
+        // A asserção é sobre QUAL fala desceu, não sobre quantas: a contagem global não distingue
+        // esta fala de outra do mesmo arquivo, e um número certo com o conjunto errado é o defeito
+        // clássico de instrumento desta casa.
+        assertFalse(tradutorExterno.pedidos().stream().anyMatch(p -> p.contains("Get out of there")),
+            "o LLM resolveu esta fala: ela não podia ter descido para a 2ª etapa. Foram ao Google: "
+                + tradutorExterno.pedidos());
     }
 
     /**
-     * CONTROLE que separa "o pipeline não chamou" de "o pipeline chamou e o modelo não resolveu".
-     * O modelo responde, mas devolve o texto igual: a resposta é recusada por ausência de melhoria
-     * e a fala original é preservada. Sem este teste, o anterior poderia estar passando por um
-     * caminho que aceita qualquer resposta.
+     * A CASCATA ponta a ponta, e o controle que separa "o pipeline não chamou" de "o pipeline
+     * chamou e o modelo não resolveu": o LLM responde sem alterar, e a fala <b>não vira pendência
+     * silenciosa</b> — ela desce para a 2ª etapa, que é o Google.
+     *
+     * <p>É a promessa da tela depois da decisão de Paulo (2026-08-16): uma fala que faltou traduzir
+     * <b>não sai daqui sem tradução</b>. Antes disso o desfecho aqui era "preservada e pendente",
+     * porque só existia uma etapa por botão.
      */
     @Test
-    @DisplayName("controle: modelo que responde sem melhorar é RECUSADO e a fala é preservada")
-    void respostaSemMelhoriaNaoEntraNoArquivo(@TempDir Path temp) throws IOException {
+    @DisplayName("cascata: LLM não resolve, a fala desce para o Google e sai traduzida")
+    void quandoOLlmNaoResolveACascataEntregaAFalaAoGoogle(@TempDir Path temp) throws IOException {
         llm.responderSemAlterar();
         Path pastaPt = montar(temp, List.of(
-            new Fala("She is very tired.", "Ela está cansado.")));
+            new Fala("Get out of there!", "Get out of there!")));
 
         Optional<String> saida = revisar(temp, pastaPt);
 
         assertTrue(llm.chamadas() >= 1,
             "o modelo TEM de ter sido consultado — senão este não é o controle que eu penso que é");
+        assertEquals(1, tradutorExterno.chamadas(),
+            "o LLM recusou: a fala tinha de descer para a 2ª etapa em vez de virar pendência");
         String texto = saida.orElse(Files.readString(
             pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
-        assertTrue(texto.contains("Ela está cansado."),
-            "resposta sem melhoria não pode entrar no arquivo, e a fala original tem de sobreviver:\n"
-                + texto);
-        assertEquals(1, contarDialogos(texto), "a fala não pode sumir por não ter sido corrigida");
+        assertFalse(texto.contains("Get out of there!"),
+            "a fala não podia continuar em inglês depois das duas etapas:\n" + texto);
+        assertEquals(1, contarDialogos(texto), "a fala não pode sumir na cascata");
     }
 
     @Test

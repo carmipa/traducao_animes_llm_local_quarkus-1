@@ -40,7 +40,7 @@ class CadeiaCorrecaoFalaTest {
     public static class PerfilComTradutorDublado implements QuarkusTestProfile {
         @Override
         public Set<Class<?>> getEnabledAlternatives() {
-            return Set.of(RecuperacaoExternaContadora.class);
+            return Set.of(RecuperacaoExternaContadora.class, LlmCorretorDublado.class);
         }
     }
 
@@ -50,11 +50,15 @@ class CadeiaCorrecaoFalaTest {
     @Inject
     RecuperacaoExternaContadora tradutorExterno;
 
+    @Inject
+    LlmCorretorDublado llm;
+
     private static final ContextoRevisao SEM_LORE = new ContextoRevisao("teste", "", Set.of());
 
     @BeforeEach
     void limpar() {
         tradutorExterno.reiniciar();
+        llm.reiniciar();
     }
 
     private EventoLegenda fala(String texto) {
@@ -165,7 +169,7 @@ class CadeiaCorrecaoFalaTest {
      * o mesmo sinal. O operador precisa saber que a fala é trabalho da OUTRA passada da mesma tela.
      */
     @Test
-    void googleNaoAcionadoDeixaEvidenciaEmVezDePendenciaInvisivel() {
+    void defeitoForaDoEscopoDaTelaNaoGastaRedeEDeixaEvidencia() {
         String pt = "Provavelmente, ele apenas pensa que ela é uma boa cama.";
         CadeiaCorrecaoFala.FalaSuspeita concordancia = new CadeiaCorrecaoFala.FalaSuspeita(
             fala(pt), "It probably just thinks that he's a good bed.", pt, true,
@@ -179,8 +183,53 @@ class CadeiaCorrecaoFalaTest {
         assertInstanceOf(DecisaoFala.Pendente.class, tentativa.decisao());
         assertEquals(1, tentativa.evidencias().size(),
             "pendência contada sem evidência é a saída vazia ambígua que o relatório não pode produzir");
-        assertEquals("GOOGLE_NAO_ACIONADO", tentativa.evidencias().get(0).resultado());
+        assertEquals("FORA_DO_ESCOPO_DA_TELA", tentativa.evidencias().get(0).resultado(),
+            "a tela precisa dizer que viu o defeito e que ele pertence à 3.3");
         assertEquals(0, tradutorExterno.chamadas(),
-            "concordância sem lore não pode ir para o tradutor externo — ele devolveria nome próprio traduzido");
+            "defeito de outra etapa não pode gastar rede aqui");
+        assertEquals(0, llm.chamadas(),
+            "nem o LLM: o escopo vale para as DUAS etapas, não só para o Google");
+    }
+
+    /**
+     * A CASCATA, que é a razão de ser da tela depois da decisão de Paulo (2026-08-16): a 3.1 existe
+     * para que uma fala que faltou traduzir <b>não saia daqui sem tradução</b>. O LLM é a 1ª etapa
+     * porque conhece a lore; o Google é a 2ª e só entra quando a 1ª não resolveu.
+     *
+     * <p>Antes disto eram dois botões, e a garantia dependia de o operador lembrar a ordem — a lente
+     * de boa-fé chama isso de interface que permite errar.
+     */
+    @Test
+    void quandoOLlmNaoResolveACascataChamaOGoogle() {
+        llm.responderSemAlterar();
+
+        CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
+            new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
+            "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
+
+        assertEquals(1, tradutorExterno.chamadas(),
+            "o LLM recusou: a fala tinha de seguir para a 2ª etapa em vez de virar pendência");
+        assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
+    }
+
+    /**
+     * O rótulo tem de dizer QUEM resolveu. Numa cascata é fácil o texto vir do Google e a evidência
+     * sair como {@code CORRIGIDA_LLM}, porque o modo pedido continua sendo o do botão — e aí toda
+     * comparação futura entre provedores nasce mentindo.
+     */
+    @Test
+    void correcaoVindaDoGoogleNaCascataNaoEhRotuladaComoLlm() {
+        llm.responderSemAlterar();
+
+        CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
+            new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
+            "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
+
+        assertTrue(tentativa.evidencias().stream()
+                .anyMatch(e -> "CORRIGIDA_GOOGLE".equals(e.resultado())),
+            "quem corrigiu foi o Google; rotular como LLM contamina o dataset de comparação");
+        assertTrue(tentativa.evidencias().stream()
+                .anyMatch(e -> "LLM_SEM_ALTERACAO".equals(e.resultado())),
+            "a recusa da 1ª etapa também é evidência: sem ela ninguém sabe que o LLM foi tentado");
     }
 }

@@ -88,6 +88,32 @@ public final class PoliticaRetraducao {
      * @return {@code true} se a falha é objetiva o bastante para o Google
      */
     public static boolean exigeRetraducaoPeloGoogle(List<String> motivos) {
+        return ehFalhaDeTraducao(motivos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se o defeito é <b>falta de tradução</b> — a fala saiu igual ao
+     * inglês, sobrou palavra em inglês, veio em outro idioma, veio conversa do modelo ou veio
+     * marcador de erro. É o ESCOPO da tela 3.1.
+     *
+     * <h2>Por que é o mesmo conjunto que o Google aceita</h2>
+     * Não é coincidência e não são duas regras: "o que a 3.1 conserta" e "o que se pode mandar a um
+     * tradutor sem lore" são a mesma pergunta — falha objetiva de tradução. Por isso
+     * {@link #exigeRetraducaoPeloGoogle(List)} delega aqui em vez de repetir a lista. Duas cópias
+     * divergiriam, e o dia em que divergissem a tela mandaria ao Google algo que ela mesma não
+     * considera do seu escopo.
+     *
+     * <p><b>Fora daqui fica a concordância</b> — gênero, pronome, tratamento. Ela tem tela própria
+     * (3.3) e é decisão de Paulo (2026-08-16): cada menu numerado é uma etapa, e a 3.1 voltou a ter
+     * uma frase só — <i>o que não foi traduzido se resolve aqui</i>.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula ou vazia devolve {@code false} — sem motivo
+     * conhecido, a fala não é do escopo desta tela.
+     *
+     * @param motivos motivos apurados pela auditoria da fala
+     * @return {@code true} quando o defeito é falta de tradução
+     */
+    public static boolean ehFalhaDeTraducao(List<String> motivos) {
         if (motivos == null) {
             return false;
         }
