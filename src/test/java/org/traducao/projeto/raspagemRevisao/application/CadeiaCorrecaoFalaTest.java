@@ -192,6 +192,41 @@ class CadeiaCorrecaoFalaTest {
     }
 
     /**
+     * O DICIONÁRIO NÃO MEXE EM TERMO DA LORE — guarda nascida de um defeito MEU, medido em
+     * produção no Guilty Crown poucas horas depois de eu plugar o dicionário como ajudante:
+     *
+     * <pre>"Apocalypse Virus"  ->  "Apocalypse Vírus"</pre>
+     *
+     * <p>Ele acentua {@code Virus} porque em português é assim, e com isso quebra o termo canônico.
+     * O portão então recusava a proposta INTEIRA e a fala continuava em inglês — o ajudante custava
+     * a tradução que deveria ajudar a entregar. Confirmado com a classe de produção antes de
+     * consertar, e visto em 3 rodadas seguidas do acervo.
+     */
+    @Test
+    void dicionarioEhIgnoradoQuandoAlterariaTermoDaLore() {
+        // O modelo devolve uma proposta que JÁ preserva o termo canônico. Quem o quebraria depois
+        // é o dicionário, acentuando "Virus" — e é exatamente esse passo que a guarda impede.
+        llm.ensinar("esforcos", "esforços");
+        String pt = "Dedicaremos nossos esforcos para erradicar o Apocalypse Virus";
+        CadeiaCorrecaoFala.FalaSuspeita fala = new CadeiaCorrecaoFala.FalaSuspeita(
+            fala(pt), "We will devote our efforts to eradicating the Apocalypse Virus", pt, true,
+            new ResultadoDeteccaoConcordancia(true, List.of(PoliticaRetraducao.NAO_TRADUZIDA)));
+
+        CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
+            new SessaoRevisaoArquivo(), fala, "ep01.ass",
+            ModoRevisaoLegendas.LLM_CONCORDANCIA,
+            new ContextoRevisao("teste", "", Set.of("Apocalypse Virus")));
+
+        DecisaoFala.Corrigir corrigir = assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao(),
+            "com o dicionário quebrando 'Apocalypse Virus', o portão de lore recusa a proposta "
+                + "INTEIRA e a fala fica pendente — foi o que aconteceu 3 rodadas seguidas no acervo");
+        assertTrue(corrigir.texto().contains("Apocalypse Virus"),
+            "o termo canônico tinha de sobreviver ao dicionário: " + corrigir.texto());
+        assertFalse(corrigir.texto().contains("Apocalypse Vírus"),
+            "é exatamente esta acentuação que quebra o termo da lore: " + corrigir.texto());
+    }
+
+    /**
      * A CASCATA, que é a razão de ser da tela depois da decisão de Paulo (2026-08-16): a 3.1 existe
      * para que uma fala que faltou traduzir <b>não saia daqui sem tradução</b>. O LLM é a 1ª etapa
      * porque conhece a lore; o Google é a 2ª e só entra quando a 1ª não resolveu.

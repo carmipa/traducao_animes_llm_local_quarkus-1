@@ -133,7 +133,13 @@ class ProvedorCorrecaoFalaMarcadoresTest {
             new MascaradorTags(),
             new IsoladorQuebraDialogo(),
             validador,
-            new ProtecaoLegendaAssService());
+            new ProtecaoLegendaAssService(),
+            // Os dicionários entraram no provedor em 2026-08-16: é ali que a promessa "o que sai
+            // daqui já está com a lore restaurada" tem de valer também para o ajuste ortográfico.
+            new RevisorPtOnlyService(
+                new org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns(),
+                new CorretorDeterministicoConcordanciaService(),
+                new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()));
     }
 
     private static int contarQuebras(String texto) {
