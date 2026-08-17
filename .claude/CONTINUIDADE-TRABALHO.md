@@ -284,11 +284,12 @@ isso o pareamento não casava. Não era "obra sem inglês"; era tradução pela 
    > `RevisarLorePtOnlyUseCase` manda o prompt ao LLM com o original inglês VAZIO. Com a agregadora
    > ali, o modelo pode normalizar um termo de um título para o canônico de OUTRO."*
 
-   Tirar a aba **remove o risco que justifica aquela catraca**. Três desfechos possíveis, e a
-   escolha é de Paulo porque mexe em lore:
-   - **manter as agregadoras fora do CDI** e reescrever o porquê (conservador, custo zero);
-   - reavaliar se elas podem voltar, agora que o fluxo sem portão morreu;
-   - manter e declarar como risco residual até alguém medir.
+   **DECIDIDO POR PAULO (17/08):** *"os avisos são para permanecer! o restante pode fazer"*.
+   As agregadoras Macross **continuam fora do CDI** e a catraca **continua como está**. A única
+   coisa a mexer no texto é a referência à classe apagada: onde hoje se lê *"o
+   `RevisarLorePtOnlyUseCase` manda o prompt com o original inglês VAZIO"*, passa a se ler que
+   esse fluxo **existiu e foi removido em 17/08/2026**, e que a proteção permanece por precaução
+   — sem link morto e sem perder a cicatriz.
 
    **O que NÃO fazer:** apagar o texto da catraca junto com a aba. O raciocínio dela some, a
    catraca continua verde, e ninguém mais sabe por que aquelas três classes estão fora do CDI —
