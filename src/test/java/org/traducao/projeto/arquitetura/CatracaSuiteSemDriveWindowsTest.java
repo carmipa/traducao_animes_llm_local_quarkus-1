@@ -116,7 +116,12 @@ class CatracaSuiteSemDriveWindowsTest {
         // (246.246 linhas antes do veto). Mesma natureza das demais: "C:\animes" e o default de
         // -Dkronos.acervo, e caminho relativo faria o harness medir o vazio e reportar "nenhuma
         // exposicao" — o zero tranquilizador que a regra 8 proibe. REPROVA quando o acervo falta.
-        "MedicaoExposicaoMusicalRevisaoLorePtOnlyIT.java"
+        "MedicaoExposicaoMusicalRevisaoLorePtOnlyIT.java",
+        // Entrou em 17/08/2026: da NUMERO as duas mudancas de escopo da 3.2 antes de elas
+        // alterarem o acervo — quantos motivos vem das regras que saem, e quantas falas o
+        // corretor deterministico passaria a corrigir fora da heuristica. Mesma natureza:
+        // "C:\animes" e o default de -Dkronos.acervo, e caminho relativo mediria o vazio.
+        "MedicaoEscopoDaRevisaoLoreIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
