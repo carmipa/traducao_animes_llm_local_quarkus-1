@@ -103,7 +103,13 @@ class CatracaSuiteSemDriveWindowsTest {
         "MedicaoNomeProprioAcervoIT.java",
         // Entrou em 14/08/2026: mede quantas falas em FRANCES o pipeline daria por ja
         // traduzidas e nunca enviaria ao LLM. Le as legendas do Memories (1995).
-        "MedicaoFonteFrancesaIT.java"
+        "MedicaoFonteFrancesaIT.java",
+        // Entrou em 17/08/2026, e de novo foi esta catraca que pegou no primeiro `gradlew test`.
+        // Mede o passivo de musica do acervo: quantas linhas de estilo musical ja gravadas em
+        // traducao_ptbr divergem do espelho ingles. "C:\animes" e o default de -Dkronos.acervo;
+        // caminho relativo faria o harness medir o vazio e reportar "sem passivo" — exatamente o
+        // sinal que ele existe para nao dar. REPROVA quando o acervo falta, em vez de zerar.
+        "MedicaoMusicaDivergenteDoEspelhoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */

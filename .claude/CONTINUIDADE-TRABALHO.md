@@ -1,5 +1,115 @@
 # CONTINUIDADE — KRONOS
 
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+Decidir o **Char's Counterattack** (achado aberto abaixo): o filme está achatado para o estilo
+`Char's Counterattack`, que é entrada NOMINAL de `estilos-ignorados` no `application.yml`. Toda
+tela que veta música enxerga o filme inteiro como música. Duas saídas possíveis — tirar a entrada
+da lista (e medir o que volta a ser traduzido) ou desachatar o arquivo a partir do espelho inglês,
+que ainda tem os estilos separados. **É decisão do Paulo** (muda produto).
+
+O passivo de música do acervo **está medido e fechado** — ver abaixo. A 3.1 está liberada para as
+obras restantes.
+
+---
+
+# ✅ 2026-08-17 — PASSIVO DE MÚSICA DO ACERVO: MEDIDO E FECHADO
+
+`MedicaoMusicaDivergenteDoEspelhoIT` — 23 obras, 245.266 linhas de estilo musical com espelho.
+Pergunta o critério musical à `PoliticaEstiloMusical` de produção e o pareamento ao
+`ResolvedorArtefatosRevisao`; não reimplementa nenhum dos dois.
+
+**Calibração antes de acreditar:** rodado contra o estado doente do 08th (13 arquivos guardados
+no scratchpad) devolveu **687** — exatamente o que o diff em PowerShell mediu ontem por outro
+caminho. Dois instrumentos independentes, mesmo número.
+
+## Resultado: 21 obras ZERO. Duas divergiam.
+
+### 🔴→✅ Guilty Crown — 283 linhas, REPARADO
+
+As corridas de 16/08 (22:12 / 22:59 / 23:32) escreveram música pela mesma ponte do cache do 08th.
+Prova: o backup de 22:12 tinha divergência **0** de 1.209 linhas musicais; hoje tinha 283.
+
+```
+diff backup 22:12 -> antes do reparo: 295 linhas
+   123 ED_S2 · 68 OP · 44 ED · 43 OP_S2 · 5 Other songs   = 283 MUSICA (96%)
+    12 Default                                            = correcao legitima
+```
+
+Reparo: as 283 restauradas do backup (que estava provadamente igual ao espelho), as **12 de
+diálogo preservadas**. Conferido: BOM em 23/23, contagem de eventos intacta, e o que ainda difere
+do backup são exatamente os 12 `Default`. Re-medição independente: **0**.
+Snapshot em `scratchpad\guilty-crown-antes-do-revert`.
+
+### 🔴 Char's Counterattack — 55.865, e NÃO é dano de música — ABERTO
+
+| estilo | inglês | português |
+|---|---|---|
+| `Char's Counterattack` | 53.346 | **55.935** |
+| `Dialogue` | 1.868 | **0** |
+| `Mobile Suit Gundam` | 644 | **0** |
+| `ED-ENG` + `Dialogue - Alt` | 56 | **0** |
+
+O arquivo foi **achatado**: o diálogo real herdou o nome do estilo decorativo. E
+`Char's Counterattack` está na lista `estilos-ignorados` do `application.yml` (linha 142), junto
+com `Mobile Suit Gundam`. **Toda tela que veta música enxerga o filme inteiro como música.** O
+diálogo já está traduzido — não há urgência de dano —, mas o filme é hoje inauditável pela 3.1,
+3.3 e 4.1. É a cicatriz do achatamento por CONTAGEM materializada num filme.
+
+## Armadilha de instrumento pega no caminho
+
+`Get-ChildItem -Filter` e `Test-Path` sem `-LiteralPath` **quebram** em pasta com `[` no nome, e
+metade do acervo tem. A primeira tabela de pareamento saiu com 17 de 23 obras marcadas `0` — eu
+quase reportei "o 08th está sem legenda em inglês", e ele tem 13.
+
+---
+
+# ✅ 2026-08-17 — AUDITORIA MÉTODO A MÉTODO DA 3.1 (autorizada por Paulo)
+
+Ordem dele: *"voce quer auditar metodo a metodo com testes para evitarmos mais surpresas o
+revisao legendas? leve o tempo que quiaser!"*. A auditoria caça **classe de defeito**, não
+defeito solto.
+
+## Achado 1 — terceira porta de escrita sem veto de música (`f924768c`)
+
+Critério de busca: *quem reescreve o texto de uma fala*. Medido: `EventoLegenda.comTexto` é a
+**única** porta na fatia (zero `new EventoLegenda(...)` fora dos leitores e da `trocaTipoLegenda`).
+Quatro portas, e o inventário completo virou catraca:
+
+| porta | proteção |
+|---|---|
+| `SincronizadorLegendaCacheService` | veta por si (consertado ontem) |
+| `RevisorPtOnlyUseCase` | **estava aberta** — veta por si agora |
+| `PreparadorFalaRevisao` | chamador (`RevisarLegendasUseCase:419`) |
+| `SessaoRevisaoArquivo` | chamador, mesmo laço |
+
+`RevisorPtOnlyUseCase` alteraria **65 falas no 86 Part 1, 65/65 estilo `Ending`** ("choes!" →
+acentuado). Zero diálogo. Nenhum controller o alcança — foi exatamente o estado da ponte do cache
+até ela morder.
+
+**`CatracaEscritaDeFalaVetaMusicaTest`** congela o inventário nominal. Mutação: 3 casos doentes,
+3 asserções distintas reprovando (linhas 140/162/172); caso-controle em `@TempDir` verde.
+
+## Achado 2 — pasta EN errada dava `[SUCESSO]` verde (`0b84b109`)
+
+Lente de **boa-fé**, não adversarial. A tela depende de DUAS pastas e a ordem dos campos foi
+invertida em 16/08. Medido com a pasta EN vazia: 4 falas não comparadas com nada, `status()` =
+`CONCLUIDO`, banner **verde**. Regra 12 — cego e limpo davam o mesmo sinal.
+
+O sinal já existia por arquivo (amarelo, `RevisarLegendasUseCase:503`) e morria ali. O conserto
+carrega o que a produção já media: `SessaoRevisaoArquivo.ficouCego()` é a **única** definição, e
+tanto o aviso por arquivo quanto o total do lote a consultam. Novo status
+`CONCLUIDO_SEM_REFERENCIA`, com precedência **sobre** pendência (não saber é pior que saber que
+falta). Perda PARCIAL de original segue sem alarme — alarme falso ensina a desligar o alarme.
+
+Mutação: 2 casos doentes, 3 testes reprovando; contra-caso da pasta CERTA verde nas duas rodadas.
+
+**Varredura da mesma classe fora da 3.1 (regra 5):** 2.1, 3.2, 3.3, Opção 5/7 e `traducaoCorrige`
+já consultam o juiz de estilo musical. Quem não consulta é o `TraduzirKaraokeUseCase` (que **deve**
+traduzir música) e o achatador (feature declarada). **O defeito não era sistêmico.**
+
+Suíte: 320 classes, 1.862 testes, 0 falhas.
+
 ---
 
 # 🔴→✅ 2026-08-17 — A PONTE DO CACHE FURAVA O VETO DE MÚSICA (dano REAL no acervo)
