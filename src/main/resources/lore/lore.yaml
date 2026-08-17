@@ -1957,21 +1957,19 @@ obras:
      Esquadroa de Ponta: Spearhead       # 1
      Esquadroe de Ponta: Spearhead       # 1  <- o defeito que Paulo viu na legenda
      Esquadron de Ponta: Spearhead       # 1  <- 3a grafia, vista na corrida de 17/08 (ep01 ev.299)
-     Ceifador: Reaper                    # 23 (10 P1 + 13 P2). MESMA POLITICA que este mapa ja
-                                         # aplica a Carrasco/Funebre/Coveiro/Cavaleiro da Morte ->
-                                         # Undertaker: apelido do Shin fica em INGLES. Nao e
-                                         # escolha nova, e coerencia com a decisao que ja estava
-                                         # aqui — medido: Undertaker aparece 38x no PT gravado.
-     Juggernaut: Reaper                  # A ENTRADA QUE CONSERTA "Our Reaper" -> "Nosso
-                                         # Juggernaut" (ep10 ev.149): trocou o apelido do piloto
-                                         # pelo nome do MECHA. O dano tem prova numerica: no
-                                         # Part 1 o PT tem 16 "Juggernaut" e o EN tem 15 — um a
-                                         # mais, que e este. No Part 2 bate 7 x 7.
-                                         # SEGURA porque medido: ZERO falas com "Reaper" e
-                                         # "Juggernaut" no MESMO ingles, e o enforcer so troca
-                                         # quando o EN contem o canonico na grafia exata. Os 15
-                                         # Juggernaut legitimos do EN nao tem "Reaper" ao lado,
-                                         # entao nenhum deles e tocado.
+     # [REVERTIDO 17/08/2026] "Ceifador: Reaper" e "Juggernaut: Reaper" ficaram aqui por
+     # algumas horas e foram RETIRADOS depois de consulta a fonte da obra.
+     #
+     # O erro foi meu e de categoria: eu argumentei coerencia com Carrasco/Funebre/Coveiro ->
+     # Undertaker, mas "Undertaker" e CALLSIGN (nome proprio) e "Reaper" e a traducao inglesa de
+     # 死神/Shinigami — EPITETO. Traduzir epiteto para o ingles contraria a decisao de Paulo de
+     # 15/08/2026: "epiteto fica fora da traducao (Deusa da Beleza -> Goddess of Beauty atrapalha
+     # ler)". "Ceifador" e o epiteto em portugues e FICA.
+     #
+     # As 13 falas gravadas (1 no Part 1, 12 no Part 2) foram revertidas dos backups, e a do
+     # ep10 ev.149 — que era erro REAL, o nome do MECHA no lugar do apelido — foi corrigida a mao
+     # para "Nosso Ceifador", porque o enforcer nao consegue produzi-la: ele exige o canonico
+     # presente no INGLES, e "Ceifador" nunca esta la.
      Coronel: Major                      # 23 no PT x 49 "Major" no EN — MAS o ingles tem 16
                                          # "Colonel", e ali "Coronel" esta CERTO. So nao quebra
                                          # porque o enforcer exige o canonico na grafia exata NO
