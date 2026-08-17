@@ -152,40 +152,5 @@ public class CorretorLoreDeterministico {
      * @param correcoesTerminologia mapa forma-ruim (PT) → canônico da obra ativa
      * @return a fala corrigida quando houve alteração; caso contrário {@link Optional#empty()}
      */
-    public Optional<String> corrigirPtOnly(String traducaoMascarada, Map<String, String> correcoesTerminologia) {
-        if (traducaoMascarada == null || traducaoMascarada.isBlank()
-            || correcoesTerminologia == null || correcoesTerminologia.isEmpty()) {
-            return Optional.empty();
-        }
-        String resultado = traducaoMascarada;
-        // Frases longas primeiro: sem isto "Traje Móvel"→"Mobile Suit" mutila
-        // "Traje Móvel de Combate" antes de a entrada completa ser tentada. Mesma regra que o
-        // EnforcadorTermosLore aplica no caminho com o inglês; aqui não dá para delegar porque
-        // sem o EN não existe o portão "o original contém o canônico".
-        var pares = correcoesTerminologia.entrySet().stream()
-            .sorted(Comparator.comparingInt((Map.Entry<String, String> e) ->
-                e.getKey() == null ? 0 : e.getKey().length()).reversed())
-            .toList();
-        for (Map.Entry<String, String> par : pares) {
-            String formaRuim = par.getKey();
-            String canonico = par.getValue();
-            if (formaRuim == null || formaRuim.isBlank() || canonico == null) {
-                continue;
-            }
-            // Só termos INEQUÍVOCOS sem o EN: forma-ruim multi-palavra (contém espaço). Homógrafo
-            // de uma palavra ("Vazio") é pulado — sem o original não dá para separar do comum.
-            if (formaRuim.trim().indexOf(' ') < 0) {
-                continue;
-            }
-            // Por construcao (o continue acima), TODA forma-ruim aqui e multi-palavra — entao
-            // 100% das regras deste corretor ficavam cegas quando a legenda partia o termo na
-            // virada da linha. Ver FronteiraTermoAss.
-            Pattern formaRuimPat = FronteiraTermoAss.padraoIgnorandoCaixa(formaRuim);
-            if (formaRuimPat.matcher(resultado).find()) {
-                resultado = formaRuimPat.matcher(resultado).replaceAll(Matcher.quoteReplacement(canonico));
-            }
-        }
-        return resultado.equals(traducaoMascarada) ? Optional.empty() : Optional.of(resultado);
-    }
 
 }

@@ -31,9 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 3.1 nunca teria como enxergá-las, e ninguém percebeu porque o relatório daquela catraca é
  * verde por construção fora do seu prefixo.
  *
- * <p>A porta descoberta assim foi a aba <b>PT-only</b> ({@code RevisarLorePtOnlyUseCase}): laço
- * próprio filtrando só {@code temTexto()}, gravando no {@code .ass} com "Apenas simular"
- * desmarcado por padrão. Medido em 17/08/2026 com
+ * <p>A porta descoberta assim foi a aba <b>PT-only</b> ({@code RevisarLorePtOnlyUseCase}, <b>removida
+ * em 17/08/2026</b>): laço próprio filtrando só {@code temTexto()}, gravando no {@code .ass} com
+ * "Apenas simular" desmarcado por padrão. Ela saiu porque as 23 pastas {@code traducao_ptbr} do
+ * acervo TÊM espelho em inglês — atendia a um cenário inexistente. O registro fica: foi ela que
+ * revelou que esta fatia não tinha catraca nenhuma. Medido em 17/08/2026 com
  * {@code MedicaoExposicaoMusicalRevisaoLorePtOnlyIT} (22 obras, calibrado contra o próprio caso
  * de uso em dry-run — harness e produção bateram em 22 de 22):
  * <pre>
@@ -84,9 +86,6 @@ class CatracaEscritaDeFalaVetaMusicaLoreTest {
         PORTAS_CONHECIDAS.put(APP + "RevisarLoreUseCase.java",
             "VETA POR SI. Aba \"Com ingles\": ehEventoAuditavelLore delega ao AlcanceRevisaoLore "
             + "e julga pelo evento ORIGINAL, porque restyle da PT e legitimo.");
-        PORTAS_CONHECIDAS.put(APP + "RevisarLorePtOnlyUseCase.java",
-            "VETA POR SI desde 17/08/2026. Aba PT-only: laco proprio, grava com 'Apenas simular' "
-            + "desmarcado por padrao. Tinha 246.246 linhas musicais ao alcance antes do veto.");
     }
 
     /**
@@ -122,7 +121,7 @@ class CatracaEscritaDeFalaVetaMusicaLoreTest {
         Set<String> encontradas = mapearEscritas(RAIZ, FATIA);
 
         assertFalse(encontradas.isEmpty(),
-            "instrumento CEGO: nao achou NENHUMA escrita de fala na 3.2, e existem duas. Se "
+            "instrumento CEGO: nao achou NENHUMA escrita de fala na 3.2, e existe uma. Se "
                 + "comTexto mudou de nome, corrija a assinatura — nao apague a catraca.");
 
         List<String> novas = new ArrayList<>(encontradas);
