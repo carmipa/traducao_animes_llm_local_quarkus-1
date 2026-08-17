@@ -2,6 +2,33 @@
 
 ---
 
+# ✅ 2026-08-16 23:41 — A 3.1 FECHADA E PROVADA EM DUAS OBRAS
+
+```
+GUILTY CROWN   23 arquivos | 5.754 falas | 2 detectados | 2 pendentes (ambas -> 3.3)
+86 Part 1      11 arquivos | 3.469 falas | 2 detectados | 2 pendentes (ambas -> 3.3)
+86 Part 2      12 arquivos | 3.552 falas | 0 detectados | 0 pendentes   [SUCESSO] CONCLUIDO
+```
+
+**Zero falas em inglês sobrando nas três pastas.** As 4 pendências totais são de concordância,
+saem com `Fora do escopo desta tela` e são trabalho da 3.3 — que hoje ganhou o veto de música e
+está pronta para recebê-las.
+
+**AS 2 DO 86 SÃO O FALSO POSITIVO ESTRUTURAL JÁ DECLARADO**, e continuam com o texto de Paulo:
+```
+EN : It probably just thinks that he's a good bed.
+PT : Provavelmente ela só acha que ele é uma boa cama.       (ep03 ev.271 e ep11 ev.222)
+```
+O inglês não marca gênero para o animal; o português exige `ela`. A tradução está certa e o
+auditor não tem como saber. Preservar e encaminhar é o desfecho correto — **não perseguir**.
+
+**IDEMPOTENTE:** rodadas repetidas não alteram arquivo nenhum. O ciclo que degradava a cada
+passada, que abriu a noite às 22:12, não existe mais.
+
+---
+
+---
+
 # ✅ FEITO (2026-08-16) — O DICIONÁRIO PAROU DE QUEBRAR TERMO DA LORE
 
 **DEFEITO MEU, medido em produção horas depois de eu ligar o dicionário como ajudante:**
