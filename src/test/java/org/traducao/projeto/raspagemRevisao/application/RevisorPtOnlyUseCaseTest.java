@@ -30,7 +30,8 @@ class RevisorPtOnlyUseCaseTest {
     private final RevisorPtOnlyUseCase useCase = new RevisorPtOnlyUseCase(
         new LeitorLegendaAss(), new EscritorLegendaAss(),
         new RevisorPtOnlyService(new NormalizadorAcentosComuns(), new CorretorDeterministicoConcordanciaService(), new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
-        new TelemetriaNoOp());
+        new TelemetriaNoOp(),
+        new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()));
 
     /** Telemetria no-op para o teste unitário: não persiste em disco (não chama super). */
     /**
@@ -68,6 +69,51 @@ class RevisorPtOnlyUseCaseTest {
             sb.append("Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,").append(f).append("\n");
         }
         Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+    }
+
+    private void escreverAssComEstilo(Path arquivo, String estilo, String... falas) throws IOException {
+        StringBuilder sb = new StringBuilder(CABECALHO);
+        for (String f : falas) {
+            sb.append("Dialogue: 0,0:00:01.00,0:00:03.00,").append(estilo)
+                .append(",,0,0,0,,").append(f).append("\n");
+        }
+        Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * O VETO DE MÚSICA, achado na auditoria método a método de 17/08 e fechado com PREJUÍZO
+     * MEDIDO, não hipótese: em dry-run com as classes de produção sobre {@code 86 Part 1}, este
+     * caso de uso alteraria <b>65 falas, e as 65 são estilo {@code Ending}</b> — 65 cópias do
+     * fragmento {@code "choes!"} (pedaço de {@code "echoes!"} pintado pelo gradiente) viradas em
+     * {@code "chões!"}. Zero diálogo.
+     *
+     * <p>Ele não está em menu nenhum hoje — e foi exatamente assim que a ponte do cache ficou
+     * dormente até reescrever 687 linhas de ED no Gundam 08th. <b>"Inalcançável" não é proteção.</b>
+     */
+    @Test
+    void estiloMusicalNaoEhTocadoPeloCorretorPtOnly(@TempDir Path dir) throws IOException {
+        Path ass = dir.resolve("ep_PT-BR.ass");
+        escreverAssComEstilo(ass, "Ending", "Nao vou tambem.");
+        String antes = Files.readString(ass, StandardCharsets.UTF_8);
+
+        RevisorPtOnlyUseCase.ResultadoPtOnly r = useCase.revisarPasta(dir, true);
+
+        assertEquals(0, r.arquivosAlterados(),
+            "música é veto absoluto: a letra fica como está até a 4.1 tratá-la");
+        assertEquals(antes, Files.readString(ass, StandardCharsets.UTF_8),
+            "o arquivo não podia ser tocado");
+    }
+
+    /** O contra-teste: a MESMA fala em estilo de diálogo continua sendo corrigida. */
+    @Test
+    void aMesmaFalaEmDialogoContinuaSendoCorrigida(@TempDir Path dir) throws IOException {
+        Path ass = dir.resolve("ep_PT-BR.ass");
+        escreverAssComEstilo(ass, "Default", "Nao vou tambem.");
+
+        RevisorPtOnlyUseCase.ResultadoPtOnly r = useCase.revisarPasta(dir, true);
+
+        assertEquals(1, r.arquivosAlterados(), "diálogo é o trabalho deste corretor");
+        assertTrue(Files.readString(ass, StandardCharsets.UTF_8).contains("Não vou também."));
     }
 
     @Test

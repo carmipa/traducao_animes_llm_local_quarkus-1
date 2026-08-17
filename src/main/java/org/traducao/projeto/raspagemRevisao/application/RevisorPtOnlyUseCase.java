@@ -51,17 +51,47 @@ public class RevisorPtOnlyUseCase {
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
     private static final String PASTA_BACKUP = "backup_revisao_ptonly";
 
+    /**
+     * O juiz de estilo musical, que é peer e é o MESMO das outras telas.
+     *
+     * <h2>Prejuízo MEDIDO, não hipótese</h2>
+     * Este caso de uso grava no {@code .ass} e percorria TODO evento com texto, sem olhar estilo.
+     * Medição de 2026-08-16 sobre {@code 86 Part 1}, em dry-run com as classes de produção:
+     * ele alteraria <b>65 falas, e as 65 são estilo {@code Ending}</b> — 65 cópias do fragmento
+     * {@code "choes!"} (pedaço de {@code "echoes!"} pintado pelo gradiente do karaokê), que o
+     * dicionário "corrigiria" para {@code "chões!"}. <b>Zero diálogo.</b> É a cicatriz do
+     * {@code mae}→{@code mãe} do Unicorn por outra porta.
+     *
+     * <h2>Por que fechar mesmo estando fora do menu</h2>
+     * Nenhum controller o alcança hoje. Foi exatamente assim que a ponte do cache ficou dormente
+     * até morder o Gundam 08th em 17/08 — <b>"inalcançável hoje" não é proteção, é sorte com prazo
+     * de validade</b>. A regra do Paulo: a legenda original é o espelho, e a música fica como está
+     * nela até a 4.1 tratá-la.
+     */
+    private final org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala é música/karaokê, e portanto não é trabalho deste corretor.
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao dono da regra, sem lista própria.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo devolve {@code false}.
+     */
+    private boolean eMusica(EventoLegenda evento) {
+        return evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo());
+    }
+
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final RevisorPtOnlyService revisor;
     private final TelemetriaRevisaoPort telemetria;
 
     public RevisorPtOnlyUseCase(LeitorLegendaAss leitor, EscritorLegendaAss escritor,
-            RevisorPtOnlyService revisor, TelemetriaRevisaoPort telemetria) {
+            RevisorPtOnlyService revisor, TelemetriaRevisaoPort telemetria,
+            org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.telemetria = telemetria;
         this.revisor = revisor;
+        this.politicaEstiloMusical = politicaEstiloMusical;
     }
 
     /**
@@ -116,7 +146,7 @@ public class RevisorPtOnlyUseCase {
                 List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
                 int alteradasNoArquivo = 0;
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (!evento.temTexto()) {
+                    if (!evento.temTexto() || eMusica(evento)) {
                         novos.add(evento);
                         continue;
                     }
