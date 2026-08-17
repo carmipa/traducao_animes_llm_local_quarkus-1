@@ -36,11 +36,44 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(1, "Default", "Help!", "Ajude!", "en", "pt-br"),
             new EntradaCache(2, "Default", "Fransson!", "", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService().sincronizar(documento, entradas, true);
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(documento, entradas, true);
 
         assertEquals(1, resultado.total());
         assertEquals("Ajude!", resultado.documento().eventos().get(0).texto());
         assertEquals("Fransson!", resultado.documento().eventos().get(1).texto());
+    }
+
+    /**
+     * O VETO DE MÚSICA NESTA PONTE — e ele nasceu de dano REAL no acervo, não de hipótese.
+     *
+     * <p>Em 17/08/2026, uma corrida da 3.1 no Gundam 08th MS Team reescreveu <b>693 linhas, das
+     * quais 687 eram estilo {@code Song ENG}</b> (99,1%): a letra inteira do ED de 13 episódios,
+     * restaurada de um cache da era ANTERIOR ao veto e com erro visível
+     * ({@code "you were watching"} virou {@code "Estamos assistindo"}). O console anunciava
+     * {@code [CACHE/RECUPERADO]}, que soa como coisa boa.
+     *
+     * <p>A causa: aqui só se perguntava {@code evento.isDialogo()}, que responde "a linha é
+     * {@code Dialogue:}" — e NÃO "o estilo é diálogo". A tela declarava veto absoluto de música na
+     * auditoria e furava a própria invariante nesta ponte, que roda ANTES dela.
+     */
+    @Test
+    void naoRestauraDoCacheUmaFalaDeEstiloMusical() {
+        DocumentoLegenda documento = new DocumentoLegenda("", List.of(
+            new EventoLegenda(1, "Dialogue", "Song ENG", "", "I was watching you as you,"),
+            new EventoLegenda(2, "Dialogue", "Default", "", "Texto antigo")), "\n", false);
+        List<EntradaCache> entradas = List.of(
+            new EntradaCache(1, "Song ENG", "I was watching you as you,", "Eu estava observando você", "en", "pt-br"),
+            new EntradaCache(2, "Default", "Texto antigo", "Texto novo", "en", "pt-br"));
+
+        var r = new SincronizadorLegendaCacheService(
+            new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()))
+            .sincronizar(documento, entradas, true);
+
+        assertEquals("I was watching you as you,", r.documento().eventos().get(0).texto(),
+            "música é veto absoluto: a letra fica como está no espelho em inglês até a 4.1 tratá-la");
+        assertEquals("Texto novo", r.documento().eventos().get(1).texto(),
+            "e o diálogo ao lado continua sendo sincronizado — o veto é de música, não paralisia");
+        assertEquals(1, r.total(), "só a fala de diálogo pode contar como sincronizada");
     }
 
     /**
@@ -54,7 +87,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EventoLegenda(1, "Dialogue", "Default", "", "Revisão nova")), "\n", false);
         EntradaCache antiga = new EntradaCache(1, "Default", "Original", "Cache antigo", "en", "pt-br");
 
-        var resultado = new SincronizadorLegendaCacheService().sincronizar(
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(
             documento, List.of(antiga), false);
 
         assertEquals(0, resultado.total());
@@ -77,7 +110,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(1, "Default", "Help me, Jona!", "Ajude-me, Jona!", "en", "pt-br"),
             new EntradaCache(2, "Default", "Original", "Tradução antiga", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService().sincronizar(documento, entradas, false);
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(documento, entradas, false);
 
         assertEquals(1, resultado.total());
         assertEquals(List.of(1), resultado.indicesRecuperadosDoOriginal());
@@ -101,7 +134,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(59, "Default", "Jona! Michele!", "Michele!", "en", "pt-br"),
             new EntradaCache(60, "Default", "Help me!", "Ajude-me!", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService().sincronizar(
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(
             documento, entradas, false, Set.of(59));
 
         assertEquals(1, resultado.total());
