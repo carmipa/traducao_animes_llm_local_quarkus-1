@@ -30,7 +30,8 @@ class RevisarConcordanciaUseCaseTest {
 
     private final TelemetriaSpy telemetria = new TelemetriaSpy();
     private final RevisarConcordanciaUseCase useCase = new RevisarConcordanciaUseCase(
-        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(), telemetria);
+        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(), telemetria,
+        new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()));
 
     /** Captura a operação registrada sem persistir em disco (não chama super). */
     static class TelemetriaSpy extends TelemetriaService {
@@ -61,6 +62,55 @@ class RevisarConcordanciaUseCaseTest {
             sb.append("Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,").append(f).append("\n");
         }
         Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+    }
+
+    private void escreverAssComEstilo(Path arquivo, String estilo, String... falas) throws IOException {
+        StringBuilder sb = new StringBuilder(CABECALHO);
+        for (String f : falas) {
+            sb.append("Dialogue: 0,0:00:01.00,0:00:03.00,").append(estilo)
+                .append(",,0,0,0,,").append(f).append("\n");
+        }
+        Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * O VETO DE MÚSICA — o 🔴 que faltava nesta tela, e o pré-requisito para ela receber a
+     * concordância que a 3.1 passou a encaminhar para cá (decisão de Paulo, 2026-08-16: cada menu
+     * numerado é uma etapa).
+     *
+     * <p>MEDIDO ANTES DE A GUARDA EXISTIR, no 86: esta tela via <b>22.568 de 26.524</b> eventos na
+     * Part 1 (85,1%) e <b>49.458 de 53.175</b> na Part 2 (93,0%) — quase tudo sílaba solta de
+     * karaokê. E ela mexe em GÊNERO, que é onde a heurística mais erra. As outras duas telas já
+     * vetavam música; só esta não.
+     */
+    @Test
+    void estiloMusicalNaoEhTocadoPorEstaTela(@TempDir Path dir) throws IOException {
+        Path ass = dir.resolve("ep_PT-BR.ass");
+        escreverAssComEstilo(ass, "Opening", "Vi o menina.");
+        String antes = Files.readString(ass, StandardCharsets.UTF_8);
+
+        ResultadoConcordancia r = useCase.revisarPasta(dir, true);
+
+        assertEquals(0, r.falasCorrigidas(),
+            "música é veto ABSOLUTO: karaokê pertence à fatia traducaoKaraoke, não a esta tela");
+        assertEquals(antes, Files.readString(ass, StandardCharsets.UTF_8),
+            "o arquivo não podia ser tocado");
+    }
+
+    /**
+     * O CONTRA-TESTE, e ele é o que separa "vetou música" de "parou de funcionar": a MESMA fala,
+     * em estilo de diálogo, continua sendo corrigida. Sem ele, um veto largo demais passaria
+     * despercebido como se fosse a guarda funcionando.
+     */
+    @Test
+    void aMesmaFalaEmDialogoContinuaSendoCorrigida(@TempDir Path dir) throws IOException {
+        Path ass = dir.resolve("ep_PT-BR.ass");
+        escreverAssComEstilo(ass, "Default", "Vi o menina.");
+
+        ResultadoConcordancia r = useCase.revisarPasta(dir, true);
+
+        assertEquals(1, r.falasCorrigidas(), "diálogo é o trabalho desta tela e não pode ser vetado");
+        assertTrue(Files.readString(ass, StandardCharsets.UTF_8).contains("Vi a menina."));
     }
 
     @Test
