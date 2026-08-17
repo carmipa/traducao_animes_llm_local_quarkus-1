@@ -5,6 +5,7 @@ import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.DecisaoFala;
 import org.traducao.projeto.raspagemRevisao.domain.DetalheRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
+import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
@@ -61,6 +62,13 @@ public class CadeiaCorrecaoFala {
     private final MascaradorTags mascaradorTags;
 
     /**
+     * Os dicionários (acentos inequívocos + hunspell do sistema) como AJUDANTES da proposta.
+     * Reusa a peça que já existia e não era chamada por menu nenhum — o Javadoc dela diz que a
+     * revisão "é o único caminho para corrigir o acervo JÁ traduzido sem reprocessar tudo".
+     */
+    private final RevisorPtOnlyService revisorPtOnly;
+
+    /**
      * PROPÓSITO DE NEGÓCIO: reúne as três fontes de correção, o portão que as julga e o mascarador
      * que produz a chave da memória.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
@@ -71,12 +79,14 @@ public class CadeiaCorrecaoFala {
             MemoriaCorrecaoArquivo memoriaCorrecao,
             ProvedorCorrecaoFala provedorCorrecao,
             GuardaCorrecaoSegura guardaCorrecao,
-            MascaradorTags mascaradorTags) {
+            MascaradorTags mascaradorTags,
+            RevisorPtOnlyService revisorPtOnly) {
         this.corretorDeterministico = corretorDeterministico;
         this.memoriaCorrecao = memoriaCorrecao;
         this.provedorCorrecao = provedorCorrecao;
         this.guardaCorrecao = guardaCorrecao;
         this.mascaradorTags = mascaradorTags;
+        this.revisorPtOnly = revisorPtOnly;
     }
 
     /**
@@ -176,47 +186,109 @@ public class CadeiaCorrecaoFala {
             return new Tentativa(precedidaDe(avisos, daMemoria.get()), List.of());
         }
 
+        List<DetalheRevisao> evidencias = new ArrayList<>();
+
+        // O ESCOPO DA TELA (Paulo, 2026-08-16): a 3.1 resolve FALTA DE TRADUÇÃO. Concordância tem
+        // tela própria, a 3.3.
+        //
+        // O corte é AQUI, e não na triagem, e isso foi um erro meu que 5 testes ponta-a-ponta
+        // pegaram: cortar na entrada tirava junto a correção DETERMINÍSTICA, que é local, grátis e
+        // já provada ("Minha mãe" ← "My dad" sai corrigido no .ass). Perder capacidade gratuita
+        // para ganhar pureza de escopo é troca ruim. O que a regra local conserta de graça, a tela
+        // continua consertando; o que ela gasta REDE para consertar, só dentro do próprio escopo.
+        if (!PoliticaRetraducao.ehFalhaDeTraducao(auditoria.motivos())) {
+            avisos.add("     " + AnsiCores.DIM
+                + "Fora do escopo desta tela: defeito de concordância/estilo pertence à 3.3."
+                + AnsiCores.RESET);
+            return new Tentativa(
+                new DecisaoFala.Pendente(avisos),
+                List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+                    "FORA_DO_ESCOPO_DA_TELA", auditoria.motivos(),
+                    "A 3.1 resolve falta de tradução. Este defeito é de concordância/estilo e "
+                        + "pertence à Revisão de Concordância (3.3). A fala foi preservada.",
+                    originalEn, traducaoAtual, null)));
+        }
+
         // 3ª fonte: a única que custa. Só chega aqui o que as duas anteriores não resolveram.
         ProvedorCorrecaoFala.Resultado candidata = provedorCorrecao.obter(
             modo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
+
+        // CASCATA (Paulo, 2026-08-16): o LLM é a 1ª etapa porque conhece a lore; o Google é a 2ª,
+        // e SÓ quando a 1ª não resolveu. Antes eram dois botões, e "não sai daqui sem tradução"
+        // dependia de o operador lembrar a ordem — o que a regra da boa-fé chama de interface que
+        // permite errar. O Google se protege sozinho: motivo que não seja falha objetiva volta
+        // como GOOGLE_NAO_ACIONADO, porque tradutor sem lore devolve nome próprio traduzido.
+        // Qual provedor REALMENTE produziu o texto. Sem isto, uma fala resolvida pelo Google depois
+        // de o LLM recusar sairia rotulada como CORRIGIDA_LLM no relatório e no dataset — o rótulo
+        // existe justamente para distinguir o que custou rede de quem, e mentir nele contamina toda
+        // comparação futura entre provedores.
+        ModoRevisaoLegendas modoEfetivo = modo;
+        boolean primeiraPediuMemoria = false;
+        if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada primeira
+            && modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
+            avisos.add(primeira.mensagem());
+            if (primeira.codigo() != null) {
+                evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+                    primeira.codigo(), auditoria.motivos(), primeira.detalhe(),
+                    originalEn, traducaoAtual, primeira.proposta()));
+            }
+            // A memória NÃO é gravada aqui: se o Google resolver, marcar "não rende" agora
+            // impediria a próxima ocorrência de aproveitar a correção que existe.
+            primeiraPediuMemoria = primeira.registrarSemAlteracao();
+            modoEfetivo = ModoRevisaoLegendas.GOOGLE;
+            candidata = provedorCorrecao.obter(
+                modoEfetivo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
+        }
+
         if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada recusada) {
             avisos.add(recusada.mensagem());
-            if (recusada.registrarSemAlteracao()) {
+            if (recusada.registrarSemAlteracao() || primeiraPediuMemoria) {
                 sessao.registrarSemAlteracao(textoMascOriginal);
             }
-            List<DetalheRevisao> evidencias = recusada.codigo() == null
-                ? List.of()
-                : List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+            if (recusada.codigo() != null) {
+                evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
                     recusada.codigo(), auditoria.motivos(), recusada.detalhe(),
                     originalEn, traducaoAtual, recusada.proposta()));
+            }
             return new Tentativa(new DecisaoFala.Pendente(avisos), evidencias);
         }
 
         String novaTraducao = ((ProvedorCorrecaoFala.Resultado.Obtida) candidata).texto();
+
+        // O DICIONÁRIO COMO AJUDANTE das duas etapas — nunca como varredura do arquivo.
+        // Ele age só sobre a PROPOSTA de uma fala que já entrou na fila, e a fila já passou pelo
+        // veto absoluto de música do FiltroAuditoriaLinha. É o que o torna seguro aqui: medido em
+        // 2026-08-16 no 86, uma varredura do arquivo inteiro alteraria 65 falas e as 65 são estilo
+        // "Ending" — 65 cópias do fragmento "choes!" (pedaço de "echoes!" pintado pelo gradiente),
+        // que ele "corrigiria" para "chões!". Zero diálogo. É a cicatriz do mae→mãe do Unicorn por
+        // outra porta. Aqui esse caso não existe, porque música nunca chega a esta linha.
+        String comDicionario = revisorPtOnly.revisarFala(novaTraducao).texto();
+        if (comDicionario != null && !comDicionario.equals(novaTraducao)) {
+            avisos.add("     " + AnsiCores.DIM + "dicionário ajustou a proposta." + AnsiCores.RESET);
+            novaTraducao = comDicionario;
+        }
         GuardaCorrecaoSegura.Veredicto veredicto = guardaCorrecao.avaliar(
             originalEn, traducaoAtual, novaTraducao, auditoria, contexto);
         if (veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada rejeitada) {
             avisos.addAll(rejeitada.avisosAoOperador());
-            String provedor = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "LLM" : "Google";
+            String provedor = modoEfetivo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "LLM" : "Google";
             String motivo = "Correção do " + provedor + " descartada pelo portão: "
                 + rejeitada.motivo().descricao() + ".";
             avisos.add("     " + AnsiCores.YELLOW + motivo + AnsiCores.RESET);
             sessao.registrarSemAlteracao(textoMascOriginal);
-            return new Tentativa(
-                new DecisaoFala.Pendente(avisos),
-                List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
-                    rejeitada.motivo().codigo(),
-                    auditoria.motivos(), motivo, originalEn, traducaoAtual, novaTraducao)));
+            evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+                rejeitada.motivo().codigo(),
+                auditoria.motivos(), motivo, originalEn, traducaoAtual, novaTraducao));
+            return new Tentativa(new DecisaoFala.Pendente(avisos), evidencias);
         }
 
         sessao.registrarCorrecao(textoMascOriginal, mascaradorTags.mascarar(novaTraducao).texto());
         avisos.add("     PT corrigido: " + AnsiCores.GREEN + novaTraducao + AnsiCores.RESET);
-        return new Tentativa(
-            new DecisaoFala.Corrigir(novaTraducao, avisos),
-            List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
-                modo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "CORRIGIDA_LLM" : "CORRIGIDA_GOOGLE",
-                auditoria.motivos(), "Correção validada e persistida.",
-                originalEn, traducaoAtual, novaTraducao)));
+        evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+            modoEfetivo == ModoRevisaoLegendas.LLM_CONCORDANCIA ? "CORRIGIDA_LLM" : "CORRIGIDA_GOOGLE",
+            auditoria.motivos(), "Correção validada e persistida.",
+            originalEn, traducaoAtual, novaTraducao));
+        return new Tentativa(new DecisaoFala.Corrigir(novaTraducao, avisos), evidencias);
     }
 
     /**

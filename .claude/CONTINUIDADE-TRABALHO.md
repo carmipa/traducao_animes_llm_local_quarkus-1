@@ -2,6 +2,88 @@
 
 ---
 
+# 🔴 EM ANDAMENTO (2026-08-16, fim da sessão `335d5be0`) — SIMPLIFICAÇÃO DA 3.1
+
+DECISÃO DE PAULO: *"nesse menu temos de apenas traduzir tudo o que faltou! usando o motor de
+traducao via llm, o google como segunda etapa na que a primeira falhou e como ajudantes das duas
+etapas todos os dicionários... mas sempre bloqueando o karaoke"*. Cada menu numerado é uma etapa;
+a 3.1 volta a ter uma frase só.
+
+**ÁRVORE SUJA, NADA COMMITADO.** Suíte: **1.846 passam, 1 REPROVA** (ver bloqueio abaixo).
+
+## ✅ FEITO E VERDE
+
+1. **`PoliticaRetraducao.ehFalhaDeTraducao`** — o escopo da tela num nome só, e
+   `exigeRetraducaoPeloGoogle` passa a delegar nele. Não são duas regras: "o que a 3.1 conserta" e
+   "o que se pode mandar a tradutor sem lore" são a mesma pergunta.
+2. **Portão de escopo em `CadeiaCorrecaoFala`**, com evidência `FORA_DO_ESCOPO_DA_TELA`.
+   ⚠️ **ERRO MEU QUE 5 TESTES PEGARAM:** eu tinha posto o corte na `TriagemFalaSuspeita`, e ele
+   levava junto a correção **determinística** — local, grátis, provada (`"Minha mãe"`←`"My dad"`
+   sai corrigido no `.ass`). O corte certo é sobre **gastar rede**, não sobre enxergar. Revertido
+   para a cadeia, e os 5 voltaram ao verde.
+3. **Dicionários como AJUDANTES** da proposta (`revisorPtOnly` injetado na cadeia).
+   **MEDIÇÃO QUE MATOU A OUTRA OPÇÃO:** varredura do arquivo inteiro alteraria 65 falas no 86
+   Part 1 e **as 65 são estilo `Ending`** — 65 cópias do fragmento `choes!` (pedaço de `echoes!`
+   pintado pelo gradiente) viradas em `chões!`. **Zero diálogo.** Era o `mae`→`mãe` do Unicorn por
+   outra porta, e a ressalva do Paulo ("sempre bloqueando o karaokê") foi o que pegou. Como
+   ajudante é seguro por construção: só age em fala que já passou pelo veto de música.
+4. **Rótulo do provedor efetivo** — corrigida pelo Google na cascata não sai como `CORRIGIDA_LLM`.
+5. **Perfil de teste** de `CorrecaoViaLlmChegaAoArquivoTest` ganhou o dublê do tradutor externo:
+   sem ele, a cascata faria o teste bater na REDE de verdade. Defeito que eu introduzi.
+
+## ✅ BLOQUEIO RESOLVIDO — era o INSTRUMENTO, não a produção
+
+A sonda (`System.out` em `decidir`, já removida) mostrou a fala entrando duas vezes — mas eram
+**dois testes diferentes**, cada um processando a fala UMA vez. Os dois passaram a usar
+`"Get out of there!"` depois da re-fixturação.
+
+**A causa:** os dublês são `@ApplicationScoped` e sobrevivem entre testes.
+`CorrecaoViaLlmChegaAoArquivoTest.limparDuble()` zerava só o LLM; o `RecuperacaoExternaContadora`
+que EU injetei nunca era zerado, então a contagem vazou do teste da cascata para o vizinho. O que
+parecia "produção resolveu pelo LLM E mandou pro Google" era contador sujo.
+
+Corrigido com `tradutorExterno.reiniciar()` no `@BeforeEach`, com o motivo no Javadoc.
+**Suíte: 1.847 testes, 0 falhas, 25 pulados, 318 classes.**
+
+MUTAÇÃO da cascata (`false &&`): **3 tests failed** — os dois unitários e o ponta-a-ponta. A
+cascata é vista funcionando e vista faltando.
+
+## 🟡 NÃO EXECUTADO — prova em produção
+
+O `gradlew test` derrubou o dev mode (porta 8099 recusa conexão). A 3.1 nova **não foi rodada no
+acervo**. Está provada em teste e ponta-a-ponta com dublê, não no `.ass` real.
+**PRÓXIMA AÇÃO:** subir o KRONOS e rodar a 3.1 nas duas partes do 86.
+
+## Histórico do bloqueio (mantido)
+
+`CorrecaoViaLlmChegaAoArquivoTest > o defeito sem conserto local vai ao LLM e VOLTA corrigido`
+falha com três fatos que não fecham entre si na MESMA execução:
+
+```
+llm.chamadas() == 1                          (só uma fala foi ao modelo)
+saida contém "Saia daí!"                     (a proposta do LLM chegou ao arquivo)
+tradutorExterno.pedidos() == [Get out of there!]   (a MESMA fala desceu para a 2ª etapa)
+```
+
+Se o LLM resolveu, a cascata não devia ter disparado. **Não ajustei a asserção para ficar verde** —
+o teste está certo em reclamar. Hipóteses ainda NÃO verificadas: (a) a fala é processada duas vezes
+pelo laço (referência de cache + evento); (b) o dublê do LLM responde diferente em
+`corrigirTraducao` e em `revisarConcordancia`, e a via de retradução completa recusa antes;
+(c) o `retry` do laço reentra com outro modo.
+
+## PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+1. Instrumentar `CadeiaCorrecaoFala.decidir` com log por chamada (fala + modo + desfecho) e rodar
+   SÓ `CorrecaoViaLlmChegaAoArquivoTest#concordanciaNominalCorrigidaPeloLlmChegaAoArquivo` para
+   ver quantas vezes a fala entra e por qual via. A hipótese (a) é a mais barata de testar.
+2. Só depois de a cascata estar explicada: rodar a 3.1 no 86 (as duas partes) e commitar.
+3. **NÃO commitar antes disso** — cascata que grava no acervo e que eu não sei explicar é
+   exatamente o que a regra 19 manda suspender.
+
+---
+
+---
+
 # ⏸ 2026-08-16 — 3.1 REVISÃO DE LEGENDAS RODADA NO 86 (sessão `335d5be0`, portão rc=0)
 
 TAREFA ORIGINAL: Paulo, 16/08 — *"nessa sessão só mexeremos com revisão legendas 3.1"*, com o
