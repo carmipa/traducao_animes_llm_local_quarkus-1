@@ -121,6 +121,50 @@ o lambda com **6 bytes**. Corrigido e re-rodado com dois controles (o lambda tri
 minúsculo; o `static{}` precisa aparecer separado). **Nenhum número desta seção vem da primeira
 rodada.**
 
+## ✅ ESCOPO MEDIDO ANTES DE CORTAR — `MedicaoEscopoDaRevisaoLoreIT`, 22 obras, 75.419 falas
+
+**O que SAI: 24,0% de todo o ruído da tela.**
+
+```
+REGRA (prefixo do motivo)                    motivos       %   veredito
+Nome proprio do original                        4221   41,9%   FICA
+Nome proprio composto                           3378   33,5%   FICA
+Termo de faccao                                   38    0,4%   FICA
+Possivel traducao literal                         21    0,2%   FICA
+Possivel nome/termo em ingles remanescente      1606   15,9%   SAI  (B: falta de traducao = 3.1)
+Sigla ou termo todo em maiusculas                816    8,1%   SAI  (A: nao e nome nem local)
+TOTAL                                          10080
+```
+
+75,4% é nome próprio — exatamente o escopo que Paulo fechou. As duas regras que saem produzem
+**2.422 motivos** que hoje viram pendência da 3.2 sem serem trabalho dela.
+
+**O que ENTRA: 10 falas em 75.419** (0,013%). É o delta de deixar o corretor determinístico rodar
+em toda fala no alcance, e não só nas sinalizadas. Amostra — **são erros reais que a heurística
+não pega**:
+
+```
+Sieg Zeon.              -> PT dizia "Zeon Sieg."      (ordem invertida, CCA, 3 falas)
+The Psyco-frame worked. -> PT dizia "psycoframe"      (CCA)
+Freya Familia           -> PT dizia "Familia Freya"   (DanMachi S05, 6 falas)
+```
+
+**Veredito:** o delta é pequeno e é bom. Liberar o determinístico para tudo é seguro e corrige
+10 falas que hoje escapam. 🟡 uma das amostras está num `.parcial.ass`, que não é entrega — não
+muda o veredito, e o volume não justifica filtrar agora.
+
+## ⚠️ ERRO MEU NESTA SESSÃO, PEGO E REVERTIDO — não repetir
+
+Tentei remover A e B com um script Python que cortava método por chave balanceada, recuando até
+o javadoc anterior. A heurística de recuo comeu **199 linhas** e levou junto
+`detectarTraducoesLiteraisSuspeitas`, `detectarNomesPropriosDivergentes` e
+`detectarTermosTraduziveisEmIngles` — três regras que FICAM. O sinal foi o tamanho: 23.539 →
+13.575 bytes é redução demais para 4 métodos.
+
+`git checkout` no arquivo, integridade conferida (9 ocorrências de volta, contra 5 depois do
+estrago). **Transformação em lote sem guarda que aborta é o que a regra proíbe** — os cortes de
+A/B/C/D se fazem por edição dirigida, um método por vez, com a suíte entre eles.
+
 ## FILA — o que ainda sai ("o resto tiramos tudo")
 
 | # | item | onde | por que sai |
