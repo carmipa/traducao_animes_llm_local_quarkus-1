@@ -67,6 +67,9 @@ public class ProvedorCorrecaoFala {
     private final ValidadorTraducaoService validador;
     private final ProtecaoLegendaAssService protecaoAss;
 
+    /** Os dicionarios como AJUDANTES da proposta — acentos inequivocos + hunspell do sistema. */
+    private final RevisorPtOnlyService revisorPtOnly;
+
     /**
      * PROPÓSITO DE NEGÓCIO: reúne os dois provedores e as proteções que validam o que eles devolvem.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
@@ -79,7 +82,8 @@ public class ProvedorCorrecaoFala {
             MascaradorTags mascaradorTags,
             IsoladorQuebraDialogo isoladorQuebra,
             ValidadorTraducaoService validador,
-            ProtecaoLegendaAssService protecaoAss) {
+            ProtecaoLegendaAssService protecaoAss,
+            RevisorPtOnlyService revisorPtOnly) {
         this.llmPort = llmPort;
         this.recuperacaoExterna = recuperacaoExterna;
         this.protetorLore = protetorLore;
@@ -87,6 +91,7 @@ public class ProvedorCorrecaoFala {
         this.isoladorQuebra = isoladorQuebra;
         this.validador = validador;
         this.protecaoAss = protecaoAss;
+        this.revisorPtOnly = revisorPtOnly;
     }
 
     /**
@@ -98,8 +103,14 @@ public class ProvedorCorrecaoFala {
      */
     public sealed interface Resultado {
 
-        /** Há uma tradução candidata; ela ainda passará pelo portão de segurança. */
-        record Obtida(String texto) implements Resultado {
+        /**
+         * Há uma tradução candidata; ela ainda passará pelo portão de segurança.
+         *
+         * @param texto a proposta, já com tags e termos de lore restaurados
+         * @param dicionarioAjustou se os dicionários mexeram nela — só para o console dizer ao
+         *        operador que houve um passo a mais entre o provedor e o que ele está lendo
+         */
+        record Obtida(String texto, boolean dicionarioAjustou) implements Resultado {
         }
 
         /**
@@ -142,10 +153,53 @@ public class ProvedorCorrecaoFala {
         List<String> motivos,
         ContextoRevisao contexto
     ) {
-        if (modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-            return obterDoLlm(originalEn, traducaoAtual, motivos, contexto);
+        Resultado bruto = modo == ModoRevisaoLegendas.LLM_CONCORDANCIA
+            ? obterDoLlm(originalEn, traducaoAtual, motivos, contexto)
+            : obterDoTradutorExterno(originalEn, traducaoAtual, motivos, contexto);
+        if (bruto instanceof Resultado.Obtida obtida) {
+            return comDicionarioSemQuebrarLore(originalEn, obtida.texto(), contexto);
         }
-        return obterDoTradutorExterno(originalEn, traducaoAtual, motivos, contexto);
+        return bruto;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: passa os dicionários (acentos inequívocos + hunspell do sistema) sobre
+     * a proposta antes de ela sair daqui — <b>e desfaz o ajuste se ele quebrar um termo da lore</b>.
+     *
+     * <h2>O prejuízo que originou a segunda metade, e ele é MEU</h2>
+     * Medido em produção no Guilty Crown em 2026-08-16, poucas horas depois de eu ligar o
+     * dicionário como ajudante:
+     *
+     * <pre>"Apocalypse Virus"  ->  "Apocalypse Vírus"</pre>
+     *
+     * O dicionário acentua {@code Virus} porque em português é assim — e com isso quebra o termo
+     * canônico. O portão de lore então recusava a proposta <b>inteira</b>, e a fala continuava em
+     * inglês: o ajudante custava a tradução que deveria ajudar a entregar. Sem dano gravado, porque
+     * a guarda de lore pegou; com dano ao trabalho, porque a fala ficou pendente três rodadas
+     * seguidas do acervo. Confirmado com a classe de produção antes de consertar.
+     *
+     * <h2>Por que AQUI e não na cadeia</h2>
+     * O contrato desta classe já diz que <i>"tudo que sai daqui já passou por desmascaramento de
+     * tags e restauração de termos da lore"</i>. O dicionário é mais um passo dessa mesma promessa,
+     * e mantê-lo aqui evita uma terceira aresta cross-fatia para o protetor de lore — a catraca de
+     * arquitetura reprovou a primeira tentativa, e ela estava certa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: na dúvida, o dicionário perde a vez, nunca a fala. A verificação
+     * usa o mesmo {@code termosCanonicosAlterados} do portão, e não uma regra nova.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário sem resultado devolve a proposta intacta.
+     */
+    private Resultado comDicionarioSemQuebrarLore(
+        String originalEn, String proposta, ContextoRevisao contexto) {
+        String ajustado = revisorPtOnly.revisarFala(proposta).texto();
+        if (ajustado == null || ajustado.equals(proposta)) {
+            return new Resultado.Obtida(proposta, false);
+        }
+        boolean quebrouLore = !protetorLore.termosCanonicosAlterados(
+            originalEn, ajustado, contexto.lore(), contexto.termosProtegidos()).isEmpty();
+        return quebrouLore
+            ? new Resultado.Obtida(proposta, false)
+            : new Resultado.Obtida(ajustado, true);
     }
 
     private Resultado obterDoLlm(
@@ -155,7 +209,7 @@ public class ProvedorCorrecaoFala {
         if (tentativa.revisado().isEmpty() && aFalaAindaEhOOriginal(originalEn, traducaoAtual)) {
             Optional<String> peloEspelho = traduzirPeloEspelhoDoOriginal(originalEn, contexto);
             if (peloEspelho.isPresent() && !peloEspelho.get().equals(traducaoAtual)) {
-                return new Resultado.Obtida(peloEspelho.get());
+                return new Resultado.Obtida(peloEspelho.get(), false);
             }
         }
         if (tentativa.revisado().isEmpty()) {
@@ -170,7 +224,7 @@ public class ProvedorCorrecaoFala {
                 true, "LLM_SEM_ALTERACAO",
                 "O modelo respondeu, mas manteve a tradução atual.", novaTraducao);
         }
-        return new Resultado.Obtida(novaTraducao);
+        return new Resultado.Obtida(novaTraducao, false);
     }
 
     private Resultado obterDoTradutorExterno(
@@ -201,7 +255,7 @@ public class ProvedorCorrecaoFala {
                     + "(falha, marcador de lore perdido ou resposta igual à fala atual).",
                 restaurada);
         }
-        return new Resultado.Obtida(restaurada);
+        return new Resultado.Obtida(restaurada, false);
     }
 
     /**

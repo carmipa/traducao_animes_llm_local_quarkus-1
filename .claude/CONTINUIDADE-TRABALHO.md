@@ -2,6 +2,47 @@
 
 ---
 
+# ✅ FEITO (2026-08-16) — O DICIONÁRIO PAROU DE QUEBRAR TERMO DA LORE
+
+**DEFEITO MEU, medido em produção horas depois de eu ligar o dicionário como ajudante:**
+
+```
+"Apocalypse Virus"  ->  "Apocalypse Vírus"      (confirmado com a classe de producao, jshell)
+```
+
+Ele acentua `Virus` porque em português é assim, quebra o termo canônico, e o portão de lore
+recusa a proposta **inteira**. Resultado no Guilty Crown: a fala do ep13 ficou pendente em
+**3 rodadas seguidas** — o ajudante custava a tradução que deveria ajudar a entregar. Sem dano
+gravado (a guarda de lore pegou), com dano ao trabalho.
+
+**CONSERTO:** o dicionário passou para `ProvedorCorrecaoFala`, e se o ajuste dele alterar termo
+canônico o ajuste é **descartado** — a proposta do provedor segue intacta. O dicionário perde a
+vez; a fala não. Usa o mesmo `termosCanonicosAlterados` do portão, não uma regra nova.
+
+**A CATRACA DE ARQUITETURA REPROVOU A PRIMEIRA TENTATIVA, E ESTAVA CERTA:** eu tinha injetado
+`ProtetorTermosLoreService` na `CadeiaCorrecaoFala`, criando uma TERCEIRA aresta cross-fatia
+(`vivas=29 congeladas=28`). Subir o número seria o caminho fácil. O certo era outro: o contrato do
+`ProvedorCorrecaoFala` já promete que *"tudo que sai daqui já passou por restauração de termos da
+lore"* — o dicionário pertence lá dentro. Movido, a aresta some e a promessa fica verdadeira.
+
+**FALSO-VERDE PAGO NO CAMINHO:** meu primeiro teste passou COM e SEM a guarda — o dublê do Google
+devolve texto fixo que não contém o termo da lore, então o dicionário nunca o tocava. Reescrito em
+modo LLM com `ensinar`, e aí a mutação reprova.
+
+```
+MUTACAO (guarda desligada) ...... 1 test failed — dicionarioEhIgnoradoQuandoAlterariaTermoDaLore
+suite completa --rerun-tasks .... 1.851 testes, 0 falhas, 25 pulados, 318 classes
+catraca de arquitetura .......... VERDE, sem aresta nova
+```
+
+🟡 **NÃO EXECUTADO:** não rodou no acervo. Esperado na próxima corrida do Guilty Crown: a fala do
+`Apocalypse Virus` sai traduzida, e as pendências caem de 3 para 2 (as duas de concordância, que
+são da 3.3).
+
+---
+
+---
+
 # ✅ FEITO (2026-08-16) — VETO DE MÚSICA NA 3.3, o último 🔴 da etapa 3
 
 Era o único vermelho, e é o **pré-requisito** para a 3.3 receber a concordância que a 3.1 passou a

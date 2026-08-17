@@ -62,13 +62,6 @@ public class CadeiaCorrecaoFala {
     private final MascaradorTags mascaradorTags;
 
     /**
-     * Os dicionários (acentos inequívocos + hunspell do sistema) como AJUDANTES da proposta.
-     * Reusa a peça que já existia e não era chamada por menu nenhum — o Javadoc dela diz que a
-     * revisão "é o único caminho para corrigir o acervo JÁ traduzido sem reprocessar tudo".
-     */
-    private final RevisorPtOnlyService revisorPtOnly;
-
-    /**
      * PROPÓSITO DE NEGÓCIO: reúne as três fontes de correção, o portão que as julga e o mascarador
      * que produz a chave da memória.
      * <p>INVARIANTES DO DOMÍNIO: guarda as referências recebidas.
@@ -79,14 +72,12 @@ public class CadeiaCorrecaoFala {
             MemoriaCorrecaoArquivo memoriaCorrecao,
             ProvedorCorrecaoFala provedorCorrecao,
             GuardaCorrecaoSegura guardaCorrecao,
-            MascaradorTags mascaradorTags,
-            RevisorPtOnlyService revisorPtOnly) {
+            MascaradorTags mascaradorTags) {
         this.corretorDeterministico = corretorDeterministico;
         this.memoriaCorrecao = memoriaCorrecao;
         this.provedorCorrecao = provedorCorrecao;
         this.guardaCorrecao = guardaCorrecao;
         this.mascaradorTags = mascaradorTags;
-        this.revisorPtOnly = revisorPtOnly;
     }
 
     /**
@@ -253,20 +244,13 @@ public class CadeiaCorrecaoFala {
             return new Tentativa(new DecisaoFala.Pendente(avisos), evidencias);
         }
 
-        String novaTraducao = ((ProvedorCorrecaoFala.Resultado.Obtida) candidata).texto();
-
-        // O DICIONÁRIO COMO AJUDANTE das duas etapas — nunca como varredura do arquivo.
-        // Ele age só sobre a PROPOSTA de uma fala que já entrou na fila, e a fila já passou pelo
-        // veto absoluto de música do FiltroAuditoriaLinha. É o que o torna seguro aqui: medido em
-        // 2026-08-16 no 86, uma varredura do arquivo inteiro alteraria 65 falas e as 65 são estilo
-        // "Ending" — 65 cópias do fragmento "choes!" (pedaço de "echoes!" pintado pelo gradiente),
-        // que ele "corrigiria" para "chões!". Zero diálogo. É a cicatriz do mae→mãe do Unicorn por
-        // outra porta. Aqui esse caso não existe, porque música nunca chega a esta linha.
-        String comDicionario = revisorPtOnly.revisarFala(novaTraducao).texto();
-        if (comDicionario != null && !comDicionario.equals(novaTraducao)) {
+        ProvedorCorrecaoFala.Resultado.Obtida obtida =
+            (ProvedorCorrecaoFala.Resultado.Obtida) candidata;
+        String novaTraducao = obtida.texto();
+        if (obtida.dicionarioAjustou()) {
             avisos.add("     " + AnsiCores.DIM + "dicionário ajustou a proposta." + AnsiCores.RESET);
-            novaTraducao = comDicionario;
         }
+
         GuardaCorrecaoSegura.Veredicto veredicto = guardaCorrecao.avaliar(
             originalEn, traducaoAtual, novaTraducao, auditoria, contexto);
         if (veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada rejeitada) {
