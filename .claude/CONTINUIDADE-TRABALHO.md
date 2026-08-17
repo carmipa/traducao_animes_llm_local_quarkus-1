@@ -20,9 +20,34 @@ resíduo aparece em fala JÁ TRADUZIDA. O espelho retraduz a linha inteira: joga
 boa para consertar uma palavra. O portão virou a COMPARAÇÃO com o original, que é a segunda ideia
 de Paulo na mesma conversa. Aquele teste é o contra-teste, e foi VISTO reprovando na versão frouxa.
 
-🟡 **NÃO EXECUTADO:** o espelho não rodou no acervo (KRONOS fora do ar). Provado em teste e
-ponta-a-ponta com dublê. **PRÓXIMA AÇÃO:** subir o KRONOS e rodar a 3.1 no Guilty Crown — esperado:
-as 4 falas com tag inline saem traduzidas, sem itálico.
+## ✅ PROVADO NO ACERVO — Guilty Crown, 22:59, 23 arquivos / 5.754 falas
+
+```
+                    detectados  corrigidas  pendentes
+antes do espelho         7           0          7
+depois do espelho        7           4          3      <- a previsao era exatamente 3
+```
+
+As 4 falas com tag inline saíram traduzidas, sem itálico:
+
+```
+What {\i1}is{\i0} this?! Please, give back Inori!  ->  O que é isso?! Por favor, devolva Inori!
+But I don't {\i1}want{\i0} to run away!            ->  Mas eu não quero fugir!
+Weren't {\i1}you{\i0} the one who kept...          ->  Você não foi quem manteve os detalhes...
+The quarantine won't last {\i1}that{\i0} long.     ->  A quarentena não durara tanto tempo.
+```
+
+As 3 pendências restantes são as CORRETAS: 2 de concordância (`cara`, `dele`) que a tela manda
+para a 3.3, e o `Apocalypse Virus` que o portão de lore barra. A 2ª rodada (Google) confirmou:
+3 detectados, 3 pendentes, nada novo.
+
+## 🟡 DEFEITO PEQUENO NA SAÍDA, declarado e NÃO perseguido
+
+`A quarentena não durara tanto tempo.` — falta o acento (`durará`), e o log mostra
+`dicionário ajustou a proposta` nessa mesma linha. Não é falha do dicionário: **`durara` é
+palavra válida** (mais-que-perfeito), então nenhum corretor ortográfico a acusa. É a família do
+erro fluente já medida no projeto — acento se corrige por máquina, tempo verbal não.
+UM caso não é medição (regra 14); se aparecer em volume, vira frente própria.
 
 ---
 
