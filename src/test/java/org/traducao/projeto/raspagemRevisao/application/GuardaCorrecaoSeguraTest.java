@@ -48,6 +48,57 @@ class GuardaCorrecaoSeguraTest {
         return new ResultadoDeteccaoConcordancia(true, List.of(motivos));
     }
 
+    /**
+     * A FALA REAL DO ZETA, S01E25 evento 9, medida no acervo em 17/08/2026. Ela sobreviveu à
+     * corrida da 3.1 ainda em inglês porque a pergunta de repetição a recusou — e recusou também
+     * a proposta do Google, na etapa seguinte da cascata.
+     *
+     * <p>O mecanismo: o inglês tem {@code to} DUAS vezes ({@code went to} … {@code to prepare}),
+     * e a tradução honesta repete {@code para} duas vezes. Como {@code para} aparecia ZERO vezes
+     * no texto que estava na legenda — que era o próprio inglês —, a regra comparativa leu
+     * "repetição introduzida". Comparar contagem de palavra PORTUGUESA contra texto INGLÊS não
+     * mede nada.
+     *
+     * <p>Quando a fala ainda é o original, a proposta é TRADUÇÃO e não refinamento: não existe
+     * "antes" em português com que comparar fluência, então essa pergunta se abstém. As outras
+     * cinco continuam valendo — inclusive nesta fala.
+     */
+    @Test
+    void traduzirFalaAindaEmInglesNaoTropecaNaRegraDeRepeticao() {
+        String ingles = "{\\i1}So, you're saying the Titans went to{\\i0}\\N"
+            + "{\\i1}Side Four to prepare a colony drop?{\\i0}";
+        String traducao = "{\\i1}Então você está dizendo que os Titans foram{\\i0}\\N"
+            + "{\\i1}para o Side Four para preparar uma queda de colônia?{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, traducao,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto),
+            "a fala está EM INGLÊS: a proposta é tradução, não refinamento. Recusar aqui é "
+                + "recusar exatamente o trabalho que a 3.1 existe para fazer. Veredicto: "
+                + veredicto);
+    }
+
+    /**
+     * O CONTRA-CASO, e ele é o que impede a correção acima de virar afrouxamento: quando a fala
+     * JÁ está em português, a pergunta de repetição continua valendo integralmente. É a cicatriz
+     * do 86 — o mistral dobrando o advérbio a cada rodada.
+     */
+    @Test
+    void falaJaEmPortuguesContinuaBarrandoRepeticaoIntroduzida() {
+        String ingles = "It probably just thinks that he's a good bed.";
+        String atual = "Provavelmente ela só acha que ele é uma boa cama.";
+        String dobrado = "Provavelmente, ela provavelmente pensa que ele é uma boa cama.";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, atual, dobrado, suspeitaCom("concordância de gênero"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto),
+            "com a fala já em português a regra tem base de comparação e TEM de barrar");
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.REPETICAO_INTRODUZIDA, motivo(veredicto));
+    }
+
     private boolean aprovou(GuardaCorrecaoSegura.Veredicto veredicto) {
         return veredicto instanceof GuardaCorrecaoSegura.Veredicto.Aprovada;
     }

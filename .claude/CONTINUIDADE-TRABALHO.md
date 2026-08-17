@@ -2,14 +2,18 @@
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-Decidir o **Char's Counterattack** (achado aberto abaixo): o filme está achatado para o estilo
-`Char's Counterattack`, que é entrada NOMINAL de `estilos-ignorados` no `application.yml`. Toda
-tela que veta música enxerga o filme inteiro como música. Duas saídas possíveis — tirar a entrada
-da lista (e medir o que volta a ser traduzido) ou desachatar o arquivo a partir do espelho inglês,
-que ainda tem os estilos separados. **É decisão do Paulo** (muda produto).
+Continuar a auditoria método a método da 3.1 pela lente de BOA-FÉ, que já pagou duas vezes hoje.
+Próximo cenário a medir: **operador põe a MESMA pasta nos dois campos** (PT e EN). A guarda de
+cegueira que entrou em `0b84b109` NÃO cobre esse caso — cada fala vira espelho de si mesma,
+`auditadas > 0`, `ficouCego()` dá false e o desfecho volta a ser `[SUCESSO]` verde.
 
 O passivo de música do acervo **está medido e fechado** — ver abaixo. A 3.1 está liberada para as
 obras restantes.
+
+**Char's Counterattack: FORA DE ESCOPO por decisão do Paulo (17/08).** Palavras dele: *"eu não
+mexi nesse anime pode ficar sem fazer nada. quando eu for mexer nele eu traduzo tudo do zero"*.
+E a retradução resolve sozinha: partindo do `.ass` em inglês, que ainda tem os estilos separados,
+o achatamento não se reproduz. Não reabrir sem ele pedir.
 
 ---
 

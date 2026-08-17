@@ -224,7 +224,8 @@ public class GuardaCorrecaoSegura {
         } catch (AlucinacaoDetectadaException e) {
             return silenciosa(MotivoRecusa.ALUCINACAO_OU_SUSPEITA);
         }
-        if (repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata)) {
+        if (!aFalaAindaEhOOriginalIngles(original, traducaoAtual)
+            && repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata)) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "Correção rejeitada: a proposta repete uma palavra que a fala não repetia."
                 + AnsiCores.RESET),
@@ -282,6 +283,43 @@ public class GuardaCorrecaoSegura {
      * @param candidata a proposta de substituição
      * @return {@code true} quando a proposta acrescenta uma repetição inexistente na fala atual
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala nunca foi traduzida — o que está na legenda ainda é o inglês.
+     * Nesse caso a proposta é uma TRADUÇÃO, não um refinamento, e a pergunta de repetição não se
+     * aplica.
+     *
+     * <h2>O prejuízo MEDIDO que a originou — 2026-08-17, Zeta Gundam</h2>
+     * A checagem de repetição é comparativa: mede o que a proposta ACRESCENTA em relação à fala
+     * de hoje. Isso pressupõe que a fala de hoje é português. Quando ela é o inglês intacto, a
+     * comparação perde o sentido — o inglês
+     * {@code "So, you're saying the Titans went to Side Four to prepare a colony drop?"} tem
+     * {@code to} duas vezes, e qualquer tradução honesta repete {@code para} duas vezes. Como
+     * {@code para} aparecia ZERO vezes no texto inglês, a regra lia repetição introduzida e
+     * recusava. <b>Recusou o LLM e recusou o Google</b>, e a fala ficou em inglês.
+     *
+     * <p>Sobraram assim <b>2 falas de 27.987</b> no Zeta — não é volume, é CLASSE: era exatamente
+     * o trabalho que a tela existe para fazer, barrado pela guarda criada um dia antes para conter
+     * a degradação do mistral. Guarda que reprova o certo ensina a desligar a guarda.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara TEXTO VISÍVEL, então diferença só de tag não conta como
+     * "já traduzida"; as outras cinco perguntas do portão continuam valendo integralmente — esta
+     * abstenção é de UMA pergunta, não do portão.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer um dos dois nulo devolve {@code false}, e a
+     * pergunta de repetição volta a valer — na dúvida, o portão conserva o comportamento estrito.
+     */
+    private boolean aFalaAindaEhOOriginalIngles(String original, String traducaoAtual) {
+        if (original == null || traducaoAtual == null) {
+            return false;
+        }
+        String visivelOriginal = protecaoAss.textoVisivel(original);
+        String visivelAtual = protecaoAss.textoVisivel(traducaoAtual);
+        if (visivelOriginal == null || visivelAtual == null || visivelOriginal.isBlank()) {
+            return false;
+        }
+        return visivelOriginal.trim().equalsIgnoreCase(visivelAtual.trim());
+    }
+
     private boolean repetiuPalavraQueAFalaNaoRepetia(String traducaoAtual, String candidata) {
         Map<String, Integer> antes = contarPalavrasLongas(traducaoAtual);
         Map<String, Integer> depois = contarPalavrasLongas(candidata);
