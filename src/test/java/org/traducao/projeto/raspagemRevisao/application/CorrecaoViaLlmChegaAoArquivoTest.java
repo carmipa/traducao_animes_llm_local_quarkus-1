@@ -223,6 +223,39 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         assertEquals(1, contarDialogos(texto), "a fala não pode sumir na cascata");
     }
 
+    /**
+     * O ESPELHO — ideia de Paulo (2026-08-16): a legenda ORIGINAL é a referência de estrutura,
+     * e ela sempre existe. Medido no Guilty Crown no mesmo dia: 4 falas não traduzidas COM tag
+     * inline que nenhuma das duas etapas resolvia — o LLM devolvia
+     * {@code LLM_SEM_CONTEUDO_UTILIZAVEL} (marcador perdido) e o Google, {@code TAG_CORROMPIDA}.
+     *
+     * <p>O dublê aqui reproduz exatamente esse defeito: ele só sabe traduzir o texto <b>sem
+     * marcador</b>. Com o mascaramento normal a fala chega como {@code [[TAG0]]…} e ele não casa,
+     * então a 1ª tentativa falha — como na produção. O espelho refaz o pedido com o texto visível.
+     *
+     * <p>E o que se perde é o que Paulo autorizou perder: <b>a ênfase inline sai</b>. O prefixo
+     * fica, porque ali mora posicionamento.
+     */
+    @Test
+    @DisplayName("espelho: fala não traduzida com tag inline sai traduzida, sem o itálico")
+    void falaNaoTraduzidaComTagInlineSaiTraduzidaPeloEspelho(@TempDir Path temp) throws IOException {
+        llm.ensinar("What is this?!", "O que é isso?!");
+        Path pastaPt = montar(temp, List.of(
+            new Fala("What {\\i1}is{\\i0} this?!", "What {\\i1}is{\\i0} this?!")));
+
+        String saida = revisar(temp, pastaPt).orElseThrow(() -> new AssertionError(
+            "a fala com tag inline continuou sem tradução: é exatamente o caso que o espelho existe "
+                + "para resolver"));
+
+        assertTrue(saida.contains("O que é isso?!"),
+            "a tradução do espelho não chegou ao arquivo:\n" + saida);
+        assertFalse(saida.contains("What {\\i1}is{\\i0} this?!"),
+            "a fala não podia continuar em inglês:\n" + saida);
+        assertFalse(saida.contains("{\\i1}"),
+            "a ênfase inline sai de propósito (decisão de Paulo): recolocá-la por posição "
+                + "italicizaria a palavra errada em português");
+    }
+
     @Test
     @DisplayName("arquivo são não consulta o modelo nem regrava")
     void arquivoSaoNaoChegaAoModelo(@TempDir Path temp) throws IOException {
