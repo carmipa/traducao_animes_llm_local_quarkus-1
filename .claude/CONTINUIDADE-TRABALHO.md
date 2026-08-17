@@ -72,13 +72,48 @@ uma asserção extra de que o próprio `AlcanceRevisaoLore` continua consultando
 | F | visual da 3.1 na 3.2 | `static/revisaoLore/revisaoLore.html` + `.js` | pedido do Paulo com print: combo de obra travando os campos (`travaLore.js`), campos numerados com o destino de escrita em negrito, cartão "Lore ativa", passadas em cartões com etiquetas e botão próprio, faixa de aviso |
 | G | console no padrão da 3.1 | `RevisarLoreUseCase.sessao.out` | cor padrão internacional (verde=corrigida, amarelo=pendente, VERMELHO só erro), referência EN em apagado × estado colorido, ruído agregado por arquivo (hoje imprime uma linha DIM por fala auditada), `[ESTILOS] N linha(s) alterada(s)` por arquivo gravado |
 
+## ✅ ITEM D — METADE FEITA: a inércia está PROVADA (falta a troca, que depende de uma medição)
+
+`LlmEmFalaSemIndicioDeLoreEInerteTest` roda o **caso de uso real** com um LLM de mentira que
+devolve proposta desenhada para ATRAVESSAR todos os portões anteriores (troca UM token, e o token
+inserido existe no inglês E na lore de `gundam_zeta`) — para que o desfecho não pudesse ser
+creditado a outra trava.
+
+```
+LLM chamado ......... 1x   (calibracao: se fosse 0, "nao gravou" seria trivial)
+fala limpa .......... sim  (calibracao: exigida do detector de PRODUCAO antes de medir)
+arquivo ............. byte a byte IGUAL
+falasSemAlteracao ... 1    <- o DISCRIMINADOR: e o ramo preventivo (703), nao o validador
+falasDescartadas .... 0       (se fosse aqui, a proposta teria morrido numa trava anterior)
+```
+
+**Conclusão provada, não inferida:** no modo "Revisar todas as falas", a chamada ao LLM em fala
+sem indício de lore é incapaz de alterar a legenda. Remover essa chamada não perde capacidade
+nenhuma — só deixa de gastar o modelo local.
+
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-Item D primeiro, porque é o único que se prova sem medir nada: escrever o teste que fixa
-`RevisarLoreUseCase:703` (proposta do LLM em fala sem motivo de lore NUNCA é gravada) e, com ele
-verde, remover a chamada ao LLM no ramo `revisarTodasFalas && !deteccao.suspeito()`, mantendo o
-corretor determinístico rodando em TODA fala no alcance. Depois A, B e C na mesma passada de
-`DetectorTermosLoreService`, medindo quantos motivos saem do acervo.
+**Medir antes de trocar.** A remoção da flag `revisarTodasFalas` tem uma parte que NÃO é neutra: o
+corretor determinístico só alcança fala não sinalizada quando o modo está ligado (o `continue` da
+heurística acontece ANTES dele, em `RevisarLoreUseCase:519`). Passá-lo a rodar em TODA fala no
+alcance — que é o certo, e é seguro por construção porque o enforcer só restaura quando o EN
+contém o canônico na grafia exata — **aumenta o que é gravado no acervo**, e isso não se troca às
+cegas.
+
+Escrever `MedicaoCorretorLoreForaDaHeuristicaIT` no molde do harness de música (asks production:
+`DetectorTermosLoreService`, `CorretorLoreDeterministico`, `GerenciadorPromptRevisaoLore`,
+`AlcanceRevisaoLore`, pareamento pelo `ResolvedorArtefatosRevisao`) contando, por obra:
+
+```
+falas no alcance | suspeitas pela heuristica | deterministico age E e suspeita (hoje ja corrige)
+                                             | deterministico age E NAO e suspeita  <- o DELTA
+```
+
+Com o delta na mão: se for pequeno e as amostras forem nome próprio de verdade, roda a troca
+(determinístico sempre; LLM só em suspeita; flag e checkbox saem). Se for grande, o número vira
+decisão do Paulo antes de gravar.
+
+Depois: A, B e C na mesma passada de `DetectorTermosLoreService`, medindo quantos motivos saem.
 
 **NÃO REPETIR:** não medir a exposição da PT-only com `Get-ChildItem -Filter` — metade do acervo
 tem `[` no nome. O harness usa `Files.walk` + `Files.list` e resolve o contexto pelo
