@@ -2,10 +2,17 @@
 
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
 
-Continuar a auditoria método a método da 3.1 pela lente de BOA-FÉ, que já pagou duas vezes hoje.
-Próximo cenário a medir: **operador põe a MESMA pasta nos dois campos** (PT e EN). A guarda de
-cegueira que entrou em `0b84b109` NÃO cobre esse caso — cada fala vira espelho de si mesma,
-`auditadas > 0`, `ficouCego()` dá false e o desfecho volta a ser `[SUCESSO]` verde.
+**Decisão do Paulo, pendente:** `Four` (personagem Four Murasame) sai como `Quatro` quando a fala
+é traduzida. O `lore.yaml:7242` já declara a regra — *original `"Four"` → saída `"Four"`; original
+`"four"` → `"quatro"`* —, mas o mapa de correção só cobre o composto `Quatro Murasame`. Distinguir
+nome de numeral **por maiúscula** muda o enforcer no acervo inteiro, então é decisão de produto.
+Enquanto isso a fala está **revertida** (voltou ao inglês) e não há dano em disco. O Zeta está
+**fora** das corridas de validação por causa disso — rodar gravaria o defeito.
+
+Cenário de boa-fé já fechado e medido: mesma pasta nos dois campos NÃO produz verde falso — o
+`ResolvedorArtefatosRevisao` tem invariante declarada de nunca parear um PT com outro PT, então o
+caminho cai na mesma cegueira e sai `CONCLUIDO_SEM_REFERENCIA`. Congelado em
+`CegueiraDaPastaEnCaracterizacaoTest`.
 
 O passivo de música do acervo **está medido e fechado** — ver abaixo. A 3.1 está liberada para as
 obras restantes.
@@ -65,6 +72,77 @@ diálogo já está traduzido — não há urgência de dano —, mas o filme é 
 `Get-ChildItem -Filter` e `Test-Path` sem `-LiteralPath` **quebram** em pasta com `[` no nome, e
 metade do acervo tem. A primeira tabela de pareamento saiu com 17 de 23 obras marcadas `0` — eu
 quase reportei "o 08th está sem legenda em inglês", e ele tem 13.
+
+---
+
+# ✅ 2026-08-17 (tarde) — OS DOIS ITENS DE MELHORIA, APLICADOS E VALIDADOS NO ACERVO
+
+Autorização do Paulo ao sair para a academia: *"pode aplicar tudo o que for necessario de testes e
+correcoes e voce mesmo aplicar os testes nos animes que aplicamos agora"*.
+
+## A — `ResumoAlteracaoPorEstilo` (`03159a51`): a prova sai em toda corrida
+
+Saber se a 3.1 escreveu música exigia comparar backup com arquivo final **à mão**, num script fora
+do produto. As duas mensagens do console eram verdadeiras e juntas escondiam o dano:
+`[CACHE/RECUPERADO]` por evento (soa bem) e `corrigidas=0` no fim (a ponte escreve FORA do laço).
+
+Agora cada arquivo gravado imprime `[ESTILOS] N linha(s) alterada(s): <estilo> N …`, comparando com
+a foto do arquivo **como veio do disco** — tirada antes da ponte, senão o caminho que causou o dano
+ficaria de fora. Estilo musical sai em VERMELHO com o total à parte. Três estados: comparado ·
+nada mudou · **NÃO COMPARÁVEL** (com motivo).
+
+## B — a guarda recusava a própria tradução que a tela existe para fazer (`03159a51`)
+
+Das 27.987 falas do Zeta, 642 seguiam idênticas ao inglês em estilo `Dialogue`. Delas **634 são
+nome próprio e estão CERTAS**. As 8 restantes, em três classes:
+
+| classe | n | veredito |
+|---|---|---|
+| `{\clip(m … l …)}` | 4 | **CORRETAS.** O clip é polígono recortado sobre as letras INGLESAS; traduzir cortaria a frase PT nos lugares errados. Quem barra é o `DetectorEfeitoKaraokeService`, e está certo. |
+| nome próprio puro (`The O!`, `Gate of Zedan?`) | 2 | corretas |
+| `{\i1}…{\i0}\N{\i1}…{\i0}` | 2 | **defeito, e era MEU** |
+
+A regra de repetição introduzida (nasceu em 16/08) é comparativa e pressupõe que a fala de hoje é
+português. Quando ela é o inglês intacto, comparar contagem de palavra PORTUGUESA contra texto
+INGLÊS não mede nada: o inglês tem `to` 2×, a tradução repete `para` 2×, e como `para` tinha zero
+ocorrências "antes", a regra lia repetição introduzida. **Recusou o LLM e recusou o Google.**
+Conserto: quando o texto visível da fala é igual ao do original, a proposta é TRADUÇÃO e essa
+pergunta se abstém. As outras cinco seguem valendo.
+
+## O defeito que só apareceu ao VALIDAR no acervo (`dd36c7d5`)
+
+Rodei o Zeta para validar e as duas falas destravaram — uma delas quebrada:
+
+```
+antes : {\i1}So, you're saying the Titans went to{\i0}\N{\i1}Side Four to prepare a colony drop?{\i0}
+Google: {\i1}Então, você está dizendo que o Titans foi para Side Four se preparar para um lançamento de colônia?
+```
+
+O `\N` e três tags sumiram: duas linhas viraram uma, com itálico que nunca fecha. As cinco
+perguntas aprovaram — **nenhuma media estrutura**. Entrou a sétima pergunta:
+`QUEBRA_DE_LINHA_PERDIDA`. Só `\N`, não tags — perder itálico é autorizado por decisão do Paulo;
+quebra de linha é LAYOUT.
+
+**A lição desta parte:** corrigir um gap sem rodar contra o acervo esconde o gap seguinte atrás do
+primeiro.
+
+## Validação no acervo — 8 obras, código novo
+
+| obra | status | escreveu |
+|---|---|---|
+| 0080 · 86 Part 2 · Unicorn | `[SUCESSO]` | nada |
+| 0083 · 08th · 86 Part 1 | pendências | nada |
+| Guilty Crown | pendências | 1 linha, `Default` |
+| Gundam ZZ | pendências | 1 linha, `Dialogue` |
+
+As duas linhas escritas imprimiram `[ESTILOS]` corretamente. Medição final de música no acervo:
+**22 das 23 obras com ZERO divergência** (a 23ª é o CCA, que é achatamento e decisão fechada).
+
+**Zeta ficou FORA das corridas de validação de propósito** — tem o achado de lore aberto, e rodar
+gravaria o defeito. As duas falas gravadas na corrida de validação foram **revertidas** do backup
+`revisao_20260817_103032_173`, conferido BOM=True nas duas.
+
+Suíte: 323 classes, 1.874 testes, 0 falhas, 26 pulados.
 
 ---
 
