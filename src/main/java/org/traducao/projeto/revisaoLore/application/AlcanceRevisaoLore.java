@@ -107,6 +107,16 @@ public class AlcanceRevisaoLore {
         if (protecaoAss.deveIgnorarIntervencaoIa(estilo, texto)) {
             return false;
         }
+        // LETREIRO nao e fala. A regra acima exige `clip` longo na ultima porta — ela nasceu do
+        // karaoke com {\clip(m ... l ...)} do Zeta — e por isso deixava passar cartaz posicionado
+        // sem clip. Medido em 17/08/2026: 114 linhas de \fs>=100 chegavam a esta tela em 232
+        // arquivos, TODAS ja traduzidas corretamente ("Elas chamaram isso de Gundam", "Proximo
+        // episodio"), so produzindo ruido. O veto e AQUI e nao no dono da regra porque a
+        // TRADUCAO precisa mandar cartaz ao modelo — e por isso os letreiros do acervo estao em
+        // portugues. A camada resolve o problema dela.
+        if (protecaoAss.ehLetreiroDeCartaz(estilo, texto)) {
+            return false;
+        }
         if (detectorKaraoke.eEfeitoKaraoke(texto)
             && !detectorKaraoke.eKaraokeOuMusicaTraduzivel(estilo, texto)) {
             return false;
