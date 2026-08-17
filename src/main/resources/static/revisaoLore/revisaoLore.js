@@ -114,87 +114,7 @@ function vincularEventos() {
     });
 }
 
-/**
- * PROPÓSITO DE NEGÓCIO: alterna entre as abas "Com inglês" e "PT-only" no mesmo card,
- * mostrando só o formulário da aba escolhida (o contexto/obra é compartilhado).
- * INVARIANTES DO DOMÍNIO: exatamente um painel visível por vez; a aba ativa recebe o realce.
- * COMPORTAMENTO EM CASO DE FALHA: sem abas no DOM, é no-op.
- */
-function vincularAbas() {
-    const tabs = document.querySelectorAll('.lore-tab');
-    const paineis = document.querySelectorAll('.lore-tab-panel');
-    if (!tabs.length) return;
-    tabs.forEach(tab => tab.addEventListener('click', () => {
-        const alvo = tab.dataset.tab;
-        tabs.forEach(t => t.classList.toggle('active', t === tab));
-        paineis.forEach(p => p.classList.toggle('hidden', p.dataset.panel !== alvo));
-    }));
-}
 
-/**
- * PROPÓSITO DE NEGÓCIO: liga o formulário da aba "PT-only" ao endpoint que revisa a lore
- * usando SÓ a pasta PT-BR (sem inglês), respeitando o dry-run e a opção de LLM.
- * INVARIANTES DO DOMÍNIO: contexto e a pasta PT-BR são obrigatórios; aplicar = !simular.
- * COMPORTAMENTO EM CASO DE FALHA: exibe o erro no console e reabilita o botão.
- */
-function vincularEventosPtOnly() {
-    const btn = document.getElementById('btn-iniciar-revisao-lore-ptonly');
-    const inputTraduzida = document.getElementById('revisao-lore-ptonly-entrada-traduzida');
-    const selectContexto = document.getElementById('revisao-lore-contexto');
-    const chkLlm = document.getElementById('revisao-lore-ptonly-usar-llm');
-    const chkSimular = document.getElementById('revisao-lore-ptonly-simular');
-    if (!btn || !inputTraduzida || !selectContexto) return;
-
-    btn.addEventListener('click', async () => {
-        const diretorioTraduzido = inputTraduzida.value.trim();
-        const contextoId = selectContexto.value;
-
-        if (!diretorioTraduzido) {
-            mostrarAlerta('Informe a pasta com as legendas traduzidas (PT-BR)!', 'erro');
-            return;
-        }
-        if (!contextoId) {
-            mostrarAlerta('Selecione a obra/contexto para carregar a lore oficial.', 'erro');
-            return;
-        }
-
-        const usarLlm = chkLlm ? chkLlm.checked : false;
-        const aplicar = chkSimular ? !chkSimular.checked : true;
-        const nomeObra = selectContexto.options[selectContexto.selectedIndex]?.text || contextoId;
-
-        logNoConsole('console-revisao-lore', `Iniciando revisão de lore PT-only — Obra: ${nomeObra}`, 'info');
-        logNoConsole('console-revisao-lore',
-            `Traduzida: ${diretorioTraduzido} | LLM: ${usarLlm ? 'sim' : 'não'} | ${aplicar ? 'APLICAR' : 'simular (dry-run)'}`, 'info');
-        btn.disabled = true;
-
-        try {
-            const res = await fetch('/api/revisar-lore-ptonly', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ diretorioTraduzido, contextoId, usarLlm, aplicar })
-            });
-
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                throw new Error(data.erro || 'Falha ao iniciar revisão de lore PT-only');
-            }
-
-            logNoConsole('console-revisao-lore', data.mensagem || 'Revisão de lore PT-only iniciada.', 'sucesso');
-            mostrarAlerta('Revisão de lore PT-only iniciada! Acompanhe os logs.', 'sucesso');
-
-            await acompanharConclusao();
-            mostrarAlerta('Revisão de lore PT-only finalizada. Confira o status no console.', 'info');
-            const btnRefresh = document.getElementById('btn-refresh-telemetria');
-            if (btnRefresh) btnRefresh.click();
-        } catch (err) {
-            logNoConsole('console-revisao-lore', `Erro: ${err.message}`, 'erro');
-            mostrarAlerta(err.message, 'erro');
-        } finally {
-            btn.disabled = false;
-        }
-    });
-}
 
 /**
  * PROPÓSITO DE NEGÓCIO: mostra, o tempo todo, QUAL lore está ativa e para QUAL pasta ela vai
@@ -208,47 +128,38 @@ function ligarCartaoLoreAtiva() {
     const alvo = document.getElementById('revisao-lore-alvo-texto');
     const select = document.getElementById('revisao-lore-contexto');
     const pastaComIngles = document.getElementById('revisao-lore-entrada-traduzida');
-    const pastaPtOnly = document.getElementById('revisao-lore-ptonly-entrada-traduzida');
     if (!alvo || !select) return;
 
     const pintar = () => {
         const obra = select.options[select.selectedIndex]?.text || '';
         const escolheu = !!select.value;
-        const abaPtOnly = document.querySelector('.lore-tab.active')?.dataset.tab === 'pt-only';
-        const pasta = ((abaPtOnly ? pastaPtOnly : pastaComIngles)?.value || '').trim();
+        const pasta = (pastaComIngles?.value || '').trim();
         alvo.innerHTML = escolheu
             ? `Lore ativa: <strong>${obra}</strong>. Pasta: <strong>${pasta || 'ainda não informada'}</strong>.`
             : 'Lore ativa: <strong>nenhuma</strong>. Escolha a obra para liberar os campos.';
     };
 
     select.addEventListener('change', pintar);
-    [pastaComIngles, pastaPtOnly].forEach(c => c && c.addEventListener('input', pintar));
-    document.querySelectorAll('.lore-tab').forEach(t => t.addEventListener('click', () => setTimeout(pintar, 0)));
+    pastaComIngles?.addEventListener('input', pintar);
     pintar();
 }
 
-/** Rola até um formulário e o destaca — os botões da caixa de passadas apontam para eles. */
-function ligarAtalhosDasPassadas() {
-    const ir = (idBotaoAba, idFoco) => {
-        document.querySelector(`.lore-tab[data-tab="${idBotaoAba}"]`)?.click();
-        const campo = document.getElementById(idFoco);
+
+/** Rola ate o formulario e o destaca — o botao da passada aponta para ele. */
+function ligarAtalhoDaPassada() {
+    document.getElementById('btn-passada-lore-com-ingles')?.addEventListener('click', () => {
+        const campo = document.getElementById('revisao-lore-entrada-original');
         campo?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         campo?.focus();
-    };
-    document.getElementById('btn-passada-lore-com-ingles')
-        ?.addEventListener('click', () => ir('com-ingles', 'revisao-lore-entrada-original'));
-    document.getElementById('btn-passada-lore-ptonly')
-        ?.addEventListener('click', () => ir('pt-only', 'revisao-lore-ptonly-entrada-traduzida'));
+    });
 }
 
 export async function initRevisaoLore() {
     try {
         await carregarPainelHtml();
         vincularEventos();
-        vincularAbas();
-        vincularEventosPtOnly();
         ligarCartaoLoreAtiva();
-        ligarAtalhosDasPassadas();
+        ligarAtalhoDaPassada();
         // A trava cobre o .panel INTEIRO, e e por isso que ela serve aqui: esta tela tem DOIS
         // formularios e UM seletor de obra — travar so o form mais proximo deixaria o outro aberto.
         const { travarAteEscolherLore } = await import('../js/travaLore.js');

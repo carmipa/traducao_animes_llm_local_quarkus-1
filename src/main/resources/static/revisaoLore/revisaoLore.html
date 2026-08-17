@@ -1,16 +1,6 @@
-<style>
-    .lore-tabs { display: flex; gap: 6px; margin: 4px 0 14px; border-bottom: 1px solid rgba(255,255,255,0.12); }
-    .lore-tab { background: transparent; border: none; color: var(--text-dim, #9aa0aa); padding: 8px 14px;
-        cursor: pointer; font-size: 0.95rem; border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; }
-    .lore-tab:hover { color: var(--text, #e6e8ec); }
-    .lore-tab.active { color: var(--accent, #b98cff); border-bottom-color: var(--accent, #b98cff);
-        background: rgba(185,140,255,0.08); }
-    .lore-tab-panel.hidden { display: none; }
-</style>
-
 <div class="glass-card">
     <h2>Revisão de Lore</h2>
-    <p class="card-desc">Padroniza <strong>nomes de personagens, locais, facções, mechas e termos de mundo</strong> conforme a lore oficial da obra. Escolha a aba conforme você tenha (ou não) as legendas originais em inglês.</p>
+    <p class="card-desc">Padroniza <strong>nomes de personagens, locais, facções, mechas e termos de mundo</strong> conforme a lore oficial da obra. Exige as legendas originais em inglês como referência.</p>
     <p class="card-hint">Selecione obrigatoriamente a obra no menu abaixo — isso carrega a lore canônica e exibe os metadados do anime/filme via API.</p>
 
     <div class="anime-meta-banner hidden" id="meta-banner-revisao-lore"></div>
@@ -22,12 +12,7 @@
         </select>
     </div>
 
-    <div class="lore-tabs" role="tablist">
-        <button type="button" class="lore-tab active" data-tab="com-ingles" role="tab">Com inglês (padrão)</button>
-        <button type="button" class="lore-tab" data-tab="pt-only" role="tab">PT-only (sem inglês)</button>
-    </div>
-
-    <form id="form-revisao-lore" class="standard-form lore-tab-panel" data-panel="com-ingles">
+    <form id="form-revisao-lore" class="standard-form">
         <p class="card-hint">Compara EN × PT-BR via LLM local: máxima precisão, inclusive nos homógrafos.</p>
         <div class="form-group">
             <label for="revisao-lore-entrada-original">1º — Pasta com legendas ORIGINAIS em inglês: <span class="help-icon" data-tooltip="A REFERÊNCIA: os .ass em inglês, normalmente 'legendas_extraidas_ass'. É a fonte que diz qual é o nome canônico. Esta pasta é apenas LIDA.">?</span></label>
@@ -60,50 +45,19 @@
         </div>
     </form>
 
-    <form id="form-revisao-lore-ptonly" class="standard-form lore-tab-panel hidden" data-panel="pt-only">
-        <p class="card-hint">Sem o inglês: a camada determinística corrige só os termos <strong>inequívocos</strong> (multi-palavra, ex.: "Traje Móvel" → "Mobile Suit"); ative o LLM para tentar também os homógrafos de uma palavra (ex.: "Eixo"/"Axis"). Toda alteração faz backup automático.</p>
-        <div class="form-group">
-            <label for="revisao-lore-ptonly-entrada-traduzida">Pasta com legendas TRADUZIDAS (PT-BR): <span class="help-icon" data-tooltip="Única pasta necessária: as legendas em português que serão revisadas e gravadas no lugar (com backup).">?</span></label>
-            <div class="input-with-button">
-                <input type="text" id="revisao-lore-ptonly-entrada-traduzida" autocomplete="off" spellcheck="false" placeholder="Ex: E:\animes\Gundam\0083\legendas_ptbr" required>
-                <button type="button" class="btn-procurar" data-target="revisao-lore-ptonly-entrada-traduzida" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" id="revisao-lore-ptonly-usar-llm">
-                Usar o LLM nos homógrafos de uma palavra (mais lento; sem o inglês o modelo pode errar em ambiguidade)
-            </label>
-        </div>
-        <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" id="revisao-lore-ptonly-simular">
-                Apenas simular (dry-run — mostra o que mudaria, sem gravar)
-            </label>
-        </div>
-        <div class="correcao-actions">
-            <button type="button" class="btn btn-primary btn-purple" id="btn-iniciar-revisao-lore-ptonly" data-tooltip="Revisa a lore usando só a legenda PT-BR, sem a pasta de inglês">
-                <span class="material-symbols-outlined btn-icon">menu_book</span>
-                <span>Iniciar Revisão PT-only</span>
-            </button>
-            <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-revisao-lore-ptonly" data-tooltip="Limpa os campos desta aba">
-                <span class="material-symbols-outlined btn-icon">delete_sweep</span>
-                <span>Limpar Campos</span>
-            </button>
-        </div>
-    </form>
 </div>
 
-<!-- CAIXA DE OPERAÇÕES — mesmo padrão da 3.1: cada passada explica a DECISÃO que ela toma,
-     não só o que ela faz. As duas são independentes; a segunda existe para quando não há
-     legenda em inglês, e por isso decide com menos informação. -->
+<!-- CAIXA DE OPERAÇÕES — mesmo padrão da 3.1: a passada explica a DECISÃO que toma, não só o
+     que faz. Havia uma segunda (PT-only, sem o inglês); ela saiu em 17/08/2026 porque as 23
+     pastas traducao_ptbr do acervo TÊM espelho em inglês — ela atendia a um cenário inexistente
+     e era a porta que decidia com menos informação. -->
 <div class="glass-card op-caixa">
     <div class="op-caixa-cabecalho">
         <span class="material-symbols-outlined op-caixa-icone">menu_book</span>
         <h3>Passadas de revisão de lore</h3>
-        <span class="op-caixa-etiqueta">independentes</span>
+        <span class="op-caixa-etiqueta">uma passada</span>
     </div>
-    <p class="op-caixa-desc">As duas leem e gravam os <strong>próprios arquivos .ass</strong>. Cada
+    <p class="op-caixa-desc">Ela lê e grava os <strong>próprios arquivos .ass</strong>. Cada
         arquivo tocado ganha backup em <code>backups/revisao-lore/</code> antes da escrita, e a
         primeira cópia da sessão nunca é sobrescrita. <strong>Esta tela corrige nome, local e termo
         canônico da obra — e nada além disso.</strong></p>
@@ -133,38 +87,16 @@
             </button>
         </li>
 
-        <li class="op-linha">
-            <span class="op-marca"><span class="material-symbols-outlined">translate</span></span>
-            <div class="op-texto">
-                <span class="op-titulo">2 — PT-only (quando não existe a legenda em inglês)</span>
-                <span class="op-desc"><strong>Decide com menos informação, e por isso arrisca menos.</strong>
-                    Sem o inglês não há como separar homógrafo — <code>Vazio</code> de lore do
-                    <code>vazio</code> comum —, então o conserto automático fica só nos termos de
-                    <strong>duas ou mais palavras</strong>, que não colidem com palavra do dia a dia.
-                    Os de uma palavra só vão ao modelo se você ligar o LLM aqui. Comece
-                    <strong>simulando</strong>: o dry-run mostra o que mudaria sem gravar nada.</span>
-                <span class="op-selos">
-                    <span class="op-selo op-selo-escreve">grava nos .ass</span>
-                    <span class="op-selo op-selo-llm">só termos de 2+ palavras sem o LLM</span>
-                    <span class="op-selo op-selo-rede">tem dry-run</span>
-                </span>
-            </div>
-            <button type="button" class="btn btn-secondary" id="btn-passada-lore-ptonly"
-                data-tooltip="Abre a aba PT-only">
-                <span>Sem o inglês</span>
-                <span class="material-symbols-outlined btn-icon">play_arrow</span>
-            </button>
-        </li>
     </ol>
 
     <!-- O OPOSTO do aviso da 3.1, e de propósito: lá a varredura pega todos os estilos; aqui
          música é veto absoluto. Medido em 17/08/2026: 246.246 linhas de estilo musical estavam
-         ao alcance da aba PT-only antes de ela ganhar o veto. -->
+         ao alcance da aba PT-only, que por isto e por não servir a obra nenhuma foi removida. -->
     <p class="op-escopo">
         <span class="material-symbols-outlined">lyrics</span>
         <span><strong>Música e karaokê ficam de fora, sempre.</strong> Letra de abertura,
             encerramento, insert song, efeito de karaokê e desenho vetorial não são olhados nem
-            reescritos por esta tela — nem na aba PT-only. Fala inteira em inglês também não é
+            reescritos por esta tela. Fala inteira em inglês também não é
             trabalho daqui: ela é apontada e encaminhada para a <strong>3.1</strong>, sem virar
             pendência desta tela.</span>
     </p>

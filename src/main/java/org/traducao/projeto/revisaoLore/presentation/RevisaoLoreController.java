@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.revisaoLore.application.GerenciadorPromptRevisaoLore;
 import org.traducao.projeto.revisaoLore.application.RevisarLoreUseCase;
-import org.traducao.projeto.revisaoLore.application.RevisarLorePtOnlyUseCase;
 import org.traducao.projeto.revisaoLore.domain.ResultadoRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLore;
 import org.traducao.projeto.revisaoLore.domain.exceptions.RevisaoLoreException;
@@ -40,7 +39,6 @@ public class RevisaoLoreController {
     // meio do outro job (ver FilaExecucaoPipeline).
     private final FilaExecucaoPipeline filaExecucao;
     private final RevisarLoreUseCase revisarLoreUseCase;
-    private final RevisarLorePtOnlyUseCase revisarLorePtOnlyUseCase;
     private final GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore;
     private final LogStreamService logStreamService;
     private final org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho;
@@ -55,14 +53,12 @@ public class RevisaoLoreController {
     public RevisaoLoreController(
         FilaExecucaoPipeline filaExecucao,
         RevisarLoreUseCase revisarLoreUseCase,
-        RevisarLorePtOnlyUseCase revisarLorePtOnlyUseCase,
         GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore,
         LogStreamService logStreamService,
         org.traducao.projeto.core.io.GuardaCaminhoEntrada guardaCaminho
     ) {
         this.filaExecucao = filaExecucao;
         this.revisarLoreUseCase = revisarLoreUseCase;
-        this.revisarLorePtOnlyUseCase = revisarLorePtOnlyUseCase;
         this.gerenciadorPromptRevisaoLore = gerenciadorPromptRevisaoLore;
         this.logStreamService = logStreamService;
         this.guardaCaminho = guardaCaminho;
@@ -76,19 +72,6 @@ public class RevisaoLoreController {
     ) {}
 
     public record RevisaoLoreContextoResponse(String id, String nome, String termoMetadata) {}
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: solicitação da aba "Revisão de Lore PT-only" — revisa a lore
-     * usando SÓ a pasta PT-BR, sem a pasta de originais em inglês.
-     * <p>INVARIANTES DO DOMÍNIO: {@code aplicar=false} é dry-run; {@code usarLlm} liga a camada LLM.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: portador de dados puro; validação é do endpoint.
-     */
-    public record RevisaoLorePtOnlyRequest(
-        String diretorioTraduzido,
-        String contextoId,
-        boolean usarLlm,
-        boolean aplicar
-    ) {}
 
     @GetMapping("/revisao-lore/contextos")
     public ResponseEntity<List<RevisaoLoreContextoResponse>> listarPromptsRevisaoLore() {
@@ -187,58 +170,6 @@ public class RevisaoLoreController {
             "mensagem", "Revisao de lore iniciada no servidor. Acompanhe os logs em tempo real."));
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: valida e enfileira a revisão de lore PT-only (sem a pasta de
-     * originais em inglês), para o caso em que só existe a legenda PT-BR.
-     * <p>INVARIANTES DO DOMÍNIO: só a pasta PT-BR e o contexto são obrigatórios; o contexto
-     * precisa existir; usa a MESMA fila única do pipeline.
-     * <p>COMPORTAMENTO EM CASO DE FALHA: validação retorna HTTP 400; exceção da tarefa vira
-     * banner FALHOU no console.
-     */
-    @PostMapping("/revisar-lore-ptonly")
-    public ResponseEntity<Map<String, Object>> iniciarRevisaoLorePtOnly(@RequestBody RevisaoLorePtOnlyRequest req) {
-        if (req.diretorioTraduzido() == null || req.diretorioTraduzido().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "erro", "Pasta com legendas traduzidas em portugues nao informada."));
-        }
-        if (req.contextoId() == null || req.contextoId().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "erro", "Selecione a obra/contexto no menu para carregar a lore oficial da revisao."));
-        }
-        if (!gerenciadorPromptRevisaoLore.existePrompt(req.contextoId())) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "erro", "Prompt de revisao de lore desconhecido: \"" + req.contextoId()
-                    + "\". Recarregue a pagina e selecione uma obra valida."));
-        }
-
-        // Mesma recusa da rota completa, pelo mesmo motivo: aqui tambem se enfileira.
-        var recusaPtOnly = guardaCaminho
-            .conferirDiretorio("Pasta com legendas traduzidas em portugues", req.diretorioTraduzido());
-        if (recusaPtOnly.isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("erro", recusaPtOnly.get().mensagem()));
-        }
-
-        Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());
-        boolean usarLlm = req.usarLlm();
-        boolean aplicar = req.aplicar();
-
-        filaExecucao.submeter(() -> {
-            logStreamService.definirCanalAtual("revisao-lore");
-            long inicioMs = System.currentTimeMillis();
-            try {
-                RevisarLorePtOnlyUseCase.ResultadoLorePtOnly resultado = revisarLorePtOnlyUseCase.executar(
-                    pastaTraduzida, req.contextoId(), usarLlm, aplicar);
-                imprimirBannerPtOnly(resultado);
-            } catch (Exception e) {
-                imprimirFalha("Falha inesperada: " + e.getMessage());
-            } finally {
-                System.out.println(DuracaoUtil.linhaRelatorioFinal("Revisão de Lore PT-only", inicioMs));
-            }
-        });
-
-        return ResponseEntity.ok(Map.of(
-            "mensagem", "Revisao de lore PT-only iniciada no servidor. Acompanhe os logs em tempo real."));
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: banner de fechamento da revisão de lore PT-only, deixando claro se
@@ -246,20 +177,6 @@ public class RevisaoLoreController {
      * <p>INVARIANTES DO DOMÍNIO: sempre imprime corrigidas/descartadas e o modo (dry-run/aplicado).
      * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não lança.
      */
-    private void imprimirBannerPtOnly(RevisarLorePtOnlyUseCase.ResultadoLorePtOnly r) {
-        String cor = r.falasDescartadas() > 0 ? AnsiCores.YELLOW : AnsiCores.GREEN;
-        String modo = r.aplicado() ? "APLICADO" : "SIMULADO (dry-run, nada gravado)";
-        System.out.println("\n" + cor + LINHA + AnsiCores.RESET);
-        System.out.println(cor + "  [" + modo + "] REVISAO DE LORE PT-ONLY (sem ingles)" + AnsiCores.RESET);
-        System.out.println(cor + LINHA + AnsiCores.RESET);
-        System.out.println(AnsiCores.CYAN + "  • Arquivos analisados  : " + r.arquivosAnalisados() + AnsiCores.RESET);
-        System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
-        System.out.println(AnsiCores.GREEN + "  • Falas corrigidas     : " + r.falasCorrigidas() + AnsiCores.RESET);
-        System.out.println(AnsiCores.YELLOW + "  • Falas descartadas    : " + r.falasDescartadas() + AnsiCores.RESET);
-        System.out.println(AnsiCores.CYAN + "  • Camada LLM ativa     : " + (r.usouLlm() ? "sim" : "nao") + AnsiCores.RESET);
-        System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
-        System.out.println(cor + LINHA + "\n" + AnsiCores.RESET);
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: fecha o job com um banner cuja cor e título refletem

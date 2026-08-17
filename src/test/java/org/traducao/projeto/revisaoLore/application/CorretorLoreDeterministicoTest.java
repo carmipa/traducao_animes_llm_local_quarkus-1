@@ -47,25 +47,6 @@ class CorretorLoreDeterministicoTest {
     }
 
     @Test
-    @DisplayName("PT-only: aplica termo inequívoco multi-palavra sem o EN")
-    void ptOnlyAplicaMultiPalavraSemEn() {
-        assertEquals(java.util.Optional.of("Pilotar o Mobile Suit."),
-            corretor.corrigirPtOnly("Pilotar o Traje Móvel.", Map.of("Traje Móvel", "Mobile Suit")));
-    }
-
-    @Test
-    @DisplayName("PT-only: NÃO aplica homógrafo de 1 palavra (sem EN não dá pra desambiguar)")
-    void ptOnlyNaoTocaHomografoDeUmaPalavra() {
-        assertTrue(corretor.corrigirPtOnly("O vazio da sala era imenso.", Map.of("Vazio", "Void")).isEmpty());
-    }
-
-    @Test
-    @DisplayName("PT-only: sem substituição aplicável devolve vazio")
-    void ptOnlySemMudancaDevolveVazio() {
-        assertTrue(corretor.corrigirPtOnly("Nada a corrigir aqui.", Map.of("Traje Móvel", "Mobile Suit")).isEmpty());
-    }
-
-    @Test
     @DisplayName("corrige dud rounds traduzido literalmente para munições falhas")
     void corrigeDudRoundsTraduzidoLiteralmente() {
         var corrigida = corretor.corrigir(
@@ -183,20 +164,6 @@ class CorretorLoreDeterministicoTest {
 
         assertTrue(corrigida.isPresent());
         assertEquals("Dois Mobile Suits se aproximando.", corrigida.get());
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: a ordenação por comprimento também vale no caminho PT-only, que NÃO
-     * pôde ser delegado — sem o inglês não existe o portão "o original contém o canônico", então
-     * o algoritmo é legitimamente outro. O que não podia continuar diferente era a ordem.
-     */
-    @Test
-    @DisplayName("PT-only: a frase longa também vem antes da curta que a contém")
-    void ptOnlyAplicaFraseLongaPrimeiro() {
-        assertEquals(java.util.Optional.of("Pilotar o Mobile Suit de assalto."),
-            corretor.corrigirPtOnly("Pilotar o Traje Móvel de Assalto.",
-                curtaPrimeiro("Traje Móvel", "Mobile Suit",
-                    "Traje Móvel de Assalto", "Mobile Suit de assalto")));
     }
 
     /**

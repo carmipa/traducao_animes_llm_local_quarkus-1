@@ -433,38 +433,8 @@ class ApiEndpointsTest {
             .body("erro", containsString("mesmo lugar"));
     }
 
-    @Test
-    void revisarLorePtOnlySemDiretorioRetornaBadRequest() {
-        given()
-            .contentType("application/json")
-            .body("{\"diretorioTraduzido\":\"\",\"contextoId\":\"danmachi\"}")
-            .when().post("/api/revisar-lore-ptonly")
-            .then()
-            .statusCode(400)
-            .body("erro", containsString("traduzidas"));
-    }
 
-    @Test
-    void revisarLorePtOnlyComContextoInvalidoRetornaBadRequest() {
-        given()
-            .contentType("application/json")
-            .body("{\"diretorioTraduzido\":\"cache\",\"contextoId\":\"contexto_inexistente_xyz\"}")
-            .when().post("/api/revisar-lore-ptonly")
-            .then()
-            .statusCode(400)
-            .body("erro", containsString("Prompt de revisao de lore desconhecido"));
-    }
 
-    @Test
-    void revisarLorePtOnlyIniciaComContextoValido() {
-        given()
-            .contentType("application/json")
-            .body("{\"diretorioTraduzido\":\"cache\",\"contextoId\":\"danmachi\",\"usarLlm\":false,\"aplicar\":false}")
-            .when().post("/api/revisar-lore-ptonly")
-            .then()
-            .statusCode(200)
-            .body("mensagem", containsString("Revisao de lore PT-only iniciada"));
-    }
 
     @Test
     void revisarConcordanciaSemDiretorioRetornaBadRequest() {
