@@ -137,6 +137,13 @@ public class GuardaCorrecaoSegura {
         PROBLEMA_NOVO("REVISAO_PROBLEMA_NOVO",
             "a proposta introduziu um problema que a fala não tinha"),
 
+        /**
+         * A proposta perdeu quebra de linha {@code \N} que a fala tinha — duas linhas viraram
+         * uma, e a legenda deixa de caber na tela como o typesetter desenhou.
+         */
+        QUEBRA_DE_LINHA_PERDIDA("REVISAO_QUEBRA_DE_LINHA_PERDIDA",
+            "a proposta juntou linhas que a fala separava com \\N"),
+
         /** A proposta continua suspeita e não reduziu os motivos. */
         SEM_MELHORIA("REVISAO_SEM_MELHORIA",
             "a proposta continua suspeita e não reduziu os motivos da auditoria");
@@ -231,6 +238,12 @@ public class GuardaCorrecaoSegura {
                 + AnsiCores.RESET),
                 MotivoRecusa.REPETICAO_INTRODUZIDA);
         }
+        if (perdeuQuebraDeLinha(traducaoAtual, candidata)) {
+            return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
+                + "Correção rejeitada: a proposta juntou linhas que a fala separava com \\N."
+                + AnsiCores.RESET),
+                MotivoRecusa.QUEBRA_DE_LINHA_PERDIDA);
+        }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
         boolean introduziuProblemaNovo = posterior.motivos().stream()
             .anyMatch(motivo -> !auditoriaAnterior.motivos().contains(motivo));
@@ -308,6 +321,49 @@ public class GuardaCorrecaoSegura {
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer um dos dois nulo devolve {@code false}, e a
      * pergunta de repetição volta a valer — na dúvida, o portão conserva o comportamento estrito.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: a proposta juntou linhas que a fala separava — duas linhas de legenda
+     * viraram uma só, e o que o typesetter desenhou para caber em duas deixa de caber.
+     *
+     * <h2>O prejuízo MEDIDO que a originou — 2026-08-17, Zeta S01E25</h2>
+     * Assim que a pergunta de repetição parou de recusar tradução de fala ainda em inglês, esta
+     * fala finalmente foi traduzida — e o Google devolveu:
+     * <pre>
+     * antes : {\i1}So, you're saying the Titans went to{\i0}\N{\i1}Side Four to prepare a colony drop?{\i0}
+     * depois: {\i1}Então, você está dizendo que o Titans foi para Side Four se preparar para um lançamento de colônia?
+     * </pre>
+     * <b>O {@code \N} e três tags sumiram</b>: duas linhas viraram uma linha longa, com itálico
+     * que nunca fecha. O portão aprovou porque media concordância e lore, e <b>não media
+     * estrutura</b>. As outras cinco perguntas passaram todas — é gap de pergunta, não de rigor.
+     *
+     * <h2>Por que só {@code \N}, e não as tags</h2>
+     * Perder itálico é AUTORIZADO por decisão do Paulo ("pode eliminar o itálico sem problema
+     * algum"), e barrar tag aqui reprovaria correção legítima — guarda que reprova o certo ensina
+     * a desligar a guarda. Quebra de linha é outra coisa: é LAYOUT, não estilo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só reprova quando a proposta tem MENOS {@code \N} que a fala
+     * atual. Acrescentar quebra é permitido; manter é permitido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo devolve {@code false} — na ausência de sinal o
+     * portão não inventa veto.
+     */
+    private boolean perdeuQuebraDeLinha(String traducaoAtual, String candidata) {
+        if (traducaoAtual == null || candidata == null) {
+            return false;
+        }
+        return contarQuebras(candidata) < contarQuebras(traducaoAtual);
+    }
+
+    private static int contarQuebras(String texto) {
+        int total = 0;
+        for (int i = 0; i + 1 < texto.length(); i++) {
+            if (texto.charAt(i) == '\\' && texto.charAt(i + 1) == 'N') {
+                total++;
+            }
+        }
+        return total;
+    }
+
     private boolean aFalaAindaEhOOriginalIngles(String original, String traducaoAtual) {
         if (original == null || traducaoAtual == null) {
             return false;

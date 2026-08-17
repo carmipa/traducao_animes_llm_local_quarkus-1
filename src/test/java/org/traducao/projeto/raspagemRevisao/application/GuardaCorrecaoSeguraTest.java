@@ -81,6 +81,50 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * O EFEITO COLATERAL da correção acima, pego em PRODUÇÃO no mesmo dia: destravada a
+     * tradução, o Google devolveu a fala com o {@code \N} e três tags a menos — duas linhas de
+     * legenda viraram uma linha longa com itálico que nunca fecha. As cinco perguntas antigas
+     * aprovaram, porque nenhuma media ESTRUTURA.
+     *
+     * <p>É por isso que a correção de um gap tem de rodar contra o acervo antes de ser dada por
+     * boa: o defeito seguinte estava escondido atrás do primeiro.
+     */
+    @Test
+    void propostaQueJuntaAsDuasLinhasEhRejeitada() {
+        String ingles = "{\\i1}So, you're saying the Titans went to{\\i0}\\N"
+            + "{\\i1}Side Four to prepare a colony drop?{\\i0}";
+        String semQuebra = "{\\i1}Então, você está dizendo que o Titans foi para Side Four "
+            + "se preparar para um lançamento de colônia?";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, semQuebra,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto),
+            "perder o \\N junta duas linhas de legenda numa só: é layout, não estilo");
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.QUEBRA_DE_LINHA_PERDIDA, motivo(veredicto));
+    }
+
+    /**
+     * O CONTRA-CASO da regra de quebra: a MESMA tradução, preservando o {@code \N}, passa. Sem
+     * isto a regra nova seria só um jeito novo de recusar tudo.
+     */
+    @Test
+    void mesmaTraducaoComQuebraPreservadaPassa() {
+        String ingles = "{\\i1}So, you're saying the Titans went to{\\i0}\\N"
+            + "{\\i1}Side Four to prepare a colony drop?{\\i0}";
+        String comQuebra = "{\\i1}Então, você está dizendo que os Titans foram{\\i0}\\N"
+            + "{\\i1}para Side Four preparar uma queda de colônia?{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, comQuebra,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto),
+            "tradução que respeita a estrutura tem de passar. Veredicto: " + veredicto);
+    }
+
+    /**
      * O CONTRA-CASO, e ele é o que impede a correção acima de virar afrouxamento: quando a fala
      * JÁ está em português, a pergunta de repetição continua valendo integralmente. É a cicatriz
      * do 86 — o mistral dobrando o advérbio a cada rodada.
