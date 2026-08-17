@@ -1176,28 +1176,29 @@
                                     <option value="" disabled selected>Carregando contextos...</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="revisao-entrada">Pasta com legendas TRADUZIDAS (.ass / .ssa): <span
+                            <div class="form-group revisao-campo-en">
+                                <label for="revisao-entrada-en">1º — Pasta com legendas ORIGINAIS em inglês (opcional): <span
                                         class="help-icon"
-                                        data-tooltip="Arquivos *_PT-BR.ass ou *_PTBR_TrackN.ass gerados pela tradução.">?</span></label>
+                                        data-tooltip="A REFERÊNCIA: os .ass em inglês, normalmente 'legendas_extraidas_ass'. Vazio = procura na mesma pasta do PT (_Track2.ass, etc.). Esta pasta é apenas LIDA.">?</span></label>
                                 <div class="input-with-button">
-                                    <input type="text" id="revisao-entrada" name="entrada" autocomplete="off"
+                                    <input type="text" id="revisao-entrada-en" name="saida" autocomplete="off"
                                         spellcheck="false"
-                                        placeholder="Ex: E:\animes\DANMACHI\temporada_5\legendas_extraidas_ass"
-                                        required>
-                                    <button type="button" class="btn-procurar" data-target="revisao-entrada"
+                                        placeholder="Ex: C:\animes\86\86 Part 1\legendas_extraidas_ass  (opcional)">
+                                    <button type="button" class="btn-procurar" data-target="revisao-entrada-en"
                                         data-type="pasta"><span
                                             class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
                                 </div>
                             </div>
-                            <div class="form-group revisao-campo-en">
-                                <label for="revisao-entrada-en">Pasta com legendas ORIGINAIS em inglês (opcional): <span
+                            <div class="form-group">
+                                <label for="revisao-entrada">2º — Pasta com legendas TRADUZIDAS (.ass / .ssa) — <strong>é esta que será reescrita</strong>: <span
                                         class="help-icon"
-                                        data-tooltip="Se os .ass em inglês estiverem em outra pasta. Vazio = procura na mesma pasta do PT (_Track2.ass, etc.).">?</span></label>
+                                        data-tooltip="Arquivos *_PT-BR.ass ou *_PTBR_TrackN.ass gerados pela tradução. ATENÇÃO: é aqui que a revisão GRAVA, sempre com backup. Não aponte para a pasta de legendas extraídas.">?</span></label>
                                 <div class="input-with-button">
-                                    <input type="text" id="revisao-entrada-en" name="saida" autocomplete="off"
-                                        spellcheck="false" placeholder="Opcional — mesma pasta do PT se vazio">
-                                    <button type="button" class="btn-procurar" data-target="revisao-entrada-en"
+                                    <input type="text" id="revisao-entrada" name="entrada" autocomplete="off"
+                                        spellcheck="false"
+                                        placeholder="Ex: C:\animes\86\86 Part 1\traducao_ptbr"
+                                        required>
+                                    <button type="button" class="btn-procurar" data-target="revisao-entrada"
                                         data-type="pasta"><span
                                             class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
                                 </div>
@@ -1243,12 +1244,39 @@
 
                         <ol class="op-lista">
                             <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">1 — Traduzir o que faltou (LLM local, com Google na sequência)</span>
+                                    <span class="op-desc"><strong>É esta que você roda.</strong> Acha as falas que ficaram
+                                        em inglês e as traduz com o modelo local, que conhece a lore. Quando o modelo não
+                                        resolve, a mesma fala desce sozinha para o Google — sem você precisar clicar de
+                                        novo. Os dicionários ajustam a proposta que volta, e toda proposta passa por um
+                                        portão que a descarta quando não melhora a legenda.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                                        <span class="op-selo op-selo-llm">LLM local</span>
+                                        <span class="op-selo op-selo-rede">usa o Google se o LLM falhar</span>
+                                    </span>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
+                                    data-tooltip="LLM local como 1ª etapa e Google como 2ª, numa ação só">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                                        stroke-width="2" fill="none">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                    </svg>
+                                    <span>Traduzir o que faltou</span>
+                                </button>
+                            </li>
+
+                            <li class="op-linha">
                                 <span class="op-marca"><span class="material-symbols-outlined">language</span></span>
                                 <div class="op-texto">
-                                    <span class="op-titulo">Corrigir inglês residual (Google)</span>
-                                    <span class="op-desc">Acha falas que continuaram em inglês e as re-traduz pelo Google.
-                                        Uma guarda bloqueia o arquivo inteiro quando falas demais estão iguais ao original
-                                        — sinal de tradução que nunca rodou, não de resíduo.</span>
+                                    <span class="op-titulo">2 — Só o Google (quando o LLM está desligado)</span>
+                                    <span class="op-desc">A 2ª etapa isolada, para quando o LM Studio não está no ar. Sem o
+                                        modelo local não há cascata, e <strong>fala com tag inline</strong>
+                                        (<code>{\i1}…{\i0}</code>) costuma voltar como <code>TAG_CORROMPIDA</code> e ficar
+                                        pendente — medido no Guilty Crown: 5 falas que a opção 1 resolveu.</span>
                                     <span class="op-selos">
                                         <span class="op-selo op-selo-escreve">grava nos .ass</span>
                                         <span class="op-selo op-selo-rede">precisa de internet</span>
@@ -1256,34 +1284,11 @@
                                 </div>
                                 <!-- O atributo form= é obrigatório aqui: o botão saiu de dentro do
                                      formulário para a caixa de operações, e sem ele o submit não dispara. -->
-                                <button type="submit" form="form-revisao" class="btn btn-primary btn-green"
+                                <button type="submit" form="form-revisao" class="btn btn-secondary"
                                     id="btn-revisao-submit"
-                                    data-tooltip="Detecta inglês residual e re-traduz falas problemáticas via Google Translate">
-                                    <span>Corrigir com Google</span>
+                                    data-tooltip="Só a 2ª etapa: re-traduz pelo Google, sem passar pelo LLM local">
+                                    <span>Só o Google</span>
                                     <span class="material-symbols-outlined btn-icon">play_arrow</span>
-                                </button>
-                            </li>
-
-                            <li class="op-linha">
-                                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
-                                <div class="op-texto">
-                                    <span class="op-titulo">Revisar concordância (LLM local)</span>
-                                    <span class="op-desc">Gênero, pronomes, artigos e tratamentos, usando a lore para saber
-                                        o gênero de cada personagem. Toda proposta passa por um portão que a descarta
-                                        quando não reduz o indício que a motivou.</span>
-                                    <span class="op-selos">
-                                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
-                                        <span class="op-selo op-selo-llm">LLM local</span>
-                                    </span>
-                                </div>
-                                <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
-                                    data-tooltip="Corrige concordância PT-BR (gênero, pronomes, artigos, tratamentos) via LLM local">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
-                                        stroke-width="2" fill="none">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                    </svg>
-                                    <span>Revisar concordância</span>
                                 </button>
                             </li>
                         </ol>
