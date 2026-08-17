@@ -6920,6 +6920,17 @@ obras:
     #
     # O QUE ESTA ENTRADA NÃO FAZ: não conserta as 126 já quebradas. Reparo é reescrita, e Paulo
     # vetou reescrever. Ela impede que NOVAS falas quebrem o nome.
+    #
+    # EFEITO COLATERAL CONHECIDO — 🔴 ABERTO, e a decisão do Paulo é PELA tradução:
+    # "Side Four" sai como "Lado Four", híbrido. A proteção MASCARA a palavra inteira antes de
+    # mandar ao tradutor e não sabe distinguir a personagem do numeral do topônimo, então "Four"
+    # volta intacto também dentro de "Side Four". Paulo, 17/08/2026: "lado quatro nao tem
+    # problema ser traduzido" e "esse é o tipo de situação que merece tradução".
+    #
+    # NÃO proteger "Side Four" é decisão dele — o desejado é "Lado Quatro", inteiro em português.
+    # O que falta para chegar lá é MECANISMO, não configuração: uma exceção de contexto
+    # ("Four protegido, exceto precedido de Side"). Medido no Zeta: 3 topônimos contra 188 usos
+    # do nome. Enquanto a exceção não existir, o híbrido fica — é preferível a devolver as 188.
     - Four
     - Four Murasame
     - Franklin Bidan
