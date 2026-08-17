@@ -197,7 +197,7 @@ public class RevisarLegendasUseCase {
 
         if (!Files.isDirectory(pastaLegendasPt)) {
             out(AnsiCores.RED + "Erro: pasta de legendas traduzidas inválida." + AnsiCores.RESET);
-            return new ResultadoRevisaoLegendas(0, 0, 0, 0);
+            return new ResultadoRevisaoLegendas(0, 0, 0, 0, 0);
         }
 
         Path pastaEn = pastaLegendasEn != null ? pastaLegendasEn : pastaLegendasPt;
@@ -224,7 +224,7 @@ public class RevisarLegendasUseCase {
                 out("Relatório salvo em: " + relatorio.registrar(
                     pastaLegendasPt, System.currentTimeMillis() - inicioMs,
                     0, 0, 0, 0, 0, 0, modo, contextoId, detalhesRevisao));
-                return new ResultadoRevisaoLegendas(0, 0, 0, 0);
+                return new ResultadoRevisaoLegendas(0, 0, 0, 0, 0);
             }
 
             out("Originais EN: .ass em " + pastaEn.toAbsolutePath()
@@ -253,6 +253,12 @@ public class RevisarLegendasUseCase {
             out("Falas sem referência segura no cache: " + lote.semReferenciaSegura());
         }
         out("Falas sem original EN (ignoradas): " + lote.semOriginal());
+        if (lote.arquivosCegos() > 0) {
+            out(AnsiCores.YELLOW + "Arquivos SEM REFERÊNCIA (nenhuma fala comparada): "
+                + lote.arquivosCegos() + " de " + lote.arquivos()
+                + " — confira se a pasta de legendas em INGLÊS é a certa; sem espelho a revisão "
+                + "não tem com o que comparar e não olhou estes arquivos." + AnsiCores.RESET);
+        }
         out("Falas com problemas detectados: " + lote.problemas());
         out("Falas ainda pendentes: " + lote.pendentes());
         if (modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
@@ -265,7 +271,8 @@ public class RevisarLegendasUseCase {
             lote.arquivos(), lote.problemas(), lote.corrigidas(), lote.auditadas(),
             lote.semOriginal(), lote.pendentes(), modo, contextoId, detalhesRevisao));
         return new ResultadoRevisaoLegendas(
-            lote.arquivos(), lote.corrigidas(), lote.problemas(), lote.pendentes());
+            lote.arquivos(), lote.corrigidas(), lote.problemas(), lote.pendentes(),
+            lote.arquivosCegos());
     }
 
     private void out(String mensagem) {
@@ -500,7 +507,7 @@ public class RevisarLegendasUseCase {
         } else if (sessao.problemas() > 0) {
             out(AnsiCores.YELLOW + "  Problemas encontrados, mas nenhuma correção aplicada."
                 + AnsiCores.RESET);
-        } else if (sessao.auditadas() == 0 && sessao.semOriginal() > 0) {
+        } else if (sessao.ficouCego()) {
             out(AnsiCores.YELLOW + "  -> Nenhuma fala auditada ("
                 + sessao.semOriginal() + " ignoradas por falta de original EN)." + AnsiCores.RESET);
         } else {

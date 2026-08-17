@@ -239,6 +239,12 @@ public class RevisaoLegendasController {
         System.out.println(AnsiCores.GREEN + "  • Falas Corrigidas    : " + resultado.falasCorrigidas() + AnsiCores.RESET);
         System.out.println((resultado.falasPendentes() > 0 ? AnsiCores.YELLOW : AnsiCores.GREEN)
             + "  • Falas Pendentes     : " + resultado.falasPendentes() + AnsiCores.RESET);
+        if (resultado.arquivosCegos() > 0) {
+            System.out.println(AnsiCores.YELLOW
+                + "  • SEM REFERÊNCIA      : " + resultado.arquivosCegos()
+                + " arquivo(s) sem NENHUMA fala comparada — confira a pasta de legendas em INGLÊS."
+                + AnsiCores.RESET);
+        }
         System.out.println(cor + "========================================================================\n" + AnsiCores.RESET);
         log.info("[{}] {}: arquivos={}, corrigidas={}, pendentes={}.", resultado.status(), titulo,
             resultado.arquivosAnalisados(), resultado.falasCorrigidas(), resultado.falasPendentes());
