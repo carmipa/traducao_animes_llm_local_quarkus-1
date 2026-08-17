@@ -21,7 +21,32 @@ class ResultadoRevisaoLegendasTest {
      */
     @Test
     void semPendenciasConcluiIntegralmente() {
-        assertEquals("CONCLUIDO", new ResultadoRevisaoLegendas(1, 3, 3, 0).status());
+        assertEquals("CONCLUIDO", new ResultadoRevisaoLegendas(1, 3, 3, 0, 0).status());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: arquivo que ninguém comparou não pode sair como sucesso limpo.
+     * <p>INVARIANTES DO DOMÍNIO: cegueira VENCE a ausência de pendência — os contadores de
+     * problema e pendência são zero justamente PORQUE nada foi olhado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code CONCLUIDO} aqui e o operador fecha o assunto de
+     * uma obra que a revisão não leu — foi o que aconteceu na medição de 17/08/2026.
+     */
+    @Test
+    void cegueiraImpedeSucessoLimpoMesmoSemPendencia() {
+        assertEquals("CONCLUIDO_SEM_REFERENCIA",
+            new ResultadoRevisaoLegendas(1, 0, 0, 0, 1).status());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: não saber é pior que saber que falta.
+     * <p>INVARIANTES DO DOMÍNIO: com os dois presentes, a cegueira é o que se anuncia.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: precedência trocada esconde o arquivo não lido atrás de
+     * uma pendência que ao menos foi vista.
+     */
+    @Test
+    void cegueiraTemPrecedenciaSobrePendencia() {
+        assertEquals("CONCLUIDO_SEM_REFERENCIA",
+            new ResultadoRevisaoLegendas(2, 0, 1, 1, 1).status());
     }
 
     /**
@@ -32,6 +57,6 @@ class ResultadoRevisaoLegendasTest {
     @Test
     void pendenciaImpedeFalsoSucesso() {
         assertEquals("CONCLUIDO_COM_PENDENCIAS",
-            new ResultadoRevisaoLegendas(1, 0, 1, 1).status());
+            new ResultadoRevisaoLegendas(1, 0, 1, 1, 0).status());
     }
 }

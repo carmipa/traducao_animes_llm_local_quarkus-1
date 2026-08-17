@@ -234,6 +234,26 @@ public class SessaoRevisaoArquivo {
         return semOriginal;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: este arquivo saiu CEGO — havia falas para auditar e nenhuma foi
+     * comparada, porque nenhuma tinha original em inglês. É o desfecho de quem apontou a pasta
+     * de legendas em inglês para o lugar errado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: cegueira exige as DUAS condições. Zero auditadas com zero
+     * {@code semOriginal} é um arquivo sem nada dialogado — outra história, e não é cegueira.
+     * Auditar uma fala já basta para o arquivo ter enxergado: perda PARCIAL de original é normal
+     * (índice que não casa) e transformá-la em alarme ensinaria a desligar o alarme.
+     *
+     * <p><b>Por que existe:</b> a regra 12 — "nada a processar" e "cego" não podem produzir o
+     * mesmo sinal. Este predicado é a ÚNICA definição de cegueira da tela: o aviso amarelo por
+     * arquivo e o total do lote perguntam a ele, em vez de repetir a conta e divergir.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só lê contadores; nunca lança.
+     */
+    public boolean ficouCego() {
+        return auditadas == 0 && semOriginal > 0;
+    }
+
     public int pendentes() {
         return pendentes;
     }

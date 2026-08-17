@@ -35,6 +35,16 @@ public class TotaisLoteRevisao {
     private int semReferenciaSegura;
 
     /**
+     * Quantos arquivos saíram CEGOS — tinham fala para auditar e nenhuma foi comparada.
+     *
+     * <p>O aviso já existia por arquivo (amarelo, "Nenhuma fala auditada"), mas morria ali: o
+     * total do lote não o carregava e o desfecho saía {@code CONCLUIDO} verde. Medido em
+     * 17/08/2026 com a pasta de inglês apontada para o lugar errado: 4 falas não olhadas,
+     * {@code [SUCESSO]}, indistinguível de uma obra limpa.
+     */
+    private int arquivosCegos;
+
+    /**
      * PROPÓSITO DE NEGÓCIO: incorpora o resultado de um arquivo ao total da varredura.
      * <p>INVARIANTES DO DOMÍNIO: soma campo a campo, sem interpretar nenhum.
      * <p>COMPORTAMENTO EM CASO DE FALHA: sessão nula não altera nada.
@@ -50,6 +60,20 @@ public class TotaisLoteRevisao {
         semOriginal += sessao.semOriginal();
         pendentes += sessao.pendentes();
         semReferenciaSegura += sessao.semReferenciaSegura();
+        // A única interpretação desta soma, e ela é DELEGADA: quem define cegueira é a sessão.
+        if (sessao.ficouCego()) {
+            arquivosCegos++;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quantos arquivos do lote saíram sem enxergar nada.
+     * <p>INVARIANTES DO DOMÍNIO: maior que zero significa que o desfecho do lote NÃO pode ser
+     * apresentado como sucesso limpo — houve arquivo que ninguém comparou.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contador simples; nunca lança.
+     */
+    public int arquivosCegos() {
+        return arquivosCegos;
     }
 
     public int arquivos() {
