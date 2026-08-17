@@ -431,7 +431,17 @@ function renderizarRevisaoLore(resumo) {
     if (sinalizadasEl) sinalizadasEl.textContent = formatarNumero(sinalizadas);
     if (corrigidasEl) corrigidasEl.textContent = formatarNumero(corrigidas);
     if (taxaEl) {
-        taxaEl.textContent = taxa === null || taxa === undefined ? '—' : `${taxa}%`;
+        // FRACAO, nao porcentagem. Medido em 17/08/2026: 91 correcoes em 24.441 falas
+        // sinalizadas saiam como "0%", porque o backend divide inteiro por inteiro
+        // (91*100/24441 = 0). O operador lia zero e concluia que a tela nao corrigiu nada —
+        // e ela tinha acabado de consertar 13 falas do 86.
+        //
+        // Percentual e um numero ruim NESTA tela por natureza: o denominador inclui tudo o que
+        // foi sinalizado, e a maioria e falso positivo estrutural (o ingles nao marca genero, o
+        // portugues marca) ou trabalho de outra tela. "91 de 24.441" nao engana ninguem.
+        taxaEl.textContent = sinalizadas > 0
+            ? `${formatarNumero(corrigidas)} de ${formatarNumero(sinalizadas)}`
+            : '—';
     }
     if (hintEl) {
         hintEl.textContent = sessoes > 0
