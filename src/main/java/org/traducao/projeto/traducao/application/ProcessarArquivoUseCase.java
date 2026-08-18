@@ -693,7 +693,16 @@ public class ProcessarArquivoUseCase {
                 // nenhuma regra alcança — fatidico, minimo, aereo, psicicas, medidos no Unicorn em
                 // 13/08/2026, quando o dicionário manual resolvia ZERO das 119 faltas do Zeta.
                 String antesDoDicionario = normalizado;
-                normalizado = corretorOrtografico.corrigir(normalizado);
+                // Os termos de lore da obra sao INTOCAVEIS para o dicionario. Nome proprio de
+                // ficcao nao leva acento do portugues, e o dicionario nao tem como saber que
+                // aquilo e um nome. Medido no acervo em 18/08/2026: tres termos chegaram
+                // acentuados a legenda entregue, em 32 falas, e os TRES sao defeito — inclusive
+                // o que parecia excecao legitima. No Zeta, "Bosnia" e uma NAVE ("Send a signal
+                // flare to the Bosnia"), e "Bósnia" a transformou num pais. O resultado e
+                // portugues impecavel, o que torna o defeito invisivel para quem nao confere
+                // contra o ingles.
+                normalizado = corretorOrtografico.corrigir(
+                    normalizado, contextoCongelado.atual().termosProtegidos());
                 if (!normalizado.equals(antesDoDicionario)) {
                     corrigidasPeloDicionario++;
                 }

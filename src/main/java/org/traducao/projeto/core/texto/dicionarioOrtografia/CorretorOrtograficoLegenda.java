@@ -116,11 +116,64 @@ public class CorretorOrtograficoLegenda {
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve o texto recebido.
      */
     public String corrigir(String texto) {
+        return corrigir(texto, Set.of());
+    }
+
+    /**
+     * Compara ignorando caixa: o dicionário propõe a forma capitalizada ou não conforme a posição
+     * na frase, e {@code "apsaras"} no meio da fala é o mesmo nome de {@code "Apsaras"}.
+     */
+    private static boolean contemIgnorandoCaixa(Set<String> lista, String palavra) {
+        for (String termo : lista) {
+            if (termo != null && termo.equalsIgnoreCase(palavra)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma correção de acento, com uma lista de palavras INTOCÁVEIS — os
+     * termos de lore da obra. Nome próprio de ficção não leva acento do português, e o dicionário
+     * não tem como saber que aquilo é um nome.
+     *
+     * <h2>O prejuízo, medido no acervo em 18/08/2026</h2>
+     * Três termos de lore chegaram acentuados à legenda entregue, em 32 falas. Os três são
+     * defeito — inclusive o que parecia exceção legítima:
+     * <pre>
+     *   Apsaras -> Apsarás   23 falas   (o mobile armor do 08th MS Team)
+     *   Bosnia  -> Bósnia     7 falas   (uma NAVE do Zeta, nao o pais)
+     *   Cardeas -> Cárdeas    2 falas   (Cardeas Vist, do Unicorn)
+     * </pre>
+     * O caso {@code Bosnia} é o melhor argumento para esta lista existir: no Zeta a fala é
+     * <i>"Send a signal flare to the Bosnia"</i> e <i>"the Alexandria, Bosnia and Sichuan"</i> —
+     * são navios. O acento transformou uma nave num país, e o resultado é português impecável,
+     * o que torna o defeito invisível para qualquer revisão que não confira contra o inglês.
+     *
+     * <p>Consertar caso a caso no {@code correcoesTerminologia} funciona para o que já foi
+     * traduzido; não impede a próxima obra de nascer com o mesmo dano.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a comparação ignora caixa — o dicionário propõe forma
+     * capitalizada ou não conforme a posição na frase. Lista vazia reproduz exatamente o
+     * comportamento anterior.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula é tratada como vazia; texto nulo volta nulo.
+     */
+    public String corrigir(String texto, Set<String> intocaveis) {
         if (texto == null || texto.isBlank()) {
             return texto;
         }
         try {
             Set<String> candidatas = CorretorAcentoPorDicionario.candidatas(texto);
+            if (intocaveis != null && !intocaveis.isEmpty()) {
+                Set<String> semLore = new java.util.LinkedHashSet<>();
+                for (String candidata : candidatas) {
+                    if (!contemIgnorandoCaixa(intocaveis, candidata)) {
+                        semLore.add(candidata);
+                    }
+                }
+                candidatas = semLore;
+            }
             if (candidatas.isEmpty()) {
                 return texto;
             }
