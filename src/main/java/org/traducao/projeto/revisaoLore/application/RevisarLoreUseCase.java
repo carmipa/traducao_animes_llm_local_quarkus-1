@@ -92,9 +92,28 @@ public class RevisarLoreUseCase {
      * singleton e campos de instância seriam compartilhados — e corrompidos —
      * entre execuções.
      */
+    /**
+     * De quanto em quanto tempo o progresso reaparece no console quando não há nada a relatar.
+     *
+     * <p>São 20s contra os 90s que o {@code pode-compilar.ps1} usa como limite de ociosidade —
+     * folga de 4,5x. O pior caso medido de uma fala é uma chamada ao LLM com retentativa, na
+     * casa dos 20s; mesmo duas seguidas cabem dentro do limite do portão.
+     */
+    private static final long INTERVALO_BATIMENTO_MS = 20_000L;
+
     private static final class SessaoRevisao {
         final List<LogEventoRevisaoLore> eventos = new ArrayList<>();
         final long inicioMs = System.currentTimeMillis();
+
+        /**
+         * Instante da última linha escrita. Existe por causa de um ACOPLAMENTO que não é óbvio:
+         * {@link #out} escreve no console E no log de execução, e o {@code pode-compilar.ps1} usa
+         * esse log para saber se há job vivo. Enquanto a tela imprimia uma linha por fala, o
+         * portão nunca via silêncio. Agregando por arquivo, um arquivo grande passaria minutos
+         * mudo e o portão liberaria a compilação sobre um job em andamento — que é exatamente o
+         * acidente do episódio Stink Bomb, em 14/08/2026.
+         */
+        long ultimaSaidaMs = System.currentTimeMillis();
 
         // O console web carimba a hora local no navegador, então a linha vai
         // para System.out sem prefixo de relógio. O prefixo UTC + tempo
@@ -105,11 +124,28 @@ public class RevisarLoreUseCase {
             String limpoComPrefixo = prefixo + " " + limpo;
             System.out.println(msg);
             log.info(limpoComPrefixo);
+            ultimaSaidaMs = System.currentTimeMillis();
             eventos.add(new LogEventoRevisaoLore(
                 Instant.now().toString(),
                 inferirNivel(limpoComPrefixo),
                 limpoComPrefixo
             ));
+        }
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: diz se a sessão está calada há tempo demais — para o batimento
+         * de progresso sair ANTES de o portão de compilação interpretar o silêncio como "job
+         * terminado".
+         *
+         * <p>INVARIANTES DO DOMÍNIO: o intervalo é uma FRAÇÃO do limite do portão (90s), com
+         * folga para o pior caso — uma chamada ao LLM com retentativa. Qualquer linha escrita,
+         * de qualquer origem, reinicia a contagem: o batimento só aparece no silêncio de verdade.
+         *
+         * <p>COMPORTAMENTO EM CASO DE FALHA: relógio para trás devolve {@code false} e o
+         * batimento simplesmente não sai naquele instante — o próximo o cobre.
+         */
+        boolean caladaHaMuito() {
+            return System.currentTimeMillis() - ultimaSaidaMs >= INTERVALO_BATIMENTO_MS;
         }
 
         private String prefixoLog() {
@@ -504,6 +540,11 @@ public class RevisarLoreUseCase {
 
             boolean houveModificacao = false;
             int corrigidasNoArquivo = 0;
+            // Contado por ARQUIVO para a linha de fecho poder dizer a cor certa: verde so
+            // quando houve conserto, amarelo quando sobrou pendencia, e o [OK] neutro
+            // reservado ao arquivo que realmente nao tinha nada — antes ele aparecia
+            // igual para "lore conforme" e para "90 pendencias que ninguem resolveu".
+            int pendentesNoArquivo = 0;
             int totalDialogos = contarDialogosAuditaveis(docOriginal, docTraduzido);
             int dialogoAtual = 0;
             List<EventoLegenda> novosEventos = new ArrayList<>(docTraduzido.eventos().size());
@@ -539,8 +580,18 @@ public class RevisarLoreUseCase {
 
                 String marcadorFala = formatarMarcadorProgresso(
                     indiceArquivo, totalArquivos, falasAuditadas[0], totalFalasGlobais, i + 1);
-                sessao.out(AnsiCores.DIM + marcadorFala + " auditando lore | EN: "
-                    + trecho(textoEn) + " | PT: " + trecho(textoPt) + AnsiCores.RESET);
+                // BATIMENTO, e nao uma linha por fala. Antes daqui a tela imprimia "auditando
+                // lore" e "limpo pela heuristica" em TODA fala: medido numa corrida das sete
+                // obras, 10.013 das 10.563 linhas do console — 94,8% — eram essas duas, contra
+                // 2,5% de sinal (LLM, pendente, corrigida). A 3.1 nunca fez isso: ela imprime a
+                // linha que TEM algo, e o resto e cabecalho de arquivo.
+                //
+                // O intervalo e por TEMPO e nao por contagem porque o que precisa ser garantido
+                // e o silencio MAXIMO, nao o numero de linhas: 200 falas podem levar 2s numa
+                // heuristica e 100s se todas forem ao LLM.
+                if (sessao.caladaHaMuito()) {
+                    sessao.out(AnsiCores.DIM + marcadorFala + " auditando..." + AnsiCores.RESET);
+                }
 
                 MascaradorTags.Mascarado mascaraEn = mascarador.mascarar(textoEn);
                 MascaradorTags.Mascarado mascaraPt = mascarador.mascarar(textoPt);
@@ -591,6 +642,7 @@ public class RevisarLoreUseCase {
                         sessao.out(AnsiCores.YELLOW + marcadorFala + " correcao deterministica descartada pela validacao: "
                             + e.getMessage() + AnsiCores.RESET);
                         falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                         novosEventos.add(evtTraduzido);
                         continue;
                     }
@@ -599,6 +651,7 @@ public class RevisarLoreUseCase {
                         mascaraEn.texto(), mascarador.mascarar(revisada).texto(), loreCanonica, equivalenciasDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                         sessao.out(AnsiCores.YELLOW + marcadorFala
                             + " pendente: correção determinística não eliminou todos os indícios de lore | motivos: "
                             + formatarMotivos(deteccaoPosterior.motivos()) + AnsiCores.RESET);
@@ -634,7 +687,8 @@ public class RevisarLoreUseCase {
                 // vazio. "Ultimo recurso" nao e "recurso preventivo".
                 if (!deteccao.suspeito()) {
                     falasSemAlteracao[0]++;
-                    sessao.out(AnsiCores.DIM + marcadorFala + " limpo pela heuristica" + AnsiCores.RESET);
+                    // Fala limpa nao gera linha: era 46,1% do console e nao diz nada ao operador.
+                    // O batimento acima cobre a prova de vida.
                     novosEventos.add(evtTraduzido);
                     continue;
                 }
@@ -652,6 +706,7 @@ public class RevisarLoreUseCase {
 
                 if (revisadaOpt.isEmpty()) {
                     falasSemResposta[0]++;
+                    pendentesNoArquivo++;
                     sessao.out(AnsiCores.YELLOW + marcadorFala + " LLM sem resposta valida; mantendo traducao atual" + AnsiCores.RESET);
                     registrarAuditoria(
                         contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
@@ -667,6 +722,7 @@ public class RevisarLoreUseCase {
                     revisada = mascarador.desmascarar(revisadaOpt.get(), mascaraPt.tags());
                     if (protecaoAss.respostaSuspeita(textoEn, revisada)) {
                         falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                         sessao.out(AnsiCores.YELLOW + marcadorFala
                             + " revisão descartada por resposta suspeita em linha ASS pesada"
                             + AnsiCores.RESET);
@@ -682,6 +738,7 @@ public class RevisarLoreUseCase {
                     if (mesmaFalaVisivel(revisada, textoPt)) {
                         if (deteccao.suspeito()) {
                             falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                             sessao.out(AnsiCores.YELLOW + marcadorFala
                                 + " pendente: LLM nao alterou a fala suspeita" + AnsiCores.RESET);
                             registrarAuditoria(
@@ -705,6 +762,7 @@ public class RevisarLoreUseCase {
                 } catch (Exception e) {
                     log.warn("Revisao de lore descartada (falha de tags/alucinacao): {}", e.getMessage());
                     falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                     sessao.out(AnsiCores.YELLOW + marcadorFala + " revisao descartada por falha de tags: "
                         + e.getMessage() + AnsiCores.RESET);
                     registrarAuditoria(
@@ -721,6 +779,7 @@ public class RevisarLoreUseCase {
                 } catch (Exception e) {
                     log.warn("Revisao de lore descartada (validacao): {}", e.getMessage());
                     falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                     sessao.out(AnsiCores.YELLOW + marcadorFala + " revisao descartada pela validacao: "
                         + e.getMessage() + AnsiCores.RESET);
                     registrarAuditoria(
@@ -736,6 +795,7 @@ public class RevisarLoreUseCase {
                     mascaraEn.texto(), mascaraPt.texto(), mascarador.mascarar(revisada).texto(), loreCanonica);
                 if (violacaoEscopo.isPresent()) {
                     falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                     sessao.out(AnsiCores.YELLOW + marcadorFala
                         + " pendente: proposta fora do escopo seguro de lore — "
                         + violacaoEscopo.get() + AnsiCores.RESET);
@@ -754,6 +814,7 @@ public class RevisarLoreUseCase {
                         mascaraEn.texto(), revisadaMascarada, loreCanonica, equivalenciasDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
+                    pendentesNoArquivo++;
                         sessao.out(AnsiCores.YELLOW + marcadorFala
                             + " pendente: proposta do LLM ainda contém indícios de lore | motivos: "
                             + formatarMotivos(deteccaoPosterior.motivos()) + AnsiCores.RESET);
@@ -807,10 +868,20 @@ public class RevisarLoreUseCase {
                 escritor.escrever(arqTraduzido, revisado);
                 arquivosAlterados[0]++;
                 sessao.out(AnsiCores.GREEN + "  [Revisado] " + arqTraduzido.getFileName()
-                    + " (" + corrigidasNoArquivo + " fala(s) corrigida(s))" + AnsiCores.RESET);
+                    + " (" + corrigidasNoArquivo + " fala(s) corrigida(s)"
+                    + (pendentesNoArquivo > 0 ? ", " + pendentesNoArquivo + " pendente(s)" : "")
+                    + ")" + AnsiCores.RESET);
                 if (backup != null) {
                     sessao.out(AnsiCores.CYAN + "  Backup anterior: " + backup + AnsiCores.RESET);
                 }
+            } else if (pendentesNoArquivo > 0) {
+                // AMARELO, e nao o [OK] neutro de antes: nada foi escrito, mas ficaram falas
+                // sinalizadas que ninguem resolveu. Marcar isso de verde-neutro fazia "arquivo
+                // limpo" e "arquivo com 90 pendencias" saírem iguais na tela — e o operador so
+                // descobria a diferenca no relatorio final, depois de horas.
+                sessao.out(AnsiCores.YELLOW + "  [Pendente] " + arqTraduzido.getFileName()
+                    + " (" + pendentesNoArquivo + " fala(s) sinalizada(s) sem correcao)"
+                    + AnsiCores.RESET);
             } else {
                 sessao.out(AnsiCores.DIM + "  [OK]     " + arqTraduzido.getFileName() + " (lore conforme)" + AnsiCores.RESET);
             }
