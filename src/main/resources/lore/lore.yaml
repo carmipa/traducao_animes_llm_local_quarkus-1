@@ -10776,6 +10776,20 @@ revisao:
    # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
    # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
    equivalenciasAceitas:
+     Tokyo:
+      - Tóquio
+     Japan:
+      - Japão
+     Japanese:
+      - japonesa
+      - japonês
+      - japoneses
+      - japonesas
+     Apocalypse:
+      - Apocalipse
+     Daath:
+      - Da'ath
+      - Daath
      Secret Service:
       - Serviço Secreto
       - Servico Secreto
@@ -11019,6 +11033,13 @@ revisao:
    # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
    # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
    equivalenciasAceitas:
+     Feddies:
+      - Federados
+     Christmas:
+      - Natal
+     Mother:
+      - Mãe
+      - mãe
      Federal Forces:
       - Federação
       - Forças Federais
@@ -11168,6 +11189,15 @@ revisao:
    # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
    # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
    equivalenciasAceitas:
+     Unit:
+      - unidade
+      - Unidade
+     Moon:
+      - Lua
+      - lua
+     Axis:
+      - Eixo
+      - eixo
      Gundam Unit:
       - unidade Gundam
       - Unidade Gundam
@@ -11179,6 +11209,12 @@ revisao:
  - id: gundam_08ms
    nome: 'Mobile Suit Gundam: The 08th MS Team - Revisao de Lore'
    correcoesTerminologia:
+     # medido: "Apsarás" 23x e "Apsará" 1x no PT, contra "Apsaras" 25x no ingles e 0x no PT. O acento vem do dicionario de ortografia, nao do original.
+     Apsarás: Apsaras
+     # mesma medicao da entrada acima.
+     Apsará: Apsaras
+     # medido: "Vencere Zeon" 1x no PT contra "Sieg Zeon" 1x no ingles. "Vencere" nao existe em portugues — e o grito da lore corrompido.
+     Vencere Zeon: Sieg Zeon
      08º Esquadrão MS: 08th MS Team
      8o Time MS: 08th MS Team
      8º Time MS: 08th MS Team
@@ -11345,6 +11381,9 @@ revisao:
    # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
    # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
    equivalenciasAceitas:
+     Zakus:
+      - Zaku IIs
+      - Zakus
      Team:
       - Equipe
       - equipe
@@ -13305,6 +13344,15 @@ revisao:
    # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
    # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
    equivalenciasAceitas:
+     Laplace Box:
+      - Caixa de Laplace
+      - caixa de Laplace
+     Laplace's Box:
+      - Caixa de Laplace
+      - caixa de Laplace
+     Earth Federation Forces:
+      - Forças da Federação da Terra
+      - Federação da Terra
      Year War:
       - Guerra de Um Ano
       - Guerra de um Ano
