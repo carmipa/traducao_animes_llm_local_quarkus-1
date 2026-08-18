@@ -118,7 +118,20 @@ class CatracaSuiteSemDriveWindowsTest {
         // Entrou em 17/08/2026: mede quanto CARTAZ (s>=100) sobrevive a todos os vetos e chega
         // na tela 3.2 — o achado do "NEXT EPISODE" do 08th. Mesma natureza das demais:
         // "C:nimes" e o default de -Dkronos.acervo, e caminho relativo mediria o vazio.
-        "MedicaoCartazNoAlcanceDaLoreIT.java"
+        "MedicaoCartazNoAlcanceDaLoreIT.java",
+        // Entraram em 18/08/2026, no dia em que a tela 3.2 passou a ESCREVER na legenda entregue.
+        //
+        // A idempotencia deixou de ser detalhe naquele dia: 58 falas gravadas numa corrida so, e
+        // a partir dai "rodar de novo" precisa ser operacao segura. O teste aplica o corretor
+        // DUAS vezes sobre os pares EN/PT reais e exige que a segunda passada nao mude nada.
+        "CorretorLoreEhIdempotenteIT.java",
+        // A guarda de SAIDA. O veto de residuo no validador protege a ENTRADA; este varre a
+        // legenda ENTREGUE. Nasceu de uma linha real: "as [[Anti Bodies]] sejam retiradas" foi
+        // gravada no Guilty Crown ep07 porque a validacao tokeniza PALAVRAS e e cega a colchete.
+        // Uma em 337.721 — e uma basta, porque e a que o espectador le.
+        //
+        // Nos dois, o acervo e o alvo: caminho relativo mediria o vazio e devolveria verde.
+        "MedicaoResiduoNoAcervoIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
