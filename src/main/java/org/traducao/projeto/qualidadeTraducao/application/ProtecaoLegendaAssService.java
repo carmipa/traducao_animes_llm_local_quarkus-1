@@ -58,6 +58,16 @@ public class ProtecaoLegendaAssService {
         // No acervo tambem existem: "Ep Titles", "Episode Titles".
         "(?i)\\b(signs?|titles?|ep\\s*titles?|next\\s*ep|opening|ending|op|ed|song|karaoke|lyrics?|credits?)\\b"
     );
+    /**
+     * O subconjunto que e CARTAO DE TITULO DE EPISODIO — nunca fala, em nenhuma obra do acervo.
+     * Nomes reais medidos: {@code Titles}, {@code Ep Titles}, {@code Episode Titles},
+     * {@code Zeta Episode Title}, {@code Zeta Next Episode Title}, {@code nextep}.
+     * <p>Separado de {@link #PADRAO_ESTILO_TECNICO} porque so ele dispensa a prova de corpo de
+     * fonte na tag. {@code Signs} continua fora: placa carrega nome de lore em corpo normal.
+     */
+    private static final Pattern PADRAO_ESTILO_CARTAO_DE_EPISODIO = Pattern.compile(
+        "(?i)\\b(titles?|ep\\s*titles?|episode\\s*titles?|next\\s*ep\\w*)\\b"
+    );
     private static final Pattern PADRAO_CAMINHO_TRADUZIDO = Pattern.compile(
         "(?i)(?:legendas[_-]?ptbr|traducao[_-]?ptbr|traduzidas|revisao|_pt-?br\\b|\\bpt-?br_)"
     );
@@ -141,6 +151,17 @@ public class ProtecaoLegendaAssService {
         }
         if (!PADRAO_TAG_ASS_PESADA.matcher(texto).find()) {
             return false;
+        }
+        // Cartao de TITULO DE EPISODIO nao precisa provar o corpo da fonte na tag: ele nunca e
+        // fala. E precisa mesmo dessa dispensa — no Gundam 0083 o corpo mora na DEFINICAO do
+        // estilo, nao na linha:
+        //     Style: Titles, Narkisim, 120, ...
+        //     Dialogue: ...,Titles,,0,0,0,,{\blur1\c&H141316&\pos(720,610)}NEXT EPISODE
+        // Sem isto, 12 letreiros do 0083 seguiam indo ao modelo depois do veto de corpo entrar.
+        // "Signs" fica FORA desta dispensa de proposito: placa carrega nome de lore em corpo
+        // normal ("Base da Republica de San Magnolia") e tem de continuar sendo conferida.
+        if (PADRAO_ESTILO_CARTAO_DE_EPISODIO.matcher(estilo).find()) {
+            return true;
         }
         Matcher corpo = PADRAO_CORPO_DE_FONTE.matcher(texto);
         return corpo.find() && Integer.parseInt(corpo.group(1)) >= CORPO_DE_FONTE_DE_CARTAZ;

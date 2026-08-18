@@ -99,4 +99,36 @@ class LetreiroNaoEhFalaTest {
                 + "convencao de fansub e varia; vetar so por ele deixaria de fora placa com nome "
                 + "de lore escrito em corpo normal");
     }
+    /**
+     * O 0083 mostrou a SEGUNDA porta do mesmo defeito: o corpo da fonte mora na DEFINIÇÃO do
+     * estilo, não na linha.
+     * <pre>
+     *   Style: Titles, Narkisim, 120, ...
+     *   Dialogue: ...,Titles,,0,0,0,,{\blur1\c&H141316&\pos(720,610)}NEXT EPISODE
+     * </pre>
+     * O veto por {@code \fs} inline é cego para ela, e 12 letreiros do 0083 continuaram indo ao
+     * modelo DEPOIS do veto entrar. Consertar a forma vista não conserta a classe.
+     */
+    @Test
+    @DisplayName("cartao de episodio SEM \\fs na tag tambem sai (o corpo esta no estilo)")
+    void letreiroComCorpoNoEstiloSaiDoAlcance() {
+        EventoLegenda cartaz = linha("Titles",
+            "{\\blur1\\c&H141316&\\pos(720,610)}Proximo episodio.");
+
+        assertFalse(alcance.estaNoAlcance(cartaz),
+            "letreiro sem \\fs na tag continua no alcance. No 0083 o estilo Titles declara corpo "
+                + "120 no cabecalho do arquivo, e sao 12 acusacoes de uma traducao CORRETA.");
+    }
+
+    @Test
+    @DisplayName("CONTRA-TESTE: placa 'Sign' com nome de lore em corpo normal continua sendo olhada")
+    void placaComNomeDeLoreContinuaNoAlcance() {
+        EventoLegenda placa = linha("Signs",
+            "{\\pos(500,500)\\blur1}Base da Republica de San Magnolia");
+
+        assertTrue(alcance.estaNoAlcance(placa),
+            "a dispensa de corpo de fonte vale so para CARTAO DE EPISODIO. Se 'Signs' entrasse "
+                + "junto, placa com nome de lore em corpo normal sairia da conferencia — e nome "
+                + "de lore em placa e exatamente o que a 3.2 existe para conferir.");
+    }
 }
