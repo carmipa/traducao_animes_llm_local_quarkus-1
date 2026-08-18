@@ -225,7 +225,25 @@ class FronteiraTraducaoArchTest {
         RAIZ + ".core.texto.dicionarioOrtografia.CorretorAcentoPorDicionario",
         RAIZ + ".core.texto.dicionarioOrtografia.ClassificadorQuatroIdiomas",
         RAIZ + ".core.texto.dicionarioOrtografia.VeredictoPalavra",
-        RAIZ + ".core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda"
+        RAIZ + ".core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda",
+        // VIGESIMO PRIMEIRO, homologado em 2026-08-18: limpeza do token de template do LLM.
+        //
+        // Mesmo precedente de FronteiraTermoAss e do dicionarioOrtografia — e MECANICA de
+        // TRANSPORTE, nao regra de negocio de fatia nenhuma. Nenhuma fatia e dona da pergunta
+        // "isto e token de controle do servidor?"; todas sofrem se a resposta chegar suja.
+        //
+        // O prejuizo que justifica, MEDIDO DUAS VEZES em fatias diferentes:
+        //   11/08  traducao ...... 115 das 116 falas perdidas numa execucao (99%) eram
+        //                          <|END_OF_TURN_TOKEN|> colado numa traducao CORRETA.
+        //   18/08  revisaoLore ... 4.903 propostas recusadas, 100% com o token, e em 2.616
+        //                          (53,4%) o token era a UNICA diferenca — o modelo nao mudara
+        //                          nada. Sete obras fecharam com "Falas corrigidas: 0".
+        //
+        // A segunda so aconteceu porque a primeira correcao ficou DENTRO da fatia traducao, e o
+        // Javadoc de la afirmava cobrir "os DOIS pontos que leem message.content()" — sem saber
+        // que a Revisao de Lore tem o proprio cliente. Mecanica presa numa fatia repete o
+        // prejuizo na fatia vizinha; e por isso que sobe para o core.
+        RAIZ + ".core.texto.TokenDeControleLlm"
     );
 
     /**

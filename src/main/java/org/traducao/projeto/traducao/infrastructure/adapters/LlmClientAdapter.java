@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducao.infrastructure.adapters;
 
+import org.traducao.projeto.core.texto.TokenDeControleLlm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,8 +218,6 @@ public class LlmClientAdapter implements LlmPort {
      * <p>NÃO inclui {@code </s>}: é ambíguo com marcação de texto, e nenhum modelo em uso o
      * emite. Guarda que apaga conteúdo legítimo é pior que guarda nenhuma.
      */
-    private static final Pattern TOKEN_DE_CONTROLE =
-        Pattern.compile("<\\|[^|<>]{1,40}\\|>|</?(?:start|end)_of_turn>");
 
     /**
      * PROPÓSITO DE NEGÓCIO: remove da resposta o token de controle que o servidor deixou
@@ -251,11 +250,11 @@ public class LlmClientAdapter implements LlmPort {
         if (bruto == null || bruto.indexOf('<') < 0) {
             return bruto;
         }
-        String limpo = TOKEN_DE_CONTROLE.matcher(bruto).replaceAll("");
+        String limpo = TokenDeControleLlm.limpar(bruto);
         if (!limpo.equals(bruto)) {
             log.debug("Token de controle do template removido da resposta do LLM.");
         }
-        return limpo.strip();
+        return limpo;
     }
 
     @Override

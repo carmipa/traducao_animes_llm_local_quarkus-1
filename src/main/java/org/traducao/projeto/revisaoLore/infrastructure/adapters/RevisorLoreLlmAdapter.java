@@ -1,5 +1,6 @@
 package org.traducao.projeto.revisaoLore.infrastructure.adapters;
 
+import org.traducao.projeto.core.texto.TokenDeControleLlm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,7 +215,13 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
                 }
 
                 Mensagem mensagem = resposta.choices().getFirst().message();
-                String texto = mensagem != null ? mensagem.content() : null;
+                // Token de template ANTES de qualquer leitura de dominio. Sem isto, a proposta
+                // chega ao validador com "<|END_OF_TURN_TOKEN|>" colado, o diff acusa um termo
+                // inserido que nao existe no ingles, e a proposta e recusada. Medido em
+                // 18/08/2026 na auditoria das sete obras: 4.903 recusas por escopo, 100% delas
+                // com o token, e em 2.616 (53,4%) o token era a UNICA diferenca — o modelo nao
+                // tinha mudado nada. As sete fecharam com "Falas corrigidas: 0".
+                String texto = mensagem != null ? TokenDeControleLlm.limpar(mensagem.content()) : null;
                 if (texto == null || texto.isBlank()) {
                     log.warn("Resposta LLM com message.content vazio (tentativa {}/{}; modelo={}).",
                         tentativa, MAX_TENTATIVAS_REVISAO, request.model());
