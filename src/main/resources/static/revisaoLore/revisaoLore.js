@@ -1,4 +1,7 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
+// Mesmo aviso da Traducao Local, do MESMO modulo — a revisao de lore tambem leva minutos e quem
+// dispara sai de perto. Pedido de Paulo em 17/08/2026.
+import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 
 const PAINEL_HTML = 'revisaoLore/revisaoLore.html?v=3.2';
 
@@ -74,6 +77,12 @@ function vincularEventos() {
         const revisarTodasFalas = true;
         const nomeObra = selectContexto.options[selectContexto.selectedIndex]?.text || contextoId;
 
+        // Este clique e o gesto que libera o audio no navegador. O estado e DITO na hora, em
+        // tres valores: quem vai sair de perto precisa saber ANTES se pode confiar no som.
+        const estadoAviso = armarAvisoSonoro();
+        logNoConsole('console-revisao-lore', mensagemDoAviso(estadoAviso),
+            estadoAviso === 'armado' ? 'info' : 'aviso');
+
         logNoConsole('console-revisao-lore', `Iniciando revisão de lore — Obra: ${nomeObra}`, 'info');
         logNoConsole('console-revisao-lore', `Original: ${diretorioOriginal} | Traduzida: ${diretorioTraduzido}`, 'info');
         btnIniciar.disabled = true;
@@ -103,6 +112,7 @@ function vincularEventos() {
             // liberamos e sinalizamos o fim (o status real fica no banner do console).
             await acompanharConclusao();
             mostrarAlerta('Revisão de lore finalizada. Confira o status e o resumo no console.', 'info');
+            tocarAvisoSonoro();
             const btnRefresh = document.getElementById('btn-refresh-telemetria');
             if (btnRefresh) btnRefresh.click();
         } catch (err) {

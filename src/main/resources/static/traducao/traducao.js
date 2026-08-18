@@ -1,69 +1,12 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
 import { montarOpcoesContextos } from '../js/selectContextos.js';
 import { travarAteEscolherLore } from '../js/travaLore.js';
+// O aviso sonoro mora em js/avisoSonoro.js desde 17/08/2026, quando a Revisao de Lore passou a
+// usa-lo tambem: componente repetido vira compartilhado (invariante 10), e duas copias do mesmo
+// audio divergiriam no dia em que uma ganhasse ajuste e a outra nao.
+import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 
 let contextosCarregados = false;
-
-// --- AVISO SONORO DE FIM DE LOTE ---------------------------------------------------------
-// Pedido de Paulo (2026-08-14): o lote leva de meia hora a duas horas, e quem dispara vai
-// fazer outra coisa enquanto espera. Três toques no fim chamam de volta.
-//
-// POR QUE O SOM NASCE NO CLIQUE, e não na hora de tocar: o navegador bloqueia áudio que a
-// página inicia sozinha. Um AudioContext criado fora de um gesto do usuário nasce
-// 'suspended', e `oscillator.start()` não emite nada — sem erro, sem log. O submit da
-// tradução É o gesto; é ali que ele é criado.
-let contextoAudio = null;
-
-const AVISO_TOQUES = 3;
-const AVISO_INTERVALO_S = 0.55;
-const AVISO_FREQUENCIA_HZ = 880;
-
-/**
- * Prepara o canal de áudio e devolve o estado REAL, em três valores — 'armado',
- * 'nao-confirmado' e 'indisponivel'. Dois valores não bastariam: "o navegador ainda não
- * liberou" e "este navegador não faz som" levam a ações diferentes, e tratá-los como o
- * mesmo "não" esconderia justamente o caso recuperável.
- */
-function armarAvisoSonoro() {
-    const Construtor = window.AudioContext || window.webkitAudioContext;
-    if (!Construtor) return 'indisponivel';
-
-    try {
-        if (!contextoAudio) contextoAudio = new Construtor();
-        // resume() é assíncrono: o estado logo depois ainda pode ser 'suspended'. Por isso o
-        // veredito abaixo lê o estado atual em vez de presumir sucesso.
-        if (contextoAudio.state === 'suspended') contextoAudio.resume().catch(() => {});
-        return contextoAudio.state === 'running' ? 'armado' : 'nao-confirmado';
-    } catch (e) {
-        return 'indisponivel';
-    }
-}
-
-/**
- * Toca os três avisos. Devolve `false` quando não havia canal de áudio — o chamador ainda
- * mostra o alerta visual, que é a rede que nunca depende de permissão do navegador.
- */
-function tocarAvisoSonoro() {
-    if (!contextoAudio) return false;
-    if (contextoAudio.state === 'suspended') contextoAudio.resume().catch(() => {});
-
-    const inicio = contextoAudio.currentTime;
-    for (let i = 0; i < AVISO_TOQUES; i++) {
-        const t = inicio + i * AVISO_INTERVALO_S;
-        const oscilador = contextoAudio.createOscillator();
-        const ganho = contextoAudio.createGain();
-        oscilador.type = 'sine';
-        oscilador.frequency.value = AVISO_FREQUENCIA_HZ;
-        // Envelope curto: subir e descer o volume evita o estalo do corte seco.
-        ganho.gain.setValueAtTime(0.0001, t);
-        ganho.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
-        ganho.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
-        oscilador.connect(ganho).connect(contextoAudio.destination);
-        oscilador.start(t);
-        oscilador.stop(t + 0.4);
-    }
-    return true;
-}
 
 /**
  * PROPÓSITO DE NEGÓCIO: prepara o formulário da tradução local e envia a decisão
@@ -135,11 +78,8 @@ export function initTraducao() {
         // três valores: quem vai sair de perto precisa saber ANTES se pode confiar no som —
         // descobrir que ele não tocaria só depois de perder o fim do lote é o pior desfecho.
         const estadoAviso = armarAvisoSonoro();
-        logNoConsole('console-traducao', {
-            'armado': `Aviso sonoro ARMADO: ${AVISO_TOQUES} toques ao fim do lote.`,
-            'nao-confirmado': 'Aviso sonoro NÃO CONFIRMADO: o navegador ainda não liberou o áudio. O alerta na tela vale de qualquer forma.',
-            'indisponivel': 'Aviso sonoro INDISPONÍVEL neste navegador. Só haverá alerta na tela.'
-        }[estadoAviso], estadoAviso === 'armado' ? 'info' : 'aviso');
+        logNoConsole('console-traducao', mensagemDoAviso(estadoAviso),
+            estadoAviso === 'armado' ? 'info' : 'aviso');
 
         try {
             const reqBody = { entrada: entrada, permitirRetraducao: permitirRetraducao };
