@@ -3086,6 +3086,7 @@ obras:
     - Gundam 0083
     - Stardust Memory
    termosProtegidos:
+    - Kelley
     - Adelheid Bernard
     - Aiguille Delaz
     - Albion
@@ -3120,7 +3121,7 @@ obras:
     - Gwaden
     - Jamitov Hymem
     - John Kowen
-    - Kelly Layzner
+    - Kelley Layzner
     - Kou Uraki
     - La Vie en Rose
     - Mega Particle Cannon
@@ -3249,7 +3250,7 @@ obras:
 
      === Roster — Delaz Fleet / Zeon ===
      - Anavel Gato (m) — Nightmare of Solomon (so quando o EN trouxer o epiteto).
-     - Aiguille Delaz (m); Cima Garahau (f); Kelly Layzner (m).
+     - Aiguille Delaz (m); Cima Garahau (f); Kelley Layzner (m).
 
      === Mecha ===
      - RX-78GP01 Gundam GP01 Zephyranthes; GP01Fb Full Burnern;
@@ -6877,6 +6878,22 @@ obras:
     - Z Gundam
     - Zeta Gundam
    termosProtegidos:
+    - Kamille
+    - Kamille Bidan
+    - Quattro
+    - Quattro Bajeena
+    - Reccoa
+    - Reccoa Londe
+    - Jerid
+    - Jerid Messa
+    - Four
+    - Four Murasame
+    - Katz
+    - Rosamia
+    - Paptimus
+    - Paptimus Scirocco
+    - Yazan
+    - Jamitov
     - A.E.U.G.
     - AEUG
     - Addis
@@ -11054,6 +11071,10 @@ revisao:
  - id: gundam_0083
    nome: 'Mobile Suit Gundam 0083: Stardust Memory - Revisao de Lore'
    correcoesTerminologia:
+     # medido: o release EN escreve "Kelley" 26x e "Kelly" 0x; o PT entregue tem
+     # "Kelly" 21x porque seguiu o CATALOGO, que estava errado. Corrigido na raiz
+     # (termosProtegidos e prompt) e aqui, para as falas ja entregues.
+     Kelly: Kelley
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
      Armaduras Móveis: Mobile Armors
@@ -11140,7 +11161,7 @@ revisao:
 
      === Roster — Delaz Fleet / Zeon ===
      - Anavel Gato (Nightmare of Solomon quando o EN trouxer); Aiguille Delaz;
-       Cima Garahau; Kelly Layzner.
+       Cima Garahau; Kelley Layzner.
 
      === Orgs / naves / operacoes ===
      - Delaz Fleet (NUNCA Frota Delaz); Anaheim Electronics; Titans (NUNCA Titas);
