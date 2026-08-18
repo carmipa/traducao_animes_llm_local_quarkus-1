@@ -66,14 +66,21 @@ class EquivalenciasChegamDoYamlIT {
                 + "chegaram a ser reescritas por engano");
     }
 
+    /**
+     * O controle usava {@code gundam_zeta} até 18/08/2026, quando o Zeta passou a declarar
+     * equivalências de verdade ({@code A.E.U.G}, {@code Zabi Family}, {@code Earth Sphere},
+     * {@code Psyco Gundam}). Trocado por uma obra que segue sem declarar nada — das 61 que
+     * ainda não declaram, o Break Blade 1 é a mais distante das sete de Gundam, que é o que o
+     * controle precisa: se a leitura vazar bloco de obra vizinha, aparece aqui.
+     */
     @Test
     @DisplayName("CONTROLE: obra que nao declara nada devolve mapa vazio, nao nulo")
     void obraSemDeclaracaoDevolveVazio() {
         Map<String, List<String>> equivalencias =
-            gerenciador.obterPrompt("gundam_zeta").equivalenciasAceitas();
+            gerenciador.obterPrompt("break_blade_1").equivalenciasAceitas();
 
         assertTrue(equivalencias.isEmpty(),
-            "o Zeta nao declara equivalencia nenhuma e devolveu " + equivalencias.keySet()
+            "o Break Blade 1 nao declara equivalencia nenhuma e devolveu " + equivalencias.keySet()
                 + " — sinal de que a leitura esta pegando o bloco de outra obra");
     }
 }

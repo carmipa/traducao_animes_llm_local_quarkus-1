@@ -70,6 +70,12 @@ if (-not $conexao) {
 }
 $pidKronos = $conexao.OwningProcess
 
+# --- 4. Ha escrita AGORA. E job, ou so ruido? -------------------------------------------------
+# Vocabulario das telas que rodam trabalho longo. `[console]` fica de fora de proposito: e o
+# banner de arranque, e escreve sem que exista job.
+$marcaDeJob = 'pipeline-fila-execucao|Enviando lote|Lote \d+ traduzido|Arquivo \d+/\d+|' +
+    '\[(?:revisao-lore|revisao|revisao-concordancia|traducao|traducao-karaoke|novo-karaoke|' +
+    'extracao|remuxer|correcao|auditor-conteudo|troca-tipo-legenda|renomear-arquivos)\]'
 # --- 2. TODOS os logs que uma tela pode estar escrevendo ---------------------------------------
 # Nao basta `logs\execucoes\`: a Revisao de Lore (3.2) escreve em `logs\console-web.log`, e foi
 # exatamente essa lacuna que deixou o falso verde de 17/08 passar.
@@ -109,8 +115,17 @@ foreach ($arq in $candidatos) {
     # $ultimas[0] passaria a valer o primeiro CARACTERE. O portao caia em 2 sem entender por que.
     $ultimas = @([System.IO.File]::ReadAllLines($copia) |
         Where-Object { $_ -notmatch 'access-log' } | Select-Object -Last 60)
+    # O carimbo tem de vir da linha DE JOB, nao de qualquer linha. Em 18/08/2026 o portao deu
+    # FALSO VERMELHO por misturar as duas coisas: as ultimas 60 linhas ainda continham marcadores
+    # de um job encerrado uma hora antes, e o carimbo saiu de uma linha INFO qualquer escrita 4s
+    # atras pelo polling do painel. "Ha job em andamento (ultima atividade ha 4s)" com o KRONOS
+    # ocioso. Falso vermelho e tao caro quanto falso verde: alarme falso ensina a desligar o
+    # alarme, e ai o Stink Bomb morre de novo.
     $carimbo = $null
     for ($i = $ultimas.Count - 1; $i -ge 0 -and -not $carimbo; $i--) {
+        if ($ultimas[$i] -notmatch $marcaDeJob) {
+            continue
+        }
         if ($ultimas[$i] -match '^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})') {
             $carimbo = [datetime]::ParseExact($Matches[1], 'yyyy-MM-dd HH:mm:ss', $null)
         }
@@ -148,12 +163,6 @@ if ($paradoHa -ge $OciosoSegundos) {
         "linha ha ${paradoHa}s (limite ${OciosoSegundos}s). Mais recente: $nomeDoAtivo.") 'Green'
 }
 
-# --- 4. Ha escrita AGORA. E job, ou so ruido? -------------------------------------------------
-# Vocabulario das telas que rodam trabalho longo. `[console]` fica de fora de proposito: e o
-# banner de arranque, e escreve sem que exista job.
-$marcaDeJob = 'pipeline-fila-execucao|Enviando lote|Lote \d+ traduzido|Arquivo \d+/\d+|' +
-    '\[(?:revisao-lore|revisao|revisao-concordancia|traducao|traducao-karaoke|novo-karaoke|' +
-    'extracao|remuxer|correcao|auditor-conteudo|troca-tipo-legenda|renomear-arquivos)\]'
 $sinaisDeJob = $linhasDoAtivo | Where-Object { $_ -match $marcaDeJob }
 
 if ($sinaisDeJob) {
