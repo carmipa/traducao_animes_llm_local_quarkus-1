@@ -283,12 +283,22 @@ public class DetectorTermosLoreService {
             // ignorando abreviações comuns (Dr., Lt., U.C., etc.)
             String[] subNomes = grupo.split("(?<!\\b(?:Dr|Lt|Col|Capt|Gen|Mr|Mrs|Ms|St|U\\.C)\\.)(?<=[.!?])\\s+");
             for (String subNomeRaw : subNomes) {
-                String nome = limparCandidatoNomeProprio(subNomeRaw);
                 int indexNoOriginal = en.indexOf(subNomeRaw);
-                // O indice tem de apontar para o NOME, nao para o artigo/patente que veio antes:
-                // em "Ensign Keith, ..." quem esta na posicao inicial e "Ensign".
-                int inicioDoNome = (indexNoOriginal >= 0 ? indexNoOriginal : matcherEn.start())
-                    + deslocamentoDoPrefixoDeFrente(subNomeRaw);
+                int inicioBruto = indexNoOriginal >= 0 ? indexNoOriginal : matcherEn.start();
+
+                // ORDEM IMPORTA: a maiuscula de POSICAO sai primeiro, senao "But Lieutenant
+                // Uraki" perderia o "But" depois de a limpeza de patente ja ter passado, e
+                // ficaria "Lieutenant Uraki" — com a patente intacta.
+                String semPosicional = removerPrimeiraPalavraDePosicao(
+                    subNomeRaw, inicioEfetivoDaFala(en, inicioBruto), loreLower);
+                String nome = limparCandidatoNomeProprio(semPosicional);
+
+                // O indice tem de apontar para o NOME, nao para o que veio antes dele: em
+                // "Ensign Keith, ..." quem esta na posicao inicial e "Ensign"; em "Damn Cima" e
+                // "Damn". As duas remocoes contam.
+                int inicioDoNome = inicioBruto
+                    + (subNomeRaw.length() - semPosicional.length())
+                    + deslocamentoDoPrefixoDeFrente(semPosicional);
                 if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, inicioDoNome), loreLower)
                     || traducaoAceitaParaTermo(nome, pt, equivalenciasDaObra)) {
                     continue;
@@ -333,6 +343,62 @@ public class DetectorTermosLoreService {
 
     private String limparCandidatoNomeProprio(String nome) {
         return removerPossessivoIngles(removerPrefixosDeFrente(nome)).strip();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando o candidato COMEÇA a frase, sua primeira palavra está
+     * maiúscula por POSIÇÃO — o inglês capitaliza o início — e não por ser nome. Ela sai, a menos
+     * que a lore da obra a conheça.
+     *
+     * <h2>O prejuízo, medido em 18/08/2026 nas sete obras</h2>
+     * <pre>
+     *   3.563 acusacoes com termo nomeado
+     *     707 (19,8%) eram compostos que COMECAM a frase
+     * </pre>
+     * O que a tela estava chamando de nome próprio composto:
+     * <pre>
+     *   "But Lieutenant Uraki"  EN: But Lieutenant Uraki escaped safely.
+     *   "Only Nina"             EN: Only Nina and the captain know what it really is.
+     *   "Even Gundam Unit"      EN: Even Gundam Unit 03 can't handle this by itself!
+     *   "Damn Cima"             EN: Damn Cima, she failed!
+     *   "Tell Kamille"  "Inform Burning"  "Think Chara"  "Will Roux"  "And Aina"
+     * </pre>
+     * {@code But}, {@code Only}, {@code Even}, {@code Damn}, {@code Tell}, {@code Think},
+     * {@code Will}, {@code And} — verbos, advérbios e conjunções. Nenhum é nome de nada.
+     *
+     * <h2>Por que uma regra, e não mais uma lista</h2>
+     * É a TERCEIRA encarnação do mesmo defeito no mesmo dia: primeiro o possessivo
+     * ({@code "Our Reaper"}), depois a patente ({@code "Ensign Keith"}), agora a abertura de
+     * frase. As duas primeiras foram resolvidas com alternância de palavras — e alternância
+     * sempre tem a próxima palavra que falta. A posição não tem cauda: ou o candidato abre a
+     * frase, ou não.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só a PRIMEIRA palavra, e só quando o candidato abre a frase.</li>
+     *   <li>Palavra que a lore conhece FICA: em {@code "Even Gundam Unit 03"} sai {@code Even} e
+     *       fica {@code Gundam Unit}, porque {@code Gundam} é lore. Sem essa condição a regra
+     *       comeria o nome logo na fala que mais importa — a que começa com ele.</li>
+     *   <li>Candidato de uma palavra só atravessa inteiro: quem cuida dele é
+     *       {@link #deveIgnorarNomeProprio}, que já tem a mesma noção de início efetivo.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Nome fora do início da fala, ou cuja primeira palavra é de lore, atravessa inalterado.
+     */
+    private String removerPrimeiraPalavraDePosicao(String nome, boolean abreAFala, String loreLower) {
+        if (!abreAFala || loreLower == null) {
+            return nome;
+        }
+        String[] partes = nome.split("\\s+");
+        if (partes.length < 2) {
+            return nome;
+        }
+        String primeira = normalizarTokenNome(partes[0]);
+        if (primeira.isBlank() || contemExpressaoInteira(loreLower, primeira)) {
+            return nome;
+        }
+        return nome.substring(partes[0].length()).strip();
     }
 
     /**
