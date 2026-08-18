@@ -50,10 +50,17 @@ class LetreiroNaoEhFalaTest {
             "Dialogue: 0,0:00:01.00,0:00:03.00," + estilo + ",,0,0,0,,", texto);
     }
 
+    /**
+     * O estilo é <b>{@code Titles}</b>, no PLURAL, copiado do arquivo real do 08th. A primeira
+     * versão deste teste usava {@code "Sign"} e passava — enquanto a produção continuava mandando
+     * os 20 letreiros ao modelo, porque {@code \btitle\b} não casa {@code "Titles"}: o {@code s}
+     * impede a fronteira. Fixture escolhida por conveniência esconde exatamente o defeito que o
+     * acervo tem.
+     */
     @Test
     @DisplayName("o NEXT EPISODE do 08th sai do alcance da 3.2")
     void letreiroDeProximoEpisodioSaiDoAlcance() {
-        EventoLegenda cartaz = linha("Sign",
+        EventoLegenda cartaz = linha("Titles",
             "{\\fs200\\blur1\\pos(720,650)\\c&HDEDEE3&}Proximo episodio.");
 
         assertFalse(alcance.estaNoAlcance(cartaz),

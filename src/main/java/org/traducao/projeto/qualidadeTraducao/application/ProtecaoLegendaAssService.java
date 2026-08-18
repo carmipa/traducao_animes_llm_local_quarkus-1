@@ -50,7 +50,13 @@ public class ProtecaoLegendaAssService {
         Pattern.CASE_INSENSITIVE | Pattern.DOTALL
     );
     private static final Pattern PADRAO_ESTILO_TECNICO = Pattern.compile(
-        "(?i)\\b(signs?|title|ep\\s*title|next\\s*ep|opening|ending|op|ed|song|karaoke|lyrics?|credits?)\\b"
+        // O PLURAL entrou em 17/08/2026, e a falta dele tinha efeito medido: o estilo real do
+        // Gundam 08th MS Team e "Titles", e \btitle\b NAO casa "Titles" — o `s` impede a
+        // fronteira. Resultado: 20 letreiros "NEXT EPISODE" seguiam sendo mandados ao modelo
+        // pela tela 3.2 mesmo depois do veto de cartaz entrar. E a MESMA cicatriz do \b(op|ed)\b
+        // que nao pega "OPL2", ja registrada neste projeto.
+        // No acervo tambem existem: "Ep Titles", "Episode Titles".
+        "(?i)\\b(signs?|titles?|ep\\s*titles?|next\\s*ep|opening|ending|op|ed|song|karaoke|lyrics?|credits?)\\b"
     );
     private static final Pattern PADRAO_CAMINHO_TRADUZIDO = Pattern.compile(
         "(?i)(?:legendas[_-]?ptbr|traducao[_-]?ptbr|traduzidas|revisao|_pt-?br\\b|\\bpt-?br_)"
