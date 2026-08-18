@@ -182,6 +182,63 @@ public class DetectorTermosLoreService {
         return loreLower == null || contemExpressaoInteira(loreLower, termo);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se a LORE DA OBRA conhece este nome composto. É o portão que
+     * decide se a tela 3.2 tem o direito de acusar — acusação que ninguém consegue decidir não é
+     * achado, é ruído.
+     *
+     * <h2>A inversão de padrão, decidida por Paulo em 18/08/2026</h2>
+     * Antes: nome composto era acusado SEMPRE, e o LLM que resolvesse. Medido nas sete obras
+     * rodadas naquele dia, depois dos consertos de patente e letreiro:
+     * <pre>
+     *   4.177  acusacoes com termo nomeado
+     *   1.509  (36,1%)  o termo existe na lore da obra  -> da para decidir
+     *   2.668  (63,9%)  a lore nao conhece o termo      -> nao da, por construcao
+     * </pre>
+     * Na lista dos que a lore não conhece estava {@code "Then I'll"} — o detector tratando uma
+     * contração inglesa como nome próprio. Nenhum modelo conserta isso; a pergunta é que estava
+     * errada.
+     *
+     * <p>E o custo do lado do modelo, medido na mesma corrida: em sete obras ele produziu ZERO
+     * correções aceitas e, quando tentava, errava para pior — propôs {@code "Equipe 08"} onde o
+     * inglês dizia {@code "06th Team"}, e {@code "Terry Sanders Jr."} onde só havia
+     * {@code "Sanders"}. Mais LLM não produz conserto de lore.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Basta UMA parte relevante do nome estar na lore. {@code "Gundam Unit"} continua
+     *       acusável porque a lore conhece {@code Gundam}: o composto pode estar quebrado
+     *       justamente na parte catalogada.</li>
+     *   <li>Partes curtas e palavras comuns não contam — senão {@code "Then I'll"} voltaria pela
+     *       primeira palavra que a lore mencionasse por acaso.</li>
+     *   <li>Sem lore ({@code null}) devolve {@code true}, mantendo o comportamento anterior. É a
+     *       mesma convenção de {@link #loreMenciona}: quem não informou a obra não é penalizado.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Nome sem nenhuma parte relevante devolve {@code false} — na dúvida a tela CALA, que é o
+     * lado seguro quando o efeito de acusar é encher a tela de ruído que esconde achado.
+     */
+    private boolean loreConheceONomeComposto(String[] partes, String loreLower) {
+        if (loreLower == null) {
+            return true;
+        }
+        for (String parte : partes) {
+            String normalizada = normalizarTokenNome(parte);
+            if (normalizada.length() < TAMANHO_MINIMO_PARTE_RELEVANTE
+                || PALAVRAS_IGNORADAS.contains(normalizada)) {
+                continue;
+            }
+            if (contemExpressaoInteira(loreLower, normalizada)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Abaixo disto a parte é curta demais para provar pertinência à lore por si só. */
+    private static final int TAMANHO_MINIMO_PARTE_RELEVANTE = 4;
+
     private void detectarTermosTraduziveisEmIngles(String en, String pt, List<String> motivos) {
         String enLower = en.toLowerCase(Locale.ROOT);
         String ptLower = pt.toLowerCase(Locale.ROOT);
@@ -427,7 +484,7 @@ public class DetectorTermosLoreService {
             }
             return inicioEfetivoDaFala && !temIndicadorLoreSolteiro(partes[0], normalizada, loreLower);
         }
-        return false;
+        return !loreConheceONomeComposto(partes, loreLower);
     }
 
     private boolean inicioEfetivoDaFala(String texto, int inicioCandidato) {
