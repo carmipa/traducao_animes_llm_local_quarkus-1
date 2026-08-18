@@ -24,6 +24,23 @@ final class ValidadorCandidatoLoreService {
     private static final Pattern TOKEN = Pattern.compile("[\\p{L}\\p{N}]+(?:[-.'&’][\\p{L}\\p{N}]+)*");
     private static final int MAX_TOKENS_ALTERADOS = 4;
 
+    /**
+     * Resto de transporte que NUNCA pode chegar à legenda entregue: o sentinela de mascaramento
+     * ({@code [[...]]}, incluindo {@code [[TAGn]]}), negrito de markdown e token de template de
+     * chat.
+     *
+     * <p>Nada disso é texto de legenda — é encanamento do pipeline e do modelo. A tokenização
+     * desta classe olha PALAVRAS e por isso é cega a eles: {@code "[[Anti Bodies]]"} tokeniza
+     * igual a {@code "Anti Bodies"} e passava pela validação inteira.
+     *
+     * <p>O prejuízo, medido em 18/08/2026 na primeira corrida em que a tela escreveu de verdade:
+     * o Guilty Crown ep07 recebeu {@code "É só questão de tempo até que as [[Anti Bodies]] sejam
+     * retiradas."} — os colchetes apareceriam na tela do espectador. Uma linha em 128 mil
+     * entregues, achada varrendo o acervo depois da escrita.
+     */
+    private static final Pattern RESIDUO_DE_TRANSPORTE =
+        Pattern.compile("\\[\\[[^\\]]*\\]\\]|\\*\\*|__|<\\|[^|<>]{1,40}\\|>|```");
+
     private ValidadorCandidatoLoreService() {
     }
 
@@ -43,6 +60,18 @@ final class ValidadorCandidatoLoreService {
         String proposta,
         String loreCanonica
     ) {
+        // ANTES de qualquer analise de termo: resto de transporte nunca vai para a legenda.
+        // A tokenizacao abaixo IGNORA colchetes e asteriscos — ela olha palavras —, entao um
+        // "[[Anti Bodies]]" atravessava a validacao inteira como se fosse "Anti Bodies" e era
+        // GRAVADO com os colchetes. Medido em 18/08/2026: uma fala do Guilty Crown ep07 foi
+        // entregue assim ("É só questão de tempo até que as [[Anti Bodies]] sejam retiradas"),
+        // e o espectador leria os colchetes na tela.
+        Matcher residuo = RESIDUO_DE_TRANSPORTE.matcher(proposta);
+        if (residuo.find()) {
+            return Optional.of("proposta traz residuo de transporte na legenda: \""
+                + residuo.group() + "\"");
+        }
+
         List<String> atual = tokenizar(traducaoAtual);
         List<String> nova = tokenizar(proposta);
         if (atual.equals(nova)) {
