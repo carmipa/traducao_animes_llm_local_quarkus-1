@@ -131,7 +131,13 @@ class CatracaSuiteSemDriveWindowsTest {
         // Uma em 337.721 — e uma basta, porque e a que o espectador le.
         //
         // Nos dois, o acervo e o alvo: caminho relativo mediria o vazio e devolveria verde.
-        "MedicaoResiduoNoAcervoIT.java"
+        "MedicaoResiduoNoAcervoIT.java",
+        // Entrou em 18/08/2026, na abertura da 3.3 (Revisao de Concordancia): mede o que a tela
+        // MUDARIA no acervo se rodasse hoje, obra a obra e par de palavras a par de palavras.
+        // Mesma natureza das demais: "C:\animes" e o default de -Dkronos.acervo, e caminho
+        // relativo mediria o vazio — que aqui seria pior que inutil, porque o numero que ele
+        // produziu (14 falas corretas estragadas contra 1 acerto) e o que decide a fila.
+        "MedicaoConcordanciaAcervoPtIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
