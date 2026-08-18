@@ -228,7 +228,11 @@ public class DetectorTermosLoreService {
             for (String subNomeRaw : subNomes) {
                 String nome = limparCandidatoNomeProprio(subNomeRaw);
                 int indexNoOriginal = en.indexOf(subNomeRaw);
-                if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, indexNoOriginal >= 0 ? indexNoOriginal : matcherEn.start()), loreLower)
+                // O indice tem de apontar para o NOME, nao para o artigo/patente que veio antes:
+                // em "Ensign Keith, ..." quem esta na posicao inicial e "Ensign".
+                int inicioDoNome = (indexNoOriginal >= 0 ? indexNoOriginal : matcherEn.start())
+                    + deslocamentoDoPrefixoDeFrente(subNomeRaw);
+                if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, inicioDoNome), loreLower)
                     || traducaoAceitaParaTermo(nome, pt, equivalenciasDaObra)) {
                     continue;
                 }
@@ -266,9 +270,119 @@ public class DetectorTermosLoreService {
         return nome.replaceAll("(?i)['’]s\\b", "");
     }
 
+    /** Abreviacoes cujo ponto NAO fecha frase — a mesma lista que separa sub-nomes acima. */
+    private static final Pattern ABREVIACAO_NO_FIM = Pattern.compile(
+        "(?i)\\b(?:dr|lt|col|capt|gen|mr|mrs|ms|st|sgt|adm|cmdr|prof|u\\.c)\\.$");
+
     private String limparCandidatoNomeProprio(String nome) {
-        return removerPrefixoComumIngles(removerArtigoInicialIngles(removerPossessivoIngles(nome))).strip();
+        return removerPossessivoIngles(removerPrefixosDeFrente(nome)).strip();
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reúne tudo que o inglês põe NA FRENTE de um nome sem fazer parte
+     * dele — artigo, numeral, possessivo posicional e patente/tratamento.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só mexe no começo, e o que sobra é o nome. Está separado de
+     * {@link #limparCandidatoNomeProprio} porque o chamador precisa saber QUANTOS caracteres
+     * saíram da frente — ver {@link #deslocamentoDoPrefixoDeFrente}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome sem prefixo atravessa inalterado.
+     */
+    private String removerPrefixosDeFrente(String nome) {
+        return removerPatenteOuTratamentoIngles(
+            removerPrefixoComumIngles(removerArtigoInicialIngles(nome)));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz quantos caracteres a limpeza tirou da FRENTE, para que o
+     * chamador pergunte "este nome está no início da fala?" apontando para o nome de verdade,
+     * e não para a patente que veio antes dele.
+     *
+     * <h2>Por que isto existe, e por que nasceu junto com a patente</h2>
+     * A regra do início da fala existe porque o inglês capitaliza a primeira palavra da frase:
+     * uma palavra maiúscula ali pode ser maiúscula por POSIÇÃO, não por ser nome. Só que em
+     * {@code "Ensign Keith, have you been studying?"} quem está na posição inicial é
+     * {@code Ensign} — {@code Keith} está maiúsculo porque É nome. Perguntar pelo índice do
+     * grupo bruto faria o detector descartar {@code Keith} como se fosse maiúscula de frase, e
+     * aí tirar a patente CEGARIA a tela para o caso que ela precisa pegar: nome trocado logo no
+     * começo da fala ({@code "Captain Nouzen"} → {@code "Capitao Cha"}).
+     *
+     * <p>Vale igual para artigo e possessivo, que já eram removidos antes: em
+     * {@code "The Reaper is here"}, {@code Reaper} nunca esteve na posição inicial.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: conta só o que saiu da frente; o possessivo {@code 's}, que é
+     * removido do MEIO, fica de fora da conta de propósito.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem prefixo o deslocamento é {@code 0} e o
+     * comportamento é o de antes.
+     */
+    private int deslocamentoDoPrefixoDeFrente(String bruto) {
+        return bruto.length() - removerPrefixosDeFrente(bruto).length();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: tira da frente do candidato a patente militar ou o tratamento
+     * ({@code Ensign}, {@code Lieutenant}, {@code Miss}, {@code Lady}…), que é CARGO, não nome.
+     *
+     * <h2>O prejuízo, medido em 17/08/2026 nas quatro obras da Universal Century</h2>
+     * A regra de nome composto exige que todas as partes sobrevivam no português. Como
+     * {@code Ensign} vira {@code Tenente} — que é a tradução certa —, {@code "Ensign Keith"}
+     * era acusado para sempre. Nas corridas de 0083, Unicorn, Zeta e ZZ: <b>34%</b> dos termos
+     * acusados começavam por patente ou tratamento. Cruzando o par EN/PT e exigindo que a
+     * patente em português estivesse COLADA ao mesmo nome:
+     * <pre>
+     *   FALSA  patente traduzida certo, nome preservado ..  617  62,8%
+     *   REAL   patente virou OUTRA patente ...............   10   1,0%
+     *   REAL?  o nome sumiu do PT ........................  126  12,8%
+     *   ?      PT sem patente nenhuma ....................  229  23,3%
+     * </pre>
+     * É a mesma classe do possessivo ({@link #removerPrefixoComumIngles}), na mesma linha.
+     *
+     * <h2>A lacuna que isto abre, declarada</h2>
+     * As 10 divergências de patente ({@code Ensign} → {@code Sargento}, {@code Major} →
+     * {@code Coronel}) deixam de ser vistas por esta regra. São erros reais, mas de PATENTE, e
+     * patente não é nome nem lugar — fica fora do escopo fechado da 3.2. As 126 em que o nome
+     * sumiu do PT continuam acusadas: só a patente sai, o nome segue sob conferência.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: remove só do início e só uma vez. As patentes de duas palavras
+     * ({@code Lt. Commander}, {@code Master Chief}) vêm PRIMEIRO na alternância, porque o regex
+     * casa da esquerda para a direita e {@code Lt.} sozinho deixaria {@code "Commander Gato"}
+     * para trás.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome sem patente atravessa inalterado.
+     */
+    private String removerPatenteOuTratamentoIngles(String nome) {
+        return PATENTE_NO_INICIO.matcher(nome).replaceFirst("");
+    }
+
+    /**
+     * Alternância única de patente e tratamento. As de DUAS palavras vêm primeiro porque o regex
+     * casa da esquerda para a direita: {@code Lt.} sozinho deixaria {@code "Commander Gato"} para
+     * trás. Fica em uma constante só porque serve a duas perguntas diferentes — "isto vem ANTES
+     * do nome?" e "isto É o candidato inteiro?" — e listas gêmeas divergem no dia em que alguém
+     * acrescenta uma patente em apenas uma delas.
+     */
+    private static final String ALTERNANCIA_PATENTE =
+        "lt\\.?\\s+commander|lieutenant\\s+commander|master\\s+chief|chief\\s+petty\\s+officer"
+        + "|petty\\s+officer|warrant\\s+officer|vice\\s+admiral|rear\\s+admiral|sub\\s*lieutenant"
+        + "|lieutenant|lt\\.?|ensign|captain|capt\\.?|commander|cmdr\\.?|major|colonel|col\\.?"
+        + "|sergeant|sgt\\.?|corporal|admiral|adm\\.?|general|gen\\.?|chief"
+        + "|miss|mistress|mister|mr\\.?|mrs\\.?|ms\\.?|master|lady|lord|sir|madam|madame|dame"
+        + "|doctor|dr\\.?|professor|prof\\.?|president|chairman";
+
+    private static final Pattern PATENTE_NO_INICIO =
+        Pattern.compile("(?i)^(?:" + ALTERNANCIA_PATENTE + ")\\s+");
+
+    /**
+     * A patente SOZINHA, sem nome atrás — o vocativo {@code "When do we get to see them,
+     * Lieutenant?!"}, que o português resolve com {@code "Tenente"}.
+     *
+     * <p>Sobraram 21 acusações assim na corrida do 0083 depois que a patente com nome saiu: o
+     * removedor de prefixo exige {@code \s+} e algo depois, então não alcança a palavra solta.
+     * Patente sozinha é cargo, nunca nome próprio.
+     */
+    private static final Pattern PATENTE_SOZINHA =
+        Pattern.compile("(?i)^(?:" + ALTERNANCIA_PATENTE + ")\\.?$");
 
     /**
      * PROPÓSITO DE NEGÓCIO: tira da frente do candidato as palavras que o inglês capitaliza por
@@ -308,7 +422,7 @@ public class DetectorTermosLoreService {
         String[] partes = nome.split("\\s+");
         if (partes.length == 1) {
             String normalizada = normalizarTokenNome(partes[0]);
-            if (PALAVRAS_IGNORADAS.contains(normalizada)) {
+            if (PALAVRAS_IGNORADAS.contains(normalizada) || PATENTE_SOZINHA.matcher(nome).matches()) {
                 return true;
             }
             return inicioEfetivoDaFala && !temIndicadorLoreSolteiro(partes[0], normalizada, loreLower);
@@ -325,6 +439,14 @@ public class DetectorTermosLoreService {
             .trim();
         if (prefixo.isEmpty()) {
             return true;
+        }
+        // Ponto de ABREVIACAO nao fecha frase. Isto passou a importar em 17/08/2026, quando a
+        // patente/tratamento saiu do candidato e o indice deslocou para depois dela: em
+        // "We were at Dr. Flanagan's institute", o prefixo de "Flanagan" virou "We were at Dr." e
+        // o ultimo caractere e um ponto — a fala inteira era lida como frase nova e "Flanagan"
+        // escapava como maiuscula de posicao. A lista e a mesma que ja separa sub-nomes acima.
+        if (ABREVIACAO_NO_FIM.matcher(prefixo).find()) {
+            return false;
         }
         char ultimo = prefixo.charAt(prefixo.length() - 1);
         return ultimo == '.' || ultimo == '!' || ultimo == '?' || ultimo == '"' || ultimo == '”' || ultimo == '\'' || ultimo == '’';

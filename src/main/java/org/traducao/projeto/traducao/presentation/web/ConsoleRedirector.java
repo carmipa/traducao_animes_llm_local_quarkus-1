@@ -35,13 +35,16 @@ public class ConsoleRedirector {
     }
 
     /**
-     * Marca de que o redirecionamento JÁ está instalado neste processo.
+     * Onde fica guardado o {@code System.out} ORIGINAL — o console físico, antes de qualquer
+     * espelho.
      *
-     * <p>É propriedade de SISTEMA, e não campo estático, de propósito: o live reload do Quarkus
-     * recarrega as classes, e um {@code static boolean} voltaria a {@code false} a cada reload —
-     * que é justamente o momento em que a proteção precisa valer.
+     * <p>Mora em {@link System#getProperties()} e não em campo estático porque o live reload do
+     * Quarkus troca o classloader da aplicação: um {@code static} nasce vazio a cada reload, que
+     * é exatamente quando ele precisaria ter valor. {@code Properties} é um
+     * {@code Hashtable<Object,Object>} e aceita o objeto; a leitura é por {@code get}, nunca por
+     * {@code getProperty} (que só enxerga String).
      */
-    static final String MARCA_INSTALADO = "kronos.console.redirecionado";
+    static final String CHAVE_STDOUT_ORIGINAL = "kronos.console.stdout-original";
 
     /**
      * PROPÓSITO DE NEGÓCIO: instalar UMA vez o espelho do console para o painel web.
@@ -60,19 +63,51 @@ public class ConsoleRedirector {
      * É a mesma anomalia que a tela 3.1 registrou como "console duplica linha (7×, cresce dentro
      * do processo)" sem achar a causa: ela cresce porque cada reload acrescenta uma camada.
      *
-     * <p>INVARIANTES DO DOMÍNIO: instala no máximo um redirecionador por processo; a marca é
-     * propriedade de sistema para sobreviver ao recarregamento de classes.
+     * <h2>E por que a primeira correção, de "instalar uma vez só", estava errada — 17/08/2026</h2>
+     * A versão que barrava a reinstalação por uma marca matava o console web INTEIRO depois do
+     * primeiro live reload. Duas coisas acontecem no reload e as duas quebram o espelho preso:
+     * <ul>
+     *   <li>o {@code System.out} volta ao console físico ao desligar a aplicação, e a marca
+     *       impedia recolocar o espelho;</li>
+     *   <li>mesmo que sobrevivesse, o espelho aponta para {@code this::publicarLog} do bean
+     *       ANTIGO, cujo {@code LogStreamService} morreu junto com o contexto — inclusive o
+     *       {@code ThreadLocal} do canal, que o código novo não teria como preencher.</li>
+     * </ul>
+     * Medido: {@code console-web.log} recebeu a última linha às 22:26 e ficou MUDO enquanto uma
+     * revisão de lore de 15 arquivos rodava e escrevia normalmente no log de execução. Silêncio,
+     * sem erro — o pior desfecho para quem acompanha pela tela.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: já instalado, retorna sem tocar em {@code System.out} —
-     * o espelho existente continua servindo o painel.
+     * <p>INVARIANTES DO DOMÍNIO: o espelho envolve SEMPRE o {@code System.out} original guardado
+     * em {@link #CHAVE_STDOUT_ORIGINAL} — nunca o corrente. Daí saem as duas propriedades ao
+     * mesmo tempo: não empilha (cada instalação substitui a anterior em vez de embrulhá-la) e não
+     * envelhece (cada arranque reata o espelho ao bean vivo).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o original guardado não for utilizável, cai no
+     * {@code System.out} corrente — o painel pode duplicar linha, e duplicar é muito melhor que
+     * emudecer.
      */
     void onStart(@Observes StartupEvent event) {
-        if (Boolean.getBoolean(MARCA_INSTALADO)) {
-            return;
+        System.setOut(new PrintStream(
+            new DoubleOutputStream(stdoutOriginal(), this::publicarLog), true, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve o console físico, guardando-o na primeira vez.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: guarda uma vez só por PROCESSO; do segundo arranque em diante
+     * devolve o mesmo objeto, mesmo com o classloader trocado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: valor guardado que não seja {@link PrintStream} é
+     * descartado e o {@code System.out} corrente assume.
+     */
+    private static PrintStream stdoutOriginal() {
+        Object guardado = System.getProperties().get(CHAVE_STDOUT_ORIGINAL);
+        if (guardado instanceof PrintStream original) {
+            return original;
         }
-        System.setProperty(MARCA_INSTALADO, "true");
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(new DoubleOutputStream(originalOut, this::publicarLog), true, StandardCharsets.UTF_8));
+        PrintStream atual = System.out;
+        System.getProperties().put(CHAVE_STDOUT_ORIGINAL, atual);
+        return atual;
     }
 
     private void publicarLog(String logMsg) {
