@@ -125,9 +125,10 @@ class MedicaoConcordanciaAcervoPtIT {
         int totalTocadasPt = 0;
         int totalTocadasNaoPt = 0;
         int obrasDivergentes = 0;
+        long maiorDuracaoMs = 0;
 
-        System.out.printf("%n%-46s %7s %7s %8s %9s %9s %9s%n",
-            "OBRA", "arq PT", "arq EN", "eventos", "alcance", "musica", "TOCADAS");
+        System.out.printf("%n%-46s %7s %7s %8s %9s %9s %9s %8s%n",
+            "OBRA", "arq PT", "arq EN", "eventos", "alcance", "musica", "TOCADAS", "ms");
         System.out.println("-".repeat(104));
 
         for (Path obra : obras) {
@@ -189,16 +190,25 @@ class MedicaoConcordanciaAcervoPtIT {
                 }
             }
 
+            // O tempo do caso de uso SOZINHO é dado de engenharia, não curiosidade: o
+            // pode-compilar.ps1 trata 90s sem linha no log como "job terminado" e libera a
+            // compilação, que dispara live reload e mata o job em curso. É o acidente do
+            // Stink Bomb (14/08/2026). Quem decide se esta tela precisa de batimento de
+            // progresso é este número, medido na maior pasta do acervo — não o palpite.
+            long t0 = System.nanoTime();
             ResultadoConcordancia oficial = useCase.revisarPasta(obra, false);
+            long duracaoMs = (System.nanoTime() - t0) / 1_000_000L;
+            maiorDuracaoMs = Math.max(maiorDuracaoMs, duracaoMs);
             int meu = tocadasPt + tocadasNaoPt;
             boolean bate = oficial.falasCorrigidas() == meu;
             if (!bate) {
                 obrasDivergentes++;
             }
 
-            System.out.printf("%-46s %7d %7d %8d %9d %9d %9d%s%n",
+            System.out.printf("%-46s %7d %7d %8d %9d %9d %9d %8d%s%n",
                 recortar(obra.getFileName().toString(), 46), arqPt, arqOutros, eventos, aoAlcance,
-                musica, meu, bate ? "" : "  <== CALIBRACAO DIVERGIU (uso de caso: " + oficial.falasCorrigidas() + ")");
+                musica, meu, duracaoMs,
+                bate ? "" : "  <== CALIBRACAO DIVERGIU (uso de caso: " + oficial.falasCorrigidas() + ")");
 
             totalArquivosPt += arqPt;
             totalArquivosOutros += arqOutros;
@@ -214,6 +224,8 @@ class MedicaoConcordanciaAcervoPtIT {
         System.out.printf("%-46s %7d %7d %8d %9d %9d %9d%n%n", "TOTAL", totalArquivosPt,
             totalArquivosOutros, totalEventos, totalAoAlcance, totalMusicaVetada,
             totalTocadasPt + totalTocadasNaoPt);
+        System.out.printf("PIOR silencio possivel (obra mais lenta) %d ms   —  limite do pode-compilar.ps1: 90.000 ms%n",
+            maiorDuracaoMs);
         System.out.printf("arquivos .parcial no alcance da tela .... %d%n", totalParciais);
         System.out.printf("falas tocadas em arquivo PT ............. %d%n", totalTocadasPt);
         System.out.printf("falas tocadas em arquivo NAO-PT ......... %d   (a tela nao distingue)%n%n",

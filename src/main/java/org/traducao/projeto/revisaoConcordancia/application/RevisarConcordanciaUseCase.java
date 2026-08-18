@@ -3,6 +3,7 @@ package org.traducao.projeto.revisaoConcordancia.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
@@ -149,17 +150,35 @@ public class RevisarConcordanciaUseCase {
                     }
                 }
                 if (corrigidasArq == 0) {
+                    imprimir(AnsiCores.DIM + "  [OK]       " + arquivo.getFileName()
+                        + " (concordancia conforme)" + AnsiCores.RESET);
                     continue;
                 }
-                falasCorrigidas += corrigidasArq;
-                alterados++;
                 if (aplicar) {
-                    backups.add(criarBackup(pasta, arquivo));
+                    // As contagens sobem DEPOIS da gravação, não antes. Falha ao criar backup ou
+                    // ao escrever cai no catch e o arquivo fica intacto — se os contadores já
+                    // tivessem subido, o banner final diria "corrigidas" para uma fala que
+                    // continua errada no disco. Estado-alvo não é estado-atual.
+                    Path backup = criarBackup(pasta, arquivo);
                     DocumentoLegenda revisado = new DocumentoLegenda(
                         documento.cabecalho(), novos, documento.quebraDeLinha(), documento.comBom());
                     escritor.escrever(arquivo, revisado);
+                    backups.add(backup);
+                    falasCorrigidas += corrigidasArq;
+                    alterados++;
+                    imprimir(AnsiCores.GREEN + "  [Revisado] " + arquivo.getFileName()
+                        + " (" + corrigidasArq + " fala(s) corrigida(s))" + AnsiCores.RESET);
+                    imprimir(AnsiCores.CYAN + "  Backup anterior: " + backup + AnsiCores.RESET);
+                } else {
+                    falasCorrigidas += corrigidasArq;
+                    alterados++;
+                    imprimir(AnsiCores.YELLOW + "  [Pendente] " + arquivo.getFileName()
+                        + " (" + corrigidasArq + " fala(s) mudariam — nada gravado, simulacao)"
+                        + AnsiCores.RESET);
                 }
             } catch (IOException | RuntimeException e) {
+                imprimir(AnsiCores.RED + "  [Erro]     " + arquivo.getFileName()
+                    + " — " + e.getMessage() + AnsiCores.RESET);
                 log.warn("Revisão de concordância pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
@@ -174,6 +193,43 @@ public class RevisarConcordanciaUseCase {
             falasCorrigidas,
             Instant.now().toString()));
         return resultado;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: escreve UMA linha por arquivo no console do operador, seguindo a
+     * mesma regra de cores das telas 3.1 e 3.2 — verde só para o que foi gravado, amarelo para o
+     * que ficou por resolver, cinza para o arquivo que realmente não tinha nada, vermelho só
+     * para erro.
+     *
+     * <h2>Por que uma linha por ARQUIVO, e nunca por fala</h2>
+     * Medido na 3.2 em 18/08/2026: imprimindo por fala, 10.013 das 10.563 linhas do console
+     * (94,8%) eram "auditando" e "limpo" — ruído que empurra o sinal para fora da tela. Aqui o
+     * risco seria pior: esta fatia percorre 380.697 falas do acervo, e nenhuma delas interessa ao
+     * operador enquanto não muda nada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: escreve em {@code System.out} (que o console web captura) e no
+     * log do servidor SEM os códigos ANSI — cor é para o olho, não para o arquivo de log.
+     *
+     * <h2>Por que aqui NÃO há batimento de progresso, e isso está medido</h2>
+     * A 3.2 precisou de um: {@code System.out} alimenta o mesmo log que o
+     * {@code pode-compilar.ps1} lê, e ele trata <b>90s sem linha</b> como "job terminado" —
+     * liberando uma compilação que dispara live reload e mata o job em curso (o acidente do
+     * episódio Stink Bomb, 14/08/2026). Lá o silêncio é real porque cada fala pode virar uma
+     * chamada ao LLM com retentativa.
+     *
+     * <p>Aqui não há LLM nem rede. Medido em 18/08/2026 sobre o acervo inteiro: a pasta mais
+     * lenta ({@code DanMachi}, 1.614.552 eventos em 260 arquivos) levou <b>12,8s no total</b> —
+     * 7x abaixo do limite do portão. E como sai uma linha por ARQUIVO, o silêncio máximo é o de
+     * um arquivo só, na casa das dezenas de milissegundos. Copiar o batimento da 3.2 para cá
+     * seria guarda que não protege nada — e guarda que não protege nada ensina a ignorar as que
+     * protegem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; console indisponível não pode derrubar uma
+     * revisão em andamento.
+     */
+    private void imprimir(String linhaColorida) {
+        System.out.println(linhaColorida);
+        log.info(linhaColorida.replaceAll((char) 27 + "\\[[0-9;]*m", "").strip());
     }
 
     private Path criarBackup(Path pasta, Path arquivo) throws IOException {

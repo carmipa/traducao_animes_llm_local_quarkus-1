@@ -104,14 +104,25 @@ public class RevisaoConcordanciaController {
      * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não lança.
      */
     private void imprimirBanner(ResultadoConcordancia r) {
-        String cor = AnsiCores.GREEN;
-        String modo = r.aplicado() ? "APLICADO" : "SIMULADO (dry-run, nada gravado)";
+        // A MESMA regra de cores das linhas por arquivo, agora no fecho: verde só quando algo foi
+        // GRAVADO, amarelo quando há fala a corrigir e nada foi escrito (a simulação), e o cinza
+        // neutro reservado ao caso em que realmente não havia nada. Antes o banner era verde
+        // sempre — inclusive numa simulação com 90 falas pendentes, que é justamente o engano
+        // que a regra da 3.1 existe para impedir.
+        boolean houveTrabalho = r.falasCorrigidas() > 0;
+        String cor = !houveTrabalho ? AnsiCores.DIM : (r.aplicado() ? AnsiCores.GREEN : AnsiCores.YELLOW);
+        String modo = !houveTrabalho
+            ? (r.aplicado() ? "OK — NADA A CORRIGIR" : "OK — NADA A CORRIGIR (dry-run)")
+            : (r.aplicado() ? "APLICADO" : "PENDENTE — SIMULADO (dry-run, nada gravado)");
+        // Em dry-run nenhuma fala foi corrigida: elas MUDARIAM. Chamar as duas coisas pelo mesmo
+        // nome é o que faz "arquivo limpo" e "arquivo com 90 pendências" saírem iguais na tela.
+        String rotuloFalas = r.aplicado() ? "Falas corrigidas     : " : "Falas que mudariam   : ";
         System.out.println("\n" + cor + LINHA + AnsiCores.RESET);
         System.out.println(cor + "  [" + modo + "] REVISAO DE CONCORDANCIA (genero PT-BR)" + AnsiCores.RESET);
         System.out.println(cor + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Arquivos analisados  : " + r.arquivosAnalisados() + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
-        System.out.println(AnsiCores.GREEN + "  • Falas corrigidas     : " + r.falasCorrigidas() + AnsiCores.RESET);
+        System.out.println(cor + "  • " + rotuloFalas + r.falasCorrigidas() + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
         System.out.println(cor + LINHA + "\n" + AnsiCores.RESET);
     }
