@@ -6428,6 +6428,7 @@ obras:
     - Banshee Norn
     - Bright Noa
     - Byarlant Custom
+    - Cardeas
     - Cardeas Vist
     - Co-Prosperity Sphere
     - Conroy Haagensen
@@ -6470,6 +6471,7 @@ obras:
     - Oldtype
     - Otto Midas
     - Palau
+    - Ple Twelve
     - Psycho-Frame
     - Ra Cailum
     - ReZEL
@@ -10670,6 +10672,10 @@ revisao:
  - id: guilty_crown
    nome: Guilty Crown - Revisao de Lore
    correcoesTerminologia:
+     # medido no acervo: "Voide" 15x no PT, "Void" 68x. "Voide" nao existe em lingua nenhuma — e o nome de lore corrompido.
+     Voide: Void
+     # medido: "Leukocito" 1x, "Leucócito" 6x. Forma hibrida, nem ingles nem portugues.
+     Leukocito: Leucócito
      Anticorpos: Anti Bodies
      Coroa Culpada: Guilty Crown
      Corpos Anti: Anti Bodies
@@ -10767,6 +10773,24 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Secret Service:
+      - Serviço Secreto
+      - Servico Secreto
+     Leukocyte:
+      - Leucócito
+      - Leucócitos
+      - Leucocito
+      - Leucocitos
+     Undertakers:
+      - Undertaker
+     Apocalypse Virus:
+      - Apocalypse Vírus
+      - vírus Apocalypse
+      - Vírus Apocalypse
+
  - id: gundam_0079
    nome: Mobile Suit Gundam (Série original / Filme Trilogy) - Revisao de Lore
    correcoesTerminologia:
@@ -10992,6 +11016,20 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Federal Forces:
+      - Federação
+      - Forças Federais
+      - forças federais
+     Feddie:
+      - Federação
+      - federal
+     Feds:
+      - Federação
+      - Federais
+
  - id: gundam_0083
    nome: 'Mobile Suit Gundam 0083: Stardust Memory - Revisao de Lore'
    correcoesTerminologia:
@@ -11127,6 +11165,17 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Gundam Unit:
+      - unidade Gundam
+      - Unidade Gundam
+     Federation Forces:
+      - forças da Federação
+      - Forças da Federação
+      - Forças Federais
+
  - id: gundam_08ms
    nome: 'Mobile Suit Gundam: The 08th MS Team - Revisao de Lore'
    correcoesTerminologia:
@@ -11293,6 +11342,22 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Team:
+      - Equipe
+      - equipe
+     Flight Type:
+      - Tipo de Voo
+      - tipo de voo
+     Newbie:
+      - Novato
+      - novato
+     Master Chief:
+      - Sargento
+      - Sargento-Mor
+
  - id: gundam_cca
    nome: 'Mobile Suit Gundam: Char''s Counterattack - Revisao de Lore'
    correcoesTerminologia:
@@ -13081,6 +13146,12 @@ revisao:
  - id: gundam_unicorn
    nome: Mobile Suit Gundam Unicorn - Revisao de Lore
    correcoesTerminologia:
+     # medido: "Cárdeas" 28x, "Cardeas" 0x. O ingles escreve "Cardeas Vist"; o acento vem do dicionario de ortografia, nao do original.
+     Cárdeas: Cardeas
+     # medido: "Doze Ple" 4x, "Ple Doze" 4x, "Ple Twelve" 3x. Nome proprio invertido e traduzido.
+     Doze Ple: Ple Twelve
+     # mesma medicao da entrada acima.
+     Ple Doze: Ple Twelve
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
      Armaduras Móveis: Mobile Armors
@@ -13231,6 +13302,16 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Year War:
+      - Guerra de Um Ano
+      - Guerra de um Ano
+     Foundation:
+      - Fundação
+      - Fundacao
+
  - id: gundam_victory
    nome: Mobile Suit Victory Gundam - Revisao de Lore
    correcoesTerminologia:
@@ -13520,6 +13601,22 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     A.E.U.G:
+      - AEUG
+      - A.E.U.G.
+     Zabi Family:
+      - família Zabi
+      - familia Zabi
+      - Família Zabi
+     Earth Sphere:
+      - Esfera Terrestre
+      - esfera terrestre
+     Psyco Gundam:
+      - Psycho Gundam
+
  - id: gundam_zz
    nome: Mobile Suit Gundam ZZ - Revisao de Lore
    correcoesTerminologia:
@@ -13661,6 +13758,24 @@ revisao:
      - Nao adicione explicacoes, aspas ou comentarios.
 
      Responda APENAS com uma unica linha: a fala revisada em portugues do Brasil.
+   # Traducao CORRETA que a tela vinha acusando. Declarar equivalencia CALA a
+   # acusacao e NAO escreve legenda — e o oposto de correcoesTerminologia.
+   equivalenciasAceitas:
+     Big Brother:
+      - Irmão mais velho
+      - Irmao mais velho
+      - irmão mais velho
+     Lady Haman:
+      - Senhora Haman
+      - Haman Karn
+     Mistress Chara:
+      - Senhora Chara
+     Gundam Team:
+      - Equipe Gundam
+      - equipe Gundam
+     Ple-Two:
+      - Ple Two
+
  - id: macross_2
    nome: 'Macross II: Lovers Again - Revisao de Lore'
    correcoesTerminologia:
