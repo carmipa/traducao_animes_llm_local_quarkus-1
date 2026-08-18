@@ -77,6 +77,20 @@ MUTACAO 2 (remover a linha vermelha) .... 1 failed — vermelhoNaFalhaDeGravacao
 suite completa --rerun-tasks ............ 1965 testes, 0 falhas, 32 pulados, 353 classes
 ```
 
+**Corrida REAL, no servidor vivo** (não só no teste que captura `System.out`) — ZZ, 47 arquivos,
+dry-run pela API:
+
+```
+[OK]       ...S01E05_Track2_PT-BR.ass (concordancia conforme)          <- 46 arquivos assim
+[Pendente] ...S01E06_Track2_PT-BR.ass (1 fala(s) mudariam — nada gravado, simulacao)
+[PENDENTE — SIMULADO (dry-run, nada gravado)] REVISAO DE CONCORDANCIA (genero PT-BR)
+  • Arquivos analisados  : 47      • Falas que mudariam   : 1
+  • Arquivos alterados   : 1       • Backups              : 0
+[RELATORIO FINAL] Tempo total: 1,4s
+```
+
+A fala é a mesma que a medição do acervo apontou: `Aquela garoto` → `Aquele garoto`.
+
 **Batimento de progresso: NÃO copiado, e medido por quê.** O `pode-compilar.ps1` trata 90s de
 silêncio como "job terminado". A obra mais lenta do acervo (DanMachi, 1.614.552 eventos em 260
 arquivos) leva **12,8s** — 7x de folga —, e com uma linha por arquivo o silêncio máximo é o de um
