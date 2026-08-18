@@ -52,6 +52,36 @@ segunda medicao no acervo .......... 15 -> 1 fala tocada, e a que sobrou e o ace
 O teste antigo `corrigeMultiplosErrosNaMesmaLinha` afirmava esse comportamento e foi reescrito com
 `uma menino`, com o porquê no Javadoc. Custo no acervo: **zero** — não existe uma só ocorrência.
 
+## ✅ ITEM 2 FECHADO — a regra de cores da 3.1/3.2 no console da 3.3 (`b2d34792`)
+
+Ordem de Paulo: *"primeiro aplicar o esquema de cores"*. A 3.3 estava **um passo atrás** da 3.2 —
+não imprimia nada por arquivo, só o banner final, e erro de gravação ia só para o `log.warn`.
+
+```
+VERDE     [Revisado]  arquivo escrito, com a contagem de falas corrigidas
+AMARELO   [Pendente]  nada gravado, mas ha falas que mudariam (a simulacao)
+DIM       [OK]        reservado ao arquivo que realmente nao tinha nada
+VERMELHO  [Erro]      so erro   <- nao existia
+```
+
+O banner de fecho segue a mesma regra (era verde SEMPRE, inclusive em simulação com pendência) e
+o rótulo deixa de mentir: em dry-run as falas **mudariam**, não foram corrigidas.
+
+**Achado do caminho:** `falasCorrigidas`/`arquivosAlterados` subiam ANTES do backup e da escrita —
+falha ao criar backup deixava o arquivo intacto no disco e o banner dizia "1 fala corrigida".
+Contagens movidas para depois da gravação, com o caso vermelho provando.
+
+```
+MUTACAO 1 (pintar [Pendente] de verde) .. 1 failed — amareloNaSimulacao
+MUTACAO 2 (remover a linha vermelha) .... 1 failed — vermelhoNaFalhaDeGravacao
+suite completa --rerun-tasks ............ 1965 testes, 0 falhas, 32 pulados, 353 classes
+```
+
+**Batimento de progresso: NÃO copiado, e medido por quê.** O `pode-compilar.ps1` trata 90s de
+silêncio como "job terminado". A obra mais lenta do acervo (DanMachi, 1.614.552 eventos em 260
+arquivos) leva **12,8s** — 7x de folga —, e com uma linha por arquivo o silêncio máximo é o de um
+arquivo só. A medição ganhou coluna de tempo para esse número não voltar a ser palpite.
+
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
@@ -80,6 +110,9 @@ O teste antigo `corrigeMultiplosErrosNaMesmaLinha` afirmava esse comportamento e
 Paulo prioriza a fila acima (item 1 é decisão de produto dele). Sem a ordem dele, o próximo item
 tecnicamente seguro e inteiramente meu é o **3** (catraca de escrita da fatia, irmã das duas
 existentes, com caso-controle em `@TempDir` e mutação).
+
+O item 1 (a tela gravar por padrão) segue esperando a decisão dele: checkbox marcado por padrão
+OU dois botões separados, como novoKaraoke/renomearArquivos/traducaoKaraoke já fazem.
 
 ---
 
