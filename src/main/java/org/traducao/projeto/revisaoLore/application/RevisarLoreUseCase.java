@@ -223,6 +223,13 @@ public class RevisarLoreUseCase {
         // de pendencias que nao eram defeito. Lido uma vez por sessao, nao por fala.
         Map<String, java.util.List<String>> equivalenciasDaObra =
             gerenciadorPromptRevisaoLore.obterPrompt(contextoId).equivalenciasAceitas();
+        // Os NOMES que a obra declara — a MESMA lista curada que a traducao usa. Ate 18/08/2026 a
+        // revisao decidia "isto e nome de lore?" por um roster de 94 termos no codigo Java, que
+        // nao continha 9 dos 11 protagonistas medidos: Uraki, Kamille, Inori, Banagher. O efeito
+        // pratico era que acrescentar nome no lore.yaml nao fazia a tela reconhece-lo — mexer no
+        // catalogo nao rendia porque a tela lia outra lista. Tambem uma vez por sessao.
+        java.util.Set<String> nomesDaObra =
+            gerenciadorPromptRevisaoLore.obterPrompt(contextoId).termosProtegidos();
 
         sessao.out(AnsiCores.CYAN + "\n=== Revisao de Lore (nomes, locais e terminologia) ===" + AnsiCores.RESET);
         sessao.out("Inicio UTC: " + UTC_FORMATTER.format(Instant.now()));
@@ -274,7 +281,7 @@ public class RevisarLoreUseCase {
                 Path arqOriginal = originais.get(indiceArquivo);
                 processarArquivo(
                     sessao, arqOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
-                    revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, equivalenciasDaObra, pastaBackup,
+                    revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, equivalenciasDaObra, nomesDaObra, pastaBackup,
                     indiceArquivo + 1, originais.size(), totalFalasGlobais,
                     arquivosAnalisados, arquivosAlterados, falasAuditadas, falasSinalizadas,
                     falasCorrigidas, falasSemAlteracao, falasSemResposta, falasDescartadas,
@@ -482,6 +489,7 @@ public class RevisarLoreUseCase {
         String promptSistemaRevisaoLore,
         String loreCanonica,
         Map<String, java.util.List<String>> equivalenciasDaObra,
+        java.util.Set<String> nomesDaObra,
         Path pastaBackup,
         int indiceArquivo,
         int totalArquivos,
@@ -619,7 +627,7 @@ public class RevisarLoreUseCase {
                 // O prompt de lore da obra ativa contextualiza a heurística: regras
                 // de outra franquia (ex.: "freedom"→"liberdade" do SEED) não disparam.
                 ResultadoDeteccaoLore deteccao = detector.auditar(
-                    mascaraEn.texto(), mascaraPt.texto(), loreCanonica, equivalenciasDaObra);
+                    mascaraEn.texto(), mascaraPt.texto(), loreCanonica, equivalenciasDaObra, nomesDaObra);
 
                 // ITEM D (17/08/2026) — "nada de checkbox, deixa ele habilitado por padrao, o
                 // sistema que determina isso". O corretor DETERMINISTICO roda em TODA fala no
@@ -648,7 +656,7 @@ public class RevisarLoreUseCase {
                     }
 
                     ResultadoDeteccaoLore deteccaoPosterior = detector.auditar(
-                        mascaraEn.texto(), mascarador.mascarar(revisada).texto(), loreCanonica, equivalenciasDaObra);
+                        mascaraEn.texto(), mascarador.mascarar(revisada).texto(), loreCanonica, equivalenciasDaObra, nomesDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
                     pendentesNoArquivo++;
@@ -811,7 +819,7 @@ public class RevisarLoreUseCase {
                 if (deteccao.suspeito()) {
                     String revisadaMascarada = mascarador.mascarar(revisada).texto();
                     ResultadoDeteccaoLore deteccaoPosterior = detector.auditar(
-                        mascaraEn.texto(), revisadaMascarada, loreCanonica, equivalenciasDaObra);
+                        mascaraEn.texto(), revisadaMascarada, loreCanonica, equivalenciasDaObra, nomesDaObra);
                     if (!problemaLoreFoiResolvido(deteccao, deteccaoPosterior)) {
                         falasDescartadas[0]++;
                     pendentesNoArquivo++;

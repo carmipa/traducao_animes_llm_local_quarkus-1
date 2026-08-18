@@ -114,6 +114,11 @@ public final class CatalogoLoreYaml {
 
         List<ProvedorContexto> carregadas = new ArrayList<>(itens.size());
         Map<String, Map<String, String>> terminologiaUnificada = new LinkedHashMap<>();
+        // Os NOMES da obra, guardados por id para o lado da REVISAO recebe-los logo abaixo.
+        // Sao a mesma coisa nos dois lados — quem traduz e quem revisa falam do mesmo
+        // personagem — e ate 18/08/2026 a revisao nao os enxergava: usava um roster de 94
+        // termos no codigo Java que nao continha 9 dos 11 protagonistas medidos.
+        Map<String, Set<String>> protegidosPorId = new LinkedHashMap<>();
         Set<String> idsVistos = new LinkedHashSet<>();
         for (Object item : itens) {
             if (!(item instanceof Map<?, ?> obra)) {
@@ -128,6 +133,7 @@ public final class CatalogoLoreYaml {
                 id, mapaDeTexto(o.get("correcoesTerminologia")),
                 terminologiaRevisao.getOrDefault(id, Map.of()), recurso);
             terminologiaUnificada.put(id, unificada);
+            protegidosPorId.put(id, conjunto(o.get("termosProtegidos")));
             carregadas.add(new ObraDeArquivo(
                 id,
                 texto(o, "nome", recurso),
@@ -151,7 +157,8 @@ public final class CatalogoLoreYaml {
                 : terminologiaRevisao.getOrDefault(id, Map.of());
             revisoes.add(new RevisaoDeArquivo(
                 id, texto(o, "nome", recurso), texto(o, "prompt", recurso), unificada,
-                mapaDeListas(o.get("equivalenciasAceitas"))));
+                mapaDeListas(o.get("equivalenciasAceitas")),
+                protegidosPorId.getOrDefault(id, Set.of())));
         }
         this.obrasRevisao = List.copyOf(revisoes);
     }
@@ -229,12 +236,17 @@ public final class CatalogoLoreYaml {
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
      */
     private record RevisaoDeArquivo(String id, String nome, String prompt, Map<String, String> correcoes,
-        Map<String, List<String>> equivalencias)
+        Map<String, List<String>> equivalencias, Set<String> protegidos)
         implements org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore {
 
         @Override
         public String getId() {
             return id;
+        }
+
+        @Override
+        public Set<String> termosProtegidos() {
+            return protegidos;
         }
 
         @Override

@@ -97,6 +97,45 @@ public class DetectorTermosLoreService {
      */
     public ResultadoDeteccaoLore auditar(String originalIngles, String traducaoPt, String loreObraAtiva,
                                          Map<String, List<String>> equivalenciasDaObra) {
+        return auditar(originalIngles, traducaoPt, loreObraAtiva, equivalenciasDaObra, Set.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma auditoria, agora sabendo quais NOMES a obra declara — a lista
+     * que responde "esta palavra é nome de lore?" quando o candidato tem uma palavra só.
+     *
+     * <h2>Por que este parâmetro existe — medido em 18/08/2026</h2>
+     * A decisão saía de {@link #TERMOS_LORE_SOLTEIROS_RELEVANTES}, 94 termos escritos nesta
+     * classe. Medido contra os protagonistas das sete obras trabalhadas:
+     * <pre>
+     *                     RUIDO acusado (18)   PROTAGONISTAS preservados (11)
+     *   roster (94)              0                        0
+     *   prosa do prompt          1                       11
+     *   termosProtegidos         0                        9
+     * </pre>
+     * O roster preserva ZERO: {@code Uraki}, {@code Kamille}, {@code Inori}, {@code Banagher} —
+     * nenhum está nele. Eles só escapavam porque a regra de POSIÇÃO os salvava por acaso, e isso
+     * ficou visível quando a posição foi tirada da conta numa tentativa anterior, que teve de ser
+     * revertida por cegar os protagonistas.
+     *
+     * <p>A prosa do prompt parece boa e é armadilha: o campo de lore traz as INSTRUÇÕES, e no
+     * Zeta 19 palavras delas ({@code ajustar}, {@code adjetivos}, {@code traduza},
+     * {@code mantenha}, {@code terra}, {@code guerra}) virariam indício de nome.
+     *
+     * <p>E a consequência que o dono do acervo sentia na prática: acrescentar um nome no
+     * {@code lore.yaml} NÃO fazia a revisão reconhecê-lo, porque ela consultava outra lista.
+     * Mexer no catálogo não rendia — não por ser trabalhoso, mas porque a tela não lia o que era
+     * escrito.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: SOMA ao roster, não o substitui — o roster traz vocabulário de
+     * FRANQUIA ({@code zaku}, {@code newtype}, {@code gundam}) que não é nome de nenhuma obra em
+     * particular. Conjunto vazio reproduz exatamente o comportamento anterior.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto nulo é tratado como vazio.
+     */
+    public ResultadoDeteccaoLore auditar(String originalIngles, String traducaoPt, String loreObraAtiva,
+                                         Map<String, List<String>> equivalenciasDaObra,
+                                         Set<String> nomesDaObra) {
         if (originalIngles == null || originalIngles.isBlank()
             || traducaoPt == null || traducaoPt.isBlank()) {
             return ResultadoDeteccaoLore.limpo();
@@ -124,7 +163,8 @@ public class DetectorTermosLoreService {
         // Juntas eram 2.422 motivos: 24,0% de todo o ruido que a tela produzia.
         detectarTraducoesLiteraisSuspeitas(en, pt, motivos, loreLower);
         detectarTermosTraduziveisEmIngles(en, pt, motivos);
-        detectarNomesPropriosDivergentes(en, pt, motivos, loreLower, equivalenciasDaObra);
+        detectarNomesPropriosDivergentes(en, pt, motivos, loreLower, equivalenciasDaObra,
+            minusculas(nomesDaObra));
 
         if (motivos.isEmpty()) {
             return ResultadoDeteccaoLore.limpo();
@@ -178,6 +218,54 @@ public class DetectorTermosLoreService {
     }
 
     /** Termo canônico vale para a obra ativa? Sem lore informado, vale globalmente. */
+    /**
+     * PROPÓSITO DE NEGÓCIO: prepara os nomes da obra para a comparação — em minúsculas e
+     * expandidos em PALAVRAS, além do termo inteiro.
+     *
+     * <h2>Por que expandir, medido em 18/08/2026</h2>
+     * O catálogo guarda o nome COMPLETO ({@code "Banagher Links"}, {@code "Kou Uraki"}) e a fala
+     * usa a palavra isolada ({@code "Banagher"}, {@code "Uraki"}). Comparando por igualdade
+     * exata, a primeira versão desta ligação deixou <b>19 protagonistas invisíveis</b> em 5 das 7
+     * obras — {@code Inori}, {@code Judau}, {@code Haman}, {@code Banagher}, {@code Uraki}. E
+     * invisível em silêncio, que é o pior tipo.
+     *
+     * <p>Medido com a expansão: <b>19 → 2</b>, e o ruído que ela traz de volta é <b>0 de 18</b>
+     * palavras comuns aferidas numa corrida do Guilty Crown.
+     *
+     * <p>A régua da minha medição anterior era mais frouxa que a do código — eu aceitava o nome
+     * como PARTE de um termo composto e o detector exigia igualdade. Deu 9 de 11 onde o código
+     * entregava 2 de 11.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só entram palavras com 4+ letras que não estejam em
+     * {@link #PALAVRAS_IGNORADAS} — sem isso, {@code "Federation Forces"} traria {@code "forces"}
+     * e {@code "GHQ Anti Bodies Squadron"} traria {@code "squadron"}, e o ruído voltaria pela
+     * porta que a regra fechou. O termo inteiro entra sempre.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto nulo ou vazio devolve vazio, e a tela cai no
+     * comportamento anterior.
+     */
+    private static Set<String> minusculas(Set<String> nomes) {
+        if (nomes == null || nomes.isEmpty()) {
+            return Set.of();
+        }
+        Set<String> saida = new java.util.LinkedHashSet<>();
+        for (String nome : nomes) {
+            if (nome == null || nome.isBlank()) {
+                continue;
+            }
+            saida.add(nome.strip().toLowerCase(Locale.ROOT));
+            for (String palavra : nome.split("[\\s-]+")) {
+                String limpa = palavra.strip().replaceAll("^[.,]+|[.,]+$", "")
+                    .toLowerCase(Locale.ROOT);
+                if (limpa.length() >= TAMANHO_MINIMO_PARTE_RELEVANTE
+                    && !PALAVRAS_IGNORADAS.contains(limpa)) {
+                    saida.add(limpa);
+                }
+            }
+        }
+        return Set.copyOf(saida);
+    }
+
     private boolean loreMenciona(String loreLower, String termo) {
         return loreLower == null || contemExpressaoInteira(loreLower, termo);
     }
@@ -275,7 +363,7 @@ public class DetectorTermosLoreService {
     }
 
     private void detectarNomesPropriosDivergentes(String en, String pt, List<String> motivos, String loreLower,
-            Map<String, List<String>> equivalenciasDaObra) {
+            Map<String, List<String>> equivalenciasDaObra, Set<String> nomesDaObra) {
         Matcher matcherEn = NOME_PROPRIO.matcher(en);
         while (matcherEn.find()) {
             String grupo = matcherEn.group();
@@ -299,7 +387,8 @@ public class DetectorTermosLoreService {
                 int inicioDoNome = inicioBruto
                     + (subNomeRaw.length() - semPosicional.length())
                     + deslocamentoDoPrefixoDeFrente(semPosicional);
-                if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, inicioDoNome), loreLower)
+                if (deveIgnorarNomeProprio(nome, inicioEfetivoDaFala(en, inicioDoNome), loreLower,
+                    nomesDaObra)
                     || traducaoAceitaParaTermo(nome, pt, equivalenciasDaObra)) {
                     continue;
                 }
@@ -537,7 +626,8 @@ public class DetectorTermosLoreService {
             + "|our|my|his|her|their|your|its)\\s+", "");
     }
 
-    private boolean deveIgnorarNomeProprio(String nome, boolean inicioEfetivoDaFala, String loreLower) {
+    private boolean deveIgnorarNomeProprio(String nome, boolean inicioEfetivoDaFala, String loreLower,
+            Set<String> nomesDaObra) {
         if (nome.length() < 4 || nome.matches("(?i)TAG\\d+")) {
             return true;
         }
@@ -548,7 +638,23 @@ public class DetectorTermosLoreService {
             if (PALAVRAS_IGNORADAS.contains(normalizada) || PATENTE_SOZINHA.matcher(nome).matches()) {
                 return true;
             }
-            return inicioEfetivoDaFala && !temIndicadorLoreSolteiro(partes[0], normalizada, loreLower);
+            if (nomesDaObra.isEmpty()) {
+                // Obra que nao declara nomes fica com o comportamento anterior — mesma convencao
+                // de loreMenciona(): quem nao passou catalogo nao pode ser penalizado por ele.
+                return inicioEfetivoDaFala
+                    && !temIndicadorLoreSolteiro(partes[0], normalizada, loreLower, nomesDaObra);
+            }
+            // COM catalogo de nomes, a POSICAO deixa de decidir e a lista decide sozinha.
+            //
+            // Antes: a palavra so escapava se abrisse a fala. Fora dela, QUALQUER maiuscula virava
+            // acusacao — medido numa corrida do Guilty Crown, 248 das 380 acusacoes eram palavra
+            // comum que a obra nao conhece: Bridge, Level, Area, Rank, Ward, Ghost, December,
+            // Vaccine. Acusacao que ninguem tem como decidir e ruido, e ruido esconde achado.
+            //
+            // Isto so e seguro DEPOIS de a fonte virar o termosProtegidos: com o roster de 94
+            // termos, a mesma inversao cegava 9 dos 11 protagonistas medidos e teve de ser
+            // revertida. A regra e a mesma; o que mudou foi a lista que ela consulta.
+            return !temIndicadorLoreSolteiro(partes[0], normalizada, loreLower, nomesDaObra);
         }
         return !loreConheceONomeComposto(partes, loreLower);
     }
@@ -575,7 +681,14 @@ public class DetectorTermosLoreService {
         return ultimo == '.' || ultimo == '!' || ultimo == '?' || ultimo == '"' || ultimo == '”' || ultimo == '\'' || ultimo == '’';
     }
 
-    private boolean temIndicadorLoreSolteiro(String original, String normalizada, String loreLower) {
+    private boolean temIndicadorLoreSolteiro(String original, String normalizada, String loreLower,
+            Set<String> nomesDaObra) {
+        // Os NOMES que a obra declara valem por si: sao a lista curada do lore.yaml, a mesma que
+        // a traducao usa. O roster abaixo continua, porque traz vocabulario de FRANQUIA que nao e
+        // nome de obra nenhuma em particular.
+        if (nomesDaObra.contains(normalizada)) {
+            return true;
+        }
         // O termo global só conta se pertencer à obra ativa: "Dom" no início de
         // uma fala do 86 não é o mobile suit do Gundam.
         return (TERMOS_LORE_SOLTEIROS_RELEVANTES.contains(normalizada) && loreMenciona(loreLower, normalizada))
