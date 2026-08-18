@@ -66,14 +66,49 @@ public class CorretorConcordanciaGeneroService {
             + "tio|amigo|rapaz|herói|heroi|aventureiro|sacerdote|mago|ladrão|ladrao|príncipe";
 
     // Artigos/determinantes/contrações masculinos e o feminino correspondente (índice a índice).
+    // Servem ao MAPA de troca; quem entra no PADRÃO é decidido logo abaixo, e não é a mesma lista.
     private static final String[] ART_MASC = {"o", "um", "este", "esse", "aquele", "do", "no", "ao", "pelo", "num"};
     private static final String[] ART_FEM  = {"a", "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa"};
+
+    /**
+     * Determinantes femininos que podem ser ACUSADOS antes de substantivo masculino — a lista do
+     * padrão, deliberadamente MENOR que a do mapa: <b>o {@code a} sozinho fica de fora</b>.
+     *
+     * <h2>O prejuízo que originou (medido em 18/08/2026, acervo inteiro)</h2>
+     * {@code a} não é só artigo feminino: é a preposição invariante em gênero, e antes de
+     * substantivo masculino ela está CERTA. Com o {@code a} no padrão, esta tela reescrevia
+     * <pre>
+     *   "Graças a Deus, você está vivo."   ->   "Graças o Deus, você está vivo."
+     *   "Ore a Deus, não a mim."           ->   "Ore o Deus, não a mim."
+     * </pre>
+     * Medição sobre 726 legendas de {@code C:\animes} (2.142.264 eventos, 380.697 falas ao
+     * alcance): a tela mudaria <b>15 falas</b> — <b>14 delas eram "a Deus" correto</b>, contra
+     * <b>1</b> conserto real ({@code "Aquela garoto" -> "Aquele garoto"}, Gundam ZZ). Ou seja,
+     * rodar a 3.3 no acervo hoje causaria 14 estragos para 1 acerto.
+     *
+     * <p>A exceção não é descoberta nova: o detector da 3.1
+     * ({@code DetectorConcordanciaNominal}) já a documenta e já deixa o {@code a} de fora do
+     * lado feminino. O corretor desta fatia nasceu de uma segunda escrita da mesma ideia e
+     * perdeu a exceção no caminho — a divergência que a regra da medição prevê para toda
+     * segunda implementação.
+     *
+     * <h2>Por que a assimetria é correta, e não um remendo</h2>
+     * O lado masculino continua com o {@code o}: {@code "o"} nunca é preposição em português, e
+     * {@code "Vi o menina"} segue sendo corrigido. Tirar os dois "por simetria" mataria a única
+     * família que a medição mostrou funcionando.
+     *
+     * <p><b>Perda declarada:</b> {@code "a menino"} (artigo feminino de verdade antes de
+     * substantivo masculino) deixa de ser corrigido. No acervo inteiro, essa construção aparece
+     * <b>zero</b> vez — a única ocorrência de {@code a} + substantivo masculino é {@code a Deus}.
+     */
+    private static final String[] ART_FEM_NO_PADRAO =
+        {"uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa"};
 
     private static final Pattern ART_MASC_COM_SUBST_FEM =
         Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_MASC) + ")(\\s+)(" + SUBST_FEM + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Pattern ART_FEM_COM_SUBST_MASC =
-        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_FEM) + ")(\\s+)(" + SUBST_MASC + ")(?![\\p{L}\\p{N}])",
+        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_FEM_NO_PADRAO) + ")(\\s+)(" + SUBST_MASC + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     // Adjetivos/particípios masc ↔ fem (paralelos): base para trocar o predicativo de "ela/ele".

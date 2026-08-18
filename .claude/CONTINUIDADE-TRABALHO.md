@@ -1,6 +1,89 @@
 # CONTINUIDADE — KRONOS
 
-# ▶ EM ANDAMENTO — 3.2 REVISÃO DE LORE (aberta em 2026-08-17, sessão `78943c66`)
+# ▶ EM ANDAMENTO — 3.3 REVISÃO DE CONCORDÂNCIA (aberta em 2026-08-18, sessão `392007ea`)
+
+**TAREFA ORIGINAL (palavras de Paulo):** *"3.2 terminamos aqui trataremos do meu 3.3 concordancia
+e suas correções possíveis"* + *"faça uma analise profunda de engenharia e todo tipo de testes para
+ver o que temos hoje e por onde devemos começar a corrigir! seguindo o protocolo de desacoplamento
+total com exceção as lores. entretanto, lores não entram aqui! mas provavelmente os dicionários
+entram principalmente o em português ptbr"*
+
+**ESCOPO:** a fatia `revisaoConcordancia` (tela 3.3), PT-only. **Lore fora.** Dicionário pt_BR
+(hunspell, kernel `core/texto/dicionarioOrtografia`) é candidato declarado.
+
+## O QUE A FATIA É HOJE — medido, não lembrado
+
+```
+4 classes / 511 linhas          use case + corretor + resultado + controller
+INBOUND  0                      nenhuma outra fatia a consome
+OUTBOUND 12 tipos               core(5) + legenda(5) + telemetria(2) — ZERO fatia->fatia
+testes    2 classes             6 casos no use case (veto de musica + contra-teste, backup,
+                                dry-run, pasta inexistente, telemetria) + 12 no corretor
+guardas   NENHUMA propria       sem fronteira ArchUnit e sem catraca de escrita da fatia
+```
+
+## ✅ ITEM 1 FECHADO — o corretor estragava fala CORRETA (14 estragos para 1 acerto)
+
+`MedicaoConcordanciaAcervoPtIT` (novo), acervo inteiro `C:\animes`, calibrado obra a obra contra o
+próprio caso de uso em dry-run (16 obras, zero divergência):
+
+```
+726 legendas (307 PT / 419 nao-PT) | 2.142.264 eventos | 380.697 ao alcance | 1.749.570 musica vetada
+
+ANTES ... 15 falas alteradas:  15x "a -> o"   (TODAS "a Deus")  +  1x "Aquela -> Aquele"
+DEPOIS ..  1 fala  alterada:    1x "Aquela -> Aquele"   <- o unico acerto real do acervo
+```
+
+**Causa raiz:** `ART_FEM` incluía o `a`, que antes de substantivo masculino é **preposição** e
+está CERTA (`"Graças a Deus"` → `"Graças o Deus"`). O detector da 3.1 (`DetectorConcordanciaNominal`)
+já documenta essa exceção e já deixa o `a` de fora; o corretor da 3.3 nasceu de uma segunda escrita
+da mesma ideia e **perdeu a exceção** — a divergência que a regra da medição prevê.
+
+**Correção assimétrica de propósito:** `ART_FEM_NO_PADRAO` sem o `a`; o lado masculino mantém o `o`
+(que nunca é preposição), então `"Vi o menina"` segue corrigido.
+
+```
+MUTACAO (devolver o "a" ao padrao) .. 1 failed — naoEstragaPreposicaoAAntesDeSubstantivoMasculino
+   contra-teste continuaCorrigindoDeterminanteFemininoDeVerdade seguiu VERDE nos dois mundos
+segunda medicao no acervo .......... 15 -> 1 fala tocada, e a que sobrou e o acerto
+```
+
+**Contrato mudado e DECLARADO:** `"a menino"` (artigo feminino de verdade) deixa de ser corrigido.
+O teste antigo `corrigeMultiplosErrosNaMesmaLinha` afirmava esse comportamento e foi reescrito com
+`uma menino`, com o porquê no Javadoc. Custo no acervo: **zero** — não existe uma só ocorrência.
+
+## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
+
+1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
+   DESMARCADO, e `aplicar = !simular`. Um clique em Revisar escreve. As outras telas do projeto
+   (novoKaraoke, renomearArquivos, traducaoKaraoke) usam **botão "Simular" separado**; a 3.3 é a
+   exceção. Decisão de PRODUTO (é a UI que Paulo opera) — proposta: checkbox marcado por padrão
+   OU dois botões, como as irmãs.
+2. **A tela não distingue PT de inglês nem `.parcial`.** Ao alcance dela hoje: **419 arquivos
+   não-PT** e **38 `.parcial`**. Dano gravado hoje: zero. Superfície aberta: total. O critério
+   (`eLegendaTraduzida`) mora em `raspagemRevisao` — fatia não fala com fatia, então nasce próprio
+   na 3.3 ou sobe para o kernel.
+3. **Falta a catraca de escrita da fatia.** As irmãs existem para `raspagemRevisao` e `revisaoLore`
+   e são **cegas fora do próprio prefixo** — `revisaoConcordancia` está fora das duas.
+4. **Portão de saída por dicionário (pt_BR).** Hunspell disponível nesta máquina (312.369 entradas,
+   25.932 regras de afixo). Ele sabe dizer o que NÃO existe (`asdfgh` → `#`) e sugerir
+   (`cansadu` → `cansado, cansada`); **NÃO é oráculo de gênero** (`garota` → `st:garotar`). Uso
+   correto: nenhuma palavra escrita pela 3.3 pode ser desconhecida do pt_BR. É kernel, então não
+   sobe a `CatracaRegraDuplicadaEntreFatiasTest` (hoje em 15).
+5. **O tamanho REAL do defeito de concordância PT-only NÃO está medido.** Os instrumentos de hoje
+   acham **1 fala em 380.697** — instrumento saturado em zero, o mesmo padrão do erro fluente.
+   Ampliar famílias de correção (adjetivo anteposto/posposto, oblíquo, plural/número) ANTES de medir
+   é escrever corretor para defeito que ninguém provou existir.
+
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA
+
+Paulo prioriza a fila acima (item 1 é decisão de produto dele). Sem a ordem dele, o próximo item
+tecnicamente seguro e inteiramente meu é o **3** (catraca de escrita da fatia, irmã das duas
+existentes, com caso-controle em `@TempDir` e mutação).
+
+---
+
+# ✅ FEITO — 3.2 REVISÃO DE LORE (aberta em 2026-08-17, sessão `78943c66`; encerrada por Paulo em 18/08)
 
 ## ESCOPO FECHADO POR PAULO, palavras dele
 

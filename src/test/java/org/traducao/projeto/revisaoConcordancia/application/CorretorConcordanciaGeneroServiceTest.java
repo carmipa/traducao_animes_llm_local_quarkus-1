@@ -69,10 +69,21 @@ class CorretorConcordanciaGeneroServiceTest {
         assertEquals(Optional.of("{\\i1}A menina chegou."), corretor.corrigir("{\\i1}O menina chegou."));
     }
 
+    /**
+     * O caso original desta asserção era {@code "o menina viu a menino"}. O segundo erro —
+     * {@code "a menino"} — deixou de ser corrigido em 18/08/2026, e isso é DELIBERADO: o
+     * {@code a} saiu do padrão porque, no acervo real, ele nunca apareceu como artigo errado e
+     * apareceu 15 vezes como preposição CERTA ({@code "Graças a Deus"}). Ver
+     * {@code CorretorConcordanciaGeneroService.ART_FEM_NO_PADRAO} e o teste
+     * {@link #naoEstragaPreposicaoAAntesDeSubstantivoMasculino()}.
+     *
+     * <p>A intenção do teste — dois erros na MESMA linha — continua exercitada, agora com um
+     * determinante que não é ambíguo com preposição.
+     */
     @Test
     @DisplayName("corrige múltiplos erros de gênero na mesma linha")
     void corrigeMultiplosErrosNaMesmaLinha() {
-        assertEquals(Optional.of("a menina viu o menino"), corretor.corrigir("o menina viu a menino"));
+        assertEquals(Optional.of("a menina viu um menino"), corretor.corrigir("o menina viu uma menino"));
     }
 
     @Test
@@ -93,5 +104,36 @@ class CorretorConcordanciaGeneroServiceTest {
     void corrigePredicativoComVerboVariado() {
         assertEquals(Optional.of("Ela parece cansada."), corretor.corrigir("Ela parece cansado."));
         assertEquals(Optional.of("Ele é perdido."), corretor.corrigir("Ele é perdida."));
+    }
+
+    /**
+     * O 'a' antes de substantivo masculino é PREPOSIÇÃO, não artigo — e está certo.
+     *
+     * <p>As três falas abaixo são do acervo real, não inventadas. Medido em 18/08/2026 sobre
+     * 726 legendas: a tela mudaria 15 falas, e <b>14 eram "a Deus" correto</b> contra 1 conserto
+     * verdadeiro. Este teste é o que impede o 'a' de voltar para o lado feminino do padrão.
+     */
+    @Test
+    @DisplayName("preposição 'a' antes de substantivo masculino NÃO vira artigo masculino")
+    void naoEstragaPreposicaoAAntesDeSubstantivoMasculino() {
+        assertTrue(corretor.corrigir("Graças a Deus, você está vivo.").isEmpty());
+        assertTrue(corretor.corrigir("Ore a Deus, não a mim.").isEmpty());
+        assertTrue(corretor.corrigir("Vamos conversar de homem a homem.").isEmpty());
+    }
+
+    /**
+     * O contra-teste da correção acima: é ele que separa "parou de estragar" de "parou de
+     * funcionar". Sem esta linha, apagar o padrão inteiro passaria no teste anterior.
+     *
+     * <p>A segunda asserção é a ÚNICA correção legítima que a medição encontrou no acervo
+     * inteiro — {@code "Aquela garoto poderia ser um Newtype."}, Gundam ZZ.
+     */
+    @Test
+    @DisplayName("determinante feminino de verdade antes de substantivo masculino continua corrigido")
+    void continuaCorrigindoDeterminanteFemininoDeVerdade() {
+        assertEquals(Optional.of("Chamei um menino."), corretor.corrigir("Chamei uma menino."));
+        assertEquals(Optional.of("Aquele garoto poderia ser um Newtype."),
+            corretor.corrigir("Aquela garoto poderia ser um Newtype."));
+        assertEquals(Optional.of("Vi a menina no parque."), corretor.corrigir("Vi o menina no parque."));
     }
 }
