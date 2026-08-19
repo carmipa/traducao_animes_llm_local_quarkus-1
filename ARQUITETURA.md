@@ -5,7 +5,7 @@ blindagem contra o modelo de linguagem e método de verificação. Escrito para 
 cada número aqui foi lido do código ou do acervo em disco, e onde a medição não existe está
 escrito que não existe.
 
-**Data da leitura: 06/08/2026.**
+**Data da leitura: 06/08/2026 · números remedidos em 19/08/2026.**
 
 ---
 
@@ -44,10 +44,15 @@ se não se souber *sob quais condições*. Mudou o prompt, o modelo, a lore ou o
 entrada deixa de valer. É o equivalente aqui ao isolamento de inquilino de um sistema
 multiempresa: o invariante que, se furar, contamina tudo em silêncio.
 
-**Escala atual do código:** 63.942 linhas de Java em 577 classes, 20 fatias verticais, 5
-peers, 19 controllers com 34 endpoints, 72 contextos de lore, 1.440 testes automatizados dos
-quais 62 são guardas de arquitetura. Acervo em disco: 16 obras, 219 arquivos de cache, 68.295
-falas traduzidas, 11 MB.
+**Escala atual do código (medida em 19/08/2026):** 63.049 linhas de Java em 471 classes,
+20 fatias verticais, 5 peers, 21 controllers, 69 obras de lore no `lore.yaml` (68 na lista da
+UI), 2.004 testes automatizados dos quais 136 são guardas de arquitetura. Acervo em disco: 34
+pastas de obra no cache, 553 arquivos de cache, 122.307 entradas, 90 MB.
+
+> A contagem anterior desta linha (06/08: 577 classes, 72 lores, 1.440 testes, 62 guardas)
+> ficou treze dias sem revisão e cada número dela estava errado hoje. A lore, em particular,
+> deixou de ser classe Java e virou dado (`lore.yaml`), então "contar classes" nem mede mais a
+> mesma coisa — por isso a contagem passou a ser perguntada à produção (`/api/contextos`).
 
 ---
 
@@ -391,20 +396,23 @@ Conferir o número de catraca em todo commit de IA, e exigir a mutação.
 
 ### 8.2 Guardas executáveis
 
-Dos 1.440 testes, **62 não verificam comportamento** — verificam que um padrão perigoso não
+Dos 2.004 testes, **136 não verificam comportamento** — verificam que um padrão perigoso não
 voltou. Leem o código-fonte, a estrutura de pacotes ou o HTML, e reprovam o build ao encontrar
-a forma do bug. São 13 guardas: 9 fronteiras ArchUnit e 4 catracas.
+a forma do bug. São **35 guardas: 10 fronteiras ArchUnit e 25 catracas**.
 
 | Guarda | Impede |
 |---|---|
 | `FronteiraTraducaoArchTest` (15) | a fatia de tradução ganhar aresta para outra fatia funcional |
-| `FronteiraContextoArchTest` (8) | o peer de 72 lores depender de fatia funcional |
+| `FronteiraContextoArchTest` (8) | o peer de lore (69 obras) depender de fatia funcional |
 | `FronteiraCacheTraducaoArchTest` (3) | outra fatia escrever cache paralelo |
 | `FronteiraLlmArchTest` (4) | o contrato do modelo vazar detalhe de provedor |
 | `CatracaFronteiraQuebraAssTest` (2) | fronteira de termo esquecer que `\N` são dois caracteres |
 | `CatracaRegraDuplicadaEntreFatiasTest` (2) | duplicação silenciosa — duplicar pode, esconder não |
 | `CatracaAgregadorasForaDoCdiTest` (4) | alguém "consertar" uma ausência deliberada de `@Component` |
 | `CatracaSlotsReservadosLoreTest` (3) | a dívida de obra sem lore ficar invisível |
+| `CatracaTelaDestrutivaNasceEmDryRunTest` (2) | tela que reescreve o acervo abrir gravando |
+| `CatracaFerramentaDeAcervoVetaMusicaTest` (2) | ferramenta que varre o acervo reescrever música |
+| `CatracaPaginaDeDocumentacaoAbreTest` (3) | documento existir em `docs/` e não abrir na tela |
 
 *(Inventário completo em [docs/catracas-e-fronteiras.md](docs/catracas-e-fronteiras.md).)*
 
