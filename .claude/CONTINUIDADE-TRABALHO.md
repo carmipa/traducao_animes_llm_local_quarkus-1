@@ -257,6 +257,28 @@ O plural tem padrão **próprio**: casar número e gênero juntos deixaria `"o m
 **Erro meu corrigido junto:** `criança`, `pessoa`, `vítima` e `testemunha` estavam na exclusão do
 instrumento como se fossem gênero comum. São femininos fixos — excluí-las cegava a medição.
 
+## ✅ ITEM 11 FECHADO — o acervo INTEIRO aplicado, 78 falas (`e6e927ef`)
+
+Paulo autorizou. Rodado obra a obra pela **API de produção**, não por harness.
+
+```
+1a rodada .... 76 falas em 62 arquivos      2a (indefinidos) .... 2 falas em 2 arquivos
+TOTAL ........ 78 falas | 63 .bak | 11 pastas de backup | 0 fala em arquivo nao-PT
+IDEMPOTENCIA . 2a passada dry-run: 15 obras, TODAS falas=0
+```
+
+**A conferência do acervo já corrigido revelou outra família:** `algumas reparos` continuava de
+pé — o erro sobrevivia por falta de **determinante**, não de substantivo. Acrescentei sete pares
+de indefinidos e **medi antes de gravar**: das 5 falas, **3 eram falso positivo**
+(`"Você é muito criança"` — advérbio invariável; `"são todos iscas"` — concorda com *alvos*).
+A família entrou podada: fora `muito/pouco/tanto` singular, `todo(a)(s)` e `certo(a)`.
+
+**O backup serve** — diff do `.bak` contra o arquivo atual (ZZ S01E06) mostra exatamente as 3
+linhas trocadas, com tempo, estilo e tags idênticos.
+
+**Duas sobras que pareciam erro eram do meu grep:** `somos pessoas` e `sacrificamos pessoas`
+casaram `os pessoas` por substring — a mesma armadilha de ontem, agora sem `\b` nenhum.
+
 ## 🟡 A MEDIÇÃO, e o que ela ainda não resolve
 
 `MedicaoConcordanciaPorDicionarioIT` (novo): pergunta ao dicionário pt_BR em vez de a uma lista
