@@ -55,7 +55,7 @@ graph TD
 sequenceDiagram
     actor Op as Operador
     participant UI as Painel Extração
-    participant API as ApiController
+    participant API as ExtracaoLegendaController
     participant UC as ExtrairLegendaUseCase
     participant STR as ExtratorXxxStrategy
     participant AD as MkvToolNixAdapter / FfmpegAdapter

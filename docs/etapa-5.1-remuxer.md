@@ -66,7 +66,7 @@ O [relatório de Análise de Mídia](etapa-1.1-analise-midia.md#o-que-é-auditad
 sequenceDiagram
     actor Op as Operador
     participant UI as Painel Remuxer
-    participant API as ApiController
+    participant API as RemuxerController
     participant UC as RemuxarLoteUseCase
     participant Map as MapeadorMidiaService
     participant AD as MkvmergeAdapter

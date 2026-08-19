@@ -34,7 +34,7 @@ Primeira etapa do pipeline: **auditoria técnica** de arquivos de vídeo antes d
 sequenceDiagram
     actor Op as Operador
     participant UI as Painel Análise
-    participant API as ApiController
+    participant API as AnaliseMidiaController
     participant UC as AnalisarMidiaUseCase
     participant FF as FfprobeAdapter
     participant TEL as Telemetria (logs/)

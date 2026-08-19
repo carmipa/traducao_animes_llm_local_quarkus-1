@@ -94,7 +94,7 @@ Download do arquivo bruto `logs/telemetria_compartilhada.json` como anexo `krono
 
 ### `GET /api/telemetria/stream` (SSE, JAX-RS puro)
 
-Implementado em `TelemetriaStreamResource` (não em `ApiController` Spring-style, para evitar colisão de rota) — um `ScheduledExecutorService` interno faz `broadcast()` do `TelemetriaResumo` serializado a cada **1 segundo** para todos os clientes conectados.
+Implementado em `TelemetriaStreamResource` (JAX-RS puro, não Spring-style, para evitar colisão de rota com o dispatcher) — um `ScheduledExecutorService` interno faz `broadcast()` do `TelemetriaResumo` serializado a cada **1 segundo** para todos os clientes conectados.
 
 ### `POST /api/telemetria/publicar-dataset`
 
