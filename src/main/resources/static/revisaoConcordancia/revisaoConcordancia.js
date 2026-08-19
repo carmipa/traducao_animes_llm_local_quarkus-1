@@ -5,7 +5,9 @@ import { logNoConsole, mostrarAlerta } from '../js/app.js';
 // 18/08/2026, quando a 3.3 foi a unica das tres telas da etapa a nascer muda.
 import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 
-const PAINEL_HTML = 'revisaoConcordancia/revisaoConcordancia.html?v=1.0';
+// Versão subiu para 1.1 com a chegada do seletor de obra: o painel é buscado por fetch, e sem
+// trocar a query o navegador serve o HTML antigo do cache — o combo simplesmente não apareceria.
+const PAINEL_HTML = 'revisaoConcordancia/revisaoConcordancia.html?v=1.1';
 
 async function carregarPainelHtml() {
     const painel = document.getElementById('panel-revisao-concordancia');
@@ -51,6 +53,11 @@ function vincularEventos() {
     const btn = document.getElementById('btn-iniciar-revisao-concordancia');
     const input = document.getElementById('revisao-concordancia-entrada');
     const chkSimular = document.getElementById('revisao-concordancia-simular');
+    // Seletor AUXILIAR: identifica a obra, traz capa e sinopse e entra no registro do console.
+    // Não vai para o servidor e não muda a correção — esta tela é determinística e não usa lore
+    // (escopo fechado por Paulo em 18/08/2026). Prometer efeito que o motor não tem seria pior
+    // que não ter o combo.
+    const selectContexto = document.getElementById('revisao-concordancia-contexto');
     if (!btn || !input) return;
 
     btn.addEventListener('click', async () => {
@@ -69,8 +76,14 @@ function vincularEventos() {
         logNoConsole('console-revisao-concordancia', mensagemDoAviso(estadoAviso),
             estadoAviso === 'armado' ? 'info' : 'aviso');
 
+        const obra = selectContexto?.options[selectContexto.selectedIndex]?.text?.trim();
+        const obraNoRegistro = obra && !obra.startsWith('--') && !obra.startsWith('—')
+            ? obra : 'não informada';
+
         logNoConsole('console-revisao-concordancia',
-            `Iniciando revisão de concordância — ${diretorioTraduzido} | ${aplicar ? 'APLICAR' : 'simular (dry-run)'}`, 'info');
+            `Iniciando revisão de concordância — Obra: ${obraNoRegistro}`, 'info');
+        logNoConsole('console-revisao-concordancia',
+            `${diretorioTraduzido} | ${aplicar ? 'APLICAR' : 'simular (dry-run)'}`, 'info');
         btn.disabled = true;
 
         try {
@@ -105,6 +118,10 @@ export async function initRevisaoConcordancia() {
     try {
         await carregarPainelHtml();
         vincularEventos();
+        // O painel é injetado DEPOIS do boot do app.js, então o seletor de obra nasce vazio se
+        // ninguém avisar. É o mesmo defeito que a Tradução de Karaokê teve: o combo ficava sem
+        // opção nenhuma e o operador achava que a tela estava quebrada.
+        document.dispatchEvent(new CustomEvent('revisao-concordancia:painel-carregado'));
     } catch (err) {
         console.error('[Revisão de Concordância] Erro ao carregar painel:', err);
         const painel = document.getElementById('panel-revisao-concordancia');

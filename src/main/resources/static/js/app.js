@@ -1036,7 +1036,8 @@ function inicializarMetadadosDinamicos() {
         { inputId: 'troca-tipo-legenda-entrada', selectId: 'troca-tipo-legenda-contexto', bannerId: 'meta-banner-troca-tipo-legenda' },
         { inputId: 'limpanome-entrada', selectId: 'renomear-arquivos-contexto', bannerId: 'meta-banner-limpanome' },
         { inputId: 'novo-karaoke-entrada', selectId: 'novo-karaoke-contexto', bannerId: 'meta-banner-novo-karaoke' },
-        { inputId: 'traducao-karaoke-entrada', selectId: 'traducao-karaoke-contexto', bannerId: 'meta-banner-traducao-karaoke' }
+        { inputId: 'traducao-karaoke-entrada', selectId: 'traducao-karaoke-contexto', bannerId: 'meta-banner-traducao-karaoke' },
+        { inputId: 'revisao-concordancia-entrada', selectId: 'revisao-concordancia-contexto', bannerId: 'meta-banner-revisao-concordancia' }
     ];
 
     const atualizarItem = (item) => {
@@ -1071,7 +1072,7 @@ function inicializarMetadadosDinamicos() {
 
     // Popula automaticamente todos os selects de contexto dos módulos auxiliares.
     const popularContextos = () => {
-        carregarContextosAuxiliares(['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto'], () => {
+        carregarContextosAuxiliares(['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'], () => {
             mapeamentoFormularios.forEach(atualizarItem);
         });
     };
@@ -1085,6 +1086,9 @@ function inicializarMetadadosDinamicos() {
     // seletor dela: o painel é injetado depois do carregamento inicial, então o combo de
     // lore ficava vazio. Achado ao pendurar a trava de lore, que depende desse seletor.
     document.addEventListener('traducao-karaoke:painel-carregado', popularContextos);
+    // A 3.3 tem o mesmo desenho: painel injetado por fetch depois do boot. Sem esta linha o
+    // combo dela abriria vazio, que foi exatamente o defeito da Tradução de Karaokê acima.
+    document.addEventListener('revisao-concordancia:painel-carregado', popularContextos);
 
     mapeamentoFormularios.forEach(item => {
         const input = document.getElementById(item.inputId);
@@ -1195,12 +1199,17 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
         // traducao-karaoke-contexto NÃO é auxiliar: o contexto alimenta o prompt
         // do LLM (lore), então recebe a obra padrão pré-selecionada, como o
         // select da Tradução Local.
-        const todosSelects = ['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto'];
+        const todosSelects = ['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'];
         todosSelects.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
 
-            const ehAuxiliar = (id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto');
+            // 'revisao-concordancia-contexto' entra como AUXILIAR por decisão de escopo de Paulo
+            // (18/08/2026): "lore não entra aqui". Naquela tela a correção é determinística e a
+            // obra escolhida não muda uma vírgula do resultado — ela identifica, exibe capa e
+            // fica no registro. Tratá-la como seletor de lore seria prometer ao operador um
+            // efeito que o motor não tem.
+            const ehAuxiliar = (id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
             const ehRevisaoLore = (id === 'revisao-lore-contexto');
             select.innerHTML = '';
 
