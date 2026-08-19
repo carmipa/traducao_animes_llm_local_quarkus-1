@@ -130,13 +130,31 @@ banner de capa, e o nome da obra no console. O tooltip diz o que ele **não** fa
 aceitava "aparece em algum lugar do `app.js`" e a mutação provou a fraqueza — o combo abriria
 vazio com a guarda verde. Passou a olhar o trecho das **duas listas** que populam.
 
-## 🟡 NÃO COMPROVADO NO NAVEGADOR — e por quê, medido
+## ✅ COMPROVADO NA TELA (Paulo autorizou o reinício, 18/08 21:38)
 
-O `quarkusDev` serve os estáticos do **boot** (07:52) e não re-sincroniza `.js`/`.html` em live
-reload — o `processResources` já copiou (o `build/resources/main/META-INF/resources/...html` tem
-o seletor, 2 ocorrências) e **o servidor devolve 0**. A corrida no navegador executou o JS
-antigo. **Exige reiniciar o KRONOS**, que é o processo interativo do Paulo, no terminal dele —
-por isso não reiniciei por conta própria.
+**O fato operacional que ficou medido:** o `quarkusDev` serve os estáticos do **boot** e não
+re-sincroniza `.js`/`.html` em live reload. Antes do reinício o `build/` já tinha o seletor (2
+ocorrências) e o servidor devolvia **0**. Depois: `js avisoSonoro=1`, `html select=2`.
+
+Reinício com a guarda em `[0]`, porta 8099 com dono único, log antigo preservado em
+`logs/console-web-gradle.ate-2026-08-15.log`. O `iniciar-kronos-dev.cmd` via `Start-Process`
+morreu sem log (arranque não deixou rastro); subiu com `gradlew quarkusDev` e **stdin aberto**
+(`sleep | gradlew`) — sem isso o console básico do Quarkus recebe EOF.
+
+```
+[21:39:37] Aviso sonoro ARMADO: 3 toques ao fim do lote.
+[21:39:37] Iniciando revisão de concordância — Obra: UC 0088 - Mobile Suit Gundam ZZ
+[21:39:37]   [OK]       ...S01E05_Track2_PT-BR.ass (concordancia conforme)      <- opacity 0.72
+[21:39:37]   [Pendente] ...S01E06_Track2_PT-BR.ass (1 fala(s) mudariam...)      <- accent-yellow
+[21:39:38]   [PENDENTE — SIMULADO (dry-run, nada gravado)] REVISAO DE CONCORDANCIA
+```
+
+O console web **traduz o ANSI para CSS** — conferido pelo `innerHTML`: `[Pendente]` sai em
+`var(--accent-yellow)` e `[OK]` em `opacity: 0.72`. A regra de cores vale nos dois mundos.
+
+Seletor: **70 opções** agrupadas por franquia, abre travado, e a **trava** deixa pasta/Procurar/
+botão inertes até escolher (`campoPastaDesabilitado: true` antes, `true` liberado depois). Banner
+carregou capa e sinopse reais do ZZ. Screenshot do painel conferido — layout íntegro.
 
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
