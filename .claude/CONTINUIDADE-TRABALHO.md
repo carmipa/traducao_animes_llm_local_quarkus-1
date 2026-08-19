@@ -205,7 +205,34 @@ nasce marcado, com o rótulo dizendo o que fazer para gravar.
 **Catraca:** `CatracaTelaDestrutivaNasceEmDryRunTest` — todo `*-simular` nasce com `checked`.
 Regex tolerante à ordem dos atributos, com caso-controle próprio. Mutação reprovou.
 
-## 🟡 EM ANDAMENTO — quanto erro de concordância existe que ninguém vê
+## ✅ ITEM 9 FECHADO — a tela sai de 1 para 55 falas corrigidas (`a89123ee` + `1f2eae57`)
+
+O instrumento respondeu a pergunta e a resposta virou correção no mesmo dia.
+
+**A medição:** `MedicaoConcordanciaPorDicionarioIT` pergunta ao dicionário pt_BR em vez de a uma
+lista, inferindo gênero por **par mínimo**. 332.545 falas → 106.495 pares → 381 discordantes →
+**210 pares distintos**, lidos um a um.
+
+**A correção:** a lista curada tinha 24 palavras, todas de PESSOA. Entraram 20 femininas e 19
+masculinas, **cada uma vista numa fala real**; e 20 candidatas foram RECUSADAS por serem ambíguas
+(`guia`, `figura`, `caça`, `soldado`) ou de gênero fixo contrário à terminação (`pirata`,
+`mecha`, `foto`, `data`…). Os **possessivos** entraram junto — metade dos erros medidos tinha
+determinante possessivo, não artigo.
+
+```
+antes ... 1 fala tocada no acervo      depois ... 55, e 0 em arquivo nao-PT
+"um isca"->"uma isca" (17x) · "o cortina"->"a cortina" · "o mochila"->"a mochila"
+"sua avanco"->"seu avanco" · "Uma gato"->"Um gato" · "O alavanca"->"A alavanca"
+```
+
+**A meia-correção que o teste pegou antes de virar dano:** em `"a nossa orgulho"`, trocar só o
+possessivo devolvia `"a nosso orgulho"` — discordância NOVA onde havia uma só. E o artigo não
+pode ir junto porque `a` também é preposição. Possessivo precedido de artigo não é tocado.
+
+**Bônus medido:** a fronteira do `\N`, documentada em 04/08 como "efeito NULO no acervo de hoje",
+teve efeito pela primeira vez — `"Leina,\No isca"` → `"Leina,\Na isca"`.
+
+## 🟡 A MEDIÇÃO, e o que ela ainda não resolve
 
 `MedicaoConcordanciaPorDicionarioIT` (novo): pergunta ao dicionário pt_BR em vez de a uma lista
 de 20 substantivos. Gênero inferido por **par mínimo** (a forma em `-o` e a em `-a` existem as
