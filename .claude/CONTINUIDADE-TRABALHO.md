@@ -171,6 +171,31 @@ A caixa segue o formato da 3.1 e tem duas entradas: o que ela corrige e **o que 
 (não usa lore, não conserta `ele`/`ela` por personagem, música é veto). O rodapé calibra com o
 número medido: *"Espere pouco, e isso é bom sinal — 380.697 falas ao alcance, a tela mudaria 1"*.
 
+## ✅ ITEM 6 FECHADO — a LÓGICA: `.parcial`, relatório honesto, catraca (`0a23730a`)
+
+- **`.parcial` saiu do alcance da escrita** — 38 arquivos, dano gravado zero, superfície total. O
+  sufixo é posto pelo próprio pipeline (`traducao.ResolvedorSaidaLegenda`) quando a tradução tem
+  pendências; a constante fica local porque fatia não fala com fatia. Sai `[Ignorado]` na tela.
+- **O relatório parou de somar o que não abriu** — "Arquivos revisados" e "Fora do alcance" são
+  linhas separadas.
+- **Catraca da fatia** (`CatracaEscritaDeFalaVetaMusicaConcordanciaTest`), a TERCEIRA irmã: as
+  gêmeas varrem prefixo e são verdes por construção fora dele.
+- **O harness foi alinhado**: também pula `.parcial`, senão a calibração batia por sorte.
+- Números que mudaram junto: **380.697 → 332.545** falas ao alcance. O achado das 15 falas não.
+
+## ✅ ITEM 7 FECHADO — cópia consciente dos tratamentos da tradução (`7590941c`)
+
+Ordem de Paulo: aqui é cópia, não acoplamento. Do corretor da 3.1 só **dois** tratamentos são
+PT-only (o resto exige o inglês): `graças ao deus → graças a Deus` e o possessivo de parentesco
+`minha pai → meu pai`. Isolados chamando o objeto de produção com original **nulo**.
+
+**Ganho medido hoje: ZERO** nas 332.545 falas — e o zero vale, porque o controle positivo rodou
+no mesmo experimento. Estão aqui para a tradução de amanhã, e isso fica escrito.
+
+**Dois erros meus, os dois pegos por instrumento:** o caso-controle sem cedilha que eu quase li
+como instrumento cego (virou achado — a cópia aceita as duas formas), e um `grep` com `\b` sobre
+texto multibyte que acusou 122 `meu irmã` que eram `meu irmão` corretos.
+
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
