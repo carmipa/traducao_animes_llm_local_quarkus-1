@@ -122,6 +122,52 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
+     * CÓPIA CONSCIENTE da 3.1 (ordem de Paulo, 18/08/2026): possessivo de parentesco, que é
+     * concordância de gênero pura e não precisa do inglês.
+     *
+     * <p>Ganho medido no acervo: ZERO — nenhuma das 332.545 falas tem o caso. Está aqui para a
+     * tradução de amanhã, e o zero fica declarado em vez de escondido.
+     */
+    @Test
+    @DisplayName("possessivo de parentesco: 'minha pai' vira 'meu pai', e o espelho tambem")
+    void corrigePossessivoDeParentesco() {
+        assertEquals(Optional.of("Meu pai chegou cedo."), corretor.corrigir("Minha pai chegou cedo."));
+        assertEquals(Optional.of("minha mãe voltou."), corretor.corrigir("meu mãe voltou."));
+        assertEquals(Optional.of("Vi sua irmã ontem."), corretor.corrigir("Vi seu irmã ontem."));
+    }
+
+    @Test
+    @DisplayName("possessivo correto e parentesco no genero certo nao sao tocados")
+    void naoTocaPossessivoCorreto() {
+        assertTrue(corretor.corrigir("Meu pai chegou cedo.").isEmpty());
+        assertTrue(corretor.corrigir("Minha mãe voltou.").isEmpty());
+        // "meu irmão" e correto — e foi exatamente o que um grep com \b sobre texto multibyte
+        // acusou como "meu irmã" (122 falsos positivos) antes de olharem a linha inteira.
+        assertTrue(corretor.corrigir("Ele é meu irmão.").isEmpty());
+    }
+
+    /**
+     * A expressão idiomática, com a DIVERGÊNCIA declarada em relação ao original da 3.1: aqui a
+     * forma sem acento também é aceita, porque a aya-expanse produz texto sem acento (197 casos
+     * medidos no Unicorn).
+     */
+    @Test
+    @DisplayName("'gracas ao deus' vira 'gracas a Deus' — com e sem acento na entrada")
+    void corrigeExpressaoIdiomatica() {
+        assertEquals(Optional.of("Graças a Deus, você está vivo."),
+            corretor.corrigir("Graças ao deus, você está vivo."));
+        assertEquals(Optional.of("Graças a Deus, você está vivo."),
+            corretor.corrigir("Gracas ao deus, você está vivo."));
+    }
+
+    @Test
+    @DisplayName("a forma correta da expressao continua intocada")
+    void naoTocaExpressaoCorreta() {
+        assertTrue(corretor.corrigir("Graças a Deus, você está vivo.").isEmpty());
+        assertTrue(corretor.corrigir("Ore a Deus, não a mim.").isEmpty());
+    }
+
+    /**
      * O contra-teste da correção acima: é ele que separa "parou de estragar" de "parou de
      * funcionar". Sem esta linha, apagar o padrão inteiro passaria no teste anterior.
      *

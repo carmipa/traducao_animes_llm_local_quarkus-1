@@ -9,6 +9,7 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.raspagemRevisao.application.CorretorDeterministicoConcordanciaService;
 import org.traducao.projeto.raspagemRevisao.application.DetectorConcordanciaService;
 import org.traducao.projeto.raspagemRevisao.application.ResolvedorArtefatosRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
@@ -89,6 +90,13 @@ class MedicaoConcordanciaAcervoPtIT {
 
     @Inject
     DetectorConcordanciaService detector;
+
+    /**
+     * O corretor determinístico da 3.1. Entra aqui como OBJETO DE PRODUÇÃO a ser consultado —
+     * é ele quem diz o que as regras dele fariam, e não uma segunda escrita dos padrões.
+     */
+    @Inject
+    CorretorDeterministicoConcordanciaService corretorDa31;
 
     /** Uma troca observada: palavra que saiu, palavra que entrou. */
     private record Par(String de, String para) {
@@ -260,6 +268,103 @@ class MedicaoConcordanciaAcervoPtIT {
         assertTrue(obrasDivergentes == 0,
             "calibracao falhou em " + obrasDivergentes + " obra(s): o laco do harness nao reproduz o caso de uso");
         assertTrue(totalAoAlcance > 0, "controle positivo: nenhuma fala ao alcance — o instrumento esta cego");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mede o que os tratamentos PT-only da 3.1 fariam se fossem COPIADOS
+     * para a 3.3 — antes de copiar. Ordem de Paulo (18/08/2026): "todos os tratamentos de
+     * concordância que tem dentro de tradução e funcionam podemos fazer cópia aqui, já que essa é
+     * uma área que não permitimos acoplamento".
+     *
+     * <h2>Como o subconjunto PT-only é isolado sem reimplementar nada</h2>
+     * O corretor da 3.1 recebe {@code (originalIngles, traducaoAtual)} e só entra nas regras que
+     * dependem do inglês quando ele existe. Chamando o <b>objeto de produção</b> com
+     * {@code originalIngles = null}, sobra exatamente o que a 3.3 poderia executar — a expressão
+     * idiomática e o possessivo de parentesco. Nenhum padrão é copiado para cá: quem responde é
+     * ele.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mesmo universo do outro harness (sem música, sem {@code .parcial});
+     * READ-ONLY; amostra do texto real junto da contagem, porque contagem não prova conjunto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acervo ausente termina com aviso, sem reprovar.
+     */
+    @Test
+    @DisplayName("acervo: o que os tratamentos PT-only da 3.1 mudariam se fossem copiados para a 3.3")
+    void medirTratamentosCopiaveisDa31() throws IOException {
+        if (!Files.isDirectory(RAIZ)) {
+            System.out.println("SEM ACERVO em " + RAIZ + " — nada medido.");
+            return;
+        }
+
+        // CONTROLE POSITIVO, no MESMO experimento: um zero no acervo só vira conclusão depois de
+        // provar que este instrumento sabe produzir não-zero. Sem isto, "não achei" e "não tinha
+        // como achar" saem idênticos — e já saíram, três vezes, neste projeto.
+        // Com CEDILHA: a 1ª versão deste controle escreveu "Gracas" e o corretor não mexeu — eu
+        // li como instrumento cego, e era o caso-controle que estava errado. O padrão da 3.1 só
+        // conhece a forma acentuada, e isso virou achado: a cópia na 3.3 aceita as duas.
+        Optional<String> controleIdiomatica = corretorDa31.corrigir(null, "Graças ao deus, você está vivo.");
+        Optional<String> controlePossessivo = corretorDa31.corrigir(null, "Minha pai chegou cedo.");
+        System.out.printf("%n[controle positivo] idiomatica: %s%n[controle positivo] possessivo: %s%n",
+            controleIdiomatica.orElse("<NAO MUDOU — INSTRUMENTO CEGO>"),
+            controlePossessivo.orElse("<NAO MUDOU — INSTRUMENTO CEGO>"));
+
+        int aoAlcance = 0;
+        int mudariam = 0;
+        Map<String, Integer> porTratamento = new TreeMap<>();
+        List<String> amostras = new ArrayList<>();
+
+        List<Path> arquivos;
+        try (Stream<Path> s = Files.walk(RAIZ)) {
+            arquivos = s.filter(Files::isRegularFile).filter(this::assOuSsa)
+                .filter(p -> !p.getFileName().toString().toLowerCase().contains(".parcial."))
+                .sorted().toList();
+        }
+
+        for (Path arquivo : arquivos) {
+            DocumentoLegenda documento;
+            try {
+                documento = leitor.ler(arquivo);
+            } catch (RuntimeException e) {
+                continue;
+            }
+            for (EventoLegenda evento : documento.eventos()) {
+                if (!evento.temTexto()) {
+                    continue;
+                }
+                if (evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo())) {
+                    continue;
+                }
+                aoAlcance++;
+                // null no original: é assim que só as regras internas ao português respondem.
+                Optional<String> proposta = corretorDa31.corrigir(null, evento.texto());
+                if (proposta.isEmpty()) {
+                    continue;
+                }
+                mudariam++;
+                String antes = visivel(evento.texto());
+                String depois = visivel(proposta.get());
+                String tratamento = antes.toLowerCase().contains("graças ao deus")
+                    || antes.toLowerCase().contains("gracas ao deus")
+                    ? "expressao idiomatica (gracas ao deus -> gracas a Deus)"
+                    : "possessivo de parentesco (minha pai -> meu pai)";
+                porTratamento.merge(tratamento, 1, Integer::sum);
+                if (amostras.size() < 12) {
+                    amostras.add("  " + recortar(antes, 90) + "\n       => " + recortar(depois, 90));
+                }
+            }
+        }
+
+        System.out.printf("%n=== TRATAMENTOS PT-ONLY DA 3.1, MEDIDOS NO ACERVO ===%n");
+        System.out.printf("falas ao alcance ......... %d%n", aoAlcance);
+        System.out.printf("falas que MUDARIAM ....... %d%n%n", mudariam);
+        porTratamento.forEach((k, v) -> System.out.printf("  %6d  %s%n", v, k));
+        System.out.println();
+        amostras.forEach(System.out::println);
+
+        assertTrue(aoAlcance > 0, "controle positivo: nenhuma fala ao alcance — instrumento cego");
+        assertTrue(controleIdiomatica.isPresent() && controlePossessivo.isPresent(),
+            "INSTRUMENTO CEGO: o corretor da 3.1 nao mexeu nem nos casos plantados. "
+                + "Enquanto isso, o zero medido no acervo nao vale nada.");
     }
 
     /**
