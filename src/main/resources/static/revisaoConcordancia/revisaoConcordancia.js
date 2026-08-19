@@ -1,4 +1,9 @@
 import { logNoConsole, mostrarAlerta } from '../js/app.js';
+// O MESMO modulo da Traducao Local e da Revisao de Lore, nao uma copia: invariante 10 do
+// projeto. Duas copias do mesmo audio divergiriam no dia em que uma ganhasse ajuste (volume,
+// numero de toques) e a outra nao, e o lote errado avisaria diferente. Pedido de Paulo em
+// 18/08/2026, quando a 3.3 foi a unica das tres telas da etapa a nascer muda.
+import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 
 const PAINEL_HTML = 'revisaoConcordancia/revisaoConcordancia.html?v=1.0';
 
@@ -56,6 +61,14 @@ function vincularEventos() {
         }
         const aplicar = chkSimular ? !chkSimular.checked : true;
 
+        // Este clique É o gesto que libera o áudio no navegador — um AudioContext criado fora de
+        // um gesto do usuário nasce 'suspended' e não emite som, sem erro e sem log. O estado é
+        // DITO na hora, em três valores: quem vai sair de perto precisa saber ANTES se pode
+        // confiar no som, e não depois de perder o fim do trabalho.
+        const estadoAviso = armarAvisoSonoro();
+        logNoConsole('console-revisao-concordancia', mensagemDoAviso(estadoAviso),
+            estadoAviso === 'armado' ? 'info' : 'aviso');
+
         logNoConsole('console-revisao-concordancia',
             `Iniciando revisão de concordância — ${diretorioTraduzido} | ${aplicar ? 'APLICAR' : 'simular (dry-run)'}`, 'info');
         btn.disabled = true;
@@ -74,7 +87,11 @@ function vincularEventos() {
             mostrarAlerta('Revisão de concordância iniciada! Acompanhe os logs.', 'sucesso');
 
             await acompanharConclusao();
+            // O alerta VISUAL vem primeiro e sempre: som depende de permissão, volume e de a aba
+            // não estar no mudo. Se o som fosse a única rede, "terminou" ficaria indistinguível
+            // de "ainda rodando" justamente quando o navegador recusa.
             mostrarAlerta('Revisão de concordância finalizada. Confira o status no console.', 'info');
+            tocarAvisoSonoro();
         } catch (err) {
             logNoConsole('console-revisao-concordancia', `Erro: ${err.message}`, 'erro');
             mostrarAlerta(err.message, 'erro');
