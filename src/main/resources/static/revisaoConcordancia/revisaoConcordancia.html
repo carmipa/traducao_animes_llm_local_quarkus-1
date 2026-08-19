@@ -20,9 +20,15 @@
             </div>
         </div>
         <div class="form-group">
+            <!-- NASCE MARCADO: a tela reescreve o .ass do acervo, e o padrão de uma ferramenta
+                 destrutiva é falhar fechado. Antes, "Revisar" com a tela recém-aberta GRAVAVA —
+                 um clique distraído bastava. Agora gravar exige desmarcar, que é um gesto
+                 deliberado. As telas irmãs (novoKaraoke, renomearArquivos, traducaoKaraoke) já
+                 separam simular de aplicar em BOTÕES distintos; esta era a exceção. -->
             <label class="checkbox-label">
-                <input type="checkbox" id="revisao-concordancia-simular">
-                Apenas simular (dry-run — mostra o que mudaria, sem gravar)
+                <input type="checkbox" id="revisao-concordancia-simular" checked>
+                Apenas simular (dry-run — mostra o que mudaria, sem gravar). <strong>Desmarque para
+                gravar de verdade.</strong>
             </label>
         </div>
         <!-- O lembrete permanente de PARA ONDE esta tela escreve. Mesmo cartão da 3.1 e da 3.2,
@@ -96,7 +102,7 @@
         <span class="material-symbols-outlined">query_stats</span>
         <span><strong>Espere pouco, e isso é bom sinal.</strong> Medido em 18/08/2026 no acervo inteiro — 726 legendas,
             332.545 falas ao alcance: a tela mudaria <strong>1 fala</strong>. Ela é rede de segurança para o erro
-            gritante, não faxina. Rode primeiro com <strong>Apenas simular</strong> e leia o console: verde é arquivo
+            gritante, não faxina. A tela <strong>abre em Apenas simular</strong> — leia o console antes de desmarcar: verde é arquivo
             gravado, amarelo é o que mudaria, cinza é arquivo sem nada — e <code>[Ignorado]</code> é o
             <code>.parcial</code>, que ela não toca por não ser entrega.</span>
     </p>
