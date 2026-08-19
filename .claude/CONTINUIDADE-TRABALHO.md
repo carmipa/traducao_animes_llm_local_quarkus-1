@@ -232,6 +232,31 @@ pode ir junto porque `a` também é preposição. Possessivo precedido de artigo
 **Bônus medido:** a fronteira do `\N`, documentada em 04/08 como "efeito NULO no acervo de hoje",
 teve efeito pela primeira vez — `"Leina,\No isca"` → `"Leina,\Na isca"`.
 
+## ✅ ITEM 10 FECHADO — as duas perguntas do Paulo, respondidas por sonda (`cc6a0949`)
+
+Ele perguntou se valia a pena atacar os dois pontos declarados. Respostas **opostas**, as duas
+medidas antes de escrever qualquer código.
+
+**1. Análise morfológica para separar verbo de substantivo — NÃO VALE.** A sonda mostrou que o
+dicionário analisa o sinal exatamente como o ruído: `resta → st:restar` e `isca → st:iscar`,
+`cortina → st:cortinar`, `orgulho → st:orgulhar`. Filtrar por radical em `-ar` mataria o que
+queremos. Separar exigiria POS tagger (spaCy/UDPipe) — dependência e modelo novos, para um
+instrumento cuja lista já é legível a olho.
+
+**2. Plural — VALE, e o número diz quanto.** Dos 238 pares distintos, 27 são de plural e a
+leitura separou **17 ocorrências reais** do ruído conhecido (`os caras`, 86× correto).
+
+```
+55 -> 76 falas tocadas no acervo
+"as reforcos"->"os reforcos" · "as reparos"->"os reparos" · "os pessoas"->"as pessoas"
+```
+
+O plural tem padrão **próprio**: casar número e gênero juntos deixaria `"o meninas"` virar
+`"a meninas"` — um erro por outro. Número divergente a tela não toca.
+
+**Erro meu corrigido junto:** `criança`, `pessoa`, `vítima` e `testemunha` estavam na exclusão do
+instrumento como se fossem gênero comum. São femininos fixos — excluí-las cegava a medição.
+
 ## 🟡 A MEDIÇÃO, e o que ela ainda não resolve
 
 `MedicaoConcordanciaPorDicionarioIT` (novo): pergunta ao dicionário pt_BR em vez de a uma lista
