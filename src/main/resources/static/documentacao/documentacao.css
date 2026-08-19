@@ -258,13 +258,26 @@
     border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
+/* Bloco de código da documentação cresce com o conteúdo.
+   A regra GLOBAL do base.css (`pre { height: 50vh; min-height: 150px; resize: vertical }`)
+   existe para os VIEWERS — console de log, telemetria, tabelas roláveis —, onde altura fixa é
+   o comportamento certo. Ela alcançava também o markdown desta tela, e ali é defeito: um
+   trecho de 3 linhas ocupava 525px (50vh) de caixa quase vazia, com alça de redimensionar,
+   e cada página virava maratona de rolagem. Medido em 19/08/2026: TODOS os `pre` da página
+   3.3 mediam 525px, de 2 a 4 linhas de conteúdo.
+   O teto de 70vh fica para o trecho realmente longo continuar rolando dentro da própria caixa. */
 #panel-documentacao .doc-markdown pre {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 20px;
     margin: 16px 0;
+    height: auto;
+    min-height: 0;
+    max-height: 70vh;
+    resize: none;
     overflow-x: auto;
+    overflow-y: auto;
 }
 
 #panel-documentacao .doc-markdown pre code {
