@@ -1,8 +1,11 @@
 package org.traducao.projeto.medicao;
 
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import java.io.IOException;
@@ -59,8 +62,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *     ... acrescentando "-Dkronos.aplicar.acentos=SIM-ESCREVER-NO-ACERVO"
  * </pre>
  */
+@QuarkusTest
 @EnabledIfSystemProperty(named = "kronos.medicao", matches = "true")
 class AplicarAcentosNoAcervoIT {
+
+    /**
+     * O DONO da regra "isto e musica?", resolvido pelo CDI — a mesma instancia que as tres telas
+     * da etapa 3 consultam. Uma lista propria aqui divergiria em silencio no dia em que um estilo
+     * novo entrasse no acervo, e o sinal apareceria numa legenda estragada. Foi por NAO perguntar
+     * a ele que esta ferramenta reescreveu 103 linhas de romaji em 19/08/2026.
+     */
+    @Inject
+    PoliticaEstiloMusical politicaEstiloMusical;
 
     /** Segunda trava, separada de propósito: medir é barato, escrever é irreversível. */
     private static final String CHAVE_ESCRITA = "kronos.aplicar.acentos";
@@ -112,6 +125,22 @@ class AplicarAcentosNoAcervoIT {
                 // viraria coluna de metadado.
                 String[] col = linha.split(",", 10);
                 if (col.length < 10) {
+                    saida.add(linha);
+                    continue;
+                }
+                // ESTILO MUSICAL É VETO — e este veto nasceu de dano GRAVADO, em 19/08/2026.
+                // Sem ele, esta ferramenta reescreveu 103 linhas de ROMAJI no acervo:
+                // "aa kizutsukeau mae ni" virou "...mãe ni". O `mae` do romaji é 前 ("antes"),
+                // não a palavra portuguesa — e o normalizador, que está CERTO para diálogo, não
+                // tem como saber disso. Foram 102 linhas `Song JP` e 1 `OP Roma`, desfeitas do
+                // snapshot byte a byte.
+                //
+                // A regra já existia e tinha dono: as três telas da etapa 3 perguntam à
+                // PoliticaEstiloMusical antes de escrever. Esta ferramenta era a única que
+                // varria o acervo inteiro sem perguntar — e a lista de acentos da fatia
+                // qualidadeTraducao tem 4 formas que são romaji válido (ate, mae, nao, sao),
+                // medidas contra as 129.745 formas do dicionário ja_ROMAJI.
+                if (politicaEstiloMusical.estiloIgnorado(col[3])) {
                     saida.add(linha);
                     continue;
                 }

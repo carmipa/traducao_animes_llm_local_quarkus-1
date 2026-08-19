@@ -1970,6 +1970,14 @@ obras:
      # ep10 ev.149 — que era erro REAL, o nome do MECHA no lugar do apelido — foi corrigida a mao
      # para "Nosso Ceifador", porque o enforcer nao consegue produzi-la: ele exige o canonico
      # presente no INGLES, e "Ceifador" nunca esta la.
+     # As COMPOSTAS vêm antes da simples, e a razão é um dano gravado em 19/08/2026: o reforço
+     # de terminologia trocou "Coronel" DENTRO de "Tenente-Coronel" e produziu 32 ocorrências de
+     # "Tenente-Major" — patente que não existe em português. Trocar substring dentro de um termo
+     # composto é meia-correção: sai um erro plausível e entra um erro impossível de ler.
+     # A patente da Lena é Major (少佐), e a forma inteira é que tem de ser substituída.
+     Tenente-Coronel: Major              # 41 no cache antes do conserto
+     Tenente-coronel: Major              # 181 — a forma com minuscula é a mais comum
+     Tenente-Major: Major                # 32 — o estrago da própria ferramenta, revertido pelo mapa
      Coronel: Major                      # 23 no PT x 49 "Major" no EN — MAS o ingles tem 16
                                          # "Colonel", e ali "Coronel" esta CERTO. So nao quebra
                                          # porque o enforcer exige o canonico na grafia exata NO
