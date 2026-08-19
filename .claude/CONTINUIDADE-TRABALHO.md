@@ -279,6 +279,29 @@ linhas trocadas, com tempo, estilo e tags idênticos.
 **Duas sobras que pareciam erro eram do meu grep:** `somos pessoas` e `sacrificamos pessoas`
 casaram `os pessoas` por substring — a mesma armadilha de ontem, agora sem `\b` nenhum.
 
+## 📊 RETRATO DO ACERVO — bateria inteira rodada em 19/08/2026
+
+24 harnesses de medição, 29 testes, **0 falhas**, 2 pulados (os que exigem frase literal de
+escrita ou o LLM). 19m43s. As duas que escrevem no acervo **não dispararam** — exigem
+`-Dkronos.aplicar.*` com frase literal.
+
+| medição | número | leitura |
+|---|---|---|
+| **Acentos faltando** | **699 falas** em 76 arquivos | DanMachi 592 · Zeta 100 · ZZ 2 · GC 2 · F91 2 · Unicorn 1 |
+| **Termo de lore a restaurar** | **127 falas** em 355 arquivos | Cardeas 28 · Apsaras 24 · Kelley 21 · Major 19 · Void 16 |
+| Concordância (3.3) | **0** | zerada — aplicamos hoje, e a 2ª passada confirma |
+| Concordância por dicionário | 426 candidatos | ruído conhecido: oblíquo+verbo, gerúndio, gênero comum |
+| Detector 3.1 (com inglês) | 60 suspeitas / 122.640 | 0,05% |
+| Predicativo | **0 erro real** / 391 analisáveis | medido e fechado: a lista de 30 adjetivos basta |
+| Original repetido | 324 grupos, 880 falas | mesmo EN, traduções DIFERENTES |
+| Música x espelho | 55.865 / 245.266 linhas | passivo de música já conhecido |
+| Proveniência | 15 arquivos | retraduziriam do zero |
+| Cartaz na 3.2 | 3 de 76.603 linhas | ruído mínimo |
+| Falas vazias / resíduo EN / lore quebrada | vazio | nada a relatar |
+
+**As duas pendências com número e ferramenta pronta são acento (699) e termo de lore (127).** As
+duas gravam no acervo e têm trava dupla — decisão de Paulo.
+
 ## 🟡 A MEDIÇÃO, e o que ela ainda não resolve
 
 `MedicaoConcordanciaPorDicionarioIT` (novo): pergunta ao dicionário pt_BR em vez de a uma lista
