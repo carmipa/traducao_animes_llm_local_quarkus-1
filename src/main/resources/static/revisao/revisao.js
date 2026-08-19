@@ -1,5 +1,6 @@
 import { logNoConsole } from '../js/app.js';
 import { montarOpcoesContextos } from '../js/selectContextos.js';
+import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js?v=1.1';
 
 const STORAGE_PASTA_PT = 'revisao.ultimaPastaPt';
 
@@ -256,42 +257,32 @@ export function initRevisao() {
      * — fácil quando duas séries dividem a mesma pasta — só aparece depois, no arquivo gravado.
      * O relatório também não registra a lore usada, então a tela é o único lugar onde isso é
      * visível a tempo.
+     *
+     * <p>A montagem do cartão saiu daqui em 19/08/2026 para `js/cartaoAlvoAtivo.js`: quatro telas
+     * tinham o MESMO cartão com o JS copiado, e as cópias já haviam divergido no jeito de mostrar
+     * a pasta. Esta tela mantém o que é só dela — o `sessionStorage`, o evento dos contextos que
+     * chegam por fetch e o destaque da caixa enquanto falta lore ou pasta.
+     *
      * INVARIANTES DO DOMÍNIO: só lê o estado dos campos; não altera nada nem dispara requisição.
      * COMPORTAMENTO EM CASO DE FALHA: elementos ausentes fazem a função não ter efeito.
      */
-    const alvoCaixa = document.getElementById('revisao-alvo');
-    const alvoTexto = document.getElementById('revisao-alvo-texto');
-    const atualizarAlvo = () => {
-        if (!alvoCaixa || !alvoTexto) return;
-        const pasta = inputPt.value.trim();
-        const opcao = contextoSelect?.selectedOptions?.[0];
-        const lore = contextoSelect?.value ? (opcao?.textContent || '').trim() : '';
-        const semLore = !lore;
-        alvoCaixa.classList.toggle('op-alvo-acervo', semLore || !pasta);
+    const atualizarAlvo = ligarCartaoAlvoAtivo({
+        alvoTextoId: 'revisao-alvo-texto',
+        selectId: 'revisao-contexto',
+        pastaId: 'revisao-entrada',
+        caixaId: 'revisao-alvo',
+        rotuloObra: 'Lore ativa',
+        semEscolha: 'Sem ela os nomes da obra não ficam protegidos do tradutor externo, '
+            + 'e as duas passadas se recusam a começar.'
+    }) || (() => {});
 
-        const partes = [];
-        partes.push(semLore
-            ? 'Lore: <strong>nenhuma escolhida</strong> — sem ela os nomes da obra não ficam protegidos '
-              + 'do tradutor externo, e as duas passadas se recusam a começar.'
-            : `Lore ativa: <strong>${lore}</strong>.`);
-        partes.push(pasta
-            ? 'Pasta: <code class="alvo-pasta"></code>'
-            : 'Pasta: <strong>ainda não informada</strong>.');
-        alvoTexto.innerHTML = partes.join(' ');
-        const codigo = alvoTexto.querySelector('.alvo-pasta');
-        if (codigo) codigo.textContent = pasta;
-    };
-
-    ['input', 'change'].forEach(evento => {
-        inputPt.addEventListener(evento, atualizarAlvo);
-        contextoSelect?.addEventListener(evento, atualizarAlvo);
-    });
-    // O "Limpar Campos" compartilhado grava o valor direto, sem disparar evento.
+    // `change` do seletor, `input` da pasta e a primeira pintura já vêm do módulo. Ficam aqui só
+    // os dois avisos que são desta tela e nenhum evento de campo dispara:
+    // o "Limpar Campos" compartilhado grava o valor direto, sem disparar evento...
     document.querySelector('#panel-revisao .btn-clear-form')
         ?.addEventListener('click', () => setTimeout(atualizarAlvo, 0));
-    // Os contextos chegam por fetch; sem isto o espelho ficaria preso em "nenhuma escolhida".
+    // ...e os contextos chegam por fetch; sem isto o cartão ficaria preso em "nenhuma".
     contextoSelect?.addEventListener('kronos:contextos-carregados', atualizarAlvo);
-    atualizarAlvo();
 
     if (btnConcordancia) {
         btnConcordancia.addEventListener('click', async () => {

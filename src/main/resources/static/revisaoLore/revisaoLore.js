@@ -2,6 +2,8 @@ import { logNoConsole, mostrarAlerta } from '../js/app.js';
 // Mesmo aviso da Traducao Local, do MESMO modulo — a revisao de lore tambem leva minutos e quem
 // dispara sai de perto. Pedido de Paulo em 17/08/2026.
 import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
+// O cartao do alvo tem dono unico desde 19/08/2026 — ver o Javadoc de ligarCartaoLoreAtiva.
+import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js?v=1.1';
 
 const PAINEL_HTML = 'revisaoLore/revisaoLore.html?v=3.2';
 
@@ -128,30 +130,29 @@ function vincularEventos() {
 
 /**
  * PROPÓSITO DE NEGÓCIO: mostra, o tempo todo, QUAL lore está ativa e para QUAL pasta ela vai
- * escrever — no mesmo cartão que a 3.1 usa. Sem isto o operador escolhe a obra num combo lá em
- * cima e perde a confirmação de vista ao preencher as pastas, que é onde o erro custa caro.
+ * escrever — no mesmo cartão que a 3.1 e a 3.3 usam. Sem isto o operador escolhe a obra num combo
+ * lá em cima e perde a confirmação de vista ao preencher as pastas, que é onde o erro custa caro.
+ *
+ * <p>Em 19/08/2026 deixou de ter montagem própria. A cópia daqui interpolava a pasta direto no
+ * `innerHTML` — a única das quatro telas que fazia isso — enquanto as vizinhas usavam
+ * `textContent`. Ninguém decidiu a diferença; ela apareceu sozinha, que é como divergência de
+ * cópia sempre aparece. O dono do cartão agora é `js/cartaoAlvoAtivo.js`.
+ *
+ * <p>Sem `caixaId` de propósito: o destaque visual da caixa incompleta é comportamento da 3.1, e
+ * unificar código não é licença para inventar comportamento novo em tela que já funciona.
+ *
  * INVARIANTES: lê a obra do próprio <select> e a pasta do campo que SERÁ REESCRITO.
  * COMPORTAMENTO EM CASO DE FALHA: elemento ausente devolve sem lançar — a tela perde o cartão,
  * nunca o carregamento.
  */
 function ligarCartaoLoreAtiva() {
-    const alvo = document.getElementById('revisao-lore-alvo-texto');
-    const select = document.getElementById('revisao-lore-contexto');
-    const pastaComIngles = document.getElementById('revisao-lore-entrada-traduzida');
-    if (!alvo || !select) return;
-
-    const pintar = () => {
-        const obra = select.options[select.selectedIndex]?.text || '';
-        const escolheu = !!select.value;
-        const pasta = (pastaComIngles?.value || '').trim();
-        alvo.innerHTML = escolheu
-            ? `Lore ativa: <strong>${obra}</strong>. Pasta: <strong>${pasta || 'ainda não informada'}</strong>.`
-            : 'Lore ativa: <strong>nenhuma</strong>. Escolha a obra para liberar os campos.';
-    };
-
-    select.addEventListener('change', pintar);
-    pastaComIngles?.addEventListener('input', pintar);
-    pintar();
+    ligarCartaoAlvoAtivo({
+        alvoTextoId: 'revisao-lore-alvo-texto',
+        selectId: 'revisao-lore-contexto',
+        pastaId: 'revisao-lore-entrada-traduzida',
+        rotuloObra: 'Lore ativa',
+        semEscolha: 'Escolha a obra para liberar os campos.'
+    });
 }
 
 
