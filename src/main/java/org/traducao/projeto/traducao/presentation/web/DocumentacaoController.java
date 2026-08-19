@@ -27,11 +27,31 @@ import java.util.regex.Pattern;
 public class DocumentacaoController {
 
     private static final Logger log = LoggerFactory.getLogger(DocumentacaoController.class);
-    private static final Pattern NOME_SEGURO = Pattern.compile("^[a-zA-Z0-9_\\-]+$");
+
+    /**
+     * Nome de página aceito. O PONTO é obrigatório aqui: desde 06/08/2026 as páginas de etapa se
+     * chamam {@code etapa-G.N-nome.md} ({@code etapa-1.1-analise-midia}), e o padrão anterior
+     * ({@code ^[a-zA-Z0-9_\-]+$}) recusava todas elas com HTTP 400.
+     *
+     * <h2>O prejuízo, medido em 19/08/2026</h2>
+     * As <b>14 páginas numeradas</b> — o pipeline inteiro — respondiam 400 no painel
+     * "Documentação" da aplicação. Só as páginas sem ponto no nome ({@code arquitetura},
+     * {@code ref-docker}) abriam. A {@code CatracaOrdemDocumentacaoTest} conferia a NUMERAÇÃO e a
+     * ORDEM dos arquivos, e nenhuma guarda perguntava se a página <b>abre</b> — documento
+     * corretamente nomeado e inalcançável passava por todas.
+     *
+     * <p>O ponto entra, mas {@code ..} continua fora: a travessia é barrada aqui e, em segunda
+     * camada, pelo {@code normalize()} + {@code startsWith(pastaDocs)} abaixo. Ver
+     * {@code CatracaPaginaDeDocumentacaoAbreTest}.
+     */
+    private static final Pattern NOME_SEGURO = Pattern.compile("^[a-zA-Z0-9_][a-zA-Z0-9_.\\-]*$");
 
     @GetMapping(value = "/{pagina}", produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8")
     public ResponseEntity<String> servirMarkdown(@PathVariable String pagina) {
-        if (pagina == null || !NOME_SEGURO.matcher(pagina).matches()) {
+        // O ".." é recusado explicitamente, e não só por consequência do padrão: separador de
+        // caminho já não passa no NOME_SEGURO, mas deixar a intenção escrita evita que um ajuste
+        // futuro no padrão reabra a travessia sem ninguém perceber.
+        if (pagina == null || pagina.contains("..") || !NOME_SEGURO.matcher(pagina).matches()) {
             return ResponseEntity.badRequest().body("Nome de página de documentação inválido.");
         }
 
