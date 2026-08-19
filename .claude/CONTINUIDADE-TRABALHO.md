@@ -1,5 +1,116 @@
 # CONTINUIDADE — KRONOS
 
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA (2026-08-19, noite — documentação)
+
+**Nenhuma pendente na documentação.** A tarefa de 19/08 à noite ("atualize totalmente a
+documentação") foi entregue e provada. Se a sessão retomar, a fila real é a do acervo, mais
+abaixo neste arquivo (acento: 699 falas; termo de lore: 127 — as duas com ferramenta pronta e
+trava dupla, aguardando decisão de Paulo).
+
+---
+
+# ▶ ENTREGUE EM 19/08/2026 (noite) — DOCUMENTAÇÃO ATUALIZADA
+
+**TAREFA ORIGINAL (palavras de Paulo):** *"Agora queciso que voce atualize totalemtne a
+documentação do kronos, pois estes ultimos dias mexemos em muitas coisas e ele deve estar todo
+desatualizado, colocque diagramas de arquitetura coloridos icones cores e imagens novas,
+screesn das telas , pois elas mudaram, Documente muito bem tudo!"*
+
+## O desvio, medido antes de escrever
+
+```
+219 commits desde a ultima atualizacao dos docs (06/08)
+screenshots de 19/07 — um mes atras, com 3.1/3.2/3.3 inteiras mudadas
+3.3 Revisao de Concordancia: existia no menu, SEM pagina nenhuma
+3.1 Revisao de Legendas:     sem pagina propria, dobrada dentro da 2.3
+docs/ref-docker.md:          no disco e FORA do indice (invisivel no app)
+```
+
+## ✅ O DEFEITO QUE A TAREFA DESENTERROU — a documentação estava MORTA no app
+
+`GET /api/docs/etapa-1.1-analise-midia` → **HTTP 400**. As **14 páginas numeradas** — o pipeline
+inteiro — não abriam no painel "Documentação" desde a renomeação de 06/08/2026. Só abriam as
+páginas sem ponto no nome (`arquitetura`, `ref-*`).
+
+Causa: `DocumentacaoController.NOME_SEGURO` era `^[a-zA-Z0-9_\-]+$`, **sem o ponto**, e as páginas
+passaram a se chamar `etapa-G.N-nome.md`. A `CatracaOrdemDocumentacaoTest` conferia numeração,
+nome e ordem — e **nenhuma guarda perguntava se a página abre**.
+
+```
+CONFIRMADO NO NAVEGADOR (antes):  "Nao foi possivel carregar etapa-1.1-analise-midia. HTTP 400"
+DEPOIS: as 26 paginas de docs/ respondem 200, conferidas uma a uma por curl
+```
+
+**Guarda nova:** `CatracaPaginaDeDocumentacaoAbreTest` (3 testes) — toda página de `docs/` abre;
+travessia (`..`, separador, vazio) continua recusada; inexistente responde 404.
+
+```
+CALIBRACAO (replantei o padrao antigo, sem ponto) .... 3 tests completed, 2 failed
+COM O CONSERTO ...................................... 3/3 verdes
+CatracaOrdemDocumentacaoTest ........................ 4/4 verdes
+```
+
+## ✅ SEGUNDO DEFEITO — todo bloco de código media 525px
+
+Medido na 3.3: `pre` de 2, 3 e 4 linhas, **todos com 525px**. A regra global do `base.css`
+(`pre { height: 50vh; min-height: 150px; resize: vertical }`) existe para os VIEWERS (console de
+log, telemetria) e alcançava o markdown da documentação. Corrigido **só no painel de
+documentação** (`documentacao.css`), sem tocar nos consoles.
+
+```
+ANTES:  525 · 525 · 525 · 525 px   (2 a 4 linhas de conteudo)
+DEPOIS: 104 ·  98 ·  62 ·  77 · 202 px  (proporcional ao conteudo)
+```
+
+## O que foi escrito
+
+| arquivo | o que mudou |
+|---|---|
+| `docs/etapa-3.3-revisao-concordancia.md` | **NOVO** — a tela que não tinha página |
+| `docs/etapa-3.1-revisao-legendas.md` | **NOVO** — extraída da 2.3, com as duas passadas e o cartão do alvo |
+| `docs/etapa-3.2-revisao-lore.md` | **reescrito** — a tela passou a CORRIGIR; lore.yaml como produto; as cicatrizes (token de template, Bosnia, patente, Kelley) |
+| `docs/etapa-2.3-correcao-revisao.md` | recortado para o **cache** apenas; fluxos 3 e 4 apontam para as páginas novas |
+| `docs/modulo-contextos-lore.md` | **reescrito** — a lore é DADO desde 15/08; instruções de "adicionar obra" estavam mandando criar classe Java |
+| `docs/arquitetura.md` | números remedidos; peer `contexto` → `lore`; 34 guardas |
+| `docs/catracas-e-fronteiras.md` | inventário de **13 → 34 guardas**, agrupado, com testes por classe |
+| `docs/ref-api-endpoints.md` | âncoras mortas para os fluxos que mudaram de página |
+| `README.md` | números remedidos, 3.1/3.3 na tabela, 69 obras |
+| `index.html` | índice da documentação: 3.1, 3.3 e `ref-docker` (que estava invisível) |
+| `AlcanceRevisaoLore.java` | `{@link}` para `RevisarLorePtOnlyUseCase`, classe removida em 17/08 |
+
+**21 screenshots** refeitos com o servidor reiniciado (18 atualizados + 3 novos:
+`revisao-concordancia`, `traducao-sem-lore`, `sobre`).
+
+## Números remedidos (o que a documentação afirmava × o que a produção diz)
+
+| afirmava | mede hoje |
+|---|---|
+| 72 lores | **69** obras no `lore.yaml`, **68** na lista da UI (1 com `apareceNaLista: false`) |
+| 577 classes / 63.942 linhas | **471** classes / **63.049** linhas em `src/main` |
+| 1.440 testes | **2.001** testes em **360** classes |
+| 13 guardas | **34** guardas (24 catracas + 10 fronteiras), 133 testes |
+| 19 controllers | **21** |
+| peer `contexto`, 93 classes | peer `lore`, **24** classes + `lore.yaml` de 15.101 linhas |
+
+## Provas coladas
+
+```
+gradlew test --rerun-tasks .......... 2.001 testes | 360 classes | 0 falhas | 35 pulados
+34 guardas ......................... 133 testes | 0 falhas   (chaveado pelo FQN do arquivo)
+26 paginas de docs/ ................ todas HTTP 200
+navegador (playwright) ............. 3.3 renderiza: 1 mermaid SVG, imagem carregada
+                                     (naturalWidth>0), 8 tabelas, sem erro no painel
+arquitetura .......................  5 diagramas mermaid renderizados, coloridos
+```
+
+**Erro meu, pego pelo proprio instrumento:** meu primeiro parser dos XMLs de teste descartava em
+silêncio o arquivo cuja ordem de atributos não casava, e reportei "18 catracas" onde eram 24. A
+chave certa é o **FQN no nome do arquivo**, não o atributo `name` — que vira o `@DisplayName`
+quando a classe tem um. Mesma família do "descarte silencioso" que a regra 23 proíbe.
+
+---
+
+
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA (2026-08-19, fim do dia)
 
 **Nenhuma pendente.** A 3.3 está fechada (Paulo: *"boa então fecho concordância?"* → sim, com as
@@ -376,6 +487,12 @@ ANTES da primeira consulta (ele nasce nulo); e duas esperas com epoch cravado na
 saíram na hora e me fizeram ler relatório velho duas vezes.
 
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
+
+> **Reconciliado em 19/08/2026 (noite):** os itens **1, 2 e 3** desta lista JÁ FORAM FECHADOS mais
+> acima, nos ITENS 8 e 6 dos concluídos — a tela nasce em dry-run (`66b4636d`), o `.parcial` saiu
+> do alcance e a catraca de escrita da fatia existe (`0a23730a`). A lista abaixo ficou como estava
+> quando foi escrita; só os itens **4 e 5** continuam abertos. Conflito factual dentro do próprio
+> checkpoint é o que a regra 24 manda corrigir na hora, não deixar para depois.
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
    DESMARCADO, e `aplicar = !simular`. Um clique em Revisar escreve. As outras telas do projeto

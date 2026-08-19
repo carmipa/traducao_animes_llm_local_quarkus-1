@@ -31,7 +31,7 @@ O **KRONOS CORE** é uma plataforma de automação para **tradução industrial 
 - 🔍 **Auditoria técnica de mídia** (ffprobe) com classificação de traduzibilidade das legendas (texto vs. bitmap)
 - ✂️ **Extração em lote** de faixas de legenda (ASS/SRT/PGS) de MKV/MP4/qualquer contêiner comum
 - 🔎 **Análise de Conteúdo de legendas** — 5 regras de auditoria contra anomalias de LLM, efeitos vazados e karaokê danificado, antes e depois da tradução
-- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (**72 contextos**)
+- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (**69 obras** no `lore.yaml`)
 - 🩹 **Três fluxos de correção/revisão** (LLM, Google Translate, heurística de concordância PT-BR)
 - 🧵 **Restauração estrutural de tags ASS** corrompidas por alucinação de IA (Aegisub/Kara Templater)
 - 📖 **Revisão de Lore** pós-tradução — nomes, locais e termos de mundo validados contra a lore oficial da obra, com trilha de auditoria por fala
@@ -66,21 +66,23 @@ histórico justamente porque numeração que não acompanha a ordem vira mentira
 | Passo | Módulo | Descrição |
 |---|--------|-----------|
 | — 📐 | [**Arquitetura**](docs/arquitetura.md) | Visão geral, diagramas de componentes e fluxos de dados |
-| — 🚦 | [**Catracas & Fronteiras**](docs/catracas-e-fronteiras.md) | As 13 guardas executáveis que reprovam o build — como a regra sobrevive à troca de IA |
+| — 🚦 | [**Catracas & Fronteiras**](docs/catracas-e-fronteiras.md) | As **35** guardas executáveis que reprovam o build — como a regra sobrevive à troca de IA |
 | — 🚀 | [**Instalação & Configuração**](docs/instalacao.md) | Pré-requisitos, setup local e primeiros passos |
 | **1.1** 🔍 | [**Análise de Mídia**](docs/etapa-1.1-analise-midia.md) | Auditoria ffprobe e classificação de traduzibilidade das legendas (texto/bitmap) |
 | **1.2** ✂️ | [**Extração de Legendas**](docs/etapa-1.2-extracao-legendas.md) | Extração em lote ASS/SRT/PGS via MKVToolNix/ffmpeg |
 | **1.3** 🔤 | [**Troca de Tipo de Legenda**](docs/etapa-1.3-troca-tipo-legenda.md) | Troca fontes legadas (TCVN3/VNI) por Unicode — **antes** de traduzir, para o texto não chegar corrompido ao LLM |
 | **1.4** 🔎 | [**Análise de Legenda**](docs/etapa-1.4-analise-conteudo.md) | Auditoria de anomalias: efeitos vazados, karaokê danificado, alucinações de LLM |
 | **2.1** 🌐 | [**Tradução Local (LLM)**](docs/etapa-2.1-traducao-llm.md) | Núcleo: LM Studio, cache, proteção de tags, contextos |
-| **2.3** 🩹 | [**Correção & Revisão**](docs/etapa-2.3-correcao-revisao.md) | Os 3 fluxos: LLM, Google Translate, concordância PT-BR |
-| **3.2** 📖 | [**Revisão de Lore**](docs/etapa-3.2-revisao-lore.md) | Corrige nomes, locais e termos de lore comparando com o original em inglês |
+| **2.3** 🗃️ | [**Correção de Cache**](docs/etapa-2.3-correcao-revisao.md) | Os 3 fluxos sobre o **cache**: limpeza de fallback, Google Translate e LLM |
+| **3.1** 🩹 | [**Revisão de Legendas**](docs/etapa-3.1-revisao-legendas.md) | Sobre o `.ass` entregue: traduz o que ficou em inglês (LLM com Google em cascata) e corrige concordância com a lore |
+| **3.2** 📖 | [**Revisão de Lore**](docs/etapa-3.2-revisao-lore.md) | Corrige nomes, locais e termos de lore comparando com o original em inglês. **Desde 18/08/2026 ela escreve na legenda** |
+| **3.3** 🔤 | [**Revisão de Concordância**](docs/etapa-3.3-revisao-concordancia.md) | Gênero inequívoco em PT-BR, **sem inglês, sem cache e sem LLM**. Nasce em dry-run |
 | **4.1** 🎤 | [**Tradução de Karaokê**](docs/etapa-4.1-traducao-karaoke.md) | Romaji preservado + letra em inglês traduzida para PT-BR, lado a lado |
 | **4.2** 🧵 | [**Correção de Karaokê**](docs/etapa-4.2-cura-tags.md) | Restauração estrutural de tags ASS/Kara Templater |
 | **4.3** 🎵 | [**Karaokê Simples**](docs/etapa-4.3-karaoke-simples.md) | Converte karaokê KFX em linhas simples, no tempo original. **Destrutivo — último do bloco** |
 | **5.1** 📦 | [**Remuxer**](docs/etapa-5.1-remuxer.md) | Combina vídeo + legenda em MKV final |
 | **5.2** 🧹 | [**Renomear Arquivos**](docs/etapa-5.2-renomear-arquivos.md) | Renomeação em lote para o padrão `Nome - S01E01`, com dry-run e undo |
-| 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **72 contextos** cadastrados |
+| 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **69 obras** no `lore.yaml` (68 aparecem na lista da UI) |
 | 📊 | [**Telemetria**](docs/modulo-telemetria.md) | Rastreamento de operações e métricas de JVM em tempo real |
 | 🎬 | [**Metadados de Anime**](docs/modulo-metadados-anime.md) | Integração Jikan/MAL e TMDB para pôster/sinopse na UI |
 | 🗺️ | [**Mapa do Projeto**](docs/modulo-mapa-projeto.md) | Gerador automático do índice de código-fonte |
@@ -114,7 +116,10 @@ cd traducao_animes_llm_local_quarkus
 ./gradlew quarkusDev
 ```
 
-> O servidor sobe em **`http://127.0.0.1:8080`** e o navegador abre automaticamente. Detalhes completos em [Instalação & Configuração](docs/instalacao.md).
+> O servidor sobe em **`http://127.0.0.1:8099`** e o navegador abre automaticamente. **Atenção:**
+> o live reload vale para `.java`, **não** para os estáticos (`index.html`, `.js`, `.css`) — o
+> `quarkusDev` serve o que existia no boot. Detalhes e a guarda que autoriza o reinício em
+> [Instalação & Configuração](docs/instalacao.md).
 
 ### Antes de alterar qualquer coisa
 
@@ -133,14 +138,14 @@ Detalhes em [Catracas e Fronteiras](docs/catracas-e-fronteiras.md).
 
 ```mermaid
 graph TD
-    SPA["🖥️ SPA — HTML/CSS/JS puro + SSE<br/>17 telas, sem framework"] --> CTRL["🎮 19 controllers REST<br/>34 endpoints sob /api"]
+    SPA["🖥️ SPA — HTML/CSS/JS puro + SSE<br/>20 telas, sem framework"] --> CTRL["🎮 21 controllers REST<br/>endpoints sob /api"]
     CTRL --> SLICES["🧩 20 fatias verticais<br/>uma etapa do pipeline cada"]
-    SLICES --> PEERS["🧱 5 peers importáveis<br/>legenda · cachetraducao · contexto<br/>qualidadeTraducao · llm"]
-    SLICES --> CORE["⚙️ core — 16 tipos<br/>fila · I/O atômico · SSE · fronteira ASS"]
+    SLICES --> PEERS["🧱 5 peers importáveis<br/>legenda · cachetraducao · lore<br/>qualidadeTraducao · llm"]
+    SLICES --> CORE["⚙️ core<br/>fila · I/O atômico · SSE · fronteira ASS"]
     PEERS --> CORE
     SLICES --> EXT["🌍 LM Studio (GPU)<br/>MKVToolNix · FFmpeg"]
     PEERS --> EXT
-    GUARD["🚦 13 guardas executáveis<br/>9 fronteiras ArchUnit + 4 catracas<br/><i>reprovam o build, não avisam</i>"] -.->|congela as arestas| SLICES
+    GUARD["🚦 35 guardas executáveis<br/>10 fronteiras ArchUnit + 25 catracas<br/><i>reprovam o build, não avisam</i>"] -.->|congela as arestas| SLICES
 
     classDef a fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
     classDef b fill:#312e81,stroke:#818CF8,color:#F9FAFB
@@ -156,8 +161,10 @@ graph TD
     class GUARD g
 ```
 
-> **63.942 linhas de Java em 577 classes**, cobertas por **1.440 testes**. Os números acima são
-> contados, não estimados — se algum divergir do código, é bug de documentação.
+> **63.049 linhas de Java em 471 classes** em `src/main`, cobertas por **2.004 testes** em 361
+> classes de teste (`--rerun-tasks`, 19/08/2026: 0 falhas, 35 pulados) — e o teste pesa quase
+> tanto quanto o código: 61.513 linhas em `src/test`. Os números acima são contados, não
+> estimados; se algum divergir do código, é bug de documentação.
 
 > Diagrama completo com fluxo de dados e decisões de arquitetura em [docs/arquitetura.md](docs/arquitetura.md).
 
@@ -287,7 +294,7 @@ traducao_animes_llm_local_quarkus/
 │
 ├── src/main/resources/static/   ← SPA (HTML/CSS/JS por painel) + img/screenshots
 ├── src/main/resources/application.yml  ← Configuração principal
-├── src/test/                    ← 1.440 testes, incluindo:
+├── src/test/                    ← 2.004 testes em 361 classes, incluindo:
 │   ├── **/arquitetura/          ←   catracas (Catraca*Test) — padrão perigoso não voltou
 │   ├── **/Fronteira*ArchTest    ←   9 fronteiras ArchUnit por tipo exato
 │   └── **/medicao/              ←   harnesses de medição sobre o acervo (desligados por padrão)

@@ -6,7 +6,7 @@
 
 ## Convenções
 
-- **Base URL:** `http://127.0.0.1:8080`
+- **Base URL:** `http://127.0.0.1:8099`
 - **Content-Type:** `application/json` em todas as requisições e respostas
 - A maioria das operações do pipeline (`/analisar`, `/extrair`, `/traduzir`, `/corrigir-*`, `/revisar-*`, `/remuxar`) é **assíncrona**: o endpoint responde `200 OK` imediatamente com uma mensagem de confirmação, e o progresso/relatório real chega via **[SSE](#sse--logsstream)** no canal correspondente.
 - Erros de validação de entrada retornam `400 Bad Request` com `{"mensagem": "..."}`.
@@ -53,7 +53,7 @@ Tradução via LLM local com cache. Ver [Tradução Local](etapa-2.1-traducao-ll
 ---
 
 ### `POST /api/corrigir-cache`
-Limpa entradas de fallback do cache (força retradução). Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-1--limpeza-de-cache-traducaocorrige).
+Limpa entradas de fallback do cache (força retradução). Ver [2.3 Correção de Cache](etapa-2.3-correcao-revisao.md).
 
 ```json
 { "entrada": "cache", "contextoId": "danmachi-s4" }
@@ -63,7 +63,7 @@ Limpa entradas de fallback do cache (força retradução). Ver [Correção & Rev
 ---
 
 ### `POST /api/corrigir-scraping`
-Correção de cache via Google Translate. Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-2--correçãorevisão-via-google-translate-raspagemcorrecao).
+Correção de cache via Google Translate. Ver [2.3 Correção de Cache](etapa-2.3-correcao-revisao.md).
 
 ```json
 { "entrada": "cache" }
@@ -73,7 +73,7 @@ Correção de cache via Google Translate. Ver [Correção & Revisão](etapa-2.3-
 ---
 
 ### `POST /api/revisar-cache`
-Revisão de concordância PT-BR do cache via LLM. Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao).
+Revisão de concordância PT-BR do cache via LLM. Ver [2.3 Correção de Cache](etapa-2.3-correcao-revisao.md).
 
 ```json
 { "entrada": "cache", "contextoId": "danmachi-s4" }
@@ -103,7 +103,7 @@ Revisão de legendas `.ass` finais via LLM local (modo `LLM_CONCORDANCIA`).
 ---
 
 ### `POST /api/revisar-concordancia`
-Correção **determinística** de concordância de gênero (painel 8), direto na pasta PT-BR — sem LLM e sem o original. `aplicar: false` = dry-run (simula, não grava). Ver [Correção & Revisão](etapa-2.3-correcao-revisao.md#fluxo-4--concordância-de-gênero-determinística-revisaoconcordancia-painel-8).
+Correção **determinística** de concordância de gênero (painel **3.3**), direto na pasta PT-BR — sem inglês, sem cache e sem LLM. `aplicar: false` = dry-run, e é o padrão da tela. Ver [3.3 Revisão de Concordância](etapa-3.3-revisao-concordancia.md).
 
 ```json
 { "diretorioTraduzido": "C:/.../legendas-ptbr", "aplicar": false }
@@ -317,20 +317,20 @@ JAX-RS puro (não Spring — evita colisão de rota). Publica o `TelemetriaResum
 
 ```bash
 # Análise de mídia
-curl -X POST http://127.0.0.1:8080/api/analisar \
+curl -X POST http://127.0.0.1:8099/api/analisar \
   -H "Content-Type: application/json" \
   -d '{"entrada": "C:/animes/DanMachi/Season 04"}'
 
 # Tradução
-curl -X POST http://127.0.0.1:8080/api/traduzir \
+curl -X POST http://127.0.0.1:8099/api/traduzir \
   -H "Content-Type: application/json" \
   -d '{"entrada": "C:/.../legendas_extraidas", "contextoId": "danmachi"}'
 
 # Acompanhar logs em tempo real
-curl -N http://127.0.0.1:8080/api/logs/stream
+curl -N http://127.0.0.1:8099/api/logs/stream
 
 # Telemetria
-curl http://127.0.0.1:8080/api/telemetria
+curl http://127.0.0.1:8099/api/telemetria
 ```
 
 ---

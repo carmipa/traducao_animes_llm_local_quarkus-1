@@ -11,7 +11,7 @@
 | `mkvmerge.exe detectado` não aparece no log de boot | MKVToolNix não está no `PATH` nem no caminho padrão do Windows | Configure `remuxer.mkvmerge-path` / `extrator.mkvmerge-path` explicitamente — ver [Configuração](ref-configuracao.md) |
 | "Servidor LLM indisponível" ao traduzir | LM Studio não está com o servidor local ligado, ou porta diferente de `1234` | LM Studio → Developer → Start Server; ajuste `tradutor.llm.base-url` se necessário |
 | Diálogo de seleção de pasta não abre | SO não é Windows, ou PowerShell bloqueado por política de execução | Digite o caminho manualmente no campo de texto |
-| Porta 8080 já em uso ao rodar `quarkusDev` | Outra instância do app já está rodando (ex.: aberta em outra sessão/terminal) | Verifique com `netstat -ano \| findstr :8080` antes de assumir que é seguro subir uma nova instância — pode haver uma operação em andamento na instância existente |
+| Porta **8099** já em uso ao rodar `quarkusDev` | Outra instância do app já está rodando (ex.: aberta em outra sessão/terminal) | Pergunte à guarda antes: `pwsh -NoProfile -File .\pode-compilar.ps1` (0 pode · 1 não pode · **2 NÃO VERIFICOU, que não é permissão**). Ela existe porque reiniciar durante uma tradução mata o episódio em curso sem erro visível |
 
 ---
 

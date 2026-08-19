@@ -8,21 +8,42 @@
 
 O **KRONOS CORE** é uma plataforma monolítica modular construída sobre o **Quarkus** (usando as extensões de compatibilidade Spring — `quarkus-spring-di`, `quarkus-spring-web`, `quarkus-spring-boot-properties`), organizada em **fatias verticais** (*vertical slices*) sob `org.traducao.projeto.*` — hoje são **20 fatias funcionais**, cada uma resolvendo uma etapa específica do pipeline de tradução de legendas de anime.
 
-> **Os números desta página são contados, não estimados.** Em 06/08/2026: 20 fatias · 5 peers ·
-> 16 tipos em `core` · 72 lores · 19 controllers com 34 endpoints · 577 classes e 63.942 linhas
-> de Java · 1.440 testes, dos quais 13 são guardas executáveis. Divergência entre um número
-> aqui e o código é bug de documentação, não licença poética.
+> **Os números desta página são contados, não estimados.** Medidos em **19/08/2026**:
+>
+> | o quê | quanto | como foi contado |
+> |---|---|---|
+> | fatias funcionais | **20** | pacotes sob `org.traducao.projeto`, menos peers e infra |
+> | peers | **5** | `legenda` · `cachetraducao` · `lore` · `qualidadeTraducao` · `llm` |
+> | classes / linhas em `src/main` | **471** / **63.049** | `find … -name '*.java'` |
+> | classes / linhas em `src/test` | **366** / **61.513** | idem — o teste pesa quase tanto quanto o código |
+> | controllers REST | **21** | anotações `@RestController` |
+> | obras de lore | **69** no `lore.yaml`, **68** na lista da UI | 1 obra é oculta (`apareceNaLista: false`); a UI foi perguntada em `/api/contextos` |
+> | guardas executáveis | **35** | 25 `Catraca*Test` + 10 `Fronteira*ArchTest`, somando 136 testes |
+> | suíte completa | **2.004** testes em **361** classes | `gradlew test --rerun-tasks`: 0 falhas, 35 pulados |
+>
+> Divergência entre um número aqui e o código é bug de documentação, não licença poética.
+> O número anterior desta página (72 lores) vinha de contagem de classes Java; a lore virou
+> **dado** (`lore.yaml`) e a contagem passou a ser perguntada à produção.
 
 A arquitetura passou por uma refatoração longa (FASES A–I) que substituiu o antigo monólito de controllers por **fatias isoladas** cujas fronteiras são **congeladas por testes de fitness ArchUnit**. Duas categorias:
 
 - **Fatias funcionais** — uma etapa do pipeline cada (ex.: `traducao`, `legendasExtracao`, `analisadorMidia`, `remuxer`, `revisaoLore`). Uma fatia funcional **não pode** depender de outra: o teste `FronteiraTraducaoArchTest` prova, a cada build, que a Tradução Local tem **ZERO** arestas de saída para outra fatia.
-- **Peers** — bibliotecas internas *importáveis* por qualquer fatia, com a superfície pública **congelada por tipo exato**: `legenda` (modelo + I/O de `.ass`/`.srt`), `cachetraducao` (**dono único** do cache), `contexto` (**72 lores** + regras de concordância PT-BR, 93 classes), `qualidadeTraducao` (máscara de tags, validação anti-alucinação) e `llm` (contrato `LlmPort` neutro). Cada peer tem seu próprio `Fronteira<Peer>ArchTest`.
+- **Peers** — bibliotecas internas *importáveis* por qualquer fatia, com a superfície pública **congelada por tipo exato**: `legenda` (modelo + I/O de `.ass`/`.srt`, 15 classes), `cachetraducao` (**dono único** do cache, 5 classes), `lore` (**69 obras** + terminologia canônica, 24 classes), `qualidadeTraducao` (máscara de tags, validação anti-alucinação, 14 classes) e `llm` (contrato `LlmPort` neutro, 4 classes). Cada peer tem seu próprio `Fronteira<Peer>ArchTest`.
+
+> **O peer `contexto` virou `lore`.** O guarda dele ainda se chama `FronteiraContextoArchTest` — o
+> nome é legado, o alvo é `org.traducao.projeto.lore`. E o peso saiu do Java: as 93 classes de
+> contexto viraram **24 classes + um `lore.yaml` de 15.101 linhas**, gerado dos provedores reais
+> por `GeradorLoreYamlIT` e nunca digitado à mão. Ver [3.2 Revisão de Lore](etapa-3.2-revisao-lore.md).
 
 Abaixo de tudo, `core` (fila de execução, I/O atômico, kernel web/SSE, mecânica de fronteira do formato ASS) e `config` (bootstrap de modo) são **infra transversal** — e o `core` é proibido, por regra permanente, de depender de qualquer fatia funcional.
 
 ### Dois tiers — e a página declara em qual cada fatia está
 
-Estado real vence estado ideal. **9 das 20 fatias têm fronteira ArchUnit própria; 11 não têm** — e isso não é dívida escondida, é o nível onde a refatoração parou:
+Estado real vence estado ideal. Hoje há **10 `Fronteira*ArchTest`**, e a leitura honesta da
+contagem é esta: **5 congelam os peers**, **1 congela o formato ASS no `core`** (`FronteiraTermoAss`)
+e **4 congelam fatias** (`traducao` com duas — saída e INBOUND —, `trocaTipoLegenda` e o corretor de
+cache). As demais fatias **não têm guarda própria** — e isso não é dívida escondida, é o nível onde
+a refatoração parou:
 
 - **Tier GOLD** — zero aresta funcional de saída, portas próprias para tudo que sai, guarda de fronteira própria congelando cada tipo consumido. Hoje: `traducao` e os cinco peers.
 - **Tier SECUNDÁRIO** — consome os peers pela superfície pública e depende direto de serviços comuns (telemetria, por exemplo), sem guarda própria. **Não é bug: é o nível onde parou.**
@@ -83,18 +104,18 @@ graph TB
         direction LR
         LEG["legenda<br/>modelo + I/O .ass/.srt"]
         CACHE["cachetraducao<br/>DONO ÚNICO do cache"]
-        CTX["contexto<br/>72 lores + regras PT-BR"]
+        CTX["lore<br/>69 obras · lore.yaml"]
         QUAL["qualidadeTraducao<br/>máscara de tags + validação"]
         LLM["llm<br/>contrato LlmPort neutro"]
     end
 
-    subgraph BASE["⚙️ Infra transversal — 16 tipos (core NÃO depende de fatia funcional)"]
+    subgraph BASE["⚙️ Infra transversal — core NÃO depende de fatia funcional"]
         direction LR
         CORE["core<br/>fila · I/O atômico · SSE<br/>FronteiraTermoAss"]
         CFG["config<br/>bootstrap de modo"]
     end
 
-    GUARD["🚦 13 guardas executáveis<br/>9 Fronteira*ArchTest + 4 Catraca*Test<br/><i>reprovam o BUILD ao cruzar a fronteira</i>"]
+    GUARD["🚦 35 guardas executáveis<br/>10 Fronteira*ArchTest + 25 Catraca*Test<br/><i>reprovam o BUILD ao cruzar a fronteira</i>"]
 
     FUNC -->|"importa — arestas congeladas por tipo exato"| PEERS
     FUNC --> BASE
@@ -126,7 +147,7 @@ graph LR
     TRAD["🌐 traducao"]:::hub
     LEG["legenda"]:::peer
     CACHE["cachetraducao"]:::peer
-    CTX["contexto"]:::peer
+    CTX["lore"]:::peer
     QUAL["qualidadeTraducao"]:::peer
     LLM["llm"]:::peer
     CORE["core"]:::base
@@ -367,7 +388,7 @@ org.traducao.projeto/
 │  ── Peers (importáveis por qualquer fatia; superfície congelada por tipo exato) ──
 ├── legenda/                ← Modelo puro (DocumentoLegenda/EventoLegenda) + Leitor/Escritor .ass/.srt
 ├── cachetraducao/          ← DONO ÚNICO do cache: CacheTraducaoService, EntradaCache, ProvenienciaCache
-├── contexto/               ← 56+ providers de lore por anime/temporada + RegrasConcordanciaPtBr
+├── lore/                   ← 69 obras no lore.yaml + terminologia canonica (ex-peer "contexto")
 ├── qualidadeTraducao/      ← MascaradorTags, ValidadorTraducaoService (anti-alucinação), ProtecaoLegendaAssService
 ├── llm/                    ← Contrato neutro do LLM: LlmPort, Lote, TraducaoLote, StatusLlm
 │

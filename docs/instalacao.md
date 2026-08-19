@@ -62,7 +62,25 @@ extrator:
 ./gradlew quarkusDev
 ```
 
-> O servidor sobe em **`http://127.0.0.1:8080`** e o navegador abre automaticamente. O modo dev tem **live reload**: qualquer alteração em `.java` ou nos arquivos estáticos (`src/main/resources/static/`) é recarregada na próxima requisição, sem precisar reiniciar o processo manualmente.
+> O servidor sobe em **`http://127.0.0.1:8099`** (`quarkus.http.port=8099` em
+> `application.properties` — porta dedicada, para coexistir com outros apps Quarkus) e o navegador
+> abre automaticamente.
+
+> ⚠️ **O live reload NÃO vale para os arquivos estáticos.** Alteração em `.java` é recompilada na
+> próxima requisição; alteração em `index.html`, `.js` ou `.css` de
+> `src/main/resources/static/` **não** — o `quarkusDev` serve o estático que existia no **boot**.
+> Sem reiniciar, você edita o arquivo, recarrega a página e vê a versão velha, sem nenhum aviso.
+>
+> Medido em 18/08/2026: o `build/` já tinha o seletor novo (2 ocorrências) e o servidor devolvia
+> **0**. Depois do reinício, 2. Antes de concluir que "a mudança de tela não funcionou", **reinicie
+> e meça de novo** — e antes de reiniciar, pergunte à guarda:
+>
+> ```shell
+> pwsh -NoProfile -File .\pode-compilar.ps1     # 0 pode · 1 nao pode · 2 NAO VERIFICOU
+> ```
+>
+> Ela existe porque reiniciar durante uma tradução **mata o episódio em curso sem erro visível**.
+> O estado `2` não é permissão: significa que ela não conseguiu decidir.
 
 ### 5. Empacotar para produção
 
@@ -88,7 +106,7 @@ Ver [Configuração — Referência Completa](ref-configuracao.md) para todas as
 
 ## Verificando a instalação
 
-1. Abra `http://127.0.0.1:8080` — o painel **Início** deve mostrar os widgets de status:
+1. Abra `http://127.0.0.1:8099` — o painel **Início** deve mostrar os widgets de status:
    - **Orquestrador**: `Java Quarkus` — badge verde "Online"
    - **LLM de Tradução**: badge indicando se o LM Studio respondeu
    - **Cache de Legendas**: contagem de arquivos `.cache.json` já existentes
@@ -106,7 +124,7 @@ Ver [Configuração — Referência Completa](ref-configuracao.md) para todas as
 | `mkvmerge.exe detectado` não aparece no log | MKVToolNix não está no `PATH` nem no caminho padrão do Windows | Configure `remuxer.mkvmerge-path` / `extrator.mkvmerge-path` explicitamente |
 | "Servidor LLM indisponível" | LM Studio não está com o servidor local ligado, ou porta diferente de `1234` | Verifique em LM Studio → Developer → Start Server; ajuste `tradutor.llm.base-url` se necessário |
 | Diálogo de seleção de pasta não abre | SO não é Windows, ou PowerShell bloqueado por política de execução | Digite o caminho manualmente no campo de texto |
-| Porta 8080 já em uso | Outra instância do app já está rodando | Feche a instância anterior, ou mude `quarkus.http.port` em `application.properties` |
+| Porta **8099** já em uso | Outra instância do app já está rodando — e ela pode estar **traduzindo** | Confira o dono da porta ANTES de matar: `Get-NetTCPConnection -LocalPort 8099`. Para mudar, `quarkus.http.port` em `application.properties` |
 
 Mais detalhes em [Solução de Problemas](ref-solucao-problemas.md).
 

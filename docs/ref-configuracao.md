@@ -94,7 +94,7 @@ tmdb:
 
 ```properties
 app.modo=WEB
-quarkus.http.port=8080
+quarkus.http.port=8099
 quarkus.http.host=127.0.0.1             # Só localhost — app não expõe rede
 quarkus.arc.ignored-split-packages=org.traducao.projeto
 quarkus.log.file.path=logs/tradutor.log
@@ -130,7 +130,7 @@ quarkus.log.file.rotation.max-backup-index=5
 | `extrator.mkvmerge-path` / `mkvextract-path` | `mkvmerge` / `mkvextract` | Ajuste se não estiver no `PATH` |
 | `extrator.ffmpeg-path` / `ffprobe-path` | `ffmpeg` / `ffprobe` | Ajuste se não estiver no `PATH` |
 | `tmdb.api-key` | `dummy_key` | Configure em `application-local.yml` para metadados via TMDB |
-| `quarkus.http.port` | `8080` | Porta do servidor |
+| `quarkus.http.port` | **`8099`** | Porta do servidor. O padrão do Quarkus é 8080; o KRONOS usa 8099 para coexistir com outros apps Quarkus na mesma máquina |
 | `quarkus.http.host` | `127.0.0.1` | Bind apenas local |
 
 ---
