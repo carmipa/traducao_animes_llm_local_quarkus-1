@@ -135,6 +135,59 @@ public class CorretorConcordanciaGeneroService {
         Pattern.compile(INICIO_DE_TERMO + "(ele)(\\s+(?:" + VERBO_LIGACAO + ")\\s+)(" + String.join("|", ADJ_FEM) + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
+    // ------------------------------------------------------------------------------------
+    // CÓPIA CONSCIENTE dos tratamentos PT-only do corretor da 3.1
+    // (raspagemRevisao.CorretorDeterministicoConcordanciaService), por ordem de Paulo em
+    // 18/08/2026: "todos os tratamentos de concordância que tem dentro de tradução e funcionam
+    // podemos fazer cópia aqui, já que essa é uma área que não permitimos acoplamento".
+    //
+    // O QUE VEIO, e por que só isto: aquele corretor recebe (originalIngles, traducaoAtual) e a
+    // maior parte das regras dele EXIGE o inglês — parentesco por father/mother, insulto forte,
+    // artigo de mobile suit. Esta tela é PT-only por definição: não tem com o que comparar.
+    // Chamando o objeto de produção dele com original nulo sobra exatamente o que segue abaixo.
+    //
+    // GANHO MEDIDO HOJE: ZERO. Nas 332.545 falas do acervo (18/08/2026), os dois tratamentos não
+    // mudariam nenhuma — o instrumento foi calibrado no mesmo experimento e corrige os casos
+    // plantados. Isto está escrito porque zero declarado é honestidade; zero escondido é o que
+    // faz alguém confiar numa rede que não pegou nada. Eles existem para a tradução de amanhã,
+    // não para o acervo de ontem.
+    // ------------------------------------------------------------------------------------
+
+    private static final String FIM_DE_TERMO = FronteiraTermoAss.FIM;
+
+    /** Espaço OU a quebra {@code \N} entre as duas palavras — e ele volta como estava. */
+    private static final String SEPARADOR = FronteiraTermoAss.SEPARADOR_INTERNO;
+
+    private static final int FLAGS_COPIA = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS;
+
+    /**
+     * {@code graças ao deus} → {@code graças a Deus}.
+     *
+     * <p><b>Divergência DELIBERADA em relação ao original:</b> a versão da 3.1 exige a forma
+     * acentuada ({@code graças}), e a aya-expanse produz texto sem acento — foram 197 acentos
+     * faltando medidos no Unicorn. A cópia aceita {@code gracas} também, e devolve sempre a forma
+     * correta e acentuada. Duplicação consciente permite divergir; o que ela proíbe é divergir
+     * sem dizer.
+     */
+    private static final Pattern GRACAS_AO_DEUS = Pattern.compile(
+        INICIO_DE_TERMO + "gra[çc]as ao deus" + FIM_DE_TERMO, FLAGS_COPIA);
+
+    /**
+     * Possessivo feminino antes de parentesco masculino: {@code minha pai} → {@code meu pai}.
+     *
+     * <p>Três grupos, e o do MEIO é o separador: ele volta como estava. Sem isso, corrigir
+     * {@code "Minha\Npai"} devolveria {@code "Meu pai"} numa linha só — consertar a gramática
+     * quebrando a diagramação é dano, não correção.
+     */
+    private static final Pattern POSSESSIVO_FEM_COM_PARENTE_MASC = Pattern.compile(
+        INICIO_DE_TERMO + "(minha|sua|nossa)(" + SEPARADOR + ")(pai|filho|irmão|irmao)" + FIM_DE_TERMO,
+        FLAGS_COPIA);
+
+    /** O espelho: {@code meu mãe} → {@code minha mãe}. */
+    private static final Pattern POSSESSIVO_MASC_COM_PARENTE_FEM = Pattern.compile(
+        INICIO_DE_TERMO + "(meu|seu|nosso)(" + SEPARADOR + ")(mãe|mae|filha|irmã|irma)" + FIM_DE_TERMO,
+        FLAGS_COPIA);
+
     private static final Map<String, String> FLIP_ART_M2F = mapaFlip(ART_MASC, ART_FEM);
     private static final Map<String, String> FLIP_ART_F2M = mapaFlip(ART_FEM, ART_MASC);
     private static final Map<String, String> FLIP_ADJ_M2F = mapaFlip(ADJ_MASC, ADJ_FEM);
@@ -154,6 +207,8 @@ public class CorretorConcordanciaGeneroService {
         r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M);
         r = flipTerceiroGrupo(r, ELA_COM_ADJ_MASC, FLIP_ADJ_M2F);
         r = flipTerceiroGrupo(r, ELE_COM_ADJ_FEM, FLIP_ADJ_F2M);
+        r = corrigirExpressaoIdiomatica(r);
+        r = ajustarPossessivosDeParentesco(r);
         return r.equals(pt) ? Optional.empty() : Optional.of(r);
     }
 
@@ -184,6 +239,55 @@ public class CorretorConcordanciaGeneroService {
             String palavra = res.group(3);
             String novo = flip.get(palavra.toLowerCase());
             return Matcher.quoteReplacement(res.group(1) + res.group(2) + preservarCaixa(palavra, novo));
+        });
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve a expressão idiomática à forma correta — em PT-BR se diz
+     * "graças a Deus", nunca "graças ao deus", que é decalque do inglês.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: substituição por string FIXA, e por isso a fronteira é a do
+     * termo inteiro, não o separador interno: flexibilizar o miolo faria
+     * {@code "graças ao\Ndeus"} virar uma linha só e estourar a caixa na tela. A forma partida no
+     * MEIO da expressão segue sem conserto — lacuna declarada, herdada do original.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
+     */
+    private String corrigirExpressaoIdiomatica(String texto) {
+        return GRACAS_AO_DEUS.matcher(texto).replaceAll(res ->
+            Matcher.quoteReplacement(Character.isUpperCase(res.group().charAt(0))
+                ? "Graças a Deus" : "graças a Deus"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: acerta o possessivo que acompanha o parentesco — {@code meu pai} e
+     * não {@code minha pai}. É concordância de gênero pura, interna ao português, e por isso vive
+     * nesta tela sem precisar do inglês.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o possessivo IMEDIATAMENTE anterior a pai/mãe, filho/filha ou
+     * irmão/irmã; a caixa inicial é preservada; o separador (espaço ou {@code \N}) volta como
+     * estava, para a quebra da legenda não sumir.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: frase sem essa combinação permanece byte a byte igual.
+     */
+    private String ajustarPossessivosDeParentesco(String texto) {
+        String ajustado = POSSESSIVO_FEM_COM_PARENTE_MASC.matcher(texto).replaceAll(res -> {
+            String novo = switch (res.group(1).toLowerCase()) {
+                case "minha" -> "meu";
+                case "sua" -> "seu";
+                default -> "nosso";
+            };
+            return Matcher.quoteReplacement(
+                preservarCaixa(res.group(1), novo) + res.group(2) + res.group(3));
+        });
+        return POSSESSIVO_MASC_COM_PARENTE_FEM.matcher(ajustado).replaceAll(res -> {
+            String novo = switch (res.group(1).toLowerCase()) {
+                case "meu" -> "minha";
+                case "seu" -> "sua";
+                default -> "nossa";
+            };
+            return Matcher.quoteReplacement(
+                preservarCaixa(res.group(1), novo) + res.group(2) + res.group(3));
         });
     }
 
