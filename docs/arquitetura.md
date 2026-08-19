@@ -18,8 +18,8 @@ O **KRONOS CORE** é uma plataforma monolítica modular construída sobre o **Qu
 > | classes / linhas em `src/test` | **366** / **61.513** | idem — o teste pesa quase tanto quanto o código |
 > | controllers REST | **21** | anotações `@RestController` |
 > | obras de lore | **69** no `lore.yaml`, **68** na lista da UI | 1 obra é oculta (`apareceNaLista: false`); a UI foi perguntada em `/api/contextos` |
-> | guardas executáveis | **35** | 25 `Catraca*Test` + 10 `Fronteira*ArchTest`, somando 136 testes |
-> | suíte completa | **2.004** testes em **361** classes | `gradlew test --rerun-tasks`: 0 falhas, 35 pulados |
+> | guardas executáveis | **36** | 26 `Catraca*Test` + 10 `Fronteira*ArchTest`, somando 138 testes |
+> | suíte completa | **2.006** testes em **362** classes | `gradlew test --rerun-tasks`: 0 falhas, 35 pulados |
 >
 > Divergência entre um número aqui e o código é bug de documentação, não licença poética.
 > O número anterior desta página (72 lores) vinha de contagem de classes Java; a lore virou
@@ -115,7 +115,7 @@ graph TB
         CFG["config<br/>bootstrap de modo"]
     end
 
-    GUARD["🚦 35 guardas executáveis<br/>10 Fronteira*ArchTest + 25 Catraca*Test<br/><i>reprovam o BUILD ao cruzar a fronteira</i>"]
+    GUARD["🚦 36 guardas executáveis<br/>10 Fronteira*ArchTest + 26 Catraca*Test<br/><i>reprovam o BUILD ao cruzar a fronteira</i>"]
 
     FUNC -->|"importa — arestas congeladas por tipo exato"| PEERS
     FUNC --> BASE

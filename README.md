@@ -66,7 +66,8 @@ histórico justamente porque numeração que não acompanha a ordem vira mentira
 | Passo | Módulo | Descrição |
 |---|--------|-----------|
 | — 📐 | [**Arquitetura**](docs/arquitetura.md) | Visão geral, diagramas de componentes e fluxos de dados |
-| — 🚦 | [**Catracas & Fronteiras**](docs/catracas-e-fronteiras.md) | As **35** guardas executáveis que reprovam o build — como a regra sobrevive à troca de IA |
+| — 🧬 | [**Esqueleto do Projeto**](docs/ref-esqueleto-projeto.md) | A árvore completa: todo pacote, toda pasta e o nome de **todas as 839 classes**. Gerada do disco e conferida por catraca |
+| — 🚦 | [**Catracas & Fronteiras**](docs/catracas-e-fronteiras.md) | As **36** guardas executáveis que reprovam o build — como a regra sobrevive à troca de IA |
 | — 🚀 | [**Instalação & Configuração**](docs/instalacao.md) | Pré-requisitos, setup local e primeiros passos |
 | **1.1** 🔍 | [**Análise de Mídia**](docs/etapa-1.1-analise-midia.md) | Auditoria ffprobe e classificação de traduzibilidade das legendas (texto/bitmap) |
 | **1.2** ✂️ | [**Extração de Legendas**](docs/etapa-1.2-extracao-legendas.md) | Extração em lote ASS/SRT/PGS via MKVToolNix/ffmpeg |
@@ -145,7 +146,7 @@ graph TD
     PEERS --> CORE
     SLICES --> EXT["🌍 LM Studio (GPU)<br/>MKVToolNix · FFmpeg"]
     PEERS --> EXT
-    GUARD["🚦 35 guardas executáveis<br/>10 fronteiras ArchUnit + 25 catracas<br/><i>reprovam o build, não avisam</i>"] -.->|congela as arestas| SLICES
+    GUARD["🚦 36 guardas executáveis<br/>10 fronteiras ArchUnit + 26 catracas<br/><i>reprovam o build, não avisam</i>"] -.->|congela as arestas| SLICES
 
     classDef a fill:#1e293b,stroke:#3B82F6,color:#F9FAFB
     classDef b fill:#312e81,stroke:#818CF8,color:#F9FAFB
@@ -161,7 +162,7 @@ graph TD
     class GUARD g
 ```
 
-> **63.049 linhas de Java em 471 classes** em `src/main`, cobertas por **2.004 testes** em 361
+> **63.049 linhas de Java em 471 classes** em `src/main`, cobertas por **2.006 testes** em 362
 > classes de teste (`--rerun-tasks`, 19/08/2026: 0 falhas, 35 pulados) — e o teste pesa quase
 > tanto quanto o código: 61.513 linhas em `src/test`. Os números acima são contados, não
 > estimados; se algum divergir do código, é bug de documentação.
@@ -294,7 +295,7 @@ traducao_animes_llm_local_quarkus/
 │
 ├── src/main/resources/static/   ← SPA (HTML/CSS/JS por painel) + img/screenshots
 ├── src/main/resources/application.yml  ← Configuração principal
-├── src/test/                    ← 2.004 testes em 361 classes, incluindo:
+├── src/test/                    ← 2.006 testes em 362 classes, incluindo:
 │   ├── **/arquitetura/          ←   catracas (Catraca*Test) — padrão perigoso não voltou
 │   ├── **/Fronteira*ArchTest    ←   9 fronteiras ArchUnit por tipo exato
 │   └── **/medicao/              ←   harnesses de medição sobre o acervo (desligados por padrão)

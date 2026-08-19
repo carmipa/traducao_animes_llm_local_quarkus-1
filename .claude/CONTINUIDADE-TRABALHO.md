@@ -9,6 +9,55 @@ trava dupla, aguardando decisão de Paulo).
 
 ---
 
+# ▶ ADENDO — SUBMENU "ESQUELETO DO PROJETO" (pedido de Paulo, mesma noite)
+
+Página nova no submenu **Fundamentos** da Documentação: a árvore completa do código em diagrama
+de linhas — todo pacote, toda pasta e o nome de **todas as 839 classes** —, mais um mapa mermaid
+colorido dos grupos → peers → infra.
+
+**A página é GERADA do disco, e o gerador é a própria catraca**
+(`CatracaEsqueletoDoProjetoAtualizadoTest`, 2 testes):
+
+```
+regravar:  gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esqueleto.regravar=true
+conferir:  roda junto com a suite; divergiu, reprova apontando a primeira linha
+```
+
+A chave `kronos.esqueleto.regravar` entrou na lista de propagação do `build.gradle` — sem ela o
+`-D` fica na JVM do Gradle e o "regravei" teria a mesma cara de "não mudou nada", cicatriz que a
+própria lista já documentava.
+
+**Calibração:** troquei uma classe por um nome inventado na página → 1 de 2 testes reprovou,
+apontando `linha 511: na pagina ResultadoConcordanciaINVENTADA.java / no disco
+ResultadoConcordancia.java`. Restaurada, volta verde.
+
+**Três defeitos do meu próprio gerador, achados antes de virar entrega:**
+
+1. **id de nó por `hash()`** (versão Python): `hash` é randomizado por processo, e o arquivo
+   mudaria sozinho a cada regeração — churn com cara de alteração. Virou índice do grupo.
+2. **4 classes descartadas em silêncio**: as que moram na raiz de `org.traducao.projeto`
+   (`WebInterfaceTest`, `ApiControllerTest`, `ApiEndpointsTest`, `SseConsoleDinamicoTest`) caíam
+   fora da varredura. Consertado com nó `(raiz do pacote)` — e entrou um **segundo teste** que
+   compara duas contagens independentes do mesmo alvo, para "perder classe pelo caminho" não
+   voltar a ser silencioso.
+3. **Diagrama ilegível**: com os rótulos numa linha só, o mermaid espremeu o SVG em 796×**67 px**,
+   caixas de 13 px. Um pacote por linha: 796×**273 px**, caixas de 64 px.
+
+**Provado no navegador:** o item aparece em Fundamentos, a página abre, 1 SVG mermaid, 58 blocos
+de árvore e **839 ocorrências de `.java`** — exatamente a contagem do disco (471 + 368).
+
+## 🔴 Achado declarado, NÃO consertado (fora do escopo desta tarefa)
+
+`mapa_projeto.md` na raiz é **regenerado pela aplicação no boot** e diverge por máquina: o
+commitado veio do desktop em 25/07 (raiz `...quarkus`, 3.109 pastas, **10.049 `.java`** — ele
+indexava `build/`), e aqui saiu com 346 pastas e **838 `.java`**. Restaurei o commitado em vez de
+empurrar 142 mil linhas de diferença junto de uma tarefa de documentação.
+
+**Decisão de Paulo:** versionar ou não um artefato que cada máquina reescreve. O precedente é a
+decisão de 25/07 — *"nada de runtime é versionado"* — que tirou `cache/` e `relatorios/` do índice.
+
+---
+
 # ▶ ENTREGUE EM 19/08/2026 (noite) — DOCUMENTAÇÃO ATUALIZADA
 
 **TAREFA ORIGINAL (palavras de Paulo):** *"Agora queciso que voce atualize totalemtne a
