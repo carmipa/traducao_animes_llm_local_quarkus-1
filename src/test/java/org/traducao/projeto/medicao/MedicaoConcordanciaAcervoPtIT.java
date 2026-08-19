@@ -70,7 +70,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MedicaoConcordanciaAcervoPtIT {
 
     private static final Path RAIZ = Path.of(System.getProperty("kronos.acervo", "C:\\animes"));
-    private static final int AMOSTRAS_POR_PAR = 4;
+    private static final int AMOSTRAS_POR_PAR = 40;
     private static final int PARES_NO_RELATORIO = 30;
 
     @Inject
