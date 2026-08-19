@@ -164,6 +164,25 @@ class CorretorConcordanciaGeneroServiceTest {
         assertTrue(corretor.corrigir("os menina chegou").isEmpty());
     }
 
+    /**
+     * Os INDEFINIDOS, e a poda que a medição impôs à família ANTES de qualquer escrita.
+     *
+     * <p>Acrescentei sete pares de uma vez e medi no acervo: das 5 falas que apareceram, <b>3
+     * eram falso positivo</b>. {@code "Você é muito criança"} está CERTO — ali {@code muito} é
+     * advérbio invariável — e {@code "esses alvos são todos iscas"} concorda com <i>alvos</i>,
+     * não com <i>iscas</i>. Ficaram só os que não têm essa ambiguidade.
+     */
+    @Test
+    @DisplayName("indefinidos: 'algumas reparos' vira 'alguns reparos', e o adverbio fica intocado")
+    void corrigeIndefinidosSemTocarNoAdverbio() {
+        assertEquals(Optional.of("alguns reparos básicos"), corretor.corrigir("algumas reparos básicos"));
+        assertEquals(Optional.of("muitas crianças"), corretor.corrigir("muitos crianças"));
+        // ADVÉRBIO invariável: está certo, e mexer seria estragar.
+        assertTrue(corretor.corrigir("Você é muito criança para entender isso.").isEmpty());
+        // "todos" concorda com o antecedente "alvos", não com "iscas".
+        assertTrue(corretor.corrigir("Esses alvos no solo são todos iscas.").isEmpty());
+    }
+
     @Test
     @DisplayName("plural correto nao e tocado")
     void naoTocaPluralCorreto() {
