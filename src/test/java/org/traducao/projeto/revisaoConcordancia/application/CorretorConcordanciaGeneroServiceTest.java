@@ -122,6 +122,67 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
+     * A SEGUNDA LEVA de substantivos, medida no acervo em 19/08/2026 pelo
+     * {@code MedicaoConcordanciaPorDicionarioIT}. Cada fala abaixo é do acervo real, não
+     * inventada — foi assim que se descobriu que a lista curada de 24 palavras via 1 erro em
+     * 332.545 falas enquanto estes passavam.
+     */
+    @Test
+    @DisplayName("substantivos da segunda leva: falas REAIS do acervo que ninguem corrigia")
+    void corrigeSubstantivosMedidosNoAcervo() {
+        assertEquals(Optional.of("Em outras palavras, uma isca."),
+            corretor.corrigir("Em outras palavras, um isca."));
+        assertEquals(Optional.of("A base e uma isca."), corretor.corrigir("A base e um isca."));
+        assertEquals(Optional.of("A cortina esta fechada."),
+            corretor.corrigir("O cortina esta fechada."));
+    }
+
+    /**
+     * A MEIA-CORREÇÃO que o teste pegou antes de virar dano: em {@code "Essa e a nossa orgulho."}
+     * trocar só o possessivo devolveria {@code "a nosso orgulho"} — uma discordância NOVA entre
+     * artigo e possessivo, onde antes havia uma só. E o artigo não pode ser trocado junto porque
+     * o {@code a} também é preposição ({@code "entreguei a meu pai"} está certo).
+     *
+     * <p>A fala fica como está. Deixar a linha pior é o que a tela nunca pode fazer; deixá-la
+     * como estava é pendência, e pendência é honesta.
+     */
+    @Test
+    @DisplayName("possessivo precedido de artigo NAO e tocado — meia-correcao deixaria a linha pior")
+    void naoFazMeiaCorrecaoQuandoHaArtigoAntesDoPossessivo() {
+        assertTrue(corretor.corrigir("Essa e a nossa orgulho.").isEmpty());
+        assertTrue(corretor.corrigir("Entreguei a meu pai.").isEmpty());
+    }
+
+    /**
+     * Os POSSESSIVOS, que entraram junto: metade dos erros medidos tinha determinante possessivo,
+     * e não artigo — {@code nossa orgulho}, {@code minha afeto}, {@code sua destino}.
+     */
+    @Test
+    @DisplayName("possessivo tambem concorda: 'minha afeto' vira 'meu afeto'")
+    void corrigePossessivoComSubstantivo() {
+        assertEquals(Optional.of("meu afeto"), corretor.corrigir("minha afeto"));
+        assertEquals(Optional.of("seu destino"), corretor.corrigir("sua destino"));
+        assertEquals(Optional.of("Sua catapulta esta pronta."), corretor.corrigir("Seu catapulta esta pronta."));
+    }
+
+    /**
+     * As palavras que a medição encontrou e que foram RECUSADAS de propósito — ambíguas ou de
+     * gênero fixo contrário à terminação. Elas apareceram na lista de candidatos, e entrar nela
+     * teria transformado construção correta em dano.
+     */
+    @Test
+    @DisplayName("as ambiguas recusadas continuam intocadas — guia, figura, pirata, foto, mecha")
+    void naoTocaAsAmbiguasRecusadas() {
+        assertTrue(corretor.corrigir("O guia chegou.").isEmpty());
+        assertTrue(corretor.corrigir("A guia chegou.").isEmpty());
+        assertTrue(corretor.corrigir("O figura apareceu de novo.").isEmpty());
+        assertTrue(corretor.corrigir("Um pirata do espaço.").isEmpty());
+        assertTrue(corretor.corrigir("Uma foto antiga.").isEmpty());
+        assertTrue(corretor.corrigir("Este mecha e novo.").isEmpty());
+        assertTrue(corretor.corrigir("Aquele caça decolou.").isEmpty());
+    }
+
+    /**
      * CÓPIA CONSCIENTE da 3.1 (ordem de Paulo, 18/08/2026): possessivo de parentesco, que é
      * concordância de gênero pura e não precisa do inglês.
      *

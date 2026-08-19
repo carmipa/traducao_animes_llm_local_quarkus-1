@@ -57,18 +57,56 @@ public class CorretorConcordanciaGeneroService {
      */
     private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
-    // Substantivos de gênero INEQUÍVOCO (pessoa/ser com gênero fixo). Ambíguos ficam de fora.
+    /**
+     * Substantivos de gênero INEQUÍVOCO. Ambíguo fica de fora, sempre.
+     *
+     * <h2>A segunda leva veio de MEDIÇÃO, não de intuição (19/08/2026)</h2>
+     * A lista original tinha 24 palavras, todas de pessoa, e por isso a tela enxergava
+     * <b>1 erro em 332.545 falas</b>. O {@code MedicaoConcordanciaPorDicionarioIT} perguntou ao
+     * dicionário pt_BR em vez de a uma lista — inferindo gênero por par mínimo — e devolveu 210
+     * pares distintos discordantes. Lendo os 210 um a um, o que apareceu foi sempre a mesma
+     * forma: determinante + substantivo COMUM, fora da lista curada.
+     *
+     * <pre>
+     *   um isca (8) · o isca (3) · o cortina (3) · um arma (3) · o mochila (2)
+     *   nossa orgulho · sua destino · minha afeto · essa luxo · no casa · um baleia · uma gato
+     * </pre>
+     *
+     * <p><b>Cada palavra abaixo foi vista numa fala real do acervo</b> — nenhuma entrou por
+     * palpite. E as ambíguas ficaram de fora com o mesmo critério, também medido: {@code guia},
+     * {@code caça}, {@code soldado} e {@code figura} servem aos dois gêneros ({@code o figura} é
+     * uso corrente), {@code cinza} muda de sentido, {@code pirata}, {@code profeta},
+     * {@code papa}, {@code alerta}, {@code mecha}, {@code diagrama}, {@code emblema},
+     * {@code enigma}, {@code poeta}, {@code parasita}, {@code genoma}, {@code plasma},
+     * {@code data}, {@code chapa} e {@code foto} têm gênero fixo que contraria a terminação.
+     * Todas essas apareceram na lista de candidatos e foram RECUSADAS.
+     */
     private static final String SUBST_FEM =
         "menina|garota|moça|moca|mulher|deusa|princesa|rainha|senhora|irmã|irma|mãe|mae|filha|"
-            + "tia|amiga|dama|donzela|aventureira|sacerdotisa|feiticeira|amazona|ladra|heroína|heroina";
+            + "tia|amiga|dama|donzela|aventureira|sacerdotisa|feiticeira|amazona|ladra|heroína|heroina|"
+            // Segunda leva — medida no acervo em 19/08/2026:
+            + "isca|cortina|mochila|arma|bandeira|ponta|alavanca|catapulta|arena|flecha|"
+            + "bagunça|bagunca|baleia|batalha|carta|desculpa|faixa|mentira|silhueta|trincheira|"
+            + "água|agua";
     private static final String SUBST_MASC =
         "menino|garoto|moço|moco|homem|deus|príncipe|principe|rei|senhor|irmão|irmao|pai|filho|"
-            + "tio|amigo|rapaz|herói|heroi|aventureiro|sacerdote|mago|ladrão|ladrao|príncipe";
+            + "tio|amigo|rapaz|herói|heroi|aventureiro|sacerdote|mago|ladrão|ladrao|príncipe|"
+            // Segunda leva — medida no acervo em 19/08/2026:
+            + "orgulho|destino|afeto|encontro|respeito|egoísmo|egoismo|luxo|desespero|casco|"
+            + "avanço|avanco|pulso|circuito|gato|partido|reparo|selo|testemunho";
 
     // Artigos/determinantes/contrações masculinos e o feminino correspondente (índice a índice).
     // Servem ao MAPA de troca; quem entra no PADRÃO é decidido logo abaixo, e não é a mesma lista.
-    private static final String[] ART_MASC = {"o", "um", "este", "esse", "aquele", "do", "no", "ao", "pelo", "num"};
-    private static final String[] ART_FEM  = {"a", "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa"};
+    // Os POSSESSIVOS entraram em 19/08/2026 pelo mesmo motivo que a segunda leva de substantivos:
+    // a medição os encontrou errando no acervo — "nossa orgulho", "minha afeto", "sua destino",
+    // "seu catapulta". Sem eles, metade dos erros medidos ficava fora de alcance, porque o
+    // determinante errado não era artigo.
+    private static final String[] ART_MASC = {
+        "o", "um", "este", "esse", "aquele", "do", "no", "ao", "pelo", "num",
+        "meu", "seu", "nosso", "meus", "seus", "nossos"};
+    private static final String[] ART_FEM  = {
+        "a", "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
+        "minha", "sua", "nossa", "minhas", "suas", "nossas"};
 
     /**
      * Determinantes femininos que podem ser ACUSADOS antes de substantivo masculino — a lista do
@@ -105,8 +143,9 @@ public class CorretorConcordanciaGeneroService {
      * substantivo masculino) deixa de ser corrigido. No acervo inteiro, essa construção aparece
      * <b>zero</b> vez — a única ocorrência de {@code a} + substantivo masculino é {@code a Deus}.
      */
-    private static final String[] ART_FEM_NO_PADRAO =
-        {"uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa"};
+    private static final String[] ART_FEM_NO_PADRAO = {
+        "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
+        "minha", "sua", "nossa", "minhas", "suas", "nossas"};
 
     private static final Pattern ART_MASC_COM_SUBST_FEM =
         Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_MASC) + ")(\\s+)(" + SUBST_FEM + ")(?![\\p{L}\\p{N}])",
@@ -222,10 +261,48 @@ public class CorretorConcordanciaGeneroService {
         Matcher m = pat.matcher(texto);
         return m.replaceAll(res -> {
             String palavra = res.group(1);
+            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
+                // MEIA-CORREÇÃO É PIOR: em "a nossa orgulho" trocar só o possessivo devolve
+                // "a nosso orgulho", que acrescenta uma discordância nova entre artigo e
+                // possessivo. E o artigo não pode ser trocado junto porque o "a" também é
+                // preposição ("entreguei a meu pai" está certo). Então a fala inteira fica
+                // como está — a tela prefere não mexer a deixar a linha pior.
+                return Matcher.quoteReplacement(res.group());
+            }
             String novo = flip.get(palavra.toLowerCase());
             return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + res.group(2) + res.group(3));
         });
     }
+
+    /** Os determinantes possessivos, que só entram no flip quando não há artigo antes deles. */
+    private static final java.util.Set<String> POSSESSIVOS = java.util.Set.of(
+        "meu", "minha", "seu", "sua", "nosso", "nossa",
+        "meus", "minhas", "seus", "suas", "nossos", "nossas");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se a palavra imediatamente anterior à posição é um artigo.
+     * <p>INVARIANTES DO DOMÍNIO: olha só o token colado antes, ignorando espaços; não usa regex
+     * com retrovisor, que em alternância de larguras diferentes já deu falso-negativo no JDK.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: início do texto devolve {@code false}.
+     */
+    private boolean precedidoPorArtigo(String texto, int inicio) {
+        int i = inicio - 1;
+        while (i >= 0 && Character.isWhitespace(texto.charAt(i))) {
+            i--;
+        }
+        int fim = i + 1;
+        while (i >= 0 && Character.isLetter(texto.charAt(i))) {
+            i--;
+        }
+        if (fim <= i + 1) {
+            return false;
+        }
+        String anterior = texto.substring(i + 1, fim).toLowerCase();
+        return ARTIGOS_SIMPLES.contains(anterior);
+    }
+
+    private static final java.util.Set<String> ARTIGOS_SIMPLES = java.util.Set.of(
+        "o", "a", "os", "as", "um", "uma", "uns", "umas");
 
     /**
      * PROPÓSITO DE NEGÓCIO: troca a 3ª captura (adjetivo predicativo) pelo gênero oposto,
