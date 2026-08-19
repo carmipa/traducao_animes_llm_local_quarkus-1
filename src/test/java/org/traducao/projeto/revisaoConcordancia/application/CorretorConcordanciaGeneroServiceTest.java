@@ -138,6 +138,42 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
+     * O PLURAL, medido em 19/08/2026 antes de ser escrito: dos 238 pares distintos discordantes
+     * do acervo, 27 eram de plural e a leitura separou <b>17 ocorrências de erro real</b> — as
+     * falas abaixo são delas.
+     */
+    @Test
+    @DisplayName("plural: determinante plural discordante e corrigido, falas REAIS do acervo")
+    void corrigeDeterminantePlural() {
+        assertEquals(Optional.of("as crianças"), corretor.corrigir("os crianças"));
+        assertEquals(Optional.of("Aquelas crianças correram."), corretor.corrigir("Aqueles crianças correram."));
+        assertEquals(Optional.of("Eu estava ajudando nos reparos."),
+            corretor.corrigir("Eu estava ajudando nas reparos."));
+        assertEquals(Optional.of("as botas"), corretor.corrigir("os botas"));
+    }
+
+    /**
+     * A discordância de NÚMERO é outro defeito, e esta tela não o corrige. Se ela casasse
+     * determinante singular com substantivo plural, {@code "o meninas"} viraria
+     * {@code "a meninas"} — um erro trocado por outro, que é o oposto do contrato.
+     */
+    @Test
+    @DisplayName("numero divergente NAO e tocado — corrigir genero ali trocaria um erro por outro")
+    void naoTocaQuandoONumeroDiverge() {
+        assertTrue(corretor.corrigir("o meninas chegaram").isEmpty());
+        assertTrue(corretor.corrigir("os menina chegou").isEmpty());
+    }
+
+    @Test
+    @DisplayName("plural correto nao e tocado")
+    void naoTocaPluralCorreto() {
+        assertTrue(corretor.corrigir("as crianças correram").isEmpty());
+        assertTrue(corretor.corrigir("os meninos chegaram").isEmpty());
+        // "os caras" é a construção CORRETA que dominava o ruído da medição: 86 ocorrências.
+        assertTrue(corretor.corrigir("Esses caras são perigosos.").isEmpty());
+    }
+
+    /**
      * A MEIA-CORREÇÃO que o teste pegou antes de virar dano: em {@code "Essa e a nossa orgulho."}
      * trocar só o possessivo devolveria {@code "a nosso orgulho"} — uma discordância NOVA entre
      * artigo e possessivo, onde antes havia uma só. E o artigo não pode ser trocado junto porque

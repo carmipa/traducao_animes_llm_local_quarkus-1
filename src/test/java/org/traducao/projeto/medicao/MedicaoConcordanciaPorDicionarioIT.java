@@ -133,7 +133,11 @@ class MedicaoConcordanciaPorDicionarioIT {
         "cara", "piloto", "idiota", "guarda", "colega", "artista", "policia", "chefe",
         "fantasma", "cometa", "sistema", "programa", "problema", "planeta", "clima", "mapa",
         "tema", "poema", "drama", "dilema", "esquema", "trauma", "estrategista", "camarada",
-        "companhia", "vitima", "criança", "pessoa", "gente", "testemunha", "recruta");
+        "companhia", "gente", "recruta");
+    // CORRIGIDO em 19/08/2026: "criança", "pessoa", "vitima" e "testemunha" estavam aqui por
+    // engano meu — são femininos FIXOS, não de gênero comum, e excluí-las cegava a medição para
+    // erros reais. A medição do plural mostrou o custo: "aqueles crianças" só apareceu porque a
+    // exclusão comparava o singular e a fala trazia o plural.
 
     @Test
     @DisplayName("acervo: quantos erros de concordancia existem que as listas curadas NAO veem")
@@ -388,18 +392,32 @@ class MedicaoConcordanciaPorDicionarioIT {
         if (outra == null || !conhecida(w, veredictos) || !conhecida(outra, veredictos)) {
             return null;
         }
-        return w.endsWith("a") ? Boolean.TRUE : Boolean.FALSE;
+        return w.endsWith("a") || w.endsWith("as") ? Boolean.TRUE : Boolean.FALSE;
     }
 
     private boolean conhecida(String forma, Map<String, VeredictoPalavra> veredictos) {
         return veredictos.get(forma) == VeredictoPalavra.PORTUGUES_OK;
     }
 
-    /** A contraparte de gênero pela terminação: {@code menina→menino}, {@code menino→menina}. */
+    /**
+     * A contraparte de gênero pela terminação: {@code menina→menino}, {@code menino→menina} — e
+     * desde 19/08/2026 também no PLURAL, {@code meninas→meninos}.
+     *
+     * <p>O plural entrou porque a primeira medição não o via: {@code reparos} termina em
+     * {@code -s}, caía fora do par mínimo, e a fala {@code "nas reparos da casco"} teve o
+     * {@code casco} corrigido enquanto o {@code nas reparos} passava. Medir antes de decidir se
+     * vale ampliar a correção é o ponto — o número é que responde.
+     */
     private String flexionar(String palavra) {
         String w = palavra.toLowerCase();
         if (w.length() < 4) {
             return null;
+        }
+        if (w.endsWith("as")) {
+            return w.substring(0, w.length() - 2) + "os";
+        }
+        if (w.endsWith("os")) {
+            return w.substring(0, w.length() - 2) + "as";
         }
         if (w.endsWith("a")) {
             return w.substring(0, w.length() - 1) + "o";

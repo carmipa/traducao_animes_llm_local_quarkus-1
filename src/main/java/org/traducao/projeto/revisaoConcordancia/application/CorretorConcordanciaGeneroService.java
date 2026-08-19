@@ -87,13 +87,17 @@ public class CorretorConcordanciaGeneroService {
             // Segunda leva — medida no acervo em 19/08/2026:
             + "isca|cortina|mochila|arma|bandeira|ponta|alavanca|catapulta|arena|flecha|"
             + "bagunça|bagunca|baleia|batalha|carta|desculpa|faixa|mentira|silhueta|trincheira|"
-            + "água|agua";
+            + "água|agua|"
+            // Terceira leva — revelada pela medição do PLURAL, 19/08/2026:
+            + "criança|crianca|perna|bota|marca|pessoa|vítima|vitima|testemunha";
     private static final String SUBST_MASC =
         "menino|garoto|moço|moco|homem|deus|príncipe|principe|rei|senhor|irmão|irmao|pai|filho|"
             + "tio|amigo|rapaz|herói|heroi|aventureiro|sacerdote|mago|ladrão|ladrao|príncipe|"
             // Segunda leva — medida no acervo em 19/08/2026:
             + "orgulho|destino|afeto|encontro|respeito|egoísmo|egoismo|luxo|desespero|casco|"
-            + "avanço|avanco|pulso|circuito|gato|partido|reparo|selo|testemunho";
+            + "avanço|avanco|pulso|circuito|gato|partido|reparo|selo|testemunho|"
+            // Terceira leva — revelada pela medição do PLURAL, 19/08/2026:
+            + "cogumelo|reforço|reforco|buraco|compromisso|pensamento|plano|campo";
 
     // Artigos/determinantes/contrações masculinos e o feminino correspondente (índice a índice).
     // Servem ao MAPA de troca; quem entra no PADRÃO é decidido logo abaixo, e não é a mesma lista.
@@ -147,11 +151,45 @@ public class CorretorConcordanciaGeneroService {
         "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
         "minha", "sua", "nossa", "minhas", "suas", "nossas"};
 
+    /**
+     * Os mesmos determinantes no PLURAL, índice a índice com os singulares acima.
+     *
+     * <h2>Por que o plural tem padrão PRÓPRIO, e não um {@code s?} solto</h2>
+     * Casar número e gênero na mesma alternância deixaria {@code "o meninas"} entrar — e trocar
+     * só o gênero devolveria {@code "a meninas"}, que troca um erro por outro. A discordância de
+     * NÚMERO é outro defeito, e esta tela não o corrige: quando número e gênero divergem juntos,
+     * ela não toca. Determinante singular só casa com substantivo singular, e plural com plural.
+     *
+     * <p>MEDIDO em 19/08/2026, e foi o número que decidiu incluir o plural: dos 238 pares
+     * distintos discordantes do acervo, <b>27 eram de plural</b>, e a leitura um a um separou
+     * <b>17 ocorrências de erro real</b> — {@code aqueles crianças}, {@code essas cogumelos},
+     * {@code suas reforços}, {@code os botas}, {@code nas reparos}, {@code minhas planos} — de
+     * um ruído com dono conhecido: {@code os caras} (86 ocorrências, correto) e {@code as fotos}.
+     */
+    private static final String[] ART_MASC_PLUR = {
+        "os", "uns", "estes", "esses", "aqueles", "dos", "nos", "aos", "pelos", "nuns",
+        "meus", "seus", "nossos"};
+    private static final String[] ART_FEM_PLUR = {
+        "as", "umas", "estas", "essas", "aquelas", "das", "nas", "às", "pelas", "numas",
+        "minhas", "suas", "nossas"};
+
+    /** O sufixo do plural regular — o irregular ({@code mulheres}, {@code irmãos}) fica de fora. */
+    private static final String PLURAL = "s";
+
     private static final Pattern ART_MASC_COM_SUBST_FEM =
         Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_MASC) + ")(\\s+)(" + SUBST_FEM + ")(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final Pattern ART_FEM_COM_SUBST_MASC =
         Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_FEM_NO_PADRAO) + ")(\\s+)(" + SUBST_MASC + ")(?![\\p{L}\\p{N}])",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    private static final Pattern ART_MASC_PLUR_COM_SUBST_FEM =
+        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_MASC_PLUR) + ")(\\s+)(?:"
+            + SUBST_FEM + ")" + PLURAL + "(?![\\p{L}\\p{N}])",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final Pattern ART_FEM_PLUR_COM_SUBST_MASC =
+        Pattern.compile(INICIO_DE_TERMO + "(" + String.join("|", ART_FEM_PLUR) + ")(\\s+)(?:"
+            + SUBST_MASC + ")" + PLURAL + "(?![\\p{L}\\p{N}])",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     // Adjetivos/particípios masc ↔ fem (paralelos): base para trocar o predicativo de "ela/ele".
@@ -227,8 +265,10 @@ public class CorretorConcordanciaGeneroService {
         INICIO_DE_TERMO + "(meu|seu|nosso)(" + SEPARADOR + ")(mãe|mae|filha|irmã|irma)" + FIM_DE_TERMO,
         FLAGS_COPIA);
 
-    private static final Map<String, String> FLIP_ART_M2F = mapaFlip(ART_MASC, ART_FEM);
-    private static final Map<String, String> FLIP_ART_F2M = mapaFlip(ART_FEM, ART_MASC);
+    private static final Map<String, String> FLIP_ART_M2F = mapaFlip(
+        juntar(ART_MASC, ART_MASC_PLUR), juntar(ART_FEM, ART_FEM_PLUR));
+    private static final Map<String, String> FLIP_ART_F2M = mapaFlip(
+        juntar(ART_FEM, ART_FEM_PLUR), juntar(ART_MASC, ART_MASC_PLUR));
     private static final Map<String, String> FLIP_ADJ_M2F = mapaFlip(ADJ_MASC, ADJ_FEM);
     private static final Map<String, String> FLIP_ADJ_F2M = mapaFlip(ADJ_FEM, ADJ_MASC);
 
@@ -244,6 +284,8 @@ public class CorretorConcordanciaGeneroService {
         String r = pt;
         r = flipPrimeiroGrupo(r, ART_MASC_COM_SUBST_FEM, FLIP_ART_M2F);
         r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M);
+        r = flipDeterminantePlural(r, ART_MASC_PLUR_COM_SUBST_FEM, FLIP_ART_M2F);
+        r = flipDeterminantePlural(r, ART_FEM_PLUR_COM_SUBST_MASC, FLIP_ART_F2M);
         r = flipTerceiroGrupo(r, ELA_COM_ADJ_MASC, FLIP_ADJ_M2F);
         r = flipTerceiroGrupo(r, ELE_COM_ADJ_FEM, FLIP_ADJ_F2M);
         r = corrigirExpressaoIdiomatica(r);
@@ -366,6 +408,37 @@ public class CorretorConcordanciaGeneroService {
             return Matcher.quoteReplacement(
                 preservarCaixa(res.group(1), novo) + res.group(2) + res.group(3));
         });
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: troca o determinante PLURAL discordante, preservando o substantivo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o padrão do plural não captura o substantivo (ele é grupo
+     * não-capturante), porque nada nele muda — só o determinante. E ele nunca casa determinante
+     * singular com substantivo plural: número divergente é OUTRO defeito, e corrigir o gênero
+     * ali devolveria {@code "a meninas"}, trocando um erro por outro.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
+     */
+    private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip) {
+        Matcher m = pat.matcher(texto);
+        return m.replaceAll(res -> {
+            String palavra = res.group(1);
+            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
+                return Matcher.quoteReplacement(res.group());
+            }
+            String novo = flip.get(palavra.toLowerCase());
+            String resto = res.group().substring(palavra.length());
+            return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + resto);
+        });
+    }
+
+    /** Concatena singular e plural mantendo a ordem — os mapas de troca são índice a índice. */
+    private static String[] juntar(String[] a, String[] b) {
+        String[] r = new String[a.length + b.length];
+        System.arraycopy(a, 0, r, 0, a.length);
+        System.arraycopy(b, 0, r, a.length, b.length);
+        return r;
     }
 
     private static Map<String, String> mapaFlip(String[] de, String[] para) {
