@@ -107,10 +107,26 @@ public class CorretorConcordanciaGeneroService {
     // determinante errado não era artigo.
     private static final String[] ART_MASC = {
         "o", "um", "este", "esse", "aquele", "do", "no", "ao", "pelo", "num",
-        "meu", "seu", "nosso", "meus", "seus", "nossos"};
+        "meu", "seu", "nosso", "meus", "seus", "nossos",
+        // Indefinidos — entraram em 19/08/2026 quando a conferencia do acervo JA CORRIGIDO
+        // mostrou "algumas reparos" ainda de pe: a familia estava fora da lista, e o erro
+        // sobrevivia por falta de determinante, nao por falta de substantivo.
+        //
+        // E a familia entrou PODADA, porque a medicao mostrou os falsos positivos ANTES de
+        // qualquer escrita. Ficaram de fora, com o motivo:
+        //   muito/pouco/tanto no SINGULAR .. sao ADVERBIO invariavel antes de substantivo:
+        //                                    "Voce e muito crianca" esta CERTO, e virar
+        //                                    "muita crianca" seria estragar fala boa.
+        //   todo/toda/todos/todas .......... concordam com o ANTECEDENTE, nao com a palavra
+        //                                    seguinte: "esses alvos sao todos iscas" esta certo.
+        //   certo/certa .................... adjetivo tao comum quanto determinante.
+        // No PLURAL o advérbio nao existe ("muitos criancas" so pode ser determinante), entao
+        // muitos/muitas e poucos/poucas ficam.
+        "algum", "outro"};
     private static final String[] ART_FEM  = {
         "a", "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
-        "minha", "sua", "nossa", "minhas", "suas", "nossas"};
+        "minha", "sua", "nossa", "minhas", "suas", "nossas",
+        "alguma", "outra"};
 
     /**
      * Determinantes femininos que podem ser ACUSADOS antes de substantivo masculino — a lista do
@@ -149,7 +165,8 @@ public class CorretorConcordanciaGeneroService {
      */
     private static final String[] ART_FEM_NO_PADRAO = {
         "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
-        "minha", "sua", "nossa", "minhas", "suas", "nossas"};
+        "minha", "sua", "nossa", "minhas", "suas", "nossas",
+        "alguma", "muita", "outra", "toda", "pouca", "certa", "tanta"};
 
     /**
      * Os mesmos determinantes no PLURAL, índice a índice com os singulares acima.
@@ -168,10 +185,12 @@ public class CorretorConcordanciaGeneroService {
      */
     private static final String[] ART_MASC_PLUR = {
         "os", "uns", "estes", "esses", "aqueles", "dos", "nos", "aos", "pelos", "nuns",
-        "meus", "seus", "nossos"};
+        "meus", "seus", "nossos",
+        "alguns", "muitos", "outros", "poucos", "varios", "vários"};
     private static final String[] ART_FEM_PLUR = {
         "as", "umas", "estas", "essas", "aquelas", "das", "nas", "às", "pelas", "numas",
-        "minhas", "suas", "nossas"};
+        "minhas", "suas", "nossas",
+        "algumas", "muitas", "outras", "poucas", "varias", "várias"};
 
     /** O sufixo do plural regular — o irregular ({@code mulheres}, {@code irmãos}) fica de fora. */
     private static final String PLURAL = "s";
