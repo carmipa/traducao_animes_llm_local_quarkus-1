@@ -96,6 +96,48 @@ silêncio como "job terminado". A obra mais lenta do acervo (DanMachi, 1.614.552
 arquivos) leva **12,8s** — 7x de folga —, e com uma linha por arquivo o silêncio máximo é o de um
 arquivo só. A medição ganhou coluna de tempo para esse número não voltar a ser palpite.
 
+## ✅ ITEM 3 FECHADO — aviso sonoro de fim de trabalho (`32fba542`)
+
+A 3.3 era a **única** tela que espera a fila e terminava em silêncio. O módulo
+`js/avisoSonoro.js` é **importado, não copiado** (invariante 10): armar no clique (o gesto que
+libera áudio no navegador), estado dito em três valores, tocar depois da conclusão real, e o
+alerta visual sempre primeiro.
+
+**Catraca nova:** `CatracaAvisoSonoroNasTelasLongasTest` — toda tela que consulta
+`/api/pipeline/status` importa o módulo e chama `tocarAvisoSonoro`, ou entra na linha de base.
+Mais a segunda metade da invariante 10: ninguém obtém `AudioContext` fora do módulo.
+
+- **Linha de base (só desce):** `correcao/correcao.js` espera a fila e não avisa. Fora de escopo
+  hoje, visível aqui em vez de virar lacuna silenciosa.
+- **Alarme falso corrigido antes de nascer:** a 1ª versão procurava o TEXTO `AudioContext` e
+  reprovou meu próprio comentário. O critério virou a CONSTRUÇÃO, com caso-controle próprio.
+
+```
+MUTACAO (tirar tocarAvisoSonoro) ... 2 failed — a catraca e a linha de base
+navegador REAL (playwright) ........ import('/js/avisoSonoro.js') -> 4 exports
+   armarAvisoSonoro() -> 'armado' | tocarAvisoSonoro() -> true
+```
+
+## ✅ ITEM 4 FECHADO — seletor de obra, como AUXILIAR (`9ac022fb`)
+
+Pedido de Paulo. Entra na categoria que o projeto já tinha para telas em que **a lore não muda o
+resultado** (`ehAuxiliar` no `app.js`: análise, correção, cura, troca de tipo, renomear, karaokê
+simples). Ganha, pelo mecanismo compartilhado: opções agrupadas por franquia, abertura travada
+com a saída `— Sem obra —`, a **trava de lore** (pasta/Procurar/botão inertes até escolher),
+banner de capa, e o nome da obra no console. O tooltip diz o que ele **não** faz.
+
+**Catraca nova:** `CatracaSeletorDeObraRegistradoTest`, nos dois sentidos (11 × 11). A 1ª versão
+aceitava "aparece em algum lugar do `app.js`" e a mutação provou a fraqueza — o combo abriria
+vazio com a guarda verde. Passou a olhar o trecho das **duas listas** que populam.
+
+## 🟡 NÃO COMPROVADO NO NAVEGADOR — e por quê, medido
+
+O `quarkusDev` serve os estáticos do **boot** (07:52) e não re-sincroniza `.js`/`.html` em live
+reload — o `processResources` já copiou (o `build/resources/main/META-INF/resources/...html` tem
+o seletor, 2 ocorrências) e **o servidor devolve 0**. A corrida no navegador executou o JS
+antigo. **Exige reiniciar o KRONOS**, que é o processo interativo do Paulo, no terminal dele —
+por isso não reiniciei por conta própria.
+
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
