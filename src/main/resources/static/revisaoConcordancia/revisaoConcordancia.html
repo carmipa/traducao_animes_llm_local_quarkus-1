@@ -3,7 +3,15 @@
     <p class="card-desc">Corrige <strong>erros de gênero</strong> inequívocos direto na legenda em português — <strong>sem inglês, sem cache e sem LLM</strong>. Ex.: "o menina" → "a menina", "uma menino" → "um menino", "ela está cansado" → "cansada".</p>
     <p class="card-hint">Determinístico e conservador: só toca substantivos/adjetivos de gênero conhecido; o ambíguo fica intocado. Toda alteração faz backup automático.</p>
 
+    <div class="anime-meta-banner hidden" id="meta-banner-revisao-concordancia"></div>
+
     <form id="form-revisao-concordancia" class="standard-form">
+        <div class="form-group">
+            <label for="revisao-concordancia-contexto">Obra / Contexto (Opcional): <span class="help-icon" data-tooltip="Exibe a capa e os dados do anime e registra QUAL obra foi revisada no console. NÃO muda a correção: esta tela é determinística e não usa lore — a obra escolhida não altera uma vírgula do que é corrigido.">?</span></label>
+            <select id="revisao-concordancia-contexto">
+                <option value="" disabled selected>Carregando contextos...</option>
+            </select>
+        </div>
         <div class="form-group">
             <label for="revisao-concordancia-entrada">Pasta com legendas TRADUZIDAS (PT-BR): <span class="help-icon" data-tooltip="Única pasta necessária: as legendas em português que serão revisadas e gravadas no lugar (com backup).">?</span></label>
             <div class="input-with-button">
