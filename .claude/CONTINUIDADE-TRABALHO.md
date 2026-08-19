@@ -156,6 +156,21 @@ Seletor: **70 opções** agrupadas por franquia, abre travado, e a **trava** dei
 botão inertes até escolher (`campoPastaDesabilitado: true` antes, `true` liberado depois). Banner
 carregou capa e sinopse reais do ZZ. Screenshot do painel conferido — layout íntegro.
 
+## ✅ ITEM 5 FECHADO — cartão do alvo ativo + caixa "o que acontece" (`98d4a934`)
+
+Pedido de Paulo olhando a 3.1. O cartão mantém à vista **obra** e **pasta que SERÁ REESCRITA** —
+o rótulo é deliberado, é a cicatriz dos 17 arquivos sobrescritos por apontar para pasta de saída.
+
+**A divergência que apareceu no caminho:** o mesmo cartão existia em TRÊS telas com o JS copiado,
+e as cópias **já tinham divergido** — a da 3.2 interpola a pasta no `innerHTML`, a da 3.1 usa
+`textContent`. Nasceu `js/cartaoAlvoAtivo.js` com a versão segura, provada com caso-controle no
+navegador: pasta `C:\animes\<b>injecao</b>\pt` saiu como TEXTO (`querySelector('b') === null`).
+**Fora de escopo hoje:** migrar 3.1 e 3.2 para o módulo — declarado, não esquecido.
+
+A caixa segue o formato da 3.1 e tem duas entradas: o que ela corrige e **o que ela não faz**
+(não usa lore, não conserta `ele`/`ela` por personagem, música é veto). O rodapé calibra com o
+número medido: *"Espere pouco, e isso é bom sinal — 380.697 falas ao alcance, a tela mudaria 1"*.
+
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
