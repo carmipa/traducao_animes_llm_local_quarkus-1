@@ -96,6 +96,11 @@ test {
      // do Gradle e nao chega na de teste — o harness rodou em ENSAIO, imprimiu contagem e
      // exit 0, e "nao gravou nada" ficou com a mesma cara de "gravou".
      'kronos.aplicar.acentos', 'kronos.acervo',
+     // 'kronos.esqueleto.regravar' manda a CatracaEsqueletoDoProjetoAtualizadoTest REGRAVAR
+     // docs/ref-esqueleto-projeto.md a partir do disco, em vez de so comparar. Sem a chave
+     // aqui o -D ficaria na JVM do Gradle, a catraca continuaria em modo comparacao e o
+     // "regravei" teria a mesma cara de "nao mudou nada" — a cicatriz documentada acima.
+     'kronos.esqueleto.regravar',
      'correcao-cache.reforco-terminologia-aplicar-habilitado'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)

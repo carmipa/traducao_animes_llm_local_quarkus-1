@@ -13,7 +13,7 @@ dela, mas porque ninguém a lê no momento em que ela importa.
 Documentação não impõe nada. Um arquivo de instruções pode ser ignorado por qualquer agente que
 abra o projeto amanhã. **Um teste vermelho, não.**
 
-Daí a peça central da arquitetura do KRONOS: **35 guardas executáveis**, 136 testes, que não
+Daí a peça central da arquitetura do KRONOS: **36 guardas executáveis**, 138 testes, que não
 verificam comportamento — verificam que **um padrão perigoso não voltou**. Elas leem o
 código-fonte, a estrutura de pacotes ou o HTML, e **reprovam o build** ao encontrar a forma do
 bug.
@@ -54,7 +54,7 @@ graph TB
         A3["Homologar é decisão consciente:<br/>entra na lista, com justificativa"]
     end
 
-    subgraph B["🔒 Catraca*Test — 25 guardas, 77 testes"]
+    subgraph B["🔒 Catraca*Test — 26 guardas, 79 testes"]
         direction TB
         B1["Varre o FONTE atrás da<br/>forma de um defeito conhecido"]
         B2["Sem número congelado<br/>quando o invariante é universal"]
@@ -80,7 +80,7 @@ do código.
 
 ## O inventário completo
 
-Medido em **19/08/2026**, rodando a suíte inteira com `--rerun-tasks`: **35 guardas · 136 testes ·
+Medido em **19/08/2026**, rodando a suíte inteira com `--rerun-tasks`: **36 guardas · 138 testes ·
 0 falhas**. A contagem por classe vem do relatório JUnit, não da memória.
 
 ### Fronteiras — congelam *quem pode importar quem* (10 guardas, 59 testes)
@@ -131,12 +131,13 @@ catraca é cega fora do próprio prefixo — foi por isso que precisaram ser qua
 | `CatracaCorretorIndependeDeLoreTest` | 3 | A tradução **sem lore** receber correções determinísticas diferentes da tradução com lore — o que tornaria toda comparação entre as duas inválida |
 | `CatracaCicatrizNoLoreYamlTest` | 1 | A cicatriz do `lore.yaml` (medição escrita em comentário) ser apagada por quem regenerar o arquivo e copiar por cima |
 
-### Catracas de arquitetura e formato (6 guardas, 17 testes)
+### Catracas de arquitetura e formato (7 guardas, 19 testes)
 
 | Guarda | Testes | O que impede |
 |--------|-------:|--------------|
 | `CatracaCoberturaFatiaTelemetriaTest` | 4 | O mapa que decide em que aba do painel — e em que dataset publicado — cada operação aparece perder cobertura |
 | `CatracaOrdemDocumentacaoTest` | 4 | O menu, o nome do arquivo em `docs/` e o índice da documentação contarem histórias diferentes |
+| `CatracaEsqueletoDoProjetoAtualizadoTest` | 2 | O esqueleto desenhado em [Esqueleto do Projeto](ref-esqueleto-projeto.md) deixar de bater com o disco. Ela é o **gerador e a guarda** da página: regrava com `-Dkronos.esqueleto.regravar=true`, compara sem a flag |
 | `CatracaPaginaDeDocumentacaoAbreTest` | 3 | Página existir em `docs/` e **não abrir** na tela. As 14 páginas numeradas passaram 13 dias devolvendo HTTP 400 depois da renomeação para `etapa-G.N-nome.md` — a guarda de ordem conferia o NOME, e nenhuma perguntava se a página carrega |
 | `CatracaFronteiraQuebraAssTest` | 2 | Uma fronteira de termo esquecer que `\N` do ASS são **dois caracteres** e o `N` é letra |
 | `CatracaPadraoMusicalTemDonoUnicoTest` | 2 | Um arquivo novo decidir alguma coisa a partir de "palavra musical" em silêncio |
@@ -158,7 +159,7 @@ catraca é cega fora do próprio prefixo — foi por isso que precisaram ser qua
 ### 1. Guarda nasce de prejuízo real, nunca de bug hipotético
 
 Guarda preventiva é cerimônia, e cerimônia é a primeira coisa abandonada na pressa. Cada uma das
-35 carrega, no próprio javadoc, o incidente que a originou. Exemplos verdadeiros:
+36 carrega, no próprio javadoc, o incidente que a originou. Exemplos verdadeiros:
 
 - `CatracaRegraDuplicadaEntreFatiasTest` — *"cópia não declarada foi a causa de três defeitos em
   03/08/2026, um deles vivo por nove dias."*

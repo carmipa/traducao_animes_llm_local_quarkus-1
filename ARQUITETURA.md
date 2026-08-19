@@ -46,7 +46,7 @@ multiempresa: o invariante que, se furar, contamina tudo em silêncio.
 
 **Escala atual do código (medida em 19/08/2026):** 63.049 linhas de Java em 471 classes,
 20 fatias verticais, 5 peers, 21 controllers, 69 obras de lore no `lore.yaml` (68 na lista da
-UI), 2.004 testes automatizados dos quais 136 são guardas de arquitetura. Acervo em disco: 34
+UI), 2.006 testes automatizados dos quais 138 são guardas de arquitetura. Acervo em disco: 34
 pastas de obra no cache, 553 arquivos de cache, 122.307 entradas, 90 MB.
 
 > A contagem anterior desta linha (06/08: 577 classes, 72 lores, 1.440 testes, 62 guardas)
@@ -396,9 +396,9 @@ Conferir o número de catraca em todo commit de IA, e exigir a mutação.
 
 ### 8.2 Guardas executáveis
 
-Dos 2.004 testes, **136 não verificam comportamento** — verificam que um padrão perigoso não
+Dos 2.006 testes, **138 não verificam comportamento** — verificam que um padrão perigoso não
 voltou. Leem o código-fonte, a estrutura de pacotes ou o HTML, e reprovam o build ao encontrar
-a forma do bug. São **35 guardas: 10 fronteiras ArchUnit e 25 catracas**.
+a forma do bug. São **36 guardas: 10 fronteiras ArchUnit e 26 catracas**.
 
 | Guarda | Impede |
 |---|---|
