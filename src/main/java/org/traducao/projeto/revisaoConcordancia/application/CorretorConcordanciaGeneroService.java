@@ -86,6 +86,10 @@ public class CorretorConcordanciaGeneroService {
      * <b>1</b> conserto real ({@code "Aquela garoto" -> "Aquele garoto"}, Gundam ZZ). Ou seja,
      * rodar a 3.3 no acervo hoje causaria 14 estragos para 1 acerto.
      *
+     * <p>O denominador encolheu no mesmo dia, e o achado não: com os 38 {@code .parcial} fora do
+     * alcance, o acervo passou a 2.050.958 eventos e 332.545 falas — as 15 falas e o único acerto
+     * continuam os mesmos, porque nenhum deles estava num parcial.
+     *
      * <p>A exceção não é descoberta nova: o detector da 3.1
      * ({@code DetectorConcordanciaNominal}) já a documenta e já deixa o {@code a} de fora do
      * lado feminino. O corretor desta fatia nasceu de uma segunda escrita da mesma ideia e

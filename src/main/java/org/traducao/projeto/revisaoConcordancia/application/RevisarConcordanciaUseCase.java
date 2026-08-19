@@ -128,9 +128,16 @@ public class RevisarConcordanciaUseCase {
         int analisados = 0;
         int alterados = 0;
         int falasCorrigidas = 0;
+        int foraDoAlcance = 0;
         List<Path> backups = new ArrayList<>();
 
         for (Path arquivo : arquivos) {
+            if (eParcial(arquivo)) {
+                foraDoAlcance++;
+                imprimir(AnsiCores.DIM + "  [Ignorado] " + arquivo.getFileName()
+                    + " (.parcial — tradução incompleta, não é entrega)" + AnsiCores.RESET);
+                continue;
+            }
             analisados++;
             try {
                 DocumentoLegenda documento = leitor.ler(arquivo);
@@ -182,8 +189,8 @@ public class RevisarConcordanciaUseCase {
                 log.warn("Revisão de concordância pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
-        ResultadoConcordancia resultado =
-            new ResultadoConcordancia(analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar);
+        ResultadoConcordancia resultado = new ResultadoConcordancia(
+            analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar, foraDoAlcance);
         telemetriaService.registrarOperacao(new OperacaoTelemetria(
             "Revisão de Concordância",
             "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
@@ -204,7 +211,7 @@ public class RevisarConcordanciaUseCase {
      * <h2>Por que uma linha por ARQUIVO, e nunca por fala</h2>
      * Medido na 3.2 em 18/08/2026: imprimindo por fala, 10.013 das 10.563 linhas do console
      * (94,8%) eram "auditando" e "limpo" — ruído que empurra o sinal para fora da tela. Aqui o
-     * risco seria pior: esta fatia percorre 380.697 falas do acervo, e nenhuma delas interessa ao
+     * risco seria pior: esta fatia percorre 332.545 falas do acervo, e nenhuma delas interessa ao
      * operador enquanto não muda nada.
      *
      * <p>INVARIANTES DO DOMÍNIO: escreve em {@code System.out} (que o console web captura) e no
@@ -239,6 +246,30 @@ public class RevisarConcordanciaUseCase {
         Path backup = dirBackup.resolve(nome + "." + LocalDateTime.now().format(TS) + ".bak");
         Files.copy(arquivo, backup, StandardCopyOption.COPY_ATTRIBUTES);
         return backup;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se o arquivo é uma tradução INCOMPLETA, que o pipeline isolou com
+     * o sufixo {@code .parcial} — e que por isso não é entrega e não se reescreve.
+     *
+     * <h2>Por que o sufixo é critério confiável aqui</h2>
+     * Ele não é convenção de quem nomeia arquivo à mão: quem o coloca é o próprio pipeline
+     * ({@code traducao.ResolvedorSaidaLegenda}), quando a tradução terminou com pendências. O
+     * arquivo existe justamente para NÃO ser confundido com o PT-BR final usado no remux.
+     *
+     * <p>A constante é local de propósito. O dono da regra é outra FATIA, e fatia não fala com
+     * fatia: duplicar oito caracteres conscientemente custa menos que a dependência — é a mesma
+     * escolha que o projeto já faz em toda parte. Se o pipeline mudar o sufixo, esta linha muda
+     * junto.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara em minúsculas, porque o disco do Windows não distingue
+     * caixa e o acervo tem as duas formas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome vazio devolve {@code false} — na dúvida o arquivo
+     * segue para a revisão normal, que tem backup e veto de música.
+     */
+    private boolean eParcial(Path arquivo) {
+        return arquivo.getFileName().toString().toLowerCase().contains(".parcial.");
     }
 
     private boolean temExtensaoSuportada(Path arquivo) {

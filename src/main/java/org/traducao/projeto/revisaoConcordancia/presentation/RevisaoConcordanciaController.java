@@ -120,7 +120,13 @@ public class RevisaoConcordanciaController {
         System.out.println("\n" + cor + LINHA + AnsiCores.RESET);
         System.out.println(cor + "  [" + modo + "] REVISAO DE CONCORDANCIA (genero PT-BR)" + AnsiCores.RESET);
         System.out.println(cor + LINHA + AnsiCores.RESET);
-        System.out.println(AnsiCores.CYAN + "  • Arquivos analisados  : " + r.arquivosAnalisados() + AnsiCores.RESET);
+        System.out.println(AnsiCores.CYAN + "  • Arquivos revisados   : " + r.arquivosAnalisados() + AnsiCores.RESET);
+        // Linha separada, e ela NUNCA some do relatório: somar o que a tela nem abriu ao que ela
+        // revisou faria o número parecer prova de cobertura que não houve.
+        if (r.arquivosForaDoAlcance() > 0) {
+            System.out.println(AnsiCores.DIM + "  • Fora do alcance      : " + r.arquivosForaDoAlcance()
+                + " (.parcial — tradução incompleta)" + AnsiCores.RESET);
+        }
         System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
         System.out.println(cor + "  • " + rotuloFalas + r.falasCorrigidas() + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
