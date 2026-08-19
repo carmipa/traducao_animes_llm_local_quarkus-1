@@ -101,6 +101,57 @@ sequenceDiagram
 
 ---
 
+## O que mudou entre 07 e 15/08/2026 — quatro consertos, todos medidos
+
+### 1. O gradiente de cor sobrevive à tradução (`GradienteKaraoke`)
+
+Linha pintada **letra a letra** — o gradiente que os fansubs aplicam no OP/ED — tem **uma tag por
+letra**. O mascarador produzia 10 a 30 marcadores intercalados, e nenhum LLM os devolve na ordem.
+
+```
+Guilty Crown, 07/08/2026: das 31 linhas recusadas numa execucao,
+28 cairam por "Marcadores de formatacao ([[TAGn]])"
+
+a unica que passou pelo validador saiu assim:
+  So, everything that makes me whole
+  -> So, eu e evidentementereithyingthathingthatmakes mea whole wholed
+```
+
+Agora **só o texto vai ao LLM** e as **mesmas cores voltam distribuídas** sobre a tradução. Nenhuma
+tag viaja.
+
+### 2. A tradução vinha certa e era jogada fora por falta de um marcador
+
+O veto de `\t(` era aplicado ao **texto inteiro**, não ao trecho que importava — e derrubava
+proposta correta. Medido numa execução do **86**: **2.987 recusas**, que caíram para **4** depois
+do conserto.
+
+### 3. O corretor ortográfico saiu da ORIGEM e foi para a SAÍDA
+
+Ele estava antes do cache; passou para depois, que é por onde a legenda realmente sai. Nasce com
+**preservação como padrão** — na dúvida, não mexe.
+
+### 4. O acento tem lista PRÓPRIA, e a razão é o romaji
+
+`AcentosLetraKaraoke` **não** reusa a lista de 162 entradas do diálogo (`NormalizadorAcentosComuns`).
+Medido em 14/08/2026 contra o dicionário `ja_ROMAJI` do próprio projeto (129.745 formas): **quatro
+daquelas entradas também são romaji válido** —
+
+```
+ate    mae    nao    sao
+```
+
+No diálogo elas nunca fizeram mal, porque ali não existe camada japonesa. Aqui, `mae` é 前
+("antes") e virou **`mãe` 100 vezes** nos 50 episódios do Unicorn.
+
+> **É duplicação declarada, e a medição é o motivo.** A regra que Paulo enunciou em 14/08: a
+> camada resolve o problema **dela** e não empurra o próprio dano para as vizinhas. A lista daqui
+> é montada do que foi medido **na saída do karaokê** — na tradução do 86, a camada portuguesa
+> saiu com `nao` sem acento em 5 falas distintas, presentes em 918 linhas do arquivo (o gradiente
+> de `\clip` repete a mesma fala centenas de vezes).
+
+---
+
 ## Endpoints REST
 
 | Endpoint | Payload | Canal SSE |

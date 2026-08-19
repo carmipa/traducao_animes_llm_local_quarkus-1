@@ -63,6 +63,37 @@ sequenceDiagram
 
 ---
 
+## O estilo base é o de MAIOR TEMPO DE TELA — nunca o mais numeroso
+
+O achatamento joga os estilos decorativos no estilo de diálogo principal. Escolher **qual** é o
+principal decidia tudo — e o critério antigo (*"o estilo mais frequente"*) elegia a **decoração**.
+
+```
+Zeta Gundam — o logo de abertura e animado quadro a quadro:
+  297 eventos do estilo "Zeta Episode Title", de 0,04 s cada  =  6 s de tela
+
+episodios 1, 8 e 14:  297 quadros  >  205 / 291 / 275 falas de dialogo
+  -> a decoracao ganhava a votacao e o achatamento rodava AO CONTRARIO:
+     o dialogo inteiro ia para o estilo do letreiro (corpo 100, contorno 0,
+     sombra 0, cinza claro, margem 10) e ficava ilegivel sobre cena clara
+
+episodio 2:  298 falas contra 297 quadros  ->  UMA linha de diferenca
+  -> nos outros 47 episodios o defeito nao apareceu POR UM FIO
+```
+
+Hoje a eleição prefere `Default` quando ele existe no cabeçalho; na ausência dele, vence o estilo
+com **maior tempo de tela** entre as falas `Dialogue` com fonte declarada. Por tempo, a separação é
+de **duas ordens de grandeza** (6 s de logo contra ~10 min de diálogo) e não depende de sorte.
+
+> Contagem de eventos ainda decide, mas só como **último recurso** — quando nenhuma duração pôde
+> ser lida (legenda sem colunas `Start`/`End`, ou com tempos ilegíveis). Critério que só funciona
+> por margem de uma linha não é critério: é sorte com aparência de regra.
+
+**O achatamento em si é feature, não defeito** — quem confundiu os dois fui eu, ao ler o resultado
+antes do código. O bug era só o voto por contagem.
+
+---
+
 ## Endpoints REST
 
 | Endpoint | Payload | Canal SSE |
