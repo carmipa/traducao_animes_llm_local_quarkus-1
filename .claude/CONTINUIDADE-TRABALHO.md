@@ -196,6 +196,39 @@ no mesmo experimento. Estão aqui para a tradução de amanhã, e isso fica escr
 como instrumento cego (virou achado — a cópia aceita as duas formas), e um `grep` com `\b` sobre
 texto multibyte que acusou 122 `meu irmã` que eram `meu irmão` corretos.
 
+## ✅ ITEM 8 FECHADO — a tela nasce em dry-run (`66b4636d`)
+
+Era o último 🔴 da fila e estava esperando decisão; Paulo autorizou em 19/08. O checkbox nascia
+**desmarcado** e `aplicar = !simular`: abrir a tela e apertar o único botão **gravava**. Agora
+nasce marcado, com o rótulo dizendo o que fazer para gravar.
+
+**Catraca:** `CatracaTelaDestrutivaNasceEmDryRunTest` — todo `*-simular` nasce com `checked`.
+Regex tolerante à ordem dos atributos, com caso-controle próprio. Mutação reprovou.
+
+## 🟡 EM ANDAMENTO — quanto erro de concordância existe que ninguém vê
+
+`MedicaoConcordanciaPorDicionarioIT` (novo): pergunta ao dicionário pt_BR em vez de a uma lista
+de 20 substantivos. Gênero inferido por **par mínimo** (a forma em `-o` e a em `-a` existem as
+duas), que é o filtro que mantém `problema`, `dia` e `mapa` fora.
+
+```
+332.545 falas | 106.495 pares determinante+palavra | 15.533 com genero inferivel
+   381 DISCORDANTES (candidatos)  +  426 com "a/as", contados a parte
+```
+
+**O instrumento achou erro REAL que as listas curadas não veem:** `um isca` (8×) e
+`nossa orgulho`. Mas o número bruto ainda é dominado por falso positivo de uma classe só —
+**pronome oblíquo + verbo** (`nos resta`, `os quebra`, `o incomoda`): o par `-o/-a` existe
+porque o VERBO conjuga nos dois, e sem análise morfológica o teste não separa substantivo de
+verbo. Próximo passo: separar os determinantes ambíguos (`o/a/os/as/nos`, que também são
+pronome oblíquo) num balde próprio, como já se faz com `a/as`, e estimar a precisão lendo a
+lista distinta inteira.
+
+**Três erros meus nesta rodada, os três pegos por instrumento:** lote inteiro num `hunspell` só
+(1.159 s de CPU, timeout de 20 s do adaptador, processo preso); `disponivel()` consultado
+ANTES da primeira consulta (ele nasce nulo); e duas esperas com epoch cravado na mão, que
+saíram na hora e me fizeram ler relatório velho duas vezes.
+
 ## 🔴 ABERTOS — a fila, na ordem, com o número que a justifica
 
 1. **A tela grava por padrão.** `revisaoConcordancia.html:16` — o checkbox "Apenas simular" nasce
