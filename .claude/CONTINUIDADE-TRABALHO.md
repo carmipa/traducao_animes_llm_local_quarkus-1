@@ -1,5 +1,31 @@
 # CONTINUIDADE — KRONOS
 
+## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA (2026-08-19, fim do dia)
+
+**Nenhuma pendente.** A 3.3 está fechada (Paulo: *"boa então fecho concordância?"* → sim, com as
+ressalvas registradas no vault) e a migração do cartão do alvo, autorizada logo depois
+(*"pode fazer"*), foi entregue em `57f3298e`.
+
+**Se a sessão retomar, a primeira coisa a fazer é a única que ficou 🟡:**
+
+```
+1. abrir o KRONOS (http://localhost:8099) DEPOIS de reiniciar o servidor — o Quarkus dev
+   serve estático do BOOT, e o servidor de hoje ainda tem o JS antigo
+2. conferir o cartão do alvo nas TRÊS telas migradas, lado a lado:
+     3.1 Revisão de Legendas  -> "Lore ativa: X. Pasta: <caminho>."  + caixa destacada
+                                 enquanto falta lore OU pasta
+     3.2 Revisão de Lore      -> mesma frase, SEM destaque de caixa (é assim de propósito)
+     3.3 Concordância         -> "Obra: X. Pasta que será reescrita: <caminho>."
+3. o que mudou de visível: a linha da pasta aparece SEMPRE, inclusive antes de escolher
+   a obra ("ainda não informada"). Antes, 3.2 e 3.3 escondiam a linha inteira.
+```
+
+Provado por máquina: sintaxe (`node --check`, calibrado contra arquivo doente), a chamada ao
+módulo, e a existência de todo id passado a ele. **Não comprovado:** a renderização — não
+reiniciei o servidor do Paulo para ver.
+
+---
+
 # ▶ EM ANDAMENTO — 3.3 REVISÃO DE CONCORDÂNCIA (aberta em 2026-08-18, sessão `392007ea`)
 
 **TAREFA ORIGINAL (palavras de Paulo):** *"3.2 terminamos aqui trataremos do meu 3.3 concordancia
