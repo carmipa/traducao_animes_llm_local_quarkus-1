@@ -142,6 +142,50 @@ class ConsoleDaRevisaoConcordanciaTest {
     }
 
     /**
+     * O {@code .parcial} é tradução INCOMPLETA — o pipeline o isola justamente para não ser
+     * confundido com a entrega. A tela não pode reescrevê-lo, e não pode contá-lo como revisado.
+     *
+     * <p>Medido em 18/08/2026: <b>38 arquivos .parcial</b> estavam ao alcance da varredura no
+     * acervo. Dano gravado: zero — a mesma superfície aberta com dano zero em que a ponte do
+     * cache esteve até morder 687 linhas.
+     */
+    @Test
+    @DisplayName(".parcial fica FORA do alcance — nao e revisado nem contado como revisado")
+    void parcialFicaForaDoAlcance(@TempDir Path dir) throws IOException {
+        Path parcial = dir.resolve("ep09_PT-BR.parcial.ass");
+        escreverAss(parcial, "Vi o menina no parque.");
+        String antes = Files.readString(parcial, StandardCharsets.UTF_8);
+
+        String console = consoleDe(dir, true);
+        ResultadoConcordancia resultado = useCase.revisarPasta(dir, true);
+
+        assertTrue(console.contains(AnsiCores.DIM + "  [Ignorado] ep09_PT-BR.parcial.ass"),
+            "o arquivo pulado tem de APARECER na tela — pular em silencio e a mesma cegueira que "
+                + "contar errado. Console:\n" + console);
+        assertEquals(0, resultado.arquivosAnalisados(), "o .parcial nao pode contar como revisado");
+        assertEquals(1, resultado.arquivosForaDoAlcance(), "o .parcial tem de aparecer na contagem propria");
+        assertEquals(0, resultado.falasCorrigidas(), "nenhuma fala do .parcial pode ser corrigida");
+        assertEquals(antes, Files.readString(parcial, StandardCharsets.UTF_8),
+            "o .parcial foi reescrito — ele nao e entrega");
+    }
+
+    /**
+     * O contra-teste do anterior: é ele que separa "parou de tocar no .parcial" de "parou de
+     * funcionar". Mesma fala, mesmo erro, nome de entrega — continua sendo corrigida.
+     */
+    @Test
+    @DisplayName("a mesma fala num arquivo de entrega continua sendo corrigida")
+    void arquivoDeEntregaContinuaSendoCorrigido(@TempDir Path dir) throws IOException {
+        escreverAss(dir.resolve("ep10_PT-BR.ass"), "Vi o menina no parque.");
+
+        ResultadoConcordancia resultado = useCase.revisarPasta(dir, true);
+
+        assertEquals(1, resultado.arquivosAnalisados(), "arquivo de entrega tem de ser revisado");
+        assertEquals(0, resultado.arquivosForaDoAlcance(), "entrega nao e fora do alcance");
+        assertEquals(1, resultado.falasCorrigidas(), "a correcao parou de funcionar");
+    }
+
+    /**
      * O caso VERMELHO, com falha real: um ARQUIVO chamado {@code backup_revisao_concordancia}
      * ocupando o nome da pasta de backup faz {@code Files.createDirectories} falhar, e o caso de
      * uso não pode gravar por cima do original sem backup.

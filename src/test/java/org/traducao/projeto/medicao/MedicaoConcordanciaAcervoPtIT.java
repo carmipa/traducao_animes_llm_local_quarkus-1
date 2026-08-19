@@ -159,6 +159,10 @@ class MedicaoConcordanciaAcervoPtIT {
                 }
                 if (parcial) {
                     parciais++;
+                    // A PRODUÇÃO pula o .parcial desde 18/08/2026 (não é entrega). O laço daqui
+                    // pula junto, senão a calibração compara universos diferentes e só continua
+                    // batendo por sorte — enquanto nenhum .parcial tiver fala corrigível.
+                    continue;
                 }
                 DocumentoLegenda documento;
                 try {
@@ -226,7 +230,7 @@ class MedicaoConcordanciaAcervoPtIT {
             totalTocadasPt + totalTocadasNaoPt);
         System.out.printf("PIOR silencio possivel (obra mais lenta) %d ms   —  limite do pode-compilar.ps1: 90.000 ms%n",
             maiorDuracaoMs);
-        System.out.printf("arquivos .parcial no alcance da tela .... %d%n", totalParciais);
+        System.out.printf("arquivos .parcial PULADOS (fora do alcance) %d%n", totalParciais);
         System.out.printf("falas tocadas em arquivo PT ............. %d%n", totalTocadasPt);
         System.out.printf("falas tocadas em arquivo NAO-PT ......... %d   (a tela nao distingue)%n%n",
             totalTocadasNaoPt);
