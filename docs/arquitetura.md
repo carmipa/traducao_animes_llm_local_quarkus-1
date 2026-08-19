@@ -73,7 +73,7 @@ O desenho segue **Arquitetura Hexagonal (Ports & Adapters)** por módulo: cada p
 
 | Camada | Responsabilidade | Exemplos |
 |--------|-------------------|----------|
-| `presentation/` | Controllers REST (Spring-style) e telas CLI legadas | `ApiController`, `AnalisadorMidiaCLI` |
+| `presentation/` | Controllers REST (Spring-style) e telas CLI legadas | `TraducaoController`, `RevisaoLoreController`, `AnalisadorMidiaCLI` |
 | `application/` | Casos de uso — orquestram domínio e adapters | `ProcessarArquivoUseCase`, `ExtrairLegendaUseCase` |
 | `domain/` | Modelos, portas (interfaces), exceções de negócio | `LlmPort`, `AuditoriaResultado`, `LegendaInfo` |
 | `infrastructure/` | Implementações concretas das portas | `LlmClientAdapter`, `MkvmergeAdapter`, `FfprobeAdapter` |
@@ -195,7 +195,7 @@ graph TB
         P_DOC["📖 Documentação"]
     end
 
-    subgraph API["🎮 ApiController (Spring-style REST, prefixo /api)"]
+    subgraph API["🎮 21 controllers REST (Spring-style, prefixo /api)"]
         EP1["/analisar /extrair"]
         EP2["/traduzir /corrigir-* /revisar-*"]
         EP3["/correcao-legendas /remuxar /mapa"]
@@ -326,7 +326,7 @@ graph LR
 sequenceDiagram
     actor Op as Operador
     participant UI as Painel Tradução
-    participant API as ApiController
+    participant API as Controller da fatia
     participant UC as ProcessarArquivoUseCase
     participant Cache as CacheTraducaoService
     participant Ctx as GerenciadorContexto

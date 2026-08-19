@@ -38,7 +38,7 @@ Uma decisão de design deliberada: `LeitorLegendaAss` separa cada linha `Dialogu
 ```mermaid
 sequenceDiagram
     actor Op as Operador
-    participant API as ApiController
+    participant API as TraducaoController
     participant UC as ProcessarArquivoUseCase
     participant Leitor as LeitorLegendaAss
     participant Cache as CacheTraducaoService
