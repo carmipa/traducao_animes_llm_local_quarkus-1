@@ -279,6 +279,29 @@ linhas trocadas, com tempo, estilo e tags idênticos.
 **Duas sobras que pareciam erro eram do meu grep:** `somos pessoas` e `sacrificamos pessoas`
 casaram `os pessoas` por substring — a mesma armadilha de ontem, agora sem `\b` nenhum.
 
+## ✅ ITEM 12 — as duas pendências aplicadas, o DANO que apareceu e a catraca que faltava
+
+**Acentos: 596 aplicados** (`dae1b92d`). A primeira tentativa gravou **103 linhas de ROMAJI** —
+`"aa kizutsukeau mae ni"` virou `"...mãe ni"`. O `mae` do romaji é 前 ("antes"). A ferramenta era
+a **única** que varria o acervo sem perguntar se a linha é música, e a cicatriz já existia desde
+14/08. Desfeito do snapshot **byte a byte** (76 arquivos, zero divergência), o harness virou
+`@QuarkusTest` injetando `PoliticaEstiloMusical`, e o ensaio caiu de 699 → 596 (Zeta e ZZ sumiram
+inteiros: eram só romaji). Reaplicado: **zero linha musical tocada**.
+
+**Terminologia: 10 aplicadas no cache.** A primeira rodada (127) criou **`Tenente-Major`**,
+patente que não existe — trocou `Coronel` dentro de `Tenente-Coronel`. Conserto no **mapa**, não
+no dado: o `lore.yaml` do 86 ganhou as formas compostas antes da simples. E a proteção do
+enforcer se mostrou viva: as 181 `Tenente-coronel` de ZZ e Guilty Crown **não** foram tocadas,
+porque lá o inglês não diz "Major".
+
+**Catraca nova** (`f6f4a23d`): `CatracaFerramentaDeAcervoVetaMusicaTest`. Critério de três marcas
+juntas — lê `kronos.acervo` + grava + mexe em `Dialogue:`. Relatório não casa a terceira; fixture
+em `@TempDir` não casa a primeira. Mutação reprovou.
+
+> Dois erros do próprio instrumento, os dois pegos: a catraca **acusou a si mesma** (auto-exclusão
+> nominal, de um arquivo só) e a catraca do drive Windows reprovou o caso-controle dela. Guarda
+> pegando guarda.
+
 ## 📊 RETRATO DO ACERVO — bateria inteira rodada em 19/08/2026
 
 24 harnesses de medição, 29 testes, **0 falhas**, 2 pulados (os que exigem frase literal de
