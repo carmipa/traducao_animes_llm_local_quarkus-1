@@ -25,6 +25,12 @@
                 Apenas simular (dry-run — mostra o que mudaria, sem gravar)
             </label>
         </div>
+        <!-- O lembrete permanente de PARA ONDE esta tela escreve. Mesmo cartão da 3.1 e da 3.2,
+             pelo módulo compartilhado js/cartaoAlvoAtivo.js. -->
+        <div class="op-alvo" id="revisao-concordancia-alvo" role="status" aria-live="polite">
+            <span class="material-symbols-outlined op-alvo-icone">my_location</span>
+            <span class="op-alvo-texto" id="revisao-concordancia-alvo-texto"></span>
+        </div>
         <div class="correcao-actions">
             <button type="button" class="btn btn-primary btn-purple" id="btn-iniciar-revisao-concordancia" data-tooltip="Corrige concordância de gênero na pasta PT-BR (com backup)">
                 <span class="material-symbols-outlined btn-icon">spellcheck</span>
@@ -36,6 +42,63 @@
             </button>
         </div>
     </form>
+</div>
+
+<!-- CAIXA DE OPERAÇÃO — o que acontece quando o botão é apertado, no mesmo formato da 3.1.
+     Uma passada só, por isso marcador de ícone e não número: numerar sugeriria sequência. -->
+<div class="glass-card op-caixa">
+    <div class="op-caixa-cabecalho">
+        <span class="material-symbols-outlined op-caixa-icone">spellcheck</span>
+        <h3>O que acontece ao rodar</h3>
+        <span class="op-caixa-etiqueta">determinística</span>
+    </div>
+    <p class="op-caixa-desc">A tela lê e grava os <strong>próprios arquivos .ass</strong> da pasta PT-BR — não mexe no
+        cache e não chama o LLM. Cada arquivo tocado ganha backup em
+        <code>&lt;pasta&gt;/backup_revisao_concordancia/</code> <strong>antes</strong> da escrita; se o backup falhar, o
+        arquivo não é reescrito.</p>
+
+    <ol class="op-lista">
+        <li class="op-linha">
+            <span class="op-marca"><span class="material-symbols-outlined">rule</span></span>
+            <div class="op-texto">
+                <span class="op-titulo">O que ela corrige</span>
+                <span class="op-desc">Só concordância de gênero <strong>inequívoca</strong>, por comparação de palavras:
+                    determinante antes de substantivo de gênero conhecido (<code>o menina</code> → <code>a menina</code>,
+                    <code>uma menino</code> → <code>um menino</code>) e predicativo de <code>ela</code>/<code>ele</code>
+                    (<code>ela está cansado</code> → <code>cansada</code>). Palavra ambígua, ela não toca.</span>
+                <span class="op-selos">
+                    <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                    <span class="op-selo">sem LLM</span>
+                    <span class="op-selo">backup automático</span>
+                </span>
+            </div>
+        </li>
+
+        <li class="op-linha">
+            <span class="op-marca"><span class="material-symbols-outlined">block</span></span>
+            <div class="op-texto">
+                <span class="op-titulo">O que ela NÃO faz</span>
+                <span class="op-desc"><strong>Não usa lore</strong> — a obra do combo serve para a capa e para o registro,
+                    e não muda uma vírgula do resultado. Por isso ela <strong>não</strong> conserta
+                    <code>ele</code>/<code>ela</code> trocado por causa do personagem: isso depende de saber quem fala, e
+                    é trabalho de outra tela. <strong>Música e karaokê são veto absoluto</strong> — no 86, antes desse
+                    veto existir, 85% do que ela via era sílaba solta de karaokê.</span>
+                <span class="op-selos">
+                    <span class="op-selo">não lê inglês</span>
+                    <span class="op-selo">não lê cache</span>
+                    <span class="op-selo">ignora estilo musical</span>
+                </span>
+            </div>
+        </li>
+    </ol>
+
+    <p class="op-escopo">
+        <span class="material-symbols-outlined">query_stats</span>
+        <span><strong>Espere pouco, e isso é bom sinal.</strong> Medido em 18/08/2026 no acervo inteiro — 726 legendas,
+            380.697 falas ao alcance: a tela mudaria <strong>1 fala</strong>. Ela é rede de segurança para o erro
+            gritante, não faxina. Rode primeiro com <strong>Apenas simular</strong> e leia o console: verde é arquivo
+            gravado, amarelo é o que mudaria, cinza é arquivo sem nada.</span>
+    </p>
 </div>
 
 <div class="glass-card console-card">

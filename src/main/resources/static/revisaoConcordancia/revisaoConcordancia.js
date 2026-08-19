@@ -4,10 +4,14 @@ import { logNoConsole, mostrarAlerta } from '../js/app.js';
 // numero de toques) e a outra nao, e o lote errado avisaria diferente. Pedido de Paulo em
 // 18/08/2026, quando a 3.3 foi a unica das tres telas da etapa a nascer muda.
 import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
+// O cartão que mantém à vista PARA ONDE a tela escreve. Módulo compartilhado, na versão que
+// escapa o caminho — as três cópias que existiam nas telas irmãs já tinham divergido nesse ponto.
+import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js';
 
-// Versão subiu para 1.1 com a chegada do seletor de obra: o painel é buscado por fetch, e sem
-// trocar a query o navegador serve o HTML antigo do cache — o combo simplesmente não apareceria.
-const PAINEL_HTML = 'revisaoConcordancia/revisaoConcordancia.html?v=1.1';
+// A versão sobe a cada mudança no HTML do painel (1.1 = seletor de obra; 1.2 = cartão do alvo
+// ativo e a caixa "o que acontece"): o painel é buscado por fetch, e sem trocar a query o
+// navegador serve o HTML antigo do cache — as partes novas simplesmente não apareceriam.
+const PAINEL_HTML = 'revisaoConcordancia/revisaoConcordancia.html?v=1.2';
 
 async function carregarPainelHtml() {
     const painel = document.getElementById('panel-revisao-concordancia');
@@ -118,6 +122,20 @@ export async function initRevisaoConcordancia() {
     try {
         await carregarPainelHtml();
         vincularEventos();
+        // "Pasta que será reescrita" e não "Pasta": esta tela grava por cima do arquivo do
+        // Paulo, e o rótulo é o que separa uma escolha consciente de um clique distraído.
+        const repintarAlvo = ligarCartaoAlvoAtivo({
+            alvoTextoId: 'revisao-concordancia-alvo-texto',
+            selectId: 'revisao-concordancia-contexto',
+            pastaId: 'revisao-concordancia-entrada',
+            rotuloObra: 'Obra',
+            rotuloPasta: 'Pasta que será reescrita',
+            semEscolha: 'Escolha a obra acima — ou "Sem obra" — para liberar os campos.'
+        });
+        // O "Limpar Campos" compartilhado grava o valor direto, sem disparar evento: sem este
+        // ouvinte o cartão continuaria mostrando a pasta que o operador acabou de apagar.
+        document.querySelector('#panel-revisao-concordancia .btn-clear-form')
+            ?.addEventListener('click', () => setTimeout(() => repintarAlvo?.(), 0));
         // O painel é injetado DEPOIS do boot do app.js, então o seletor de obra nasce vazio se
         // ninguém avisar. É o mesmo defeito que a Tradução de Karaokê teve: o combo ficava sem
         // opção nenhuma e o operador achava que a tela estava quebrada.
