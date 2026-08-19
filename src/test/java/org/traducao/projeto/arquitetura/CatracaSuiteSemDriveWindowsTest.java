@@ -137,7 +137,12 @@ class CatracaSuiteSemDriveWindowsTest {
         // Mesma natureza das demais: "C:\animes" e o default de -Dkronos.acervo, e caminho
         // relativo mediria o vazio — que aqui seria pior que inutil, porque o numero que ele
         // produziu (14 falas corretas estragadas contra 1 acerto) e o que decide a fila.
-        "MedicaoConcordanciaAcervoPtIT.java"
+        "MedicaoConcordanciaAcervoPtIT.java",
+        // Entrou em 19/08/2026: e o instrumento que tenta responder "quantos erros de
+        // concordancia existem que as listas curadas NAO veem", perguntando ao dicionario pt_BR
+        // em vez de a uma lista de 20 substantivos. Mesma natureza das demais: "C:\animes" e o
+        // default de -Dkronos.acervo, e caminho relativo mediria o vazio.
+        "MedicaoConcordanciaPorDicionarioIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
