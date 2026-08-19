@@ -287,6 +287,130 @@ class MedicaoConcordanciaPorDicionarioIT {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a MESMA pergunta, agora na família do PREDICATIVO —
+     * {@code ela está cansado}. O corretor cobre essa família com uma lista de 30 adjetivos, que
+     * é exatamente o mesmo estreitamento que a lista de 24 substantivos tinha antes de a medição
+     * por dicionário render 78 falas.
+     *
+     * <h2>O que muda em relação à medição do determinante</h2>
+     * O gênero do lado esquerdo aqui não vem de artigo, vem do PRONOME — {@code ela}/{@code elas}
+     * feminino, {@code ele}/{@code eles} masculino, sem ambiguidade nenhuma com preposição. O
+     * verbo de ligação vem de {@code LexicoGenero.VERBO_AUX}, que é constante <b>pública da
+     * produção</b>: consultada, não copiada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: número tem de bater ({@code ela} com singular, {@code elas} com
+     * plural) — divergência de número é outro defeito; o gênero da palavra sai do mesmo par
+     * mínimo; controle positivo e negativo no mesmo experimento.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário indisponível não afirma número nenhum.
+     */
+    @Test
+    @DisplayName("acervo: quantos erros de PREDICATIVO existem que a lista de 30 adjetivos nao ve")
+    void medirPredicativoComDicionario() throws IOException {
+        if (!Files.isDirectory(RAIZ)) {
+            System.out.println("SEM ACERVO — nada medido.");
+            return;
+        }
+        Map<String, VeredictoPalavra> sonda = dicionario.classificar(
+            new LinkedHashSet<>(List.of("cansada", "cansado", "xkcdqwzp")));
+        if (!dicionario.disponivel()
+            || sonda.get("cansada") != VeredictoPalavra.PORTUGUES_OK
+            || sonda.get("xkcdqwzp") == VeredictoPalavra.PORTUGUES_OK) {
+            System.out.println("NAO VERIFICADO: dicionario nao discriminou na sonda.");
+            return;
+        }
+
+        Pattern predicativo = Pattern.compile(
+            "(?<![\\p{L}\\p{N}])(ela|ele|elas|eles)\\s+(?:"
+                + org.traducao.projeto.raspagemRevisao.application.concordancia.LexicoGenero.VERBO_AUX
+                + ")\\s+(\\p{L}{4,})(?![\\p{L}\\p{N}])",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+        record Achado(String pronome, String palavra, String obra, String fala) {}
+        List<Achado> achados = new ArrayList<>();
+        List<Path> obras;
+        try (Stream<Path> s = Files.list(RAIZ)) {
+            obras = s.filter(Files::isDirectory).sorted().toList();
+        }
+        for (Path obra : obras) {
+            List<Path> arquivos;
+            try (Stream<Path> s = Files.walk(obra)) {
+                arquivos = s.filter(Files::isRegularFile).filter(this::assOuSsa)
+                    .filter(p -> !p.getFileName().toString().toLowerCase().contains(".parcial."))
+                    .sorted().toList();
+            }
+            for (Path arquivo : arquivos) {
+                DocumentoLegenda documento;
+                try {
+                    documento = leitor.ler(arquivo);
+                } catch (RuntimeException e) {
+                    continue;
+                }
+                for (EventoLegenda evento : documento.eventos()) {
+                    if (!evento.temTexto()
+                        || (evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo()))) {
+                        continue;
+                    }
+                    String texto = visivel(evento.texto());
+                    Matcher m = predicativo.matcher(texto);
+                    while (m.find()) {
+                        achados.add(new Achado(m.group(1).toLowerCase(), m.group(2),
+                            obra.getFileName().toString(), texto));
+                    }
+                }
+            }
+        }
+
+        Set<String> formas = new LinkedHashSet<>();
+        for (Achado a : achados) {
+            formas.add(a.palavra().toLowerCase());
+            String outra = flexionar(a.palavra());
+            if (outra != null) {
+                formas.add(outra);
+            }
+        }
+        Map<String, VeredictoPalavra> veredictos = classificarEmBlocos(formas);
+
+        Map<String, Integer> porPar = new TreeMap<>();
+        List<String> amostras = new ArrayList<>();
+        int comGenero = 0;
+        int discordantes = 0;
+        for (Achado a : achados) {
+            Boolean generoPalavra = generoFeminino(a.palavra(), veredictos);
+            if (generoPalavra == null) {
+                continue;
+            }
+            boolean pronomeFem = a.pronome().startsWith("ela");
+            boolean pronomePlural = a.pronome().endsWith("s");
+            boolean palavraPlural = a.palavra().toLowerCase().endsWith("s");
+            if (pronomePlural != palavraPlural) {
+                continue;
+            }
+            comGenero++;
+            if (pronomeFem == generoPalavra) {
+                continue;
+            }
+            discordantes++;
+            porPar.merge(a.pronome() + " ... " + a.palavra().toLowerCase(), 1, Integer::sum);
+            if (amostras.size() < 30) {
+                amostras.add("  " + a.obra() + " | " + recortar(a.fala(), 100));
+            }
+        }
+
+        System.out.printf("%n=== PREDICATIVO MEDIDO PELO DICIONARIO ===%n");
+        System.out.printf("ocorrencias pronome + verbo de ligacao + palavra . %d%n", achados.size());
+        System.out.printf("com genero inferivel e numero batendo ........... %d%n", comGenero);
+        System.out.printf("DISCORDANTES (candidatos a erro) ................ %d%n%n", discordantes);
+        porPar.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
+            .forEach(e -> System.out.printf("  %5d  %s%n", e.getValue(), e.getKey()));
+        System.out.println();
+        amostras.forEach(System.out::println);
+
+        assertTrue(!achados.isEmpty(), "controle positivo: nenhum predicativo encontrado no acervo");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: pergunta ao dicionário em BLOCOS, dentro do orçamento que o próprio
      * adaptador declara.
      *
