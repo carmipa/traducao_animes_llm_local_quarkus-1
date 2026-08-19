@@ -11,8 +11,13 @@ import java.util.regex.Pattern;
 
 /**
  * PROPÓSITO DE NEGÓCIO: responde à ÚNICA pergunta que delimita a tela 3.2 — <i>esta linha está
- * ao alcance da revisão de lore?</i> — para as duas portas da fatia: a aba "Com inglês"
- * ({@link RevisarLoreUseCase}) e a aba "PT-only" ({@link RevisarLorePtOnlyUseCase}).
+ * ao alcance da revisão de lore?</i> — para a porta viva da fatia, a aba "Com inglês"
+ * ({@link RevisarLoreUseCase}).
+ *
+ * <p><b>Atualizado em 2026-08-19:</b> a aba <b>PT-only</b> ({@code RevisarLorePtOnlyUseCase}) foi
+ * REMOVIDA em 17/08/2026 — ela não atendia nenhum caso do acervo. Esta classe continua existindo
+ * porque a decisão de alcance é do domínio, não daquela aba: quem nascer como segunda porta da
+ * fatia pergunta aqui em vez de escrever o próprio laço, que foi exatamente o defeito abaixo.
  *
  * <h2>O prejuízo que originou — medido, não hipótese</h2>
  * A resposta existia só dentro do {@code RevisarLoreUseCase}, como método privado. A aba PT-only

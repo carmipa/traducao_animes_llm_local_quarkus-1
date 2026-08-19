@@ -13,7 +13,7 @@ dela, mas porque ninguém a lê no momento em que ela importa.
 Documentação não impõe nada. Um arquivo de instruções pode ser ignorado por qualquer agente que
 abra o projeto amanhã. **Um teste vermelho, não.**
 
-Daí a peça central da arquitetura do KRONOS: **13 guardas executáveis**, 62 testes, que não
+Daí a peça central da arquitetura do KRONOS: **35 guardas executáveis**, 136 testes, que não
 verificam comportamento — verificam que **um padrão perigoso não voltou**. Elas leem o
 código-fonte, a estrutura de pacotes ou o HTML, e **reprovam o build** ao encontrar a forma do
 bug.
@@ -47,14 +47,14 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph A["🧱 Fronteira*ArchTest — 9 guardas, 51 testes"]
+    subgraph A["🧱 Fronteira*ArchTest — 10 guardas, 59 testes"]
         direction TB
         A1["Allowlist por TIPO EXATO,<br/>nunca por prefixo de pacote"]
         A2["Uma dependência nova reprova<br/>listando a aresta que apareceu"]
         A3["Homologar é decisão consciente:<br/>entra na lista, com justificativa"]
     end
 
-    subgraph B["🔒 Catraca*Test — 4 guardas, 11 testes"]
+    subgraph B["🔒 Catraca*Test — 25 guardas, 77 testes"]
         direction TB
         B1["Varre o FONTE atrás da<br/>forma de um defeito conhecido"]
         B2["Sem número congelado<br/>quando o invariante é universal"]
@@ -80,21 +80,76 @@ do código.
 
 ## O inventário completo
 
+Medido em **19/08/2026**, rodando a suíte inteira com `--rerun-tasks`: **35 guardas · 136 testes ·
+0 falhas**. A contagem por classe vem do relatório JUnit, não da memória.
+
+### Fronteiras — congelam *quem pode importar quem* (10 guardas, 59 testes)
+
 | Guarda | Testes | O que impede |
 |--------|-------:|--------------|
 | `FronteiraTraducaoArchTest` | 15 | A fatia `traducao` (tier gold) ganhar qualquer aresta de saída para outra fatia funcional. Congela os tipos de `core` consumidos, um a um |
-| `FronteiraContextoArchTest` | 8 | O peer `contexto` (72 lores) passar a depender de fatia funcional |
+| `FronteiraContextoArchTest` | 8 | O peer de lore passar a depender de fatia funcional. O nome é legado — o alvo hoje é `org.traducao.projeto.lore` |
+| `FronteiraTermoAssTest` | 8 | A mecânica de casamento de termo em ASS voltar a viver em 12 arquivos de 7 fatias, com as duas metades (fronteira e separador) divergindo |
 | `FronteiraTrocaTipoLegendaArchTest` | 6 | A regra de negócio do achatamento voltar para dentro da fatia, desfazendo o desacoplamento de 29/07/2026 |
-| `FronteiraCorretorCacheArchTest` | 5 | As quatro fatias da área de correção de cache se enroscarem de novo |
-| `FronteiraQualidadeTraducaoArchTest` | 5 | O peer de máscara de tags e validação perder independência |
+| `FronteiraCorretorCacheArchTest` | 5 | As quatro fatias da área de correção de cache (`traducaoCorrige`, `raspagemCorrecao`, `raspagemRevisao`, `correcaoLegendas`) se enroscarem de novo |
+| `FronteiraQualidadeTraducaoArchTest` | 5 | O peer de máscara de tags e validação anti-alucinação perder independência |
 | `FronteiraLlmArchTest` | 4 | O contrato `LlmPort` vazar detalhe de provedor — é o que permite trocar o LLM sem tocar no pipeline |
 | `FronteiraLegendaArchTest` | 3 | O peer de modelo e I/O de `.ass`/`.srt` depender de quem o consome |
 | `FronteiraCacheTraducaoArchTest` | 3 | Outra fatia escrever cache paralelo. `cachetraducao` é **dono único** |
-| `FronteiraInboundArchTest` | 2 | Entrada de fora do sistema cruzar direto para dentro sem passar pela porta |
-| `CatracaAgregadorasForaDoCdiTest` | 4 | Alguém "consertar" a ausência deliberada de `@Component` nas lores agregadas. A ausência é decisão de qualidade de tradução, não esquecimento |
+| `FronteiraInboundArchTest` | 2 | Entrada de fora cruzar direto para dentro da `traducao` sem passar pela porta |
+
+### Catracas de escrita na legenda — o veto de música (4 guardas, 12 testes)
+
+Quatro portas diferentes reescrevem fala; **todas** têm de responder *"e se for música?"*. Cada
+catraca é cega fora do próprio prefixo — foi por isso que precisaram ser quatro.
+
+| Guarda | Testes | O que impede |
+|--------|-------:|--------------|
+| `CatracaEscritaDeFalaVetaMusicaTest` | 4 | Um ponto novo de reescrita nascer na **3.1** sem responder ao veto |
+| `CatracaEscritaDeFalaVetaMusicaLoreTest` | 3 | Idem na **3.2** |
+| `CatracaEscritaDeFalaVetaMusicaConcordanciaTest` | 3 | Idem na **3.3** |
+| `CatracaFerramentaDeAcervoVetaMusicaTest` | 2 | Idem nas **ferramentas que varrem o acervo** — o caminho que não passa por tela nenhuma, e que reescreveu 103 linhas de romaji antes desta existir |
+
+### Catracas de interface (6 guardas, 18 testes)
+
+| Guarda | Testes | O que impede |
+|--------|-------:|--------------|
+| `CatracaAvisoSonoroNasTelasLongasTest` | 5 | Tela que espera a fila terminar em silêncio — e que o aviso vire uma segunda cópia do áudio em vez do módulo compartilhado |
+| `CatracaCartaoDoAlvoTemDonoUnicoTest` | 4 | Cada tela montar o próprio cartão de "para onde vou escrever". Três cópias já tinham divergido |
+| `CatracaConsoleOrfaoNaUiTest` | 3 | Console que nunca recebe nada — o defeito que faz job saudável parecer travado e leva o operador a matar o processo |
+| `CatracaSeletorDeObraRegistradoTest` | 3 | Seletor de obra que abre vazio: valida **nos dois sentidos** (toda tela registrada, todo registro com tela) |
+| `CatracaBordaAssincronaConfereCaminhoTest` | 2 | Tela responder *"iniciado"* para trabalho que não tem como acontecer |
+| `CatracaTelaDestrutivaNasceEmDryRunTest` | 2 | Tela que reescreve o acervo abrir com "gravar" como padrão |
+
+### Catracas de lore (5 guardas, 15 testes)
+
+| Guarda | Testes | O que impede |
+|--------|-------:|--------------|
+| `CatracaAgregadorasForaDoCdiTest` | 4 | Alguém "consertar" a ausência deliberada de `@Component` nas três agregadoras Macross. A ausência é decisão de qualidade de tradução |
+| `CatracaTerminologiaDeLoreUnificadaTest` | 4 | Quem traduz e quem revisa enxergarem terminologias diferentes |
 | `CatracaSlotsReservadosLoreTest` | 3 | A dívida de obras sem lore ficar invisível — o id resolveria para nada e o operador não veria |
+| `CatracaCorretorIndependeDeLoreTest` | 3 | A tradução **sem lore** receber correções determinísticas diferentes da tradução com lore — o que tornaria toda comparação entre as duas inválida |
+| `CatracaCicatrizNoLoreYamlTest` | 1 | A cicatriz do `lore.yaml` (medição escrita em comentário) ser apagada por quem regenerar o arquivo e copiar por cima |
+
+### Catracas de arquitetura e formato (6 guardas, 17 testes)
+
+| Guarda | Testes | O que impede |
+|--------|-------:|--------------|
+| `CatracaCoberturaFatiaTelemetriaTest` | 4 | O mapa que decide em que aba do painel — e em que dataset publicado — cada operação aparece perder cobertura |
+| `CatracaOrdemDocumentacaoTest` | 4 | O menu, o nome do arquivo em `docs/` e o índice da documentação contarem histórias diferentes |
+| `CatracaPaginaDeDocumentacaoAbreTest` | 3 | Página existir em `docs/` e **não abrir** na tela. As 14 páginas numeradas passaram 13 dias devolvendo HTTP 400 depois da renomeação para `etapa-G.N-nome.md` — a guarda de ordem conferia o NOME, e nenhuma perguntava se a página carrega |
 | `CatracaFronteiraQuebraAssTest` | 2 | Uma fronteira de termo esquecer que `\N` do ASS são **dois caracteres** e o `N` é letra |
+| `CatracaPadraoMusicalTemDonoUnicoTest` | 2 | Um arquivo novo decidir alguma coisa a partir de "palavra musical" em silêncio |
 | `CatracaRegraDuplicadaEntreFatiasTest` | 2 | Duplicação silenciosa. Duplicar é permitido — esconder que duplicou, não |
+
+### Catracas de ambiente e portão (4 guardas, 15 testes)
+
+| Guarda | Testes | O que impede |
+|--------|-------:|--------------|
+| `CatracaContainerPreparadoTest` | 9 | O KRONOS voltar a depender de coisa que só existe na máquina do Paulo, agora que também roda em contêiner |
+| `CatracaTokenDeControleEmTodaPortaLlmTest` | 1 | Token de template do modelo (`<\|END_OF_TURN_TOKEN\|>`) chegar à legenda. Nasceu de 4.903 propostas recusadas em silêncio |
+| `CatracaPortaoDistinguePastaGenericaTest` | 2 | Um único aviso servir a dois casos que pedem consertos **opostos** — "obra sem lore" e "pasta genérica" |
+| `CatracaSuiteSemDriveWindowsTest` | 2 | Caminho absoluto de Windows cravado no fonte do teste, que quebra a suíte dentro do contêiner Linux |
 
 ---
 
@@ -103,7 +158,7 @@ do código.
 ### 1. Guarda nasce de prejuízo real, nunca de bug hipotético
 
 Guarda preventiva é cerimônia, e cerimônia é a primeira coisa abandonada na pressa. Cada uma das
-13 carrega, no próprio javadoc, o incidente que a originou. Exemplos verdadeiros:
+35 carrega, no próprio javadoc, o incidente que a originou. Exemplos verdadeiros:
 
 - `CatracaRegraDuplicadaEntreFatiasTest` — *"cópia não declarada foi a causa de três defeitos em
   03/08/2026, um deles vivo por nove dias."*

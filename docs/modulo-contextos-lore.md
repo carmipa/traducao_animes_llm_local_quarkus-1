@@ -1,33 +1,112 @@
 # 🎭 Contextos & Lore
 
-[← Renomear Arquivos](etapa-5.2-renomear-arquivos.md) | [Módulo Telemetria →](modulo-telemetria.md)
+[← 5.2 Renomear Arquivos](etapa-5.2-renomear-arquivos.md) | [Módulo Telemetria →](modulo-telemetria.md)
 
 ---
 
 ## O que é um "contexto"
 
-Um **contexto** é o *system prompt + lore* de tradução dedicado a um anime, temporada ou filme específico: nomes próprios que não devem ser traduzidos, terminologia de RPG/lore própria da obra, **gênero dos personagens** (informação crítica para a [revisão de concordância PT-BR](etapa-2.3-correcao-revisao.md#fluxo-3--revisão-de-concordância-pt-br-via-llm-raspagemrevisao)) e tom geral da tradução. Cada painel do pipeline que chama o LLM (tradução, correção de cache, revisão, cura de tags) aceita um `contextoId` opcional.
+Um **contexto** é o *system prompt + lore* de uma obra: nomes próprios que não se traduzem,
+terminologia própria do universo, **gênero dos personagens** (informação crítica para a revisão de
+concordância) e o tom geral da tradução. Todo painel que chama o LLM aceita um `contextoId`.
 
 ---
 
-## Como funciona
+## A lore é DADO, não código — desde 15/08/2026
+
+> Ordem de Paulo: *"todas as lores devem ficar em um único arquivo"*.
+
+Antes: **82 classes Java**, 11.369 linhas. Hoje: **um** `src/main/resources/lore/lore.yaml` de
+**15.101 linhas**, lido no boot.
+
+A decisão foi medida antes de ser tomada: as 82 classes tinham **zero** lógica condicional —
+nenhuma lore decidia nada, todas devolviam literais. *Classe Java para guardar literal é cerimônia
+que cobra o preço de compilar, revisar e duplicar* — e foi essa duplicação que deixou a **tradução
+sem 69 termos que a revisão já conhecia**.
 
 ```mermaid
 graph TD
-    A["ProvedorContexto (interface)"] --> B["61 implementações @Component<br/>uma por anime/temporada/filme"]
-    B --> C["Cada uma define:<br/>LORE (nomes, gêneros, termos)"]
-    C --> D["ContextoPrompt.montar(obra, lore)"]
-    D --> E["Prompt final = template comum<br/>+ lore específica<br/>+ RegrasConcordanciaPtBr<br/>+ regras de formato de saída"]
-    F["GerenciadorContexto"] --> A
-    F --> G["provedorAtivo (mutável,<br/>1 por operação em background)"]
+    YAML["📄 src/main/resources/lore/lore.yaml<br/>15.101 linhas · 69 obras"] --> CAT["🗂️ CatalogoLoreYaml<br/>lê UMA vez, na construção"]
+    CAT --> BEANS["🔌 ContextoBeansConfig<br/>produz os ProvedorContexto"]
+    BEANS --> CONS["🧩 26 consumidores em 8 fatias<br/>nenhum conhece classe concreta de lore"]
+    CAT -.->|"arquivo ausente · sem obras<br/>id repetido · obra sem prompt"| FECHA["🛑 FALHA FECHADA<br/>a aplicação NÃO SOBE"]
+
+    classDef dado fill:#78350f,stroke:#FBBF24,color:#F9FAFB,stroke-width:2px
+    classDef mec fill:#1e3a5f,stroke:#3B82F6,color:#F9FAFB
+    classDef cons fill:#14532d,stroke:#4ADE80,color:#F9FAFB
+    classDef stop fill:#7f1d1d,stroke:#F87171,color:#F9FAFB,stroke-width:2px
+    class YAML dado
+    class CAT,BEANS mec
+    class CONS cons
+    class FECHA stop
 ```
 
-- **Interface:** `ProvedorContexto` (peer **`contexto`**, `contexto/domain/`) — `getId()`, `getNomeExibicao()`, `obterPromptSistema()`.
-- **Implementações:** **61** classes `@Component` em `contexto/lore/**`, cobrindo franquias inteiras — ex.: DanMachi (temporadas 1–5 + Orion + Sword Oratoria), toda a linha Gundam (0079, SEED, Zeta, ZZ, Narrative...), Macross, Evangelion, Knights of Sidonia, Guilty Crown, 86.
-- **Template comum** (`ContextoPrompt.montar()`): prioridades de tradução, a lore específica do contexto, o bloco `RegrasConcordanciaPtBr.BLOCO_TRADUCAO` (regras gerais de concordância de gênero em PT-BR) e regras de formato de saída (preservar marcadores `[[TAGn]]`, não numerar linhas, uma tradução por linha).
-- **Reaproveitamento de lore em revisões pontuais:** o gerenciador guarda um mapa `prompt completo → lore crua`, permitindo que a [revisão de concordância](etapa-2.3-correcao-revisao.md) reenvie **só a lore** ao LLM (sem repetir o prompt de tradução inteiro), economizando tokens de contexto.
-- **Contexto padrão:** `"danmachi"` (`ID_CONTEXTO_PADRAO`), usado quando nenhum `contextoId` é informado.
-- **Ativação:** `gerenciadorContexto.definirContextoAtivo(contextoId)` é chamado no início de cada operação em background, antes de qualquer chamada ao LLM.
+**Falha fechada é deliberada:** catálogo de lore silenciosamente vazio faria o pipeline traduzir
+**sem lore nenhuma e gravar o resultado** — o dano apareceria na legenda, semanas depois, e não no
+boot.
+
+> **O que NÃO mudou:** o contrato continua sendo `ProvedorContexto`. Os 26 consumidores não
+> souberam da troca, porque nenhum deles conhecia classe concreta de lore. Era essa indireção que
+> tornou a migração possível sem tocar em quem usa.
+>
+> A equivalência foi provada **antes** da troca, com as duas fontes vivas ao mesmo tempo
+> (`EquivalenciaLoreYamlIT`, 69 obras campo a campo). Depois da troca essa comparação vira
+> tautologia — quem segue provando o conteúdo é o `manifesto-lore.properties` (hash de prompt,
+> nome e termos por obra) e os dois baselines de terminologia e de campos, que comparam o vivo
+> contra fotografia congelada.
+
+---
+
+## O que o arquivo contém — medido
+
+```
+seção  obras:        69 obras     (68 aparecem na lista da UI; 1 com apareceNaLista: false)
+                     2.192 termos protegidos
+                     2.048 correções de terminologia
+                        30 apelidos de pasta
+                         9 pares inconfundíveis
+seção  revisao:      69 obras
+                     2.103 correções de terminologia
+                        43 equivalências aceitas
+```
+
+| campo | para que serve |
+|---|---|
+| `prompt` | o system prompt da obra — ambientação, tom, regras |
+| `termosProtegidos` | nomes que **não** se traduzem. Desde 18/08 é também a **fonte da 3.2** |
+| `correcoesTerminologia` | forma-ruim → canônica. Só dispara quando o inglês contém o canônico |
+| `equivalenciasAceitas` | tradução **correta** que a revisão deve parar de acusar |
+| `apelidosPasta` | nomes de pasta que resolvem para esta obra |
+| `paresInconfundiveis` | pares que a checagem de ambiguidade não pode confundir |
+| `apareceNaLista` | se entra no `<select>` da UI |
+
+---
+
+## As cicatrizes dentro do YAML — e por que não é JSON
+
+O arquivo carrega **comentários que são medição real**, migrados à mão das classes Java. Exemplos
+do que está escrito lá dentro:
+
+- `"Newtypes"` no plural **não** casava o canônico `"Newtype"`, e a restauração nunca disparava —
+  medido numa corrida de ZZ, onde a fala saiu como *"uma reunião de novos tipos"*;
+- `"terno"` é roupa social e **jamais** serve para *Mobile Suit*, em nenhuma combinação — decisão
+  do dono do acervo;
+- mas `"móvel de combate"`, `"unidade móvel"` e `"unidades móveis"` **passam** de propósito: foram
+  101 falas de ZZ que o enforcer deixa em paz, porque reescrevê-las corromperia tradução legítima.
+
+> **Regenerar o arquivo com o gerador produz ZERO comentário.** Copiar o gerado por cima **apaga
+> toda a cicatriz** — e a guarda `CatracaCicatrizNoLoreYamlTest` existe para isso reprovar o build
+> em vez de passar em silêncio.
+
+---
+
+## As três agregadoras Macross ficam FORA do CDI — de propósito
+
+`ContextoMacross7Filmes`, `ContextoMacrossDeltaFilmes` e `ContextoMacrossFrontierFilmes` existem
+como classes e **não** têm `@Component`. A ausência é **decisão de qualidade de tradução**, não
+esquecimento: elas agregam filmes cuja lore conflita quando misturada.
+
+`CatracaAgregadorasForaDoCdiTest` impede que alguém "conserte" isso.
 
 ---
 
@@ -35,29 +114,34 @@ graph TD
 
 ### `GET /api/contextos`
 
-Retorna a lista que popula os `<select>` de contexto em cada painel da UI:
+Popula os `<select>` de contexto em cada painel:
 
 ```json
 [
-  { "id": "danmachi", "nome": "DanMachi (Geral)", "padrao": true },
-  { "id": "gundam-narrative", "nome": "Mobile Suit Gundam: Narrative", "padrao": false }
+  { "id": "eight_six", "nome": "86 (Eighty-Six)", "grupo": "", "padrao": false },
+  { "id": "break_blade_1", "nome": "Break Blade - Filme 1 - O Tempo do Despertar",
+    "grupo": "Break Blade", "padrao": false }
 ]
 ```
 
----
-
-## Adicionando um novo contexto
-
-1. Crie uma classe em `src/main/java/org/traducao/projeto/contexto/lore/` implementando `ProvedorContexto`.
-2. Defina a constante `LORE` com nomes próprios, gênero dos personagens principais e termos que **não** devem ser traduzidos.
-3. Monte o prompt com `ContextoPrompt.montar(nomeDaObra, LORE)`.
-4. Anote a classe com `@Component` — o Spring DI (via `quarkus-spring-di`) injeta automaticamente todas as implementações de `ProvedorContexto` em `GerenciadorContexto`, sem precisar registrar em nenhum lugar central.
+O campo `grupo` é o que permite ao `<select>` agrupar por franquia (`<optgroup>`).
 
 ---
 
-## Painel de Revisão de Lore (UI)
+## Adicionando uma obra nova
 
-O painel **"7. Revisão de Lore"** da SPA revisa nomes próprios, locais e termos de lore em legendas `.ass` já traduzidas, comparando com a legenda original em inglês. Ele **não** usa este `ProvedorContexto` — tem seu próprio sistema de contextos (`ProvedorPromptRevisaoLore`, pacote `revisaoLore/contexto/**`, atualmente **45 obras calibradas**). Documentação completa em [Módulo: Revisão de Lore](etapa-3.2-revisao-lore.md).
+**Não se cria classe Java.** O caminho é o arquivo:
+
+1. abra `src/main/resources/lore/lore.yaml` e acrescente a obra na seção `obras:`, com
+   `id`, `nome`, `prompt` e — quando houver — `termosProtegidos` e `correcoesTerminologia`;
+2. se a obra também precisa de revisão de lore, acrescente o par na seção `revisao:`;
+3. escreva a **cicatriz** ao lado de qualquer regra não óbvia: o comentário é parte do dado, e é
+   o que impede a próxima pessoa (ou IA) de "limpar" a regra sem saber o que ela custou;
+4. suba a aplicação. Se o arquivo estiver inválido, ela **não sobe** — e isso é o comportamento
+   correto.
+
+> **Nome novo no `termosProtegidos` passa a render na 3.2 imediatamente**, porque desde 18/08 a
+> Revisão de Lore lê essa mesma lista em vez de um roster próprio.
 
 ---
 
@@ -65,4 +149,4 @@ O painel **"7. Revisão de Lore"** da SPA revisa nomes próprios, locais e termo
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Renomear Arquivos](etapa-5.2-renomear-arquivos.md) | [Módulo Telemetria →](modulo-telemetria.md) |
+| [← 5.2 Renomear Arquivos](etapa-5.2-renomear-arquivos.md) | [Módulo Telemetria →](modulo-telemetria.md) |

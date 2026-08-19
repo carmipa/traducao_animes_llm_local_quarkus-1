@@ -1,40 +1,55 @@
-# 🩹 Módulo: Correção & Revisão
+# 🗃️ Etapa 2.3 — Correção de Cache
 
-[← Tradução Local](etapa-2.1-traducao-llm.md) | [Correção de Legendas →](etapa-4.2-cura-tags.md)
+[← 2.1 Tradução Local](etapa-2.1-traducao-llm.md) | [3.1 Revisão de Legendas →](etapa-3.1-revisao-legendas.md)
 
 ---
 
 ## Para que serve
 
-Depois da tradução inicial, sobram tipicamente dois tipos de problema: **falas que o LLM não traduziu** (resíduo em inglês, fallback silencioso) e **erros de concordância de gênero em PT-BR** (o inglês não marca gênero em pronomes/adjetivos como o português — "her sword" pode virar "sua espada dele" por calque). Existem **seis endpoints, agrupados em quatro fluxos distintos**, cada um atacando uma fonte diferente com o método mais adequado.
+Depois da tradução inicial sobram, tipicamente, dois problemas: **falas que o LLM não traduziu**
+(resíduo em inglês, fallback silencioso) e **erros de concordância de gênero em PT-BR** — o inglês
+não marca gênero em pronomes e adjetivos como o português, e `"her sword"` vira `"sua espada dele"`
+por calque.
+
+Esta tela ataca os dois **no banco de cache**, que é o que alimenta as próximas traduções. Para
+consertar a legenda **já entregue**, as telas são a [3.1](etapa-3.1-revisao-legendas.md), a
+[3.2](etapa-3.2-revisao-lore.md) e a [3.3](etapa-3.3-revisao-concordancia.md).
 
 ---
 
-## Visão comparativa dos três fluxos
+## Os três fluxos sobre o cache
 
 | Endpoint | Use case | Atua sobre | Método |
 |----------|----------|-------------|--------|
 | `POST /api/corrigir-cache` | `LimparCacheUseCase` | `cache/**/*.cache.json` | **Nenhum corretor** — apaga entradas de fallback (`traduzido == original`), forçando retradução na próxima passada de `/api/traduzir` |
 | `POST /api/corrigir-scraping` | `CorrigirComGoogleUseCase` | `cache/**/*.cache.json` | **Google Translate** (scraping da API pública `translate.googleapis.com`) |
 | `POST /api/revisar-cache` | `RevisarCacheUseCase` | `cache/**/*.cache.json` | **LLM local** — foco em concordância PT-BR |
-| `POST /api/revisar-legendas` | `RevisarLegendasUseCase` (modo `GOOGLE`) | Arquivos `.ass`/`.ssa` já traduzidos | **Google Translate** |
-| `POST /api/revisar-legendas-concordancia` | `RevisarLegendasUseCase` (modo `LLM_CONCORDANCIA`) | Arquivos `.ass`/`.ssa` já traduzidos | **LLM local** |
-| `POST /api/revisar-concordancia` | `RevisarConcordanciaUseCase` (painel 8) | Só a pasta `.ass` PT-BR (sem original) | **Determinístico (regex)** — conserta gênero inequívoco, sem LLM, com dry-run/apply |
 
 ```mermaid
 graph TD
-    Cache[("cache/*.cache.json")] --> A["POST /corrigir-cache<br/>Limpa fallback (força retradução)"]
-    Cache --> B["POST /corrigir-scraping<br/>Google Translate"]
-    Cache --> C["POST /revisar-cache<br/>LLM: concordância PT-BR"]
+    Cache[("🗃️ cache/**/*.cache.json<br/>alimenta as próximas traduções")]
+    Cache --> A["🧹 POST /corrigir-cache<br/>apaga fallback → força retradução"]
+    Cache --> B["🌐 POST /corrigir-scraping<br/>Google Translate"]
+    Cache --> C["🧠 POST /revisar-cache<br/>LLM: concordância PT-BR"]
 
-    Ass[(".ass finais traduzidos")] --> D["POST /revisar-legendas<br/>modo GOOGLE"]
-    Ass --> E["POST /revisar-legendas-concordancia<br/>modo LLM_CONCORDANCIA"]
-
-    style Cache fill:#1e293b,stroke:#F59E0B
-    style Ass fill:#1e293b,stroke:#3B82F6
+    classDef fonte fill:#78350f,stroke:#FBBF24,color:#F9FAFB,stroke-width:2px
+    classDef limpa fill:#1e293b,stroke:#6B7280,color:#F9FAFB
+    classDef web fill:#134e4a,stroke:#2DD4BF,color:#F9FAFB
+    classDef llm fill:#4c1d95,stroke:#C4B5FD,color:#F9FAFB
+    class Cache fonte
+    class A limpa
+    class B web
+    class C llm
 ```
 
-> **Quando usar qual:** se a legenda final ainda tem falas 100% em inglês, comece por `/corrigir-cache` + rodar `/traduzir` de novo (mais barato, reaproveita o LLM já configurado). Se restarem resíduos depois disso, `/corrigir-scraping` dá um resultado melhor que "sem tradução nenhuma", sem custo. Para erros sutis de gênero/concordância que passam despercebidos numa leitura rápida, use `/revisar-legendas-concordancia` (mais lento, mas entende a lore do contexto).
+> **Quando usar qual:** se a legenda final ainda tem falas 100% em inglês, comece por
+> `/corrigir-cache` e rode `/traduzir` de novo — é o mais barato e reaproveita o LLM já
+> configurado. Se restarem resíduos, `/corrigir-scraping` entrega algo melhor que "sem tradução
+> nenhuma", sem custo. Para erro sutil de gênero, `/revisar-cache` é mais lento, mas entende a lore
+> do contexto.
+>
+> **O cache é propriedade de um dono único** (o peer `cachetraducao`). Nenhuma outra fatia escreve
+> nele — ver [Arquitetura](arquitetura.md).
 
 ![Painel de Correção de Cache — reúne os fluxos 1, 2 e 3 sobre o cache](../src/main/resources/static/img/screenshots/correcao-cache.webp)
 
@@ -56,93 +71,56 @@ graph TD
 
 ---
 
-## Fluxo 3 — Revisão de concordância PT-BR via LLM (`raspagemRevisao`)
+## Fluxos 3 e 4 — mudaram de lugar (e por quê)
 
-O fluxo mais sofisticado. `DetectorConcordanciaService` é **100% regex/heurística, sem LLM** — cruza pronomes do original (`he/she/him/her`) com artigos/substantivos/particípios/pronomes da tradução, procurando incompatibilidade de gênero (ex.: original usa `"her"` mas a tradução tem `"dele"`). Só os casos com suspeita real são enviados ao LLM (`LlmPort.revisarConcordancia()`), que recebe a lore do contexto ativo e decide a correção — economizando chamadas ao modelo.
+Até 06/08/2026 esta página descrevia **quatro** fluxos: os dois do cache (acima) e mais dois que
+atuam **direto no arquivo `.ass` entregue**. Os dois de arquivo cresceram, ganharam tela própria
+numerada no menu e **página própria** — manter a descrição aqui criaria duas fontes de verdade
+sobre o mesmo assunto, que é o que a invariante de fonte única proíbe.
+
+| era aqui | mora agora em | atua sobre |
+|---|---|---|
+| Fluxo 3 — revisão de concordância PT-BR via LLM | **[3.1 Revisão de Legendas](etapa-3.1-revisao-legendas.md)** | os `.ass` PT-BR entregues, com o inglês de referência |
+| Fluxo 4 — concordância de gênero determinística | **[3.3 Revisão de Concordância](etapa-3.3-revisao-concordancia.md)** | só o `.ass` PT-BR, sem inglês, sem cache e sem LLM |
+
+A diferença que decide qual usar:
 
 ```mermaid
-sequenceDiagram
-    participant UC as RevisarCacheUseCase / RevisarLegendasUseCase
-    participant Det as DetectorConcordanciaService
-    participant Aud as AuditorProblemasLegendaService
-    participant LLM as LlmPort
+graph LR
+    Q{"o que você tem<br/>em mãos?"}
+    Q -->|"o CACHE do projeto"| C["2.3 — esta página<br/>corrigir-cache · corrigir-scraping · revisar-cache"]
+    Q -->|"o .ass entregue<br/>E o inglês"| A["3.1 Revisão de Legendas"]
+    Q -->|"só o .ass em português"| B["3.3 Revisão de Concordância"]
+    Q -->|"o .ass e a lore da obra"| D["3.2 Revisão de Lore"]
 
-    UC->>Aud: auditar(original, traducao)
-    Aud->>Det: detectarConcordancia(original, traducao)
-    Aud->>Aud: ValidadorTraducaoService (resíduo EN?)
-    Aud->>Aud: DetectorTraducaoIdenticaService (não traduzida?)
-    Aud-->>UC: lista de problemas detectados
-
-    alt Há suspeita
-        UC->>LLM: revisarConcordancia(original, traducao, problemas)
-        LLM-->>UC: tradução corrigida
-    else Sem suspeita
-        UC->>UC: mantém tradução como está
-    end
+    classDef cache fill:#78350f,stroke:#FBBF24,color:#F9FAFB
+    classDef ass fill:#1e3a5f,stroke:#3B82F6,color:#F9FAFB
+    classDef det fill:#14532d,stroke:#4ADE80,color:#F9FAFB
+    classDef lore fill:#4c1d95,stroke:#C4B5FD,color:#F9FAFB
+    classDef neutro fill:#1e293b,stroke:#6B7280,color:#F9FAFB
+    class C cache
+    class A ass
+    class B det
+    class D lore
+    class Q neutro
 ```
 
-`AuditorProblemasLegendaService` agrega 3 fontes de suspeita antes de decidir se vale acionar o LLM:
-
-1. `ValidadorTraducaoService` — resíduo em inglês / alucinação
-2. `DetectorTraducaoIdenticaService` — fala idêntica ao original (não traduzida)
-3. `DetectorConcordanciaService` — erro de gênero PT-BR
-
-`RevisarLegendasUseCase` também conserta **"karaoke quebrado"** — chaves `{texto}` sem `\`/`=` na frente — via regex, antes de qualquer chamada externa.
-
-### Contrato de tags entre inglês e PT
-
-Na revisão por LLM, o original inglês é somente referência semântica: suas tags ASS são removidas
-antes do prompt. A estrutura que deve sobreviver vem exclusivamente da legenda PT atual. Assim, se
-o inglês contém `{\blur2...}` e o PT não contém tag, o modelo recebe zero `[[TAGn]]` obrigatórios e
-não pode copiar um marcador do original para a resposta.
-
-A normalização exige igualdade exata de quantidade, ordem e identidade dos marcadores. Resposta que
-perca, duplique, reordene ou invente `[[TAGn]]` é descartada e provoca nova tentativa; nenhuma versão
-estruturalmente divergente é publicada. Este contrato corrige o caso real do Zeta S01E02, evento 628,
-em que uma tradução correta era recusada porque o LLM copiava `[[TAG0]]` existente apenas no inglês.
-
-Quebras internas `\\N` da legenda PT seguem um caminho separado: são retiradas antes da chamada ao
-LLM e recolocadas deterministicamente no limite textual mais equilibrado depois da resposta. Os
-termos canônicos são mascarados pela proteção de lore entre essas duas etapas e restaurados antes da
-validação final. Isso evita que o modelo descarte a quebra sem abrir mão da proteção de nomes.
-
-O detector de idioma também analisa o texto sem os termos já reconhecidos pela lore. Assim,
-`Mont Blanc` (nave incluída no contexto de Zeta) não é confundido com vazamento de francês por causa
-de `blanc`, enquanto francês real, como `aura bleu`, continua sendo rejeitado. A regressão cobre a
-fala real do Zeta S01E07 sobre os pilotos do GM no Argama e preserva exatamente uma quebra `\\N`.
-
-Uma auditoria dos 50 `.ass` ingleses de Zeta ampliou o catálogo operacional com nomes efetivamente
-usados nos diálogos, incluindo `Dogosse Gier`, `Rosammy`, `Haro`, `Shinta`, `Qum`, `Green Noa`,
-`Green Oasis`, `Von Braun City`, `Bosnia`, `Sudori`, `Baund Doc` e o elenco secundário recorrente.
-Aliases curtos ambíguos (`Four`, `Fa` e `Bright`) não são protegidos isoladamente, porque o casamento
-ignora caixa; suas formas completas (`Four Murasame`, `Fa Yuiry`, `Bright Noa`) continuam protegidas.
-O mapa de terminologia, espelhado na Revisão de Lore, também restaura variantes realmente observadas,
-como `Dogosse Giar → Dogosse Gier`, `Quem → Qum`, `Mancack → Manack`, `Ramus → Ramsus` e
-`Rosamia → Rosammy` quando o original inglês contém o canônico correspondente. Esta última regra
-preserva a escolha narrativa: `Rosammy` é o apelido usado por Kamille, não um erro a normalizar.
-
-![Painel de Revisão de Legendas — fluxos 2 (Google) e 3 (LLM/concordância) sobre .ass já traduzidos](../src/main/resources/static/img/screenshots/revisao-legendas.webp)
+> **Regra prática:** o cache alimenta as próximas traduções; o `.ass` é a entrega. Corrigir o cache
+> não conserta a legenda que já saiu, e corrigir a legenda não impede o erro de voltar na próxima
+> tradução. Por isso os dois lados existem.
 
 ---
 
-## Fluxo 4 — Concordância de gênero determinística (`revisaoConcordancia`, painel 8)
-
-O painel **"8. Revisão de Concordância"** é uma passada **100% determinística (regex), sem LLM e sem precisar do original em inglês**: `CorretorConcordanciaGeneroService` conserta, direto na pasta `.ass` PT-BR, os casos de gênero **inequívoco** — artigo masculino + substantivo feminino (e vice-versa), `ela` + verbo de ligação + adjetivo masculino (e vice-versa) etc. Por ser barato e sem ambiguidade, roda em **dry-run** por padrão (`aplicar: false` — simula e reporta sem gravar) e só grava quando `aplicar: true`.
-
-É complementar aos fluxos 1–3 (que dependem do LLM e/ou do original): aqui o alvo são erros **óbvios** de concordância que já estão na legenda final, sem depender de saber quem fala. A Tradução Local não corrige gênero — ver a [limitação conhecida](etapa-2.1-traducao-llm.md#concordância-de-gênero-limitação-conhecida).
-
----
-
-## Endpoints REST
+## Endpoints REST desta tela
 
 | Endpoint | Payload | Canal SSE |
 |----------|---------|-----------|
 | `POST /api/corrigir-cache` | `{entrada?, contextoId?}` (padrão: pasta `cache`) | `correcao` |
 | `POST /api/corrigir-scraping` | `{entrada?}` | `correcao` |
 | `POST /api/revisar-cache` | `{entrada?, contextoId?}` | `correcao` |
-| `POST /api/revisar-legendas` | `{entradaPt, entradaEn?, contextoId?}` | `revisao` |
-| `POST /api/revisar-legendas-concordancia` | `{entradaPt, entradaEn?, contextoId?}` | `revisao` |
-| `POST /api/revisar-concordancia` | `{diretorioTraduzido, aplicar}` | `revisao-concordancia` |
+
+Os endpoints que atuam no `.ass` (`/api/revisar-legendas`, `/api/revisar-legendas-concordancia`,
+`/api/revisar-concordancia`) estão documentados nas páginas 3.1 e 3.3.
 
 ---
 
@@ -150,4 +128,4 @@ O painel **"8. Revisão de Concordância"** é uma passada **100% determinístic
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Tradução Local](etapa-2.1-traducao-llm.md) | [Correção de Legendas →](etapa-4.2-cura-tags.md) |
+| [← 2.1 Tradução Local](etapa-2.1-traducao-llm.md) | [3.1 Revisão de Legendas →](etapa-3.1-revisao-legendas.md) |
