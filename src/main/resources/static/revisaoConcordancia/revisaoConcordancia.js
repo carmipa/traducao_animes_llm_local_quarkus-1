@@ -6,7 +6,7 @@ import { logNoConsole, mostrarAlerta } from '../js/app.js';
 import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 // O cartão que mantém à vista PARA ONDE a tela escreve. Módulo compartilhado, na versão que
 // escapa o caminho — as três cópias que existiam nas telas irmãs já tinham divergido nesse ponto.
-import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js';
+import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js?v=1.1';
 
 // A versão sobe a cada mudança no HTML do painel (1.1 = seletor de obra; 1.2 = cartão do alvo
 // ativo e a caixa "o que acontece"): o painel é buscado por fetch, e sem trocar a query o
