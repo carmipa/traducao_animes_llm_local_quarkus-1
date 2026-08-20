@@ -131,4 +131,35 @@ class SanitizadorTelemetriaTest {
         assertFalse(limpo.contains("\\"), "barra invertida denuncia o sistema de origem");
         assertTrue(limpo.contains("Guilty Crown/traducao_ptbr"));
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a quebra {@code \N} do ASS dentro da fala citada NÃO é caminho de
+     * disco e não pode ser aparada como se fosse.
+     *
+     * <h2>O prejuízo, medido</h2>
+     * 2026-08-20, sobre os 9.335 avisos do acervo: o padrão de caminho casava <b>91 quebras
+     * {@code \N}</b>, e {@code Gundam ZZ:\N"Crybaby Cecilia."} saía {@code ZZ:/N"..."}. Ironia
+     * cara — o aviso corrompido é justamente o de <i>"tags corrompidas pelo LLM"</i>, e a tag é
+     * o dado que quem estuda a falha precisa ler.
+     *
+     * <p>Letra de drive é UMA letra; {@code ZZ:} são duas. O discriminador é a esquerda: pela
+     * direita não dá, porque {@code C:\Nome da pasta} é caminho legítimo começando com N — e o
+     * segundo caso deste teste prova que esse continua sendo aparado.
+     */
+    @Test
+    @DisplayName("quebra \\N do ASS não é confundida com caminho, e C:\\Nome ainda é")
+    void quebraDoAssNaoEhCaminho() {
+        String comQuebra = "Fala mantida sem traducao (tags corrompidas pelo LLM): "
+            + "{\\i1}Next time, on {\\i1}Gundam ZZ:\\N\"Crybaby Cecilia.\"";
+
+        assertEquals(comQuebra, SanitizadorTelemetria.sanitizar(comQuebra),
+            "a quebra do ASS foi tratada como caminho e o diagnostico saiu corrompido");
+
+        // Contra-teste: um caminho REAL cuja primeira pasta comeca com N continua sendo aparado.
+        // Sem ele, "nao mexeu" e "nao enxerga nada" ficariam indistinguiveis.
+        String caminhoComN = "Arquivo: " + c("Nome da pasta", "ep01.ass");
+        String limpo = SanitizadorTelemetria.sanitizar(caminhoComN);
+        assertFalse(limpo.contains(marcadorDrive('C')), "o caminho real escapou: " + limpo);
+        assertTrue(limpo.contains("Nome da pasta/ep01.ass"), "a cauda util se perdeu: " + limpo);
+    }
 }
