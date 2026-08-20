@@ -1,3 +1,86 @@
+# EM ANDAMENTO (2026-08-20, tarde) — a "zona" da linha traduzida: 4 defeitos, 0 correcoes aprovadas
+
+Paulo: *"86 tem musicas que misturam ingles e japones romanji e karaokes totalmente em ingles e
+o portugues que seria o traduzido como linha traduzida e uma zona"*.
+
+Rodei karaoke em 86 Part 1 (11), 86 Part 2 (12), Zeta (50) e Unicorn (22). Todas 0 falhas.
+Diagnostiquei 4 defeitos. **Todos os 4 diagnosticos sobreviveram aos ceticos; TODAS as 4
+correcoes propostas foram derrubadas.** Nada foi implementado — e esse e o estado correto.
+
+## Os 4 defeitos, confirmados por reproducao independente
+
+**(A) Divergencia entre episodios.** A mesma frase da mesma musica sai diferente em cada
+episodio. 86 P1: 16 de 31 distintas (52%). Zeta: 19 de 33 (58%). Unicorn: 73 de 131 (56%).
+Pior caso: `Searching, a guidepost floats up ahead.` com 8 traducoes; `dnt` com 10.
+CAUSA: o cache e por ARQUIVO (`cache/karaoke/<episodio>.cache.json`) e os dois mapas de dedup
+(`traducoes`, `traducaoPorTextoVisivel`, TraduzirKaraokeUseCase:363 e :373) sao locais a
+`processarArquivo`. Com `temperature: 0.3`, N perguntas identicas dao N respostas.
+DIVERGENCIA NO MESMO INSTANTE DA TELA = 0 nas quatro obras. E entre episodios.
+
+**(B) Empilhamento com `\clip`.** O karaoke criou 499 quebras `\N` no 86 P1; **264 delas em
+linha com `\clip`**. O clip fatia em bandas horizontais de ~16px com `\pos` deslocado (efeito
+de vidro trincado); foi calculado para UMA linha. Estilos: Opening 286, Ending 213. So o 86.
+
+**(C) Traducao com erro de lingua.** "Aos sombras paradas", "Importante quanto desejar",
+"Ignorancia deliberada, revoltante, indiferenca". O corretor repoe ACENTO, nao concordancia.
+
+**(D) Fragmento silabico indo ao LLM — o pior, e so do Unicorn.** O estilo `OPL2` tem DUAS
+camadas no mesmo trecho:
+```
+0:01:37.00 -> 0:01:39.80   'Do you feel alone'   <- a frase
+0:01:37.00 -> 0:01:39.90   'Do'
+0:01:37.61 -> 0:01:39.90   'a'
+0:01:37.83 -> 0:01:39.90   'lone'    ('a'+'lone' = alone: e SILABICO)
+```
+Dos 131 textos distintos traduzidos no Unicorn, **78 sao fragmento**. `dnt`(10 variantes),
+`all`(9), `hur`(7), `corn`(7), `fice`(6). No 86 e no Zeta: 1 e 0.
+CAUSA RAIZ: o classificador TEM um guarda escrito para isto (o comentario cita "Do", "you",
+"feel", "lone"), mas ele so dispara com tag de karaoke — e medi que das 3.255 linhas OPL2,
+**ZERO** tem `\k` em qualquer faixa. So `\pos`, `\fad`, `\blur`.
+
+## Por que nenhuma correcao foi aprovada
+
+- **(A) hoistar o mapa para a execucao**: DERRUBADA por dano — apagaria a correcao MANUAL do
+  cache, que e invariante declarada em 3 lugares (TraduzirKaraokeUseCase:69-70,
+  CacheDoArquivo:22-24 e :91-95) e e a UNICA rota de correcao, porque
+  `CacheManutencaoService:165,269` exclui a subpasta `karaoke` do menu.
+- **(A) temperatura 0**: a rota e melhor do que eu julguei — `temperaturaOverride` e contrato
+  da porta (`LlmPort:54`) e trocar `null` por `0.0` nos 3 pontos de `TradutorDeLetraKaraoke`
+  (:125, :184, :232) fica contido em UM arquivo, sem tocar o dialogo. MAS:
+  **`ProvenienciaCache.mesmaProveniencia` (:81-90) compara SEIS campos e temperatura nao e um
+  deles** — rodar de novo devolveria 4.301 de 4.301 do cache e nao mudaria um byte. Previne o
+  futuro, nao conserta o passado, e nao da nem para MEDIR sem invalidar cache.
+- **(B) e (C)**: passo a passo derrubado por dano em cada caso.
+- **(D)**: em refutacao no momento em que isto foi escrito.
+
+## Correcoes ao que EU tinha afirmado
+
+1. "6.093 traducoes em 21s, ~39 chamadas ao LLM" — a linha `[LLM]` do console e impressa por
+   EVENTO que nao veio do cache (TraduzirKaraokeUseCase:486-488), nao por chamada de rede. A
+   run de 20/08 no 86 fez **2 chamadas reais**; a divergencia veio congelada do cache de 14/08.
+2. "Zeta com 31,8% de fragmentos" — ERRADO, era artefato da minha janela de tempo, que engoliu
+   o comeco do Unicorn. Zeta tem **0**. Atribuir por janela de manifesto, nunca por chute.
+3. "87,8% das chamadas do Unicorn sao fragmento" — era % de EVENTOS. A metrica honesta e por
+   texto distinto: **78 de 131**.
+
+## PROXIMA ACAO EXECUTAVEL EXATA
+
+Ler o veredito dos ceticos sobre (D) e, com as correcoes deles dobradas, escolher UMA correcao
+para implementar. A ordem de valor medida: (D) Unicorn > (A) divergencia > (B) clip > (C) lingua.
+
+Para (A), qualquer correcao precisa responder: **como invalidar o cache divergente sem apagar
+correcao manual?** Sem resposta a isso, mexer em temperatura e cosmetico.
+
+## AMBIENTE
+
+KRONOS de jar em 8099 (PID 33440, `Stop-Process -Id 33440`). LM Studio na 1234 com
+`aya-expanse-8b` (`lms server stop`). Redis nos conteineres. Saidas em
+`<obra>/traducao_ptbr-karaoke-ptbr`.
+
+Requisicao ao KRONOS **so por arquivo**: `curl --data-binary "@req.json"`. Inline volta 400 vazio.
+
+---
+
 # CONCLUIDO (2026-08-20, 12h30) — o 86 traduzido, e os 12 commits finalmente MEDIDOS
 
 O karaoke do 86 estava sem nenhuma run desde 14/08, com 12 commits de comportamento sem prova.
