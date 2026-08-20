@@ -1,3 +1,38 @@
+# EM ANDAMENTO — quebra do TraduzirKaraokeUseCase em classes menores (2026-08-19)
+
+Commitado e PUSHADO: `7b3d7e96` (regua) - `52cf23d2` (PlanoDeClassificacao) - `d877d424`
+(TradutorDeLetraKaraoke). Suite verde nos tres.
+
+```
+FEITO   PlanoDeClassificacao     165 linhas  — decisao do arquivo, 1 passe em vez de 2
+FEITO   TradutorDeLetraKaraoke   260 linhas  — os 3 caminhos de envio ao LLM
+FALTA   MontadorEventoFinal                  — acento + empilhamento com a quebra do ASS
+FALTA   CacheDoArquivo                       — carregar/salvar
+FALTA   RegistroDaExecucao                   — desfecho, manifesto, relatorio, console
+```
+
+`TraduzirKaraokeUseCase`: 993 -> **819 linhas**.
+
+## PROXIMA ACAO EXECUTAVEL EXATA
+
+Extrair `RegistroDaExecucao`: leva `montarRelatorio` (429 bytecodes) e `registrarArtefatos`
+(231), mais o `visivelResumido`, que hoje esta package-private compartilhado justamente
+esperando esse dono — esta escrito no Javadoc dele.
+
+## Declarado, para nao virar surpresa
+
+- `executar` (1.810 bytecodes) e `processarArquivo` (1.087) seguem acima do FreqInlineSize de
+  325. **Nao ha ganho de velocidade em quebra-los** — rodam uma vez por execucao e uma vez por
+  arquivo. O motivo da quebra e testabilidade, e isso ja foi medido e registrado.
+- Cada arquivo novo quebra a `CatracaEsqueletoDoProjetoAtualizadoTest`. Regravar com
+  `gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esqueleto.regravar=true`
+  — nao editar o markdown a mao; a propria catraca avisa isso.
+- O teste do use case monta tudo a mao: colaborador novo exige ligacao no `setUp`, senao NPE.
+- **O LLM tem DOIS consumidores** desde `d877d424`: o use case (disponibilidade e modelo ativo)
+  e o `TradutorDeLetraKaraoke` (traducao). No teste use `usarLlm(...)`, que aponta os dois.
+
+---
+
 # CONTINUIDADE — KRONOS
 
 # ✅ EXECUTADO (2026-08-19) — F1 a F5 do Plano Mestre do critério "isto é música?"
