@@ -139,6 +139,19 @@ class TraduzirKaraokeUseCaseTest {
         }
     }
 
+    /**
+     * Aponta os DOIS consumidores do LLM para o mesmo dublê.
+     *
+     * <p>Desde 2026-08-19 o LLM tem dois papéis nesta fatia: o use case o consulta para saber se
+     * o servidor está no ar e qual o modelo ativo, e {@code TradutorDeLetraKaraoke} o usa para
+     * traduzir de fato. Trocar só um dos dois faria o teste medir um mundo e o codigo rodar
+     * outro — foi exatamente o que quebrou estes dois testes quando o colaborador foi extraido.
+     */
+    private void usarLlm(LlmPort llm) {
+        useCase.llmPort = llm;
+        useCase.tradutorDeLetra.llmPort = llm;
+    }
+
     @BeforeEach
     void setUp() throws IOException {
         tempDir = Files.createTempDirectory("test_traducao_karaoke");
@@ -158,6 +171,16 @@ class TraduzirKaraokeUseCaseTest {
             new ContextoTeste(CONTEXTO_08TH, "Mobile Suit Gundam: The 08th MS Team", PROMPT_08TH),
             new ContextoTeste("gundam_zz", "Mobile Suit Gundam ZZ", PROMPT_ZZ)));
         useCase.classificador = new ClassificadorLetraKaraokeService(new DetectorEfeitoKaraokeService());
+
+        // O colaborador que leva a linha ao LLM saiu do use case em 2026-08-19. Aqui ele recebe
+        // os MESMOS dubles — se recebesse outros, o teste passaria a medir dois mundos.
+        TradutorDeLetraKaraoke tradutorDeLetra = new TradutorDeLetraKaraoke();
+        tradutorDeLetra.llmPort = llmFake;
+        tradutorDeLetra.mascarador = new MascaradorTags();
+        tradutorDeLetra.validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
+        tradutorDeLetra.telemetriaService = new MockTelemetria();
+        tradutorDeLetra.logStream = new MockLogStream();
+        useCase.tradutorDeLetra = tradutorDeLetra;
         useCase.logStream = new MockLogStream();
         useCase.telemetriaService = new MockTelemetria();
         persistenciaMock = new MockPersistencia();
@@ -267,14 +290,14 @@ class TraduzirKaraokeUseCaseTest {
         escreverLegendaDuasLinhasInglesas(pastaEntrada.resolve(NOME_ARQUIVO));
         List<String> promptsRecebidos = new ArrayList<>();
 
-        useCase.llmPort = new LlmPortFake() {
+        usarLlm(new LlmPortFake() {
             @Override
             public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
                 promptsRecebidos.add(promptSistemaCongelado);
                 useCase.gerenciadorContexto.definirContextoAtivo("gundam_zz");
                 return super.traduzir(lote);
             }
-        };
+        });
         useCase.gerenciadorContexto.definirContextoAtivo("gundam_zz");
 
         useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
@@ -413,7 +436,7 @@ class TraduzirKaraokeUseCaseTest {
     void contadorDeLotesIsoladoEntreSimularEAplicarConcorrentes() throws Exception {
         escreverLegendaDuasLinhasInglesas(pastaEntrada.resolve(NOME_ARQUIVO));
         LlmPortBloqueante fake = new LlmPortBloqueante();
-        useCase.llmPort = fake;
+        usarLlm(fake);
 
         AtomicReference<Throwable> falhaAplicador = new AtomicReference<>();
         Thread aplicador = new Thread(() -> {
