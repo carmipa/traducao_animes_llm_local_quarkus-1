@@ -1,3 +1,75 @@
+# CONCLUIDO (2026-08-20, tarde) — sanitizacao na fronteira + backfill dos manifestos
+
+Tres commits, PUSHADOS, suite verde: `9706a3b9` (motivo do karaoke) - `76e151da` (fronteira do
+publicador) - `799fcfe4` (backfill). Suite: 2.052 testes, 0 falhas, 35 pulados.
+
+## 1. Os 402 caminhos do DIALOGO — RESOLVIDO dali para a frente
+
+Medido com o sanitizador de PRODUCAO sobre os 9.335 avisos reais:
+
+```
+inalterados          8.933
+TRANSFORMADOS          402   <- os vazamentos reais
+REDIGIDOS por inteiro     0   <- nenhum diagnostico se perde
+com drive DEPOIS          0
+```
+
+A primeira medicao dizia 493 e errou DUAS vezes: o shell comeu a barra da regex (deu ZERO), e
+depois de calibrado, 91 dos 493 eram falso positivo — a quebra `\N` do ASS dentro da fala.
+
+**Esses 91 revelaram um defeito no proprio sanitizador**: ele tratava `Gundam ZZ:\N` como caminho
+e devolvia `ZZ:/N`, corrompendo justamente o aviso "tags corrompidas pelo LLM". Causa: `CAMINHO` e
+`DISCO_NA_SAIDA` discordavam sobre o que e letra de drive. Corrigido — letra de drive e UMA letra.
+
+**Onde**: na PUBLICACAO, nao na escrita. Na escrita o caminho sumiria tambem do artefato local,
+onde ele e o que permite depurar. E vale para linha JA publicada, nao so para a nova.
+
+## 2. Backfill dos 19 manifestos — 383 arquivos
+
+```
+392.316 eventos - 23.991 a traduzir - 16.041 traduzidas - 7.216 avisos
+5 obras: Guilty Crown, Zeta, 86, Unicorn, 08th MS Team
+0 campos com letra de drive (instrumento calibrado com caso plantado)
+```
+
+Dos 7.216 avisos, **2.991 sao "Marcador perdido"** — o estado ANTES da correcao do
+`TextoSemTags`. O dataset passa a carregar a linha de base contra a qual a proxima run se mede
+(o esperado agora e ~4).
+
+**A coluna que impede a mentira**: `origemDoRegistro` = `EXECUCAO` | `MANIFESTO_HISTORICO`.
+ZERO dos 19 manifestos tinha `statusFinal`, `estadoDicionario`, `acentosRepostos` ou
+`entradasCacheDescartadas`. Sem a coluna, `acentosRepostos=0` significaria ao mesmo tempo "medi e
+deu zero" e "nao havia medicao". O backfill tambem NAO afirma que a execucao foi COMPLETA — o
+manifesto antigo nao registrava falha por arquivo, entao `statusExecucao` sai null.
+
+Importador idempotente por `registradoEm+arquivo`: rodado 2x, a segunda gravou 0.
+
+## PROXIMA ACAO EXECUTAVEL EXATA (2026-08-20)
+
+**Rodar a Traducao de Karaoke sobre `C:\animes\86\86 Part 1\traducao_ptbr`** (contexto
+`eight_six`). Provas esperadas:
+
+```powershell
+(Get-Content logs\telemetria_karaoke_execucoes.jsonl | Measure-Object -Line).Lines   # 383 -> 406
+Get-Content logs\telemetria_karaoke_execucoes.jsonl -Tail 1                          # EXECUCAO
+```
+
+As 23 linhas novas saem com `origemDoRegistro=EXECUCAO`, `desfechoArquivo=TRADUZIDO`,
+`marcadorPerdido` ~4 (contra 2.991 no historico), `acentosRepostos` > 0 e
+`entradasCacheDescartadas` com numero. Nao destrutivo: grava na pasta irma `-karaoke-ptbr`.
+
+## ABERTO — decisao de Paulo, unica que sobrou
+
+**Reescrever o historico git do repositorio publico do dataset.** A publicacao seguinte deixa o
+estado ATUAL limpo (o `acumularAcervo` sanitiza inclusive o que ja estava la), mas as versoes
+antigas dos arquivos continuam no historico do git. Tirar de la exige `filter-repo`/force-push:
+destrutivo e irreversivel. **Nao toquei, e nao toco sem palavra explicita.**
+
+Severidade para calibrar a decisao: o que esta no historico e a letra do drive e a pasta
+`animes`. Sem pasta de usuario, sem host — conferido com instrumento calibrado.
+
+---
+
 # CONCLUIDO (2026-08-20) — 4.1 Karaoke: a fatia passa a existir no DATASET publico
 
 Dois commits, PUSHADOS, suite verde nos dois: `9ce0aca2` (acervo + publicacao + catraca) e
