@@ -1,3 +1,82 @@
+# CONCLUIDO (2026-08-20) — 4.1 Karaoke: a fatia passa a existir no DATASET publico
+
+Dois commits, PUSHADOS, suite verde nos dois: `9ce0aca2` (acervo + publicacao + catraca) e
+`9706a3b9` (sanitizacao do motivo, achada pela revisao de dano).
+
+## O buraco que fechou, medido
+
+`logs/telemetria_execucoes.jsonl`: 2.266 execucoes, ZERO de karaoke. O que a fatia media
+(status, dicionario, falha nominal por arquivo, acento reposto, cache descartado) morria no
+manifesto e no relatorio, que o publicador nunca leu. No repositorio publico o karaoke existia
+como 51 linhas genericas de SETE campos por execucao inteira — log, nao dataset.
+
+## O que passou a existir
+
+```
+logs/telemetria_karaoke_execucoes.jsonl        append-only, 1 linha por ARQUIVO de legenda
+metrics/kronos-karaoke-execucoes.jsonl         acervo publicado (dedup registradoEm+arquivo)
+metrics/csv/kronos-karaoke.csv                 25 colunas, 1 linha por arquivo
+metrics/csv/kronos-karaoke-avisos.csv          tidy, 1 linha por aviso
+```
+
+Tres saidas no `desfechoArquivo`: TRADUZIDO · FALHOU · NAO_ALCANCADO (a execucao que morreu
+antes de alcancar arquivo nenhum; sem ela o pior desfecho sairia mudo do dataset).
+
+Catraca `CatracaTelemetriaKaraokeCompletaTest`: por reflexao, todo componente de
+`ResultadoTraducaoKaraoke` e de `DesfechoKaraoke` tem de chegar a `TelemetriaKaraoke` e a uma
+coluna do CSV. Contador novo REPROVA o build ate alguem decidir por escrito. Unica exclusao
+nominal: `arquivoDestino` (caminho absoluto). Seis mutacoes calibraram as guardas — nenhuma
+foi confiada sem ser vista reprovando.
+
+## PROXIMA ACAO EXECUTAVEL EXATA (2026-08-20)
+
+**Rodar a Traducao de Karaoke sobre `C:\animes\86\86 Part 1\traducao_ptbr`** (contexto
+`eight_six`). Alem das provas de efeito que ja estavam pendentes (marcadorPerdido ~4,
+acentosRepostos > 0, entradasCacheDescartadas com numero), a run passa a ter uma prova NOVA:
+
+```powershell
+(Get-Content logs\telemetria_karaoke_execucoes.jsonl | Measure-Object -Line).Lines
+Get-Content logs\telemetria_karaoke_execucoes.jsonl -Tail 1
+```
+
+Esperado: 23 linhas (uma por arquivo), `desfechoArquivo=TRADUZIDO`, `modeloLlm` preenchido.
+**O arquivo AINDA NAO EXISTE** — nenhuma run de karaoke aconteceu desde a mudanca. Isso e
+🟡 declarado, nao ✅.
+
+Nao destrutivo: grava na pasta irma `-karaoke-ptbr`.
+
+## ABERTO — decisao de Paulo, nao minha
+
+**402 caminhos `C:\animes\<obra>` no acervo do DIALOGO, ja publicados.** Achado pela varredura
+da mesma classe de falha (regra 5) depois de consertar o karaoke. Medido com instrumento
+calibrado: 493 ocorrencias casam o padrao de drive, das quais **91 sao falso positivo** — a
+quebra `\N` do ASS dentro da fala citada, do tipo `Gundam ZZ:\N"Crybaby Cecilia."`. Sobram
+**402 reais**, todas vindas da mensagem do portao obra x contexto.
+
+Exposicao real: a letra do drive e a pasta `animes`. **NAO ha pasta de usuario nem host** — o
+sanitizador ja teria redigido a linha inteira nesse caso. O nome da obra que vem junto ja e
+publicado noutra coluna (`animeNome`). O problema material e pequeno; o problema de INVARIANTE
+nao: o README do dataset promete "nada de caminhos de maquina" e o dado nao honra.
+
+Duas decisoes, ambas de Paulo:
+
+1. **Sanitizar dali para a frente — onde?** Na escrita mataria o caminho tambem no painel
+   local, que e util para depurar. O lugar certo e a publicacao
+   (`TelemetriaDatasetService.lerAcervoParaCsv` / `acumularAcervo`), na fronteira do publico.
+2. **O que ja esta publicado** — reescrever o historico de um repositorio publico e destrutivo
+   e irreversivel. **Nao toquei.**
+
+## NAO FEITO, por decisao declarada
+
+**Backfill do acervo de karaoke a partir dos manifestos historicos.** Existem manifestos desde
+julho, mas os anteriores a 14/08 nao tem `statusFinal`, `motivo`, `cacheIgnorado`,
+`estadoDicionario`, `acentosRepostos` nem `entradasCacheDescartadas` — os campos nem existiam.
+Importa-los produziria `null` significando ao mesmo tempo "nao medido entao" e "desconhecido",
+que e a saida vazia ambigua da regra 12. Marcar a origem exigiria um campo novo no schema que
+acabei de congelar, num dataset publico. E decisao de conteudo publicado: de Paulo.
+
+---
+
 # CONCLUIDO (2026-08-19) — 4.1 Traducao de Karaoke: regua de musica + quebra do use case
 
 Cinco commits, todos PUSHADOS, suite verde em cada um:
