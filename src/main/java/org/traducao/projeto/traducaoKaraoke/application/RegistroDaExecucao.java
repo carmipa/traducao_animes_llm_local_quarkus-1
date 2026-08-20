@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.lore.domain.SnapshotContexto;
+import org.traducao.projeto.telemetria.SanitizadorTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.DesfechoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.FalhaArquivoKaraoke;
@@ -147,6 +148,11 @@ public class RegistroDaExecucao {
      *   <li>O carimbo de tempo é UM só para a execução inteira — é ele que agrupa as linhas de
      *       volta numa run. A chave do acervo é {@code registradoEm + arquivo}, única porque
      *       nome de arquivo não repete dentro de uma pasta.</li>
+     *
+     *   <li><b>Os dois campos de MOTIVO passam pelo sanitizador.</b> Eles nascem de
+     *       {@code e.getMessage()} de uma exceção qualquer, e a mensagem de
+     *       {@code NoSuchFileException} é o caminho absoluto. O dataset é público: sem essa
+     *       passagem, a primeira legenda ilegível publicaria a árvore de pastas da máquina.</li>
      * </ul>
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança. A escritora do acervo já engole os erros
@@ -162,7 +168,7 @@ public class RegistroDaExecucao {
             String registradoEm = Instant.now().toString();
             TelemetriaKaraoke.ExecucaoKaraoke execucao = new TelemetriaKaraoke.ExecucaoKaraoke(
                 desfecho.status().name(),
-                desfecho.motivo(),
+                SanitizadorTelemetria.sanitizar(desfecho.motivo()),
                 contexto == null ? null : contexto.id(),
                 contexto == null ? null : contexto.nomeExibicao(),
                 proveniencia == null ? null : proveniencia.contextoHash(),
@@ -177,7 +183,14 @@ public class RegistroDaExecucao {
                 linhas.add(TelemetriaKaraoke.deArquivo(registradoEm, r, execucao));
             }
             for (FalhaArquivoKaraoke f : falhas) {
-                linhas.add(TelemetriaKaraoke.deFalha(registradoEm, f, execucao));
+                // O motivo é e.getMessage() de uma exceção qualquer — e a mensagem de
+                // NoSuchFileException/AccessDeniedException É o caminho absoluto. Sem esta
+                // passagem, C:\animes\... iria direto para um repositório PÚBLICO. O nome do
+                // arquivo não passa pelo sanitizador: ele já é só o nome, e é o que identifica
+                // a legenda para quem for estudar a falha.
+                linhas.add(TelemetriaKaraoke.deFalha(registradoEm,
+                    new FalhaArquivoKaraoke(f.arquivo(), SanitizadorTelemetria.sanitizar(f.motivo())),
+                    execucao));
             }
             if (linhas.isEmpty()) {
                 linhas.add(TelemetriaKaraoke.semArquivo(registradoEm, execucao));
