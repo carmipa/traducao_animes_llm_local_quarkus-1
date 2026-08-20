@@ -34,6 +34,7 @@ import org.traducao.projeto.traducaoKaraoke.domain.StatusExecucaoKaraoke;
 import org.traducao.projeto.core.texto.TextoSemTags;
 import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.SinaisDeKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.TraducaoKaraokeException;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;
 
@@ -380,19 +381,28 @@ public class TraduzirKaraokeUseCase {
         // original DESAPARECIA da tela — 22 de 23 linhas, em 10 episódios. Nos episódios 01-12
         // havia duas camadas (ED romaji + ED - EN inglês) e sobrava a outra por acaso, o que
         // mascarou o defeito: parecia preservação, era substituição com sorte.
+        //
+        // ORDEM IMPORTA, e ela não é arbitrária: o pré-passe descobre o romaji usando SÓ o campo
+        // Effect do ASS, nunca a evidência de "romaji no mesmo instante" — senão a regra se
+        // alimentaria da própria conclusão e qualquer linha puxaria a vizinha para dentro da
+        // música. O laço principal, abaixo, é que recebe as duas evidências.
         Set<String> instantesComOriginalPreservada = new java.util.HashSet<>();
         for (EventoLegenda ev : documento.eventos()) {
             if (!ev.isDialogo() || !ev.temTexto()) {
                 continue;
             }
-            if (classificador.classificar(ev.estilo(), ev.texto()) == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
+            SinaisDeKaraoke semPareamento = new SinaisDeKaraoke(campoEfeitoDe(ev), false);
+            if (classificador.classificar(ev.estilo(), ev.texto(), semPareamento)
+                == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
                 instantesComOriginalPreservada.add(instanteDe(ev));
             }
         }
 
         for (EventoLegenda evento : documento.eventos()) {
             ClasseLinhaKaraoke classe = evento.isDialogo() && evento.temTexto()
-                ? classificador.classificar(evento.estilo(), evento.texto())
+                ? classificador.classificar(evento.estilo(), evento.texto(),
+                    new SinaisDeKaraoke(campoEfeitoDe(evento),
+                        instantesComOriginalPreservada.contains(instanteDe(evento))))
                 : ClasseLinhaKaraoke.FORA_DE_MUSICA;
 
             switch (classe) {
@@ -512,9 +522,27 @@ public class TraduzirKaraokeUseCase {
                 ? acentosRepostos + " (dicionário AUSENTE — NÃO VERIFICADO)"
                 : String.valueOf(acentosRepostos)));
 
+        // O que estava no cache e NAO foi usado some na regravacao — e some certo, porque a regua
+        // de evidencia positiva tornou inalcançavel o que o classificador antigo criou por engano
+        // (258 entradas de estilo Signs e 8 de romaji, medidas no cache real em 19/08). Mas cache
+        // que encolhe sem numero e indistinguivel de perda de dado, entao o numero vai ao relatorio.
+        int entradasCacheDescartadas = 0;
+        for (String original : cacheExistente.keySet()) {
+            if (!traducoes.containsKey(original)) {
+                entradasCacheDescartadas++;
+            }
+        }
+        if (entradasCacheDescartadas > 0) {
+            logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
+                "   [CACHE] %d entrada(s) do cache nao sao mais alcancaveis e serao descartadas na "
+                    + "regravacao — o criterio de musica mudou em 19/08/2026.",
+                entradasCacheDescartadas));
+        }
+
         return new ResultadoTraducaoKaraoke(
             nome, nomeDestino, documento.eventos().size(), kfx, originais, jaPt,
-            paraTraduzir, doCache, traduzidas, semTraducao, acentosRepostos, List.copyOf(avisos));
+            paraTraduzir, doCache, traduzidas, semTraducao, acentosRepostos,
+            entradasCacheDescartadas, List.copyOf(avisos));
     }
 
     /**
@@ -755,6 +783,33 @@ public class TraduzirKaraokeUseCase {
         }
         String[] campos = evento.prefixo().split(",");
         return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai o campo {@code Effect} da linha {@code Dialogue:} — o carimbo
+     * que o Kara Templater do Aegisub deixa nas linhas que ELE gera, e a evidência mais barata de
+     * que a linha é karaokê de verdade.
+     *
+     * <h2>INVARIANTES DO DOMÍNIO</h2>
+     * O formato é fixo:
+     * {@code Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect}. O campo é o NONO, e o
+     * {@code split} usa limite negativo porque campo vazio no meio é o caso NORMAL — sem ele o
+     * Java descarta os vazios do fim e o índice escorrega.
+     *
+     * <p>Medido no acervo em 2026-08-19: {@code fx} em 1.412.289 linhas, {@code Effector [fx]} em
+     * 45.834, {@code karaoke} em 378. E o campo está <b>vazio nas 159.398 linhas do 86</b> — por
+     * isso ele é UMA das quatro evidências, nunca a única.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: evento nulo, prefixo nulo ou prefixo com menos de nove
+     * campos devolvem {@code null} — que {@link SinaisDeKaraoke} lê como "sem evidência", o lado
+     * restritivo. Nunca lança.
+     */
+    private static String campoEfeitoDe(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null) {
+            return null;
+        }
+        String[] campos = evento.prefixo().split(",", -1);
+        return campos.length >= 9 ? campos[8].trim() : null;
     }
 
     private String comOriginalPreservada(EventoLegenda evento, String traduzido,

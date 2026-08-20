@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **471** |
-| classes em `src/test` | **368** |
+| classes em `src/main` | **472** |
+| classes em `src/test` | **369** |
 
 ---
 
@@ -38,7 +38,7 @@ graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (4)"]:::fatia
-    G3["<b>Karaokê</b><br/>traducaoKaraoke (13)<br/>novoKaraoke (11)"]:::fatia
+    G3["<b>Karaokê</b><br/>traducaoKaraoke (14)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (14)"]:::peer
@@ -515,7 +515,7 @@ revisaoConcordancia/
 
 ### Karaokê
 
-#### `traducaoKaraoke` — 13 classes
+#### `traducaoKaraoke` — 14 classes
 
 ```text
 traducaoKaraoke/
@@ -529,6 +529,7 @@ traducaoKaraoke/
 │   ├── FalhaArquivoKaraoke.java
 │   ├── GradienteKaraoke.java
 │   ├── ResultadoTraducaoKaraoke.java
+│   ├── SinaisDeKaraoke.java
 │   ├── StatusExecucaoKaraoke.java
 │   └── TraducaoKaraokeException.java
 ├── infrastructure/
@@ -876,7 +877,7 @@ core/
 
 ---
 
-## Testes — 368 classes
+## Testes — 369 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1481,13 +1482,14 @@ traducaoCorrige/
     └── ResultadoManutencaoCacheTest.java
 ```
 
-#### `traducaoKaraoke` — 7 classes
+#### `traducaoKaraoke` — 8 classes
 
 ```text
 traducaoKaraoke/
 ├── application/
 │   ├── ClassificadorLetraKaraokeServiceTest.java
 │   ├── CorretorNaoAlcancaRomajiDoKaraokeTest.java
+│   ├── CriterioDeMusicaCaracterizacaoTest.java
 │   ├── JamaisMexerNoJaponesTest.java
 │   ├── PreservacaoCamadaUnicaTest.java
 │   └── TraduzirKaraokeUseCaseTest.java

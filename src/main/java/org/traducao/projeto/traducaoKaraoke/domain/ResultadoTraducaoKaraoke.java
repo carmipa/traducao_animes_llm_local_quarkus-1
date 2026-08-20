@@ -25,6 +25,21 @@ public record ResultadoTraducaoKaraoke(
      * {@code nao} sem acento e ninguém tinha um número para olhar.
      */
     int acentosRepostos,
+    /**
+     * Entradas que estavam no cache do arquivo e NÃO foram usadas nesta execução — elas somem
+     * quando o cache é regravado, porque {@code salvarCache} escreve só o que foi aplicado.
+     *
+     * <h2>Por que isto precisa de número, e não pode acontecer calado</h2>
+     * A régua de evidência positiva (2026-08-19) tornou inalcançáveis as entradas que o
+     * classificador antigo criou por engano: no cache real havia <b>258 de estilo {@code Signs}</b>
+     * (cartazes de data) e <b>8 de estilo romaji</b> ({@code yasashikatta → foi bom}). Elas não
+     * são mais consultadas e serão descartadas na primeira regravação — o que é o desfecho certo.
+     *
+     * <p>Sem este contador, porém, o operador veria o cache ENCOLHER sem explicação, e cache que
+     * diminui sozinho é indistinguível de perda de dado. O número transforma limpeza silenciosa
+     * em limpeza declarada.
+     */
+    int entradasCacheDescartadas,
     List<String> avisos
 ) {
 }
