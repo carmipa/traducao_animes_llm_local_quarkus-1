@@ -6,8 +6,11 @@ import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.SinaisDeKaraoke;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -83,14 +86,18 @@ public final class PlanoDeClassificacao {
             }
         }
 
+        Set<Integer> silabas = posicoesDeSilaba(eventos);
+
         List<ClasseLinhaKaraoke> classes = new ArrayList<>(eventos.size());
-        for (EventoLegenda ev : eventos) {
+        for (int i = 0; i < eventos.size(); i++) {
+            EventoLegenda ev = eventos.get(i);
             if (!classificavel(ev)) {
                 classes.add(ClasseLinhaKaraoke.FORA_DE_MUSICA);
                 continue;
             }
             classes.add(classificador.classificar(ev.estilo(), ev.texto(),
-                new SinaisDeKaraoke(campoEfeitoDe(ev), comRomaji.contains(instanteDe(ev)))));
+                new SinaisDeKaraoke(campoEfeitoDe(ev), comRomaji.contains(instanteDe(ev)),
+                    silabas.contains(i))));
         }
         return new PlanoDeClassificacao(classes, comRomaji);
     }
@@ -122,6 +129,164 @@ public final class PlanoDeClassificacao {
 
     private static boolean classificavel(EventoLegenda ev) {
         return ev != null && ev.isDialogo() && ev.temTexto();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: acha as linhas que são PEDAÇO de uma frase que também está no
+     * arquivo — karaokê pintado sílaba a sílaba com a letra inteira desenhada por cima.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Ver {@link SinaisDeKaraoke#silabaDeFraseIrma()}: no {@code OPL2} do Unicorn as duas
+     * camadas convivem, as duas iam ao LLM, e 78 dos 131 textos distintos traduzidos eram
+     * fragmento — {@code cant} virou "Cantar.".
+     *
+     * <h2>O critério, e as DUAS armadilhas que ele já tropeçou</h2>
+     * Os pedaços irmãos, ordenados por instante, têm de CONCATENAR exatamente no texto da frase
+     * (normalizado para letra e dígito). {@code Do|you|feel|a|lone} reconstrói
+     * {@code doyoufeelalone}; {@code i|to} não reconstrói nada.
+     * <ul>
+     *   <li><b>Substring não é evidência.</b> A primeira versão só exigia que o fragmento
+     *       aparecesse na frase. Medido: trocando o texto pela letra {@code a}, 2.752 dos 2.835
+     *       continuavam cobertos — e no 86 Part 2 os 875 "cobertos" eram a letra {@code i}.</li>
+     *   <li><b>Cópia de tipografia reconstrói a si mesma.</b> A segunda versão marcou 75,6% do
+     *       Zeta, incluindo as frases inteiras de {@code Song JP}, porque a mesma linha desenhada
+     *       duas vezes "reconstruía" a frase sozinha. Por isso todo pedaço precisa ter MENOS de
+     *       duas palavras, e precisa haver pelo menos dois pedaços.</li>
+     * </ul>
+     *
+     * <p>Efeito medido com o critério final: Unicorn 2.562 de 3.280 fragmentos (78,1%), e
+     * <b>ZERO</b> no Zeta, no 86 Part 1 e no 86 Part 2 — nenhuma obra saudável é tocada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a comparação é dentro do MESMO estilo. Camadas irmãs têm estilos
+     * diferentes por definição, e cruzá-las faria a letra em inglês "reconstruir" o romaji.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo ilegível devolve tempo negativo e o evento fica
+     * de fora — o lado que NÃO veta, preservando o viés de traduzir o que não se entendeu.
+     */
+    private static Set<Integer> posicoesDeSilaba(List<EventoLegenda> eventos) {
+        Set<Integer> silabas = new HashSet<>();
+        List<Integer> candidatos = new ArrayList<>();
+        for (int i = 0; i < eventos.size(); i++) {
+            if (classificavel(eventos.get(i)) && !visivelDe(eventos.get(i)).isEmpty()) {
+                candidatos.add(i);
+            }
+        }
+        for (int idFrase : candidatos) {
+            EventoLegenda frase = eventos.get(idFrase);
+            String textoFrase = visivelDe(frase);
+            if (palavras(textoFrase) < 2) {
+                continue;
+            }
+            long iniFrase = inicioCs(frase);
+            long fimFrase = fimCs(frase);
+            if (iniFrase < 0 || fimFrase < 0) {
+                continue;
+            }
+            List<Integer> irmas = new ArrayList<>();
+            for (int idIrma : candidatos) {
+                if (idIrma == idFrase) {
+                    continue;
+                }
+                EventoLegenda ev = eventos.get(idIrma);
+                if (!Objects.equals(ev.estilo(), frase.estilo())) {
+                    continue;
+                }
+                long ini = inicioCs(ev);
+                long fim = fimCs(ev);
+                // A folga de 1s no fim não é arbitrária: no OPL2 do Unicorn os pedaços terminam
+                // 0,10s depois da frase (39.90 contra 39.80). Exigir contenção estrita reprovava
+                // 100% deles por dez centésimos.
+                if (ini < iniFrase || ini > fimFrase || fim > fimFrase + 100) {
+                    continue;
+                }
+                irmas.add(idIrma);
+            }
+            if (irmas.size() < 2) {
+                continue;
+            }
+            irmas.sort(Comparator.comparingLong((Integer id) -> inicioCs(eventos.get(id)))
+                .thenComparingLong(id -> fimCs(eventos.get(id))));
+
+            StringBuilder reconstruido = new StringBuilder();
+            Set<String> jaVistos = new HashSet<>();
+            int pedacos = 0;
+            boolean algumEhFrase = false;
+            for (int id : irmas) {
+                EventoLegenda ev = eventos.get(id);
+                String visivel = visivelDe(ev);
+                if (palavras(visivel) >= 2) {
+                    algumEhFrase = true;
+                    break;
+                }
+                String chave = inicioCs(ev) + "|" + fimCs(ev) + "|" + visivel;
+                if (!jaVistos.add(chave)) {
+                    continue; // cópia de tipografia: mesmo texto, mesmo instante
+                }
+                reconstruido.append(visivel);
+                pedacos++;
+            }
+            if (algumEhFrase || pedacos < 2) {
+                continue;
+            }
+            if (normalizar(reconstruido.toString()).equals(normalizar(textoFrase))) {
+                silabas.addAll(irmas);
+            }
+        }
+        return silabas;
+    }
+
+    private static String visivelDe(EventoLegenda ev) {
+        String texto = ev.texto();
+        if (texto == null) {
+            return "";
+        }
+        return ClassificadorLetraKaraokeService.extrairTextoVisivel(texto).trim();
+    }
+
+    private static int palavras(String texto) {
+        if (texto.isBlank()) {
+            return 0;
+        }
+        return texto.trim().split("\\s+").length;
+    }
+
+    private static String normalizar(String texto) {
+        return texto.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "");
+    }
+
+    /** {@code h:mm:ss.cc} do prefixo em centésimos; -1 quando ilegível. */
+    private static long inicioCs(EventoLegenda ev) {
+        return centesimos(campoDoPrefixo(ev, 1));
+    }
+
+    private static long fimCs(EventoLegenda ev) {
+        return centesimos(campoDoPrefixo(ev, 2));
+    }
+
+    private static String campoDoPrefixo(EventoLegenda ev, int indice) {
+        if (ev == null || ev.prefixo() == null) {
+            return null;
+        }
+        String[] campos = ev.prefixo().split(",", -1);
+        return campos.length > indice ? campos[indice].trim() : null;
+    }
+
+    private static long centesimos(String tempo) {
+        if (tempo == null || tempo.isBlank()) {
+            return -1;
+        }
+        String[] partes = tempo.split(":");
+        if (partes.length != 3) {
+            return -1;
+        }
+        try {
+            long h = Long.parseLong(partes[0].trim());
+            long m = Long.parseLong(partes[1].trim());
+            double s = Double.parseDouble(partes[2].trim().replace(',', '.'));
+            return h * 360000L + m * 6000L + Math.round(s * 100);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     /**

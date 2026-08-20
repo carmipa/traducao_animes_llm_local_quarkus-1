@@ -231,6 +231,21 @@ public class ClassificadorLetraKaraokeService {
         if (!indicaMusica) {
             return ClasseLinhaKaraoke.FORA_DE_MUSICA;
         }
+        // SÍLABA de uma frase que TAMBÉM está no arquivo. Decidido pelo plano, que enxerga o
+        // documento inteiro — uma linha sozinha não consegue responder isto.
+        //
+        // Vem ANTES do veto por tag porque é o caso que o veto por tag NÃO alcança: medido no
+        // OPL2 do Unicorn, das 3.255 linhas do estilo, ZERO têm tag de karaokê — só \pos, \fad e
+        // \blur. O veto abaixo foi calibrado num caso que tem a tag e é cego no que não tem, e o
+        // preço foram 78 dos 131 textos distintos indo ao LLM como fragmento: "cant" virou
+        // "Cantar." (é o "can't" sem apóstrofo) e "on" virou "começando".
+        //
+        // Não conflita com a lição das 17 linhas do OPL2 logo abaixo: a LETRA inteira tem duas
+        // ou mais palavras e por construção nunca é marcada como sílaba — ver
+        // PlanoDeClassificacao.posicoesDeSilaba.
+        if (externos.silabaDeFraseIrma()) {
+            return ClasseLinhaKaraoke.EFEITO_KFX;
+        }
         // Sílaba/letra de KFX (cru ou pós-template): traduzir fragmento é
         // destruição garantida — o módulo Karaokê Simples é quem lida com isso.
         //

@@ -40,9 +40,21 @@ import java.util.Locale;
  * @param campoEfeito            o 9º campo da linha {@code Dialogue:} do ASS, como veio
  * @param romajiNoMesmoInstante  existe camada {@code ORIGINAL_JAPONES} no mesmo início/fim
  */
-public record SinaisDeKaraoke(String campoEfeito, boolean romajiNoMesmoInstante) {
+public record SinaisDeKaraoke(String campoEfeito, boolean romajiNoMesmoInstante,
+                              boolean silabaDeFraseIrma) {
 
-    private static final SinaisDeKaraoke NENHUM = new SinaisDeKaraoke(null, false);
+    private static final SinaisDeKaraoke NENHUM = new SinaisDeKaraoke(null, false, false);
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: construtor de dois sinais, para quem não tem o terceiro.
+     *
+     * <p>Existe porque o pré-passe do plano decide o romaji ANTES de poder decidir a sílaba —
+     * são duas varreduras, e forçar a segunda no primeiro passe faria a regra se alimentar da
+     * própria conclusão.
+     */
+    public SinaisDeKaraoke(String campoEfeito, boolean romajiNoMesmoInstante) {
+        this(campoEfeito, romajiNoMesmoInstante, false);
+    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: o estado de quem não tem o arquivo em mãos — teste de unidade,
@@ -74,8 +86,47 @@ public record SinaisDeKaraoke(String campoEfeito, boolean romajiNoMesmoInstante)
         return x.equals("fx") || x.contains("[fx]") || x.contains("karaoke") || x.contains("template");
     }
 
-    /** Alguma das duas evidências externas afirma que esta linha é karaokê. */
+    /**
+     * PROPÓSITO DE NEGÓCIO: esta linha é um PEDAÇO de uma frase que também está no arquivo —
+     * karaokê pintado sílaba a sílaba, com a letra inteira desenhada por cima.
+     *
+     * <h2>O prejuízo que originou, medido em 2026-08-20</h2>
+     * O {@code OPL2} do Gundam Unicorn tem as duas camadas no MESMO trecho:
+     * <pre>
+     *   0:01:37.00 -&gt; 0:01:39.80   "Do you feel alone"   &lt;- a frase
+     *   0:01:37.00 -&gt; 0:01:39.90   "Do"
+     *   0:01:37.61 -&gt; 0:01:39.90   "a"
+     *   0:01:37.83 -&gt; 0:01:39.90   "lone"     ("a"+"lone" = alone: é SILÁBICO)
+     * </pre>
+     * As duas iam ao LLM. Dos 131 textos distintos traduzidos numa execução dos 22 episódios,
+     * <b>78 eram fragmento</b>: {@code you} virou "Você.", {@code cant} virou "Cantar." (é o
+     * "can't" sem apóstrofo), {@code on} virou "começando". Na tela, a frase certa com as
+     * sílabas erradas por cima.
+     *
+     * <h2>Por que o guarda que já existia não pegava</h2>
+     * {@code ClassificadorLetraKaraokeService} tem um veto para fragmento — o comentário dele
+     * cita justamente "Do", "you", "feel", "lone" — mas condicionado a haver tag de karaokê.
+     * Medido: das 3.255 linhas {@code OPL2}, <b>zero</b> têm {@code \k} em qualquer faixa de
+     * tamanho; só {@code \pos}, {@code \fad} e {@code \blur}. O guarda foi calibrado num caso
+     * que tem a tag e é cego no que não tem.
+     *
+     * <h2>Por que RECONSTRUÇÃO, e não "o texto aparece na frase"</h2>
+     * A primeira versão desta regra dizia que bastava o fragmento aparecer dentro da frase.
+     * Um cético a derrubou com uma medição simples: trocando o texto do fragmento pela letra
+     * {@code a}, 2.752 dos 2.835 continuavam "cobertos" — a condição fazia 2,9% do trabalho e o
+     * resto era sobreposição de tempo. No 86 Part 2, <b>875 de 875</b> eram a letra {@code i}
+     * ou {@code to} aparecendo em alguma frase: 100% de coincidência.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: quem decide isto é o {@link org.traducao.projeto.traducaoKaraoke
+     * .application.PlanoDeClassificacao}, que tem o arquivo inteiro. Uma linha sozinha não pode
+     * responder — e é por isso que o sinal chega por aqui em vez de nascer no classificador.
+     */
+    public boolean silabaDeFraseIrma() {
+        return silabaDeFraseIrma;
+    }
+
+    /** Alguma das evidências externas afirma que esta linha é karaokê. */
     public boolean algumaEvidencia() {
-        return efeitoDeclaraKaraoke() || romajiNoMesmoInstante;
+        return efeitoDeclaraKaraoke() || romajiNoMesmoInstante || silabaDeFraseIrma;
     }
 }
