@@ -55,6 +55,7 @@ class TraduzirKaraokeUseCaseTest {
     private TraduzirKaraokeUseCase useCase;
     private LlmPortFake llmFake;
     private MockPersistencia persistenciaMock;
+    private RegistroDaExecucao registroMock;
 
     private record ContextoTeste(String id, String nome, String prompt) implements ProvedorContexto {
         @Override public String getId() { return id; }
@@ -163,9 +164,6 @@ class TraduzirKaraokeUseCaseTest {
         useCase = new TraduzirKaraokeUseCase();
         useCase.leitor = new LeitorLegendaAss();
         useCase.escritor = new EscritorLegendaAss();
-        useCase.mascarador = new MascaradorTags();
-        useCase.validador = new ValidadorTraducaoService(LoreAtivaFake.vazia());
-        useCase.cacheService = new CacheTraducaoService(new ObjectMapper());
         useCase.llmPort = llmFake;
         useCase.gerenciadorContexto = new GerenciadorContexto(List.of(
             new ContextoTeste(CONTEXTO_08TH, "Mobile Suit Gundam: The 08th MS Team", PROMPT_08TH),
@@ -181,13 +179,30 @@ class TraduzirKaraokeUseCaseTest {
         tradutorDeLetra.telemetriaService = new MockTelemetria();
         tradutorDeLetra.logStream = new MockLogStream();
         useCase.tradutorDeLetra = tradutorDeLetra;
+        // Os colaboradores extraidos em 2026-08-19. Todos recebem os MESMOS dubles do use case —
+        // dois mundos de duble fariam o teste medir uma coisa e o codigo rodar outra.
+        registroMock = new RegistroDaExecucao();
+        registroMock.persistencia = persistenciaMock = new MockPersistencia();
+        registroMock.telemetriaService = new MockTelemetria();
+        registroMock.logStream = new MockLogStream();
+        useCase.registro = registroMock;
+
+        CacheDoArquivo cacheDoArquivo = new CacheDoArquivo();
+        cacheDoArquivo.cacheService = new CacheTraducaoService(new ObjectMapper());
+        cacheDoArquivo.logStream = new MockLogStream();
+        cacheDoArquivo.idiomaOriginal = Optional.empty();
+        cacheDoArquivo.idiomaTraduzido = Optional.empty();
+        cacheDoArquivo.diretorioCache = Optional.of(tempDir.resolve("cache").toString());
+        useCase.cacheDoArquivo = cacheDoArquivo;
+
+        // Sem corretor ortografico: o dicionario do sistema nao entra em teste de unidade, e a
+        // lista NOMINAL da fatia continua valendo — e o que MontadorEventoFinal garante.
+        useCase.montador = new MontadorEventoFinal();
+
         useCase.logStream = new MockLogStream();
         useCase.telemetriaService = new MockTelemetria();
-        persistenciaMock = new MockPersistencia();
-        useCase.persistencia = persistenciaMock;
         useCase.idiomaOriginal = Optional.empty();
         useCase.idiomaTraduzido = Optional.empty();
-        useCase.diretorioCache = Optional.of(tempDir.resolve("cache").toString());
     }
 
     @AfterEach
