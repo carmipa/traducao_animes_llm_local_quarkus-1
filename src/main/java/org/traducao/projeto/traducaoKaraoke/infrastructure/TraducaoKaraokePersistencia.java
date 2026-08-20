@@ -101,6 +101,8 @@ public class TraducaoKaraokePersistencia {
             // Telemetria PRÓPRIA da fatia: o acento é problema do karaokê e é medido aqui, não no
             // módulo comum de tradução. Sem este campo o defeito só aparece a quem abrir o .ass.
             item.put("acentosRepostos", r.acentosRepostos());
+            // Limpeza DECLARADA: cache que encolhe sem numero parece perda de dado.
+            item.put("entradasCacheDescartadas", r.entradasCacheDescartadas());
             item.put("avisos", r.avisos());
             return item;
         }).toList();

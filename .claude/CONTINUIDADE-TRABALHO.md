@@ -1,5 +1,208 @@
 # CONTINUIDADE — KRONOS
 
+# ✅ EXECUTADO (2026-08-19) — F1 a F5 do Plano Mestre do critério "isto é música?"
+
+`gradlew test --rerun-tasks` = **BUILD SUCCESSFUL** (2.015 testes na última contagem, 35 pulados).
+
+## Efeito MEDIDO no acervo, com o código consertado e o instrumento fiel à produção
+
+```
+                     ANTES        DEPOIS
+FORA_DE_MUSICA     344.174       501.204
+EFEITO_KFX         761.338     1.281.361
+ORIGINAL_JAPONES   868.288       319.426
+JA_PORTUGUES         2.637         1.141
+TRADUZIVEL_INGLES  165.827        39.132     <- -76,4%
+Char's Counterattack 107.384           84     <- o dialogo do filme saiu
+```
+
+## O que cada fase entregou
+
+- **F1** `CriterioDeMusicaCaracterizacaoTest` — congelou o defeito com linhas REAIS do acervo.
+- **F2** régua de evidência positiva em `ClassificadorLetraKaraokeService.classificar(estilo,
+  texto, SinaisDeKaraoke)`. `eEfeitoKaraoke` **saiu** da pergunta "é música" e **continua** na
+  pergunta "é sílaba ou frase". Novo record `SinaisDeKaraoke` (campo `Effect` + romaji no mesmo
+  instante). `TraduzirKaraokeUseCase` passa os sinais; o pré-passe usa SÓ o `Effect`, para a
+  regra não se alimentar da própria conclusão.
+- **F3** casos-controle, com as 3 asserções invertidas e o motivo escrito ao lado. Também
+  **fortalecida** uma asserção que passou a ser cega: `assertNotEquals(EFEITO_KFX, ...)` ficava
+  verde quando a resposta virava `FORA_DE_MUSICA`, que é igualmente errado ali.
+- **F4** evidência (e): estilo que declara PAPEL DE CAMADA (`English`/`Romaji`/`Kanji`/`Lyrics`).
+  Recupera `Hey World English` 1.150 e `RISE LIGHT RISE English` 927. **Junto** veio a guarda de
+  comando de desenho — sem ela a F4 traria de volta 10 eventos de traçado vetorial.
+- **F5** `entradasCacheDescartadas` no manifesto e no console. A limpeza do cache já era
+  automática (o ramo `TRADUZIVEL` é o único que consulta cache, e `salvarCache` regrava só o
+  aplicado); o que faltava era o NÚMERO, senão cache que encolhe parece perda de dado.
+
+## Três medições que corrigiram o próprio plano
+
+1. **A perda declarada de ~2.400 era ~272.** `NipSlip`, `Paradise`, `HestiaFamilia` e `EG` não
+   são música — são cartaz de piada, nome de lugar e traçado vetorial. Só `Hey World English`
+   era letra. Superestimei em 9×.
+2. **550.022 linhas do DanMachi mudaram de `ORIGINAL_JAPONES` para `EFEITO_KFX`** — e é
+   CORREÇÃO, não regressão: são comandos de desenho (`m 165 -450 l 416 -450`, `b` de Bézier)
+   que o código antigo contava como "romaji a preservar". O arquivo saía igual; os contadores
+   mentiam em meio milhão de linhas.
+3. **O primeiro instrumento de medição estava errado**: chamava a forma de 2 argumentos, que não
+   recebe os sinais, e portanto NÃO media o que a produção faz. Refeito em `MapaKaraoke2`.
+
+## Aberto, declarado
+
+- Abertura da Part 2 do 86: letra a letra, sem camada de frase, bilíngue na mesma janela.
+- Quebra do use case em classes menores (`classificar` ainda roda 2× por evento, linhas 388/404).
+- Efeito do acento nunca conferido em `.ass` (verde em teste, sem execução).
+- Nenhuma execução real de karaokê foi feita depois do conserto — o efeito acima é do
+  classificador, não do arquivo final.
+
+---
+
+# ▶▶ PLANO MESTRE (2026-08-19) — o registro de como se chegou aqui
+
+AUTORIZADO por Paulo. Escopo FECHADO. Ordem combinada: **conserto primeiro, quebra em classes
+menores depois.**
+
+## Problema, medido sobre o acervo inteiro (726 `.ass`, 0 erro de leitura)
+
+O classificador de produção, rodado sobre todo o acervo, devolve **165.827 TRADUZIVEL_INGLES**.
+Destes, **133.951 (80,8%) entram SÓ pela assinatura de efeito** — nem o estilo diz música, nem
+existe tag `\k`. A causa é `DetectorEfeitoKaraokeService.eSaidaDeTemplateKaraoke`, que trata
+"posicionamento complexo + alta densidade de tags" como prova de karaokê. Isso é assinatura de
+TIPOGRAFIA, não de música.
+
+O que entra por engano, por estilo:
+`Char's Counterattack` 106.692 (estilo de DIÁLOGO do filme) · `Signs` 9.213 ·
+`Zeta Episode Title` 6.923 · `Main Title` 4.129 · `Logo` 1.961 · `Mobile Suit Gundam` 644.
+
+## INVARIANTE (regra 16)
+
+```
+ID:      INV-KARAOKE-001
+Nome:    so vai ao LLM de karaoke o que tem evidencia POSITIVA de musica
+Dano:    dialogo traduzido com prompt de karaoke e empilhado ingles\Nportugues na tela
+         Medido: 106.692 eventos so no Char's Counterattack
+Camadas: classificador (decisao) · caso-controle (guarda) · manifesto (telemetria)
+Testes:  CASO DOENTE = CCA com clip retangular · CASO SAO = 86 Opening
+```
+
+## A RÉGUA — QUATRO evidências (a quarta é contribuição de Paulo, 19/08)
+
+É karaokê se — e só se — **(a)** tem tag `\k`, **(b)** o estilo declara música,
+**(c)** o campo **`Effect` do ASS** marca karaokê (`fx`, `Effector [fx]`, `karaoke`, `template`),
+**ou (d)** existe camada `ORIGINAL_JAPONES` no MESMO instante do arquivo.
+
+E só DEPOIS vem a segunda pergunta, que o classificador já responde razoavelmente:
+**sendo karaokê, é japonês/romaji (preserva) ou inglês (traduz)?** Separar as duas perguntas é
+o que estava faltando — hoje elas estão fundidas num único `indicaMusica`.
+
+### A pista de Paulo, medida
+
+O campo `Effect` é o 9º da linha `Dialogue:` e o Kara Templater do Aegisub o preenche nas linhas
+que gera. **O classificador nunca olhou esse campo.** Cruzamento no acervo:
+
+```
+EFFECT            traduzivel    romaji/JP         KFX
+fx                     1.344      838.021      566.479
+(vazio)              164.065       30.237      148.432
+karaoke                  378            0            0
+
+Os 133.951 FALSOS POSITIVOS, por campo Effect:
+   133.691  (vazio)   <- 99,8%
+       258  fx        <- OPL2, musica de verdade
+```
+
+### As duas réguas comparadas — e por que ficam as DUAS
+
+```
+REGUA POR EFFECT (Paulo):   fica 32.134  |  sai 133.693
+REGUA POR INSTANTE (minha): fica 32.159  |  sai 133.668
+so a de Paulo salva: 258 (OPL2)   |   so a minha salva: 283
+```
+
+Removem o mesmo lixo e **salvam conjuntos diferentes**. Juntas salvam 541 linhas que qualquer
+uma sozinha perderia. Por isso a régua final tem quatro evidências, não três.
+
+**PERDA RESIDUAL DECLARADA ~2.400**, em estilos que são NOME DE MÚSICA com `Effect` vazio e sem
+camada romaji: `NipSlip` 762, `Paradise` 648 (outras 864 ficam), `HestiaFamilia` 408, `EG` 348,
+`Hey World English` 272. É o gap já registrado ("estilo de karaokê com nome da música é
+invisível") e é o alvo da F4.
+
+## Duas hipóteses MINHAS que a medição DERRUBOU — não reabrir
+
+1. **"O CCA é comando de desenho vetorial."** FALSO: 0% de `\p1..9`, 0% sem letra. São falas
+   reais, 1.786 textos distintos repetidos 31× em camadas.
+2. **"Clip vetorial separa tipografia de karaokê."** FALSO: só 5,6% dos falsos positivos têm
+   clip vetorial; **82,7% usam clip RETANGULAR — a mesma forma do karaokê do 86.**
+
+## Refino importante do desenho
+
+A régua precisa de contexto de ARQUIVO (o conjunto de instantes com romaji), e o use case **já
+calcula esse conjunto** — `instantesComOriginalPreservada`, linha 388. Ele só o usa para
+empilhar, não para decidir. O conserto reaproveita o pré-passe existente e **não depende** da
+quebra em classes.
+
+### Por que as QUATRO evidências, e não a melhor delas (medido em 19/08)
+
+O campo `Effect` **não existe em toda obra**: no 86 ele está vazio nas 159.398 linhas, e no
+Guilty Crown também. O `fx` vem de DanMachi, Zeta e ZZ. Ou seja: a evidência de Paulo cobre
+umas obras, a de instante cobre outras. **Elas se cobrem em obras diferentes, não só em linhas
+diferentes** — é isso que torna as quatro necessárias, e não redundantes.
+
+Contexto do achatador (Paulo, 19/08): ele nasceu por causa das animações, com casos em que os
+vetores fizeram uma tradução durar **9 horas**. O achatamento normaliza estilo e fonte — e o
+efeito colateral é apagar a distinção `OP - Romaji` × `OP - English`, que no 86 vira `Opening`
+para as duas camadas. É por isso que ali a decisão romaji×inglês cai na heurística de texto.
+
+### CUSTO — e a honestidade sobre ele
+
+```
+HOJE   165.827 eventos -> 1.267 chamadas ao LLM  (repeticao 130,9x)
+REGUA   32.417 eventos ->   721 chamadas         (repeticao  45,0x)
+```
+
+As 9 horas já foram resolvidas pelo **dedup por texto visível**, que absorve 130× de repetição.
+A régua corta mais 43,1% das chamadas — bom, mas **o ganho dela é CORREÇÃO, não tempo**:
+133.410 eventos que deixam de ser corrompidos. Não vender velocidade como motivo.
+
+## FASES
+
+```
+F1  congelar o comportamento de HOJE num teste de caracterizacao (baseline)
+F2  a regua no classificador, alimentada pelo pre-passe que ja existe
+F3  casos-controle: CCA reprova · 86 Opening passa · adulteracao nega
+F4  recuperar as perdas: nome de musica no estilo (gap ja registrado)
+F5  cache: marcar como suspeito o decidido pelo classificador velho
+```
+
+## FORA DE ESCOPO (declarado, não esquecido)
+
+- Quebra do use case em classes menores — **próxima frente, já combinada com Paulo**. O
+  argumento do JIT foi MEDIDO e **não se sustenta**: todo método do caminho quente já está
+  abaixo de 325 bytecodes (`classificar` 219, `classificarPorEvidenciaDeTexto` 207,
+  `extrairTextoVisivel` 43). O 1064 que eu tinha visto era o `static {};`, que roda uma vez.
+  O motivo que sustenta a quebra é testabilidade — e o desperdício real medido:
+  **`classificar` é chamado DUAS vezes por evento** (linhas 388 e 395).
+- Abertura da Part 2 do 86 (letra a letra, sem camada de frase, bilíngue na mesma janela).
+- Ligar `protecao-romaji-pareamento` (`application.yml:163` = `false`), que pertence a `traducao`.
+
+## RISCOS PELAS TRÊS LENTES
+
+- **Boa-fé:** rodar karaokê sobre pasta de SAÍDA faz o pré-passe ver romaji já empilhado, e a
+  régua passaria a proteger o que não deve. Vira caso-controle na F3.
+- **Falha operacional:** arquivo sem nenhuma camada romaji (Part 2 do 86) perde a evidência (c);
+  sobra (a) e (b). É o caso já aberto — lacuna conhecida, não silenciosa.
+- **Adversarial:** estilo renomeado contendo "op"/"ed" vira música. Já é verdade hoje; a régua
+  não piora.
+
+## ESTADO DA FATIA HOJE (medido em 19/08)
+
+1.976 linhas de produção em 13 classes · 1.253 de teste · **104 testes de karaokê, 0 falhas**,
+4 pulados. Manifesto grava 27 campos (`statusFinal`, `estadoDicionario` de 3 estados,
+`arquivosComFalha[]`, `acentosRepostos`). Cobertura real: **2 obras de 21** (86 e 08th MS Team).
+Cache: 8.817 entradas, e **184 dos 230 arquivos são anteriores ao último conserto do
+classificador (13/08)** — carregam decisões do classificador velho e voltam na reexecução.
+
+---
+
 ## ▶ PRÓXIMA AÇÃO EXECUTÁVEL EXATA (2026-08-19, noite — documentação)
 
 **Nenhuma pendente na documentação.** A tarefa de 19/08 à noite ("atualize totalmente a

@@ -3,6 +3,7 @@ package org.traducao.projeto.traducaoKaraoke.application;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.SinaisDeKaraoke;
 
 import java.util.Locale;
 import java.util.Set;
@@ -38,6 +39,17 @@ public class ClassificadorLetraKaraokeService {
     private static final Pattern PALAVRA_ROMAJI_PATTERN = Pattern.compile(
         "^(?:n|(?:([kgsztdnhbpmyrwfjv])\\1?|sh|ch|ts|ky|gy|ny|hy|my|ry|by|py)?[aeiou])+$");
     private static final Pattern ACENTO_PORTUGUES_PATTERN = Pattern.compile("[ãõçáéíóúâêôà]");
+    /**
+     * O nome do estilo declara PAPEL DE CAMADA de karaokê, e não o nome de uma música. Fronteira
+     * por LETRA (e não {@code \b}) pelo mesmo motivo já registrado no peer {@code legenda}:
+     * sublinhado e dígito são caractere de palavra, e {@code ED_S2_roma} não casaria.
+     *
+     * <p>Medido no acervo em 2026-08-19: casa 4 estilos e 2.179 eventos — {@code Hey World
+     * English}, {@code RISE LIGHT RISE English}, {@code Eng}, {@code English}. <b>Zero estilo de
+     * diálogo</b>.
+     */
+    private static final Pattern ESTILO_PAPEL_DE_CAMADA_PATTERN = Pattern.compile(
+        "(?i)(?<!\\p{L})(english|eng|romaji|roma|rom|kanji|lyrics?)(?!\\p{L})");
 
     /**
      * Palavras gramaticais de inglês que não colidem com romaji nem com PT-BR.
@@ -99,6 +111,62 @@ public class ClassificadorLetraKaraokeService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem palavra visível devolve {@code false}
      * — na dúvida, fragmento, que é o lado seguro (preserva).
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: o NOME do estilo declara PAPEL DE CAMADA de karaokê — {@code English},
+     * {@code Romaji}, {@code Kanji}, {@code Lyrics}. Ninguém batiza uma faixa de diálogo assim;
+     * quem batiza é o fansub, para separar as camadas simultâneas da mesma música.
+     *
+     * <h2>O prejuízo que originou, e o tamanho dele</h2>
+     * A régua de evidência positiva (2026-08-19) removeu 133.410 falsos positivos, mas levava
+     * junto a letra de obras cujo estilo é o NOME DA MÚSICA, sem nenhuma palavra musical:
+     * {@code Hey World English} 1.150 e {@code RISE LIGHT RISE English} 927 — as duas são letra
+     * de verdade ("My body's totally exhausted, and yet"). São <b>2.179 eventos</b> no acervo,
+     * em quatro estilos, e <b>nenhum estilo de diálogo casa este padrão</b> — medido.
+     *
+     * <p>Note o que este método NÃO faz: ele decide se a linha é KARAOKÊ, não qual idioma ela é.
+     * A escolha entre preservar e traduzir continua sendo da segunda pergunta, mais abaixo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo nulo devolve {@code false}; nunca lança.
+     */
+    private boolean declaraPapelDeCamada(String estilo) {
+        return estilo != null && ESTILO_PAPEL_DE_CAMADA_PATTERN.matcher(estilo).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recusa como letra o que é COMANDO DE DESENHO vetorial do ASS —
+     * {@code m 0 476 l 2000 476 2000 576 0 576}. É coordenada, não frase, e mandá-la ao LLM
+     * produz alucinação garantida.
+     *
+     * <h2>Por que entra JUNTO com o papel de camada, e não depois</h2>
+     * Sem ele, a evidência de papel de camada acima traria de volta os 10 eventos do estilo
+     * {@code English} cujo "texto" é exatamente um traçado vetorial. Ou seja: seria eu criando o
+     * problema no mesmo commit em que conserto outro. É a mesma classe do prejuízo já registrado
+     * no projeto — 2.062 "cartazes" que eram comandos de desenho.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige dígito E que toda letra do texto visível seja uma das
+     * letras de comando do ASS ({@code m n l b s p c}). "Take off my dress" tem letras fora
+     * desse conjunto e passa intacta; {@code m 0 476 l 2000} não tem nenhuma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem dígito devolve {@code false} — na dúvida,
+     * trata como letra, que é o lado que preserva a tradução.
+     */
+    private static boolean ehComandoDeDesenho(String visivel) {
+        boolean temDigito = false;
+        boolean temLetra = false;
+        for (int i = 0; i < visivel.length(); i++) {
+            char c = visivel.charAt(i);
+            if (Character.isDigit(c)) {
+                temDigito = true;
+            } else if (Character.isLetter(c)) {
+                temLetra = true;
+                if ("mnlbspc".indexOf(Character.toLowerCase(c)) < 0) {
+                    return false;
+                }
+            }
+        }
+        return temDigito && temLetra;
+    }
+
     private boolean ehFraseCompleta(String texto) {
         String visivel = extrairTextoVisivel(texto);
         if (visivel == null || visivel.isBlank()) {
@@ -107,13 +175,59 @@ public class ClassificadorLetraKaraokeService {
         return visivel.trim().split("\\s+").length >= 2;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: forma sem contexto de arquivo — consulta avulsa e teste de unidade.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem os sinais externos a decisão fica só com o estilo e a tag
+     * {@code \k}, que é o lado RESTRITIVO. "Não perguntei" nunca vira "é música".
+     */
     public ClasseLinhaKaraoke classificar(String estilo, String texto) {
+        return classificar(estilo, texto, SinaisDeKaraoke.nenhum());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide o destino da linha em DUAS perguntas, nesta ordem — primeiro
+     * "isto é karaokê?", depois "sendo karaokê, é japonês/romaji (preserva) ou inglês (traduz)?".
+     * Até 2026-08-19 as duas estavam fundidas, e a primeira aceitava densidade de tag como prova.
+     *
+     * <h2>A régua da primeira pergunta: EVIDÊNCIA POSITIVA, quatro fontes</h2>
+     * <ol>
+     *   <li>tag de timing {@code \k} no texto;</li>
+     *   <li>o NOME do estilo declara música;</li>
+     *   <li>o campo {@code Effect} do ASS declara karaokê (contribuição de Paulo, 19/08);</li>
+     *   <li>existe camada romaji no MESMO instante do arquivo.</li>
+     * </ol>
+     *
+     * <h2>O que SAIU da régua, e por quê</h2>
+     * {@code detector.eEfeitoKaraoke(texto)} — "posicionamento complexo + alta densidade de
+     * tags" — <b>deixa de ser prova de que a linha é música</b>. Aquilo é assinatura de
+     * TIPOGRAFIA, e o fansub usa as mesmas tags para mascarar diálogo. Medido no acervo inteiro:
+     * das 165.827 linhas que iriam ao LLM, <b>133.951 (80,8%) entravam só por ali</b> —
+     * {@code Char's Counterattack} 106.692 (o estilo de DIÁLOGO do filme, com
+     * {@code \clip(601,835,1685,924)}), {@code Signs} 9.213, {@code Zeta Episode Title} 6.923.
+     *
+     * <p><b>Ele continua sendo usado logo abaixo</b>, e ali com razão: depois de já se saber que
+     * a linha é música, a assinatura de efeito distingue SÍLABA de FRASE. Sair da primeira
+     * pergunta não é sair da classe.
+     *
+     * <h2>Custo declarado</h2>
+     * A régua remove 133.410 eventos e mantém 32.417. A perda residual é ~2.400, em estilos que
+     * são NOME DE MÚSICA com {@code Effect} vazio e sem camada romaji ({@code NipSlip},
+     * {@code Paradise}, {@code HestiaFamilia}, {@code EG}, {@code Hey World English}) — lacuna
+     * conhecida, declarada, e alvo da fase seguinte.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo/vazio devolve {@code FORA_DE_MUSICA}; sinais
+     * nulos são tratados como {@link SinaisDeKaraoke#nenhum()}. Nunca lança.
+     */
+    public ClasseLinhaKaraoke classificar(String estilo, String texto, SinaisDeKaraoke sinais) {
         if (texto == null || texto.isBlank()) {
             return ClasseLinhaKaraoke.FORA_DE_MUSICA;
         }
+        SinaisDeKaraoke externos = sinais == null ? SinaisDeKaraoke.nenhum() : sinais;
         boolean indicaMusica = detector.eEstiloDeMusica(estilo)
             || detector.temTagKaraoke(texto)
-            || detector.eEfeitoKaraoke(texto);
+            || declaraPapelDeCamada(estilo)
+            || externos.algumaEvidencia();
         if (!indicaMusica) {
             return ClasseLinhaKaraoke.FORA_DE_MUSICA;
         }
@@ -138,6 +252,9 @@ public class ClassificadorLetraKaraokeService {
 
         String visivel = extrairTextoVisivel(texto);
         if (visivel.isBlank()) {
+            return ClasseLinhaKaraoke.EFEITO_KFX;
+        }
+        if (ehComandoDeDesenho(visivel)) {
             return ClasseLinhaKaraoke.EFEITO_KFX;
         }
         if (ESCRITA_JAPONESA_PATTERN.matcher(visivel).find()) {

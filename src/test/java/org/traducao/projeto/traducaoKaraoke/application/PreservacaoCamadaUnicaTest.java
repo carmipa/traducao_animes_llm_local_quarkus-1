@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.SinaisDeKaraoke;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -39,19 +40,35 @@ class PreservacaoCamadaUnicaTest {
     private static final String EFEITO = "{\\t(0,300,\\fscx110)\\move(100,200,300,400)}";
 
     /**
+     * Os sinais que a linha REAL do OPL2 traz no arquivo do Unicorn: campo {@code Effect=fx},
+     * o carimbo do Kara Templater. Sem ele o estilo {@code OPL2} nao e reconhecido como
+     * musica por nome nenhum, e a regua de evidencia positiva (2026-08-19) o descartaria.
+     */
+    private static final SinaisDeKaraoke SINAIS_DO_ARQUIVO_REAL = new SinaisDeKaraoke("fx", false);
+
+    /**
      * O defeito de maior alcance: 0 de 69 linhas traduzidas em TODOS os 22 episódios. A abertura
      * ficava em inglês na tela, empilhada com os próprios fragmentos.
      */
     @Test
     @DisplayName("E01/OPL2: FRASE com tag de efeito é letra e vai ao LLM")
     void fraseComEfeitoNaoEhFragmento() {
-        assertNotEquals(ClasseLinhaKaraoke.EFEITO_KFX,
-            classificador.classificar("OPL2", EFEITO + "And Im calling calling out your name again"),
+        // ASSERÇÃO FORTALECIDA em 2026-08-19, e o motivo é uma cegueira que quase passou: com
+        // `assertNotEquals(EFEITO_KFX, ...)` este teste continuava VERDE quando a resposta virou
+        // FORA_DE_MUSICA — que também é diferente de EFEITO_KFX e é igualmente errado aqui.
+        // Guarda que aceita duas respostas opostas não guarda nada. Agora exige a resposta certa.
+        //
+        // E os SINAIS vêm do arquivo real: a linha do OPL2 no Unicorn traz `Effect=fx`. Sem esse
+        // campo o estilo "OPL2" não é reconhecido como música por nome nenhum — a fronteira de
+        // letra do padrão musical não alcança o "L2" colado.
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES,
+            classificador.classificar("OPL2", EFEITO + "And Im calling calling out your name again",
+                SINAIS_DO_ARQUIVO_REAL),
             "A ABERTURA VOLTOU A FICAR EM INGLES. No Unicorn TODAS as 155 linhas do OPL2 tem tag "
                 + "de efeito, inclusive as 17 que sao a letra — decidir so pela tag zerou a "
                 + "traducao do estilo nos 22 episodios.");
-        assertNotEquals(ClasseLinhaKaraoke.EFEITO_KFX,
-            classificador.classificar("OPL2", EFEITO + "Do you feel alone"),
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES,
+            classificador.classificar("OPL2", EFEITO + "Do you feel alone", SINAIS_DO_ARQUIVO_REAL),
             "quatro palavras é frase, não sílaba");
     }
 
@@ -64,7 +81,7 @@ class PreservacaoCamadaUnicaTest {
     void palavraUnicaComEfeitoContinuaKfx() {
         for (String silaba : new String[] {"Do", "you", "feel", "lone", "hear"}) {
             assertEquals(ClasseLinhaKaraoke.EFEITO_KFX,
-                classificador.classificar("OPL2", EFEITO + silaba),
+                classificador.classificar("OPL2", EFEITO + silaba, SINAIS_DO_ARQUIVO_REAL),
                 "sílaba '" + silaba + "' virou traduzível — são 138 linhas assim só no E01, e "
                     + "traduzir fragmento destrói o karaokê");
         }
