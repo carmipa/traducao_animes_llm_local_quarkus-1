@@ -1,3 +1,66 @@
+# CONCLUIDO (2026-08-20, noite) — a "zona" da linha traduzida: A e D fechados com prova
+
+Paulo mandou zerar o cache e refazer tudo. Cache zerado (499 arquivos, 86 MB, backup verificado),
+duas correcoes implementadas e as quatro obras retraduzidas do zero.
+
+## Efeito medido, nas quatro obras
+
+```
+DEFEITO A — divergencia entre episodios (mesma frase, traducao diferente por episodio)
+              antes        agora
+86 Part 1   16 (52%)    ->   1     (e o empilhamento, mesmo texto PT — defeito B)
+86 Part 2    5 (45%)    ->   0
+Zeta        19 (58%)    ->   0
+Unicorn     73 (56%)    ->   0     (o fragmento 'dnt' tinha 10 traducoes)
+
+DEFEITO D — silaba indo ao LLM (so o Unicorn)
+textos distintos traduzidos   131  ->  65
+FRAGMENTOS                     78  ->  12
+frases (a letra de verdade)    53  ->  53   intactas
+traduziveis por execucao    3.042  -> 1.005
+```
+
+## As duas correcoes
+
+**A**: `TEMPERATURA_DETERMINISTICA` (0.0) nos tres pontos de envio de `TradutorDeLetraKaraoke`.
+NAO em `application.yml`: a propriedade e compartilhada com o dialogo, onde a variacao e
+deliberada na retentativa, e `LlmProperties` COAGE `<= 0` de volta a 0.3. Commit `5f0747cf`.
+
+**D**: sinal `silabaDeFraseIrma` em `SinaisDeKaraoke`, calculado por `PlanoDeClassificacao` por
+RECONSTRUCAO — os pedacos irmaos do mesmo estilo, na janela da frase, ordenados por instante,
+tem de CONCATENAR exatamente no texto dela. Commit `3957f9e1`.
+
+## Residuo DECLARADO do D: 12 fragmentos
+
+`If|you are|hol|ding|hol|ding|on|fear` nao reconstroi `If you are holding holding onto fear` —
+falta o "to" do "onto". A regra e exata de proposito: quando as silabas nao somam a frase, ela
+NAO veta e a linha segue traduzivel. Erra para o lado de traduzir.
+
+## Continuam ABERTOS
+
+**B** — 264 das 499 quebras `\N` que o karaoke cria no 86 caem em linha com `\clip`, que fatia
+em bandas de ~16px e foi calculado para UMA linha. Passo a passo derrubado pelos ceticos.
+
+**C** — erro de lingua ("Aos sombras paradas", "Ignorancia deliberada, revoltante, indiferenca").
+O corretor repoe ACENTO, nao concordancia. Passo a passo derrubado pelos ceticos.
+
+## PROXIMA ACAO EXECUTAVEL EXATA
+
+Escolher entre B e C e refazer o passo a passo com as correcoes dos ceticos dobradas. O de
+maior valor visivel e o B (o 86 e obra favorita do Paulo e o defeito e geometrico, aparece na
+tela). O C depende de decidir se o caminho e prompt, validacao nova ou modelo.
+
+## AMBIENTE
+
+KRONOS de jar em 8099 (PID 27832, `Stop-Process -Id 27832`). LM Studio na 1234 com
+`aya-expanse-8b` (`lms server stop`). Redis nos conteineres.
+
+BACKUPS que ainda valem: `D:\PROJETOS-OPEN\_backup-cache-karaoke-20260820\` tem
+`cache-COMPLETO-antes-de-zerar.tar.gz` (10,5 MB, 534 entradas) e o so-karaoke. E
+`_backup-dataset-20260820\dataset-antes-da-reescrita.bundle` do repo publico.
+
+---
+
 # EM ANDAMENTO (2026-08-20, tarde) — a "zona" da linha traduzida: 4 defeitos, 0 correcoes aprovadas
 
 Paulo: *"86 tem musicas que misturam ingles e japones romanji e karaokes totalmente em ingles e
