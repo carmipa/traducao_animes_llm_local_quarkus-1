@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -382,28 +381,17 @@ public class TraduzirKaraokeUseCase {
         // havia duas camadas (ED romaji + ED - EN inglês) e sobrava a outra por acaso, o que
         // mascarou o defeito: parecia preservação, era substituição com sorte.
         //
-        // ORDEM IMPORTA, e ela não é arbitrária: o pré-passe descobre o romaji usando SÓ o campo
-        // Effect do ASS, nunca a evidência de "romaji no mesmo instante" — senão a regra se
-        // alimentaria da própria conclusão e qualquer linha puxaria a vizinha para dentro da
-        // música. O laço principal, abaixo, é que recebe as duas evidências.
-        Set<String> instantesComOriginalPreservada = new java.util.HashSet<>();
-        for (EventoLegenda ev : documento.eventos()) {
-            if (!ev.isDialogo() || !ev.temTexto()) {
-                continue;
-            }
-            SinaisDeKaraoke semPareamento = new SinaisDeKaraoke(campoEfeitoDe(ev), false);
-            if (classificador.classificar(ev.estilo(), ev.texto(), semPareamento)
-                == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
-                instantesComOriginalPreservada.add(instanteDe(ev));
-            }
-        }
+        // A DECISÃO inteira do arquivo é tomada de uma vez, e por outro objeto. Antes, este
+        // método percorria o documento DUAS vezes chamando o classificador nas duas — no acervo,
+        // 3,95 milhões de classificações onde 1,98 milhão basta. E o ganho maior nem é esse:
+        // mexer no critério de música deixou de exigir tocar num método que também grava cache e
+        // escreve arquivo. Ver PlanoDeClassificacao, inclusive quanto à ORDEM dos dois passes.
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(documento, classificador);
 
-        for (EventoLegenda evento : documento.eventos()) {
-            ClasseLinhaKaraoke classe = evento.isDialogo() && evento.temTexto()
-                ? classificador.classificar(evento.estilo(), evento.texto(),
-                    new SinaisDeKaraoke(campoEfeitoDe(evento),
-                        instantesComOriginalPreservada.contains(instanteDe(evento))))
-                : ClasseLinhaKaraoke.FORA_DE_MUSICA;
+        List<EventoLegenda> eventos = documento.eventos();
+        for (int posicao = 0; posicao < eventos.size(); posicao++) {
+            EventoLegenda evento = eventos.get(posicao);
+            ClasseLinhaKaraoke classe = plano.classeNaPosicao(posicao);
 
             switch (classe) {
                 case FORA_DE_MUSICA -> eventosFinais.add(evento);
@@ -490,7 +478,7 @@ public class TraduzirKaraokeUseCase {
                         acentosRepostos++;
                     }
                     eventosFinais.add(evento.comTexto(
-                        comOriginalPreservada(evento, comAcento, instantesComOriginalPreservada)));
+                        comOriginalPreservada(evento, comAcento, plano)));
                     if (veioDoCache) {
                         doCache++;
                         logStream.publicarLog(CANAL_LOG, "   [CACHE] reaproveitada: " + visivelResumido(traduzido));
@@ -765,59 +753,14 @@ public class TraduzirKaraokeUseCase {
      * <h2>Comportamento em caso de falha</h2>
      * Qualquer entrada nula devolve o traduzido sozinho — o comportamento anterior.
      */
-    /**
-     * PROPÓSITO DE NEGÓCIO: extrai {@code inicio,fim} do prefixo — a chave que identifica DUAS
-     * camadas simultâneas como sendo do mesmo momento da música.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: NÃO usar o prefixo inteiro. Ele carrega o ESTILO, e camadas
-     * irmãs têm estilos diferentes por definição ({@code OP - Romaji} e {@code OP - English}) —
-     * comparar o prefixo faria toda camada parecer solitária. Um teste existente pegou
-     * exatamente isso.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou curto devolve string vazia, e o evento
-     * é tratado como sem irmã — o lado que PRESERVA a original.
-     */
-    private static String instanteDe(EventoLegenda evento) {
-        if (evento == null || evento.prefixo() == null) {
-            return "";
-        }
-        String[] campos = evento.prefixo().split(",");
-        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
-    }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: extrai o campo {@code Effect} da linha {@code Dialogue:} — o carimbo
-     * que o Kara Templater do Aegisub deixa nas linhas que ELE gera, e a evidência mais barata de
-     * que a linha é karaokê de verdade.
-     *
-     * <h2>INVARIANTES DO DOMÍNIO</h2>
-     * O formato é fixo:
-     * {@code Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect}. O campo é o NONO, e o
-     * {@code split} usa limite negativo porque campo vazio no meio é o caso NORMAL — sem ele o
-     * Java descarta os vazios do fim e o índice escorrega.
-     *
-     * <p>Medido no acervo em 2026-08-19: {@code fx} em 1.412.289 linhas, {@code Effector [fx]} em
-     * 45.834, {@code karaoke} em 378. E o campo está <b>vazio nas 159.398 linhas do 86</b> — por
-     * isso ele é UMA das quatro evidências, nunca a única.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: evento nulo, prefixo nulo ou prefixo com menos de nove
-     * campos devolvem {@code null} — que {@link SinaisDeKaraoke} lê como "sem evidência", o lado
-     * restritivo. Nunca lança.
-     */
-    private static String campoEfeitoDe(EventoLegenda evento) {
-        if (evento == null || evento.prefixo() == null) {
-            return null;
-        }
-        String[] campos = evento.prefixo().split(",", -1);
-        return campos.length >= 9 ? campos[8].trim() : null;
-    }
 
     private String comOriginalPreservada(EventoLegenda evento, String traduzido,
-            Set<String> instantesComOriginalPreservada) {
+            PlanoDeClassificacao plano) {
         if (evento == null || traduzido == null || traduzido.isBlank()) {
             return traduzido;
         }
-        if (instantesComOriginalPreservada.contains(instanteDe(evento))) {
+        if (plano.temOriginalPreservadaNoInstante(evento)) {
             return traduzido;
         }
         String original = evento.texto();
