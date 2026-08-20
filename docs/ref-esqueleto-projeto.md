@@ -26,7 +26,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **474** |
+| classes em `src/main` | **477** |
 | classes em `src/test` | **370** |
 
 ---
@@ -38,7 +38,7 @@ graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (4)"]:::fatia
-    G3["<b>Karaokê</b><br/>traducaoKaraoke (16)<br/>novoKaraoke (11)"]:::fatia
+    G3["<b>Karaokê</b><br/>traducaoKaraoke (19)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (14)"]:::peer
@@ -515,13 +515,16 @@ revisaoConcordancia/
 
 ### Karaokê
 
-#### `traducaoKaraoke` — 16 classes
+#### `traducaoKaraoke` — 19 classes
 
 ```text
 traducaoKaraoke/
 ├── application/
+│   ├── CacheDoArquivo.java
 │   ├── ClassificadorLetraKaraokeService.java
+│   ├── MontadorEventoFinal.java
 │   ├── PlanoDeClassificacao.java
+│   ├── RegistroDaExecucao.java
 │   ├── TradutorDeLetraKaraoke.java
 │   └── TraduzirKaraokeUseCase.java
 ├── domain/

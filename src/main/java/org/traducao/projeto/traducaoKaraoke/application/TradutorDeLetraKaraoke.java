@@ -152,7 +152,7 @@ public class TradutorDeLetraKaraoke {
             telemetriaService.registrarAlucinacaoPrevenida();
             avisos.add("Alucinação detectada (" + e.getMessage() + "); linha mantida: " + original);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] Alucinação interceptada — linha mantida sem tradução: "
-                + TraduzirKaraokeUseCase.visivelResumido(original));
+                + RegistroDaExecucao.visivelResumido(original));
             return null;
         }
     }
