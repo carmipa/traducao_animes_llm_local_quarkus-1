@@ -54,6 +54,15 @@ public class TelemetriaDatasetService {
     static final String NOME_ARQUIVO_EXECUCOES = "kronos-telemetria-execucoes.jsonl";
     /** Histórico local que alimenta o acervo (limitado por teto na máquina do operador). */
     private static final String NOME_ARQUIVO_HISTORICO_LOCAL = "telemetria_execucoes.jsonl";
+    /** Acervo do KARAOKÊ: append-only, uma linha por ARQUIVO de legenda processado. */
+    static final String NOME_ARQUIVO_KARAOKE = "kronos-karaoke-execucoes.jsonl";
+    /**
+     * O acervo local que a fatia de karaokê escreve. O nome é o mesmo declarado em
+     * {@code TelemetriaKaraokeDataset.NOME_ARQUIVO}; ele NÃO é importado de lá porque o módulo
+     * de telemetria não depende de fatia — ele lê {@code logs/}, como já faz com o diálogo.
+     * {@code CatracaTelemetriaKaraokeCompletaTest} congela a igualdade dos dois nomes.
+     */
+    static final String NOME_ARQUIVO_KARAOKE_LOCAL = "telemetria_karaoke_execucoes.jsonl";
     private static final Duration TIMEOUT_GIT = Duration.ofSeconds(30);
     private static final Duration TIMEOUT_REDE = Duration.ofMinutes(2);
 
@@ -158,6 +167,26 @@ public class TelemetriaDatasetService {
         "registradoEm", "nomeEpisodio", "animeNome", "ordem", "aviso");
 
     /**
+     * Uma linha por ARQUIVO de legenda de karaokê — a unidade desta fatia.
+     *
+     * <p>Carrega o que nenhuma outra tabela do dataset tem: {@code desfechoArquivo} com as três
+     * saídas, o estado do dicionário de acentuação, o cache descartado por proveniência
+     * divergente e as duas contagens da camada japonesa. Sem ela, a única pergunta que a base
+     * respondia sobre karaokê era "quantas execuções houve".
+     */
+    static final List<String> COLUNAS_KARAOKE = List.of(
+        "registradoEm", "arquivo", "desfechoArquivo", "motivoFalha", "statusExecucao",
+        "motivoExecucao", "contextoNome", "contextoId", "contextoHash", "modeloLlm",
+        "cacheIgnorado", "estadoDicionario", "duracaoExecucaoMs", "arquivosNaExecucao",
+        "eventosTotais", "efeitosKfxPreservados", "preservadasOriginalJapones", "jaEmPortugues",
+        "paraTraduzir", "reaproveitadasCache", "traduzidas", "mantidasSemTraducao",
+        "acentosRepostos", "entradasCacheDescartadas", "quantidadeAvisos");
+
+    /** Tidy data do karaokê: uma linha por aviso, ligada de volta por {@code registradoEm + arquivo}. */
+    static final List<String> COLUNAS_KARAOKE_AVISOS = List.of(
+        "registradoEm", "arquivo", "contextoNome", "ordem", "aviso");
+
+    /**
      * PROPÓSITO DE NEGÓCIO: publica as mesmas métricas em CSV ao lado do JSON, para quem for
      * analisar o dataset abrir em pandas/R/planilha sem escrever parser de JSON aninhado.
      *
@@ -181,7 +210,9 @@ public class TelemetriaDatasetService {
      * publicação inteira. Linha ilegível do acervo é pulada. Devolve o total de linhas de dados
      * escritas em todos os CSVs.
      */
-    private int publicarCsv(Path pastaMetrics, ObjectNode dataset) throws IOException {
+    // Visibilidade de PACOTE: mesma razao de acumularExecucoesKaraoke — provar a tabela gerada
+    // sem efeito externo. Publicar CSV nao muda estado fora de pastaMetrics.
+    int publicarCsv(Path pastaMetrics, ObjectNode dataset) throws IOException {
         Path pastaCsv = pastaMetrics.resolve("csv");
         Files.createDirectories(pastaCsv);
 
@@ -197,11 +228,23 @@ public class TelemetriaDatasetService {
 
         List<List<String>> execucoes = new ArrayList<>();
         List<List<String>> avisos = new ArrayList<>();
-        lerAcervoParaCsv(pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES), execucoes, avisos);
+        lerAcervoParaCsv(pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES), TABELA_EXECUCOES,
+            execucoes, avisos);
         linhas += gravarCsv(pastaCsv.resolve("kronos-execucoes.csv"),
             TelemetriaDatasetCsv.deLinhas(COLUNAS_EXECUCOES, execucoes));
         linhas += gravarCsv(pastaCsv.resolve("kronos-avisos.csv"),
             TelemetriaDatasetCsv.deLinhas(COLUNAS_AVISOS, avisos));
+
+        // O karaokê tem tabela PRÓPRIA: os contadores dele (camada japonesa preservada, efeito
+        // KFX, acento reposto, cache descartado) não existem no schema por episódio do diálogo.
+        List<List<String>> karaoke = new ArrayList<>();
+        List<List<String>> karaokeAvisos = new ArrayList<>();
+        lerAcervoParaCsv(pastaMetrics.resolve(NOME_ARQUIVO_KARAOKE), TABELA_KARAOKE,
+            karaoke, karaokeAvisos);
+        linhas += gravarCsv(pastaCsv.resolve("kronos-karaoke.csv"),
+            TelemetriaDatasetCsv.deLinhas(COLUNAS_KARAOKE, karaoke));
+        linhas += gravarCsv(pastaCsv.resolve("kronos-karaoke-avisos.csv"),
+            TelemetriaDatasetCsv.deLinhas(COLUNAS_KARAOKE_AVISOS, karaokeAvisos));
 
         log.info("CSVs do dataset publicados em {}: {} linha(s) de dados.", pastaCsv, linhas);
         return linhas;
@@ -225,8 +268,8 @@ public class TelemetriaDatasetService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ausente devolve as listas como estão (vazias).
      * Linha ilegível é pulada com log em DEBUG — uma linha corrompida não pode derrubar a tabela.
      */
-    private void lerAcervoParaCsv(Path acervo, List<List<String>> execucoes, List<List<String>> avisos)
-            throws IOException {
+    private void lerAcervoParaCsv(Path acervo, FormatoTabela formato,
+            List<List<String>> execucoes, List<List<String>> avisos) throws IOException {
         if (!Files.exists(acervo)) {
             return;
         }
@@ -237,12 +280,12 @@ public class TelemetriaDatasetService {
             try {
                 JsonNode no = mapper.readTree(linha);
                 String quando = texto(no, "registradoEm");
-                String episodio = texto(no, "nomeEpisodio");
-                JsonNode erros = no.get("errosOcorridos");
+                String unidade = texto(no, formato.campoUnidade());
+                JsonNode erros = no.get(formato.campoLista());
                 int quantidade = erros == null || !erros.isArray() ? 0 : erros.size();
 
-                List<String> exec = new ArrayList<>(COLUNAS_EXECUCOES.size());
-                for (String coluna : COLUNAS_EXECUCOES) {
+                List<String> exec = new ArrayList<>(formato.colunas().size());
+                for (String coluna : formato.colunas()) {
                     exec.add("quantidadeAvisos".equals(coluna)
                         ? String.valueOf(quantidade)
                         : valorSimples(no, coluna));
@@ -253,8 +296,8 @@ public class TelemetriaDatasetService {
                     for (int i = 0; i < erros.size(); i++) {
                         avisos.add(List.of(
                             quando == null ? "" : quando,
-                            episodio == null ? "" : episodio,
-                            valorSimples(no, "animeNome"),
+                            unidade == null ? "" : unidade,
+                            valorSimples(no, formato.campoAgrupador()),
                             String.valueOf(i + 1),
                             erros.get(i) == null ? "" : erros.get(i).asText()));
                     }
@@ -264,6 +307,31 @@ public class TelemetriaDatasetService {
             }
         }
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o que muda entre o acervo do diálogo e o do karaokê — e SÓ isso.
+     *
+     * <p>Existe para os dois acervos passarem pelo mesmo desdobramento em tabela. A alternativa
+     * era um segundo método com o mesmo laço e outros nomes de campo, e a segunda implementação
+     * da mesma regra diverge da primeira na primeira mudança de schema.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code campoUnidade} é a chave da linha (episódio × arquivo);
+     * {@code campoAgrupador} é a coluna que dá contexto ao aviso (obra × contexto de lore);
+     * {@code campoLista} é o array que vira tidy data.
+     */
+    private record FormatoTabela(
+        List<String> colunas,
+        List<String> colunasAvisos,
+        String campoUnidade,
+        String campoAgrupador,
+        String campoLista
+    ) {}
+
+    private static final FormatoTabela TABELA_EXECUCOES = new FormatoTabela(
+        COLUNAS_EXECUCOES, COLUNAS_AVISOS, "nomeEpisodio", "animeNome", "errosOcorridos");
+
+    private static final FormatoTabela TABELA_KARAOKE = new FormatoTabela(
+        COLUNAS_KARAOKE, COLUNAS_KARAOKE_AVISOS, "arquivo", "contextoNome", "avisos");
 
     private static String valorSimples(JsonNode no, String campo) {
         JsonNode v = no.get(campo);
@@ -303,13 +371,58 @@ public class TelemetriaDatasetService {
      * @return quantas execuções NOVAS entraram no acervo nesta publicação
      */
     private int acumularExecucoes(Path pastaMetrics) throws IOException {
-        Path acervo = pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES);
-        Path historicoLocal = DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_HISTORICO_LOCAL);
+        return acumularAcervo(
+            pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES),
+            DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_HISTORICO_LOCAL),
+            "nomeEpisodio",
+            "execuções");
+    }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: faz o acervo do KARAOKÊ crescer, pelo mesmo caminho e com as mesmas
+     * garantias do acervo de diálogo.
+     *
+     * <h2>O buraco que fecha, medido</h2>
+     * Em 2026-08-20: {@code telemetria_execucoes.jsonl} tinha 2.266 execuções e <b>zero de
+     * karaokê</b>. A fatia media status, dicionário, falha por arquivo, acento reposto e cache
+     * descartado — e nada disso saía de {@code logs/traducao-karaoke/manifestos/}, que o
+     * publicador nunca leu. O que chegava ao repositório público era UMA linha genérica de sete
+     * campos por execução inteira.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a chave é {@code registradoEm + arquivo}, não
+     * {@code nomeEpisodio} — a unidade do karaokê é o ARQUIVO de legenda, e uma execução varre a
+     * pasta inteira. Reusa {@link #acumularAcervo}: um segundo laço de fusão divergiria do
+     * primeiro na primeira mudança de schema.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acervo local ausente (nenhuma tradução de karaokê nesta
+     * máquina) devolve 0 e o acervo remoto segue intacto.
+     */
+    // Visibilidade de PACOTE de proposito: e o unico ponto por onde um teste consegue provar que
+    // o acervo do karaoke vira arquivo publicado sem disparar clone/commit/push do repositorio.
+    int acumularExecucoesKaraoke(Path pastaMetrics) throws IOException {
+        return acumularAcervo(
+            pastaMetrics.resolve(NOME_ARQUIVO_KARAOKE),
+            DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_KARAOKE_LOCAL),
+            "arquivo",
+            "karaokê");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: funde o histórico local com o acervo já publicado, de modo que a base
+     * só cresça — o motor comum dos dois acervos (diálogo e karaokê).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nada é removido; deduplica por {@code registradoEm + campoChave};
+     * ordem cronológica estável para o diff do commit mostrar só o que entrou.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivos ausentes são caso normal (devolve 0). Falha de
+     * I/O na gravação propaga e aborta a publicação antes do commit, preservando o acervo anterior.
+     */
+    private int acumularAcervo(Path acervo, Path historicoLocal, String campoChave, String rotulo)
+            throws IOException {
         Map<String, String> porExecucao = new LinkedHashMap<>();
-        int jaNoAcervo = indexar(acervo, porExecucao);
+        int jaNoAcervo = indexar(acervo, porExecucao, campoChave);
         int antes = porExecucao.size();
-        indexar(historicoLocal, porExecucao);
+        indexar(historicoLocal, porExecucao, campoChave);
         int novas = porExecucao.size() - antes;
 
         if (novas == 0 && jaNoAcervo == porExecucao.size()) {
@@ -320,8 +433,8 @@ public class TelemetriaDatasetService {
             .map(Map.Entry::getValue)
             .toList();
         Files.write(acervo, ordenadas, StandardCharsets.UTF_8);
-        log.info("Acervo de execuções do dataset: {} linha(s) no total, {} nova(s) nesta publicação.",
-            ordenadas.size(), novas);
+        log.info("Acervo de {} do dataset: {} linha(s) no total, {} nova(s) nesta publicação.",
+            rotulo, ordenadas.size(), novas);
         return novas;
     }
 
@@ -340,7 +453,8 @@ public class TelemetriaDatasetService {
      *
      * @return quantas linhas válidas o arquivo contribuiu
      */
-    private int indexar(Path arquivo, Map<String, String> destino) throws IOException {
+    private int indexar(Path arquivo, Map<String, String> destino, String campoChave)
+            throws IOException {
         if (!Files.exists(arquivo)) {
             return 0;
         }
@@ -351,12 +465,12 @@ public class TelemetriaDatasetService {
             }
             try {
                 JsonNode no = mapper.readTree(linha);
-                String episodio = texto(no, "nomeEpisodio");
+                String unidade = texto(no, campoChave);
                 String quando = texto(no, "registradoEm");
-                if (episodio == null || quando == null) {
+                if (unidade == null || quando == null) {
                     continue;
                 }
-                destino.putIfAbsent(quando + '|' + episodio, linha);
+                destino.putIfAbsent(quando + '|' + unidade, linha);
                 validas++;
             } catch (IOException e) {
                 log.debug("Linha ilegivel no historico de execucoes, ignorada: {}", e.getMessage());
@@ -395,15 +509,16 @@ public class TelemetriaDatasetService {
         log.info("Dataset de telemetria gerado em {}", arquivo);
 
         int execucoesNovas = acumularExecucoes(pastaMetrics);
+        int karaokeNovas = acumularExecucoesKaraoke(pastaMetrics);
         int operacoesPorFatia = publicarDatasetsPorFatia(pastaMetrics);
         int linhasCsv = publicarCsv(pastaMetrics, dataset);
 
         git(repo, TIMEOUT_GIT, "add", "README.md", "LICENSE", "metrics");
         String mensagemCommit = String.format(Locale.ROOT,
             "dataset: snapshot com %d episódios e %d operações (+%d execução(ões) no acervo, "
-                + "%d operação(ões) por fatia, %d linha(s) em CSV)",
+                + "+%d arquivo(s) de karaokê, %d operação(ões) por fatia, %d linha(s) em CSV)",
             resumo.totalEpisodios(), resumo.operacoes() != null ? resumo.operacoes().size() : 0,
-            execucoesNovas, operacoesPorFatia, linhasCsv);
+            execucoesNovas, karaokeNovas, operacoesPorFatia, linhasCsv);
         ProcessoExternoUtil.Resultado commit = git(repo, TIMEOUT_GIT, "commit", "-m", mensagemCommit);
         boolean semMudancas = commit.codigoSaida() != 0
             && saida(commit).toLowerCase(Locale.ROOT).contains("nothing to commit");
@@ -715,6 +830,7 @@ public class TelemetriaDatasetService {
         └── metrics/
             ├── kronos-telemetria-dataset.json     # snapshot (latest state per episode)
             ├── kronos-telemetria-execucoes.jsonl  # append-only archive, one line per run
+            ├── kronos-karaoke-execucoes.jsonl     # append-only, one line per karaoke subtitle file
             ├── fatias/                            # per-module consolidated metrics
             └── csv/                               # same data, tabular
                 ├── kronos-resumo.csv
@@ -722,7 +838,9 @@ public class TelemetriaDatasetService {
                 ├── kronos-traducoes-llm.csv
                 ├── kronos-operacoes.csv
                 ├── kronos-execucoes.csv
-                └── kronos-avisos.csv
+                ├── kronos-avisos.csv
+                ├── kronos-karaoke.csv
+                └── kronos-karaoke-avisos.csv
         ```
 
         ### CSV Files
@@ -736,6 +854,13 @@ public class TelemetriaDatasetService {
           physical line is always one record.
         - `kronos-avisos.csv` is tidy data: **one row per warning**, joinable back to a run by
           `registradoEm` + `nomeEpisodio`.
+        - `kronos-karaoke.csv` is the **song-lyric pipeline**, one row per subtitle FILE — a
+          different unit from the dialogue tables, because one karaoke run sweeps a whole folder.
+          `desfechoArquivo` has three values on purpose: `TRADUZIDO`, `FALHOU` and `NAO_ALCANCADO`
+          (the run died before reaching any file). Its own counters — `preservadasOriginalJapones`,
+          `efeitosKfxPreservados`, `acentosRepostos`, `entradasCacheDescartadas` — do not exist in
+          the dialogue schema. `kronos-karaoke-avisos.csv` is its tidy warning table, joinable by
+          `registradoEm` + `arquivo`.
 
         Opening in Excel: import as UTF-8 / comma-separated instead of double-clicking, otherwise
         accented characters and comma-bearing titles are misread.
@@ -799,7 +924,7 @@ public class TelemetriaDatasetService {
 
         This dataset does not publish local machine paths, usernames, hostnames, IP addresses, MAC addresses, serial numbers, device identifiers, credentials, tokens or API keys.
 
-        **Subtitle excerpts are published, deliberately and in one place only.** Pipeline warnings in `kronos-telemetria-execucoes.jsonl` and `metrics/csv/kronos-avisos.csv` quote the subtitle line that triggered the failure — for example a line kept untranslated because the model corrupted its ASS tags. Without the line itself, the failure cannot be studied or reproduced, which is the point of publishing translation telemetry at all.
+        **Subtitle excerpts are published, deliberately and only in the warning tables.** Pipeline warnings in `kronos-telemetria-execucoes.jsonl` / `metrics/csv/kronos-avisos.csv` (dialogue) and `kronos-karaoke-execucoes.jsonl` / `metrics/csv/kronos-karaoke-avisos.csv` (song lyrics) quote the subtitle line that triggered the failure — for example a line kept untranslated because the model corrupted its ASS tags. Without the line itself, the failure cannot be studied or reproduced, which is the point of publishing translation telemetry at all. The karaoke tables quote **song lyric lines** for the same reason and under the same rule: only the line that failed, never the full lyric.
 
         These are short diagnostic excerpts from fansub subtitle files, published for research into machine-translation failure modes. They are not a translated corpus and no complete subtitle file is redistributed. If you hold rights over a quoted line and want it removed, open an issue.
 
@@ -833,6 +958,7 @@ public class TelemetriaDatasetService {
         └── metrics/
             ├── kronos-telemetria-dataset.json     # foto (último estado por episódio)
             ├── kronos-telemetria-execucoes.jsonl  # acervo append-only, uma linha por execução
+            ├── kronos-karaoke-execucoes.jsonl     # append-only, uma linha por arquivo de karaokê
             ├── fatias/                            # consolidado por módulo
             └── csv/                               # os mesmos dados, em tabela
                 ├── kronos-resumo.csv
@@ -840,7 +966,9 @@ public class TelemetriaDatasetService {
                 ├── kronos-traducoes-llm.csv
                 ├── kronos-operacoes.csv
                 ├── kronos-execucoes.csv
-                └── kronos-avisos.csv
+                ├── kronos-avisos.csv
+                ├── kronos-karaoke.csv
+                └── kronos-karaoke-avisos.csv
         ```
 
         ### Arquivos CSV
@@ -854,6 +982,14 @@ public class TelemetriaDatasetService {
           uma linha física ser sempre um registro.
         - `kronos-avisos.csv` é tidy data: **uma linha por aviso**, ligada à execução por
           `registradoEm` + `nomeEpisodio`.
+        - `kronos-karaoke.csv` é o pipeline de **letra de música**, uma linha por ARQUIVO de
+          legenda — unidade diferente das tabelas de diálogo, porque uma execução de karaokê varre
+          a pasta inteira. `desfechoArquivo` tem três valores de propósito: `TRADUZIDO`, `FALHOU` e
+          `NAO_ALCANCADO` (a execução morreu antes de alcançar arquivo nenhum). Os contadores
+          próprios dela — `preservadasOriginalJapones`, `efeitosKfxPreservados`, `acentosRepostos`,
+          `entradasCacheDescartadas` — não existem no schema do diálogo.
+          `kronos-karaoke-avisos.csv` é a tabela tidy de avisos dela, ligada por
+          `registradoEm` + `arquivo`.
 
         Abrindo no Excel: importe como UTF-8 / separado por vírgula em vez de dar duplo clique,
         senão acento e título com vírgula saem errados.
@@ -917,7 +1053,7 @@ public class TelemetriaDatasetService {
 
         Este dataset não publica caminhos locais da máquina, nomes de usuário, hostnames, endereços IP, endereços MAC, números de série, identificadores de dispositivo, credenciais, tokens ou chaves de API.
 
-        **Trechos de legenda SÃO publicados, deliberadamente e num lugar só.** Os avisos do pipeline, em `kronos-telemetria-execucoes.jsonl` e em `metrics/csv/kronos-avisos.csv`, citam a fala que provocou a falha — por exemplo uma linha mantida sem tradução porque o modelo corrompeu as tags ASS. Sem a fala, a falha não pode ser estudada nem reproduzida, que é a razão de publicar telemetria de tradução.
+        **Trechos de legenda SÃO publicados, deliberadamente e só nas tabelas de aviso.** Os avisos do pipeline, em `kronos-telemetria-execucoes.jsonl` / `metrics/csv/kronos-avisos.csv` (diálogo) e em `kronos-karaoke-execucoes.jsonl` / `metrics/csv/kronos-karaoke-avisos.csv` (letra de música), citam a fala que provocou a falha — por exemplo uma linha mantida sem tradução porque o modelo corrompeu as tags ASS. Sem a fala, a falha não pode ser estudada nem reproduzida, que é a razão de publicar telemetria de tradução. As tabelas de karaokê citam **linha de letra de música** pelo mesmo motivo e sob a mesma regra: só a linha que falhou, nunca a letra inteira.
 
         São trechos curtos de diagnóstico, vindos de legendas de fansub, publicados para pesquisa de modos de falha em tradução automática. Não constituem corpus traduzido e nenhum arquivo de legenda completo é redistribuído. Se você detém direitos sobre uma fala citada e quer removê-la, abra uma issue.
 

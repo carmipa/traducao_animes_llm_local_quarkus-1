@@ -11,10 +11,14 @@ import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.DesfechoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.FalhaArquivoKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.ResultadoTraducaoKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.TelemetriaKaraoke;
+import org.traducao.projeto.traducaoKaraoke.infrastructure.TelemetriaKaraokeDataset;
 import org.traducao.projeto.traducaoKaraoke.infrastructure.TraducaoKaraokePersistencia;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,6 +62,12 @@ public class RegistroDaExecucao {
     @Inject
     TelemetriaService telemetriaService;
 
+    /**
+     * A escritora do acervo PROPRIO desta fatia — o que faz o karaoke existir no dataset publico.
+     */
+    @Inject
+    TelemetriaKaraokeDataset acervoDataset;
+
     @Inject
     LogStreamService logStream;
 
@@ -92,6 +102,9 @@ public class RegistroDaExecucao {
             logStream.publicarLog(CANAL_LOG,
                 "[ERRO] MANIFESTO NÃO SALVO — esta execução ficou SEM auditoria: " + e.getMessage());
         }
+        // O ACERVO do dataset vem ANTES da operação genérica: é ele que carrega os números, e a
+        // operação genérica só carrega três contadores e uma string de detalhe.
+        acrescentarAoDataset(resultados, duracaoMs, contexto, proveniencia, desfecho);
         // Contexto é nulo quando a execução abortou antes de congelá-lo (LLM fora do ar). O
         // registro tem de sobreviver a isso: era exatamente a execução sem rastro nenhum.
         String descricaoContexto = contexto == null
@@ -111,6 +124,68 @@ public class RegistroDaExecucao {
             pastaOrigem,
             "traducao_karaoke",
             montarRelatorio(pastaOrigem, pastaDestino, resultados, duracaoMs, desfecho));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: transforma a execução que acabou nas linhas do DATASET público —
+     * uma por arquivo, e uma sintética quando não houve arquivo nenhum.
+     *
+     * <h2>O buraco que este método fecha, medido</h2>
+     * Em 2026-08-20 o acervo estruturado do projeto tinha 2.266 execuções e <b>zero de
+     * karaokê</b>. Tudo que esta fatia mede terminava em manifesto e relatório, que o publicador
+     * do dataset nunca leu; o que chegava lá era uma linha genérica de sete campos por execução
+     * INTEIRA, com status, dicionário, falhas e contadores espremidos numa string de detalhe.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li><b>Sempre sai ao menos uma linha.</b> Zero resultado e zero falha é o desfecho mais
+     *       grave que existe aqui (LLM fora do ar), e é justamente o que sairia mudo. A linha
+     *       {@code NAO_ALCANCADO} é a terceira saída da regra das guardas aplicada ao dataset.</li>
+     *   <li>Resultados e falhas são conjuntos DISJUNTOS por construção: um arquivo que falhou não
+     *       produz {@code ResultadoTraducaoKaraoke}. As duas listas somadas são o universo de
+     *       arquivos que a execução tocou.</li>
+     *   <li>O carimbo de tempo é UM só para a execução inteira — é ele que agrupa as linhas de
+     *       volta numa run. A chave do acervo é {@code registradoEm + arquivo}, única porque
+     *       nome de arquivo não repete dentro de uma pasta.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança. A escritora do acervo já engole os erros
+     * dela; aqui o {@code catch} protege contra falha na própria montagem, para que telemetria
+     * jamais derrube o registro do manifesto que veio antes.
+     */
+    private void acrescentarAoDataset(
+        List<ResultadoTraducaoKaraoke> resultados, long duracaoMs, SnapshotContexto contexto,
+        ProvenienciaCache proveniencia, DesfechoKaraoke desfecho) {
+        try {
+            List<ResultadoTraducaoKaraoke> feitos = resultados == null ? List.of() : resultados;
+            List<FalhaArquivoKaraoke> falhas = desfecho.falhas();
+            String registradoEm = Instant.now().toString();
+            TelemetriaKaraoke.ExecucaoKaraoke execucao = new TelemetriaKaraoke.ExecucaoKaraoke(
+                desfecho.status().name(),
+                desfecho.motivo(),
+                contexto == null ? null : contexto.id(),
+                contexto == null ? null : contexto.nomeExibicao(),
+                proveniencia == null ? null : proveniencia.contextoHash(),
+                proveniencia == null ? null : proveniencia.modeloLlm(),
+                desfecho.cacheIgnorado(),
+                desfecho.estadoDicionario().name(),
+                duracaoMs,
+                feitos.size() + falhas.size());
+
+            List<TelemetriaKaraoke> linhas = new ArrayList<>(feitos.size() + falhas.size() + 1);
+            for (ResultadoTraducaoKaraoke r : feitos) {
+                linhas.add(TelemetriaKaraoke.deArquivo(registradoEm, r, execucao));
+            }
+            for (FalhaArquivoKaraoke f : falhas) {
+                linhas.add(TelemetriaKaraoke.deFalha(registradoEm, f, execucao));
+            }
+            if (linhas.isEmpty()) {
+                linhas.add(TelemetriaKaraoke.semArquivo(registradoEm, execucao));
+            }
+            acervoDataset.registrar(linhas);
+        } catch (RuntimeException e) {
+            log.warn("Falha ao montar as linhas do dataset de karaoke: {}", e.toString());
+        }
     }
 
     private String montarRelatorio(

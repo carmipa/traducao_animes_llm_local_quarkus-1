@@ -127,7 +127,24 @@ class CatracaRegraDuplicadaEntreFatiasTest {
      * eliminada em vez de declarada — naquela fatia o karaokê já é vetado antes por
      * SeletorEventosTraduziveis, então o veto local era redundante.
      */
-    private static final int DUPLICADAS_CONHECIDAS = 15;
+    /*
+     * 15 -> 16 em 20/08/2026. A regra que entrou e o NOME do acervo de karaoke,
+     * "telemetria_karaoke_execucoes.jsonl", que passou a existir em
+     * {@code traducaoKaraoke.infrastructure.TelemetriaKaraokeDataset.NOME_ARQUIVO} e em
+     * {@code telemetria.TelemetriaDatasetService.NOME_ARQUIVO_KARAOKE_LOCAL}.
+     *
+     * SUBIU, e a copia esta DECLARADA nos dois lados, com o Javadoc de cada um apontando o outro.
+     * Nao foram unificadas porque o modulo de telemetria NAO depende de fatia por contrato: ele
+     * varre {@code logs/}, exatamente como ja faz com as duas copias irmas que este inventario ja
+     * lista — "telemetria_execucoes.jsonl" e "telemetria_traducao.json", ambas [telemetria,
+     * traducao]. Importar a constante da fatia criaria a aresta telemetria->traducaoKaraoke que
+     * hoje nao existe, para economizar uma string.
+     *
+     * O risco de copia — renomear um lado e o karaoke sumir do dataset em silencio — nao ficou no
+     * comentario: {@code CatracaTelemetriaKaraokeCompletaTest.nomeDoAcervoLocalEIgualNosDoisLados}
+     * congela a igualdade dos dois nomes e reprova o build se divergirem.
+     */
+    private static final int DUPLICADAS_CONHECIDAS = 16;
 
     @Test
     @DisplayName("nenhuma REGRA nova e duplicada entre fatias sem declaracao")

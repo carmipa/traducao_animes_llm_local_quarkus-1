@@ -185,6 +185,10 @@ class TraduzirKaraokeUseCaseTest {
         registroMock.persistencia = persistenciaMock = new MockPersistencia();
         registroMock.telemetriaService = new MockTelemetria();
         registroMock.logStream = new MockLogStream();
+        // O acervo do dataset entra como duble de MEMORIA, nunca nulo: acrescentarAoDataset
+        // engole RuntimeException de proposito, entao colaborador ausente faria o caminho do
+        // dataset passar inteiro pelo catch e o teste ficaria verde sem exercitar uma linha.
+        registroMock.acervoDataset = new AcervoKaraokeCapturado();
         useCase.registro = registroMock;
 
         CacheDoArquivo cacheDoArquivo = new CacheDoArquivo();
