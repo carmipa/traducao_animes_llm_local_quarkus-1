@@ -55,6 +55,40 @@ public class TradutorDeLetraKaraoke {
 
     static final String CANAL_LOG = TraduzirKaraokeUseCase.CANAL_LOG;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a MESMA linha da MESMA música tem de sair com a MESMA tradução em
+     * todos os episódios da obra. Amostragem determinística é o que garante isso.
+     *
+     * <h2>O prejuízo que originou, medido em 2026-08-20</h2>
+     * O cache do karaokê é por ARQUIVO e os dois mapas de deduplicação vivem dentro de
+     * {@code processarArquivo}: cada episódio pergunta a mesma frase de novo. Com a temperatura
+     * configurada (0,3), N perguntas idênticas devolvem N respostas diferentes. Medido nas quatro
+     * obras traduzidas naquele dia, sobre o texto DISTINTO que foi ao LLM:
+     * <pre>
+     *   86 Part 1   16 de 31 divergentes (52%)   pior: 5 traduções
+     *   86 Part 2    5 de 11 (45%)               pior: 4
+     *   Zeta        19 de 33 (58%)               pior: 8 — "Searching, a guidepost floats up ahead."
+     *   Unicorn     73 de 131 (56%)              pior: 10 — o fragmento "dnt"
+     * </pre>
+     * Na tela, a abertura muda de texto a cada episódio. Uma das variantes de
+     * <i>"No matter how hard I wish, nothing ever changes"</i> saiu <i>"Importante quanto
+     * desejar, nada nunca muda."</i> — errada.
+     *
+     * <h2>Por que aqui, e não em {@code application.yml}</h2>
+     * A propriedade {@code llm.temperature} é COMPARTILHADA com a Tradução Local, e lá a
+     * variação é deliberada: o laço de retentativa sobe a temperatura para escapar de uma
+     * alucinação que se repetiria com a mesma amostragem — está no Javadoc de
+     * {@link LlmPort#traduzir(org.traducao.projeto.llm.domain.Lote, Double)}. Além disso
+     * {@code LlmProperties} COAGE qualquer valor {@code <= 0} de volta a 0,3, então
+     * {@code temperature: 0} no YAML não teria efeito nenhum. O override da porta não passa por
+     * essa coerção e é contrato declarado — é o ponto certo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o karaokê é TIRO ÚNICO — não existe retentativa nesta classe,
+     * então fixar a temperatura não desliga nenhuma rota de recuperação. Se um dia houver
+     * retentativa aqui, ela precisará de override próprio, e este comentário é o aviso.
+     */
+    static final Double TEMPERATURA_DETERMINISTICA = 0.0d;
+
     @Inject
     LlmPort llmPort;
 
@@ -122,7 +156,7 @@ public class TradutorDeLetraKaraoke {
         try {
             resposta = llmPort.traduzir(
                 new Lote(sequencialLote.incrementAndGet(), List.of(mascarado.texto())),
-                null,
+                TEMPERATURA_DETERMINISTICA,
                 promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; linha mantida sem tradução: " + original);
@@ -181,7 +215,7 @@ public class TradutorDeLetraKaraoke {
         try {
             resposta = llmPort.traduzir(
                 new Lote(sequencialLote.incrementAndGet(), List.of(semTags.textoLimpo())),
-                null,
+                TEMPERATURA_DETERMINISTICA,
                 promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; letra mantida: " + semTags.textoLimpo());
@@ -229,7 +263,7 @@ public class TradutorDeLetraKaraoke {
         try {
             resposta = llmPort.traduzir(
                 new Lote(sequencialLote.incrementAndGet(), List.of(gradiente.textoVisivel())),
-                null,
+                TEMPERATURA_DETERMINISTICA,
                 promptSistemaCongelado);
         } catch (Exception e) {
             avisos.add("Falha de comunicação com o LLM; letra mantida: " + gradiente.textoVisivel());
