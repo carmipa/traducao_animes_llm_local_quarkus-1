@@ -128,7 +128,8 @@ class TelemetriaKaraokeDatasetTest {
 
     private static TelemetriaKaraoke linha(String quando, String arquivo, int traduzidas) {
         return new TelemetriaKaraoke(
-            quando, arquivo, TelemetriaKaraoke.DesfechoDoArquivo.TRADUZIDO.name(), null,
+            quando, TelemetriaKaraoke.Origem.EXECUCAO.name(), arquivo,
+            TelemetriaKaraoke.DesfechoDoArquivo.TRADUZIDO.name(), null,
             "COMPLETA", null, "eight_six", "86 (Eighty-Six)", "abc123", "aya-expanse-8b",
             false, "DISPONIVEL", 1_000L, 1,
             100, 10, 5, 0, 50, 5, traduzidas, 0, 3, 0,

@@ -175,7 +175,7 @@ public class TelemetriaDatasetService {
      * respondia sobre karaokê era "quantas execuções houve".
      */
     static final List<String> COLUNAS_KARAOKE = List.of(
-        "registradoEm", "arquivo", "desfechoArquivo", "motivoFalha", "statusExecucao",
+        "registradoEm", "origemDoRegistro", "arquivo", "desfechoArquivo", "motivoFalha", "statusExecucao",
         "motivoExecucao", "contextoNome", "contextoId", "contextoHash", "modeloLlm",
         "cacheIgnorado", "estadoDicionario", "duracaoExecucaoMs", "arquivosNaExecucao",
         "eventosTotais", "efeitosKfxPreservados", "preservadasOriginalJapones", "jaEmPortugues",
@@ -955,6 +955,18 @@ public class TelemetriaDatasetService {
           `efeitosKfxPreservados`, `acentosRepostos`, `entradasCacheDescartadas` — do not exist in
           the dialogue schema. `kronos-karaoke-avisos.csv` is its tidy warning table, joinable by
           `registradoEm` + `arquivo`.
+        - `origemDoRegistro` diz **quais campos de uma linha de karaokê significam alguma coisa**.
+          Linha `EXECUCAO` foi medida por uma execução ao vivo e tem todos os campos preenchidos.
+          Linha `MANIFESTO_HISTORICO` foi reconstruída de manifestos de auditoria escritos antes
+          desses campos existirem, então `statusExecucao`, `estadoDicionario`, `acentosRepostos` e
+          `entradasCacheDescartadas` voltam vazios **porque nada os mediu** — não porque o valor
+          era zero. Filtre por esta coluna em vez de adivinhar.
+        - `origemDoRegistro` tells you **which fields of a karaoke row mean anything**.
+          `EXECUCAO` rows were measured by a live run and every field is populated.
+          `MANIFESTO_HISTORICO` rows were rebuilt from audit manifests written before those
+          fields existed, so `statusExecucao`, `estadoDicionario`, `acentosRepostos` and
+          `entradasCacheDescartadas` come back empty **because nothing measured them** — not
+          because the value was zero. Filter on this column instead of guessing.
 
         Opening in Excel: import as UTF-8 / comma-separated instead of double-clicking, otherwise
         accented characters and comma-bearing titles are misread.

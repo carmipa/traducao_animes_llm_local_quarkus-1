@@ -106,7 +106,7 @@ class DatasetKaraokePublicadoTest {
 
         List<String> porArquivo = linhasDe(metrics.resolve("csv").resolve("kronos-karaoke.csv"));
         assertEquals(3, porArquivo.size(), "esperado cabecalho + 2 arquivos: " + porArquivo);
-        assertTrue(porArquivo.get(0).startsWith("registradoEm,arquivo,desfechoArquivo"),
+        assertTrue(porArquivo.get(0).startsWith("registradoEm,origemDoRegistro,arquivo,desfechoArquivo"),
             "cabecalho fora de ordem: " + porArquivo.get(0));
         assertTrue(porArquivo.stream().anyMatch(l -> l.contains("ep02.ass") && l.contains("FALHOU")),
             "o arquivo que FALHOU nao aparece na tabela: " + porArquivo);
@@ -155,7 +155,8 @@ class DatasetKaraokePublicadoTest {
 
     private static String linha(String quando, String arquivo, String desfecho, int traduzidas,
             String avisosJson) {
-        return "{\"registradoEm\":\"" + quando + "\",\"arquivo\":\"" + arquivo
+        return "{\"registradoEm\":\"" + quando + "\",\"origemDoRegistro\":\"EXECUCAO\""
+            + ",\"arquivo\":\"" + arquivo
             + "\",\"desfechoArquivo\":\"" + desfecho + "\",\"motivoFalha\":null,"
             + "\"statusExecucao\":\"COMPLETA\",\"motivoExecucao\":null,"
             + "\"contextoId\":\"eight_six\",\"contextoNome\":\"86 (Eighty-Six)\","

@@ -44,6 +44,7 @@ import java.util.List;
  */
 public record TelemetriaKaraoke(
     String registradoEm,
+    String origemDoRegistro,
     String arquivo,
     String desfechoArquivo,
     String motivoFalha,
@@ -89,6 +90,33 @@ public record TelemetriaKaraoke(
         NAO_ALCANCADO
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: de ONDE a linha veio — e, por consequência, quais campos dela têm
+     * significado.
+     *
+     * <h2>O prejuízo que originou, medido</h2>
+     * Os 19 manifestos de karaokê guardados desde 30/07/2026 têm 383 arquivos com nove
+     * contadores reais cada. Mas <b>ZERO dos 19</b> tem {@code statusFinal},
+     * {@code estadoDicionario}, {@code cacheIgnorado}, {@code arquivosComFalha},
+     * {@code acentosRepostos} ou {@code entradasCacheDescartadas} — esses campos só passaram a
+     * existir depois. Importá-los sem marcar a origem faria {@code acentosRepostos = 0}
+     * significar ao mesmo tempo "medi e deu zero" e "não existia medição", que é a saída vazia
+     * ambígua: "nada a processar" e "cego" não podem produzir o mesmo sinal.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: numa linha {@link #EXECUCAO} todo campo tem significado, porque
+     * o código sempre os preenche. Numa linha {@link #MANIFESTO_HISTORICO} os campos posteriores
+     * a 14/08/2026 vêm vazios <b>por ausência de medição</b>, e quem consome o dataset filtra por
+     * esta coluna em vez de adivinhar. Lacuna conhecida é permitida; lacuna silenciosa não.
+     */
+    public enum Origem {
+
+        /** Nasceu da execução que acabou de rodar: todo campo foi medido. */
+        EXECUCAO,
+
+        /** Reconstruída de um manifesto antigo: campos que não existiam no schema vêm vazios. */
+        MANIFESTO_HISTORICO
+    }
+
     /** Nome do arquivo sintético da linha que registra execução sem arquivo nenhum. */
     public static final String SEM_ARQUIVO = "(nenhum arquivo alcancado)";
 
@@ -111,7 +139,7 @@ public record TelemetriaKaraoke(
         }
         ExecucaoKaraoke e = execucao == null ? ExecucaoKaraoke.desconhecida() : execucao;
         return new TelemetriaKaraoke(
-            registradoEm, r.arquivo(), DesfechoDoArquivo.TRADUZIDO.name(), null,
+            registradoEm, Origem.EXECUCAO.name(), r.arquivo(), DesfechoDoArquivo.TRADUZIDO.name(), null,
             e.status(), e.motivo(), e.contextoId(), e.contextoNome(), e.contextoHash(),
             e.modeloLlm(), e.cacheIgnorado(), e.estadoDicionario(), e.duracaoMs(), e.arquivos(),
             r.eventosTotais(), r.efeitosKfxPreservados(), r.preservadasOriginalJapones(),
@@ -136,7 +164,8 @@ public record TelemetriaKaraoke(
         }
         ExecucaoKaraoke e = execucao == null ? ExecucaoKaraoke.desconhecida() : execucao;
         return new TelemetriaKaraoke(
-            registradoEm, falha.arquivo(), DesfechoDoArquivo.FALHOU.name(), falha.motivo(),
+            registradoEm, Origem.EXECUCAO.name(), falha.arquivo(), DesfechoDoArquivo.FALHOU.name(),
+            falha.motivo(),
             e.status(), e.motivo(), e.contextoId(), e.contextoNome(), e.contextoHash(),
             e.modeloLlm(), e.cacheIgnorado(), e.estadoDicionario(), e.duracaoMs(), e.arquivos(),
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, List.of());
@@ -156,10 +185,48 @@ public record TelemetriaKaraoke(
     public static TelemetriaKaraoke semArquivo(String registradoEm, ExecucaoKaraoke execucao) {
         ExecucaoKaraoke e = execucao == null ? ExecucaoKaraoke.desconhecida() : execucao;
         return new TelemetriaKaraoke(
-            registradoEm, SEM_ARQUIVO, DesfechoDoArquivo.NAO_ALCANCADO.name(), e.motivo(),
+            registradoEm, Origem.EXECUCAO.name(), SEM_ARQUIVO, DesfechoDoArquivo.NAO_ALCANCADO.name(),
+            e.motivo(),
             e.status(), e.motivo(), e.contextoId(), e.contextoNome(), e.contextoHash(),
             e.modeloLlm(), e.cacheIgnorado(), e.estadoDicionario(), e.duracaoMs(), 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, List.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a linha reconstruída de um MANIFESTO antigo, para o dataset não
+     * nascer vazio esperando a próxima execução.
+     *
+     * <h2>O que ela pode e o que ela não pode afirmar</h2>
+     * Um arquivo listado em {@code arquivos[]} do manifesto FOI processado até o fim — por isso
+     * {@code TRADUZIDO} é afirmável por linha. O que não é afirmável é o desfecho da EXECUÇÃO:
+     * os manifestos antigos não registravam falha por arquivo, então "esta run foi completa" é
+     * exatamente o que não se sabe. Ele sai {@code null}, com {@link Origem#MANIFESTO_HISTORICO}
+     * dizendo por quê.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os contadores que o manifesto NÃO tinha entram em zero, e é a
+     * coluna de origem — não o zero — que carrega a informação "não medido". Sem ela este método
+     * seria uma fábrica de dado falso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contadores ausentes viram zero; texto ausente vira
+     * {@code null}. Nunca lança.
+     */
+    public static TelemetriaKaraoke deManifesto(
+            String registradoEm, String arquivo, String contextoId, String contextoNome,
+            String contextoHash, String modeloLlm, long duracaoMs, int arquivosNaExecucao,
+            int eventosTotais, int efeitosKfxPreservados, int preservadasOriginalJapones,
+            int jaEmPortugues, int paraTraduzir, int reaproveitadasCache, int traduzidas,
+            int mantidasSemTraducao, List<String> avisos) {
+        return new TelemetriaKaraoke(
+            registradoEm, Origem.MANIFESTO_HISTORICO.name(), arquivo,
+            DesfechoDoArquivo.TRADUZIDO.name(), null,
+            // Desfecho da execucao, dicionario e cache ignorado NAO existiam no schema da epoca.
+            null, null, contextoId, contextoNome, contextoHash, modeloLlm, false, null,
+            duracaoMs, arquivosNaExecucao,
+            eventosTotais, efeitosKfxPreservados, preservadasOriginalJapones, jaEmPortugues,
+            paraTraduzir, reaproveitadasCache, traduzidas, mantidasSemTraducao,
+            // Acento reposto e cache descartado sao posteriores a 14/08: zero aqui e "nao medido",
+            // e quem diz isso e a coluna origemDoRegistro.
+            0, 0, avisos);
     }
 
     /**
