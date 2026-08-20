@@ -1,35 +1,47 @@
-# EM ANDAMENTO — quebra do TraduzirKaraokeUseCase em classes menores (2026-08-19)
+# CONCLUIDO (2026-08-19) — 4.1 Traducao de Karaoke: regua de musica + quebra do use case
 
-Commitado e PUSHADO: `7b3d7e96` (regua) - `52cf23d2` (PlanoDeClassificacao) - `d877d424`
-(TradutorDeLetraKaraoke). Suite verde nos tres.
+Cinco commits, todos PUSHADOS, suite verde em cada um:
+`7b3d7e96` regua - `52cf23d2` PlanoDeClassificacao - `d877d424` TradutorDeLetraKaraoke -
+`818b65fc` checkpoint - `370ef581` registro/cache/montador.
+
+## A fatia agora
 
 ```
-FEITO   PlanoDeClassificacao     165 linhas  — decisao do arquivo, 1 passe em vez de 2
-FEITO   TradutorDeLetraKaraoke   260 linhas  — os 3 caminhos de envio ao LLM
-FALTA   MontadorEventoFinal                  — acento + empilhamento com a quebra do ASS
-FALTA   CacheDoArquivo                       — carregar/salvar
-FALTA   RegistroDaExecucao                   — desfecho, manifesto, relatorio, console
+596 TraduzirKaraokeUseCase    381 ClassificadorLetraKaraokeService
+260 TradutorDeLetraKaraoke    165 PlanoDeClassificacao
+164 RegistroDaExecucao        120 MontadorEventoFinal      113 CacheDoArquivo
 ```
+`TraduzirKaraokeUseCase`: 993 -> 596 linhas (-40%).
 
-`TraduzirKaraokeUseCase`: 993 -> **819 linhas**.
+## Efeito da regua, medido no acervo com o codigo consertado
+
+```
+TRADUZIVEL_INGLES     165.827 -> 39.132   (-76,4%)
+Char's Counterattack  107.384 ->     84
+```
 
 ## PROXIMA ACAO EXECUTAVEL EXATA
 
-Extrair `RegistroDaExecucao`: leva `montarRelatorio` (429 bytecodes) e `registrarArtefatos`
-(231), mais o `visivelResumido`, que hoje esta package-private compartilhado justamente
-esperando esse dono — esta escrito no Javadoc dele.
+**Rodar a Traducao de Karaoke sobre `C:\animes\86\86 Part 1\traducao_ptbr`** (contexto
+`eight_six`) e conferir no manifesto novo: `marcadorPerdido` ~4, `acentosRepostos` > 0, e
+`entradasCacheDescartadas` com numero (o criterio mudou, entao entradas antigas ficaram
+inalcancaveis). NAO e destrutivo — grava na pasta irma `-karaoke-ptbr`.
 
-## Declarado, para nao virar surpresa
+**Isto e o que falta para fechar o efeito**: tudo que foi medido ate aqui e o CLASSIFICADOR
+contra o acervo, nao o `.ass` final. Nenhuma execucao real rodou depois do conserto.
 
-- `executar` (1.810 bytecodes) e `processarArquivo` (1.087) seguem acima do FreqInlineSize de
-  325. **Nao ha ganho de velocidade em quebra-los** — rodam uma vez por execucao e uma vez por
-  arquivo. O motivo da quebra e testabilidade, e isso ja foi medido e registrado.
-- Cada arquivo novo quebra a `CatracaEsqueletoDoProjetoAtualizadoTest`. Regravar com
-  `gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esqueleto.regravar=true`
-  — nao editar o markdown a mao; a propria catraca avisa isso.
-- O teste do use case monta tudo a mao: colaborador novo exige ligacao no `setUp`, senao NPE.
-- **O LLM tem DOIS consumidores** desde `d877d424`: o use case (disponibilidade e modelo ativo)
-  e o `TradutorDeLetraKaraoke` (traducao). No teste use `usarLlm(...)`, que aponta os dois.
+## Declarado, nao esquecido
+
+- `executar` (1.819 bytecodes) e `processarArquivo` (1.097) NAO encolheram. O que saiu foram
+  os outros metodos. Quebra-los nao compra velocidade — rodam uma vez por execucao e uma vez
+  por arquivo. Foi medido e esta escrito.
+- Abertura da Part 2 do 86: letra a letra, sem camada de frase, bilingue na mesma janela.
+  Continua aberta e e a maior pendencia funcional da fatia.
+- Perda residual da regua: ~272 linhas de estilos com nome de musica sem `Effect` e sem
+  camada romaji. Medida, declarada, aceita.
+- Cada arquivo novo quebra a catraca do esqueleto. Regravar com
+  `-Dkronos.esqueleto.regravar=true`; nao editar o markdown a mao.
+- O teste do use case monta tudo a mao: colaborador novo exige ligacao no `setUp`.
 
 ---
 
