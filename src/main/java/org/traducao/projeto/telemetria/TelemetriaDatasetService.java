@@ -324,14 +324,17 @@ public class TelemetriaDatasetService {
         List<String> colunasAvisos,
         String campoUnidade,
         String campoAgrupador,
-        String campoLista
+        String campoLista,
+        List<String> camposLivres
     ) {}
 
     private static final FormatoTabela TABELA_EXECUCOES = new FormatoTabela(
-        COLUNAS_EXECUCOES, COLUNAS_AVISOS, "nomeEpisodio", "animeNome", "errosOcorridos");
+        COLUNAS_EXECUCOES, COLUNAS_AVISOS, "nomeEpisodio", "animeNome", "errosOcorridos",
+        List.of());
 
     private static final FormatoTabela TABELA_KARAOKE = new FormatoTabela(
-        COLUNAS_KARAOKE, COLUNAS_KARAOKE_AVISOS, "arquivo", "contextoNome", "avisos");
+        COLUNAS_KARAOKE, COLUNAS_KARAOKE_AVISOS, "arquivo", "contextoNome", "avisos",
+        List.of("motivoFalha", "motivoExecucao"));
 
     private static String valorSimples(JsonNode no, String campo) {
         JsonNode v = no.get(campo);
@@ -370,11 +373,13 @@ public class TelemetriaDatasetService {
      *
      * @return quantas execuções NOVAS entraram no acervo nesta publicação
      */
-    private int acumularExecucoes(Path pastaMetrics) throws IOException {
+    // Visibilidade de PACOTE pela mesma razao de acumularExecucoesKaraoke: e por onde um teste
+    // prova a sanitizacao na fronteira sem disparar clone/commit/push.
+    int acumularExecucoes(Path pastaMetrics) throws IOException {
         return acumularAcervo(
             pastaMetrics.resolve(NOME_ARQUIVO_EXECUCOES),
             DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_HISTORICO_LOCAL),
-            "nomeEpisodio",
+            TABELA_EXECUCOES,
             "execuções");
     }
 
@@ -403,7 +408,7 @@ public class TelemetriaDatasetService {
         return acumularAcervo(
             pastaMetrics.resolve(NOME_ARQUIVO_KARAOKE),
             DiretorioBaseKronos.resolver("logs", NOME_ARQUIVO_KARAOKE_LOCAL),
-            "arquivo",
+            TABELA_KARAOKE,
             "karaokê");
     }
 
@@ -417,15 +422,22 @@ public class TelemetriaDatasetService {
      * <p>COMPORTAMENTO EM CASO DE FALHA: arquivos ausentes são caso normal (devolve 0). Falha de
      * I/O na gravação propaga e aborta a publicação antes do commit, preservando o acervo anterior.
      */
-    private int acumularAcervo(Path acervo, Path historicoLocal, String campoChave, String rotulo)
+    private int acumularAcervo(Path acervo, Path historicoLocal, FormatoTabela formato, String rotulo)
             throws IOException {
         Map<String, String> porExecucao = new LinkedHashMap<>();
-        int jaNoAcervo = indexar(acervo, porExecucao, campoChave);
+        int[] limpas = new int[1];
+        int jaNoAcervo = indexar(acervo, porExecucao, formato, limpas);
         int antes = porExecucao.size();
-        indexar(historicoLocal, porExecucao, campoChave);
+        indexar(historicoLocal, porExecucao, formato, limpas);
         int novas = porExecucao.size() - antes;
 
-        if (novas == 0 && jaNoAcervo == porExecucao.size()) {
+        if (limpas[0] > 0) {
+            log.info("Acervo de {}: {} linha(s) tiveram texto livre sanitizado na publicação.",
+                rotulo, limpas[0]);
+        }
+        // A sanitização entra na decisão de reescrever: sem isso, uma publicação sem execução
+        // nova deixaria intacto o caminho de máquina que ela acabou de encontrar.
+        if (novas == 0 && jaNoAcervo == porExecucao.size() && limpas[0] == 0) {
             return 0; // nada mudou: não reescreve o arquivo à toa
         }
         List<String> ordenadas = porExecucao.entrySet().stream()
@@ -453,8 +465,8 @@ public class TelemetriaDatasetService {
      *
      * @return quantas linhas válidas o arquivo contribuiu
      */
-    private int indexar(Path arquivo, Map<String, String> destino, String campoChave)
-            throws IOException {
+    private int indexar(Path arquivo, Map<String, String> destino, FormatoTabela formato,
+            int[] limpas) throws IOException {
         if (!Files.exists(arquivo)) {
             return 0;
         }
@@ -465,10 +477,15 @@ public class TelemetriaDatasetService {
             }
             try {
                 JsonNode no = mapper.readTree(linha);
-                String unidade = texto(no, campoChave);
+                String unidade = texto(no, formato.campoUnidade());
                 String quando = texto(no, "registradoEm");
                 if (unidade == null || quando == null) {
                     continue;
+                }
+                String publicavel = sanitizarTextoLivre(no, formato);
+                if (publicavel != null) {
+                    linha = publicavel;
+                    limpas[0]++;
                 }
                 destino.putIfAbsent(quando + '|' + unidade, linha);
                 validas++;
@@ -482,6 +499,83 @@ public class TelemetriaDatasetService {
     private static String texto(JsonNode no, String campo) {
         JsonNode v = no.get(campo);
         return v == null || v.isNull() ? null : v.asText();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: passa pelo sanitizador o TEXTO LIVRE de uma linha do acervo, na
+     * fronteira do que vira público — a única passagem por onde toda linha de todo acervo
+     * obrigatoriamente atravessa.
+     *
+     * <h2>O prejuízo que originou, medido em 20/08/2026</h2>
+     * O acervo do diálogo tinha <b>402 caminhos {@code C:\animes\<obra>}</b> nos avisos, todos
+     * já publicados: eles nascem de mensagens de bloqueio que citam o arquivo. O README do
+     * dataset promete "nada de caminhos de máquina" e o dado não honrava. Medido com o
+     * sanitizador de produção sobre os 9.335 avisos reais: 402 transformados, <b>zero
+     * redigidos</b> — nenhum diagnóstico se perde, porque de um caminho sobrevivem os dois
+     * últimos segmentos, que são obra e arquivo.
+     *
+     * <h2>Por que aqui, e não na escrita</h2>
+     * Sanitizar na escrita mataria o caminho também no artefato LOCAL, onde ele é o que permite
+     * abrir o arquivo e depurar. A fronteira do público é a publicação. É também a razão de a
+     * limpeza valer para as linhas que JÁ estavam no acervo, e não só para as novas: uma
+     * publicação sem execução nova deixaria intacto o caminho que ela acabou de encontrar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só campos declarados em {@code campoLista} e
+     * {@code camposLivres} são tocados. Nome de episódio, obra e lore NÃO passam por aqui — são
+     * identificação, e o sanitizador poderia aparar um nome legítimo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code null} quando nada mudou, para o chamador
+     * preservar a linha ORIGINAL byte a byte e não reescrever o acervo à toa.
+     */
+    private String sanitizarTextoLivre(JsonNode no, FormatoTabela formato) {
+        if (!(no instanceof ObjectNode objeto)) {
+            return null;
+        }
+        boolean mudou = false;
+
+        JsonNode lista = objeto.get(formato.campoLista());
+        if (lista != null && lista.isArray()) {
+            ArrayNode limpa = mapper.createArrayNode();
+            boolean mudouLista = false;
+            for (JsonNode item : lista) {
+                if (item == null || !item.isTextual()) {
+                    limpa.add(item);
+                    continue;
+                }
+                String sanitizado = SanitizadorTelemetria.sanitizar(item.asText());
+                mudouLista = mudouLista || !item.asText().equals(sanitizado);
+                limpa.add(sanitizado);
+            }
+            if (mudouLista) {
+                objeto.set(formato.campoLista(), limpa);
+                mudou = true;
+            }
+        }
+
+        for (String campo : formato.camposLivres()) {
+            JsonNode valor = objeto.get(campo);
+            if (valor == null || !valor.isTextual()) {
+                continue;
+            }
+            String sanitizado = SanitizadorTelemetria.sanitizar(valor.asText());
+            if (!valor.asText().equals(sanitizado)) {
+                objeto.put(campo, sanitizado);
+                mudou = true;
+            }
+        }
+
+        if (!mudou) {
+            return null;
+        }
+        try {
+            return mapper.writeValueAsString(objeto);
+        } catch (IOException e) {
+            // Reserializar falhou: a linha original segue como está. Publicar meia linha seria
+            // pior que publicar a suja, e a suja o chamador já tem.
+            log.warn("Nao foi possivel reserializar linha sanitizada, mantida original: {}",
+                e.getMessage());
+            return null;
+        }
     }
 
     public synchronized ResultadoPublicacao publicar() throws IOException {

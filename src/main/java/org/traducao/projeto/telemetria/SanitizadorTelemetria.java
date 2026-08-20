@@ -53,9 +53,30 @@ public final class SanitizadorTelemetria {
      * Caminho absoluto de Windows ({@code C:\...}) ou raiz POSIX conhecida. A
      * lista POSIX é fechada: um {@code /} solto casaria "e/ou" e datas dentro de
      * texto comum, e o remédio ficaria pior que a doença.
+     *
+     * <h2>Por que o grupo 1 exige caractere não-alfabético antes</h2>
+     * Medido em 20/08/2026 sobre os 9.335 avisos do acervo: sem essa exigência o
+     * padrão casava <b>91 quebras {@code \N} do ASS</b> dentro da fala citada no
+     * diagnóstico — {@code Gundam ZZ:\N"Crybaby Cecilia."} virava
+     * {@code ZZ:/N"Crybaby Cecilia."}. Ironia cara: o aviso que ele corrompia é
+     * justamente o de <i>"fala mantida sem tradução (tags corrompidas pelo
+     * LLM)"</i>, e a tag é o dado que quem estuda a falha precisa ler.
+     *
+     * <p>Letra de drive é UMA letra; {@code ZZ:} são duas. O discriminador é a
+     * esquerda, não a direita — pela direita não dá, porque
+     * {@code C:\Nome da pasta} é caminho legítimo começando com N.
+     *
+     * <p>{@link #DISCO_NA_SAIDA} já fazia essa exigência desde sempre, pelo mesmo
+     * motivo ("faixas: 50"). Os dois padrões discordavam sobre o que é letra de
+     * drive, e a rede de saída ficava mais estrita que a de entrada.
+     *
+     * <p>Grupo CONSUMIDOR e não lookbehind, pela razão explicada em
+     * {@link #DISCO_NA_SAIDA}: a catraca de fronteira do ASS varre o fonte por
+     * forma e cobraria aqui a alternativa {@code (?<=\\N)} — que neste padrão
+     * seria o oposto do certo. O grupo 1 é reposto intacto na saída.
      */
     private static final Pattern CAMINHO = Pattern.compile(
-        "(?:[A-Za-z]:[\\\\/]|/(?:acervo|home|Users|mnt|opt|var|srv|root)/)[^|\\r\\n;,]*");
+        "(^|[^A-Za-z])((?:[A-Za-z]:[\\\\/]|/(?:acervo|home|Users|mnt|opt|var|srv|root)/)[^|\\r\\n;,]*)");
 
     /**
      * Marcadores de pasta PESSOAL, conferidos na ENTRADA — antes de qualquer
@@ -119,7 +140,9 @@ public final class SanitizadorTelemetria {
         Matcher m = CAMINHO.matcher(texto);
         int fim = 0;
         while (m.find()) {
-            saida.append(texto, fim, m.start()).append(caudaSegura(m.group()));
+            // O grupo 1 é o caractere que só serviu para PROVAR que ali começa uma letra de
+            // drive de verdade; ele não faz parte do caminho e volta intacto.
+            saida.append(texto, fim, m.start()).append(m.group(1)).append(caudaSegura(m.group(2)));
             fim = m.end();
         }
         saida.append(texto.substring(fim));
