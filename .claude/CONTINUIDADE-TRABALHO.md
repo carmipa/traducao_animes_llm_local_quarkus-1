@@ -1,3 +1,78 @@
+# CONCLUIDO (2026-08-20, 12h30) — o 86 traduzido, e os 12 commits finalmente MEDIDOS
+
+O karaoke do 86 estava sem nenhuma run desde 14/08, com 12 commits de comportamento sem prova.
+Rodou agora, pelo caminho de producao (KRONOS de jar, perfil `prod`, `aya-expanse-8b`).
+
+## Resultado — o melhor numero que a fatia ja produziu
+
+```
+                          14/08 (ref.)   20/08 (agora)
+mantidas SEM traducao            6            0
+avisos (marcador+alucinacao)     6            0
+acentos repostos          campo nao existia   1.477
+falhas                           0            0
+```
+
+Part 1: 11 arquivos, 29.370 eventos, 6.065 letras originais preservadas, 6.263 traduziveis
+(LLM 6.093, cache 170), 128 entradas de cache descartadas, 21,8s.
+Part 2: 12 arquivos, 231 traduziveis (LLM 154, cache 77), 6,4s.
+
+Os 6.093 sao EVENTOS, nao chamadas: os 11 episodios tem **39 textos distintos** de musica
+(o OP e o ED se repetem). 39 chamadas em 21s = 0,54s cada.
+
+## Conferencias, todas com instrumento calibrado
+
+- Legenda: romaji em cima, PT-BR embaixo, acento certo.
+  `aigan shitemo kongan shitemo kawaranai ya, mou` / `Nao importa o quanto eu deseje, nada
+  nunca muda.`
+- Falas VAZIAS (a cicatriz do Guilty Crown): Part 1 entrada 26.524 linhas / 0 vazias ->
+  saida 26.524 / **0**. Part 2 53.175 / 6.094 -> 53.175 / **6.094**. Contagem identica nos
+  dois: a traducao nao criou nem apagou uma linha.
+- Telemetria nova: o acervo foi de **383 para 394 linhas**, as 11 novas com
+  `origemDoRegistro=EXECUCAO`, `estadoDicionario=DISPONIVEL`, `acentosRepostos`,
+  `entradasCacheDescartadas` — todos os campos preenchidos. E a prova de efeito do trabalho
+  de telemetria/dataset de hoje.
+
+## A abertura da Part 2 — diagnostico FECHADO, correcao em aberto
+
+Nao e bug: **a frase nao existe no arquivo**. 45.475 linhas `Opening`, ZERO com 12+ caracteres,
+maior texto visivel = 4. Part 1 tem 12.100 frases e por isso funciona. O `/simular` de
+producao confirma: Part 1 devolve 6.065 preservadas + 6.263 traduziveis; **Part 2 devolve 0 e
+231** (so o encerramento).
+
+Varredura dos 726 `.ass`: **duas obras assim, e so duas** — `86 Part 2` e `[Sokudo] DanMachi`
+(este ~6x maior, 192 arquivos). Tres ceticos afrouxaram o corte em todas as direcoes e nenhuma
+terceira apareceu.
+
+O `ConversorKaraokeUseCase` ja reconstroi a frase: na Part 2 sai `romaji\Ningles` com a metade
+INGLESA 0% corrompida e a ROMAJI 81%. Causa raiz reproduzida: os fragmentos de uma frase vivem
+em VARIAS layers (5:81, 2:28, 4:14, 3:14) e a chave posicional nao casa granularidades.
+
+**A opcao (b) MORREU** — "descartar o romaji porque o ingles e sempre a ultima metade" e FALSA.
+Contraexemplo do acervo: `I want to be with you\Nissho ni itai`, ingles EM CIMA. 56 de 8.315
+pares empatam em `proporcaoRomaji` e o `List.sort` estavel deixa a ordem do ARQUIVO decidir.
+
+## PROXIMA ACAO EXECUTAVEL EXATA
+
+**Decisao de Paulo, de produto**: como tratar a abertura da Part 2 (e o DanMachi inteiro).
+Sobrou a opcao (c): usar o conversor so para EXTRAIR o ingles e emitir a traducao como linha
+NOVA sobre o KFX intacto. Preserva a animacao e nao mostra romaji corrompido. Custo: e codigo
+novo e esbarra na fronteira `traducaoKaraoke` -> `novoKaraoke`, que os guardas ArchUnit proibem.
+
+Antes dela, um pre-requisito medido: **consertar o colapso de camada do conversor** (a causa
+raiz acima). Sem isso qualquer rota que use a reconstrucao carrega 81% de romaji dobrado.
+
+## AMBIENTE DEIXADO LIGADO
+
+KRONOS de jar em 127.0.0.1:8099 (perfil prod, PID 33440) — parar com
+`Stop-Process -Id 33440`. LM Studio na 1234 com `aya-expanse-8b` — parar com
+`lms server stop`. Redis nos conteineres.
+
+Requisicao ao KRONOS **so por arquivo**: `curl --data-binary "@req.json"`. Inline com `-d` o
+Git Bash mutila o caminho do Windows e volta HTTP 400 **com corpo vazio**.
+
+---
+
 # CONCLUIDO (2026-08-20, tarde) — sanitizacao na fronteira + backfill dos manifestos
 
 Tres commits, PUSHADOS, suite verde: `9706a3b9` (motivo do karaoke) - `76e151da` (fronteira do
