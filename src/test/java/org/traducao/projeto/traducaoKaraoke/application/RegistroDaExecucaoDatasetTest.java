@@ -194,6 +194,40 @@ class RegistroDaExecucaoDatasetTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o motivo da falha e o do aborto nascem de {@code e.getMessage()}, e a
+     * mensagem de {@code NoSuchFileException} <b>é</b> o caminho absoluto do arquivo. O dataset é
+     * público: sem sanitização, a primeira legenda ilegível publicaria a árvore de pastas da
+     * máquina do Paulo.
+     *
+     * <p>Achado pela revisão de DANO em 20/08/2026, depois de o resto já estar verde — o teste de
+     * vazamento anterior olhava só {@code arquivoDestino} e passava ileso por este caminho.
+     */
+    @Test
+    @DisplayName("motivo de falha e de aborto não publicam o caminho da máquina")
+    void motivosNaoVazamCaminho() {
+        String arquivoInexistente = caminhoWindows("animes", "86", "ep99.ass");
+        DesfechoKaraoke desfecho = new DesfechoKaraoke(
+            StatusExecucaoKaraoke.ABORTADA,
+            "Destino nao criavel: " + caminhoWindows("animes", "86", "saida-karaoke"),
+            List.of(new FalhaArquivoKaraoke("ep99.ass", arquivoInexistente)), false,
+            DesfechoKaraoke.EstadoDicionario.NAO_CONSULTADO);
+
+        registro.registrar(tempDir, tempDir.resolve("saida"), List.of(), 50L, 0, 0,
+            null, null, desfecho);
+
+        assertEquals(1, acervo.linhas.size());
+        TelemetriaKaraoke linha = acervo.linhas.get(0);
+        assertFalse(linha.motivoFalha().contains(caminhoWindows("animes")),
+            "o caminho vazou pelo motivo da FALHA: " + linha.motivoFalha());
+        assertFalse(linha.motivoExecucao().contains(caminhoWindows("animes")),
+            "o caminho vazou pelo motivo da EXECUCAO: " + linha.motivoExecucao());
+        // Sanitizar não é apagar: o que identifica a máquina sai, o diagnóstico fica.
+        assertTrue(linha.motivoExecucao().contains("Destino nao criavel")
+                || linha.motivoExecucao().equals("[redigido]"),
+            "sobrou nem diagnostico nem redacao explicita: " + linha.motivoExecucao());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: monta {@code C:\...} em RUNTIME, porque literal de drive no fonte
      * quebra a suíte no contêiner Linux e {@code CatracaSuiteSemDriveWindowsTest} reprova — com
      * razão. Aqui o caminho é DADO de teste (o que não pode vazar), nunca caminho a abrir.
