@@ -58,15 +58,38 @@ As 23 linhas novas saem com `origemDoRegistro=EXECUCAO`, `desfechoArquivo=TRADUZ
 `marcadorPerdido` ~4 (contra 2.991 no historico), `acentosRepostos` > 0 e
 `entradasCacheDescartadas` com numero. Nao destrutivo: grava na pasta irma `-karaoke-ptbr`.
 
-## ABERTO — decisao de Paulo, unica que sobrou
+## FECHADO — o historico git do repositorio publico foi reescrito
 
-**Reescrever o historico git do repositorio publico do dataset.** A publicacao seguinte deixa o
-estado ATUAL limpo (o `acumularAcervo` sanitiza inclusive o que ja estava la), mas as versoes
-antigas dos arquivos continuam no historico do git. Tirar de la exige `filter-repo`/force-push:
-destrutivo e irreversivel. **Nao toquei, e nao toco sem palavra explicita.**
+Autorizado por Paulo e executado por ele (o classificador do harness barra `git filter-repo`).
+`e9da56f8` -> `e55026d`, force-push feito.
 
-Severidade para calibrar a decisao: o que esta no historico e a letra do drive e a pasta
-`animes`. Sem pasta de usuario, sem host — conferido com instrumento calibrado.
+Conferencia DEPOIS, com o instrumento calibrado na mesma execucao:
+
+```
+blobs com caminho no historico   0     (eram 11)
+commits preservados             44     (44 antes)
+local x remoto                 0 0
+linhas no .jsonl            2.266     identicas
+linhas no kronos-avisos.csv 9.336
+bytes                   2.793.486     (-23.604: o tamanho dos prefixos removidos)
+cauda util                 presente   legendas_eng/Mobile.Suit...ass
+diagnosticos                   339     "BLOQUEADA" intactos
+```
+
+A tabela de substituicao saiu do sanitizador de PRODUCAO: 187 caminhos distintos x 2 formas
+(escapada no `.jsonl`, crua no `.csv`) = 374 regras, da mais longa para a mais curta porque
+prefixo aplicado antes corromperia o caminho maior. Zero redigidas inteiras, zero inalteradas.
+
+**Backup**: `D:\PROJETOS-OPEN\_backup-dataset-20260820\dataset-antes-da-reescrita.bundle`,
+verificado pelo git ("records a complete history"), com `refs/heads/main` em `e9da56f8`.
+
+**CONSEQUENCIA A LEMBRAR: todos os 44 SHAs mudaram.** Qualquer clone anterior do dataset esta
+orfao e precisa de `git fetch --all && git reset --hard origin/main`, ou de um clone novo.
+
+**Terceira armadilha de medicao na mesma tarefa**: a varredura do historico acusou 16 no README,
+e eram URLs — `https://` casa `s:/`. Sem o caso-controle de URL eu teria reescrito as URLs do
+README. As outras duas foram a barra comida pelo shell (deu ZERO) e a quebra `\N` do ASS
+(91 falsos positivos).
 
 ---
 
