@@ -170,7 +170,8 @@ class SanitizacaoNaFronteiraDoDatasetTest {
     }
 
     private static String karaoke(String quando, String arquivo, String aviso) {
-        return "{\"registradoEm\":\"" + quando + "\",\"arquivo\":\"" + arquivo + "\","
+        return "{\"registradoEm\":\"" + quando + "\",\"origemDoRegistro\":\"EXECUCAO\","
+            + "\"arquivo\":\"" + arquivo + "\","
             + "\"desfechoArquivo\":\"TRADUZIDO\",\"motivoFalha\":null,"
             + "\"statusExecucao\":\"COMPLETA\",\"motivoExecucao\":null,"
             + "\"contextoId\":\"eight_six\",\"contextoNome\":\"86\",\"contextoHash\":\"h\","
