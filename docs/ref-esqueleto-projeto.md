@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **472** |
-| classes em `src/test` | **369** |
+| classes em `src/main` | **473** |
+| classes em `src/test` | **370** |
 
 ---
 
@@ -38,7 +38,7 @@ graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (4)"]:::fatia
-    G3["<b>Karaokê</b><br/>traducaoKaraoke (14)<br/>novoKaraoke (11)"]:::fatia
+    G3["<b>Karaokê</b><br/>traducaoKaraoke (15)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (14)"]:::peer
@@ -515,12 +515,13 @@ revisaoConcordancia/
 
 ### Karaokê
 
-#### `traducaoKaraoke` — 14 classes
+#### `traducaoKaraoke` — 15 classes
 
 ```text
 traducaoKaraoke/
 ├── application/
 │   ├── ClassificadorLetraKaraokeService.java
+│   ├── PlanoDeClassificacao.java
 │   └── TraduzirKaraokeUseCase.java
 ├── domain/
 │   ├── AcentosLetraKaraoke.java
@@ -877,7 +878,7 @@ core/
 
 ---
 
-## Testes — 369 classes
+## Testes — 370 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1482,7 +1483,7 @@ traducaoCorrige/
     └── ResultadoManutencaoCacheTest.java
 ```
 
-#### `traducaoKaraoke` — 8 classes
+#### `traducaoKaraoke` — 9 classes
 
 ```text
 traducaoKaraoke/
@@ -1491,6 +1492,7 @@ traducaoKaraoke/
 │   ├── CorretorNaoAlcancaRomajiDoKaraokeTest.java
 │   ├── CriterioDeMusicaCaracterizacaoTest.java
 │   ├── JamaisMexerNoJaponesTest.java
+│   ├── PlanoDeClassificacaoTest.java
 │   ├── PreservacaoCamadaUnicaTest.java
 │   └── TraduzirKaraokeUseCaseTest.java
 └── domain/
