@@ -12,6 +12,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -124,6 +125,78 @@ class GuardaCorrecaoSeguraTest {
 
         assertTrue(aprovou(veredicto),
             "com o nome preservado a tradução tem de entrar. Veredicto: " + veredicto);
+    }
+
+    /**
+     * O SEGUNDO efeito colateral da abstenção, pego em PRODUÇÃO quatro dias depois — Gundam ZZ
+     * ep29, corrida de 21/08/2026:
+     * <pre>
+     * EN : It {\i1}is{\i0} you, Roux Louka!
+     * PT : É {\i1}é{\i0} você, Roux Louka!     &lt;- "It is" virou "É é"
+     * </pre>
+     *
+     * <p>A tag no miolo parte a frase e o tradutor duplica a palavra. O portão JÁ TINHA a
+     * checagem que pega isso — {@code colarPalavrasIguais} normaliza caixa e parte em
+     * não-letras, então {@code "É é você"} vira {@code [é, é, você]}, adjacentes e iguais.
+     *
+     * <p><b>Ela não rodou porque eu a desliguei.</b> A abstenção de {@code 50ab80ac} — criada
+     * para destravar a tradução de fala em inglês — desligava as DUAS perguntas de uma vez,
+     * porque moravam no mesmo método. Contar palavra portuguesa contra texto inglês não mede
+     * nada e devia mesmo se abster; "a proposta colou duas palavras iguais?" independe de
+     * idioma e nunca devia ter parado.
+     */
+    @Test
+    void propostaQueColaPalavraEmFalaAindaEmInglesEhRecusada() {
+        String ingles = "It {\\i1}is{\\i0} you, Roux Louka!";
+        String colada = "É {\\i1}é{\\i0} você, Roux Louka!";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, colada,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto),
+            "'É é' é palavra colada que o original não colava — a fala em inglês não isenta "
+                + "desta pergunta, só da contagem. Veredicto: " + veredicto);
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.REPETICAO_INTRODUZIDA, motivo(veredicto));
+    }
+
+    /**
+     * O CONTRA-CASO que impede o conserto acima de reabrir o que foi consertado em
+     * {@code 50ab80ac}: a fala do Zeta repete {@code para} duas vezes por gramática, e os dois
+     * NÃO são adjacentes. A contagem continua abstendo; a adjacência não acusa.
+     */
+    @Test
+    void repeticaoLegitimaEmFalaEmInglesContinuaPassando() {
+        String ingles = "{\\i1}So, you're saying the Titans went to{\\i0}\\N"
+            + "{\\i1}Side Four to prepare a colony drop?{\\i0}";
+        String traducao = "{\\i1}Então, você está dizendo que os Titans foram{\\i0}\\N"
+            + "{\\i1}para Side Four para preparar uma queda de colônia?{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, traducao,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto),
+            "os dois 'para' não são adjacentes; recusar aqui devolveria a fala ao inglês. "
+                + "Veredicto: " + veredicto);
+    }
+
+    /**
+     * E a fala que JÁ colava continua passando — {@code "Ha ha ha ha ha!"} é gargalhada, não
+     * defeito. A pergunta só acusa o que a PROPOSTA acrescenta.
+     */
+    @Test
+    void falaQueJaColavaPalavraContinuaPassando() {
+        String atual = "Ha ha ha ha ha!";
+        String proposta = "Ha ha ha ha ha, Judau!";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            "Ha ha ha ha ha!", atual, proposta,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertNotEquals(GuardaCorrecaoSegura.MotivoRecusa.REPETICAO_INTRODUZIDA,
+            veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada r ? r.motivo() : null,
+            "repetição que a fala JÁ tinha não pode ser acusada de introduzida");
     }
 
     /**

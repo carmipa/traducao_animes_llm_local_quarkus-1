@@ -231,8 +231,13 @@ public class GuardaCorrecaoSegura {
         } catch (AlucinacaoDetectadaException e) {
             return silenciosa(MotivoRecusa.ALUCINACAO_OU_SUSPEITA);
         }
-        if (!aFalaAindaEhOOriginalIngles(original, traducaoAtual)
-            && repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata)) {
+        // Duas perguntas, e SO a primeira se abstem quando a fala ainda e o ingles: contar
+        // palavra portuguesa contra texto ingles nao mede nada, mas "a proposta colou duas
+        // palavras iguais?" independe de idioma. Juntas num if so, a abstencao desligava as
+        // duas — foi assim que "It is you" virou "E e voce" no ZZ ep29 em 21/08/2026.
+        boolean falaAindaEmIngles = aFalaAindaEhOOriginalIngles(original, traducaoAtual);
+        if ((!falaAindaEmIngles && repetiuPalavraQueAFalaNaoRepetia(traducaoAtual, candidata))
+            || colouPalavrasIguaisQueAFalaNaoColava(traducaoAtual, candidata)) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "Correção rejeitada: a proposta repete uma palavra que a fala não repetia."
                 + AnsiCores.RESET),
@@ -384,6 +389,38 @@ public class GuardaCorrecaoSegura {
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: a proposta GRUDOU duas palavras iguais que a fala nao grudava —
+     * {@code "E e voce"} onde o original dizia {@code "It is you"}.
+     *
+     * <h2>Por que esta pergunta NAO se abstem quando a fala esta em ingles</h2>
+     * A contagem de palavras longas se abstem, e com razao: comparar quantas vezes uma palavra
+     * PORTUGUESA aparece contra um texto INGLES nao mede nada. Esta aqui e outra coisa — ela
+     * pergunta se a PROPOSTA colou duas palavras identicas lado a lado, e isso independe do
+     * idioma dos dois lados.
+     *
+     * <h2>O prejuizo MEDIDO — 2026-08-21, Gundam ZZ ep29</h2>
+     * A abstencao que entrou em {@code 50ab80ac} desligava as DUAS perguntas de uma vez, porque
+     * moravam no mesmo metodo. Resultado, gravado na legenda:
+     * <pre>
+     * EN : It {\i1}is{\i0} you, Roux Louka!
+     * PT : E {\i1}e{\i0} voce, Roux Louka!     &lt;- "It is" virou "E e"
+     * </pre>
+     * A tag no miolo parte a frase e o tradutor duplica a palavra. O portao tinha a checagem que
+     * pegava — {@code colarPalavrasIguais} normaliza caixa e parte em nao-letras, entao
+     * {@code "E e voce"} vira {@code [e, e, voce]}, adjacentes e iguais — e ela nao rodou porque
+     * eu a desliguei junto com a outra.
+     *
+     * <p>INVARIANTES DO DOMINIO: so acusa o que a PROPOSTA acrescenta. Fala que ja colava
+     * ({@code "Ha ha ha ha ha!"}) passa intacta, e o {@code para ... para} legitimo do Zeta
+     * tambem — aqueles dois nao sao adjacentes.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem palavra colada devolve {@code false}.
+     */
+    private boolean colouPalavrasIguaisQueAFalaNaoColava(String traducaoAtual, String candidata) {
         return !colarPalavrasIguais(traducaoAtual).containsAll(colarPalavrasIguais(candidata));
     }
 
