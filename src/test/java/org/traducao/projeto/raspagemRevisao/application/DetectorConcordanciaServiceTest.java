@@ -374,4 +374,36 @@ class DetectorConcordanciaServiceTest {
         assertTrue(detector.analisar("The girl arrived.", "O garoto chegou.").suspeito(),
             "sem nenhum feminino no português, o 'garoto' é troca de verdade");
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o pronome ÁTONO depois do verbo exige HÍFEN em português
+     * ({@code ajudou-o}). Sem hífen, o {@code a}/{@code o} é artigo ou preposição — e acusar
+     * isso é acusar português correto.
+     *
+     * <p>Achado na corrida real do 86 Part 2 em 22/08/2026: {@code "o ajudou a sobreviver"} era
+     * acusado de "objeto feminino", mas o {@code a} é a preposição de "ajudar A sobreviver" e o
+     * objeto masculino já está ANTES do verbo, onde o português o coloca.
+     */
+    @Test
+    @DisplayName("atono sem hifen e artigo ou preposicao, nao objeto")
+    void atonoSemHifenNaoEObjeto() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "There were probably times when being weighed down by it helped him to survive.",
+            "Provavelmente houve momentos em que ser carregado por isso o ajudou a sobreviver.");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+
+        ResultadoDeteccaoConcordancia artigo = detector.analisar(
+            "He found the key.", "Ele encontrou a chave.");
+        assertFalse(artigo.suspeito(), () -> "motivos: " + artigo.motivos());
+    }
+
+    /** CONTRA-CASO: com HÍFEN, e com "vi ela" coloquial, o cruzamento continua acusando. */
+    @Test
+    @DisplayName("atono COM hifen e o coloquial continuam acusando")
+    void atonoComHifenContinuaAcusando() {
+        assertTrue(detector.analisar("I saw him yesterday.", "Eu vi-a ontem.").suspeito(),
+            "com hífen o pronome é objeto de verdade");
+        assertTrue(detector.analisar("I saw him yesterday.", "Eu vi ela ontem.").suspeito(),
+            "\"vi ela\" é coloquial mas é objeto, e continua sendo pego");
+    }
 }
