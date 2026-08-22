@@ -220,12 +220,23 @@ public class SessaoRevisaoArquivo {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: quantas falas tiveram o itálico removido pela regra de 22/08/2026.
-     * <p>INVARIANTES DO DOMÍNIO: acumula entre arquivos, como os demais contadores da sessão.
+     * PROPÓSITO DE NEGÓCIO: quantas falas tiveram o itálico removido pela regra de 22/08/2026,
+     * e o arquivo passa a merecer gravação por causa disso.
+     *
+     * <h2>Por que NÃO chama contarCorrecaoJaAplicada</h2>
+     * Porque {@code corrigidas} é "falas corrigidas via LLM/Google" — o número que responde
+     * "a revisão consertou tradução?". Somar itálico ali faz o relatório MENTIR: na corrida do
+     * Guilty Crown de 22/08/2026 saiu <i>"Falas corrigidas via LLM e salvas: 412"</i> e as 412
+     * eram itálico — o LLM não corrigiu UMA fala. Número que engana é pior que número nenhum,
+     * porque o operador age sobre ele.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: acumula entre arquivos, como os demais contadores da sessão,
+     * e marca o arquivo como modificado SEM tocar em {@code corrigidas}.
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
      */
     public void contarItalicoRemovido() {
         italicoRemovido++;
+        modificado = true;
     }
 
     /**

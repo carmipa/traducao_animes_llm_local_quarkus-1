@@ -522,7 +522,6 @@ public class RevisarLegendasUseCase {
                 // verde = traduzida/resolvida, amarelo = pendente, vermelho = erro.
                 italicoRemovido++;
                 sessao.contarItalicoRemovido();
-                sessao.contarCorrecaoJaAplicada();
                 out("  -> " + AnsiCores.GREEN + "Italico removido" + AnsiCores.RESET
                     + " na linha " + evento.indice() + " [" + evento.estilo() + "]");
             }
@@ -593,6 +592,7 @@ public class RevisarLegendasUseCase {
             imprimirResumoPorEstilo(eventosDoDisco, revisado.eventos());
             out(AnsiCores.GREEN + "  [OK] sincronizadas=" + sincronizadasNesteArquivo
                 + ", revisadas=" + sessao.corrigidas()
+                + ", italico=" + italicoRemovido
                 + ". Salvo em: " + gravacao.destino().getFileName() + AnsiCores.RESET);
             if (gravacao.backup() != null) {
                 out(AnsiCores.CYAN + "  Backup anterior: " + gravacao.backup() + AnsiCores.RESET);
