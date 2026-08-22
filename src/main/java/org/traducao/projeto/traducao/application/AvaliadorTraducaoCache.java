@@ -40,6 +40,7 @@ public class AvaliadorTraducaoCache {
     private final DetectorTraducaoIdenticaService detectorIdentica;
     private final ValidadorTraducaoService validador;
     private final VerificadorIdentificadorNumerico verificadorNumerico;
+    private final RemovedorItalico removedorItalico;
     private final RestauradorFalaIdenticaSemItalico restauradorIdentica;
 
     /**
@@ -55,6 +56,7 @@ public class AvaliadorTraducaoCache {
      * @param mascarador preserva/compara a estrutura de tags entre original e tradução
      * @param detectorIdentica decide quando uma fala idêntica ao original é legítima
      * @param validador acusa resíduo gringo/preâmbulo lançando {@link AlucinacaoDetectadaException}
+     * @param removedorItalico aplica a regra do itálico nos DOIS lados da comparação
      * @param restauradorIdentica recupera a fala-nome que perdeu só o itálico
      */
     public AvaliadorTraducaoCache(
@@ -62,12 +64,14 @@ public class AvaliadorTraducaoCache {
         DetectorTraducaoIdenticaService detectorIdentica,
         ValidadorTraducaoService validador,
         VerificadorIdentificadorNumerico verificadorNumerico,
+        RemovedorItalico removedorItalico,
         RestauradorFalaIdenticaSemItalico restauradorIdentica
     ) {
         this.mascarador = mascarador;
         this.detectorIdentica = detectorIdentica;
         this.validador = validador;
         this.verificadorNumerico = verificadorNumerico;
+        this.removedorItalico = removedorItalico;
         this.restauradorIdentica = restauradorIdentica;
     }
 
@@ -104,7 +108,7 @@ public class AvaliadorTraducaoCache {
         if (traduzido == null || traduzido.isBlank()) {
             return false;
         }
-        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
+        if (!preservaEstruturaIgnorandoItalico(original, traduzido)) {
             log.warn("Cache ignorado porque as tags divergem do original: {}", traduzido);
             return false;
         }
@@ -185,7 +189,7 @@ public class AvaliadorTraducaoCache {
         if (traduzido == null || traduzido.isBlank()) {
             return "resposta vazia";
         }
-        if (!mascarador.preservaEstruturaOriginal(original, traduzido)) {
+        if (!preservaEstruturaIgnorandoItalico(original, traduzido)) {
             return "tags ASS/SSA ou quebras de linha divergentes do original";
         }
         if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
@@ -208,5 +212,32 @@ public class AvaliadorTraducaoCache {
         } catch (AlucinacaoDetectadaException e) {
             return e.getMessage();
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o portão de estrutura, com o itálico fora da conta dos DOIS lados.
+     *
+     * <p>Sem isto, a regra de 22/08/2026 ({@link RemovedorItalico}) viraria um estrago: a
+     * tradução sai sem o {@code \i1} que o original tinha, as listas de tags divergem e a fala
+     * é DESCARTADA — publicada em inglês. Não é hipótese: em 31/07/2026, 8 falas do 08th MS
+     * Team saíram assim na tela e foi o que fez nascer o {@link RestauradorFalaIdenticaSemItalico}.
+     * Com o itálico eliminado na origem seriam as 9.678 falas de diálogo em itálico do acervo.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A MESMA função é aplicada aos dois lados. Afrouxa exatamente na dimensão do
+     *       itálico e em nenhuma outra.</li>
+     *   <li>Toda tag que não é itálico continua exigida em quantidade, conteúdo e ordem —
+     *       {@code \pos} perdido, {@code \N} perdido e tag INVENTADA seguem reprovando.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo em qualquer lado devolve {@code false}, como antes.
+     */
+    private boolean preservaEstruturaIgnorandoItalico(String original, String traduzido) {
+        if (original == null || traduzido == null) {
+            return false;
+        }
+        return mascarador.preservaEstruturaOriginal(
+            removedorItalico.remover(original), removedorItalico.remover(traduzido));
     }
 }
