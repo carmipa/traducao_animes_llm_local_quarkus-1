@@ -58,6 +58,9 @@ public class RelatorioRevisaoService {
      *
      * @param contextoId lore ativa da rodada; sem ela não há como saber depois quais nomes
      *                   estavam protegidos do tradutor externo
+     * @param italicoRemovido falas de que a regra do itálico tirou a tag — SEMPRE impresso,
+                             inclusive zero: a operação rodou, então zero aqui é "medi e deu
+                             zero", nunca "não medi"
      * @return a pasta onde os relatórios daquela entrada são gravados, para o chamador informar
      */
     public Path registrar(
@@ -69,6 +72,7 @@ public class RelatorioRevisaoService {
         int auditadas,
         int semOriginal,
         int pendentes,
+        int italicoRemovido,
         ModoRevisaoLegendas modo,
         String contextoId,
         List<DetalheRevisao> detalhes
@@ -93,6 +97,7 @@ public class RelatorioRevisaoService {
             Problemas detectados: %d
             %s: %d
             Falas pendentes: %d
+            Itálico removido (regra de 2026-08-22): %d
             """.formatted(
             cabecalho,
             pastaLegendasPt.toAbsolutePath(),
@@ -104,7 +109,8 @@ public class RelatorioRevisaoService {
             problemas,
             rotuloCorrigidas,
             corrigidas,
-            pendentes);
+            pendentes,
+            italicoRemovido);
 
         relatorio += formatarDetalhes(detalhes, corrigidas);
         telemetria.registrarComRelatorio(

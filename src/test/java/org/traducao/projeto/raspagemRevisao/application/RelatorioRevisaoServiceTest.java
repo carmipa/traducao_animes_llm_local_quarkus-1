@@ -63,7 +63,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("Modo Google: cabeçalho, rótulo e ordem das linhas idênticos aos de antes da extração")
     void relatorioDoModoGoogle() {
         servico.registrar(Path.of("animes", "pt"), 90_000,
-            3, 12, 7, 400, 5, 5, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
+            3, 12, 7, 400, 5, 5, 9, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
         assertTrue(r.startsWith("""
@@ -77,6 +77,11 @@ class RelatorioRevisaoServiceTest {
         assertTrue(r.contains("Problemas detectados: 12\n"));
         assertTrue(r.contains("Falas corrigidas via Google: 7\n"));
         assertTrue(r.contains("Falas pendentes: 5\n"));
+        // LINHA NOVA em 22/08/2026, e ela entrou no FIM de proposito: a sequencia congelada
+        // abaixo prova ORDEM e ausencia de linha sobrando, e acrescentar no meio quebraria a
+        // leitura de quem ja conhece o formato. Zero e IMPRESSO: a operacao rodou, entao zero
+        // aqui significa "medi e deu zero", nunca "nao medi".
+        assertTrue(r.contains("Itálico removido (regra de 2026-08-22): 9\n"));
         assertFalse(r.contains("via LLM"), "o rótulo do outro modo não pode vazar");
         assertEquals("Revisão Legendas (.ass Google)", telemetria.operacao);
         assertEquals("revisao_legendas", telemetria.prefixo);
@@ -98,6 +103,7 @@ class RelatorioRevisaoServiceTest {
             "Problemas detectados: 12",
             "Falas corrigidas via Google: 7",
             "Falas pendentes: 5",
+            "Itálico removido (regra de 2026-08-22): 9",
             "",
             "DETALHES POR OCORRÊNCIA",
             "=======================",
@@ -113,7 +119,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("Modo LLM: cabeçalho e rótulo próprios — os dois modos não se confundem no histórico")
     void relatorioDoModoLlm() {
         servico.registrar(Path.of("animes", "pt"), 5_000,
-            1, 2, 2, 10, 0, 0, ModoRevisaoLegendas.LLM_CONCORDANCIA, "gundam_zeta", List.of());
+            1, 2, 2, 10, 0, 0, 0, ModoRevisaoLegendas.LLM_CONCORDANCIA, "gundam_zeta", List.of());
 
         String r = telemetria.relatorios.get(0);
         assertTrue(r.startsWith("""
@@ -211,7 +217,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("a lore ativa fica registrada no relatório")
     void loreAtivaApareceNoRelatorio() {
         servico.registrar(Path.of("animes", "pt"), 1_000,
-            1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
+            1, 0, 0, 10, 0, 0, 0, ModoRevisaoLegendas.GOOGLE, "gundam_zeta", List.of());
 
         assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: gundam_zeta\n"),
             "sem a lore no relatório não há como auditar a proteção de nomes depois");
@@ -225,7 +231,7 @@ class RelatorioRevisaoServiceTest {
     @DisplayName("sem lore selecionada o relatório diz (nenhuma), não fica em branco")
     void loreAusenteApareceComoNenhuma() {
         servico.registrar(Path.of("animes", "pt"), 1_000,
-            1, 0, 0, 10, 0, 0, ModoRevisaoLegendas.GOOGLE, "  ", List.of());
+            1, 0, 0, 10, 0, 0, 0, ModoRevisaoLegendas.GOOGLE, "  ", List.of());
 
         assertTrue(telemetria.relatorios.get(0).contains("Lore ativa: (nenhuma)\n"));
     }

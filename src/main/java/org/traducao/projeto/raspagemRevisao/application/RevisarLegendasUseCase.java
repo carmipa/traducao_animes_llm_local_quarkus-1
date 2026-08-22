@@ -242,7 +242,7 @@ public class RevisarLegendasUseCase {
                     + AnsiCores.RESET);
                 out("Relatório salvo em: " + relatorio.registrar(
                     pastaLegendasPt, System.currentTimeMillis() - inicioMs,
-                    0, 0, 0, 0, 0, 0, modo, contextoId, detalhesRevisao));
+                    0, 0, 0, 0, 0, 0, 0, modo, contextoId, detalhesRevisao));
                 return new ResultadoRevisaoLegendas(0, 0, 0, 0, 0);
             }
 
@@ -288,7 +288,7 @@ public class RevisarLegendasUseCase {
         out("Relatório salvo em: " + relatorio.registrar(
             pastaLegendasPt, System.currentTimeMillis() - inicioMs,
             lote.arquivos(), lote.problemas(), lote.corrigidas(), lote.auditadas(),
-            lote.semOriginal(), lote.pendentes(), modo, contextoId, detalhesRevisao));
+            lote.semOriginal(), lote.pendentes(), lote.italicoRemovido(), modo, contextoId, detalhesRevisao));
         return new ResultadoRevisaoLegendas(
             lote.arquivos(), lote.corrigidas(), lote.problemas(), lote.pendentes(),
             lote.arquivosCegos());
@@ -521,6 +521,7 @@ public class RevisarLegendasUseCase {
                 // VERDE: e alteracao concluida na legenda. Padrao de cores do Paulo (17/08):
                 // verde = traduzida/resolvida, amarelo = pendente, vermelho = erro.
                 italicoRemovido++;
+                sessao.contarItalicoRemovido();
                 sessao.contarCorrecaoJaAplicada();
                 out("  -> " + AnsiCores.GREEN + "Italico removido" + AnsiCores.RESET
                     + " na linha " + evento.indice() + " [" + evento.estilo() + "]");

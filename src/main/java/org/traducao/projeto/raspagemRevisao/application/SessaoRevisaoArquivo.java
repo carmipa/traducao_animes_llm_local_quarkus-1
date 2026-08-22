@@ -59,6 +59,7 @@ public class SessaoRevisaoArquivo {
     private int semOriginal;
     private int pendentes;
     private int semReferenciaSegura;
+    private int italicoRemovido;
     private boolean modificado;
 
     /**
@@ -216,6 +217,24 @@ public class SessaoRevisaoArquivo {
     /** A legenda remontada, na ordem original. */
     public List<EventoLegenda> eventos() {
         return eventos;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quantas falas tiveram o itálico removido pela regra de 22/08/2026.
+     * <p>INVARIANTES DO DOMÍNIO: acumula entre arquivos, como os demais contadores da sessão.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public void contarItalicoRemovido() {
+        italicoRemovido++;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o total de itálicos removidos, para o relatório e a telemetria.
+     * <p>INVARIANTES DO DOMÍNIO: consulta pura.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public int italicoRemovido() {
+        return italicoRemovido;
     }
 
     public int corrigidas() {
