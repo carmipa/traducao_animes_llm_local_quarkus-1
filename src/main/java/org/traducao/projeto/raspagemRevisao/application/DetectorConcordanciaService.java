@@ -220,6 +220,41 @@ public class DetectorConcordanciaService {
         return PREDICADO_DE_1A_2A_PESSOA.matcher(texto).replaceAll(" ");
     }
 
+    /**
+     * Existe por causa de UMA palavra: {@code cara}. Ela e vocativo masculino ("e ai, cara!"),
+     * substantivo FEMININO ("na cara dela" = rosto) e adjetivo ("essa roupa e cara"). Medido no
+     * acervo em 22/08/2026, a UNICA acusacao desta familia era rosto:
+     * <pre>
+     * EN: Don't you ever say that to her face, got it?
+     * PT: Voce nunca fala isso na cara dela, entendeu?      &lt;- "cara" = face
+     * </pre>
+     * O sinal que separa os usos e o DETERMINANTE: vocativo nao leva artigo, possessivo nem
+     * verbo de ligacao antes ("cara," / ", cara"); rosto e adjetivo levam. Um adjetivo pode
+     * ficar no meio ("a propria cara"), entao o padrao aceita UMA palavra intermediaria — e
+     * so uma, e sem virgula, porque a virgula e justamente o que marca o vocativo ("falou,
+     * cara!"). Estas ocorrencias sao
+     * APAGADAS do texto antes da checagem de tratamento — a mesma tecnica de
+     * {@link #removerPredicadoDePrimeiraSegundaPessoa}, que a classe ja usava.
+     *
+     * <p>Nao afrouxa a guarda: "e ai, cara!" continua sendo pego, e o contra-caso do teste
+     * prova isso. Guarda que reprova texto correto e pior que guarda nenhuma — alarme falso
+     * ensina a desligar o alarme.
+     */
+    private static final Pattern CARA_QUE_NAO_E_VOCATIVO = Pattern.compile(
+        "\\b(?:a|na|da|à|as|nas|das|sua|tua|minha|nossa|uma|essa|esta|aquela|"
+            + "é|e|era|estava|fica|ficou|muito|mais|tão|tao)\\s+(?:\\w+\\s+)?cara\\b",
+        FLAGS);
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega o texto sem os {@code cara} que são rosto ou preço, para a
+     * checagem de vocativo enxergar só os que são tratamento.
+     * <p>INVARIANTES DO DOMÍNIO: não altera o texto persistido — é cópia para inspeção.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo propaga NPE (entrada inválida do chamador).
+     */
+    private static String removerCaraQueNaoEVocativo(String texto) {
+        return CARA_QUE_NAO_E_VOCATIVO.matcher(texto).replaceAll(" ");
+    }
+
     private static final Pattern TRATAMENTO_MASC_COM_FEM_EN =
         Pattern.compile("\\b(" + TRATAMENTO_MASC + ")\\b", FLAGS);
 
@@ -297,9 +332,31 @@ public class DetectorConcordanciaService {
         detectarPredicadoPorEvidenciaDeGenero(original, texto, motivos);
     }
 
-    /** {@code her} no original × masculino na tradução: objeto, imperativo, regência, possessivo. */
+    /**
+     * {@code her} no original × masculino na tradução: objeto, imperativo, regência, possessivo.
+     *
+     * <h2>Por que o {@code him} no MESMO original cancela tudo</h2>
+     * Quando a frase inglesa cita os dois, o masculino do português pode estar traduzindo o
+     * {@code him} — e aí não há cruzamento nenhum. Medido no acervo em 22/08/2026, as três
+     * acusações desta família eram todas isto:
+     * <pre>
+     * EN: Eve appears intent on making him her Adam.
+     * PT: Mana parece determinada a fazer dele seu Adão.        <- "dele" = him, "seu" = her
+     * EN: The newsman brought her back with him during our First Contact.
+     * PT: O repórter a trouxe de volta com ele...               <- "com ele" = with him
+     * EN: ...Beltorchika willingly opened her heart to him.
+     * PT: ...Beltorchika abriu o coração para ele...            <- "para ele" = to him
+     * </pre>
+     * As três traduções estão CERTAS. Guarda que reprova código correto é pior que guarda
+     * nenhuma: alarme falso ensina a desligar o alarme.
+     *
+     * <p>Não é regra nova nem afrouxamento: {@link #detectarTratamentos} e
+     * {@link #detectarPredicadoPorEvidenciaDeGenero} já exigiam evidência de UM SÓ gênero
+     * ({@code femEn && !mascEn}). Estes dois é que estavam fora do padrão da própria classe.
+     */
     private void detectarObjetoComHer(String original, String texto, Set<String> motivos) {
-        if (!LexicoGenero.HER_EN.matcher(original).find()) {
+        if (!LexicoGenero.HER_EN.matcher(original).find()
+            || LexicoGenero.HIM_EN.matcher(original).find()) {
             return;
         }
         adicionarSeEncontrado(motivos, OBJETO_MASC_COM_HER_EN, texto,
@@ -313,9 +370,13 @@ public class DetectorConcordanciaService {
         }
     }
 
-    /** Lado espelhado: {@code him} no original × feminino na tradução. */
+    /**
+     * Lado espelhado: {@code him} no original × feminino na tradução. O {@code her} no mesmo
+     * original cancela pela razão simétrica — ver {@link #detectarObjetoComHer}.
+     */
     private void detectarObjetoComHim(String original, String texto, Set<String> motivos) {
-        if (!LexicoGenero.HIM_EN.matcher(original).find()) {
+        if (!LexicoGenero.HIM_EN.matcher(original).find()
+            || LexicoGenero.HER_EN.matcher(original).find()) {
             return;
         }
         adicionarSeEncontrado(motivos, OBJETO_FEM_COM_HIM_EN, texto,
@@ -434,18 +495,104 @@ public class DetectorConcordanciaService {
      * primeira execução mostrou: a fala trazia DOIS motivos, um de cada par.
      */
     private void detectarPredicadoPorEvidenciaDeGenero(String original, String texto, Set<String> motivos) {
+        String limpo = removerPredicadoDePrimeiraSegundaPessoa(texto);
+
         if (LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()
-            && PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
+            && concordaComAPessoa(limpo, PARTIC_MASC_APOS_VERBO)
             && !LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()) {
             motivos.add("Original indica feminino, mas participio/adjetivo predicativo está no masculino");
         }
 
         if (LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()
-            && PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
+            && concordaComAPessoa(limpo, PARTIC_FEM_APOS_VERBO)
             && !LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()) {
             motivos.add("Original indica masculino, mas participio/adjetivo predicativo está no feminino");
         }
 
+    }
+
+    /** Advérbios que cabem entre o sujeito e o verbo sem serem o sujeito. */
+    private static final Pattern INTERCALADA_ANTES_DO_VERBO = Pattern.compile(
+        "\\b(?:não|nao|já|ja|ainda|sempre|nunca|também|tambem|só|so|realmente|talvez|quase)\\b",
+        FLAGS);
+
+    /** Sujeito que PODE ser a pessoa de quem o original fala. Qualquer outro cancela. */
+    private static final Pattern SUJEITO_DE_TERCEIRA =
+        Pattern.compile("(?:ele|ela|eles|elas)", FLAGS);
+
+    /** Preposição colada no pronome: ali ele é OBJETO, nunca sujeito. */
+    private static final Pattern PREPOSICAO_ANTES_DO_PRONOME = Pattern.compile(
+        "\\b(?:de|do|da|com|contra|para|por|em|no|na|sobre|entre|sem|ao|à|a)\\s+$", FLAGS);
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: confirma que o adjetivo encontrado fala da PESSOA de quem o original
+     * fala, e não de um substantivo qualquer da própria frase portuguesa.
+     *
+     * <h2>O prejuízo, medido no acervo inteiro em 22/08/2026</h2>
+     * O padrão sozinho casa {@code verbo + adjetivo} sem olhar QUEM é o sujeito. Das 23 falas que
+     * o detector acusava em 67.178 pares EN/PT, <b>oito vinham daqui e as oito estavam certas</b>
+     * — o adjetivo concordava com um substantivo da própria frase:
+     * <pre>
+     * "Algo está errado com aquela garota?"           errado  &lt;- Algo
+     * "...ou o Argama sera perdido!"                  perdido &lt;- Argama
+     * "Que nossa guerra contra eles é errada!"        errada  &lt;- guerra ("eles" é objeto de "contra")
+     * "A causa de Kou é perdida."                     perdida &lt;- causa
+     * "Esperando pela era certa."                     certa   &lt;- era (substantivo, não o verbo)
+     * "Aquela pessoa esta morta."                     morta   &lt;- pessoa
+     * "É certo tê-la?"                                construção impessoal
+     * </pre>
+     * Oito de oito falso positivo é alarme que ensina a desligar o alarme.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>FALHA FECHADA: na dúvida NÃO acusa. Só segue quando o sujeito é
+     *       {@code ele/ela/eles/elas} ou está elíptico no início da oração.</li>
+     *   <li>Pronome precedido de preposição é OBJETO — mata o caso "contra eles".</li>
+     *   <li>{@code é} abrindo a oração é impessoal ("É certo", "É difícil"). Os demais verbos
+     *       abrindo a oração continuam valendo: "Está cansado." sem sujeito é exatamente o caso
+     *       que a guarda existe para pegar, e o contra-caso do teste prova que ele sobrevive.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve {@code false}; nunca lança.
+     */
+    private static boolean concordaComAPessoa(String texto, Pattern predicado) {
+        java.util.regex.Matcher m = predicado.matcher(texto);
+        while (m.find()) {
+            if (sujeitoPodeSerAPessoa(texto, m.start(), m.group(1))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: olha para trás do verbo e decide se o sujeito daquela oração pode ser
+     * a pessoa referida no original.
+     * <p>INVARIANTES DO DOMÍNIO: a oração é recortada na pontuação — o que vem antes de vírgula ou
+     * ponto pertence a outra oração e não é sujeito desta.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; devolve {@code false} quando não reconhece.
+     */
+    private static boolean sujeitoPodeSerAPessoa(String texto, int inicioDoVerbo, String verbo) {
+        String antes = texto.substring(0, inicioDoVerbo);
+        int corte = -1;
+        for (char pontuacao : new char[] {44, 46, 33, 63, 59, 58}) {
+            corte = Math.max(corte, antes.lastIndexOf(pontuacao));
+        }
+        String oracao = corte >= 0 ? antes.substring(corte + 1) : antes;
+        String semAdverbios = INTERCALADA_ANTES_DO_VERBO.matcher(oracao).replaceAll(" ").trim();
+
+        if (semAdverbios.isEmpty()) {
+            return !"é".equalsIgnoreCase(verbo.trim());
+        }
+        int ultimoEspaco = semAdverbios.lastIndexOf(32);
+        String candidato = ultimoEspaco < 0
+            ? semAdverbios
+            : semAdverbios.substring(ultimoEspaco + 1);
+        if (!SUJEITO_DE_TERCEIRA.matcher(candidato).matches()) {
+            return false;
+        }
+        String antesDoPronome = semAdverbios.substring(0, Math.max(0, ultimoEspaco + 1));
+        return !PREPOSICAO_ANTES_DO_PRONOME.matcher(antesDoPronome).find();
     }
 
     private void detectarTratamentos(String original, String texto, Set<String> motivos) {
@@ -453,7 +600,8 @@ public class DetectorConcordanciaService {
         boolean mascEn = LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find();
 
         if (femEn && !mascEn) {
-            adicionarSeEncontrado(motivos, TRATAMENTO_MASC_COM_FEM_EN, texto,
+            adicionarSeEncontrado(motivos, TRATAMENTO_MASC_COM_FEM_EN,
+                removerCaraQueNaoEVocativo(texto),
                 "Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original");
         }
         if (mascEn && !femEn) {

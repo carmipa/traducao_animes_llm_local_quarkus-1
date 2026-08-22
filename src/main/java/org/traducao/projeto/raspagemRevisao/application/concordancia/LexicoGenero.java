@@ -111,9 +111,15 @@ public final class LexicoGenero {
      * e "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem afirmava
      * não haver referência feminina no original.
      */
+    /**
+     * {@code mistress} entrou em 22/08/2026 e a cicatriz e nominal: "Mistress Chara" NAO casa
+     * {@code miss} — a palavra e "mistress", nao "miss" seguido de "tress". Sem ela o original
+     * ficava sem evidencia feminina e as duas falas do Macross II com "Senhora Chara" —
+     * traducao CORRETA — eram acusadas de vocativo feminino sem referencia feminina.
+     */
     public static final Pattern PRONOME_FEMININO_EN = Pattern.compile(
         "\\b(she|her|hers|girl|woman|lady|mother|mom|sister|daughter|"
-            + "princess|goddess|queen|heroine|miss|mrs|ms|madam|ma'am|female|wife|aunt|"
+            + "princess|goddess|queen|heroine|miss|mistress|mrs|ms|madam|ma'am|female|wife|aunt|"
             + "grandma|grandmother|niece|waitress|actress|hostess)\\b", FLAGS);
 
     /**
