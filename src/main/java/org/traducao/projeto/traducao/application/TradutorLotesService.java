@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: traduz as falas pendentes de um episódio — mascara as tags,

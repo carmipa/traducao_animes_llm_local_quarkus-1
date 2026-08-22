@@ -111,7 +111,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os onze proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os quinze proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -138,6 +138,13 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_APPLICATION + ".IsoladorQuebraDialogo",
                 PKG_QT_APPLICATION + ".MascaradorTags",
                 PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
+                // DECIMO QUINTO, 22/08/2026. Elimina o italico da legenda por decisao de
+                // produto do Paulo. Mora neste peer pelo mesmo criterio de EnforcadorTermosLore
+                // e NormalizadorAcentosComuns: opera sobre o TEXTO, nao sabe qual obra e, e —
+                // o que decidiu a casa — DUAS fatias o consomem (traducao e raspagemRevisao).
+                // Na fatia ele teria de ser copiado para a segunda, que e a classe de defeito
+                // que CatracaRegraDuplicadaEntreFatiasTest existe para contar.
+                PKG_QT_APPLICATION + ".RemovedorItalico",
                 PKG_QT_APPLICATION + ".ProtecaoLegendaAssService",
                 PKG_QT_APPLICATION + ".ValidadorTraducaoService",
                 PKG_QT_DOMAIN + ".AlucinacaoDetectadaException",
@@ -163,7 +170,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_NOME_PROPRIO + ".DetectorNomeProprioTraduzido",
                 PKG_QT_NOME_PROPRIO + ".ExtratorCandidatosNomeProprio",
                 PKG_QT_NOME_PROPRIO + ".VeredictoNomeProprio")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os quatorze proprietários top-level homologados, por FQN "
+            "qualidadeTraducao deve conter EXATAMENTE os quinze proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: fixa por regressão a política de reuso de cache e a validação

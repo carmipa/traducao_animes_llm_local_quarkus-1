@@ -1,9 +1,12 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.raspagemRevisao.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 
@@ -14,10 +17,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: medir, no ACERVO REAL e com as classes de PRODUÇÃO, quanto a regra do
@@ -64,9 +67,6 @@ class MedicaoAlcanceRegraItalicoIT {
     /** A pasta de SAÍDA do pipeline: é a legenda entregue, que é o que a regra governa. */
     private static final String PASTA_PT = "traducao_ptbr";
 
-    /** Só para separar "não mudou porque não tinha" de "não mudou porque a regra se absteve". */
-    private static final Pattern TEM_ITALICO = Pattern.compile("\\\\i[01]?(?![0-9A-Za-z])");
-
     @Test
     @DisplayName("mede o alcance da regra do italico no acervo ja traduzido")
     void medeOAlcanceDaRegraNoAcervo() throws IOException {
@@ -76,7 +76,16 @@ class MedicaoAlcanceRegraItalicoIT {
 
         RemovedorItalico removedor = new RemovedorItalico();
         LeitorLegendaAss leitor = new LeitorLegendaAss();
-        DetectorEfeitoKaraokeService detector = new DetectorEfeitoKaraokeService();
+        // QUEM DECIDE o que a 3.1 toca e o FiltroAuditoriaLinha, nao o detector de karaoke
+        // cru: ele veta musica, karaoke, conteudo VETORIAL e efeito protegido. E a diferenca
+        // entre "quantas falas tem italico" e "quantas a tela do refinamento vai limpar" —
+        // sao perguntas diferentes, e so a segunda dimensiona a operacao.
+        //
+        // A lista estilos-ignorados vai VAZIA: e configuracao do operador, e o proprio
+        // application.yml e quem a preenche em producao. Por isso o numero daqui e TETO.
+        FiltroAuditoriaLinha filtro = new FiltroAuditoriaLinha(
+            new MascaradorTags(), new PoliticaEstiloMusical(List.of()),
+            new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
 
         List<Path> arquivos = new ArrayList<>();
         try (Stream<Path> caminhada = Files.walk(ACERVO)) {
@@ -96,7 +105,7 @@ class MedicaoAlcanceRegraItalicoIT {
         int comTag = 0;
         int mudariam = 0;
         int abstencoes = 0;
-        int musicaComItalico = 0;
+        int vetadasPeloFiltro = 0;
         int ilegiveis = 0;
         Map<String, Integer> porObra = new LinkedHashMap<>();
         Map<String, Integer> porEstilo = new LinkedHashMap<>();
@@ -121,9 +130,9 @@ class MedicaoAlcanceRegraItalicoIT {
                 comTag++;
                 String limpo = removedor.remover(texto);
                 boolean mudaria = !limpo.equals(texto);
-                if (detector.podeSerCamadaMusical(evento.estilo(), texto)) {
+                if (filtro.deveIgnorarLinha(evento)) {
                     if (mudaria) {
-                        musicaComItalico++;
+                        vetadasPeloFiltro++;
                     }
                     continue;
                 }
@@ -135,7 +144,7 @@ class MedicaoAlcanceRegraItalicoIT {
                         amostra.add("[" + evento.estilo() + "] " + recorte(texto)
                             + "  ->  " + recorte(limpo));
                     }
-                } else if (TEM_ITALICO.matcher(texto).find()) {
+                } else if (removedor.temItalico(texto)) {
                     abstencoes++;
                     abstencaoPorObra.merge(obra, 1, Integer::sum);
                 }
@@ -146,12 +155,12 @@ class MedicaoAlcanceRegraItalicoIT {
         System.out.println("arquivos " + PASTA_PT + " lidos : " + arquivos.size()
             + (ilegiveis > 0 ? "  (" + ilegiveis + " ILEGIVEIS)" : ""));
         System.out.println("falas com bloco de tag      : " + comTag);
-        System.out.println("MUDARIAM (dialogo)          : " + mudariam);
+        System.out.println("A 3.1 LIMPARIA              : " + mudariam);
         System.out.println("ABSTENCOES (i0 do Style)    : " + abstencoes);
-        System.out.println("musica com italico (VETADA) : " + musicaComItalico);
-        imprimir("por obra — mudariam", porObra);
+        System.out.println("VETADAS pelo filtro da 3.1  : " + vetadasPeloFiltro + "  (musica, karaoke, vetorial, efeito protegido)");
+        imprimir("por obra — a 3.1 limparia", porObra);
         imprimir("por obra — ABSTENCOES (onde a regra nao alcanca)", abstencaoPorObra);
-        imprimir("por estilo — mudariam", porEstilo);
+        imprimir("por estilo — a 3.1 limparia", porEstilo);
         System.out.println("--- AVISO DE ESCOPO DO INSTRUMENTO:");
         System.out.println("   a lista 'estilos-ignorados' do application.yml NAO e aplicada aqui.");
         System.out.println("   Ela e CONFIGURACAO do operador, nao criterio de codigo, e o pipeline a");

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.traducao.projeto.correcaoLegendas.application.SanitizadorTagsService;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 import java.util.Map;
 
@@ -43,6 +44,7 @@ public class PreparadorFalaRevisao {
 
     private final SanitizadorTagsService sanitizadorTags;
     private final ProtecaoLegendaAssService protecaoAss;
+    private final RemovedorItalico removedorItalico;
 
     /**
      * PROPÓSITO DE NEGÓCIO: reúne o sanitizador de tags e a noção de texto visível.
@@ -51,9 +53,11 @@ public class PreparadorFalaRevisao {
      */
     public PreparadorFalaRevisao(
             SanitizadorTagsService sanitizadorTags,
-            ProtecaoLegendaAssService protecaoAss) {
+            ProtecaoLegendaAssService protecaoAss,
+            RemovedorItalico removedorItalico) {
         this.sanitizadorTags = sanitizadorTags;
         this.protecaoAss = protecaoAss;
+        this.removedorItalico = removedorItalico;
     }
 
     /**
@@ -65,6 +69,7 @@ public class PreparadorFalaRevisao {
      * @param karaokeCorrigido se o saneamento foi aplicado
      * @param karaokeRecusadoPorEsvaziamento se a guarda impediu o saneamento
      * @param textoAnterior o texto antes do saneamento, para a mensagem ao operador
+     * @param italicoRemovido se a regra do itálico tirou a tag desta fala
      */
     public record FalaPreparada(
         EventoLegenda evento,
@@ -72,7 +77,8 @@ public class PreparadorFalaRevisao {
         boolean temOriginalEn,
         boolean karaokeCorrigido,
         boolean karaokeRecusadoPorEsvaziamento,
-        String textoAnterior
+        String textoAnterior,
+        boolean italicoRemovido
     ) {
     }
 
@@ -98,11 +104,30 @@ public class PreparadorFalaRevisao {
 
         String corrigidoKaraoke = sanitizadorTags.escaparChavesInvalidas(textoAnterior, originalEn);
         boolean esvaziaria = esvaziariaFala(textoAnterior, corrigidoKaraoke);
-        if (!textoAnterior.equals(corrigidoKaraoke) && !esvaziaria) {
-            return new FalaPreparada(evento.comTexto(corrigidoKaraoke), originalEn, temOriginalEn,
-                true, false, textoAnterior);
+        String base = esvaziaria ? textoAnterior : corrigidoKaraoke;
+        boolean karaokeCorrigido = !esvaziaria && !textoAnterior.equals(corrigidoKaraoke);
+
+        // A REGRA DO ITALICO (22/08/2026) aplicada na 3.1, DEPOIS do saneamento de karaoke:
+        // primeiro conserta a tag mutilada, so entao tira o italico. Invertido, o removedor
+        // veria uma chave malformada e nao reconheceria o token.
+        //
+        // POR QUE AQUI, e nao so na Traducao: a 3.1 e a tela que o operador passa no acervo
+        // JA traduzido. A regra na 2.1 so alcanca episodio processado dali para a frente; sem
+        // esta etapa, as 9.769 falas de dialogo em italico do acervo continuariam la para
+        // sempre, e a tela que existe para corrigir passaria por elas sem ver.
+        //
+        // MUSICA NAO CHEGA AQUI: FiltroAuditoriaLinha.deveIgnorarLinha ja mandou embora
+        // musica, karaoke, conteudo vetorial e estilo-ignorado, com veto ABSOLUTO.
+        String semItalico = removedorItalico.remover(base);
+        boolean italicoRemovido = !base.equals(semItalico) && !esvaziariaFala(base, semItalico);
+        String textoFinal = italicoRemovido ? semItalico : base;
+
+        if (karaokeCorrigido || italicoRemovido) {
+            return new FalaPreparada(evento.comTexto(textoFinal), originalEn, temOriginalEn,
+                karaokeCorrigido, false, textoAnterior, italicoRemovido);
         }
-        return new FalaPreparada(evento, originalEn, temOriginalEn, false, esvaziaria, textoAnterior);
+        return new FalaPreparada(evento, originalEn, temOriginalEn, false, esvaziaria,
+            textoAnterior, false);
     }
 
     /**

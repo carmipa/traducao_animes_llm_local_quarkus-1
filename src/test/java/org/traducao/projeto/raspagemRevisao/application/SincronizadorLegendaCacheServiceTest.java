@@ -1,5 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
@@ -36,11 +37,47 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(1, "Default", "Help!", "Ajude!", "en", "pt-br"),
             new EntradaCache(2, "Default", "Fransson!", "", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(documento, entradas, true);
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()), new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico()).sincronizar(documento, entradas, true);
 
         assertEquals(1, resultado.total());
         assertEquals("Ajude!", resultado.documento().eventos().get(0).texto());
         assertEquals("Fransson!", resultado.documento().eventos().get(1).texto());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: esta ponte é o ÚNICO ponto da 3.1 que traz texto de FORA da
+     * legenda — ela escreve o {@code traduzido} do cache. O cache gravado ANTES da regra do
+     * itálico (22/08/2026) tem {@code \i1}, então sem a regra aqui a Revisão de Legendas
+     * REINTRODUZIRIA na legenda exatamente o que a Tradução acabou de tirar.
+     *
+     * <p>É o pior formato possível de defeito para quem opera: o operador passa a tela que
+     * existe para CORRIGIR e vê o problema VOLTAR.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o resto do texto e as demais tags chegam intactos; só o
+     * itálico não passa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: itálico na legenda depois da sincronização reprova.
+     */
+    @Test
+    @DisplayName("cache anterior a regra nao reintroduz italico na legenda ja limpa")
+    void cacheComItalicoNaoReintroduzItalicoNaLegenda() {
+        DocumentoLegenda documento = new DocumentoLegenda("[Events]\\n", List.of(
+            new EventoLegenda(1, "Dialogue", "Default", "prefixo1,", "Texto antigo"),
+            new EventoLegenda(2, "Dialogue", "Default", "prefixo2,", "Outro antigo")), "\\n", false);
+        List<EntradaCache> entradas = List.of(
+            new EntradaCache(1, "Default", "Help!", "{\\i1}Ajude!{\\i0}", "en", "pt-br"),
+            new EntradaCache(2, "Default", "Look.", "{\\q2\\i1}Olhe.", "en", "pt-br"));
+
+        var resultado = new SincronizadorLegendaCacheService(
+            new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()),
+            new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico())
+            .sincronizar(documento, entradas, true);
+
+        assertEquals(2, resultado.total());
+        assertEquals("Ajude!", resultado.documento().eventos().get(0).texto(),
+            "o italico do cache antigo nao pode voltar para a legenda");
+        assertEquals("{\\q2}Olhe.", resultado.documento().eventos().get(1).texto(),
+            "bloco misto: sai o italico e o \\q2 (quebra automatica) sobrevive");
     }
 
     /**
@@ -66,7 +103,8 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(2, "Default", "Texto antigo", "Texto novo", "en", "pt-br"));
 
         var r = new SincronizadorLegendaCacheService(
-            new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()))
+            new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()),
+            new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico())
             .sincronizar(documento, entradas, true);
 
         assertEquals("I was watching you as you,", r.documento().eventos().get(0).texto(),
@@ -87,7 +125,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EventoLegenda(1, "Dialogue", "Default", "", "Revisão nova")), "\n", false);
         EntradaCache antiga = new EntradaCache(1, "Default", "Original", "Cache antigo", "en", "pt-br");
 
-        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()), new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico()).sincronizar(
             documento, List.of(antiga), false);
 
         assertEquals(0, resultado.total());
@@ -110,7 +148,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(1, "Default", "Help me, Jona!", "Ajude-me, Jona!", "en", "pt-br"),
             new EntradaCache(2, "Default", "Original", "Tradução antiga", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(documento, entradas, false);
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()), new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico()).sincronizar(documento, entradas, false);
 
         assertEquals(1, resultado.total());
         assertEquals(List.of(1), resultado.indicesRecuperadosDoOriginal());
@@ -134,7 +172,7 @@ class SincronizadorLegendaCacheServiceTest {
             new EntradaCache(59, "Default", "Jona! Michele!", "Michele!", "en", "pt-br"),
             new EntradaCache(60, "Default", "Help me!", "Ajude-me!", "en", "pt-br"));
 
-        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of())).sincronizar(
+        var resultado = new SincronizadorLegendaCacheService(new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()), new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico()).sincronizar(
             documento, entradas, false, Set.of(59));
 
         assertEquals(1, resultado.total());

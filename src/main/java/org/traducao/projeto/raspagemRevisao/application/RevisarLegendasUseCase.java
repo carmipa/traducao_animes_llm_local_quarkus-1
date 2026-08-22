@@ -477,6 +477,7 @@ public class RevisarLegendasUseCase {
         // rendia 1.053 mensagens de "nada aconteceu" numa corrida do Zeta, e elas enterravam os
         // 10 achados que pediam ação. Paulo, 17/08/2026: "por isso me confundia".
         int soTermoCanonico = 0;
+        int italicoRemovido = 0;
         boolean interrompido = false;
         for (EventoLegenda evento : documentoPt.eventos()) {
             // Parada cooperativa no meio do arquivo: as falas restantes entram
@@ -515,6 +516,14 @@ public class RevisarLegendasUseCase {
             } else if (preparo.karaokeRecusadoPorEsvaziamento()) {
                 out("  [GUARDA] Linha " + evento.indice()
                     + " preservada: o saneamento de tags esvaziaria a fala \"" + textoNormalizado + "\".");
+            }
+            if (preparo.italicoRemovido()) {
+                // VERDE: e alteracao concluida na legenda. Padrao de cores do Paulo (17/08):
+                // verde = traduzida/resolvida, amarelo = pendente, vermelho = erro.
+                italicoRemovido++;
+                sessao.contarCorrecaoJaAplicada();
+                out("  -> " + AnsiCores.GREEN + "Italico removido" + AnsiCores.RESET
+                    + " na linha " + evento.indice() + " [" + evento.estilo() + "]");
             }
 
             String traducaoAtual = evento.texto();
@@ -560,6 +569,15 @@ public class RevisarLegendasUseCase {
         if (soTermoCanonico > 0) {
             out("  " + AnsiCores.DIM + "[LORE] " + soTermoCanonico
                 + " fala(s) eram só nome/termo canônico e não foram à IA." + AnsiCores.RESET);
+        }
+
+        // AGREGADO, uma linha por arquivo. A narracao por linha ja saiu acima; esta e a que o
+        // operador le no fim e a que entra no relatorio. Zero NAO e impresso: arquivo sem
+        // italico nao precisa de linha dizendo que nada aconteceu — foi essa poluicao (1.053
+        // mensagens de "nada aconteceu" numa corrida do Zeta) que enterrou os 10 achados reais.
+        if (italicoRemovido > 0) {
+            out("  " + AnsiCores.GREEN + "[ITALICO] " + italicoRemovido
+                + " fala(s) tiveram o itálico removido." + AnsiCores.RESET);
         }
 
         if (sessao.modificado()) {

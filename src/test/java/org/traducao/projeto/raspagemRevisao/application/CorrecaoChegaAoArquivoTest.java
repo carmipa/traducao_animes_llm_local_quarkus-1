@@ -326,6 +326,49 @@ class CorrecaoChegaAoArquivoTest {
             "as falas sãs não sobreviveram à gravação no lugar:\n" + depois);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a 3.1 é a tela do REFINAMENTO — ela passa no acervo que a 2.1 já
+     * traduziu. A regra do itálico (Paulo, 22/08/2026) tem de agir AQUI, e o efeito tem de
+     * chegar ao ARQUIVO: as 9.769 falas de diálogo em itálico do acervo só saem por esta porta.
+     *
+     * <p>A fala NÃO tem defeito de tradução nenhum. É esse o ponto: sem a regra, a revisão
+     * passaria por ela, não acharia nada a corrigir e o arquivo nem seria regravado.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O texto visível não muda — só a tag sai.</li>
+     *   <li>Bloco MISTO perde só o itálico: o {@code \q2} da quebra automática sobrevive.</li>
+     *   <li>Nenhuma fala é perdida.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: itálico ainda no arquivo depois da revisão significa que
+     * a tela do refinamento não refina, e o acervo fica como está para sempre.
+     */
+    @Test
+    @DisplayName("A 3.1 tira o italico do acervo ja traduzido, e isso chega ao arquivo")
+    void revisaoRemoveOItalicoEGravaNoArquivo(@TempDir Path temp) throws IOException {
+        Path pastaPt = montar(temp, List.of(
+            new Fala("Space.", "{\\i1}Espaço."),
+            new Fala("We were thrown into battle.", "{\\q2\\i1}Fomos jogados no campo de batalha."),
+            new Fala("The weather is nice today.", "O tempo está bom hoje.")));
+        long antes = contarDialogos(entradaAtual(pastaPt));
+
+        String texto = revisar(temp, pastaPt).orElseGet(() -> {
+            try {
+                return entradaAtual(pastaPt);
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        });
+
+        assertEquals(antes, contarDialogos(texto), "a limpeza do itálico não pode perder fala:\\n" + texto);
+        assertFalse(texto.contains("{\\i1}"), "o itálico tinha de sair do arquivo:\\n" + texto);
+        assertTrue(texto.contains("Espaço."), "o texto visível não pode mudar:\\n" + texto);
+        assertTrue(texto.contains("{\\q2}Fomos jogados no campo de batalha."),
+            "bloco misto: sai o itálico e o \\q2 (quebra automática) fica:\\n" + texto);
+        assertTrue(texto.contains("O tempo está bom hoje."), "a fala sem tag segue intacta:\\n" + texto);
+    }
+
     // ------------------------------------------------------------------------------------------
     // LENTE ADVERSARIAL: como alguém — ou o próprio acervo — quebra isto de propósito. Diferente
     // da boa-fé acima: aqui a entrada é hostil, não ingênua.
@@ -345,7 +388,11 @@ class CorrecaoChegaAoArquivoTest {
     @DisplayName("Adversarial: quebra \\N e tag ASS entre possessivo e parentesco")
     void quebraDeLinhaEntreOPossessivoEOParentesco(@TempDir Path temp) throws IOException {
         Path pastaPt = montar(temp, List.of(
-            new Fala("My father is waiting for me.", "{\\i1}Minha\\Nmãe{\\i0} está me esperando.")));
+            // VEICULO trocado em 22/08/2026: o italico deixou de ser tag preservavel por
+            // decisao de produto (RemovedorItalico roda na 3.1). O negrito continua sendo, e
+            // o assunto do teste — atravessar tag de override e \\N sem comer nenhum dos
+            // dois — nao mudou.
+            new Fala("My father is waiting for me.", "{\\b1}Minha\\Nmãe{\\b0} está me esperando.")));
 
         String texto = revisar(temp, pastaPt).orElseGet(() -> {
             try {
@@ -355,7 +402,7 @@ class CorrecaoChegaAoArquivoTest {
             }
         });
 
-        assertTrue(texto.contains("{\\i1}") && texto.contains("{\\i0}") && texto.contains("\\N"),
+        assertTrue(texto.contains("{\\b1}") && texto.contains("{\\b0}") && texto.contains("\\N"),
             "a correção comeu tag de override ou a quebra de linha:\n" + texto);
         assertTrue(texto.contains("Meu\\Npai"),
             "DESFECHO OBSERVADO:\n" + texto);

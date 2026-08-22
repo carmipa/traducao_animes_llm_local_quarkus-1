@@ -14,6 +14,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: o reparo de troca de entidade só entra se passar pelo MESMO portão que

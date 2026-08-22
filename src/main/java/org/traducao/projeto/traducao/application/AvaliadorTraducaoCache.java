@@ -7,6 +7,7 @@ import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenti
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
 import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaException;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: avalia a QUALIDADE de uma tradução para o banco bilíngue — decide

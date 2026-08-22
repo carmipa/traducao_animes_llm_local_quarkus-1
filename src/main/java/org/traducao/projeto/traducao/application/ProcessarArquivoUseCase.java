@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: orquestra a tradução de uma legenda, reaproveitando o
@@ -76,10 +77,6 @@ public class ProcessarArquivoUseCase {
     private final PoliticaBackupTraducao politicaBackup;
     private final SeletorEventosTraduziveis seletorEventos;
     private final RemovedorItalico removedorItalico;
-
-    /** Só para separar "não mudou porque não tinha" de "não mudou porque a regra se absteve". */
-    private static final java.util.regex.Pattern TEM_ITALICO =
-        java.util.regex.Pattern.compile("\\\\i[01]?(?![0-9A-Za-z])");
     private final AvaliadorTraducaoCache avaliadorCache;
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
@@ -810,7 +807,7 @@ public class ProcessarArquivoUseCase {
             String semItalico = removedorItalico.remover(textoFinal);
             if (!java.util.Objects.equals(semItalico, textoFinal)) {
                 falasItalicoRemovido++;
-            } else if (textoFinal != null && TEM_ITALICO.matcher(textoFinal).find()) {
+            } else if (removedorItalico.temItalico(textoFinal)) {
                 // A REGRA SE ABSTEVE. Nao e "nao havia italico": havia, e o removedor recuou
                 // porque a fala herda o italico do Style: do cabecalho. Sem este contador o
                 // recuo e invisivel, e uma obra inteira poderia sair em italico sem sinal.
