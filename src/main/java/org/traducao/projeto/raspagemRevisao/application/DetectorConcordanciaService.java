@@ -144,11 +144,29 @@ public class DetectorConcordanciaService {
     private static final Pattern IMPERATIVO_PARA_ELA_COM_HIM =
         Pattern.compile("\\b(" + VERBO_IMPERATIVO + ")\\s+(a|para)\\s+ela\\b", FLAGS);
 
-    private static final Pattern VI_ELE_COM_HER =
-        Pattern.compile("\\b(" + VERBOS_TRANSITIVOS_DIRETOS + ")\\s+(ele|o|lo)\\b", FLAGS);
+    /**
+     * O pronome ÁTONO depois do verbo exige HÍFEN em português: {@code ajudou-o}, {@code viu-a}.
+     * Sem hífen, o {@code o}/{@code a} é ARTIGO ou PREPOSIÇÃO, e acusar isso é acusar português
+     * correto.
+     *
+     * <p>Achado na corrida do 86 Part 2 em 22/08/2026:
+     * <pre>
+     * EN: ...times when being weighed down by it helped him to survive.
+     * PT: ...momentos em que ser carregado por isso o ajudou a sobreviver.
+     * </pre>
+     * O padrão casava {@code "ajudou a"} e reclamava de "objeto feminino" — mas o {@code a} ali
+     * é a preposição de "ajudar A sobreviver", e o objeto masculino ({@code o}) está ANTES do
+     * verbo, onde o português o coloca. A mesma forma pegaria {@code "encontrou a chave"}.
+     *
+     * <p>{@code ele}/{@code ela} ficam SEM exigência de hífen: "vi ela" é coloquial mas
+     * frequente em legenda, e ali o pronome é mesmo o objeto.
+     */
+    private static final Pattern VI_ELE_COM_HER = Pattern.compile(
+        "\\b(" + VERBOS_TRANSITIVOS_DIRETOS + ")(?:\\s+ele|-(?:o|lo))\\b", FLAGS);
 
-    private static final Pattern VI_ELA_COM_HIM =
-        Pattern.compile("\\b(" + VERBOS_TRANSITIVOS_DIRETOS + ")\\s+(ela|a|la)\\b", FLAGS);
+    /** Espelho do anterior: {@code viu-a} conta, {@code "ajudou a sobreviver"} não. */
+    private static final Pattern VI_ELA_COM_HIM = Pattern.compile(
+        "\\b(" + VERBOS_TRANSITIVOS_DIRETOS + ")(?:\\s+ela|-(?:a|la))\\b", FLAGS);
 
     private static final String VERBOS_SUJEITO =
         "disse|diz|dizia|falou|fala|falava|gritou|grita|gritava|sussurrou|sussurra|pensou|pensa|pensava|"
