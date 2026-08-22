@@ -120,4 +120,41 @@ class ApelidoPastaPorTemporadaTest {
     void pastaInventadaNaoCasa() {
         assertTrue(acervo().idsQueReconhecem("Obra Que Nunca Existiu Season 99").isEmpty());
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: catraca de LINHA DE BASE do {@code apelidosPasta}. Obra sem apelido
+     * nenhum não casa com pasta do acervo, e ferramenta que resolve contexto pela pasta fica cega
+     * para ela.
+     *
+     * <h2>O prejuízo, medido em 22/08/2026</h2>
+     * Um harness que cruzava acervo com lore encontrou <b>11 das 18 pastas SEM lore casada</b> —
+     * ZZ, Guilty Crown, Char's Counterattack, F91, Macross II e as seis Break Blade tinham
+     * {@code apelidosPasta} vazio ou nem a chave. As onze foram preenchidas e o casamento foi a
+     * 18 de 18; o resto da lista é obra que não está no acervo.
+     *
+     * <p>A catraca é de linha de base porque a dívida é antiga e grande: ela só DESCE. Obra nova
+     * sem apelido faz o número subir e reprova.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Número maior que a linha de base significa obra nova sem apelido. Menor significa dívida
+     * paga — baixe a linha de base no mesmo commit.
+     */
+    @Test
+    @DisplayName("catraca: obras sem apelidosPasta so podem DIMINUIR")
+    void obrasSemApelidoSoDiminuem() {
+        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml();
+        java.util.List<String> sem = catalogo.obras().stream()
+            .filter(o -> o.apelidosPasta().isEmpty())
+            .map(org.traducao.projeto.lore.domain.ProvedorContexto::getId)
+            .sorted()
+            .toList();
+
+        org.junit.jupiter.api.Assertions.assertTrue(sem.size() <= LINHA_DE_BASE_SEM_APELIDO,
+            () -> "obras sem apelidosPasta subiu de " + LINHA_DE_BASE_SEM_APELIDO + " para "
+                + sem.size() + ". Obra nova precisa de apelido para casar com a pasta do acervo. "
+                + sem);
+    }
+
+    /** Congelado em 22/08/2026, depois de preencher as 11 obras do acervo. Só desce. */
+    private static final int LINHA_DE_BASE_SEM_APELIDO = 47;
 }

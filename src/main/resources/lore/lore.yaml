@@ -144,6 +144,8 @@
 obras:
  - id: break_blade_1
    nome: Break Blade - Filme 1 - O Tempo do Despertar
+   apelidosPasta:
+    - Break Blade 1
    apareceNaLista: true
    termosProtegidos:
     - Ancients
@@ -294,6 +296,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: break_blade_2
    nome: Break Blade - Filme 2 - O Caminho da Separação
+   apelidosPasta:
+    - Break Blade 2
    apareceNaLista: true
    termosProtegidos:
     - Assam
@@ -437,6 +441,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: break_blade_3
    nome: Break Blade - Filme 3 - Cicatrizes da Lâmina do Assassino
+   apelidosPasta:
+    - Break Blade 3
    apareceNaLista: true
    termosProtegidos:
     - Argath
@@ -574,6 +580,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: break_blade_4
    nome: Break Blade - Filme 4 - A Terra da Calamidade
+   apelidosPasta:
+    - Break Blade 4
    apareceNaLista: true
    termosProtegidos:
     - Arakan
@@ -718,6 +726,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: break_blade_5
    nome: Break Blade - Filme 5 - A Fronteira entre a Vida e a Morte
+   apelidosPasta:
+    - Break Blade 5
    apareceNaLista: true
    termosProtegidos:
     - Athens Commonwealth
@@ -858,6 +868,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: break_blade_6
    nome: Break Blade - Filme 6 - Fortaleza do Lamentar
+   apelidosPasta:
+    - Break Blade 6
    apareceNaLista: true
    termosProtegidos:
     - Athens Commonwealth
@@ -2522,6 +2534,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: guilty_crown
    nome: Guilty Crown
+   apelidosPasta:
+    - Guilty Crown
    apareceNaLista: true
    termosProtegidos:
     - Anti Bodies
@@ -3699,6 +3713,9 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: gundam_cca
    nome: 'Mobile Suit Gundam: Char''s Counterattack'
+   apelidosPasta:
+    - Mobile Suit Gundam Char's Counterattack
+    - Char's Counterattack
    apareceNaLista: true
    termosProtegidos:
     - Alpha Azieru
@@ -3944,6 +3961,9 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: gundam_f91
    nome: Mobile Suit Gundam F91
+   apelidosPasta:
+    - Mobile Suit Gundam F91
+    - Gundam F91
    apareceNaLista: true
    termosProtegidos:
     - Annamarie Bourget
@@ -7393,6 +7413,9 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: gundam_zz
    nome: Mobile Suit Gundam ZZ
+   apelidosPasta:
+    - Mobile Suit Gundam ZZ
+    - Gundam ZZ
    apareceNaLista: true
    termosProtegidos:
     - A.E.U.G.
@@ -7427,6 +7450,7 @@ obras:
     - Geymalk
     - Glemy Faction
     - Glemy Toto
+    - Gottn
     - Gottn Goh
     - Gundam Mk-II
     - Haman Karn
@@ -7658,6 +7682,8 @@ obras:
      6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
  - id: macross_2
    nome: 'Macross II: Lovers Again'
+   apelidosPasta:
+    - Macross II
    apareceNaLista: true
    termosProtegidos:
     - Battroid

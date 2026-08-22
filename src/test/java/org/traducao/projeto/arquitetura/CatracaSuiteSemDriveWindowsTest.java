@@ -48,6 +48,9 @@ class CatracaSuiteSemDriveWindowsTest {
         // "C:\animes" e o DEFAULT de -Dkronos.acervo e o harness e travado por
         // -Dkronos.medicao=true.
         "MedicaoProntidaoTraducaoIT.java",
+        // Entrou em 22/08/2026: descobre que nomes proprios faltam na lore e por isso
+        // fazem o validador barrar traducao correta. Mesmo molde dos demais harness.
+        "MedicaoNomeProprioAusenteNaLoreIT.java",
         "AplicarAcentosNoAcervoIT.java",
         "MedicaoAnomaliaIntroduzidaIT.java",
         "MedicaoAuditoriaAcervoIT.java",
