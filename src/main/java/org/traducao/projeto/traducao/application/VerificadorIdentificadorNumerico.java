@@ -54,6 +54,10 @@ public class VerificadorIdentificadorNumerico {
     /** Ordinal/grau português colado ao número: {@code 4ª}, {@code 1º}, {@code 30°}. */
     private static final Pattern ORDINAL_PORTUGUES = Pattern.compile("(\\d)[ºª°]");
 
+
+    /** Marca do relogio de 12 horas, que autoriza a conta +12 na conversao para 24h. */
+    private static final Pattern MARCA_PM = Pattern.compile("(?i)\\bp\\.?\\s?m\\.?");
+
     /**
      * PROPÓSITO DE NEGÓCIO: aponta qual identificador numérico do original não sobreviveu à
      * tradução, para que a fala fique pendente com diagnóstico em vez de publicar um número
@@ -103,8 +107,32 @@ public class VerificadorIdentificadorNumerico {
         if (estranhos.isEmpty()) {
             return null;
         }
+
+        // HORÁRIO LOCALIZADO NÃO É NÚMERO TROCADO.
+        //
+        // Medido na retradução de 2026-08-21: das 12 recusas desta guarda, DEZ eram tradução
+        // correta. Oito são o horário militar do inglês virando o formato brasileiro
+        // ("1500 hours" -> "15h00"), e duas são a conversão de 12h para 24h ("3:40 pm" ->
+        // "15:40"). Nos dois casos a guarda via [1500] sumir e [15, 00] surgir e reprovava —
+        // e o efeito é o pior possível: a fala inteira volta para o INGLÊS na legenda.
+        //
+        // O que torna seguro descontar: a equivalência é ARITMÉTICA e conferida, não suposta.
+        // 1500 só é explicado por 15 e 00 porque 15*100+00 == 1500, e a palavra "hours" tem
+        // de estar no original. 3 só é explicado por 15 porque 3+12 == 15 e havia "pm". O
+        // caso que originou esta classe — "04th Team!" publicado como "Equipe 08!" — não casa
+        // nenhuma das duas contas e continua reprovando.
+        List<String> perdidosReais = new ArrayList<>();
+        for (String valor : perdidos) {
+            if (!explicadoPorHorario(valor, original, naTraducao)) {
+                perdidosReais.add(valor);
+            }
+        }
+        if (perdidosReais.isEmpty()) {
+            return null;
+        }
+
         return "identificador numérico alterado pela tradução: original tem " + naFonte
-            + ", tradução tem " + naTraducao + " (sumiu: " + perdidos + ", surgiu: " + estranhos + ")";
+            + ", tradução tem " + naTraducao + " (sumiu: " + perdidosReais + ", surgiu: " + estranhos + ")";
     }
 
     /**
@@ -165,6 +193,47 @@ public class VerificadorIdentificadorNumerico {
             encontrados.add(atual.toString());
         }
         return encontrados;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se um número que sumiu da tradução foi apenas ESCRITO em
+     * outro formato de hora, e não substituído.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>A equivalência é aritmética e conferida contra os valores que a tradução realmente
+     *       contém — nunca "parece hora, deixa passar".</li>
+     *   <li>Militar exige a palavra {@code hours} no original; 12h exige {@code am}/{@code pm}.
+     *       Sem a marca textual, {@code 1500} continua sendo um identificador comum.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dúvida devolve {@code false}, e o valor volta
+     * a contar como perdido — a guarda erra para o lado de reprovar, não de liberar.
+     */
+    private static boolean explicadoPorHorario(String perdido, String original, Set<String> naTraducao) {
+        // 1) militar: "1500 hours" -> a tradução tem 15 e 00
+        if (perdido.length() == 4 && perdido.chars().allMatch(Character::isDigit)
+            && Pattern.compile("(?<![0-9])" + Pattern.quote(perdido) + "\\s*(?i:hours?)").matcher(original).find()) {
+            int hh = Integer.parseInt(perdido.substring(0, 2));
+            int mm = Integer.parseInt(perdido.substring(2));
+            if (hh <= 23 && mm <= 59
+                && naTraducao.contains(perdido.substring(0, 2))
+                && naTraducao.contains(perdido.substring(2))) {
+                return true;
+            }
+        }
+        // 2) 12h -> 24h: "3:40 pm" -> a tradução tem 15
+        if (MARCA_PM.matcher(original).find()) {
+            try {
+                int h = Integer.parseInt(perdido);
+                if (h >= 1 && h <= 12 && naTraducao.contains(String.valueOf(h + 12))) {
+                    return true;
+                }
+            } catch (NumberFormatException fora) {
+                return false;
+            }
+        }
+        return false;
     }
 
     private static boolean ehSeparador(char c) {

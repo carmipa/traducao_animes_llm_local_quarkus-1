@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **480** |
-| classes em `src/test` | **379** |
+| classes em `src/test` | **381** |
 
 ---
 
@@ -885,7 +885,7 @@ core/
 
 ---
 
-## Testes — 379 classes
+## Testes — 381 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1221,7 +1221,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 29 classes
+#### `qualidadeTraducao` — 30 classes
 
 ```text
 qualidadeTraducao/
@@ -1243,6 +1243,7 @@ qualidadeTraducao/
 │   ├── MedicaoLocutorInventadoNoAcervoIT.java
 │   ├── MedicaoTermoDeLorePerdidoIT.java
 │   ├── NormalizadorAcentosComunsTest.java
+│   ├── OracaoNaoEhRotuloDeFalanteTest.java
 │   ├── QuebraAssNaoEscondeTermoDeLoreTest.java
 │   ├── QuebraAssPropriedadeTest.java
 │   ├── QuebraDentroDoNomeNaoInventaTrocaTest.java
@@ -1405,7 +1406,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 59 classes
+#### `traducao` — 60 classes
 
 ```text
 traducao/
@@ -1423,6 +1424,7 @@ traducao/
 │   ├── GlossarioNaoDevolveOriginalEmInglesTest.java
 │   ├── GuardaCorrenteTraduzidaTest.java
 │   ├── GuardaLoreNaoExigePalavraComumTest.java
+│   ├── HorarioLocalizadoNaoEhNumeroTrocadoTest.java
 │   ├── MedicaoFonteFrancesaIT.java
 │   ├── MontadorTelemetriaTraducaoTest.java
 │   ├── NormalizadorAspasServiceTest.java
