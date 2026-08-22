@@ -75,6 +75,7 @@ public class ProcessarArquivoUseCase {
     private final ResolvedorCacheTraducao resolvedorCache;
     private final PoliticaBackupTraducao politicaBackup;
     private final SeletorEventosTraduziveis seletorEventos;
+    private final RemovedorItalico removedorItalico;
     private final AvaliadorTraducaoCache avaliadorCache;
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
@@ -153,6 +154,7 @@ public class ProcessarArquivoUseCase {
         ResolvedorCacheTraducao resolvedorCache,
         PoliticaBackupTraducao politicaBackup,
         SeletorEventosTraduziveis seletorEventos,
+        RemovedorItalico removedorItalico,
         AvaliadorTraducaoCache avaliadorCache,
         TradutorLotesService tradutorLotes,
         MontadorTelemetriaTraducao montadorTelemetria,
@@ -184,6 +186,7 @@ public class ProcessarArquivoUseCase {
         this.resolvedorCache = resolvedorCache;
         this.politicaBackup = politicaBackup;
         this.seletorEventos = seletorEventos;
+        this.removedorItalico = removedorItalico;
         this.avaliadorCache = avaliadorCache;
         this.tradutorLotes = tradutorLotes;
         this.montadorTelemetria = montadorTelemetria;
@@ -789,7 +792,16 @@ public class ProcessarArquivoUseCase {
                     FalaNaoTraduzida.Motivo.TRADUCAO_IGUAL_AO_ORIGINAL,
                     "o LLM devolveu texto identico — legitimo em nome proprio e fala de uma palavra"));
             }
-            eventosFinais.add(evento.comTexto(textoFinal));
+            // ITALICO ELIMINADO NA SAIDA — o segundo ponto da regra de 22/08/2026, e o que a
+            // torna completa. O RemovedorItalico do TradutorLotesService age no que VAI ao LLM;
+            // aqui age no que VAI PARA O ARQUIVO, e por isso alcanca tambem o que nunca passou
+            // pelo modelo: fala vinda do CACHE (chave e valor gravados antes da regra), fala
+            // recuperada pelo fallback Google e fala pendente publicada em ingles.
+            //
+            // MUSICA NAO CHEGA AQUI: o seletorEventos.isTraduzivel logo acima ja mandou musica,
+            // karaoke, romaji protegido e estilo-ignorado embora com continue. O veto e aplicado
+            // por quem sabe aplica-lo, e nao reimplementado neste laco.
+            eventosFinais.add(evento.comTexto(removedorItalico.remover(textoFinal)));
             entradasCache.add(new EntradaCache(
                 evento.indice(), evento.estilo(), evento.texto(), textoValidado,
                 propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));

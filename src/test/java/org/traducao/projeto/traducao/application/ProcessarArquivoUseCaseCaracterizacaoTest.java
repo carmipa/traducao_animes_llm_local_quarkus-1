@@ -3,6 +3,7 @@ package org.traducao.projeto.traducao.application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.llm.domain.Lote;
@@ -64,6 +65,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -376,7 +378,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         return new ProcessarArquivoUseCase(
             leitorAss, escritorAss, leitorSrt, escritorSrt, cache,
             props, uiLogger,
-            pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
+            pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, new RemovedorItalico(), avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new EnforcadorGlossarioFala(), new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
             new NormalizadorAcentosComuns(),
             new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda(), new NormalizadorCartaoDataService(), guardaContextoObra, contextoCongelado,
@@ -782,6 +784,43 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * Cache ausente ⇒ voltou a janela que apagou o S00E02 do 08th MS Team em 2026-07-22.
      * Dois backups ⇒ o mesmo arquivo está sendo duplicado em disco a cada retradução.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: a regra do itálico (22/08/2026) tem de valer também para a fala que
+     * NUNCA passa pelo LLM. O cache de Paulo foi gravado ANTES da regra e guarda milhares de
+     * traduções com {@code \i1}; sem esta etapa a legenda entregue continuaria em itálico e a
+     * regra só valeria para episódio traduzido do zero.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o cache NÃO é reescrito — ele guarda o que o modelo produziu.
+     * Quem aplica a regra é a saída. E o LLM continua não sendo chamado: a economia do cache
+     * não pode ser perdida por causa da formatação.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: itálico no arquivo entregue, ou chamada ao LLM que o
+     * cache deveria ter evitado, reprova.
+     */
+    @Test
+    @DisplayName("Itálico gravado no cache ANTES da regra não chega ao arquivo entregue")
+    void italicoVindoDoCacheAntigoNaoChegaAoArquivoEntregue() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        // Simula o cache ANTERIOR à regra: valor traduzido gravado com itálico.
+        Path arquivoCache = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        String json = Files.readString(arquivoCache, StandardCharsets.UTF_8);
+        String comItalico = json.replace("fala traduzida", "{\\\\i1}fala traduzida{\\\\i0}");
+        assertNotEquals(json, comItalico, "o cache tem de conter a fala traduzida para o teste valer");
+        Files.writeString(arquivoCache, comItalico, StandardCharsets.UTF_8);
+
+        FakeLlmPort segunda = new FakeLlmPort();
+        montar(segunda).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(0, segunda.chamadas.get(), "a fala veio do cache: o LLM não pode ser chamado");
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        assertTrue(conteudo.contains("fala traduzida"), "o texto traduzido tem de continuar lá");
+        assertFalse(conteudo.contains("{\\i1}"), "itálico do cache não pode chegar ao arquivo");
+        assertFalse(conteudo.contains("{\\i0}"), "nem o desliga do par");
+    }
+
     @Test
     void retraducaoLiberadaIgnoraOCacheSemApagarOArquivoAtivo() throws Exception {
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
