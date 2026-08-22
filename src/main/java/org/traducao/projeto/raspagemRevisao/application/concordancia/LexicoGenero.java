@@ -112,6 +112,12 @@ public final class LexicoGenero {
      * não haver referência feminina no original.
      */
     /**
+     * {@code girlfriend} entrou no mesmo dia e pelo mesmo motivo estrutural: {@code girl} nao
+     * casa {@code girlfriend} (nao ha fronteira depois do "l"). Sem ela, {@code "Me, his ideal
+     * girlfriend?"} traduzido como {@code "Eu, sua garota ideal?"} — traducao CORRETA — era
+     * acusado de vocativo feminino com referencia masculina. {@code boyfriend} entra junto
+     * porque os dois lexicos sao declaradamente espelhados.
+     *
      * {@code mistress} entrou em 22/08/2026 e a cicatriz e nominal: "Mistress Chara" NAO casa
      * {@code miss} — a palavra e "mistress", nao "miss" seguido de "tress". Sem ela o original
      * ficava sem evidencia feminina e as duas falas do Macross II com "Senhora Chara" —
@@ -120,7 +126,7 @@ public final class LexicoGenero {
     public static final Pattern PRONOME_FEMININO_EN = Pattern.compile(
         "\\b(she|her|hers|girl|woman|lady|mother|mom|sister|daughter|"
             + "princess|goddess|queen|heroine|miss|mistress|mrs|ms|madam|ma'am|female|wife|aunt|"
-            + "grandma|grandmother|niece|waitress|actress|hostess)\\b", FLAGS);
+            + "grandma|grandmother|niece|waitress|actress|hostess|girlfriend)\\b", FLAGS);
 
     /**
      * Espelho do anterior. Mesma cicatriz, medida em 2026-07-28 no Guilty Crown: com
@@ -130,7 +136,7 @@ public final class LexicoGenero {
      */
     public static final Pattern PRONOME_MASCULINO_EN = Pattern.compile(
         "\\b(he|him|his|boy|man|guy|father|dad|brother|son|prince|god|king|"
-            + "hero|mr|sir|male|husband|uncle|grandpa|grandfather|nephew|waiter|actor)\\b", FLAGS);
+            + "hero|mr|sir|male|husband|uncle|grandpa|grandfather|nephew|waiter|actor|boyfriend)\\b", FLAGS);
 
     /** Pronomes isolados — usados onde a regra precisa da marca EXATA, não da família. */
     public static final Pattern HER_EN = Pattern.compile("\\bher\\b", FLAGS);

@@ -272,4 +272,106 @@ class DetectorConcordanciaServiceTest {
             "Mr. Gottn will fulfill his duties.",
             "A senhora Gottn cumprirá seus deveres.").suspeito());
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: {@code girl} não casa {@code girlfriend} — não há fronteira depois
+     * do "l". Sem a palavra no léxico, o original ficava sem evidência feminina e a tradução
+     * literal era acusada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acusar "sua garota ideal" é acusar a tradução exata.
+     */
+    @Test
+    @DisplayName("girlfriend conta como referencia feminina")
+    void girlfriendContaComoReferenciaFeminina() {
+        ResultadoDeteccaoConcordancia r =
+            detector.analisar("Me, his ideal girlfriend?", "Eu, sua garota ideal?");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: {@code eles/elas} regido por preposição é OBJETO, não sujeito — o
+     * adjetivo concorda com outra coisa.
+     *
+     * <p>No acervo: {@code "that our war with them is wrong!"} -> {@code "Que nossa guerra contra
+     * eles é errada!"}, onde "errada" concorda com GUERRA. A tradução está certa.
+     */
+    @Test
+    @DisplayName("eles regido por preposicao nao e sujeito do predicado")
+    void pluralRegidoPorPreposicaoNaoEsujeito() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "that our war with them is wrong!", "Que nossa guerra contra eles é errada!");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+    }
+
+    /** CONTRA-CASO: {@code eles} como SUJEITO de verdade continua sendo acusado. */
+    @Test
+    @DisplayName("eles como sujeito continua acusando")
+    void pluralComoSujeitoContinuaAcusando() {
+        assertTrue(detector.analisar(null, "eles é errada.").suspeito(),
+            "sem preposição antes, 'eles' é sujeito e a discordância é real");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a mesma verificação de sujeito da família consertada antes, aplicada
+     * ao detector irmão. Sem ela, a classe de falha continuava vazando por outro fluxo.
+     *
+     * <p>{@code "She has to fight, or else the Argama will be gone!"} -> {@code "Ela tem que
+     * lutar, ou o Argama sera perdido!"}: "perdido" concorda com ARGAMA, em outra oração.
+     */
+    @Test
+    @DisplayName("predicativo de outra oracao nao acusa nem pelo detector irmao")
+    void predicativoDeOutraOracaoNaoAcusaNoDetectorIrmao() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "She has to fight, or else the Argama will be gone!",
+            "Ela tem que lutar, ou o Argama sera perdido!");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o "ele" JUNTO no português diz que o {@code he} FOI traduzido —
+     * então o "ela" é outra coisa, e em legenda quase sempre é COISA mesmo.
+     *
+     * <p>No acervo, o "ela" era a nave: {@code "...he's unable to return to the Argama before it
+     * begins its counterattack."} -> {@code "Ele não consegue voltar para a Argama antes que ela
+     * inicie seu contra-ataque."}
+     */
+    @Test
+    @DisplayName("os dois pronomes no PT: o segundo e outra coisa")
+    void osDoisPronomesNoPortuguesCancelamOCruzamento() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "He is unable to return to the Argama before it begins its counterattack.",
+            "Ele não consegue voltar para a Argama antes que ela inicie seu contra-ataque.");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+    }
+
+    /** CONTRA-CASO: com SÓ o pronome trocado no PT, o cruzamento continua sendo acusado. */
+    @Test
+    @DisplayName("pronome trocado SOZINHO no PT continua acusando")
+    void pronomeTrocadoSozinhoContinuaAcusando() {
+        assertTrue(detector.analisar("He went home.", "Ela foi para casa.").suspeito(),
+            "sem 'ele' no português, o 'ela' é o próprio he traduzido errado");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando o português já traz o tratamento do gênero que o original
+     * cita, a referência está representada e o outro tratamento fala de OUTRA pessoa.
+     *
+     * <p>{@code "The kid with a girl's name?"} -> {@code "O garoto com um nome de menina?"}: o
+     * "menina" traduz o {@code girl's}, que qualifica o NOME; o "garoto" é o {@code kid}.
+     */
+    @Test
+    @DisplayName("tratamento do outro genero ja presente no PT cancela")
+    void tratamentoDoOutroGeneroPresenteNoPtCancela() {
+        ResultadoDeteccaoConcordancia r =
+            detector.analisar("The kid with a girl's name?", "O garoto com um nome de menina?");
+        assertFalse(r.suspeito(), () -> "motivos: " + r.motivos());
+    }
+
+    /** CONTRA-CASO: sem o tratamento feminino no PT, o vocativo masculino continua acusando. */
+    @Test
+    @DisplayName("tratamento masculino sozinho com original feminino continua acusando")
+    void tratamentoMasculinoSozinhoContinuaAcusando() {
+        assertTrue(detector.analisar("The girl arrived.", "O garoto chegou.").suspeito(),
+            "sem nenhum feminino no português, o 'garoto' é troca de verdade");
+    }
 }
