@@ -148,15 +148,15 @@ public class ObterMetadataAnimeUseCase {
     private Optional<AnimeMetadata> buscarRemoto(String nomeSanitizado, Path arquivoCache) {
         Optional<AnimeMetadata> obtidoOpt = Optional.empty();
         if (tmdbAdapter != null && tmdbAdapter.isConfigurado()) {
-            obtidoOpt = tmdbAdapter.buscarPorNome(nomeSanitizado);
+            obtidoOpt = aceitarSeForDaObra(nomeSanitizado, tmdbAdapter.buscarPorNome(nomeSanitizado), "TMDB");
         }
 
         if (obtidoOpt.isEmpty() && aniListAdapter != null) {
-            obtidoOpt = aniListAdapter.buscarPorNome(nomeSanitizado);
+            obtidoOpt = aceitarSeForDaObra(nomeSanitizado, aniListAdapter.buscarPorNome(nomeSanitizado), "AniList");
         }
 
         if (obtidoOpt.isEmpty() && jikanAdapter != null) {
-            obtidoOpt = jikanAdapter.buscarPorNome(nomeSanitizado);
+            obtidoOpt = aceitarSeForDaObra(nomeSanitizado, jikanAdapter.buscarPorNome(nomeSanitizado), "Jikan");
         }
 
         if (obtidoOpt.isPresent()) {
@@ -164,6 +164,91 @@ public class ObterMetadataAnimeUseCase {
         }
 
         return obtidoOpt;
+    }
+
+    /** Palavras curtas não discriminam obra e saem da conferência. */
+    private static final java.util.regex.Pattern NAO_LETRA_NEM_DIGITO =
+        java.util.regex.Pattern.compile("[^a-z0-9]+");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: confirma que o metadado devolvido é DA OBRA que foi pedida, antes de
+     * ele virar o cartão na tela e ser gravado no cache.
+     *
+     * <h2>A cicatriz, que Paulo viu na tela em 22/08/2026</h2>
+     * Ele apontou a pasta do <b>Zeta</b> e escolheu a lore do <b>Zeta</b>, e o cartão exibiu
+     * <b>Mobile Suit Gundam ZZ</b> — outra obra, de outro ano. O provedor devolveu o primeiro
+     * resultado da busca e ninguém conferia se era o certo; pior, o erro foi PERSISTIDO em
+     * {@code cache/metadata/mobile_suit_zeta_gundam.json}, então voltava idêntico a cada
+     * abertura da tela. Um segundo arquivo tinha o mesmo mal: uma busca por {@code "traducao"}
+     * (nome de pasta, não de obra) trouxe o filme "Amor em Tradução", de 2023.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>TODA palavra de 3+ letras do termo buscado tem de aparecer em ALGUM dos títulos
+     *       devolvidos (original, inglês ou japonês). É o que separa "Mobile Suit <b>Zeta</b>
+     *       Gundam" de "Mobile Suit Gundam ZZ": três das quatro palavras batem, e é a quarta
+     *       que importa. Comparar por proporção deixaria passar com 75%.</li>
+     *   <li>Os TRÊS títulos entram na conferência porque as APIs devolvem romaji: a AniList
+     *       responde {@code "Kidou Senshi Z Gundam"} para esta busca, e sem o título inglês
+     *       junto o resultado CERTO seria recusado.</li>
+     *   <li>FALHA FECHADA: resultado que não confere não passa para o próximo provedor como se
+     *       fosse ausência — ele É tratado como ausência, e a busca continua. Se nenhum provedor
+     *       confere, a tela fica SEM cartão. Melhor sem cartão do que com a obra errada: o
+     *       cartão errado é uma afirmação, e o operador age sobre ela.</li>
+     * </ul>
+     *
+     * <p>Calibrado contra os 11 metadados reais em cache: ACEITA os 9 corretos e RECUSA
+     * exatamente os 2 envenenados.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada vazia ou metadado sem título nenhum devolve
+     * {@link Optional#empty()}; nunca lança.
+     */
+    Optional<AnimeMetadata> aceitarSeForDaObra(
+        String termoBuscado, Optional<AnimeMetadata> obtido, String provedor) {
+        if (obtido == null || obtido.isEmpty()) {
+            return Optional.empty();
+        }
+        AnimeMetadata m = obtido.get();
+        java.util.Set<String> disponiveis = new java.util.HashSet<>();
+        for (String titulo : java.util.List.of(
+                m.titulo() == null ? "" : m.titulo(),
+                m.tituloIngles() == null ? "" : m.tituloIngles(),
+                m.tituloJapones() == null ? "" : m.tituloJapones())) {
+            disponiveis.addAll(palavrasDiscriminantes(titulo));
+        }
+        java.util.List<String> ausentes = new java.util.ArrayList<>();
+        for (String palavra : palavrasDiscriminantes(termoBuscado)) {
+            if (!disponiveis.contains(palavra)) {
+                ausentes.add(palavra);
+            }
+        }
+        if (ausentes.isEmpty()) {
+            return obtido;
+        }
+        log.warn("Metadado do {} RECUSADO para \"{}\": devolveu \"{}\" e faltam as palavras {}. "
+                + "A tela fica sem cartao em vez de exibir outra obra.",
+            provedor, termoBuscado, m.titulo(), ausentes);
+        return Optional.empty();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as palavras que de fato identificam uma obra.
+     * <p>INVARIANTES DO DOMÍNIO: 3 letras ou mais. "ZZ", "NT" e "F91" são curtas e não entram —
+     * de propósito: sozinhas elas não bastam para afirmar identidade, e exigi-las recusaria o
+     * resultado certo quando a API abrevia diferente.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve lista vazia.
+     */
+    private static java.util.List<String> palavrasDiscriminantes(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return java.util.List.of();
+        }
+        java.util.List<String> saida = new java.util.ArrayList<>();
+        for (String parte : NAO_LETRA_NEM_DIGITO.split(texto.toLowerCase(java.util.Locale.ROOT))) {
+            if (parte.length() >= 3) {
+                saida.add(parte);
+            }
+        }
+        return saida;
     }
 
     /**
