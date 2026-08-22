@@ -268,7 +268,8 @@ public class TelemetriaService {
             traducao.nomeEpisodio(), traducao.modeloLlm(), traducao.totalLinhas(),
             traducao.falasTraduzidas(), traducao.falasDoCache(), traducao.tempoTotalMs(),
             List.copyOf(amostra), traducao.animeNome(), traducao.temporada(), traducao.registradoEm(),
-            traducao.loreNome(), traducao.statusFinal());
+            traducao.loreNome(), traducao.statusFinal(),
+            traducao.falasItalicoRemovido(), traducao.falasItalicoPreservado());
     }
 
     public synchronized void registrarOperacao(OperacaoTelemetria operacao) {
@@ -612,7 +613,8 @@ public class TelemetriaService {
         return new LlmTelemetria(
             r.nomeEpisodio(), r.modeloLlm(), r.totalLinhas(), r.falasTraduzidas(),
             r.falasDoCache(), r.tempoTotalMs(), r.errosOcorridos(), r.animeNome(),
-            r.temporada(), r.registradoEm(), r.loreNome(), r.statusFinal());
+            r.temporada(), r.registradoEm(), r.loreNome(), r.statusFinal(),
+            r.falasItalicoRemovido(), r.falasItalicoPreservado());
     }
 
     // Duplicação consciente da normalização proprietária da Tradução Local

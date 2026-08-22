@@ -55,7 +55,7 @@ class TelemetriaTraducaoAdapterTest {
 
     private static TelemetriaTraducao registro(String nome, String modelo, int totalLinhas, String registradoEm) {
         return new TelemetriaTraducao(nome, modelo, totalLinhas, totalLinhas, 0, 100L,
-            List.of(), "Anime", "Temporada Única", registradoEm, "lore", "CONCLUIDO", List.of());
+            List.of(), "Anime", "Temporada Única", registradoEm, "lore", "CONCLUIDO", List.of(), null, null);
     }
 
     private TelemetriaTraducaoDocumento lerArquivo() throws IOException {
@@ -74,7 +74,7 @@ class TelemetriaTraducaoAdapterTest {
         assertEquals(1, doc.registros().size(), "Um único episódio consolidado");
         assertEquals("modeloB", doc.registros().get(0).modeloLlm());
         assertEquals(20, doc.registros().get(0).totalLinhas());
-        assertEquals("1.1", doc.schemaVersion());
+        assertEquals("1.2", doc.schemaVersion());
     }
 
     @Test
@@ -85,7 +85,8 @@ class TelemetriaTraducaoAdapterTest {
             "ep05.ass", "modeloX", 100, 80, 0, 500L, List.of(), "Anime", "Temporada Única",
             "2026-01-05T00:00:00Z", "lore", "PARCIAL",
             List.of(new org.traducao.projeto.traducao.domain.ResumoPendencia("DIALOGO", "MARCADORES_CORROMPIDOS", 7),
-                    new org.traducao.projeto.traducao.domain.ResumoPendencia("DIALOGO", "ECO", 3))));
+                    new org.traducao.projeto.traducao.domain.ResumoPendencia("DIALOGO", "ECO", 3)),
+            null, null));
 
         var pendencias = lerArquivo().registros().get(0).pendenciasPorCausa();
         assertEquals(2, pendencias.size());

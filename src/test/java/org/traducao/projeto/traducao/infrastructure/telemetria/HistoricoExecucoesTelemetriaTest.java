@@ -64,7 +64,7 @@ class HistoricoExecucoesTelemetriaTest {
     private static TelemetriaTraducao execucao(String episodio, String quando, String status) {
         return new TelemetriaTraducao(
             episodio, "modelo-teste", 100, 90, 10, 1234L,
-            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", status, List.of());
+            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", status, List.of(), null, null);
     }
 
     /**

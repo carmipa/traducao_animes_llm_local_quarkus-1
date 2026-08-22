@@ -60,7 +60,10 @@ public class TelemetriaTraducaoAdapter implements TelemetriaTraducaoPort {
 
     // 1.1: acrescenta pendenciasPorCausa (KPI estruturado) a cada registro; aditivo e
     // retrocompatível — arquivos 1.0 sao lidos com o campo ausente como null.
-    private static final String SCHEMA_VERSION = "1.1";
+    // 1.2 (22/08/2026): entraram falasItalicoRemovido e falasItalicoPreservado. Sao Integer,
+    // entao registro gravado sob 1.1 le como null — que e a resposta HONESTA para ele: os
+    // episodios daquela epoca nao foram medidos, e nao "foram medidos e deram zero".
+    private static final String SCHEMA_VERSION = "1.2";
     private static final String NOME_ARQUIVO = "telemetria_traducao.json";
     /** Histórico append-only: uma linha JSON por EXECUÇÃO (o canônico guarda só a última). */
     static final String NOME_ARQUIVO_HISTORICO = "telemetria_execucoes.jsonl";

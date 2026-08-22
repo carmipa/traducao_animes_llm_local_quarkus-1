@@ -14,7 +14,9 @@ public record LlmTelemetria(
     String temporada,
     String registradoEm,
     String loreNome,
-    String statusFinal
+    String statusFinal,
+    Integer falasItalicoRemovido,
+    Integer falasItalicoPreservado
 ) {
     /**
      * Compat: construtor antigo (sem lore/status) para chamadas legadas — assume
@@ -26,6 +28,6 @@ public record LlmTelemetria(
         Integer falasDoCache, Long tempoTotalMs, List<String> errosOcorridos, String animeNome,
         String temporada, String registradoEm) {
         this(nomeEpisodio, modeloLlm, totalLinhas, falasTraduzidas, falasDoCache, tempoTotalMs,
-            errosOcorridos, animeNome, temporada, registradoEm, null, null);
+            errosOcorridos, animeNome, temporada, registradoEm, null, null, null, null);
     }
 }

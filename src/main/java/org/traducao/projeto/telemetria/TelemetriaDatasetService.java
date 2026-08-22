@@ -151,7 +151,8 @@ public class TelemetriaDatasetService {
 
     static final List<String> COLUNAS_TRADUCOES = List.of(
         "episodio", "anime", "temporada", "modeloLlm", "totalLinhas", "falasTraduzidas",
-        "falasDoCache", "tempoTotalMs", "quantidadeAvisos", "registradoEm");
+        "falasDoCache", "tempoTotalMs", "quantidadeAvisos", "registradoEm",
+        "falasItalicoRemovido", "falasItalicoPreservado");
 
     static final List<String> COLUNAS_OPERACOES = List.of(
         "tipo", "tempoTotalMs", "arquivosProcessados", "itensDetectados", "itensCorrigidos",
@@ -773,6 +774,11 @@ public class TelemetriaDatasetService {
                 item.put("tempoTotalMs", t.tempoTotalMs());
                 item.put("quantidadeAvisos", contarAvisos(t.errosOcorridos()));
                 item.put("registradoEm", t.registradoEm());
+                // null CHEGA AO DATASET COMO null, nao como 0: "nao medi" e "medi e deu
+                // zero" sao respostas diferentes, e trocar uma pela outra e o que torna um
+                // historico importado inutil para comparar epocas.
+                item.put("falasItalicoRemovido", t.falasItalicoRemovido());
+                item.put("falasItalicoPreservado", t.falasItalicoPreservado());
             }
         }
 
@@ -1017,6 +1023,8 @@ public class TelemetriaDatasetService {
         | `modeloLlm` | Local model id reported by LM Studio |
         | `totalLinhas` / `falasTraduzidas` / `falasDoCache` | Workload and translation source |
         | `tempoTotalMs` | Total episode translation duration |
+        | `falasItalicoRemovido` | Lines whose italic was stripped by the italic rule (null = not measured) |
+        | `falasItalicoPreservado` | Lines the rule ABSTAINED from: italic inherited from the `Style:` header |
         | `quantidadeAvisos` | Count of quality warnings, without warning text |
         | `registradoEm` | UTC ISO-8601 timestamp |
 
@@ -1146,6 +1154,8 @@ public class TelemetriaDatasetService {
         | `modeloLlm` | Modelo local usado, conforme id reportado pelo LM Studio |
         | `totalLinhas` / `falasTraduzidas` / `falasDoCache` | Volume e origem das traduções |
         | `tempoTotalMs` | Duração total da tradução do episódio |
+        | `falasItalicoRemovido` | Falas de que a regra do itálico tirou a tag (null = não medido) |
+        | `falasItalicoPreservado` | Falas de que a regra SE ABSTEVE: o itálico vem do `Style:` do cabeçalho |
         | `quantidadeAvisos` | Contagem de avisos de qualidade, sem texto dos avisos |
         | `registradoEm` | Timestamp UTC em ISO-8601 |
 

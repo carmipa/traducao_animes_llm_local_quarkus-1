@@ -37,6 +37,12 @@ class CatracaSuiteSemDriveWindowsTest {
      * não por pasta nem por padrão genérico.
      */
     private static final Set<String> EXCECOES_NOMINAIS = Set.of(
+        // Entrou em 22/08/2026, DEPOIS desta catraca — e de novo foi a catraca que o pegou.
+        // Mede quanto a regra do italico alcanca no acervo real e quantas falas ela deixa
+        // intactas por herdarem italico do Style:. "C:\animes" e o DEFAULT de
+        // -Dkronos.acervo, nao caminho de fixture, e o harness e travado por
+        // -Dkronos.medicao=true. Excecao NOMINAL, nao afrouxamento do padrao.
+        "MedicaoAlcanceRegraItalicoIT.java",
         "AplicarAcentosNoAcervoIT.java",
         "MedicaoAnomaliaIntroduzidaIT.java",
         "MedicaoAuditoriaAcervoIT.java",
