@@ -298,6 +298,74 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         assertEquals(1, contarDialogos(texto), "a fala não pode sumir");
     }
     /**
+     * PROPÓSITO DE NEGÓCIO: a fala partida por {@code \N} sai traduzida <b>com a quebra no
+     * mesmo lugar</b>. É o defeito que sobrou depois de tudo o mais fechar.
+     *
+     * <h2>O prejuízo, medido no acervo em 22/08/2026</h2>
+     * A medição de prontidão varreu 66.976 falas auditáveis e achou as que continuavam presas em
+     * inglês. Quase todas tinham a MESMA forma — quebra no meio da frase:
+     * <pre>
+     * "When you're ready to see me, just go\Nto Port Blanc and say your name is Candy."
+     * "If we don't get back to Port Blanc soon,\NGottn's gonna yell at us again."
+     * "Well, I don't actually know which of\Nthe three ships is the Sadalahn."
+     * </pre>
+     * O caminho de sempre tirava a quebra, traduzia a frase inteira e RECOLOCAVA a quebra por
+     * heurística de posição. Quando errava, o portão reprovava por quebra perdida e a fala
+     * continuava em inglês — pior que qualquer quebra mal posta.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o número de linhas não muda, a quebra fica onde estava, e o
+     * inglês some das duas metades.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala em inglês no arquivo depois das três rotas
+     * significa que a tela não cumpre a própria promessa.
+     */
+    @Test
+    @DisplayName("fala partida por \\N sai traduzida com a quebra no mesmo lugar")
+    void falaPartidaPorQuebraSaiTraduzidaComAQuebraNoLugar(@TempDir Path temp) throws IOException {
+        // O dublê só sabe traduzir texto SEM marcador — como na produção. Cada metade vai
+        // separada, então cada uma casa.
+        // FALA SEM NOME PROPRIO ESTRANGEIRO de proposito. A primeira versao usava a fala real
+        // do ZZ ("...to Port Blanc...") e o teste reprovava por um motivo que NAO e o assunto
+        // dele: o contexto do teste e "danmachi" e nao conhece "Port Blanc", entao o detector
+        // de idioma barrava a traducao CORRETA como "nao e PT-BR". Isso e um achado separado,
+        // e virou entrada na lore do ZZ — mas aqui o que se prova e a MECANICA da quebra.
+        llm.ensinar("I will wait for you here,", "Vou esperar por você aqui,");
+        llm.ensinar("until the sun goes down.", "até o sol se pôr.");
+        Path pastaPt = montar(temp, List.of(new Fala(
+            "I will wait for you here,\\Nuntil the sun goes down.",
+            "I will wait for you here,\\Nuntil the sun goes down.")));
+
+        Optional<String> saida = revisar(temp, pastaPt);
+
+        String texto = saida.orElse(Files.readString(
+            pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
+        assertFalse(texto.contains("I will wait"),
+            "a fala tinha de sair do ingles:" + texto);
+        assertTrue(texto.contains("\\N"),
+            "a quebra tinha de continuar la, no mesmo lugar:" + texto);
+        assertTrue(texto.contains("Vou esperar por você aqui,\\Naté o sol se pôr."),
+            "as duas metades traduzidas, unidas pela MESMA quebra:" + texto);
+        assertEquals(1, contarDialogos(texto), "a fala nao pode virar duas");
+    }
+
+    /**
+     * CONTRA-CASO: quebra que NÃO parte frase — decoração de typesetting, com a quebra no fim —
+     * não entra nesta rota. Sem ele, a rota tentaria dividir cartões de letreiro em pedaços.
+     */
+    @Test
+    @DisplayName("quebra que nao parte frase nao entra na rota por segmento")
+    void quebraDeDecoracaoNaoEntraNaRota(@TempDir Path temp) throws IOException {
+        llm.ensinar("Next Episode", "Próximo Episódio");
+        Path pastaPt = montar(temp, List.of(new Fala(
+            "Next Episode\\N\\N\\N", "Next Episode\\N\\N\\N")));
+
+        Optional<String> saida = revisar(temp, pastaPt);
+
+        String texto = saida.orElse(Files.readString(
+            pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
+        assertEquals(1, contarDialogos(texto), "a fala nao pode sumir nem virar duas");
+    }
+    /**
      * O ESPELHO — ideia de Paulo (2026-08-16): a legenda ORIGINAL é a referência de estrutura,
      * e ela sempre existe. Medido no Guilty Crown no mesmo dia: 4 falas não traduzidas COM tag
      * inline que nenhuma das duas etapas resolvia — o LLM devolvia
