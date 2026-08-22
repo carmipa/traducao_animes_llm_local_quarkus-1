@@ -1,56 +1,68 @@
-# EM CURSO (2026-08-22) — o italico foi ELIMINADO por decisao do Paulo
+# PRONTO (2026-08-22) — a 3.1 limpa o italico do acervo; a 2.1 nao deixa mais entrar
 
-> "num filme normal nao tem italico e frescura rsss" — e antes disso: "ja era para ter sido
-> removido em traducao, mas nos esquecemos e ja tinhamos discutido isso". Procurei em
-> `decisoes/`, `chats/`, nesta CONTINUIDADE e na memoria local: **nao existia registro**. Agora
-> existe, e como mecanismo, nao como anotacao.
+> Paulo: *"como estamos em 3.1 implementamos aqui a limpesa de italicos, pois as traducoes ja
+> foram feitas — la nos focamos na traducao, e aqui no que falta no refinamento"*. O recorte e
+> esse: **2.1 traduz, 3.1 refina o que ja existe.**
 
 ## PROXIMA ACAO EXECUTAVEL EXATA
 
-**Perguntar ao Paulo se a varredura retroativa do acervo inclui o CARTAO DE TITULO.**
-E decisao dele (produto, lista fechada da regra 21). Numeros na mao:
+**Paulo passa a 3.1 (Revisao de Legendas) nas obras.** Nao ha decisao pendente e nao ha
+varredura separada a escrever: a limpeza acontece na tela que ele ja usa, e o efeito por linha
+sai em VERDE. Conferir depois com:
 
 ```
-9.769 falas de dialogo mudariam no acervo (222 arquivos, 13 obras)
-  4.838  Dialogue          <- fala de filme, e o que ele pediu
-  3.406  Zeta Episode Title <- CARTAO DE TITULO animado (fs150, fade, blur, \\t, \\pos)
-  1.371  Default           <- fala de filme
-    136  Mobile Suit Gundam <- esta em estilos-ignorados: NAO entra na producao
+gradlew test --tests "*MedicaoAlcanceRegraItalicoIT*" -Dkronos.medicao=true
+```
+"A 3.1 LIMPARIA" tem de cair de 6.021 para perto de zero nas obras ja passadas.
+
+## O que a 3.1 vai limpar — medido com o filtro DELA (FiltroAuditoriaLinha)
+
+```
+222 arquivos · 225.591 falas com bloco de tag
+A 3.1 LIMPARIA        6.021   Dialogue 4.824 · Default 1.181
+VETADAS pelo filtro   3.767   musica, karaoke, vetorial, efeito protegido
+ABSTENCOES               38   italico herdado do Style: do cabecalho
+
+por obra: ZZ 1.757 · Zeta 1.733 · 0083 684 · 08th 562 · Guilty Crown 412 ·
+          DanMachi S05 320 · 0080 144 · CCA 138 · F91 126 · 86p1 74 · 86p2 52 ·
+          DanMachi 17 · Unicorn 2
 ```
 
-Respondido isso, a varredura e:
-1. snapshot em `backups/italico-retroativo-<data>` (git NAO cobre o acervo)
-2. aplicar `RemovedorItalico` sobre `traducao_ptbr/*.ass`, preservando BOM/CRLF/contagem
-3. reconferir com `gradlew test --tests '*MedicaoAlcanceRegraItalicoIT*' -Dkronos.medicao=true`
-   (tem de cair para ~0 nos estilos varridos)
+**A pergunta do cartao de titulo MORREU na medicao.** Eu ia perguntar se a varredura devia
+incluir os 3.406 `Zeta Episode Title`. Perguntando ao filtro CERTO — o que a tela usa — o cartao
+de titulo **nao aparece**: ja e vetado como efeito protegido. Era instrumento errado, nao duvida
+legitima. Medir com o detector de karaoke cru dava 9.769; com o filtro da 3.1 da 6.021.
 
-## O que JA esta feito e provado (4 commits, pushados)
+## Os 6 commits
 
 | commit | o que fecha |
 |--------|-------------|
-| `195b7daf` | `RemovedorItalico` + ligado no que VAI ao LLM |
+| `195b7daf` | `RemovedorItalico` + ligado no que VAI ao LLM (2.1) |
 | `0b37f218` | portao de estrutura parou de descartar a traducao por FALTAR o italico |
-| `7f4a7039` | regra vale tambem para a fala que NUNCA ve o LLM (cache, Google, pendente) |
-| `c961e292` | telemetria: `falasItalicoRemovido` e `falasItalicoPreservado`, ate o CSV publico |
+| `7f4a7039` | 2.1: vale tambem para a fala que NUNCA ve o LLM (cache, Google, pendente) |
+| `c961e292` | telemetria da 2.1, ate o CSV publico; schema 1.1 -> 1.2 |
+| `f28568c5` | **3.1 LIMPA o acervo** + o sincronizador parou de reintroduzir italico do cache |
+| `a56e0641` | telemetria da 3.1: por linha, por arquivo e no relatorio |
 
-**Remove o TOKEN, nunca o bloco**: dos 8.309 blocos com italico, 340 vem misturados
-(`{\q2\i1}`, `{ade(..)n7\i1\pos(..)}`) e apagar o bloco destruiria quebra, posicao e cor.
+## Decisoes de desenho que valem lembrar
 
-**Falha fechada no caso que INVERTE o efeito**: fala cujo primeiro token e `\i0` fica intacta —
-ali o italico vem do `Style:` do cabecalho e remover o desliga ACENDERIA o italico. 50 falas.
-
-**6 mutacoes, cada uma vista reprovando** — nenhuma linha de correcao ficou sem guarda. A da
-saida so ganhou teste PORQUE a mutacao mostrou que ninguem a cobria.
+- **Remove o TOKEN, nunca o bloco**: 340 dos 8.309 blocos vem misturados (`{' + B + B + 'q2' + B + B + 'i1}`).
+- **Falha fechada no `\\i0` orfao**: ali o italico vem do `Style:` e remover o desliga ACENDERIA
+  o italico. 38 falas ficam intactas, e o contador de telemetria existe para isso nao voltar a
+  ser invisivel.
+- **`RemovedorItalico` mora no peer `qualidadeTraducao`**: DUAS fatias o consomem. Na fatia, a
+  copia seria inevitavel.
+- **7 mutacoes vistas reprovando.** A da saida da 2.1 so ganhou teste porque a mutacao mostrou
+  que ninguem a cobria.
 
 ## ABERTO e declarado
 
-- **50 abstencoes** (22 Zeta, 18 08th, 6 F91, 2 ZZ, 2 Guilty Crown): a fala herda italico do
-  `Style:`. Tirar exigiria mexer no CABECALHO do arquivo, que muda o estilo inteiro — outra
-  classe de alteracao, fora do que foi pedido. O contador de telemetria existe justamente para
-  isso nao voltar a ser invisivel.
+- **38 abstencoes**: tirar exigiria mexer no `Style:` do cabecalho, que muda o estilo inteiro —
+  outra classe de alteracao, fora do pedido.
 - **19 falas de musica com italico**: vetadas de proposito. Nao mexer.
 
 ---
+
 
 # CONCLUIDO (2026-08-20, noite) — a "zona" da linha traduzida: A e D fechados com prova
 
