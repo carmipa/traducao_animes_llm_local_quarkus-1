@@ -1,67 +1,67 @@
-# PRONTO (2026-08-22) — a 3.1 limpa o italico do acervo; a 2.1 nao deixa mais entrar
-
-> Paulo: *"como estamos em 3.1 implementamos aqui a limpesa de italicos, pois as traducoes ja
-> foram feitas — la nos focamos na traducao, e aqui no que falta no refinamento"*. O recorte e
-> esse: **2.1 traduz, 3.1 refina o que ja existe.**
+# PRONTO (2026-08-22) — 3.1 limpa o italico, e o detector de concordancia foi de 19 falsos positivos a ZERO
 
 ## PROXIMA ACAO EXECUTAVEL EXATA
 
-**Paulo passa a 3.1 (Revisao de Legendas) nas obras.** Nao ha decisao pendente e nao ha
-varredura separada a escrever: a limpeza acontece na tela que ele ja usa, e o efeito por linha
-sai em VERDE. Conferir depois com:
+**Paulo passa a 3.1 nas obras.** Nada pendente. O que ele vai ver de diferente:
 
 ```
-gradlew test --tests "*MedicaoAlcanceRegraItalicoIT*" -Dkronos.medicao=true
-```
-"A 3.1 LIMPARIA" tem de cair de 6.021 para perto de zero nas obras ja passadas.
-
-## O que a 3.1 vai limpar — medido com o filtro DELA (FiltroAuditoriaLinha)
-
-```
-222 arquivos · 225.591 falas com bloco de tag
-A 3.1 LIMPARIA        6.021   Dialogue 4.824 · Default 1.181
-VETADAS pelo filtro   3.767   musica, karaoke, vetorial, efeito protegido
-ABSTENCOES               38   italico herdado do Style: do cabecalho
-
-por obra: ZZ 1.757 · Zeta 1.733 · 0083 684 · 08th 562 · Guilty Crown 412 ·
-          DanMachi S05 320 · 0080 144 · CCA 138 · F91 126 · 86p1 74 · 86p2 52 ·
-          DanMachi 17 · Unicorn 2
+[OK] sincronizadas=0, revisadas=0, italico=35     <- os dois numeros separados
 ```
 
-**A pergunta do cartao de titulo MORREU na medicao.** Eu ia perguntar se a varredura devia
-incluir os 3.406 `Zeta Episode Title`. Perguntando ao filtro CERTO — o que a tela usa — o cartao
-de titulo **nao aparece**: ja e vetado como efeito protegido. Era instrumento errado, nao duvida
-legitima. Medir com o detector de karaoke cru dava 9.769; com o filtro da 3.1 da 6.021.
+Antes saia "Falas corrigidas via LLM: 412" e as 412 eram italico — o LLM nao
+corrigira nenhuma. Foi o proprio Paulo que pegou, lendo o log.
 
-## Os 6 commits
+Conferir depois:
+```
+gradlew test --tests "*MedicaoAlcanceRegraItalicoIT*"      -Dkronos.medicao=true
+gradlew test --tests "*MedicaoFalsoPositivoConcordanciaIT*" -Dkronos.medicao=true
+```
+
+## Os numeros que fecham o dia
+
+```
+ITALICO       A 3.1 LIMPARIA 6.021 falas (Dialogue 4.824 · Default 1.181)
+              VETADAS pelo filtro 3.767 · ABSTENCOES 38
+CONCORDANCIA  67.178 pares EN/PT · 23 acusacoes -> 10 -> 5
+              as 5 restantes sao DEFEITO REAL. Zero falso positivo.
+```
+
+## Os 9 commits
 
 | commit | o que fecha |
 |--------|-------------|
 | `195b7daf` | `RemovedorItalico` + ligado no que VAI ao LLM (2.1) |
-| `0b37f218` | portao de estrutura parou de descartar a traducao por FALTAR o italico |
-| `7f4a7039` | 2.1: vale tambem para a fala que NUNCA ve o LLM (cache, Google, pendente) |
-| `c961e292` | telemetria da 2.1, ate o CSV publico; schema 1.1 -> 1.2 |
-| `f28568c5` | **3.1 LIMPA o acervo** + o sincronizador parou de reintroduzir italico do cache |
+| `0b37f218` | portao de estrutura parou de descartar traducao por FALTAR o italico |
+| `7f4a7039` | 2.1: vale para a fala que NUNCA ve o LLM (cache, Google, pendente) |
+| `c961e292` | telemetria da 2.1 ate o CSV publico; schema 1.1 -> 1.2 |
+| `f28568c5` | **3.1 LIMPA o acervo** + sincronizador parou de reintroduzir italico do cache |
 | `a56e0641` | telemetria da 3.1: por linha, por arquivo e no relatorio |
+| `d8cde5f1` | **"corrigidas via LLM: 412" eram italico** — contadores separados |
+| `fee4b844` | concordancia: 4 causas-raiz, 23 -> 10 |
+| `e5e4171d` | concordancia: 5 causas-raiz, 10 -> 5, e as 5 sao reais |
 
-## Decisoes de desenho que valem lembrar
+## As 9 causas de falso positivo do detector, para nao voltarem
 
-- **Remove o TOKEN, nunca o bloco**: 340 dos 8.309 blocos vem misturados (`{' + B + B + 'q2' + B + B + 'i1}`).
-- **Falha fechada no `\\i0` orfao**: ali o italico vem do `Style:` e remover o desliga ACENDERIA
-  o italico. 38 falas ficam intactas, e o contador de telemetria existe para isso nao voltar a
-  ser invisivel.
-- **`RemovedorItalico` mora no peer `qualidadeTraducao`**: DUAS fatias o consomem. Na fatia, a
-  copia seria inevitavel.
-- **7 mutacoes vistas reprovando.** A da saida da 2.1 so ganhou teste porque a mutacao mostrou
-  que ninguem a cobria.
+1. cruzamento de objeto com him E her no mesmo original
+2. "mistress" nao casava "miss"
+3. "cara" polissemico (rosto/preco/vocativo)
+4. predicativo concordando com outro substantivo da frase
+5. "girlfriend" nao casava "girl"
+6. "eles/elas" regido por preposicao tratado como sujeito
+7. a mesma falha do (4) vazando pelo detector IRMAO
+8. "ela" referindo-se a COISA quando o "ele" ja esta na frase
+9. tratamento do outro genero ja presente no PT
 
 ## ABERTO e declarado
 
-- **38 abstencoes**: tirar exigiria mexer no `Style:` do cabecalho, que muda o estilo inteiro —
-  outra classe de alteracao, fora do pedido.
-- **19 falas de musica com italico**: vetadas de proposito. Nao mexer.
+- **38 abstencoes do italico**: a fala herda italico do `Style:` do cabecalho.
+  Tirar exige mexer no CABECALHO, que muda o estilo inteiro — outra classe de
+  alteracao. O contador de telemetria existe para isso nao ficar invisivel.
+- **19 falas de musica com italico**: vetadas de proposito.
+- **As 5 acusacoes reais** sao trabalho da 3.3, e a 3.1 as roteia certo.
 
 ---
+
 
 
 # CONCLUIDO (2026-08-20, noite) — a "zona" da linha traduzida: A e D fechados com prova
