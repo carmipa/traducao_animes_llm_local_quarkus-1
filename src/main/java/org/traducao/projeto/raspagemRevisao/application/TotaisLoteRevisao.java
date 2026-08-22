@@ -33,6 +33,7 @@ public class TotaisLoteRevisao {
     private int semOriginal;
     private int pendentes;
     private int semReferenciaSegura;
+    private int italicoRemovido;
 
     /**
      * Quantos arquivos saíram CEGOS — tinham fala para auditar e nenhuma foi comparada.
@@ -60,6 +61,7 @@ public class TotaisLoteRevisao {
         semOriginal += sessao.semOriginal();
         pendentes += sessao.pendentes();
         semReferenciaSegura += sessao.semReferenciaSegura();
+        italicoRemovido += sessao.italicoRemovido();
         // A única interpretação desta soma, e ela é DELEGADA: quem define cegueira é a sessão.
         if (sessao.ficouCego()) {
             arquivosCegos++;
@@ -98,6 +100,16 @@ public class TotaisLoteRevisao {
 
     public int pendentes() {
         return pendentes;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quantas falas do LOTE tiveram o itálico removido pela regra de
+     * 22/08/2026 — é o número que vai ao relatório e à telemetria da operação.
+     * <p>INVARIANTES DO DOMÍNIO: consulta pura; a soma acontece em {@link #somar}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public int italicoRemovido() {
+        return italicoRemovido;
     }
 
     public int semReferenciaSegura() {
