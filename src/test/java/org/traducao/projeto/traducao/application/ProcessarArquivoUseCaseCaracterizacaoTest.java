@@ -352,6 +352,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         AvaliadorTraducaoCache avaliadorCache =
             new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador,
                 new VerificadorIdentificadorNumerico(),
+                new RemovedorItalico(),
                 new RestauradorFalaIdenticaSemItalico(mascarador, detectorIdentica,
                     new DescarteItalicoUltimoRecurso(), LoreAtivaFake.vazia()));
         TradutorLotesService tradutorLotes =

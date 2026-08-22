@@ -1,5 +1,6 @@
 package org.traducao.projeto.traducao.application;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.qualidadeTraducao.application.DetectorTraducaoIdenticaService;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
@@ -38,6 +40,7 @@ class AvaliadorTraducaoCacheTest {
         new DetectorTraducaoIdenticaService(new LoreVazia()),
         new ValidadorTraducaoService(LoreAtivaFake.vazia()),
         new VerificadorIdentificadorNumerico(),
+                new RemovedorItalico(),
         new RestauradorFalaIdenticaSemItalico(new MascaradorTags(),
             new DetectorTraducaoIdenticaService(new LoreVazia()),
             new DescarteItalicoUltimoRecurso(), new LoreVazia()));
@@ -60,7 +63,9 @@ class AvaliadorTraducaoCacheTest {
      */
     @Test
     void tagsDivergentesNaoSaoReaproveitaveis() {
-        assertFalse(avaliador.isCacheReaproveitavel("{\\i1}Oi", "Oi"));
+        // VEICULO trocado em 22/08/2026: o itálico deixou de ser divergência por decisão de
+        // produto (RemovedorItalico). A posição continua sendo, e é o que este teste guarda.
+        assertFalse(avaliador.isCacheReaproveitavel("{\\pos(10,20)}Oi", "Oi"));
     }
 
     /**
@@ -109,7 +114,7 @@ class AvaliadorTraducaoCacheTest {
     void motivoFalhaFinalRetornaMotivosEsperados() {
         assertEquals("resposta vazia", avaliador.motivoFalhaFinal("Hello", ""));
         assertEquals("tags ASS/SSA ou quebras de linha divergentes do original",
-            avaliador.motivoFalhaFinal("{\\i1}Oi", "Oi"));
+            avaliador.motivoFalhaFinal("{\\pos(10,20)}Oi", "Oi"));
         assertEquals("modelo devolveu o texto original sem tradução",
             avaliador.motivoFalhaFinal("hello", "hello"));
         assertTrue(avaliador.motivoFalhaFinal("algo", "the same").startsWith("Resíduo"),
@@ -124,5 +129,47 @@ class AvaliadorTraducaoCacheTest {
     @Test
     void traducaoValidaRetornaNullComoMotivo() {
         assertNull(avaliador.motivoFalhaFinal("Hello", "Olá"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o portão de estrutura não pode reprovar a tradução por ela não ter
+     * o itálico que a regra de 22/08/2026 mandou tirar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a comparação de tags entre original e tradução ignora o token
+     * de itálico dos DOIS lados. Qualquer outra tag continua exigida na íntegra.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reprovando aqui, a fala é descartada e PUBLICADA EM
+     * INGLÊS — foi o que aconteceu com 8 falas do 08th MS Team em 31/07/2026 e o que fez
+     * nascer o {@link RestauradorFalaIdenticaSemItalico}. Com o itálico eliminado na origem,
+     * seriam as 9.678 falas de diálogo em itálico do acervo.
+     */
+    @Test
+    @DisplayName("Itálico removido na origem não conta como tag divergente")
+    void italicoRemovidoNaoContaComoTagDivergente() {
+        assertNull(avaliador.motivoFalhaFinal("{\\i1}Space.", "Espaço."),
+            "a fala perdeu SÓ o itálico, que a regra manda tirar — não é estrutura divergente");
+        assertNull(avaliador.motivoFalhaFinal("there's {\\i1}no love{\\i0} in this",
+                "não há amor neste"),
+            "o par de ênfase inteiro sai; a tradução não pode ser recusada por isso");
+        assertNull(avaliador.motivoFalhaFinal("{\\q2\\i1}Hello", "{\\q2}Olá"),
+            "bloco misto: sai o itálico, fica o \\q2 — e o portão aceita");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CONTRA-CASO. Afrouxar o portão para o itálico não pode afrouxá-lo
+     * para o resto — perder {@code \pos} ou {@code \N} muda o que se vê na tela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se este teste passar a devolver null, o portão parou
+     * de guardar a formatação e a legenda sai corrompida sem ninguém perceber.
+     */
+    @Test
+    @DisplayName("Perder tag que NÃO é itálico continua reprovando")
+    void perderTagNaoItalicaContinuaReprovando() {
+        assertNotNull(avaliador.motivoFalhaFinal("{\\pos(10,20)}Space.", "Espaço."),
+            "posição perdida tem de reprovar");
+        assertNotNull(avaliador.motivoFalhaFinal("Linha A\\NLinha B", "Linha A Linha B"),
+            "quebra de linha perdida tem de reprovar");
+        assertNotNull(avaliador.motivoFalhaFinal("{\\i1}Space.", "{\\i1}{\\b1}Espaço."),
+            "tag INVENTADA pelo modelo tem de reprovar");
     }
 }
