@@ -495,15 +495,15 @@ public class ProvedorCorrecaoFala {
                 PoliticaRetraducao.NAO_TRADUZIDA
                     + " — traduzir integralmente para português do Brasil");
             if (resposta.isEmpty()) {
-                return Optional.empty();
+                return desistiu(visivel, "o modelo nao devolveu nada para esta metade");
             }
             String restaurado = protetorLore.restaurar(resposta.get(), protegido);
             if (restaurado == null || restaurado.isBlank()) {
-                return Optional.empty();
+                return desistiu(visivel, "a metade perdeu marcador de lore na volta");
             }
             restaurado = restaurado.strip();
             if (restaurado.equalsIgnoreCase(visivel)) {
-                return Optional.empty(); // o modelo devolveu o ingles: nao resolveu nada
+                return desistiu(visivel, "o modelo devolveu esta metade EM INGLES, sem traduzir");
             }
             traduzidas.add(restaurado);
         }
@@ -517,9 +517,30 @@ public class ProvedorCorrecaoFala {
         try {
             validador.validarFala(montada);
         } catch (AlucinacaoDetectadaException e) {
-            return Optional.empty();
+            return desistiu(montada, "a fala montada foi barrada: " + e.getMessage());
         }
         return Optional.of(montada);
+    }
+    /**
+     * PROPÓSITO DE NEGÓCIO: a rota por segmento DIZ por que desistiu, no log do operador.
+     *
+     * <p>Sem isto ela some em silêncio e o fluxo cai no caminho de sempre — que reprova por
+     * quebra perdida e deixa a fala em inglês. O operador vê "quebra de linha perdida" e não
+     * tem como saber que a rota nova nem chegou a produzir nada, nem por quê. Foi exatamente o
+     * que aconteceu na corrida do ZZ em 22/08/2026: a fala continuou presa e o motivo no
+     * relatório era o do OUTRO caminho.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só informa; devolve sempre {@code Optional.empty()}, para o
+     * chamador seguir para as rotas seguintes exatamente como antes.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança.
+     */
+    private Optional<String> desistiu(String trecho, String motivo) {
+        System.out.println("     " + AnsiCores.DIM
+            + "[SEGMENTO] rota por metade desistiu: " + motivo
+            + " | trecho: " + (trecho == null ? "" : trecho.strip())
+            + AnsiCores.RESET);
+        return Optional.empty();
     }
     /**
      * PROPÓSITO DE NEGÓCIO: o bloco de tags que abre a linha — o que carrega posicionamento e

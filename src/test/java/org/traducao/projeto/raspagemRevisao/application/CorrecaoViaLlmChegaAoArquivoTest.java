@@ -126,6 +126,16 @@ class CorrecaoViaLlmChegaAoArquivoTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}.
      */
     private Path montar(Path temp, List<Fala> falas) throws IOException {
+        return montar(temp, falas, "danmachi");
+    }
+
+    /**
+     * A PROVENIENCIA do cache e quem decide o contexto efetivo — nao o id passado ao use
+     * case. Descoberto em 22/08/2026: um teste com contextoId "gundam_zz" e cache com
+     * proveniencia "danmachi" rodava com a lore do DanMachi (42 termos em vez de 83) e
+     * reprovava por motivo que nao era o assunto dele.
+     */
+    private Path montar(Path temp, List<Fala> falas, String lore) throws IOException {
         Path pastaPt = Files.createDirectory(temp.resolve("pt"));
         Path pastaCache = Files.createDirectory(temp.resolve("cache"));
         StringBuilder ass = new StringBuilder(CABECALHO);
@@ -140,7 +150,7 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         mapper.writerWithDefaultPrettyPrinter().writeValue(
             pastaCache.resolve("show_ENG.cache.json").toFile(),
             new CacheDocumento(new ProvenienciaCache(
-                ProvenienciaCache.SCHEMA_ATUAL, "danmachi", "h", "m", "en", "pt"), entradas));
+                ProvenienciaCache.SCHEMA_ATUAL, lore, "h", "m", "en", "pt"), entradas));
         return pastaPt;
     }
 
@@ -152,6 +162,16 @@ class CorrecaoViaLlmChegaAoArquivoTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} — pasta temporária que não
      * escreve é falha do teste, não cenário de domínio.
      */
+    /** Roda a revisão em modo LLM e devolve o arquivo de saída, se houve gravação. */
+    private Optional<String> revisar(Path temp, Path pastaPt) throws IOException {
+        Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
+        useCase.executar(pastaPt, null, temp.resolve("cache"), pastaSaida,
+            ModoRevisaoLegendas.LLM_CONCORDANCIA, "danmachi", ModoReferenciaRevisao.AMBOS);
+        Path destino = pastaSaida.resolve("show_PT-BR.ass");
+        return Files.exists(destino)
+            ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
+            : Optional.empty();
+    }
     private Path montarComLegendaInglesa(Path temp, List<Fala> falas) throws IOException {
         Path pastaPt = montar(temp, falas);
         Path pastaEn = Files.createDirectory(temp.resolve("en"));
@@ -174,15 +194,44 @@ class CorrecaoViaLlmChegaAoArquivoTest {
             ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
             : Optional.empty();
     }
-    /** Roda a revisão em modo LLM e devolve o arquivo de saída, se houve gravação. */
-    private Optional<String> revisar(Path temp, Path pastaPt) throws IOException {
-        Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
-        useCase.executar(pastaPt, null, temp.resolve("cache"), pastaSaida,
-            ModoRevisaoLegendas.LLM_CONCORDANCIA, "danmachi", ModoReferenciaRevisao.AMBOS);
-        Path destino = pastaSaida.resolve("show_PT-BR.ass");
-        return Files.exists(destino)
-            ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
-            : Optional.empty();
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando a rota por metade desiste, ela DIZ por quê no log — senão o
+     * operador lê o motivo do OUTRO caminho e conclui errado.
+     *
+     * <h2>A cicatriz, da própria corrida de 22/08/2026</h2>
+     * A fala do ZZ continuou presa e o relatório dizia
+     * {@code REVISAO_QUEBRA_DE_LINHA_PERDIDA} — motivo do caminho de sempre. A rota nova havia
+     * desistido em silêncio, e não havia como saber em qual metade nem por quê sem sonda no
+     * código.
+     *
+     * <p>Aqui o dublê devolve a metade SEM traduzir (é o que o modelo real faz quando não
+     * entende o fragmento), e o log tem de dizer isso.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: rota que desiste calada faz o operador diagnosticar a
+     * causa errada.
+     */
+    @Test
+    @DisplayName("rota por metade que desiste DIZ o motivo no log")
+    void rotaPorMetadeQueDesisteDizOMotivo(@TempDir Path temp) throws IOException {
+        llm.responderSemAlterar();
+        Path pastaPt = montar(temp, List.of(new Fala(
+            "I will wait for you here,\\Nuntil the sun goes down.",
+            "I will wait for you here,\\Nuntil the sun goes down.")));
+
+        java.io.ByteArrayOutputStream capturado = new java.io.ByteArrayOutputStream();
+        java.io.PrintStream anterior = System.out;
+        System.setOut(new java.io.PrintStream(capturado, true, StandardCharsets.UTF_8));
+        try {
+            revisar(temp, pastaPt);
+        } finally {
+            System.setOut(anterior);
+        }
+
+        String log = capturado.toString(StandardCharsets.UTF_8);
+        assertTrue(log.contains("[SEGMENTO] rota por metade desistiu"),
+            "a desistencia tem de aparecer no log do operador: " + log);
+        assertTrue(log.contains("EM INGLES"),
+            "e tem de dizer QUAL foi o motivo: " + log);
     }
 
     private static long contarDialogos(String conteudo) {
