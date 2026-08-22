@@ -128,6 +128,88 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * O CASO REAL do Zeta S01E, medido no acervo em 21/08/2026: a traducao juntou o conteudo
+     * das duas metades e a segunda linha da legenda ficou com um unico "!".
+     */
+    @Test
+    void propostaQueDeixaSoPontuacaoDentroDoParEhRecusada() {
+        String ingles = "{\\i1}Stop it! Don't stick pins into him{\\i0}\\N{\\i1}any further!{\\i0}";
+        String quebrada = "{\\i1}Pare com isso! Nao coloque mais alfinetes nele{\\i0}\\N{\\i1}!{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, quebrada,
+            suspeitaCom("Fala nao traduzida (identica ao original em ingles)"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto), "a 2a linha viraria so um '!' na tela");
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.TAG_SEM_CONTEUDO, motivo(veredicto));
+    }
+
+    /** Guilty Crown ep14 #114: o par ficou LITERALMENTE vazio e a enfase morreu. */
+    @Test
+    void propostaComParDeTagsVazioEhRecusada() {
+        String ingles = "there's no {\\i1}love{\\i0} in this kind of killing.";
+        String vazia = "nao ha amor {\\i1}{\\i0} neste tipo de assassinato.";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, vazia,
+            suspeitaCom("Fala nao traduzida (identica ao original em ingles)"), SEM_LORE);
+
+        assertFalse(aprovou(veredicto));
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.TAG_SEM_CONTEUDO, motivo(veredicto));
+    }
+
+    /**
+     * CONTROLE 1 — a fala que sai CERTA. Guilty Crown ep03: a tag muda de lugar porque a ordem
+     * das palavras muda entre os idiomas, e continua envolvendo palavra. Das 401 falas expostas
+     * no acervo, 385 sao assim: recusar aqui reprovaria o trabalho correto.
+     */
+    @Test
+    void propostaQueMantemPalavraDentroDoParPassa() {
+        String ingles = "It's all {\\i1}your{\\i0} fault!";
+        String boa = "E tudo {\\i1}sua{\\i0} culpa!";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, boa,
+            suspeitaCom("Fala nao traduzida (identica ao original em ingles)"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto), "tag no miolo com palavra dentro e correto. " + veredicto);
+    }
+
+    /**
+     * CONTROLE 2 — legenda de DUAS LINHAS. A quebra entre os dois pares nao tem letra nenhuma,
+     * e e legitima: sem esta excecao a regra acusaria toda legenda de duas linhas do acervo.
+     */
+    @Test
+    void quebraDeLinhaEntreDoisParesNaoEhParVazio() {
+        String ingles = "{\\i1}I'm going to have Gryps hurry{\\i0}\\N{\\i1}their mobilization.{\\i0}";
+        String boa = "{\\i1}Vou fazer Gryps apressar{\\i0}\\N{\\i1}a mobilizacao deles.{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, boa,
+            suspeitaCom("Fala nao traduzida (identica ao original em ingles)"), SEM_LORE);
+
+        assertTrue(aprovou(veredicto), "a quebra entre pares e separador, nao par vazio. " + veredicto);
+    }
+
+    /**
+     * CONTROLE 3 — proposta SEM tag nenhuma. Perder o italico e decisao do Paulo (17/08: "pode
+     * eliminar o italico sem problema algum"); sem par de tags, esta regra nao tem o que dizer.
+     */
+    @Test
+    void propostaSemTagNenhumaNaoEhAcusadaPorParVazio() {
+        String ingles = "She let {\\i1}you{\\i0} use the Void Genome.";
+        String semTag = "Ela permitiu que voce usasse o Void Genome.";
+
+        GuardaCorrecaoSegura.Veredicto veredicto = guarda.avaliar(
+            ingles, ingles, semTag,
+            suspeitaCom("Fala nao traduzida (identica ao original em ingles)"), SEM_LORE);
+
+        assertNotEquals(GuardaCorrecaoSegura.MotivoRecusa.TAG_SEM_CONTEUDO,
+            veredicto instanceof GuardaCorrecaoSegura.Veredicto.Rejeitada r ? r.motivo() : null,
+            "sem par de tags a regra nao se aplica");
+    }
+
+    /**
      * O SEGUNDO efeito colateral da abstenção, pego em PRODUÇÃO quatro dias depois — Gundam ZZ
      * ep29, corrida de 21/08/2026:
      * <pre>

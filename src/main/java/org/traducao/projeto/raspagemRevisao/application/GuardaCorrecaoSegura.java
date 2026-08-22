@@ -144,6 +144,13 @@ public class GuardaCorrecaoSegura {
         QUEBRA_DE_LINHA_PERDIDA("REVISAO_QUEBRA_DE_LINHA_PERDIDA",
             "a proposta juntou linhas que a fala separava com \\N"),
 
+        /**
+         * Um par de tags da proposta deixou de envolver letra alguma — sobrou pontuação órfã
+         * ou o par ficou vazio, e o realce que ele carregava morreu.
+         */
+        TAG_SEM_CONTEUDO("REVISAO_TAG_SEM_CONTEUDO",
+            "a proposta deixou um par de tags sem nenhuma letra dentro"),
+
         /** A proposta continua suspeita e não reduziu os motivos. */
         SEM_MELHORIA("REVISAO_SEM_MELHORIA",
             "a proposta continua suspeita e não reduziu os motivos da auditoria");
@@ -185,6 +192,17 @@ public class GuardaCorrecaoSegura {
      * repetição não é sinal de defeito nenhum.
      */
     private static final int PISO_PALAVRA_LONGA = 4;
+
+    /** Um bloco {@code {...}} do ASS. */
+    private static final java.util.regex.Pattern BLOCO_DE_TAG =
+        java.util.regex.Pattern.compile("\\{[^}]*\\}");
+
+    /** Quebra de linha, espaco duro e espaco: separador legitimo entre dois pares de tag. */
+    private static final java.util.regex.Pattern SEPARADOR_ESTRUTURAL =
+        java.util.regex.Pattern.compile("(?:\\s|\\\\[Nnh])*");
+
+    private static final java.util.regex.Pattern TEM_LETRA =
+        java.util.regex.Pattern.compile("\\p{L}");
 
     /**
      * PROPÓSITO DE NEGÓCIO: submete uma proposta às seis perguntas, na ordem de custo crescente —
@@ -248,6 +266,12 @@ public class GuardaCorrecaoSegura {
                 + "Correção rejeitada: a proposta juntou linhas que a fala separava com \\N."
                 + AnsiCores.RESET),
                 MotivoRecusa.QUEBRA_DE_LINHA_PERDIDA);
+        }
+        if (parDeTagsFicouSemLetra(traducaoAtual, candidata)) {
+            return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
+                + "Correção rejeitada: a proposta deixou um par de tags sem nenhuma letra dentro."
+                + AnsiCores.RESET),
+                MotivoRecusa.TAG_SEM_CONTEUDO);
         }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
         boolean introduziuProblemaNovo = posterior.motivos().stream()
@@ -367,6 +391,68 @@ public class GuardaCorrecaoSegura {
             }
         }
         return total;
+    }
+
+    /**
+     * PROPOSITO DE NEGOCIO: a proposta manteve as tags mas moveu o texto, e um par passou a
+     * envolver <b>nenhuma letra</b> — sobrou pontuacao orfa ou o par ficou vazio. O realce
+     * morre e o que aparece na tela e lixo tipografico.
+     *
+     * <h2>O prejuizo MEDIDO — acervo inteiro, 2026-08-21</h2>
+     * De 401 falas de dialogo cujo ingles tem tag no MIOLO e cuja traducao mudou, <b>385 saem
+     * corretas</b>. As 16 restantes sao esta classe, e todas as 16 sao defeito. A pior forma
+     * deixa a segunda linha da legenda com um unico sinal de pontuacao:
+     * <pre>
+     * EN : ...Don't stick pins into him[i0][quebra][i1]any further![i0]
+     * PT : ...Nao coloque mais alfinetes nele[i0][quebra][i1]![i0]
+     * </pre>
+     * Outras formas medidas: par literalmente vazio ({@code amor [i1][i0] neste tipo}), virgula
+     * duplicada dentro do par, e ponto orfao depois de tag de typesetting.
+     *
+     * <h2>Por que esta regra e nao "a tag saiu do miolo"</h2>
+     * A POSICAO da tag nao discrimina: das 385 corretas, muitas reorganizam a tag porque a ordem
+     * das palavras muda entre os idiomas. O que separa os dois grupos e o que sobra DENTRO do
+     * par — nas boas ha palavra, nas 16 ha pontuacao ou nada.
+     *
+     * <h2>Invariantes do dominio</h2>
+     * <ul>
+     *   <li>Separador estrutural (quebra de linha, espaco duro, espaco) entre dois pares NAO
+     *       conta: e legitimo e aparece nas duas versoes. Sem esta excecao a regra acusaria
+     *       toda legenda de duas linhas.</li>
+     *   <li>Comparativa: so acusa o que a PROPOSTA acrescenta. Fala que ja tinha par vazio
+     *       continua passando — consertar as que ja estao no acervo e outra tarefa.</li>
+     *   <li>NAO acusa quando a proposta simplesmente NAO TEM tags: perder o italico e decisao
+     *       do Paulo (17/08, "pode eliminar o italico sem problema algum"). Sem par, sem regra.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo devolve {@code false}; nunca lanca.
+     */
+    private boolean parDeTagsFicouSemLetra(String traducaoAtual, String candidata) {
+        if (traducaoAtual == null || candidata == null) {
+            return false;
+        }
+        return temParSemLetra(candidata) && !temParSemLetra(traducaoAtual);
+    }
+
+    /** Existe trecho ENTRE dois blocos de tag com conteudo mas sem nenhuma letra? */
+    private static boolean temParSemLetra(String texto) {
+        java.util.regex.Matcher m = BLOCO_DE_TAG.matcher(texto);
+        int fimAnterior = -1;
+        while (m.find()) {
+            if (fimAnterior >= 0) {
+                String entre = texto.substring(fimAnterior, m.start());
+                // VAZIO nao e separador: {i1}{i0} colados sao o par que perdeu a palavra. O
+                // padrao estrutural usa *, entao casaria com vazio e deixaria passar justamente
+                // a forma mais grave — o teste do Guilty Crown ep14 pegou isso.
+                boolean separadorLegitimo = !entre.isEmpty()
+                    && SEPARADOR_ESTRUTURAL.matcher(entre).matches();
+                if (!separadorLegitimo && !TEM_LETRA.matcher(entre).find()) {
+                    return true;
+                }
+            }
+            fimAnterior = m.end();
+        }
+        return false;
     }
 
     private boolean aFalaAindaEhOOriginalIngles(String original, String traducaoAtual) {
