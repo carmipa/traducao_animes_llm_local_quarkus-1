@@ -442,12 +442,73 @@ public class ValidadorTraducaoService {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer texto sem dois-pontos devolve falso.
      */
+    /**
+     * Piso que separa oracao de rotulo de falante. TRES, medido: nenhum dos 44 rotulos do
+     * historico chega a tres palavras, e nenhuma das 25 oracoes fica abaixo delas.
+     */
+    private static final int MINIMO_PALAVRAS_ORACAO = 3;
+
+    /**
+     * Conta SEQUENCIAS DE LETRAS, e o hifen SEPARA — "Lembre-se disso" sao tres palavras.
+     *
+     * <p>A primeira versao contava tokens separados por espaco e divergiu do script que fez a
+     * medicao das 112 recusas, que contava sequencias de letras: "Lembre-se disso" dava 3 la e
+     * 2 aqui, e a fala continuava recusada. Criterio reimplementado diverge do criterio medido
+     * — foi o proprio caso-controle que pegou.
+     *
+     * <p>Separar no hifen e seguro para o outro lado da fronteira: nenhum dos 44 rotulos do
+     * historico tem hifen ({@code Gryps 2}, {@code Shiro Amada}, {@code Linha 1}).
+     */
+    private static int contarPalavras(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return 0;
+        }
+        int n = 0;
+        boolean dentro = false;
+        for (int i = 0; i < texto.length(); i++) {
+            if (Character.isLetter(texto.charAt(i))) {
+                if (!dentro) {
+                    n++;
+                    dentro = true;
+                }
+            } else {
+                dentro = false;
+            }
+        }
+        return n;
+    }
+
     private boolean temLocutorInventado(String original, String traduzido) {
         java.util.regex.Matcher m = PADRAO_PREFIXO_LOCUTOR.matcher(traduzido);
         if (!m.matches()) {
             return false;
         }
         if (PADRAO_CONECTIVO_DISCURSO.matcher(traduzido).find()) {
+            return false;
+        }
+        // ORACAO NAO E ROTULO DE FALANTE.
+        //
+        // Medido em 2026-08-21 sobre TODO o historico de recusas desta regra — 112 pares
+        // distintos, separados pelo numero de palavras antes dos dois-pontos:
+        //
+        //   3+ palavras (38 pares, 25 prefixos): SEM EXCECAO, oracao portuguesa legitima.
+        //     "A questao e" · "Diga a ele" · "E ele disse" · "Ela quer dizer"
+        //     "Entao voce diz" · "Eu lhes digo" · "Lembre-se disso" · "O problema real e"
+        //   1-2 palavras (74 pares, 44 prefixos): SEM EXCECAO, nome de personagem ou rotulo.
+        //     Al · Bell · Bright · Hestia · Kamille · Reccoa · Shiro Amada · Haman Karn
+        //     "Linha 1" · "Proximo Episodio" · "Legenda traduzida" · "Haruhime disse"
+        //
+        // O portugues usa dois-pontos onde o ingles usa virgula ("Then you say \"...\"" ->
+        // "Entao voce diz: \"...\""), e a regra lia isso como falante inventado. O efeito e o
+        // pior possivel: recusada a traducao correta, a fala volta para o INGLES na legenda.
+        // Foram 11 falas na retraducao de 21/08, 11 de 11 falso-positivo.
+        //
+        // LIMITE DECLARADO, e ele e conhecido: "Rygart exclamou:" tem DUAS palavras e e
+        // traducao correta de "Rygart boasted,", entao continua recusado. Nao da para liberar
+        // pela forma — "Haruhime disse:" tem a mesma forma e e invencao de verdade, nascida de
+        // "Haruhime View". O que separa as duas e o verbo existir no ORIGINAL, e a allowlist
+        // acima ja cobre esse caminho quando o sujeito e pronome. Um falso-positivo em 112.
+        if (contarPalavras(m.group(1)) >= MINIMO_PALAVRAS_ORACAO) {
             return false;
         }
         if (PADRAO_PREFIXO_LOCUTOR.matcher(original).matches()) {

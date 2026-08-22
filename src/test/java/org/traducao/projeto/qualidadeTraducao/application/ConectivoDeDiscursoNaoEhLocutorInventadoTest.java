@@ -56,27 +56,30 @@ class ConectivoDeDiscursoNaoEhLocutorInventadoTest {
     }
 
     /**
-     * O LIMITE QUE PERMANECE, fixado como fato em vez de ficar como surpresa.
+     * O LIMITE CAIU EM 2026-08-21, e caiu do jeito que este teste exigia.
      *
-     * <p>{@code "Ela o saudara COM: ..."} continua sendo recusado. O pronome oblíquo foi
-     * resolvido, mas há um COMPLEMENTO entre o verbo e os dois-pontos ({@code com}), e o padrão
-     * exige que o conectivo termine no verbo. Resolver isso é alargar o padrão para aceitar
-     * palavras arbitrárias antes dos dois-pontos — que é exatamente o que abriria a porta para
-     * {@code "Narrador: ..."} passar, e o caso-controle abaixo existe para impedir.
+     * <p>A versao anterior congelava {@code "Ela o saudara com: ..."} como RECUSADO e dizia:
+     * <i>"alargar exige medir antes quantas falas do acervo o padrao passaria a poupar e
+     * quantas narracoes inventadas escapariam junto"</i>. A medicao foi feita sobre TODO o
+     * historico de recusas da regra — 112 pares distintos — e a separacao por numero de
+     * palavras antes dos dois-pontos veio limpa nos dois sentidos:
+     * <pre>
+     *   3+ palavras   38 pares / 25 prefixos   SEM EXCECAO oracao portuguesa legitima
+     *   1-2 palavras  74 pares / 44 prefixos   SEM EXCECAO nome de personagem ou rotulo
+     * </pre>
+     * O complemento entre verbo e dois-pontos ({@code com}) deixou de importar: o que decide
+     * agora e o prefixo ser oracao. O caso-controle contra o afrouxamento que este teste temia
+     * — {@code "Narrador:"} passar — esta logo abaixo e continua verde.
      *
-     * <p>Alargar exige medir antes quantas falas do acervo o padrão passaria a poupar e quantas
-     * narrações inventadas escapariam junto. Enquanto isso não for medido, o episódio 06 do 86
-     * segue com 1 fala pendente — custo conhecido, não silencioso.
+     * <p>Detalhe do acervo: {@code Ela o saudara com} tem QUATRO palavras.
      */
     @Test
-    @DisplayName("limite conhecido: complemento entre verbo e dois-pontos ainda é recusado")
-    void oLimiteQuePermanece() {
-        assertThrows(RuntimeException.class, () -> validador.validarPar(
+    @DisplayName("o limite caiu: complemento entre verbo e dois-pontos deixou de recusar")
+    void oLimiteQueCaiu() {
+        assertDoesNotThrow(() -> validador.validarPar(
                 "She greeted him with, \"It's a splendid morning for you!\"",
                 "Ela o saudara com: \"É uma manhã esplêndida para você!\""),
-            "Se este teste mudar, o padrão passou a aceitar complemento antes dos dois-pontos — "
-                + "e a medição que autoriza isso precisa vir junto, porque é o mesmo afrouxamento "
-                + "que deixaria 'Narrador:' passar.");
+            "a fala que manteve o episodio 06 do 86 parcial desde 14/08 tem de passar agora");
     }
 
     /** Os conectivos que já eram aceitos continuam aceitos. */
