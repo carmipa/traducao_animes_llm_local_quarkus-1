@@ -1,5 +1,6 @@
 package org.traducao.projeto.raspagemRevisao.application;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
 
@@ -135,5 +136,140 @@ class DetectorConcordanciaServiceTest {
         assertFalse(detector.analisar("You son of a hitch!", "Filho da puta!").suspeito());
         assertFalse(detector.analisar("You son of a bitch!", "Filho da puta!").suspeito());
         assertTrue(detector.analisar("You son of a...!", "Filho da mãe!").suspeito());
+    }
+
+    // ==========================================================================================
+    // FALSOS POSITIVOS medidos no acervo em 22/08/2026 — 67.178 pares EN/PT, 23 falas acusadas,
+    // e SÓ QUATRO eram defeito de verdade. Cada bloco abaixo tem o caso doente (que tem de
+    // continuar reprovando) junto do caso são (que parou de ser acusado), porque sem o par o
+    // teste provaria só que a guarda ficou calada.
+    // ==========================================================================================
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando o inglês cita os DOIS gêneros, o masculino do português pode
+     * estar traduzindo o {@code him} — e aí não há cruzamento nenhum.
+     *
+     * <p>As três falas do acervo nesta condição tinham tradução CORRETA. A mais clara:
+     * {@code "making him her Adam"} -> {@code "fazer dele seu Adão"}, onde "dele" traduz o
+     * {@code him} e "seu" traduz o {@code her}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: voltar a acusar aqui reenvia tradução correta ao LLM e
+     * ensina o operador a ignorar o alarme.
+     */
+    @Test
+    @DisplayName("him E her no mesmo original: o cruzamento de objeto nao acusa")
+    void originalComOsDoisGenerosNaoAcusaCruzamentoDeObjeto() {
+        assertFalse(detector.analisar(
+            "Eve appears intent on making him her Adam.",
+            "Mana parece determinada a fazer dele seu Adão.").suspeito());
+        assertFalse(detector.analisar(
+            "The newsman brought her back with him during our First Contact.",
+            "O repórter a trouxe de volta com ele durante nosso Primeiro Contato.").suspeito());
+        assertFalse(detector.analisar(
+            "Seeing Amuro's heroics, Beltorchika willingly opened her heart to him.",
+            "Vendo as proezas de Amuro, Beltorchika abriu o coração para ele.").suspeito());
+    }
+
+    /** CONTRA-CASO: com SÓ o feminino no original, o cruzamento continua sendo acusado. */
+    @Test
+    @DisplayName("so her no original: o cruzamento continua acusando")
+    void originalComUmGeneroSoContinuaAcusandoOCruzamento() {
+        assertTrue(detector.analisar(
+            "I gave the letter to her.",
+            "Eu dei a carta para ele.").suspeito(),
+            "sem him no original, o 'para ele' é cruzamento de verdade");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: {@code cara} é vocativo masculino, mas também é ROSTO ("na cara
+     * dela") e preço ("é cara"). A única acusação desta família no acervo era rosto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acusar "na cara dela" manda ao LLM uma fala impecável.
+     */
+    @Test
+    @DisplayName("cara com determinante e rosto, nao vocativo")
+    void caraComDeterminanteNaoEVocativo() {
+        ResultadoDeteccaoConcordancia rosto = detector.analisar(
+            "Don't you ever say that to her face, got it?",
+            "Você nunca fala isso na cara dela, entendeu?");
+        assertFalse(rosto.suspeito(), () -> "motivos: " + rosto.motivos());
+        ResultadoDeteccaoConcordancia propria = detector.analisar(
+            "She looked at her own face.", "Ela olhou a própria cara.");
+        assertFalse(propria.suspeito(), () -> "motivos: " + propria.motivos());
+    }
+
+    /** CONTRA-CASO: o vocativo de verdade — sem determinante — continua sendo acusado. */
+    @Test
+    @DisplayName("cara como VOCATIVO continua acusando")
+    void caraComoVocativoContinuaAcusando() {
+        assertTrue(detector.analisar(
+            "Hey, she is right there!", "Ei, cara, ela está bem ali!").suspeito(),
+            "sem determinante antes, 'cara' é tratamento e o original é feminino");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o adjetivo predicativo tem de concordar com a PESSOA de quem o
+     * original fala — não com um substantivo qualquer da frase portuguesa.
+     *
+     * <p>Oito das 23 acusações do acervo vinham daqui, e as oito estavam certas: o adjetivo
+     * concordava com "Algo", "Argama", "guerra", "causa", "era", "pessoa", ou era construção
+     * impessoal.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acusar estas manda oito falas corretas ao modelo.
+     */
+    @Test
+    @DisplayName("predicativo que concorda com substantivo da frase nao acusa")
+    void predicativoDeOutroSubstantivoNaoAcusa() {
+        assertFalse(detector.analisar(
+            "Is something wrong with that girl?",
+            "Algo está errado com aquela garota?").suspeito(), "errado <- Algo");
+        assertFalse(detector.analisar(
+            "Kou's a lost cause.", "A causa de Kou é perdida.").suspeito(), "perdida <- causa");
+        assertFalse(detector.analisar(
+            "That man is dead.", "Aquela pessoa esta morta.").suspeito(), "morta <- pessoa");
+        assertFalse(detector.analisar(
+            "Waiting for the right era? How typical of my brother.",
+            "Esperando pela era certa? Quão típico do meu irmão.").suspeito(), "certa <- era");
+        assertFalse(detector.analisar(
+            "Is it okay to have her?", "É certo tê-la?").suspeito(), "construção impessoal");
+    }
+
+    /**
+     * CONTRA-CASO do anterior, e o mais importante do bloco: o predicativo de sujeito ELÍPTICO
+     * continua sendo acusado. É exatamente o defeito que a guarda existe para achar — sem este
+     * teste, "parou de acusar" passaria como se fosse a correção.
+     */
+    @Test
+    @DisplayName("predicativo de sujeito eliptico continua acusando")
+    void predicativoDeSujeitoEllipticoContinuaAcusando() {
+        assertTrue(detector.analisar("She is tired.", "Está cansado.").suspeito(),
+            "sujeito elíptico com original feminino é o caso que a guarda existe para pegar");
+        assertTrue(detector.analisar("He is tired.", "Está cansada.").suspeito(),
+            "e o espelho masculino também");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: {@code Mistress} não casava {@code miss} — a palavra é "mistress",
+     * não "miss" seguido de "tress" —, então o original ficava sem evidência feminina e as duas
+     * falas do Macross II com "Senhora Chara" (tradução correta) eram acusadas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acusar "Senhora Chara" é acusar a tradução literal.
+     */
+    @Test
+    @DisplayName("Mistress conta como referencia feminina no original")
+    void mistressContaComoReferenciaFeminina() {
+        assertFalse(detector.analisar(
+            "Even without the help of Mistress Chara, Gottn will fulfill his duties splendidly!",
+            "Mesmo sem a ajuda da Senhora Chara, Gottn cumprira suas deveres esplendidamente!")
+            .suspeito());
+    }
+
+    /** CONTRA-CASO: sem NENHUMA referência feminina, o vocativo feminino continua acusando. */
+    @Test
+    @DisplayName("vocativo feminino sem referencia feminina continua acusando")
+    void vocativoFemininoSemReferenciaFemininaContinuaAcusando() {
+        assertTrue(detector.analisar(
+            "Mr. Gottn will fulfill his duties.",
+            "A senhora Gottn cumprirá seus deveres.").suspeito());
     }
 }
