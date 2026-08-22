@@ -356,7 +356,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                     new DescarteItalicoUltimoRecurso(), LoreAtivaFake.vazia()));
         TradutorLotesService tradutorLotes =
             new TradutorLotesService(mascarador, props, uiLogger, episodio, protecao, telemetria,
-                new IsoladorQuebraDialogo(), new SimplificadorItalicoRedundante(),
+                new IsoladorQuebraDialogo(), new RemovedorItalico(), new SimplificadorItalicoRedundante(),
                 new DescarteItalicoUltimoRecurso(), new DetectorCorrenteFrasePartida(),
                 new GuardaCorrenteTraduzida());
         EnforcadorTermosLore enforcadorTermos = new EnforcadorTermosLore();

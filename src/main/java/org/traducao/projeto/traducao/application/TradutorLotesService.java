@@ -59,6 +59,7 @@ public class TradutorLotesService {
     private final ProtecaoLegendaAssService protecaoAss;
     private final TelemetriaTraducaoPort telemetriaTraducao;
     private final IsoladorQuebraDialogo isoladorQuebra;
+    private final RemovedorItalico removedorItalico;
     private final SimplificadorItalicoRedundante simplificadorItalico;
     private final DescarteItalicoUltimoRecurso descarteItalico;
     private final DetectorCorrenteFrasePartida detectorCorrente;
@@ -91,6 +92,7 @@ public class TradutorLotesService {
         ProtecaoLegendaAssService protecaoAss,
         TelemetriaTraducaoPort telemetriaTraducao,
         IsoladorQuebraDialogo isoladorQuebra,
+        RemovedorItalico removedorItalico,
         SimplificadorItalicoRedundante simplificadorItalico,
         DescarteItalicoUltimoRecurso descarteItalico,
         DetectorCorrenteFrasePartida detectorCorrente,
@@ -103,6 +105,7 @@ public class TradutorLotesService {
         this.protecaoAss = protecaoAss;
         this.telemetriaTraducao = telemetriaTraducao;
         this.isoladorQuebra = isoladorQuebra;
+        this.removedorItalico = removedorItalico;
         this.simplificadorItalico = simplificadorItalico;
         this.descarteItalico = descarteItalico;
         this.detectorCorrente = detectorCorrente;
@@ -175,7 +178,22 @@ public class TradutorLotesService {
             // O padrão de 140 das 212 corrupções medidas é {\i1}A{\i}\N{\i1}B — o par
             // desliga/religa CERCA a quebra. Se a quebra saísse primeiro, o par deixaria de
             // ser reconhecível e os 3 marcadores extras seguiriam para o LLM.
-            String textoParaMascarar = simplificadorItalico.simplificar(original);
+            // ITALICO ELIMINADO NA ORIGEM (decisao do Paulo, 2026-08-22: "num filme normal nao
+            // tem italico, e frescura"). Tirar aqui nao e so estetica: e o que fecha o buraco
+            // do par vazio. O mascarador garante que a tag VOLTE, nao que ela continue cercando
+            // a palavra que realcava, e o portugues reordena --
+            //   vai   : there's no [[TAG0]]love[[TAG1]] in this kind
+            //   volta : nao ha amor [[TAG0]][[TAG1]] neste tipo
+            // marcadores intactos, na ordem, sem duplicar: o desmascarador aceita e esta CERTO
+            // em aceitar. Sem o par, o caso deixa de existir.
+            //
+            // MUSICA FICA DE FORA: as camadas deduplicaveis sao karaoke/musica, que esta sessao
+            // tem ordem de nao tocar. Medido em 22/08/2026 no acervo: das 201.765 linhas
+            // musicais, 18 tem italico -- risco proximo de zero, e mesmo assim vetado.
+            String textoParaMascarar = textosDeduplicaveis.contains(original)
+                ? original
+                : removedorItalico.remover(original);
+            textoParaMascarar = simplificadorItalico.simplificar(textoParaMascarar);
             boolean quebraIsolavel = textosComQuebraIsolavel == null
                 ? !textosDeduplicaveis.contains(original)
                 : textosComQuebraIsolavel.contains(original);
