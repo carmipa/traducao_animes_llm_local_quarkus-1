@@ -47,6 +47,7 @@ import java.util.Set;
  * @param lore apenas a lore/terminologia crua por trás do prompt
  * @param termosProtegidos termos que não devem ser traduzidos nesta obra
  * @param correcoesTerminologia mapa forma-ruim → termo canônico desta obra
+ * @param traducoesObrigatorias mapa termo EN → forma obrigatória em PT desta obra
  * @param paresInconfundiveis pares de termos desta obra que NÃO podem ser trocados um pelo
  *        outro; congelados aqui para que quem corrige o cache JÁ GRAVADO os obtenha da obra
  *        DONA do arquivo, e não da lore ativa global — que naquele fluxo é outra, ou nenhuma
@@ -58,7 +59,8 @@ public record SnapshotContexto(
     String lore,
     Set<String> termosProtegidos,
     Map<String, String> correcoesTerminologia,
-    Set<List<String>> paresInconfundiveis
+    Set<List<String>> paresInconfundiveis,
+    Map<String, String> traducoesObrigatorias
 ) {
 
     /**
@@ -86,7 +88,8 @@ public record SnapshotContexto(
         ContextoPrompt.obterLore(PROMPT_NEUTRO),
         Set.of(),
         Map.of(),
-        Set.of()
+        Set.of(),
+        Map.of()
     );
 
     /**
@@ -101,6 +104,8 @@ public record SnapshotContexto(
     public SnapshotContexto {
         termosProtegidos = termosProtegidos == null ? Set.of() : Set.copyOf(termosProtegidos);
         correcoesTerminologia = correcoesTerminologia == null ? Map.of() : Map.copyOf(correcoesTerminologia);
+        traducoesObrigatorias = traducoesObrigatorias == null
+            ? Map.of() : Map.copyOf(traducoesObrigatorias);
     }
 
     /**
@@ -129,7 +134,8 @@ public record SnapshotContexto(
             ContextoPrompt.obterLore(prompt),
             provedor.termosProtegidos(),
             provedor.correcoesTerminologia(),
-            provedor.paresInconfundiveis()
+            provedor.paresInconfundiveis(),
+            provedor.traducoesObrigatorias()
         );
     }
 }

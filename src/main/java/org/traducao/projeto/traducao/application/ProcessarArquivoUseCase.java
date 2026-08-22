@@ -642,6 +642,33 @@ public class ProcessarArquivoUseCase {
         //
         // Três estados aqui também: mapa VAZIO é "esta obra não declara terminologia", que é
         // diferente de "declarou e nada casou". Os dois saem escritos.
+        // TRADUCOES OBRIGATORIAS antes do reforco: a lore manda TRADUZIR estes termos, e a
+        // ordem importa porque os dois mexem no mesmo texto. Este conserta o que ficou em
+        // ingles; o reforco logo abaixo restaura o que o modelo traduziu e nao devia.
+        // Decisao do Paulo em 22/08/2026, sobre as 7 falas do Unicorn publicadas como
+        // "Universal Century 0096.".
+        Map<String, String> obrigatorias = contexto.traducoesObrigatorias();
+        if (!obrigatorias.isEmpty()) {
+            int trocadas = 0;
+            for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
+                String traduzido = traducao.getValue();
+                if (traduzido == null || traduzido.isBlank()) {
+                    continue;
+                }
+                String comTermoPt = enforcadorTermosLore.traduzirObrigatorios(
+                    traducao.getKey(), traduzido, obrigatorias);
+                if (!comTermoPt.equals(traduzido)) {
+                    traducao.setValue(comTermoPt);
+                    trocadas++;
+                }
+            }
+            // Zero e IMPRESSO: a obra declarou termos, entao "nenhum sobrou em ingles" e
+            // resultado, nao ausencia de medicao.
+            uiLogger.log("[ LORE ] " + contexto.nomeExibicao() + ": " + trocadas
+                + " fala(s) com termo traduzido por obrigacao da lore, de "
+                + obrigatorias.size() + " termo(s) declarado(s).");
+        }
+
         Map<String, String> correcoesLore = contexto.correcoesTerminologia();
         if (correcoesLore.isEmpty()) {
             uiLogger.log("[ LORE ] " + contexto.nomeExibicao()

@@ -75,6 +75,42 @@ public interface ProvedorContexto {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: mapa termo-em-INGLÊS → forma obrigatória em PORTUGUÊS. É o inverso
+     * exato de {@link #termosProtegidos()}: aquele manda MANTER em inglês, este manda TRADUZIR
+     * de um jeito só.
+     *
+     * <h2>Por que precisou existir</h2>
+     * A lore sabia proteger em inglês e restaurar do inglês, e não sabia mandar traduzir. Com
+     * isso, dois pedidos do dono do acervo ficaram sem mecanismo:
+     * <ul>
+     *   <li><b>22/08/2026</b>: {@code "Universal Century"} devia sair {@code "Século Universal"}.
+     *       Estava em {@code termosProtegidos}, então saía em inglês por regra — e a medição de
+     *       prontidão achou 7 falas do Unicorn publicadas como {@code "Universal Century 0096."}
+     *       </li>
+     *   <li>{@code "Side Four"} devia sair {@code "Lado Quatro"} sem que {@code "Four"} sozinho
+     *       (Four Murasame, personagem) fosse tocado. Está declarado como lacuna no próprio
+     *       {@code lore.yaml}.</li>
+     * </ul>
+     * {@code correcoesTerminologia} não servia: ele só age quando o ORIGINAL contém o canônico,
+     * e o canônico aqui é português — que nunca aparece no inglês.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só age quando o termo INGLÊS sobreviveu na tradução. Fala já traduzida de outro
+     *       jeito não é reescrita — o mecanismo conserta o que ficou em inglês, não impõe estilo
+     *       sobre tradução legítima.</li>
+     *   <li>Um termo NÃO pode estar aqui e em {@code termosProtegidos} ao mesmo tempo: proteger
+     *       é manter em inglês, e os dois estados se cancelam.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: vazio por padrão; obra que não declara nada não muda
+     * comportamento nenhum.
+     */
+    default Map<String, String> traducoesObrigatorias() {
+        return Map.of();
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: pares de termos desta obra que o modelo NÃO pode trocar um pelo
      * outro, porque são entidades DIFERENTES com nomes parecidos ou relacionados. Cada par é
      * uma lista de exatamente dois termos; a proibição vale nas duas direções.

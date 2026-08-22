@@ -2943,6 +2943,8 @@ obras:
     - Zaku II Kai
     - Zeon
     - Zeon Special Forces
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -3155,6 +3157,8 @@ obras:
     - Val-Walo
     - Zeon
     - Zephyranthes
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -3491,6 +3495,8 @@ obras:
    # termo declarado do outro lado. Segue sem desenho, de proposito.
    # Vazamento do japones. "Shinigami" nao aparece UMA vez no ingles do acervo (35
    # ocorrencias de "Sanders", 0 de "Shinigami"), entao risco de falso-positivo e zero.
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      08º Esquadrão MS: 08th MS Team
      8o Time MS: 08th MS Team
@@ -3795,6 +3801,8 @@ obras:
    # duas origens — a entrada inversa produzia "Londenion's Londenion.", trocando
    # um erro por outro. Verificado por teste: ver o caso documentado em
    # TerminologiaCcaFormasMedidasTest#trocaSide1PorLondoBellNaoEhCorrigivelPeloMapa.
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -4008,6 +4016,8 @@ obras:
    # LIMITE: "Dorel Ronah?" também saiu "Carozzo Ronah", e a chave é a forma-ruim
    # — não dá para mapear "Carozzo Ronah" para dois canônicos no mesmo mapa.
    # Escolhida a de maior frequência; ver TerminologiaF91FormasMedidasTest.
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Arca Espacial: Space Ark
      Aristocracia Cósmica: Cosmo Aristocracy
@@ -5438,10 +5448,11 @@ obras:
     - Stephanie Luio
     - Unicorn
     - Unicorn Gundam
-    - Universal Century
     - Zoltan Akkanen
     - funnel
     - psycommu
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -6554,6 +6565,8 @@ obras:
    #     inteira; a checagem exige o singular exato.
    #   Neo Zeon (6/61), Londo Bell (2/22), Nahel Argama (1/60) — taxa baixa e as
    #     falas mostram pronome/omissão, não localização do termo.
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -7155,6 +7168,8 @@ obras:
    #   Earth Federation (33 de 33) -- "Forças Federais da Terra", decisão de
    #     produto consistente com CCA, F91, Unicorn e 08th.
    #   Mobile Suit (116 de 301) -- plural ou omissão da fala inteira.
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
@@ -7466,6 +7481,8 @@ obras:
        - Nahel Argama
     -  - ZZ Gundam
        - Zeta Gundam
+   traducoesObrigatorias:
+     Universal Century: Século Universal
    correcoesTerminologia:
      Armadura Móvel: Mobile Armor
      Armadura Normal: Normal Suit
