@@ -2,6 +2,7 @@ package org.traducao.projeto.raspagemRevisao.application;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoDeteccaoConcordancia;
@@ -565,5 +566,64 @@ class GuardaCorrecaoSeguraTest {
             return;
         }
         throw new AssertionError("a lista de avisos aceitou mutação");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: marcador técnico na legenda é defeito que o ESPECTADOR lê.
+     *
+     * <h2>A cicatriz, achada no acervo em 22/08/2026</h2>
+     * Depois de as 12 obras retraduzidas passarem pela 3.1, uma varredura nos 287.052 eventos
+     * encontrou DUAS falas gravadas com marcador cru:
+     * <pre>
+     * ZZ      : Oh, [[Lady Haman]]. [[Lady Haman]]! [[Lady Haman]]!
+     * DanMachi: {\\an8}[[]TAG0] Atenção, hóspedes, o Spoon Aqua partirá agora.
+     * </pre>
+     * O primeiro o MODELO inventou — nem o protetor de lore (que usa {@code ZXQLORE0QXZ}) nem o
+     * mascarador (que usa {@code [[TAG0]]}) produzem {@code [[Nome]]}. O segundo é um
+     * {@code [[TAG0]]} MUTILADO. As duas passaram por TODAS as validações do portão, porque
+     * nenhuma olhava para isto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a proposta com marcador é gravada e o espectador lê
+     * "[[Lady Haman]]" na tela.
+     */
+    @Test
+    @DisplayName("proposta com marcador tecnico [[...]] e recusada")
+    void propostaComMarcadorTecnicoERecusada() {
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            "Oh, Lady Haman. Lady Haman! Lady Haman!",
+            "Oh, Lady Haman. Lady Haman! Lady Haman!",
+            "Oh, [[Lady Haman]]. [[Lady Haman]]! [[Lady Haman]]!",
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, v);
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.MARCADOR_TECNICO_VAZADO,
+            ((GuardaCorrecaoSegura.Veredicto.Rejeitada) v).motivo());
+    }
+
+    /** O marcador MUTILADO — a outra forma medida no acervo — também é recusado. */
+    @Test
+    @DisplayName("marcador de tag mutilado tambem e recusado")
+    void marcadorMutiladoTambemERecusado() {
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            "Attention, guests.", "Attention, guests.",
+            "{\\\\an8}[[]TAG0] Atenção, hóspedes.",
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, v);
+    }
+
+    /**
+     * CONTRA-CASO: a proposta LIMPA continua sendo aceita. Sem ele, a guarda poderia recusar
+     * tudo e o teste anterior passaria do mesmo jeito.
+     */
+    @Test
+    @DisplayName("proposta sem marcador continua sendo aceita")
+    void propostaSemMarcadorContinuaAceita() {
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            "Oh, Lady Haman.", "Oh, Lady Haman.", "Ah, Lady Haman.",
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Aprovada.class, v,
+            "a guarda de marcador não pode barrar proposta limpa");
     }
 }
