@@ -43,6 +43,11 @@ class CatracaSuiteSemDriveWindowsTest {
         // -Dkronos.acervo, nao caminho de fixture, e o harness e travado por
         // -Dkronos.medicao=true. Excecao NOMINAL, nao afrouxamento do padrao.
         "MedicaoAlcanceRegraItalicoIT.java",
+        // Entrou em 22/08/2026 pelo mesmo caminho: responde "o que falta para a traducao
+        // estar pronta" perguntando as classes de producao sobre o acervo real.
+        // "C:\animes" e o DEFAULT de -Dkronos.acervo e o harness e travado por
+        // -Dkronos.medicao=true.
+        "MedicaoProntidaoTraducaoIT.java",
         "AplicarAcentosNoAcervoIT.java",
         "MedicaoAnomaliaIntroduzidaIT.java",
         "MedicaoAuditoriaAcervoIT.java",

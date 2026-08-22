@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **481** |
-| classes em `src/test` | **386** |
+| classes em `src/test` | **387** |
 
 ---
 
@@ -886,7 +886,7 @@ core/
 
 ---
 
-## Testes — 386 classes
+## Testes — 387 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1276,7 +1276,7 @@ raspagemCorrecao/
     └── GoogleTranslateScraperTest.java
 ```
 
-#### `raspagemRevisao` — 40 classes
+#### `raspagemRevisao` — 41 classes
 
 ```text
 raspagemRevisao/
@@ -1303,6 +1303,7 @@ raspagemRevisao/
 │   ├── MedicaoFalaQueSobrouEmInglesTest.java
 │   ├── MedicaoFalsoPositivoConcordanciaIT.java
 │   ├── MedicaoPendenciaZzEscapaDaRevisaoTest.java
+│   ├── MedicaoProntidaoTraducaoIT.java
 │   ├── ProvedorCorrecaoFalaMarcadoresTest.java
 │   ├── RecuperacaoExternaContadora.java
 │   ├── RelatorioRevisaoServiceTest.java
