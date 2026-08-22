@@ -63,7 +63,8 @@ class ProvenienciaNuncaGravaCurrentTest {
 
     private static SnapshotContexto contexto() {
         return new SnapshotContexto("gundam_unicorn", "Mobile Suit Gundam Unicorn",
-            "prompt de sistema", "lore", java.util.Set.of(), java.util.Map.of(), java.util.Set.of());
+            "prompt de sistema", "lore", java.util.Set.of(), java.util.Map.of(),
+            java.util.Set.of(), java.util.Map.of());
     }
 
     @Test

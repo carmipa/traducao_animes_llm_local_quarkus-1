@@ -142,6 +142,7 @@ public final class CatalogoLoreYaml {
                 conjunto(o.get("termosProtegidos")),
                 pares(o.get("paresInconfundiveis")),
                 unificada,
+                mapaDeTexto(o.get("traducoesObrigatorias")),
                 !(o.get("apareceNaLista") instanceof Boolean b) || b));
         }
         this.obras = List.copyOf(carregadas);
@@ -357,6 +358,7 @@ public final class CatalogoLoreYaml {
         Set<String> termos,
         Set<List<String>> pares,
         Map<String, String> correcoes,
+        Map<String, String> obrigatorias,
         boolean apareceNaLista) implements ProvedorContexto {
 
         @Override
@@ -392,6 +394,11 @@ public final class CatalogoLoreYaml {
         @Override
         public Map<String, String> correcoesTerminologia() {
             return new LinkedHashMap<>(correcoes);
+        }
+
+        @Override
+        public Map<String, String> traducoesObrigatorias() {
+            return new LinkedHashMap<>(obrigatorias);
         }
 
         @Override

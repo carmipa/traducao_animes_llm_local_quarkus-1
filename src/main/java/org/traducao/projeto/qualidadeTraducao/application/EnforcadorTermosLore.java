@@ -151,6 +151,61 @@ public class EnforcadorTermosLore {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: força a forma PORTUGUESA de um termo que a lore manda TRADUZIR.
+     * É o inverso de {@link #reforcar}: aquele restaura o termo inglês que o modelo traduziu,
+     * este traduz o termo inglês que o modelo manteve.
+     *
+     * <h2>A cicatriz</h2>
+     * {@code "Universal Century"} estava em {@code termosProtegidos} e por isso saía em inglês
+     * POR REGRA. A medição de prontidão de 22/08/2026 achou <b>7 falas do Unicorn</b>
+     * publicadas como {@code "Universal Century 0096."}, e Paulo decidiu que deviam sair
+     * {@code "Século Universal 0096."}. Não havia mecanismo: a lore sabia proteger em inglês e
+     * restaurar do inglês, e não sabia mandar traduzir.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só age quando o termo inglês está no ORIGINAL <b>e</b> sobreviveu na TRADUÇÃO. Fala
+     *       que o modelo já traduziu de outro jeito não é reescrita — o mecanismo conserta o que
+     *       ficou em inglês, não impõe estilo sobre tradução legítima. É a mesma disciplina que
+     *       fez {@code "móvel de combate"} ficar em paz em 101 falas do ZZ.</li>
+     *   <li>Fronteira de termo igual à do reforço, inclusive a alternativa do {@code \N}: sem
+     *       ela, termo colado na quebra de linha fica invisível — 74 falas do ZZ nessa forma.</li>
+     *   <li>Frases longas primeiro: {@code "Side Four"} antes de {@code "Four"}, senão a troca
+     *       curta come a longa.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer argumento nulo/vazio devolve {@code traduzido}
+     * inalterado; nunca lança.
+     *
+     * @param original o texto original (EN) da fala
+     * @param traduzido a fala já traduzida (PT)
+     * @param obrigatorias mapa termo EN → forma obrigatória em PT
+     */
+    public String traduzirObrigatorios(
+        String original, String traduzido, Map<String, String> obrigatorias) {
+        if (original == null || traduzido == null || obrigatorias == null || obrigatorias.isEmpty()) {
+            return traduzido;
+        }
+        String resultado = traduzido;
+        var pares = obrigatorias.entrySet().stream()
+            .sorted(Comparator.comparingInt((Map.Entry<String, String> e) ->
+                e.getKey() == null ? 0 : e.getKey().length()).reversed())
+            .toList();
+        for (Map.Entry<String, String> par : pares) {
+            String termoEn = par.getKey();
+            String formaPt = par.getValue();
+            if (termoEn == null || termoEn.isBlank() || formaPt == null || formaPt.isBlank()) {
+                continue;
+            }
+            if (contarCanonico(original, termoEn) == 0) {
+                continue; // o inglês não trazia o termo: não há o que traduzir
+            }
+            resultado = padraoFormaRuim(termoEn).matcher(resultado)
+                .replaceAll(java.util.regex.Matcher.quoteReplacement(formaPt));
+        }
+        return resultado;
+    }
+    /**
      * PROPÓSITO DE NEGÓCIO: resultado do reforço — o texto e o que foi feito nele.
      *
      * <p>INVARIANTES DO DOMÍNIO: {@code restauracoesPorTermo} é imutável e indexado pelo termo
