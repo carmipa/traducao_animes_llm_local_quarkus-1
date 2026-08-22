@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 @Service
 public class RevisarLegendasUseCase {
@@ -43,6 +44,7 @@ public class RevisarLegendasUseCase {
     private final SincronizacaoPreviaRevisao sincronizacaoPrevia;
     private final FiltroAuditoriaLinha filtroAuditoria;
     private final PreparadorFalaRevisao preparadorFala;
+    private final RemovedorItalico removedorItalico;
     private final DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa;
     private final PreparadorReferenciaRevisao preparador;
 
@@ -80,6 +82,7 @@ public class RevisarLegendasUseCase {
         SincronizacaoPreviaRevisao sincronizacaoPrevia,
         FiltroAuditoriaLinha filtroAuditoria,
         PreparadorFalaRevisao preparadorFala,
+        RemovedorItalico removedorItalico,
         DetectorRetraducaoEmMassaService detectorRetraducaoEmMassa,
         PreparadorReferenciaRevisao preparador,
         ResumoAlteracaoPorEstilo resumoPorEstilo,
@@ -95,6 +98,7 @@ public class RevisarLegendasUseCase {
         this.sincronizacaoPrevia = sincronizacaoPrevia;
         this.filtroAuditoria = filtroAuditoria;
         this.preparadorFala = preparadorFala;
+        this.removedorItalico = removedorItalico;
         this.detectorRetraducaoEmMassa = detectorRetraducaoEmMassa;
         this.preparador = preparador;
     }
@@ -357,7 +361,15 @@ public class RevisarLegendasUseCase {
         switch (decisao) {
             case DecisaoFala.Manter ignorado -> sessao.manter(evento);
             case DecisaoFala.Pendente ignorado -> sessao.pendente(evento);
-            case DecisaoFala.Corrigir corrigir -> sessao.corrigir(evento, corrigir.texto());
+            // A REGRA DO ITALICO tambem na CORRECAO, e nao so no saneamento de entrada.
+            // Achado na corrida do 0080 em 22/08/2026: a linha 10 do ep01 teve o italico
+            // removido pelo preparador, foi ao Google por estar em ingles, e VOLTOU com a tag:
+            //   referencia EN : {\i1}We'll land at 1500 hours, as planned.
+            //   PT corrigido  : {\i1}Aterraremos as 15h00, conforme planeado.
+            // Das 144 falas que a corrida limpou, UMA voltou suja — exatamente a corrigida.
+            // O ponto e este porque LLM, Google e determinístico desembocam todos aqui.
+            case DecisaoFala.Corrigir corrigir ->
+                sessao.corrigir(evento, removedorItalico.remover(corrigir.texto()));
         }
     }
 

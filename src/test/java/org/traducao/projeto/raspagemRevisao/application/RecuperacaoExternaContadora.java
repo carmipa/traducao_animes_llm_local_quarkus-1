@@ -87,8 +87,18 @@ public class RecuperacaoExternaContadora implements RecuperacaoExternaRevisaoPor
         // proposta que nao melhora a auditoria, entao um dubla preguicoso faria o teste observar
         // "nada foi corrigido" e nao o que ele quer medir. Descoberto ao ver o teste do dreno
         // reprovar por arquivo nao escrito.
+        // O PREFIXO DE TAGS VOLTA COLADO, como o Google real faz: ele recebe a fala INTEIRA
+        // ({@code {\i1}We'll land...}) e devolve a traducao com a tag na frente. O dublê
+        // devolvia texto limpo, e por isso o teste do itálico ficava VERDE com e sem a
+        // correção — só a mutação mostrou. Medido na corrida do 0080 em 22/08/2026:
+        //   pedido   : {\i1}We'll land at 1500 hours, as planned.
+        //   resposta : {\i1}Aterraremos às 15h00, conforme planeado.
+        java.util.regex.Matcher prefixo =
+            java.util.regex.Pattern.compile("^(?:\\{[^}]*\\})+").matcher(textoOriginal);
+        String moldura = prefixo.find() ? prefixo.group() : "";
         return new ResultadoRecuperacaoExterna(
             StatusRecuperacaoExterna.SUCESSO,
-            "Esta fala foi devidamente traduzida para o português na chamada " + pedidos.size() + ".");
+            moldura + "Esta fala foi devidamente traduzida para o português na chamada "
+                + pedidos.size() + ".");
     }
 }

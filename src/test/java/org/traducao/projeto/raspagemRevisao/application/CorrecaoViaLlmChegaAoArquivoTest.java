@@ -144,6 +144,36 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         return pastaPt;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: monta o par completo — legenda PT, cache E a legenda INGLESA em
+     * disco. O {@link #montar} comum não escreve a inglesa, e sem ela o ESPELHO (que tira a
+     * estrutura do original) nunca roda: o teste ficaria verde por não exercitar o caminho.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} — pasta temporária que não
+     * escreve é falha do teste, não cenário de domínio.
+     */
+    private Path montarComLegendaInglesa(Path temp, List<Fala> falas) throws IOException {
+        Path pastaPt = montar(temp, falas);
+        Path pastaEn = Files.createDirectory(temp.resolve("en"));
+        StringBuilder ass = new StringBuilder(CABECALHO);
+        for (int i = 0; i < falas.size(); i++) {
+            ass.append("Dialogue: 0,0:00:0").append(i).append(".00,0:00:09.00,Default,,0,0,0,,")
+               .append(falas.get(i).ingles()).append(10);
+        }
+        Files.writeString(pastaEn.resolve("show_ENG.ass"), ass.toString(), StandardCharsets.UTF_8);
+        return pastaPt;
+    }
+
+    /** Roda a revisão com a legenda inglesa em disco, para o espelho ter de onde copiar. */
+    private Optional<String> revisarComEspelho(Path temp, Path pastaPt) throws IOException {
+        Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
+        useCase.executar(pastaPt, temp.resolve("en"), temp.resolve("cache"), pastaSaida,
+            ModoRevisaoLegendas.LLM_CONCORDANCIA, "danmachi", ModoReferenciaRevisao.AMBOS);
+        Path destino = pastaSaida.resolve("show_PT-BR.ass");
+        return Files.exists(destino)
+            ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
+            : Optional.empty();
+    }
     /** Roda a revisão em modo LLM e devolve o arquivo de saída, se houve gravação. */
     private Optional<String> revisar(Path temp, Path pastaPt) throws IOException {
         Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
@@ -223,6 +253,50 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         assertEquals(1, contarDialogos(texto), "a fala não pode sumir na cascata");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala CORRIGIDA não pode voltar com o itálico que a regra tirou.
+     *
+     * <h2>A cicatriz, medida na corrida real do 0080 em 22/08/2026</h2>
+     * A tela limpou 144 falas naquela corrida e UMA voltou suja — exatamente a que foi
+     * corrigida. A linha 10 do ep01 estava em inglês, teve o itálico removido pelo preparador,
+     * desceu para o Google por estar em inglês, e voltou com a tag do ORIGINAL colada:
+     * <pre>
+     * referência EN : {\i1}We'll land at 1500 hours, as planned.
+     * PT corrigido  : {\i1}Aterraremos às 15h00, conforme planeado.   &lt;- o itálico VOLTOU
+     * </pre>
+     * Uma varredura no disco depois da corrida encontrou essa única linha com itálico nos seis
+     * arquivos — o instrumento independente confirmou o que o log já dizia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: LLM, Google e determinístico desembocam todos em
+     * {@code DecisaoFala.Corrigir}, e é por isso que a regra mora lá e não em cada caminho.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: itálico no arquivo depois da correção significa que a
+     * limpeza vale para a fala que a tela NÃO tocou e falha justamente na que ela tocou.
+     */
+    @Test
+    @DisplayName("a fala corrigida nao volta com o italico que a regra tirou")
+    void falaCorrigidaNaoVoltaComItalico(@TempDir Path temp) throws IOException {
+        // O CAMINHO EXATO da corrida do 0080: o LLM NAO resolve e a fala desce para o Google,
+        // que recompoe a estrutura a partir do original EN — e e de la que o italico voltava.
+        // Com llm.ensinar() o teste passava com E sem a correcao, porque o preparador ja tinha
+        // tirado o italico antes de o modelo ver a fala. So a mutacao mostrou isso.
+        llm.responderSemAlterar();
+        Path pastaPt = montarComLegendaInglesa(temp, List.of(
+            new Fala("{\\i1}We'll land at 1500 hours, as planned.",
+                "{\\i1}We'll land at 1500 hours, as planned.")));
+
+        Optional<String> saida = revisarComEspelho(temp, pastaPt);
+
+        String texto = saida.orElse(Files.readString(
+            pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
+        assertFalse(texto.contains("We'll land"),
+            "a fala tinha de sair do ingles:" + texto);
+        assertFalse(texto.contains("{\\i1}"),
+            "o italico nao pode voltar na fala corrigida: " + texto);
+        assertEquals(1, tradutorExterno.chamadas(),
+            "o teste só vale se a fala DESCEU para o Google — é lá que o itálico voltava");
+        assertEquals(1, contarDialogos(texto), "a fala não pode sumir");
+    }
     /**
      * O ESPELHO — ideia de Paulo (2026-08-16): a legenda ORIGINAL é a referência de estrutura,
      * e ela sempre existe. Medido no Guilty Crown no mesmo dia: 4 falas não traduzidas COM tag
