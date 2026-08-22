@@ -37,7 +37,10 @@ public class TelemetriaTraducaoLeitura {
         String temporada,
         String registradoEm,
         String loreNome,
-        String statusFinal
+        String statusFinal,
+        // Integer, nao int: null = nao medido, 0 = medi e deu zero.
+        Integer falasItalicoRemovido,
+        Integer falasItalicoPreservado
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)

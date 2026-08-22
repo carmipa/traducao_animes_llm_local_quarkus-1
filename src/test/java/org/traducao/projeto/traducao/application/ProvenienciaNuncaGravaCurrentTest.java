@@ -104,7 +104,7 @@ class ProvenienciaNuncaGravaCurrentTest {
         String daTelemetria = new MontadorTelemetriaTraducao(config, resolvedorCache, porta)
             .montar(java.nio.file.Path.of("ep01.ass"), 10, 10, 0, 1000L,
                 List.of(), "Unicorn", "Mobile Suit Gundam Unicorn",
-                org.traducao.projeto.traducao.domain.StatusArquivoTraducao.CONCLUIDO, List.of())
+                org.traducao.projeto.traducao.domain.StatusArquivoTraducao.CONCLUIDO, List.of(), 0, 0)
             .modeloLlm();
 
         assertEquals(daTelemetria, doCache,

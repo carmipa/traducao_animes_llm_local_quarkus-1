@@ -819,6 +819,16 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertTrue(conteudo.contains("fala traduzida"), "o texto traduzido tem de continuar lá");
         assertFalse(conteudo.contains("{\\i1}"), "itálico do cache não pode chegar ao arquivo");
         assertFalse(conteudo.contains("{\\i0}"), "nem o desliga do par");
+
+        // TELEMETRIA: sem o contador, "o italico sumiu" e afirmacao, nao evidencia. E o
+        // preservado tem de ser 0 MEDIDO (nao null): aqui nenhuma fala herda italico do
+        // Style:, e "medi e deu zero" nao pode sair com a cara de "nao medi".
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertNotNull(tel, "a telemetria do episodio deve ter sido registrada");
+        assertEquals(2, tel.falasItalicoRemovido(),
+            "as duas falas do cache tinham italico e as duas foram limpas");
+        assertEquals(0, tel.falasItalicoPreservado(),
+            "nenhuma abstencao neste episodio — e 0 MEDIDO, nao null");
     }
 
     @Test

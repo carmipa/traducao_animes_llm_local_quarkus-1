@@ -67,14 +67,14 @@ class BloqueioNaoApagaTrabalhoTelemetriaTest {
     private static TelemetriaTraducao trabalho(String episodio, String quando, String status) {
         return new TelemetriaTraducao(
             episodio, "modelo-teste", 300, 285, 0, 60000L,
-            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", status, List.of());
+            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", status, List.of(), null, null);
     }
 
     /** Bloqueio real: o portão recusa antes de qualquer trabalho, então tudo vem zerado. */
     private static TelemetriaTraducao bloqueio(String episodio, String quando) {
         return new TelemetriaTraducao(
             episodio, "modelo-teste", 0, 0, 0, 0L,
-            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", "BLOQUEADO", List.of());
+            List.of(), "AnimeTeste", "S01", quando, "Lore Teste", "BLOQUEADO", List.of(), null, null);
     }
 
     private String foto() throws Exception {

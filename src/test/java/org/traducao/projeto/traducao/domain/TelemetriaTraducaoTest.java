@@ -27,7 +27,7 @@ class TelemetriaTraducaoTest {
     void copiaDefensivaDasListas() {
         List<String> erros = new ArrayList<>(List.of("erro1"));
         TelemetriaTraducao t = new TelemetriaTraducao("ep.ass", "m", 1, 1, 0, 1L,
-            erros, "Anime", "Temporada Única", "2026-01-01T00:00:00Z", "lore", "CONCLUIDO", null);
+            erros, "Anime", "Temporada Única", "2026-01-01T00:00:00Z", "lore", "CONCLUIDO", null, null, null);
 
         erros.add("erro2"); // muta a lista original passada ao construtor
 
@@ -41,7 +41,7 @@ class TelemetriaTraducaoTest {
     @DisplayName("#20: listas nulas viram listas vazias imutáveis")
     void nullViraListaVazia() {
         TelemetriaTraducao t = new TelemetriaTraducao("ep.ass", "m", 1, 1, 0, 1L,
-            null, "Anime", "Temporada Única", "2026-01-01T00:00:00Z", "lore", "CONCLUIDO", null);
+            null, "Anime", "Temporada Única", "2026-01-01T00:00:00Z", "lore", "CONCLUIDO", null, null, null);
 
         assertNotNull(t.errosOcorridos());
         assertNotNull(t.pendenciasPorCausa());

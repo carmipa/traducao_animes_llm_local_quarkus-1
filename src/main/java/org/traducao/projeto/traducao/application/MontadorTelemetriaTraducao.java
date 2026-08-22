@@ -108,7 +108,9 @@ public class MontadorTelemetriaTraducao {
             String animeNome,
             String loreNome,
             StatusArquivoTraducao status,
-            List<ResumoPendencia> pendenciasPorCausa) {
+            List<ResumoPendencia> pendenciasPorCausa,
+            Integer falasItalicoRemovido,
+            Integer falasItalicoPreservado) {
         return new TelemetriaTraducao(
             arquivoEntrada.getFileName().toString(),
             modeloEfetivo(),
@@ -122,7 +124,9 @@ public class MontadorTelemetriaTraducao {
             Instant.now().toString(),
             loreNome,
             status.name(),
-            List.copyOf(pendenciasPorCausa)
+            List.copyOf(pendenciasPorCausa),
+            falasItalicoRemovido,
+            falasItalicoPreservado
         );
     }
 }

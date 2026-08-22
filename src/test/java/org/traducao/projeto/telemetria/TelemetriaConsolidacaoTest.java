@@ -86,7 +86,7 @@ class TelemetriaConsolidacaoTest {
 
     private LlmTelemetria legado(String nome, String modelo, int linhas, String ts) {
         return new LlmTelemetria(nome, modelo, linhas, linhas, 0, 100L, List.of(),
-            "Anime", "Temporada Única", ts, "lore", "CONCLUIDO");
+            "Anime", "Temporada Única", ts, "lore", "CONCLUIDO", null, null);
     }
 
     @Test

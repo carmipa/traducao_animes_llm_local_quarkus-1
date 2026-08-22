@@ -375,7 +375,9 @@ public class TraducaoController {
             nome, null, 0, 0, 0, 0L,
             java.util.List.of(motivo != null ? motivo : status.getRotulo()),
             anime, "Temporada Única", java.time.Instant.now().toString(),
-            lore, status.name(), java.util.List.of()));
+            // null, e nao 0: este caminho e a FALHA ANTES DE PROCESSAR. O episodio nao foi
+            // varrido, entao "nao medi" nao pode sair com a cara de "medi e nao havia italico".
+            lore, status.name(), java.util.List.of(), null, null));
     }
 
     /**

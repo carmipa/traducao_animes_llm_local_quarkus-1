@@ -76,6 +76,10 @@ public class ProcessarArquivoUseCase {
     private final PoliticaBackupTraducao politicaBackup;
     private final SeletorEventosTraduziveis seletorEventos;
     private final RemovedorItalico removedorItalico;
+
+    /** Só para separar "não mudou porque não tinha" de "não mudou porque a regra se absteve". */
+    private static final java.util.regex.Pattern TEM_ITALICO =
+        java.util.regex.Pattern.compile("\\\\i[01]?(?![0-9A-Za-z])");
     private final AvaliadorTraducaoCache avaliadorCache;
     private final TradutorLotesService tradutorLotes;
     private final MontadorTelemetriaTraducao montadorTelemetria;
@@ -765,6 +769,8 @@ public class ProcessarArquivoUseCase {
         // pipeline aplicou por dentro — e foi assim que a auditoria de 07/08/2026 classificou
         // 18.431 falas de letra de musica como residuo de traducao.
         List<FalaNaoTraduzida> naoTraduzidas = new ArrayList<>();
+        int falasItalicoRemovido = 0;
+        int falasItalicoPreservado = 0;
         for (EventoLegenda evento : documento.eventos()) {
             String instante = instanteDe(evento);
             if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
@@ -801,7 +807,16 @@ public class ProcessarArquivoUseCase {
             // MUSICA NAO CHEGA AQUI: o seletorEventos.isTraduzivel logo acima ja mandou musica,
             // karaoke, romaji protegido e estilo-ignorado embora com continue. O veto e aplicado
             // por quem sabe aplica-lo, e nao reimplementado neste laco.
-            eventosFinais.add(evento.comTexto(removedorItalico.remover(textoFinal)));
+            String semItalico = removedorItalico.remover(textoFinal);
+            if (!java.util.Objects.equals(semItalico, textoFinal)) {
+                falasItalicoRemovido++;
+            } else if (textoFinal != null && TEM_ITALICO.matcher(textoFinal).find()) {
+                // A REGRA SE ABSTEVE. Nao e "nao havia italico": havia, e o removedor recuou
+                // porque a fala herda o italico do Style: do cabecalho. Sem este contador o
+                // recuo e invisivel, e uma obra inteira poderia sair em italico sem sinal.
+                falasItalicoPreservado++;
+            }
+            eventosFinais.add(evento.comTexto(semItalico));
             entradasCache.add(new EntradaCache(
                 evento.indice(), evento.estilo(), evento.texto(), textoValidado,
                 propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
@@ -878,7 +893,7 @@ public class ProcessarArquivoUseCase {
         telemetriaTraducao.registrarTraducao(montadorTelemetria.montar(
             arquivoEntrada, eventosTraduziveis.size(), traducoesNovasValidas,
             cacheReaproveitavel.size(), tempoTotalMs, avisos, animeNome, loreNome, status,
-            pendenciasPorCausa));
+            pendenciasPorCausa, falasItalicoRemovido, falasItalicoPreservado));
 
         if (status == StatusArquivoTraducao.PARCIAL) {
             if (permitirRetraducao) {

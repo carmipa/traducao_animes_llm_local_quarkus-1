@@ -79,7 +79,7 @@ class MontadorTelemetriaTraducaoTest {
             llmComModelo("current"), resolvedorComTemporada("T1"), portaComModelo("qwen2.5-14b-instruct-q4"));
 
         TelemetriaTraducao t = comPorta.montar(Path.of("A", "ep.ass"), 1, 1, 0, 1L,
-            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of());
+            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of(), 0, 0);
 
         assertEquals("qwen2.5-14b-instruct-q4", t.modeloLlm(),
             "o modelo tem de ser o que a porta resolveu, nunca o 'current' da configuracao");
@@ -97,7 +97,7 @@ class MontadorTelemetriaTraducaoTest {
             llmComModelo("modelo-do-yml"), resolvedorComTemporada("T1"), portaComModelo(null));
 
         TelemetriaTraducao t = semPorta.montar(Path.of("A", "ep.ass"), 1, 1, 0, 1L,
-            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of());
+            List.of(), "A", "Lore", StatusArquivoTraducao.CONCLUIDO, List.of(), 0, 0);
 
         assertEquals("modelo-do-yml", t.modeloLlm());
     }
@@ -126,7 +126,7 @@ class MontadorTelemetriaTraducaoTest {
         TelemetriaTraducao t = montador.montar(
             Path.of("MeuAnime", "legendas_originais", "ep03.ass"),
             10, 4, 6, 1234L, List.of("aviso A"), "MeuAnime", "MinhaLore",
-            StatusArquivoTraducao.CONCLUIDO, List.of());
+            StatusArquivoTraducao.CONCLUIDO, List.of(), 0, 0);
 
         assertEquals("ep03.ass", t.nomeEpisodio());
         assertEquals("modelo-montador", t.modeloLlm());
@@ -158,7 +158,7 @@ class MontadorTelemetriaTraducaoTest {
 
         TelemetriaTraducao t = montador.montar(
             Path.of("ep.ass"), 1, 1, 0, 1L, avisosOriginais, "Anime", "Lore",
-            StatusArquivoTraducao.PARCIAL, List.of());
+            StatusArquivoTraducao.PARCIAL, List.of(), 0, 0);
 
         avisosOriginais.add("aviso 2 posterior");
         assertEquals(List.of("aviso 1"), t.errosOcorridos(),
