@@ -1,66 +1,63 @@
-# PRONTO (2026-08-22) — 3.1 limpa o italico, e o detector de concordancia foi de 19 falsos positivos a ZERO
+# FECHADO (2026-08-22) — acervo traduzido sem italico de dialogo, sem marcador vazado
 
 ## PROXIMA ACAO EXECUTAVEL EXATA
 
-**Paulo passa a 3.1 nas obras.** Nada pendente. O que ele vai ver de diferente:
+**Nao ha pendencia de italico nem de marcador.** O que sobrou tem dono declarado:
+
+1. **1 fala do 0080 ep01** com italico (a que o Google devolveu antes do conserto). Sai sozinha
+   quando Paulo passar a 3.1 no 0080 de novo — nao corrigir a mao.
+2. **38 abstencoes**: a fala herda italico do `Style:` do cabecalho. Tirar exige mexer no
+   CABECALHO, que muda o estilo inteiro. Fora do que foi pedido.
+3. **8 acusacoes do detector** em 74.427 pares — todas defeito REAL, trabalho da 3.3.
+4. **1 traducao errada** achada no 86 Part 1, para a 3.3:
+   `"HE shell"` -> `"uma concha HE"` (e projetil High Explosive, nao concha).
+
+**DanMachi esta FORA** por decisao de Paulo: nao foi traduzido. Ela concentrava 337 dos 338
+italicos e 2 dos 3 marcadores vazados que eu havia reportado como trabalho a fazer.
+
+## Estado medido do acervo traduzido (18 obras, 219.516 eventos)
 
 ```
-[OK] sincronizadas=0, revisadas=0, italico=35     <- os dois numeros separados
+marcador [[...]] na legenda : 0
+italico de DIALOGO          : 0    (os 3.674 restantes sao musica/vetorial, VETADOS)
+acusacoes do detector       : 8    todas reais
 ```
 
-Antes saia "Falas corrigidas via LLM: 412" e as 412 eram italico — o LLM nao
-corrigira nenhuma. Foi o proprio Paulo que pegou, lendo o log.
-
-Conferir depois:
-```
-gradlew test --tests "*MedicaoAlcanceRegraItalicoIT*"      -Dkronos.medicao=true
-gradlew test --tests "*MedicaoFalsoPositivoConcordanciaIT*" -Dkronos.medicao=true
-```
-
-## Os numeros que fecham o dia
-
-```
-ITALICO       A 3.1 LIMPARIA 6.021 falas (Dialogue 4.824 · Default 1.181)
-              VETADAS pelo filtro 3.767 · ABSTENCOES 38
-CONCORDANCIA  67.178 pares EN/PT · 23 acusacoes -> 10 -> 5
-              as 5 restantes sao DEFEITO REAL. Zero falso positivo.
-```
-
-## Os 9 commits
+## Os 13 commits do dia
 
 | commit | o que fecha |
 |--------|-------------|
 | `195b7daf` | `RemovedorItalico` + ligado no que VAI ao LLM (2.1) |
 | `0b37f218` | portao de estrutura parou de descartar traducao por FALTAR o italico |
-| `7f4a7039` | 2.1: vale para a fala que NUNCA ve o LLM (cache, Google, pendente) |
+| `7f4a7039` | 2.1: vale para a fala que NUNCA ve o LLM |
 | `c961e292` | telemetria da 2.1 ate o CSV publico; schema 1.1 -> 1.2 |
-| `f28568c5` | **3.1 LIMPA o acervo** + sincronizador parou de reintroduzir italico do cache |
-| `a56e0641` | telemetria da 3.1: por linha, por arquivo e no relatorio |
-| `d8cde5f1` | **"corrigidas via LLM: 412" eram italico** — contadores separados |
-| `fee4b844` | concordancia: 4 causas-raiz, 23 -> 10 |
-| `e5e4171d` | concordancia: 5 causas-raiz, 10 -> 5, e as 5 sao reais |
+| `f28568c5` | **3.1 LIMPA o acervo** + sincronizador parou de reintroduzir |
+| `a56e0641` | telemetria da 3.1 |
+| `d8cde5f1` | "corrigidas via LLM: 412" eram italico — contadores separados |
+| `fee4b844` | concordancia: 4 causas, 23 -> 10 |
+| `e5e4171d` | concordancia: 5 causas, 10 -> 5 |
+| `6199aed0` | a fala CORRIGIDA devolvia o italico (duble estava cego) |
+| `a34f7138` | cartao dizia ZZ com a pasta do Zeta — guarda de identidade |
+| `69fae006` | marcador `[[...]]` chegava a legenda |
+| `1a7b84de` | "o ajudou A sobreviver" — atono exige hifen |
 
-## As 9 causas de falso positivo do detector, para nao voltarem
+## As 10 causas de falso positivo do detector
 
-1. cruzamento de objeto com him E her no mesmo original
-2. "mistress" nao casava "miss"
-3. "cara" polissemico (rosto/preco/vocativo)
-4. predicativo concordando com outro substantivo da frase
-5. "girlfriend" nao casava "girl"
-6. "eles/elas" regido por preposicao tratado como sujeito
-7. a mesma falha do (4) vazando pelo detector IRMAO
-8. "ela" referindo-se a COISA quando o "ele" ja esta na frase
-9. tratamento do outro genero ja presente no PT
+1. cruzamento com him E her no mesmo original · 2. "mistress" nao casava "miss" ·
+3. "cara" polissemico · 4. predicativo concordando com outro substantivo ·
+5. "girlfriend" nao casava "girl" · 6. plural regido por preposicao ·
+7. a falha do (4) vazando pelo detector IRMAO · 8. "ela" que e COISA ·
+9. tratamento do outro genero ja no PT · 10. atono sem hifen (artigo/preposicao)
 
-## ABERTO e declarado
+## Licao do dia que mais custou
 
-- **38 abstencoes do italico**: a fala herda italico do `Style:` do cabecalho.
-  Tirar exige mexer no CABECALHO, que muda o estilo inteiro — outra classe de
-  alteracao. O contador de telemetria existe para isso nao ficar invisivel.
-- **19 falas de musica com italico**: vetadas de proposito.
-- **As 5 acusacoes reais** sao trabalho da 3.3, e a 3.1 as roteia certo.
+O DUBLE CEGO. `RecuperacaoExternaContadora` devolvia texto limpo onde o Google real devolve com
+o prefixo de tags colado. O teste do italico ficou VERDE com e sem a correcao, e foram TRES
+tentativas de cenario antes de a mutacao pegar. Duble infiel = teste cego, e o verde nao vale
+nada. So uma sonda no arquivo de saida mostrou onde a corrente quebrava.
 
 ---
+
 
 
 
