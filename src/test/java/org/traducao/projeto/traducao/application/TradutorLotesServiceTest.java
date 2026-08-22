@@ -186,7 +186,7 @@ class TradutorLotesServiceTest {
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
                                          FakeUiLogger ui, FakeProtecao protecao, FakeTelemetria telemetria) {
         return new TradutorLotesService(new MascaradorTags(), props, ui, ep, protecao, telemetria,
-            new IsoladorQuebraDialogo(), new SimplificadorItalicoRedundante(),
+            new IsoladorQuebraDialogo(), new RemovedorItalico(), new SimplificadorItalicoRedundante(),
             new DescarteItalicoUltimoRecurso(), new DetectorCorrenteFrasePartida(),
             new GuardaCorrenteTraduzida());
     }
@@ -240,11 +240,11 @@ class TradutorLotesServiceTest {
         ep.tradutor = l -> l.linhasOriginais().stream().map(s -> s.replace("Oi mundo", "Ola mundo")).toList();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\b1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertEquals("[[TAG0]]Oi mundo", ep.lotesRecebidos.get(0).linhasOriginais().get(0),
             "o LLM deve receber o texto mascarado");
-        assertEquals("{\\i1}Ola mundo", r.get("{\\i1}Oi mundo"),
+        assertEquals("{\\b1}Ola mundo", r.get("{\\b1}Oi mundo"),
             "a resposta deve ter a tag restaurada");
     }
 
@@ -270,11 +270,11 @@ class TradutorLotesServiceTest {
         p.setTextoPuroAoLlm(true);
         TradutorLotesService s = servico(p, ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
+        Map<String, String> r = s.traduzirPendentes(pendentes("{\\b1}Oi mundo"), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertEquals("Oi mundo", ep.lotesRecebidos.get(0).linhasOriginais().get(0),
             "com a flag ligada o LLM recebe a frase PURA — nenhum [[TAGn]] para ele perder");
-        assertEquals("{\\i1}Ola mundo", r.get("{\\i1}Oi mundo"),
+        assertEquals("{\\b1}Ola mundo", r.get("{\\b1}Oi mundo"),
             "a moldura tem de voltar literal, sem depender de o modelo ter repetido marcador");
     }
 
@@ -291,7 +291,7 @@ class TradutorLotesServiceTest {
         p.setTextoPuroAoLlm(true);
         TradutorLotesService s = servico(p, ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
 
-        s.traduzirPendentes(pendentes("Eu {\\i1}nunca{\\i0} vou"), Set.of(), "ep.ass", new ArrayList<>(), null);
+        s.traduzirPendentes(pendentes("Eu {\\b1}nunca{\\b0} vou"), Set.of(), "ep.ass", new ArrayList<>(), null);
 
         assertTrue(ep.lotesRecebidos.get(0).linhasOriginais().get(0).contains("[[TAG"),
             "tag no MEIO fica fora do recorte e continua mascarada, mesmo com a flag ligada");
@@ -324,12 +324,76 @@ class TradutorLotesServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a fala de diálogo chega ao LLM SEM itálico e volta SEM itálico.
+     * Decisão do Paulo em 2026-08-22: "num filme normal não tem itálico, é frescura".
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o efeito não é só estético. O par de ênfase no MEIO da frase
+     * é o caso que o mascaramento não consegue honrar — ele garante que a tag volte, não que
+     * ela continue cercando a palavra realçada, e o português reordena. Sem o par, some o
+     * {@code {\\i1}{\\i0}} vazio que aparecia na legenda entregue.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: itálico visto pelo LLM, ou devolvido na tradução,
+     * reprova. Tag que NÃO é itálico no mesmo bloco tem de sobreviver — {@code {\\q2\\i1}}
+     * são 340 blocos do acervo, e apagar o bloco inteiro destruiria a quebra automática.
+     */
+    @Test
+    @DisplayName("Itálico eliminado: não vai ao LLM e não volta na tradução")
+    void italicoEliminadoAntesDoLlmENaoVoltaNaTraducao() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream()
+            .map(t -> t.replace("no love in", "não há amor neste")).toList();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(),
+            new FakeTelemetria());
+
+        String fala = "there's {\\i1}no love in{\\i0} this kind";
+        Map<String, String> r = s.traduzirPendentes(
+            pendentes(fala), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        assertEquals("there's no love in this kind",
+            ep.lotesRecebidos.get(0).linhasOriginais().get(0),
+            "o LLM recebe a frase INGLESA limpa: sem itálico e sem [[TAGn]] para perder");
+        assertEquals("there's não há amor neste this kind", r.get(fala),
+            "a tradução entregue não pode ter itálico de volta");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CONTRA-CASO. O bloco MISTO perde só o itálico; o resto do bloco
+     * é formatação real que a tela precisa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se o bloco inteiro sumir, a fala perde quebra
+     * automática, posição ou cor — e o teste reprova.
+     */
+    @Test
+    @DisplayName("Bloco misto: sai o itálico, fica o resto")
+    void blocoMistoPerdeSoOItalicoNoFluxoDeTraducao() throws Exception {
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream()
+            .map(t -> t.replace("Hello", "Ola")).toList();
+        TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(),
+            new FakeTelemetria());
+
+        String fala = "{\\q2\\i1}Hello";
+        Map<String, String> r = s.traduzirPendentes(
+            pendentes(fala), Set.of(), "ep.ass", new ArrayList<>(), null);
+
+        assertEquals("{\\q2}Ola", r.get(fala),
+            "o \\q2 (quebra automática) tem de sobreviver à remoção do itálico");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: congela a INVERSÃO de prioridade decidida pelo Paulo em
      * 2026-07-31 — quando as únicas tags perdidas são itálico, publicar a tradução sem
      * ênfase é melhor que publicar o original em inglês com ênfase.
      *
      * <p>Medido nos logs: 47 das 212 corrupções estão nesta condição, e hoje todas saem
      * em inglês. Ver {@link DescarteItalicoUltimoRecurso}.
+     *
+     * <p><b>Por que a fala entra aqui como DEDUPLICÁVEL desde 2026-08-22:</b> a eliminação do
+     * itálico ({@link RemovedorItalico}) tirou este caso do caminho de diálogo — lá não chega
+     * mais itálico nenhum para o modelo corromper. A camada musical é a ÚNICA exceção da regra,
+     * porque música não se toca nesta frente. Logo este teste virou também o CASO-CONTROLE do
+     * veto: se alguém remover a exceção e passar o removedor por cima da música, a fala chega
+     * sem {@code {\\i1}}, o descarte não acontece, e este teste reprova.
      */
     @Test
     @DisplayName("Itálico corrompido: salva a TRADUÇÃO sem ênfase em vez do inglês")
@@ -340,7 +404,8 @@ class TradutorLotesServiceTest {
         List<String> avisos = new ArrayList<>();
         TradutorLotesService s = servico(props(20), ep, new FakeUiLogger(), new FakeProtecao(), tele);
 
-        Map<String, String> r = s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", avisos, null);
+        Map<String, String> r = s.traduzirPendentes(
+            pendentes("{\\i1}Oi"), Set.of("{\\i1}Oi"), "ep.ass", avisos, null);
 
         assertEquals("Ola", r.get("{\\i1}Oi"),
             "itálico puro: a tradução vence a formatação");
@@ -551,9 +616,9 @@ class TradutorLotesServiceTest {
         TradutorLotesService s = servico(props(20), ep, ui, new FakeProtecao(), new FakeTelemetria());
 
         TraducaoParcialException lancada = assertThrows(TraducaoParcialException.class,
-            () -> s.traduzirPendentes(pendentes("{\\i1}Oi"), Set.of(), "ep.ass", new ArrayList<>(), null));
+            () -> s.traduzirPendentes(pendentes("{\\b1}Oi"), Set.of(), "ep.ass", new ArrayList<>(), null));
 
-        assertEquals(Map.of("{\\i1}Oi", "{\\i1}Ola"), lancada.getDicionarioParcial(),
+        assertEquals(Map.of("{\\b1}Oi", "{\\b1}Ola"), lancada.getDicionarioParcial(),
             "o dicionário parcial deve estar desmascarado");
         assertNull(lancada.getLotesSalvos(), "a exceção reconstruída usa o dicionário, não os lotes");
         assertEquals(1, ui.finalizacoes, "finalizar() deve ocorrer também no caminho de falha");
