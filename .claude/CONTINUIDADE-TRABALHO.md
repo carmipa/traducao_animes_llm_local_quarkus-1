@@ -13,7 +13,7 @@ E decisao dele (produto, lista fechada da regra 21). Numeros na mao:
 ```
 9.769 falas de dialogo mudariam no acervo (222 arquivos, 13 obras)
   4.838  Dialogue          <- fala de filme, e o que ele pediu
-  3.406  Zeta Episode Title <- CARTAO DE TITULO animado (fs150, fade, blur, 	, \pos)
+  3.406  Zeta Episode Title <- CARTAO DE TITULO animado (fs150, fade, blur, \\t, \\pos)
   1.371  Default           <- fala de filme
     136  Mobile Suit Gundam <- esta em estilos-ignorados: NAO entra na producao
 ```
