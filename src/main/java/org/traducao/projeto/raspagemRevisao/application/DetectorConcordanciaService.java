@@ -188,6 +188,21 @@ public class DetectorConcordanciaService {
     private static final Pattern ELE_ISOLADO = Pattern.compile("\\bele\\b", FLAGS);
     private static final Pattern ELA_ISOLADA = Pattern.compile("\\bela\\b", FLAGS);
 
+    /** {@code contra eles}, {@code para elas}: pronome regido por preposicao e OBJETO. */
+    private static final Pattern PLURAL_APOS_PREPOSICAO = Pattern.compile(
+        "\\b(?:de|do|da|dos|das|com|contra|para|por|em|no|na|nos|nas|sobre|entre|sem|ao|aos|à|às|a)"
+            + "\\s+(?:eles|elas)\\b", FLAGS);
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: apaga o {@code eles/elas} que é objeto de preposição, para a
+     * checagem de sujeito-predicado não confundi-lo com o sujeito da oração.
+     * <p>INVARIANTES DO DOMÍNIO: cópia para inspeção; o texto persistido não muda.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança.
+     */
+    private static String removerPluralAposPreposicao(String texto) {
+        return PLURAL_APOS_PREPOSICAO.matcher(texto).replaceAll(" ");
+    }
+
     private static String removerObjetoPronominal(String texto) {
         return OBJETO_PRONOMINAL_ELE_ELA.matcher(texto).replaceAll(" ");
     }
@@ -448,11 +463,19 @@ public class DetectorConcordanciaService {
             // Medido em 2026-07-28 no cache de Guilty Crown (07_Track4, evento 10): a proposta
             // do LLM foi aceita porque o motivo parecia legítimo. A fala tem DUAS referências de
             // gênero e o detector enxergava só uma.
+            // Espelho do caso da nave: o "ela" junto no portugues diz que o "she" foi
+            // traduzido, e o "ele" e outra coisa.
             if (!LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find()
+                && !ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()
                 && ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'she' sem referência masculina, mas a tradução contém o masculino 'ele'");
             }
-            if (PARTIC_MASC_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
+            // Mesma verificacao de sujeito de detectarPredicadoPorEvidenciaDeGenero, pela
+            // mesma razao: "Ela tem que lutar, ou o Argama sera perdido!" tem "perdido"
+            // concordando com ARGAMA, em outra oracao. Sem isto, a familia consertada la
+            // continuava vazando por aqui — a mesma classe de falha em outro fluxo.
+            if (concordaComAPessoa(removerPredicadoDePrimeiraSegundaPessoa(texto),
+                    PARTIC_MASC_APOS_VERBO)
                 && !LexicoGenero.HE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante feminino ('she'), mas predicado está no masculino");
             }
@@ -473,11 +496,18 @@ public class DetectorConcordanciaService {
             // Mesma correção do lado espelhado: \bshe\b não casa "her"/"hers", então
             // "He gave it to her" com "ela" na tradução disparava um motivo cuja mensagem
             // afirmava não haver referência feminina no original.
+            // O "ele" JUNTO no portugues diz que o "he" FOI traduzido — entao o "ela" e outra
+            // coisa, e em legenda quase sempre e coisa mesmo. Medido no acervo em 22/08/2026:
+            //   EN: ...he's unable to return to the Argama before it begins its counterattack.
+            //   PT: Ele nao consegue voltar para a Argama antes que ela inicie...
+            // O "ela" e a NAVE. Acusar isso e mandar ao modelo uma fala impecavel.
             if (!LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find()
+                && !ELE_ISOLADO.matcher(removerObjetoPronominal(texto)).find()
                 && ELA_ISOLADA.matcher(removerObjetoPronominal(texto)).find()) {
                 motivos.add("Original usa 'he' sem referência feminina, mas a tradução contém o feminino 'ela'");
             }
-            if (PARTIC_FEM_APOS_VERBO.matcher(removerPredicadoDePrimeiraSegundaPessoa(texto)).find()
+            if (concordaComAPessoa(removerPredicadoDePrimeiraSegundaPessoa(texto),
+                    PARTIC_FEM_APOS_VERBO)
                 && !LexicoGenero.SHE_EN.matcher(original).find()) {
                 motivos.add("Original indica personagem/falante masculino ('he'), mas predicado está no feminino");
             }
@@ -599,12 +629,22 @@ public class DetectorConcordanciaService {
         boolean femEn = LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find();
         boolean mascEn = LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find();
 
-        if (femEn && !mascEn) {
+        // O tratamento do OUTRO genero presente no portugues significa que a referencia do
+        // original ja esta representada, e o tratamento acusado fala de outra pessoa. Medido
+        // no acervo em 22/08/2026:
+        //   EN: The kid with a girl's name?
+        //   PT: O garoto com um nome de menina?   <- "menina" traduz "girl's"; "garoto" e o kid
+        // A traducao esta impecavel: o feminino do ingles qualifica o NOME, nao a pessoa.
+        boolean tratamentoFemNoPt = TRATAMENTO_FEM_COM_MASC_EN.matcher(texto).find();
+        boolean tratamentoMascNoPt =
+            TRATAMENTO_MASC_COM_FEM_EN.matcher(removerCaraQueNaoEVocativo(texto)).find();
+
+        if (femEn && !mascEn && !tratamentoFemNoPt) {
             adicionarSeEncontrado(motivos, TRATAMENTO_MASC_COM_FEM_EN,
                 removerCaraQueNaoEVocativo(texto),
                 "Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original");
         }
-        if (mascEn && !femEn) {
+        if (mascEn && !femEn && !tratamentoMascNoPt) {
             adicionarSeEncontrado(motivos, TRATAMENTO_FEM_COM_MASC_EN, texto,
                 "Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original");
         }
@@ -636,9 +676,15 @@ public class DetectorConcordanciaService {
             "Sujeito 'ela' com predicado/adjetivo no masculino");
         adicionarSeEncontrado(motivos, ELE_COM_PREDICADO_FEM, texto,
             "Sujeito 'ele' com predicado/adjetivo no feminino");
-        adicionarSeEncontrado(motivos, ELAS_COM_PREDICADO_MASC, texto,
+        // O plural sai do texto quando vem depois de PREPOSICAO: ali ele e objeto, nao
+        // sujeito, e o adjetivo concorda com outra coisa. Medido no acervo em 22/08/2026:
+        //   EN: that our war with them is wrong!
+        //   PT: Que nossa guerra contra eles e errada!   <- "errada" concorda com GUERRA
+        // A traducao esta certa; quem estava errado era o detector.
+        String semPluralObjeto = removerPluralAposPreposicao(texto);
+        adicionarSeEncontrado(motivos, ELAS_COM_PREDICADO_MASC, semPluralObjeto,
             "Sujeito 'elas' com predicado no masculino");
-        adicionarSeEncontrado(motivos, ELES_COM_PREDICADO_FEM, texto,
+        adicionarSeEncontrado(motivos, ELES_COM_PREDICADO_FEM, semPluralObjeto,
             "Sujeito 'eles' com predicado no feminino");
     }
 
