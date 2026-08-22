@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico;
 
 /**
  * PROPÓSITO DE NEGÓCIO: materializa no ASS/SSA as correções confirmadas pela
@@ -52,9 +53,20 @@ public class SincronizadorLegendaCacheService {
      */
     private final org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical;
 
+    /**
+     * A regra do itálico (22/08/2026). Esta ponte é o ÚNICO ponto da 3.1 que traz texto de
+     * FORA da legenda — ela escreve o {@code traduzido} do cache. O cache gravado ANTES da
+     * regra tem itálico, então sem isto a Revisão de Legendas reintroduziria na legenda
+     * exatamente o que a Tradução tirou, e o operador veria o defeito VOLTAR depois de
+     * passar a tela que existe para corrigir.
+     */
+    private final RemovedorItalico removedorItalico;
+
     public SincronizadorLegendaCacheService(
-        org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical) {
+        org.traducao.projeto.legenda.domain.PoliticaEstiloMusical politicaEstiloMusical,
+        RemovedorItalico removedorItalico) {
         this.politicaEstiloMusical = politicaEstiloMusical;
+        this.removedorItalico = removedorItalico;
     }
 
     /**
@@ -169,7 +181,7 @@ public class SincronizadorLegendaCacheService {
             if (podeAplicar && evento.isDialogo() && !eMusica(evento)
                 && entrada != null && entrada.traduzido() != null
                 && !entrada.traduzido().isBlank() && !entrada.traduzido().equals(evento.texto())) {
-                atualizados.add(evento.comTexto(entrada.traduzido()));
+                atualizados.add(evento.comTexto(removedorItalico.remover(entrada.traduzido())));
                 indices.add(evento.indice());
                 if (regrediuAoOriginal) recuperadosDoOriginal.add(evento.indice());
             } else {

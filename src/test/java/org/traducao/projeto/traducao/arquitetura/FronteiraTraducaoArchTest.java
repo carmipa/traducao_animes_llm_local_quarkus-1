@@ -400,6 +400,17 @@ class FronteiraTraducaoArchTest {
      */
     private static final Set<String> QUALIDADE_TRADUCAO_TIPOS_CONGELADOS = Set.of(
         RAIZ + ".qualidadeTraducao.application.DetectorTraducaoIdenticaService",
+        // RemovedorItalico, 22/08/2026. Nasceu em traducao.application, junto dos irmaos
+        // SimplificadorItalicoRedundante e DescarteItalicoUltimoRecurso, e mudou de casa no
+        // MESMO dia por um motivo concreto: a fatia raspagemRevisao passou a precisar dele —
+        // o SincronizadorLegendaCacheService escreve na legenda o valor do CACHE, e o cache
+        // anterior a regra tem italico, entao a 3.1 reintroduziria o que a 2.1 tirou.
+        //
+        // A alternativa era COPIAR a classe para a segunda fatia, que e exatamente a classe de
+        // defeito que CatracaRegraDuplicadaEntreFatiasTest conta. Ela ja pegou uma copia menor
+        // nesta mesma mudanca: o padrao \\i[01]? tinha sido duplicado na telemetria, e a saida
+        // foi dar DONO UNICO ao padrao (RemovedorItalico.temItalico), nao declarar a copia.
+        RAIZ + ".qualidadeTraducao.application.RemovedorItalico",
         // EnforcadorTermosLore movido de traducao.application para o peer: havia uma SEGUNDA
         // cópia do algoritmo em revisaoLore, criada por não poder importar desta fatia, e as
         // duas divergiram em três propriedades (teto de ocorrências, ordem por comprimento,

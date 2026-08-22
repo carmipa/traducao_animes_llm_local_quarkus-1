@@ -1,4 +1,4 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Component;
 
@@ -86,6 +86,25 @@ public class RemovedorItalico {
         }
         saida.append(texto.substring(fim));
         return saida.toString();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: responde se a fala tem itálico, para quem precisa CONTAR sem
+     * alterar — a telemetria e os harness de medição.
+     *
+     * <p>Existe para o padrão ter DONO ÚNICO. A primeira versão da telemetria carregava a
+     * própria cópia do regex, e a catraca de regra duplicada entre fatias pegou: cópia não
+     * declarada foi a causa de três defeitos em 03/08/2026, um deles vivo por nove dias.
+     * Contador que diverge do removedor é pior que contador nenhum, porque mente com número.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pergunta ao MESMO padrão que o {@link #remover} usa. Enxerga
+     * o token onde ele estiver, inclusive na fala de que o removedor SE ABSTÉM — é justamente
+     * essa combinação (tem itálico E não mudou) que identifica a abstenção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} devolve {@code false}; nunca lança.
+     */
+    public boolean temItalico(String texto) {
+        return texto != null && TOKEN_ITALICO.matcher(texto).find();
     }
 
     /**

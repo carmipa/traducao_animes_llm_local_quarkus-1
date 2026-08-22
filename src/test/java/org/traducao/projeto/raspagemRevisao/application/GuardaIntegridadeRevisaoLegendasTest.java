@@ -41,7 +41,8 @@ class GuardaIntegridadeRevisaoLegendasTest {
      * argumentos para alcancar um metodo que precisa de UM colaborador.
      */
     private final PreparadorFalaRevisao guarda =
-        new PreparadorFalaRevisao(null, new ProtecaoLegendaAssService());
+        new PreparadorFalaRevisao(null, new ProtecaoLegendaAssService(),
+            new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico());
 
     @Test
     void acusaQuandoACorrecaoApagaUmaFalaComTexto() {

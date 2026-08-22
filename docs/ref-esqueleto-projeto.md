@@ -36,12 +36,12 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 ```mermaid
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
-    G1["<b>Tradução</b><br/>traducao (78)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
+    G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (4)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
-    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (14)"]:::peer
+    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (15)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (30)"]:::base
     G0 --> PEERS
     G1 --> PEERS
@@ -215,7 +215,7 @@ auditorConteudoLegendas/
 
 ### Tradução
 
-#### `traducao` — 78 classes
+#### `traducao` — 77 classes
 
 ```text
 traducao/
@@ -236,7 +236,6 @@ traducao/
 │   ├── ProcessarArquivoUseCase.java
 │   ├── ProcessarEpisodioUseCase.java
 │   ├── RecuperarPendenciaFallbackService.java
-│   ├── RemovedorItalico.java
 │   ├── ReparadorMarcadoresLlm.java
 │   ├── ResolvedorCacheTraducao.java
 │   ├── ResolvedorSaidaLegenda.java
@@ -799,7 +798,7 @@ lore/
     └── CorrecoesTerminologiaMacrossRevisao.java
 ```
 
-#### `qualidadeTraducao` — 14 classes
+#### `qualidadeTraducao` — 15 classes
 
 ```text
 qualidadeTraducao/
@@ -814,6 +813,7 @@ qualidadeTraducao/
 │   ├── MascaradorTags.java
 │   ├── NormalizadorAcentosComuns.java
 │   ├── ProtecaoLegendaAssService.java
+│   ├── RemovedorItalico.java
 │   └── ValidadorTraducaoService.java
 └── domain/
     ├── AlucinacaoDetectadaException.java
@@ -1222,7 +1222,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 30 classes
+#### `qualidadeTraducao` — 31 classes
 
 ```text
 qualidadeTraducao/
@@ -1248,6 +1248,7 @@ qualidadeTraducao/
 │   ├── QuebraAssNaoEscondeTermoDeLoreTest.java
 │   ├── QuebraAssPropriedadeTest.java
 │   ├── QuebraDentroDoNomeNaoInventaTrocaTest.java
+│   ├── RemovedorItalicoTest.java
 │   ├── TerminacaoCedilhaSemTilTest.java
 │   ├── ValidadorNaoCondenaNomeDaObraTest.java
 │   ├── ValidadorParTraducaoTest.java
@@ -1274,7 +1275,7 @@ raspagemCorrecao/
     └── GoogleTranslateScraperTest.java
 ```
 
-#### `raspagemRevisao` — 37 classes
+#### `raspagemRevisao` — 38 classes
 
 ```text
 raspagemRevisao/
@@ -1296,6 +1297,7 @@ raspagemRevisao/
 │   ├── InterrupcaoRevisaoCaracterizacaoTest.java
 │   ├── LeitorCacheReferenciaServiceTest.java
 │   ├── LlmCorretorDublado.java
+│   ├── MedicaoAlcanceRegraItalicoIT.java
 │   ├── MedicaoColisaoCacheEntreObrasIT.java
 │   ├── MedicaoFalaQueSobrouEmInglesTest.java
 │   ├── MedicaoPendenciaZzEscapaDaRevisaoTest.java
@@ -1407,7 +1409,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 62 classes
+#### `traducao` — 60 classes
 
 ```text
 traducao/
@@ -1426,7 +1428,6 @@ traducao/
 │   ├── GuardaCorrenteTraduzidaTest.java
 │   ├── GuardaLoreNaoExigePalavraComumTest.java
 │   ├── HorarioLocalizadoNaoEhNumeroTrocadoTest.java
-│   ├── MedicaoAlcanceRegraItalicoIT.java
 │   ├── MedicaoFonteFrancesaIT.java
 │   ├── MontadorTelemetriaTraducaoTest.java
 │   ├── NormalizadorAspasServiceTest.java
@@ -1437,7 +1438,6 @@ traducao/
 │   ├── ProcessarEpisodioUseCaseRecusaDoLlmTest.java
 │   ├── ProvenienciaNuncaGravaCurrentTest.java
 │   ├── RecuperarPendenciaFallbackServiceTest.java
-│   ├── RemovedorItalicoTest.java
 │   ├── ReparadorMarcadoresLlmTest.java
 │   ├── ResolvedorCacheTraducaoProvenienciaTest.java
 │   ├── RestauradorFalaIdenticaSemItalicoTest.java
