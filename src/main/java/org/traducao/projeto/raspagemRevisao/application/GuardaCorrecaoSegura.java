@@ -151,6 +151,22 @@ public class GuardaCorrecaoSegura {
         TAG_SEM_CONTEUDO("REVISAO_TAG_SEM_CONTEUDO",
             "a proposta deixou um par de tags sem nenhuma letra dentro"),
 
+        /**
+         * A proposta traz marcador TÉCNICO — {@code [[...]]} — que o espectador leria na tela.
+         * Achado no acervo em 22/08/2026, depois de as 12 obras passarem pela 3.1: duas falas
+         * gravadas com marcador cru.
+         * <pre>
+         * ZZ ep?  : Oh, [[Lady Haman]]. [[Lady Haman]]! [[Lady Haman]]!
+         * DanMachi: {\an8}[[]TAG0] Atenção, hóspedes, o Spoon Aqua partirá agora.
+         * </pre>
+         * O primeiro o MODELO inventou: nem o {@code ProtetorTermosLoreService} (que usa
+         * {@code ZXQLORE0QXZ}) nem o {@code MascaradorTags} (que usa {@code [[TAG0]]}) produzem
+         * {@code [[Nome]]}. O segundo é um {@code [[TAG0]]} MUTILADO, que escapou por não casar
+         * o padrão exato do desmascarador. Nenhuma das validações existentes olhava para isso.
+         */
+        MARCADOR_TECNICO_VAZADO("REVISAO_MARCADOR_TECNICO",
+            "a proposta contém marcador técnico [[...]], que o espectador leria na tela"),
+
         /** A proposta continua suspeita e não reduziu os motivos. */
         SEM_MELHORIA("REVISAO_SEM_MELHORIA",
             "a proposta continua suspeita e não reduziu os motivos da auditoria");
@@ -223,6 +239,14 @@ public class GuardaCorrecaoSegura {
      * @param auditoriaAnterior a auditoria da fala ATUAL, base de comparação da melhora
      * @param contexto lore e termos protegidos da obra
      */
+    /**
+     * Qualquer coisa entre colchetes DUPLOS. É a forma de todo marcador técnico do pipeline
+     * ({@code [[TAG0]]}) e também da que o modelo inventa ({@code [[Lady Haman]]}). Legenda de
+     * anime não usa colchete duplo: o padrão pode ser largo sem custo.
+     */
+    private static final java.util.regex.Pattern MARCADOR_TECNICO =
+        java.util.regex.Pattern.compile("\\[\\[|]]");
+
     public Veredicto avaliar(
         String original,
         String traducaoAtual,
@@ -232,6 +256,16 @@ public class GuardaCorrecaoSegura {
     ) {
         if (candidata == null || candidata.isBlank() || candidata.equals(traducaoAtual)) {
             return silenciosa(MotivoRecusa.VAZIA_OU_IGUAL);
+        }
+        // PRIMEIRA pergunta do portão, e a mais barata: marcador técnico na legenda é defeito
+        // que o ESPECTADOR lê. Vem antes das demais porque nenhuma delas olha para isso — as
+        // duas falas do acervo passaram por todas e foram gravadas.
+        if (MARCADOR_TECNICO.matcher(candidata).find()
+            && !MARCADOR_TECNICO.matcher(traducaoAtual == null ? "" : traducaoAtual).find()) {
+            return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
+                + "Correção rejeitada: a proposta traz marcador técnico [[...]]."
+                + AnsiCores.RESET),
+                MotivoRecusa.MARCADOR_TECNICO_VAZADO);
         }
         List<String> termosAlterados = protetorLore.termosCanonicosAlterados(
             original, candidata, contexto.lore(), contexto.termosProtegidos());
