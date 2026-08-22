@@ -204,6 +204,19 @@ public class ProvedorCorrecaoFala {
 
     private Resultado obterDoLlm(
         String originalEn, String traducaoAtual, List<String> motivos, ContextoRevisao contexto) {
+        // FALA PARTIDA POR \N, e ainda em ingles: cada metade vai ao modelo separada e a
+        // quebra volta EXATAMENTE onde estava. Vem ANTES do caminho normal de proposito: o
+        // normal tira a quebra, traduz a frase inteira e recoloca a quebra por heuristica de
+        // posicao — e quando erra ele SUCEDE (devolve texto), so o portao final reprova por
+        // quebra perdida. Como sucedeu, a rota do espelho la embaixo nunca era alcancada, e a
+        // fala ficava em ingles. Foi o teste que mostrou isso: a primeira versao desta rota
+        // estava no espelho e nao rodava nunca.
+        if (aFalaAindaEhOOriginal(originalEn, traducaoAtual)) {
+            Optional<String> porSegmento = traduzirSegmentoASegmento(originalEn, contexto);
+            if (porSegmento.isPresent() && !porSegmento.get().equals(traducaoAtual)) {
+                return new Resultado.Obtida(porSegmento.get(), false);
+            }
+        }
         TentativaRevisaoLegenda tentativa = tentarRevisarConcordancia(
             originalEn, traducaoAtual, motivos, contexto);
         if (tentativa.revisado().isEmpty() && aFalaAindaEhOOriginal(originalEn, traducaoAtual)) {
@@ -419,6 +432,95 @@ public class ProvedorCorrecaoFala {
         return Optional.of(prefixoDeTags(originalEn) + restaurado.strip());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: traduz uma fala partida por {@code \N} pedindo ao modelo <b>cada
+     * metade separada</b>, e devolve as metades unidas pela MESMA quebra. A quebra volta onde
+     * estava porque nunca saiu do lugar — não há heurística de posição envolvida.
+     *
+     * <h2>O prejuízo que originou, medido em 22/08/2026</h2>
+     * A medição de prontidão do acervo achou as falas ainda presas em inglês, e elas tinham
+     * quase todas a mesma forma:
+     * <pre>
+     * "When you're ready to see me, just go\Nto Port Blanc and say your name is Candy."
+     * "If we don't get back to Port Blanc soon,\NGottn's gonna yell at us again."
+     * "Well, I don't actually know which of\Nthe three ships is the Sadalahn."
+     * </pre>
+     * O caminho de sempre tira a quebra, manda a frase inteira e RECOLOCA a quebra escolhendo um
+     * espaço candidato. Quando escolhe errado, {@code GuardaCorrecaoSegura.perdeuQuebraDeLinha}
+     * reprova — e a fala continua em inglês, que é pior que qualquer quebra mal posta.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só age quando há quebra com TEXTO VISÍVEL dos dois lados. Quebra no começo ou no fim
+     *       é decoração de typesetting e não parte frase nenhuma.</li>
+     *   <li>O número de segmentos devolvidos é o mesmo da entrada. Se qualquer metade voltar
+     *       vazia, igual ao inglês ou reprovada pelo validador, a rota INTEIRA desiste e devolve
+     *       {@code Optional.empty()} — meia fala traduzida é pior que nenhuma.</li>
+     *   <li>Cada metade vai <b>sem marcador</b>, como no espelho: é texto visível, e não há o que
+     *       o modelo perca.</li>
+     *   <li>Termos de lore continuam mascarados e restaurados por metade.</li>
+     *   <li>O prefixo de tags do original é recolocado na frente, uma vez só.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer etapa sem resultado devolve
+     * {@code Optional.empty()} e o fluxo segue para o espelho de frase inteira e, depois, para o
+     * Google. Nunca lança.
+     */
+    private Optional<String> traduzirSegmentoASegmento(
+        String originalEn, ContextoRevisao contexto) {
+        String visivelTodo = protecaoAss.textoVisivel(originalEn);
+        if (visivelTodo == null || visivelTodo.isBlank()) {
+            return Optional.empty();
+        }
+        String semPrefixo = originalEn.substring(prefixoDeTags(originalEn).length());
+        String[] partes = semPrefixo.split(java.util.regex.Pattern.quote("\\N"), -1);
+        if (partes.length < 2) {
+            return Optional.empty();
+        }
+        java.util.List<String> visiveis = new java.util.ArrayList<>();
+        for (String parte : partes) {
+            String v = protecaoAss.textoVisivel(parte);
+            if (v == null || v.isBlank()) {
+                return Optional.empty(); // quebra de decoracao, nao parte frase
+            }
+            visiveis.add(v.strip());
+        }
+
+        java.util.List<String> traduzidas = new java.util.ArrayList<>();
+        for (String visivel : visiveis) {
+            ProtetorTermosLoreService.TextoProtegido protegido = protetorLore.mascarar(
+                visivel, contexto.lore(), contexto.termosProtegidos());
+            Optional<String> resposta = llmPort.corrigirTraducao(
+                protegido.textoMascarado(), protegido.textoMascarado(),
+                PoliticaRetraducao.NAO_TRADUZIDA
+                    + " — traduzir integralmente para português do Brasil");
+            if (resposta.isEmpty()) {
+                return Optional.empty();
+            }
+            String restaurado = protetorLore.restaurar(resposta.get(), protegido);
+            if (restaurado == null || restaurado.isBlank()) {
+                return Optional.empty();
+            }
+            restaurado = restaurado.strip();
+            if (restaurado.equalsIgnoreCase(visivel)) {
+                return Optional.empty(); // o modelo devolveu o ingles: nao resolveu nada
+            }
+            traduzidas.add(restaurado);
+        }
+
+        // VALIDA A FALA MONTADA, nunca a metade. O validador foi feito para a fala inteira, e
+        // metade de frase e pouco texto: validando cada pedaco, o detector de idioma barrou
+        // "Se nao voltarmos logo para Port Blanc," como "nao e PT-BR" — portugues perfeito,
+        // recusado por ter um nome proprio ingles em poucas palavras. Instrumento aplicado
+        // fora do dominio dele reprova o que esta certo.
+        String montada = prefixoDeTags(originalEn) + String.join("\\N", traduzidas);
+        try {
+            validador.validarFala(montada);
+        } catch (AlucinacaoDetectadaException e) {
+            return Optional.empty();
+        }
+        return Optional.of(montada);
+    }
     /**
      * PROPÓSITO DE NEGÓCIO: o bloco de tags que abre a linha — o que carrega posicionamento e
      * estilo, e cuja perda MOVE a legenda na tela.
