@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **481** |
-| classes em `src/test` | **389** |
+| classes em `src/main` | **484** |
+| classes em `src/test` | **392** |
 
 ---
 
@@ -42,7 +42,7 @@ graph TB
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (15)"]:::peer
-    BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (30)"]:::base
+    BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
     G1 --> PEERS
     G2 --> PEERS
@@ -836,7 +836,7 @@ config/
 └── ModoExecucaoStartup.java
 ```
 
-#### `core` — 30 classes
+#### `core` — 33 classes
 
 ```text
 core/
@@ -875,6 +875,10 @@ core/
 │   │   ├── DicionarioOrtograficoPort.java
 │   │   ├── HunspellDicionarioAdapter.java
 │   │   └── VeredictoPalavra.java
+│   ├── gramatica/
+│   │   ├── AchadoGramatical.java
+│   │   ├── LanguageToolRevisorAdapter.java
+│   │   └── RevisorGramaticalPort.java
 │   ├── FronteiraTermoAss.java
 │   ├── TextoSemTags.java
 │   └── TokenDeControleLlm.java
@@ -886,7 +890,7 @@ core/
 
 ---
 
-## Testes — 389 classes
+## Testes — 392 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1019,7 +1023,7 @@ config/
 └── ModoExecucaoDispatcherTest.java
 ```
 
-#### `core` — 22 classes
+#### `core` — 23 classes
 
 ```text
 core/
@@ -1047,6 +1051,8 @@ core/
 │   │   ├── PalavraDeTresLetrasTest.java
 │   │   ├── ReparoDeTerminacaoAoTest.java
 │   │   └── RomajiRotulaMasNaoIsentaTest.java
+│   ├── gramatica/
+│   │   └── LanguageToolRevisorAdapterTest.java
 │   ├── FronteiraTermoAssTest.java
 │   ├── TextoSemTagsTest.java
 │   └── TokenDeControleLlmTest.java
@@ -1184,7 +1190,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 25 classes
+#### `medicao` — 27 classes
 
 ```text
 medicao/
@@ -1194,6 +1200,7 @@ medicao/
 ├── CorretorLoreEhIdempotenteIT.java
 ├── EnsaioReforcoTerminologiaIT.java
 ├── LeitorAcervoCache.java
+├── MedicaoAcentoQueColideComVerboIT.java
 ├── MedicaoAnomaliaIntroduzidaIT.java
 ├── MedicaoAuditoriaAcervoIT.java
 ├── MedicaoCamadaRepetidaIT.java
@@ -1212,7 +1219,8 @@ medicao/
 ├── MedicaoResiduoNoAcervoIT.java
 ├── MedicaoTermoPerdidoIT.java
 ├── MineracaoGlossarioIT.java
-└── ProvenienciaAindaValeIT.java
+├── ProvenienciaAindaValeIT.java
+└── SpikeLanguageToolContraGoldSetIT.java
 ```
 
 #### `novoKaraoke` — 2 classes
