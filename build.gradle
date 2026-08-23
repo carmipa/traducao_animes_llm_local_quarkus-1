@@ -6,6 +6,20 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+
+    // UM modulo, e so ele: o dicionario POS do portugues do LanguageTool foi publicado
+    // no Central com o POM QUEBRADO NA ORIGEM — <version>${env.PT_DICT_VERSION}</version>,
+    // o placeholder literal em vez do numero. Gradle e Maven morrem ao ler, e nem a
+    // notacao @jar salva, porque o metadado continua sendo buscado.
+    //
+    // `metadataSources { artifact() }` manda pegar o JAR e ignorar o POM. O `content`
+    // ao lado e o que torna isto seguro: vale para ESTE modulo e mais nenhum — o resto
+    // do projeto continua com resolucao normal, com metadado e com transitivas.
+    maven {
+        url = 'https://repo1.maven.org/maven2'
+        metadataSources { artifact() }
+        content { includeModule('org.languagetool', 'portuguese-pos-dict') }
+    }
 }
 
 dependencies {
@@ -48,7 +62,49 @@ dependencies {
     // contraexemplo sozinha — que e o que faltava. Motor proprio na plataforma JUnit 5,
     // convive com o Jupiter sem excluir nada.
     testImplementation 'net.jqwik:jqwik:1.9.2'
+
+    // GRAMATICA pt-BR (2026-08-23). Entrou como spike em escopo de teste e foi PROMOVIDO
+    // depois de ganhar no numero, medido contra um gold set de 60 falas lidas a mao no
+    // Macross II — ver SpikeLanguageToolContraGoldSetIT, que continua no repositorio
+    // como o experimento que justificou esta linha.
+    //
+    // Por que este: Java puro, roda 100% OFFLINE embutido — nao viola "o KRONOS e local"
+    // e nao exige runtime novo (spaCy/UDPipe exigiriam Python). E traz o que nenhum
+    // instrumento nosso tinha: POS tagger com desambiguacao. E ele que separa
+    // `a noticia` (substantivo) de `ele noticia` (verbo) — a classe que o hunspell nao
+    // ve, porque para o dicionario as DUAS formas existem.
+    //
+    // O numero que decidiu, so com as categorias que ficaram ligadas: 23 acertos contra
+    // 5 alarmes. Com o corretor ortografico dele ligado eram 92 alarmes, quase todos em
+    // nome de lore — por isso ele entra DESLIGADO no adaptador.
+    //
+    // O dicionario POS vem SEPARADO, e nao como transitiva, porque o POM dele esta
+    // quebrado na origem — o motivo inteiro esta no bloco `repositories` acima.
+    implementation('org.languagetool:language-pt:6.4') {
+        exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
+    }
+    implementation 'org.languagetool:portuguese-pos-dict:0.12'
 }
+
+/**
+ * Os dois tetos de entidade XML que o `grammar.xml` do portugues do LanguageTool estoura.
+ *
+ * O primeiro aparece de cara — "accumulated size of entities is 100.096 that exceeded the
+ * 100.000 limit" (JAXP00010004), por 96 bytes. O segundo so aparece DEPOIS de o primeiro subir:
+ * numero de expansoes (JAXP00010001), com teto de 2500 nesta JVM.
+ *
+ * Os tetos existem contra o ataque "billion laughs", entao os valores aqui sao FINITOS de
+ * proposito — desligar com 0 tiraria a protecao de vez. O que se esta lendo e um arquivo de
+ * recurso de uma biblioteca conhecida, nao entrada de usuario.
+ *
+ * NAO adianta setar por System.setProperty dentro do codigo: o JAXP le o limite quando a fabrica
+ * de parser nasce, e nesse ponto ela ja existe. Medido em 23/08/2026 — a primeira tentativa foi
+ * exatamente essa, e falhou com a mesma excecao.
+ */
+ext.TETOS_XML_DO_LANGUAGETOOL = [
+    '-Djdk.xml.totalEntitySizeLimit=5000000',
+    '-Djdk.xml.entityExpansionLimit=200000'
+]
 
 group = 'org.traducao.projeto'
 version = '1.0.0-SNAPSHOT'
@@ -64,6 +120,8 @@ compileJava {
 }
 
 test {
+    jvmArgs TETOS_XML_DO_LANGUAGETOOL
+
     // O worker de teste do Gradle nasce com 512m; a suíte completa (com os
     // @QuarkusTest subindo a aplicação) estoura o heap nesse padrão.
     maxHeapSize = '1g'
@@ -136,6 +194,12 @@ quarkusDev {
     if (System.getProperty('kronos.dir.base') != null) {
         args << "-Dkronos.dir.base=${System.getProperty('kronos.dir.base')}".toString()
     }
+
+    // Os dois tetos de entidade XML que o LanguageTool estoura ao carregar as regras de
+    // gramatica pt-BR. Sem eles a revisao gramatical nasce INDISPONIVEL em modo dev — e como
+    // ela falha fechada e declara isso, o sintoma seria a tela dizendo "nao verifiquei" para
+    // sempre, sem ninguem entender por que. Motivo completo na constante.
+    args.addAll(TETOS_XML_DO_LANGUAGETOOL)
 
     // CARIMBO DA EXECUCAO: da nome unico ao log desta subida (ver application.yml e
     // core.io.FaxinaLogExecucao). Sem ele todas as execucoes escreveriam no MESMO arquivo, e

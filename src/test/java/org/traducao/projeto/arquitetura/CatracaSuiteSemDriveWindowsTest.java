@@ -156,7 +156,16 @@ class CatracaSuiteSemDriveWindowsTest {
         // concordancia existem que as listas curadas NAO veem", perguntando ao dicionario pt_BR
         // em vez de a uma lista de 20 substantivos. Mesma natureza das demais: "C:\animes" e o
         // default de -Dkronos.acervo, e caminho relativo mediria o vazio.
-        "MedicaoConcordanciaPorDicionarioIT.java"
+        "MedicaoConcordanciaPorDicionarioIT.java",
+        // Entrou em 23/08/2026, e mede a classe que TODO instrumento por dicionario e cego para
+        // ver: a palavra sem acento que TAMBEM e palavra, quase sempre uma forma verbal
+        // (`a noticia` x `ele noticia`). Mesma natureza das demais — "C:\animes" e o default de
+        // -Dkronos.acervo, e caminho relativo mediria o vazio.
+        "MedicaoAcentoQueColideComVerboIT.java",
+        // Entrou em 23/08/2026: e o experimento que decidiu, com numero, se o LanguageTool entra
+        // no projeto — medido contra um gold set de 60 falas lidas a mao no Macross II. Le a obra
+        // no acervo real pelo mesmo default das demais.
+        "SpikeLanguageToolContraGoldSetIT.java"
     );
 
     /** Construção Path com letra de drive no primeiro argumento string. */
