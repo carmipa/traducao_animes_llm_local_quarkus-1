@@ -1,6 +1,51 @@
 # FECHADO (2026-08-22) — acervo traduzido sem italico de dialogo, sem marcador vazado
 
-## PROXIMA ACAO EXECUTAVEL EXATA
+## PROXIMA ACAO EXECUTAVEL EXATA (22/08/2026, 21:55)
+
+**Portar `checar-memoria.sh` para `checar-memoria.ps1`.** O `checar-portao.ps1` revisado em
+20/08 delega a secao 4 a `C:\Users\Paulo\.claude\checar-memoria.ps1`, que **nunca foi
+escrito** — so existe a versao `.sh`, em
+`cerebro_de_ia/instrucoes/protocolo-engenharia-cheffzy/04-GUARDAS-EXECUTAVEIS/checar-memoria.sh`
+(121 linhas). Enquanto faltar, o portao sai `2` (NAO VERIFICOU) em TODA sessao, para sempre —
+e `2` nao e aprovacao. Contrato exigido: sair `0` / `1` / `2`, e nasce com caso-controle
+(regra 9) e com a linha de base de ausencias ja declaradas
+(`reference_memorias_ausentes_do_pacote.md`), senao reprova divida herdada e ensina a
+desligar o alarme.
+
+```powershell
+pwsh -NoProfile -File "$HOME\.claude\checar-portao.ps1" -Sessao <id>   # hoje: rc=2 por isto
+```
+
+**Armadilha ja paga hoje:** conferir o portao SEM `-Sessao` faz ele cair no
+`LEITURA-REGRA-ATUAL.md` legado e acusar "SHA DIVERGE" em documento que nao mudou. Sempre com
+`-Sessao`.
+
+---
+
+## FECHADO EM 22/08 — a 3.3 aplicada nas 11 obras de 21-22/08
+
+A passada do Paulo (12 execucoes, 21:24-21:29) rodou **inteira em dry-run**: nada gravado,
+`Backups: 0` nas doze, nenhum `.ass` escrito depois das 20:54. Cobertura estava completa
+(207 arquivos = exatamente o que foi escrito em 21-22/08), so faltava gravar.
+
+```
+aplicado 21:48-21:49, via POST /api/revisar-concordancia {"aplicar": true}
+  74 falas corrigidas   (69 nas onze pastas + 5 no F91)  == o previsto no dry-run
+  61 arquivos alterados de 207 revisados
+  61 backups em backup_revisao_concordancia/ ao lado de cada arquivo
+  estilo das 74 linhas: Dialogue (44) + Default (30)  -> ZERO linha musical
+  contagem de Dialogue: identica antes/depois (conferido no F91: 2171 -> 2171)
+  idempotencia: 2a passada nas 12 pastas -> 12/12 "NADA A CORRIGIR", 0 falas
+```
+
+As 74 foram lidas uma a uma antes de gravar. Duas respeitam a quebra `\N`
+(`ajudando\Nnas` -> `ajudando\Nnos`) e uma preserva a tag (`{\q2}Os` -> `{\q2}As`). O corretor
+discrimina: mudou `essa luxo` -> `esse luxo` e NAO tocou nas quatro linhas
+`essa "Caixa de Laplace"`, que estao certas.
+
+---
+
+## Anterior — o que sobrou de italico/marcador
 
 **Nao ha pendencia de italico nem de marcador.** O que sobrou tem dono declarado:
 
