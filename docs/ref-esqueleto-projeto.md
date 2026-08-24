@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **485** |
-| classes em `src/test` | **395** |
+| classes em `src/main` | **487** |
+| classes em `src/test` | **397** |
 
 ---
 
@@ -37,7 +37,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
-    G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (5)"]:::fatia
+    G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (7)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
@@ -500,11 +500,13 @@ revisaoLore/
     └── RevisaoLoreController.java
 ```
 
-#### `revisaoConcordancia` — 5 classes
+#### `revisaoConcordancia` — 7 classes
 
 ```text
 revisaoConcordancia/
 ├── application/
+│   ├── CorretorAcentoDeDicionarioNaFalaService.java
+│   ├── CorretorAcentoPorPadraoService.java
 │   ├── CorretorAcentoQueColideComVerboService.java
 │   ├── CorretorConcordanciaGeneroService.java
 │   └── RevisarConcordanciaUseCase.java
@@ -891,7 +893,7 @@ core/
 
 ---
 
-## Testes — 395 classes
+## Testes — 397 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1361,12 +1363,14 @@ renomearArquivos/
     └── RenomeadorUseCaseTest.java
 ```
 
-#### `revisaoConcordancia` — 5 classes
+#### `revisaoConcordancia` — 7 classes
 
 ```text
 revisaoConcordancia/
 └── application/
     ├── ConsoleDaRevisaoConcordanciaTest.java
+    ├── CorretorAcentoDeDicionarioNaFalaServiceTest.java
+    ├── CorretorAcentoPorPadraoServiceTest.java
     ├── CorretorAcentoQueColideComVerboServiceTest.java
     ├── CorretorConcordanciaGeneroServiceTest.java
     ├── DiagnosticoCorretorConcordanciaIT.java

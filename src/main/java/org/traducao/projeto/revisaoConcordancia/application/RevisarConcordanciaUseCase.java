@@ -74,6 +74,19 @@ public class RevisarConcordanciaUseCase {
      */
     private final CorretorAcentoQueColideComVerboService corretorAcento;
 
+    /**
+     * O TERCEIRO corretor: os padrões curados para o acento que o revisor gramatical tem regra e
+     * não dispara — {@code "Isso e tudo"}, {@code "Você esta falando"}. Medido em 24/08/2026:
+     * 1.008 ocorrências no acervo, amostra lida uma a uma.
+     */
+    private final CorretorAcentoPorPadraoService corretorPadrao;
+
+    /**
+     * O QUARTO: o acento da palavra que o dicionário REJEITA ({@code territorio}, {@code serao}),
+     * pelo corretor de produção, com os nomes próprios da própria fala como intocáveis.
+     */
+    private final CorretorAcentoDeDicionarioNaFalaService corretorDicionario;
+
     private final TelemetriaService telemetriaService;
 
     /**
@@ -103,12 +116,16 @@ public class RevisarConcordanciaUseCase {
         LeitorLegendaAss leitor, EscritorLegendaAss escritor,
         CorretorConcordanciaGeneroService corretor,
         CorretorAcentoQueColideComVerboService corretorAcento,
+        CorretorAcentoPorPadraoService corretorPadrao,
+        CorretorAcentoDeDicionarioNaFalaService corretorDicionario,
         TelemetriaService telemetriaService,
         PoliticaEstiloMusical politicaEstiloMusical) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.corretor = corretor;
         this.corretorAcento = corretorAcento;
+        this.corretorPadrao = corretorPadrao;
+        this.corretorDicionario = corretorDicionario;
         this.telemetriaService = telemetriaService;
         this.politicaEstiloMusical = politicaEstiloMusical;
     }
@@ -168,9 +185,16 @@ public class RevisarConcordanciaUseCase {
                     // porque ele decide por determinante e uma palavra ja acentuada pelo segundo
                     // continuaria casando igual — mas o contrario nao vale, ja que trocar o
                     // determinante muda o contexto que o revisor gramatical le.
+                    // QUATRO corretores em cadeia. A ordem importa e esta e a razao de cada
+                    // posicao: genero primeiro, porque decide por determinante e nao se importa
+                    // com acento; depois os tres de acento, do mais especifico (POS tagger) para
+                    // o mais mecanico (dicionario), para que o mais informado tenha a primeira
+                    // palavra sobre a mesma fala.
                     String antes = evento.texto();
                     String porGenero = corretor.corrigir(antes).orElse(antes);
-                    String depois = corretorAcento.corrigir(porGenero).orElse(porGenero);
+                    String comAcento = corretorAcento.corrigir(porGenero).orElse(porGenero);
+                    comAcento = corretorPadrao.corrigir(comAcento).orElse(comAcento);
+                    String depois = corretorDicionario.corrigir(comAcento).orElse(comAcento);
                     if (!porGenero.equals(antes)) {
                         porGeneroTotal++;
                     }
