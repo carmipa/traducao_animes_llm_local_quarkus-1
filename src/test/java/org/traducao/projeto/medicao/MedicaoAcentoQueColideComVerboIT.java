@@ -1,81 +1,71 @@
 package org.traducao.projeto.medicao;
 
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.traducao.projeto.legenda.domain.DocumentoLegenda;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.revisaoConcordancia.application.CorretorAcentoQueColideComVerboService;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-import org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda;
-import org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra;
-import org.traducao.projeto.legenda.domain.DocumentoLegenda;
-import org.traducao.projeto.legenda.domain.EventoLegenda;
-import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
-import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
-
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
-
 /**
- * PROPÓSITO DE NEGÓCIO: medir, no acervo inteiro, a classe de falta de acento que TODO
- * instrumento por dicionário é cego para enxergar — a palavra sem acento que, sem o acento,
- * <b>também é uma palavra do português</b>, normalmente uma forma verbal.
+ * PROPÓSITO DE NEGÓCIO: medir, no acervo, o que a reposição de acento da 3.3 <b>faria</b> se
+ * rodasse hoje — quantas falas, em que obras, e trocando o quê por quê.
  *
- * <h2>O prejuízo que originou (2026-08-23), e a frase do Paulo que nomeia a classe</h2>
- * Paulo pediu a verificação do Macross II: <i>"a concordância está bem ruim naquele anime"</i>.
- * Os episódios 1 e 2 têm <b>12,5% das falas com defeito</b> — e a tela 3.3 devolveu, com razão,
- * "NADA A CORRIGIR": só existe UM caso da classe dela nos dois arquivos. O que está ruim é
- * acento, e ele passa por três peneiras sem ser visto:
+ * <h2>A primeira versão deste arquivo estava ERRADA, e o erro fica escrito aqui</h2>
+ * Em 23/08/2026 esta medição foi escrita perguntando ao <b>dicionário</b>: se a palavra está sem
+ * acento e existe uma variante acentuada, seria falta de acento. Rodou no Macross II e produziu
+ * lixo, com uma cara muito convincente:
  *
  * <pre>
- *   "A milicia ordenou um blackout de noticias"    milicia, noticias
- *   "Estabeleça a linha de frente na orbita"       orbita
- *   "você ganhou o premio para a história"         premio
- *   "Um ponto valido. O corpo pode temer a morte"  valido
+ *   terra   -> terrá      batalha -> batalhá     garota -> garotá
+ *   sistema -> sistemá    combate -> combatê     minha  -> minhã
  * </pre>
  *
- * O {@code NormalizadorAcentosComuns} não as tem na lista nominal (166 pares, quase toda
- * {@code -ao}/{@code -cao}). E o {@code CorretorAcentoPorDicionario}, que alcançaria qualquer
- * palavra, <b>só age no que o dicionário REJEITA</b> — e o hunspell ACEITA todas elas, porque
- * {@code ele noticia}, {@code o satélite orbita}, {@code eu premio} e {@code eu valido} são
- * conjugações legítimas. Confirmado no {@code pt_BR.dic}: {@code futila/B} está lá.
+ * O hunspell aceita <b>as duas formas de cada par</b> — {@code terra} é o substantivo e
+ * {@code terrá} é o futuro de {@code terrar}. Saber que a variante acentuada existe não diz qual
+ * das duas é a certa <b>naquela frase</b>. É exatamente a lição que este projeto já tinha
+ * registrado em 19/08/2026, reconstruída numa forma nova: a existência da palavra não decide
+ * direção; só a classe gramatical no contexto decide.
  *
- * <p>Paulo descreveu exatamente isto: <i>"muitas vezes ficou invertido o verbo e substantivo"</i>.
- * Onde a inversão acontece, a existência da palavra deixa de ser evidência de nada.
+ * <p>E havia um segundo defeito, este de custo: 2.911 formas levaram <b>240 segundos</b> de
+ * dicionário para UMA obra. No acervo inteiro seriam horas — o instrumento nunca foi viável.
  *
- * <h2>A evidência que substitui o dicionário: o DETERMINANTE</h2>
- * {@code a noticia} não pode ser verbo — artigo não rege verbo. É a mesma forma de raciocínio da
- * tela 3.3, que também decide por determinante + substantivo. Onde não há determinante, este
- * instrumento <b>não opina</b>: {@code ele noticia o fato} nunca entra na conta, por construção.
+ * <h2>O que ele é agora: a produção respondendo por si</h2>
+ * Esta versão não decide nada. Ela pergunta ao
+ * {@link CorretorAcentoQueColideComVerboService} — o MESMO objeto que a tela 3.3 usa, com o mesmo
+ * POS tagger, as mesmas categorias e as mesmas travas — <i>o que você faria com esta fala?</i>.
+ * Critério que a produção já implementa é CONSULTADO, nunca copiado: a segunda implementação
+ * sempre diverge, e a divergência só aparece quando já estragou arquivo.
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>READ-ONLY. Mede e imprime; não escreve no acervo.</li>
- *   <li>Mesmo universo dos harnesses irmãos: sem música (pela {@link PoliticaEstiloMusical}, que
- *       é a dona da pergunta) e sem {@code .parcial}.</li>
- *   <li><b>Quem decide se a forma acentuada existe é o dicionário de produção</b>, pela porta —
- *       nenhuma lista de acentos escrita à mão aqui.</li>
- *   <li>Só entra a palavra com <b>exatamente UMA</b> forma acentuada conhecida. Duas ou mais é
- *       ambiguidade real e sai em lista separada, para leitura humana, nunca para correção.</li>
- *   <li>Controle positivo e negativo no MESMO experimento; se o instrumento errar qualquer um,
- *       nenhum número do acervo é afirmado.</li>
+ *   <li>Mesmo universo das telas: sem música (pela {@link PoliticaEstiloMusical}, dona da
+ *       pergunta) e sem {@code .parcial}.</li>
+ *   <li>Revisor gramatical indisponível termina como <b>NÃO VERIFICADO</b> e não afirma número —
+ *       zero por motor morto tem a mesma cara de acervo limpo, e essa é a confusão que a
+ *       invariante 12 proíbe.</li>
+ *   <li>Filtro opcional por obra ({@code -Dkronos.medicao.obra}) e progresso por obra: sem eles,
+ *       "trabalhando" e "parada" têm a mesma cara no terminal.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Dicionário indisponível ou sonda sem discriminar termina declarando isso e sem afirmar número.
+ * Acervo ausente ou filtro sem casamento termina declarando isso, sem número.
  *
  * <p>Uso: {@code gradlew test --tests "*MedicaoAcentoQueColideComVerboIT*" "-Dkronos.medicao=true"}
  */
@@ -84,8 +74,14 @@ import jakarta.inject.Inject;
 class MedicaoAcentoQueColideComVerboIT {
 
     private static final Path RAIZ = Path.of(System.getProperty("kronos.acervo", "C:\\animes"));
+
+    /**
+     * Filtro OPCIONAL por obra ({@code -Dkronos.medicao.obra=Macross}). Existe por disciplina:
+     * provar o instrumento numa obra antes de soltá-lo em 236 arquivos custa trinta segundos, e
+     * foi pular esse passo que fez a primeira versão rodar meia hora produzindo lixo.
+     */
+    private static final String FILTRO_OBRA = System.getProperty("kronos.medicao.obra", "");
     private static final int AMOSTRAS = 3;
-    private static final int BLOCO = 3000;
 
     @Inject
     LeitorLegendaAss leitor;
@@ -94,102 +90,62 @@ class MedicaoAcentoQueColideComVerboIT {
     PoliticaEstiloMusical politicaEstiloMusical;
 
     @Inject
-    CorretorOrtograficoLegenda dicionario;
+    CorretorAcentoQueColideComVerboService corretor;
 
-    /**
-     * Determinantes que provam substantivo. O {@code a}/{@code as} fica FORA: também é
-     * preposição, e foi por confundir os dois que o corretor de concordância estragou 14 falas
-     * de "graças a Deus" em 19/08/2026. O {@code esta}/{@code estas} também fica fora — é o
-     * verbo "está" sem acento, que é justamente o defeito que se está medindo.
-     */
-    private static final Set<String> DETERMINANTES = Set.of(
-        "o", "os", "um", "uns", "este", "estes", "esse", "esses", "aquele", "aqueles",
-        "do", "dos", "no", "nos", "ao", "aos", "pelo", "pelos", "num", "nuns",
-        "meu", "meus", "seu", "seus", "nosso", "nossos",
-        "uma", "umas", "essa", "essas", "aquela", "aquelas",
-        "da", "das", "na", "nas", "pela", "pelas", "numa", "numas",
-        "minha", "minhas", "sua", "suas", "nossa", "nossas", "à", "às");
-
-    private static final Pattern PAR = Pattern.compile(
-        "(?<![\\p{L}\\p{N}])(\\p{L}+)\\s+(\\p{L}{4,})(?![\\p{L}\\p{N}])",
-        Pattern.UNICODE_CHARACTER_CLASS);
-
-    private static final Pattern TAG = Pattern.compile("\\{[^{}]*}");
-
-    /**
-     * As trocas de UMA letra que produzem acento em português. Uma só por palavra: palavra do
-     * português tem no máximo um acento gráfico, e permitir duas explodiria o espaço de busca
-     * com formas que o dicionário teria de recusar uma a uma.
-     */
-    private static final Map<Character, String> ACENTOS = new LinkedHashMap<>();
-
-    static {
-        ACENTOS.put('a', "áàâã");
-        ACENTOS.put('e', "éê");
-        ACENTOS.put('i', "í");
-        ACENTOS.put('o', "óôõ");
-        ACENTOS.put('u', "úü");
-        ACENTOS.put('c', "ç");
-    }
-
-    /**
-     * O TREMA entra por decisão de Paulo (2026-08-23), e o que a medição mostrou fica escrito
-     * aqui porque muda o que se deve OLHAR no relatório, não se o {@code ü} entra.
-     *
-     * <pre>
-     *   lingüiça  freqüente  tranqüilo  agüentar   -> o pt_BR.dic REJEITA (Acordo de 1990)
-     *   linguiça  frequente  tranquilo  aguentar   -> ACEITA
-     *   Müller    Bündchen                         -> ACEITA (nome estrangeiro manteve o trema)
-     * </pre>
-     *
-     * <p>Consequência prática: em palavra comum o {@code ü} é <b>inerte</b> — a forma
-     * pré-reforma não está no dicionário, então a variante nasce e morre na mesma consulta.
-     * Onde ele age é em <b>nome próprio estrangeiro</b>: {@code Muller} vira {@code Müller},
-     * e isso é renomear pessoa, que é o território da lore.
-     *
-     * <p>Por isso o trema não é proibido aqui, é <b>SEPARADO</b>: toda correção que produz
-     * {@code ü} sai numa seção própria do relatório, para leitura humana, e nunca some no meio
-     * das correções de palavra comum. Lacuna conhecida é permitida; lacuna silenciosa não.
-     *
-     * <p>E o caso que faz lembrar do trema já estava coberto por outra letra: {@code linguica}
-     * vira {@code linguiça} pelo {@code c -> ç}, sem trema nenhum.
-     */
-    private static final char TREMA = 'ü';
-
-    private record Ocorrencia(String determinante, String palavra, String obra, String fala) {}
+    /** Uma fala que MUDARIA, com o antes e o depois inteiros para leitura humana. */
+    private record Mudanca(String obra, String antes, String depois) {}
 
     @Test
-    @DisplayName("mede o acento que colide com forma verbal — a classe cega do dicionario")
+    @DisplayName("mede o que a reposicao de acento da 3.3 faria no acervo, perguntando a producao")
     void medir() throws IOException {
-        System.out.printf("%n=== ACENTO QUE COLIDE COM VERBO — acervo %s ===%n", RAIZ);
+        System.out.printf("%n=== ACENTO QUE COLIDE COM VERBO — o que a 3.3 faria em %s ===%n", RAIZ);
         if (!Files.isDirectory(RAIZ)) {
             System.out.println("NAO VERIFICADO: acervo ausente em " + RAIZ);
             return;
         }
-
-        // ---------- sonda: o dicionario discrimina? ----------
-        Map<String, VeredictoPalavra> sonda = dicionario.classificar(
-            new LinkedHashSet<>(List.of("notícia", "noticia", "xkcdqwzp")));
-        boolean discrimina = dicionario.disponivel()
-            && sonda.get("notícia") == VeredictoPalavra.PORTUGUES_OK
-            && sonda.get("xkcdqwzp") != VeredictoPalavra.PORTUGUES_OK;
-        if (!discrimina) {
-            System.out.printf("NAO VERIFICADO: dicionario nao discriminou na sonda "
-                + "(notícia=%s, noticia=%s, xkcdqwzp=%s). Nenhum numero afirmado.%n",
-                sonda.get("notícia"), sonda.get("noticia"), sonda.get("xkcdqwzp"));
+        if (!corretor.disponivel()) {
+            System.out.println("NAO VERIFICADO: revisor gramatical indisponivel — "
+                + corretor.motivoDaIndisponibilidade()
+                + ". Zero mudancas aqui teria a mesma cara de acervo limpo, entao nenhum numero "
+                + "e afirmado.");
             return;
         }
-        System.out.printf("  sonda: notícia=%s  noticia=%s  xkcdqwzp=%s%n",
-            sonda.get("notícia"), sonda.get("noticia"), sonda.get("xkcdqwzp"));
 
-        // ---------- 1. varredura ----------
-        List<Ocorrencia> ocorrencias = new ArrayList<>();
-        int falas = 0;
+        // CONTROLE, no mesmo experimento: se o corretor nao fizer o obvio, nada abaixo vale.
+        Optional<String> positivo = corretor.corrigir("A milicia ordenou um blackout de noticias.");
+        Optional<String> negativo = corretor.corrigir("O reporter noticia o caso todo dia.");
+        if (positivo.isEmpty() || negativo.isPresent()) {
+            System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — positivo=%s negativo=%s. "
+                + "Nenhum numero do acervo vale.%n", positivo, negativo);
+            return;
+        }
+        System.out.printf("  controle: POSITIVO ok (%s) · NEGATIVO ok (nao tocou no verbo)%n",
+            positivo.get());
+
         List<Path> obras;
         try (Stream<Path> s = Files.list(RAIZ)) {
-            obras = s.filter(Files::isDirectory).sorted().toList();
+            obras = s.filter(Files::isDirectory)
+                .filter(o -> FILTRO_OBRA.isBlank()
+                    || o.getFileName().toString().toLowerCase().contains(FILTRO_OBRA.toLowerCase()))
+                .sorted().toList();
         }
+        if (obras.isEmpty()) {
+            System.out.println("NAO VERIFICADO: nenhuma obra casou o filtro \"" + FILTRO_OBRA
+                + "\". Zero por filtro errado tem a mesma cara de acervo limpo.");
+            return;
+        }
+        if (!FILTRO_OBRA.isBlank()) {
+            System.out.printf("  FILTRO por obra: \"%s\" -> %d pasta(s)%n", FILTRO_OBRA, obras.size());
+        }
+
+        List<Mudanca> mudancas = new ArrayList<>();
+        Map<String, Integer> falasPorObra = new TreeMap<>();
+        Map<String, Integer> mudancasPorObra = new TreeMap<>();
+        int falasTotal = 0;
+        long t0 = System.currentTimeMillis();
+
         for (Path obra : obras) {
+            String nome = obra.getFileName().toString();
             List<Path> arquivos;
             try (Stream<Path> s = Files.walk(obra)) {
                 arquivos = s.filter(Files::isRegularFile)
@@ -199,6 +155,11 @@ class MedicaoAcentoQueColideComVerboIT {
                         && "traducao_ptbr".equals(p.getParent().getFileName().toString()))
                     .sorted().toList();
             }
+            if (arquivos.isEmpty()) {
+                continue;
+            }
+            int falasObra = 0;
+            int mudancasObra = 0;
             for (Path arquivo : arquivos) {
                 DocumentoLegenda documento;
                 try {
@@ -213,190 +174,73 @@ class MedicaoAcentoQueColideComVerboIT {
                     if (evento.estilo() != null && politicaEstiloMusical.estiloIgnorado(evento.estilo())) {
                         continue;
                     }
-                    falas++;
-                    colher(visivel(evento.texto()), obra.getFileName().toString(), ocorrencias);
+                    falasObra++;
+                    Optional<String> nova = corretor.corrigir(evento.texto());
+                    if (nova.isPresent()) {
+                        mudancasObra++;
+                        mudancas.add(new Mudanca(nome, evento.texto(), nova.get()));
+                    }
                 }
             }
+            falasTotal += falasObra;
+            falasPorObra.put(nome, falasObra);
+            mudancasPorObra.put(nome, mudancasObra);
+            // Progresso POR OBRA, com o numero DELA e nao o acumulado: a primeira versao imprimia
+            // o total corrente e as tres pastas Macross sairam todas com "1381 falas", o que fez
+            // parecer que cada uma tinha o mesmo conteudo.
+            System.out.printf("    [%-26s] %6d falas · %4d mudariam%n",
+                curto(nome), falasObra, mudancasObra);
         }
 
-        // ---------- 2. uma pergunta em lote: palavras e variantes acentuadas ----------
-        Set<String> aPerguntar = new LinkedHashSet<>();
-        Map<String, List<String>> variantesDe = new LinkedHashMap<>();
-        for (Ocorrencia o : ocorrencias) {
-            String p = o.palavra().toLowerCase();
-            if (variantesDe.containsKey(p)) {
-                continue;
-            }
-            List<String> vars = variantesAcentuadas(p);
-            variantesDe.put(p, vars);
-            aPerguntar.add(p);
-            aPerguntar.addAll(vars);
-        }
-        Map<String, VeredictoPalavra> veredicto = classificarEmBlocos(aPerguntar);
+        long ms = System.currentTimeMillis() - t0;
+        System.out.printf("%n  falas ao alcance ....... %d em %d obra(s)%n", falasTotal, falasPorObra.size());
+        System.out.printf("  falas que MUDARIAM ..... %d%n", mudancas.size());
+        System.out.printf("  custo .................. %d ms (%.2f ms por fala)%n",
+            ms, falasTotal == 0 ? 0.0 : (double) ms / falasTotal);
 
-        // ---------- 3. controle, no MESMO experimento ----------
-        List<String> falhas = new ArrayList<>();
-        if (veredicto.get("noticia") != VeredictoPalavra.PORTUGUES_OK) {
-            falhas.add("CONTROLE: 'noticia' devia ser aceita pelo dicionario (e forma verbal) e nao foi");
-        }
-        if (!variantesAcentuadas("noticia").contains("notícia")) {
-            falhas.add("CONTROLE: o gerador de variantes nao produziu 'notícia' a partir de 'noticia'");
-        }
-        if (variantesAcentuadas("noticia").contains("noticiar")) {
-            falhas.add("CONTROLE: o gerador inventou palavra ('noticiar') — so pode TROCAR letra, nunca acrescentar");
-        }
-        boolean semDeterminante = ocorrencias.stream()
-            .noneMatch(o -> "ele".equals(o.determinante().toLowerCase()));
-        if (!semDeterminante) {
-            falhas.add("CONTROLE: 'ele noticia' entrou na colheita — pronome nao e determinante");
-        }
-        if (!falhas.isEmpty()) {
-            System.out.println("\nINSTRUMENTO REPROVADO NO CONTROLE — nenhum numero do acervo vale:");
-            falhas.forEach(f -> System.out.println("   " + f));
-            assertTrue(false, "controle do instrumento falhou: " + falhas);
-        }
+        System.out.println("\n--- POR OBRA ---");
+        mudancasPorObra.entrySet().stream()
+            .sorted(Comparator.comparingInt((Map.Entry<String, Integer> e) -> -e.getValue()))
+            .forEach(e -> System.out.printf("  %4d de %6d falas   %s%n",
+                e.getValue(), falasPorObra.getOrDefault(e.getKey(), 0), curto(e.getKey())));
 
-        // ---------- 4. classificacao ----------
-        Map<String, List<Ocorrencia>> cega = new TreeMap<>();       // o alvo
-        Map<String, List<Ocorrencia>> jaCoberta = new TreeMap<>();  // corretor atual ja alcanca
-        Map<String, List<Ocorrencia>> ambigua = new TreeMap<>();    // 2+ formas acentuadas
-        Map<String, List<Ocorrencia>> comTrema = new TreeMap<>();   // separado: e nome, nao palavra
-        for (Ocorrencia o : ocorrencias) {
-            String p = o.palavra().toLowerCase();
-            List<String> conhecidas = variantesDe.get(p).stream()
-                .filter(v -> veredicto.get(v) == VeredictoPalavra.PORTUGUES_OK)
-                .toList();
-            boolean palavraConhecida = veredicto.get(p) == VeredictoPalavra.PORTUGUES_OK;
-            if (conhecidas.isEmpty()) {
-                continue;
-            }
-            // O TREMA sai antes de qualquer outra gaveta: em palavra comum a forma pré-1990 nem
-            // está no dicionário, então o que sobrar aqui é nome próprio — alemão, quase sempre.
-            // Nome é território de lore, e lore não se corrige por regra automática.
-            if (conhecidas.stream().anyMatch(v -> v.indexOf(TREMA) >= 0)) {
-                comTrema.computeIfAbsent(p + " -> " + conhecidas, k -> new ArrayList<>()).add(o);
-            } else if (!palavraConhecida) {
-                jaCoberta.computeIfAbsent(p, k -> new ArrayList<>()).add(o);
-            } else if (conhecidas.size() == 1) {
-                cega.computeIfAbsent(p + " -> " + conhecidas.get(0), k -> new ArrayList<>()).add(o);
-            } else {
-                ambigua.computeIfAbsent(p + " -> " + conhecidas, k -> new ArrayList<>()).add(o);
-            }
+        // O PAR trocado, que e o que decide se a mudanca e boa: agrupado por palavra, com amostra.
+        Map<String, List<Mudanca>> porPar = new TreeMap<>();
+        for (Mudanca m : mudancas) {
+            porPar.computeIfAbsent(parTrocado(m), k -> new ArrayList<>()).add(m);
         }
-
-        // ---------- 5. relatorio ----------
-        System.out.printf("%n  falas ao alcance (sem musica, sem .parcial) ... %d%n", falas);
-        System.out.printf("  pares determinante+palavra colhidos ........... %d%n", ocorrencias.size());
-        System.out.printf("  formas distintas perguntadas ao dicionario .... %d%n", aPerguntar.size());
-
-        int totalCega = cega.values().stream().mapToInt(List::size).sum();
-        int totalJa = jaCoberta.values().stream().mapToInt(List::size).sum();
-        int totalAmb = ambigua.values().stream().mapToInt(List::size).sum();
-        System.out.printf("%n  CLASSE CEGA (palavra E verbo valido) ......... %d ocorrencias, %d formas%n",
-            totalCega, cega.size());
-        System.out.printf("  ja coberta pelo corretor atual ............... %d ocorrencias, %d formas%n",
-            totalJa, jaCoberta.size());
-        System.out.printf("  ambigua (2+ acentuacoes) — NAO corrigir ...... %d ocorrencias, %d formas%n",
-            totalAmb, ambigua.size());
-        int totalTrema = comTrema.values().stream().mapToInt(List::size).sum();
-        System.out.printf("  TREMA (nome proprio, decidir na lore) ........ %d ocorrencias, %d formas%n",
-            totalTrema, comTrema.size());
-
-        System.out.println("\n--- CLASSE CEGA, por frequencia ---");
-        cega.entrySet().stream()
-            .sorted(Comparator.<Map.Entry<String, List<Ocorrencia>>>comparingInt(e -> -e.getValue().size()))
+        System.out.printf("%n--- PARES TROCADOS (%d distintos), por frequencia ---%n", porPar.size());
+        porPar.entrySet().stream()
+            .sorted(Comparator.comparingInt((Map.Entry<String, List<Mudanca>> e) -> -e.getValue().size()))
             .forEach(e -> {
                 System.out.printf("%n  %4d  %s%n", e.getValue().size(), e.getKey());
-                e.getValue().stream().limit(AMOSTRAS).forEach(o ->
-                    System.out.printf("          [%s] ...%s %s...%n",
-                        curto(o.obra()), o.determinante(), o.palavra()));
+                e.getValue().stream().limit(AMOSTRAS).forEach(m ->
+                    System.out.printf("          [%s] %s%n", curto(m.obra()), recorte(m.depois())));
             });
-
-        if (!ambigua.isEmpty()) {
-            System.out.println("\n--- AMBIGUA: duas ou mais acentuacoes conhecidas, fica para leitura humana ---");
-            ambigua.forEach((k, v) -> System.out.printf("  %4d  %s%n", v.size(), k));
-        }
-
-        if (!comTrema.isEmpty()) {
-            System.out.println("\n--- TREMA: a forma pre-1990 nao esta no dicionario, entao o que cai aqui e");
-            System.out.println("    NOME PROPRIO (alemao, quase sempre). Decisao de lore, nunca regra automatica. ---");
-            comTrema.forEach((k, v) -> {
-                System.out.printf("  %4d  %s%n", v.size(), k);
-                v.stream().limit(AMOSTRAS).forEach(o ->
-                    System.out.printf("          [%s] ...%s %s...%n",
-                        curto(o.obra()), o.determinante(), o.palavra()));
-            });
-        }
     }
 
-    /**
-     * Todas as trocas de UMA letra por sua forma acentuada. Só TROCA: nunca acrescenta nem
-     * remove letra, e por isso não tem como inventar palavra que não seja o mesmo esqueleto.
-     */
-    static List<String> variantesAcentuadas(String palavra) {
-        List<String> fora = new ArrayList<>();
-        char[] letras = palavra.toCharArray();
-        for (int i = 0; i < letras.length; i++) {
-            String opcoes = ACENTOS.get(letras[i]);
-            if (opcoes == null) {
-                continue;
-            }
-            for (char nova : opcoes.toCharArray()) {
-                char antiga = letras[i];
-                letras[i] = nova;
-                fora.add(new String(letras));
-                letras[i] = antiga;
+    /** As palavras que realmente mudaram, no formato {@code antes -> depois}. */
+    private static String parTrocado(Mudanca m) {
+        String[] a = m.antes().split("\\s+");
+        String[] b = m.depois().split("\\s+");
+        if (a.length != b.length) {
+            return "(estrutura mudou)";
+        }
+        List<String> pares = new ArrayList<>();
+        for (int i = 0; i < a.length; i++) {
+            if (!a[i].equals(b[i])) {
+                pares.add(a[i] + " -> " + b[i]);
             }
         }
-        return fora;
+        return pares.isEmpty() ? "(sem diferenca de palavra)" : String.join(" · ", pares);
     }
 
-    private void colher(String texto, String obra, List<Ocorrencia> destino) {
-        if (texto == null || texto.isBlank()) {
-            return;
-        }
-        Matcher m = PAR.matcher(texto);
-        while (m.find()) {
-            String det = m.group(1);
-            String palavra = m.group(2);
-            if (!DETERMINANTES.contains(det.toLowerCase())) {
-                continue;
-            }
-            if (!palavra.equals(semAcento(palavra))) {
-                continue;
-            }
-            destino.add(new Ocorrencia(det, palavra, obra, texto));
-        }
-    }
-
-    /** Texto visível: sem tags de override e com a quebra do ASS virando espaço. */
-    private static String visivel(String texto) {
-        if (texto == null) {
-            return "";
-        }
-        return TAG.matcher(texto).replaceAll(" ").replace("\\N", " ").replace("\\n", " ");
-    }
-
-    private static String semAcento(String s) {
-        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
-            .replaceAll("\\p{M}+", "");
-    }
-
-    /**
-     * Pergunta em blocos: um lote único de dezenas de milhares de formas prendeu o processo do
-     * hunspell por 1.159s em 19/08/2026. Três mil por vez foi o tamanho que voltou a responder.
-     */
-    private Map<String, VeredictoPalavra> classificarEmBlocos(Set<String> formas) {
-        Map<String, VeredictoPalavra> todos = new LinkedHashMap<>();
-        List<String> lista = new ArrayList<>(formas);
-        for (int i = 0; i < lista.size(); i += BLOCO) {
-            todos.putAll(dicionario.classificar(
-                new LinkedHashSet<>(lista.subList(i, Math.min(i + BLOCO, lista.size())))));
-        }
-        return todos;
+    private static String recorte(String texto) {
+        String t = texto.replace("\\N", " ").replaceAll("\\{[^{}]*}", "");
+        return t.length() > 84 ? t.substring(0, 84) : t;
     }
 
     private static String curto(String obra) {
-        return obra.length() > 18 ? obra.substring(0, 18) : obra;
+        return obra.length() > 26 ? obra.substring(0, 26) : obra;
     }
 }

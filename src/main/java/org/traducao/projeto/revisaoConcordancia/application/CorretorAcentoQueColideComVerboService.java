@@ -8,6 +8,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,6 +74,30 @@ import java.util.regex.Pattern;
 @ApplicationScoped
 public class CorretorAcentoQueColideComVerboService {
 
+    /**
+     * REGRAS QUE NÃO SE APLICA SOZINHO — a família da crase.
+     *
+     * <h2>Medido no acervo em 23/08/2026, e o veredito é do dado</h2>
+     * A crase depende da regência do verbo <b>e</b> de o substantivo seguinte admitir artigo
+     * definido. O revisor acerta bastante e erra o suficiente para não escrever sozinho — a MESMA
+     * regra {@code CRASE_CONFUSION} produziu as duas coisas:
+     *
+     * <pre>
+     *   "vamos assistir a batalha deles"  -> "à batalha"      CERTO
+     *   "Como vão as coisas contigo?"     -> "vão às coisas"  ERRADO: "as coisas" e SUJEITO
+     *   "quando nos deu a luz verde"      -> "deu à luz"      ERRADO: nao e parto, e sinal verde
+     * </pre>
+     *
+     * <p>São <b>31 falas</b> em 1.831 (1,7%) que deixam de ser corrigidas, e parte delas estava
+     * certa. A perda é declarada: crase errada no acervo custa mais caro que crase faltando,
+     * porque crase errada <b>não parece erro</b> na releitura.
+     *
+     * <p>Isto mora na FATIA e não no adaptador do core, de propósito: o core responde "o que a
+     * gramática diz"; quem decide o que ousa gravar sem ninguém lendo é quem grava.
+     */
+    private static final Set<String> REGRAS_QUE_NAO_SE_APLICA_SOZINHO = Set.of(
+        "CRASE_CONFUSION", "DAR_À_LUZ", "PHRASAL_VERB_A");
+
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
     private static final Pattern QUEBRA_ASS = Pattern.compile("\\\\[Nn]");
 
@@ -105,6 +130,9 @@ public class CorretorAcentoQueColideComVerboService {
         // achados seguintes assim que o primeiro mudasse o comprimento do texto.
         List<AchadoGramatical> aceitos = new ArrayList<>();
         for (AchadoGramatical a : achados) {
+            if (REGRAS_QUE_NAO_SE_APLICA_SOZINHO.contains(a.regra())) {
+                continue;
+            }
             String proposta = propostaSoDeAcento(a);
             if (proposta != null) {
                 aceitos.add(a);
@@ -150,27 +178,94 @@ public class CorretorAcentoQueColideComVerboService {
             return null;
         }
         String original = achado.trecho();
-        // NAO ha guarda separada para maiuscula aqui, e a ausencia dela e deliberada: existia uma,
-        // e a mutacao de 23/08/2026 provou que era CODIGO MORTO — nenhum caso mudava de resultado
-        // com ela ligada ou desligada. Quem protege nome proprio sao as duas condicoes do laco
-        // abaixo, e vale saber qual faz o que, porque foi assim que o teste ganhou dente:
+        // MAIUSCULA fica de fora, e a historia desta guarda merece ser lida antes de mexer nela:
+        // ela EXISTIU, foi removida em 23/08/2026 por ser codigo morto (a mutacao provou: com ou
+        // sem, nenhum caso mudava), e voltou no mesmo dia porque a regra de aceitacao mudou.
+        // Sob a regra nova — "so acrescenta acento, caractere a caractere" — `Muller` -> `Müller`
+        // passa limpo: e acento puro numa palavra capitalizada. E renomear pessoa.
         //
-        //   `Muller`  -> `Müller`   barrado por a sugestao NAO ser minuscula
-        //   `Milicia` -> `milícia`  barrado por semAcento() comparar COM caixa:
-        //                           "milicia".equals("Milicia") e false
-        //
-        // Guarda que nao muda resultado nenhum ensina a ignorar as que mudam.
+        // A licao nao e "guarda demais nao faz mal". E que utilidade de guarda depende da regra
+        // ao lado dela, e as duas vezes quem decidiu foi a mutacao, nao o meu palpite.
+        if (!original.equals(original.toLowerCase())) {
+            return null;
+        }
+        List<String> aceitaveis = new ArrayList<>();
         for (String sugestao : achado.sugestoes()) {
-            if (sugestao == null || sugestao.equals(original)) {
-                continue;
-            }
-            if (sugestao.equals(sugestao.toLowerCase())
-                && semAcento(sugestao).equals(semAcento(original))
-                && !semAcento(sugestao).equals(sugestao)) {
-                return sugestao;
+            if (soAcrescentaAcento(original, sugestao)) {
+                aceitaveis.add(sugestao);
             }
         }
-        return null;
+        // EXATAMENTE UMA proposta aceitavel, e a medicao no acervo mostrou por que: para `avo` o
+        // revisor oferece `avó` E `avô`, e escolher a primeira produziu "Meu avó queria consertar"
+        // e "os ideais do seu avó Meitzer" — dois homens virando avo mulher. Escolher entre elas
+        // exige saber de QUEM se fala, que e lore, e lore nao entra nesta tela por decisao de
+        // Paulo. Duas propostas viaveis = ambiguidade real = nao mexe.
+        return aceitaveis.size() == 1 ? aceitaveis.get(0) : null;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: aceita a proposta apenas quando ela ACRESCENTA acento e não faz mais
+     * nada — nem troca letra, nem muda caixa, nem <b>tira</b> acento que já existia.
+     *
+     * <h2>O prejuízo que originou (2026-08-23), medido no acervo</h2>
+     * A primeira versão comparava o trecho INTEIRO: "a forma sem acentos é a mesma?" e "a
+     * sugestão tem algum acento?". Passava, e estragava. O revisor acusa trechos de mais de uma
+     * palavra, e num deles propôs:
+     *
+     * <pre>
+     *   "nós será"  ->  "nos será"     ACEITO pela regra velha, e ERRADO
+     * </pre>
+     *
+     * O {@code será} carregava o acento que fazia a condição "tem acento" passar, enquanto o
+     * {@code nós} — que já estava CERTO no arquivo — perdia o dele. Uma fala correta virava
+     * errada. Foi pego na medição do acervo, no Guilty Crown ep02, e o arquivo estava em NFC:
+     * não era normalização Unicode, era perda de acento mesmo.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Comparação em NFC e caractere a caractere: mesmo comprimento, mesmas letras.</li>
+     *   <li>Onde diferem, o original tem de ser a letra SEM acento e a sugestão a MESMA letra
+     *       acentuada. Qualquer outra diferença recusa a proposta inteira.</li>
+     *   <li>Como corolário, acento nunca é removido e letra nunca é trocada.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code false}; nunca lança.
+     */
+    static boolean soAcrescentaAcento(String original, String sugestao) {
+        if (original == null || sugestao == null || sugestao.equals(original)) {
+            return false;
+        }
+        String o = Normalizer.normalize(original, Normalizer.Form.NFC);
+        String s = Normalizer.normalize(sugestao, Normalizer.Form.NFC);
+        if (o.length() != s.length()) {
+            return false;
+        }
+        boolean ganhouAlgum = false;
+        for (int i = 0; i < o.length(); i++) {
+            char co = o.charAt(i);
+            char cs = s.charAt(i);
+            if (co == cs) {
+                continue;
+            }
+            // UMA condicao, e a mutacao derrubou as outras DUAS que eu tinha escrito ao lado
+            // dela — "o original ja tinha acento aqui?" e "a sugestao ganhou acento?". Ambas
+            // nunca mudavam resultado, porque as duas SAO CONSEQUENCIA desta:
+            //
+            //   tirando o acento, a sugestao tem de dar exatamente o caractere original.
+            //
+            //   - se o original ja fosse acentuado, nenhuma letra simples poderia ser igual a
+            //     ele — logo acento nunca e REMOVIDO, de graca;
+            //   - se a sugestao nao fosse acentuada, ela seria igual a si mesma sem acento e,
+            //     valendo esta condicao, igual ao original — mas os dois diferem aqui.
+            //
+            // Escrever as tres parecia prudencia. Era ruido: guarda que nao muda resultado
+            // nenhum ensina a ignorar as que mudam.
+            if (!semAcento(String.valueOf(cs)).equals(String.valueOf(co))) {
+                return false;
+            }
+            ganhouAlgum = true;
+        }
+        return ganhouAlgum;
     }
 
     /**
