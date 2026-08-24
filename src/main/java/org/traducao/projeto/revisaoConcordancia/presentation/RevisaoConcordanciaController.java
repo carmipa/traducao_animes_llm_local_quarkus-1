@@ -155,6 +155,17 @@ public class RevisaoConcordanciaController {
                     ? "revisor gramatical indisponivel" : r.motivoRevisorIndisponivel())
                 + AnsiCores.RESET);
         }
+        // O PLACAR POR CORRETOR. A tela tem quatro elos na cadeia, e um total unico nao diz de
+        // onde veio o ganho. Mais importante: o elo que NAO PODE RODAR aparece como NAO
+        // VERIFICADO, e nao como zero — "nao achei nada" e "nem olhei" nunca podem sair iguais.
+        if (!r.porCorretor().isEmpty()) {
+            System.out.println(AnsiCores.DIM + "  • Por corretor:" + AnsiCores.RESET);
+            for (var c : r.porCorretor()) {
+                String corDoElo = !c.disponivel() ? AnsiCores.YELLOW
+                    : (c.falhou() > 0 ? AnsiCores.RED : AnsiCores.DIM);
+                System.out.println(corDoElo + "      " + c.linhaDeRelatorio() + AnsiCores.RESET);
+            }
+        }
         System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
         System.out.println(cor + LINHA + "\n" + AnsiCores.RESET);
     }

@@ -9,6 +9,7 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.revisaoConcordancia.domain.ContagemCorretor;
 import org.traducao.projeto.revisaoConcordancia.domain.ResultadoConcordancia;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.telemetria.TelemetriaService;
@@ -162,6 +163,12 @@ public class RevisarConcordanciaUseCase {
         // permanente deste projeto e contador do que agiu E do que se absteve.
         int porGeneroTotal = 0;
         int porAcentoTotal = 0;
+        // Um placar por corretor, zerado a CADA passada: o total de uma pasta nao pode vazar para
+        // a proxima, senao o relatorio de uma obra pequena herda o numero da anterior.
+        int[] placarGenero = new int[3];
+        int[] placarPos = new int[3];
+        int[] placarPadrao = new int[3];
+        int[] placarDicionario = new int[3];
         List<Path> backups = new ArrayList<>();
 
         for (Path arquivo : arquivos) {
@@ -181,20 +188,22 @@ public class RevisarConcordanciaUseCase {
                         novos.add(evento);
                         continue;
                     }
-                    // DOIS corretores em cadeia, e a ordem importa: o de genero primeiro,
-                    // porque ele decide por determinante e uma palavra ja acentuada pelo segundo
-                    // continuaria casando igual — mas o contrario nao vale, ja que trocar o
-                    // determinante muda o contexto que o revisor gramatical le.
-                    // QUATRO corretores em cadeia. A ordem importa e esta e a razao de cada
+                    // QUATRO corretores em cadeia. A ordem importa, e esta e a razao de cada
                     // posicao: genero primeiro, porque decide por determinante e nao se importa
-                    // com acento; depois os tres de acento, do mais especifico (POS tagger) para
-                    // o mais mecanico (dicionario), para que o mais informado tenha a primeira
-                    // palavra sobre a mesma fala.
+                    // com acento; depois os tres de acento, do mais informado (POS tagger) para o
+                    // mais mecanico (dicionario), para que quem sabe mais tenha a primeira palavra
+                    // sobre a mesma fala.
+                    //
+                    // Cada elo passa pelo `aplicar`, que CONTA: quantas mudou, quantas deixou
+                    // intactas e quantas explodiram. Fala que lanca excecao nao some — ela e
+                    // contada e a passada segue, porque erro engolido em silencio some junto com
+                    // a fala e ninguem descobre.
                     String antes = evento.texto();
-                    String porGenero = corretor.corrigir(antes).orElse(antes);
-                    String comAcento = corretorAcento.corrigir(porGenero).orElse(porGenero);
-                    comAcento = corretorPadrao.corrigir(comAcento).orElse(comAcento);
-                    String depois = corretorDicionario.corrigir(comAcento).orElse(comAcento);
+                    String porGenero = aplicar(placarGenero, "genero", antes, corretor::corrigir, arquivo);
+                    String comPos = aplicar(placarPos, "acento por POS tagger", porGenero, corretorAcento::corrigir, arquivo);
+                    String comPadrao = aplicar(placarPadrao, "acento por padrao", comPos, corretorPadrao::corrigir, arquivo);
+                    String depois = aplicar(placarDicionario, "acento por dicionario", comPadrao,
+                        corretorDicionario::corrigir, arquivo);
                     if (!porGenero.equals(antes)) {
                         porGeneroTotal++;
                     }
@@ -244,13 +253,43 @@ public class RevisarConcordanciaUseCase {
         // A disponibilidade do revisor viaja com o resultado porque ZERO correcao de acento tem
         // duas causas possiveis — texto limpo, ou motor que nao subiu — e as duas nao podem sair
         // com a mesma cara na tela (invariante 12).
+        // O placar de cada elo da cadeia, para o relatorio dizer DE ONDE veio cada correcao e
+        // — o que importa mais — para "nao achou nada" nunca sair igual a "nem rodou".
+        List<ContagemCorretor> porCorretor = List.of(
+            new ContagemCorretor("genero (determinante)", placarGenero[0], placarGenero[1],
+                placarGenero[2], true),
+            new ContagemCorretor("acento por POS tagger", placarPos[0], placarPos[1],
+                placarPos[2], corretorAcento.disponivel()),
+            new ContagemCorretor("acento por padrao", placarPadrao[0], placarPadrao[1],
+                placarPadrao[2], true),
+            new ContagemCorretor("acento por dicionario", placarDicionario[0], placarDicionario[1],
+                placarDicionario[2], corretorDicionario.disponivel()));
+
+        int falhasTotais = placarGenero[2] + placarPos[2] + placarPadrao[2] + placarDicionario[2];
+        if (falhasTotais > 0) {
+            log.warn("Revisao de concordancia em {}: {} fala(s) lancaram excecao e ficaram como "
+                + "estavam. O detalhe por corretor esta no banner e na telemetria.",
+                pasta.getFileName(), falhasTotais);
+        }
+        log.info("Revisao de concordancia em {} — {} arquivo(s), {} fala(s) corrigida(s). Placar: {}",
+            pasta.getFileName(), analisados, falasCorrigidas,
+            porCorretor.stream().map(c -> c.nome() + "=" + c.agiu()).toList());
+
         ResultadoConcordancia resultado = new ResultadoConcordancia(
             analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar, foraDoAlcance,
             porGeneroTotal, porAcentoTotal,
-            corretorAcento.disponivel(), corretorAcento.motivoDaIndisponibilidade());
+            corretorAcento.disponivel(), corretorAcento.motivoDaIndisponibilidade(),
+            porCorretor);
         telemetriaService.registrarOperacao(new OperacaoTelemetria(
             "Revisão de Concordância",
-            "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
+            // O DETALHE carrega o placar por corretor ate o CSV. Sem ele, o dataset guarda um
+            // total unico e a analise de amanha nao consegue responder de qual elo veio o ganho —
+            // que e exatamente a pergunta que se faz quando um corretor novo entra na cadeia.
+            "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)")
+                + " | " + porCorretor.stream()
+                    .map(c -> c.nome() + "=" + (c.disponivel() ? String.valueOf(c.agiu()) : "NV")
+                        + (c.falhou() > 0 ? "/" + c.falhou() + "f" : ""))
+                    .collect(java.util.stream.Collectors.joining(" ")),
             System.currentTimeMillis() - inicioMs,
             analisados,
             falasCorrigidas,
@@ -325,6 +364,51 @@ public class RevisarConcordanciaUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: nome vazio devolve {@code false} — na dúvida o arquivo
      * segue para a revisão normal, que tem backup e veto de música.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: aplica UM corretor a UMA fala e registra o desfecho — mudou, deixou
+     * intacta, ou explodiu.
+     *
+     * <h2>Por que a exceção é CONTADA e não propagada</h2>
+     * Um corretor que lança numa fala derrubaria o arquivo inteiro, e o operador veria "falha
+     * inesperada" sem saber em qual das 2.000 falas. Aqui a fala volta como estava, o contador
+     * sobe, o log nomeia o arquivo e o corretor, e a passada continua. <b>O que não pode
+     * acontecer é a fala sumir em silêncio</b> — por isso o número aparece no relatório final,
+     * e não só no log.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nunca devolve {@code null}; em qualquer falha devolve o texto
+     * recebido, byte a byte.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conta em {@code placar[2]}, loga em nível de aviso com
+     * arquivo e corretor, e devolve o texto original.
+     *
+     * @param placar   três posições: agiu, absteve-se, falhou
+     * @param nome     o corretor, para o log
+     * @param texto    a fala como está
+     * @param correcao o corretor a chamar
+     * @param arquivo  de onde veio a fala, para o log dizer ONDE
+     */
+    private String aplicar(int[] placar, String nome, String texto,
+                           java.util.function.Function<String, Optional<String>> correcao,
+                           Path arquivo) {
+        try {
+            Optional<String> nova = correcao.apply(texto);
+            if (nova.isPresent() && !nova.get().equals(texto)) {
+                placar[0]++;
+                if (log.isDebugEnabled()) {
+                    log.debug("[{}] {} :: '{}' -> '{}'", nome, arquivo.getFileName(), texto, nova.get());
+                }
+                return nova.get();
+            }
+            placar[1]++;
+            return texto;
+        } catch (RuntimeException e) {
+            placar[2]++;
+            log.warn("Corretor '{}' falhou numa fala de {} — a fala fica como esta e a passada "
+                + "continua. Fala: '{}'. Causa: {}", nome, arquivo.getFileName(), texto, e.toString());
+            return texto;
+        }
+    }
+
     private boolean eParcial(Path arquivo) {
         return arquivo.getFileName().toString().toLowerCase().contains(".parcial.");
     }
