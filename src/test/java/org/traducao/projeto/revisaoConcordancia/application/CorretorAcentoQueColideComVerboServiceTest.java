@@ -134,6 +134,58 @@ class CorretorAcentoQueColideComVerboServiceTest {
             + "maiuscula de inicio de frase, num texto que ninguem pediu para minusculizar");
     }
 
+    /**
+     * O DEFEITO QUE A MEDICAO NO ACERVO ENCONTROU (23/08/2026), e ele estragava fala CORRETA.
+     *
+     * <p>O revisor acusa trechos de mais de uma palavra. No Guilty Crown ep02 ele propos
+     * {@code "nós será"} -> {@code "nos será"}: o {@code será} carregava o acento que fazia a
+     * regra velha ("a sugestao tem algum acento?") passar, e o {@code nós} — <b>que ja estava
+     * certo no arquivo</b> — perdia o dele. O arquivo estava em NFC: nao era normalizacao
+     * Unicode, era perda de acento mesmo.
+     */
+    @Test
+    @DisplayName("NUNCA remove acento que ja existia, nem em trecho de varias palavras")
+    void nuncaRemoveAcento() {
+        assertNull(CorretorAcentoQueColideComVerboService.propostaSoDeAcento(
+            new AchadoGramatical("R", "CONFUSED_WORDS", 0, 8, "nós será",
+                "msg", List.of("nos será"))),
+            "aceitou tirar o acento de 'nós' porque 'será' mantinha o dele — a fala do acervo "
+            + "estava CERTA e viraria errada");
+        assertFalse(CorretorAcentoQueColideComVerboService.soAcrescentaAcento("nós", "nos"),
+            "aceitou remover acento");
+        assertTrue(CorretorAcentoQueColideComVerboService.soAcrescentaAcento("nos", "nós"),
+            "recusou o caso legitimo: acrescentar acento");
+        assertFalse(CorretorAcentoQueColideComVerboService.soAcrescentaAcento("avo", "avos"),
+            "aceitou mudar o comprimento da palavra");
+        assertFalse(CorretorAcentoQueColideComVerboService.soAcrescentaAcento("avo", "ave"),
+            "aceitou TROCAR uma letra por outra que nao e a mesma acentuada");
+        // Este isola a unica condicao que sobrou: a sugestao GANHA acento (passaria por qualquer
+        // teste de "acentuou?"), mas a letra e OUTRA. So a comparacao "sem acento, da o caractere
+        // original" recusa isto — e foi a mutacao que mostrou que os outros casos nao a exercitavam.
+        assertFalse(CorretorAcentoQueColideComVerboService.soAcrescentaAcento("avo", "avé"),
+            "aceitou trocar 'o' por 'é': ganhou acento, mas nao e a mesma letra");
+    }
+
+    /**
+     * Duas propostas viaveis e AMBIGUIDADE, e a medicao mostrou o custo de escolher a primeira:
+     * para {@code avo} o revisor oferece {@code avó} e {@code avô}, e o corretor produziu
+     * <i>"Meu avó queria consertar"</i> e <i>"os ideais do seu avó Meitzer"</i> — dois homens
+     * virando avo mulher. Decidir entre elas exige saber de QUEM se fala, que e lore.
+     */
+    @Test
+    @DisplayName("duas acentuacoes possiveis: nao mexe (o caso avó/avô)")
+    void ambiguidadeNaoEscolhe() {
+        assertNull(CorretorAcentoQueColideComVerboService.propostaSoDeAcento(
+            new AchadoGramatical("R", "CONFUSED_WORDS", 0, 3, "avo",
+                "msg", List.of("avó", "avô"))),
+            "escolheu uma das duas acentuacoes possiveis — isso e decidir o sexo do personagem "
+            + "por sorteio");
+        assertEquals("órbita", CorretorAcentoQueColideComVerboService.propostaSoDeAcento(
+            new AchadoGramatical("R", "CONFUSED_WORDS", 0, 6, "orbita",
+                "msg", List.of("órbita"))),
+            "com UMA proposta viavel tem de corrigir normalmente");
+    }
+
     @Test
     @DisplayName("proposta que TROCA a palavra e recusada; so acentuar e aceito")
     void soAceitaAcentuacao() {
@@ -185,6 +237,24 @@ class CorretorAcentoQueColideComVerboServiceTest {
         assertFalse(semRevisor.disponivel());
         assertEquals("motor de teste desligado", semRevisor.motivoDaIndisponibilidade(),
             "sem o motivo, a tela mostraria zero correcoes com a mesma cara de 'esta tudo limpo'");
+    }
+
+    /**
+     * A CRASE nao se aplica sozinha, e a medicao no acervo diz por que: a MESMA regra
+     * {@code CRASE_CONFUSION} acertou <i>"assistir à batalha"</i> e errou <i>"Como vão às
+     * coisas"</i> — onde "as coisas" e SUJEITO e nao admite crase. Crase errada nao parece erro
+     * na releitura, e por isso a tela prefere deixar faltando.
+     */
+    @Test
+    @DisplayName("CRASE nao e aplicada sozinha, nem quando o revisor tem razao")
+    void naoAplicaCrase() {
+        assumirMotor();
+        assertEquals(Optional.empty(), corretor.corrigir("Como vão as coisas contigo?"),
+            "aplicou crase onde 'as coisas' e SUJEITO — o revisor errou, e a tela escreveu");
+        assertEquals(Optional.empty(),
+            corretor.corrigir("No minimo, vamos assistir a batalha deles."),
+            "aplicou crase CERTA, e isto tambem reprova: a familia inteira fica de fora enquanto "
+            + "ninguem le, porque a mesma regra produz as duas coisas");
     }
 
     @Test
