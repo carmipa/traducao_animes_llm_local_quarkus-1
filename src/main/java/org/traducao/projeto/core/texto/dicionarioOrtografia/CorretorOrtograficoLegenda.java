@@ -178,41 +178,8 @@ public class CorretorOrtograficoLegenda {
                 return texto;
             }
 
-            // Só o que NUNCA foi perguntado chega ao processo externo. É o que separa 5.643
-            // consultas de algumas dezenas: legenda repete vocabulário, e a resposta do dicionário
-            // para uma palavra não muda no meio da execução.
-            Set<String> inéditas = new java.util.LinkedHashSet<>();
-            for (String c : candidatas) {
-                if (!memoria.containsKey(c)) {
-                    inéditas.add(c);
-                }
-            }
-
-            if (!inéditas.isEmpty()) {
-                Map<String, Set<String>> sugestoes = portugues.sugestoes(inéditas);
-                if (!portugues.disponivel()) {
-                    naoVerificadas.incrementAndGet();
-                    return texto;
-                }
-                Map<String, String> novas =
-                    new java.util.LinkedHashMap<>(CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes));
-
-                // O REPARO DE TERMINAÇÃO ENTRA AQUI, e não só no corrigir() de instância do
-                // CorretorAcentoPorDicionario — porque é ESTE método que a Tradução Local chama.
-                //
-                // A primeira versão do reparo ficou naquele outro corrigir(), que a produção não
-                // usa: o pipeline consome apenas os helpers estáticos daqui. O teste passava
-                // exercitando o método direto enquanto a legenda continuava saindo com
-                // "Esquadroo". Foi Paulo quem perguntou "e por que o reparo não está ligado?" —
-                // código verde num caminho que ninguém percorre é a definição de guarda cega.
-                novas.putAll(CorretorAcentoPorDicionario.reparosDeTerminacaoAo(
-                    portugues, inéditas, novas.keySet()));
-
-                // Guarda TAMBÉM o que não tem correção: "já perguntei e não há" evita repetir a
-                // pergunta, e é a maior parte das palavras.
-                for (String c : inéditas) {
-                    memoria.put(c, novas.getOrDefault(c, ""));
-                }
+            if (!aquecer(candidatas)) {
+                return texto;
             }
 
             Map<String, String> acentos = new java.util.LinkedHashMap<>();
@@ -231,6 +198,107 @@ public class CorretorOrtograficoLegenda {
             log.debug("Correção ortográfica ignorada nesta fala: {}", e.getMessage());
             return texto;
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: pergunta ao dicionário sobre um LOTE de palavras de uma vez, para que
+     * as consultas seguintes sobre elas não custem nada.
+     *
+     * <h2>A cicatriz: 283 segundos para corrigir zero falas</h2>
+     * A memória sempre evitou a SEGUNDA pergunta sobre uma palavra. O que ela nunca evitou foi a
+     * primeira — e é a primeira que custa: cada fala que traz UMA palavra inédita paga um processo
+     * externo inteiro. Em 24/08/2026 a tela 3.3 passou por 3.518 falas de seis episódios e o
+     * relógio por elo mostrou o estrago:
+     *
+     * <pre>
+     *   genero (determinante)     0 agiu ·   0,1s (0,04 ms/fala)
+     *   acento por POS tagger     0 agiu ·   6,3s (1,78 ms/fala)
+     *   acento por padrao        38 agiu ·   0,2s (0,04 ms/fala)
+     *   acento por dicionario     0 agiu · 283,3s (80,53 ms/fala)   &lt;-- 97% do tempo, zero ganho
+     * </pre>
+     *
+     * O acervo inteiro levaria quase três horas, e o operador que olha a tela não distingue
+     * "lenta" de "travada" — o detector de travamento do Quarkus, aliás, também não distinguiu.
+     *
+     * <p>Perguntando o arquivo inteiro de uma vez, a resposta vem num processo só e toda fala
+     * seguinte encontra tudo na memória.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Aquecer NÃO altera texto nenhum — só povoa a memória. Chamar ou não chamar produz a
+     *       MESMA legenda; muda apenas o tempo.</li>
+     *   <li>Guarda também o que não tem correção: "já perguntei e não há" é a maior parte das
+     *       palavras, e é o que impede a pergunta de voltar.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário fora do ar devolve {@code false} e conta uma
+     * não-verificação; nada é memorizado, e quem chamou decide o que fazer.
+     *
+     * @param palavras as formas a perguntar; as já conhecidas são ignoradas
+     * @return {@code true} se a memória está boa para estas palavras
+     */
+    public boolean aquecer(Set<String> palavras) {
+        // Só o que NUNCA foi perguntado chega ao processo externo. É o que separa 5.643 consultas
+        // de algumas dezenas: legenda repete vocabulário, e a resposta do dicionário para uma
+        // palavra não muda no meio da execução.
+        Set<String> inéditas = new java.util.LinkedHashSet<>();
+        for (String c : palavras) {
+            if (!memoria.containsKey(c)) {
+                inéditas.add(c);
+            }
+        }
+        if (inéditas.isEmpty()) {
+            return true;
+        }
+        Map<String, Set<String>> sugestoes = portugues.sugestoes(inéditas);
+        if (!portugues.disponivel()) {
+            naoVerificadas.incrementAndGet();
+            return false;
+        }
+        Map<String, String> novas =
+            new java.util.LinkedHashMap<>(CorretorAcentoPorDicionario.apenasAcentuacoes(sugestoes));
+
+        // O REPARO DE TERMINAÇÃO ENTRA AQUI, e não só no corrigir() de instância do
+        // CorretorAcentoPorDicionario — porque é ESTE caminho que a Tradução Local percorre.
+        //
+        // A primeira versão do reparo ficou naquele outro corrigir(), que a produção não usa: o
+        // pipeline consome apenas os helpers estáticos daqui. O teste passava exercitando o método
+        // direto enquanto a legenda continuava saindo com "Esquadroo". Foi Paulo quem perguntou "e
+        // por que o reparo não está ligado?" — código verde num caminho que ninguém percorre é a
+        // definição de guarda cega.
+        novas.putAll(CorretorAcentoPorDicionario.reparosDeTerminacaoAo(
+            portugues, inéditas, novas.keySet()));
+
+        // Guarda TAMBÉM o que não tem correção: "já perguntei e não há" evita repetir a pergunta,
+        // e é a maior parte das palavras.
+        for (String c : inéditas) {
+            memoria.put(c, novas.getOrDefault(c, ""));
+        }
+        return true;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a mesma coisa, recebendo os TEXTOS em vez das palavras — quem chama
+     * tem falas na mão, não vocabulário.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: quem extrai as formas é o mesmo extrator que
+     * {@link #corrigir(String, Set)} usa. Uma segunda extração aqui divergiria da primeira, e
+     * palavra que o aquecimento não enxergasse voltaria a custar um processo por fala.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: coleção nula ou vazia devolve {@code true} (nada a
+     * fazer); dicionário fora do ar devolve {@code false}.
+     */
+    public boolean aquecerComTextos(java.util.Collection<String> textos) {
+        if (textos == null || textos.isEmpty()) {
+            return true;
+        }
+        Set<String> todas = new java.util.LinkedHashSet<>();
+        for (String t : textos) {
+            if (t != null && !t.isBlank()) {
+                todas.addAll(CorretorAcentoPorDicionario.candidatas(t));
+            }
+        }
+        return aquecer(todas);
     }
 
     /**

@@ -87,6 +87,7 @@ public class RevisarConcordanciaUseCase {
      * pelo corretor de produção, com os nomes próprios da própria fala como intocáveis.
      */
     private final CorretorAcentoDeDicionarioNaFalaService corretorDicionario;
+    private final CorretorCaractereForaDoPortuguesService corretorCaractere;
 
     private final TelemetriaService telemetriaService;
 
@@ -119,6 +120,7 @@ public class RevisarConcordanciaUseCase {
         CorretorAcentoQueColideComVerboService corretorAcento,
         CorretorAcentoPorPadraoService corretorPadrao,
         CorretorAcentoDeDicionarioNaFalaService corretorDicionario,
+        CorretorCaractereForaDoPortuguesService corretorCaractere,
         TelemetriaService telemetriaService,
         PoliticaEstiloMusical politicaEstiloMusical) {
         this.leitor = leitor;
@@ -127,6 +129,7 @@ public class RevisarConcordanciaUseCase {
         this.corretorAcento = corretorAcento;
         this.corretorPadrao = corretorPadrao;
         this.corretorDicionario = corretorDicionario;
+        this.corretorCaractere = corretorCaractere;
         this.telemetriaService = telemetriaService;
         this.politicaEstiloMusical = politicaEstiloMusical;
     }
@@ -165,10 +168,14 @@ public class RevisarConcordanciaUseCase {
         int porAcentoTotal = 0;
         // Um placar por corretor, zerado a CADA passada: o total de uma pasta nao pode vazar para
         // a proxima, senao o relatorio de uma obra pequena herda o numero da anterior.
-        int[] placarGenero = new int[3];
-        int[] placarPos = new int[3];
-        int[] placarPadrao = new int[3];
-        int[] placarDicionario = new int[3];
+        // Quatro posicoes: agiu, absteve-se, falhou e NANOS. O relogio entrou em 24/08/2026,
+        // quando uma passada sobre seis arquivos levou cinco minutos e o unico jeito de saber
+        // qual elo gastava o tempo era desmontar a cadeia na mao.
+        long[] placarGenero = new long[4];
+        long[] placarPos = new long[4];
+        long[] placarPadrao = new long[4];
+        long[] placarDicionario = new long[4];
+        long[] placarCaractere = new long[4];
         List<Path> backups = new ArrayList<>();
 
         for (Path arquivo : arquivos) {
@@ -183,6 +190,24 @@ public class RevisarConcordanciaUseCase {
                 DocumentoLegenda documento = leitor.ler(arquivo);
                 List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
                 int corrigidasArq = 0;
+
+                // AQUECIMENTO, uma vez por arquivo. Sem ele o elo do dicionario custava 80 ms POR
+                // FALA — um processo externo para cada fala que trouxesse uma palavra inedita —
+                // contra 0,04 ms dos outros tres. Nao muda uma virgula do resultado: aquecer so
+                // povoa a memoria do dicionario. So o relogio muda.
+                //
+                // O universo aquecido e o mesmo que sera corrigido: musica e fala sem texto ficam
+                // de fora, porque perguntar por elas gastaria o processo externo com palavra que
+                // ninguem vai consultar.
+                List<String> falasDoArquivo = documento.eventos().stream()
+                    .filter(e -> e.temTexto() && !eMusica(e))
+                    .map(EventoLegenda::texto)
+                    .toList();
+                if (!corretorDicionario.aquecerCom(falasDoArquivo)) {
+                    log.warn("Dicionario nao respondeu ao aquecer {} — a passada continua, mas o "
+                        + "elo do dicionario fica lento e pode nao verificar nada.",
+                        arquivo.getFileName());
+                }
                 for (EventoLegenda evento : documento.eventos()) {
                     if (!evento.temTexto() || eMusica(evento)) {
                         novos.add(evento);
@@ -199,12 +224,18 @@ public class RevisarConcordanciaUseCase {
                     // contada e a passada segue, porque erro engolido em silencio some junto com
                     // a fala e ninguem descobre.
                     String antes = evento.texto();
-                    String porGenero = aplicar(placarGenero, "genero", antes, corretor::corrigir, arquivo);
+                    // O CARACTERE VEM PRIMEIRO, e a ordem aqui e causal, nao estetica: o espaco
+                    // invisivel quebra a fronteira de palavra e o macron desfigura a forma que o
+                    // dicionario e o POS tagger procuram. Limpar depois deles seria limpar tarde —
+                    // os quatro elos seguintes ja teriam olhado para uma palavra que nao existe.
+                    String limpo = aplicar(placarCaractere, "caractere fora do portugues", antes,
+                        corretorCaractere::corrigir, arquivo);
+                    String porGenero = aplicar(placarGenero, "genero", limpo, corretor::corrigir, arquivo);
                     String comPos = aplicar(placarPos, "acento por POS tagger", porGenero, corretorAcento::corrigir, arquivo);
                     String comPadrao = aplicar(placarPadrao, "acento por padrao", comPos, corretorPadrao::corrigir, arquivo);
                     String depois = aplicar(placarDicionario, "acento por dicionario", comPadrao,
                         corretorDicionario::corrigir, arquivo);
-                    if (!porGenero.equals(antes)) {
+                    if (!porGenero.equals(limpo)) {
                         porGeneroTotal++;
                     }
                     if (!depois.equals(porGenero)) {
@@ -256,16 +287,15 @@ public class RevisarConcordanciaUseCase {
         // O placar de cada elo da cadeia, para o relatorio dizer DE ONDE veio cada correcao e
         // — o que importa mais — para "nao achou nada" nunca sair igual a "nem rodou".
         List<ContagemCorretor> porCorretor = List.of(
-            new ContagemCorretor("genero (determinante)", placarGenero[0], placarGenero[1],
-                placarGenero[2], true),
-            new ContagemCorretor("acento por POS tagger", placarPos[0], placarPos[1],
-                placarPos[2], corretorAcento.disponivel()),
-            new ContagemCorretor("acento por padrao", placarPadrao[0], placarPadrao[1],
-                placarPadrao[2], true),
-            new ContagemCorretor("acento por dicionario", placarDicionario[0], placarDicionario[1],
-                placarDicionario[2], corretorDicionario.disponivel()));
+            contagem("caractere fora do portugues", placarCaractere,
+                corretorCaractere.disponivel()),
+            contagem("genero (determinante)", placarGenero, true),
+            contagem("acento por POS tagger", placarPos, corretorAcento.disponivel()),
+            contagem("acento por padrao", placarPadrao, true),
+            contagem("acento por dicionario", placarDicionario, corretorDicionario.disponivel()));
 
-        int falhasTotais = placarGenero[2] + placarPos[2] + placarPadrao[2] + placarDicionario[2];
+        long falhasTotais = placarCaractere[2] + placarGenero[2] + placarPos[2]
+            + placarPadrao[2] + placarDicionario[2];
         if (falhasTotais > 0) {
             log.warn("Revisao de concordancia em {}: {} fala(s) lancaram excecao e ficaram como "
                 + "estavam. O detalhe por corretor esta no banner e na telemetria.",
@@ -387,9 +417,10 @@ public class RevisarConcordanciaUseCase {
      * @param correcao o corretor a chamar
      * @param arquivo  de onde veio a fala, para o log dizer ONDE
      */
-    private String aplicar(int[] placar, String nome, String texto,
+    private String aplicar(long[] placar, String nome, String texto,
                            java.util.function.Function<String, Optional<String>> correcao,
                            Path arquivo) {
+        long comeco = System.nanoTime();
         try {
             Optional<String> nova = correcao.apply(texto);
             if (nova.isPresent() && !nova.get().equals(texto)) {
@@ -406,7 +437,21 @@ public class RevisarConcordanciaUseCase {
             log.warn("Corretor '{}' falhou numa fala de {} — a fala fica como esta e a passada "
                 + "continua. Fala: '{}'. Causa: {}", nome, arquivo.getFileName(), texto, e.toString());
             return texto;
+        } finally {
+            // O relógio soma em TODAS as saídas, inclusive na que lança: elo que falha devagar
+            // também custa tempo, e escondê-lo faria o placar mentir justo no caso ruim.
+            placar[3] += System.nanoTime() - comeco;
         }
+    }
+
+    /**
+     * Monta a contagem de um elo a partir do placar cru.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não valida; o placar vem do próprio laço.
+     */
+    private static ContagemCorretor contagem(String nome, long[] placar, boolean disponivel) {
+        return new ContagemCorretor(nome, (int) placar[0], (int) placar[1], (int) placar[2],
+            disponivel, placar[3]);
     }
 
     private boolean eParcial(Path arquivo) {

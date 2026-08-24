@@ -62,8 +62,8 @@ class ConsoleDaRevisaoConcordanciaTest {
         // com o revisor fora do ar o banner tem de dizer NAO VERIFICADO em vez de zero.
         new CorretorAcentoQueColideComVerboService(new RevisorGramaticalMudo()),
         new CorretorAcentoPorPadraoService(),
-        new CorretorAcentoDeDicionarioNaFalaService(
-            new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
+        new CorretorAcentoDeDicionarioNaFalaService(new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
+        new CorretorCaractereForaDoPortuguesService(new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
         new TelemetriaMuda(), new PoliticaEstiloMusical(List.of()));
 
     static class TelemetriaMuda extends TelemetriaService {

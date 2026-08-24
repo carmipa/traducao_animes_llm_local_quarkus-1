@@ -94,6 +94,29 @@ public class CorretorAcentoDeDicionarioNaFalaService {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: avisa o dicionário sobre TODAS as falas de um arquivo antes de a
+     * primeira ser corrigida, para que a passada não pague uma consulta externa por fala.
+     *
+     * <h2>Por que a decisão é desta fatia e a mecânica é do core</h2>
+     * O lote em si — juntar as formas e perguntar de uma vez — é do
+     * {@link CorretorOrtograficoLegenda}, que é dono do dicionário. O que esta fatia sabe, e o
+     * core não, é <b>qual é o lote</b>: aqui a unidade é o arquivo de legenda, porque é o que a
+     * tela 3.3 processa por vez.
+     *
+     * <p>Medido em 24/08/2026: sem isto, 3.518 falas de seis episódios custaram 283 segundos ao
+     * elo do dicionário — 97% do tempo da tela inteira, para zero correção.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: aquecer NÃO muda texto nenhum. Chamar ou não chamar produz a
+     * MESMA legenda; muda só o relógio. Por isso pode ser pulado sem risco de resultado errado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário fora do ar devolve {@code false}; a passada
+     * continua e cada fala volta a consultar por conta própria.
+     */
+    public boolean aquecerCom(java.util.Collection<String> falas) {
+        return dicionario.aquecerComTextos(falas);
+    }
+
+    /**
      * Diz se o dicionário está de pé — para separar "limpo" de "não verifiquei".
      *
      * <p><b>Só vale depois de pelo menos uma chamada a {@link #corrigir(String)}:</b> o

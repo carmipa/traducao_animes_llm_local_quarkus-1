@@ -30,18 +30,48 @@ package org.traducao.projeto.revisaoConcordancia.domain;
  * @param absteve     falas que ele viu e deixou intactas
  * @param falhou      falas em que ele lançou exceção — contadas, nunca escondidas
  * @param disponivel  se ele pôde rodar; {@code false} torna qualquer zero acima NÃO VERIFICADO
+ * @param nanos       tempo gasto dentro deste corretor, somado sobre todas as falas
  */
 public record ContagemCorretor(
     String nome,
     int agiu,
     int absteve,
     int falhou,
-    boolean disponivel
+    boolean disponivel,
+    long nanos
 ) {
+
+    /** Forma sem relógio, para quem só conta. */
+    public ContagemCorretor(String nome, int agiu, int absteve, int falhou, boolean disponivel) {
+        this(nome, agiu, absteve, falhou, disponivel, 0L);
+    }
 
     /** Total de falas que passaram por este corretor. */
     public int vistas() {
         return agiu + absteve + falhou;
+    }
+
+    /**
+     * O relógio do elo, em segundos, ou vazio quando ninguém mediu.
+     *
+     * <h2>Por que o tempo entra no placar</h2>
+     * Em 24/08/2026 a passada da 3.3 sobre SEIS arquivos levou cinco minutos, e o detector de
+     * travamento do Quarkus disparou. Não estava travada — estava lenta, e para quem olha a tela
+     * as duas coisas são idênticas. Com um total único não havia como saber qual dos quatro elos
+     * gastava o tempo: era preciso desmontar a cadeia para descobrir.
+     *
+     * <p>Custo por FALA e não só o total: o total cresce com a pasta e não distingue "elo caro"
+     * de "pasta grande".
+     */
+    public String tempo() {
+        if (nanos <= 0) {
+            return "";
+        }
+        double segundos = nanos / 1_000_000_000.0;
+        if (vistas() == 0) {
+            return String.format(" · %.1fs", segundos);
+        }
+        return String.format(" · %.1fs (%.2f ms/fala)", segundos, nanos / 1_000_000.0 / vistas());
     }
 
     /**
@@ -52,7 +82,7 @@ public record ContagemCorretor(
         if (!disponivel) {
             return String.format("%-26s NAO VERIFICADO (nao pode rodar)", nome);
         }
-        String base = String.format("%-26s %5d agiu · %6d intactas", nome, agiu, absteve);
+        String base = String.format("%-26s %5d agiu · %6d intactas%s", nome, agiu, absteve, tempo());
         return falhou == 0 ? base : base + String.format(" · %d FALHARAM", falhou);
     }
 }

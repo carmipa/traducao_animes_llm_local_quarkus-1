@@ -9,6 +9,8 @@ import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
+import org.traducao.projeto.revisaoConcordancia.application.CorretorAcentoDeDicionarioNaFalaService;
+import org.traducao.projeto.revisaoConcordancia.application.CorretorAcentoPorPadraoService;
 import org.traducao.projeto.revisaoConcordancia.application.CorretorAcentoQueColideComVerboService;
 
 import java.io.IOException;
@@ -92,6 +94,21 @@ class MedicaoAcentoQueColideComVerboIT {
     @Inject
     CorretorAcentoQueColideComVerboService corretor;
 
+    /**
+     * A CADEIA INTEIRA, e não um elo só. Medir um corretor isolado responde "o que ESTE faria",
+     * que não é a pergunta: o operador vai clicar na tela, e a tela roda os quatro em sequência.
+     * Um elo pode desfazer ou tornar redundante o trabalho do anterior, e só a cadeia mostra isso.
+     */
+    @Inject
+    CorretorAcentoPorPadraoService corretorPadrao;
+
+    @Inject
+    CorretorAcentoDeDicionarioNaFalaService corretorDicionario;
+
+    /** O caso de uso INTEIRO — quem a tela chama, e portanto quem sabe o tempo de verdade. */
+    @Inject
+    org.traducao.projeto.revisaoConcordancia.application.RevisarConcordanciaUseCase revisarConcordancia;
+
     /** Uma fala que MUDARIA, com o antes e o depois inteiros para leitura humana. */
     private record Mudanca(String obra, String antes, String depois) {}
 
@@ -114,6 +131,21 @@ class MedicaoAcentoQueColideComVerboIT {
         // CONTROLE, no mesmo experimento: se o corretor nao fizer o obvio, nada abaixo vale.
         Optional<String> positivo = corretor.corrigir("A milicia ordenou um blackout de noticias.");
         Optional<String> negativo = corretor.corrigir("O reporter noticia o caso todo dia.");
+        // Controle dos elos NOVOS, no mesmo experimento: se qualquer um deles nao fizer o obvio,
+        // nenhum numero do acervo vale.
+        Optional<String> padraoOk = corretorPadrao.corrigir("Isso e tudo.");
+        Optional<String> padraoNao = corretorPadrao.corrigir("Judau, isso e aquilo.");
+        Optional<String> dicOk = corretorDicionario.corrigir("Chegamos a borda do territorio.");
+        Optional<String> dicNao = corretorDicionario.corrigir("Aquele e o mobile armor Apsaras.");
+        if (padraoOk.isEmpty() || padraoNao.isPresent() || dicOk.isEmpty()
+            || (dicNao.isPresent() && dicNao.get().contains("Apsarás"))) {
+            System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE DOS ELOS NOVOS — "
+                + "padrao(+)=%s padrao(-)=%s dicionario(+)=%s dicionario(-)=%s%n",
+                padraoOk, padraoNao, dicOk, dicNao);
+            return;
+        }
+        System.out.printf("  controle dos elos novos: padrao ok (%s) · dicionario ok (%s)%n",
+            padraoOk.get(), dicOk.get());
         if (positivo.isEmpty() || negativo.isPresent()) {
             System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — positivo=%s negativo=%s. "
                 + "Nenhum numero do acervo vale.%n", positivo, negativo);
@@ -175,7 +207,14 @@ class MedicaoAcentoQueColideComVerboIT {
                         continue;
                     }
                     falasObra++;
-                    Optional<String> nova = corretor.corrigir(evento.texto());
+                    // MESMA ordem da tela, pelos MESMOS objetos: POS tagger, padroes curados,
+                    // dicionario. O corretor de genero fica de fora aqui de proposito — ele ja
+                    // rodou no acervo e esta medicao e sobre ACENTO.
+                    String base = evento.texto();
+                    String passo = corretor.corrigir(base).orElse(base);
+                    passo = corretorPadrao.corrigir(passo).orElse(passo);
+                    passo = corretorDicionario.corrigir(passo).orElse(passo);
+                    Optional<String> nova = passo.equals(base) ? Optional.empty() : Optional.of(passo);
                     if (nova.isPresent()) {
                         mudancasObra++;
                         mudancas.add(new Mudanca(nome, evento.texto(), nova.get()));
@@ -242,5 +281,58 @@ class MedicaoAcentoQueColideComVerboIT {
 
     private static String curto(String obra) {
         return obra.length() > 26 ? obra.substring(0, 26) : obra;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: dizer <b>onde vai o tempo</b> da tela 3.3, elo por elo, perguntando ao
+     * caso de uso que a tela usa — em modo simulação, sem escrever nada.
+     *
+     * <h2>A cicatriz</h2>
+     * Em 24/08/2026 uma passada sobre SEIS arquivos levou 5min15s, e o detector de travamento do
+     * Quarkus disparou apontando o dicionário. Não estava travada: estava lenta. Para quem olha a
+     * tela as duas coisas são idênticas, e sem relógio por elo a única forma de descobrir o
+     * culpado era desmontar a cadeia na mão. Este caso existe para nunca mais precisar disso.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code aplicar=false} — nada é gravado. O placar vem do caso de
+     * uso de PRODUÇÃO, não de um cronômetro reimplementado aqui.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta ausente termina declarando, sem número.
+     */
+    @Test
+    @DisplayName("mede ONDE vai o tempo da 3.3, elo por elo, pelo caso de uso de producao")
+    void medirOndeVaiOtempo() throws IOException {
+        System.out.printf("%n=== ONDE VAI O TEMPO DA 3.3 (simulacao, nada e gravado) ===%n");
+        if (!Files.isDirectory(RAIZ)) {
+            System.out.println("NAO VERIFICADO: acervo ausente em " + RAIZ);
+            return;
+        }
+        List<Path> pastas = new ArrayList<>();
+        try (Stream<Path> s = Files.walk(RAIZ)) {
+            s.filter(Files::isDirectory)
+                .filter(d -> d.getFileName().toString().equals("traducao_ptbr"))
+                .filter(d -> FILTRO_OBRA.isBlank()
+                    || d.getParent().getFileName().toString().toLowerCase()
+                        .contains(FILTRO_OBRA.toLowerCase()))
+                .sorted(Comparator.comparing(Path::toString))
+                .forEach(pastas::add);
+        }
+        if (pastas.isEmpty()) {
+            System.out.println("NAO VERIFICADO: nenhuma pasta casou com o filtro '" + FILTRO_OBRA + "'");
+            return;
+        }
+        for (Path pasta : pastas) {
+            long comeco = System.nanoTime();
+            var r = revisarConcordancia.revisarPasta(pasta, false);
+            double segundos = (System.nanoTime() - comeco) / 1_000_000_000.0;
+            // As falas vem do PLACAR e nao de um contador proprio: quem viu as falas foram os
+            // corretores, e `vistas()` e a soma que eles mesmos reportam.
+            int falas = r.porCorretor().isEmpty() ? 0 : r.porCorretor().get(0).vistas();
+            System.out.printf("%n--- %s%n    %d arquivos · %d falas · %d corrigidas · %.1fs no total%n",
+                pasta.getParent().getFileName(), r.arquivosAnalisados(), falas,
+                r.falasCorrigidas(), segundos);
+            for (var c : r.porCorretor()) {
+                System.out.println("      " + c.linhaDeRelatorio());
+            }
+        }
     }
 }

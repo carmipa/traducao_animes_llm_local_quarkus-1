@@ -88,6 +88,7 @@ class TelemetriaDaCadeiaDeCorretoresTest {
             new CorretorAcentoQueColideComVerboService(new RevisorGramaticalMudo()),
             padrao,
             new CorretorAcentoDeDicionarioNaFalaService(new CorretorOrtograficoLegenda()),
+            new CorretorCaractereForaDoPortuguesService(new CorretorOrtograficoLegenda()),
             telemetria,
             new PoliticaEstiloMusical(List.of()));
     }
@@ -151,8 +152,8 @@ class TelemetriaDaCadeiaDeCorretoresTest {
         Path pasta = pastaComUmaFala(raiz, "Uma fala qualquer.");
         ResultadoConcordancia r = useCase(new CorretorAcentoPorPadraoService(),
             new TelemetriaEspia()).revisarPasta(pasta, false);
-        assertEquals(4, r.porCorretor().size(),
-            "a cadeia tem quatro elos e o placar mostrou outro numero: " + r.porCorretor());
+        assertEquals(5, r.porCorretor().size(),
+            "a cadeia tem cinco elos e o placar mostrou outro numero: " + r.porCorretor());
     }
 
     private static ContagemCorretor doCorretor(ResultadoConcordancia r, String nome) {
