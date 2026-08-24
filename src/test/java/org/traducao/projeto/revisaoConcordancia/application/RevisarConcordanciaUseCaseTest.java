@@ -30,7 +30,11 @@ class RevisarConcordanciaUseCaseTest {
 
     private final TelemetriaSpy telemetria = new TelemetriaSpy();
     private final RevisarConcordanciaUseCase useCase = new RevisarConcordanciaUseCase(
-        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(), telemetria,
+        new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(),
+        // Duble INDISPONIVEL: este teste e sobre dry-run e backup, nao sobre gramatica.
+        new CorretorAcentoQueColideComVerboService(
+            new org.traducao.projeto.core.texto.gramatica.RevisorGramaticalMudo()),
+        telemetria,
         new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()));
 
     /** Captura a operação registrada sem persistir em disco (não chama super). */

@@ -18,6 +18,16 @@ import java.util.List;
  * dois faria o relatório dizer "47 analisados" quando parte deles sequer foi aberta — e um número
  * que mistura "revisei" com "nem olhei" é pior que número nenhum, porque parece prova.
  *
+ * <h2>Por que a contagem é separada por CORRETOR (23/08/2026)</h2>
+ * A tela passou a ter dois: o de gênero, que decide por determinante, e o de acento, que resolve
+ * a inversão verbo/substantivo. Um número só diria "78 falas corrigidas" sem dizer por quê — e a
+ * ordem permanente de telemetria neste projeto é contador do que AGIU <b>e</b> contador do que se
+ * ABSTEVE, para que a próxima medição não precise adivinhar de onde veio o ganho.
+ *
+ * <p><b>{@code revisorGramaticalDisponivel} não é enfeite:</b> sem ele, zero correções de acento
+ * teria a mesma cara quando o texto está limpo e quando o motor não subiu. É a invariante 12 do
+ * projeto — saída vazia ambígua é bug —, e o motivo viaja junto para o operador ler na tela.
+ *
  * <p>COMPORTAMENTO EM CASO DE FALHA: portador de dados puro; a lista recebida é copiada
  * defensivamente para não vazar referência mutável.
  */
@@ -27,12 +37,23 @@ public record ResultadoConcordancia(
     int falasCorrigidas,
     List<Path> backups,
     boolean aplicado,
-    int arquivosForaDoAlcance
+    int arquivosForaDoAlcance,
+    int falasPorGenero,
+    int falasPorAcento,
+    boolean revisorGramaticalDisponivel,
+    String motivoRevisorIndisponivel
 ) {
     /** Compatibilidade com os chamadores que existiam antes do campo "fora do alcance". */
     public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
                                  List<Path> backups, boolean aplicado) {
         this(arquivosAnalisados, arquivosAlterados, falasCorrigidas, backups, aplicado, 0);
+    }
+
+    /** Compatibilidade com os chamadores anteriores ao segundo corretor (acento), em 23/08/2026. */
+    public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
+                                 List<Path> backups, boolean aplicado, int arquivosForaDoAlcance) {
+        this(arquivosAnalisados, arquivosAlterados, falasCorrigidas, backups, aplicado,
+            arquivosForaDoAlcance, falasCorrigidas, 0, true, null);
     }
 
     public ResultadoConcordancia {

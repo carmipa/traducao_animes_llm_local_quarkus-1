@@ -1,3 +1,55 @@
+# CONTINUIDADE — KRONOS
+
+## PROXIMA ACAO EXECUTAVEL EXATA (2026-08-23)
+
+**Autorizado por Paulo: aprofundar a 3.3 nas DUAS frentes.** Frente 2 entregue em `1cc9598c`.
+
+```powershell
+# FRENTE 1 — a medicao que constroi a lista da 3.3 (em curso)
+.\gradlew.bat test --tests "*MedicaoAcentoQueColideComVerboIT*" --rerun-tasks `
+  "-Dkronos.medicao=true" "-Dkronos.acervo=C:\animes"
+
+# depois: os testes do acoplamento novo, e a suite inteira
+.\gradlew.bat test --tests "*CorretorAcentoQueColideComVerbo*" --rerun-tasks
+```
+
+**ARMADILHA JA PAGA:** uma execucao desta medicao saiu `skipped=1` porque o
+`-Dkronos.medicao=true` nao chegou na JVM de teste — e **teste pulado tem a MESMA cara de teste
+que passou**. Conferir `skipped` no XML antes de acreditar em qualquer resultado vazio.
+
+### O que ja esta de pe (frente 2, commitada em 1cc9598c)
+
+```
+core/texto/gramatica/   RevisorGramaticalPort · AchadoGramatical · LanguageToolRevisorAdapter
+                        POS tagger pt-BR, offline, 5 categorias ligadas POR MEDICAO
+revisaoConcordancia/    CorretorAcentoQueColideComVerboService   (ainda NAO commitado)
+                        acoplado ao RevisarConcordanciaUseCase como SEGUNDO corretor
+```
+
+O par que resume tudo, e que os testes congelam:
+
+```
+"A milicia ordenou um blackout de noticias."  -> CORRIGE  (milicia->milicia, noticias->noticias, com acento)
+"O reporter noticia o caso todo dia."         -> NAO TOCA (mesma palavra, aqui e VERBO)
+```
+
+### O que falta, na ordem
+
+1. rodar `CorretorAcentoQueColideComVerboServiceTest` e depois a suite inteira
+2. ler o resultado da FRENTE 1 e decidir o que entra na lista de substantivos da 3.3
+3. rodar a 3.3 em dry-run no acervo, LER as falas uma a uma, so entao gravar
+4. catraca do acoplamento novo
+
+### ABERTO (vermelho), e trava o portao de TODA sessao
+
+`checar-memoria.ps1` nunca foi escrito nesta maquina — so existe o `.sh` (121 linhas) em
+`cerebro_de_ia/instrucoes/protocolo-engenharia-cheffzy/04-GUARDAS-EXECUTAVEIS/`. O
+`checar-portao.ps1` delega a secao 4 a ele desde 20/08, entao o portao sai `2` para sempre.
+Contrato do port: sair `0`/`1`/`2`, com caso-controle e com a linha de base de ausencias
+ja declaradas (`reference_memorias_ausentes_do_pacote.md`).
+
+---
+
 # FECHADO (2026-08-22) — acervo traduzido sem italico de dialogo, sem marcador vazado
 
 ## PROXIMA ACAO EXECUTAVEL EXATA (22/08/2026, 21:55)
