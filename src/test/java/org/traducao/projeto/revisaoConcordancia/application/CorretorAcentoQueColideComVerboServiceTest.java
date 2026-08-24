@@ -257,6 +257,48 @@ class CorretorAcentoQueColideComVerboServiceTest {
             + "ninguem le, porque a mesma regra produz as duas coisas");
     }
 
+    /**
+     * OS TRES DEFEITOS QUE A LEITURA DOS 280 PARES ENCONTROU (23/08/2026), e cada um exigiu um
+     * veto de tipo diferente — por isso os tres estao aqui juntos.
+     *
+     * <pre>
+     *   "Então, onde paramos?"                    DIACRITICS             -> páramos (planalto!)
+     *   "honrar sua sacrifico"                    PARONYM_SACRIFICA_555  -> sacrífico (nao existe)
+     *   "Esse discurso nos esta dando um sinal"   FRAGMENT_TWO_ARTICLES  -> nós (e obliquo)
+     * </pre>
+     *
+     * <p>O {@code DIACRITICS} NAO foi vetado — e ele que produz os 136 {@code sera -> será},
+     * todos certos. So a PALAVRA saiu. Ja o {@code FRAGMENT_TWO_ARTICLES} saiu inteiro: ele nem e
+     * regra de acento, acusa "dois determinantes seguidos" e devolve chutes.
+     */
+    @Test
+    @DisplayName("os tres defeitos que a leitura do acervo encontrou nao voltam")
+    void defeitosLidosNoAcervo() {
+        assumirMotor();
+        assertEquals(Optional.empty(), corretor.corrigir("Então, onde paramos?"),
+            "acentuou 'paramos' para 'páramos', que e planalto de altitude");
+        assertEquals(Optional.empty(),
+            corretor.corrigir("Pedimos que lute, mas nem ao menos nos importamos em honrar sua sacrifico."),
+            "aceitou 'sacrífico', que nao e o substantivo — o substantivo e 'sacrifício'");
+        assertEquals(Optional.empty(),
+            corretor.corrigir("Esse discurso nos esta dando um bom sinal para seguirmos."),
+            "trocou o pronome obliquo 'nos' por 'nós' — 'nos está dando' e o certo");
+    }
+
+    /**
+     * O contraponto do teste acima, e ele existe para o veto nao virar demolicao: a regra
+     * {@code DIACRITICS} continua ligada, porque e ela que produz os 136 {@code sera -> será} do
+     * acervo. Vetar a regra por causa de uma palavra custaria 136 correcoes certas.
+     */
+    @Test
+    @DisplayName("o veto e da PALAVRA, nao da regra: 'sera' continua sendo corrigido")
+    void vetoNaoDemoleARegra() {
+        assumirMotor();
+        Optional<String> r = corretor.corrigir("O nome sera Alus.");
+        assertTrue(r.isPresent() && r.get().contains("será"),
+            "vetar 'paramos' derrubou junto o 'sera -> será', que sao 136 acertos no acervo: " + r);
+    }
+
     @Test
     @DisplayName("entrada degenerada nao lanca")
     void entradaDegenerada() {

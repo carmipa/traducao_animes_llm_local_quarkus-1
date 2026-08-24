@@ -96,7 +96,29 @@ public class CorretorAcentoQueColideComVerboService {
      * gramática diz"; quem decide o que ousa gravar sem ninguém lendo é quem grava.
      */
     private static final Set<String> REGRAS_QUE_NAO_SE_APLICA_SOZINHO = Set.of(
-        "CRASE_CONFUSION", "DAR_À_LUZ", "PHRASAL_VERB_A");
+        "CRASE_CONFUSION", "DAR_À_LUZ", "PHRASAL_VERB_A",
+        // FRAGMENT_TWO_ARTICLES nao e regra de acento: ela acusa "dois determinantes seguidos" e
+        // devolve um punhado de chutes. Para `nos esta` ofereceu [nós esta, nesta, nos, esta,
+        // nos… Esta], e a unica que passa pelo filtro de acento e `nós esta` — que em
+        // "Esse discurso nos esta dando um bom sinal" esta ERRADA: ali `nos` e pronome obliquo
+        // ("nos está dando"), nao sujeito. Acertou 2 de 3 no acervo, e o erro escreve pronome
+        // trocado, que e mais visivel que os dois acertos somados.
+        "FRAGMENT_TWO_ARTICLES",
+        // PARONYM_SACRIFICA_555 e uma regra NOMINAL da familia dos paronimos — a mesma que da os
+        // bons `noticia->notícia` e `orbita->órbita`. So esta sai: em "honrar sua sacrifico" ela
+        // propos `sacrífico`, que nao e o substantivo (e `sacrifício`). A familia fica.
+        "PARONYM_SACRIFICA_555");
+
+    /**
+     * PALAVRAS que não se acentua sozinho, mesmo vindo de regra confiável.
+     *
+     * <p>{@code paramos} vem do {@code DIACRITICS}, a mesma regra que produz os 136
+     * {@code sera -> será} — todos certos. Mas em <i>"Então, onde paramos?"</i> ela propôs
+     * {@code páramos}, que é planalto de altitude. Numa legenda de anime o verbo {@code parar} é
+     * o caso normal e o substantivo geográfico não aparece nunca: vetar a palavra custa nada e
+     * vetar a regra custaria 136 correções certas.
+     */
+    private static final Set<String> PALAVRAS_QUE_NAO_SE_ACENTUA_SOZINHO = Set.of("paramos");
 
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
     private static final Pattern QUEBRA_ASS = Pattern.compile("\\\\[Nn]");
@@ -130,7 +152,8 @@ public class CorretorAcentoQueColideComVerboService {
         // achados seguintes assim que o primeiro mudasse o comprimento do texto.
         List<AchadoGramatical> aceitos = new ArrayList<>();
         for (AchadoGramatical a : achados) {
-            if (REGRAS_QUE_NAO_SE_APLICA_SOZINHO.contains(a.regra())) {
+            if (REGRAS_QUE_NAO_SE_APLICA_SOZINHO.contains(a.regra())
+                || tocaPalavraVetada(a.trecho())) {
                 continue;
             }
             String proposta = propostaSoDeAcento(a);
@@ -152,6 +175,27 @@ public class CorretorAcentoQueColideComVerboService {
         }
         String resultado = sb.toString();
         return resultado.equals(texto) ? Optional.empty() : Optional.of(resultado);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se o trecho contém alguma palavra que a tela não acentua sozinha.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: compara por palavra inteira e sem pontuação, porque o revisor
+     * devolve o trecho como ele aparece na fala — {@code paramos?} e {@code paramos} são a mesma
+     * palavra para este fim.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: trecho nulo devolve {@code false}; nunca lança.
+     */
+    private static boolean tocaPalavraVetada(String trecho) {
+        if (trecho == null) {
+            return false;
+        }
+        for (String palavra : trecho.toLowerCase().split("[^\\p{L}]+")) {
+            if (PALAVRAS_QUE_NAO_SE_ACENTUA_SOZINHO.contains(palavra)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Diz se o revisor está de pé — para quem chama separar "limpo" de "não verifiquei". */
