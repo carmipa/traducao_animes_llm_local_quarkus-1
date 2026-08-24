@@ -10,7 +10,7 @@ import { initAuditorConteudo } from '../auditorConteudoLegendas/auditorConteudoL
 import { initTraducao } from '../traducao/traducao.js?v=3.2';
 import { initTraducaoSemLore } from '../traducaoSemLore/traducaoSemLore.js?v=1.0';
 import { initCorrecao } from '../correcao/correcao.js?v=3.1';
-import { initRevisao } from '../revisao/revisao.js?v=3.4';
+import { initRevisao } from '../revisao/revisao.js?v=3.5';
 import { initCura } from '../cura/cura.js?v=3.0';
 import { initRevisaoLore } from '../revisaoLore/revisaoLore.js?v=3.2';
 import { initRevisaoConcordancia } from '../revisaoConcordancia/revisaoConcordancia.js?v=1.0';

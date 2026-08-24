@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,6 +76,26 @@ class CatracaAvisoSonoroNasTelasLongasTest {
     private static final Set<String> SEM_AVISO_LINHA_DE_BASE = Set.of(
         "correcao/correcao.js");
 
+    /**
+     * LINHA DE BASE do critério novo — as telas que DISPARAM trabalho de fila e ainda não avisam.
+     *
+     * <p>Ela é maior que a de cima de propósito: o critério antigo ("quem consulta a fila") só
+     * enxergava três telas, e por isso a 3.1 ficou muda sem ninguém ver. Trocado o critério, o
+     * tamanho real da dívida apareceu — e aparecer é o ponto. Cada uma sai daqui quando alguém
+     * tocar naquela tela, e a catraca garante que nenhuma NOVA entre.
+     *
+     * <p>Paulo pediu o aviso na 3.1 em 24/08/2026; ampliar por conta própria para as outras seis
+     * é o que a regra do Plano-Mestre proíbe. Lacuna conhecida é permitida; silenciosa não.
+     */
+    private static final Set<String> TELAS_DE_FILA_AINDA_MUDAS = new TreeSet<>(Set.of(
+        "analise/analise.js",
+        "correcao/correcao.js",
+        "cura/cura.js",
+        "extracao/extracao.js",
+        "remuxer/remuxer.js",
+        "traducaoSemLore/traducaoSemLore.js",
+        "trocaTipoLegenda/trocaTipoLegenda.js"));
+
     @Test
     @DisplayName("toda tela que espera a fila avisa pelo modulo compartilhado (ou esta na linha de base)")
     void telaQueEsperaAFilaTemDeAvisar() throws IOException {
@@ -100,6 +121,83 @@ class CatracaAvisoSonoroNasTelasLongasTest {
             "tela(s) que esperam a fila e terminam em SILENCIO: " + mudas
                 + ". Importe " + MODULO_COMPARTILHADO + " e chame " + CHAMADA_DO_AVISO
                 + " depois da conclusao — ou justifique na linha de base desta catraca.");
+    }
+
+    /**
+     * O FURO QUE ESTA CATRACA TINHA, e ele so apareceu quando Paulo reclamou (24/08/2026).
+     *
+     * <p>O critério acima é "quem CONSULTA a fila". Ele nasceu de uma observação verdadeira —
+     * quem espera a fila admite que o trabalho demora — mas deixa passar o caso oposto e pior:
+     * a tela que <b>dispara e esquece</b>. A 3.1 Revisão de Legendas fazia o POST, escrevia
+     * "Processamento iniciado no servidor!" e calava para sempre. Numa revisão de 50 episódios
+     * o operador sai de perto e volta sem saber se acabou, se falhou ou se ainda roda — os três
+     * estados com a mesma cara. E como ela não consultava a fila, a catraca dizia que estava tudo
+     * bem.
+     *
+     * <p>Este teste troca o critério por um que teria pego: <b>quem posta para um endpoint que
+     * ENFILEIRA</b> tem de esperar e avisar. A pergunta deixa de ser "esta tela espera?" e passa a
+     * ser "o trabalho desta tela roda em segundo plano?", que é o fato de verdade.
+     *
+     * <p>O lado do servidor é a fonte: um controller enfileira quando usa
+     * {@code filaExecucao.submeter} ou {@code pipelineWebSupport.submeterJob}. A 3.1 escapava
+     * também por aqui — ela usa o segundo, e a busca ingênua pelo primeiro não a via.
+     */
+    @Test
+    @DisplayName("toda tela cujo endpoint ENFILEIRA espera e avisa — o furo que deixou a 3.1 muda")
+    void telaComEndpointQueEnfileiraEsperaEAvisa() throws IOException {
+        Set<String> rotas = rotasQueEnfileiram();
+        assertFalse(rotas.isEmpty(),
+            "NAO VERIFICADO: nenhuma rota que enfileira foi encontrada. Ou a forma de enfileirar "
+                + "mudou, ou a varredura esta cega — os dois exigem olhar, nao verde.");
+
+        Set<String> faltando = new TreeSet<>();
+        try (Stream<Path> caminhos = Files.walk(RAIZ_ESTATICOS)) {
+            for (Path tela : caminhos.filter(p -> p.toString().endsWith(".js")).toList()) {
+                String js = Files.readString(tela, StandardCharsets.UTF_8);
+                boolean postaParaFila = rotas.stream().anyMatch(js::contains);
+                if (!postaParaFila) {
+                    continue;
+                }
+                String relativo = relativo(tela);
+                // NAO reutiliza a linha de base do criterio antigo: este teste tem a propria, e
+                // duas listas para a mesma divida divergem em silencio — foi o que aconteceu com
+                // o cartao do alvo em 19/08. Uma lista so, e ela e a de baixo.
+                // Exige o AVISO, nao o polling. Como a tela descobre que terminou e problema
+                // dela — a Traducao, por exemplo, sabe pelo fluxo de log e nunca consultou a
+                // fila. O que o operador precisa e o mesmo nos dois casos: um som quando acaba.
+                if (!(js.contains(MODULO_COMPARTILHADO) && js.contains(CHAMADA_DO_AVISO))) {
+                    faltando.add(relativo);
+                }
+            }
+        }
+        assertEquals(TELAS_DE_FILA_AINDA_MUDAS, faltando,
+            "a linha de base das telas de fila nao bate com a realidade. Se uma ganhou o aviso, "
+                + "RETIRE-A da lista — a catraca so desce. Se uma nova nasceu muda, ela e defeito: "
+                + "o POST apenas ENFILEIRA, e sem " + CHAMADA_DO_AVISO + " 'terminou', 'falhou' e "
+                + "'ainda rodando' saem iguais para quem saiu de perto.");
+    }
+
+    /** As rotas cujos controllers colocam o trabalho na fila do pipeline. */
+    private static Set<String> rotasQueEnfileiram() throws IOException {
+        Set<String> rotas = new TreeSet<>();
+        Path raizJava = Path.of("src", "main", "java");
+        if (!Files.isDirectory(raizJava)) {
+            return rotas;
+        }
+        Pattern post = Pattern.compile("@PostMapping\\(\"([^\"]+)\"\\)");
+        try (Stream<Path> caminhos = Files.walk(raizJava)) {
+            for (Path arquivo : caminhos.filter(p -> p.toString().endsWith("Controller.java")).toList()) {
+                String fonte = Files.readString(arquivo, StandardCharsets.UTF_8);
+                if (!fonte.contains("filaExecucao.submeter") && !fonte.contains("submeterJob")) {
+                    continue;
+                }
+                Matcher m = post.matcher(fonte);
+                while (m.find()) {
+                    rotas.add("/api" + m.group(1));
+                }
+            }
+        }
+        return rotas;
     }
 
     @Test

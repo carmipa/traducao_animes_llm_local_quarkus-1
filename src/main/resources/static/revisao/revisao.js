@@ -1,4 +1,8 @@
 import { logNoConsole } from '../js/app.js';
+// A 3.1 nasceu DISPARANDO E ESQUECENDO: fazia o POST, escrevia "Processamento iniciado" e nunca
+// mais perguntava se acabou. Quem dispara uma revisao de 50 episodios sai de perto — e voltava
+// sem saber se terminou. Pedido de Paulo em 24/08/2026, no mesmo modulo das telas irmas.
+import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
 import { montarOpcoesContextos } from '../js/selectContextos.js';
 import { ligarCartaoAlvoAtivo } from '../js/cartaoAlvoAtivo.js?v=1.1';
 
@@ -161,6 +165,33 @@ function lerCaminhoCacheValidado(inputCache) {
     return caminho;
 }
 
+/**
+ * PROPÓSITO DE NEGÓCIO: espera a fila do pipeline esvaziar, para a tela saber que o trabalho
+ * REALMENTE terminou — o POST apenas ENFILEIRA, e o trabalho roda em segundo plano.
+ *
+ * <p>Sem isto a 3.1 dizia "Processamento iniciado no servidor!" e calava para sempre. Numa
+ * revisão de 50 episódios o operador sai de perto e volta sem saber se acabou, se falhou ou se
+ * ainda está rodando — os três estados com a mesma cara.
+ *
+ * INVARIANTES DO DOMÍNIO: só retorna quando a fila reporta "livre"; nunca lança.
+ * COMPORTAMENTO EM CASO DE FALHA: avisa no console e retorna, para a tela não travar por causa
+ * do acompanhamento.
+ */
+async function acompanharConclusao() {
+    try {
+        for (;;) {
+            const resposta = await fetch('/api/pipeline/status', { cache: 'no-store' });
+            if (!resposta.ok) break;
+            const dados = await resposta.json();
+            if (dados.mensagem === 'livre') break;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    } catch (erro) {
+        logNoConsole('console-revisao',
+            `Não foi possível acompanhar o estado da fila: ${erro.message}`, 'aviso');
+    }
+}
+
 async function enviarRevisao(endpoint, payload, mensagemInicio) {
     logNoConsole('console-revisao', mensagemInicio, 'info');
     logNoConsole('console-revisao', `Pasta PT: ${payload.entrada}`, 'info');
@@ -200,6 +231,15 @@ async function enviarRevisao(endpoint, payload, mensagemInicio) {
     if (data.mensagem) {
         logNoConsole('console-revisao', data.mensagem, 'info');
     }
+
+    // O aviso e ARMADO antes de esperar: o navegador so libera audio depois de um gesto do
+    // usuario, e o clique que disparou a revisao e esse gesto. Armar depois, no fim do trabalho,
+    // cairia num contexto sem gesto e o som nao sairia.
+    const estadoAviso = armarAvisoSonoro();
+    logNoConsole('console-revisao', mensagemDoAviso(estadoAviso),
+        estadoAviso === 'ARMADO' ? 'info' : 'aviso');
+    await acompanharConclusao();
+    tocarAvisoSonoro();
 }
 
 async function carregarContextos() {
