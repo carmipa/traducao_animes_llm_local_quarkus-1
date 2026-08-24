@@ -57,7 +57,18 @@ public final class PadraoEstiloMusical {
      */
     private static final String[] SUBSTRING_MUSICAL = {
         "song", "music", "karaoke", "romaji", "opening", "ending", "theme", "insert", "sing",
-        "lyric"
+        "lyric",
+        // "romanji" — com N, e NAO e digitacao errada nossa: e como o estilo esta escrito no
+        // acervo, em 2.116 linhas do DanMachi. "romaji" nao casa "Romanji" por substring, e o
+        // furo era o UNICO do acervo: dos 115 estilos distintos, este era o unico com cara de
+        // musica que a politica nao reconhecia.
+        //
+        // O PREJUIZO, e foi GRAVADO em 24/08/2026: a reposicao de acento da 3.3 escreveu
+        //     "kanarazu mata ai ni iku kara"  ->  "kanarazu mata aí ni iku kara"
+        // em seis linhas de letra. O `ai` do romaji e 愛 ("amor"), nao o adverbio portugues.
+        // E a MESMA cicatriz de 19/08/2026, quando "mae" (前) virou "mãe" em 103 linhas —
+        // repetida cinco dias depois por uma letra a mais no nome do estilo. Desfeito do backup.
+        "romanji"
     };
 
     /**
