@@ -86,7 +86,7 @@ public class RevisaoConcordanciaController {
             try {
                 ResultadoConcordancia resultado =
                     revisarConcordanciaUseCase.revisarPasta(pastaTraduzida, aplicar);
-                imprimirBanner(resultado);
+                imprimirBanner(resultado, pastaTraduzida);
             } catch (Exception e) {
                 imprimirFalha("Falha inesperada: " + e.getMessage());
             } finally {
@@ -103,7 +103,7 @@ public class RevisaoConcordanciaController {
      * <p>INVARIANTES DO DOMÍNIO: sempre imprime arquivos/falas e o modo.
      * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não lança.
      */
-    private void imprimirBanner(ResultadoConcordancia r) {
+    private void imprimirBanner(ResultadoConcordancia r, Path alvo) {
         // A MESMA regra de cores das linhas por arquivo, agora no fecho: verde só quando algo foi
         // GRAVADO, amarelo quando há fala a corrigir e nada foi escrito (a simulação), e o cinza
         // neutro reservado ao caso em que realmente não havia nada. Antes o banner era verde
@@ -119,6 +119,16 @@ public class RevisaoConcordanciaController {
         String rotuloFalas = r.aplicado() ? "Falas corrigidas     : " : "Falas que mudariam   : ";
         System.out.println("\n" + cor + LINHA + AnsiCores.RESET);
         System.out.println(cor + "  [" + modo + "] REVISAO DE CONCORDANCIA (genero PT-BR)" + AnsiCores.RESET);
+        // O ALVO no banner, e ele nasceu de um susto REAL em 24/08/2026. Paulo pediu uma
+        // SIMULACAO do Macross II enquanto um lote de gravacao rodava, e o painel mostrou, logo
+        // abaixo do cabecalho "simular (dry-run)" que o NAVEGADOR imprimiu, um banner [APLICADO]
+        // com 11 arquivos — que era de OUTRA pasta, de OUTRA execucao, vinda do SERVIDOR.
+        //
+        // O console e um canal so: cabecalho do cliente e saida do servidor se intercalam, e quem
+        // opera atribui o que ve ao que acabou de clicar. Sem o alvo, o banner nao tem como ser
+        // conferido — e um [APLICADO] alheio embaixo do proprio "dry-run" e a pior leitura
+        // possivel: o operador acredita que gravou o que mandou simular.
+        System.out.println(cor + "  alvo: " + alvo + AnsiCores.RESET);
         System.out.println(cor + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Arquivos revisados   : " + r.arquivosAnalisados() + AnsiCores.RESET);
         // Linha separada, e ela NUNCA some do relatório: somar o que a tela nem abriu ao que ela
