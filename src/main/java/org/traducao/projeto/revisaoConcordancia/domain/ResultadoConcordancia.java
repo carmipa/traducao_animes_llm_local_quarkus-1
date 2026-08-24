@@ -41,7 +41,8 @@ public record ResultadoConcordancia(
     int falasPorGenero,
     int falasPorAcento,
     boolean revisorGramaticalDisponivel,
-    String motivoRevisorIndisponivel
+    String motivoRevisorIndisponivel,
+    List<ContagemCorretor> porCorretor
 ) {
     /** Compatibilidade com os chamadores que existiam antes do campo "fora do alcance". */
     public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
@@ -53,10 +54,11 @@ public record ResultadoConcordancia(
     public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
                                  List<Path> backups, boolean aplicado, int arquivosForaDoAlcance) {
         this(arquivosAnalisados, arquivosAlterados, falasCorrigidas, backups, aplicado,
-            arquivosForaDoAlcance, falasCorrigidas, 0, true, null);
+            arquivosForaDoAlcance, falasCorrigidas, 0, true, null, List.of());
     }
 
     public ResultadoConcordancia {
         backups = backups == null ? List.of() : List.copyOf(backups);
+        porCorretor = porCorretor == null ? List.of() : List.copyOf(porCorretor);
     }
 }
