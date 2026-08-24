@@ -143,4 +143,41 @@ class PadraoEstiloMusicalTest {
         assertFalse(PadraoEstiloMusical.nomeDeclaraMusica(""));
         assertFalse(PadraoEstiloMusical.nomeDeclaraMusica("   "));
     }
+
+    /**
+     * O PREJUIZO QUE ORIGINOU (24/08/2026), e ele foi GRAVADO no acervo.
+     *
+     * <p>A reposicao de acento da tela 3.3 escreveu, em seis linhas de letra do DanMachi:
+     *
+     * <pre>
+     *   "kanarazu mata ai ni iku kara"  ->  "kanarazu mata aí ni iku kara"
+     * </pre>
+     *
+     * O {@code ai} do romaji e 愛 ("amor"), nao o adverbio portugues. O veto de musica nao pegou
+     * porque o estilo no arquivo se chama <b>{@code Romanji}</b>, com N — e {@code "romaji"} nao
+     * casa isso por substring. Sao <b>2.116 linhas</b> no acervo com esse estilo, e dos 115
+     * estilos distintos ele era o UNICO com cara de musica que a politica nao reconhecia.
+     *
+     * <p>E a mesma cicatriz de 19/08/2026, quando {@code mae} (前) virou {@code mãe} em 103
+     * linhas — repetida cinco dias depois por causa de uma letra a mais no nome do estilo.
+     */
+    @Test
+    @DisplayName("Romanji com N e musica: o nome errado do acervo tambem vale")
+    void romanjiComNTambemEMusica() {
+        assertTrue(PadraoEstiloMusical.nomeDeclaraMusica("Romanji"),
+            "o estilo 'Romanji' (2.116 linhas no acervo) nao foi reconhecido como musica — foi "
+            + "por este furo que 'ai' virou 'aí' em letra de romaji");
+        assertTrue(PadraoEstiloMusical.nomeDeclaraMusica("romanji"),
+            "a comparacao tem de ser insensivel a caixa");
+        assertTrue(PadraoEstiloMusical.nomeDeclaraMusica("OP Romanji 2"),
+            "grudado a outras palavras continua sendo musica");
+        // O contraponto, para o remendo nao virar demolicao: 'romaji' certo continua valendo.
+        assertTrue(PadraoEstiloMusical.nomeDeclaraMusica("ED - Romaji"),
+            "a grafia correta parou de ser reconhecida");
+        // E o caso-controle negativo: nome comum nao pode virar musica por causa do remendo.
+        assertFalse(PadraoEstiloMusical.nomeDeclaraMusica("Default"),
+            "estilo de dialogo virou musica");
+        assertFalse(PadraoEstiloMusical.nomeDeclaraMusica("Roman"),
+            "'Roman' sozinho nao e romaji — o remendo nao pode alargar tanto");
+    }
 }
