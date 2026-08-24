@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
+import org.traducao.projeto.core.texto.gramatica.RevisorGramaticalMudo;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
@@ -57,6 +58,9 @@ class ConsoleDaRevisaoConcordanciaTest {
 
     private final RevisarConcordanciaUseCase useCase = new RevisarConcordanciaUseCase(
         new LeitorLegendaAss(), new EscritorLegendaAss(), new CorretorConcordanciaGeneroService(),
+        // Duble INDISPONIVEL de proposito: este teste e sobre o console do corretor de genero, e
+        // com o revisor fora do ar o banner tem de dizer NAO VERIFICADO em vez de zero.
+        new CorretorAcentoQueColideComVerboService(new RevisorGramaticalMudo()),
         new TelemetriaMuda(), new PoliticaEstiloMusical(List.of()));
 
     static class TelemetriaMuda extends TelemetriaService {

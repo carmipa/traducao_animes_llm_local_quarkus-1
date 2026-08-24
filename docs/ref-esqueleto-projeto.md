@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **484** |
-| classes em `src/test` | **392** |
+| classes em `src/main` | **485** |
+| classes em `src/test` | **394** |
 
 ---
 
@@ -37,7 +37,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
-    G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (4)"]:::fatia
+    G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (5)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
@@ -500,11 +500,12 @@ revisaoLore/
     └── RevisaoLoreController.java
 ```
 
-#### `revisaoConcordancia` — 4 classes
+#### `revisaoConcordancia` — 5 classes
 
 ```text
 revisaoConcordancia/
 ├── application/
+│   ├── CorretorAcentoQueColideComVerboService.java
 │   ├── CorretorConcordanciaGeneroService.java
 │   └── RevisarConcordanciaUseCase.java
 ├── domain/
@@ -890,7 +891,7 @@ core/
 
 ---
 
-## Testes — 392 classes
+## Testes — 394 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1023,7 +1024,7 @@ config/
 └── ModoExecucaoDispatcherTest.java
 ```
 
-#### `core` — 23 classes
+#### `core` — 24 classes
 
 ```text
 core/
@@ -1052,7 +1053,8 @@ core/
 │   │   ├── ReparoDeTerminacaoAoTest.java
 │   │   └── RomajiRotulaMasNaoIsentaTest.java
 │   ├── gramatica/
-│   │   └── LanguageToolRevisorAdapterTest.java
+│   │   ├── LanguageToolRevisorAdapterTest.java
+│   │   └── RevisorGramaticalMudo.java
 │   ├── FronteiraTermoAssTest.java
 │   ├── TextoSemTagsTest.java
 │   └── TokenDeControleLlmTest.java
@@ -1358,12 +1360,13 @@ renomearArquivos/
     └── RenomeadorUseCaseTest.java
 ```
 
-#### `revisaoConcordancia` — 4 classes
+#### `revisaoConcordancia` — 5 classes
 
 ```text
 revisaoConcordancia/
 └── application/
     ├── ConsoleDaRevisaoConcordanciaTest.java
+    ├── CorretorAcentoQueColideComVerboServiceTest.java
     ├── CorretorConcordanciaGeneroServiceTest.java
     ├── DiagnosticoCorretorConcordanciaIT.java
     └── RevisarConcordanciaUseCaseTest.java

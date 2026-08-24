@@ -129,6 +129,22 @@ public class RevisaoConcordanciaController {
         }
         System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
         System.out.println(cor + "  • " + rotuloFalas + r.falasCorrigidas() + AnsiCores.RESET);
+        // A tela tem DOIS corretores desde 23/08/2026, e o operador precisa saber de onde veio o
+        // ganho: genero decide por determinante, acento resolve a inversao verbo/substantivo.
+        // Sem esta quebra, uma passada de 20 falas nao diz se a lista de substantivos rendeu ou
+        // se foi o revisor gramatical que carregou sozinho.
+        System.out.println(AnsiCores.DIM + "      por genero         : " + r.falasPorGenero()
+            + AnsiCores.RESET);
+        if (r.revisorGramaticalDisponivel()) {
+            System.out.println(AnsiCores.DIM + "      por acento         : " + r.falasPorAcento()
+                + AnsiCores.RESET);
+        } else {
+            // ZERO com o motor fora do ar NAO e "esta limpo": e NAO VERIFIQUEI, e sai dito assim.
+            System.out.println(AnsiCores.YELLOW + "      por acento         : NAO VERIFICADO — "
+                + (r.motivoRevisorIndisponivel() == null
+                    ? "revisor gramatical indisponivel" : r.motivoRevisorIndisponivel())
+                + AnsiCores.RESET);
+        }
         System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
         System.out.println(cor + LINHA + "\n" + AnsiCores.RESET);
     }

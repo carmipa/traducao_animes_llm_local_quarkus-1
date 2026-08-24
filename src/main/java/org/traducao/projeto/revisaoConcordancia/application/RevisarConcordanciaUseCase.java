@@ -65,6 +65,15 @@ public class RevisarConcordanciaUseCase {
     private final LeitorLegendaAss leitor;
     private final EscritorLegendaAss escritor;
     private final CorretorConcordanciaGeneroService corretor;
+
+    /**
+     * O segundo corretor da tela, e ele fecha a classe que o primeiro nunca veria: o substantivo
+     * escrito como forma verbal ({@code a milicia}, {@code de noticias}, {@code em orbita}).
+     * Entrou em 23/08/2026, depois de o Macross II sair com 12,5% das falas defeituosas e esta
+     * tela devolver, com razao, "NADA A CORRIGIR" — porque o defeito nao era de genero.
+     */
+    private final CorretorAcentoQueColideComVerboService corretorAcento;
+
     private final TelemetriaService telemetriaService;
 
     /**
@@ -92,11 +101,14 @@ public class RevisarConcordanciaUseCase {
 
     public RevisarConcordanciaUseCase(
         LeitorLegendaAss leitor, EscritorLegendaAss escritor,
-        CorretorConcordanciaGeneroService corretor, TelemetriaService telemetriaService,
+        CorretorConcordanciaGeneroService corretor,
+        CorretorAcentoQueColideComVerboService corretorAcento,
+        TelemetriaService telemetriaService,
         PoliticaEstiloMusical politicaEstiloMusical) {
         this.leitor = leitor;
         this.escritor = escritor;
         this.corretor = corretor;
+        this.corretorAcento = corretorAcento;
         this.telemetriaService = telemetriaService;
         this.politicaEstiloMusical = politicaEstiloMusical;
     }
@@ -129,6 +141,10 @@ public class RevisarConcordanciaUseCase {
         int alterados = 0;
         int falasCorrigidas = 0;
         int foraDoAlcance = 0;
+        // Contados SEPARADO por corretor: um numero so nao diria de onde veio o ganho, e a ordem
+        // permanente deste projeto e contador do que agiu E do que se absteve.
+        int porGeneroTotal = 0;
+        int porAcentoTotal = 0;
         List<Path> backups = new ArrayList<>();
 
         for (Path arquivo : arquivos) {
@@ -148,10 +164,22 @@ public class RevisarConcordanciaUseCase {
                         novos.add(evento);
                         continue;
                     }
-                    Optional<String> corrigida = corretor.corrigir(evento.texto());
-                    if (corrigida.isPresent()) {
+                    // DOIS corretores em cadeia, e a ordem importa: o de genero primeiro,
+                    // porque ele decide por determinante e uma palavra ja acentuada pelo segundo
+                    // continuaria casando igual — mas o contrario nao vale, ja que trocar o
+                    // determinante muda o contexto que o revisor gramatical le.
+                    String antes = evento.texto();
+                    String porGenero = corretor.corrigir(antes).orElse(antes);
+                    String depois = corretorAcento.corrigir(porGenero).orElse(porGenero);
+                    if (!porGenero.equals(antes)) {
+                        porGeneroTotal++;
+                    }
+                    if (!depois.equals(porGenero)) {
+                        porAcentoTotal++;
+                    }
+                    if (!depois.equals(antes)) {
                         corrigidasArq++;
-                        novos.add(evento.comTexto(corrigida.get()));
+                        novos.add(evento.comTexto(depois));
                     } else {
                         novos.add(evento);
                     }
@@ -189,8 +217,13 @@ public class RevisarConcordanciaUseCase {
                 log.warn("Revisão de concordância pulou {} por erro: {}", arquivo, e.getMessage());
             }
         }
+        // A disponibilidade do revisor viaja com o resultado porque ZERO correcao de acento tem
+        // duas causas possiveis — texto limpo, ou motor que nao subiu — e as duas nao podem sair
+        // com a mesma cara na tela (invariante 12).
         ResultadoConcordancia resultado = new ResultadoConcordancia(
-            analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar, foraDoAlcance);
+            analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar, foraDoAlcance,
+            porGeneroTotal, porAcentoTotal,
+            corretorAcento.disponivel(), corretorAcento.motivoDaIndisponibilidade());
         telemetriaService.registrarOperacao(new OperacaoTelemetria(
             "Revisão de Concordância",
             "Pasta: " + pasta.getFileName() + (aplicar ? " (aplicado)" : " (simulado)"),
