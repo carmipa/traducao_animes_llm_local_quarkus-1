@@ -137,7 +137,16 @@ public class CorretorAcentoPorPadraoService {
      * texto em inglês. Então em vez de adivinhar a palavra seguinte, exige-se prova de que a FALA
      * é portuguesa — um diacrítico que o inglês não usa, ou uma palavra funcional inequívoca.
      */
-    private static final Pattern FALA_E_PORTUGUESA = Pattern.compile(
+    /**
+     * Prova barata de que a fala e portuguesa: um diacritico proprio do idioma, ou uma das
+     * palavras-funcao que so o portugues tem nesta forma.
+     *
+     * <p>Visivel ao PACOTE de proposito. O {@link CorretorCaractereForaDoPortuguesService}
+     * precisa da mesma prova para decidir se pode apagar pontuacao espanhola, e reimplementa-la
+     * la seria a segunda implementacao do mesmo criterio — que neste projeto sempre divergiu da
+     * primeira. Uma so definicao, dois donos de regra que a consultam.
+     */
+    static final Pattern FALA_E_PORTUGUESA = Pattern.compile(
         "[áàâãéêíóôõúüçÁÀÂÃÉÊÍÓÔÕÚÜÇ]"
         + "|" + INICIO + "(?:que|n[ãa]o|voc[êe]|uma|isso|isto|ent[ãa]o|para|pelo|pela|"
         + "est[áa]|s[ãa]o|mas|meu|minha|seu|sua|nosso|nossa|aqui|agora|quando|porque|"

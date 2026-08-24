@@ -35,8 +35,8 @@ class RevisarConcordanciaUseCaseTest {
         new CorretorAcentoQueColideComVerboService(
             new org.traducao.projeto.core.texto.gramatica.RevisorGramaticalMudo()),
         new CorretorAcentoPorPadraoService(),
-        new CorretorAcentoDeDicionarioNaFalaService(
-            new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
+        new CorretorAcentoDeDicionarioNaFalaService(new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
+        new CorretorCaractereForaDoPortuguesService(new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
         telemetria,
         new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()));
 
