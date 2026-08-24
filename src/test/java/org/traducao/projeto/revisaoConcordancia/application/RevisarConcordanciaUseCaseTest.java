@@ -34,6 +34,9 @@ class RevisarConcordanciaUseCaseTest {
         // Duble INDISPONIVEL: este teste e sobre dry-run e backup, nao sobre gramatica.
         new CorretorAcentoQueColideComVerboService(
             new org.traducao.projeto.core.texto.gramatica.RevisorGramaticalMudo()),
+        new CorretorAcentoPorPadraoService(),
+        new CorretorAcentoDeDicionarioNaFalaService(
+            new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
         telemetria,
         new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()));
 

@@ -61,6 +61,9 @@ class ConsoleDaRevisaoConcordanciaTest {
         // Duble INDISPONIVEL de proposito: este teste e sobre o console do corretor de genero, e
         // com o revisor fora do ar o banner tem de dizer NAO VERIFICADO em vez de zero.
         new CorretorAcentoQueColideComVerboService(new RevisorGramaticalMudo()),
+        new CorretorAcentoPorPadraoService(),
+        new CorretorAcentoDeDicionarioNaFalaService(
+            new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()),
         new TelemetriaMuda(), new PoliticaEstiloMusical(List.of()));
 
     static class TelemetriaMuda extends TelemetriaService {
