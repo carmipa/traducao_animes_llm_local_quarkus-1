@@ -156,7 +156,7 @@ public class RevisaoLoreController {
             try {
                 ResultadoRevisaoLore resultado = revisarLoreUseCase.executar(
                     pastaOriginal, pastaTraduzida, req.contextoId(), revisarTodas);
-                imprimirBanner(resultado);
+                imprimirBanner(resultado, pastaTraduzida);
             } catch (RevisaoLoreException e) {
                 imprimirFalha(e.getMessage());
             } catch (Exception e) {
@@ -192,7 +192,7 @@ public class RevisaoLoreController {
      * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não
      * lança exceção (roda dentro do finally da tarefa da fila).
      */
-    private void imprimirBanner(ResultadoRevisaoLore r) {
+    private void imprimirBanner(ResultadoRevisaoLore r, Path alvo) {
         String cor = switch (r.status()) {
             case CONCLUIDO -> AnsiCores.GREEN;
             case CONCLUIDO_COM_PENDENCIAS, CANCELADO, SEM_ARQUIVOS -> AnsiCores.YELLOW;
@@ -200,6 +200,10 @@ public class RevisaoLoreController {
         };
         System.out.println("\n" + cor + LINHA + AnsiCores.RESET);
         System.out.println(cor + "  [" + r.status().rotulo().toUpperCase() + "] REVISAO DE LORE" + AnsiCores.RESET);
+        // O ALVO no banner. Mesma cicatriz da 3.3, varrida para ca em 24/08/2026: o console e um
+        // canal so, o cabecalho vem do NAVEGADOR e o banner vem do SERVIDOR, e sem o alvo o
+        // operador atribui a propria execucao um banner que e de outra pasta.
+        System.out.println(cor + "  alvo: " + alvo + AnsiCores.RESET);
         System.out.println(cor + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Arquivos analisados  : " + r.arquivosAnalisados() + AnsiCores.RESET);
         System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
