@@ -394,9 +394,22 @@ class MedicaoAcentoQueColideComVerboIT {
     @Test
     @DisplayName("APLICA a 3.3 no acervo (so com autorizacao) e prova a idempotencia na 2a passada")
     void aplicarNoAcervo() throws IOException {
-        boolean escrever = AUTORIZACAO.equals(System.getProperty(CHAVE_ESCRITA));
+        String recebida = System.getProperty(CHAVE_ESCRITA);
+        boolean escrever = AUTORIZACAO.equals(recebida);
         System.out.printf("%n=== 3.3 NO ACERVO — modo %s ===%n",
             escrever ? "!! ESCRITA !!" : "ENSAIO (nada e gravado)");
+        // NAO BASTA DIZER "ENSAIO". Em 25/08/2026 a autorizacao foi passada certa na linha de
+        // comando e nao chegou aqui: a lista de propriedades encaminhadas ao JVM de teste e
+        // NOMINAL, e a chave nova nao estava nela. O harness disse "ENSAIO" e nada mais, entao
+        // "ninguem autorizou" e "a autorizacao se perdeu no caminho" sairam identicos — que e a
+        // ambiguidade de saida vazia, aqui aplicada a uma trava de escrita.
+        if (!escrever) {
+            System.out.printf("  autorizacao: -D%s=%s%n", CHAVE_ESCRITA,
+                recebida == null
+                    ? "(NAO CHEGOU ao JVM de teste — ou nao foi passada, ou falta declarar a "
+                        + "chave na lista nominal do build.gradle)"
+                    : "'" + recebida + "' — DIFERENTE do exigido '" + AUTORIZACAO + "'");
+        }
         if (!Files.isDirectory(RAIZ)) {
             System.out.println("NAO VERIFICADO: acervo ausente em " + RAIZ);
             return;
