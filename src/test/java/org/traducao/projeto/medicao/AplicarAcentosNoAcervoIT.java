@@ -192,16 +192,26 @@ class AplicarAcentosNoAcervoIT {
             """);
     }
 
-    /** Pastas {@code traducao_ptbr} de qualquer profundidade sob a raiz do acervo. */
+    /**
+     * PROPÓSITO DE NEGÓCIO: os arquivos entregues que esta ferramenta vai <b>reescrever</b>.
+     *
+     * <h2>Por que delega ao {@link AlcanceDaMedicao}</h2>
+     * A varredura própria daqui ignorava {@code -Dkronos.medicao.obra}: pedir "aplique só no
+     * 0080" reescrevia o acervo inteiro. Numa ferramenta que ENSAIA isso é perda de tempo; numa
+     * que ESCREVE, é a diferença entre um erro de seis arquivos e um de 222.
+     *
+     * <p>O dono único também recusa {@code .parcial} — que não é entrega — e declara NÃO
+     * VERIFICADO quando o filtro não casa com nada, em vez de devolver lista vazia em silêncio.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; lista vazia significa "não
+     * medi", e quem chama já trata isso com a mensagem de instrumento cego logo acima.
+     */
     private static List<Path> localizarTraduzidos(Path acervo) throws IOException {
-        try (Stream<Path> caminhada = Files.walk(acervo, 6)) {
-            return caminhada
-                .filter(Files::isRegularFile)
-                .filter(p -> p.toString().endsWith(".ass"))
-                .filter(p -> p.getParent() != null
-                    && "traducao_ptbr".equals(p.getParent().getFileName().toString()))
-                .toList();
+        List<Path> arquivos = new java.util.ArrayList<>();
+        for (Path pasta : AlcanceDaMedicao.pastasDeTraducao()) {
+            arquivos.addAll(AlcanceDaMedicao.arquivosEntregues(pasta));
         }
+        return arquivos;
     }
 
     private static int contarDialogos(List<String> linhas) {
