@@ -137,7 +137,10 @@ class MedicaoAcentoQueColideComVerboIT {
         // nenhum numero do acervo vale.
         Optional<String> padraoOk = corretorPadrao.corrigir("Isso e tudo.");
         Optional<String> padraoNao = corretorPadrao.corrigir("Judau, isso e aquilo.");
-        Optional<String> dicOk = corretorDicionario.corrigir("Chegamos a borda do territorio.");
+        // A fala do controle mudou em 24/08/2026: `Territorio` maiusculo deixou de ser
+        // corrigido de proposito (guarda de nome proprio), entao o controle passou a usar a
+        // forma minuscula. Controle que exercita um caminho desligado nao prova nada.
+        Optional<String> dicOk = corretorDicionario.corrigir("Nao ha territorio inimigo aqui.");
         Optional<String> dicNao = corretorDicionario.corrigir("Aquele e o mobile armor Apsaras.");
         if (padraoOk.isEmpty() || padraoNao.isPresent() || dicOk.isEmpty()
             || (dicNao.isPresent() && dicNao.get().contains("Apsarás"))) {

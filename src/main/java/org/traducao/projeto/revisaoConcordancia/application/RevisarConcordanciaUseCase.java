@@ -214,7 +214,7 @@ public class RevisarConcordanciaUseCase {
                         arquivo.getFileName());
                 }
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (!evento.temTexto() || eMusica(evento)) {
+                    if (!evento.temTexto() || eMusica(evento) || eComentario(evento)) {
                         novos.add(evento);
                         continue;
                     }
@@ -458,6 +458,43 @@ public class RevisarConcordanciaUseCase {
     private static ContagemCorretor contagem(String nome, long[] placar, boolean disponivel) {
         return new ContagemCorretor(nome, (int) placar[0], (int) placar[1], (int) placar[2],
             disponivel, placar[3]);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se a linha é {@code Comment} — a que o reprodutor NÃO mostra.
+     *
+     * <h2>A fala que encontrou este buraco</h2>
+     * Em 25/08/2026, lendo os 98 pares que o acervo produziria antes de gravar, apareceu
+     * {@code place → placê} em duas falas do DanMachi. A procura pelo texto no acervo não achou
+     * nada — porque a fala não é {@code Dialogue}, é {@code Comment}:
+     *
+     * <pre>
+     *   Comment: ...,English,...,{\bord0\shad0\an5\pos(940,1020)...}Is the place where you aim,
+     * </pre>
+     *
+     * <h2>Por que não se corrige o que ninguém lê</h2>
+     * <ul>
+     *   <li><b>Ganho zero.</b> A régua deste projeto é <i>atrapalha ler?</i>. Linha que o
+     *       reprodutor não desenha não atrapalha ler coisa nenhuma.</li>
+     *   <li><b>Risco real.</b> {@code Comment} é onde o Kara Templater guarda o MOLDE do karaokê;
+     *       mexer no texto do molde mexe no que ele gera. O acervo tem 1.937 dessas linhas, e
+     *       {@code Flower} (136), {@code EVERYTHING} (91) e {@code English} (79) não são pegas
+     *       pelo veto de música — passavam direto.</li>
+     *   <li><b>Número inflado.</b> Contar como "fala corrigida" o que ninguém vê faz a tela
+     *       reportar trabalho que não existe.</li>
+     * </ul>
+     *
+     * <p>O escritor devolve o tipo como veio ({@code prefixo = tipo + ": " + ...}), então nunca
+     * houve o risco pior — {@code Comment} virar {@code Dialogue} e aparecer na tela. Isso foi
+     * conferido antes de escrever esta guarda, e não presumido.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só olha o tipo da linha; não decide por estilo nem por conteúdo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: tipo nulo NÃO é comentário — na dúvida a fala segue para
+     * a correção, que é o comportamento de sempre.
+     */
+    private boolean eComentario(EventoLegenda evento) {
+        return "Comment".equals(evento.tipoLinha());
     }
 
     private boolean eParcial(Path arquivo) {
