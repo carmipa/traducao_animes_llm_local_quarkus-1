@@ -59,9 +59,30 @@ public class CorretorAcentoDeDicionarioNaFalaService {
      * ficando desprotegido, que é o dano que esta classe existe para impedir.
      */
     private static final Pattern CAPITALIZADA = Pattern.compile(
-        "(\\S*)\\s*" + FronteiraTermoAss.INICIO + "(\\p{Lu}\\p{L}{2,})" + FronteiraTermoAss.FIM);
+        FronteiraTermoAss.INICIO + "(\\p{Lu}\\p{L}{2,})" + FronteiraTermoAss.FIM);
+
+    /** Qualquer palavra que comece com maiúscula, com a fronteira canônica do ASS. */
+    private static final Pattern MAIUSCULA = Pattern.compile(
+        FronteiraTermoAss.INICIO + "(\\p{Lu}[\\p{L}]*)" + FronteiraTermoAss.FIM);
 
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
+
+    /**
+     * Quantas falas o PORTAO DE IDIOMA barrou <b>tendo correcao para fazer</b>.
+     *
+     * <p>Nao e curiosidade: e o preco da guarda. Uma guarda cujo custo ninguem mede vira dogma, e
+     * dogma nao se revisa quando o acervo muda. Se este numero crescer muito, a regra do idioma
+     * esta larga demais e volta para a mesa.
+     */
+    private final java.util.concurrent.atomic.AtomicInteger barradasPorIdioma =
+        new java.util.concurrent.atomic.AtomicInteger();
+
+    /**
+     * Quantas falas a guarda de MAIUSCULA barrou tendo correcao para fazer — o preco medido dos
+     * ~48 nomes de lore salvos.
+     */
+    private final java.util.concurrent.atomic.AtomicInteger barradasPorMaiuscula =
+        new java.util.concurrent.atomic.AtomicInteger();
 
     private final CorretorOrtograficoLegenda dicionario;
 
@@ -89,8 +110,34 @@ public class CorretorAcentoDeDicionarioNaFalaService {
         //
         // O corretor de produção já falha fechado: sem dicionário, devolve o texto como veio.
         // Então chama-se, e a disponibilidade só é consultada DEPOIS, para o relatório.
-        String novo = dicionario.corrigir(texto, nomesPropriosNoMeioDaFala(texto));
-        return novo == null || novo.equals(texto) ? Optional.empty() : Optional.of(novo);
+        Set<String> intocaveis = palavrasComMaiuscula(texto);
+        String novo = dicionario.corrigir(texto, intocaveis);
+        boolean mudaria = novo != null && !novo.equals(texto);
+
+        // PORTAO DE IDIOMA — a fala tem de se provar PORTUGUESA.
+        //
+        // O acervo tem fala inglesa inteira: "That might not be a bad idea." O dicionario
+        // portugues nao sabe o que e `idea`, ve que `ideá` existe, e devolve "a bad ideá".
+        // Acentuar palavra de outro idioma nao e corrigir — e estragar por fora do dominio.
+        //
+        // A CORRECAO E CALCULADA ANTES DO PORTAO DE PROPOSITO. So assim da para CONTAR o que o
+        // portao custa: sem esse numero, "a guarda e barata" seria opiniao. Custa uma consulta a
+        // memoria ja aquecida do dicionario, e so nas falas que ele barra.
+        if (!CorretorAcentoPorPadraoService.FALA_E_PORTUGUESA.matcher(texto).find()) {
+            if (mudaria) {
+                barradasPorIdioma.incrementAndGet();
+            }
+            return Optional.empty();
+        }
+        if (!mudaria) {
+            // Contador do que se ABSTEVE por caixa alta: separa "nao havia acento a repor" de
+            // "havia, e a guarda do nome proprio segurou".
+            String semGuarda = dicionario.corrigir(texto, Set.of());
+            if (semGuarda != null && !semGuarda.equals(texto)) {
+                barradasPorMaiuscula.incrementAndGet();
+            }
+        }
+        return mudaria ? Optional.of(novo) : Optional.empty();
     }
 
     /**
@@ -123,8 +170,108 @@ public class CorretorAcentoDeDicionarioNaFalaService {
      * verificador nasce com estado indefinido e só se declara disponível quando responde a
      * primeira consulta. Perguntar antes devolve {@code false} sem que nada esteja errado.
      */
+    /** Falas que o portão de idioma barrou tendo o que corrigir. */
+    public int barradasPorIdioma() {
+        return barradasPorIdioma.get();
+    }
+
+    /** Falas que a guarda de maiúscula barrou tendo o que corrigir. */
+    public int barradasPorMaiuscula() {
+        return barradasPorMaiuscula.get();
+    }
+
+    /** Zera os dois contadores — uma passada não pode herdar o placar da anterior. */
+    public void zerarPlacarDasGuardas() {
+        barradasPorIdioma.set(0);
+        barradasPorMaiuscula.set(0);
+    }
+
     public boolean disponivel() {
         return dicionario.disponivel();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: TODA palavra que começa com maiúscula é intocável para este corretor.
+     *
+     * <h2>Por que a régua ficou tão larga, e o que foi medido para chegar nela</h2>
+     * A regra anterior protegia só a capitalizada <b>no meio</b> da fala. Em 24/08/2026 a leitura
+     * dos 1.156 pares que o acervo produziria mostrou que isso não basta — nome de personagem abre
+     * frase o tempo todo:
+     *
+     * <pre>
+     *   Artemis -> Ártemis   ~19 falas   DanMachi     "Ártemis..." sozinha na linha
+     *   Astrea  -> Ástrea      8 falas   DanMachi     "Ástrea Record."
+     *   Ingues  -> Ingués      8 falas   Macross II   "Senhor Imperador Ingués"
+     *   Cardeas -> Cárdeas     6 falas   Unicorn      "Cárdeas Vist."
+     *   Cleo    -> Cléo        4 falas   Break Blade  "Cléo, minha filha..."
+     *   Orario  -> Orário      1 fala    DanMachi     e a CIDADE da obra
+     *   Loquis, Demeter, Virus                        deuses e termo de lore
+     * </pre>
+     *
+     * <p>Contra isso, o que a régua larga CUSTA no acervo inteiro: <b>três</b> falas de
+     * {@code Parabens→Parabéns}. Quarenta e oito nomes salvos por três acentos perdidos, e o
+     * acento perdido continua legível enquanto o nome trocado vira outro personagem.
+     *
+     * <h2>Duas hipóteses mais finas foram MEDIDAS e morreram antes de virar código</h2>
+     * <ul>
+     *   <li><i>"só corrige se a forma minúscula for portuguesa"</i> — o hunspell aceita
+     *       {@code cárdeas}, {@code ástrea} e {@code ingués} em minúscula. Barraria 2 nomes de 5.</li>
+     *   <li><i>"protege quem está no meio da frase"</i> — era a regra antiga, e o acervo mostrou
+     *       nome abrindo frase em cinco obras.</li>
+     * </ul>
+     *
+     * <p>Também some daqui um BUG: a versão anterior lia o token anterior com {@code (\S*)\s*}
+     * <b>dentro da mesma regex</b>, e o casamento anterior já tinha consumido esse token. Em
+     * {@code "Você viu a Lady Artemis"}, {@code Lady} casava primeiro, e {@code Artemis} vinha com
+     * prefixo VAZIO — lido como início de frase e deixado desprotegido, mesmo estando no meio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só olha o texto recebido; tags {@code {...}} e a quebra
+     * {@code \N} não entram.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve conjunto vazio; nunca lança.
+     */
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se a palavra que começa em {@code posicao} <b>abre uma frase</b>.
+     *
+     * <h2>O bug que este método corrige</h2>
+     * A versão anterior capturava o token anterior <i>dentro da própria regex</i>, com
+     * {@code (\S*)\s*}. Só que o casamento anterior já tinha consumido esse token: em
+     * {@code "Você viu a Lady Artemis"}, {@code Lady} casava primeiro e, na busca seguinte, o
+     * prefixo de {@code Artemis} vinha VAZIO. A conclusão era "abre frase", e o nome ficava
+     * desprotegido justamente onde estava mais claramente no meio da fala.
+     *
+     * <p>Olhar para TRÁS por posição não tem esse problema: o texto continua lá, tenha o matcher
+     * consumido o que tiver.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: função pura da string e da posição.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: posição fora da string conta como início; nunca lança.
+     */
+    private static boolean abreFrase(String visivel, int posicao) {
+        int i = Math.min(posicao, visivel.length()) - 1;
+        while (i >= 0 && Character.isWhitespace(visivel.charAt(i))) {
+            i--;
+        }
+        if (i < 0) {
+            return true;
+        }
+        char anterior = visivel.charAt(i);
+        return anterior == '.' || anterior == '!' || anterior == '?' || anterior == ':'
+            || anterior == '"' || anterior == '\u2014' || anterior == '-';
+    }
+
+    static Set<String> palavrasComMaiuscula(String texto) {
+        Set<String> fora = new LinkedHashSet<>();
+        if (texto == null) {
+            return fora;
+        }
+        String visivel = TAG_ASS.matcher(texto).replaceAll(" ")
+            .replace("\\N", " ").replace("\\n", " ");
+        Matcher m = MAIUSCULA.matcher(visivel);
+        while (m.find()) {
+            fora.add(m.group(1));
+        }
+        return fora;
     }
 
     /**
@@ -139,9 +286,13 @@ public class CorretorAcentoDeDicionarioNaFalaService {
      *
      * <p>INVARIANTES DO DOMÍNIO: só olha o texto recebido; não consulta lore nem dicionário.
      *
+     * <p>PÚBLICO desde 24/08/2026 porque a medição precisa da MESMA resposta. A alternativa era
+     * reimplementar "isto é nome próprio?" no harness, e neste projeto a segunda implementação de
+     * um critério sempre divergiu da primeira — sempre depois de já ter estragado alguma coisa.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve conjunto vazio; nunca lança.
      */
-    static Set<String> nomesPropriosNoMeioDaFala(String texto) {
+    public static Set<String> nomesPropriosNoMeioDaFala(String texto) {
         Set<String> fora = new LinkedHashSet<>();
         if (texto == null) {
             return fora;
@@ -150,14 +301,8 @@ public class CorretorAcentoDeDicionarioNaFalaService {
             .replace("\\N", " ").replace("\\n", " ");
         Matcher m = CAPITALIZADA.matcher(visivel);
         while (m.find()) {
-            String antes = m.group(1);
-            // Abre frase quando não há nada antes, ou quando o que vem antes termina a anterior.
-            boolean abreFrase = antes == null || antes.isBlank()
-                || antes.endsWith(".") || antes.endsWith("!") || antes.endsWith("?")
-                || antes.endsWith(":") || antes.endsWith("\"") || antes.endsWith("—")
-                || antes.endsWith("-") || antes.endsWith("...");
-            if (!abreFrase) {
-                fora.add(m.group(2));
+            if (!abreFrase(visivel, m.start(1))) {
+                fora.add(m.group(1));
             }
         }
         return fora;

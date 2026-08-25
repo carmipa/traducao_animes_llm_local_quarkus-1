@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * PROPÓSITO DE NEGÓCIO: medir, no acervo, o que a reposição de acento da 3.3 <b>faria</b> se
  * rodasse hoje — quantas falas, em que obras, e trocando o quê por quê.
@@ -199,6 +201,20 @@ class MedicaoAcentoQueColideComVerboIT {
                 } catch (RuntimeException e) {
                     continue;
                 }
+                // AQUECIMENTO, uma vez por arquivo — o mesmo que o caso de uso da tela faz.
+                //
+                // Consertar so a producao e deixar a medicao no caminho lento faz a medicao
+                // custar horas e, pior, medir um sistema que ja nao existe. Foi o que aconteceu
+                // em 24/08/2026: o use case ja aquecia e este laco continuava pagando um processo
+                // externo por fala, e a varredura do acervo travou de novo pelo mesmo motivo que
+                // eu acabara de corrigir.
+                List<String> falasDoArquivo = documento.eventos().stream()
+                    .filter(EventoLegenda::temTexto)
+                    .filter(e -> e.estilo() == null || !politicaEstiloMusical.estiloIgnorado(e.estilo()))
+                    .map(EventoLegenda::texto)
+                    .toList();
+                corretorDicionario.aquecerCom(falasDoArquivo);
+
                 for (EventoLegenda evento : documento.eventos()) {
                     if (!evento.temTexto()) {
                         continue;
@@ -334,5 +350,113 @@ class MedicaoAcentoQueColideComVerboIT {
                 System.out.println("      " + c.linhaDeRelatorio());
             }
         }
+    }
+    /**
+     * A frase EXATA que autoriza escrever no acervo. Não é senha: é uma trava contra o dedo
+     * errado. Rodar a medição e rodar a gravação não podem se parecer na linha de comando, porque
+     * em 24/08/2026 Paulo marcou "Apenas simular" na tela e leu {@code [APLICADO]} no console —
+     * era de outra execução, mas o susto foi real e a lição é a mesma: modo destrutivo tem de ser
+     * impossível de acionar por engano.
+     */
+    private static final String AUTORIZACAO = "SIM-ESCREVER-NO-ACERVO";
+    private static final String CHAVE_ESCRITA = "kronos.aplicar.concordancia";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: roda a tela 3.3 no acervo <b>gravando</b>, e prova na mesma execução
+     * que a segunda passada não muda mais nada.
+     *
+     * <h2>Por que este método existe separado, e não como uma flag do outro</h2>
+     * Medir e gravar num método só é a armadilha de boa-fé que este projeto já pagou: quem quer
+     * simular passa a acionar a gravação por uma letra trocada. São dois métodos, dois nomes, duas
+     * propriedades — e sem a autorização exata isto é um ENSAIO que não toca em byte nenhum.
+     *
+     * <h2>Quem grava é a PRODUÇÃO</h2>
+     * O laço aqui não escreve arquivo: ele chama {@code revisarPasta(pasta, true)}, o mesmo caso
+     * de uso que o botão da tela chama, com os mesmos backups. Uma segunda porta de escrita para
+     * o acervo é dívida conhecida deste projeto — a família {@code Aplicar*} gravou 103 linhas de
+     * romaji justamente por ser uma porta paralela que ninguém vigiava.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Sem {@code -Dkronos.aplicar.concordancia=SIM-ESCREVER-NO-ACERVO} nada é gravado.</li>
+     *   <li>Backup por arquivo alterado — quem faz é o caso de uso, e o total sai no relatório.</li>
+     *   <li><b>Segunda passada obrigatória.</b> Se ela corrigir alguma coisa, a correção não é
+     *       idempotente e o teste REPROVA: corretor que muda o próprio resultado a cada rodada
+     *       degrada a legenda em silêncio a cada clique.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Acervo ausente termina declarando. Segunda passada não-vazia reprova nomeando as pastas.
+     */
+    @Test
+    @DisplayName("APLICA a 3.3 no acervo (so com autorizacao) e prova a idempotencia na 2a passada")
+    void aplicarNoAcervo() throws IOException {
+        boolean escrever = AUTORIZACAO.equals(System.getProperty(CHAVE_ESCRITA));
+        System.out.printf("%n=== 3.3 NO ACERVO — modo %s ===%n",
+            escrever ? "!! ESCRITA !!" : "ENSAIO (nada e gravado)");
+        if (!Files.isDirectory(RAIZ)) {
+            System.out.println("NAO VERIFICADO: acervo ausente em " + RAIZ);
+            return;
+        }
+        List<Path> pastas = new ArrayList<>();
+        try (Stream<Path> s = Files.walk(RAIZ)) {
+            s.filter(Files::isDirectory)
+                .filter(d -> d.getFileName().toString().equals("traducao_ptbr"))
+                .filter(d -> FILTRO_OBRA.isBlank()
+                    || d.getParent().getFileName().toString().toLowerCase()
+                        .contains(FILTRO_OBRA.toLowerCase()))
+                .sorted(Comparator.comparing(Path::toString))
+                .forEach(pastas::add);
+        }
+        if (pastas.isEmpty()) {
+            System.out.println("NAO VERIFICADO: nenhuma pasta casou com o filtro '" + FILTRO_OBRA + "'");
+            return;
+        }
+
+        int totalPrimeira = 0;
+        int totalBackups = 0;
+        Map<String, Integer> naSegunda = new TreeMap<>();
+        Map<String, int[]> porElo = new TreeMap<>();
+
+        for (Path pasta : pastas) {
+            String obra = pasta.getParent().getFileName().toString();
+            var primeira = revisarConcordancia.revisarPasta(pasta, escrever);
+            totalPrimeira += primeira.falasCorrigidas();
+            totalBackups += primeira.backups().size();
+            for (var c : primeira.porCorretor()) {
+                porElo.computeIfAbsent(c.nome(), k -> new int[1])[0] += c.agiu();
+            }
+            System.out.printf("  %-46s %4d arquivos · %4d corrigidas · %d backup(s)%n",
+                obra.length() > 46 ? obra.substring(0, 46) : obra,
+                primeira.arquivosAnalisados(), primeira.falasCorrigidas(),
+                primeira.backups().size());
+
+            if (!escrever) {
+                continue;
+            }
+            // SEGUNDA PASSADA, sempre em SIMULACAO: o que ela acusar e o que a primeira deixou
+            // por fazer ou o que ela mesma introduziu. Gravar de novo aqui esconderia o defeito
+            // consertando-o.
+            var segunda = revisarConcordancia.revisarPasta(pasta, false);
+            if (segunda.falasCorrigidas() > 0) {
+                naSegunda.put(obra, segunda.falasCorrigidas());
+            }
+        }
+
+        System.out.printf("%n  TOTAL: %d falas em %d pasta(s) · %d backup(s)%n",
+            totalPrimeira, pastas.size(), totalBackups);
+        System.out.println("  Por elo da cadeia:");
+        porElo.forEach((nome, n) -> System.out.printf("      %-28s %5d%n", nome, n[0]));
+
+        if (!escrever) {
+            System.out.printf("%n  ENSAIO: nada foi gravado. Para aplicar de verdade, acrescente%n"
+                + "    \"-D%s=%s\"%n", CHAVE_ESCRITA, AUTORIZACAO);
+            return;
+        }
+        System.out.printf("%n  IDEMPOTENCIA (2a passada, simulada): %s%n",
+            naSegunda.isEmpty() ? "LIMPA — nada mudaria de novo" : naSegunda.toString());
+        assertTrue(naSegunda.isEmpty(),
+            "a segunda passada ainda corrigiria falas, entao a correcao NAO e idempotente e cada "
+                + "clique muda o arquivo de novo: " + naSegunda);
     }
 }

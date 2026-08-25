@@ -31,6 +31,19 @@ import java.util.List;
  * <p>COMPORTAMENTO EM CASO DE FALHA: portador de dados puro; a lista recebida é copiada
  * defensivamente para não vazar referência mutável.
  */
+/*
+ * NOTA DE 24/08/2026 — `falasPorGenero`, `falasPorAcento`, `revisorGramaticalDisponivel` e
+ * `motivoRevisorIndisponivel` foram SUPERADOS por `porCorretor`.
+ *
+ * Eles descrevem uma cadeia de dois elos, que e o que a tela tinha quando nasceram. Com cinco,
+ * viraram uma visao parcial: a fala consertada so pelo corretor de caractere nao aparece em
+ * nenhum dos dois contadores, e o `disponivel` de um elo so nao responde pelos outros quatro.
+ * O banner deixou de imprimi-los por isso.
+ *
+ * Ficam no registro porque ninguem os le hoje e remove-los mexeria nos construtores de
+ * compatibilidade sem mudar comportamento nenhum. Quem for exibir contagem daqui: use
+ * `porCorretor`, que tem uma linha por elo e o NAO VERIFICADO de cada um.
+ */
 public record ResultadoConcordancia(
     int arquivosAnalisados,
     int arquivosAlterados,
@@ -42,7 +55,9 @@ public record ResultadoConcordancia(
     int falasPorAcento,
     boolean revisorGramaticalDisponivel,
     String motivoRevisorIndisponivel,
-    List<ContagemCorretor> porCorretor
+    List<ContagemCorretor> porCorretor,
+    int barradasPorMaiuscula,
+    int barradasPorIdioma
 ) {
     /** Compatibilidade com os chamadores que existiam antes do campo "fora do alcance". */
     public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
@@ -54,7 +69,7 @@ public record ResultadoConcordancia(
     public ResultadoConcordancia(int arquivosAnalisados, int arquivosAlterados, int falasCorrigidas,
                                  List<Path> backups, boolean aplicado, int arquivosForaDoAlcance) {
         this(arquivosAnalisados, arquivosAlterados, falasCorrigidas, backups, aplicado,
-            arquivosForaDoAlcance, falasCorrigidas, 0, true, null, List.of());
+            arquivosForaDoAlcance, falasCorrigidas, 0, true, null, List.of(), 0, 0);
     }
 
     public ResultadoConcordancia {

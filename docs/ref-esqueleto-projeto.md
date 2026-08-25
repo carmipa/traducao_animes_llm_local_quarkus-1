@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **489** |
-| classes em `src/test` | **400** |
+| classes em `src/test` | **403** |
 
 ---
 
@@ -895,7 +895,7 @@ core/
 
 ---
 
-## Testes — 400 classes
+## Testes — 403 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1029,7 +1029,7 @@ config/
 └── ModoExecucaoDispatcherTest.java
 ```
 
-#### `core` — 25 classes
+#### `core` — 26 classes
 
 ```text
 core/
@@ -1055,6 +1055,7 @@ core/
 │   │   ├── DicionarioNaoAcentuaTermoDeLoreTest.java
 │   │   ├── FrancesNaoEhNomeProprioTest.java
 │   │   ├── HunspellDicionarioAdapterTest.java
+│   │   ├── MedicaoSugestaoParaPalavraQuebradaIT.java
 │   │   ├── PalavraDeTresLetrasTest.java
 │   │   ├── ReparoDeTerminacaoAoTest.java
 │   │   └── RomajiRotulaMasNaoIsentaTest.java
@@ -1198,7 +1199,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 27 classes
+#### `medicao` — 28 classes
 
 ```text
 medicao/
@@ -1223,6 +1224,7 @@ medicao/
 ├── MedicaoLoreQuebraIT.java
 ├── MedicaoMusicaDivergenteDoEspelhoIT.java
 ├── MedicaoOriginalRepetidoIT.java
+├── MedicaoPalavraQuebradaEidiomaVazadoIT.java
 ├── MedicaoQuebraAssIT.java
 ├── MedicaoResiduoNoAcervoIT.java
 ├── MedicaoTermoPerdidoIT.java
@@ -1366,7 +1368,7 @@ renomearArquivos/
     └── RenomeadorUseCaseTest.java
 ```
 
-#### `revisaoConcordancia` — 9 classes
+#### `revisaoConcordancia` — 10 classes
 
 ```text
 revisaoConcordancia/
@@ -1377,6 +1379,7 @@ revisaoConcordancia/
     ├── CorretorAcentoQueColideComVerboServiceTest.java
     ├── CorretorCaractereForaDoPortuguesServiceTest.java
     ├── CorretorConcordanciaGeneroServiceTest.java
+    ├── CorretorNaoAcentuaNomeProprioTest.java
     ├── DiagnosticoCorretorConcordanciaIT.java
     ├── RevisarConcordanciaUseCaseTest.java
     └── TelemetriaDaCadeiaDeCorretoresTest.java
