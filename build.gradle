@@ -154,6 +154,13 @@ test {
      // do Gradle e nao chega na de teste — o harness rodou em ENSAIO, imprimiu contagem e
      // exit 0, e "nao gravou nada" ficou com a mesma cara de "gravou".
      'kronos.aplicar.acentos', 'kronos.acervo',
+     // 'kronos.aplicar.concordancia' e a mesma trava dupla para a tela 3.3 escrever no
+     // acervo. A lista ser NOMINAL e proposital: propriedade de ESCRITA so chega ao JVM
+     // do teste depois de alguem a declarar aqui. Em 25/08/2026 essa catraca fez o que
+     // devia — a passada rodou em ENSAIO — mas em SILENCIO: o harness so disse "ENSAIO",
+     // sem distinguir "ninguem autorizou" de "a autorizacao nao chegou". A catraca
+     // ficou; o silencio virou mensagem no harness.
+     'kronos.aplicar.concordancia',
      // 'kronos.esqueleto.regravar' manda a CatracaEsqueletoDoProjetoAtualizadoTest REGRAVAR
      // docs/ref-esqueleto-projeto.md a partir do disco, em vez de so comparar. Sem a chave
      // aqui o -D ficaria na JVM do Gradle, a catraca continuaria em modo comparacao e o
