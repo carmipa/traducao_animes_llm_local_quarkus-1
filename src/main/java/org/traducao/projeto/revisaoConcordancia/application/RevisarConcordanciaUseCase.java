@@ -176,6 +176,11 @@ public class RevisarConcordanciaUseCase {
         long[] placarPadrao = new long[4];
         long[] placarDicionario = new long[4];
         long[] placarCaractere = new long[4];
+
+        // As guardas do elo do dicionario contam o que BARRARAM tendo o que corrigir. Zerar aqui
+        // e obrigatorio: contador de servico vivo herda o placar da passada anterior, e o numero
+        // da pasta de agora sairia somado com o da pasta de antes.
+        corretorDicionario.zerarPlacarDasGuardas();
         List<Path> backups = new ArrayList<>();
 
         for (Path arquivo : arquivos) {
@@ -309,7 +314,8 @@ public class RevisarConcordanciaUseCase {
             analisados, alterados, falasCorrigidas, List.copyOf(backups), aplicar, foraDoAlcance,
             porGeneroTotal, porAcentoTotal,
             corretorAcento.disponivel(), corretorAcento.motivoDaIndisponibilidade(),
-            porCorretor);
+            porCorretor,
+            corretorDicionario.barradasPorMaiuscula(), corretorDicionario.barradasPorIdioma());
         telemetriaService.registrarOperacao(new OperacaoTelemetria(
             "Revisão de Concordância",
             // O DETALHE carrega o placar por corretor ate o CSV. Sem ele, o dataset guarda um

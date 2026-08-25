@@ -141,16 +141,26 @@ class CorretorCaractereForaDoPortuguesServiceTest {
     }
 
     /**
-     * Nome de FONTE é conteúdo de tag. Se um nome de fonte trouxesse macron, corrigir ortografia
-     * ali dentro trocaria a tipografia do arquivo por uma fonte que não existe.
+     * PROPÓSITO: a MESMA palavra dentro e fora de {@code {...}} — só a de fora pode mudar.
+     *
+     * <h2>A primeira versão deste caso passava pelo motivo errado</h2>
+     * Ela usava {@code "{\\fnAtençāo Sans}Uma fala limpa."}, e passava mesmo com a proteção de tag
+     * DESLIGADA: {@code fnAtenção} não é palavra portuguesa, então o dicionário já barrava sozinho.
+     * Um caso que sobrevive à mutação da guarda que ele deveria provar não prova guarda nenhuma —
+     * é verde nos dois mundos.
+     *
+     * <p>Aqui a palavra é a mesma nos dois lados, com a mesma caixa, e É portuguesa. Agora o
+     * dicionário APROVA, e a única coisa entre a aprovação e a tipografia quebrada é a checagem
+     * de posição. O acervo tem comentário de fansub dentro de chaves — {@code {Overlap}},
+     * {@code {That's Tomino's title!}} — então o cenário é real, não hipotético.
      */
     @Test
-    @DisplayName("NEGATIVO: macron dentro de tag e nome de fonte, e nao se corrige tipografia")
+    @DisplayName("NEGATIVO: a mesma palavra dentro e fora de tag — so a de FORA muda")
     void macronDentroDeTagNaoEtocado() {
         Assumptions.assumeTrue(dicionarioDePe, "dicionario fora do ar — NAO VERIFICADO, nao passou");
-        String comFonte = "{\\fnAtençāo Sans}Uma fala limpa.";
-        assertEquals(Optional.empty(), corretor.corrigir(comFonte),
-            "corrigiu o nome da fonte: a tipografia do arquivo quebraria");
+        Optional<String> r = corretor.corrigir("{coraçāo}O coraçāo dele bateu forte.");
+        assertEquals(Optional.of("{coraçāo}O coração dele bateu forte."), r,
+            "mexeu no conteudo da tag: a de dentro tinha de ficar como estava");
     }
 
     @Test

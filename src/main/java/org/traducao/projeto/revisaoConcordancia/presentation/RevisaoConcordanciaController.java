@@ -139,25 +139,21 @@ public class RevisaoConcordanciaController {
         }
         System.out.println(AnsiCores.CYAN + "  • Arquivos alterados   : " + r.arquivosAlterados() + AnsiCores.RESET);
         System.out.println(cor + "  • " + rotuloFalas + r.falasCorrigidas() + AnsiCores.RESET);
-        // A tela tem DOIS corretores desde 23/08/2026, e o operador precisa saber de onde veio o
-        // ganho: genero decide por determinante, acento resolve a inversao verbo/substantivo.
-        // Sem esta quebra, uma passada de 20 falas nao diz se a lista de substantivos rendeu ou
-        // se foi o revisor gramatical que carregou sozinho.
-        System.out.println(AnsiCores.DIM + "      por genero         : " + r.falasPorGenero()
-            + AnsiCores.RESET);
-        if (r.revisorGramaticalDisponivel()) {
-            System.out.println(AnsiCores.DIM + "      por acento         : " + r.falasPorAcento()
-                + AnsiCores.RESET);
-        } else {
-            // ZERO com o motor fora do ar NAO e "esta limpo": e NAO VERIFIQUEI, e sai dito assim.
-            System.out.println(AnsiCores.YELLOW + "      por acento         : NAO VERIFICADO — "
-                + (r.motivoRevisorIndisponivel() == null
-                    ? "revisor gramatical indisponivel" : r.motivoRevisorIndisponivel())
-                + AnsiCores.RESET);
-        }
-        // O PLACAR POR CORRETOR. A tela tem quatro elos na cadeia, e um total unico nao diz de
-        // onde veio o ganho. Mais importante: o elo que NAO PODE RODAR aparece como NAO
-        // VERIFICADO, e nao como zero — "nao achei nada" e "nem olhei" nunca podem sair iguais.
+        // AS DUAS LINHAS "por genero" E "por acento" SAIRAM DAQUI EM 24/08/2026.
+        //
+        // Elas nasceram quando a tela tinha DOIS corretores e resumiam bem. Com CINCO elos
+        // passaram a mentir por omissao: a fala consertada so pelo corretor de caractere entra no
+        // total e nao entra em nenhuma das duas, entao o operador lia "6 corrigidas · por genero
+        // 0 · por acento 0" e nao tinha de onde tirar o 6.
+        //
+        // O placar abaixo diz a mesma coisa de forma completa, uma linha por elo, e leva junto o
+        // NAO VERIFICADO de quem nao pode rodar — que era a unica coisa que estas linhas faziam e
+        // o placar nao fizesse. Resumo incompleto ao lado do detalhe completo e so ruido que
+        // contradiz o que esta logo abaixo.
+
+        // O PLACAR POR CORRETOR. Um total unico nao diz de onde veio o ganho. Mais importante: o
+        // elo que NAO PODE RODAR aparece como NAO VERIFICADO, e nao como zero — "nao achei nada"
+        // e "nem olhei" nunca podem sair iguais.
         if (!r.porCorretor().isEmpty()) {
             System.out.println(AnsiCores.DIM + "  • Por corretor:" + AnsiCores.RESET);
             for (var c : r.porCorretor()) {
@@ -165,6 +161,14 @@ public class RevisaoConcordanciaController {
                     : (c.falhou() > 0 ? AnsiCores.RED : AnsiCores.DIM);
                 System.out.println(corDoElo + "      " + c.linhaDeRelatorio() + AnsiCores.RESET);
             }
+        }
+        // O PRECO DAS GUARDAS, e nao so o que elas deixaram passar. Guarda cujo custo ninguem
+        // mede vira dogma, e dogma nao se revisa quando o acervo muda. Estes dois numeros sao o
+        // que o operador precisa para saber se a regra do nome proprio esta larga demais.
+        if (r.barradasPorMaiuscula() > 0 || r.barradasPorIdioma() > 0) {
+            System.out.println(AnsiCores.DIM + "  • Guardas do dicionario: "
+                + r.barradasPorMaiuscula() + " fala(s) barrada(s) por MAIUSCULA (nome proprio), "
+                + r.barradasPorIdioma() + " por IDIOMA (fala nao portuguesa)" + AnsiCores.RESET);
         }
         System.out.println(AnsiCores.CYAN + "  • Backups              : " + r.backups().size() + AnsiCores.RESET);
         System.out.println(cor + LINHA + "\n" + AnsiCores.RESET);

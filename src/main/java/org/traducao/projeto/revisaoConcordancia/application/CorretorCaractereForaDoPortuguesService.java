@@ -204,7 +204,18 @@ public class CorretorCaractereForaDoPortuguesService {
         return sb.toString();
     }
 
-    /** O texto com os blocos de tag virados espaço — mesmo comprimento, para varrer só a prosa. */
+    /**
+     * O texto com os blocos de tag virados espaço — mesmo comprimento, para varrer só a prosa.
+     *
+     * <h2>Esta é guarda de CUSTO, não de correção, e a mutação provou isso</h2>
+     * Trocá-la pelo texto cru não muda nenhuma legenda: a palavra que só existe dentro de tag até
+     * viraria candidata, mas {@link #dentroDeTag} barra a substituição em todas as posições dela.
+     * O que ela evita é a <b>pergunta</b> — nome de fonte indo ao dicionário. Depois de 24/08/2026
+     * esse custo tem nome e número: o elo do dicionário chegou a 97% do tempo da tela.
+     *
+     * <p>Fica registrado para que a próxima leitura não a promova a guarda de segurança nem a
+     * apague como código morto. Quem impede o dano é {@link #dentroDeTag}.
+     */
     private static String semTags(String texto) {
         return TAG_ASS.matcher(texto).replaceAll(m -> " ".repeat(m.group().length()));
     }

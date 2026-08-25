@@ -162,6 +162,8 @@ class CatracaSuiteSemDriveWindowsTest {
         // (`a noticia` x `ele noticia`). Mesma natureza das demais — "C:\animes" e o default de
         // -Dkronos.acervo, e caminho relativo mediria o vazio.
         "MedicaoAcentoQueColideComVerboIT.java",
+        "MedicaoPalavraQuebradaEidiomaVazadoIT.java",
+        "MedicaoSugestaoParaPalavraQuebradaIT.java",
         // Entrou em 23/08/2026: e o experimento que decidiu, com numero, se o LanguageTool entra
         // no projeto — medido contra um gold set de 60 falas lidas a mao no Macross II. Le a obra
         // no acervo real pelo mesmo default das demais.
