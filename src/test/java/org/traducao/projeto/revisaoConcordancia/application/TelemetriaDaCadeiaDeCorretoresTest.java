@@ -146,6 +146,54 @@ class TelemetriaDaCadeiaDeCorretoresTest {
             "o corretor fora do ar tinha de aparecer como NV (nao verificado): " + detalhe);
     }
 
+    /**
+     * PROPÓSITO: a linha {@code Comment} não é corrigida, e a {@code Dialogue} continua sendo.
+     *
+     * <h2>A fala que encontrou o buraco</h2>
+     * Lendo os 98 pares do acervo em 25/08/2026 apareceu {@code place → placê} no DanMachi. A
+     * procura pelo texto não achou nada em {@code Dialogue} — a fala é {@code Comment}, que o
+     * reprodutor não desenha, e que é onde o Kara Templater guarda o MOLDE do karaokê. O acervo
+     * tem 1.937 dessas linhas, e três dos estilos delas ({@code Flower}, {@code EVERYTHING},
+     * {@code English}) não são pegos pelo veto de música.
+     *
+     * <p>O caso tem os DOIS lados no mesmo arquivo: sem o {@code Dialogue} ao lado, a guarda
+     * poderia estar simplesmente desligando a correção inteira e ficaria verde do mesmo jeito.
+     */
+    @Test
+    @DisplayName("linha Comment nao e corrigida; a Dialogue ao lado continua sendo")
+    void comentarioNaoEcorrigido(@TempDir Path raiz) throws IOException {
+        Path pasta = raiz.resolve("traducao_ptbr");
+        Files.createDirectories(pasta);
+        String ass = """
+            [Script Info]
+            ScriptType: v4.00+
+
+            [V4+ Styles]
+            Format: Name, Fontname
+            Style: Default,Arial
+
+            [Events]
+            Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+            Comment: 0,0:00:01.00,0:00:03.00,English,,0,0,0,,Isso e um molde de karaoke.
+            Dialogue: 0,0:00:04.00,0:00:06.00,Default,,0,0,0,,Isso e uma fala de verdade.
+            """;
+        Path arquivo = pasta.resolve("ep01.ass");
+        Files.writeString(arquivo, ass, StandardCharsets.UTF_8);
+
+        ResultadoConcordancia r = useCase(new CorretorAcentoPorPadraoService(),
+            new TelemetriaEspia()).revisarPasta(pasta, true);
+
+        String depois = Files.readString(arquivo, StandardCharsets.UTF_8);
+        assertTrue(depois.contains("Comment: 0,0:00:01.00,0:00:03.00,English,,0,0,0,,"
+                + "Isso e um molde de karaoke."),
+            "corrigiu a linha Comment, que o reprodutor nao mostra e que e molde de karaoke:\n"
+                + depois);
+        assertTrue(depois.contains("Isso é uma fala de verdade."),
+            "a guarda desligou a correcao da linha Dialogue tambem — verde e inutil:\n" + depois);
+        assertEquals(1, r.falasCorrigidas(),
+            "o total contou a linha invisivel como trabalho feito: " + r.falasCorrigidas());
+    }
+
     @Test
     @DisplayName("o placar tem uma linha por elo da cadeia, sempre")
     void umaLinhaPorElo(@TempDir Path raiz) throws IOException {
