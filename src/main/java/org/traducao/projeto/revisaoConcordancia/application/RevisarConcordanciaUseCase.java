@@ -58,6 +58,16 @@ import java.util.stream.Stream;
 @Service
 public class RevisarConcordanciaUseCase {
 
+/**
+     * Teto de voltas da cadeia sobre a MESMA fala.
+     *
+     * <p>Três, e não "até parar": um ciclo entre dois corretores rodaria para sempre, e um laço
+     * sem teto num caminho que escreve arquivo é a diferença entre uma passada lenta e uma tela
+     * travada. O acervo de 25/08/2026 estabilizou em DUAS voltas em todos os casos medidos; o teto
+     * dá uma de folga e conta quem bater nele.
+     */
+    private static final int MAX_VOLTAS_DA_CADEIA = 3;
+
     private static final Logger log = LoggerFactory.getLogger(RevisarConcordanciaUseCase.class);
     private static final Set<String> EXTENSOES = Set.of(".ass", ".ssa");
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
@@ -164,6 +174,10 @@ public class RevisarConcordanciaUseCase {
         int foraDoAlcance = 0;
         // Contados SEPARADO por corretor: um numero so nao diria de onde veio o ganho, e a ordem
         // permanente deste projeto e contador do que agiu E do que se absteve.
+        // Os dois contadores legados (ver a NOTA no ResultadoConcordancia): ficam em zero desde
+        // que a cadeia passou a repetir. Somar "por genero" e "por acento" volta a volta daria um
+        // numero que nao corresponde a fala nenhuma, e o placar por elo ja diz tudo o que eles
+        // diziam — melhor.
         int porGeneroTotal = 0;
         int porAcentoTotal = 0;
         // Um placar por corretor, zerado a CADA passada: o total de uma pasta nao pode vazar para
@@ -176,6 +190,8 @@ public class RevisarConcordanciaUseCase {
         long[] placarPadrao = new long[4];
         long[] placarDicionario = new long[4];
         long[] placarCaractere = new long[4];
+        int voltasExtras = 0;
+        int naoEstabilizaram = 0;
 
         // As guardas do elo do dicionario contam o que BARRARAM tendo o que corrigir. Zerar aqui
         // e obrigatorio: contador de servico vivo herda o placar da passada anterior, e o numero
@@ -229,22 +245,42 @@ public class RevisarConcordanciaUseCase {
                     // contada e a passada segue, porque erro engolido em silencio some junto com
                     // a fala e ninguem descobre.
                     String antes = evento.texto();
-                    // O CARACTERE VEM PRIMEIRO, e a ordem aqui e causal, nao estetica: o espaco
-                    // invisivel quebra a fronteira de palavra e o macron desfigura a forma que o
-                    // dicionario e o POS tagger procuram. Limpar depois deles seria limpar tarde —
-                    // os quatro elos seguintes ja teriam olhado para uma palavra que nao existe.
-                    String limpo = aplicar(placarCaractere, "caractere fora do portugues", antes,
-                        corretorCaractere::corrigir, arquivo);
-                    String porGenero = aplicar(placarGenero, "genero", limpo, corretor::corrigir, arquivo);
-                    String comPos = aplicar(placarPos, "acento por POS tagger", porGenero, corretorAcento::corrigir, arquivo);
-                    String comPadrao = aplicar(placarPadrao, "acento por padrao", comPos, corretorPadrao::corrigir, arquivo);
-                    String depois = aplicar(placarDicionario, "acento por dicionario", comPadrao,
-                        corretorDicionario::corrigir, arquivo);
-                    if (!porGenero.equals(limpo)) {
-                        porGeneroTotal++;
+
+                    // A CADEIA FECHA EM SI MESMA: repete enquanto mudar, ate o limite.
+                    //
+                    // Em 25/08/2026, depois de gravar 1.086 falas, a SEGUNDA passada ainda acusou
+                    // cinco — todas em falas que o elo de PADRAO tinha mudado na primeira:
+                    //
+                    //   "Entao nao ha vitimas."  -> ha->ha' na 1a, vitimas->vitimas' so na 2a
+                    //   "Mas Judau so esta ..."  -> so->so' na 1a, esta->esta'   so na 2a
+                    //
+                    // A causa e o POS tagger rodar ANTES do padrao: com `ha` sem acento o
+                    // LanguageTool nao analisa a frase e nao dispara; depois de `ha->ha'` ele
+                    // dispara, mas o elo dele ja passou. Reordenar resolveria ESSE caso e deixaria
+                    // a propriedade dependendo da ordem — fragil. Repetir ate estabilizar torna a
+                    // convergencia uma propriedade da CADEIA, e nao um efeito colateral da fila.
+                    //
+                    // Custa pouco: so a fala que MUDOU paga outra volta, e sao ~1,2% delas.
+                    String depois = antes;
+                    String anterior;
+                    int volta = 0;
+                    do {
+                        anterior = depois;
+                        depois = umaVolta(depois, placarCaractere, placarGenero, placarPos,
+                            placarPadrao, placarDicionario, arquivo);
+                        volta++;
+                    } while (!depois.equals(anterior) && volta < MAX_VOLTAS_DA_CADEIA);
+
+                    if (volta > 1) {
+                        voltasExtras += volta - 1;
                     }
-                    if (!depois.equals(porGenero)) {
-                        porAcentoTotal++;
+                    if (!depois.equals(anterior)) {
+                        // Bateu no teto ainda mudando. Pode ser trabalho legitimo que nao coube,
+                        // ou dois elos se desfazendo em ciclo — os dois casos precisam aparecer.
+                        naoEstabilizaram++;
+                        log.warn("Fala nao estabilizou em {} voltas da cadeia em {}: '{}'. "
+                            + "Pode ser ciclo entre corretores.", MAX_VOLTAS_DA_CADEIA,
+                            arquivo.getFileName(), antes);
                     }
                     if (!depois.equals(antes)) {
                         corrigidasArq++;
@@ -305,6 +341,11 @@ public class RevisarConcordanciaUseCase {
             log.warn("Revisao de concordancia em {}: {} fala(s) lancaram excecao e ficaram como "
                 + "estavam. O detalhe por corretor esta no banner e na telemetria.",
                 pasta.getFileName(), falhasTotais);
+        }
+        if (voltasExtras > 0 || naoEstabilizaram > 0) {
+            log.info("Cadeia precisou de {} volta(s) extra(s) em {}; {} fala(s) NAO estabilizaram "
+                + "no teto de {}.", voltasExtras, pasta.getFileName(), naoEstabilizaram,
+                MAX_VOLTAS_DA_CADEIA);
         }
         log.info("Revisao de concordancia em {} — {} arquivo(s), {} fala(s) corrigida(s). Placar: {}",
             pasta.getFileName(), analisados, falasCorrigidas,
@@ -448,6 +489,32 @@ public class RevisarConcordanciaUseCase {
             // também custa tempo, e escondê-lo faria o placar mentir justo no caso ruim.
             placar[3] += System.nanoTime() - comeco;
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: UMA volta da cadeia sobre uma fala, na ordem que importa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a ordem é causal. O caractere vem primeiro — o espaço invisível
+     * quebra a fronteira de palavra e o macron desfigura a forma que o dicionário e o POS tagger
+     * procuram, então limpar depois deles seria limpar tarde. Gênero em seguida, porque decide por
+     * determinante e não se importa com acento. Depois os três de acento, do mais informado (POS
+     * tagger) para o mais mecânico (dicionário).
+     *
+     * <p>Cada elo passa pelo {@link #aplicar}, que CONTA: quantas mudou, quantas deixou intactas e
+     * quantas explodiram. Fala que lança exceção não some — é contada e a passada segue.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; cada elo trata a sua.
+     */
+    private String umaVolta(String texto, long[] placarCaractere, long[] placarGenero,
+                            long[] placarPos, long[] placarPadrao, long[] placarDicionario,
+                            Path arquivo) {
+        String t = aplicar(placarCaractere, "caractere fora do portugues", texto,
+            corretorCaractere::corrigir, arquivo);
+        t = aplicar(placarGenero, "genero", t, corretor::corrigir, arquivo);
+        t = aplicar(placarPos, "acento por POS tagger", t, corretorAcento::corrigir, arquivo);
+        t = aplicar(placarPadrao, "acento por padrao", t, corretorPadrao::corrigir, arquivo);
+        return aplicar(placarDicionario, "acento por dicionario", t,
+            corretorDicionario::corrigir, arquivo);
     }
 
     /**

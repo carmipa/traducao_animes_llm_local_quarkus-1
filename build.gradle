@@ -161,6 +161,11 @@ test {
      // sem distinguir "ninguem autorizou" de "a autorizacao nao chegou". A catraca
      // ficou; o silencio virou mensagem no harness.
      'kronos.aplicar.concordancia',
+     // 'kronos.palavras' passa uma lista de palavras aos harnesses que perguntam ao
+     // dicionario — nao escreve nada, mas sem a chave declarada o harness recebe null e
+     // termina como NAO VERIFICADO, que e o comportamento certo e facil de confundir com
+     // "nao ha nada".
+     'kronos.palavras',
      // 'kronos.esqueleto.regravar' manda a CatracaEsqueletoDoProjetoAtualizadoTest REGRAVAR
      // docs/ref-esqueleto-projeto.md a partir do disco, em vez de so comparar. Sem a chave
      // aqui o -D ficaria na JVM do Gradle, a catraca continuaria em modo comparacao e o
