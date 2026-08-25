@@ -57,6 +57,42 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
     /** Um episódio grande tem centenas de formas distintas; 20 s é folga larga sobre os 12,6 s medidos. */
     private static final long TIMEOUT_SEGUNDOS = 20;
 
+    /**
+     * Memória do que já foi perguntado a ESTE dicionário nesta execução.
+     *
+     * <h2>Por que a memória mora aqui e não em quem chama</h2>
+     * O custo do hunspell é o ARRANQUE do processo, não a palavra — está escrito assim no
+     * {@code CorretorOrtograficoLegenda}, que por isso tem memória própria há tempos. Só que essa
+     * memória cobre um caminho: o da correção de acento em português. Quem pergunta por outro
+     * caminho — o classificador de idiomas, e o portão de inglês criado em 24/08/2026 — pagava o
+     * arranque de novo, uma vez por fala.
+     *
+     * <p>Duas estruturas e não um mapa só: "palavra conhecida" e "palavra desconhecida SEM
+     * sugestão" produziriam a mesma entrada vazia, e essa é justamente a ambiguidade que este
+     * projeto não aceita.
+     */
+    private final Set<String> jaConhecidas = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private final java.util.Map<String, Set<String>> jaDesconhecidas =
+        new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Quantas palavras a memória guarda — visível ao PACOTE para o teste poder olhar.
+     *
+     * <h2>Por que esta costura existe</h2>
+     * A invariante "dicionário fora do ar NÃO memoriza" não tinha como ser observada de fora: com
+     * o hunspell ausente, {@code desconhecidas()} devolve vazio nos dois casos, e {@code vazio}
+     * significa tanto "todas as palavras estão certas" quanto "não perguntei a ninguém". A
+     * mutação que liga a memorização mesmo com o processo morto não derrubava teste nenhum.
+     *
+     * <p>Sem este método a guarda ficaria só argumentada. Guarda que nunca foi vista reprovando o
+     * caso doente pode estar aprovando por cegueira — e memória envenenada é o pior tipo: a
+     * consulta seguinte encontra resposta e nunca mais pergunta.
+     */
+    int palavrasMemorizadas() {
+        return jaConhecidas.size() + jaDesconhecidas.size();
+    }
+
     private final String executavel;
     private final String idioma;
     private volatile Boolean disponivel;
@@ -98,6 +134,53 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
         if (palavras == null || palavras.isEmpty()) {
             return java.util.Map.of();
         }
+        java.util.Map<String, Set<String>> fora = new java.util.LinkedHashMap<>();
+        Set<String> ineditas = new LinkedHashSet<>();
+        for (String palavra : palavras) {
+            if (palavra == null) {
+                continue;
+            }
+            if (jaConhecidas.contains(palavra)) {
+                continue;
+            }
+            Set<String> lembrada = jaDesconhecidas.get(palavra);
+            if (lembrada != null) {
+                fora.put(palavra, lembrada);
+            } else {
+                ineditas.add(palavra);
+            }
+        }
+        if (ineditas.isEmpty()) {
+            return fora;
+        }
+        java.util.Map<String, Set<String>> novas = consultarProcesso(ineditas);
+        // SO memoriza se o processo respondeu. Guardar "conhecida" para tudo com o dicionario
+        // fora do ar envenenaria a memoria: a proxima consulta acharia resposta na memoria e
+        // devolveria "esta tudo certo" sem nunca ter perguntado — que e o zero por cegueira que
+        // este projeto persegue em todo lugar.
+        if (Boolean.TRUE.equals(disponivel)) {
+            for (String palavra : ineditas) {
+                Set<String> achado = novas.get(palavra);
+                if (achado == null) {
+                    jaConhecidas.add(palavra);
+                } else {
+                    jaDesconhecidas.put(palavra, achado);
+                }
+            }
+        }
+        fora.putAll(novas);
+        return fora;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a consulta que realmente arranca o processo externo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: idêntica ao que {@link #sugestoes(Collection)} fazia antes da
+     * memória entrar — a memória não mudou uma resposta, só evitou repetir a pergunta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio e {@link #disponivel()} passa a false.
+     */
+    private java.util.Map<String, Set<String>> consultarProcesso(Collection<String> palavras) {
         Set<String> candidatas = new LinkedHashSet<>(palavras);
         try {
             ProcessBuilder pb = new ProcessBuilder(executavel, "-a", "-d", idioma, "-i", "UTF-8");

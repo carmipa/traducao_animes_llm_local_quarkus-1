@@ -114,16 +114,20 @@ public class CorretorAcentoDeDicionarioNaFalaService {
         String novo = dicionario.corrigir(texto, intocaveis);
         boolean mudaria = novo != null && !novo.equals(texto);
 
-        // PORTAO DE IDIOMA — a fala tem de se provar PORTUGUESA.
+        // PORTAO DE IDIOMA — a fala nao pode ser INGLESA.
         //
         // O acervo tem fala inglesa inteira: "That might not be a bad idea." O dicionario
         // portugues nao sabe o que e `idea`, ve que `ideá` existe, e devolve "a bad ideá".
         // Acentuar palavra de outro idioma nao e corrigir — e estragar por fora do dominio.
         //
+        // A REGUA "a fala e portuguesa?" FOI MEDIDA E RECUSADA. Exigir diacritico ou
+        // palavra-funcao barrava "Chegamos a borda do territorio.", que e portugues normal: ~19
+        // falas legitimas perdidas para salvar 8. A pergunta certa e a inversa, e ela e do
+        // dicionario: esta fala e predominantemente INGLESA?
+        //
         // A CORRECAO E CALCULADA ANTES DO PORTAO DE PROPOSITO. So assim da para CONTAR o que o
-        // portao custa: sem esse numero, "a guarda e barata" seria opiniao. Custa uma consulta a
-        // memoria ja aquecida do dicionario, e so nas falas que ele barra.
-        if (!CorretorAcentoPorPadraoService.FALA_E_PORTUGUESA.matcher(texto).find()) {
+        // portao custa: sem esse numero, "a guarda e barata" seria opiniao.
+        if (dicionario.predominantementeInglesa(texto)) {
             if (mudaria) {
                 barradasPorIdioma.incrementAndGet();
             }

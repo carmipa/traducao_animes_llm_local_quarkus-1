@@ -130,14 +130,26 @@ public final class CorretorAcentoPorDicionario {
             if (e.getValue() == null) {
                 continue;
             }
+            // TODAS as acentuacoes possiveis, nao a primeira. O `break` que estava aqui pegava a
+            // que o hunspell devolvesse primeiro, e a ordem dele nao e uma opiniao sobre a frase:
+            // em 24/08/2026 isso gravou `lingua -> lingua'` (com acento no A) no lugar de
+            // `lingua` com acento no I, em duas falas do acervo.
+            //
+            // E a MESMA cicatriz do `avo -> avo'/avo^`, que ja tinha sido resolvida em outro
+            // ponto do projeto exigindo candidata unica — e nunca foi aplicada aqui.
+            java.util.List<String> acentuacoes = new java.util.ArrayList<>();
             for (String sugestao : e.getValue()) {
                 if (sugestao != null
                     && !sugestao.equals(errada)
                     && semAcento(sugestao).equalsIgnoreCase(semAcento(errada))
                     && !semAcento(sugestao).equals(sugestao)) {
-                    seguras.put(errada, sugestao);
-                    break;
+                    acentuacoes.add(sugestao);
                 }
+            }
+            // DUAS acentuacoes validas e AMBIGUIDADE, e desempate aqui vira palavra inventada.
+            // Recusar custa a correcao; escolher errado custa a legenda.
+            if (acentuacoes.size() == 1) {
+                seguras.put(errada, acentuacoes.get(0));
             }
         }
         return seguras;

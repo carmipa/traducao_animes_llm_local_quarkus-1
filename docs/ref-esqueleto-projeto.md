@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **489** |
-| classes em `src/test` | **403** |
+| classes em `src/test` | **405** |
 
 ---
 
@@ -895,7 +895,7 @@ core/
 
 ---
 
-## Testes — 403 classes
+## Testes — 405 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1029,7 +1029,7 @@ config/
 └── ModoExecucaoDispatcherTest.java
 ```
 
-#### `core` — 26 classes
+#### `core` — 28 classes
 
 ```text
 core/
@@ -1055,8 +1055,10 @@ core/
 │   │   ├── DicionarioNaoAcentuaTermoDeLoreTest.java
 │   │   ├── FrancesNaoEhNomeProprioTest.java
 │   │   ├── HunspellDicionarioAdapterTest.java
+│   │   ├── MedicaoReparoDeDiacriticoIT.java
 │   │   ├── MedicaoSugestaoParaPalavraQuebradaIT.java
 │   │   ├── PalavraDeTresLetrasTest.java
+│   │   ├── PortaoDeIdiomaEcandidataUnicaTest.java
 │   │   ├── ReparoDeTerminacaoAoTest.java
 │   │   └── RomajiRotulaMasNaoIsentaTest.java
 │   ├── gramatica/
