@@ -249,7 +249,7 @@ class MedicaoPalavraQuebradaEidiomaVazadoIT {
         }
         imprimir("FRENTE C — PALAVRA QUEBRADA: nenhum dicionario reconhece e o corpus"
             + " nunca a mostrou como nome. Sobra nome raro que so aparece abrindo frase (no 0080, Lumunba).",
-            quebradasPorObra, 12);
+            quebradasPorObra, Integer.MAX_VALUE);
         imprimir("FRENTE D — IDIOMA VAZADO (caractere latino de idioma nao traduzido)",
             vazadoPorObra, 6);
         imprimir("NOME PROPRIO confirmado pelo corpus (aparece capitalizado no MEIO de alguma fala)",

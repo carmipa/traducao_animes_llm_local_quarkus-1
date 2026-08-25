@@ -47,6 +47,19 @@ public class CorretorOrtograficoLegenda {
 
     private final ClassificadorQuatroIdiomas classificador;
     private final DicionarioOrtograficoPort portugues;
+
+    /**
+     * O dicionário de INGLÊS, guardado à parte do classificador.
+     *
+     * <p>O acervo tem fala inteira que nunca foi traduzida — {@code "That might not be a bad
+     * idea."}, {@code "Call again after restrictions have been lifted."} O corretor português
+     * olhava para {@code idea} e {@code have}, via que {@code ideá} e {@code havê} existem, e
+     * gravava isso. Oito falas em 24/08/2026.
+     *
+     * <p>O classificador não serve para responder isso: ele decide {@code ACENTO_FALTANDO} ANTES
+     * de perguntar ao inglês, então {@code idea} nunca chega a ser rotulado como inglês.
+     */
+    private final DicionarioOrtograficoPort ingles;
     private final AtomicInteger corrigidas = new AtomicInteger();
     private final AtomicInteger naoVerificadas = new AtomicInteger();
 
@@ -67,6 +80,7 @@ public class CorretorOrtograficoLegenda {
 
     public CorretorOrtograficoLegenda() {
         this.portugues = new HunspellDicionarioAdapter("hunspell", "pt_BR");
+        this.ingles = new HunspellDicionarioAdapter("hunspell", "en_US");
         // O francês entrou em 14/08/2026, quando o acervo passou a ter obra traduzida A PARTIR
         // dele. Não é preciosismo: no primeiro run do Memories pela faixa francesa, o detector de
         // nome próprio acusou seis palavras e cinco eram francês comum (Dieu, Octobre, Juillet,
@@ -76,7 +90,7 @@ public class CorretorOrtograficoLegenda {
         // mesmo passo em que se instala: dicionário parado em C:\Hunspell não classifica nada.
         this.classificador = new ClassificadorQuatroIdiomas(
             portugues,
-            new HunspellDicionarioAdapter("hunspell", "en_US"),
+            ingles,
             new HunspellDicionarioAdapter("hunspell", "de_DE"),
             new HunspellDicionarioAdapter("hunspell", "fr_FR"),
             new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI"));
@@ -103,6 +117,10 @@ public class CorretorOrtograficoLegenda {
      */
     CorretorOrtograficoLegenda(DicionarioOrtograficoPort dicionario) {
         this.portugues = dicionario;
+        // O MESMO dublê em todas as posições, inglês incluído. Serve para exercitar a correção,
+        // não para separar idioma — teste sobre idioma usa o construtor real, e o Javadoc acima
+        // diz isso desde que a costura nasceu.
+        this.ingles = dicionario;
         this.classificador = new ClassificadorQuatroIdiomas(
             dicionario, dicionario, dicionario, dicionario, dicionario);
     }
@@ -298,7 +316,86 @@ public class CorretorOrtograficoLegenda {
                 todas.addAll(CorretorAcentoPorDicionario.candidatas(t));
             }
         }
+        // O INGLES tambem, e no mesmo lote. O portao de idioma pergunta a ele por fala; sem
+        // aquecer, cada fala pagaria um processo externo — que e exatamente o defeito de 80
+        // ms/fala corrigido horas antes, reintroduzido por outra porta.
+        if (!todas.isEmpty()) {
+            ingles.desconhecidas(todas);
+        }
         return aquecer(todas);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se uma fala está <b>predominantemente em inglês</b> — ou seja, se
+     * ela nunca foi traduzida e não deve ser corrigida como se fosse português.
+     *
+     * <h2>As oito falas que obrigaram este método a existir</h2>
+     * Em 24/08/2026 a leitura do acervo pegou o corretor de acento estragando fala inglesa:
+     *
+     * <pre>
+     *   "That might not be a bad idea."                       -> "a bad ideá"     4 falas
+     *   "Is the place where you aim,"                         -> "the placê"      2 falas
+     *   "Call again after restrictions have been lifted."     -> "havê been"      2 falas
+     * </pre>
+     *
+     * <p>O dicionário português não sabe o que é {@code idea}; sabe que {@code ideá} existe, e
+     * troca. Não é erro do dicionário — é pergunta feita fora do domínio dele.
+     *
+     * <h2>Por que o classificador de quatro idiomas NÃO responde isto</h2>
+     * Ele decide {@link VeredictoPalavra#ACENTO_FALTANDO} <b>antes</b> de consultar o inglês, de
+     * modo que {@code idea} jamais chega a ser rotulado como inglês. A ordem está certa para o
+     * propósito dele e errada para esta pergunta, então esta pergunta ganhou método próprio em vez
+     * de uma mudança na ordem que quebraria o outro uso.
+     *
+     * <h2>Por que a régua é "a maioria", e não "existe alguma palavra inglesa"</h2>
+     * Uma tentativa mais larga foi MEDIDA e recusada: exigir que a fala se prove portuguesa por
+     * diacrítico ou palavra-função barrava {@code "Chegamos a borda do territorio."}, que é
+     * português perfeitamente normal. O custo era ~19 falas legítimas para salvar 8 — a guarda
+     * gastava mais do que rendia.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Palavra que os DOIS dicionários aceitam não conta para nenhum lado: {@code total},
+     *       {@code radio} e {@code area} existem nos dois idiomas e não decidem nada.</li>
+     *   <li>Empate NÃO é inglês. Na dúvida a fala é tratada como portuguesa e segue para a
+     *       correção — falhar para o lado de corrigir é o comportamento antigo, e o que se está
+     *       barrando aqui é só o caso claro.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: dicionário indisponível devolve {@code false} (não é
+     * inglês), porque bloquear a correção inteira por falta de dicionário seria trocar um defeito
+     * de 8 falas por um de mil.
+     *
+     * @param texto a fala como está no arquivo
+     * @return {@code true} se a maioria das palavras julgáveis é inglesa e não portuguesa
+     */
+    public boolean predominantementeInglesa(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return false;
+        }
+        Set<String> palavras = CorretorAcentoPorDicionario.candidatas(texto);
+        if (palavras.size() < 3) {
+            // Fala curta nao tem evidencia para decidir idioma. "Sim!" nao e ingles nem deixa
+            // de ser, e chutar aqui barraria correcao boa em legenda cheia de fala curta.
+            return false;
+        }
+        Set<String> foraDoIngles = ingles.desconhecidas(palavras);
+        Set<String> foraDoPortugues = portugues.desconhecidas(palavras);
+        if (!ingles.disponivel() || !portugues.disponivel()) {
+            return false;
+        }
+        int inglesas = 0;
+        int portuguesas = 0;
+        for (String p : palavras) {
+            boolean ehIngles = !foraDoIngles.contains(p);
+            boolean ehPortugues = !foraDoPortugues.contains(p);
+            if (ehIngles && !ehPortugues) {
+                inglesas++;
+            } else if (ehPortugues && !ehIngles) {
+                portuguesas++;
+            }
+        }
+        return inglesas > portuguesas && inglesas * 2 >= palavras.size();
     }
 
     /**
