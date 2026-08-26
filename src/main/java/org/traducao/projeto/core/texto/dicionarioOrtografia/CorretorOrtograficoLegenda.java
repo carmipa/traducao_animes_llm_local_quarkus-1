@@ -93,7 +93,11 @@ public class CorretorOrtograficoLegenda {
             ingles,
             new HunspellDicionarioAdapter("hunspell", "de_DE"),
             new HunspellDicionarioAdapter("hunspell", "fr_FR"),
-            new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI"));
+            new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI"),
+            // O ESPANHOL entrou em 26/08/2026: 54 ocorrencias no acervo, todas caindo em
+            // DESCONHECIDA junto com termo de franquia e nome de personagem. Nenhuma obra foi
+            // traduzida a partir dele — quando aparece, e deriva do modelo.
+            new HunspellDicionarioAdapter("hunspell", "es_ES"));
     }
 
     /**
