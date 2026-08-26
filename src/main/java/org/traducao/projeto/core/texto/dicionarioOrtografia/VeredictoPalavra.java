@@ -42,6 +42,21 @@ public enum VeredictoPalavra {
      * de seis acusações no primeiro run — só {@code Aoshima} era nome de verdade.
      */
     TERMO_FRANCES("revisar"),
+
+    /**
+     * Espanhol vazado na tradução — {@code misil}, {@code pasaje}, {@code francotirador}.
+     *
+     * <h2>Por que ganhou rótulo próprio em 26/08/2026</h2>
+     * Diferente do alemão e do francês, o espanhol NÃO é idioma de origem de nenhuma obra deste
+     * acervo: quando ele aparece, é o modelo derivando para a língua vizinha. A medição do alcance
+     * da tela 3.3 encontrou <b>54 ocorrências</b>, e todas caíam em {@link #DESCONHECIDA} — no
+     * mesmo balde de {@code psycommu} (termo da franquia) e {@code Kitchman} (nome de
+     * personagem). Três coisas diferentes com o mesmo rótulo é a ambiguidade que impede decisão.
+     *
+     * <p>A ação é REVISAR e não "preservar": a fala precisa ser traduzida de novo, e trocar a
+     * palavra por conta própria inventaria texto.
+     */
+    TERMO_ESPANHOL("revisar"),
     /**
      * Japonês escrito em alfabeto latino, reconhecido pelo dicionário {@code ja_ROMAJI} gerado do
      * IPADIC (129.745 formas). Distinto de {@link #JAPONES}, que se reconhece pela ESCRITA (kana e

@@ -48,6 +48,7 @@ public final class ClassificadorQuatroIdiomas {
     private final DicionarioOrtograficoPort alemao;
     private final DicionarioOrtograficoPort frances;
     private final DicionarioOrtograficoPort romaji;
+    private final DicionarioOrtograficoPort espanhol;
 
     /**
      * PROPÓSITO DE NEGÓCIO: recebe um verificador por idioma ocidental; o japonês não precisa de
@@ -90,11 +91,41 @@ public final class ClassificadorQuatroIdiomas {
     public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
             DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao,
             DicionarioOrtograficoPort frances, DicionarioOrtograficoPort romaji) {
+        this(portugues, ingles, alemao, frances, romaji, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a forma completa, com o ESPANHOL — a língua para a qual o modelo
+     * deriva sozinho.
+     *
+     * <h2>O prejuízo que obrigou a existir, medido em 26/08/2026</h2>
+     * A medição do alcance da tela 3.3 sobre 85.503 falas encontrou <b>54 ocorrências</b> de
+     * espanhol na tradução — {@code misil}, {@code pasaje}, {@code francotirador},
+     * {@code desplegada}, {@code matanza}. Todas caíam em {@link VeredictoPalavra#DESCONHECIDA},
+     * no mesmo balde de {@code psycommu} (termo da franquia) e {@code Kitchman} (personagem).
+     *
+     * <p>O espanhol é DIFERENTE do alemão e do francês: nenhuma obra deste acervo foi traduzida a
+     * partir dele. Quando aparece, é deriva do modelo — e a proveniência confirma um único
+     * tradutor, {@code aya-expanse-8b}, em todas as obras.
+     *
+     * <h2>Por que ele vem DEPOIS da checagem de acento, e isso não é detalhe</h2>
+     * O espanhol aceita {@code territorio}, {@code capitulo}, {@code servicio} — que em português
+     * são a MESMA palavra sem o acento. Se ele fosse consultado antes, {@code territorio} sairia
+     * como {@link VeredictoPalavra#TERMO_ESPANHOL} e o corretor pararia de escrever
+     * {@code território}. A ordem que protege está congelada em teste.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code null} é aceito e simplesmente não rotula, como nos outros.
+     */
+    public ClassificadorQuatroIdiomas(DicionarioOrtograficoPort portugues,
+            DicionarioOrtograficoPort ingles, DicionarioOrtograficoPort alemao,
+            DicionarioOrtograficoPort frances, DicionarioOrtograficoPort romaji,
+            DicionarioOrtograficoPort espanhol) {
         this.portugues = portugues;
         this.ingles = ingles;
         this.alemao = alemao;
         this.frances = frances;
         this.romaji = romaji;
+        this.espanhol = espanhol;
     }
 
     /**
@@ -133,10 +164,12 @@ public final class ClassificadorQuatroIdiomas {
             ? Set.of() : frances.desconhecidas(restantes);
         Set<String> naoRomaji = (restantes.isEmpty() || romaji == null)
             ? Set.of() : romaji.desconhecidas(restantes);
+        Set<String> naoEspanhol = (restantes.isEmpty() || espanhol == null)
+            ? Set.of() : espanhol.desconhecidas(restantes);
 
         for (String p : paraConsultar) {
             fora.put(p, vereditoDe(p, naoPt.keySet(), comAcento, naoEn, naoDe, naoFr, naoRomaji,
-                restantes));
+                naoEspanhol, restantes));
         }
         return fora;
     }
@@ -172,7 +205,7 @@ public final class ClassificadorQuatroIdiomas {
      */
     private VeredictoPalavra vereditoDe(String palavra, Set<String> naoPt, Set<String> comAcento,
             Set<String> naoEn, Set<String> naoDe, Set<String> naoFr, Set<String> naoRomaji,
-            Set<String> restantes) {
+            Set<String> naoEspanhol, Set<String> restantes) {
         if (!naoPt.contains(palavra)) {
             return VeredictoPalavra.PORTUGUES_OK;
         }
@@ -200,6 +233,12 @@ public final class ClassificadorQuatroIdiomas {
         // sobrenome japonês (Aoshima, e o .dic abre em aarajima/aatsukawa).
         if (romaji != null && romaji.disponivel() && !naoRomaji.contains(palavra)) {
             return VeredictoPalavra.ROMAJI;
+        }
+        // O ESPANHOL fecha a fila, DEPOIS do acento e de todos os outros. Ele aceita
+        // `territorio`, `capitulo` e `servicio`, que em portugues sao a mesma palavra sem acento —
+        // perguntar antes faria o corretor parar de escrever `territorio` com acento.
+        if (espanhol != null && espanhol.disponivel() && !naoEspanhol.contains(palavra)) {
+            return VeredictoPalavra.TERMO_ESPANHOL;
         }
         return VeredictoPalavra.DESCONHECIDA;
     }

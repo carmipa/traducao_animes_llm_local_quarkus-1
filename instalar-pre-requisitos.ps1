@@ -24,7 +24,10 @@ param(
     [switch]$SomenteConferir,
     # Idiomas de dicionário. pt_BR é o alvo da tradução; en_US separa resíduo de inglês de erro
     # real; de_DE existe porque anime usa termo alemão à beça (Evangelion: Nerv, Seele, Gehirn).
-    [string[]]$Idiomas = @('pt_BR', 'en_US', 'de_DE')
+    # es_ES entrou em 26/08/2026: a medicao do acervo achou 54 ocorrencias de espanhol na
+    # traducao, e sem o dicionario elas caem no mesmo balde de termo de franquia e nome de
+    # personagem. Nenhuma obra vem do espanhol — quando ele aparece, e deriva do modelo.
+    [string[]]$Idiomas = @('pt_BR', 'en_US', 'de_DE', 'es_ES')
 )
 
 $ErrorActionPreference = 'Continue'
