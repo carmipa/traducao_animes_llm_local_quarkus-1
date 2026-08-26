@@ -162,6 +162,7 @@ class CatracaSuiteSemDriveWindowsTest {
         // (`a noticia` x `ele noticia`). Mesma natureza das demais — "C:\animes" e o default de
         // -Dkronos.acervo, e caminho relativo mediria o vazio.
         "AlcanceDaMedicao.java",
+        "MedicaoAlcanceDa33NoAcervoIT.java",
         "MedicaoAcentoQueColideComVerboIT.java",
         "MedicaoPalavraQuebradaEidiomaVazadoIT.java",
         "MedicaoSugestaoParaPalavraQuebradaIT.java",
