@@ -79,9 +79,52 @@ class MedicaoTermoPerdidoIT {
     private record Perda(String obra, String termo, int vezes, List<String> exemplos) {
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) — a medição só afirma número depois de o
+     * instrumento ser visto ACHANDO a perda plantada e CALANDO quando o termo está lá.
+     *
+     * <p>O critério aqui é a {@code FronteiraTermoAss}: o termo tem de estar no inglês e sumir do
+     * português. Um zero só significa "nada se perdeu" se a fronteira tiver sido vista casando —
+     * e ela é justamente a mecânica que este projeto já consertou três vezes, porque a quebra
+     * {@code \\N} do ASS ocupa dois caracteres e o {@code N} conta como letra.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime o que falhou e devolve {@code false}.
+     */
+    private static boolean instrumentoCalibrado() {
+        String termo = "Gundam";
+        // POSITIVO: estava no ingles, sumiu do portugues.
+        boolean achaPerda =
+            FronteiraTermoAss.padrao(termo).matcher("The Gundam is here").find()
+            && !FronteiraTermoAss.padraoIgnorandoCaixa(termo)
+                .matcher("A unidade esta aqui").find();
+        // NEGATIVO 1: o termo esta no portugues — nao e perda.
+        boolean calaQuandoEstaLa = FronteiraTermoAss.padraoIgnorandoCaixa(termo)
+            .matcher("O Gundam esta aqui").find();
+        // NEGATIVO 2: caixa diferente TAMBEM nao e perda; se isto falhar, a medicao inventa
+        // perda em toda fala que so mudou de maiuscula.
+        boolean calaComCaixaDiferente = FronteiraTermoAss.padraoIgnorandoCaixa(termo)
+            .matcher("o gundam esta aqui").find();
+        // NEGATIVO 3: parte de outra palavra nao conta.
+        boolean calaEmSubpalavra = !FronteiraTermoAss.padrao(termo)
+            .matcher("Gundamium e outra coisa").find();
+
+        if (achaPerda && calaQuandoEstaLa && calaComCaixaDiferente && calaEmSubpalavra) {
+            System.out.println("  controle: acha 'Gundam' perdido; cala quando esta la, "
+                + "com outra caixa, e dentro de 'Gundamium'");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — perda=%s estaLa=%s caixa=%s "
+            + "subpalavra=%s. Nenhum numero abaixo vale.%n",
+            achaPerda, calaQuandoEstaLa, calaComCaixaDiferente, calaEmSubpalavra);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: termo canonico que estava no ingles e sumiu do portugues")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
             System.out.println("SEM ACERVO — nada medido.");
