@@ -51,6 +51,8 @@ class MedicaoFalsoPositivoConcordanciaIT {
     @Test
     @DisplayName("mede quantas falas o detector de concordancia acusa, e por que motivo")
     void medeOsMotivosNoAcervo() throws IOException {
+        // "NAO VERIFICADO" na mensagem e deliberado: cache ausente reprova, e a mensagem tem
+        // de dizer que NAO SE MEDIU — nunca que o detector nao achou falso positivo.
         assertTrue(Files.isDirectory(CACHE),
             "cache inacessivel em " + CACHE.toAbsolutePath() + " — sem ele o resultado vazio "
                 + "significaria \"nao consegui medir\", nunca \"o detector nao acusa nada\"");

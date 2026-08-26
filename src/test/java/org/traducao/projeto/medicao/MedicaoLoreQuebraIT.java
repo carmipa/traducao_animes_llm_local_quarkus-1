@@ -57,7 +57,8 @@ class MedicaoLoreQuebraIT {
     void medir() throws IOException {
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada medido.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — "
+                + "\"zero pendencia de lore\" aqui seria cegueira do instrumento.");
             return;
         }
 

@@ -59,12 +59,42 @@ class MedicaoConcordanciaIT {
     @Inject
     DetectorConcordanciaService detector;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do instrumento desta medição — o próprio
+     * {@link DetectorConcordanciaService} de produção, resolvido pelo CDI.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: tem de ACUSAR uma concordância quebrada montada à mão e tem de
+     * CALAR numa frase correta. Sem isso, "taxa de disparo 0%" significaria tanto "o acervo está
+     * limpo" quanto "o detector não enxerga nada" — e este harness existe justamente para
+     * afirmar essa taxa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhuma taxa é afirmada.
+     */
+    private boolean instrumentoCalibrado() {
+        var doente = detector.analisar("The ships are fast.", "As nave sao rapido.");
+        var sao = detector.analisar("The ships are fast.", "As naves sao rapidas.");
+        boolean acusaDoente = doente != null && !doente.motivos().isEmpty();
+        boolean calaNoSao = sao != null && sao.motivos().isEmpty();
+        if (acusaDoente && calaNoSao) {
+            System.out.printf("  controle: acusa 'As nave sao rapido' (%d motivo(s)) · cala em "
+                + "'As naves sao rapidas'%n", doente.motivos().size());
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — acusa doente=%s cala no sao=%s. "
+            + "Nenhuma taxa e afirmada.%n", acusaDoente, calaNoSao);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: taxa de disparo do detector de concordancia, por regra")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada medido.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — sem fala nenhuma nao ha "
+                + "taxa de disparo a afirmar.");
             return;
         }
 

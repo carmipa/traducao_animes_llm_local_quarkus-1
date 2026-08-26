@@ -9,6 +9,7 @@ import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,8 +101,8 @@ class MedicaoDivergenciaPadraoMusicalIT {
     @DisplayName("mede a divergencia entre os dois proprietarios do criterio musical")
     void medeDivergencia() throws IOException {
         assertTrue(Files.isDirectory(ACERVO),
-            "acervo inacessivel em " + ACERVO + " — sem ele o resultado vazio significaria "
-                + "\"nao consegui medir\", nunca \"os dois padroes concordam\"");
+            "NAO VERIFICADO: acervo inacessivel em " + ACERVO + " — sem ele o resultado vazio "
+                + "significaria \"nao consegui medir\", nunca \"os dois padroes concordam\"");
 
         // A lista de estilos-ignorados NAO entra aqui de proposito: ela e configuracao do
         // operador, e o que se mede e a divergencia entre os dois CODIGOS.
@@ -117,12 +118,26 @@ class MedicaoDivergenciaPadraoMusicalIT {
         Map<String, long[]> porEstilo = new TreeMap<>();   // [linhas, politica, detector]
         long total = 0;
 
-        try (Stream<Path> arquivos = Files.walk(ACERVO)) {
-            for (Path arquivo : arquivos
-                    .filter(p -> p.toString().endsWith(".ass"))
+        // ALCANCE PELO DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro, entao pedir
+        // uma obra e receber o acervo inteiro saia com a mesma cara de medicao dirigida.
+        List<Path> obras = AlcanceDaMedicao.obras();
+        if (obras.isEmpty()) {
+            System.out.println("NAO VERIFICADO: nenhuma obra casou com o alcance — 'os dois "
+                + "padroes concordam' aqui seria cegueira, e nao concordancia.");
+            return;
+        }
+        List<Path> deTodasAsObras = new ArrayList<>();
+        for (Path obra : obras) {
+            try (Stream<Path> arquivos = Files.walk(obra)) {
+                arquivos.filter(p -> p.toString().endsWith(".ass"))
                     .filter(p -> p.getParent() != null
                         && PASTAS_DE_ENTRADA.contains(p.getParent().getFileName().toString()))
-                    .toList()) {
+                    .forEach(deTodasAsObras::add);
+            }
+        }
+        {
+            for (Path arquivo : deTodasAsObras) {
                 for (String linha : Files.readAllLines(arquivo)) {
                     if (!linha.startsWith("Dialogue:")) {
                         continue;

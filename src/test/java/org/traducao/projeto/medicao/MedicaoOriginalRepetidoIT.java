@@ -96,7 +96,8 @@ class MedicaoOriginalRepetidoIT {
         }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada medido.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — "
+                + "\"nenhum original repetido\" aqui seria cegueira do instrumento.");
             return;
         }
 

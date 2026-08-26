@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
 
@@ -90,9 +91,13 @@ class MedicaoAuditoriaAcervoIT {
     @Test
     @DisplayName("acervo: anomalias por obra, separando o que a traducao causou")
     void medir() throws IOException {
+        if (!reguaCalibrada()) {
+            return;
+        }
         Path raiz = Path.of(System.getProperty("kronos.medicao.raiz", RAIZ_PADRAO));
         if (!Files.isDirectory(raiz)) {
-            System.out.println("RAIZ INEXISTENTE: " + raiz + " — nada medido.");
+            System.out.println("NAO VERIFICADO: raiz inexistente em " + raiz
+                + " — zero anomalia aqui seria cegueira, e nao acervo limpo.");
             return;
         }
 
@@ -185,6 +190,42 @@ class MedicaoAuditoriaAcervoIT {
     }
 
     /** Mesma régua da tela: a origem sai de QUAL arquivo foi acusado, não do texto. */
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) da régua que esta varredura usa para dizer
+     * "isto a tradução causou" — o {@link #classificarOrigem(AnomaliaConteudo, List)}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os três rótulos têm de sair distintos sobre casos montados à
+     * mão. Uma régua que devolvesse sempre {@code "traducao"} atribuiria ao pipeline todo defeito
+     * herdado da legenda em inglês, e o relatório por obra diria o oposto da verdade sem que
+     * nenhum número parecesse estranho.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhum número é afirmado.
+     */
+    private static boolean reguaCalibrada() {
+        EventoLegenda ev = new EventoLegenda(3, "Dialogue", "Default", "0,0,Default,,0,0,0,,",
+            "fala de controle");
+        AnomaliaConteudo soTraduzida = new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.WARNING, "REGRA_C", "d", null, ev, null);
+        AnomaliaConteudo soFonte = new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.WARNING, "REGRA_C", "d", ev, null, null);
+        AnomaliaConteudo nosDois = new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.WARNING, "REGRA_C", "d", ev, ev, null);
+
+        boolean acusaTraducao = "traducao".equals(
+            classificarOrigem(soTraduzida, List.of(soTraduzida)));
+        boolean poupaHerdada = "fonte".equals(
+            classificarOrigem(soTraduzida, List.of(soTraduzida, soFonte)));
+        boolean veOpar = "par".equals(classificarOrigem(nosDois, List.of(nosDois)));
+        if (acusaTraducao && poupaHerdada && veOpar) {
+            System.out.println("  controle da regua: 'traducao' quando so o lado PT acusa · "
+                + "'fonte' quando ha gemea no EN · 'par' quando os dois acusam");
+            return true;
+        }
+        System.out.printf("REGUA REPROVADA NO CONTROLE — traducao=%s fonte=%s par=%s. Nenhum "
+            + "numero e afirmado.%n", acusaTraducao, poupaHerdada, veOpar);
+        return false;
+    }
+
     private static String classificarOrigem(AnomaliaConteudo a, List<AnomaliaConteudo> todas) {
         boolean temO = a.eventoOriginal() != null;
         boolean temT = a.eventoTraduzido() != null;

@@ -102,7 +102,11 @@ class MedicaoCamadaRepetidaIT {
         }
         Path raiz = Path.of(pasta);
         if (!Files.isDirectory(raiz)) {
-            System.out.println("Pasta inexistente: " + raiz.toAbsolutePath());
+            // NAO VERIFICADO, e nao "zero camada repetida": pasta ausente e cegueira do
+            // instrumento, e sair com a mesma cara de "medi e nao achei nada" e o defeito
+            // que a regra 12 persegue.
+            System.out.println("NAO VERIFICADO: pasta inexistente em " + raiz.toAbsolutePath()
+                + " — nenhum numero de camada repetida e afirmado.");
             return;
         }
 

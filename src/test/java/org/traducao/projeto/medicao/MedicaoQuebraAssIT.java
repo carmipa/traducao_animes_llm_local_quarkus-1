@@ -126,7 +126,7 @@ class MedicaoQuebraAssIT {
         Path raiz = LeitorAcervoCache.raizPadrao();
         Acervo acervo = LeitorAcervoCache.ler(raiz);
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO em " + raiz.toAbsolutePath()
+            System.out.println("NAO VERIFICADO: acervo ausente em " + raiz.toAbsolutePath()
                 + " — nada medido. Aponte outro com -D" + LeitorAcervoCache.CHAVE_RAIZ + "=...");
             return;
         }

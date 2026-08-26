@@ -138,7 +138,9 @@ class DiagnosticoCorretorConcordanciaIT {
             }
         }
 
-        assertTrue(acertos > 0, "controle positivo: o instrumento nao viu o corretor agir em caso nenhum");
+        assertTrue(acertos > 0, "NAO VERIFICADO (controle positivo): o instrumento nao viu o "
+            + "corretor agir em caso nenhum, entao os numeros acima nao medem o corretor — "
+            + "medem o silencio dele.");
     }
 
     private static String recortar(String t) {

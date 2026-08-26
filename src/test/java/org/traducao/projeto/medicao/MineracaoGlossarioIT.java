@@ -74,8 +74,12 @@ class MineracaoGlossarioIT {
     @DisplayName("acervo: candidatos a entrada de glossario, com contagem")
     void minerar() throws IOException {
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
+        if (!cortesCalibrados()) {
+            return;
+        }
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada minerado.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — 'nenhum candidato a "
+                + "glossario' aqui seria cegueira, e nao acervo sem termo recorrente.");
             return;
         }
 
@@ -305,6 +309,35 @@ class MineracaoGlossarioIT {
 
     private static int contaPalavras(String chave) {
         return chave.isEmpty() ? 0 : chave.split(" ").length;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) dos dois cortes que decidem o que vira
+     * candidato — {@link #MAX_PALAVRAS} e {@link #MIN_OCORRENCIAS}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o contador tem de separar a expressão curta (candidata) da
+     * frase longa (descartada), e a contagem por chave tem de somar. Um {@code contaPalavras}
+     * que devolvesse sempre 1 mandaria o acervo inteiro ao glossário; um que devolvesse sempre
+     * um número alto devolveria lista vazia — e "nenhum termo recorrente" é uma conclusão que
+     * este harness não pode emitir por cegueira.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhum candidato é
+     * afirmado.
+     */
+    private static boolean cortesCalibrados() {
+        boolean deixaPassarOcurto = contaPalavras("mobile suit") <= MAX_PALAVRAS;
+        boolean barraOlongo =
+            contaPalavras("this is a full sentence that no glossary wants") > MAX_PALAVRAS;
+        boolean contaVazioComoZero = contaPalavras("") == 0;
+        if (deixaPassarOcurto && barraOlongo && contaVazioComoZero) {
+            System.out.printf("  controle dos cortes: 'mobile suit' passa · frase longa e barrada "
+                + "· vazio conta 0  (max %d palavras, min %d ocorrencias)%n",
+                MAX_PALAVRAS, MIN_OCORRENCIAS);
+            return true;
+        }
+        System.out.printf("CORTES REPROVADOS NO CONTROLE — curto=%s longo=%s vazio=%s. Nenhum "
+            + "candidato e afirmado.%n", deixaPassarOcurto, barraOlongo, contaVazioComoZero);
+        return false;
     }
 
     private static String recortar(String t) {
