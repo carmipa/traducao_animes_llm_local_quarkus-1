@@ -168,9 +168,9 @@ class MedicaoConcordanciaPorDicionarioIT {
         List<Par> pares = new ArrayList<>();
         int falas = 0;
         List<Path> obras;
-        try (Stream<Path> s = Files.list(RAIZ)) {
-            obras = s.filter(Files::isDirectory).sorted().toList();
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro.
+        obras = org.traducao.projeto.medicao.AlcanceDaMedicao.obras();
         for (Path obra : obras) {
             List<Path> arquivos;
             try (Stream<Path> s = Files.walk(obra)) {
@@ -329,9 +329,9 @@ class MedicaoConcordanciaPorDicionarioIT {
         record Achado(String pronome, String palavra, String obra, String fala) {}
         List<Achado> achados = new ArrayList<>();
         List<Path> obras;
-        try (Stream<Path> s = Files.list(RAIZ)) {
-            obras = s.filter(Files::isDirectory).sorted().toList();
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro.
+        obras = org.traducao.projeto.medicao.AlcanceDaMedicao.obras();
         for (Path obra : obras) {
             List<Path> arquivos;
             try (Stream<Path> s = Files.walk(obra)) {

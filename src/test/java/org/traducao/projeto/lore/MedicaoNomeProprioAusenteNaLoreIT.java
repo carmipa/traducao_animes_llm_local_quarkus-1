@@ -98,12 +98,12 @@ class MedicaoNomeProprioAusenteNaLoreIT {
         LeitorLegendaAss leitor = new LeitorLegendaAss();
 
         List<Path> pastas = new ArrayList<>();
-        try (Stream<Path> caminhada = Files.walk(ACERVO)) {
-            caminhada.filter(Files::isDirectory)
-                .filter(d -> PASTA_PT.equals(d.getFileName().toString()))
-                .filter(d -> !d.toString().contains(FORA_DO_ACERVO))
-                .forEach(pastas::add);
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. O veto de FORA_DO_ACERVO continua sendo desta medicao — o
+        // dono unico responde "onde estao as traducoes", nao "quais interessam a este harness".
+        org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao().stream()
+            .filter(d -> !d.toString().contains(FORA_DO_ACERVO))
+            .forEach(pastas::add);
         assertFalse(pastas.isEmpty(), "instrumento cego: nenhuma pasta " + PASTA_PT);
 
         Map<String, Map<String, Integer>> faltamPorObra = new LinkedHashMap<>();

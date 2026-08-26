@@ -117,16 +117,18 @@ class MedicaoProntidaoTraducaoIT {
         }
 
         List<Path> arquivos = new ArrayList<>();
-        try (Stream<Path> caminhada = Files.walk(ACERVO)) {
-            caminhada.filter(Files::isRegularFile)
-                .filter(p -> p.getParent() != null
-                    && PASTA_PT.equals(p.getParent().getFileName().toString()))
-                .filter(p -> !p.toString().contains(FORA_DO_ACERVO))
-                .filter(p -> {
-                    String n = p.getFileName().toString().toLowerCase();
-                    return n.endsWith(".ass") && !n.endsWith(".parcial.ass");
-                })
-                .forEach(arquivos::add);
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. O veto de FORA_DO_ACERVO continua sendo desta medicao.
+        for (Path pastaPt : org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao()) {
+            try (Stream<Path> naPasta = Files.list(pastaPt)) {
+                naPasta.filter(Files::isRegularFile)
+                    .filter(p -> !p.toString().contains(FORA_DO_ACERVO))
+                    .filter(p -> {
+                        String n = p.getFileName().toString().toLowerCase();
+                        return n.endsWith(".ass") && !n.endsWith(".parcial.ass");
+                    })
+                    .forEach(arquivos::add);
+            }
         }
         assertFalse(arquivos.isEmpty(), "instrumento cego: nenhum .ass sob " + ACERVO);
 

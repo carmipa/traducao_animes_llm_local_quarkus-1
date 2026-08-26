@@ -112,11 +112,10 @@ class MedicaoEscopoDaRevisaoLoreIT {
                 + "\"nao consegui medir\", nunca \"nao ha efeito\"");
 
         List<Path> pastasPt;
-        try (Stream<Path> caminhos = Files.walk(ACERVO)) {
-            pastasPt = caminhos.filter(Files::isDirectory)
-                .filter(p -> PASTA_PT.equals(p.getFileName().toString()))
-                .sorted().toList();
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro, entao pedir
+        // prova numa obra varria as 222 pastas do acervo.
+        pastasPt = org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao();
         assertTrue(!pastasPt.isEmpty(), "nenhuma pasta " + PASTA_PT + " em " + ACERVO + " — CEGO");
 
         List<Obra> obras = new ArrayList<>();

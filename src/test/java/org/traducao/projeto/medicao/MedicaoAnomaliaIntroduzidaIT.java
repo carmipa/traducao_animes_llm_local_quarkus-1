@@ -74,11 +74,11 @@ class MedicaoAnomaliaIntroduzidaIT {
         }
 
         List<Achado> achados = new ArrayList<>();
-        try (Stream<Path> obras = Files.list(raiz)) {
-            for (Path obra : obras.filter(Files::isDirectory).sorted().toList()) {
-                for (Path[] dupla : paresDePastaIrma(obra)) {
-                    coletar(obra.getFileName().toString(), dupla[0], dupla[1], achados);
-                }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro.
+        for (Path obra : org.traducao.projeto.medicao.AlcanceDaMedicao.obras()) {
+            for (Path[] dupla : paresDePastaIrma(obra)) {
+                coletar(obra.getFileName().toString(), dupla[0], dupla[1], achados);
             }
         }
 

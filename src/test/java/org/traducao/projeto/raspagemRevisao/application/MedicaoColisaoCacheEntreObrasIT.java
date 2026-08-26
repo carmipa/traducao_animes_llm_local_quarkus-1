@@ -80,12 +80,18 @@ class MedicaoColisaoCacheEntreObrasIT {
         int paresTestados = 0;
         int legendas = 0;
 
-        try (Stream<Path> s = Files.walk(ACERVO)) {
-            for (Path legenda : s.filter(p -> p.getFileName().toString().endsWith(".ass"))
-                .filter(p -> p.getParent() != null
-                    && p.getParent().getFileName().toString().equals("traducao_ptbr"))
-                .filter(p -> !p.toString().contains("backup"))
-                .toList()) {
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. O veto de "backup" continua sendo desta medicao.
+        List<Path> legendasNoAlcance = new ArrayList<>();
+        for (Path pastaPt : org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao()) {
+            for (Path a : org.traducao.projeto.medicao.AlcanceDaMedicao.arquivosEntregues(pastaPt)) {
+                if (!a.toString().contains("backup")) {
+                    legendasNoAlcance.add(a);
+                }
+            }
+        }
+        {
+            for (Path legenda : legendasNoAlcance) {
 
                 String obraLegenda = obraDe(legenda);
                 String baseMidia = ResolvedorArtefatosRevisao.normalizarBaseLegenda(

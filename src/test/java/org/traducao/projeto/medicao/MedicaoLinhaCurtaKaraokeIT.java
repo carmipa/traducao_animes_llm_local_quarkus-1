@@ -324,13 +324,21 @@ class MedicaoLinhaCurtaKaraokeIT {
     }
 
     private List<Path> listarLegendas() throws IOException {
-        try (Stream<Path> arquivos = Files.walk(ACERVO)) {
-            return arquivos
-                .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".ass"))
-                .filter(p -> p.getParent() != null
-                    && PASTAS_DE_LEGENDA.contains(p.getParent().getFileName().toString()))
-                .toList();
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A lista PASTAS_DE_LEGENDA continua sendo desta medicao —
+        // ela olha varias pastas por obra, nao so a traducao_ptbr.
+        List<Path> reunidos = new ArrayList<>();
+        for (Path obra : org.traducao.projeto.medicao.AlcanceDaMedicao.obras()) {
+            try (Stream<Path> arquivos = Files.walk(obra)) {
+                arquivos
+                    .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)
+                        .endsWith(".ass"))
+                    .filter(p -> p.getParent() != null
+                        && PASTAS_DE_LEGENDA.contains(p.getParent().getFileName().toString()))
+                    .forEach(reunidos::add);
+            }
         }
+        return reunidos;
     }
 
     /**
