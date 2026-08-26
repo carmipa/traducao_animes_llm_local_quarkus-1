@@ -69,9 +69,60 @@ class MedicaoQuebraAssIT {
     private static final Pattern NOME_COM_ESPACO_DURO = Pattern.compile(
         "(\\p{Lu}\\p{L}+)" + Pattern.quote(ESPACO_DURO) + "(\\p{Lu}\\p{L}+)");
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) — o instrumento tem de ser visto ACHANDO o
+     * caso plantado e CALANDO no caso são, antes de qualquer número valer.
+     *
+     * <h2>Por que esta medição precisa disto</h2>
+     * O número que ela produz decide se a mecânica da fronteira de termo ainda tem furo. Um zero
+     * aqui só significa "o acervo está limpo" se a regex tiver sido vista casando — e regex de
+     * quebra do ASS é justamente onde este projeto mais errou: {@code \N} ocupa DOIS caracteres,
+     * e o {@code N} é letra para {@code \p{L}}, então um padrão descuidado casa coisa errada ou
+     * não casa nada, sempre em silêncio.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime o que falhou e devolve {@code false}; quem chama
+     * termina sem afirmar número.
+     */
+    /**
+     * O caso-controle como TESTE, e não só como guarda dentro da medição.
+     *
+     * <p>Guarda que imprime e volta protege o NÚMERO daquela execução; ela não protege o
+     * instrumento de ser quebrado por quem editar a regex amanhã. Só uma asserção reprova o
+     * build — e só o que reprova o build sobrevive à troca de quem edita.
+     */
+    @Test
+    @DisplayName("calibracao: as regex acham o nome partido e calam no nome inteiro")
+    void calibracaoDasRegex() {
+        org.junit.jupiter.api.Assertions.assertTrue(instrumentoCalibrado(),
+            "o instrumento nao passou no proprio controle — nenhum numero desta medicao vale");
+    }
+
+    private static boolean instrumentoCalibrado() {
+        boolean achaPartido = NOME_PARTIDO.matcher("Cardeas" + QUEBRA + "Vist").find();
+        boolean achaEspacoDuro =
+            NOME_COM_ESPACO_DURO.matcher("Cardeas" + ESPACO_DURO + "Vist").find();
+        // NEGATIVOS: nome com espaco NORMAL nao e nome partido, e minuscula nao e nome.
+        boolean calaComEspaco = !NOME_PARTIDO.matcher("Cardeas Vist").find()
+            && !NOME_COM_ESPACO_DURO.matcher("Cardeas Vist").find();
+        boolean calaComMinuscula = !NOME_PARTIDO.matcher("cardeas" + QUEBRA + "vist").find();
+
+        if (achaPartido && achaEspacoDuro && calaComEspaco && calaComMinuscula) {
+            System.out.println("  controle: acha 'Cardeas\\NVist' e 'Cardeas\\hVist'; "
+                + "cala em 'Cardeas Vist' e em minuscula");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — partido=%s espacoDuro=%s "
+            + "calaComEspaco=%s calaComMinuscula=%s. Nenhum numero abaixo vale.%n",
+            achaPartido, achaEspacoDuro, calaComEspaco, calaComMinuscula);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: alcance da quebra \\N e o que ela ainda esconde")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Path raiz = LeitorAcervoCache.raizPadrao();
         Acervo acervo = LeitorAcervoCache.ler(raiz);
         if (acervo.vazio()) {

@@ -59,9 +59,41 @@ class MedicaoOriginalRepetidoIT {
                         int divergentesSoPrefixo, int falasSoPrefixo) {
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do que esta medição chama de "mesmo
+     * original": o texto VISÍVEL, sem tags e sem a quebra do ASS.
+     *
+     * <p>Sem isto, um zero significaria "não há original repetido" e também "meu comparador
+     * nunca considerou nada igual" — e as duas coisas não podem sair iguais.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime o que falhou e devolve {@code false}.
+     */
+    private static boolean instrumentoCalibrado() {
+        // POSITIVO: mesma fala, tags e quebra diferentes — para o espectador e IDENTICA.
+        boolean achaIgual = visivel("{\\an8}Vamos\\Nembora.")
+            .equals(visivel("{\\pos(1,2)}Vamos embora."));
+        // NEGATIVO: falas diferentes nao podem colapsar.
+        boolean separaDiferente = !visivel("Vamos embora.").equals(visivel("Vamos ficar."));
+        // A trava do soPrefixo: tag SO no comeco e prefixo; tag no MEIO nao e.
+        boolean prefixoOk = soPrefixo("{\\an8}Vamos embora.")
+            && !soPrefixo("Vamos {\\i1}embora{\\i0}.");
+
+        if (achaIgual && separaDiferente && prefixoOk) {
+            System.out.println("  controle: iguala fala identica com tags diferentes, "
+                + "separa fala diferente, e distingue tag de prefixo da tag do meio");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — igual=%s separa=%s prefixo=%s. "
+            + "Nenhum numero abaixo vale.%n", achaIgual, separaDiferente, prefixoOk);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: original IDENTICO repetido no mesmo arquivo, e quantos divergiram")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
             System.out.println("SEM ACERVO — nada medido.");

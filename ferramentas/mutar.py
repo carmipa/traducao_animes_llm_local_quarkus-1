@@ -33,6 +33,7 @@ rodada, para "sem XML" significar "nao rodou" e nunca "rodou e nao reprovou".
 
     {
       "alvos": ["*MinhaClasseTest*", "*OutraTest*"],
+      "propriedades": {"kronos.medicao": "true"},
       "mutacoes": [
         {"arquivo": "src/main/java/.../Corretor.java",
          "titulo":  "desligar a guarda de maiuscula",
@@ -66,17 +67,22 @@ def _wrapper():
     return os.path.join(os.getcwd(), "gradlew.bat" if os.name == "nt" else "gradlew")
 
 
-def rodar(alvos):
+def rodar(alvos, propriedades=None):
     """Roda os testes e devolve a lista de casos que REPROVARAM, lida do XML.
 
-    Devolve uma lista com uma linha de erro quando o Gradle nao rodou — que e um estado
-    diferente de "nenhum teste reprovou", e os dois nunca podem sair iguais.
+    Devolve uma lista com uma linha de erro quando o Gradle nao rodou, ou quando NENHUM caso
+    chegou a EXECUTAR — os tres estados sao diferentes e nunca podem sair iguais.
     """
     for x in glob.glob(XML):
         os.remove(x)
     filtro = " ".join('--tests "%s"' % a for a in alvos)
+    # GUARDA 5: as propriedades do plano. Sem elas, um caso atras de
+    # `@EnabledIfSystemProperty` e PULADO — e pulado nao e aprovado. Em 25/08/2026 uma mutacao
+    # deste mesmo mutador devolveu "nenhum teste reprovou" porque o alvo estava atras de
+    # `-Dkronos.medicao=true` e nunca chegou a rodar.
+    ds = " ".join('"-D%s=%s"' % (k, v) for k, v in (propriedades or {}).items())
     # GUARDA 1: --rerun-tasks sempre.
-    cmd = '"%s" test --rerun-tasks %s' % (_wrapper(), filtro)
+    cmd = '"%s" test --rerun-tasks %s %s' % (_wrapper(), ds, filtro)
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True, errors="replace")
     # GUARDA 2: o veredito vem do XML; o rc so serve para detectar que nem rodou.
     saida = (r.stdout or "") + (r.stderr or "")
@@ -86,20 +92,29 @@ def rodar(alvos):
     if not arquivos:
         return ["!! SEM XML — nada foi medido"]
     ruins = []
+    executados = 0
     for x in arquivos:
         for caso in ET.parse(x).getroot().iter("testcase"):
+            if caso.find("skipped") is not None:
+                continue
+            executados += 1
             if caso.find("failure") is not None or caso.find("error") is not None:
                 ruins.append(caso.get("name"))
+    # GUARDA 6: PULADO NAO E APROVADO. Se nada executou, isso e NAO VERIFICADO — nunca
+    # "a mutacao nao derrubou nada".
+    if executados == 0:
+        return ["!! NENHUM CASO EXECUTOU (todos pulados) — NAO VERIFICADO, e nao aprovacao"]
     return ruins
 
 
 def main(caminhoDoPlano):
     plano = json.loads(io.open(caminhoDoPlano, encoding="utf-8").read())
     alvos = plano["alvos"]
+    props = plano.get("propriedades", {})
     mortas = []
 
     print("=== VERDE DE PARTIDA (sem mutacao) ===")
-    partida = rodar(alvos)
+    partida = rodar(alvos, props)
     if partida:
         print("    A SUITE JA ESTA VERMELHA: %s" % partida)
         print("    Mutacao sobre suite vermelha nao mede nada. Abortando.")
@@ -118,7 +133,7 @@ def main(caminhoDoPlano):
                 continue
             io.open(arquivo, "w", encoding="utf-8", newline="\n").write(
                 base.replace(m["velho"], m["novo"]))
-            ruins = rodar(alvos)
+            ruins = rodar(alvos, props)
             print("### %s" % titulo)
             if not ruins:
                 mortas.append(titulo)
@@ -131,7 +146,7 @@ def main(caminhoDoPlano):
             os.remove(bak)
 
     print("=== RESTAURADO — conferindo o verde de volta ===")
-    volta = rodar(alvos)
+    volta = rodar(alvos, props)
     print("    %s" % (volta if volta else "VERDE"))
     if mortas:
         print("\nMUTACOES QUE NAO DERRUBARAM NADA (%d): %s" % (len(mortas), mortas))

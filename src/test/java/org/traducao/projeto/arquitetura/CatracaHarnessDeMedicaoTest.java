@@ -90,26 +90,12 @@ class CatracaHarnessDeMedicaoTest {
 
     /** DÍVIDA HERDADA — harnesses que afirmam número sem exercitar caso-controle. Só desce. */
     private static final Set<String> SEM_CASO_CONTROLE = Set.of(
-        "AplicarAcentosNoAcervoIT.java",
         "AplicarReforcoTerminologiaIT.java",
-        "CorretorLoreEhIdempotenteIT.java",
         "EnsaioReforcoTerminologiaIT.java",
-        "MedicaoAlcanceRegraItalicoIT.java",
         "MedicaoAnomaliaIntroduzidaIT.java",
         "MedicaoAuditoriaAcervoIT.java",
-        "MedicaoCamadaRepetidaIT.java",
-        "MedicaoColisaoCacheEntreObrasIT.java",
         "MedicaoConcordanciaIT.java",
-        "MedicaoDivergenciaPadraoMusicalIT.java",
         "MedicaoFalasVaziasIT.java",
-        "MedicaoFalsoPositivoConcordanciaIT.java",
-        "MedicaoMusicaDivergenteDoEspelhoIT.java",
-        "MedicaoNomeProprioAusenteNaLoreIT.java",
-        "MedicaoOriginalRepetidoIT.java",
-        "MedicaoProntidaoTraducaoIT.java",
-        "MedicaoQuebraAssIT.java",
-        "MedicaoResiduoNoAcervoIT.java",
-        "MedicaoTermoPerdidoIT.java",
         "MineracaoGlossarioIT.java",
         "ProvenienciaAindaValeIT.java",
         "SpikeLanguageToolContraGoldSetIT.java");
@@ -129,9 +115,25 @@ class CatracaHarnessDeMedicaoTest {
                 || fonte.contains("AlcanceDaMedicao");
         }
 
-        /** Exercita caso-controle: a palavra aparece no código, não só num comentário solto. */
+        /**
+         * Exercita caso-controle — plantar um caso que o instrumento TEM de achar e um que ele
+         * NAO pode achar.
+         *
+         * <h2>O detector estava ESTREITO, e a catraca acusou quem cumpria</h2>
+         * A primeira versao procurava so a palavra {@code controle}. Este projeto chama a mesma
+         * coisa de <b>calibração</b> (regra 9) e fala em <b>instrumento cego</b>, e o
+         * {@code MedicaoColisaoCacheEntreObrasIT} — que tem um caso-controle de manual, com
+         * positivo e negativo — aparecia na lista de divida.
+         *
+         * <p>Falso positivo de catraca nao e detalhe: alarme falso ensina a desligar o alarme.
+         * O vocabulario aqui e o que o projeto REALMENTE usa, e nao o que eu supus.
+         */
         boolean temCasoControle() {
-            return fonte.toLowerCase().contains("controle");
+            String minusculo = fonte.toLowerCase();
+            return minusculo.contains("controle")
+                || minusculo.contains("calibra")
+                || minusculo.contains("instrumento cego")
+                || minusculo.contains("instrumento reprovado");
         }
     }
 

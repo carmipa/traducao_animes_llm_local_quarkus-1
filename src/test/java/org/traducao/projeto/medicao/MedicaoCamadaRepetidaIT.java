@@ -59,9 +59,41 @@ class MedicaoCamadaRepetidaIT {
                          int empilhados, String amostra) {
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do que esta medição chama de "MESMO texto".
+     *
+     * <p>Ela procura eventos no mesmo tempo com o mesmo texto — a assinatura da camada de karaokê
+     * duplicada. O que decide "mesmo" é a normalização: se ela colapsar demais, a medição acusa
+     * duplicata onde há duas falas distintas; se colapsar de menos, o número vira zero por
+     * cegueira.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime o que falhou e devolve {@code false}.
+     */
+    private static boolean instrumentoCalibrado() {
+        // POSITIVO: quebra, espaco duro e espaco repetido nao fazem duas falas distintas.
+        boolean iguala = normalizar("Vamos\\Nembora.").equals(normalizar("Vamos  embora."))
+            && normalizar("Vamos\\hembora.").equals(normalizar("Vamos embora."));
+        // NEGATIVO: texto diferente continua diferente.
+        boolean separa = !normalizar("Vamos embora.").equals(normalizar("Vamos ficar."));
+        // NEGATIVO 2: a normalizacao nao pode apagar o texto.
+        boolean naoApaga = !normalizar("Vamos\\Nembora.").isBlank();
+
+        if (iguala && separa && naoApaga) {
+            System.out.println("  controle: quebra e espaco duro nao criam fala nova; "
+                + "texto diferente continua diferente");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — iguala=%s separa=%s naoApaga=%s. "
+            + "Nenhum numero abaixo vale.%n", iguala, separa, naoApaga);
+        return false;
+    }
+
     @Test
     @DisplayName("ass: eventos no MESMO tempo com o MESMO texto, por estilo")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         String pasta = System.getProperty(CHAVE_PASTA);
         if (pasta == null) {
             System.out.println("Passe -D" + CHAVE_PASTA + "=<pasta com .ass> — este harness le o "
@@ -178,7 +210,19 @@ class MedicaoCamadaRepetidaIT {
     }
 
     private static String visivel(EventoAss e) {
-        return e.textoVisivel().replaceAll("\\\\[Nnh]", " ").replaceAll("\\s+", " ").strip();
+        return normalizar(e.textoVisivel());
+    }
+
+    /**
+     * A normalização que decide o que é "o MESMO texto": quebra e espaço duro do ASS viram
+     * espaço, e espaços repetidos colapsam.
+     *
+     * <p>Extraída de {@link #visivel(EventoAss)} para o caso-controle poder exercitá-la sem
+     * montar um evento — e para as duas nunca divergirem, que é o que aconteceria se o controle
+     * repetisse a regra por conta própria.
+     */
+    static String normalizar(String texto) {
+        return texto.replaceAll("\\\\[Nnh]", " ").replaceAll("\\s+", " ").strip();
     }
 
     private static String recortar(String t) {

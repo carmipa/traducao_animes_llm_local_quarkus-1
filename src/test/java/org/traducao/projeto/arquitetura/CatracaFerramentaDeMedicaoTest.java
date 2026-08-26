@@ -54,7 +54,13 @@ class CatracaFerramentaDeMedicaoTest {
         new Guarda("os.remove(x)",
             "o XML e apagado antes de cada rodada, para 'sem XML' significar 'nao rodou'"),
         new Guarda("NAO VERIFICADO",
-            "alvo que casa zero ou duas vezes nao e mutacao aplicada, e tem de ser declarado"));
+            "alvo que casa zero ou duas vezes nao e mutacao aplicada, e tem de ser declarado"),
+        new Guarda("NENHUM CASO EXECUTOU",
+            "teste PULADO nao e teste aprovado: um caso atras de @EnabledIfSystemProperty que "
+                + "nunca roda devolvia 'nenhuma mutacao derrubou nada'"),
+        new Guarda("propriedades",
+            "o plano leva as -D que o alvo precisa; sem elas o caso e pulado e a mutacao mede "
+                + "o nada"));
 
     private static final List<Guarda> DO_CONFERIDOR = List.of(
         new Guarda("hashlib.sha256(bruto).hexdigest() == shaEsperado",

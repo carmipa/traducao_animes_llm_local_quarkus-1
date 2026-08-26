@@ -67,6 +67,35 @@ class MedicaoDivergenciaPadraoMusicalIT {
      * PROPÓSITO DE NEGÓCIO: percorre o acervo, pergunta o mesmo estilo aos dois proprietários
      * e agrupa os desacordos por estilo, com a contagem de linhas de cada um.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) — esta medição compara DOIS donos do critério
+     * musical, e um zero só significa "eles concordam" se os dois tiverem sido vistos respondendo.
+     *
+     * <p>Dois objetos que devolvem sempre a mesma coisa concordam perfeitamente e não dizem nada.
+     * O controle exige que cada um separe um estilo claramente musical de um claramente de
+     * diálogo — senão a divergência medida é a de dois relógios parados.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime o que falhou e devolve {@code false}.
+     */
+    private static boolean instrumentoCalibrado(PoliticaEstiloMusical politica,
+                                               DetectorEfeitoKaraokeService detector) {
+        boolean politicaVeMusica = politica.estiloIgnorado("Song JP");
+        boolean politicaVeDialogo = !politica.estiloIgnorado("Default");
+        boolean detectorVeMusica = detector.podeSerCamadaMusical("Song JP", "");
+        boolean detectorVeDialogo = !detector.podeSerCamadaMusical("Default", "");
+
+        if (politicaVeMusica && politicaVeDialogo && detectorVeMusica && detectorVeDialogo) {
+            System.out.println("  controle: os DOIS donos separam 'Song JP' de 'Default' — "
+                + "a divergencia medida abaixo e real, e nao dois relogios parados");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — politica(musica)=%s "
+            + "politica(dialogo)=%s detector(musica)=%s detector(dialogo)=%s. "
+            + "Nenhum numero abaixo vale.%n",
+            politicaVeMusica, politicaVeDialogo, detectorVeMusica, detectorVeDialogo);
+        return false;
+    }
+
     @Test
     @DisplayName("mede a divergencia entre os dois proprietarios do criterio musical")
     void medeDivergencia() throws IOException {
@@ -78,6 +107,12 @@ class MedicaoDivergenciaPadraoMusicalIT {
         // operador, e o que se mede e a divergencia entre os dois CODIGOS.
         PoliticaEstiloMusical politica = new PoliticaEstiloMusical(List.of());
         DetectorEfeitoKaraokeService detector = new DetectorEfeitoKaraokeService();
+
+        // O controle roda DEPOIS de os dois donos existirem — sao variaveis locais, e uma guarda
+        // no topo do metodo nao teria a quem perguntar.
+        if (!instrumentoCalibrado(politica, detector)) {
+            return;
+        }
 
         Map<String, long[]> porEstilo = new TreeMap<>();   // [linhas, politica, detector]
         long total = 0;
