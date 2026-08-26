@@ -53,12 +53,39 @@ class MedicaoFalasVaziasIT {
             .strip();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do único instrumento desta medição — o
+     * {@link #visivel(String)}, que decide o que sobra para o espectador ler.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: tem de achar a fala que é SÓ ornamento (tag e quebra, nada de
+     * texto) e tem de calar na fala com texto de verdade. Um {@code visivel()} que devolvesse
+     * sempre vazio reportaria o acervo inteiro como perdido; um que nunca devolvesse vazio
+     * reportaria zero — e os dois números sairiam com a mesma cara de medição.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhum número é afirmado.
+     */
+    private static boolean instrumentoCalibrado() {
+        boolean achaOrnamento = visivel("{\\an8\\pos(10,20)}\\N\\h").isEmpty();
+        boolean calaNoTexto = !visivel("{\\an8}Capitao, a nave chegou.").isEmpty();
+        if (achaOrnamento && calaNoTexto) {
+            System.out.println("  controle: ve a fala so de ornamento · cala na fala com texto");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — ornamento=%s texto=%s. "
+            + "Nenhum numero e afirmado.%n", achaOrnamento, calaNoTexto);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: falas que ja nascem VAZIAS no cache, por obra e por arquivo")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada medido.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — zero aqui seria cegueira "
+                + "do instrumento, e nao ausencia de fala vazia.");
             return;
         }
         String filtro = System.getProperty(CHAVE_OBRA);

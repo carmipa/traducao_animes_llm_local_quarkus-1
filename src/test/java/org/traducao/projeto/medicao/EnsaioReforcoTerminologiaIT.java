@@ -51,9 +51,32 @@ class EnsaioReforcoTerminologiaIT {
     @Test
     @DisplayName("acervo: quantas falas as regras de terminologia atuais corrigiriam")
     void ensaiar() {
+        // CASO-CONTROLE (regra 9): o ensaio nao escreve, entao o instrumento a calibrar e o
+        // proprio use case — se ele voltar mudo, "0 falas mudariam" se le como "as regras nao
+        // alcancam nada" quando pode ser "ele nao olhou". A sonda e uma raiz que NAO existe: o
+        // servico tem de devolver resultado com zero arquivos ANALISADOS, e nao estourar nem
+        // devolver contagem inventada.
+        Path inexistente = Path.of("cache-que-nao-existe-em-lugar-nenhum");
+        try {
+            ResultadoReforcoTerminologia sonda = reforco.ensaiar(inexistente, null);
+            if (sonda == null || sonda.arquivosAnalisados() != 0) {
+                System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE: raiz inexistente devolveu "
+                    + "%s. Nenhum numero e afirmado.%n",
+                    sonda == null ? "null" : sonda.arquivosAnalisados() + " arquivo(s)");
+                return;
+            }
+            System.out.println("  controle: raiz inexistente devolve 0 arquivo analisado, sem "
+                + "estourar — o servico distingue 'nada a fazer' de 'nao olhei'");
+        } catch (RuntimeException e) {
+            System.out.printf("NAO VERIFICADO: o servico estourou na sonda (%s) — sem controle "
+                + "nao se afirma numero.%n", e.getClass().getSimpleName());
+            return;
+        }
+
         Path raiz = LeitorAcervoCache.raizPadrao().toAbsolutePath();
         if (!Files.isDirectory(raiz)) {
-            System.out.println("SEM ACERVO em " + raiz + " — nada ensaiado.");
+            System.out.println("NAO VERIFICADO: acervo ausente em " + raiz
+                + " — 'nenhuma fala mudaria' aqui seria cegueira, e nao regra sem alcance.");
             return;
         }
         System.out.printf("%nraiz: %s%nescrita no acervo autorizada? %s  (ENSAIO nao escreve"

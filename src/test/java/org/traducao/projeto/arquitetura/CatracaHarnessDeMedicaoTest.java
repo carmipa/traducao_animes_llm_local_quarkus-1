@@ -65,40 +65,60 @@ class CatracaHarnessDeMedicaoTest {
      * <p>Congelada em 25/08/2026. <b>Só desce.</b> A cura de cada um é trocar a varredura própria
      * por {@code AlcanceDaMedicao.pastasDeTraducao()}, que é o dono único da pergunta.
      */
-    private static final Set<String> SEM_FILTRO_POR_OBRA = Set.of(
-        "CorretorLoreEhIdempotenteIT.java",
-        "MedicaoDivergenciaPadraoMusicalIT.java",
-        "SpikeLanguageToolContraGoldSetIT.java");
+    /**
+     * Dois dos tres passaram a honrar o filtro pelo DONO UNICO ({@code AlcanceDaMedicao}).
+     *
+     * <p>O {@code SpikeLanguageToolContraGoldSetIT} entrou por ULTIMO, e o caminho dele mostra
+     * o furo do detector desta propria catraca: a primeira tentativa foi um COMENTARIO dizendo
+     * que o filtro nao se aplicava, e a catraca ACEITOU — o detector procura o nome da
+     * propriedade no texto do arquivo, e o comentario tinha o nome. Passou por acidente, com a
+     * divida intacta. Ele agora honra o filtro de verdade, na forma que cabe a ele: nao varre
+     * menos, DECLARA que o gold set (60 falas do Macross II lidas a mao) esta fora do alcance
+     * pedido, em vez de medir assim mesmo e reportar numeros de uma obra que ninguem pediu.
+     *
+     * <p>ESTA LISTA SO DESCE.
+     */
+    private static final Set<String> SEM_FILTRO_POR_OBRA = Set.of();
 
     /** DÍVIDA HERDADA — harnesses sem nenhum caminho que declare NÃO VERIFICADO. Só desce. */
-    private static final Set<String> SEM_NAO_VERIFICADO = Set.of(
-        "AplicarReforcoTerminologiaIT.java",
-        "CorretorLoreEhIdempotenteIT.java",
-        "DiagnosticoCorretorConcordanciaIT.java",
-        "EnsaioReforcoTerminologiaIT.java",
-        "MedicaoCamadaRepetidaIT.java",
-        "MedicaoConcordanciaIT.java",
-        "MedicaoDivergenciaPadraoMusicalIT.java",
-        "MedicaoFalasVaziasIT.java",
-        "MedicaoFalsoPositivoConcordanciaIT.java",
-        "MedicaoLoreQuebraIT.java",
-        "MedicaoOriginalRepetidoIT.java",
-        "MedicaoQuebraAssIT.java",
-        "MedicaoTermoPerdidoIT.java",
-        "MineracaoGlossarioIT.java",
-        "ProvenienciaAindaValeIT.java");
+    /**
+     * ZERADA em 26/08/2026. Os nove que restavam ganharam a declaracao no ponto onde o alvo pode
+     * vir vazio — e em dois deles a guarda JA EXISTIA e so nao dizia o nome: o
+     * {@code CorretorLoreEhIdempotenteIT} ja exigia mais de 1.000 pares lidos, e o
+     * {@code DiagnosticoCorretorConcordanciaIT} ja exigia ao menos um acerto. O que mudou foi a
+     * MENSAGEM passar a dizer "NAO VERIFICADO" em vez de soar como defeito do codigo medido:
+     * quem le a falha precisa saber se o instrumento cegou ou se o alvo esta ruim.
+     *
+     * <p>ESTA LISTA SO DESCE.
+     */
+    private static final Set<String> SEM_NAO_VERIFICADO = Set.of();
 
-    /** DÍVIDA HERDADA — harnesses que afirmam número sem exercitar caso-controle. Só desce. */
-    private static final Set<String> SEM_CASO_CONTROLE = Set.of(
-        "AplicarReforcoTerminologiaIT.java",
-        "EnsaioReforcoTerminologiaIT.java",
-        "MedicaoAnomaliaIntroduzidaIT.java",
-        "MedicaoAuditoriaAcervoIT.java",
-        "MedicaoConcordanciaIT.java",
-        "MedicaoFalasVaziasIT.java",
-        "MineracaoGlossarioIT.java",
-        "ProvenienciaAindaValeIT.java",
-        "SpikeLanguageToolContraGoldSetIT.java");
+
+    /**
+     * ZERADA em 26/08/2026. Os nove harnesses que estavam aqui ganharam caso-controle proprio,
+     * cada um calibrado contra o instrumento QUE ELE USA — nao um bloco generico copiado:
+     *
+     * <pre>
+     *   MedicaoFalasVaziasIT ........... visivel() ve o so-ornamento e cala no texto
+     *   MedicaoConcordanciaIT .......... o detector acusa "As nave sao rapido" e cala no certo
+     *   ProvenienciaAindaValeIT ........ hashDe separa prompts diferentes e junta iguais
+     *   MedicaoAnomaliaIntroduzidaIT ... introduzida() poupa a anomalia com gemea na fonte
+     *   MedicaoAuditoriaAcervoIT ....... classificarOrigem devolve os tres rotulos distintos
+     *   MineracaoGlossarioIT ........... contaPalavras separa expressao curta de frase longa
+     *   SpikeLanguageToolContraGoldSetIT o motor separa concordancia quebrada da correta
+     *   EnsaioReforcoTerminologiaIT .... raiz inexistente devolve 0 ANALISADO, sem estourar
+     *   AplicarReforcoTerminologiaIT ... a mesma sonda, ANTES de escrever no acervo
+     * </pre>
+     *
+     * <p>O prejuizo que justifica o esforco veio da propria sessao que zerou esta lista: cinco
+     * instrumentos meus erraram, e toda vez foi um caso-controle que pegou — ou a falta de um
+     * que deixou passar. O criterio largo elegeu 361 falas onde havia 181; o LanguageTool
+     * aprovava as 181 palavras com a ortografia desligada; e um teste ficou verde nos DOIS
+     * mundos duas vezes seguidas.
+     *
+     * <p>ESTA LISTA SO DESCE. Harness novo nasce com caso-controle; reabri-la e divida nova.
+     */
+    private static final Set<String> SEM_CASO_CONTROLE = Set.of();
 
     private record Harness(String nome, String fonte) {
         boolean leAcervo() {

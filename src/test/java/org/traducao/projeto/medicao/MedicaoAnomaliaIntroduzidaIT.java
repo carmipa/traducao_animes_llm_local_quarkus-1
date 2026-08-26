@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.traducao.projeto.auditorConteudoLegendas.application.AuditorConteudoUseCase;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
+import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
 
@@ -67,9 +68,13 @@ class MedicaoAnomaliaIntroduzidaIT {
     @Test
     @DisplayName("acervo: ONDE estao as anomalias que a traducao introduziu")
     void medir() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Path raiz = Path.of(System.getProperty("kronos.medicao.raiz", RAIZ_PADRAO));
         if (!Files.isDirectory(raiz)) {
-            System.out.println("RAIZ INEXISTENTE — nada medido.");
+            System.out.println("NAO VERIFICADO: raiz inexistente em " + raiz
+                + " — zero anomalia aqui seria cegueira, e nao acervo limpo.");
             return;
         }
 
@@ -139,7 +144,40 @@ class MedicaoAnomaliaIntroduzidaIT {
         }
     }
 
-    /** Mesma régua da tela e da varredura: origem sai de QUAL arquivo foi acusado. */
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do único instrumento desta medição — o
+     * {@link #introduzida(AnomaliaConteudo, List)}, que separa o defeito que a TRADUÇÃO criou do
+     * defeito que já vinha da legenda em inglês.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: anomalia que só existe do lado traduzido é INTRODUZIDA; a que
+     * tem gêmea na mesma regra e no mesmo índice do lado fonte NÃO é. Um {@code introduzida} que
+     * dissesse sempre {@code true} atribuiria à tradução todo defeito da fonte — que é
+     * exatamente o erro que fez uma auditoria anterior reportar 62 achados com 17 refutados.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhum número é afirmado.
+     */
+    private static boolean instrumentoCalibrado() {
+        EventoLegenda ev = new EventoLegenda(7, "Dialogue", "Default", "0,0,Default,,0,0,0,,",
+            "uma fala qualquer");
+        AnomaliaConteudo soNaTraducao = new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.WARNING, "REGRA_X", "d", null, ev, null);
+        AnomaliaConteudo gemeaNaFonte = new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.WARNING, "REGRA_X", "d", ev, null, null);
+
+        boolean acusaOqueATraducaoCriou = introduzida(soNaTraducao, List.of(soNaTraducao));
+        boolean poupaOqueJaVinhaDaFonte =
+            !introduzida(soNaTraducao, List.of(soNaTraducao, gemeaNaFonte));
+        if (acusaOqueATraducaoCriou && poupaOqueJaVinhaDaFonte) {
+            System.out.println("  controle: acusa a anomalia so do lado traduzido · poupa a que "
+                + "tem gemea na fonte");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — acusa=%s poupa=%s. Nenhum numero "
+            + "e afirmado.%n", acusaOqueATraducaoCriou, poupaOqueJaVinhaDaFonte);
+        return false;
+    }
+
     private static boolean introduzida(AnomaliaConteudo a, List<AnomaliaConteudo> todas) {
         if (a.eventoOriginal() != null || a.eventoTraduzido() == null) {
             return false;

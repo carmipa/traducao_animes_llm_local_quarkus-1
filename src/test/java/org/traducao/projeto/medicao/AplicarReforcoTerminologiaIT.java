@@ -71,8 +71,32 @@ class AplicarReforcoTerminologiaIT {
     @Test
     @DisplayName("APLICA o reforco de terminologia no acervo e confere contra a previsao")
     void aplicar() {
+        // CASO-CONTROLE (regra 9) ANTES de escrever no acervo. Este harness GRAVA, entao o
+        // instrumento cego aqui nao produz so um numero errado: produz uma passada que diz
+        // "0 falas corrigidas" sobre um acervo que nunca foi lido, e ninguem tem como saber a
+        // diferenca depois. A sonda usa uma raiz inexistente e exige 0 arquivo ANALISADO, sem
+        // estouro — e o ensaio, que nao escreve, roda no mesmo servico.
+        Path inexistente = Path.of("cache-que-nao-existe-em-lugar-nenhum");
+        ResultadoReforcoTerminologia sonda;
+        try {
+            sonda = reforco.ensaiar(inexistente, null);
+        } catch (RuntimeException e) {
+            System.out.printf("NAO VERIFICADO: o servico estourou na sonda (%s) — nada e "
+                + "gravado.%n", e.getClass().getSimpleName());
+            return;
+        }
+        assertTrue(sonda != null && sonda.arquivosAnalisados() == 0, () -> """
+            INSTRUMENTO REPROVADO NO CONTROLE, e nada foi gravado.
+
+            Uma raiz que NAO EXISTE devolveu arquivos analisados. Isso significa que o servico
+            nao esta olhando a raiz que recebe — e uma aplicacao que "corrige 0 falas" sobre o
+            acervo real seria indistinguivel de uma que nunca o leu.
+            """);
+        System.out.println("  controle: raiz inexistente devolve 0 arquivo analisado, sem estourar");
+
         Path raiz = LeitorAcervoCache.raizPadrao().toAbsolutePath();
-        assertTrue(Files.isDirectory(raiz), () -> "acervo ausente em " + raiz);
+        assertTrue(Files.isDirectory(raiz), () -> "acervo ausente em " + raiz
+            + " — NAO VERIFICADO, e nada e gravado");
 
         System.out.printf("%n!! ESCREVENDO NO ACERVO !!  raiz: %s%n"
             + "escrita autorizada pelo pipeline? %s%n", raiz, reforco.escritaNoAcervoAutorizada());

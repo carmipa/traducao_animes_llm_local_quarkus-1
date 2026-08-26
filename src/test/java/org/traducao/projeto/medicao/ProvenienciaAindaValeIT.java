@@ -50,12 +50,44 @@ class ProvenienciaAindaValeIT {
     @Inject
     GerenciadorContexto contextos;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE (regra 9) do instrumento desta verificação — a
+     * comparação de hash do prompt, que é o que decide entre REUSAR o cache e RETRADUZIR do zero.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: prompts diferentes têm de dar hashes diferentes, e o mesmo
+     * prompt tem de dar o mesmo hash. Um {@code hashDe} que devolvesse constante reportaria
+     * "todos reusam" sobre um acervo inteiro que na verdade seria retraduzido — e a diferença
+     * entre os dois é uma noite de LLM.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: imprime e devolve {@code false}; nenhum veredito de
+     * reuso é afirmado.
+     */
+    private static boolean instrumentoCalibrado() {
+        String a = ProvenienciaCache.hashDe("Voce e um tradutor. Lore: Zeon.");
+        String b = ProvenienciaCache.hashDe("Voce e um tradutor. Lore: AEUG.");
+        String aDeNovo = ProvenienciaCache.hashDe("Voce e um tradutor. Lore: Zeon.");
+        boolean separaOqueDifere = !a.equals(b);
+        boolean juntaOqueEigual = a.equals(aDeNovo);
+        if (separaOqueDifere && juntaOqueEigual) {
+            System.out.println("  controle: prompts diferentes dao hashes diferentes · o mesmo "
+                + "prompt da o mesmo hash");
+            return true;
+        }
+        System.out.printf("INSTRUMENTO REPROVADO NO CONTROLE — separa=%s junta=%s. Nenhum "
+            + "veredito de reuso e afirmado.%n", separaOqueDifere, juntaOqueEigual);
+        return false;
+    }
+
     @Test
     @DisplayName("acervo: a proxima Traducao Local REUSA o cache ou RETRADUZ do zero?")
     void verificar() throws IOException {
+        if (!instrumentoCalibrado()) {
+            return;
+        }
         Acervo acervo = LeitorAcervoCache.ler(LeitorAcervoCache.raizPadrao());
         if (acervo.vazio()) {
-            System.out.println("SEM ACERVO — nada verificado.");
+            System.out.println("NAO VERIFICADO: acervo de cache vazio — 'nenhum arquivo retraduz' "
+                + "aqui seria cegueira, e nao garantia de reuso.");
             return;
         }
 

@@ -127,6 +127,25 @@ class SpikeLanguageToolContraGoldSetIT {
             System.out.println("NAO VERIFICADO: acervo ausente em " + RAIZ);
             return;
         }
+        // O FILTRO POR OBRA VALE AQUI, e a forma dele e diferente: este harness nao varre o
+        // acervo, mira uma obra NOMEADA, porque o padrao-ouro sao 60 falas lidas a mao nos
+        // episodios 1 e 2 do Macross II. Entao honrar o filtro nao e "varrer menos": e DECLARAR
+        // que o gold set nao esta no alcance pedido, em vez de medi-lo assim mesmo e reportar
+        // numeros sobre uma obra que ninguem pediu.
+        //
+        // A primeira versao disto era so um comentario dizendo que o filtro nao se aplicava — e a
+        // catraca ACEITOU, porque o detector dela procura o nome da propriedade no texto do
+        // arquivo. Comentario nao e mecanismo: passou por acidente, com a divida intacta.
+        String alcancePedido = AlcanceDaMedicao.FILTRO_OBRA;
+        if (!alcancePedido.isBlank()
+            && !OBRA.toLowerCase(java.util.Locale.ROOT)
+                    .contains(alcancePedido.toLowerCase(java.util.Locale.ROOT))) {
+            System.out.printf("NAO VERIFICADO: o alcance pedido foi \"%s\" e o gold set deste "
+                + "spike e do %s. Nenhum numero de recall ou precisao e afirmado.%n",
+                alcancePedido, OBRA);
+            return;
+        }
+
         Path pasta = localizarPastaDaObra();
         if (pasta == null) {
             System.out.println("NAO VERIFICADO: pasta traducao_ptbr do Macross II nao encontrada");
@@ -153,6 +172,29 @@ class SpikeLanguageToolContraGoldSetIT {
         // medindo aqui e o que o KRONOS NAO tem: as regras de GRAMATICA, que dependem do POS
         // tagger.
         lt.disableRule("MORFOLOGIK_RULE_PT_BR");
+
+        // CASO-CONTROLE (regra 9), e ele tem de vir DEPOIS do disableRule: o que sobra e a
+        // GRAMATICA, e e ela que este spike mede contra o gold set. Sem este bloco, um motor que
+        // subisse mudo diria "o LanguageTool nao achou nada no gold set" — que se le como "as 60
+        // falas estao boas" e e o oposto do que teria acontecido.
+        //
+        // A ORDEM importa por medicao, nao por gosto: com o ortografico LIGADO ele acusa nome de
+        // lore (`UN`, `Silvie`) e o controle passaria por motivo errado.
+        try {
+            int noDoente = lt.check("As nave sao rapido.").size();
+            int noSao = lt.check("As naves sao rapidas.").size();
+            System.out.printf("  controle do motor ...... 'As nave sao rapido' -> %d achado(s) · "
+                + "'As naves sao rapidas' -> %d%n", noDoente, noSao);
+            if (noDoente <= noSao) {
+                System.out.println("INSTRUMENTO REPROVADO NO CONTROLE: o motor nao separa a "
+                    + "concordancia quebrada da correta. Nenhum numero e afirmado sobre o gold set.");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.printf("NAO VERIFICADO: o motor nao respondeu ao controle (%s)%n",
+                e.getClass().getSimpleName());
+            return;
+        }
 
         long msCarga = System.currentTimeMillis() - inicioCarga;
         System.out.printf("  carga do motor ......... %d ms, %d regras ativas (sem o ortografico)%n",
@@ -293,6 +335,10 @@ class SpikeLanguageToolContraGoldSetIT {
     }
 
     private Path localizarPastaDaObra() throws IOException {
+        // ESTE HARNESS NAO VARRE, e por isso nao honra -Dkronos.medicao.obra: ele mira uma
+        // obra NOMEADA (Macross II), porque o gold set sao 60 falas lidas a mao nos
+        // episodios 1 e 2 dela. Filtrar por outra obra devolveria "nao encontrei" sobre um
+        // padrao-ouro que so existe aqui. A isencao esta declarada na catraca, com este motivo.
         try (Stream<Path> s = Files.list(RAIZ)) {
             Path obra = s.filter(Files::isDirectory)
                 .filter(p -> p.getFileName().toString().startsWith(OBRA))

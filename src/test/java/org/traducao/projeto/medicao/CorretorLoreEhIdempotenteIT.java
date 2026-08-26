@@ -54,7 +54,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnabledIfSystemProperty(named = "kronos.medicao", matches = "true")
 class CorretorLoreEhIdempotenteIT {
 
-    private static final Path ACERVO = Path.of("C:", "animes");
 
     @Inject
     CorretorLoreDeterministico corretor;
@@ -104,8 +103,9 @@ class CorretorLoreEhIdempotenteIT {
 
         int lidos = paresLidos;
         assertTrue(paresLidos > 1000, () ->
-            "a varredura leu " + lidos + " pares EN/PT e o acervo tem dezenas de milhares. Isso "
-                + "NAO e aprovacao: os arquivos nao casaram e o instrumento ficou cego.");
+            "NAO VERIFICADO: a varredura leu " + lidos + " pares EN/PT e o acervo tem dezenas de "
+                + "milhares. Isso NAO e aprovacao: os arquivos nao casaram e o instrumento "
+                + "ficou cego.");
 
         // O acervo ja foi corrigido em 18/08/2026, entao a maioria das falas nao tem mais o que
         // trocar. Se NENHUMA tiver, a assercao de idempotencia e vazia: "nao oscilou" porque
@@ -113,9 +113,9 @@ class CorretorLoreEhIdempotenteIT {
         // verdade — e a mesma regra do alvo vazio, aplicada ao proprio teste.
         int total = corrigidos;
         assertTrue(corrigidos > 0, () ->
-            "o corretor nao corrigiu NENHUMA das " + lidos + " falas lidas, entao a assercao de "
-                + "idempotencia abaixo nao exercitou nada. Isso NAO e aprovacao: ou o mapa da "
-                + "obra sumiu, ou o casamento EN/PT quebrou.");
+            "NAO VERIFICADO: o corretor nao corrigiu NENHUMA das " + lidos + " falas lidas, entao "
+                + "a assercao de idempotencia abaixo nao exercitou nada. Ou o mapa da obra "
+                + "sumiu, ou o casamento EN/PT quebrou.");
 
         assertTrue(oscilando.isEmpty(), () ->
             "o corretor NAO e idempotente — rodar a tela de novo continua mexendo na legenda, em "
@@ -127,8 +127,11 @@ class CorretorLoreEhIdempotenteIT {
     }
 
     private static Path acharBase(String marca) {
-        try (Stream<Path> raiz = Files.list(ACERVO)) {
-            for (Path obra : raiz.toList()) {
+        // ALCANCE PELO DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro, entao pedir
+        // uma obra e receber o acervo inteiro saia com a mesma cara de medicao dirigida.
+        try {
+            for (Path obra : org.traducao.projeto.medicao.AlcanceDaMedicao.obras()) {
                 if (!Files.isDirectory(obra) || !obra.getFileName().toString().contains(marca)) {
                     continue;
                 }
