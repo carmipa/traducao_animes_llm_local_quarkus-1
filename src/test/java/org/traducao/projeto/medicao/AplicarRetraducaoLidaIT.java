@@ -68,7 +68,18 @@ class AplicarRetraducaoLidaIT {
     private static final String AUTORIZACAO = "SIM-ESCREVER-NO-ACERVO";
     private static final String CHAVE_ESCRITA = "kronos.aplicar.retraducao";
     private static final String LISTA_DECLARADA = "medicao/palavras-defeituosas.txt";
-    private static final Path RELATORIO = Path.of("relatorios", "retraducao-desfecho.csv");
+    /**
+     * O relatório a aplicar. O default é o que o {@code RetraduzirFalaComDefeitoIT} escreve;
+     * {@code -Dkronos.retraducao.relatorio} aponta outro.
+     *
+     * <p>Existe porque a correção À MÃO das falas que o LLM errou tem de passar pelas MESMAS
+     * quatro guardas: texto no disco idêntico ao medido, moldura de tags preservada, nenhuma
+     * palavra declarada defeituosa, nenhum termo de lore perdido. Abrir uma segunda porta de
+     * escrita no acervo — um script solto que edita o {@code .ass} — seria trocar quatro guardas
+     * por nenhuma, e a mão erra tanto quanto o modelo.
+     */
+    private static final Path RELATORIO = Path.of(System.getProperty(
+        "kronos.retraducao.relatorio", "relatorios/retraducao-desfecho.csv"));
     private static final Pattern TAG_ASS = Pattern.compile("\\{[^{}]*}");
     private static final String SUFIXO_BACKUP = ".antes-da-retraducao";
 
