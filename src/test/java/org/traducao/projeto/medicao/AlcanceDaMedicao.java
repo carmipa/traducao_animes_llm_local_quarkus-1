@@ -95,6 +95,50 @@ public final class AlcanceDaMedicao {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: as pastas de OBRA no topo do acervo que esta medição deve ler.
+     *
+     * <h2>Por que existe ao lado de {@link #pastasDeTraducao()}</h2>
+     * Nem toda medição olha só a tradução. Várias comparam pastas irmãs dentro da obra
+     * ({@code legendas_eng} contra {@code legendas_ptbr}), ou varrem a obra inteira atrás de
+     * qualquer legenda. Para essas, a unidade é a OBRA e não a pasta de tradução — e sem esta
+     * pergunta elas ficariam com varredura própria, que foi como as treze ignoraram o filtro.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o PRIMEIRO nível sob a raiz, que é onde as obras moram. O
+     * filtro casa contra o nome dessa pasta, então {@code -Dkronos.medicao.obra=86} pega a obra
+     * {@code 86} inteira, com as partes aninhadas dentro dela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: acervo ausente ou filtro sem casamento imprime NÃO
+     * VERIFICADO e devolve lista vazia — que quem chama trata como "não medi".
+     */
+    public static List<Path> obras() throws IOException {
+        if (!Files.isDirectory(RAIZ)) {
+            System.out.printf("NAO VERIFICADO: acervo ausente em %s — nenhum numero e afirmado.%n",
+                RAIZ);
+            return List.of();
+        }
+        List<Path> obras;
+        try (Stream<Path> s = Files.list(RAIZ)) {
+            obras = s.filter(Files::isDirectory)
+                .filter(o -> FILTRO_OBRA.isBlank()
+                    || o.getFileName().toString().toLowerCase()
+                        .contains(FILTRO_OBRA.toLowerCase()))
+                .sorted(Comparator.comparing(Path::toString))
+                .toList();
+        }
+        if (obras.isEmpty()) {
+            System.out.printf("NAO VERIFICADO: nenhuma obra casou com o filtro \"%s\". "
+                + "Zero aqui seria zero por cegueira, entao nenhum numero e afirmado.%n",
+                FILTRO_OBRA);
+            return List.of();
+        }
+        if (!FILTRO_OBRA.isBlank()) {
+            System.out.printf("  FILTRO por obra: \"%s\" -> %d obra(s) de %s%n",
+                FILTRO_OBRA, obras.size(), RAIZ);
+        }
+        return obras;
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: os arquivos {@code .ass} entregues de uma pasta — sem {@code .parcial},
      * que não é entrega.
      *

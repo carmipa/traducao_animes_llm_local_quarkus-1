@@ -120,9 +120,9 @@ class MedicaoConcordanciaAcervoPtIT {
         }
 
         List<Path> obras;
-        try (Stream<Path> s = Files.list(RAIZ)) {
-            obras = s.filter(Files::isDirectory).sorted().toList();
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro.
+        obras = org.traducao.projeto.medicao.AlcanceDaMedicao.obras();
 
         int totalArquivosPt = 0;
         int totalArquivosOutros = 0;

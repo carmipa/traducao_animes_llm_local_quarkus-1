@@ -86,13 +86,9 @@ class MedicaoMusicaDivergenteDoEspelhoIT {
                 + "\"nao consegui medir\", nunca \"nao ha passivo\"");
 
         List<Path> pastasPt;
-        try (Stream<Path> caminhos = Files.walk(ACERVO)) {
-            pastasPt = caminhos
-                .filter(Files::isDirectory)
-                .filter(p -> PASTA_PT.equals(p.getFileName().toString()))
-                .sorted()
-                .toList();
-        }
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa.
+        pastasPt = org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao();
         assertTrue(!pastasPt.isEmpty(),
             "nenhuma pasta " + PASTA_PT + " encontrada em " + ACERVO + " — instrumento CEGO");
 

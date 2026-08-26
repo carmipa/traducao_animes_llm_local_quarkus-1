@@ -100,8 +100,10 @@ class MedicaoAuditoriaAcervoIT {
         List<String> puladas = new ArrayList<>();
         Map<String, int[]> porRegra = new TreeMap<>();
 
-        try (Stream<Path> obras = Files.list(raiz)) {
-            for (Path obra : obras.filter(Files::isDirectory).sorted().toList()) {
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. A varredura propria daqui ignorava o filtro.
+        {
+            for (Path obra : org.traducao.projeto.medicao.AlcanceDaMedicao.obras()) {
                 // Pastas IRMÃS, não a primeira da árvore inteira. O DanMachi tem um par por
                 // temporada (Season 04/legendas_eng + Season 04/legendas_ptbr); pegar a
                 // primeira fonte com a primeira tradução casaria temporadas diferentes e

@@ -80,15 +80,17 @@ class MedicaoCartazNoAlcanceDaLoreIT {
                 + "medir\", nunca \"nao ha cartaz no alcance\"");
 
         List<Path> arquivos;
-        try (Stream<Path> caminhos = Files.walk(ACERVO)) {
-            arquivos = caminhos
-                .filter(Files::isRegularFile)
-                .filter(p -> p.getParent() != null
-                    && PASTA_PT.equals(p.getParent().getFileName().toString()))
-                .filter(p -> p.toString().toLowerCase().endsWith(".ass"))
-                .sorted()
-                .toList();
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa.
+        List<Path> reunidos = new ArrayList<>();
+        for (Path pastaPt : org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao()) {
+            try (Stream<Path> naPasta = Files.list(pastaPt)) {
+                naPasta.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().toLowerCase().endsWith(".ass"))
+                    .forEach(reunidos::add);
+            }
         }
+        arquivos = reunidos.stream().sorted().toList();
         assertTrue(!arquivos.isEmpty(), "nenhum .ass em " + PASTA_PT + " — instrumento CEGO");
 
         long noAlcance = 0;

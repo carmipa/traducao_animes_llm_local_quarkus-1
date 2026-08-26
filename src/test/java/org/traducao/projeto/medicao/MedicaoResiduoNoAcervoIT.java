@@ -84,36 +84,49 @@ class MedicaoResiduoNoAcervoIT {
             }
         }
 
+        // A GUARDA DE CEGUEIRA DEPENDE DO ALCANCE, e essa distincao faltava.
+        //
+        // O piso de 10.000 linhas existe para o acervo INTEIRO: ler pouco ali significa que a
+        // varredura quebrou. Com `-Dkronos.medicao.obra` o alcance e outro de proposito — o 0080
+        // tem 3.652 linhas entregues, e reprovar isso seria a guarda acusando o operador de cego
+        // por ele ter pedido uma obra so. Guarda que reprova o uso correto ensina a desligar
+        // guarda.
+        //
+        // Filtrado, o piso vira "leu ALGUMA coisa": zero continua sendo cegueira em qualquer
+        // alcance.
         int lidas = linhas;
-        assertTrue(linhas > 10_000, () ->
-            "a varredura leu " + lidas + " linhas de dialogo entregues, e o acervo tem mais de "
-                + "300 mil. Isso NAO e aprovacao: o instrumento cegou.");
+        boolean filtrado = !org.traducao.projeto.medicao.AlcanceDaMedicao.FILTRO_OBRA.isBlank();
+        int piso = filtrado ? 1 : 10_000;
+        assertTrue(linhas >= piso, () ->
+            filtrado
+                ? "a varredura leu " + lidas + " linhas com o filtro \""
+                    + org.traducao.projeto.medicao.AlcanceDaMedicao.FILTRO_OBRA
+                    + "\". Zero e cegueira em qualquer alcance."
+                : "a varredura leu " + lidas + " linhas de dialogo entregues, e o acervo tem mais "
+                    + "de 300 mil. Isso NAO e aprovacao: o instrumento cegou.");
 
         assertTrue(sujas.isEmpty(), () ->
             "legenda ENTREGUE com encanamento do pipeline (" + sujas.size() + "):\n  "
                 + String.join("\n  ", sujas.subList(0, Math.min(10, sujas.size()))));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: as pastas de entrega que esta medição vai ler.
+     *
+     * <p>A varredura anterior descia DOIS níveis à mão para achar {@code traducao_ptbr} — e
+     * ignorava {@code -Dkronos.medicao.obra}, então pedir prova numa obra varria o acervo. O dono
+     * único acha a pasta em qualquer profundidade, honra o filtro e declara NÃO VERIFICADO quando
+     * ele não casa com nada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura vira {@link UncheckedIOException} — quem
+     * não conseguiu ler o acervo não pode seguir como se tivesse lido.
+     */
     private static List<Path> pastasDeEntrega() {
-        List<Path> pastas = new ArrayList<>();
-        try (Stream<Path> raiz = Files.list(ACERVO)) {
-            for (Path obra : raiz.filter(Files::isDirectory).toList()) {
-                Path direto = obra.resolve("traducao_ptbr");
-                if (Files.isDirectory(direto)) {
-                    pastas.add(direto);
-                }
-                try (Stream<Path> subs = Files.list(obra)) {
-                    for (Path sub : subs.filter(Files::isDirectory).toList()) {
-                        Path aninhada = sub.resolve("traducao_ptbr");
-                        if (Files.isDirectory(aninhada)) {
-                            pastas.add(aninhada);
-                        }
-                    }
-                }
-            }
+        try {
+            return new ArrayList<>(
+                org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return pastas;
     }
 }

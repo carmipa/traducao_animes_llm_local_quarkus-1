@@ -88,15 +88,17 @@ class MedicaoAlcanceRegraItalicoIT {
             new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
 
         List<Path> arquivos = new ArrayList<>();
-        try (Stream<Path> caminhada = Files.walk(ACERVO)) {
-            caminhada.filter(Files::isRegularFile)
-                .filter(p -> p.getParent() != null
-                    && PASTA_PT.equals(p.getParent().getFileName().toString()))
-                .filter(p -> {
-                    String nome = p.getFileName().toString().toLowerCase();
-                    return nome.endsWith(".ass") && !nome.endsWith(".parcial.ass");
-                })
-                .forEach(arquivos::add);
+        // Alcance pelo DONO UNICO: honra -Dkronos.medicao.obra e declara NAO VERIFICADO
+        // quando o filtro nao casa. Os filtros de extensao abaixo continuam sendo desta medicao.
+        for (Path pastaPt : org.traducao.projeto.medicao.AlcanceDaMedicao.pastasDeTraducao()) {
+            try (Stream<Path> naPasta = Files.list(pastaPt)) {
+                naPasta.filter(Files::isRegularFile)
+                    .filter(p -> {
+                        String nome = p.getFileName().toString().toLowerCase();
+                        return nome.endsWith(".ass") && !nome.endsWith(".parcial.ass");
+                    })
+                    .forEach(arquivos::add);
+            }
         }
         assertTrue(!arquivos.isEmpty(),
             "nenhum " + PASTA_PT + "/*.ass encontrado sob " + ACERVO
