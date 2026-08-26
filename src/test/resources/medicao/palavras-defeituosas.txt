@@ -1,0 +1,206 @@
+# Palavras DEFEITUOSAS do acervo — a lista que autoriza uma fala a ser retraduzida.
+#
+# ORIGEM: classificacao das 319 palavras que nenhum dicionario reconheceu na medicao de
+# alcance da tela 3.3 sobre 85.503 falas (26/08/2026). Das seis classes encontradas, SO
+# duas entram aqui:
+#     PALAVRA PORTUGUESA QUEBRADA .. 143  (Animese, braos, levarigo, distraao)
+#     ESPANHOL vazado ..............  38  (misil, pasaje, francotirador, Longitud)
+#
+# FICAM DE FORA, e o motivo importa: termo da franquia (psycommu, hovertruck),
+# onomatopeia (Hmpf, Hahaha), nome proprio (Falkes, Shree, Nastasha) e o artefato do
+# meu proprio instrumento (\h colado na palavra). Nenhum dicionario reconhece nenhuma
+# delas — se o harness derivasse a lista perguntando ao dicionario, elegeria as seis
+# classes juntas e reescreveria fala CORRETA. Foi o que ele fez em 26/08/2026: 361
+# alvos onde ha 181 palavras de defeito real.
+#
+# GUARDA: o harness recusa qualquer palavra desta lista que o dicionario aceite como
+# portugues. Foi assim que 'nada' e 'porque' sairam da lista de espanhol.
+#
+# Uma palavra por linha. Linha vazia e linha iniciada por # sao ignoradas.
+#
+# ===== REMOVIDAS depois do ensaio de 26/08/2026, com o motivo de cada uma =====
+# O ensaio mandou o LLM reescrever uma fala CORRETA por causa de 'irracionais'. Cada linha
+# abaixo e uma palavra que eu havia chamado de defeito e nao e. Ficam aqui, comentadas, para
+# que ninguem as reintroduza sem ler o motivo.
+# FORA: ansear         variante dicionarizada de 'ansiar'
+# FORA: atacem         subjuntivo de 'atacar' — portugues correto
+# FORA: Atacem         subjuntivo de 'atacar' — portugues correto
+# FORA: atracem        subjuntivo de 'atracar' — portugues correto
+# FORA: bugzinho       diminutivo informal de 'bug' — le-se sem tropeco
+# FORA: farah          nao consigo afirmar que seja defeito; pode ser nome
+# FORA: irracionais    plural de 'irracional' — portugues correto; o hunspell nao tem a flexao
+# FORA: kule           nao consigo afirmar que seja defeito; pode ser nome
+# FORA: microne        possivel termo de Macross; na duvida, fora
+# FORA: odiam          indicativo de 'odiar' — portugues correto
+# FORA: odiem          subjuntivo de 'odiar' — portugues correto
+# FORA: preveramos     mais-que-perfeito de 'prever' sem circunflexo (reforma de 2009)
+# FORA: Preveramos     mais-que-perfeito de 'prever' sem circunflexo (reforma de 2009)
+# FORA: rebeldinhas    diminutivo regular de 'rebelde'
+# FORA: vulcano        adjetivo dicionarizado (relativo a vulcao)
+# FORA: zeon           faccao de Gundam — LORE, e nao defeito
+
+abalramos
+accoes
+aerobaticas
+afiaao
+alcanou
+altitudde
+amanhao
+aniquilalo
+ansia
+aproube
+Aquado
+Aquel
+armoura
+artilhero
+ataqui
+atravess
+babarada
+balcada
+barlaventa
+blando
+bloqueagem
+boneceiro
+braos
+capitaneis
+carbineira
+catrapula
+clasica
+coagiou
+Coberemos
+compania
+comprende
+Conectao
+Conseguiamo
+contrar
+cubri
+Damnado
+decepi
+Desente
+desmasculinado
+desplazarem
+desplegada
+desplegando
+desplegar
+desplegou
+despliegue
+destinidade
+destruira
+dificis
+dilacrado
+distraao
+distraente
+doao
+docuemos
+doslixos
+durmente
+efragil
+elogando
+embodimento
+emigraao
+enem
+equipethose
+escro
+esmagrado
+espremerado
+Estibor
+estibor
+Estribor
+Esuposto
+Esvora
+Expule
+externala
+falamando
+favore
+fedies
+Fefezemos
+Foguei
+francotirador
+Funcou
+hangare
+hemisfera
+honros
+imiserar
+Impeda
+Impereatriz
+incoviniente
+ingena
+ingenoo
+ingenou
+innatural
+insigna
+insigno
+Lanzador
+levarigo
+licar
+Limpu
+Longitud
+mantendremos
+matanza
+Mechanismo
+misil
+missaoes
+Morrecer
+morrol
+movelo
+muinho
+Naveio
+nicos
+NossasFamilias
+obrigaao
+opinao
+opoo
+organo
+partirea
+pasaje
+passaoes
+pedestral
+pegem
+pelaquela
+percepoes
+perimetra
+perimetragem
+permitai
+persigui
+Pezo
+prefiriria
+preguioso
+pressuda
+procuralo
+Putamadre
+quarenteneadas
+querereia
+ratoszinhos
+Reanudaremos
+Recallamos
+recuerdos
+relaiar
+relati
+religia
+resente
+Restoraremos
+Salud
+saluto
+Secuestrar
+Sellando
+semou
+Servicio
+sorriro
+stoico
+Supongo
+suprimente
+terigo
+tetoas
+tirarla
+tomaro
+Trazeremos
+Trazi
+tubula
+vagarista
+vees
+Vencere
+Venindo
+vilagem
+vocem
+vocesse
+zigzaguante

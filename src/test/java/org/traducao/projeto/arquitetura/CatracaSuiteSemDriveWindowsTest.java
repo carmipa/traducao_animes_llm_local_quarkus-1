@@ -163,6 +163,9 @@ class CatracaSuiteSemDriveWindowsTest {
         // -Dkronos.acervo, e caminho relativo mediria o vazio.
         "AlcanceDaMedicao.java",
         "MedicaoAlcanceDa33NoAcervoIT.java",
+        "RetraduzirFalaComDefeitoIT.java",
+        "SegundaOpiniaoSobreListaIT.java",
+        "AplicarRetraducaoLidaIT.java",
         "MedicaoAcentoQueColideComVerboIT.java",
         "MedicaoPalavraQuebradaEidiomaVazadoIT.java",
         "MedicaoSugestaoParaPalavraQuebradaIT.java",

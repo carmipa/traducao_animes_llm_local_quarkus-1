@@ -83,8 +83,12 @@ public class LanguageToolRevisorAdapter implements RevisorGramaticalPort {
     /**
      * O corretor ortográfico do LanguageTool. Desligado porque duplicaria o hunspell E acusaria
      * nome de lore — 117 de 158 acusações na medição de 23/08/2026.
+     *
+     * <p>PÚBLICO desde 26/08/2026 porque a medição que confere a lista de palavras defeituosas
+     * precisa LIGAR esta regra num motor próprio, e o id tem de vir daqui: uma segunda cópia da
+     * string faria os dois lados divergirem no dia em que o LanguageTool renomear a regra.
      */
-    static final String REGRA_ORTOGRAFICA = "MORFOLOGIK_RULE_PT_BR";
+    public static final String REGRA_ORTOGRAFICA = "MORFOLOGIK_RULE_PT_BR";
 
     private JLanguageTool motor;
     private boolean tentouCarregar;
