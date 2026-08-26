@@ -164,6 +164,10 @@ test {
      // 'kronos.aplicar.retraducao' e a trava dupla da retraducao dirigida: ela reescreve
      // fala no acervo a partir do ingles original, e sem esta chave o harness roda em ENSAIO.
      'kronos.aplicar.retraducao',
+     // 'kronos.retraducao.relatorio' aponta o gravador para OUTRO relatorio — e o que permite a
+     // correcao a mao das falas que o LLM errou passar pelas MESMAS quatro guardas, em vez de um
+     // script solto editando o .ass por fora.
+     'kronos.retraducao.relatorio',
      // 'kronos.palavras' passa uma lista de palavras aos harnesses que perguntam ao
      // dicionario — nao escreve nada, mas sem a chave declarada o harness recebe null e
      // termina como NAO VERIFICADO, que e o comportamento certo e facil de confundir com
