@@ -161,6 +161,9 @@ test {
      // sem distinguir "ninguem autorizou" de "a autorizacao nao chegou". A catraca
      // ficou; o silencio virou mensagem no harness.
      'kronos.aplicar.concordancia',
+     // 'kronos.aplicar.retraducao' e a trava dupla da retraducao dirigida: ela reescreve
+     // fala no acervo a partir do ingles original, e sem esta chave o harness roda em ENSAIO.
+     'kronos.aplicar.retraducao',
      // 'kronos.palavras' passa uma lista de palavras aos harnesses que perguntam ao
      // dicionario — nao escreve nada, mas sem a chave declarada o harness recebe null e
      // termina como NAO VERIFICADO, que e o comportamento certo e facil de confundir com

@@ -58,6 +58,16 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
     private static final long TIMEOUT_SEGUNDOS = 20;
 
     /**
+     * Quantas formas distintas vão ao processo de uma vez.
+     *
+     * <p>800 fica abaixo da mediana medida no acervo (940 formas por arquivo), então o episódio
+     * comum continua sendo uma ou duas chamadas. O que muda é o extremo: {@code CCA} tem 2.743
+     * formas e {@code F91} 2.719 — numa chamada só eles estouram o {@link #TIMEOUT_SEGUNDOS} e,
+     * pior, levavam junto TODAS as palavras do arquivo, porque o timeout devolve mapa vazio.
+     */
+    private static final int TAMANHO_DO_LOTE = 800;
+
+    /**
      * Memória do que já foi perguntado a ESTE dicionário nesta execução.
      *
      * <h2>Por que a memória mora aqui e não em quem chama</h2>
@@ -92,6 +102,26 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
     int palavrasMemorizadas() {
         return jaConhecidas.size() + jaDesconhecidas.size();
     }
+
+    /**
+     * Quantas vezes o processo externo foi arrancado — visível ao PACOTE, pela mesma razão de
+     * {@link #palavrasMemorizadas()}: a propriedade não tem como ser observada de fora.
+     *
+     * <h2>Por que a contagem, e não o tempo</h2>
+     * O custo do hunspell depende de QUANTAS formas ele não conhece, não de quantas recebe:
+     * medido em 26/08/2026, 800 formas reais saem em 1,0 s e 800 inventadas em 27,6 s — 0,6 ms
+     * contra 34 ms, 50×. Um teste que fixasse tempo estaria selando a máquina, não o código.
+     *
+     * <p>O que este contador sela é a ESTRUTURA: acima do tamanho do lote, a consulta vira mais de
+     * uma chamada. Isso é determinístico, não depende de máquina, e a mutação (lote gigante)
+     * derruba na hora.
+     */
+    int consultasAoProcesso() {
+        return consultasAoProcesso.get();
+    }
+
+    private final java.util.concurrent.atomic.AtomicInteger consultasAoProcesso =
+        new java.util.concurrent.atomic.AtomicInteger();
 
     private final String executavel;
     private final String idioma;
@@ -153,18 +183,34 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
         if (ineditas.isEmpty()) {
             return fora;
         }
-        java.util.Map<String, Set<String>> novas = consultarProcesso(ineditas);
-        // SO memoriza se o processo respondeu. Guardar "conhecida" para tudo com o dicionario
-        // fora do ar envenenaria a memoria: a proxima consulta acharia resposta na memoria e
-        // devolveria "esta tudo certo" sem nunca ter perguntado — que e o zero por cegueira que
-        // este projeto persegue em todo lugar.
-        if (Boolean.TRUE.equals(disponivel)) {
-            for (String palavra : ineditas) {
-                Set<String> achado = novas.get(palavra);
-                if (achado == null) {
-                    jaConhecidas.add(palavra);
-                } else {
-                    jaDesconhecidas.put(palavra, achado);
+        // EM LOTES. O comentario do TIMEOUT supunha "centenas de formas distintas"; medido no
+        // acervo em 26/08/2026 a mediana e 940 por arquivo, e os dois filmes passam de 2.700
+        // (`CCA` 2.743, `F91` 2.719). Numa chamada unica eles estouram os 20 s — e o estouro nao
+        // custava aquelas palavras, custava TODAS as do arquivo: a passada da tela 3.3 sobre o
+        // acervo ficou 15 minutos parada no CCA sem verificar uma palavra sequer.
+        //
+        // Loteado, um lote lento derruba so o proprio lote, e o resto do arquivo continua sendo
+        // verificado. Isto e a regra 12 aplicada ao dicionario: "nao achei nada" e "nao tive como
+        // olhar" nao podem sair iguais para o arquivo inteiro.
+        java.util.Map<String, Set<String>> novas = new java.util.LinkedHashMap<>();
+        java.util.List<String> pendentes = new java.util.ArrayList<>(ineditas);
+        for (int inicio = 0; inicio < pendentes.size(); inicio += TAMANHO_DO_LOTE) {
+            java.util.List<String> lote =
+                pendentes.subList(inicio, Math.min(inicio + TAMANHO_DO_LOTE, pendentes.size()));
+            java.util.Map<String, Set<String>> doLote = consultarProcesso(lote);
+            novas.putAll(doLote);
+            // SO memoriza o lote que respondeu. Guardar "conhecida" com o dicionario fora do ar
+            // envenenaria a memoria: a proxima consulta acharia resposta na memoria e devolveria
+            // "esta tudo certo" sem nunca ter perguntado — o zero por cegueira que este projeto
+            // persegue em todo lugar.
+            if (Boolean.TRUE.equals(disponivel)) {
+                for (String palavra : lote) {
+                    Set<String> achado = doLote.get(palavra);
+                    if (achado == null) {
+                        jaConhecidas.add(palavra);
+                    } else {
+                        jaDesconhecidas.put(palavra, achado);
+                    }
                 }
             }
         }
@@ -181,6 +227,7 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio e {@link #disponivel()} passa a false.
      */
     private java.util.Map<String, Set<String>> consultarProcesso(Collection<String> palavras) {
+        consultasAoProcesso.incrementAndGet();
         Set<String> candidatas = new LinkedHashSet<>(palavras);
         try {
             ProcessBuilder pb = new ProcessBuilder(executavel, "-a", "-d", idioma, "-i", "UTF-8");
