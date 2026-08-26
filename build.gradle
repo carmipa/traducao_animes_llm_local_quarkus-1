@@ -166,6 +166,10 @@ test {
      // termina como NAO VERIFICADO, que e o comportamento certo e facil de confundir com
      // "nao ha nada".
      'kronos.palavras',
+     // a lista por ARQUIVO: 143 palavras estouram o limite da linha de comando do Windows,
+     // e o sintoma e o Gradle nao gerar XML nenhum — que so nao vira 'zero achados' porque
+     // este projeto trata ausencia de XML como NAO VERIFICADO.
+     'kronos.palavras.arquivo',
      // 'kronos.esqueleto.regravar' manda a CatracaEsqueletoDoProjetoAtualizadoTest REGRAVAR
      // docs/ref-esqueleto-projeto.md a partir do disco, em vez de so comparar. Sem a chave
      // aqui o -D ficaria na JVM do Gradle, a catraca continuaria em modo comparacao e o
