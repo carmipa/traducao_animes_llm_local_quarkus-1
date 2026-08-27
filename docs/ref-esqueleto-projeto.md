@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **489** |
-| classes em `src/test` | **415** |
+| classes em `src/test` | **416** |
 
 ---
 
@@ -895,7 +895,7 @@ core/
 
 ---
 
-## Testes — 415 classes
+## Testes — 416 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1204,7 +1204,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 34 classes
+#### `medicao` — 35 classes
 
 ```text
 medicao/
@@ -1239,6 +1239,7 @@ medicao/
 ├── MineracaoGlossarioIT.java
 ├── NomesConfirmadosPeloCorpus.java
 ├── ProvenienciaAindaValeIT.java
+├── ReparoDeFalaRealMutadaIT.java
 ├── RetraduzirFalaComDefeitoIT.java
 ├── SegundaOpiniaoSobreListaIT.java
 └── SpikeLanguageToolContraGoldSetIT.java
