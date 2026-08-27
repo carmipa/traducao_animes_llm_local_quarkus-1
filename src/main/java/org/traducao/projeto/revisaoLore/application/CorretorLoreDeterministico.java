@@ -127,12 +127,79 @@ public class CorretorLoreDeterministico {
         // inventa tag e nao precisa de mascara. A ordem correta seria enforcer/corretor no texto
         // CRU, mascarar so para a chamada ao LLM, desmascarar, validar. Mexer nisso altera a ordem
         // de um caminho que hoje funciona, entao nao se faz de raspao.
-        corrigida = enforcadorTermosLore.reforcar(originalMascarado, corrigida, correcoesTerminologia);
+        corrigida = enforcadorTermosLore.reforcar(
+            originalMascarado, corrigida, semAsQueOoriginalUsaDePROPOSITO(
+                originalMascarado, correcoesTerminologia));
 
         if (corrigida.equals(traducaoMascarada)) {
             return Optional.empty();
         }
         return Optional.of(corrigida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: tira do mapa as entradas cuja <b>forma-ruim o próprio original em
+     * inglês usa</b> — nessa fala ela não é forma-ruim, é a palavra que o roteiro escolheu.
+     *
+     * <h2>O prejuízo, medido em 27/08/2026</h2>
+     * O corretor determinístico ia reescrever uma fala do Zeta assim:
+     *
+     * <pre>
+     *   EN      I'm Rosamia! Not Rosammy!
+     *   ANTES   Eu sou Rosamia! Não Rosammy!
+     *   DEPOIS  Eu sou Rosammy! Não Rosammy!     &lt;- a cena morre
+     * </pre>
+     *
+     * A personagem está insistindo no próprio nome contra o apelido que lhe dão: <b>o contraste
+     * entre os dois nomes É a fala</b>. O mapa tinha {@code Rosamia → Rosammy}, e a prosa da
+     * MESMA lore dizia o contrário — "Rosammy é o apelido usado por Kamille para Rosamia;
+     * preserve exatamente Rosammy quando o original usar Rosammy". Documento e mapa divergiam, e
+     * quem escreve na legenda é o mapa.
+     *
+     * <h2>Por que ESTA regra, e não um remendo para Rosamia</h2>
+     * O mapa é {@code forma-ruim em PORTUGUÊS → termo canônico}. A forma-ruim é o que o LLM
+     * traduziu errado ({@code "Robô Móvel"} por {@code "Mobile Suit"}); ela <b>não tem por que
+     * aparecer no inglês</b>. Quando aparece, a entrada não descreve esta fala — e trocar ali é
+     * apagar uma escolha do roteiro. A regra sai do significado do mapa, não do caso.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: filtra por ENTRADA, não pela fala inteira. Uma fala com três
+     * correções, uma delas em contraste, mantém as outras duas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo ou vazio devolve o próprio mapa; nunca lança e
+     * nunca acrescenta entrada.
+     */
+    private static Map<String, String> semAsQueOoriginalUsaDePROPOSITO(
+            String originalMascarado, Map<String, String> correcoes) {
+        if (correcoes == null || correcoes.isEmpty()) {
+            return correcoes;
+        }
+        Map<String, String> filtrado = new java.util.LinkedHashMap<>();
+        for (Map.Entry<String, String> e : correcoes.entrySet()) {
+            if (!apareceComoPalavra(originalMascarado, e.getKey())) {
+                filtrado.put(e.getKey(), e.getValue());
+            }
+        }
+        return filtrado;
+    }
+
+    /**
+     * Fronteira de palavra e caixa ignorada — a mesma régua com que o enforcer casa.
+     *
+     * <p>A fronteira de início vem de {@link FronteiraTermoAss#INICIO}, e não de um
+     * {@code (?<![\p{L}\p{N}])} escrito aqui: {@code \N} do ASS ocupa DOIS caracteres e o
+     * {@code N} é letra para {@code \p{L}}, então o lookbehind simples conclui que o termo colado
+     * na quebra é sufixo de outra palavra e <b>não o enxerga</b>. Medido no acervo: 24,6% das
+     * falas têm a quebra. Uma guarda cega justamente aí protegeria só a fala de uma linha.
+     */
+    private static boolean apareceComoPalavra(String texto, String termo) {
+        if (texto == null || termo == null || termo.isBlank()) {
+            return false;
+        }
+        return Pattern
+            .compile(INICIO_DE_TERMO + Pattern.quote(termo) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE)
+            .matcher(texto)
+            .find();
     }
 
     /**

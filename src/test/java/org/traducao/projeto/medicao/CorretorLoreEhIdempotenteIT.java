@@ -76,6 +76,7 @@ class CorretorLoreEhIdempotenteIT {
     @DisplayName("segunda passada do corretor deterministico nao muda mais nada")
     void segundaPassadaNaoMudaNada() {
         List<String> oscilando = new ArrayList<>();
+        List<String> aCorrigir = new ArrayList<>();
         int paresLidos = 0;
         int corrigidos = 0;
 
@@ -92,6 +93,13 @@ class CorretorLoreEhIdempotenteIT {
                     continue;
                 }
                 corrigidos++;
+                // QUAL fala, e nao so quantas. "1 fala corrigiria" sem dizer qual obriga quem le
+                // a caçar no acervo inteiro — e foi exatamente o que aconteceu em 27/08/2026,
+                // quando o numero 1 sobreviveu a uma correcao que eu achava ser essa mesma.
+                if (aCorrigir.size() < 8) {
+                    aCorrigir.add(entrada.getValue() + "\n      ANTES  " + par.pt()
+                        + "\n      DEPOIS " + primeira.get());
+                }
                 Optional<String> segunda = corretor.corrigir(par.en(), primeira.get(), correcoes);
                 if (segunda.isPresent() && !segunda.get().equals(primeira.get())) {
                     oscilando.add(entrada.getValue() + "\n      EN : " + par.en()
@@ -101,21 +109,53 @@ class CorretorLoreEhIdempotenteIT {
             }
         }
 
+        // O ALCANCE, impresso. Sem este numero o teste so diz "nao oscila" e ninguem sabe SOBRE
+        // QUANTO — e "a segunda passada nao muda nada" e verdade trivial se a primeira tambem
+        // nao mudou nada. O placar aqui responde "o corretor deterministico de lore ainda tem o
+        // que fazer no acervo?", que e a pergunta operacional.
+        System.out.printf("%n=== ALCANCE DO CORRETOR DETERMINISTICO DE LORE ===%n");
+        System.out.printf("  pares EN/PT lidos ....... %d%n", paresLidos);
+        System.out.printf("  falas que ele CORRIGIRIA . %d  (%.2f%%)%n",
+            corrigidos, paresLidos == 0 ? 0.0 : 100.0 * corrigidos / paresLidos);
+        System.out.printf("  oscilando na 2a passada .. %d%n", oscilando.size());
+        if (!aCorrigir.isEmpty()) {
+            System.out.println("  o que ele trocaria:");
+            aCorrigir.forEach(c -> System.out.println("    " + c));
+        }
+
         int lidos = paresLidos;
         assertTrue(paresLidos > 1000, () ->
             "NAO VERIFICADO: a varredura leu " + lidos + " pares EN/PT e o acervo tem dezenas de "
                 + "milhares. Isso NAO e aprovacao: os arquivos nao casaram e o instrumento "
                 + "ficou cego.");
 
-        // O acervo ja foi corrigido em 18/08/2026, entao a maioria das falas nao tem mais o que
-        // trocar. Se NENHUMA tiver, a assercao de idempotencia e vazia: "nao oscilou" porque
-        // nada foi corrigido. O piso abaixo garante que o instrumento exercitou o corretor de
-        // verdade — e a mesma regra do alvo vazio, aplicada ao proprio teste.
+        // ANTES: esta linha era `assertTrue(corrigidos > 0)`, como guarda de cegueira. Em
+        // 27/08/2026 ela passou a REPROVAR O ACERVO LIMPO: o corretor chegou a zero falas a
+        // corrigir, que e o estado desejado, e o teste leu isso como instrumento cego.
+        //
+        // "Guarda que reprova codigo correto e pior que guarda nenhuma" — alarme falso ensina a
+        // desligar o alarme. Mas afrouxar seria pior ainda: zero no acervo VOLTARIA a significar
+        // as duas coisas. A saida e a de sempre: CASO-CONTROLE. Uma fala doente montada aqui
+        // prova que o corretor enxerga; provado isso, o zero do acervo e um zero de verdade.
+        Map<String, String> mapaDeControle = Map.of("Robô Móvel", "Mobile Suit");
+        Optional<String> noDoente = corretor.corrigir(
+            "The Mobile Suit is ready.", "O Robô Móvel está pronto.", mapaDeControle);
+        Optional<String> noSao = corretor.corrigir(
+            "The Mobile Suit is ready.", "O Mobile Suit está pronto.", mapaDeControle);
+        assertTrue(noDoente.isPresent() && noSao.isEmpty(), () ->
+            "NAO VERIFICADO: o corretor nao passou no proprio caso-controle — doente="
+                + noDoente + " sao=" + noSao + ". Sem isso, as " + lidos + " falas lidas nao "
+                + "provam nada: 'nada a corrigir' e 'nao consigo corrigir' sairiam iguais.");
+        System.out.printf("  controle: corrige 'Robô Móvel'->'Mobile Suit' · cala no ja correto%n");
+
+        // A IDEMPOTENCIA tambem passa pelo controle, e nao pelo acervo: com zero correcoes reais,
+        // "a segunda passada nao muda nada" seria verdade trivial.
+        assertTrue(corretor.corrigir("The Mobile Suit is ready.", noDoente.get(), mapaDeControle)
+                .isEmpty(),
+            "o corretor NAO e idempotente: a segunda passada sobre a saida da primeira mexeu de "
+                + "novo. Rodar a tela duas vezes continuaria alterando a legenda.");
+
         int total = corrigidos;
-        assertTrue(corrigidos > 0, () ->
-            "NAO VERIFICADO: o corretor nao corrigiu NENHUMA das " + lidos + " falas lidas, entao "
-                + "a assercao de idempotencia abaixo nao exercitou nada. Ou o mapa da obra "
-                + "sumiu, ou o casamento EN/PT quebrou.");
 
         assertTrue(oscilando.isEmpty(), () ->
             "o corretor NAO e idempotente — rodar a tela de novo continua mexendo na legenda, em "
