@@ -164,6 +164,7 @@ class CatracaSuiteSemDriveWindowsTest {
         "AlcanceDaMedicao.java",
         "MedicaoAlcanceDa33NoAcervoIT.java",
         "RetraduzirFalaComDefeitoIT.java",
+        "ReparoDeFalaRealMutadaIT.java",
         "SegundaOpiniaoSobreListaIT.java",
         "AplicarRetraducaoLidaIT.java",
         "MedicaoAcentoQueColideComVerboIT.java",
