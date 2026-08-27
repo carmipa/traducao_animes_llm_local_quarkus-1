@@ -2,7 +2,14 @@
 # Formato: <obraId>\t<TRADUCAO|REVISAO>\t<forma-ruim>\t<canônico>
 # Gerado por BaselineTerminologiaLoreIT a partir dos provedores REAIS do CDI.
 # É catraca de um lado só: acrescentar é livre, perder reprova.
-#!total=4104
+# BAIXADA EM 27/08/2026, em 2 entradas: `gundam_zeta  Rosamia -> Rosammy` nos dois
+# catalogos. NAO foi perda: a entrada era DEFEITO. `Rosammy` e o apelido que Kamille usa
+# para `Rosamia` — a prosa da propria lore ja mandava preservar cada um como o original
+# usa, e o mapa dizia o contrario. Com ela, o corretor deterministico transformava
+#   EN "I'm Rosamia! Not Rosammy!"  ->  "Eu sou Rosammy! Nao Rosammy!"
+# Selado por ContrasteDeNomesNaoEhFormaRuimTest e por ContextoGundamZetaLoreTest, que
+# agora exige a AUSENCIA da entrada.
+#!total=4102
 break_blade_1	REVISAO	Cavaleiro Pesado	Heavy Knight
 break_blade_1	REVISAO	Comunidade de Atenas	Athens Commonwealth
 break_blade_1	REVISAO	Cruzao	Cruzon
@@ -3301,7 +3308,6 @@ gundam_zeta	REVISAO	Ramus	Ramsus
 gundam_zeta	REVISAO	Rifle de Feixe	Beam Rifle
 gundam_zeta	REVISAO	Robô Móvel	Mobile Suit
 gundam_zeta	REVISAO	Robôs Móveis	Mobile Suits
-gundam_zeta	REVISAO	Rosamia	Rosammy
 gundam_zeta	REVISAO	Roupa Normal	Normal Suit
 gundam_zeta	REVISAO	Roupas Normais	Normal Suits
 gundam_zeta	REVISAO	Sabre de Feixe	Beam Saber
@@ -3401,7 +3407,6 @@ gundam_zeta	TRADUCAO	Ramus	Ramsus
 gundam_zeta	TRADUCAO	Rifle de Feixe	Beam Rifle
 gundam_zeta	TRADUCAO	Robô Móvel	Mobile Suit
 gundam_zeta	TRADUCAO	Robôs Móveis	Mobile Suits
-gundam_zeta	TRADUCAO	Rosamia	Rosammy
 gundam_zeta	TRADUCAO	Roupa Normal	Normal Suit
 gundam_zeta	TRADUCAO	Roupas Normais	Normal Suits
 gundam_zeta	TRADUCAO	Sabre de Feixe	Beam Saber

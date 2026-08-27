@@ -60,7 +60,18 @@ class ContextoGundamZetaLoreTest {
         var correcoes = org.traducao.projeto.lore.LoreDeTeste.obra("gundam_zeta").correcoesTerminologia();
 
         assertTrue("Dogosse Gier".equals(correcoes.get("Dogosse Giar")));
-        assertTrue("Rosammy".equals(correcoes.get("Rosamia")));
+        // `Rosamia -> Rosammy` SAIU do mapa em 27/08/2026, e esta linha agora exige a AUSENCIA
+        // dela. Os dois nomes sao legitimos: `Rosammy` e o apelido que Kamille usa para
+        // `Rosamia`, e a propria prosa desta lore ja mandava preservar cada um como o original
+        // usa. O mapa dizia o contrario, e quem escreve na legenda e o mapa.
+        //
+        // O prejuizo: o corretor deterministico da 3.2 ia transformar
+        //     EN "I'm Rosamia! Not Rosammy!"  ->  "Eu sou Rosammy! Nao Rosammy!"
+        // A personagem esta insistindo no proprio nome contra o apelido; achatar os dois mata a
+        // cena. Ver ContrasteDeNomesNaoEhFormaRuimTest, que sela a CLASSE do defeito.
+        assertTrue(correcoes.get("Rosamia") == null,
+            "Rosamia voltou ao mapa como forma-ruim de Rosammy: os dois nomes sao legitimos e a "
+                + "fala 'I'm Rosamia! Not Rosammy!' vira 'Eu sou Rosammy! Nao Rosammy!'");
         assertTrue("Qum".equals(correcoes.get("Quem")));
         assertTrue("Manack".equals(correcoes.get("Mancack")));
         assertTrue("Ramsus".equals(correcoes.get("Ramus")));
