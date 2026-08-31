@@ -74,6 +74,7 @@ histórico justamente porque numeração que não acompanha a ordem vira mentira
 | **1.3** 🔤 | [**Troca de Tipo de Legenda**](docs/etapa-1.3-troca-tipo-legenda.md) | Troca fontes legadas (TCVN3/VNI) por Unicode — **antes** de traduzir, para o texto não chegar corrompido ao LLM |
 | **1.4** 🔎 | [**Análise de Legenda**](docs/etapa-1.4-analise-conteudo.md) | Auditoria de anomalias: efeitos vazados, karaokê danificado, alucinações de LLM |
 | **2.1** 🌐 | [**Tradução Local (LLM)**](docs/etapa-2.1-traducao-llm.md) | Núcleo: LM Studio, cache, proteção de tags, contextos |
+| **2.2** ⚡ | [**Tradução sem Lore**](docs/etapa-2.2-traducao-sem-lore.md) | Para o anime recém-baixado: sai em `traducao_ptbr_sem_lore` e diz o que se perde sem lore |
 | **2.3** 🗃️ | [**Correção de Cache**](docs/etapa-2.3-correcao-revisao.md) | Os 3 fluxos sobre o **cache**: limpeza de fallback, Google Translate e LLM |
 | **3.1** 🩹 | [**Revisão de Legendas**](docs/etapa-3.1-revisao-legendas.md) | Sobre o `.ass` entregue: traduz o que ficou em inglês (LLM com Google em cascata) e corrige concordância com a lore |
 | **3.2** 📖 | [**Revisão de Lore**](docs/etapa-3.2-revisao-lore.md) | Corrige nomes, locais e termos de lore comparando com o original em inglês. **Desde 18/08/2026 ela escreve na legenda** |
@@ -85,6 +86,7 @@ histórico justamente porque numeração que não acompanha a ordem vira mentira
 | **5.2** 🧹 | [**Renomear Arquivos**](docs/etapa-5.2-renomear-arquivos.md) | Renomeação em lote para o padrão `Nome - S01E01`, com dry-run e undo |
 | 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **69 obras** no `lore.yaml` (68 aparecem na lista da UI) |
 | 📊 | [**Telemetria**](docs/modulo-telemetria.md) | Rastreamento de operações e métricas de JVM em tempo real |
+| ⚡ | [**Desempenho do Pipeline**](docs/ref-desempenho.md) | Onde o tempo é gasto, por operação e por elo — medido sobre o acervo real, com caso-controle do relógio |
 | 🎬 | [**Metadados de Anime**](docs/modulo-metadados-anime.md) | Integração Jikan/MAL e TMDB para pôster/sinopse na UI |
 | 🗺️ | [**Mapa do Projeto**](docs/modulo-mapa-projeto.md) | Gerador automático do índice de código-fonte |
 | 📋 | [**API REST — Referência**](docs/ref-api-endpoints.md) | Todos os endpoints documentados com exemplos |

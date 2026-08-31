@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **489** |
-| classes em `src/test` | **417** |
+| classes em `src/main` | **490** |
+| classes em `src/test` | **419** |
 
 ---
 
@@ -40,7 +40,7 @@ graph TB
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
-    G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
+    G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (3)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (15)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
@@ -701,13 +701,14 @@ mcp/
 └── KronosMcpTools.java
 ```
 
-#### `sistema` — 2 classes
+#### `sistema` — 3 classes
 
 ```text
 sistema/
 ├── application/
 │   └── EncerrarAplicacaoUseCase.java
 └── presentation/
+    ├── DesempenhoController.java
     └── SistemaController.java
 ```
 
@@ -895,7 +896,7 @@ core/
 
 ---
 
-## Testes — 417 classes
+## Testes — 419 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -942,7 +943,7 @@ apiDadosAnime/
         └── ApiDadosAnimeHttpPropertiesIT.java
 ```
 
-#### `arquitetura` — 26 classes
+#### `arquitetura` — 27 classes
 
 ```text
 arquitetura/
@@ -961,6 +962,7 @@ arquitetura/
 ├── CatracaFerramentaDeMedicaoTest.java
 ├── CatracaFronteiraQuebraAssTest.java
 ├── CatracaHarnessDeMedicaoTest.java
+├── CatracaMenuPadronizadoTest.java
 ├── CatracaOrdemDocumentacaoTest.java
 ├── CatracaPadraoMusicalTemDonoUnicoTest.java
 ├── CatracaPaginaDeDocumentacaoAbreTest.java
@@ -1204,7 +1206,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 35 classes
+#### `medicao` — 36 classes
 
 ```text
 medicao/
@@ -1225,6 +1227,7 @@ medicao/
 ├── MedicaoConcordanciaAcervoPtIT.java
 ├── MedicaoConcordanciaIT.java
 ├── MedicaoConcordanciaPorDicionarioIT.java
+├── MedicaoDesempenhoDoPipelineIT.java
 ├── MedicaoDivergenciaPadraoMusicalIT.java
 ├── MedicaoEscopoDaRevisaoLoreIT.java
 ├── MedicaoFalasVaziasIT.java
