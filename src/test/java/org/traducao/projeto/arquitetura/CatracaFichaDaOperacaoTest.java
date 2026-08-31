@@ -66,7 +66,6 @@ class CatracaFichaDaOperacaoTest {
         Map.entry("inicio", "é o painel de entrada: só navega para as outras"),
         Map.entry("mapa", "gera o índice do próprio código; não toca em legenda"),
         Map.entry("telemetria", "observabilidade, somente leitura"),
-        Map.entry("desempenho", "mostra a última medição; a tela não mede"),
         Map.entry("documentacao", "exibe as páginas de docs"),
         Map.entry("sobre", "texto institucional"),
         // CASCA DE MÓDULO, e isto foi CONFERIDO, não suposto: o <div class="panel"> no index.html
