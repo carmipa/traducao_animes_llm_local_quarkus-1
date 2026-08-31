@@ -20,6 +20,7 @@ import { montarOpcoesContextos } from './selectContextos.js';
 import { travarAteEscolherLore } from './travaLore.js';
 import { initMapa } from '../mapa/mapa.js?v=5.0';
 import { initTelemetria } from '../telemetria/telemetria.js?v=3.1';
+import { initDesempenho } from '../desempenho/desempenho.js?v=1.0';
 import { initDocumentacao } from '../documentacao/documentacao.js?v=3.0';
 import { initSobre } from '../sobre/sobre.js?v=3.0';
 import { initRenomearArquivos } from '../renomearArquivos/renomearArquivos.js?v=3.0';
@@ -267,6 +268,7 @@ async function inicializarModulos() {
     await initRenomearArquivos();
     initMapa();
     initTelemetria();
+    initDesempenho();
     initDocumentacao();
     await initSobre();
 }

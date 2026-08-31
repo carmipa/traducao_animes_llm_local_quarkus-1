@@ -158,7 +158,7 @@
                         </button>
                         <button class="nav-item" data-target="revisao-concordancia" id="btn-menu-revisao-concordancia"
                             data-tooltip="Corrige erros de gênero (o menina, ela está cansado) direto na legenda PT-BR, sem inglês nem LLM.">
-                            <span class="material-symbols-outlined nav-icon">spellcheck</span>
+                            <span class="material-symbols-outlined nav-icon">match_word</span>
                             <span>3.3 Revisão de Concordância</span>
                         </button>
                     </div>
@@ -222,6 +222,11 @@
                             data-tooltip="Monitore hits de cache, tokens e logs em tempo real.">
                             <span class="material-symbols-outlined nav-icon">monitoring</span>
                             <span>Telemetria</span>
+                        </button>
+                        <button class="nav-item" data-target="desempenho" id="btn-menu-desempenho"
+                            data-tooltip="Onde o pipeline gasta o tempo: custo por operação e por elo da cadeia, medido sobre o acervo real.">
+                            <span class="material-symbols-outlined nav-icon">speed</span>
+                            <span>Desempenho</span>
                         </button>
                         <button class="nav-item" data-target="mapa" id="btn-menu-mapa"
                             data-tooltip="Exiba a árvore estrutural e taxonomia do código Java.">
@@ -1512,6 +1517,54 @@
                 </div>
 
                 <!-- SISTEMA — PAINEL DE MAPA DO PROJETO -->
+                <div class="panel" id="panel-desempenho">
+                    <div class="glass-card">
+                        <span class="section-kicker">Sistema</span>
+                        <h2>Desempenho do Pipeline</h2>
+                        <p class="card-desc">Onde o KRONOS gasta o tempo, por operação e por unidade, medido sobre
+                            fala REAL do acervo com os objetos de produção. Esta tela <strong>mostra</strong> a última
+                            medição; ela não mede — medir disputaria a máquina com uma tradução em andamento, e o
+                            número sairia contaminado justamente quando alguém quisesse confiar nele.</p>
+
+                        <div class="desempenho-meta" id="desempenho-meta"></div>
+
+                        <div id="desempenho-vazio" class="empty-state" style="display:none">
+                            <span class="material-symbols-outlined">speed</span>
+                            <p>Nenhuma medição gravada ainda.</p>
+                            <p class="card-desc">Rode com a máquina livre:<br>
+                                <code>gradlew test --tests "*MedicaoDesempenhoDoPipelineIT*" -Dkronos.medicao=true</code>
+                            </p>
+                        </div>
+
+                        <div id="desempenho-erro" class="empty-state" style="display:none">
+                            <span class="material-symbols-outlined">error</span>
+                            <p id="desempenho-erro-msg"></p>
+                        </div>
+
+                        <div class="table-wrapper" id="desempenho-tabela-wrapper" style="display:none">
+                            <table class="data-table" id="desempenho-tabela">
+                                <thead>
+                                    <tr>
+                                        <th>Operação</th>
+                                        <th class="num">Unidades</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">Por unidade</th>
+                                        <th>Observação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="desempenho-corpo"></tbody>
+                            </table>
+                        </div>
+
+                        <p class="card-desc" style="margin-top:1rem">
+                            Como ler estes números, e as três vezes em que a falta deles custou caro:
+                            <a href="javascript:void(0)"
+                               onclick="document.getElementById('btn-menu-documentacao').click()">
+                               documentação → Desempenho</a>.
+                        </p>
+                    </div>
+                </div>
+
                 <div class="panel" id="panel-mapa">
                     <div class="glass-card">
                         <h2>Mapeamento de Estrutura & Taxonomia</h2>
@@ -1887,6 +1940,10 @@
                                         data-titulo="2.1 Tradução Local (LLM)"><span
                                             class="material-symbols-outlined doc-item-icon">translate</span>2.1 Tradução
                                         Local</button>
+                                    <button class="doc-nav-item" data-pagina="etapa-2.2-traducao-sem-lore"
+                                        data-titulo="2.2 Tradução sem Lore"><span
+                                            class="material-symbols-outlined doc-item-icon">bolt</span>2.2 Tradução
+                                        sem Lore</button>
                                     <button class="doc-nav-item" data-pagina="etapa-2.3-correcao-revisao"
                                         data-titulo="2.3 Correção de Cache"><span
                                             class="material-symbols-outlined doc-item-icon">find_replace</span>2.3 Correção
@@ -1929,6 +1986,9 @@
                                         data-titulo="Contextos & Lore"><span
                                             class="material-symbols-outlined doc-item-icon">book</span>Contextos &
                                         Lore</button>
+                                    <button class="doc-nav-item" data-pagina="ref-desempenho"
+                                        data-titulo="Desempenho do Pipeline"><span
+                                            class="material-symbols-outlined doc-item-icon">speed</span>Desempenho</button>
                                     <button class="doc-nav-item" data-pagina="modulo-telemetria"
                                         data-titulo="Telemetria"><span
                                             class="material-symbols-outlined doc-item-icon">monitoring</span>Telemetria</button>
