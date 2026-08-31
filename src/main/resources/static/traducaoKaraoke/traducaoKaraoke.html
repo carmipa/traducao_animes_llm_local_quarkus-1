@@ -36,6 +36,50 @@
                         </form>
                     </div>
 
+    <div class="glass-card op-caixa">
+        <div class="op-caixa-cabecalho">
+            <span class="material-symbols-outlined op-caixa-icone">lyrics</span>
+            <h3>Como uma linha de música é decidida</h3>
+            <span class="op-caixa-etiqueta">viés de preservação</span>
+        </div>
+        <p class="op-caixa-desc">Mantém o <strong>romaji/japonês intacto</strong> e manda ao LLM só a camada de <strong>tradução em inglês</strong> — romaji em cima, PT-BR embaixo, como fansub clássico.</p>
+        <ol class="op-lista">
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">do_not_touch</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Camada japonesa / romaji — nunca traduz</span>
+                    <span class="op-desc">Reconhecida pelo estilo (<code>Romaji</code>, <code>JP</code>, <code>ROM</code>) e pela própria escrita. Sai da execução sem ser tocada.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-seguro">não vai ao LLM</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Camada em inglês — vai ao LLM</span>
+                    <span class="op-desc">É a que vira PT-BR, nos mesmos tempos da original.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                        <span class="op-selo op-selo-llm">LM Studio local</span>
+                        <span class="op-selo op-selo-rede">precisa do LM Studio no ar</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">balance</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Quando há dúvida, o original vence</span>
+                    <span class="op-desc">Cantor japonês mistura inglês no meio da letra — <em>“kimi no heart ni fly away”</em>. Uma detecção ingênua de “linha em inglês” mandaria a letra original ao modelo e a destruiria. Aqui a decisão é por <strong>evidência</strong>, e no empate o romaji ganha.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-seguro">na dúvida, preserva</span>
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </div>
+
+
                     <div class="glass-card console-card">
                         <div class="console-header">
                             <h3>Log da Tradução (classificação linha a linha)</h3>

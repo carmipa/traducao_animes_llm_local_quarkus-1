@@ -668,6 +668,42 @@
                         </form>
                     </div>
 
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">radar</span>
+                            <h3>O que a análise faz</h3>
+                            <span class="op-caixa-etiqueta">somente leitura</span>
+                        </div>
+                        <p class="op-caixa-desc">Roda o <strong>ffprobe</strong> em cada vídeo da pasta e devolve contêiner, codecs e <strong>cada faixa de legenda embutida</strong>, classificada por traduzibilidade. <strong>Nada é gravado em disco</strong> — o relatório vive na tela, e o TXT só sai se você clicar em Exportar.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">subtitles</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Legenda de TEXTO (ASS, SSA, SRT, WebVTT, MOV_TEXT)</span>
+                                    <span class="op-desc">Extraível e traduzível. É o caminho normal: segue para a 1.2.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">não escreve nada</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">image</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Legenda BITMAP (PGS, VobSub, DVB)</span>
+                                    <span class="op-desc">É imagem, não texto. Exige OCR, que este projeto não faz — saber disso <em>antes</em> evita gastar uma noite tentando.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">não escreve nada</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">warning</span>
+                            <span><strong>O sincronismo aqui não é diagnóstico.</strong> O ffprobe só devolve metadados, e a duração da faixa costuma ser um valor de enchimento igual à do vídeo. Atraso constante ou legenda de outro <em>release</em> só se confirma olhando os tempos dos eventos da própria legenda — o que esta tela não faz.</span>
+                        </p>
+                    </div>
+
+
                     <div class="glass-card console-card">
                         <div class="console-header">
                             <h3>Logs do Analisador</h3>
@@ -756,6 +792,44 @@
                         </form>
                     </div>
 
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">download</span>
+                            <h3>O que a extração faz</h3>
+                            <span class="op-caixa-etiqueta">escreve arquivos novos</span>
+                        </div>
+                        <p class="op-caixa-desc">Tira as faixas de legenda de dentro do vídeo e as grava como arquivos soltos. A ferramenta muda conforme o contêiner, e você não precisa escolher.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">movie</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Contêiner .mkv / .webm — MKVToolNix</span>
+                                    <span class="op-desc">Identifica as faixas com <code>mkvmerge --identify</code> e extrai com <code>mkvextract</code>. É o caminho fiel: a faixa sai como estava dentro do arquivo.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava arquivos novos</span>
+                                        <span class="op-selo op-selo-rede">exige MKVToolNix instalado</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">theaters</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Demais contêineres (.mp4, .mov, .avi, .ts, .m2ts, .flv, .wmv) — ffmpeg</span>
+                                    <span class="op-desc">Usa <code>ffprobe</code> para achar a faixa e <code>ffmpeg -map</code> para extrair.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava arquivos novos</span>
+                                        <span class="op-selo op-selo-rede">exige ffmpeg instalado</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">folder_off</span>
+                            <span><strong>A pasta de saída é PLANA</strong> — ela não repete a árvore de subpastas. Se a varredura achar dois vídeos com o <strong>mesmo nome</strong> em temporadas diferentes (<code>Season01/Episodio01.mkv</code> e <code>Season02/Episodio01.mkv</code>), o segundo <strong>sobrescreve</strong> a legenda do primeiro. Extraia temporada por temporada, em pastas de saída separadas.</span>
+                        </p>
+                    </div>
+
+
                     <div class="glass-card console-card">
                         <div class="console-header">
                             <h3>Logs do Extrator</h3>
@@ -843,6 +917,54 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">translate</span>
+                            <h3>O que a tradução faz</h3>
+                            <span class="op-caixa-etiqueta">usa cache</span>
+                        </div>
+                        <p class="op-caixa-desc">Traduz cada fala do <code>.ass</code> com o <strong>LLM rodando na sua máquina</strong> (LM Studio) e a <strong>lore da obra</strong>. O que já foi traduzido antes vem do cache e <strong>não vai ao modelo de novo</strong> — rodar duas vezes na mesma pasta custa quase nada.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">shield</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">As tags do ASS são mascaradas antes de o modelo ver</span>
+                                    <span class="op-desc">Cada <code>{\i1}</code>, <code>{\pos}</code> e a quebra <code>\N</code> viram marcador e voltam no lugar. É o que impede o modelo de comer a tipografia da legenda.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava o .ass traduzido</span>
+                                        <span class="op-selo op-selo-llm">LM Studio local</span>
+                                        <span class="op-selo op-selo-rede">precisa do LM Studio no ar</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">fingerprint</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">O cache carimba de ONDE veio cada tradução</span>
+                                    <span class="op-desc">Modelo, idiomas, lore e o <em>hash</em> do prompt ficam gravados junto. Mudou a lore, muda o hash: aquela obra é retraduzida do zero em vez de reusar o que a lore antiga produziu.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava o cache da obra</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">policy</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Três defeitos são recusados sozinhos</span>
+                                    <span class="op-desc">Fala que voltou <strong>igual ao inglês</strong>, resposta em que o modelo <strong>conversa em vez de traduzir</strong> e resíduo do original não entram na legenda — viram pendência.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">não publica o que não passou</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">inventory</span>
+                            <span>A legenda só é reescrita no fim, com o arquivo inteiro pronto. Uma queda no meio deixa o cache do que já foi traduzido — a próxima execução recomeça de onde parou, não do zero.</span>
+                        </p>
+                    </div>
+
 
                     <div class="glass-card console-card">
                         <div class="console-header">
@@ -934,6 +1056,54 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">bolt</span>
+                            <h3>O que você ganha e o que perde</h3>
+                            <span class="op-caixa-etiqueta">sem terminologia</span>
+                        </div>
+                        <p class="op-caixa-desc">É o caminho do <em>acabei de baixar e quero ver como fica</em>. Não pede obra — e por isso <strong>não aplica terminologia nenhuma</strong>.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">person_off</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Nome próprio fica desprotegido</span>
+                                    <span class="op-desc">Sem lista de termos da obra, nada impede um personagem chamado <em>Sky</em> virar <em>Céu</em>. O prompt <strong>pede</strong> para manter — pedido não é garantia.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-llm">LM Studio local</span>
+                                        <span class="op-selo op-selo-rede">precisa do LM Studio no ar</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">folder_special</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">A saída vai para pasta separada</span>
+                                    <span class="op-desc">Grava em <code>traducao_ptbr_sem_lore</code>, e não na definitiva. Quando você escrever a lore de verdade, a 2.1 retraduz do zero — a proveniência divergiu e o cache desta execução é descartado sozinho.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava em pasta própria</span>
+                                        <span class="op-selo op-selo-seguro">não toca a tradução definitiva</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">verified_user</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">O que continua protegido mesmo sem lore</span>
+                                    <span class="op-desc">Tags do ASS, detecção de alucinação e de meta-resposta, identificadores numéricos, resíduo em inglês e eco do original. Sem lore não significa sem guarda.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">as guardas de qualidade seguem valendo</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">warning</span>
+                            <span><strong>Serve para ver, não para arquivar.</strong> Se a obra já tem lore escrita, use a 2.1 — esta tela desperdiça a proteção que alguém já escreveu.</span>
+                        </p>
+                    </div>
+
 
                     <div class="glass-card console-card">
                         <div class="console-header">
@@ -1401,6 +1571,45 @@
                         </form>
                     </div>
 
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">healing</span>
+                            <h3>O que a correção faz</h3>
+                            <span class="op-caixa-etiqueta">compara com a original</span>
+                        </div>
+                        <p class="op-caixa-desc">Põe o <code>.ass</code> original ao lado do traduzido e devolve ao traduzido a <strong>estrutura, os tempos, os estilos e as tags</strong> da original. <strong>A original nunca é reescrita</strong> — ela é só a referência.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">rule</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Correção estrutural — sem LLM, sem internet</span>
+                                    <span class="op-desc">É determinística: compara evento a evento e conserta o que se desalinhou. <strong>Sem obra escolhida, é só isto que roda</strong>, e é o caminho seguro.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava só o traduzido</span>
+                                        <span class="op-selo op-selo-seguro">não usa LLM</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Correção por LLM — só quando você escolhe a obra</span>
+                                    <span class="op-desc">Com a obra informada, as falas que <em>ainda</em> parecem quebradas depois do conserto estrutural podem ir ao modelo local. É camada extra e opcional, não o motor.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">grava só o traduzido</span>
+                                        <span class="op-selo op-selo-llm">LM Studio local</span>
+                                        <span class="op-selo op-selo-rede">precisa do LM Studio no ar</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">info</span>
+                            <span>Sem obra escolhida a operação é <strong>inteiramente determinística</strong>. Escolher a obra liga a segunda camada — e só ela depende do LM Studio estar no ar.</span>
+                        </p>
+                    </div>
+
+
                     <div class="glass-card console-card">
                         <div class="console-header">
                             <h3>Logs de Correção de Karaoke</h3>
@@ -1501,6 +1710,44 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="glass-card op-caixa">
+                        <div class="op-caixa-cabecalho">
+                            <span class="material-symbols-outlined op-caixa-icone">layers</span>
+                            <h3>O que o remuxer faz</h3>
+                            <span class="op-caixa-etiqueta">publica sem sobrescrever</span>
+                        </div>
+                        <p class="op-caixa-desc">Junta o <strong>vídeo original</strong> com a <strong>legenda já revisada</strong> num <code>.mkv</code> novo, via <code>mkvmerge</code>. Vídeo e áudio passam sem recodificar — não há perda de qualidade e não demora como uma conversão.</p>
+                        <ol class="op-lista">
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">build</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Gera em temporário, confere, e só então publica</span>
+                                    <span class="op-desc">O arquivo nasce com nome temporário; o <code>mkvmerge -J</code> confere se vídeo, áudio e a legenda PT-BR estão lá; só depois ele vira o arquivo final. Uma falha no meio deixa o temporário para trás e <strong>não toca no seu vídeo</strong>.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-escreve">cria .mkv novo</span>
+                                        <span class="op-selo op-selo-seguro">não sobrescreve o original</span>
+                                        <span class="op-selo op-selo-rede">exige MKVToolNix instalado</span>
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="op-linha">
+                                <span class="op-marca"><span class="material-symbols-outlined">schedule</span></span>
+                                <div class="op-texto">
+                                    <span class="op-titulo">Sincronismo manual (offset em ms)</span>
+                                    <span class="op-desc">O valor vai como <code>--sync 0:&lt;ms&gt;</code> e desloca <strong>linearmente todos</strong> os tempos da legenda. Serve para atraso constante; não corrige legenda de outro <em>release</em>, onde o descompasso varia ao longo do episódio.</span>
+                                    <span class="op-selos">
+                                        <span class="op-selo op-selo-seguro">deixe 0 se não houver atraso</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ol>
+                        <p class="op-escopo">
+                            <span class="material-symbols-outlined">subtitles</span>
+                            <span>Por padrão as legendas antigas <strong>saem</strong> e a PT-BR entra como faixa padrão. Marcando <em>preservar</em>, as antigas ficam como alternativas e deixam de ser padrão.</span>
+                        </p>
+                    </div>
+
 
                     <div class="glass-card console-card">
                         <div class="console-header">
