@@ -17,7 +17,15 @@
     </div>
     <p class="card-desc auditor-modo-desc" id="auditor-modo-desc">Compara o arquivo original com o traduzido e roda as regras de par (quebras, estilos, karaokê, efeitos, metadados).</p>
 
+    <div class="anime-meta-banner hidden" id="meta-banner-auditor-conteudo"></div>
+
     <form id="form-auditor-conteudo" class="standard-form">
+        <div class="form-group">
+            <label for="auditor-conteudo-contexto">Obra / Contexto (Opcional): <span class="help-icon" data-tooltip="Selecione a obra no menu para exibir os dados e a capa corretos do anime via API.">?</span></label>
+            <select id="auditor-conteudo-contexto">
+                <option value="" disabled selected>Carregando contextos...</option>
+            </select>
+        </div>
         <div class="form-group auditor-campo-original">
             <label for="auditor-original">Legenda Original — Inglês (EN) · ASS/SSA/SRT: <span class="help-icon" data-tooltip="O arquivo de legenda original (inglês) usado como referência. O formato detectado será exibido no relatório.">?</span></label>
             <div class="input-with-button">

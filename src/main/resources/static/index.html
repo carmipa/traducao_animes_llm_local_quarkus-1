@@ -699,7 +699,16 @@
                         <p class="card-desc">Extraia faixas de legendas embutidas em vídeos (MKV/WebM via MKVToolNix;
                             MP4/MOV/AVI e outros via ffmpeg) com alta precisão.</p>
 
+                                                <div class="anime-meta-banner hidden" id="meta-banner-extracao"></div>
+
                         <form id="form-extracao" class="standard-form">
+                            <div class="form-group">
+                                <label for="extracao-contexto">Obra / Contexto (Opcional): <span class="help-icon"
+                                        data-tooltip="Selecione a obra no menu para exibir os dados e a capa corretos do anime via API.">?</span></label>
+                                <select id="extracao-contexto">
+                                    <option value="" disabled selected>Carregando contextos...</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="extracao-entrada">Pasta com arquivos de vídeo: <span class="help-icon"
                                         data-tooltip="Diretório (busca em subpastas também) onde se encontram os vídeos originais dos quais serão extraídas as faixas de legenda. Suporta MKV/WebM e, via ffmpeg, MP4/MOV/AVI/TS/M2TS/FLV/WMV.">?</span></label>
@@ -1428,7 +1437,16 @@
                         <p class="card-desc">Gere novos arquivos de vídeo contendo a faixa de vídeo original e as novas
                             legendas em português acopladas de maneira limpa.</p>
 
+                                                <div class="anime-meta-banner hidden" id="meta-banner-remuxer"></div>
+
                         <form id="form-remuxer" class="standard-form">
+                            <div class="form-group">
+                                <label for="remuxer-contexto">Obra / Contexto (Opcional): <span class="help-icon"
+                                        data-tooltip="Selecione a obra no menu para exibir os dados e a capa corretos do anime via API.">?</span></label>
+                                <select id="remuxer-contexto">
+                                    <option value="" disabled selected>Carregando contextos...</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="remuxer-videos">Pasta com os arquivos de VÍDEO ORIGINAIS (.mkv): <span
                                         class="help-icon"

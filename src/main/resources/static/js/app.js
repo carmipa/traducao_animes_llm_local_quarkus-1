@@ -1030,6 +1030,9 @@ function limparTermoMetadata(texto) {
 function inicializarMetadadosDinamicos() {
     const mapeamentoFormularios = [
         { inputId: 'analise-entrada', selectId: 'analise-contexto', bannerId: 'meta-banner-analise' },
+        { inputId: 'extracao-entrada', selectId: 'extracao-contexto', bannerId: 'meta-banner-extracao' },
+        { inputId: 'auditor-original', selectId: 'auditor-conteudo-contexto', bannerId: 'meta-banner-auditor-conteudo' },
+        { inputId: 'remuxer-videos', selectId: 'remuxer-contexto', bannerId: 'meta-banner-remuxer' },
         { inputId: 'traducao-entrada', selectId: 'traducao-contexto', bannerId: 'meta-banner-traducao' },
         { inputId: 'correcao-entrada', selectId: 'correcao-contexto', bannerId: 'meta-banner-correcao' },
         { inputId: 'revisao-entrada', selectId: 'revisao-contexto', bannerId: 'meta-banner-revisao' },
@@ -1074,7 +1077,7 @@ function inicializarMetadadosDinamicos() {
 
     // Popula automaticamente todos os selects de contexto dos módulos auxiliares.
     const popularContextos = () => {
-        carregarContextosAuxiliares(['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'], () => {
+        carregarContextosAuxiliares(['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'], () => {
             mapeamentoFormularios.forEach(atualizarItem);
         });
     };
@@ -1201,7 +1204,7 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
         // traducao-karaoke-contexto NÃO é auxiliar: o contexto alimenta o prompt
         // do LLM (lore), então recebe a obra padrão pré-selecionada, como o
         // select da Tradução Local.
-        const todosSelects = ['analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'];
+        const todosSelects = ['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'];
         todosSelects.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
@@ -1211,7 +1214,7 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             // obra escolhida não muda uma vírgula do resultado — ela identifica, exibe capa e
             // fica no registro. Tratá-la como seletor de lore seria prometer ao operador um
             // efeito que o motor não tem.
-            const ehAuxiliar = (id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
+            const ehAuxiliar = (id === 'extracao-contexto' || id === 'auditor-conteudo-contexto' || id === 'remuxer-contexto' || id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
             const ehRevisaoLore = (id === 'revisao-lore-contexto');
             select.innerHTML = '';
 
