@@ -21,6 +21,44 @@
     </form>
 </div>
 
+    <div class="glass-card op-caixa">
+        <div class="op-caixa-cabecalho">
+            <span class="material-symbols-outlined op-caixa-icone">font_download</span>
+            <h3>O que cada aba faz</h3>
+            <span class="op-caixa-etiqueta">momentos diferentes do fluxo</span>
+        </div>
+        <p class="op-caixa-desc">Duas ferramentas de preparo do <code>.ass</code>, e elas <strong>não são sequência</strong>: a troca de fontes vem <em>antes</em> da tradução, o achatamento vem <em>depois</em>. Toda gravação tem backup automático da pasta.</p>
+        <ol class="op-lista">
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">translate</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Trocar fonte legada — ANTES de traduzir</span>
+                    <span class="op-desc">Fansub antigo usa fonte pré-Unicode (as vietnamitas <code>.Vn…</code>, TCVN3/VNI) que põe glifo vietnamita na posição do caractere acentuado. O arquivo está certo; o player é que mostra <em>“Nóo, nóo ộ”</em> no lugar de <em>“Não, não é”</em>. <strong>Legenda em inglês nunca revela o defeito</strong> — ele só aparece quando a tradução traz os acentos.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                        <span class="op-selo op-selo-seguro">backup antes de gravar</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">format_size</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Normalizar Fontname para Arial — por legibilidade</span>
+                    <span class="op-desc">Escolha manual, não defeito. <strong>Não achata estilos, não remove efeito e não toca em texto nem em tempo</strong> — só troca o nome da fonte nos estilos.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
+                        <span class="op-selo op-selo-seguro">não altera texto nem tempo</span>
+                    </span>
+                </div>
+            </li>
+        </ol>
+        <p class="op-escopo">
+            <span class="material-symbols-outlined">schedule</span>
+            <span>A ordem importa: trocar a fonte <strong>depois</strong> de traduzir funciona, mas você terá revisado uma legenda que estava sendo exibida errada.</span>
+        </p>
+    </div>
+
+
 <!-- Abas por MOMENTO DO FLUXO: fontes antes da tradução, achatamento depois. -->
 <div class="glass-card troca-abas-card">
     <div class="troca-abas" role="tablist" aria-label="Ferramenta de preparo de legenda">

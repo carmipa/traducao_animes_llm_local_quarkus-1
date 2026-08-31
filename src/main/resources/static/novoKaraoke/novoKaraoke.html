@@ -43,6 +43,49 @@
                         </form>
                     </div>
 
+    <div class="glass-card op-caixa">
+        <div class="op-caixa-cabecalho">
+            <span class="material-symbols-outlined op-caixa-icone">music_off</span>
+            <h3>O que o karaokê simples faz</h3>
+            <span class="op-caixa-etiqueta">não altera a entrada</span>
+        </div>
+        <p class="op-caixa-desc">Reconstrói a camada musical pesada de KFX como linha limpa. É a opção para quando o efeito de karaokê atrapalha mais do que enfeita.</p>
+        <ol class="op-lista">
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">lock</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Os arquivos de entrada NUNCA são alterados</span>
+                    <span class="op-desc">A saída vai para uma pasta de destino <strong>obrigatoriamente diferente</strong> da entrada. Diálogo, placas e linhas <code>Comment:</code> são reemitidos byte a byte.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">grava em pasta NOVA</span>
+                        <span class="op-selo op-selo-seguro">não toca a entrada</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">shield</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Bloco que não dá para reconstruir com confiança fica intacto</span>
+                    <span class="op-desc">Deixar um KFX pesado custa menos que destruir a música. A ferramenta prefere não mexer a mexer errado.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-seguro">na dúvida, mantém</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">receipt_long</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Manifesto por execução</span>
+                    <span class="op-desc">Cada linha criada e cada evento removido ficam em <code>logs/novo-karaoke/manifestos/</code> — trilha completa para auditar ou refazer.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">grava o manifesto</span>
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </div>
+
+
                     <div class="glass-card console-card">
                         <div class="console-header">
                             <h3>Log de Conversão (linha a linha)</h3>

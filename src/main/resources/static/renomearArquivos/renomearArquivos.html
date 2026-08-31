@@ -47,6 +47,49 @@
                             </div>
                         </form>
                     </div>
+
+    <div class="glass-card op-caixa">
+        <div class="op-caixa-cabecalho">
+            <span class="material-symbols-outlined op-caixa-icone">drive_file_rename_outline</span>
+            <h3>O que a renomeação faz</h3>
+            <span class="op-caixa-etiqueta">simula antes, desfaz depois</span>
+        </div>
+        <p class="op-caixa-desc">Troca o nome de release group por <code>Nome do Anime - S01E01</code>, tirando o número do episódio por padrão de texto.</p>
+        <ol class="op-lista">
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">preview</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Simulação primeiro (dry-run)</span>
+                    <span class="op-desc">Você vê a lista de <em>de → para</em> antes de qualquer arquivo mudar de nome.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-seguro">não renomeia nada</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">block</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Sem número identificável, o arquivo fica INTACTO</span>
+                    <span class="op-desc">A ferramenta <strong>nunca renomeia no chute</strong>. Arquivo que não deu para ler o episódio sai da lista e continua com o nome que tinha.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-seguro">não adivinha</span>
+                    </span>
+                </div>
+            </li>
+            <li class="op-linha">
+                <span class="op-marca"><span class="material-symbols-outlined">undo</span></span>
+                <div class="op-texto">
+                    <span class="op-titulo">Reversão completa</span>
+                    <span class="op-desc">Cada execução grava um manifesto em <code>logs/renomear-arquivos/undo/</code>. Renomeou e não gostou: desfaz.</span>
+                    <span class="op-selos">
+                        <span class="op-selo op-selo-escreve">renomeia os arquivos</span>
+                        <span class="op-selo op-selo-seguro">manifesto de undo</span>
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </div>
+
                     
                     <div class="glass-card console-card">
                         <div class="console-header">
