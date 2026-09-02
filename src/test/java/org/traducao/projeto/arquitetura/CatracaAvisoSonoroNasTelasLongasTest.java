@@ -92,7 +92,9 @@ class CatracaAvisoSonoroNasTelasLongasTest {
         "correcao/correcao.js",
         "cura/cura.js",
         "extracao/extracao.js",
-        "remuxer/remuxer.js",
+        // "remuxer/remuxer.js" SAIU em 2026-09-02 — a catraca so desce. Paulo pediu o som na
+        // 5.1, e ela era a tela onde a ausencia doia mais: o lote e de horas, com um MKV de
+        // gigabytes por episodio, e terminava em silencio absoluto.
         "traducaoSemLore/traducaoSemLore.js",
         "trocaTipoLegenda/trocaTipoLegenda.js"));
 

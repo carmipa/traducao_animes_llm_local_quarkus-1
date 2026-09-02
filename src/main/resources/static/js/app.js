@@ -15,7 +15,7 @@ import { initCura } from '../cura/cura.js?v=3.0';
 import { initRevisaoLore } from '../revisaoLore/revisaoLore.js?v=3.2';
 import { initRevisaoConcordancia } from '../revisaoConcordancia/revisaoConcordancia.js?v=1.0';
 import { initTrocaTipoLegenda } from '../trocaTipoLegenda/trocaTipoLegenda.js?v=3.0';
-import { initRemuxer } from '../remuxer/remuxer.js?v=3.3';
+import { initRemuxer } from '../remuxer/remuxer.js?v=3.4';
 import { montarOpcoesContextos } from './selectContextos.js';
 import { travarAteEscolherLore } from './travaLore.js';
 import { initMapa } from '../mapa/mapa.js?v=5.0';
@@ -1212,7 +1212,12 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             // obra escolhida não muda uma vírgula do resultado — ela identifica, exibe capa e
             // fica no registro. Tratá-la como seletor de lore seria prometer ao operador um
             // efeito que o motor não tem.
-            const ehAuxiliar = (id === 'extracao-contexto' || id === 'auditor-conteudo-contexto' || id === 'remuxer-contexto' || id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
+            // 'remuxer-contexto' SAIU dos auxiliares em 2026-09-02, por ordem de Paulo: na 5.1
+            // a escolha da obra passa a ser OBRIGATÓRIA, como nas telas de lore. O motivo é de
+            // operação, não de motor — o remux publica um arquivo definitivo, de gigabytes, com
+            // nome derivado da legenda; começar o lote sem ter dito de qual obra se trata é o
+            // caminho curto para publicar a temporada errada numa pasta e só descobrir depois.
+            const ehAuxiliar = (id === 'extracao-contexto' || id === 'auditor-conteudo-contexto' || id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
             const ehRevisaoLore = (id === 'revisao-lore-contexto');
             select.innerHTML = '';
 

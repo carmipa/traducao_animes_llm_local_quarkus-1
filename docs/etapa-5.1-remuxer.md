@@ -16,6 +16,29 @@
 
 ---
 
+## Antes de tudo: a obra é obrigatória
+
+Desde 2026-09-02 (ordem do Paulo) a 5.1 deixou de ser tela **auxiliar**: os campos de pasta, os botões **Procurar...** e o **Iniciar Remuxing** ficam desabilitados até a obra ser escolhida, exatamente como nas telas de lore. Não existe mais a opção *"Sem obra"* aqui.
+
+O motivo é de operação, não de motor — o remux não consulta lore. É que ele **publica arquivo definitivo, de gigabytes, com nome derivado da legenda**: começar um lote sem ter dito de qual obra se trata é o caminho curto para publicar a temporada errada numa pasta e só descobrir depois, quando o vídeo original talvez já não esteja mais lá.
+
+A trava é a primeira camada; o `remuxer.js` confere de novo antes do POST, porque **botão desabilitado é interface, não autorização** — o painel é reinjetado por `fetch`, e uma reaplicação que falhasse deixaria o botão vivo sem ninguém ver.
+
+---
+
+## Aviso sonoro no fim do lote
+
+O remux é a etapa mais longa do pipeline e era a que terminava em **silêncio**. Desde 2026-09-02 a tela espera a fila reportar `livre` — o instante em que o **último** arquivo do lote foi publicado — e então dá o alerta visual **e** toca três avisos, pelo módulo compartilhado `js/avisoSonoro.js` (o mesmo da Tradução Local, da Revisão de Lore e da 3.3 — nunca uma cópia).
+
+Duas consequências que valem saber:
+
+- **O estado do som é dito no clique, em três valores** (`armado`, `não confirmado`, `indisponível`). O navegador bloqueia áudio que a página inicia sozinha, então o canal nasce no clique que dispara o trabalho. Quem vai sair de perto durante horas precisa saber **antes** se pode confiar no som.
+- **O botão fica preso durante todo o lote**, e não mais 3 segundos. O debounce antigo protegia contra a rajada de cliques e deixava o botão vivo durante horas de remux, convidando a um segundo disparo que o servidor recusaria com `409`.
+
+O alerta visual vem **sempre**, e primeiro: som depende de permissão, de volume e de a aba não estar no mudo.
+
+---
+
 ## Pacote e classes principais
 
 | Classe | Papel |
