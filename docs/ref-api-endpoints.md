@@ -195,8 +195,10 @@ Renomeação em lote de arquivos para o padrão `Nome - S01E01` (dry-run, aplica
 Combina vídeo + legenda em MKV final. Ver [Remuxer](etapa-5.1-remuxer.md).
 
 ```json
-{ "entrada": "C:/animes/Gundam-Narrative-NT", "saida": "C:/.../saida-mkv", "syncOffsetMs": 0, "preservarLegendasOriginais": true }
+{ "entrada": "C:/animes/Gundam-Narrative-NT", "saida": "C:/animes/Gundam-Narrative-NT/traducao_ptbr", "pastaDestino": "E:/prontos", "syncOffsetMs": 0 }
 ```
+`saida` é a pasta das **legendas** (nome herdado do contrato); vazio procura `traducao_ptbr` ao lado dos vídeos. `pastaDestino` é onde os `.mkv` finais são gravados — vazio ⇒ `mkv_final_ptbr/` dentro da pasta de vídeos; precisa existir e não pode ser a pasta de vídeos nem a de legendas. `preservarLegendasOriginais` é aceito e **ignorado**: as originais nunca são apagadas.
+
 **Canal SSE:** `remuxer`
 
 ---

@@ -42,6 +42,14 @@ public class MkvmergeAdapter {
     private static final Duration TIMEOUT_VALIDACAO = Duration.ofSeconds(30);
     private static final ObjectMapper JSON = new ObjectMapper();
 
+    /**
+     * Nome de faixa que ESTE adaptador carimba na legenda traduzida. É a única
+     * marca que distingue "a nossa faixa entrou" de "o arquivo já tinha uma
+     * legenda em português" — ver {@code validarSaidaTemporaria}.
+     */
+    static final String NOME_FAIXA_PTBR = "Português (Brasil)";
+    private static final String IDIOMA_FAIXA_PTBR = "pt-BR";
+
     private final String mkvmergePath;
     private final ProcessoRunner processoRunner;
 
@@ -207,9 +215,9 @@ public class MkvmergeAdapter {
         }
         comando.add(tarefa.caminhoVideo().toString());
         comando.add("--language");
-        comando.add("0:pt-BR");
+        comando.add("0:" + IDIOMA_FAIXA_PTBR);
         comando.add("--track-name");
-        comando.add("0:Português (Brasil)");
+        comando.add("0:" + NOME_FAIXA_PTBR);
         comando.add("--default-track-flag");
         comando.add("0:1");
         if (sincronismoMs != 0) {
@@ -269,10 +277,20 @@ public class MkvmergeAdapter {
      * de promovê-lo a arquivo final.
      *
      * <p>INVARIANTES DO DOMÍNIO: exige arquivo não vazio, container reconhecido,
-     * vídeo, áudio e uma legenda marcada como português/PT-BR.
+     * vídeo, áudio e — este é o ponto — a faixa que ESTE remux acabou de criar,
+     * identificada pelo {@link #NOME_FAIXA_PTBR} carimbado em
+     * {@code montarComando} <b>somada</b> ao idioma português.
+     *
+     * <p>Até 2026-09-02 bastava "existe alguma faixa em português". O controle
+     * não discriminava: um MKV cuja origem JÁ trazia legenda PT — no acervo, o
+     * Sidonia tem faixa da Netflix — passaria na validação mesmo que a nossa não
+     * tivesse entrado. Pior, o próprio teste do adaptador provava isso sem
+     * querer: o fake devolvia a MESMA identificação para a origem e para o
+     * temporário, então o verde vinha da faixa preexistente. Verificação que
+     * nunca foi vista reprovando o caso doente pode estar aprovando por cegueira.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: lança exceção e deixa o {@code finally}
-     * remover o temporário.
+     * remover o temporário — o destino final nunca chega a existir.
      */
     private void validarSaidaTemporaria(Path temporario)
             throws IOException, InterruptedException, TimeoutException {
@@ -287,7 +305,7 @@ public class MkvmergeAdapter {
         JsonNode raiz = JSON.readTree(identificacao.stdout());
         boolean video = false;
         boolean audio = false;
-        boolean legendaPt = false;
+        boolean legendaNossa = false;
         for (JsonNode faixa : raiz.path("tracks")) {
             String tipo = faixa.path("type").asText();
             video |= "video".equals(tipo);
@@ -296,13 +314,15 @@ public class MkvmergeAdapter {
                 JsonNode propriedades = faixa.path("properties");
                 String idioma = propriedades.path("language").asText();
                 String idiomaIetf = propriedades.path("language_ietf").asText();
-                legendaPt |= "por".equalsIgnoreCase(idioma)
+                boolean ehPortugues = "por".equalsIgnoreCase(idioma)
                     || idiomaIetf.toLowerCase(Locale.ROOT).startsWith("pt");
+                boolean temNossoCarimbo = NOME_FAIXA_PTBR.equals(propriedades.path("track_name").asText());
+                legendaNossa |= ehPortugues && temNossoCarimbo;
             }
         }
-        if (!video || !audio || !legendaPt) {
+        if (!video || !audio || !legendaNossa) {
             throw new RemuxerException("Validação do MKV temporário falhou: vídeo=" + video
-                + ", áudio=" + audio + ", legendaPT=" + legendaPt + ".");
+                + ", áudio=" + audio + ", faixa \"" + NOME_FAIXA_PTBR + "\"=" + legendaNossa + ".");
         }
     }
 

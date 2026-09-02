@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **489** |
-| classes em `src/test` | **421** |
+| classes em `src/main` | **490** |
+| classes em `src/test` | **422** |
 
 ---
 
@@ -39,7 +39,7 @@ graph TB
     G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
-    G4["<b>Finalização</b><br/>remuxer (14)<br/>renomearArquivos (6)"]:::fatia
+    G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (15)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
@@ -576,7 +576,7 @@ novoKaraoke/
 
 ### Finalização
 
-#### `remuxer` — 14 classes
+#### `remuxer` — 15 classes
 
 ```text
 remuxer/
@@ -585,6 +585,7 @@ remuxer/
 │   └── RemuxarLoteUseCase.java
 ├── domain/
 │   ├── MkvToolNixNaoEncontradoException.java
+│   ├── PastaDeLegendaDoRemux.java
 │   ├── PlanoRemux.java
 │   ├── RelatorioRemux.java
 │   ├── RemuxTarefa.java
@@ -895,7 +896,7 @@ core/
 
 ---
 
-## Testes — 421 classes
+## Testes — 422 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1361,11 +1362,12 @@ raspagemRevisao/
     └── PoliticaRetraducaoTest.java
 ```
 
-#### `remuxer` — 4 classes
+#### `remuxer` — 5 classes
 
 ```text
 remuxer/
 ├── application/
+│   ├── DestinoEscolhidoDoRemuxTest.java
 │   ├── MapeadorMidiaServiceTest.java
 │   └── RemuxarLoteUseCaseTest.java
 ├── infrastructure/

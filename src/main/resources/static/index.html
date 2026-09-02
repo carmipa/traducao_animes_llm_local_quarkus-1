@@ -1666,14 +1666,40 @@
                             <div class="form-group">
                                 <label for="remuxer-legendas">Pasta com as legendas traduzidas (.ass/.srt): <span
                                         class="help-icon"
-                                        data-tooltip="Diretório onde estão as novas legendas ASS traduzidas. Pressione Enter para buscar automaticamente na pasta padrão do projeto.">?</span></label>
+                                        data-tooltip="Diretório onde estão as novas legendas ASS traduzidas. Deixe vazio para o KRONOS procurar sozinho a subpasta 'traducao_ptbr' ao lado dos vídeos — que é a pasta que a Tradução Local realmente gera.">?</span></label>
                                 <div class="input-with-button">
                                     <input type="text" id="remuxer-legendas"
-                                        placeholder="Ex: C:\animes\[Sokudo] DanMachi\Season 04\legendas_ptbr (Enter = automático)">
+                                        placeholder="Vazio = procura 'traducao_ptbr' dentro da pasta de vídeos">
                                     <button type="button" class="btn-procurar" data-target="remuxer-legendas"
                                         data-type="pasta"><span
                                             class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
                                 </div>
+                            </div>
+                            <div class="destino-card">
+                                <div class="destino-card-cabecalho">
+                                    <span class="material-symbols-outlined destino-card-icone">drive_file_move</span>
+                                    <div class="destino-card-titulo">
+                                        <strong>Onde salvar os MKVs finais</strong>
+                                        <span>É o único campo desta tela que decide o que sai — os de cima dizem de onde vem.</span>
+                                    </div>
+                                    <span class="destino-card-etiqueta" id="remuxer-destino-etiqueta">pasta padrão</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="remuxer-destino">Pasta de destino (opcional): <span
+                                            class="help-icon"
+                                            data-tooltip="Vazio = comportamento de sempre: cria a subpasta 'mkv_final_ptbr' DENTRO da pasta de vídeos. Use Procurar... para gravar em outro disco ou pasta. O destino não pode ser a própria pasta de vídeos nem a das legendas — o MKV gerado seria lido como entrada na próxima execução.">?</span></label>
+                                    <div class="input-with-button">
+                                        <input type="text" id="remuxer-destino"
+                                            placeholder="Deixe vazio p/ criar 'mkv_final_ptbr' dentro da pasta de vídeos">
+                                        <button type="button" class="btn-procurar" data-target="remuxer-destino"
+                                            data-type="pasta"><span
+                                                class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                                    </div>
+                                </div>
+                                <p class="destino-card-rodape" id="remuxer-destino-resumo">
+                                    <span class="material-symbols-outlined">folder</span>
+                                    <span>Vai gravar em <code>mkv_final_ptbr</code>, dentro da pasta de vídeos.</span>
+                                </p>
                             </div>
                             <div class="form-group">
                                 <label for="remuxer-sync-offset">Sincronismo manual da legenda (ms, opcional): <span
@@ -1738,8 +1764,8 @@
                             </li>
                         </ol>
                         <p class="op-escopo">
-                            <span class="material-symbols-outlined">subtitles</span>
-                            <span>Por padrão as legendas antigas <strong>saem</strong> e a PT-BR entra como faixa padrão. Marcando <em>preservar</em>, as antigas ficam como alternativas e deixam de ser padrão.</span>
+                            <span class="material-symbols-outlined">folder_open</span>
+                            <span>O MKV final vai para <code>mkv_final_ptbr</code>, <strong>dentro da pasta de vídeos</strong>, a menos que você escolha outra pasta no campo de destino. Em nenhum dos dois casos o vídeo original é tocado, e destino que já existe é <strong>preservado</strong>, não sobrescrito.</span>
                         </p>
                     </div>
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
+import org.traducao.projeto.remuxer.domain.PastaDeLegendaDoRemux;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.core.presentation.web.PipelineWebSupport;
@@ -17,7 +18,7 @@ import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 /**
@@ -97,6 +98,26 @@ public class RemuxerController {
             return ResponseEntity.badRequest().body(new RespostaPadrao(
                 "Sincronismo fora do limite seguro de ±86.400.000 ms (24 horas)."));
         }
+        // Destino dos MKVs finais. Campo vazio = comportamento histórico
+        // (<pasta de vídeos>/mkv_final_ptbr); campo preenchido = a pasta escolhida no Explorer.
+        Path pathDestino = null;
+        if (req.pastaDestino() != null && !req.pastaDestino().isBlank()) {
+            pathDestino = pipelineWebSupport.normalizarCaminho(req.pastaDestino());
+            if (pathDestino == null || !Files.isDirectory(pathDestino)) {
+                // Falha fechada: o seletor do Windows só devolve pasta existente, então um
+                // caminho inexistente aqui é digitação errada. Criar a pasta transformaria o
+                // erro de digitação em pasta órfã com os MKVs dentro, longe de onde o operador
+                // foi procurar.
+                return ResponseEntity.badRequest().body(new RespostaPadrao(
+                    "Pasta de destino inválida ou inexistente: " + req.pastaDestino()
+                        + ". Escolha uma pasta existente ou deixe o campo vazio para usar a subpasta padrão '"
+                        + RemuxarLoteUseCase.PASTA_SAIDA_PADRAO + "'."));
+            }
+            String motivo = RemuxarLoteUseCase.motivoDestinoRecusado(pathVideos, pathLegendas, pathDestino);
+            if (motivo != null) {
+                return ResponseEntity.badRequest().body(new RespostaPadrao(motivo));
+            }
+        }
         if (filaExecucao.ocupada()) {
             return ResponseEntity.status(409).body(new RespostaPadrao(
                 "O pipeline já possui uma operação em andamento ou aguardando. Aguarde a conclusão antes de iniciar o Remuxer."));
@@ -110,13 +131,15 @@ public class RemuxerController {
         // `--no-subtitles` e o remux saía sem as faixas originais. Perder a legenda de origem é
         // irreversível a partir do arquivo remuxado — o material bruto pode não estar mais lá.
         //
-        // O campo do DTO continua aceito para não quebrar cliente antigo, e é IGNORADO de
-        // propósito: não existe mais caminho que apague. Há teste nominal afirmando isso.
-        boolean preservarOriginais = true;
+        // O campo `preservarLegendasOriginais` do DTO continua aceito para não quebrar cliente
+        // antigo, e é IGNORADO de propósito: não existe mais caminho que apague. Em 2026-09-02 o
+        // booleano saiu também do caso de uso, onde tinha virado enfeite que fazia o console
+        // anunciar "remover legendas originais" enquanto o adaptador preservava tudo.
+        Path destinoEscolhido = pathDestino;
         pipelineWebSupport.submeterJobComRelatorio("remuxer", "Remuxer (mkvmerge)", () -> {
             try {
                 RelatorioRemux relatorio = remuxarLoteUseCase.executar(
-                    pathVideos, pathLegendas, sincronismoMs, preservarOriginais);
+                    pathVideos, pathLegendas, sincronismoMs, destinoEscolhido);
                 String status = relatorio.getStatusFinal();
                 String resumo = "status=" + status
                     + ", sucessos=" + relatorio.getMkvProcessadosSucesso()
@@ -154,22 +177,30 @@ public class RemuxerController {
 
     /**
      * PROPÓSITO DE NEGÓCIO: encontra automaticamente a pasta local de legendas ao
-     * lado dos vídeos usando nomes adotados no pipeline do Paulo.
+     * lado dos vídeos, cumprindo a promessa "Enter = automático" da tela.
      *
-     * <p>INVARIANTES DO DOMÍNIO: somente subdiretórios diretos são considerados e
-     * a comparação ignora caixa, espaço, hífen e underscore.
+     * <p>Até 2026-09-02 esta busca aceitava apenas {@code legendas pt},
+     * {@code legendas ptbr} e {@code legendas portugues} — e o acervo tem
+     * <b>zero</b> pastas com esses nomes contra <b>20</b> {@code traducao_ptbr}.
+     * A promessa da tela portanto falhava em 100% dos casos reais, sempre com o
+     * mesmo HTTP 400. O CLI, que caía em {@code traducao_ptbr}, acertava: eram
+     * duas respostas divergentes para a mesma pergunta dentro da mesma fatia. O
+     * critério agora tem dono único em {@link PastaDeLegendaDoRemux}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: somente subdiretórios diretos são considerados;
+     * {@code traducao_ptbr} vence qualquer outra candidata na mesma obra.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura ou ausência devolve
-     * {@code null}, fazendo o endpoint pedir um caminho explícito.
+     * {@code null}, fazendo o endpoint pedir um caminho explícito — nunca
+     * escolher uma pasta de experimento por acaso.
      */
     private Path localizarPastaLegendasAutomatica(Path pastaVideos) {
-        Set<String> nomesAceitos = Set.of("legendaspt", "legendasptbr", "legendasportugues");
         try (Stream<Path> stream = Files.list(pastaVideos)) {
             return stream.filter(Files::isDirectory)
-                .filter(p -> nomesAceitos.contains(p.getFileName().toString().toLowerCase()
-                    .replace("-", "").replace("_", "").replace(" ", "")))
-                .sorted()
-                .findFirst()
+                .filter(p -> PastaDeLegendaDoRemux.ehCandidata(p.getFileName().toString()))
+                .min(Comparator
+                    .comparingInt((Path p) -> PastaDeLegendaDoRemux.preferencia(p.getFileName().toString()))
+                    .thenComparing(p -> p.getFileName().toString()))
                 .orElse(null);
         } catch (IOException e) {
             log.warn("Não foi possível procurar pasta automática de legendas em {}: {}", pastaVideos, e.getMessage());
