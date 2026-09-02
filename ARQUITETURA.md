@@ -76,7 +76,8 @@ com a API da OpenAI. O `model` na configuração é a string literal `"current"`
 resolve para o modelo carregado na UI. Cravar o id exato ali faz o sistema quebrar toda vez
 que se troca de modelo, que é uma operação frequente neste projeto.
 
-**Interface** — SPA em HTML/CSS/JS puro, **sem framework**: 9 arquivos HTML, 24 de JavaScript,
+**Interface** — SPA em HTML/CSS/JS puro, **sem framework**: 9 arquivos HTML, 29 de JavaScript
+(26 autorais mais 3 bibliotecas vendorizadas — `chart`, `marked`, `mermaid`, todas locais),
 20 de CSS. Não é nostalgia — é que a superfície é um painel de operação com formulário e
 console, e um framework traria build, bundler e uma camada de estado para um problema que
 `fetch` mais `EventSource` já resolvem. Logs em tempo real por **SSE**.
