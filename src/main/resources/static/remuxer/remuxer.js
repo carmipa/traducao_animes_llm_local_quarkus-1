@@ -1,4 +1,34 @@
-import { logNoConsole } from '../js/app.js';
+import { logNoConsole, mostrarAlerta } from '../js/app.js';
+// O MESMO módulo da Tradução Local, da Revisão de Lore e da 3.3 — nunca uma cópia: invariante 10
+// do projeto. Pedido de Paulo em 2026-09-02: o remux é a etapa mais longa do pipeline (vídeo de
+// gigabytes por episódio, uma temporada inteira por lote) e era justamente a que terminava em
+// silêncio, com o operador longe da máquina.
+import { armarAvisoSonoro, tocarAvisoSonoro, mensagemDoAviso } from '../js/avisoSonoro.js';
+
+/**
+ * PROPÓSITO DE NEGÓCIO: segura o botão até a fila do pipeline reportar "livre", que é o
+ * instante em que o ÚLTIMO arquivo do lote terminou de ser remuxado e publicado.
+ *
+ * INVARIANTES DO DOMÍNIO: o POST apenas ENFILEIRA — ele responde na hora e o trabalho roda em
+ * segundo plano. Sem esta espera, "terminou", "falhou" e "ainda rodando" saem iguais para quem
+ * saiu de perto, e o aviso sonoro tocaria no aceite da fila em vez de no fim do trabalho.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: rede caída ou status indisponível encerra a espera com aviso
+ * no console e libera o botão — nunca prende o operador num botão morto.
+ */
+async function acompanharConclusao() {
+    try {
+        for (;;) {
+            const resposta = await fetch('/api/pipeline/status', { cache: 'no-store' });
+            if (!resposta.ok) break;
+            const dados = await resposta.json();
+            if (dados.mensagem === 'livre') break;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    } catch (erro) {
+        logNoConsole('console-remuxer', `Não foi possível acompanhar o estado da fila: ${erro.message}`, 'aviso');
+    }
+}
 
 /**
  * PROPÓSITO DE NEGÓCIO: mantém o cartão de destino dizendo, em português e antes do clique,
@@ -69,6 +99,26 @@ export function initRemuxer() {
             submitBtn.style.cursor = 'not-allowed';
         }
 
+        // A trava de obra já desabilita este botão até a escolha (2026-09-02, ordem de Paulo:
+        // a 5.1 deixou de ser tela auxiliar). Esta checagem é a segunda camada: botão
+        // desabilitado é UI, e o painel é reinjetado por fetch — uma reaplicação que falhe
+        // deixaria o botão vivo sem ninguém ver. Regra do projeto: esconder botão não é
+        // autorização.
+        const selectContexto = document.getElementById('remuxer-contexto');
+        const opcaoObra = selectContexto?.selectedOptions?.[0];
+        if (!opcaoObra || opcaoObra.disabled) {
+            logNoConsole('console-remuxer',
+                'Escolha a obra antes de iniciar o remux — os MKVs publicados levam o nome dela.', 'erro');
+            mostrarAlerta('Escolha a obra antes de iniciar o remux!', 'erro');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
+            return;
+        }
+        const nomeDaObra = opcaoObra.text.trim();
+
         const entrada = document.getElementById('remuxer-videos').value.trim();
         // `saida` é o nome histórico do campo no contrato da API, mas o que ele carrega é a
         // pasta das LEGENDAS. Quem diz onde o MKV final é gravado é `pastaDestino`.
@@ -92,7 +142,16 @@ export function initRemuxer() {
             return;
         }
 
+        // Este clique É o gesto que libera o áudio no navegador — um AudioContext criado fora de
+        // um gesto do usuário nasce 'suspended' e não emite som, sem erro e sem log. O estado é
+        // DITO agora, em três valores: quem vai sair de perto durante um lote de horas precisa
+        // saber ANTES se pode confiar no som, não depois de perder o fim.
+        const estadoAviso = armarAvisoSonoro();
+        logNoConsole('console-remuxer', mensagemDoAviso(estadoAviso),
+            estadoAviso === 'armado' ? 'info' : 'aviso');
+
         logNoConsole('console-remuxer', 'Solicitando remux de vídeos com legendas traduzidas...', 'info');
+        logNoConsole('console-remuxer', `Obra: ${nomeDaObra}`, 'info');
         logNoConsole('console-remuxer', `Pasta de Vídeos: ${entrada}`, 'info');
         if (saida) logNoConsole('console-remuxer', `Pasta de Legendas: ${saida}`, 'info');
         logNoConsole('console-remuxer', pastaDestino
@@ -126,17 +185,29 @@ export function initRemuxer() {
                 logNoConsole('console-remuxer', data.mensagem, 'info');
             }
 
+            // Daqui até "livre" é o lote inteiro rodando: um MKV de gigabytes por episódio.
+            await acompanharConclusao();
+
+            // O alerta VISUAL vem primeiro e SEMPRE: som depende de permissão do navegador, de
+            // volume e de a aba não estar no mudo. Se o som fosse a única rede, "terminou"
+            // ficaria indistinguível de "ainda rodando" justamente quando o navegador recusa.
+            logNoConsole('console-remuxer',
+                'Remux do lote concluído — o último arquivo foi publicado. Confira o status acima.', 'sucesso');
+            mostrarAlerta('Remux finalizado! Confira o status no console.', 'info');
+            tocarAvisoSonoro();
+
         } catch (err) {
             logNoConsole('console-remuxer', `Erro ao iniciar remuxer: ${err.message}`, 'erro');
         } finally {
-            // Re-habilita após 3 segundos para evitar cliques múltiplos em rajada (debounce)
-            setTimeout(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.style.opacity = '';
-                    submitBtn.style.cursor = '';
-                }
-            }, 3000);
+            // O botão fica preso enquanto a fila trabalha (o `await` acima) e volta ao fim do
+            // lote. O debounce de 3s que existia aqui protegia só contra a rajada de cliques —
+            // e deixava o botão vivo durante horas de remux, convidando a um segundo disparo
+            // que o servidor recusaria com 409.
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '';
+                submitBtn.style.cursor = '';
+            }
         }
     });
 }

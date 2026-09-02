@@ -21,6 +21,22 @@ nesta frente; o item abaixo (3.3) volta a ser o topo da fila.
 | D | validacao do temporario aceitava QUALQUER faixa PT — inclusive a que ja vinha da origem (Sidonia tem faixa Netflix) | agora exige o `track_name` que o proprio remux carimba; caso-controle mutado: reprova sem a correcao |
 | E | **destino escolhivel** (`pastaDestino` no DTO + cartao proprio na tela, com etiqueta e rodape que declaram o alvo antes do clique) | 400 na borda + 2a camada no caso de uso |
 
+### Segunda rodada do mesmo dia (pedido de Paulo, 2026-09-02)
+
+| # | entrega | prova |
+|---|---|---|
+| F | **aviso sonoro no fim do lote** — a 5.1 saiu da linha de base `TELAS_DE_FILA_AINDA_MUDAS` da `CatracaAvisoSonoroNasTelasLongasTest`. Usa o modulo compartilhado `js/avisoSonoro.js`, nunca copia. A tela agora ESPERA `/api/pipeline/status` reportar `livre` (o instante do ultimo arquivo publicado) e so entao alerta + toca | tela real: `Aviso sonoro ARMADO: 3 toques ao fim do lote.` no clique, e `Remux do lote concluido` DEPOIS do relatorio final do servidor |
+| G | **obra obrigatoria** — `remuxer-contexto` saiu de `ehAuxiliar` no `app.js`. Sumiu a opcao "Sem obra"; o marcador virou "-- Selecione a obra (obrigatorio) --" | tela real: com o botao FORCADO a reviver e sem obra, o POST foi recusado pela 2a camada do `remuxer.js` |
+
+**Efeito colateral corrigido junto:** o debounce de 3s do botao ficava vivo durante horas de
+remux, convidando a um 2o disparo que o servidor recusaria com 409. Agora o botao fica preso ate
+a fila liberar.
+
+**Calibracao (mutacao):** tirada a chamada `tocarAvisoSonoro()` do `remuxer.js`, os **3** testes
+da catraca do aviso REPROVAM. Restaurado do backup, 6/6 verdes.
+
+---
+
 ### INV-REMUX-DESTINO-001 — o invariante que a liberdade nova exigiu
 
 ```
