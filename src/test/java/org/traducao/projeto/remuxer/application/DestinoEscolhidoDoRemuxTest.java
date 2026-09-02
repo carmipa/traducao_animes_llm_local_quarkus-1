@@ -130,7 +130,8 @@ class DestinoEscolhidoDoRemuxTest {
 
     /**
      * PROPÓSITO DE NEGÓCIO: congela o nome de pasta que a auto-detecção da tela procura, medido
-     * no acervo em 2026-09-02 (20 {@code traducao_ptbr} contra ZERO {@code legendas pt}).
+     * no acervo inteiro em 2026-09-02: 22 {@code traducao_ptbr} + 1 {@code legenda_ptbr} contra ZERO das tres
+     * que a web procurava (0 de 23).
      * INVARIANTES DO DOMÍNIO: o nome que o pipeline gera é candidato; pasta de experimento não é.
      * COMPORTAMENTO EM CASO DE FALHA: aceitar {@code traducao_aya} reprova — escolher a baseline
      * de um confronto de modelos por acaso é o dano que esta linha impede.
