@@ -15,7 +15,7 @@ nesta frente; o item abaixo (3.3) volta a ser o topo da fila.
 
 | # | achado / entrega | prova |
 |---|---|---|
-| A | auto-deteccao da pasta de legendas nao conhecia `traducao_ptbr` — "Enter = automatico" falhava em 20 de 20 pastas reais do acervo. Dono unico agora e `PastaDeLegendaDoRemux` | tela real: com o campo em branco o lote achou `Legendas=1` |
+| A | auto-deteccao da pasta de legendas nao conhecia `traducao_ptbr` — "Enter = automatico" falhava em 23 de 23 pastas reais do acervo (22 `traducao_ptbr` + 1 `legenda_ptbr`; a 1a medicao usou `-maxdepth 3` e disse 20). Dono unico agora e `PastaDeLegendaDoRemux` | tela real: com o campo em branco o lote achou `Legendas=1` |
 | B | ficha da tela e `docs/etapa-5.1` diziam "as legendas antigas saem", contradizendo o checkbox fixo logo acima | texto reescrito nos tres lugares |
 | C | booleano `preservarLegendasOriginais` inerte desde 29/07 fazia o console do CLI anunciar "remover legendas originais" | parametro REMOVIDO do caso de uso; DTO mantem o campo, aceito e ignorado |
 | D | validacao do temporario aceitava QUALQUER faixa PT — inclusive a que ja vinha da origem (Sidonia tem faixa Netflix) | agora exige o `track_name` que o proprio remux carimba; caso-controle mutado: reprova sem a correcao |

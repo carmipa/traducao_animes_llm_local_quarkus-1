@@ -9,11 +9,16 @@ import java.util.Locale;
  * CLI respondam a mesma coisa.
  *
  * <p>INVARIANTES DO DOMÍNIO: {@link #PADRAO} é o nome que o pipeline REALMENTE
- * produz — medido no acervo em 2026-09-02: <b>20 pastas {@code traducao_ptbr} e
- * ZERO</b> das que a auto-detecção da web procurava até então
- * ({@code legendas pt}, {@code legendas ptbr}, {@code legendas portugues}).
- * A comparação ignora caixa, espaço, hífen e underscore, porque a mesma pasta
- * aparece no acervo como {@code traducao_ptbr} e {@code legenda_ptbr}.
+ * produz. Medido no acervo inteiro em 2026-09-02, sem limite de profundidade:
+ * <b>22 pastas {@code traducao_ptbr}</b> + <b>1 {@code legenda_ptbr}</b> e
+ * <b>ZERO</b> das três que a auto-detecção da web procurava até então
+ * ({@code legendas pt}, {@code legendas ptbr}, {@code legendas portugues}) —
+ * 0 de 23. A comparação ignora caixa, espaço, hífen e underscore, que é o que
+ * faz {@code legenda_ptbr} ser reconhecida sem entrada própria.
+ *
+ * <p>A primeira medição desta sessão usou {@code -maxdepth 3} e disse "20". O
+ * total mudou; o que não mudou foi o zero — e é o zero que condena a lista
+ * antiga.
  *
  * <p>Por que a lista mora AQUI e não é importada de {@code traducao}: a fronteira
  * da fatia proíbe o Remuxer depender da Tradução Local, e a duplicação
