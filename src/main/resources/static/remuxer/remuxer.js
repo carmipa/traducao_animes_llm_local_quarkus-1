@@ -1,10 +1,51 @@
 import { logNoConsole } from '../js/app.js';
 
 /**
+ * PROPÓSITO DE NEGÓCIO: mantém o cartão de destino dizendo, em português e antes do clique,
+ * para onde os MKVs vão — a subpasta padrão ou a pasta escolhida.
+ *
+ * INVARIANTES DO DOMÍNIO: campo em branco SEMPRE significa a subpasta padrão dentro da pasta de
+ * vídeos, nunca "não vai gravar"; o texto exibido é o caminho digitado, sem reinterpretação.
+ *
+ * COMPORTAMENTO EM CASO DE FALHA: se o cartão não existir na página (tela antiga em cache), a
+ * função não faz nada e o envio do formulário continua funcionando — o resumo é conveniência,
+ * não pré-requisito.
+ */
+function sincronizarCartaoDeDestino() {
+    const campo = document.getElementById('remuxer-destino');
+    const etiqueta = document.getElementById('remuxer-destino-etiqueta');
+    const resumo = document.getElementById('remuxer-destino-resumo');
+    if (!campo || !etiqueta || !resumo) return;
+
+    const alvoTexto = resumo.querySelector('span:last-child');
+
+    const atualizar = () => {
+        const escolhido = campo.value.trim();
+        etiqueta.textContent = escolhido ? 'pasta escolhida' : 'pasta padrão';
+        etiqueta.classList.toggle('escolhido', Boolean(escolhido));
+        if (!alvoTexto) return;
+        alvoTexto.innerHTML = escolhido
+            ? `Vai gravar em <code></code>.`
+            : 'Vai gravar em <code>mkv_final_ptbr</code>, dentro da pasta de vídeos.';
+        if (escolhido) {
+            // textContent, não interpolação: nome de pasta do acervo tem colchete e acento, e
+            // um caminho digitado não pode virar HTML.
+            alvoTexto.querySelector('code').textContent = escolhido;
+        }
+    };
+
+    campo.addEventListener('input', atualizar);
+    campo.addEventListener('change', atualizar);
+    atualizar();
+}
+
+/**
  * PROPÓSITO DE NEGÓCIO: coleta as opções da etapa final, solicita o remux seguro
  * e encaminha ao console o aceite ou a recusa real da API.
  * INVARIANTES DO DOMÍNIO: offset é inteiro dentro de 24 horas; política de
- * preservação das legendas é sempre enviada explicitamente.
+ * preservação das legendas é sempre enviada explicitamente; o destino do MKV é
+ * declarado no console ANTES do envio, dizendo se é o padrão ou o escolhido — o
+ * operador não deve descobrir onde o arquivo foi parar procurando no disco.
  * COMPORTAMENTO EM CASO DE FALHA: HTTP 400/409 e falha de rede são exibidos sem
  * anunciar que o remux começou.
  */
@@ -15,6 +56,8 @@ export function initRemuxer() {
     // Evita duplicar o listener se a inicialização for executada múltiplas vezes
     if (form.dataset.listenerRegistered === 'true') return;
     form.dataset.listenerRegistered = 'true';
+
+    sincronizarCartaoDeDestino();
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -27,7 +70,11 @@ export function initRemuxer() {
         }
 
         const entrada = document.getElementById('remuxer-videos').value.trim();
+        // `saida` é o nome histórico do campo no contrato da API, mas o que ele carrega é a
+        // pasta das LEGENDAS. Quem diz onde o MKV final é gravado é `pastaDestino`.
         const saida = document.getElementById('remuxer-legendas').value.trim();
+        const campoDestino = document.getElementById('remuxer-destino');
+        const pastaDestino = campoDestino ? campoDestino.value.trim() : '';
         const syncOffsetRaw = document.getElementById('remuxer-sync-offset').value.trim();
         const syncOffsetMs = syncOffsetRaw ? parseInt(syncOffsetRaw, 10) : null;
         // As legendas originais SEMPRE sobrevivem (decisão do Paulo, 2026-07-29). O campo segue
@@ -48,6 +95,9 @@ export function initRemuxer() {
         logNoConsole('console-remuxer', 'Solicitando remux de vídeos com legendas traduzidas...', 'info');
         logNoConsole('console-remuxer', `Pasta de Vídeos: ${entrada}`, 'info');
         if (saida) logNoConsole('console-remuxer', `Pasta de Legendas: ${saida}`, 'info');
+        logNoConsole('console-remuxer', pastaDestino
+            ? `Destino dos MKVs finais: ${pastaDestino} (escolhido)`
+            : 'Destino dos MKVs finais: subpasta "mkv_final_ptbr" dentro da pasta de vídeos (padrão)', 'info');
         if (syncOffsetMs) logNoConsole('console-remuxer', `Sincronismo manual: ${syncOffsetMs}ms`, 'info');
         logNoConsole('console-remuxer',
             'Faixas originais: preservadas. A PT-BR entra como primeira opção.', 'info');
@@ -56,7 +106,7 @@ export function initRemuxer() {
             const res = await fetch('/api/remuxar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ entrada, saida, syncOffsetMs, preservarLegendasOriginais })
+                body: JSON.stringify({ entrada, saida, syncOffsetMs, preservarLegendasOriginais, pastaDestino })
             });
 
             if (!res.ok) {

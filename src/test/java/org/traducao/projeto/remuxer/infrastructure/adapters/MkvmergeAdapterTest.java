@@ -18,10 +18,28 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MkvmergeAdapterTest {
-    private static final byte[] IDENTIFICACAO_VALIDA = ("{\"tracks\":["
+    /**
+     * Identificação da ORIGEM. A faixa 2 é uma legenda em português que JÁ vinha no arquivo —
+     * o caso do Sidonia, que tem faixa da Netflix. Ela NÃO tem o nosso {@code track_name}.
+     *
+     * <p>Esta fixture era usada também como resposta para o temporário, e era por causa dela que
+     * a validação passava: o verde vinha da faixa preexistente, não da que o remux criou.
+     */
+    private static final byte[] IDENTIFICACAO_ORIGEM = ("{\"tracks\":["
         + "{\"id\":0,\"type\":\"video\",\"properties\":{}},"
         + "{\"id\":1,\"type\":\"audio\",\"properties\":{}},"
-        + "{\"id\":2,\"type\":\"subtitles\",\"properties\":{\"language\":\"por\",\"language_ietf\":\"pt-BR\"}}]}")
+        + "{\"id\":2,\"type\":\"subtitles\",\"properties\":{\"language\":\"por\",\"language_ietf\":\"pt-BR\","
+        + "\"track_name\":\"Portugues Netflix\"}}]}")
+        .getBytes(StandardCharsets.UTF_8);
+
+    /** Identificação do TEMPORÁRIO no caminho feliz: a origem mais a faixa que este remux criou. */
+    private static final byte[] IDENTIFICACAO_TEMPORARIO = ("{\"tracks\":["
+        + "{\"id\":0,\"type\":\"video\",\"properties\":{}},"
+        + "{\"id\":1,\"type\":\"audio\",\"properties\":{}},"
+        + "{\"id\":2,\"type\":\"subtitles\",\"properties\":{\"language\":\"por\",\"language_ietf\":\"pt-BR\","
+        + "\"track_name\":\"Portugues Netflix\"}},"
+        + "{\"id\":3,\"type\":\"subtitles\",\"properties\":{\"language\":\"por\",\"language_ietf\":\"pt-BR\","
+        + "\"track_name\":\"" + MkvmergeAdapter.NOME_FAIXA_PTBR + "\"}}]}")
         .getBytes(StandardCharsets.UTF_8);
 
     /**
@@ -99,6 +117,37 @@ class MkvmergeAdapterTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: CASO-CONTROLE da validação do temporário. Prova que ela sabe dizer
+     * NÃO — sem isso, o verde dos outros cenários não vale nada.
+     *
+     * <p>O cenário é real, não montado: o Sidonia do acervo já traz faixa de legenda em
+     * português da Netflix. Se o remux publicasse um MKV SEM a nossa faixa, a validação antiga
+     * ("existe alguma legenda PT?") aprovaria, e o operador receberia um arquivo sem a tradução
+     * — com o console dizendo "MKV validado".
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só a faixa carimbada com {@link MkvmergeAdapter#NOME_FAIXA_PTBR}
+     * conta como prova de que este remux fez o que prometeu.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: exceção, destino final inexistente e nenhum parcial
+     * deixado para trás.
+     */
+    @Test
+    void recusaTemporarioCujaUnicaLegendaPtJaVinhaDaOrigem(@TempDir Path tempDir) throws Exception {
+        RemuxTarefa tarefa = criarTarefa(tempDir);
+        MkvmergeAdapter adapter = new MkvmergeAdapter(new RemuxerProperties("mkvmerge"),
+            (comando, timeout, mesclar) ->
+                executarFake(comando, new ArrayList<>(), 0, IDENTIFICACAO_ORIGEM));
+
+        RemuxerException erro = assertThrows(RemuxerException.class, () -> adapter.executarRemux(tarefa, 0));
+
+        assertTrue(erro.getMessage().contains(MkvmergeAdapter.NOME_FAIXA_PTBR),
+            "a mensagem precisa dizer QUAL faixa faltou, senão o operador caça o bug errado: "
+                + erro.getMessage());
+        assertFalse(Files.exists(tarefa.caminhoSaida()));
+        assertTrue(listarParciais(tempDir).isEmpty());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: garante cleanup do parcial quando mkvmerge retorna
      * erro e ausência de publicação final.
      * INVARIANTES DO DOMÍNIO: somente temporário desta tentativa é removido.
@@ -133,7 +182,7 @@ class MkvmergeAdapterTest {
                 // relativo lixo, a exceção sair como IOException e a asserção de interrupção
                 // falhar — sem que o cancelamento do remux chegasse a ser exercido.
                 if (comando.contains("-J")) {
-                    return new ProcessoExternoUtil.Resultado(0, IDENTIFICACAO_VALIDA, new byte[0]);
+                    return new ProcessoExternoUtil.Resultado(0, IDENTIFICACAO_ORIGEM, new byte[0]);
                 }
                 Path parcial = Path.of(comando.get(comando.indexOf("-o") + 1));
                 Files.writeString(parcial, "PARCIAL");
@@ -168,9 +217,28 @@ class MkvmergeAdapterTest {
      */
     private ProcessoExternoUtil.Resultado executarFake(List<String> comando, List<List<String>> comandos, int codigo)
             throws IOException {
+        return executarFake(comando, comandos, codigo, IDENTIFICACAO_TEMPORARIO);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: simula identificação e geração de MKV sem ferramenta externa,
+     * distinguindo a inspeção da ORIGEM da inspeção do TEMPORÁRIO.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as duas inspeções devolvem JSONs DIFERENTES. Enquanto
+     * devolviam o mesmo, qualquer teste do caminho feliz passava sem que a faixa nova
+     * precisasse existir.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga I/O para o fluxo produtivo tratar.
+     */
+    private ProcessoExternoUtil.Resultado executarFake(List<String> comando, List<List<String>> comandos,
+                                                       int codigo, byte[] identificacaoDoTemporario)
+            throws IOException {
         comandos.add(List.copyOf(comando));
         if (comando.contains("-J")) {
-            return new ProcessoExternoUtil.Resultado(0, IDENTIFICACAO_VALIDA, new byte[0]);
+            String alvo = comando.get(comando.size() - 1);
+            boolean ehTemporario = alvo.contains(".part-");
+            return new ProcessoExternoUtil.Resultado(0,
+                ehTemporario ? identificacaoDoTemporario : IDENTIFICACAO_ORIGEM, new byte[0]);
         }
         Path parcial = Path.of(comando.get(comando.indexOf("-o") + 1));
         Files.writeString(parcial, "MKV_TEMPORARIO");

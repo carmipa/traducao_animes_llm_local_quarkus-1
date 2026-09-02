@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <h2>Invariantes do domínio</h2>
  * <ul>
  *   <li>{@code RemuxRequest} expõe exatamente {@code entrada, saida, syncOffsetMs,
- *       preservarLegendasOriginais}.</li>
+ *       preservarLegendasOriginais, pastaDestino}.</li>
  *   <li>{@code ExtracaoRequest} expõe exatamente {@code entrada, saida, formato}.</li>
  *   <li>Round-trip (objeto → JSON → objeto) preserva todos os valores.</li>
  * </ul>
@@ -47,11 +47,16 @@ class ContratoJsonRecordsE1Test {
     @Test
     @DisplayName("RemuxRequest: campos JSON exatos e round-trip preservado")
     void contratoRemuxRequest() throws Exception {
-        RemuxRequest original = new RemuxRequest("videos", "saida", 500L, true);
+        RemuxRequest original = new RemuxRequest("videos", "saida", 500L, true, "destino/mkv");
         String json = mapper.writeValueAsString(original);
 
+        // AMPLIADO em 2026-09-02: `pastaDestino` entrou para o operador escolher onde o MKV
+        // final é gravado (antes era sempre <vídeos>/mkv_final_ptbr). A catraca reprovou a
+        // mudança, como devia; o conjunto congelado é atualizado no MESMO commit em que o
+        // campo nasce. Os quatro campos anteriores continuam intocados — cliente antigo que
+        // não mande `pastaDestino` recebe o comportamento de sempre.
         assertEquals(new TreeSet<>(java.util.List.of(
-                "entrada", "saida", "syncOffsetMs", "preservarLegendasOriginais")),
+                "entrada", "saida", "syncOffsetMs", "preservarLegendasOriginais", "pastaDestino")),
             campos(mapper.readTree(json)),
             "Campos JSON de RemuxRequest não podem mudar (contrato da SPA): " + json);
 
@@ -60,11 +65,13 @@ class ContratoJsonRecordsE1Test {
 
         // Desserialização a partir do contrato canônico enviado pela interface.
         RemuxRequest doContrato = mapper.readValue(
-            "{\"entrada\":\"v\",\"saida\":\"s\",\"syncOffsetMs\":250,\"preservarLegendasOriginais\":false}",
+            "{\"entrada\":\"v\",\"saida\":\"s\",\"syncOffsetMs\":250,\"preservarLegendasOriginais\":false,"
+                + "\"pastaDestino\":\"destino/mkv\"}",
             RemuxRequest.class);
         assertEquals("v", doContrato.entrada());
         assertEquals(250L, doContrato.syncOffsetMs());
         assertEquals(false, doContrato.preservarLegendasOriginais());
+        assertEquals("destino/mkv", doContrato.pastaDestino());
     }
 
     @Test
@@ -93,6 +100,9 @@ class ContratoJsonRecordsE1Test {
         assertNull(r.saida());
         assertNull(r.syncOffsetMs());
         assertNull(r.preservarLegendasOriginais());
+        // `pastaDestino` ausente é o caso MAIS comum, não o excepcional: é o cliente antigo e
+        // é também a tela com o campo em branco. Ausente tem de significar "pasta padrão".
+        assertNull(r.pastaDestino());
 
         ExtracaoRequest e = mapper.readValue("{\"entrada\":\"x\"}", ExtracaoRequest.class);
         assertEquals("x", e.entrada());

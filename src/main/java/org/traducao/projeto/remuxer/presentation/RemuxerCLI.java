@@ -5,6 +5,7 @@ import org.traducao.projeto.core.execucao.ExecucaoCli;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.remuxer.application.RemuxarLoteUseCase;
+import org.traducao.projeto.remuxer.domain.PastaDeLegendaDoRemux;
 import org.traducao.projeto.remuxer.domain.RelatorioRemux;
 import org.traducao.projeto.remuxer.presentation.ui.ConsoleRemuxerLogger;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
@@ -126,8 +127,12 @@ public class RemuxerCLI implements ExecucaoCli {
      * usa a saída explícita quando informada, senão cai no fallback
      * {@code entrada/traducao_ptbr}.
      * <p>INVARIANTES DO DOMÍNIO: saída ausente, vazia ou só com espaços ⇒
-     * {@code pastaVideos.resolve("traducao_ptbr")}; saída útil ⇒
+     * {@code pastaVideos.resolve(PastaDeLegendaDoRemux.PADRAO)}; saída útil ⇒
      * {@code Path.of(valor.trim())}. A normalização por {@code trim} é preservada.
+     * O literal do nome deixou de estar escrito aqui em 2026-09-02: ele mora em
+     * {@link PastaDeLegendaDoRemux}, que é o mesmo critério consultado pela
+     * auto-detecção da tela. A fórmula não mudou — o gate de paridade da subfase
+     * E4b continua valendo.
      * <p>COMPORTAMENTO EM CASO DE FALHA: nunca devolve {@code null} — sempre há uma
      * pasta de legendas resolvida (explícita ou fallback).
      */
@@ -135,6 +140,6 @@ public class RemuxerCLI implements ExecucaoCli {
         return diretorioSaida
             .filter(valor -> !valor.isBlank())
             .map(valor -> Path.of(valor.trim()))
-            .orElseGet(() -> pastaVideos.resolve("traducao_ptbr"));
+            .orElseGet(() -> pastaVideos.resolve(PastaDeLegendaDoRemux.PADRAO));
     }
 }

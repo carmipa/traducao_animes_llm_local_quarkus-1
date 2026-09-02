@@ -314,6 +314,59 @@ class ApiEndpointsTest {
             .body("mensagem", is("Pasta de vídeos de entrada obrigatória."));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a borda recusa destino inexistente ANTES de enfileirar. O seletor do
+     * Windows só devolve pasta que existe, então caminho inexistente aqui é digitação — e criar a
+     * pasta transformaria o erro de digitação em MKVs escondidos longe de onde o operador foi
+     * procurar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: falha fechada com 400; a fila não recebe o job.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: 200 "aceito pela fila" reprova — é exatamente a classe
+     * da borda assíncrona que diz "iniciada" para o impossível.
+     */
+    @Test
+    void remuxarComDestinoInexistenteRetornaBadRequest(@TempDir Path tempDir) throws Exception {
+        Path videos = Files.createDirectories(tempDir.resolve("obra"));
+        Path legendas = Files.createDirectories(videos.resolve("traducao_ptbr"));
+        String inexistente = tempDir.resolve("NAO-EXISTE").toString().replace('\\', '/');
+
+        given()
+            .contentType("application/json")
+            .body("{\"entrada\":\"" + videos.toString().replace('\\', '/') + "\","
+                + "\"saida\":\"" + legendas.toString().replace('\\', '/') + "\","
+                + "\"pastaDestino\":\"" + inexistente + "\"}")
+            .when().post("/api/remuxar")
+            .then()
+            .statusCode(400)
+            .body("mensagem", containsString("Pasta de destino inválida"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a borda recusa o destino que é a própria pasta de vídeos — o MKV
+     * gerado ali seria lido como entrada na execução seguinte (INV-REMUX-DESTINO-001).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: recusa com 400 antes de a fila receber qualquer coisa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: aceitar reprova; é engano de boa-fé — a escolha parece
+     * perfeitamente razoável para quem quer o arquivo "ali do lado".
+     */
+    @Test
+    void remuxarComDestinoIgualAPastaDeVideosRetornaBadRequest(@TempDir Path tempDir) throws Exception {
+        Path videos = Files.createDirectories(tempDir.resolve("obra"));
+        Path legendas = Files.createDirectories(videos.resolve("traducao_ptbr"));
+
+        given()
+            .contentType("application/json")
+            .body("{\"entrada\":\"" + videos.toString().replace('\\', '/') + "\","
+                + "\"saida\":\"" + legendas.toString().replace('\\', '/') + "\","
+                + "\"pastaDestino\":\"" + videos.toString().replace('\\', '/') + "\"}")
+            .when().post("/api/remuxar")
+            .then()
+            .statusCode(400)
+            .body("mensagem", containsString("não pode ser a própria pasta de vídeos"));
+    }
+
     @Test
     void mapaGeraConteudo() {
         given()

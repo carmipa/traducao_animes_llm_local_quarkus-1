@@ -35,6 +35,13 @@ import java.util.Locale;
 public class RemuxarLoteUseCase {
     private static final Logger log = LoggerFactory.getLogger(RemuxarLoteUseCase.class);
 
+    /**
+     * Subpasta criada dentro da pasta de vídeos quando o operador não escolhe um
+     * destino. É o comportamento histórico e continua sendo o padrão: quem não
+     * mexe no campo novo não vê diferença nenhuma.
+     */
+    public static final String PASTA_SAIDA_PADRAO = "mkv_final_ptbr";
+
     private final MkvmergeAdapter mkvmergeAdapter;
     private final MapeadorMidiaService mapeadorMidiaService;
     private final ConsoleRemuxerLogger console;
@@ -66,37 +73,48 @@ public class RemuxarLoteUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve relatório classificado.
      */
     public RelatorioRemux executar(Path pastaVideos, Path pastaLegendas) {
-        return executar(pastaVideos, pastaLegendas, 0, false);
+        return executar(pastaVideos, pastaLegendas, 0, null);
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mantém compatibilidade com offset manual e política
-     * histórica de substituir legendas originais.
+     * PROPÓSITO DE NEGÓCIO: mantém compatibilidade com offset manual publicando
+     * na pasta de saída padrão.
      *
      * <p>INVARIANTES DO DOMÍNIO: offset é aplicado igualmente a todo o lote.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve relatório classificado.
      */
     public RelatorioRemux executar(Path pastaVideos, Path pastaLegendas, long sincronismoMs) {
-        return executar(pastaVideos, pastaLegendas, sincronismoMs, false);
+        return executar(pastaVideos, pastaLegendas, sincronismoMs, null);
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: executa o lote com offset e política explícita para
-     * preservar ou substituir legendas existentes no MKV de origem.
+     * PROPÓSITO DE NEGÓCIO: executa o lote com offset e destino explícito para os
+     * MKVs publicados.
+     *
+     * <p>Onde havia um booleano {@code preservarLegendasOriginais}: ele deixou de
+     * existir. O caminho que apagava faixa foi REMOVIDO do adaptador em
+     * 2026-07-29 (decisão do Paulo), e desde então o parâmetro só decidia qual
+     * frase o console imprimia — o CLI passava {@code false} e anunciava
+     * "remover legendas originais" enquanto o adaptador preservava todas. Um
+     * parâmetro inerte que faz o console mentir é pior que parâmetro nenhum.
      *
      * <p>INVARIANTES DO DOMÍNIO: telemetria é emitida em sucesso, pendência,
-     * cancelamento e falha; exceção inesperada não produz sucesso falso.
+     * cancelamento e falha; exceção inesperada não produz sucesso falso; o
+     * destino nunca coincide com a pasta varrida em busca de vídeos
+     * (INV-REMUX-DESTINO-001).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: captura a fronteira do lote, registra
      * erro inesperado, finaliza o relatório e retorna ao controller.
      */
     public RelatorioRemux executar(Path pastaVideos, Path pastaLegendas, long sincronismoMs,
-                                   boolean preservarLegendasOriginais) {
+                                   Path pastaDestinoEscolhida) {
         long inicioMs = System.currentTimeMillis();
         RelatorioRemux relatorio = new RelatorioRemux();
+        Path destinoEfetivo = pastaDestinoEscolhida;
         try {
-            executarInterno(pastaVideos, pastaLegendas, sincronismoMs, preservarLegendasOriginais, relatorio);
+            destinoEfetivo = executarInterno(pastaVideos, pastaLegendas, sincronismoMs,
+                pastaDestinoEscolhida, relatorio);
         } catch (Exception e) {
             log.error("Falha inesperada no lote de remux", e);
             console.erro("Falha inesperada no lote de remux: " + e.getMessage());
@@ -104,9 +122,55 @@ public class RemuxarLoteUseCase {
         } finally {
             relatorio.finalizar();
             registrarTelemetria(pastaVideos, pastaLegendas, sincronismoMs,
-                preservarLegendasOriginais, inicioMs, relatorio);
+                destinoEfetivo, inicioMs, relatorio);
         }
         return relatorio;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: resolve onde os MKVs finais serão publicados, mantendo
+     * como padrão a subpasta histórica dentro da pasta de vídeos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: ausência de escolha ⇒
+     * {@code <pasta de vídeos>/mkv_final_ptbr}; escolha explícita é usada tal como
+     * veio, já normalizada pela borda.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca devolve {@code null} — sempre há
+     * um destino resolvido para o chamador validar.
+     */
+    public static Path resolverPastaDestino(Path pastaVideos, Path pastaDestinoEscolhida) {
+        return pastaDestinoEscolhida == null
+            ? pastaVideos.resolve(PASTA_SAIDA_PADRAO)
+            : pastaDestinoEscolhida;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: impede que o MKV publicado caia no mesmo diretório que
+     * a execução seguinte varre em busca de vídeo ou de legenda.
+     *
+     * <p>INVARIANTES DO DOMÍNIO (INV-REMUX-DESTINO-001): o dano não é sobrescrita
+     * — disso o {@code SaidaRemuxJaExisteException} já cuida — é o remuxado virar
+     * ENTRADA de um remux de remux, sem o operador ter como distinguir o gerado
+     * do original. A comparação é por caminho absoluto normalizado, porque
+     * {@code C:\a\b} e {@code C:\a\.\b} são o mesmo diretório.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve o motivo pronto para virar HTTP
+     * 400 na web ou mensagem de erro no CLI; {@code null} significa destino
+     * aceitável.
+     */
+    public static String motivoDestinoRecusado(Path pastaVideos, Path pastaLegendas, Path pastaDestino) {
+        Path destino = pastaDestino.toAbsolutePath().normalize();
+        if (destino.equals(pastaVideos.toAbsolutePath().normalize())) {
+            return "A pasta de destino não pode ser a própria pasta de vídeos: o MKV gerado seria lido"
+                + " como vídeo de entrada na próxima execução. Escolha outra pasta ou deixe o campo"
+                + " vazio para usar a subpasta padrão '" + PASTA_SAIDA_PADRAO + "'.";
+        }
+        if (destino.equals(pastaLegendas.toAbsolutePath().normalize())) {
+            return "A pasta de destino não pode ser a pasta das legendas traduzidas."
+                + " Escolha outra pasta ou deixe o campo vazio para usar a subpasta padrão '"
+                + PASTA_SAIDA_PADRAO + "'.";
+        }
+        return null;
     }
 
     /**
@@ -118,31 +182,41 @@ public class RemuxarLoteUseCase {
      * nova tarefa.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: problemas de infraestrutura encerram;
-     * problemas por arquivo não impedem os próximos, salvo cancelamento.
+     * problemas por arquivo não impedem os próximos, salvo cancelamento. Devolve
+     * o destino realmente usado para a telemetria registrá-lo mesmo quando o
+     * lote não chega ao fim.
      */
-    private void executarInterno(Path pastaVideos, Path pastaLegendas, long sincronismoMs,
-                                 boolean preservarLegendasOriginais, RelatorioRemux relatorio) {
+    private Path executarInterno(Path pastaVideos, Path pastaLegendas, long sincronismoMs,
+                                 Path pastaDestinoEscolhida, RelatorioRemux relatorio) {
+        Path pastaSaida = resolverPastaDestino(pastaVideos, pastaDestinoEscolhida);
         if (!Files.isDirectory(pastaVideos) || !Files.isDirectory(pastaLegendas)) {
             console.erro("Pasta de vídeos ou legendas não encontrada. Vídeos=" + pastaVideos
                 + " | Legendas=" + pastaLegendas);
             relatorio.registrarErroInfra();
-            return;
+            return pastaSaida;
+        }
+        // Segunda camada do INV-REMUX-DESTINO-001: a borda HTTP já recusa com 400,
+        // mas o CLI e qualquer chamador futuro entram por aqui.
+        String motivoRecusa = motivoDestinoRecusado(pastaVideos, pastaLegendas, pastaSaida);
+        if (motivoRecusa != null) {
+            console.erro("Destino recusado: " + motivoRecusa);
+            relatorio.registrarErroInfra();
+            return pastaSaida;
         }
         try {
             mkvmergeAdapter.validarInfraestrutura();
         } catch (RemuxerException e) {
             console.erro("Falha na validação do MKVToolNix: " + e.getMessage());
             relatorio.registrarErroInfra();
-            return;
+            return pastaSaida;
         }
 
-        Path pastaSaida = pastaVideos.resolve("mkv_final_ptbr");
         try {
             Files.createDirectories(pastaSaida);
         } catch (IOException e) {
             console.erro("Não foi possível criar pasta de saída: " + pastaSaida + " — " + e.getMessage());
             relatorio.registrarErroInfra();
-            return;
+            return pastaSaida;
         }
 
         PlanoRemux plano;
@@ -151,7 +225,7 @@ public class RemuxarLoteUseCase {
         } catch (RemuxerException e) {
             console.erro("Falha ao mapear vídeos e legendas: " + e.getMessage());
             relatorio.registrarErroInfra();
-            return;
+            return pastaSaida;
         }
         relatorio.registrarDeteccao(plano.videosDetectados(), plano.tarefas().size());
         for (int i = 0; i < plano.videosSemLegenda(); i++) relatorio.registrarSemLegenda();
@@ -161,9 +235,10 @@ public class RemuxarLoteUseCase {
         console.info("Vídeos=" + plano.videosDetectados() + " | Legendas=" + plano.legendasDetectadas()
             + " | Pareados=" + plano.tarefas().size() + " | Sem legenda=" + plano.videosSemLegenda()
             + " | Ambíguos=" + plano.pareamentosAmbiguos());
-        console.info(preservarLegendasOriginais
-            ? "Política de faixas: preservar legendas originais e adicionar PT-BR como padrão."
-            : "Política de faixas: remover legendas originais e manter somente a nova PT-BR.");
+        // Uma frase só, porque só existe uma política: nenhum caminho apaga faixa.
+        console.info("Política de faixas: as legendas originais são preservadas; a PT-BR entra como padrão.");
+        console.info("Destino dos MKVs finais: " + pastaSaida
+            + (pastaDestinoEscolhida == null ? " (padrão)" : " (escolhido)"));
         if (sincronismoMs != 0) console.info("Sincronismo manual do lote: " + sincronismoMs + "ms");
 
         for (int indice = 0; indice < plano.tarefas().size(); indice++) {
@@ -205,6 +280,7 @@ public class RemuxarLoteUseCase {
                 console.erro("[FALHA INESPERADA] " + tarefa.nomeVideo() + " — " + e.getMessage());
             }
         }
+        return pastaSaida;
     }
 
     /**
@@ -230,20 +306,23 @@ public class RemuxarLoteUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: registra o lote como dataset com status, política de
-     * faixas, offset, pendências, falhas e volume final.
+     * PROPÓSITO DE NEGÓCIO: registra o lote como dataset com status, destino,
+     * offset, pendências, falhas e volume final.
      *
      * <p>INVARIANTES DO DOMÍNIO: itens corrigidos equivalem a MKVs efetivamente
-     * publicados; detalhe contém o status real.
+     * publicados; detalhe contém o status real e o destino REALMENTE usado — sem
+     * ele, duas execuções da mesma obra em pastas diferentes ficam
+     * indistinguíveis no dataset.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: telemetria é secundária e não altera os
      * arquivos já concluídos.
      */
     private void registrarTelemetria(Path videos, Path legendas, long sincronismoMs,
-                                     boolean preservar, long inicioMs, RelatorioRemux relatorio) {
+                                     Path destino, long inicioMs, RelatorioRemux relatorio) {
         String detalhe = "status=" + relatorio.getStatusFinal()
             + "; videos=" + videos + "; legendas=" + legendas
-            + "; syncMs=" + sincronismoMs + "; preservarOriginais=" + preservar
+            + "; destino=" + (destino == null ? videos.resolve(PASTA_SAIDA_PADRAO) : destino)
+            + "; syncMs=" + sincronismoMs + "; preservarOriginais=true"
             + "; semLegenda=" + relatorio.getVideosSemLegenda()
             + "; ambiguos=" + relatorio.getPareamentosAmbiguos()
             + "; existentes=" + relatorio.getSaidasJaExistentes()

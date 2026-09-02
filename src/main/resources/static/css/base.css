@@ -782,6 +782,106 @@ span.console-action-icon.material-symbols-outlined {
     font-weight: 600;
 }
 
+/* ---------------------------------------------------------------------------
+   CARTÃO DE DESTINO (5.1 Remuxer)
+
+   O campo que decide ONDE o arquivo final é gravado não pode parecer mais um
+   campo de pasta no meio de outros dois. Os de cima dizem de onde vem; este diz
+   o que sai — e é o único cuja escolha errada só aparece depois, quando o
+   operador vai procurar o MKV e não acha. Por isso ele ganha moldura, ícone,
+   etiqueta de estado e um rodapé que declara o destino em português antes do
+   clique.
+   --------------------------------------------------------------------------- */
+.destino-card {
+    margin: 18px 0;
+    padding: 14px 16px 6px;
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 10px;
+    background: rgba(45, 212, 191, 0.05);
+}
+
+.destino-card-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.destino-card-icone {
+    font-size: 22px !important;
+    line-height: 1.1;
+    color: var(--accent-cyan);
+}
+
+.destino-card-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.destino-card-titulo strong {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.destino-card-titulo span {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.destino-card-etiqueta {
+    margin-left: auto;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* Escolheu pasta: a etiqueta acende, para o estado ser visível de relance sem
+   ler o caminho inteiro. */
+.destino-card-etiqueta.escolhido {
+    color: var(--accent-cyan);
+    border-color: rgba(45, 212, 191, 0.4);
+    background: rgba(45, 212, 191, 0.1);
+}
+
+.destino-card .form-group {
+    margin-bottom: 10px;
+}
+
+.destino-card-rodape {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 0 10px;
+    border-top: 1px solid rgba(45, 212, 191, 0.16);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.destino-card-rodape .material-symbols-outlined {
+    font-size: 17px !important;
+    line-height: 1.35;
+    color: var(--accent-cyan);
+}
+
+.destino-card-rodape code {
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
 /* A caixa que reescreve trabalho pronto é marcada na moldura, não só no
    botão: o operador vê o risco antes de chegar ao clique. */
 .op-caixa-perigo {

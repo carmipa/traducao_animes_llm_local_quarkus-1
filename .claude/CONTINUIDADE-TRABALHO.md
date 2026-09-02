@@ -1,6 +1,46 @@
 # CONTINUIDADE — KRONOS
 
-## PROXIMA ACAO EXECUTAVEL EXATA (2026-08-23)
+## PROXIMA ACAO EXECUTAVEL EXATA (2026-09-02)
+
+**5.1 Remuxer — auditoria + destino escolhivel: FECHADO com artefato.** Nao ha proxima acao
+nesta frente; o item abaixo (3.3) volta a ser o topo da fila.
+
+```powershell
+# revalidar quando alguem tocar no remuxer (a suite inteira, com --rerun-tasks):
+.\gradlew.bat test --rerun-tasks
+# provado nesta sessao: 2266 testes, 0 falhas, 60 pulados (os mesmos de antes)
+```
+
+### O que entrou
+
+| # | achado / entrega | prova |
+|---|---|---|
+| A | auto-deteccao da pasta de legendas nao conhecia `traducao_ptbr` — "Enter = automatico" falhava em 20 de 20 pastas reais do acervo. Dono unico agora e `PastaDeLegendaDoRemux` | tela real: com o campo em branco o lote achou `Legendas=1` |
+| B | ficha da tela e `docs/etapa-5.1` diziam "as legendas antigas saem", contradizendo o checkbox fixo logo acima | texto reescrito nos tres lugares |
+| C | booleano `preservarLegendasOriginais` inerte desde 29/07 fazia o console do CLI anunciar "remover legendas originais" | parametro REMOVIDO do caso de uso; DTO mantem o campo, aceito e ignorado |
+| D | validacao do temporario aceitava QUALQUER faixa PT — inclusive a que ja vinha da origem (Sidonia tem faixa Netflix) | agora exige o `track_name` que o proprio remux carimba; caso-controle mutado: reprova sem a correcao |
+| E | **destino escolhivel** (`pastaDestino` no DTO + cartao proprio na tela, com etiqueta e rodape que declaram o alvo antes do clique) | 400 na borda + 2a camada no caso de uso |
+
+### INV-REMUX-DESTINO-001 — o invariante que a liberdade nova exigiu
+
+```
+Nome:    destino do remux nunca e o diretorio varrido em busca de video
+Dano:    o MKV publicado vira ENTRADA da execucao seguinte (remux de remux),
+         sem o operador ter como distinguir o gerado do original
+Camadas: borda HTTP (400, antes de enfileirar) + RemuxarLoteUseCase (o CLI passa por la)
+Testes:  DestinoEscolhidoDoRemuxTest (6) + ApiEndpointsTest (2 novos)
+Calibr.: guarda anulada a mao => os 3 negativos reprovam. Restaurada => 6/6 verdes.
+```
+
+**NAO REPETIR:** o dev mode do Gradle **nao** recarrega estatico editado em
+`src/main/resources/static`. O `build.gradle` exclui `static/**` dos resources e o
+`processResources` copia para `META-INF/resources`; copiar o arquivo a mao para as tres pastas
+de `build/` **nao** teve efeito — o Quarkus serve de uma copia aumentada em memoria. O que
+funciona e **reiniciar o quarkusDev**. Perdi ~10 min nisso.
+
+---
+
+## Item anterior da fila (2026-08-23)
 
 **Autorizado por Paulo: aprofundar a 3.3 nas DUAS frentes.** Frente 2 entregue em `1cc9598c`.
 
