@@ -382,6 +382,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             pastas, telemetria, protecao, resolvedorSaida, resolvedorCache, politicaBackup, seletorEventos, new RemovedorItalico(), avaliadorCache, tradutorLotes, montadorTelemetria, classificadorPendencia, recuperarPendenciaGoogle,
             enforcadorTermos, new EnforcadorGlossarioFala(), new DetectorIdiomaFonteService(), new NormalizadorAspasService(),
             new NormalizadorAcentosComuns(),
+            new org.traducao.projeto.qualidadeTraducao.application.CorretorHomografoComOriginal(),
             new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda(), new NormalizadorCartaoDataService(), guardaContextoObra, contextoCongelado,
             new org.traducao.projeto.qualidadeTraducao.application.nomeProprio.DetectorNomeProprioTraduzido(
                 new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()));
