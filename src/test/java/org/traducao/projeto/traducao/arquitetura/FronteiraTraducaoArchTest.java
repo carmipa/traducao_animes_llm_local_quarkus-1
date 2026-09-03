@@ -424,6 +424,14 @@ class FronteiraTraducaoArchTest {
         // NormalizadorAcentosComuns movido de traducao.application para o peer: fecha o arco
         // proibido raspagemRevisao.RevisorPtOnlyService -> traducao (INBOUND voltou a 0).
         RAIZ + ".qualidadeTraducao.application.NormalizadorAcentosComuns",
+        // CorretorHomografoComOriginal entrou em 03/09/2026. É o par que o NormalizadorAcentos
+        // EXCLUI de propósito — `e` e `esta` são palavras válidas, e trocá-las sem contexto
+        // introduz erro em toda coordenação. O contexto que falta está no ORIGINAL INGLÊS, que
+        // esta fatia tem em mãos ao gravar. Mora no peer pelo mesmo critério das duas linhas
+        // acima: opera sobre o TEXTO, não sabe qual obra é, e DUAS fatias o consomem (traducao
+        // e raspagemRevisao) — na fatia teria de ser copiado, que é a classe de defeito que
+        // CatracaRegraDuplicadaEntreFatiasTest existe para contar.
+        RAIZ + ".qualidadeTraducao.application.CorretorHomografoComOriginal",
         RAIZ + ".qualidadeTraducao.application.ProtecaoLegendaAssService",
         RAIZ + ".qualidadeTraducao.application.ValidadorTraducaoService",
         // Subpacote nomeProprio, 13/08/2026: mede nome próprio do original que não chegou à

@@ -26,6 +26,7 @@ import org.traducao.projeto.legenda.infrastructure.EscritorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.EscritorLegendaSrt;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaSrt;
+import org.traducao.projeto.qualidadeTraducao.application.CorretorHomografoComOriginal;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
@@ -87,6 +88,7 @@ public class ProcessarArquivoUseCase {
     private final DetectorIdiomaFonteService detectorIdiomaFonte;
     private final NormalizadorAspasService normalizadorAspas;
     private final NormalizadorAcentosComuns normalizadorAcentos;
+    private final CorretorHomografoComOriginal corretorHomografo;
     private final org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico;
     private final NormalizadorCartaoDataService normalizadorCartaoData;
     private final GuardaContextoObraTraducao guardaContextoObra;
@@ -132,6 +134,31 @@ public class ProcessarArquivoUseCase {
         return distintos.size() > 8 ? amostra + " (+" + (distintos.size() - 8) + ")" : amostra;
     }
 
+    /**
+     * O que o {@link CorretorHomografoComOriginal} teria trocado, se o original tivesse provado.
+     *
+     * <p>A fronteira do ASS é obrigatória: a quebra do formato ocupa dois caracteres e o segundo
+     * é uma letra, então a palavra colada a ela some de qualquer busca ingênua.
+     */
+    private static final java.util.regex.Pattern HOMOGRAFO_SOLTO =
+        java.util.regex.Pattern.compile(
+            org.traducao.projeto.core.texto.FronteiraTermoAss.INICIO + "(?:e|[Ee]sta)"
+                + org.traducao.projeto.core.texto.FronteiraTermoAss.FIM);
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se a fala AINDA tem um {@code e} ou {@code esta} solto depois do
+     * corretor — é o contador da ABSTENÇÃO, sem o qual "0 corrigidas" é frase ambígua.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só OLHA, nunca corrige. A decisão de trocar é do
+     * {@link CorretorHomografoComOriginal}, que exige a prova do original inglês.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve {@code false} — ausência de texto não
+     * é ausência de defeito, mas também não é defeito contável.
+     */
+    private static boolean temHomografoSolto(String texto) {
+        return texto != null && HOMOGRAFO_SOLTO.matcher(texto).find();
+    }
+
     private static String instanteDe(EventoLegenda evento) {
         if (evento == null || evento.prefixo() == null) {
             return "";
@@ -166,6 +193,7 @@ public class ProcessarArquivoUseCase {
         DetectorIdiomaFonteService detectorIdiomaFonte,
         NormalizadorAspasService normalizadorAspas,
         NormalizadorAcentosComuns normalizadorAcentos,
+        CorretorHomografoComOriginal corretorHomografo,
         org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico,
         NormalizadorCartaoDataService normalizadorCartaoData,
         GuardaContextoObraTraducao guardaContextoObra,
@@ -199,6 +227,7 @@ public class ProcessarArquivoUseCase {
         this.normalizadorAspas = normalizadorAspas;
         this.normalizadorAcentos = normalizadorAcentos;
         this.corretorOrtografico = corretorOrtografico;
+        this.corretorHomografo = corretorHomografo;
         this.normalizadorCartaoData = normalizadorCartaoData;
         this.guardaContextoObra = guardaContextoObra;
         this.contextoCongelado = contextoCongelado;
@@ -714,6 +743,12 @@ public class ProcessarArquivoUseCase {
         //      tradução alucinada ("Shiro: Roger!") e erro semântico ("Rogério."), que passam
         //      limpos por todas as outras guardas justamente por não serem iguais ao original.
         int corrigidasPeloDicionario = 0;
+        // Telemetria em cada canto: um contador do que AGIU e um do que se ABSTEVE. Sem o
+        // segundo, "0 corrigidas" não distingue "não havia defeito nesta legenda" de "o corretor
+        // ficou cego" — e foi exatamente essa ambiguidade que deixou 566 falas de acento
+        // atravessarem o acervo sem ninguém notar.
+        int falasComHomografoCorrigido = 0;
+        int falasComHomografoIntocado = 0;
         for (Map.Entry<String, String> traducao : traducoesValidadas.entrySet()) {
             String traduzido = traducao.getValue();
             if (traduzido != null && !traduzido.isBlank()) {
@@ -737,6 +772,21 @@ public class ProcessarArquivoUseCase {
                 if (!normalizado.equals(antesDoDicionario)) {
                     corrigidasPeloDicionario++;
                 }
+                // HOMÓGRAFO, que nenhum dos de cima enxerga. `e` e `esta` são palavras válidas
+                // em português, então dicionário nenhum as acusa — está errado o SENTIDO, e o
+                // NormalizadorAcentosComuns as exclui de propósito por isso. Quem responde é o
+                // ORIGINAL, que aqui está em mãos: sem coordenador no inglês não há o que
+                // coordenar, e todo `e` solto é o verbo. Medido no acervo em 03/09/2026, depois
+                // de a 3.3 já ter rodado em agosto: 371 falas com `e` por `é` e 195 com `esta`
+                // por `está`, o ZZ com 166. Roda DEPOIS do dicionário porque decide por contexto,
+                // não por grafia, e antes do glossário para o reforço ver a fala já acentuada.
+                String antesDoHomografo = normalizado;
+                normalizado = corretorHomografo.corrigir(traducao.getKey(), normalizado);
+                if (!normalizado.equals(antesDoHomografo)) {
+                    falasComHomografoCorrigido++;
+                } else if (temHomografoSolto(normalizado)) {
+                    falasComHomografoIntocado++;
+                }
                 normalizado = normalizadorCartaoData.normalizar(traducao.getKey(), normalizado);
                 normalizado = enforcadorGlossarioFala.reforcar(traducao.getKey(), normalizado);
                 traducao.setValue(normalizado);
@@ -758,6 +808,17 @@ public class ProcessarArquivoUseCase {
         } else {
             uiLogger.log("[ ORTOGRAFIA ] Dicionário ativo: " + corrigidasPeloDicionario
                 + " fala(s) com ortografia corrigida.");
+        }
+
+        // HOMÓGRAFO: o par que dicionário nenhum vê, porque `e` e `esta` são palavras válidas em
+        // português — está errado o sentido, não a grafia. As DUAS linhas existem porque uma só
+        // mentiria: "0 corrigidas" com falas intocadas significa que o original não provou nada e
+        // o corretor se absteve, que é muito diferente de não haver defeito.
+        if (falasComHomografoCorrigido > 0 || falasComHomografoIntocado > 0) {
+            uiLogger.log("[ HOMÓGRAFO  ] " + falasComHomografoCorrigido
+                + " fala(s) com é/está repostos pela prova do original; "
+                + falasComHomografoIntocado
+                + " com e/esta solto que o original NÃO provou ser verbo (abstenção).");
         }
 
         // DIAGNÓSTICO de nome próprio traduzido. Só mede: não reescreve nenhuma fala, porque a

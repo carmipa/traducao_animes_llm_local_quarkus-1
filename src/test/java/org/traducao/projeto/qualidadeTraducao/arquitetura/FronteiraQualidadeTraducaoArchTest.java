@@ -111,7 +111,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os quinze proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os dezesseis proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -138,6 +138,15 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_APPLICATION + ".IsoladorQuebraDialogo",
                 PKG_QT_APPLICATION + ".MascaradorTags",
                 PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
+                // DÉCIMO SEXTO, 03/09/2026. Paulo assistiu ao Gundam ZZ e disse que a tradução
+                // estava "emporcalhada"; medindo o acervo, 566 falas tinham `e` no lugar de `é`
+                // e `esta` no lugar de `está` — os dois homógrafos que o NormalizadorAcentos
+                // EXCLUI de propósito, porque sem contexto trocá-los estraga toda coordenação.
+                // O contexto está no ORIGINAL INGLÊS: sem coordenador no original não há o que
+                // coordenar, e todo `e` solto é o verbo. Mora aqui pelo mesmo critério do vizinho
+                // de cima: opera sobre o TEXTO, não sabe de obra, e DUAS fatias o consomem — a
+                // tradução tem o original ao gravar, a 3.1 tem `originalEn` por fala.
+                PKG_QT_APPLICATION + ".CorretorHomografoComOriginal",
                 // DECIMO QUINTO, 22/08/2026. Elimina o italico da legenda por decisao de
                 // produto do Paulo. Mora neste peer pelo mesmo criterio de EnforcadorTermosLore
                 // e NormalizadorAcentosComuns: opera sobre o TEXTO, nao sabe qual obra e, e —
@@ -170,7 +179,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_NOME_PROPRIO + ".DetectorNomeProprioTraduzido",
                 PKG_QT_NOME_PROPRIO + ".ExtratorCandidatosNomeProprio",
                 PKG_QT_NOME_PROPRIO + ".VeredictoNomeProprio")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os quinze proprietários top-level homologados, por FQN "
+            "qualidadeTraducao deve conter EXATAMENTE os dezesseis proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

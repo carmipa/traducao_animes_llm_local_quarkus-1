@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **490** |
-| classes em `src/test` | **424** |
+| classes em `src/main` | **491** |
+| classes em `src/test` | **425** |
 
 ---
 
@@ -41,7 +41,7 @@ graph TB
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
-    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (15)"]:::peer
+    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
     G1 --> PEERS
@@ -804,7 +804,7 @@ lore/
     └── CorrecoesTerminologiaMacrossRevisao.java
 ```
 
-#### `qualidadeTraducao` — 15 classes
+#### `qualidadeTraducao` — 16 classes
 
 ```text
 qualidadeTraducao/
@@ -813,6 +813,7 @@ qualidadeTraducao/
 │   │   ├── DetectorNomeProprioTraduzido.java
 │   │   ├── ExtratorCandidatosNomeProprio.java
 │   │   └── VeredictoNomeProprio.java
+│   ├── CorretorHomografoComOriginal.java
 │   ├── DetectorTraducaoIdenticaService.java
 │   ├── EnforcadorTermosLore.java
 │   ├── IsoladorQuebraDialogo.java
@@ -896,7 +897,7 @@ core/
 
 ---
 
-## Testes — 424 classes
+## Testes — 425 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1262,7 +1263,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 31 classes
+#### `qualidadeTraducao` — 32 classes
 
 ```text
 qualidadeTraducao/
@@ -1272,6 +1273,7 @@ qualidadeTraducao/
 │   │   ├── ExtratorCandidatosNomeProprioTest.java
 │   │   └── MedicaoNomeProprioAcervoIT.java
 │   ├── ConectivoDeDiscursoNaoEhLocutorInventadoTest.java
+│   ├── CorretorHomografoComOriginalTest.java
 │   ├── DetectorTraducaoIdenticaServiceTest.java
 │   ├── EnforcadorTermosLoreQuebraAssTest.java
 │   ├── EnforcadorTermosLoreTest.java

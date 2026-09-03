@@ -71,9 +71,10 @@ class TradutorCLIAlucinacaoCaracterizacaoTest {
         final AtomicInteger chamadas = new AtomicInteger();
         final List<SnapshotContexto> contextosRecebidos = new java.util.ArrayList<>();
         ProcessarArquivoAlucina() {
+            // +1 null: CorretorHomografoComOriginal entrou no construtor em 03/09/2026.
             super(null, null, null, null, null, null, null, null, null, null,
                   null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                  null, null, null, null, null);
+                  null, null, null, null, null, null);
         }
         @Override
         public ResultadoTraducaoArquivo processar(
