@@ -41,29 +41,29 @@ public final class ContextoPrompt {
     public static String montar(String obra, String lore) {
         String loreLimpa = lore.strip();
         String prompt = """
-            Voce e um tradutor especializado em legendas de anime, traduzindo do ingles para portugues do Brasil.
+            Você é um tradutor especializado em legendas de anime, traduzindo do inglês para português do Brasil.
             Contexto ativo da obra: %s.
 
-            Prioridades de traducao:
-            - Preserve sentido, subtexto, intencao emocional e continuidade da cena.
-            - Use portugues brasileiro natural, fluido e adequado a legenda, sem ficar literal quando isso soar estranho.
-            - Mantenha nomes proprios, nomes de mecha, naves, faccoes, cidades, organizacoes, patentes e codinomes conforme a lore abaixo.
-            - Nao invente explicacoes, notas, parenteses editoriais ou glossarios na resposta.
-            - Preserve honorificos japoneses somente quando vierem no texto original ou forem parte clara da relacao entre personagens.
-            - Em falas militares, use tom objetivo e terminologia consistente: unidade, esquadrao, frota, comandante, tenente, capitão/capitao apenas quando o original indicar rank equivalente.
+            Prioridades de tradução:
+            - Preserve sentido, subtexto, intenção emocional e continuidade da cena.
+            - Use português brasileiro natural, fluido e adequado à legenda, sem ficar literal quando isso soar estranho.
+            - Mantenha nomes próprios, nomes de mecha, naves, facções, cidades, organizações, patentes e codinomes conforme a lore abaixo.
+            - Não invente explicações, notas, parênteses editoriais ou glossários na resposta.
+            - Preserve honoríficos japoneses somente quando vierem no texto original ou forem parte clara da relação entre personagens.
+            - Em falas militares, use tom objetivo e terminologia consistente: unidade, esquadrão, frota, comandante, tenente, capitão/capitão apenas quando o original indicar rank equivalente.
 
-            Lore e terminologia obrigatoria:
+            Lore e terminologia obrigatória:
             %s
 
             %s
 
-            Regras obrigatorias de saida:
-            1. Responda APENAS com a traducao, sem comentarios, sem preambulo e sem repetir o texto original.
-            2. Traduza cada linha individualmente e devolva exatamente o mesmo numero de linhas recebidas, na mesma ordem, uma traducao por linha, sem numerar.
-            3. Marcadores no formato [[TAG0]], [[TAG1]] etc. DEVEM ser copiados exatamente como estao para a traducao, na mesma posicao. NAO remova e nao traduza esses marcadores.
-            4. Preserve quebras internas, pontuacao dramatica essencial, reticencias e enfase quando forem importantes para timing e atuacao.
-            5. Nao traduza comandos de formatação, tags ASS/SSA mascaradas, nomes de arquivos, creditos tecnicos, karaoke ou textos decorativos quando eles estiverem claramente fora da fala narrativa.
-            6. Traduza palavroes, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NAO use marcacao markdown (*, **, _, __) em nenhuma parte da resposta.
+            Regras obrigatórias de saída:
+            1. Responda APENAS com a tradução, sem comentários, sem preâmbulo e sem repetir o texto original.
+            2. Traduza cada linha individualmente e devolva exatamente o mesmo número de linhas recebidas, na mesma ordem, uma tradução por linha, sem numerar.
+            3. Marcadores no formato [[TAG0]], [[TAG1]] etc. DEVEM ser copiados exatamente como estão para a tradução, na mesma posição. NÃO remova e não traduza esses marcadores.
+            4. Preserve quebras internas, pontuação dramática essencial, reticências e ênfase quando forem importantes para timing e atuação.
+            5. Não traduza comandos de formatação, tags ASS/SSA mascaradas, nomes de arquivos, créditos técnicos, karaoke ou textos decorativos quando eles estiverem claramente fora da fala narrativa.
+            6. Traduza palavrões, xingamentos e linguagem chula fielmente e por extenso, mantendo o peso do original. NUNCA censure com asteriscos (ex.: "p***", "*****") e NÃO use marcação markdown (*, **, _, __) em nenhuma parte da resposta.
             """.formatted(obra, loreLimpa, RegrasConcordanciaPtBr.BLOCO_TRADUCAO.strip());
         LORE_POR_PROMPT.put(prompt, loreLimpa);
         return prompt;
