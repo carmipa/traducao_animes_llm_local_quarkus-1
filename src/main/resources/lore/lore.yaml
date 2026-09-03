@@ -2542,7 +2542,9 @@ obras:
     - Apocalypse
     - Apocalypse Virus
     - Argo Tsukishima
+    - Arisa   # [03/09] usado na legenda, ausente da lore
     - Arisa Kuhouin
+    - Ayase   # [03/09] usado na legenda, ausente da lore
     - Ayase Shinomiya
     - Crow
     - Crystallization
@@ -2553,34 +2555,46 @@ obras:
     - Endlaves
     - Eve
     - Funeral Parlor
+    - Gai   # [03/09] usado na legenda, ausente da lore
+    - Genomic   # [03/09] usado na legenda, ausente da lore
     - GHQ
     - Gai Tsutsugami
     - Genomic Resonance
     - Guilty Crown
     - Hare Menjou
+    - Haruka   # [03/09] usado na legenda, ausente da lore
     - Haruka Ouma
+    - Inori   # [03/09] usado na legenda, ausente da lore
     - Inori Yuzuriha
     - Jun Samukawa
     - Keido
+    - Kenji   # [03/09] usado na legenda, ausente da lore
     - Kenji Kido
     - King's Power
+    - Kuhouin   # [03/09] usado na legenda, ausente da lore
     - Kuhouin Group
+    - Kurosu   # [03/09] usado na legenda, ausente da lore
     - Kurosu Ouma
     - Leukocyte
     - Loop 7
     - Lost Christmas
     - Major General Yan
+    - Makoto   # [03/09] usado na legenda, ausente da lore
     - Makoto Waltz Segai
     - Mana Ouma
     - Norma Gene
     - Okina Kuhouin
     - Oogumo
     - Power of the King
+    - Roppongi   # [03/09] usado na legenda, ausente da lore
     - Roppongi Fort
     - Second Hand
+    - Sephirah   # [03/09] usado na legenda, ausente da lore
     - Sephirah Genomics
     - Shibungi
+    - Shu   # [03/09] usado na legenda, ausente da lore
     - Shu Ouma
+    - Shuichiro   # [03/09] usado na legenda, ausente da lore
     - Shuichiro Keido
     - Souta Tamadate
     - Tennouzu
@@ -2590,6 +2604,7 @@ obras:
     - Void
     - Void Genome
     - Voids
+    - Yahiro   # [03/09] usado na legenda, ausente da lore
     - Yahiro Samukawa
    paresInconfundiveis:
     -  - Crow
@@ -2930,6 +2945,7 @@ obras:
     - GM Cold Districts Type
     - GM Sniper II
     - Gabriel Ramirez Garcia
+    - Gundam   # [03/09] usado na legenda, ausente da lore
     - Gundam Alex
     - Hardy Steiner
     - Hygogg
@@ -2943,6 +2959,7 @@ obras:
     - Mobile Armor
     - Mobile Suit
     - Newtype
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
     - Oldtype
     - One Year War
     - Principality of Zeon
@@ -2954,9 +2971,11 @@ obras:
     - Telcott
     - War in the Pocket
     - Z'Gok-E
+    - Zaku   # [03/09] usado na legenda, ausente da lore
     - Zaku II Kai
     - Zeon
     - Zeon Special Forces
+    - Zeons   # [03/09] usado na legenda, ausente da lore
    traducoesObrigatorias:
      Universal Century: Século Universal
    correcoesTerminologia:
@@ -3110,6 +3129,12 @@ obras:
     - Gundam 0083
     - Stardust Memory
    termosProtegidos:
+    - Aiguille   # [03/09] usado na legenda, ausente da lore
+    - Anavel   # [03/09] usado na legenda, ausente da lore
+    - Delaz   # [03/09] usado na legenda, ausente da lore
+    - Gelgoog   # [03/09] usado na legenda, ausente da lore
+    - Gundams   # [03/09] usado na legenda, ausente da lore
+    - Jamitov   # [03/09] usado na legenda, ausente da lore
     - Kelley
     - Adelheid Bernard
     - Aiguille Delaz
@@ -3146,6 +3171,7 @@ obras:
     - Jamitov Hymem
     - John Kowen
     - Kelley Layzner
+    - Kou   # [03/09] usado na legenda, ausente da lore
     - Kou Uraki
     - La Vie en Rose
     - Mega Particle Cannon
@@ -3154,6 +3180,7 @@ obras:
     - Mobile Suit
     - Mora Bascht
     - Naval Review
+    - Neue   # [03/09] usado na legenda, ausente da lore
     - Neue Ziel
     - Newtype
     - Nightmare of Solomon
@@ -3163,6 +3190,7 @@ obras:
     - Operation Stardust
     - Physalis
     - Principality of Zeon
+    - Sieg   # [03/09] usado na legenda, ausente da lore
     - Sieg Zeon
     - Solar System II
     - South Burning
@@ -3170,6 +3198,7 @@ obras:
     - Titans
     - Val-Walo
     - Zeon
+    - Zeons   # [03/09] usado na legenda, ausente da lore
     - Zephyranthes
    traducoesObrigatorias:
      Universal Century: Século Universal
@@ -3368,12 +3397,14 @@ obras:
     - Earth Federation
     - Earth Federation Forces
     - Earthnoid
+    - Eledore   # [03/09] usado na legenda, ausente da lore
     - Eledore Massis
     - Eledore Mathis
     - Ez-8
     - Ez8
     - Far East Division
     - Flanagan
+    - Ginias   # [03/09] usado na legenda, ausente da lore
     - GM Ground Type
     - Gaw
     - General Revil
@@ -3381,9 +3412,11 @@ obras:
     - Gihren Zabi
     - Ginias Sahalin
     - Ginius
+    - Gouf   # [03/09] usado na legenda, ausente da lore
     - Gouf Custom
     - Gouf Flight Type
     - Ground Gundam
+    - Gundam   # [03/09] usado na legenda, ausente da lore
     - Gundam Ez8
     - Gundam Ground Type
     - Guntank
@@ -3396,6 +3429,7 @@ obras:
     - Kellerne
     - Kergeren
     - Kergerenko
+    - Kiki   # [03/09] usado na legenda, ausente da lore
     - Kiki Logita
     - Kiki Rosita
     - Kojima
@@ -3403,6 +3437,7 @@ obras:
     - Komusai
     - Lieutenant Nickerd
     - Lunen
+    - Magella   # [03/09] usado na legenda, ausente da lore
     - Magella Attack
     - Maria
     - Masado
@@ -3436,7 +3471,9 @@ obras:
     - Sakhalin
     - Sally
     - Sanders
+    - Shiro   # [03/09] usado na legenda, ausente da lore
     - Shiro Amada
+    - Sieg   # [03/09] usado na legenda, ausente da lore
     - Sieg Zeon
     - Southeast Asia
     - Spacenoid
@@ -3446,10 +3483,12 @@ obras:
     - Walter Janowitz
     - Yuri Kellarny
     - Yuri Kellerne
+    - Zaku   # [03/09] usado na legenda, ausente da lore
     - Zaku II Ground Type
     - Zaku Tank
     - Zanzibar
     - Zeon
+    - Zeons   # [03/09] usado na legenda, ausente da lore
     - Zhukov
    paresInconfundiveis:
     -  - Ceifador
@@ -3730,6 +3769,7 @@ obras:
     - Beltorchika Irma
     - Bright Noa
     - Cameron Bloom
+    - Casval   # [03/09] usado na legenda, ausente da lore
     - Casval Deikun
     - Chan Agi
     - Char Aznable
@@ -3742,15 +3782,18 @@ obras:
     - Earthsphere
     - Fifth Luna
     - Geara Doga
+    - Gyunei   # [03/09] usado na legenda, ausente da lore
     - Gyunei Guss
     - Haman
     - Haro
     - Hathaway Noa
     - Hong Kong
     - Human Purification Theory
+    - Jagd   # [03/09] usado na legenda, ausente da lore
     - Jagd Doga
     - Jegan
     - John Bauer
+    - Lalah   # [03/09] usado na legenda, ausente da lore
     - Lalah Sune
     - Lhasa
     - Londenion
@@ -3765,9 +3808,11 @@ obras:
     - Nanai Miguel
     - Neo Zeon
     - Newtype
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
     - Nu Gundam
     - Oldtype
     - Psyco-frame
+    - Quess   # [03/09] usado na legenda, ausente da lore
     - Quess Paraya
     - Ra Cailum
     - Ra-Cailum
@@ -3786,6 +3831,7 @@ obras:
     - Sweetwater
     - Titans
     - Zabi
+    - Zeon   # [03/09] usado na legenda, ausente da lore
     - Zeon Deikun
     - funnel
     - psycho-frame
@@ -3966,21 +4012,27 @@ obras:
     - Gundam F91
    apareceNaLista: true
    termosProtegidos:
+    - Annamarie   # [03/09] usado na legenda, ausente da lore
     - Annamarie Bourget
     - Arthur
     - Azuma
+    - Berah   # [03/09] usado na legenda, ausente da lore
     - Berah Ronah
     - Berga-Giros
     - Bio-Computer
     - Birgit
     - Bugs
+    - Carozzo   # [03/09] usado na legenda, ausente da lore
     - Carozzo Ronah
     - Cecily Fairchild
     - Cosmo Aristocracy
     - Cosmo Babylonia
+    - Crossbone   # [03/09] usado na legenda, ausente da lore
     - Crossbone Vanguard
+    - Denan   # [03/09] usado na legenda, ausente da lore
     - Denan Gei
     - Denan Zon
+    - Dorel   # [03/09] usado na legenda, ausente da lore
     - Dorel Ronah
     - Earth Federation
     - F91
@@ -3990,6 +4042,7 @@ obras:
     - Frontier IV
     - Frontier Side
     - Gillet
+    - Gundam   # [03/09] usado na legenda, ausente da lore
     - Gundam F91
     - Iron Mask
     - Leahlee
@@ -3998,15 +4051,20 @@ obras:
     - Monica Arno
     - Nadia Ronah
     - Newtype
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
     - Rafflesia
     - Reese
     - Richmond
+    - Seabook   # [03/09] usado na legenda, ausente da lore
     - Seabook Arno
     - Space Ark
+    - Theo   # [03/09] usado na legenda, ausente da lore
     - Theo Fairchild
     - VSBR
     - Vigna-Ghina
+    - Zabine   # [03/09] usado na legenda, ausente da lore
     - Zabine Chareux
+    - Zamouth   # [03/09] usado na legenda, ausente da lore
     - Zamouth Garr
    # ===== CICATRIZ MIGRADA de ContextoGundamF91.java (2026-08-15) =====
    # Medidos na legenda do filme (2.171 falas) em 2026-07-30: 84 de 109 nomes
@@ -6463,6 +6521,7 @@ obras:
     - Anksha
     - Audrey Burne
     - Axis
+    - Banagher   # [03/09] usado na legenda, ausente da lore
     - Banagher Links
     - Banshee
     - Banshee Norn
@@ -6471,19 +6530,24 @@ obras:
     - Cardeas
     - Cardeas Vist
     - Co-Prosperity Sphere
+    - Conroy   # [03/09] usado na legenda, ausente da lore
     - Conroy Haagensen
     - Cyber-Newtype
+    - Daguza   # [03/09] usado na legenda, ausente da lore
     - Daguza Mackle
     - Dakar
     - Delta Plus
     - Destroy Mode
+    - Earthnoids   # [03/09] usado na legenda, ausente da lore
     - ECOAS
     - Earth Federation
     - Earthnoid
+    - Flaste   # [03/09] usado na legenda, ausente da lore
     - Flaste Schole
     - Full Frontal
     - Garencieres
     - Geara Zulu
+    - Gilboa   # [03/09] usado na legenda, ausente da lore
     - Gilboa Sant
     - Hill Dawson
     - Industrial 7
@@ -6492,17 +6556,23 @@ obras:
     - La+
     - Liam Borrinea
     - Londo Bell
+    - Loni   # [03/09] usado na legenda, ausente da lore
     - Loni Garvey
     - Magallanica
     - Marida Cruz
     - Martha Vist Carbine
+    - Micott   # [03/09] usado na legenda, ausente da lore
     - Micott Bartsch
+    - Mihiro   # [03/09] usado na legenda, ausente da lore
     - Mihiro Oiwakken
+    - Mineva   # [03/09] usado na legenda, ausente da lore
     - Mineva Lao Zabi
     - Minovsky
     - Mobile Armor
     - Mobile Suit
     - Musaka
+    - Nahel   # [03/09] usado na legenda, ausente da lore
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
     - NT-D
     - Nahel Argama
     - Neo Zeon
@@ -6511,12 +6581,14 @@ obras:
     - Oldtype
     - Otto Midas
     - Palau
+    - Ple   # [03/09] usado na legenda, ausente da lore
     - Ple Twelve
     - Psycho-Frame
     - Ra Cailum
     - ReZEL
     - Red Comet
     - Rewloola
+    - Riddhe   # [03/09] usado na legenda, ausente da lore
     - Riddhe Marcenas
     - Rozen Zulu
     - Shamblo
@@ -6524,13 +6596,20 @@ obras:
     - Sinanju
     - Sleeves
     - Spacenoid
+    - Spacenoids   # [03/09] usado na legenda, ausente da lore
     - Stark Jegan
+    - Suberoa   # [03/09] usado na legenda, ausente da lore
     - Suberoa Zinnerman
+    - Syam   # [03/09] usado na legenda, ausente da lore
     - Syam Vist
+    - Takuya   # [03/09] usado na legenda, ausente da lore
     - Takuya Irei
+    - Tikva   # [03/09] usado na legenda, ausente da lore
     - Tikva Sant
+    - Torrington   # [03/09] usado na legenda, ausente da lore
     - Torrington Base
     - Unicorn Gundam
+    - Vist   # [03/09] usado na legenda, ausente da lore
     - Vist Foundation
     - funnel
     - psycommu
@@ -6919,8 +6998,26 @@ obras:
     - Z Gundam
     - Zeta Gundam
    termosProtegidos:
+    - Asshimars   # [03/09] usado na legenda, ausente da lore
+    - Barzams   # [03/09] usado na legenda, ausente da lore
+    - Baund   # [03/09] usado na legenda, ausente da lore
+    - Dogosse   # [03/09] usado na legenda, ausente da lore
+    - Fraw   # [03/09] usado na legenda, ausente da lore
+    - Gabthleys   # [03/09] usado na legenda, ausente da lore
+    - Galbaldy   # [03/09] usado na legenda, ausente da lore
+    - Gundam   # [03/09] usado na legenda, ausente da lore
+    - Hambrabis   # [03/09] usado na legenda, ausente da lore
+    - Hizacks   # [03/09] usado na legenda, ausente da lore
+    - Hyaku   # [03/09] usado na legenda, ausente da lore
+    - Kai   # [03/09] usado na legenda, ausente da lore
     - Kamille
     - Kamille Bidan
+    - Luio   # [03/09] usado na legenda, ausente da lore
+    - Marasais   # [03/09] usado na legenda, ausente da lore
+    - Namicar   # [03/09] usado na legenda, ausente da lore
+    - Nemos   # [03/09] usado na legenda, ausente da lore
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
+    - Oldtypes   # [03/09] usado na legenda, ausente da lore
     - Quattro
     - Quattro Bajeena
     - Reccoa
@@ -6933,6 +7030,7 @@ obras:
     - Rosamia
     - Paptimus
     - Paptimus Scirocco
+    - Spacenoids   # [03/09] usado na legenda, ausente da lore
     - Yazan
     - Jamitov
     - A.E.U.G.
@@ -7421,12 +7519,15 @@ obras:
     - AEUG
     - Anaheim Electronics
     - Argama
+    - Astonaige   # [03/09] usado na legenda, ausente da lore
     - Astonaige Medoz
     - August Guidan
     - Axis
     - Bawoo
+    - Bawoos   # [03/09] usado na legenda, ausente da lore
     - Beam Rifle
     - Beam Saber
+    - Beecha   # [03/09] usado na legenda, ausente da lore
     - Beecha Oleg
     - Blue Corps
     - Bright Noa
@@ -7438,8 +7539,12 @@ obras:
     - Dublin
     - Earth Federation
     - Earthnoid
+    - Earthnoids   # [03/09] usado na legenda, ausente da lore
+    - Elle   # [03/09] usado na legenda, ausente da lore
     - Elle Vianno
+    - Elpeo   # [03/09] usado na legenda, ausente da lore
     - Elpeo Ple
+    - Emary   # [03/09] usado na legenda, ausente da lore
     - Emary Ounce
     - Endra
     - Fa Yuiry
@@ -7447,32 +7552,45 @@ obras:
     - Ga-Zowmn
     - Gaza-C
     - Geymalk
+    - Glemy   # [03/09] usado na legenda, ausente da lore
     - Glemy Faction
     - Glemy Toto
     - Gottn
     - Gottn Goh
+    - Gundam   # [03/09] usado na legenda, ausente da lore
     - Gundam Mk-II
     - Haman Karn
+    - Hamma   # [03/09] usado na legenda, ausente da lore
     - Hamma Hamma
+    - Hyaku   # [03/09] usado na legenda, ausente da lore
     - Hyaku Shiki
+    - Iino   # [03/09] usado na legenda, ausente da lore
     - Iino Abbav
+    - Illia   # [03/09] usado na legenda, ausente da lore
     - Illia Pazom
+    - Judau   # [03/09] usado na legenda, ausente da lore
     - Judau Ashta
+    - Kamille   # [03/09] usado na legenda, ausente da lore
     - Kamille Bidan
     - Karaba
     - Lady Haman
+    - Leina   # [03/09] usado na legenda, ausente da lore
     - Leina Ashta
+    - Mashymre   # [03/09] usado na legenda, ausente da lore
     - Mashymre Cello
     - Mega Particle Cannon
+    - Mineva   # [03/09] usado na legenda, ausente da lore
     - Mineva Lao Zabi
     - Minovsky
     - Mobile Armor
     - Mobile Suit
     - Mondo Agake
     - Moon Moon
+    - Nahel   # [03/09] usado na legenda, ausente da lore
     - Nahel Argama
     - Neo Zeon
     - Newtype
+    - Newtypes   # [03/09] usado na legenda, ausente da lore
     - Normal Suit
     - Oldtype
     - Ple
@@ -7487,16 +7605,21 @@ obras:
     - Queen Mansa
     - Quin Mantha
     - R-Jarja
+    - Rakan   # [03/09] usado na legenda, ausente da lore
     - Rakan Dahkaran
     - Roux Louka
     - Sadalahn
     - Shangri-La
+    - Sieg   # [03/09] usado na legenda, ausente da lore
     - Sieg Zeon
     - Spacenoid
+    - Spacenoids   # [03/09] usado na legenda, ausente da lore
     - Tigerbaum
     - Titans
     - Torres
     - Wong Lee
+    - Zaku   # [03/09] usado na legenda, ausente da lore
+    - ZZ   # [03/09] usado na legenda, ausente da lore
     - ZZ Gundam
     - Zaku III
     - Zeta Gundam
@@ -7692,6 +7815,7 @@ obras:
     - Fold
     - GERWALK
     - Gigamesh
+    - Hibiki   # [03/09] usado na legenda, ausente da lore
     - Hibiki Kanzaki
     - Ingues
     - Ishtar
@@ -7700,15 +7824,19 @@ obras:
     - Macross
     - Macross Cannon
     - Marduk
+    - Marduks   # [03/09] usado na legenda, ausente da lore
     - Mash Broodwell
     - Metal Siren
+    - Minmay   # [03/09] usado na legenda, ausente da lore
     - Minmay Attack
+    - Nexx   # [03/09] usado na legenda, ausente da lore
     - Nexx Gilbert
     - Overtechnology
     - Protoculture
     - Reaction Weaponry
     - SDF-1
     - Saori
+    - Silvie   # [03/09] usado na legenda, ausente da lore
     - Silvie Gena
     - Song Energy
     - Space War I
