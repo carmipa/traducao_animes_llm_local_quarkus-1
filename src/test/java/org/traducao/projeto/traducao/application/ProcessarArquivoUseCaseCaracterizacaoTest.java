@@ -354,7 +354,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 new ProtecaoCamadasMusicaisService(detectorKaraoke));
         AvaliadorTraducaoCache avaliadorCache =
             new AvaliadorTraducaoCache(mascarador, detectorIdentica, validador,
-                new VerificadorIdentificadorNumerico(),
+                new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()),
                 new RemovedorItalico(),
                 new RestauradorFalaIdenticaSemItalico(mascarador, detectorIdentica,
                     new DescarteItalicoUltimoRecurso(), LoreAtivaFake.vazia()));
@@ -371,7 +371,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         RecuperarPendenciaFallbackService recuperarPendenciaGoogle =
             new RecuperarPendenciaFallbackService(
                 new FallbackOnlineProperties(fallbackOnlineAtivo), fallbackPort, loreAtivaAdapter,
-                new VerificadorIdentificadorNumerico());
+                new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()));
 
         GuardaContextoObraTraducao guardaContextoObra = new GuardaContextoObraTraducao(
             gerenciador, new ValidadorCompatibilidadeObraContexto(), resolvedorCache, uiLogger);

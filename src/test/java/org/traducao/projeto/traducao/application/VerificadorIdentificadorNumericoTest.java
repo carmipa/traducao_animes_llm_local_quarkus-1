@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: trava a invariância numérica (Bug 3) — o valor de um identificador da
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("Bug 3: invariância de identificador numérico entre original e tradução")
 class VerificadorIdentificadorNumericoTest {
 
-    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico();
+    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia());
 
     @Test
     @DisplayName("caso real: 04th Team publicado como Equipe 08 é reprovado")

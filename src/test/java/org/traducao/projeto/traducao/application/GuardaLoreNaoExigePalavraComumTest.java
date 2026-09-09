@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: a guarda de lore do fallback decompõe termos compostos em tokens e exige
@@ -63,7 +64,7 @@ class GuardaLoreNaoExigePalavraComumTest {
             @Override public String obterLoreAtiva() { return ""; }
         };
         return new RecuperarPendenciaFallbackService(
-            new FallbackOnlineProperties(true), porta, lore, new VerificadorIdentificadorNumerico());
+            new FallbackOnlineProperties(true), porta, lore, new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()));
     }
 
     private static FallbackTraducaoMaquinaPort porta(Function<String, ResultadoFallback> f) {

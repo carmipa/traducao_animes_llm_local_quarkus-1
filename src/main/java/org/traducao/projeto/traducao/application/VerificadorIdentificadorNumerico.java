@@ -48,6 +48,32 @@ import java.util.regex.Pattern;
 @Component
 public class VerificadorIdentificadorNumerico {
 
+    private final org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort loreAtiva;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recebe a terminologia da obra ativa para distinguir um ORDINAL, que o
+     * português legitimamente reescreve, de um NOME que apenas parece ordinal.
+     *
+     * <h2>Por que a lore precisava chegar até aqui</h2>
+     * A auditoria de 2026-09-09 mostrou {@code "04th Team!"} traduzido como {@code "Equipe 4!"} e
+     * reprovado, o que devolve a fala inteira ao inglês na legenda. Mas a decisão anterior do
+     * projeto, fixada em teste, é que perder o zero de {@code 08th} muda o NOME da unidade — e a
+     * lore confirma, mapeando {@code "8º Time MS"} de volta para {@code "08th MS Team"}. As duas
+     * coisas são verdade ao mesmo tempo, e só a lore desempata: {@code 08th MS Team} é termo
+     * protegido, {@code 04th Team} não é.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem lore ativa a regra FALHA FECHADA e mantém o comportamento
+     * histórico de reprovar — "não sei se é nome" nunca vira "pode trocar". A porta é obrigatória
+     * pelo mesmo motivo que em {@code ValidadorTraducaoService}: proteção opcional depende de o
+     * chamador lembrar, e o defeito nasce justamente de quem não passa o que tem em mãos.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a porta nunca lança e degrada para conjunto vazio.
+     */
+    public VerificadorIdentificadorNumerico(
+            org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort loreAtiva) {
+        this.loreAtiva = loreAtiva;
+    }
+
     private static final Pattern PADRAO_TAG = Pattern.compile("\\{[^{}]*}");
     /** Ordinal inglês colado ao número: {@code 12th}, {@code 1st}, {@code 04th}. */
     private static final Pattern ORDINAL_INGLES = Pattern.compile("(?i)(\\d)(st|nd|rd|th)");
@@ -272,12 +298,65 @@ public class VerificadorIdentificadorNumerico {
      * {@code "Equipe 4!"} era reprovado, e a reprovação devolve a fala inteira ao inglês na
      * legenda. São 27 falas do acervo expostas a isto, todas do 08th MS Team.
      */
-    private static boolean explicadoPorZeroDeOrdinal(String perdido, String original, String traduzido) {
+    private boolean explicadoPorZeroDeOrdinal(String perdido, String original, String traduzido) {
         if (perdido.isEmpty() || !perdido.chars().allMatch(Character::isDigit)) {
             return false;
         }
         String valor = semZerosAEsquerda(perdido);
-        return ordinaisDe(original).contains(valor) && ordinaisDe(traduzido).contains(valor);
+
+        // CAMINHO 1, sem depender da lore: a forma ORDINAL sobreviveu nos dois lados.
+        // "04th Team" -> "4ª Equipe". Vale sempre, porque re-grafar ordinal como ordinal nao
+        // pode mudar o sentido de nada.
+        if (ordinaisDe(original).contains(valor) && ordinaisDe(traduzido).contains(valor)) {
+            return true;
+        }
+
+        // CAMINHO 2, que EXIGE a lore: o ordinal virou algarismo solto ("04th Team" -> "Equipe 4").
+        // Aqui o zero pode ser parte de um NOME, e so a terminologia da obra sabe dizer. Falha
+        // fechada: sem lore ativa, nao absolve -- foi assim que "08th Mobile Suit Team" continuou
+        // protegido antes desta regra existir, e continua depois.
+        if (!ordinaisDe(original).contains(valor) || !naTraducaoComOuSemZero(traduzido, valor)) {
+            return false;
+        }
+        Set<String> protegidos = loreAtiva.termosProtegidosAtivos();
+        if (protegidos == null || protegidos.isEmpty()) {
+            return false;
+        }
+        // O ordinal aparece dentro de algum termo canonico da obra? Entao ele e NOME, e trocar a
+        // grafia muda a designacao. "08th MS Team" esta protegido; "04th Team" nao esta.
+        String comoNoOriginal = grafiaDoOrdinalNoTexto(original, valor);
+        for (String termo : protegidos) {
+            if (termo == null || termo.isBlank()) {
+                continue;
+            }
+            if (comoNoOriginal != null && termo.toLowerCase(java.util.Locale.ROOT)
+                    .contains(comoNoOriginal.toLowerCase(java.util.Locale.ROOT))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** A tradução traz o valor em algarismos, com ou sem zero à esquerda? */
+    private boolean naTraducaoComOuSemZero(String traduzido, String valor) {
+        for (String daTraducao : valores(traduzido)) {
+            if (daTraducao.chars().allMatch(Character::isDigit)
+                && semZerosAEsquerda(daTraducao).equals(valor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Como o ordinal está escrito no texto, com sufixo: {@code 08th}, {@code 4ª}. */
+    private static String grafiaDoOrdinalNoTexto(String texto, String valorSemZeros) {
+        var achado = MARCA_DE_ORDINAL.matcher(texto);
+        while (achado.find()) {
+            if (semZerosAEsquerda(achado.group(1)).equals(valorSemZeros)) {
+                return achado.group();
+            }
+        }
+        return null;
     }
 
     /**

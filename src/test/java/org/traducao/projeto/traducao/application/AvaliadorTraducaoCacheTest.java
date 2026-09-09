@@ -40,7 +40,7 @@ class AvaliadorTraducaoCacheTest {
         new MascaradorTags(),
         new DetectorTraducaoIdenticaService(new LoreVazia()),
         new ValidadorTraducaoService(LoreAtivaFake.vazia()),
-        new VerificadorIdentificadorNumerico(),
+        new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()),
                 new RemovedorItalico(),
         new RestauradorFalaIdenticaSemItalico(new MascaradorTags(),
             new DetectorTraducaoIdenticaService(new LoreVazia()),

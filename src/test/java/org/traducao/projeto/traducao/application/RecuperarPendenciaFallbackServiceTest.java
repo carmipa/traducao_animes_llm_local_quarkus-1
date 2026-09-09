@@ -16,6 +16,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: fixa o contrato do {@link RecuperarPendenciaFallbackService} — opt-in,
@@ -54,7 +55,7 @@ class RecuperarPendenciaFallbackServiceTest {
             }
         };
         return new RecuperarPendenciaFallbackService(new FallbackOnlineProperties(ativo), porta, lore,
-            new VerificadorIdentificadorNumerico());
+            new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()));
     }
 
     private static LinkedHashSet<String> conjunto(String... itens) {
