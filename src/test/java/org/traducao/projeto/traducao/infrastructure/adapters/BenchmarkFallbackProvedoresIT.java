@@ -146,7 +146,7 @@ class BenchmarkFallbackProvedoresIT {
         // Guarda de produção, sem lore ativa: mede o piso (só siglas/identificadores obrigam).
         RecuperarPendenciaFallbackService servico = new RecuperarPendenciaFallbackService(
             new FallbackOnlineProperties(true), portaFixa(aprovadasPelaPorta, porta.provedor()), loreVazia(),
-            new org.traducao.projeto.traducao.application.VerificadorIdentificadorNumerico());
+            new org.traducao.projeto.traducao.application.VerificadorIdentificadorNumerico(org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake.vazia()));
         Set<String> aprovadasGuarda = servico.recuperar(new LinkedHashSet<>(aprovadasPelaPorta.keySet()))
             .recuperadas().keySet();
         int passouGuarda = aprovadasGuarda.size();

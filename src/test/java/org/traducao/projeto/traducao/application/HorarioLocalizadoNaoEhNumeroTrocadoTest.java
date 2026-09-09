@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: garante que localizar um horário não seja confundido com trocar um
@@ -38,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @DisplayName("horário localizado não é número trocado")
 class HorarioLocalizadoNaoEhNumeroTrocadoTest {
 
-    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico();
+    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia());
 
     @Test
     @DisplayName("CASO DOENTE: os horários militares reais de 21/08 passam a ser aceitos")

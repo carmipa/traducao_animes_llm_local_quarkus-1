@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import org.traducao.projeto.qualidadeTraducao.application.LoreAtivaFake;
 
 /**
  * PROPÓSITO DE NEGÓCIO: prova as duas correções que a auditoria de 2026-09-09 pediu no
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @DisplayName("Verificador numérico: zero de ordinal e decimal")
 class ZeroDeOrdinalEDecimalTest {
 
-    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico();
+    private final VerificadorIdentificadorNumerico verificador = new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia());
 
     @ParameterizedTest(name = "[{index}] {0} -> {1}")
     @CsvSource(delimiter = '|', value = {
@@ -71,6 +72,44 @@ class ZeroDeOrdinalEDecimalTest {
     void trocaDeOrdinalContinuaReprovando(String original, String traduzido) {
         assertNotNull(verificador.divergencia(original, traduzido),
             "defeito passou ileso: " + original + " -> " + traduzido);
+    }
+
+
+    /**
+     * A LORE E O QUE DESEMPATA, e este e o teste que prova a diferenca.
+     *
+     * <p>As duas verdades que colidiam: a auditoria de 09/09 mostrou {@code "04th Team!"} ->
+     * {@code "Equipe 4!"} reprovado, e reprovar devolve a fala inteira ao INGLES na legenda; e a
+     * decisao anterior do projeto diz que perder o zero de {@code 08th} muda o NOME da unidade.
+     * Nenhuma das duas esta errada. O que faltava era a terminologia da obra chegar ate aqui.
+     *
+     * <p>Com {@code "08th MS Team"} declarado como termo protegido, a mesma regra da dois
+     * resultados OPOSTOS, e e isso que se quer.
+     */
+    @Test
+    @DisplayName("COM a lore: 04th vira Equipe 4, e 08th MS Team continua intocavel")
+    void aLoreDesempataOrdinalDeNome() {
+        var comLore = new VerificadorIdentificadorNumerico(LoreAtivaFake.com("08th MS Team"));
+
+        assertNull(comLore.divergencia("04th Team!", "Equipe 4!"),
+            "04th Team nao esta na lore: o algarismo solto e re-grafia legitima de ordinal");
+
+        assertNotNull(comLore.divergencia(
+                "Combined Battalion. 08th Mobile Suit Team.",
+                "Batalhao Combinado. 8 Time de Mobile Suit."),
+            "08th MS Team esta na lore: o zero e parte do NOME e nao se perde");
+    }
+
+    /**
+     * CASO-CONTROLE da anterior: SEM lore ativa a regra FALHA FECHADA. "Nao sei se e nome" nunca
+     * pode virar "pode trocar" -- e o que garante que a decisao anterior sobrevive em toda
+     * execucao que rode sem obra selecionada.
+     */
+    @Test
+    @DisplayName("SEM lore: falha fechada, o algarismo solto continua reprovando")
+    void semLoreFalhaFechada() {
+        assertNotNull(verificador.divergencia("04th Team!", "Equipe 4!"),
+            "sem lore a guarda nao tem como saber se o ordinal e nome, e reprovar e o lado seguro");
     }
 
     @Test
