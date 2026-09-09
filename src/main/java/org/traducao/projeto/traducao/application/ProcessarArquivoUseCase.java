@@ -945,6 +945,12 @@ public class ProcessarArquivoUseCase {
         } else {
             escritor.escrever(arquivoSaida, documentoFinal);
         }
+        // A6 DO ADITIVO: a aprovação tem de alcançar a ÚLTIMA transformação, e a última aqui é a
+        // gravação. Tudo o que este método valida acontece ANTES da terminologia, da normalização
+        // de aspas, do carimbo de cabeçalho e da serialização — e a auditoria de 09/09 apontou
+        // exatamente isso: "os ensaios não comprovaram o fluxo completo até a gravação do .ass".
+        conferirArquivoGravado(arquivoSaida, ehSrt, entradasCache);
+
         // Substituição atômica da geração: só AQUI o cache ativo deixa de ser o anterior.
         // preservarAnterior fica falso quando a retradução já copiou esta mesma geração no
         // início — do contrário o mesmo arquivo iria duas vezes para backups/traducao-cache.
@@ -1006,6 +1012,99 @@ public class ProcessarArquivoUseCase {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: relê a legenda que acabou de ser GRAVADA e confere que o que está no
+     * disco é o que a validação aprovou. É a única verificação deste fluxo que acontece depois de
+     * TODAS as transformações — terminologia, normalização de aspas, carimbo de cabeçalho e
+     * serialização.
+     *
+     * <h2>Por que existe (A6 do aditivo, 2026-09-09)</h2>
+     * Aprovação intermediária não se transfere para um resultado modificado depois dela. Este
+     * método validava a tradução numa etapa e continuava alterando o texto por centenas de linhas
+     * antes de escrever — e a auditoria de terceiro nomeou o buraco com todas as letras: os ensaios
+     * "não comprovaram o fluxo completo até a gravação do {@code .ass}". A tabela da A6 é explícita:
+     * <b>"o arquivo correto foi produzido" exige arquivo GRAVADO E RELIDO</b>, não o retorno de uma
+     * função.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Compara o que está no arquivo com o que foi gravado no cache para o MESMO índice. Se
+     *       divergirem, alguma etapa depois da validação mexeu no texto sem passar por portão.</li>
+     *   <li>Roda o MESMO portão canônico ({@code motivoFalhaFinal}) sobre o texto do disco. Fala
+     *       que passou antes e reprova agora é regressão que o próprio pipeline introduziu.</li>
+     *   <li><b>Não apaga e não reescreve nada.</b> A8: suspeita não autoriza alteração automática,
+     *       e o arquivo já está publicado — desfazer aqui seria destruir a única saída existente.
+     *       A ação é DENUNCIAR: log de aviso por fala e uma linha no console do operador.</li>
+     *   <li>Falha ao reler é {@code NÃO VERIFICADO} declarado, nunca silêncio: "não consegui
+     *       conferir" e "conferi e está certo" não podem produzir a mesma saída (regra 12).</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Não lança e não interrompe: a legenda já está em disco e derrubar o job aqui não a desfaz.
+     * Divergência vira aviso no log e linha no console; exceção ao reler vira "não verificado".
+     *
+     * @param arquivoSaida   o arquivo que acabou de ser escrito
+     * @param ehSrt          qual leitor usar
+     * @param entradasCache  o que a validação aprovou, por índice de evento
+     */
+    // COSTURA DE TESTE, e nao acidente de visibilidade: o pacote consegue chamar esta
+    // conferencia com um arquivo montado a mao e um cache montado a mao, que e o unico jeito
+    // de VER a A6 acusando divergencia sem depender de um escritor defeituoso de verdade.
+    void conferirArquivoGravado(Path arquivoSaida, boolean ehSrt, List<EntradaCache> entradasCache) {
+        if (entradasCache.isEmpty()) {
+            uiLogger.log("   [ A6 ] nada a conferir no arquivo gravado: nenhuma fala traduzida nesta execucao");
+            return;
+        }
+        DocumentoLegenda relido;
+        try {
+            relido = ehSrt ? leitorSrt.ler(arquivoSaida) : leitor.ler(arquivoSaida);
+        } catch (RuntimeException naoDeu) {
+            uiLogger.log("   [ A6 ] NAO VERIFICADO: nao consegui reler " + arquivoSaida.getFileName()
+                + " para conferir a gravacao (" + naoDeu.getMessage() + ")");
+            log.warn("A6: releitura de {} falhou; a conferencia pos-gravacao NAO rodou", arquivoSaida, naoDeu);
+            return;
+        }
+
+        Map<Integer, String> noDisco = new HashMap<>();
+        for (EventoLegenda evento : relido.eventos()) {
+            noDisco.put(evento.indice(), evento.texto());
+        }
+
+        int divergentes = 0;
+        int reprovadosAgora = 0;
+        for (EntradaCache entrada : entradasCache) {
+            String gravado = noDisco.get(entrada.indice());
+            if (gravado == null) {
+                divergentes++;
+                log.warn("A6: fala {} foi traduzida e NAO esta no arquivo gravado", entrada.indice());
+                continue;
+            }
+            if (!gravado.equals(entrada.traduzido())) {
+                divergentes++;
+                log.warn("A6: o disco divergiu do que foi validado na fala {}.\n  validado: \"{}\"\n  no disco: \"{}\"",
+                    entrada.indice(), entrada.traduzido(), gravado);
+                continue;
+            }
+            String motivo = avaliadorCache.motivoFalhaFinal(entrada.original(), gravado);
+            if (motivo != null) {
+                reprovadosAgora++;
+                log.warn("A6: fala {} PASSOU antes das transformacoes e REPROVA no arquivo gravado: {}\n  original: \"{}\"\n  gravado : \"{}\"",
+                    entrada.indice(), motivo, entrada.original(), gravado);
+            }
+        }
+
+        // O placar sai SEMPRE, inclusive em zero (regra 12): "conferi e esta limpo" e "a
+        // conferencia nao rodou" nao podem ter a mesma cara no console.
+        if (divergentes == 0 && reprovadosAgora == 0) {
+            uiLogger.log("   [ A6 ] arquivo gravado conferido: " + entradasCache.size()
+                + " fala(s) relida(s) do disco, nenhuma divergencia");
+            return;
+        }
+        uiLogger.log("   [ A6 ] ATENCAO no arquivo gravado: " + divergentes
+            + " divergencia(s) entre disco e validado, " + reprovadosAgora
+            + " fala(s) que passaram antes e reprovam agora (de " + entradasCache.size()
+            + " relidas). Detalhe no log; o arquivo NAO foi alterado.");
+    }
 
 }
 

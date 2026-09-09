@@ -1,107 +1,182 @@
 {
   "_o_que_e": "Conjunto de referencia do ERRO FLUENTE: traducao gramaticalmente impecavel que INVERTE o sentido.",
   "_por_que_existe": "Eco, residuo, pendencia e numero dao ZERO nesta classe. Sem conjunto de referencia nao ha como calibrar instrumento nenhum, e sem calibracao a regra nao pode ser bloqueante.",
-  "_desenho": "As 10 primeiras CORROMPIDAS sao as MESMAS falas das BOAS, com o sentido invertido a mao. Desenho pareado: a unica variavel entre um caso e o outro e a semantica.",
-  "_origem_das_boas": "pares reais do acervo, estilo Default/Dialogue, sem tag e sem quebra de linha, colhidos de Gundam ZZ em 2026-09-09.",
+  "_desenho_pareado": "As 10 primeiras CORROMPIDAS sao as MESMAS falas das BOAS, com o sentido invertido a mao. Assunto e comprimento iguais dos dois lados, entao a diferenca medida e semantica.",
+  "_A3_gabarito": "Cada BOA traz VEREDITO e FUNDAMENTO revisados a mao em 2026-09-09, um por um. O gabarito NAO vem da saida da producao (que e o comportamento observado); vem de exame do par. Onde o fundamento nao se sustenta, o veredito e INCONCLUSIVO -- A3 proibe gabarito inventado. Cada CORROMPIDA declara o DEFEITO introduzido, que e o proprio fundamento dela.",
+  "_A8_particao": "Cada caso declara PARTICAO: 'ajuste' pode ser usado para afinar prompt/regra; 'reservado' NUNCA entra em ajuste e existe so para medir depois. Quem mexer no prompt mede no reservado e reporta os dois numeros separados.",
+  "_A8_limitacao_declarada": "A versao 1 do prompt foi escrita ANTES de qualquer resultado e nunca foi afinada contra este conjunto -- logo, para a v1 as duas particoes sao efetivamente reservadas. A particao existe para a PROXIMA pessoa, que tera resultados na mao.",
+  "_origem_das_boas": "pares reais do acervo de Gundam ZZ, estilo Default/Dialogue, sem tag e sem quebra de linha, colhidos em 2026-09-09.",
   "_origem_das_4_ultimas_corrompidas": "citadas pela auditoria de terceiro de 2026-09-09 como aceitas pelo avaliador atual.",
   "boas": [
     {
       "en": "He's coming! He's here!",
-      "pt": "Ele está chegando! Ele já está aqui!"
+      "pt": "Ele está chegando! Ele já está aqui!",
+      "veredito": "FIEL",
+      "particao": "ajuste",
+      "fundamento": "as duas oracoes sobrevivem, sujeito e tempo preservados; o 'ja' e intensificador idiomatico da repeticao enfatica, escolha legitima de traducao"
     },
     {
       "en": "This is the Core Fighter.",
-      "pt": "Este é o Core Fighter."
+      "pt": "Este é o Core Fighter.",
+      "veredito": "FIEL",
+      "particao": "reservado",
+      "fundamento": "literal, e o termo de lore 'Core Fighter' esta na lista de termos protegidos da obra"
     },
     {
       "en": "Iino! Over here! We're getting outta here!",
-      "pt": "Iino! Aqui! Estamos saindo daqui!"
+      "pt": "Iino! Aqui! Estamos saindo daqui!",
+      "veredito": "FIEL",
+      "particao": "ajuste",
+      "fundamento": "vocativo, chamado e acao preservados; 'over here' -> 'aqui' e a forma padrao em legenda, que corta deixis redundante por limite de caractere"
     },
     {
       "en": "I've had enough of playing tag with you.",
-      "pt": "Eu cansei de brincar de pega-pega com você."
+      "pt": "Eu cansei de brincar de pega-pega com você.",
+      "veredito": "FIEL",
+      "particao": "reservado",
+      "fundamento": "'had enough of' -> 'cansei de' e equivalencia idiomatica consolidada; 'playing tag' -> 'pega-pega' e o nome da brincadeira em pt-BR"
     },
     {
       "en": "Just sit tight till then.",
-      "pt": "Fique firme até lá."
+      "pt": "Fique firme até lá.",
+      "veredito": "INCONCLUSIVO",
+      "particao": "reservado",
+      "fundamento": "A3: NAO consigo fundamentar. 'sit tight' e AGUARDAR sem agir; 'fique firme' e RESISTIR. O contexto militar admite as duas leituras, e escolher uma seria gabarito inventado"
     },
     {
       "en": "Dammit! Gravity can be such a pain!",
-      "pt": "Caramba! A gravidade pode ser tão irritante!"
+      "pt": "Caramba! A gravidade pode ser tão irritante!",
+      "veredito": "FIEL",
+      "particao": "ajuste",
+      "fundamento": "funcao mantida: interjeicao de frustracao + queixa sobre a gravidade. Registro suavizado ('Dammit' -> 'Caramba') e escolha editorial legitima em legenda"
     },
     {
       "en": "Don't make me say it again.",
-      "pt": "Não me faça ter que dizer isso novamente."
+      "pt": "Não me faça ter que dizer isso novamente.",
+      "veredito": "FIEL",
+      "particao": "ajuste",
+      "fundamento": "negacao, imperativo causativo e o 'again' todos preservados; 'ter que' e redundancia estilistica que nao altera sentido"
     },
     {
       "en": "Did it launch from Ghardaia?",
-      "pt": "Isso foi lançado de Ghardaia?"
+      "pt": "Isso foi lançado de Ghardaia?",
+      "veredito": "FIEL",
+      "particao": "reservado",
+      "fundamento": "interrogativa, voz e toponimo preservados; 'launch' -> 'lancado' mantem a direcao do movimento"
     },
     {
       "en": "The Minovsky particles have killed our radar!",
-      "pt": "As partículas Minovsky destruíram nosso radar!"
+      "pt": "As partículas Minovsky destruíram nosso radar!",
+      "veredito": "FIEL",
+      "particao": "ajuste",
+      "fundamento": "'killed' aplicado a equipamento -> 'destruiram' e a leitura idiomatica; 'Minovsky' e termo de lore preservado"
     },
     {
       "en": "I don't care what it is!",
-      "pt": "Não me importa o que for!"
+      "pt": "Não me importa o que for!",
+      "veredito": "FIEL",
+      "particao": "reservado",
+      "fundamento": "negacao preservada e a subordinada indefinida mantida; sujeito implicito e natural em pt-BR"
     }
   ],
   "corrompidas": [
     {
       "en": "He's coming! He's here!",
-      "pt": "Ele nao esta chegando! Ele nao esta aqui!"
+      "pt": "Ele nao esta chegando! Ele nao esta aqui!",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "negacao INSERIDA nas duas oracoes: o sentido inverte"
     },
     {
       "en": "This is the Core Fighter.",
-      "pt": "Este nao e o Core Fighter."
+      "pt": "Este nao e o Core Fighter.",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "negacao INSERIDA: identificacao vira negacao de identidade"
     },
     {
       "en": "Iino! Over here! We're getting outta here!",
-      "pt": "Iino! Aqui! Estamos ficando aqui!"
+      "pt": "Iino! Aqui! Estamos ficando aqui!",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "'getting outta here' (sair) -> 'ficando aqui' (permanecer): acao invertida"
     },
     {
       "en": "I've had enough of playing tag with you.",
-      "pt": "Eu adoro brincar de pega-pega com voce."
+      "pt": "Eu adoro brincar de pega-pega com voce.",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "'had enough' (saturacao) -> 'adoro' (prazer): polaridade afetiva invertida"
     },
     {
       "en": "Just sit tight till then.",
-      "pt": "Saia agora mesmo."
+      "pt": "Saia agora mesmo.",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "'sit tight' (aguardar) -> 'saia agora' (partir): instrucao oposta"
     },
     {
       "en": "Dammit! Gravity can be such a pain!",
-      "pt": "Que bom! A gravidade e tao agradavel!"
+      "pt": "Que bom! A gravidade e tao agradavel!",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "queixa -> elogio: polaridade invertida nas duas oracoes"
     },
     {
       "en": "Don't make me say it again.",
-      "pt": "Faca-me dizer isso novamente."
+      "pt": "Faca-me dizer isso novamente.",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "negacao PERDIDA: proibicao vira pedido"
     },
     {
       "en": "Did it launch from Ghardaia?",
-      "pt": "Isso pousou em Ghardaia?"
+      "pt": "Isso pousou em Ghardaia?",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "'launch from' (partir de) -> 'pousou em' (chegar a): direcao do movimento invertida"
     },
     {
       "en": "The Minovsky particles have killed our radar!",
-      "pt": "As particulas Minovsky consertaram nosso radar!"
+      "pt": "As particulas Minovsky consertaram nosso radar!",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "'killed' -> 'consertaram': efeito invertido"
     },
     {
       "en": "I don't care what it is!",
-      "pt": "Eu me importo muito com o que for!"
+      "pt": "Eu me importo muito com o que for!",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "negacao PERDIDA: indiferenca vira interesse"
     },
     {
       "en": "Don't shoot!",
-      "pt": "Atire!"
+      "pt": "Atire!",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "negacao PERDIDA em ordem militar: proibicao vira ordem de atirar"
     },
     {
       "en": "He killed her.",
-      "pt": "Ela matou ele."
+      "pt": "Ela matou ele.",
+      "veredito": "INFIEL",
+      "particao": "ajuste",
+      "defeito": "agente e paciente TROCADOS"
     },
     {
       "en": "He is alive.",
-      "pt": "Ele esta morto."
+      "pt": "Ele esta morto.",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "predicado invertido"
     },
     {
       "en": "Bring the medicine.",
-      "pt": "Traiga la medicina."
+      "pt": "Traiga la medicina.",
+      "veredito": "INFIEL",
+      "particao": "reservado",
+      "defeito": "idioma errado: espanhol, nao portugues"
     }
   ]
 }
