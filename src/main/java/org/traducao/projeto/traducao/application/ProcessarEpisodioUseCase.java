@@ -420,7 +420,24 @@ public class ProcessarEpisodioUseCase {
                 log.info("Marcador [[TAGn]] reparado no lote {}: \"{}\" -> \"{}\"",
                     lote.idLote(), recusada, linha);
             }
-            validador.validarFala(linha);
+            // O ORIGINAL ENTRA AQUI porque ele existe aqui. Até 2026-09-09 esta chamada era
+            // cega, e a auditoria mostrou o custo: "I don't have access to the hangar." era
+            // traduzido certo, reprovado como recusa do modelo e reenviado nas TRÊS
+            // temperaturas, gastando três chamadas para chegar ao mesmo descarte. Com o texto
+            // de partida em mãos, a construção ambígua é absolvida na primeira tentativa.
+            // Vai MASCARADO, e isso é indiferente: a âncora procurada é palavra inglesa, e o
+            // que a máscara troca são tags ASS, não vocabulário.
+            validador.validarFala(linha, mascaradoOriginal.get(i));
+
+            // VALIDAÇÃO DE PAR TAMBÉM DENTRO DA TENTATIVA. Ela existia só no portão final, então
+            // uma troca de entidade ou um locutor inventado só era descoberta DEPOIS do laço de
+            // temperaturas, quando não havia mais retentativa possível e a fala virava pendente
+            // sem nunca ter sido reenviada. Aqui a mesma falha vira outra tentativa.
+            //
+            // SEGURO COM O TEXTO MASCARADO, e isso foi MEDIDO antes de escrever a linha, não
+            // suposto: 114.329 pares do acervo julgados nas duas formas, com e sem máscara,
+            // deram 84 reprovações em cada uma e ZERO vereditos divergentes.
+            validador.validarPar(mascaradoOriginal.get(i), linha);
             saneadas.add(linha);
         }
 

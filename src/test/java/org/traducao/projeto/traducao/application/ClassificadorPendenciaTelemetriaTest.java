@@ -54,6 +54,38 @@ class ClassificadorPendenciaTelemetriaTest {
                     + "tradução tem [08] (sumiu: [04], surgiu: [08])"));
     }
 
+    /**
+     * Auditoria de 2026-09-09, item 6: o painel atribuía ao MODELO falhas do software, porque
+     * causas de natureza diferente chegavam com o mesmo rótulo. Duas separações entraram.
+     */
+    @Test
+    void separaTruncamentoERecusaDoRotuloGenerico() {
+        // TRUNCAMENTO: só passou a existir quando o adaptador começou a ler finish_reason.
+        // Vem antes de "divergente" de propósito — a resposta cortada CHEGA parecendo
+        // estrutura quebrada, e classificar assim manda procurar o defeito na formatação.
+        assertEquals(CausaRaizPendencia.RESPOSTA_TRUNCADA,
+            classificador.causaDeMotivoFinal(
+                "Resposta truncada pelo teto de tokens (finish_reason=length) no lote 3"));
+
+        // RECUSA: o modelo falando SOBRE a tarefa. Antes caía em RESIDUO, junto com inglês
+        // vazado — e as duas se consertam em lugares opostos, prompt contra cobertura de idioma.
+        assertEquals(CausaRaizPendencia.RECUSA_DO_MODELO,
+            classificador.causaDeMotivoFinal("Recusa/meta-resposta do LLM detectada: Sem tradução."));
+        assertEquals(CausaRaizPendencia.RECUSA_DO_MODELO,
+            classificador.causaDeMotivoFinal("Preâmbulo detectado: Aqui está a tradução:"));
+        assertEquals(CausaRaizPendencia.RECUSA_DO_MODELO,
+            classificador.causaDeMotivoFinal("Meta-resposta sobre a tarefa de traduzir: Minha tradução é..."));
+
+        // CASO-CONTROLE: resíduo continua resíduo. Sem esta linha, a separação poderia ter
+        // levado tudo junto e o teste ficaria verde igual.
+        assertEquals(CausaRaizPendencia.RESIDUO,
+            classificador.causaDeMotivoFinal("Idioma incorreto detectado (não é PT-BR): Juste um pouco."));
+
+        // A precedência tem de valer: truncamento é causa-raiz, eco é sintoma dele.
+        assertEquals(CausaRaizPendencia.RESPOSTA_TRUNCADA,
+            CausaRaizPendencia.maisGrave(CausaRaizPendencia.ECO, CausaRaizPendencia.RESPOSTA_TRUNCADA));
+    }
+
     @Test
     void classificaBaldeDeConteudoPeloDetectorReal() {
         // Romaji preservado (86: topo MarginV=0)

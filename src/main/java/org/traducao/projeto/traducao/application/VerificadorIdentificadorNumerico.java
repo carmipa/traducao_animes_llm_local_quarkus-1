@@ -55,6 +55,10 @@ public class VerificadorIdentificadorNumerico {
     private static final Pattern ORDINAL_PORTUGUES = Pattern.compile("(\\d)[ºª°]");
 
 
+    /** Numero marcado como ORDINAL: sufixo ingles ({@code 04th}) ou portugues ({@code 4a}). */
+    private static final Pattern MARCA_DE_ORDINAL =
+        Pattern.compile("(?<![0-9])(\\d+)(?:st|nd|rd|th|[ºª°])", Pattern.CASE_INSENSITIVE);
+
     /** Marca do relogio de 12 horas, que autoriza a conta +12 na conversao para 24h. */
     private static final Pattern MARCA_PM = Pattern.compile("(?i)\\bp\\.?\\s?m\\.?");
 
@@ -123,7 +127,8 @@ public class VerificadorIdentificadorNumerico {
         // nenhuma das duas contas e continua reprovando.
         List<String> perdidosReais = new ArrayList<>();
         for (String valor : perdidos) {
-            if (!explicadoPorHorario(valor, original, naTraducao)) {
+            if (!explicadoPorHorario(valor, original, naTraducao)
+                && !explicadoPorZeroDeOrdinal(valor, original, traduzido)) {
                 perdidosReais.add(valor);
             }
         }
@@ -182,6 +187,13 @@ public class VerificadorIdentificadorNumerico {
                 && atual.length() > 0
                 && i + 1 < limpo.length() && Character.isDigit(limpo.charAt(i + 1));
             if (separadorEntreDigitos) {
+                // MILHAR COLAPSA, DECIMAL NÃO. Antes desta distinção, "1.5" e "15" produziam a
+                // MESMA sequência de dígitos e a troca de um pelo outro passava ilesa (medido na
+                // auditoria de 2026-09-09). O separador vira ponto canônico, de modo que "1.5" e
+                // "1,5" continuam sendo o mesmo valor — que é a grafia local, não outro número.
+                if (ehDecimal(limpo, i, c)) {
+                    atual.append('.');
+                }
                 continue; // 9.500 e 9500 são o mesmo valor
             }
             if (atual.length() > 0) {
@@ -236,9 +248,96 @@ public class VerificadorIdentificadorNumerico {
         return false;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se um número que sumiu da tradução foi apenas reescrito sem o
+     * zero à esquerda de um ORDINAL — {@code "04th Team"} virando {@code "4ª Equipe"} — em vez de
+     * ter sido substituído por outro valor.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só vale quando o ORIGINAL marca o número como ordinal, com sufixo inglês
+     *       ({@code st}/{@code nd}/{@code rd}/{@code th}) ou português ({@code º}/{@code ª}/
+     *       {@code °}) colado nele. Sem a marca, {@code "Unidade 04"} continua sendo código
+     *       técnico e o zero segue significativo.</li>
+     *   <li>A equivalência é conferida contra os valores que a tradução realmente contém, nos
+     *       dois sentidos: {@code 04}→{@code 4} e {@code 4}→{@code 04}.</li>
+     *   <li>Zero à esquerda é a ÚNICA diferença tolerada. {@code "04th"} publicado como
+     *       {@code "08ª"} não casa e continua reprovando — foi o defeito que criou esta guarda.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer dúvida devolve {@code false} e o valor volta a
+     * contar como perdido; a guarda erra para o lado de reprovar. Não lança.
+     *
+     * <p>MEDIDO EM 2026-09-09 (auditoria de terceiro): {@code "04th Team!"} traduzido como
+     * {@code "Equipe 4!"} era reprovado, e a reprovação devolve a fala inteira ao inglês na
+     * legenda. São 27 falas do acervo expostas a isto, todas do 08th MS Team.
+     */
+    private static boolean explicadoPorZeroDeOrdinal(String perdido, String original, String traduzido) {
+        if (perdido.isEmpty() || !perdido.chars().allMatch(Character::isDigit)) {
+            return false;
+        }
+        String valor = semZerosAEsquerda(perdido);
+        return ordinaisDe(original).contains(valor) && ordinaisDe(traduzido).contains(valor);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: colhe os números que o texto marca como ORDINAL — {@code 04th},
+     * {@code 4ª}, {@code 8º} — já normalizados sem o zero à esquerda, para que as duas grafias
+     * do mesmo posto sejam comparáveis.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só entra número com sufixo ordinal colado. Algarismo solto
+     * ({@code "Equipe 4"}, {@code "8 Time"}) NÃO é ordinal e fica de fora — é o que mantém
+     * {@code 08th Mobile Suit Team} distinto de {@code 8 Time de Mobile Suit}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve conjunto vazio; não lança.
+     */
+    private static Set<String> ordinaisDe(String texto) {
+        Set<String> encontrados = new LinkedHashSet<>();
+        if (texto == null) {
+            return encontrados;
+        }
+        java.util.regex.Matcher achado = MARCA_DE_ORDINAL.matcher(texto);
+        while (achado.find()) {
+            encontrados.add(semZerosAEsquerda(achado.group(1)));
+        }
+        return encontrados;
+    }
+
+    private static String semZerosAEsquerda(String digitos) {
+        return digitos.replaceFirst("^0+(?=\\d)", "");
+    }
+
     private static boolean ehSeparador(char c) {
         // isSpaceChar cobre o espaço NÃO SEPARÁVEL (U+00A0), que isWhitespace ignora e que
         // aparece como separador de milhar em várias saídas de tradução.
         return c == '.' || c == ',' || Character.isWhitespace(c) || Character.isSpaceChar(c);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: separa o ponto/vírgula que marca a parte FRACIONÁRIA daquele que só
+     * agrupa milhar, para que {@code 1.5} não seja lido como o inteiro {@code 15}.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só ponto e vírgula podem ser decimais. Espaço — inclusive o não separável — agrupa
+     *       milhar e nada mais, então {@code "15 00"} continua colapsando em {@code 1500}.</li>
+     *   <li>Grupo de EXATAMENTE três dígitos seguido de não-dígito é milhar ({@code 9.500});
+     *       qualquer outro tamanho é fração ({@code 1.5}, {@code 3.14159}).</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; índice fora de faixa devolve {@code false},
+     * que preserva o comportamento histórico de colapsar.
+     */
+    private static boolean ehDecimal(String texto, int posSeparador, char separador) {
+        if (separador != '.' && separador != ',') {
+            return false;
+        }
+        int fim = posSeparador + 1;
+        while (fim < texto.length() && Character.isDigit(texto.charAt(fim))) {
+            fim++;
+        }
+        int digitos = fim - (posSeparador + 1);
+        boolean grupoDeMilhar = digitos == 3;
+        return !grupoDeMilhar;
     }
 }

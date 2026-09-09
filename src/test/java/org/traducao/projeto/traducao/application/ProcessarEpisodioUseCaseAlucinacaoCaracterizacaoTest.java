@@ -76,8 +76,12 @@ class ProcessarEpisodioUseCaseAlucinacaoCaracterizacaoTest {
         TelemetriaFake telemetria = new TelemetriaFake();
         // Validador que sempre rejeita a fala como alucinação (simula o LLM alucinando).
         ValidadorTraducaoService validadorAlucina = new ValidadorTraducaoService(LoreAtivaFake.vazia()) {
+            // SOBRESCREVE A ASSINATURA DE DOIS ARGUMENTOS, que e a que a producao chama desde
+            // 2026-09-09 — o validador passou a receber o ORIGINAL para absolver construcao
+            // ambigua. A versao de um argumento delega para esta, entao o duble cobre as duas.
+            // Sobrescrever so a de um argumento deixaria o duble mudo sem nenhum aviso.
             @Override
-            public void validarFala(String textoTraduzido) {
+            public void validarFala(String textoTraduzido, String textoOriginal) {
                 throw new AlucinacaoDetectadaException("fala alucinada: " + textoTraduzido);
             }
         };

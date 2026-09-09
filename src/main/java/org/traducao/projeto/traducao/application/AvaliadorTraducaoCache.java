@@ -125,7 +125,7 @@ public class AvaliadorTraducaoCache {
             return false;
         }
         try {
-            validador.validarFala(traduzido);
+            validador.validarFala(traduzido, original);
             // Ancoragem no original: sem isto, as 27 entradas contaminadas do run de Guilty
             // Crown seriam reaproveitadas do cache para sempre, porque são PT-BR impecável e
             // passam em toda regra que olhe apenas a saída.
@@ -203,7 +203,7 @@ public class AvaliadorTraducaoCache {
             return numeroAlterado;
         }
         try {
-            validador.validarFala(traduzido);
+            validador.validarFala(traduzido, original);
             // Ancoragem: o defeito que NENHUMA regra de saída alcança, porque a fala está em
             // PT-BR perfeito e só o original prova que o conteúdo foi inventado. Roda AQUI,
             // no portão único, para valer igualmente para o LLM, o fallback de máquina e a
