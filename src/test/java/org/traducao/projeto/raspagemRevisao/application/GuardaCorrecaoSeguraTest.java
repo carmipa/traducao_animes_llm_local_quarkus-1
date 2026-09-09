@@ -345,6 +345,75 @@ class GuardaCorrecaoSeguraTest {
         assertEquals(GuardaCorrecaoSegura.MotivoRecusa.REPETICAO_INTRODUZIDA, motivo(veredicto));
     }
 
+
+    /**
+     * A CORRUPCAO REAL DO ZZ ep29, medida na corrida da 3.1 em 2026-08-21 e conferida em
+     * 09/09/2026: a tag no miolo parte a frase e o modelo duplica a palavra.
+     * <pre>
+     * EN : It {\i1}is{\i0} you, Roux Louka!
+     * PT : E {\i1}e{\i0} voce, Roux Louka!
+     * </pre>
+     * Este teste TRANCA o conserto que ja existe. Sem ele, desligar a pergunta de palavra colada
+     * volta a gravar "E e voce" na legenda, que foi exatamente o que aconteceu em 50ab80ac.
+     */
+    @Test
+    @DisplayName("ZZ ep29: proposta que cola duas palavras iguais e recusada")
+    void propostaQueColaPalavrasIguaisEhRecusada() {
+        String ingles = "It {\\i1}is{\\i0} you, Roux Louka!";
+        String corrompida = "É {\\i1}é{\\i0} você, Roux Louka!";
+
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            ingles, ingles, corrompida,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, v,
+            "a proposta cola \"É é\" e a legenda do ZZ ep29 recebeu isso de verdade");
+    }
+
+    /**
+     * A SEGUNDA CORRUPCAO DO MESMO DIA, ZZ ep39. A proposta traduziu bem e MOVEU a tag do miolo
+     * para a borda final, onde ela nao tem mais texto para afetar:
+     * <pre>
+     * EN : I... have... had... {\alpha&HFF&}ENOUGH!
+     * PT : Eu... tive... o bastante! {\alpha&HFF&}
+     * </pre>
+     * O texto ficou CERTO e o efeito visual morreu -- a transparencia deixou de cair sobre
+     * "ENOUGH". Nenhuma regra de texto ve isso, porque nenhuma letra mudou de lugar errado.
+     * O invariante e posicional: tag que tinha TEXTO DEPOIS dela no original nao pode terminar
+     * a proposta sem nada depois.
+     */
+    @Test
+    @DisplayName("ZZ ep39: proposta que move tag do miolo para a borda e recusada")
+    void propostaQueMoveTagParaABordaEhRecusada() {
+        String atual = "I... have... had... {\\alpha&HFF&}ENOUGH!";
+        String corrompida = "Eu... tive... o bastante! {\\alpha&HFF&}";
+
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            atual, atual, corrompida,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Rejeitada.class, v,
+            "a tag saiu do miolo e foi para o fim: o efeito visual morre e nenhuma regra de texto ve");
+    }
+
+    /**
+     * CONTRA-CASO da anterior: tag que JA estava na borda no original pode continuar na borda.
+     * Sem este caso, a guarda nova poderia recusar toda fala com tag no fim.
+     */
+    @Test
+    @DisplayName("tag que ja estava na borda continua aceita")
+    void tagQueJaEstavaNaBordaContinuaAceita() {
+        String atual = "{\\i1}He is coming!{\\i0}";
+        String boa = "{\\i1}Ele está chegando!{\\i0}";
+
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(
+            atual, atual, boa,
+            suspeitaCom("Fala não traduzida (idêntica ao original em inglês)"), SEM_LORE);
+
+        assertInstanceOf(GuardaCorrecaoSegura.Veredicto.Aprovada.class, v,
+            "tag de borda e o caso normal do ASS: recusar aqui barraria quase tudo");
+    }
+
     private boolean aprovou(GuardaCorrecaoSegura.Veredicto veredicto) {
         return veredicto instanceof GuardaCorrecaoSegura.Veredicto.Aprovada;
     }
