@@ -152,6 +152,27 @@ public class GuardaCorrecaoSegura {
             "a proposta deixou um par de tags sem nenhuma letra dentro"),
 
         /**
+         * A proposta MOVEU uma tag do miolo para a borda final, onde ela não tem mais texto para
+         * afetar. O texto sai correto e o efeito visual morre em silêncio.
+         *
+         * <h2>O prejuízo MEDIDO — 2026-08-21, Gundam ZZ ep39</h2>
+         * <pre>
+         * antes  : I... have... had... {\alpha&amp;HFF&amp;}ENOUGH!
+         * depois : Eu... tive... o bastante! {\alpha&amp;HFF&amp;}
+         * </pre>
+         * A transparência deixou de cair sobre {@code ENOUGH} e passou a não cair sobre nada.
+         * NENHUMA regra de texto alcança isto: nenhuma letra ficou errada, nenhuma palavra
+         * repetiu, nenhum par de tags esvaziou, e a quebra de linha não se perdeu. O invariante
+         * violado é POSICIONAL — tag que tinha texto depois dela não pode terminar a proposta
+         * sem nada depois.
+         *
+         * <p>Foi a segunda das duas corrupções que a corrida da 3.1 gravou no ZZ. A outra, a
+         * palavra colada do ep29, já tinha guarda; esta não tinha nenhuma.
+         */
+        TAG_FICOU_INERTE("REVISAO_TAG_FICOU_INERTE",
+            "a proposta moveu uma tag para a borda, onde ela nao afeta mais nenhum texto"),
+
+        /**
          * A proposta traz marcador TÉCNICO — {@code [[...]]} — que o espectador leria na tela.
          * Achado no acervo em 22/08/2026, depois de as 12 obras passarem pela 3.1: duas falas
          * gravadas com marcador cru.
@@ -306,6 +327,14 @@ public class GuardaCorrecaoSegura {
                 + "Correção rejeitada: a proposta deixou um par de tags sem nenhuma letra dentro."
                 + AnsiCores.RESET),
                 MotivoRecusa.TAG_SEM_CONTEUDO);
+        }
+        // LOGO DEPOIS da pergunta de par vazio, porque as duas cuidam de tag que perdeu efeito e
+        // esta é a que a de par NÃO alcança: aqui o par continua íntegro e é a POSIÇÃO que muda.
+        if (tagFicouInerte(traducaoAtual, candidata)) {
+            return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
+                + "Correção rejeitada: a proposta moveu uma tag para a borda, onde ela não afeta mais texto algum."
+                + AnsiCores.RESET),
+                MotivoRecusa.TAG_FICOU_INERTE);
         }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
         boolean introduziuProblemaNovo = posterior.motivos().stream()
@@ -499,6 +528,59 @@ public class GuardaCorrecaoSegura {
             return false;
         }
         return visivelOriginal.trim().equalsIgnoreCase(visivelAtual.trim());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recusa a proposta que MOVEU uma tag do miolo para a borda final, onde
+     * ela deixa de ter texto para afetar. O texto sai correto e o efeito visual morre calado.
+     *
+     * <h2>O prejuízo MEDIDO — 2026-08-21, Gundam ZZ ep39</h2>
+     * <pre>
+     * antes  : I... have... had... {\alpha&amp;HFF&amp;}ENOUGH!
+     * depois : Eu... tive... o bastante! {\alpha&amp;HFF&amp;}
+     * </pre>
+     * A transparência caía sobre {@code ENOUGH} e passou a não cair sobre nada. Foi gravado na
+     * legenda e só apareceu na conferência a olho.
+     *
+     * <h2>Por que nenhuma das outras cinco perguntas pega</h2>
+     * Nenhuma letra ficou errada, nenhuma palavra repetiu, nenhum PAR de tags esvaziou (o par
+     * continua íntegro), a quebra de linha não se perdeu e o auditor não vê problema novo. O
+     * invariante violado é POSICIONAL, e posição é a única coisa que nenhuma regra de texto mede.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Conta tags INERTES — as que não têm nenhuma letra depois de si. Só reprova quando a
+     *       proposta tem MAIS inertes do que a fala já tinha, então o que já estava inerte segue
+     *       passando.</li>
+     *   <li>Tag de FECHAMENTO no fim é o caso normalíssimo do ASS: {@code {\i1}texto{\i0}} tem
+     *       uma inerte nos dois lados, e a conta comparativa a ignora. Sem isso a guarda
+     *       reprovaria quase toda fala em itálico, e guarda que reprova o correto é pior que
+     *       guarda nenhuma.</li>
+     *   <li>Separador estrutural depois da tag ({@code \N}, {@code \h}, espaço) NÃO conta como
+     *       texto: {@code "...bastante! {\alpha}\N"} continua inerte.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve {@code false} — na dúvida a guarda
+     * não reprova, porque a rejeição custa uma correção legítima. Não lança.
+     */
+    private boolean tagFicouInerte(String traducaoAtual, String candidata) {
+        return contarTagsInertes(candidata) > contarTagsInertes(traducaoAtual);
+    }
+
+    /** Tags que não têm nenhuma letra depois de si — logo, não afetam texto nenhum. */
+    private int contarTagsInertes(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return 0;
+        }
+        int inertes = 0;
+        var achado = BLOCO_DE_TAG.matcher(texto);
+        while (achado.find()) {
+            String depois = texto.substring(achado.end());
+            if (!TEM_LETRA.matcher(depois).find()) {
+                inertes++;
+            }
+        }
+        return inertes;
     }
 
     private boolean repetiuPalavraQueAFalaNaoRepetia(String traducaoAtual, String candidata) {
