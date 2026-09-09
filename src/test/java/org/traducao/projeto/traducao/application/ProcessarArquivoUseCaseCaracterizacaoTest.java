@@ -302,6 +302,82 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     /** Gerenciador da última montagem, para os cenários que precisam trocar o contexto ativo. */
     private GerenciadorContexto gerenciadorMontado;
 
+
+    /**
+     * A6 DO ADITIVO: a conferencia depois da ULTIMA transformacao. Aprovacao intermediaria nao se
+     * transfere para um resultado modificado depois dela, e a auditoria de 09/09/2026 nomeou
+     * exatamente este buraco: os ensaios "nao comprovaram o fluxo completo ate a gravacao do .ass".
+     *
+     * <p>Aqui o arquivo em DISCO diz uma coisa e o que a validacao aprovou diz outra. Nenhuma regra
+     * de texto veria: as duas frases sao portugues impecavel. So reler o disco ve.
+     */
+    @Test
+    @DisplayName("A6: divergencia entre o disco e o que foi validado e ACUSADA")
+    void a6AcusaDivergenciaEntreDiscoEValidado() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-divergente.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Texto que foi para o DISCO.\n",
+            StandardCharsets.UTF_8);
+
+        // o cache diz que o validado foi OUTRA coisa -- e alguma etapa depois mexeu
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "Text that went to disk.", "Texto que a VALIDACAO aprovou.", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("ATENCAO")),
+            "a A6 tinha de ACUSAR a divergencia entre disco e validado; console: " + logger.mensagens);
+    }
+
+    /**
+     * CASO-CONTROLE da anterior, e da forma que a A1 exige: MESMO sinal superficial (a A6 rodando
+     * sobre um arquivo relido), desfecho oposto. Sem ele, a conferencia poderia acusar tudo e o
+     * teste acima passaria do mesmo jeito.
+     */
+    @Test
+    @DisplayName("A6 CASO-CONTROLE: disco igual ao validado passa em silencio")
+    void a6PassaQuandoDiscoBateComValidado() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-igual.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Ele esta chegando.\n",
+            StandardCharsets.UTF_8);
+
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "He is coming.", "Ele esta chegando.", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("nenhuma divergencia")),
+            "arquivo igual ao validado nao pode virar alarme; console: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().noneMatch(l -> l.contains("ATENCAO")),
+            "nao pode haver ATENCAO no caso sao; console: " + logger.mensagens);
+    }
+
+    /**
+     * REGRA 12 dentro da A6: "nao consegui conferir" e "conferi e esta limpo" nao podem produzir a
+     * mesma saida. Arquivo ausente tem de sair como NAO VERIFICADO, nunca em silencio.
+     */
+    @Test
+    @DisplayName("A6: arquivo que nao da para reler sai como NAO VERIFICADO")
+    void a6ArquivoIlegivelSaiComoNaoVerificado() {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "He is coming.", "Ele esta chegando.", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(raiz.resolve("nem-existe.ass"), false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("NAO VERIFICADO")),
+            "releitura impossivel tem de sair NAO VERIFICADO; console: " + logger.mensagens);
+    }
+
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }
