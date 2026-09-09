@@ -50,7 +50,10 @@ public class ClassificadorPendenciaTelemetria {
      *
      * <p>INVARIANTES DO DOMÍNIO: {@link CausaRaizPendencia#MARCADORES_CORROMPIDOS} NÃO é
      * produzida aqui — vem da via de desmascaramento e é aplicada por quem chama, com
-     * precedência sobre esta. Resíduo/idioma/preâmbulo/recusa colapsam em {@code RESIDUO}.
+     * precedência sobre esta. Recusa, preâmbulo e meta-resposta viram
+     * {@link CausaRaizPendencia#RECUSA_DO_MODELO}; resíduo e idioma incorreto seguem em
+     * {@link CausaRaizPendencia#RESIDUO}. Ficaram separados em 2026-09-09: um se conserta no
+     * prompt, o outro na cobertura de idioma, e colados diziam a mesma coisa para os dois.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: motivo nulo ou não reconhecido devolve {@code ECO}.
      */
@@ -67,11 +70,23 @@ public class ClassificadorPendenciaTelemetria {
         if (m.contains("identificador numérico") || m.contains("identificador numerico")) {
             return CausaRaizPendencia.IDENTIFICADOR_NUMERICO_ALTERADO;
         }
+        // Antes da estrutura: a resposta cortada no teto de tokens costuma CHEGAR como estrutura
+        // divergente, e classificá-la assim manda procurar o defeito na formatação em vez de no
+        // transporte. A mensagem vem do adaptador e diz "truncada".
+        if (m.contains("truncad")) {
+            return CausaRaizPendencia.RESPOSTA_TRUNCADA;
+        }
         if (m.contains("divergent") || m.contains("quebras de linha") || m.contains("tags ass/ssa")) {
             return CausaRaizPendencia.ESTRUTURA_DIVERGENTE;
         }
+        // O modelo falando SOBRE a tarefa vem antes do resíduo: as duas coisas apareciam com o
+        // mesmo rótulo e pedem conserto oposto. "Meta-resposta" entra aqui porque é a mensagem
+        // que validarPar produz para a mesma família.
+        if (m.contains("recusa") || m.contains("meta-resposta")
+                || m.contains("preâmbulo") || m.contains("preambulo")) {
+            return CausaRaizPendencia.RECUSA_DO_MODELO;
+        }
         if (m.contains("resíduo") || m.contains("residuo") || m.contains("idioma incorreto")
-                || m.contains("preâmbulo") || m.contains("preambulo") || m.contains("recusa")
                 || m.contains("marcador de erro")) {
             return CausaRaizPendencia.RESIDUO;
         }

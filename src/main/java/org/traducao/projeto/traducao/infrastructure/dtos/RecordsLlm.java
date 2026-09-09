@@ -10,8 +10,15 @@ public class RecordsLlm {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ChatRequest(String model, List<Mensagem> messages, double temperature, int max_tokens) {}
 
+    /**
+     * Uma escolha devolvida pelo LLM. Além da mensagem, carrega o {@code finish_reason} — o
+     * motivo pelo qual a geração parou. Sem ele, o adaptador não tinha como distinguir uma
+     * tradução COMPLETA de uma cortada no teto de tokens, e declarava sucesso nas duas
+     * (defeito medido em 2026-09-09 com resposta controlada). Chega nulo quando o servidor
+     * não informa o campo, e nulo significa "não sei", nunca "terminou bem".
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Choice(Mensagem message) {}
+    public record Choice(Mensagem message, String finish_reason) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record RespostaLlm(List<Choice> choices) {}

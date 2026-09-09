@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.traducao.projeto.llm.domain.Lote;
 import org.traducao.projeto.llm.domain.StatusLlm;
 import org.traducao.projeto.llm.domain.TraducaoLote;
+import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmTruncadaException;
 import org.traducao.projeto.traducao.domain.exceptions.RespostaLlmVaziaException;
 import org.traducao.projeto.llm.domain.LlmPort;
 import org.traducao.projeto.lore.domain.RegrasConcordanciaPtBr;
@@ -27,6 +28,9 @@ import java.util.regex.Pattern;
 public class LlmClientAdapter implements LlmPort {
 
     private static final Logger log = LoggerFactory.getLogger(LlmClientAdapter.class);
+
+    /** Valor que o protocolo OpenAI usa no finish_reason quando a geracao bateu no teto de tokens. */
+    private static final String MOTIVO_TRUNCADO = "length";
 
     private static final int MAX_TENTATIVAS = 3;
     private static final int MAX_TENTATIVAS_REVISAO = 2;
@@ -321,11 +325,24 @@ public class LlmClientAdapter implements LlmPort {
                     throw new RespostaLlmVaziaException("Resposta vazia do LLM para o lote " + lote.idLote());
                 }
 
-                Mensagem mensagem = resposta.choices().getFirst().message();
+                var escolha = resposta.choices().getFirst();
+                Mensagem mensagem = escolha.message();
                 String traduzidoText = limparTokensDeControle(
                     mensagem != null ? mensagem.content() : null);
                 if (traduzidoText == null || traduzidoText.isBlank()) {
                     throw new RespostaLlmVaziaException("Conteudo vazio retornado pelo LLM para o lote " + lote.idLote());
+                }
+
+                // TRUNCAMENTO NÃO É SUCESSO. O servidor avisa no finish_reason que parou por ter
+                // batido no teto de tokens, e o texto que veio é uma fala cortada no meio. Sem
+                // esta checagem o adaptador devolvia sucesso=true com a fala pela metade, e a
+                // legenda recebia "Eu prometo" no lugar de "Eu prometo proteger todos aqui".
+                // finish_reason ausente é "não sei" e NÃO reprova — servidores que não informam o
+                // campo continuam funcionando como antes.
+                if (MOTIVO_TRUNCADO.equalsIgnoreCase(escolha.finish_reason())) {
+                    throw new RespostaLlmTruncadaException(
+                        "Resposta truncada pelo teto de tokens (finish_reason=" + escolha.finish_reason()
+                            + ") no lote " + lote.idLote() + ": \"" + traduzidoText + "\"");
                 }
 
                 List<String> linhasTraduzidas = extrairLinhasTraduzidas(traduzidoText);
@@ -335,6 +352,13 @@ public class LlmClientAdapter implements LlmPort {
 
                 return new TraducaoLote(lote.idLote(), linhasTraduzidas, true, null);
 
+            } catch (RespostaLlmTruncadaException e) {
+                // Participa das tentativas como a resposta vazia: a geração seguinte pode caber
+                // no teto. Esgotadas as tentativas, o lote volta SEM sucesso — que é o ponto
+                // desta correção, já que antes ele voltava com sucesso e a fala pela metade.
+                ultimaFalha = e;
+                log.warn("Resposta TRUNCADA do LLM no lote {} (tentativa {}/{}): {}",
+                    lote.idLote(), tentativa, MAX_TENTATIVAS, e.getMessage());
             } catch (RespostaLlmVaziaException e) {
                 // Resposta vazia costuma ser falha transitória do LLM local
                 // (modelo ainda aquecendo, timeout interno) — participa das

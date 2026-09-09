@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **491** |
-| classes em `src/test` | **425** |
+| classes em `src/main` | **492** |
+| classes em `src/test` | **428** |
 
 ---
 
@@ -36,7 +36,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 ```mermaid
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
-    G1["<b>Tradução</b><br/>traducao (77)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
+    G1["<b>Tradução</b><br/>traducao (78)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
@@ -215,7 +215,7 @@ auditorConteudoLegendas/
 
 ### Tradução
 
-#### `traducao` — 77 classes
+#### `traducao` — 78 classes
 
 ```text
 traducao/
@@ -253,6 +253,7 @@ traducao/
 │   │   ├── MarcadorCorrompidoException.java
 │   │   ├── ObraDivergenteDoContextoException.java
 │   │   ├── RequisicaoRecusadaPeloLlmException.java
+│   │   ├── RespostaLlmTruncadaException.java
 │   │   ├── RespostaLlmVaziaException.java
 │   │   ├── TraducaoParcialException.java
 │   │   └── TradutorException.java
@@ -897,7 +898,7 @@ core/
 
 ---
 
-## Testes — 425 classes
+## Testes — 428 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1263,7 +1264,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 32 classes
+#### `qualidadeTraducao` — 33 classes
 
 ```text
 qualidadeTraducao/
@@ -1290,6 +1291,7 @@ qualidadeTraducao/
 │   ├── QuebraAssNaoEscondeTermoDeLoreTest.java
 │   ├── QuebraAssPropriedadeTest.java
 │   ├── QuebraDentroDoNomeNaoInventaTrocaTest.java
+│   ├── RecusaAmbiguaPrecisaDoOriginalTest.java
 │   ├── RemovedorItalicoTest.java
 │   ├── TerminacaoCedilhaSemTilTest.java
 │   ├── ValidadorNaoCondenaNomeDaObraTest.java
@@ -1463,7 +1465,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 60 classes
+#### `traducao` — 62 classes
 
 ```text
 traducao/
@@ -1498,7 +1500,8 @@ traducao/
 │   ├── SegundaOpiniaoModeloRecuperacaoTest.java
 │   ├── SimplificadorItalicoRedundanteTest.java
 │   ├── TradutorLotesServiceTest.java
-│   └── VerificadorIdentificadorNumericoTest.java
+│   ├── VerificadorIdentificadorNumericoTest.java
+│   └── ZeroDeOrdinalEDecimalTest.java
 ├── arquitetura/
 │   ├── FronteiraInboundArchTest.java
 │   ├── FronteiraTraducaoArchTest.java
@@ -1515,7 +1518,8 @@ traducao/
 │   │   ├── GoogleFallbackAdjacenciaTagTest.java
 │   │   ├── LimpezaTokenDeControleTest.java
 │   │   ├── LlmClientAdapterRespostaRevisaoTest.java
-│   │   └── LoreAtivaContextoAdapterTest.java
+│   │   ├── LoreAtivaContextoAdapterTest.java
+│   │   └── RespostaTruncadaNaoEhSucessoTest.java
 │   ├── config/
 │   │   ├── ConfiguracaoSimplesE3bIT.java
 │   │   ├── ParidadeBindingEstilosIT.java

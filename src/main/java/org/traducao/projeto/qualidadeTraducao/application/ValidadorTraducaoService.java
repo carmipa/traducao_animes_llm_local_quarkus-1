@@ -140,11 +140,18 @@ public class ValidadorTraducaoService {
     //
     // O conserto exige o vocabulário da tarefa logo depois: "Aqui está a tradução:" continua
     // pego, "Aqui está a ordem." passa. Não precisa do texto original para decidir.
+    //
+    // MEDIDO EM 2026-09-09 (auditoria de terceiro): "Here's the answer to your question." é
+    // fala de diálogo, e sua tradução correta "Aqui está a resposta à sua pergunta." casava a
+    // alternativa "resposta" e era descartada. "Resposta" sozinha não distingue preâmbulo de
+    // diálogo, exatamente como "aqui está a" não distinguia em 2026-07-28 — é a MESMA classe de
+    // defeito, uma alternativa a mais dentro da mesma regra. A alternativa saiu daqui e passou a
+    // viver em RECUSAS_AMBIGUAS, onde o ORIGINAL a absolve; sem original ela continua bloqueando.
     private static final Pattern PADRAO_PREAMBULO = Pattern.compile(
         "^(esta [ée] a tradu|abaixo seguem (a|as) tradu|"
-            + "aqui (est[áa]|v[ãa]o) (a |as |o |os )?(tradu|sa[ií]da|resposta|texto traduzido)|"
+            + "aqui (est[áa]|v[ãa]o) (a |as |o |os )?(tradu|sa[ií]da|texto traduzido)|"
             + "tradução solicitada|a tradução seria|"
-            + "tradu[çc][ãa]o\\s*:|sa[ií]da\\s*:|resposta\\s*:)",
+            + "tradu[çc][ãa]o\\s*:|sa[ií]da\\s*:)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
 
@@ -163,11 +170,16 @@ public class ValidadorTraducaoService {
     // em PT e preserva o ASS, escapava da validação. Ancorado no vocabulário de
     // tarefa/prompt ("traduzir legendas", "legendas de anime", "intenção emocional") —
     // NUNCA em "sou capaz"/"preservando"/"emocional" sozinhos, que são fala legítima.
+    //
+    // AS TRÊS ALTERNATIVAS AMBÍGUAS SAÍRAM DAQUI EM 2026-09-09 (auditoria de terceiro, medida
+    // com o Aya carregado): "não recebi", "não tenho acesso" e "preciso de mais informações"
+    // descartavam a tradução CORRETA de falas de diálogo — "I don't have access to the hangar."
+    // e "I need more information about the enemy." morriam nas três temperaturas, porque
+    // aumentar temperatura não vence regra que rejeita a resposta certa. Elas não são recusa
+    // por si: são recusa quando o ORIGINAL não as sustenta. Foram para RECUSAS_AMBIGUAS.
+    // O que fica aqui é vocabulário de PROTOCOLO, que fala de anime nenhuma produz.
     private static final Pattern PADRAO_RECUSA_META = Pattern.compile(
         "(?:sem\\s+tradu[çc][ãa]o\\b"
-            + "|n[ãa]o\\s+(?:recebi|tenho\\s+acesso|tenho\\s+como\\s+saber|tenho\\s+contexto|tenho\\s+informa)"
-            + "|forne\\S*\\s+.{0,40}?(?:linha|contexto|informa|texto|t[íi]tulo)"
-            + "|preciso\\s+de\\s+mais\\s+(?:contexto|informa)"
             + "|(?:linha|texto|frase)s?\\s+(?:para\\s+|que\\s+.{0,20}?)?traduzir"
             + "|traduzir\\s+(?:a\\s+linha|a\\s+frase|o\\s+texto|isso|este)"
             + "|nenhuma\\s+tradu[çc][ãa]o\\s+encontrada"
@@ -177,6 +189,66 @@ public class ValidadorTraducaoService {
             + "|provide\\s+more\\s+(?:context|info)|don'?t\\s+have\\s+.{0,20}context"
             + "|traduzir\\s+legendas?|legendas?\\s+de\\s+anime|inten[çc][ãa]o\\s+emocional)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
+    );
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma construção portuguesa que é meta-resposta do modelo OU tradução
+     * legítima, e que só o ORIGINAL desempata. Guarda o padrão em português, a âncora que o
+     * original precisa exibir para absolvê-la, e o rótulo que entra no diagnóstico.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a âncora é procurada SOMENTE no original; ausência de original
+     * é tratada como ausência de licença, para que nenhum chamador cego perca proteção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: é um registro imutável; não lança.
+     */
+    private record RecusaAmbigua(String rotulo, Pattern emPortugues, Pattern ancoraNoOriginal) {}
+
+    // POR QUE ANCORAR NO ORIGINAL, E NÃO AFROUXAR A REGRA (auditoria de 2026-09-09):
+    // a auditoria reproduziu cinco traduções corretas bloqueadas e recomendou, com todas as
+    // letras, NÃO criar liberação geral para qualquer frase que contenha estas palavras. A
+    // diferença entre recusa e diálogo não está no português: "Não tenho acesso ao hangar."
+    // é idêntico nos dois casos. Está em o original dizer, ou não, a mesma coisa. Com âncora,
+    // "Go!" -> "Não recebi nenhuma linha para traduzir." continua bloqueado (nada em "Go!"
+    // fala de receber), e "I don't have access to the hangar." passa.
+    //
+    // A ÂNCORA É DELIBERADAMENTE LARGA (o radical, não a frase): tradução não é decalque, e
+    // exigir correspondência estrita devolveria o falso positivo por outra porta.
+    private static final List<RecusaAmbigua> RECUSAS_AMBIGUAS = List.of(
+        new RecusaAmbigua("não tenho acesso",
+            Pattern.compile("n[ãa]o\\s+tenho\\s+acesso", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:access|clearance|permission)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("não recebi",
+            Pattern.compile("n[ãa]o\\s+recebi\\b", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:receiv|got|get|hear[dt]?|word)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("não tenho como saber",
+            Pattern.compile("n[ãa]o\\s+tenho\\s+como\\s+saber", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:know|tell|idea|way)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("não tenho contexto/informação",
+            Pattern.compile("n[ãa]o\\s+tenho\\s+(?:contexto|informa)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:context|information|info|intel|detail)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("preciso de mais contexto/informação",
+            Pattern.compile("preciso\\s+de\\s+mais\\s+(?:contexto|informa)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:need|want|require)\\b.{0,30}\\b(?:more|information|info|context|intel|detail)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("fornecer linha/contexto",
+            Pattern.compile("forne\\S*\\s+.{0,40}?(?:linha|contexto|informa|texto|t[íi]tulo)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:provide|supply|give|send|report)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("pode me enviar",
+            Pattern.compile("pode\\s+me\\s+enviar", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:send|transmit|give|relay|forward)", Pattern.CASE_INSENSITIVE)),
+        // A FRONTEIRA \b AQUI FOI MEDIDA, NÃO SUPOSTA (2026-09-09, 114.329 pares do acervo):
+        // sem ela, "mand\S+" casava DENTRO de "cha-MANDO" e reprovava o verso "E eu estou
+        // chamando seu nome novamente." — 21 ocorrências gravadas, e ZERO falas casariam com
+        // a fronteira posta. Custo do conserto: nenhum verdadeiro positivo perdido.
+        new RecusaAmbigua("enviar/mandar novamente",
+            Pattern.compile("\\b(?:envi\\S+|mand\\S+)\\s+.{0,15}novamente", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:again|resend|repeat|once\\s+more|one\\s+more\\s+time)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("preciso da linha/contexto",
+            Pattern.compile("preciso\\s+(?:de|da|dessa)\\s+.{0,20}(?:linha|contexto|informa)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:need|want|require)", Pattern.CASE_INSENSITIVE)),
+        new RecusaAmbigua("aqui está a resposta",
+            Pattern.compile("^\\s*(?:aqui\\s+(?:est[áa]|v[ãa]o)\\s+(?:a\\s+|as\\s+|o\\s+|os\\s+)?resposta|resposta\\s*:)",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS),
+            Pattern.compile("\\b(?:answer|response|reply|here)", Pattern.CASE_INSENSITIVE))
     );
 
     // Palavras do PADRAO_RESIDUO que também são nomes próprios comuns em
@@ -276,13 +348,17 @@ public class ValidadorTraducaoService {
     // recusa explícita — "Minha tradução para a sua linha é: ..." é afirmativo e escapava.
     // Ancorado no vocabulário de TAREFA, nunca em "desculpe"/"por favor" isolados, que são
     // fala legítima (50 dos 56 primeiros flags do corpus eram diálogo real).
+    //
+    // AS TRÊS ÚLTIMAS ALTERNATIVAS SAÍRAM DAQUI EM 2026-09-09 e viraram RECUSAS_AMBIGUAS:
+    // "pode me enviar", "preciso da linha" e "enviar/mandar novamente" descrevem tanto o modelo
+    // pedindo insumo quanto personagem pedindo coordenadas. Apesar do nome validarPar, a regra
+    // aplicava o padrão SÓ à tradução e nunca olhava o original — que é justamente o que
+    // desempata. O que fica aqui é o que nomeia a própria tradução como objeto ("minha
+    // tradução", "tradução para a sua linha"), e isso nenhum personagem diz.
     private static final Pattern PADRAO_META_DE_PAR = Pattern.compile(
         "minha\\s+tradu[çc][ãa]o"
             + "|tradu[çc][ãa]o\\s+(?:para|de)\\s+(?:a\\s+)?(?:sua\\s+)?linha"
-            + "|para\\s+poder\\s+traduzir"
-            + "|preciso\\s+(?:de|da|dessa)\\s+.{0,20}(?:linha|contexto|informa)"
-            + "|(?:envi\\S+|mand\\S+)\\s+.{0,15}novamente"
-            + "|pode\\s+me\\s+enviar",
+            + "|para\\s+poder\\s+traduzir",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS
     );
 
@@ -295,6 +371,28 @@ public class ValidadorTraducaoService {
      * {@link AlucinacaoDetectadaException} com a fala original no diagnóstico.
      */
     public void validarFala(String textoTraduzido) {
+        validarFala(textoTraduzido, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma validação de {@link #validarFala(String)}, mas com o texto de
+     * partida em mãos, para que uma construção ambígua — "não tenho acesso", "não recebi",
+     * "preciso de mais informações" — deixe de ser lida como recusa do modelo quando o próprio
+     * original diz aquilo. É a correção do defeito medido em 2026-09-09, em que a tradução
+     * CORRETA de falas de diálogo era descartada nas três temperaturas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o original é usado SÓ para absolver, nunca para condenar — toda
+     * regra que já bloqueava sem ele continua bloqueando. {@code textoOriginal} nulo ou vazio
+     * significa "sem licença possível" e reproduz exatamente o comportamento histórico, para que
+     * nenhum chamador que não tem o original perca proteção.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link AlucinacaoDetectadaException} com o
+     * diagnóstico; texto vazio é aceito em silêncio.
+     *
+     * @param textoTraduzido a proposta de tradução, com tags ASS ou sem elas
+     * @param textoOriginal  o texto de partida, ou {@code null} quando o chamador não o tem
+     */
+    public void validarFala(String textoTraduzido, String textoOriginal) {
         if (textoTraduzido == null || textoTraduzido.trim().isEmpty()) {
             return;
         }
@@ -328,6 +426,13 @@ public class ValidadorTraducaoService {
 
         if (PADRAO_RECUSA_META.matcher(visivel).find()) {
             throw new AlucinacaoDetectadaException("Recusa/meta-resposta do LLM detectada: " + textoTraduzido);
+        }
+
+        RecusaAmbigua semApoio = recusaSemApoioNoOriginal(visivel, textoOriginal);
+        if (semApoio != null) {
+            throw new AlucinacaoDetectadaException(
+                "Recusa/meta-resposta do LLM detectada (\"" + semApoio.rotulo()
+                    + "\" sem apoio no original): " + textoTraduzido);
         }
 
         // Marcador de falha do pipeline Python antigo encontrado em legendas
@@ -396,6 +501,16 @@ public class ValidadorTraducaoService {
         if (PADRAO_META_DE_PAR.matcher(traduzido).find()) {
             throw new AlucinacaoDetectadaException(
                 "Meta-resposta sobre a tarefa de traduzir: \"" + traduzido + "\" (original: \"" + original + "\")");
+        }
+
+        // Aqui o original SEMPRE existe, então a absolvição é a regra e não a exceção. Repetir a
+        // checagem torna validarPar auto-suficiente: quem chamar só este método continua coberto
+        // contra as construções ambíguas, sem depender de ter passado por validarFala antes.
+        RecusaAmbigua semApoio = recusaSemApoioNoOriginal(traduzido, original);
+        if (semApoio != null) {
+            throw new AlucinacaoDetectadaException(
+                "Meta-resposta sobre a tarefa de traduzir (\"" + semApoio.rotulo()
+                    + "\" sem apoio no original): \"" + traduzido + "\" (original: \"" + original + "\")");
         }
 
         if (temLocutorInventado(original, traduzido)) {
@@ -772,6 +887,35 @@ public class ValidadorTraducaoService {
         return texto != null && termo != null && !termo.isBlank()
             && Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])")
                 .matcher(texto).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se uma construção ambígua presente na tradução é meta-resposta
+     * do modelo ou fala legítima, procurando no ORIGINAL a âncora que a sustentaria.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: original ausente equivale a ausência de licença — a regra
+     * bloqueia, como bloqueava antes de existir esta absolvição. A primeira construção sem apoio
+     * encerra a busca: o diagnóstico nomeia UMA causa, não uma lista.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança; devolve {@code null} quando nada casa ou
+     * quando tudo que casou está licenciado pelo original.
+     *
+     * @param traduzido texto visível da tradução, já sem blocos ASS
+     * @param original  texto de partida, ou {@code null}/vazio quando o chamador não o tem
+     * @return a construção ambígua não sustentada pelo original, ou {@code null}
+     */
+    private static RecusaAmbigua recusaSemApoioNoOriginal(String traduzido, String original) {
+        boolean temOriginal = original != null && !original.isBlank();
+        for (RecusaAmbigua candidata : RECUSAS_AMBIGUAS) {
+            if (!candidata.emPortugues().matcher(traduzido).find()) {
+                continue;
+            }
+            if (temOriginal && candidata.ancoraNoOriginal().matcher(original).find()) {
+                continue;
+            }
+            return candidata;
+        }
+        return null;
     }
 
     private String removerTermosProtegidos(String texto) {

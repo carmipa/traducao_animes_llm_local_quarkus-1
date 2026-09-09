@@ -181,9 +181,19 @@ tradutor:
   idioma-original: "en"
   idioma-traduzido: "pt-br"
   # Fallback online de ULTIMO RECURSO (Google Translate) para as falas de dialogo
-  # que o LLM local nao conseguiu traduzir. OPT-IN, desligado por padrao: quando
-  # false o pipeline e 100% local. Quando true, apenas as pendencias desta execucao
-  # vao ao provedor externo, ja validadas pela mesma checagem canonica do LLM.
+  # que o LLM local nao conseguiu traduzir. Quando false o pipeline e 100% local.
+  # Quando true, apenas as pendencias desta execucao vao ao provedor externo, ja
+  # validadas pela mesma checagem canonica do LLM.
+  #
+  # ESTA LIGADO. O comentario anterior dizia "OPT-IN, desligado por padrao" e o valor
+  # dizia true — a auditoria de 2026-09-09 pegou a contradicao, e quem lesse so o
+  # comentario concluiria que o pipeline e local, sem saber que fala pendente sai da
+  # maquina. O texto foi corrigido para descrever o que o arquivo FAZ, nao o que se
+  # pretendia. Trocar o VALOR e decisao de produto e nao foi tomada aqui.
+  #
+  # Consequencia para MEDICAO: com ele ligado, uma pendencia do LLM local pode ser
+  # resolvida pelo Google e sumir da conta. Comparacao entre modelos locais precisa
+  # desligar isto na configuracao do ensaio, senao mede os dois somados.
   fallback-online:
     ativo: true
   llm:
