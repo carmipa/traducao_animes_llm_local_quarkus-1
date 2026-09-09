@@ -185,17 +185,28 @@ tradutor:
   # Quando true, apenas as pendencias desta execucao vao ao provedor externo, ja
   # validadas pela mesma checagem canonica do LLM.
   #
-  # ESTA LIGADO. O comentario anterior dizia "OPT-IN, desligado por padrao" e o valor
-  # dizia true — a auditoria de 2026-09-09 pegou a contradicao, e quem lesse so o
-  # comentario concluiria que o pipeline e local, sem saber que fala pendente sai da
-  # maquina. O texto foi corrigido para descrever o que o arquivo FAZ, nao o que se
-  # pretendia. Trocar o VALOR e decisao de produto e nao foi tomada aqui.
+  # DESLIGADO POR DECISAO DE PAULO EM 2026-09-09. O pipeline volta a ser 100% local.
   #
-  # Consequencia para MEDICAO: com ele ligado, uma pendencia do LLM local pode ser
-  # resolvida pelo Google e sumir da conta. Comparacao entre modelos locais precisa
-  # desligar isto na configuracao do ensaio, senao mede os dois somados.
+  # Historia: o valor era true sob um comentario que dizia "OPT-IN, desligado por padrao".
+  # A auditoria de terceiro de 09/09 pegou a contradicao, e quem lesse so o comentario
+  # concluiria que nada sai da maquina, sem saber que fala pendente ia ao Google.
+  #
+  # O CUSTO DE DESLIGAR NAO E MENSURAVEL do que existe em disco, e isso fica declarado:
+  # nao ha telemetria persistida de execucao nesta arvore, e o cache JSON nao guarda
+  # coluna de ORIGEM por entrada -- uma fala salva pelo Google e indistinguivel de uma
+  # salva pelo LLM local. Logo, "quantas falas o fallback resgatou no acervo" e uma
+  # pergunta que os dados atuais nao respondem. Quem quiser o numero precisa da coluna
+  # de origem no cache primeiro.
+  #
+  # O GANHO E MENSURAVEL: com ele ligado, uma pendencia do LLM local podia ser resolvida
+  # pelo Google e sumir da conta, o que ja mascarou comparacao entre modelos locais.
+  # Desligado, a pendencia aparece como pendencia -- que e o sinal que se quer medir.
+  #
+  # Efeito pratico: fala que o LLM local nao traduzir fica com o texto ORIGINAL na
+  # legenda, em vez de receber a versao do Google. Ela continua contada como pendencia
+  # e volta a ser alvo da revisao 3.1.
   fallback-online:
-    ativo: true
+    ativo: false
   llm:
     # O default preserva a execucao fora de conteiner: sem a variavel, e o mesmo
     # 127.0.0.1 de sempre. DENTRO do conteiner, 127.0.0.1 e o proprio conteiner e
