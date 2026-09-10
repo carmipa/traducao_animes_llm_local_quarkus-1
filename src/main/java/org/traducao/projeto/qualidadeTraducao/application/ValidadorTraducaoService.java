@@ -870,7 +870,25 @@ public class ValidadorTraducaoService {
         if (outro != null && termo != null && !outro.equals(termo) && contemTermo(outro, termo)) {
             base = semOcorrenciasDe(texto, outro);
         }
-        return contemTermo(base, termo);
+        // CAIXA NAO MUDA A ENTIDADE, e por isso a troca de nome se apura ignorando-a.
+        //
+        // A comparacao sensivel a caixa existe para separar o NOME "Four" do NUMERAL "four", e
+        // continua valendo em toda regra que julga termo protegido. Mas para a troca de ENTIDADE
+        // ela criava ponto cego: cartao de nome no ASS e escrito em CAIXA ALTA pelo typesetter, e
+        // MEDIDO no cache do ZZ em 2026-09-09 o cartao "QUATTRO BAJEENA" foi publicado como
+        // "Four Murasame." -- duas personagens diferentes, no letreiro que ANUNCIA quem e quem.
+        // Com a comparacao sensivel a caixa, "QUATTRO" nao casava "Quattro" e a guarda passava.
+        //
+        // Nao afrouxa o par Four x numeral: numeral nao e entidade e nao entra em par nenhum.
+        return contemTermoIgnorandoCaixa(base, termo);
+    }
+
+    /** Fronteira de palavra sobre o termo inteiro, IGNORANDO a caixa — só para troca de entidade. */
+    private static boolean contemTermoIgnorandoCaixa(String texto, String termo) {
+        return texto != null && termo != null && !termo.isBlank()
+            && Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(termo) + "(?![\\p{L}\\p{N}])",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+                .matcher(texto).find();
     }
 
     /** Remove as ocorrências do termo por fronteira de palavra, preservando o resto do texto. */

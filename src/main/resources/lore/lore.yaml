@@ -7291,6 +7291,12 @@ obras:
        - Quattro
     -  - Four
        - Quattro
+    # MEDIDO EM 2026-09-09 no acervo PUBLICADO: 24 falas com "Four" injetado onde o
+    # original nao o tem, e o padrao dominante e "Fa!" -> "Four!". Fa Yuiry e Four
+    # Murasame sao personagens DIFERENTES, e o espectador le o nome errado. O par
+    # Four x Quattro ja existia e por isso Quattro era pego; Fa nao estava declarada.
+    -  - Four
+       - Fa
     -  - Gundam Mk-II
        - Zeta Gundam
    # ===== CICATRIZ MIGRADA de ContextoGundamZeta.java (2026-08-15) =====
@@ -7678,6 +7684,18 @@ obras:
        - Nahel Argama
     -  - ZZ Gundam
        - Zeta Gundam
+    # MEDIDO EM 2026-09-09 no cache do ZZ: o ima do nome "Four" come todo nome curto de
+    # personagem. Casos gravados: "Fa! He's found us!" -> "Four! Ele nos encontrou!",
+    # "Iino! Qum! You okay?" -> "Iino! Four! ...", "P-Ple?! Why?!" -> "P-Four?! ...",
+    # "Mistress Chara's seat" -> "lugar de Four". Sao quatro personagens distintas.
+    -  - Four
+       - Fa
+    -  - Four
+       - Qum
+    -  - Four
+       - Ple
+    -  - Four
+       - Chara
    traducoesObrigatorias:
      Universal Century: Século Universal
    correcoesTerminologia:

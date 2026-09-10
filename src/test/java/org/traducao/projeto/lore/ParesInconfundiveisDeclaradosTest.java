@@ -29,6 +29,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   gundam_08ms      4 falas   EN "Sanders"     -> PT "Shinigami"     ("Shinigami": 0 no inglês)
  * </pre>
  *
+ * <h2>Acréscimo de 2026-09-09, medido no acervo PUBLICADO (não no cache)</h2>
+ * Varredura de 32.430 pares de diálogo, original contra o {@code .ass} entregue:
+ * <pre>
+ *   "Four" no publicado COM "Four" no original (legítimo) ... 158
+ *   "Four" no publicado SEM  "Four" no original (INJETADO) ...  24
+ * </pre>
+ * O ímã do nome {@code Four} come todo nome CURTO de personagem, e o par {@code Four x Quattro}
+ * pegava só um deles. As quatro personagens que faltavam, com o caso gravado:
+ * <pre>
+ *   "Fa!"                                 -> "Four!"                    (dominante, muitas falas)
+ *   "Iino! Qum! You okay?"                -> "Iino! Four! Você está bem?"
+ *   "P-Ple?! Why?!"                       -> "P-Four?! Por que?!"
+ *   "Clear out of Mistress Chara's seat!" -> "Saia do lugar de Four!"
+ *   "QUATTRO BAJEENA" (cartão de nome)    -> "Four Murasame."
+ * </pre>
+ * O último caso não era pego nem pelo par existente: a comparação era sensível à CAIXA e cartão
+ * de nome no ASS vem em CAIXA ALTA. A apuração de troca de entidade passou a ignorar caixa.
+ *
  * <h2>Por que uma catraca, e não confiança na revisão</h2>
  * Os três primeiros pares foram declarados sem teste nenhum. Um par apagado por engano não quebra
  * compilação, não quebra teste e não aparece em log: volta a valer a lore antiga, o modelo volta a
@@ -58,6 +76,9 @@ class ParesInconfundiveisDeclaradosTest {
     private static final Map<String, Set<Set<String>>> ESPERADO = Map.of(
         "gundam_zeta", Set.of(
             Set.of("Four", "Quattro"),
+            // MEDIDO EM 2026-09-09 no PUBLICADO: "Fa!" -> "Four!" e o padrao dominante das 24
+            // injecoes. Fa Yuiry e Four Murasame sao personagens DIFERENTES.
+            Set.of("Four", "Fa"),
             Set.of("Zeta Gundam", "Gundam Mk-II"),
             // O único par do catálogo que protege ENREDO e não grafia: Char Aznable se
             // apresenta como Quattro Bajeena, e a obra esconde isso de propósito. Medido:
@@ -65,7 +86,13 @@ class ParesInconfundiveisDeclaradosTest {
             Set.of("Char", "Quattro")),
         "gundam_zz", Set.of(
             Set.of("Zeta Gundam", "ZZ Gundam"),
-            Set.of("Argama", "Nahel Argama")),
+            Set.of("Argama", "Nahel Argama"),
+            // MEDIDO EM 2026-09-09 no cache do ZZ: o mesmo ima do nome "Four" comeu quatro nomes
+            // curtos de personagem. Um par por personagem, porque cada um e uma pessoa distinta.
+            Set.of("Four", "Fa"),
+            Set.of("Four", "Qum"),
+            Set.of("Four", "Ple"),
+            Set.of("Four", "Chara")),
         "guilty_crown", Set.of(
             Set.of("Inori", "Crow")),
         // Três pares para UM personagem, e cada um guarda uma direção diferente do mesmo
