@@ -378,6 +378,61 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             "releitura impossivel tem de sair NAO VERIFICADO; console: " + logger.mensagens);
     }
 
+
+    /**
+     * MEDIDO NA PRIMEIRA CORRIDA EM PRODUCAO desta guarda (DanMachi S01E01, 2026-09-09): as 14
+     * "divergencias" que ela acusou eram as 14 PENDENCIAS do episodio. Para fala pendente o cache
+     * grava traduzido VAZIO e o arquivo preserva o ORIGINAL -- dois estados legitimos que nao
+     * batem entre si por desenho. Confundi-los faz a guarda gritar em TODO arquivo parcial, que e
+     * o alarme falso que a regra 23 chama de pior que guarda nenhuma.
+     */
+    @Test
+    @DisplayName("A6: pendencia com o original preservado NAO e divergencia")
+    void a6PendenciaNaoEhDivergencia() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-com-pendencia.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Are you even listening?\n",
+            StandardCharsets.UTF_8);
+
+        // o cache grava vazio para a pendente; o disco preserva o original
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "Are you even listening?", "", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("nenhuma divergencia")),
+            "pendencia com original preservado nao pode virar ATENCAO; console: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("pendente(s) com o original preservado")),
+            "o placar tem de DECLARAR a pendencia, nao apenas calar sobre ela; console: " + logger.mensagens);
+    }
+
+    /**
+     * CONTRA-CASO: cache vazio mas o disco NAO tem o original -- ai a divergencia e real, porque
+     * alguma etapa gravou outra coisa.
+     */
+    @Test
+    @DisplayName("A6 CASO-CONTROLE: cache vazio com disco DIFERENTE do original ainda acusa")
+    void a6CacheVazioComDiscoDiferenteAindaAcusa() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-vazio-diferente.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Outra coisa qualquer.\n",
+            StandardCharsets.UTF_8);
+
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "Are you even listening?", "", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("ATENCAO")),
+            "cache vazio com disco diferente do original E divergencia; console: " + logger.mensagens);
+    }
+
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }

@@ -1072,11 +1072,31 @@ public class ProcessarArquivoUseCase {
 
         int divergentes = 0;
         int reprovadosAgora = 0;
+        int pendentesPreservadas = 0;
         for (EntradaCache entrada : entradasCache) {
             String gravado = noDisco.get(entrada.indice());
             if (gravado == null) {
                 divergentes++;
                 log.warn("A6: fala {} foi traduzida e NAO esta no arquivo gravado", entrada.indice());
+                continue;
+            }
+            // PENDENTE NAO E DIVERGENCIA, e confundir os dois faz esta guarda gritar em todo
+            // arquivo parcial — o alarme falso que a regra 23 diz ser pior que guarda nenhuma.
+            //
+            // MEDIDO na primeira corrida em producao (DanMachi S01E01, 2026-09-09): as 14
+            // "divergencias" que esta guarda acusou eram as 14 PENDENCIAS. Para elas o cache
+            // grava traduzido VAZIO e o arquivo preserva o ORIGINAL — dois estados legitimos que
+            // nao batem entre si por desenho.
+            //
+            // FICA DECLARADO O QUE ISTO REVELOU, e nao esta consertado aqui: gravar vazio no
+            // cache PERDE a informacao de que a fala esta pendente e por que (A7 do aditivo —
+            // causa e autoria preservadas). O certo seria o cache registrar a pendencia com o
+            // motivo, em vez de uma traducao que nao existe.
+            boolean pendenteComOriginalPreservado =
+                (entrada.traduzido() == null || entrada.traduzido().isBlank())
+                    && gravado.equals(entrada.original());
+            if (pendenteComOriginalPreservado) {
+                pendentesPreservadas++;
                 continue;
             }
             if (!gravado.equals(entrada.traduzido())) {
@@ -1095,15 +1115,20 @@ public class ProcessarArquivoUseCase {
 
         // O placar sai SEMPRE, inclusive em zero (regra 12): "conferi e esta limpo" e "a
         // conferencia nao rodou" nao podem ter a mesma cara no console.
+        // O placar sai SEMPRE e mostra os TRES estados, inclusive em zero (regra 12 e A4):
+        // conferidas, pendentes-com-original-preservado, e divergencia de verdade.
+        String pendentes = pendentesPreservadas > 0
+            ? ", " + pendentesPreservadas + " pendente(s) com o original preservado (estado esperado)"
+            : "";
         if (divergentes == 0 && reprovadosAgora == 0) {
             uiLogger.log("   [ A6 ] arquivo gravado conferido: " + entradasCache.size()
-                + " fala(s) relida(s) do disco, nenhuma divergencia");
+                + " fala(s) relida(s) do disco, nenhuma divergencia" + pendentes);
             return;
         }
         uiLogger.log("   [ A6 ] ATENCAO no arquivo gravado: " + divergentes
             + " divergencia(s) entre disco e validado, " + reprovadosAgora
             + " fala(s) que passaram antes e reprovam agora (de " + entradasCache.size()
-            + " relidas). Detalhe no log; o arquivo NAO foi alterado.");
+            + " relidas" + pendentes + "). Detalhe no log; o arquivo NAO foi alterado.");
     }
 
 }
