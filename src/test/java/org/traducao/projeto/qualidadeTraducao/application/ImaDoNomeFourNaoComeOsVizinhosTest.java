@@ -72,6 +72,7 @@ class ImaDoNomeFourNaoComeOsVizinhosTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
      */
     private static ValidadorTraducaoService comOsParesDaLore() {
+        Set<List<String>> reais = paresDeclaradosEmProducao();
         return new ValidadorTraducaoService(new org.traducao.projeto.qualidadeTraducao.domain.LoreAtivaPort() {
             @Override
             public Set<String> termosProtegidosAtivos() {
@@ -85,11 +86,42 @@ class ImaDoNomeFourNaoComeOsVizinhosTest {
 
             @Override
             public Set<List<String>> paresInconfundiveisAtivos() {
-                return Set.of(List.of("Four", "Fa"), List.of("Four", "Qum"),
-                    List.of("Four", "Ple"), List.of("Four", "Chara"),
-                    List.of("Four", "Quattro"));
+                return reais;
             }
         });
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lê do CATÁLOGO REAL os pares declarados nas obras onde o ímã do
+     * {@code Four} foi medido, para o dublê nunca ser mais generoso que a produção.
+     *
+     * <h2>A cicatriz que obrigou isto — 2026-09-14</h2>
+     * A primeira versão deste dublê escrevia os pares à mão e incluía {@code Four x Quattro}. No
+     * ZZ esse par <b>não estava declarado</b>, só no Zeta. Resultado: este teste passava verde
+     * enquanto a produção publicava, pela segunda vez, o cartão de nome {@code "QUATTRO BAJEENA"}
+     * como {@code "Four Murasame"} — e só uma retradução do episódio 1 do zero mostrou isso.
+     * <b>Dublê mais generoso que a realidade aprova por cegueira</b>, que é a mesma forma do
+     * defeito que a guarda existe para impedir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa a união de {@code gundam_zz} e {@code gundam_zeta}, que são
+     * as duas obras onde as trocas deste teste foram medidas. Obra ausente do catálogo faz o
+     * teste falhar em vez de silenciar — conjunto vazio aprovaria tudo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@link IllegalStateException} nomeando a obra ausente.
+     */
+    private static Set<List<String>> paresDeclaradosEmProducao() {
+        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml();
+        Set<List<String>> uniao = new java.util.LinkedHashSet<>();
+        for (String obra : List.of("gundam_zz", "gundam_zeta")) {
+            var provedor = catalogo.obras().stream()
+                .filter(o -> obra.equals(o.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                    "obra ausente do catalogo de lore: " + obra
+                        + " — sem ela o duble ficaria sem pares e aprovaria tudo"));
+            uniao.addAll(provedor.paresInconfundiveis());
+        }
+        return uniao;
     }
 
     @ParameterizedTest(name = "[{index}] {0} -> {1}")
