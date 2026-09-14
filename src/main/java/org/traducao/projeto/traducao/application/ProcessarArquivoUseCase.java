@@ -914,6 +914,20 @@ public class ProcessarArquivoUseCase {
         // classificadas como residuo de traducao que eram letra de musica.
         //
         // So ASS: o SRT nao tem cabecalho para comentario, e inventar um quebraria o formato.
+        // O DESTINO E RESOLVIDO ANTES DO CARIMBO porque o carimbo FALA SOBRE ELE. Enquanto a
+        // ordem era a inversa, a frase "arquivo publicado como parcial" era escrita sempre que
+        // houvesse pendencia — inclusive nas retraducoes, que publicam o arquivo FINAL mesmo
+        // com pendencia (ResolvedorSaidaLegenda.selecionar, protecaoLiberada). Medido em
+        // 2026-09-09 no DanMachi S01E01: o arquivo em disco era "..._PT-BR.ass", final, e o
+        // cabecalho dele afirmava ser parcial. Como a regra de auditoria do projeto diz que
+        // ".parcial nao e entrega", o carimbo mentiroso ensina a DESCARTAR uma entrega valida.
+        // A condicao nao e recalculada aqui: ela e CONSULTADA no caminho que o resolvedor
+        // escolheu, para nao existir uma segunda implementacao da mesma decisao.
+        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
+        Path arquivoSaida = resolvedorSaida.selecionar(
+            arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
+        boolean publicadoComoParcial = !arquivoSaida.equals(arquivoSaidaFinal);
+
         String cabecalhoFinal = documento.cabecalho();
         if (!ehSrt) {
             int naOrigem = documento.eventos().size();
@@ -925,7 +939,10 @@ public class ProcessarArquivoUseCase {
             carimbo.add("lore: " + contexto.nomeExibicao() + " (" + contexto.id() + ")");
             if (!falhasDistintas.isEmpty()) {
                 carimbo.add("pendentes: " + falhasDistintas.size()
-                    + " fala(s) mantida(s) no original — arquivo publicado como parcial");
+                    + " fala(s) mantida(s) no original — "
+                    + (publicadoComoParcial
+                        ? "arquivo publicado como parcial"
+                        : "arquivo publicado como FINAL assim mesmo, por retraducao autorizada"));
             }
             cabecalhoFinal = CarimboCabecalhoLegenda.aplicar(cabecalhoFinal, carimbo);
         }
@@ -933,9 +950,6 @@ public class ProcessarArquivoUseCase {
         DocumentoLegenda documentoFinal = new DocumentoLegenda(
             cabecalhoFinal, eventosFinais, documento.quebraDeLinha(), documento.comBom());
 
-        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
-        Path arquivoSaida = resolvedorSaida.selecionar(
-            arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
         Path backupSobrescrita = null;
         if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
             backupSobrescrita = politicaBackup.criarBackupAntesSobrescrita(arquivoSaidaFinal);

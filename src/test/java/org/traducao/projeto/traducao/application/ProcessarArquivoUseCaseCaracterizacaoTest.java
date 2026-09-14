@@ -809,6 +809,80 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertEquals("DIALOGO", p.categoria());
         assertEquals("ECO", p.causaRaiz());
         assertEquals(1, p.quantidade());
+
+        // O CARIMBO DESCREVE O ARQUIVO EM QUE ELE ESTA. Aqui o arquivo E parcial, e a frase
+        // pode dizer isso. O par de fronteira esta no teste seguinte: MESMA pendencia, arquivo
+        // FINAL. Sem os dois lados, a guarda prova que enxerga e nao que discrimina (A1).
+        assertTrue(conteudo.contains("arquivo publicado como parcial"),
+            "carimbo do .parcial deve dizer que e parcial, e disse: " + primeiraLinhaDePendencia(conteudo));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: prova que o carimbo de proveniência não afirma mais uma falsidade
+     * sobre o arquivo que o carrega. Com retradução autorizada, o pipeline publica a saída
+     * <b>final</b> mesmo havendo pendência ({@code ResolvedorSaidaLegenda.selecionar}, parâmetro
+     * {@code protecaoLiberada}) — e o carimbo escrevia "arquivo publicado como parcial" de
+     * qualquer maneira, porque era montado ANTES de o destino ser resolvido.
+     *
+     * <h2>O prejuízo MEDIDO — 2026-09-09, DanMachi S01E01</h2>
+     * O arquivo em disco era {@code ..._PT-BR.ass}, final, sem irmão {@code .parcial}, e o
+     * cabeçalho dele dizia:
+     * <pre>
+     * ; KRONOS pendentes: 14 fala(s) mantida(s) no original — arquivo publicado como parcial
+     * </pre>
+     * A régua de auditoria do projeto diz que <b>{@code .parcial} não é entrega</b>. Um operador
+     * que aplique essa régua ao carimbo <b>descarta uma entrega válida</b> — é a lente de boa-fé:
+     * ninguém precisa errar para o dano acontecer, basta acreditar no que o arquivo diz de si.
+     *
+     * <h2>Caso-controle de fronteira (A1)</h2>
+     * O sinal superficial é o mesmo nos dois testes — {@code falhasDistintas} não vazio. O que
+     * muda é só o destino escolhido pelo resolvedor. Uma guarda que olhasse apenas a pendência
+     * daria a mesma frase nos dois, que é exatamente o defeito corrigido.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Falha de asserção nomeando a frase encontrada no cabeçalho.
+     */
+    @Test
+    void carimboNaoChamaDeParcialUmArquivoPublicadoComoFinal() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        // true = retradução autorizada: publica a saída FINAL ainda que sobre pendência.
+        ResultadoTraducaoArquivo r = uc.processar(entrada, true, gerenciadorMontado.snapshotAtivo());
+
+        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        Path parcial = raiz.resolve("saida").resolve("ep_PT-BR.parcial.ass");
+        assertTrue(Files.exists(finalPtBr),
+            "com retraducao autorizada a saida final e publicada mesmo com pendencia");
+        assertFalse(Files.exists(parcial), "nao existe .parcial neste cenario");
+        assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
+            "o STATUS continua parcial: o que mudou foi o NOME do arquivo, nao a pendencia");
+
+        String conteudo = Files.readString(finalPtBr, StandardCharsets.UTF_8);
+        assertTrue(conteudo.contains("pendentes: 1 fala(s)"),
+            "a pendencia continua declarada no carimbo: " + primeiraLinhaDePendencia(conteudo));
+        assertFalse(conteudo.contains("arquivo publicado como parcial"),
+            "arquivo FINAL nao pode se declarar parcial: " + primeiraLinhaDePendencia(conteudo));
+        assertTrue(conteudo.contains("publicado como FINAL"),
+            "o carimbo tem de dizer o que o arquivo E: " + primeiraLinhaDePendencia(conteudo));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai do cabeçalho a linha de pendência para a mensagem de falha
+     * mostrar o texto real gravado, e não apenas "esperava true".
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não altera o conteúdo; devolve a primeira linha que contém o
+     * rótulo de pendência do carimbo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem linha de pendência, devolve aviso explícito em vez
+     * de {@code null} — asserção que falha sem mostrar o observado não ensina nada.
+     */
+    private static String primeiraLinhaDePendencia(String cabecalho) {
+        return cabecalho.lines()
+            .filter(l -> l.contains("pendentes:"))
+            .findFirst()
+            .orElse("<<nenhuma linha de pendencia no cabecalho>>");
     }
 
     /**
