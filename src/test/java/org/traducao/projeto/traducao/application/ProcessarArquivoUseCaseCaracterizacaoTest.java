@@ -942,7 +942,48 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /** {@code \N} do ASS montado sem literal de escape, para o teste não depender de transporte. */
-    private static final String BARRA_N = String.valueOf((char) 92) + "N";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha a fronteira A6 da instrução de proa. A resposta que o modelo dá
+     * com a instrução nova carrega duas formas que costumam derrubar guarda numérica ao mesmo
+     * tempo: o rumo escrito com hífens ({@code 2-8-0}) e a distância com separador de milhar
+     * ({@code 5.000} para {@code 5,000}). Se qualquer camada reprovasse, a fala publicada voltaria
+     * ao inglês e a correção pioraria a entrega.
+     *
+     * <h2>Por que este caso, e não outro</h2>
+     * É o caso em que o arquivo publicado <b>perdeu o rumo inteiro</b> — saiu como
+     * {@code "Distancia 5.000."}, sem nenhum rumo. Provar que a resposta completa chega ao disco é
+     * exatamente o que o defeito original desmentia.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Falha de asserção mostrando a linha realmente gravada no {@code .ass}.
+     */
+    @Test
+    void respostaDeProaChegaAoArquivoComHifenESeparadorDeMilhar() throws Exception {
+        String original = "Heading 2-8-0. Distance 5,000.";
+        String medida = "Direção: 2-8-0. Distância: 5.000.";
+        FakeLlmPort llm = FakeLlmPort.comResposta("Heading 2-8-0", medida);
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", original);
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(saida),
+            "sem pendencia a saida final tem de ser publicada; status=" + r.status());
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        String gravada = conteudo.lines()
+            .filter(l -> l.startsWith("Dialogue:"))
+            .findFirst().orElse("<<nenhuma linha Dialogue no arquivo>>");
+        assertTrue(conteudo.contains("2-8-0"),
+            "o rumo com hifen tem de sobreviver ate o disco, e foi gravado: " + gravada);
+        assertTrue(conteudo.contains("5.000"),
+            "o separador de milhar e reescrita legitima do portugues: " + gravada);
+        assertFalse(conteudo.contains("Heading 2-8-0"),
+            "o portao devolveu a fala ao ingles: " + gravada);
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "a resposta medida no modelo real nao pode virar pendencia");
+    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: extrai do cabeçalho a linha de pendência para a mensagem de falha
