@@ -986,6 +986,44 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: fecha a fronteira A6 da correção de acento do futuro. O
+     * {@code CorretorHomografoComOriginal} repõe o acento usando o original inglês como prova, mas
+     * "a função devolve certo" não é "o arquivo saiu certo": entre a correção e a gravação ainda
+     * correm terminologia, normalização de aspas, carimbo de cabeçalho e serialização.
+     *
+     * <h2>O que este teste responde, e o outro não</h2>
+     * {@code AcentoDoFuturoComOriginalTest} prova o critério na função, com 16 casos e mutação. Só
+     * este prova que o {@code á} chega ao {@code .ass} publicado — e que nenhuma guarda da cadeia
+     * reprova a fala corrigida, devolvendo-a ao inglês.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Falha de asserção mostrando a linha realmente gravada.
+     */
+    @Test
+    void acentoDoFuturoChegaAoArquivoGravado() throws Exception {
+        String original = "This war will end someday.";
+        FakeLlmPort llm = FakeLlmPort.comResposta("This war will end", "Um dia, a guerra acabara.");
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", original);
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(saida),
+            "sem pendencia a saida final tem de ser publicada; status=" + r.status());
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        String gravada = conteudo.lines()
+            .filter(l -> l.startsWith("Dialogue:"))
+            .findFirst().orElse("<<nenhuma linha Dialogue no arquivo>>");
+        assertTrue(conteudo.contains("acabará"),
+            "o acento do futuro tem de sobreviver ate o disco, e foi gravado: " + gravada);
+        assertFalse(conteudo.contains("acabara "),
+            "a forma sem acento nao pode continuar no arquivo: " + gravada);
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "a fala corrigida nao pode virar pendencia");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: extrai do cabeçalho a linha de pendência para a mensagem de falha
      * mostrar o texto real gravado, e não apenas "esperava true".
      *

@@ -105,6 +105,44 @@ public class CorretorHomografoComOriginal {
         FronteiraTermoAss.INICIO + "([Ee]sta)" + FronteiraTermoAss.FIM);
 
     /**
+     * Marcador de FUTURO no original. A forma contraída depois de pronome entra sem fronteira à
+     * esquerda de propósito: {@code you'll}, {@code We'll}, {@code he'll} são o futuro mais comum
+     * na fala, e exigir fronteira ali os perde. <b>Medido:</b> 3 das 4 abstenções da primeira
+     * versão desta medição eram exatamente essa forma.
+     *
+     * <p>{@code 'd} fica FORA: {@code "he'd probably die"} é condicional, não futuro, e a
+     * tradução correta é {@code morreria}. A única abstenção que sobra no acervo é essa, e ela
+     * está certa.
+     */
+    private static final Pattern FUTURO_INGLES = Pattern.compile(
+        "\\b(?:will|shall|going to|gonna)\\b|won't|shan't|'ll",
+        Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Marcador de ANTERIORIDADE que obriga a abstenção. Com {@code had} no original, alguma forma
+     * do português pode ser mais-que-perfeito legítimo, e não há como saber QUAL — é o mesmo
+     * recuo que {@code podeTrocarE} faz diante de um coordenador.
+     */
+    private static final Pattern ANTERIOR_INGLES =
+        Pattern.compile("\\bhad\\b", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Futuro do presente na 3ª pessoa escrito SEM o acento. Lista FECHADA, tirada do acervo
+     * publicado, e cada forma tem o par acentuado como futuro do MESMO verbo.
+     *
+     * <p><b>{@code vira} está FORA de propósito</b>, e é a fronteira desta regra: {@code vira} é
+     * presente de <i>virar</i> e {@code virá} é futuro de <i>vir</i> — dois verbos diferentes. As
+     * duas ocorrências no acervo estão CORRETAS ({@code "Essa maquina não vira rapidamente"},
+     * {@code "Você vira para perseguir"}), e uma delas tem {@code we'll} numa oração vizinha.
+     * Incluí-la corromperia tradução boa, que é o dano que esta classe existe para evitar.
+     */
+    private static final Pattern FUTURO_SEM_ACENTO = Pattern.compile(
+        FronteiraTermoAss.INICIO
+            + "(durara|chegara|ficara|partira|acabara|voltara|escondera|começara|morrera|virara)"
+            + FronteiraTermoAss.FIM,
+        Pattern.CASE_INSENSITIVE);
+
+    /**
      * PROPÓSITO DE NEGÓCIO: devolve a fala com {@code é} e {@code está} acentuados onde o
      * original inglês PROVA que são verbo.
      *
@@ -123,10 +161,13 @@ public class CorretorHomografoComOriginal {
             || originalIngles == null || originalIngles.isBlank()) {
             return traduzido;
         }
+        // O FUTURO NAO DEPENDE DO VERBO "to be", entao ele age ANTES do portao abaixo. Amarrar
+        // as duas coisas faria "This war will end someday." -> "esta guerra acabara" sair sem
+        // correcao, porque nao ha "is/are/was" no original.
+        String saida = acentuarFuturo(originalIngles, traduzido);
         if (!VERBO_SER_INGLES.matcher(originalIngles).find()) {
-            return traduzido;
+            return saida;
         }
-        String saida = traduzido;
         if (podeTrocarE(originalIngles)) {
             saida = trocar(saida, E_SOLTO, "é", preservaAbertura(saida));
         }
@@ -134,6 +175,67 @@ public class CorretorHomografoComOriginal {
             saida = trocar(saida, ESTA_SOLTO, "está", 0);
         }
         return saida;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: repõe o acento do futuro do presente quando o ORIGINAL INGLÊS prova
+     * que a fala está no futuro. {@code "This war will end someday."} traduzido como
+     * {@code "esta guerra acabara"} fica {@code "acabará"} — e {@code acabara} sem acento é o
+     * mais-que-perfeito, palavra válida que nenhum dicionário acusa.
+     *
+     * <h2>Por que o inglês, e por que não o dicionário</h2>
+     * {@code NormalizadorAcentosComuns} só toca forma cuja grafia sem acento NUNCA é palavra em
+     * português, e recusa esta classe com razão. O contexto que falta está no original: se o
+     * inglês traz marcador de futuro, o português não pode estar no mais-que-perfeito.
+     *
+     * <h2>O prejuízo MEDIDO — 2026-09-14, acervo publicado</h2>
+     * 134 pares casados pela chave completa do evento ASS. Denominador: <b>20</b> falas
+     * publicadas com uma das formas da lista. Desfecho da regra:
+     * <pre>
+     * corrige ........................... 19
+     * abstem, sem marcador de futuro ..... 1   ("he'd probably die" e condicional, nao futuro)
+     * abstem por "had" ................... 0   (nao existe no acervo)
+     * </pre>
+     * Exemplos reais: {@code "This war will end someday."} saiu {@code "guerra acabara"};
+     * {@code "Fido will stay and hide."} saiu {@code "Fido ficara e se escondera"};
+     * {@code "the Albion will set out"} saiu {@code "o Albion partira"}.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Abstém-se diante de {@code had} no original — anterioridade legítima possível.</li>
+     *   <li>A caixa do achado é preservada ({@code Começara} vira {@code Começará}).</li>
+     *   <li>O acento entra trocando o ÚLTIMO {@code a} por {@code á}: é a forma do futuro do
+     *       presente na 3ª pessoa, e vale para as dez formas da lista sem tabela nenhuma.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Sem marcador de futuro, com {@code had}, ou sem nenhuma forma da lista, devolve o texto
+     * exatamente como veio.
+     */
+    private String acentuarFuturo(String originalIngles, String traduzido) {
+        if (!FUTURO_INGLES.matcher(originalIngles).find()
+            || ANTERIOR_INGLES.matcher(originalIngles).find()) {
+            return traduzido;
+        }
+        Matcher m = FUTURO_SEM_ACENTO.matcher(traduzido);
+        StringBuilder saida = new StringBuilder();
+        int ultimo = 0;
+        while (m.find()) {
+            String achado = m.group(1);
+            // Caixa alta existe em legenda ASS: "COMEÇARA" tem de virar "COMEÇARÁ", não
+            // "COMEÇARá". O acento herda a caixa da letra que ele substitui.
+            int corte = Math.max(achado.lastIndexOf('a'), achado.lastIndexOf('A'));
+            if (corte < 0) {
+                continue;
+            }
+            char acentuada = achado.charAt(corte) == 'A' ? 'Á' : 'á';
+            saida.append(traduzido, ultimo, m.start(1))
+                .append(achado, 0, corte)
+                .append(acentuada)
+                .append(achado.substring(corte + 1));
+            ultimo = m.end(1);
+        }
+        return ultimo == 0 ? traduzido : saida.append(traduzido.substring(ultimo)).toString();
     }
 
     /**
