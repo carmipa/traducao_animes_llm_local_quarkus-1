@@ -593,6 +593,90 @@ public class ValidadorTraducaoService {
         return n;
     }
 
+    /**
+     * Leitura de instrumento: rótulo curto, dois-pontos, e um NÚMERO do próprio original logo
+     * depois. {@code "Direção: 2-8-0. Distância: 5.000."} é isso; {@code "Linha 1:"} não é.
+     */
+    private static final Pattern CONTEUDO_COMECA_COM_NUMERO =
+        Pattern.compile("^[^\\p{L}\\p{N}]*\\p{N}");
+
+    /** Qualquer sequência de dígitos, para conferir se algum número foi inventado. */
+    private static final Pattern DIGITOS = Pattern.compile("\\p{N}+");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: separa o rótulo de LEITURA DE INSTRUMENTO — rumo, altitude,
+     * distância, horário — do prefixo de locutor inventado. Os dois têm exatamente a mesma
+     * forma superficial: uma ou duas palavras, dois-pontos, conteúdo depois. O que os separa é
+     * que a leitura de instrumento é seguida de um NÚMERO e esse número veio do original.
+     *
+     * <h2>O prejuízo MEDIDO — 2026-09-14</h2>
+     * Quatro ocorrências independentes, três delas fora de qualquer alteração de prompt:
+     * <pre>
+     * "Heading 2-8-0. Distance 5,000."  -> "Direção: 2-8-0. Distância: 5.000."   RECUSADA
+     * "Heading 2-8-0. Distance 5,000."  -> "Título: 2-8-0. Distância: 5.000."    RECUSADA
+     * "Altitude 4,000! The load..."     -> "Altitude atual: 4.000 metros! ..."   RECUSADA
+     * horário "16:00" lido como prefixo de locutor                               RECUSADA
+     * </pre>
+     * Recusa aqui devolve a fala ao INGLÊS na legenda. E o dano vai além: no acervo publicado,
+     * {@code "Heading 2-8-0. Distance 5,000."} saiu como {@code "Distancia 5.000."} — o rumo
+     * SUMIU. A explicação que os dados sustentam é que a resposta completa foi recusada e a
+     * retentativa entregou uma resposta truncada, que passou.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Exige número LOGO APÓS os dois-pontos. Narração inventada é prosa, não leitura.</li>
+     *   <li>Exige que TODO número da tradução exista no original. É o que mantém
+     *       {@code "Direção: 180 graus"} recusado quando o original dizia {@code 060} — número
+     *       inventado continua sendo invenção, e essa resposta foi medida no modelo real.</li>
+     *   <li>Não olha o significado do rótulo: não há lista de palavras para manter. Lista de
+     *       palavra é frágil por construção, e este arquivo já pagou por isso.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Devolve {@code false} — que é manter a acusação — sempre que faltar número, sobrar número
+     * novo ou o conteúdo depois dos dois-pontos não começar por número. A isenção é a exceção.
+     */
+    private boolean ehLeituraDeInstrumento(String prefixo, String depois, String original) {
+        if (depois == null || !CONTEUDO_COMECA_COM_NUMERO.matcher(depois).find()) {
+            return false;
+        }
+        java.util.Set<String> noOriginal = gruposDeDigitos(original);
+        if (noOriginal.isEmpty()) {
+            return false;
+        }
+        java.util.Set<String> naTraducao = gruposDeDigitos(prefixo + depois);
+        return !naTraducao.isEmpty() && noOriginal.containsAll(naTraducao);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: extrai os grupos de dígitos de um texto ignorando o separador de
+     * grupo, para que a reescrita legítima do português não pareça número novo. {@code 4000} do
+     * inglês e {@code 4.000} do português são o MESMO valor, e sem esta normalização
+     * {@code "Current altitude 4000!"} traduzido como {@code "Altitude atual: 4.000 metros!"}
+     * era acusado de locutor inventado e voltava ao inglês na legenda — medido em 14/09/2026.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: normalização MÍNIMA e deliberada — só o ponto e a vírgula entre
+     * dígitos. O critério completo de identidade numérica (ordinal inglês, ordinal português,
+     * vírgula decimal, zero à esquerda) pertence ao {@code VerificadorIdentificadorNumerico} da
+     * fatia de tradução, roda no mesmo caminho e <b>não</b> é reimplementado aqui: se esta
+     * isenção errar para o lado permissivo, aquela guarda ainda reprova o número inventado. É
+     * por isso que a isenção pode ser conservadora sem deixar buraco.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem dígito devolve conjunto vazio, e
+     * conjunto vazio faz a isenção não valer — a acusação permanece.
+     */
+    private static java.util.Set<String> gruposDeDigitos(String texto) {
+        if (texto == null) {
+            return java.util.Set.of();
+        }
+        java.util.Set<String> grupos = new java.util.HashSet<>();
+        java.util.regex.Matcher m = DIGITOS.matcher(texto.replaceAll("(?<=\\p{N})[.,](?=\\p{N})", ""));
+        while (m.find()) {
+            grupos.add(m.group());
+        }
+        return grupos;
+    }
+
     private boolean temLocutorInventado(String original, String traduzido) {
         java.util.regex.Matcher m = PADRAO_PREFIXO_LOCUTOR.matcher(traduzido);
         if (!m.matches()) {
@@ -624,6 +708,9 @@ public class ValidadorTraducaoService {
         // "Haruhime View". O que separa as duas e o verbo existir no ORIGINAL, e a allowlist
         // acima ja cobre esse caminho quando o sujeito e pronome. Um falso-positivo em 112.
         if (contarPalavras(m.group(1)) >= MINIMO_PALAVRAS_ORACAO) {
+            return false;
+        }
+        if (ehLeituraDeInstrumento(m.group(1), m.group(2), original)) {
             return false;
         }
         if (PADRAO_PREFIXO_LOCUTOR.matcher(original).matches()) {
