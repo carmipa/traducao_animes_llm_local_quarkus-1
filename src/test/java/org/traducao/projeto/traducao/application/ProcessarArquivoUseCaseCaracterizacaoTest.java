@@ -207,6 +207,28 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             return new FakeLlmPort(false, true);
         }
 
+        /**
+         * PROPÓSITO DE NEGÓCIO: dublê que devolve uma resposta EXATA medida no modelo real, para
+         * separar a pergunta da geração ("o modelo acerta?") da pergunta da publicação ("a
+         * resposta certa chega ao arquivo, ou o portão a devolve ao inglês?"). A segunda é a
+         * fronteira que a A6 cobra, e ela não depende da variância do modelo.
+         *
+         * <p>INVARIANTES DO DOMÍNIO: a fala cujo original contém {@code gatilho} recebe
+         * {@code resposta}; qualquer outra segue o comportamento normal do dublê. Casar por
+         * trecho do original é proposital — o texto que chega aqui já vem mascarado com
+         * {@code [[TAGn]]} e comparar o texto inteiro tornaria o teste refém do mascarador.
+         *
+         * <p>COMPORTAMENTO EM CASO DE FALHA: gatilho que não casa com nada faz o dublê agir como
+         * o normal, e a asserção do teste é que denuncia — nunca um falso verde silencioso.
+         */
+        static FakeLlmPort comResposta(String gatilho, String resposta) {
+            FakeLlmPort f = new FakeLlmPort(false, false);
+            f.respostaFixa = java.util.Map.entry(gatilho, resposta);
+            return f;
+        }
+
+        private java.util.Map.Entry<String, String> respostaFixa;
+
         @Override
         public TraducaoLote traduzir(Lote lote) {
             return traduzir(lote, null, null);
@@ -228,6 +250,9 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         }
 
         private String traduzirLinha(String mascarada) {
+            if (respostaFixa != null && mascarada.contains(respostaFixa.getKey())) {
+                return respostaFixa.getValue();
+            }
             if (mascarada.contains("KEEPME")) {
                 return mascarada; // devolve o original: o pipeline marca como pendente
             }
@@ -867,6 +892,57 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         assertTrue(conteudo.contains("publicado como FINAL"),
             "o carimbo tem de dizer o que o arquivo E: " + primeiraLinhaDePendencia(conteudo));
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fecha a fronteira A6 da correção de rumo de relógio. A medição no
+     * modelo real respondeu "o modelo acerta com a instrução nova"; ela <b>não</b> respondeu se a
+     * resposta certa chega ao arquivo. Guarda que reprova a tradução devolve a fala ao INGLÊS na
+     * legenda, e nesse caso a correção pioraria a entrega em vez de melhorá-la.
+     *
+     * <h2>Por que este teste não chama o modelo</h2>
+     * De propósito, e é a separação que o auditor externo cobrou: geração e publicação são
+     * perguntas diferentes e medidas separadamente. A geração foi medida no aya-expanse-8b com o
+     * prompt de produção (3 repetições, temperatura 0.3): {@code "Two o'clock!"} saiu como
+     * {@code "2 horas!"} em 3 de 3 com a instrução, contra {@code "Meia-noite!"} em 3 de 3 sem
+     * ela. Este teste pega essa resposta EXATA e pergunta se o pipeline a publica.
+     *
+     * <h2>O risco concreto que ele fecha</h2>
+     * O original escreve o número por extenso ({@code Two}) e a tradução usa algarismo
+     * ({@code 2}). Essa é exatamente a assimetria que o {@code VerificadorIdentificadorNumerico}
+     * declara tolerar — mas "declara tolerar" é afirmação de Javadoc, e o que vale é o arquivo
+     * gravado. Se qualquer guarda da cadeia reprovasse, a fala publicada voltaria a
+     * {@code "Two o'clock!"} em inglês.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Falha de asserção mostrando o que foi realmente gravado no {@code .ass}.
+     */
+    @Test
+    void respostaDeRumoDeRelogioChegaAoArquivoSemVoltarAoIngles() throws Exception {
+        String original = "11 o'clock! Enemy has opened fire!";
+        String medida = "11 horas! O inimigo abriu fogo!";
+        FakeLlmPort llm = FakeLlmPort.comResposta("11 o'clock", medida);
+        ProcessarArquivoUseCase uc = montar(llm);
+        Path entrada = escreverAss("ep.ass", original);
+
+        ResultadoTraducaoArquivo r = uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        Path saida = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        assertTrue(Files.exists(saida),
+            "sem pendencia a saida final tem de ser publicada; status=" + r.status());
+        String conteudo = Files.readString(saida, StandardCharsets.UTF_8);
+        String gravada = conteudo.lines()
+            .filter(l -> l.startsWith("Dialogue:"))
+            .findFirst().orElse("<<nenhuma linha Dialogue no arquivo>>");
+        assertTrue(conteudo.contains("11 horas!"),
+            "o valor do relogio tem de sobreviver ate o disco, e foi gravado: " + gravada);
+        assertFalse(conteudo.contains("11 o'clock"),
+            "o portao devolveu a fala ao ingles, e a correcao piorou a entrega: " + gravada);
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status(),
+            "a resposta medida no modelo real nao pode virar pendencia");
+    }
+
+    /** {@code \N} do ASS montado sem literal de escape, para o teste não depender de transporte. */
+    private static final String BARRA_N = String.valueOf((char) 92) + "N";
 
     /**
      * PROPÓSITO DE NEGÓCIO: extrai do cabeçalho a linha de pendência para a mensagem de falha
