@@ -7792,6 +7792,14 @@ obras:
        - Ple
     -  - Four
        - Chara
+    # MEDIDO EM 2026-09-14, retraduzindo o episodio 1 do ZZ do zero: o cartao de nome
+    # "QUATTRO BAJEENA" saiu como "Four Murasame!" -- de novo, depois de ja ter saido
+    # "Four Murasame." na versao anterior. O par existia no Zeta e NAO aqui, entao a
+    # guarda de troca de entidade ficava cega justo na obra onde o defeito foi medido.
+    # O teste que cobre este caso passava porque o duble dele declarava o par que a
+    # producao nao declara -- duble mais generoso que a realidade aprova por cegueira.
+    -  - Four
+       - Quattro
    traducoesObrigatorias:
      Universal Century: Século Universal
    correcoesTerminologia:
@@ -7833,6 +7841,13 @@ obras:
      Plee: Ple
      Plê: Ple
      Pá: Fa
+     # MEDIDO EM 2026-09-14, retraducao do episodio 1 do ZZ do zero: "Quattro Bajeena!
+     # Hyaku Shiki, launching!" saiu "Quatro Bajeena!" -- o NOME virou o numeral. A guarda
+     # de troca de entidade nao ve isso, porque "Four" nao aparece na traducao.
+     # O mapa e o NOME COMPLETO e nao a palavra solta, e o motivo esta medido no acervo:
+     # "Quatro" aparece 114 vezes sendo o numero quatro de verdade. Mapear a palavra
+     # sozinha corromperia as 114 para consertar uma.
+     Quatro Bajeena: Quattro Bajeena
      Qubelei: Qubeley
      Rainha Mansa: Quin Mantha
      Rifle de Feixe: Beam Rifle
