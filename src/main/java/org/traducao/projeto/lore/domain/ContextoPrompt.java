@@ -51,6 +51,7 @@ public final class ContextoPrompt {
             - Não invente explicações, notas, parênteses editoriais ou glossários na resposta.
             - Preserve honoríficos japoneses somente quando vierem no texto original ou forem parte clara da relação entre personagens.
             - Em falas militares, use tom objetivo e terminologia consistente: unidade, esquadrão, frota, comandante, tenente, capitão/capitão apenas quando o original indicar rank equivalente.
+            - Posição dada em horas de relógio indica DIREÇÃO relativa ao veículo, não hora do dia: preserve o número e a leitura de direção, e preserve a indicação de altura quando houver. Traduza como hora do dia somente quando o original estiver falando de horário.
 
             Lore e terminologia obrigatória:
             %s
