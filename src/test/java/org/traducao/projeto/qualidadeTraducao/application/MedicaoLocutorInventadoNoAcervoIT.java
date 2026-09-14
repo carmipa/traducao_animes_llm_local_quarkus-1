@@ -128,6 +128,27 @@ class MedicaoLocutorInventadoNoAcervoIT {
         System.out.println("  caches lidos ................... " + caches.size());
         System.out.println("  pares original/tradução ........ " + pares);
         System.out.println("  recusados por locutor inventado  " + recusadas.size());
+        if (recusadas.isEmpty()) {
+            // O ZERO AQUI NÃO É PROVA DE AUSÊNCIA, E O UNIVERSO É A RAZÃO.
+            //
+            // O cache guarda o que o pipeline ACEITOU. Fala recusada nunca chega a ser gravada,
+            // então este universo é composto SÓ de sobreviventes e o zero é estrutural: ele
+            // apareceria mesmo com a regra recusando metade do acervo.
+            //
+            // MEDIDO em 2026-09-14, e é a cicatriz que obriga esta linha a existir: enquanto
+            // este mesmo harness anunciava "0 recusados de 75.290 pares", a regra recusava
+            // "Direcao: 2-8-0. Distancia: 5.000." e "Altitude atual: 4.000 metros!" — leitura de
+            // instrumento legítima devolvida ao INGLÊS. O falso positivo só apareceu quando as
+            // respostas foram medidas ANTES de passar pelo portão, fora do cache.
+            //
+            // Zero de busca é hipótese, nunca conclusão (regra 8), e "não achei com este
+            // instrumento" não pode sair com a cara de "não existe" (regra 12).
+            System.out.println("  *** ATENÇÃO: este zero é do universo de SOBREVIVENTES. O cache");
+            System.out.println("      só contém o que a regra APROVOU, então falso positivo dela");
+            System.out.println("      é invisível aqui POR CONSTRUÇÃO. Para medir falso positivo,");
+            System.out.println("      validar as respostas do modelo ANTES do portão.");
+            System.out.println("      Estado desta pergunta: NÃO VERIFICADO, não 'sem problema'.");
+        }
         System.out.println("  destes, discurso CITADO nos dois lados: " + comAspasDosDoisLados);
         System.out.println("  destes, sem aspas dos dois lados ....... "
             + (recusadas.size() - comAspasDosDoisLados) + "  <- candidatos a invenção real");

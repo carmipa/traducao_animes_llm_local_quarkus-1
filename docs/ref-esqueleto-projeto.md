@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **492** |
-| classes em `src/test` | **433** |
+| classes em `src/test` | **434** |
 
 ---
 
@@ -898,7 +898,7 @@ core/
 
 ---
 
-## Testes — 433 classes
+## Testes — 434 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1141,7 +1141,7 @@ llm/
     └── FronteiraLlmArchTest.java
 ```
 
-#### `lore` — 40 classes
+#### `lore` — 41 classes
 
 ```text
 lore/
@@ -1151,6 +1151,7 @@ lore/
 ├── arquitetura/
 │   └── FronteiraContextoArchTest.java
 ├── domain/
+│   ├── EfeitoDasInstrucoesDeRumoNoModeloIT.java
 │   ├── HierarquiaExcecaoContextoTest.java
 │   ├── IdentidadeObraTest.java
 │   ├── InstrucaoProaNoPromptTest.java
