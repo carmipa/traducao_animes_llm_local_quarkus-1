@@ -1,3 +1,86 @@
+# CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
+
+TAREFA ORIGINAL: auditar os 47 episódios traduzidos do Gundam ZZ (14/09) buscando falas
+  que ficaram em inglês; avaliar se é hora de rodar a Revisão.
+OBJETIVO FINAL: reduzir/entender o inglês remanescente. Paulo escolheu: alvo = TUDO
+  (falas + 57 títulos nextep + logo/caption); abordagem = investigar causa-raiz ANTES de rodar.
+CRITÉRIO DE ENCERRAMENTO: diagnóstico por causa entregue + plano ordenado; execução do fix
+  aguarda go do Paulo (efeito externo de LLM sobre arquivos persistentes).
+BRANCH / COMMIT BASE: main @ fcb919f3 (git limpo)
+SHA-256 DOС-REGRA: ENGENHARIA f43d9c05… (1136) · REGRA-DO-DOCKER 98a5ad6a… (2402) — portão rc=0
+
+FECHADO COM ARTEFATO:
+- 47 eps traduzidos 14/09, modelo aya-expanse-8b em 44/47 (3 em mistral-nemo). statusFinal: 46 PARCIAL, 1 CONCLUIDO.
+- Dataset por decisão (logs/falas-nao-traduzidas/…): PRESERVADA_POR_REGRA 3794 (música, ok),
+  TRADUCAO_IGUAL_AO_ORIGINAL 576 (nomes, ok), PENDENTE 114 (por linha).
+- Verificado: NÃO há inglês de diálogo fora do dataset (2 "achados" eram PT com estrangeirismo).
+- 3 unidades de contagem, todas legítimas: 114 por-linha (jsonl) · 106 carimbo (.ass, pendência distinta/ep) · 100 telemetria (causa distinta). O chant ep45 ×6 = 1 pendência.
+- Causa-raiz (telemetria pendenciasPorCausa, 47 eps): MARCADORES_CORROMPIDOS 45 (títulos nextep/typeset),
+  ECO 42 (LLM devolveu o original — frases limpas e curtas), ESTRUTURA_DIVERGENTE 11 (dual-speaker "- X - X"), RESIDUO 1, ID_NUM 1.
+- scratchpad\zz_pendentes.txt = as 114 por ep/instante/texto.
+
+TESTE REUSO (feito): mistral-nemo + reuso-entre-modelos=true. Log: 16007 herdadas do aya, 40 ao LLM.
+  ECO 42->10, ESTRUTURA 11->5, MARCADORES_CORROMPIDOS 45->49 (titulos: mistral falha igual).
+  Verificacao A3 das ~40 resolvidas: ~6 fluentes-e-erradas (Móveis, Psyco Gundam, invertidas).
+
+"FAZER TUDO" (autorizado) — FEITO e verificado:
+  1. Backup cache+saida: scratchpad\backup_zz_20260915_112001 (141 cache + 94 saida).
+  2. 6 erradas NEUTRALIZADAS no cache (traduzido="" -> inglES honesto): ep06 i236, ep14 i30, ep37 i128,
+     ep39 i172+i183..i186, ep44 i0. ConvertTo-Json reparse OK.
+  3. 35 boas PROMOVIDAS ao _PT-BR.ass via POST /api/revisar-legendas {modoReferencia:CACHE, contextoId:gundam_zz}
+     (sync do SincronizadorLegendaCacheService: aplica cache por indice, pula vazio, sem LLM; Google=0).
+     Diff vs backup = 35 linhas, todas inglES->pt bom; nenhuma das 6 erradas vazou. Backup do tool em
+     backups\revisao-legendas\. .parcial.ass (47) removidos (estao no backup).
+  4. Flag reuso-entre-modelos revertida a false (padrao seguro).
+  KRONOS foi SUBIDO por mim (quarkusDev 8099, PID ~26344) p/ usar o endpoint; reload apos revert da flag.
+
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA (rito completo, NAO rushar): fix de codigo dos titulos nextep.
+- Falha: {\blur2..}\h\h Next Episode \N\N\N\N\N\N\N\N{\fs220}<TITULO> quebra o round-trip [[TAGn]] do LLM.
+- EP15 "Phantom Colony (Part 2)" traduziu (tag mais simples) -> o alvo e so o end-card com \N\N.. + {\fs220} no meio.
+- Approach: handler nextep que traduz label + titulo preservando o andaime; guarda executavel (caso-controle
+  A1 com o end-card real); depois re-run traducao (reuso ON temporario) + promover via revisar-legendas CACHE.
+
+AUDITORIA 3.1 (RevisarLegendasUseCase LLM_CONCORDANCIA) — 4 achados, suite verde NAO pega nenhum.
+FIXES autorizados por Paulo ("autorizado a todos"), com guarda A1 e prova:
+  [x] #2 .parcial no lote -> ResolvedorArtefatosRevisao.eArquivoARevisar (exclui .parcial);
+      guarda parcialNaoEntraNaRevisao. BUILD SUCCESSFUL.
+  [x] #4 Google FALHA_TRANSITORIA tratada como permanente -> ProvedorCorrecaoFala.obterDoTradutorExterno
+      (1 retry + nao marca "nao insistir" no transitorio; codigo GOOGLE_FALHA_TRANSITORIA);
+      guarda falhaTransitoriaDoGoogleNaoVetaEPermanenteVeta. BUILD SUCCESSFUL.
+  [x] #1 FABRICACAO em fragmento cross-evento ("...that affects"->"afeta profundamente"). Feito por (b)-local:
+      RevisarLegendasUseCase.continuaNoProximoEvento (detecta fragmento pelo .ass, conservador: sem
+      pontuacao terminal + proximo minusculo) -> flag em FalaSuspeita.fragmentoCrossEvento -> gate em
+      CadeiaCorrecaoFala.decidir (antes do provedor) devolve Pendente/FRAGMENTO_CROSS_EVENTO (nao fabrica).
+      Guardas: fragmentoCrossEventoFicaPendenteSemTocarARede (gate) + RevisarLegendasFragmentoCrossEventoTest
+      (detector). Suite revisao inteira BUILD SUCCESSFUL, sem regressao.
+  [ ] #3 FALSO POSITIVO detector de genero. CAUSA REFINADA (nao era "ambos os generos"):
+      DetectorConcordanciaService.detectarTratamentos:665 -> mascEn = PRONOME_MASCULINO_EN inclui o
+      OBJETO "him". "Audrey...stop him" -> mascEn=true, femEn=false (nome "Audrey" nao e reconhecido) ->
+      flag na "garota" (que descreve Audrey, o SUJEITO). Fix seguro: exigir referencia masculina de
+      SUJEITO/vocativo (he/sir/...), nao objeto-only (him/his), para o flag TRATAMENTO_FEM_COM_MASC_EN
+      (e espelho). RITO COMPLETO: detector muito tunado (varias cicatrizes de FP) e alimenta a 3.3 —
+      validar contra o corpus de teste (revisaoConcordancia/RevisarConcordanciaUseCaseTest) ANTES,
+      senao reprova caso certo. NAO rushar no fim da maratona. A 3.1 ja NAO age nele (punta p/ 3.3).
+
+PENDENTE ANALISE (pos-Unicorn, pedido de Paulo 15/09):
+- KODI mostrava legenda em TIMES NEW ROMAN (nao Arial/VnBook-Antiqua) -> era override de estilo DO KODI,
+  nao defeito. MKV EMBUTE as fontes (VnBookAntiquaBoldUmlaut, FrancophilSans-Bold, KENYC, BRITANIC,
+  CENTURY, Como-Bold, FRAMDCN) - remux OK. Fix e no Kodi: "override subtitle styles" -> Posicoes/Nenhum.
+  Nova Player renderiza certo. => a sensacao de "muitos erros" era o player, nao a traducao.
+- MKV tem 2 faixas de legenda: track2 [eng] + track3 [por]. ANALISAR: flags default/forced (PT-BR devia
+  ser default), se mantem ou remove a inglesa (decisao de Paulo), se o Kodi pega a eng por flag/idioma.
+  So DEPOIS do Unicorn terminar.
+
+NÃO REPETIR:
+- NÃO afirmar "carimbo subconta = bug": é unidade de contagem diferente (distinta vs por-linha). Já corrigido.
+- Retry cego mesmo modelo/prompt tende a re-ecoar e re-corromper — baixo rendimento.
+- git checkout -- para reverter arquivo não commitado APAGA tudo (restaurar por cópia).
+
+---
+
+# ===== HISTORICO ANTERIOR (restaurado) =====
+> Eu (Claude) sobrescrevi este arquivo por engano em 2026-09-15 com um checkpoint curto, sem ler o que existia. O conteudo original (3053 linhas) esta preservado abaixo; o topo e o checkpoint da sessao de 15/09.
+
 # CONTINUIDADE — KRONOS
 
 ## PROXIMA ACAO EXECUTAVEL EXATA (2026-09-02)
