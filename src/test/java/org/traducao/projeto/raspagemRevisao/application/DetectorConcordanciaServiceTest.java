@@ -274,6 +274,32 @@ class DetectorConcordanciaServiceTest {
     }
 
     /**
+     * #3 (2026-09-15): FALSO POSITIVO de vocativo, medido no Unicorn ep22.
+     * <pre>
+     *   EN: So this teenager named Audrey tries to stop him.   &lt;- "him" e OBJETO; Audrey e o sujeito feminino
+     *   PT: Uma garota chamada Audrey tenta detE-lo.           &lt;- "garota" = Audrey, traducao CORRETA
+     * </pre>
+     * "Audrey" nao entra no lexico feminino, entao {@code femEn} ficava false e o {@code him} objeto
+     * SOZINHO acusava "vocativo feminino com referencia masculina". A guarda nova: evidencia
+     * masculina objeto-only ({@code him/his}) nao dispara o vocativo.
+     *
+     * <p>CASO-CONTROLE (A1): o LEGITIMO com o MESMO sinal (referencia masculina + vocativo feminino no
+     * PT) continua acusando quando a evidencia e de SUJEITO/vocativo — e o
+     * {@link #vocativoFemininoSemReferenciaFemininaContinuaAcusando()} logo acima ("Mr. Gottn" ->
+     * "A senhora"). Os dois juntos separam o defeito do legitimo.
+     */
+    @Test
+    @DisplayName("vocativo feminino com masculino OBJETO-only (him) NAO acusa (Audrey stop him)")
+    void vocativoFemininoComMasculinoObjetoOnlyNaoAcusa() {
+        ResultadoDeteccaoConcordancia r = detector.analisar(
+            "So this teenager named Audrey tries to stop him.",
+            "Uma garota chamada Audrey tenta detê-lo.");
+        assertFalse(r.motivos().contains(
+                "Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original"),
+            () -> "'him' e objeto e 'garota' e Audrey (sujeito feminino). motivos=" + r.motivos());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: {@code girl} não casa {@code girlfriend} — não há fronteira depois
      * do "l". Sem a palavra no léxico, o original ficava sem evidência feminina e a tradução
      * literal era acusada.

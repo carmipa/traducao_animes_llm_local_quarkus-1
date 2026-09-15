@@ -109,6 +109,42 @@ class CadeiaCorrecaoFalaTest {
     }
 
     /**
+     * #1 (2026-09-15): FRAGMENTO de frase partida ENTRE eventos NÃO vai ao provedor. Medido no
+     * Unicorn ep22: {@code "...that affects"}, traduzido isolado, virou {@code "afeta profundamente"}
+     * — o LLM COMPLETOU a frase cortada com conteúdo inventado. Erro fluente é o pior desfecho:
+     * lê-se certo e muda o sentido.
+     *
+     * <p>CASO-CONTROLE (A1): a MESMA fala (NAO_TRADUZIDA), com o flag e sem ele. Com o flag: pendente,
+     * evidência {@code FRAGMENTO_CROSS_EVENTO}, ZERO chamadas à rede (gate antes do provedor). Sem o
+     * flag: segue o fluxo e alcança a rede, como antes. Tirar o gate do {@code decidir} faz a primeira
+     * metade falhar.
+     */
+    @Test
+    void fragmentoCrossEventoFicaPendenteSemTocarARede() {
+        String en = "Today, I learned a secret that affects";
+        CadeiaCorrecaoFala.FalaSuspeita frag = new CadeiaCorrecaoFala.FalaSuspeita(
+            fala(en), en, en, true,
+            new ResultadoDeteccaoConcordancia(true, List.of(PoliticaRetraducao.NAO_TRADUZIDA)),
+            true);
+        CadeiaCorrecaoFala.Tentativa comFlag = cadeia.decidir(
+            new SessaoRevisaoArquivo(), frag, "ep22.ass", ModoRevisaoLegendas.GOOGLE, SEM_LORE);
+
+        assertInstanceOf(DecisaoFala.Pendente.class, comFlag.decisao(),
+            "fragmento cortado nao pode ser 'corrigido' — completa-lo e fabricar o complemento");
+        assertTrue(comFlag.evidencias().stream()
+                .anyMatch(e -> "FRAGMENTO_CROSS_EVENTO".equals(e.resultado())),
+            "a evidencia tem de nomear a causa, senao a fala pendente some do relatorio");
+        assertEquals(0, tradutorExterno.chamadas(),
+            "o gate e ANTES do provedor: a rota que fabrica nem e alcancada");
+
+        tradutorExterno.reiniciar();
+        CadeiaCorrecaoFala.Tentativa semFlag = decidir(new SessaoRevisaoArquivo(), en, en);
+        assertTrue(tradutorExterno.chamadas() >= 1
+                || semFlag.decisao() instanceof DecisaoFala.Corrigir,
+            "sem o flag, a MESMA fala nao e gateada — segue o fluxo normal ate a rede");
+    }
+
+    /**
      * A segunda fonte: a mesma frase, de novo, no mesmo arquivo. A rede é consultada UMA vez.
      * É o que torna suportável um episódio cheio de bordões repetidos.
      */

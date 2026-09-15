@@ -647,6 +647,20 @@ public class DetectorConcordanciaService {
         boolean femEn = LexicoGenero.PRONOME_FEMININO_EN.matcher(original).find();
         boolean mascEn = LexicoGenero.PRONOME_MASCULINO_EN.matcher(original).find();
 
+        // #3 (2026-09-15): a evidencia de genero e SO um pronome-OBJETO (him/his | her/hers)? Entao
+        // ela fala de OUTRA pessoa, nao de quem e tratado/e o sujeito — e o vocativo do outro genero
+        // no PT pode estar certo. Medido no Unicorn ep22:
+        //   EN: So this teenager named Audrey tries to stop him.   <- "him" e objeto; Audrey (nome) e o sujeito feminino
+        //   PT: Uma garota chamada Audrey tenta detE-lo.           <- "garota" = Audrey, CORRETO
+        // Como "Audrey" nao entra em PRONOME_FEMININO_EN, femEn ficava false e o "him" objeto sozinho
+        // disparava "vocativo feminino com referencia masculina". Removendo o objeto, sobra evidencia
+        // de SUJEITO/vocativo? Se nao sobra, era objeto-only e o flag e suprimido. O corpus que ESPERA
+        // o flag usa evidencia nao-objeto ("Mr. Gottn"->senhora, "girl"->garoto) e continua valendo.
+        boolean mascApenasObjeto = mascEn && !LexicoGenero.PRONOME_MASCULINO_EN.matcher(
+            original.replaceAll("(?i)\\b(him|his|himself)\\b", " ")).find();
+        boolean femApenasObjeto = femEn && !LexicoGenero.PRONOME_FEMININO_EN.matcher(
+            original.replaceAll("(?i)\\b(her|hers|herself)\\b", " ")).find();
+
         // O tratamento do OUTRO genero presente no portugues significa que a referencia do
         // original ja esta representada, e o tratamento acusado fala de outra pessoa. Medido
         // no acervo em 22/08/2026:
@@ -657,12 +671,12 @@ public class DetectorConcordanciaService {
         boolean tratamentoMascNoPt =
             TRATAMENTO_MASC_COM_FEM_EN.matcher(removerCaraQueNaoEVocativo(texto)).find();
 
-        if (femEn && !mascEn && !tratamentoFemNoPt) {
+        if (femEn && !mascEn && !tratamentoFemNoPt && !femApenasObjeto) {
             adicionarSeEncontrado(motivos, TRATAMENTO_MASC_COM_FEM_EN,
                 removerCaraQueNaoEVocativo(texto),
                 "Tratamento/vocativo masculino (senhor/garoto/moço) com referência feminina no original");
         }
-        if (mascEn && !femEn && !tratamentoMascNoPt) {
+        if (mascEn && !femEn && !tratamentoMascNoPt && !mascApenasObjeto) {
             adicionarSeEncontrado(motivos, TRATAMENTO_FEM_COM_MASC_EN, texto,
                 "Tratamento/vocativo feminino (senhora/garota/moça) com referência masculina no original");
         }

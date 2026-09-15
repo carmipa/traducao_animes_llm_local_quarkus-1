@@ -98,8 +98,19 @@ public class CadeiaCorrecaoFala {
         String originalEn,
         String traducaoAtual,
         boolean temOriginalEn,
-        ResultadoDeteccaoConcordancia auditoria
+        ResultadoDeteccaoConcordancia auditoria,
+        boolean fragmentoCrossEvento
     ) {
+        /**
+         * PROPÓSITO DE NEGÓCIO: compat para quem não computa a vizinhança (testes e chamadas que não
+         * têm o documento inteiro). Assume {@code fragmentoCrossEvento=false} — o comportamento de
+         * sempre. Só o {@code RevisarLegendasUseCase}, que enxerga os eventos vizinhos, informa o
+         * flag verdadeiro.
+         */
+        public FalaSuspeita(EventoLegenda evento, String originalEn, String traducaoAtual,
+                            boolean temOriginalEn, ResultadoDeteccaoConcordancia auditoria) {
+            this(evento, originalEn, traducaoAtual, temOriginalEn, auditoria, false);
+        }
     }
 
     /**
@@ -197,6 +208,23 @@ public class CadeiaCorrecaoFala {
                     "FORA_DO_ESCOPO_DA_TELA", auditoria.motivos(),
                     "A 3.1 resolve falta de tradução. Este defeito é de concordância/estilo e "
                         + "pertence à Revisão de Concordância (3.3). A fala foi preservada.",
+                    originalEn, traducaoAtual, null)));
+        }
+
+        // #1 (2026-09-15): FRAGMENTO de frase partida ENTRE eventos. Aqui já é falha-de-tradução
+        // (passou pela porta de escopo acima), então a rota espelho/segmento retraduziria a linha
+        // INTEIRA a partir do inglês — e, num pedaço cortado ("...that affects"), o LLM COMPLETA a
+        // frase com conteúdo inventado ("afeta profundamente"). Erro fluente é o pior desfecho: lê-se
+        // certo e muda o sentido. Inglês honesto vale mais. Preserva a fala em vez de fabricar.
+        if (fala.fragmentoCrossEvento()) {
+            avisos.add("     " + AnsiCores.DIM + "Fragmento de frase partida entre eventos: preservado "
+                + "sem traduzir isolado, para não inventar o complemento." + AnsiCores.RESET);
+            return new Tentativa(
+                new DecisaoFala.Pendente(avisos),
+                List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+                    "FRAGMENTO_CROSS_EVENTO", auditoria.motivos(),
+                    "A fala continua no evento seguinte; traduzida isolada, o LLM completaria a frase "
+                        + "com conteúdo inventado. Preservada em inglês (pendente honesto).",
                     originalEn, traducaoAtual, null)));
         }
 

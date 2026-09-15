@@ -212,6 +212,29 @@ class ResolvedorArtefatosRevisaoTest {
             "código sozinho não basta: sem _ENG poderia ser o cache de outra faixa");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda de 2026-09-15 — o {@code .parcial.ass} (staging da Tradução) NÃO
+     * entra na revisão 3.1. Medido no Unicorn: "Arquivos analisados: 32" para 22 episódios, porque
+     * cada {@code _PT-BR.parcial.ass} casava {@link ResolvedorArtefatosRevisao#eLegendaTraduzida} e
+     * era revisado de novo — com o cache EN não encontrado e a sincronização caindo em silêncio.
+     *
+     * <p>CASO-CONTROLE (A1): o defeito e o legítimo carregam o MESMO sinal ({@code _PT-BR}); a guarda
+     * reprova o parcial E aceita o final. Tirar o {@code !eLegendaParcial} de {@code eArquivoARevisar}
+     * faz a primeira asserção falhar.
+     */
+    @Test
+    @DisplayName("eArquivoARevisar exclui .parcial.ass e mantem o _PT-BR.ass final")
+    void parcialNaoEntraNaRevisao() {
+        assertFalse(resolvedor.eArquivoARevisar(temp.resolve("Gundam ZZ S01E03_PT-BR.parcial.ass")),
+            "o .parcial e staging da Traducao — nao e entrega e nao se revisa");
+        assertTrue(resolvedor.eArquivoARevisar(temp.resolve("Gundam ZZ S01E03_PT-BR.ass")),
+            "o _PT-BR.ass final continua sendo revisado (o parcial carrega o MESMO _PT-BR)");
+        assertFalse(resolvedor.eArquivoARevisar(temp.resolve("Gundam ZZ S01E03_Track2.ass")),
+            "o original ingles nunca entra como legenda traduzida");
+        assertTrue(resolvedor.eLegendaParcial(temp.resolve("x_PT-BR.parcial.ass")));
+        assertFalse(resolvedor.eLegendaParcial(temp.resolve("x_PT-BR.ass")));
+    }
+
     // ---------- pareamento no disco ----------
 
     /**
