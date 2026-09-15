@@ -13,6 +13,7 @@ import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
 import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
+import org.traducao.projeto.raspagemRevisao.domain.StatusRecuperacaoExterna;
 import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
 
 import java.util.List;
@@ -256,6 +257,18 @@ public class ProvedorCorrecaoFala {
             recuperacaoExterna.traduzir(originalProtegido.textoMascarado());
         pausar();
 
+        // #4 (2026-09-15): FALHA_TRANSITORIA (HTTP/timeout/rede) é RETENTÁVEL — antes ela caía no
+        // mesmo balde de "não insistir" dos desfechos permanentes, e a fala era abandonada no run
+        // (e marcada para não repetir) só porque o Google piscou. Uma segunda tentativa antes de
+        // desistir, e — o que importa de verdade — transitório NUNCA marca "não insistir": a mesma
+        // fala pode ser retentada no próprio lote e o re-run não fica desencorajado. Permanente
+        // (RESPOSTA_INVALIDA/TAG_CORROMPIDA/SEM_ALTERACAO) mantém o comportamento de sempre.
+        if (resultado.status() == StatusRecuperacaoExterna.FALHA_TRANSITORIA) {
+            resultado = recuperacaoExterna.traduzir(originalProtegido.textoMascarado());
+            pausar();
+        }
+        boolean transitoria = resultado.status() == StatusRecuperacaoExterna.FALHA_TRANSITORIA;
+
         String restaurada = resultado.sucesso()
             ? protetorLore.restaurar(resultado.texto(), originalProtegido)
             : null;
@@ -263,9 +276,13 @@ public class ProvedorCorrecaoFala {
             return new Resultado.Recusada(
                 "     " + AnsiCores.DIM + "Google sem alteração aplicável ("
                     + resultado.status() + "); mantido." + AnsiCores.RESET,
-                true, "GOOGLE_SEM_ALTERACAO",
-                "Google respondeu " + resultado.status() + " e não produziu texto aplicável "
-                    + "(falha, marcador de lore perdido ou resposta igual à fala atual).",
+                !transitoria,
+                transitoria ? "GOOGLE_FALHA_TRANSITORIA" : "GOOGLE_SEM_ALTERACAO",
+                transitoria
+                    ? "Google indisponível por falha transitória (HTTP/timeout/rede) mesmo após uma "
+                        + "segunda tentativa. A fala fica pendente e SERÁ retentada — não é 'não rende'."
+                    : "Google respondeu " + resultado.status() + " e não produziu texto aplicável "
+                        + "(falha, marcador de lore perdido ou resposta igual à fala atual).",
                 restaurada);
         }
         return new Resultado.Obtida(restaurada, false);

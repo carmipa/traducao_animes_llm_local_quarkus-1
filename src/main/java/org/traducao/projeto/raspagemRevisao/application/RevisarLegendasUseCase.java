@@ -235,8 +235,7 @@ public class RevisarLegendasUseCase {
         try (Stream<Path> stream = Files.list(pastaLegendasPt)) {
             List<Path> arquivos = stream
                 .filter(Files::isRegularFile)
-                .filter(resolvedorArtefatos::temExtensaoSuportada)
-                .filter(resolvedorArtefatos::eLegendaTraduzida)
+                .filter(resolvedorArtefatos::eArquivoARevisar)
                 .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                 .toList();
 
@@ -341,6 +340,44 @@ public class RevisarLegendasUseCase {
 
     private void out(String mensagem) {
         System.out.println(mensagem);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala continua no PRÓXIMO evento? (frase partida ENTRE eventos, não por
+     * {@code \N} dentro de um). É o sinal que impede a rota espelho de "completar" um pedaço cortado
+     * com conteúdo inventado — medido no Unicorn ep22, "...that affects" virou "afeta profundamente".
+     *
+     * <p>INVARIANTES DO DOMÍNIO: CONSERVADOR de propósito — só afirma continuação quando o atual NÃO
+     * termina em pontuação terminal E o próximo começa em letra minúscula. Assim uma frase completa
+     * ("...world.") nunca é confundida, e um começo de frase nova (maiúscula) também não. O viés é
+     * NÃO marcar: falso negativo deixa a fala seguir o fluxo normal; falso positivo só a preserva em
+     * inglês (honesto), nunca corrompe.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer lado nulo/vazio devolve {@code false}.
+     */
+    static boolean continuaNoProximoEvento(String enAtual, String enProximo) {
+        if (enAtual == null || enProximo == null) {
+            return false;
+        }
+        String a = visivelSimples(enAtual);
+        String p = visivelSimples(enProximo);
+        if (a.isEmpty() || p.isEmpty()) {
+            return false;
+        }
+        char ultimo = a.charAt(a.length() - 1);
+        if (".!?…\"»)]".indexOf(ultimo) >= 0) {
+            return false;
+        }
+        char primeiro = p.charAt(0);
+        return Character.isLetter(primeiro) && Character.isLowerCase(primeiro);
+    }
+
+    /** Texto visível de uma linha ASS: sem blocos {...}, sem \N e sem \h, aparado. */
+    private static String visivelSimples(String texto) {
+        return texto.replaceAll("\\{[^}]*\\}", "")
+            .replace("\\N", " ")
+            .replace("\\h", " ")
+            .trim();
     }
 
     /**
@@ -491,6 +528,19 @@ public class RevisarLegendasUseCase {
         int soTermoCanonico = 0;
         int italicoRemovido = 0;
         boolean interrompido = false;
+        // #1 (2026-09-15): quais eventos são um FRAGMENTO continuado no evento seguinte. É uma
+        // propriedade do DOCUMENTO (dois eventos vizinhos), calculada uma vez aqui, onde o .ass
+        // inteiro está à mão — a cadeia de correção vê uma fala por vez e não teria como saber.
+        java.util.Set<Integer> indicesFragmentoCrossEvento = new java.util.HashSet<>();
+        List<EventoLegenda> eventosOrdenados = documentoPt.eventos();
+        for (int i = 0; i + 1 < eventosOrdenados.size(); i++) {
+            EventoLegenda atual = eventosOrdenados.get(i);
+            String enAtual = originaisPorIndice.get(atual.indice());
+            String enProximo = originaisPorIndice.get(eventosOrdenados.get(i + 1).indice());
+            if (continuaNoProximoEvento(enAtual, enProximo)) {
+                indicesFragmentoCrossEvento.add(atual.indice());
+            }
+        }
         for (EventoLegenda evento : documentoPt.eventos()) {
             // Parada cooperativa no meio do arquivo: as falas restantes entram
             // sem alteração e o que já foi corrigido é gravado normalmente.
@@ -572,7 +622,8 @@ public class RevisarLegendasUseCase {
             CadeiaCorrecaoFala.Tentativa tentativa = cadeiaCorrecao.decidir(
                 sessao,
                 new CadeiaCorrecaoFala.FalaSuspeita(
-                    evento, originalEn, traducaoAtual, temOriginalEn, auditoria),
+                    evento, originalEn, traducaoAtual, temOriginalEn, auditoria,
+                    indicesFragmentoCrossEvento.contains(evento.indice())),
                 arquivoPt.getFileName().toString(), modo, contexto);
             detalhesRevisao.addAll(tentativa.evidencias());
             aplicar(sessao, evento, tentativa.decisao());
