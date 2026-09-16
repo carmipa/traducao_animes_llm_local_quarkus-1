@@ -480,8 +480,9 @@ public class ProvedorCorrecaoFala {
      * </ul>
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer etapa sem resultado devolve
-     * {@code Optional.empty()} e o fluxo segue para o espelho de frase inteira e, depois, para o
-     * Google. Nunca lança.
+     * {@code Optional.empty()} e o fluxo segue para o espelho de frase inteira e, se ele também não
+     * resolver, para a recusa (fala pendente). O Google NÃO é acionado aqui — desde 16/09/2026 ele é
+     * uma passada separada (botão "Só o Google", modo GOOGLE), não a 2ª etapa desta. Nunca lança.
      */
     private Optional<String> traduzirSegmentoASegmento(
         String originalEn, ContextoRevisao contexto) {

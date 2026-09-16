@@ -263,44 +263,40 @@ class CadeiaCorrecaoFalaTest {
     }
 
     /**
-     * A CASCATA, que é a razão de ser da tela depois da decisão de Paulo (2026-08-16): a 3.1 existe
-     * para que uma fala que faltou traduzir <b>não saia daqui sem tradução</b>. O LLM é a 1ª etapa
-     * porque conhece a lore; o Google é a 2ª e só entra quando a 1ª não resolveu.
-     *
-     * <p>Antes disto eram dois botões, e a garantia dependia de o operador lembrar a ordem — a lente
-     * de boa-fé chama isso de interface que permite errar.
+     * SEM CASCATA (Paulo, 2026-09-16): a passada "Traduzir o que faltou" (LLM_CONCORDANCIA) é do LLM
+     * local + dicionários. Se o LLM não resolve, a fala fica PENDENTE — o Google NÃO é acionado aqui.
+     * Ele é uma passada SEPARADA (botão "Só o Google"), escolha explícita do operador, para o Google
+     * nunca TROCAR o que já foi traduzido numa fala parcial. Reverte a cascata de 16/08.
      */
     @Test
-    void quandoOLlmNaoResolveACascataChamaOGoogle() {
+    void llmConcordanciaNaoCaiNoGoogle_llmNaoResolveFicaPendente() {
         llm.responderSemAlterar();
 
         CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
             new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
             "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
 
-        assertEquals(1, tradutorExterno.chamadas(),
-            "o LLM recusou: a fala tinha de seguir para a 2ª etapa em vez de virar pendência");
-        assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
+        assertInstanceOf(DecisaoFala.Pendente.class, tentativa.decisao(),
+            "sem cascata, o LLM que não resolve deixa a fala pendente");
+        assertEquals(0, tradutorExterno.chamadas(),
+            "o Google não é acionado na passada do LLM — é passada separada (botão Só o Google)");
     }
 
     /**
-     * O rótulo tem de dizer QUEM resolveu. Numa cascata é fácil o texto vir do Google e a evidência
-     * sair como {@code CORRIGIDA_LLM}, porque o modo pedido continua sendo o do botão — e aí toda
-     * comparação futura entre provedores nasce mentindo.
+     * O rótulo tem de dizer QUEM resolveu. Na passada "Só o Google" (modo GOOGLE, sem LLM antes), a
+     * correção é do Google e a evidência sai {@code CORRIGIDA_GOOGLE} — o rótulo distingue o que
+     * custou rede, e mentir nele contamina a comparação entre provedores.
      */
     @Test
-    void correcaoVindaDoGoogleNaCascataNaoEhRotuladaComoLlm() {
-        llm.responderSemAlterar();
-
+    void passadaSoGoogleRotulaCorrigidaGoogle() {
         CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
             new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
-            "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
+            "ep01.ass", ModoRevisaoLegendas.GOOGLE, SEM_LORE);
 
+        assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
         assertTrue(tentativa.evidencias().stream()
                 .anyMatch(e -> "CORRIGIDA_GOOGLE".equals(e.resultado())),
-            "quem corrigiu foi o Google; rotular como LLM contamina o dataset de comparação");
-        assertTrue(tentativa.evidencias().stream()
-                .anyMatch(e -> "LLM_SEM_ALTERACAO".equals(e.resultado())),
-            "a recusa da 1ª etapa também é evidência: sem ela ninguém sabe que o LLM foi tentado");
+            "quem corrigiu foi o Google; o rótulo tem de dizer isso");
+        assertEquals(0, llm.chamadas(), "a passada Só o Google não chama o LLM antes");
     }
 }
