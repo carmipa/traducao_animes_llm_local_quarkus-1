@@ -642,6 +642,29 @@ public class LlmClientAdapter implements LlmPort {
                 return candidata;
             }
         }
+        // 2ª passada — SÓ quando a fala não espera marcador nenhum. O aya às vezes anexa um marcador
+        // INVENTADO ({@code [[TAG1]]}) a uma tradução CORRETA de fala sem tag; a 1ª passada, que exige
+        // match exato (aqui, lista vazia), jogava a tradução inteira fora e a fala caía no Google.
+        //
+        // DECISÃO DE PAULO (2026-09-16): "a ideia do Google é ser a última alternativa, quando o aya
+        // não deu conta nem os dicionários". Descartar uma correção que o aya ACERTOU só por causa de
+        // um marcador inventado usa o Google (mais lento, sem lore) onde o aya já resolveu — o oposto
+        // da intenção. Medido no mesmo dia: "Nós temos que ter cuidado agora. [[TAG1]]" e "Eles nunca
+        // nos encontrarão aqui. [[TAG1]]" eram descartados (~1/3 das correções de resíduo do aya).
+        //
+        // A segurança não some: a linha limpa ainda passa pelo GuardaCorrecaoSegura (alucinação,
+        // estrutura, lore, marcador técnico) e pelo validador rio abaixo. Onde HÁ marcador esperado
+        // ele continua obrigatório (1ª passada). Se sobrar colchete duplo malformado depois de tirar
+        // os [[TAGn]] bem-formados, a linha é PULADA — marcador mutilado é suspeito e vai ao Google.
+        if (esperados.isEmpty()) {
+            for (int i = candidatas.size() - 1; i >= 0; i--) {
+                String semMarcador = MARCADOR_TAG.matcher(candidatas.get(i)).replaceAll("").strip();
+                if (!semMarcador.isBlank()
+                    && !semMarcador.contains("[[") && !semMarcador.contains("]]")) {
+                    return semMarcador;
+                }
+            }
+        }
         return "";
     }
 

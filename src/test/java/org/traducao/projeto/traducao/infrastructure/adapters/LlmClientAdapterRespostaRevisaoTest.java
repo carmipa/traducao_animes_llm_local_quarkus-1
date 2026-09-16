@@ -76,15 +76,42 @@ class LlmClientAdapterRespostaRevisaoTest {
     }
 
     /**
-     * Regressão de Zeta S01E02, evento 628: a tradução atual não tinha tags, mas o modelo copiou
-     * {@code [[TAG0]]} da referência inglesa. Zero esperado não significa aceitar qualquer coisa.
+     * DECISÃO DE PAULO (2026-09-16): "o Google é a última alternativa, quando o aya não deu conta".
+     * Descartar uma tradução que o aya ACERTOU só por causa de um marcador inventado a mandava ao
+     * Google sem necessidade. Agora, quando NENHUM marcador é esperado, o {@code [[TAGn]]} inventado
+     * é REMOVIDO e a tradução limpa é aceita; a segurança real (alucinação/estrutura/lore) fica no
+     * GuardaCorrecaoSegura rio abaixo. Antes (cicatriz Zeta S01E02) isto era REJEITADO.
      */
     @Test
-    void rejeitaMarcadorInventadoQuandoNenhumEraEsperado() {
+    void removeMarcadorInventadoQuandoNenhumEraEsperado() {
         String normalizada = LlmClientAdapter.normalizarLinhaUnica(
             "[[TAG0]]Tem a cor de chamas ardendo vividamente...", List.of());
 
-        assertEquals("", normalizada);
+        assertEquals("Tem a cor de chamas ardendo vividamente...", normalizada);
+    }
+
+    /**
+     * O CASO MEDIDO com o aya vivo (2026-09-16): tradução de resíduo CORRETA com um {@code [[TAG1]]}
+     * inventado no fim. Antes ia inteira para o lixo (→ Google); agora o marcador sai e a correção
+     * do aya é aproveitada.
+     */
+    @Test
+    void recuperaCorrecaoDoAyaComMarcadorInventadoNoFim() {
+        assertEquals("Nós temos que ter cuidado agora.", LlmClientAdapter.normalizarLinhaUnica(
+            "Nós temos que ter cuidado agora. [[TAG1]]", List.of()));
+        assertEquals("Eles nunca nos encontrarão aqui.", LlmClientAdapter.normalizarLinhaUnica(
+            "Eles nunca nos encontrarão aqui. [[TAG1]]", List.of()));
+    }
+
+    /**
+     * CONTRA-CASO (A1): a 2ª passada NÃO afrouxa quando UM marcador ERA esperado. A proposta que
+     * perde a tag continua rejeitada (o {@link #rejeitaRespostaQuePerdeMarcador} cobre isso), e uma
+     * que traz uma tag a MENOS também — a remoção só vale quando NENHUM marcador era esperado.
+     */
+    @Test
+    void naoRemoveMarcadorQuandoUmEraEsperado() {
+        assertEquals("", LlmClientAdapter.normalizarLinhaUnica(
+            "So os federais nao sao burros.", List.of("[[TAG0]]", "[[TAG1]]")));
     }
 
     /** Marcadores iguais, mas reordenados, mudariam a posição dos efeitos no texto final. */
