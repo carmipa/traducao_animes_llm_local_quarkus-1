@@ -153,6 +153,10 @@ public class RevisaoLoreController {
         filaExecucao.submeter(() -> {
             logStreamService.definirCanalAtual("revisao-lore");
             long inicioMs = System.currentTimeMillis();
+            // Achado 0 (2026-09-16): a revisão de lore sobrescreve a pasta traduzida no lugar.
+            // Aviso não-bloqueante quando ela é um baseline de comparação; o backup é a rede.
+            guardaCaminho.avisoRevisaoSobrescreveBaseline(req.diretorioTraduzido())
+                .ifPresent(msg -> System.out.println(AnsiCores.YELLOW + msg + AnsiCores.RESET));
             try {
                 ResultadoRevisaoLore resultado = revisarLoreUseCase.executar(
                     pastaOriginal, pastaTraduzida, req.contextoId(), revisarTodas);
