@@ -199,10 +199,11 @@ public class SessaoRevisaoArquivo {
         semOriginal++;
     }
 
-    /** Conta uma pendência sem registrar evento — para os desfechos que já registraram o seu. */
-    public void contarPendente() {
-        pendentes++;
-    }
+    // REMOVIDO em 2026-09-16 (Achado 4): contarPendente() incrementava `pendentes` SEM registrar o
+    // evento — e o nome estava a um caractere de pendente(EventoLegenda), que registra E conta. Tinha
+    // ZERO chamadores no repo. Pego pela invariante desta classe: "toda saída registra o evento; um
+    // caminho que esqueça de registrar apaga uma legenda em silêncio". Era arma carregada de
+    // truncamento; quem precisar contar pendência com evento usa pendente(evento).
 
     /**
      * PROPÓSITO DE NEGÓCIO: marca que a sincronização com o cache já alterou o arquivo, antes mesmo

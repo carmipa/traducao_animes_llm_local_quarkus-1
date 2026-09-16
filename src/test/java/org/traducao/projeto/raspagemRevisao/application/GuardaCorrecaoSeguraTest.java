@@ -481,6 +481,50 @@ class GuardaCorrecaoSeguraTest {
     }
 
     /**
+     * ACHADO 1 (2026-09-16), reproduzido com o auditor REAL nos dois lados: uma correção que REDUZ
+     * os problemas — remove o inglês residual ("and", escopo da 3.1) e deixa o erro de gênero para a
+     * 3.3 — não pode ser barrada como PROBLEMA_NOVO. O defeito: {@code introduziuProblemaNovo}
+     * comparava a STRING inteira do motivo, e os motivos de concordância embutem o trecho da fala,
+     * então o mesmo gênero reescrito ("Ele estava ferida" → "Ele esta cansada") contava como novo e
+     * a rejeição rodava ANTES de {@code melhorou}. Anterior=4 motivos, posterior=3: era rejeitado.
+     * A cura compara por CATEGORIA do motivo. O contra-caso vizinho impede virar afrouxamento.
+     */
+    @Test
+    void correcaoQueRemoveResiduoDeixandoGeneroReescritoEhAprovada() {
+        String original = "He is tired.";
+        String atual = "Ele estava ferida and perdido.";   // "and" = resíduo + erro de gênero
+        String candidata = "Ele esta cansada.";             // resíduo removido; gênero reescrito
+
+        ResultadoDeteccaoConcordancia anterior = auditor.auditar(original, atual);
+        assertTrue(anterior.motivos().size() > auditor.auditar(original, candidata).motivos().size(),
+            "pré-condição: o candidato tem MENOS problemas (o resíduo saiu)");
+
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(original, atual, candidata, anterior, SEM_LORE);
+        assertTrue(aprovou(v),
+            "remover o inglês residual é o trabalho da 3.1; o gênero remanescente é da 3.3. " + v);
+    }
+
+    /**
+     * CONTRA-CASO (A1) do conserto acima: a comparação por categoria NÃO pode virar afrouxamento —
+     * uma proposta que introduz uma CATEGORIA de problema que a fala não tinha continua sendo
+     * recusada como PROBLEMA_NOVO, mesmo quando reduz a contagem total. Anterior tem 4 motivos de
+     * categorias não-gênero; a proposta troca por 3 de gênero (categorias novas): sem esta guarda o
+     * {@code melhorou} (3 &lt; 4) aprovaria.
+     */
+    @Test
+    void propostaQueIntroduzCategoriaNovaContinuaRecusadaMesmoReduzindoContagem() {
+        String original = "He is tired.";
+        ResultadoDeteccaoConcordancia anterior = suspeitaCom(
+            "Preâmbulo detectado: a", "Idioma incorreto detectado: b",
+            "Resíduo gringo detectado: c", "Marcador de erro de tradução: d");
+        String candidata = "Ele estava ferida.";  // 3 motivos de gênero — categorias inexistentes no anterior
+
+        GuardaCorrecaoSegura.Veredicto v = guarda.avaliar(original, original, candidata, anterior, SEM_LORE);
+        assertFalse(aprovou(v), "categoria de problema nova não pode passar só por reduzir contagem. " + v);
+        assertEquals(GuardaCorrecaoSegura.MotivoRecusa.PROBLEMA_NOVO, motivo(v));
+    }
+
+    /**
      * A pergunta que dá sentido às outras quatro: gastar uma chamada externa, um backup e uma
      * regravação para trocar um defeito por outro do mesmo tamanho não é melhora.
      */

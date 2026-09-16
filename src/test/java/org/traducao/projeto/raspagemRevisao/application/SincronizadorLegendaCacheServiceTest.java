@@ -45,6 +45,34 @@ class SincronizadorLegendaCacheServiceTest {
     }
 
     /**
+     * ACHADO 2 (2026-09-16), reproduzido e corrigido: quando o cache tem itálico e o ASS já está sem
+     * itálico, o valor GRAVADO (traduzido sem itálico) é IDÊNTICO ao texto atual — não é mudança. Antes,
+     * a comparação usava o cache CRU (com itálico), então a fala entrava em {@code indices} e o ASS era
+     * reescrito com bytes iguais (medido: {@code total=1}, texto antes == depois). Agora só conta o que
+     * REALMENTE muda. Contra-caso (A1) no mesmo teste: cache com itálico sobre texto DIFERENTE continua
+     * sendo uma mudança de verdade.
+     */
+    @Test
+    @DisplayName("Achado 2: cache com italico sobre ASS ja limpo nao conta mudanca fantasma")
+    void cacheComItalicoSobreAssJaLimpoNaoContaMudancaFantasma() {
+        DocumentoLegenda documento = new DocumentoLegenda("[Events]\n", List.of(
+            new EventoLegenda(1, "Dialogue", "Default", "prefixo1,", "Ajude!"),          // ja sem italico
+            new EventoLegenda(2, "Dialogue", "Default", "prefixo2,", "Texto antigo")), "\n", false); // muda de verdade
+        List<EntradaCache> entradas = List.of(
+            new EntradaCache(1, "Default", "Help!", "{\\i1}Ajude!{\\i0}", "en", "pt-br"),    // = ao atual apos remover
+            new EntradaCache(2, "Default", "Right!", "{\\i1}Correto!{\\i0}", "en", "pt-br")); // != ao atual
+
+        var resultado = new SincronizadorLegendaCacheService(
+            new org.traducao.projeto.legenda.domain.PoliticaEstiloMusical(java.util.List.of()),
+            new org.traducao.projeto.qualidadeTraducao.application.RemovedorItalico())
+            .sincronizar(documento, entradas, true);
+
+        assertEquals(1, resultado.total(), "so a fala 2 muda de verdade; a 1 gravaria bytes iguais");
+        assertEquals("Ajude!", resultado.documento().eventos().get(0).texto(), "fala 1 intacta");
+        assertEquals("Correto!", resultado.documento().eventos().get(1).texto(), "fala 2 corrigida");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: esta ponte é o ÚNICO ponto da 3.1 que traz texto de FORA da
      * legenda — ela escreve o {@code traduzido} do cache. O cache gravado ANTES da regra do
      * itálico (22/08/2026) tem {@code \i1}, então sem a regra aqui a Revisão de Legendas

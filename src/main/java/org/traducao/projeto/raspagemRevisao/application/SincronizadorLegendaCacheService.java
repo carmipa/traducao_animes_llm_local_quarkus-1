@@ -178,10 +178,17 @@ public class SincronizadorLegendaCacheService {
                 && entrada.original().equals(evento.texto())
                 && !protegidos.contains(evento.indice());
             boolean podeAplicar = permitido && (autorizado || regrediuAoOriginal);
+            // Compara e grava o MESMO valor: o texto do cache JÁ SEM itálico (é o que será escrito).
+            // Comparar o cru contra o texto atual contava como "mudança" um cache com itálico sobre um
+            // ASS já sem itálico e gravava bytes idênticos (Achado 2, 2026-09-16: total=1, texto antes
+            // == depois). De quebra, cache formado só por tags vira vazio e cai no ramo `else`, honrando
+            // "valor vazio nunca apaga fala".
+            String traduzidoLimpo = entrada != null && entrada.traduzido() != null
+                ? removedorItalico.remover(entrada.traduzido()) : null;
             if (podeAplicar && evento.isDialogo() && !eMusica(evento)
-                && entrada != null && entrada.traduzido() != null
-                && !entrada.traduzido().isBlank() && !entrada.traduzido().equals(evento.texto())) {
-                atualizados.add(evento.comTexto(removedorItalico.remover(entrada.traduzido())));
+                && traduzidoLimpo != null && !traduzidoLimpo.isBlank()
+                && !traduzidoLimpo.equals(evento.texto())) {
+                atualizados.add(evento.comTexto(traduzidoLimpo));
                 indices.add(evento.indice());
                 if (regrediuAoOriginal) recuperadosDoOriginal.add(evento.indice());
             } else {
