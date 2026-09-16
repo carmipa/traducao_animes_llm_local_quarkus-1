@@ -1425,20 +1425,21 @@
                             <li class="op-linha">
                                 <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
                                 <div class="op-texto">
-                                    <span class="op-titulo">1 — Traduzir o que faltou (LLM local, com Google na sequência)</span>
+                                    <span class="op-titulo">1 — Traduzir o que faltou (LLM local + dicionários)</span>
                                     <span class="op-desc"><strong>É esta que você roda.</strong> Acha as falas que ficaram
-                                        em inglês e as traduz com o modelo local, que conhece a lore. Quando o modelo não
-                                        resolve, a mesma fala desce sozinha para o Google — sem você precisar clicar de
-                                        novo. Os dicionários ajustam a proposta que volta, e toda proposta passa por um
-                                        portão que a descarta quando não melhora a legenda.</span>
+                                        em inglês e as traduz com o modelo local, que conhece a lore. Os dicionários
+                                        ajustam a proposta que volta, e toda proposta passa por um portão que a descarta
+                                        quando não melhora a legenda. Quando o modelo não resolve, a fala fica
+                                        <strong>pendente</strong> — o Google <strong>não</strong> entra aqui, para não
+                                        re-traduzir por cima do que já estava certo. Para o Google, use o botão 2.</span>
                                     <span class="op-selos">
                                         <span class="op-selo op-selo-escreve">grava nos .ass</span>
                                         <span class="op-selo op-selo-llm">LLM local</span>
-                                        <span class="op-selo op-selo-rede">usa o Google se o LLM falhar</span>
+                                        <span class="op-selo op-selo-seguro">sem Google</span>
                                     </span>
                                 </div>
                                 <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
-                                    data-tooltip="LLM local como 1ª etapa e Google como 2ª, numa ação só">
+                                    data-tooltip="LLM local + dicionários, sem Google. O que o modelo não resolver fica pendente.">
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
                                         stroke-width="2" fill="none">
                                         <path d="M12 20h9"></path>
@@ -1452,10 +1453,13 @@
                                 <span class="op-marca"><span class="material-symbols-outlined">language</span></span>
                                 <div class="op-texto">
                                     <span class="op-titulo">2 — Só o Google (quando o LLM está desligado)</span>
-                                    <span class="op-desc">A 2ª etapa isolada, para quando o LM Studio não está no ar. Sem o
-                                        modelo local não há cascata, e <strong>fala com tag inline</strong>
-                                        (<code>{\i1}…{\i0}</code>) costuma voltar como <code>TAG_CORROMPIDA</code> e ficar
-                                        pendente — medido no Guilty Crown: 5 falas que a opção 1 resolveu.</span>
+                                    <span class="op-desc">A passada do Google, <strong>isolada</strong> — não passa pelo LLM
+                                        local. Rode-a quando o LM Studio não estiver no ar. Ela re-traduz o inglês inteiro,
+                                        então numa fala <strong>parcialmente</strong> traduzida substitui o que já estava
+                                        certo — por isso é escolha explícita, não a continuação do botão 1. E
+                                        <strong>fala com tag inline</strong> (<code>{\i1}…{\i0}</code>) costuma voltar como
+                                        <code>TAG_CORROMPIDA</code> e ficar pendente — medido no Guilty Crown: 5 falas que
+                                        a opção 1 resolveu.</span>
                                     <span class="op-selos">
                                         <span class="op-selo op-selo-escreve">grava nos .ass</span>
                                         <span class="op-selo op-selo-rede">precisa de internet</span>

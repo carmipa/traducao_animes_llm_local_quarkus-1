@@ -232,43 +232,18 @@ public class CadeiaCorrecaoFala {
         ProvedorCorrecaoFala.Resultado candidata = provedorCorrecao.obter(
             modo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
 
-        // CASCATA (Paulo, 2026-08-16): o LLM é a 1ª etapa porque conhece a lore; o Google é a 2ª,
-        // e SÓ quando a 1ª não resolveu. Antes eram dois botões, e "não sai daqui sem tradução"
-        // dependia de o operador lembrar a ordem — o que a regra da boa-fé chama de interface que
-        // permite errar. O Google se protege sozinho: motivo que não seja falha objetiva volta
-        // como GOOGLE_NAO_ACIONADO, porque tradutor sem lore devolve nome próprio traduzido.
-        // Qual provedor REALMENTE produziu o texto. Sem isto, uma fala resolvida pelo Google depois
-        // de o LLM recusar sairia rotulada como CORRIGIDA_LLM no relatório e no dataset — o rótulo
-        // existe justamente para distinguir o que custou rede de quem, e mentir nele contamina toda
-        // comparação futura entre provedores.
+        // SEM CASCATA para o Google (Paulo, 2026-09-16): a passada "Traduzir o que faltou"
+        // (LLM_CONCORDANCIA) é do LLM local + dicionários. Se o LLM não resolve, a fala fica PENDENTE —
+        // o Google NÃO é acionado aqui. Ele é uma passada SEPARADA (botão "Só o Google", modo GOOGLE),
+        // escolha explícita do operador, porque o Google retraduz o inglês inteiro e SUBSTITUIRIA o que
+        // já foi traduzido numa fala parcial. Isola os dois botões. Reverte a cascata de 16/08.
+        // `modoEfetivo` segue servindo ao rótulo CORRIGIDA_LLM vs CORRIGIDA_GOOGLE — o botão Só o Google
+        // chama esta cadeia em modo GOOGLE, e aí o provedor já é o Google, sem LLM antes.
         ModoRevisaoLegendas modoEfetivo = modo;
-        boolean primeiraPediuMemoria = false;
-        if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada primeira
-            && modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-            // NÃO reusar primeira.mensagem() aqui: ela é VERMELHA, e vermelho é desfecho de falha.
-            // Numa cascata a 1ª etapa não resolver é passagem de bastão, não erro — Paulo viu a
-            // linha vermelha no console de 16/08 numa fala que o Google corrigiu logo em seguida,
-            // e ler "erro" onde houve sucesso é o alarme falso que faz desligar o alarme.
-            // O motivo continua inteiro no relatório, via DetalheRevisao logo abaixo.
-            avisos.add("     " + AnsiCores.DIM + "1ª etapa (LLM) não resolveu"
-                + (primeira.detalhe() == null ? "" : ": " + primeira.detalhe())
-                + " — passando para o Google." + AnsiCores.RESET);
-            if (primeira.codigo() != null) {
-                evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
-                    primeira.codigo(), auditoria.motivos(), primeira.detalhe(),
-                    originalEn, traducaoAtual, primeira.proposta()));
-            }
-            // A memória NÃO é gravada aqui: se o Google resolver, marcar "não rende" agora
-            // impediria a próxima ocorrência de aproveitar a correção que existe.
-            primeiraPediuMemoria = primeira.registrarSemAlteracao();
-            modoEfetivo = ModoRevisaoLegendas.GOOGLE;
-            candidata = provedorCorrecao.obter(
-                modoEfetivo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
-        }
 
         if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada recusada) {
             avisos.add(recusada.mensagem());
-            if (recusada.registrarSemAlteracao() || primeiraPediuMemoria) {
+            if (recusada.registrarSemAlteracao()) {
                 sessao.registrarSemAlteracao(textoMascOriginal);
             }
             if (recusada.codigo() != null) {

@@ -1,5 +1,27 @@
 # CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
 
+## ATUAL (2026-09-16) — Revisão 3.1: ISOLAR o botão 1 (sem cascata Google)
+DECISÃO DE PAULO (produto, literal): "isola o botao 1 e deixa o 2 com o google apenas".
+O botão 1 "Traduzir o que faltou" era LLM→Google em cascata (16/08); agora é LLM local + dicionários
+SÓ. Se o LLM não resolve, a fala fica PENDENTE — o Google NÃO é acionado na mesma passada (ele
+retraduz o inglês inteiro e SUBSTITUIRIA o que já foi traduzido numa fala parcial). O botão 2 "Só o
+Google" (modo GOOGLE) continua isolado. Reverte a cascata de 16/08.
+FEITO E PROVADO:
+- CadeiaCorrecaoFala: bloco da cascata LLM→Google removido; `modoEfetivo = modo`; recusada simplificada.
+- ProvedorCorrecaoFala: docstring do segmento não fala mais em "depois, para o Google".
+- Testes reescritos: CadeiaCorrecaoFalaTest (llmConcordanciaNaoCaiNoGoogle_llmNaoResolveFicaPendente
+  + passadaSoGoogleRotulaCorrigidaGoogle); CorrecaoViaLlmChegaAoArquivoTest (botao1LlmNaoResolve
+  FicaPendenteSemGoogle + falaCorrigidaNaoVoltaComItalico agora em modo GOOGLE via revisarSoGoogle).
+- A2: mutação removendo `removedorItalico.remover` em RevisarLegendasUseCase:409 → teste do itálico
+  FALHOU pela causa esperada ({\i1} no .ass); restaurado por cp. Prova que o teste exercita a regra.
+- Helpers mortos removidos (montarComLegendaInglesa com bug .append(10), revisarComEspelho).
+- UI: index.html (botão 1 sem selo Google, "sem Google"; botão 2 reescrito) + revisao.js (2 mensagens).
+- Suíte completa: 2404 testes, 0 falha, 0 erro, 62 pulados (medição). Catraca esqueleto 2/0 (sem regravar).
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: commitar os 6 arquivos (fix+testes+UI); registrar memória do achado;
+ao fim da sessão, commit+push da pasta .claude/projects.
+
+## Anterior — Auditoria ZZ
+
 TAREFA ORIGINAL: auditar os 47 episódios traduzidos do Gundam ZZ (14/09) buscando falas
   que ficaram em inglês; avaliar se é hora de rodar a Revisão.
 OBJETIVO FINAL: reduzir/entender o inglês remanescente. Paulo escolheu: alvo = TUDO
