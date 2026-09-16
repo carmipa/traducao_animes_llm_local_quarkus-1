@@ -83,6 +83,13 @@ public class RevisaoConcordanciaController {
         filaExecucao.submeter(() -> {
             logStreamService.definirCanalAtual("revisao-concordancia");
             long inicioMs = System.currentTimeMillis();
+            // Achado 0 (2026-09-16): só quando VAI gravar. Em dry-run nada é sobrescrito, então
+            // avisar seria alarme falso. O aviso é não-bloqueante; o backup por execução continua
+            // sendo a rede de segurança.
+            if (aplicar) {
+                guardaCaminho.avisoRevisaoSobrescreveBaseline(req.diretorioTraduzido())
+                    .ifPresent(msg -> System.out.println(AnsiCores.YELLOW + msg + AnsiCores.RESET));
+            }
             try {
                 ResultadoConcordancia resultado =
                     revisarConcordanciaUseCase.revisarPasta(pastaTraduzida, aplicar);
