@@ -337,8 +337,19 @@ public class GuardaCorrecaoSegura {
                 MotivoRecusa.TAG_FICOU_INERTE);
         }
         ResultadoDeteccaoConcordancia posterior = auditor.auditar(original, candidata);
+        // Compara por CATEGORIA do motivo, não pela string inteira. Os motivos de concordância
+        // embutem o TRECHO casado da fala (DetectorConcordanciaService: descricao + ": \"" + trecho),
+        // então o MESMO defeito reescrito com outras palavras tinha string diferente e era lido como
+        // "problema novo". Isso barrava, por PROBLEMA_NOVO antes de o `melhorou` rodar, uma correção
+        // que REDUZIA os problemas — remove o inglês residual (escopo da 3.1) e deixa o gênero para a
+        // 3.3 —, e o resíduo ficava gravado na legenda. Reproduzido em 2026-09-16 (anterior=4 →
+        // posterior=3, ainda rejeitado). Categoria estável faz o defeito reescrito não contar como novo.
+        Set<String> categoriasAnteriores = auditoriaAnterior.motivos().stream()
+            .map(GuardaCorrecaoSegura::categoriaMotivo)
+            .collect(java.util.stream.Collectors.toSet());
         boolean introduziuProblemaNovo = posterior.motivos().stream()
-            .anyMatch(motivo -> !auditoriaAnterior.motivos().contains(motivo));
+            .map(GuardaCorrecaoSegura::categoriaMotivo)
+            .anyMatch(categoria -> !categoriasAnteriores.contains(categoria));
         if (introduziuProblemaNovo) {
             return new Veredicto.Rejeitada(List.of("     " + AnsiCores.YELLOW
                 + "Correção rejeitada: a proposta introduziu um problema diferente do original."
@@ -348,6 +359,27 @@ public class GuardaCorrecaoSegura {
         boolean melhorou = !posterior.suspeito()
             || posterior.motivos().size() < auditoriaAnterior.motivos().size();
         return melhorou ? APROVADA : silenciosa(MotivoRecusa.SEM_MELHORIA);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reduz um motivo de auditoria à sua CATEGORIA estável, descartando o
+     * trecho de fala que alguns motivos embutem ({@code descricao: "trecho"}). É o que faz "mesmo
+     * defeito reescrito com outras palavras" contar como o MESMO problema na pergunta "introduziu
+     * problema novo?", e não como um problema diferente.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: corta no primeiro {@code ": "} — o separador que todo motivo com
+     * texto embutido usa ({@code Resíduo gringo detectado: ...}, {@code Sujeito 'ele'...: "..."},
+     * {@code Fala não traduzida (...): ...}). Motivo sem texto (string fixa, como
+     * {@code "Original indica masculino, ..."}) não tem esse separador e volta inteiro.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo devolve string vazia.
+     */
+    static String categoriaMotivo(String motivo) {
+        if (motivo == null) {
+            return "";
+        }
+        int i = motivo.indexOf(": ");
+        return i >= 0 ? motivo.substring(0, i) : motivo;
     }
 
     /**

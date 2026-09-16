@@ -155,4 +155,38 @@ class RevisarLegendasCacheIntegracaoTest {
         assertEquals("CONCLUIDO_COM_PENDENCIAS", resultado.status());
         assertEquals(antes, Files.readString(ass, StandardCharsets.UTF_8), "o ASS não pode ser alterado");
     }
+
+    /**
+     * ACHADO 3 (2026-09-16), reproduzido e corrigido: em modo Cache + LLM, uma fala
+     * sem-referência-segura que TAMBÉM tem erro de concordância PT era contada como pendente DUAS
+     * vezes — no pré-laço (SEM_REFERÊNCIA_SEGURA) e de novo no laço (FORA_DO_ESCOPO). Medido:
+     * {@code problemas=1} mas {@code pendentes=2}. Sem referência segura não há como comparar, então
+     * a fala é preservada e contada UMA vez. A fala 0 (com vínculo seguro) existe só para o arquivo
+     * não bloquear inteiro; os testes de sync seguro acima são o contra-caso (A1): fala COM
+     * referência segura continua sendo revisada/restaurada normalmente.
+     */
+    @Test
+    void semRefSeguraComDefeitoContaPendenteUmaVezSo(@TempDir Path tempDir) throws IOException {
+        Path pastaPt = Files.createDirectory(tempDir.resolve("pt"));
+        Path pastaCache = Files.createDirectory(tempDir.resolve("cache"));
+
+        Path ass = pastaPt.resolve("show_PT-BR.ass");
+        String l0 = "Dialogue: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,Bom dia\n";           // casa cache
+        String l1 = "Dialogue: 0,0:00:04.00,0:00:06.00,Default,,0,0,0,,Ele esta cansada\n";  // sem-ref + gênero
+        Files.writeString(ass, CABECALHO + l0 + l1, StandardCharsets.UTF_8);
+        String antes = Files.readString(ass, StandardCharsets.UTF_8);
+
+        escreverCache(pastaCache.resolve("show_ENG.cache.json"), "danmachi", List.of(
+            new EntradaCache(0, "Default", "Good morning", "Bom dia", "en", "pt"),              // vínculo seguro
+            new EntradaCache(1, "Default", "Something totally else", "Outra traducao", "en", "pt"))); // não casa
+
+        ResultadoRevisaoLegendas r = useCase.executar(pastaPt, null, pastaCache, null,
+            ModoRevisaoLegendas.LLM_CONCORDANCIA, "danmachi", ModoReferenciaRevisao.CACHE);
+
+        assertEquals(1, r.arquivosAnalisados());
+        assertEquals(1, r.falasPendentes(),
+            "a fala sem-referência-segura conta como pendente UMA vez, não duas");
+        assertEquals(antes, Files.readString(ass, StandardCharsets.UTF_8),
+            "sem correção segura, o ASS não pode ser alterado");
+    }
 }

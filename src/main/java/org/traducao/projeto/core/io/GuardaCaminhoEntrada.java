@@ -94,6 +94,17 @@ public class GuardaCaminhoEntrada {
         "legendas_ptbr_corrigidas", "legenda-simplificada",
         "traducao_mistral", "traducao_aya", "traducao_ptbr_aya", "traducao_ptbr_achatado");
 
+    /**
+     * Pastas de SAÍDA que são BASELINE DE COMPARAÇÃO — traduções mantidas lado a lado para comparar
+     * modelos ({@code traducao_aya}, {@code traducao_mistral}) ou variantes de experimento. Doem se
+     * sobrescritas em silêncio (Achado 0, 2026-09-16). NÃO inclui {@code traducao_ptbr}/{@code ptbr}
+     * genéricos, que são o alvo NORMAL da revisão — avisar neles seria o alarme falso que ensina a
+     * ignorar o aviso. Subconjunto de {@link #PASTAS_DE_SAIDA}; Paulo ajusta quais nomes entram.
+     */
+    private static final java.util.Set<String> BASELINES_DE_COMPARACAO = java.util.Set.of(
+        "traducao_mistral", "traducao_aya", "traducao_ptbr_aya", "traducao_ptbr_achatado",
+        "traducao_ptbr_sem_lore", "legendas_ptbr_corrigidas", "legenda-simplificada");
+
     /** Recusa com motivo e mensagem pronta para a tela. */
     public record Recusa(Motivo motivo, String mensagem) {}
 
@@ -208,6 +219,50 @@ public class GuardaCaminhoEntrada {
                         + " sobrescreveria o trabalho pronto. A entrada costuma ser"
                         + " \"legendas_extraidas_ass\" ou \"legendas_eng\", ao lado desta."));
             }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: AVISA (não bloqueia) quando a REVISÃO vai sobrescrever no lugar uma pasta
+     * que é BASELINE DE COMPARAÇÃO. A revisão lê e grava português de propósito — por isso não é
+     * recusa como em {@link #conferirEntradaNaoEhSaidaDeTraducao} —, mas sobrescrever um baseline de
+     * modelo em silêncio apaga a referência de um experimento de dias.
+     *
+     * <h2>O gap que originou (Achado 0, 2026-09-16)</h2>
+     * A {@link #conferirEntradaNaoEhSaidaDeTraducao} isenta a revisão ("revisão lê PT de propósito"),
+     * decisão anterior aos baselines {@code traducao_aya}/{@code traducao_mistral} (12/08). Mas a 3.1
+     * sobrescreve a pasta que lê, no lugar, e NÃO chamava guarda de caminho nenhuma. Apontar a revisão
+     * para um baseline o sobrescrevia e a tela mostrava {@code [SUCESSO]} — sem aviso.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o NOME da pasta decide, e só os baselines de comparação disparam —
+     * o alvo genérico ({@code traducao_ptbr}) NÃO, senão o aviso viraria ruído no uso normal. NÃO
+     * bloqueia: o backup por execução continua sendo a rede de segurança; isto só torna o dano visível.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula/inválida devolve {@link Optional#empty()}.
+     *
+     * @param entrada caminho que a revisão vai LER e SOBRESCREVER
+     * @return o aviso pronto para o console, quando a pasta é um baseline de comparação
+     */
+    public Optional<String> avisoRevisaoSobrescreveBaseline(String entrada) {
+        if (entrada == null || entrada.isBlank()) {
+            return Optional.empty();
+        }
+        Path pasta;
+        try {
+            pasta = Path.of(entrada.trim()).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            return Optional.empty();
+        }
+        Path nome = pasta.getFileName();
+        if (nome == null) {
+            return Optional.empty();
+        }
+        if (BASELINES_DE_COMPARACAO.contains(nome.toString().toLowerCase(java.util.Locale.ROOT))) {
+            return Optional.of(
+                "[ATENÇÃO] A pasta \"" + nome + "\" é um BASELINE de comparação: a revisão vai "
+                    + "sobrescrevê-la NO LUGAR (há backup por execução). Confira se era mesmo esta a "
+                    + "pasta que você queria revisar.");
         }
         return Optional.empty();
     }

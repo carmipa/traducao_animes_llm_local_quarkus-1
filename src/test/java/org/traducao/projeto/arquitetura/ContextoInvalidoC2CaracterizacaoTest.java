@@ -153,8 +153,10 @@ class ContextoInvalidoC2CaracterizacaoTest {
     @DisplayName("RevisaoLegendasController./revisar-legendas: contexto inválido → 400 e NÃO enfileira")
     void revisarLegendasContextoInvalido() {
         AtomicBoolean enfileirou = new AtomicBoolean(false);
+        // guardaCaminho = null: o contexto inválido retorna 400 ANTES de qualquer enfileiramento,
+        // então o aviso anti-baseline (Achado 0) não é alcançado nesta rota.
         RevisaoLegendasController controller = new RevisaoLegendasController(
-            pipelineEspiao(enfileirou), null, gerenciadorSemContextos(), null);
+            pipelineEspiao(enfileirou), null, gerenciadorSemContextos(), null, null);
 
         ResponseEntity<RespostaPadrao> resposta = controller.revisarLegendas(requisicaoComContextoInvalido());
 

@@ -559,6 +559,16 @@ public class RevisarLegendasUseCase {
                 continue;
             }
 
+            // Fala SEM referência segura (modo Cache): já foi contada como pendente antes do laço,
+            // e NÃO tem original confiável para comparar — auditá-la aqui a compararia contra nada
+            // (ou contra referência insegura). Preserva a fala e não a reprocessa. Antes, no modo
+            // LLM, ela caía no fluxo abaixo e era contada como pendente uma SEGUNDA vez (Achado 3,
+            // 2026-09-16: problemas=1 mas pendentes=2). Em modo Ambos o conjunto é vazio e nada muda.
+            if (indicesSemReferenciaSegura.contains(evento.indice())) {
+                sessao.manter(evento);
+                continue;
+            }
+
             // Localiza o original EN ANTES da correção de karaokê: a busca por
             // texto traduzido usa o texto como está no cache (pré-correção), e o
             // original serve de referência para preservar comentários {...}
