@@ -136,6 +136,34 @@ class RevisarConcordanciaUseCaseTest {
         assertFalse(depois.contains("Vi o menina."));
     }
 
+    /**
+     * A varredura é RECURSIVA ({@code Files.walk}): dois arquivos de mesmo nome em subpastas
+     * diferentes não podem ter backup colidente nem ambíguo. A subpasta é espelhada dentro do
+     * backup — mesma disciplina R1 da 3.2. Achado da auditoria da 3.3 (17/09/2026).
+     */
+    @Test
+    void backupEspelhaSubpastaParaNaoColidirBasename(@TempDir Path dir) throws IOException {
+        Files.createDirectories(dir.resolve("S1"));
+        Files.createDirectories(dir.resolve("S2"));
+        escreverAss(dir.resolve("S1").resolve("ep01.ass"), "Vi o menina.");
+        escreverAss(dir.resolve("S2").resolve("ep01.ass"), "Vi o menina.");
+
+        ResultadoConcordancia r = useCase.revisarPasta(dir, true);
+
+        assertEquals(2, r.arquivosAlterados());
+        assertEquals(2, r.backups().size(), "cada arquivo de subpasta precisa do seu backup");
+        assertTrue(r.backups().stream()
+                .anyMatch(b -> b.toString().replace('\\', '/').contains("/S1/ep01.ass.")),
+            "backup do S1 nao foi espelhado na subpasta: " + r.backups());
+        assertTrue(r.backups().stream()
+                .anyMatch(b -> b.toString().replace('\\', '/').contains("/S2/ep01.ass.")),
+            "backup do S2 nao foi espelhado na subpasta: " + r.backups());
+        assertTrue(Files.readString(dir.resolve("S1").resolve("ep01.ass"), StandardCharsets.UTF_8)
+            .contains("Vi a menina."), "o S1 nao foi corrigido");
+        assertTrue(Files.readString(dir.resolve("S2").resolve("ep01.ass"), StandardCharsets.UTF_8)
+            .contains("Vi a menina."), "o S2 nao foi corrigido");
+    }
+
     @Test
     void dryRunNaoEscreve(@TempDir Path dir) throws IOException {
         Path ass = dir.resolve("ep_PT-BR.ass");
