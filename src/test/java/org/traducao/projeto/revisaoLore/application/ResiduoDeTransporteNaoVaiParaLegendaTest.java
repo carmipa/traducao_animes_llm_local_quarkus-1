@@ -96,6 +96,42 @@ class ResiduoDeTransporteNaoVaiParaLegendaTest {
     }
 
     @Test
+    @DisplayName("A1 FRONTEIRA: o sentinela LEGITIMO [[TAGn]] da mascara NAO e residuo — proposta aceita")
+    void marcadorLegitimoDaMascaraNaoEhResiduo() {
+        // Como a 3.2 chama de verdade (RevisarLoreUseCase:802-803): os TRES textos vao MASCARADOS,
+        // porque o diff de tokens exige atual e proposta na mesma regua. A `\N` da fala virou
+        // [[TAG0]] nos tres. O [[TAG0]] e o sentinela do mascarador, sempre desmascarado ANTES de
+        // gravar — nunca chega a legenda. Ele carrega o MESMO sinal superficial de [[Anti Bodies]]
+        // (par de colchetes duplos), e a guarda tem de separar os dois: rejeitar a alucinacao,
+        // aceitar o sentinela. Sem esta linha, TODA correcao de lore do LLM numa fala com tag ou
+        // `\N` (~24% do acervo) era descartada como falso "residuo".
+        Optional<String> veto = validar(
+            "The [[TAG0]] Void is here.",
+            "O [[TAG0]] Alma está aqui.",
+            "O [[TAG0]] Void está aqui.");
+
+        assertFalse(veto.isPresent(), () ->
+            "o [[TAG0]] e o sentinela legitimo do mascaramento (sempre [[TAG<numero>]]), nao "
+                + "encanamento alucinado. Rejeita-lo aqui reprova a correcao CERTA do LLM em toda "
+                + "fala com tag/quebra `\\N`. Veio: " + veto);
+    }
+
+    @Test
+    @DisplayName("A1 FRONTEIRA: [[TAGx]] mal-formado (nao [[TAG<numero>]]) continua sendo residuo")
+    void marcadorMalFormadoContinuaSendoResiduo() {
+        // A excecao e ESTREITA: so o sentinela real [[TAG<numero>]] escapa. Um [[TAGword]] ou
+        // [[TAG]] nao e sentinela do mascarador e tem de continuar barrado, senao a excecao viraria
+        // um buraco por onde alucinacao com a palavra "TAG" passaria.
+        Optional<String> veto = validar(
+            "That was Inori's Void.",
+            "Essa era a Alma de Inori.",
+            "Essa era a [[TAGudo]] Void de Inori.");
+
+        assertTrue(veto.isPresent(),
+            "[[TAGudo]] nao e o sentinela [[TAG<numero>]] do mascarador; e residuo e tem de ser barrado");
+    }
+
+    @Test
     @DisplayName("CONTRA-TESTE: colchete simples de legenda nao e sentinela")
     void colcheteSimplesContinuaPassando() {
         // Troca MINIMA de proposito: mexer no artigo junto ("A" -> "O") faria a proposta ser
