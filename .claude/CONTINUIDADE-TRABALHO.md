@@ -41,12 +41,19 @@ FRONTEIRA DECLARADA (produto, NAO defeito, NAO tocada): DiagnosticoCorretorConco
 detector PT-only acusa e a 3.3 NAO conserta de proposito (adjetivo anteposto/posposto, subst+predicativo,
 elas/eles plural, obliquo, plural nominal). Expandir = ampliacao de escopo, decisao futura do Paulo.
 7 COMMITS desta auditoria (NAO pushados): e2a413bf d61844c7 25978a60 d8b23516 bb7c74b9 56f502d4 8cd64f18.
-VALIDACAO NO ACERVO PENDENTE (do Paulo, quando ele rodar): #1 (quanto TP de "tudo isso e" se perde) e #3/#4
-sao conservadores por medicao-de-fatia; a suite prova a fronteira sintetica, o acervo prova o volume.
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA no escopo testado. Se Paulo rodar a 3.3 no acervo
-e um preco/residual pesar (ex.: "tudo isso e"), refinar o recorte. Push do KRONOS so com go (conferir
-origin/main..HEAD). NAO REPETIR: git checkout -- reverter mutacao APAGA tudo (cp); estatico nao recarrega no
-quarkusDev (reiniciar); Paulo roda o KRONOS (nao subir instancia paralela na 8099).
+VALIDACAO NO ACERVO FEITA (Paulo: "pode mexer no que faltou"; medicao read-only, 287.679 falas, scratchpad
+medir_precos.py/medir_nos.py): so o #1 tem efeito atual = **5 falas, TODAS falso-positivo** (isso/isto OBJETO
++ "e" conjuncao; o antigo corrompia as 5, o fix pula as 5). Preco "tudo isso e" = 0 ocorrencias. #2/#3/#4/
+NOS_TONICO = 0 cada no acervo -> bug LATENTE, guarda de corrupcao futura. Resultado: 5 corrupcoes reais
+consertadas, 0 TP legitimo perdido.
+VIZINHO 3.1 (him/his objeto, achado #3 da 3.1): JA CONSERTADO desde 15/09 (mascApenasObjeto/femApenasObjeto
+em DetectorConcordanciaService:659-680 + teste vocativoFemininoComMasculinoObjetoOnlyNaoAcusa). O `[ ]` acima
+na secao 3.1 esta VELHO. Eu o reportei como aberto por confiar no checkpoint em vez do codigo (regra 8).
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA e VALIDADA no acervo. Nada acionavel meu
+pendente. Falta so o que e do Paulo: rebuild do jar (quarkusBuild+restart para os fixes ficarem LIVE) e push
+do KRONOS (so com go; 12 commits a frente do remoto). NAO REPETIR: git checkout -- reverter mutacao APAGA
+tudo (cp); estatico nao recarrega no quarkusDev (reiniciar); Paulo roda o KRONOS (nao subir na 8099);
+conferir o `[ ]` do checkpoint contra o CODIGO antes de chamar de aberto.
 
 ## ATUAL (2026-09-17) — 3.2 PRECISÃO DO DETECTOR (falso-positivo dominava as pendentes)
 TAREFA (Paulo): "vamos fazer isso!" (autorizou atacar a precisão do detector, após eu detalhar as
