@@ -1,5 +1,58 @@
 # CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
 
+## ATUAL (2026-09-17) — 3.3 REVISÃO DE CONCORDÂNCIA, AUDITORIA PARTE 2 (fatia `revisaoConcordancia`)
+TAREFA (Paulo): "3.3. revisao de concordancia - parte 2 ... revisao e auditoria completa aqui! ja
+passamos por 3.1 e 3.2 e agora e aqui 3.3". Segunda passada adversarial da fatia determinística
+`revisaoConcordancia` (a 3.1 teve b26817dd→1b389b82; a 3.2 teve a parte 2). RITO COMPLETO: reescreve
+`.ass` do usuário (calibração §1 — dado persistente/sobrescrita).
+PORTÃO: rc=0, comprovante da sessão 0cfabb14 (leitura integral 0/1/1b/21-25/medição/arquitetura + vault + MEMORY).
+Corrigido no arranque: link de memória quebrado precisao-detector-lore-descritor-e-sigla ->
+[[86-e-Unicorn-favoritos]] trocado para [[animes-favoritos-86-e-unicorn]] (checar-memoria voltou a 0).
+ESCOPO: RevisarConcordanciaUseCase + 5 correctores (genero determinante, POS tagger acento-que-colide,
+padrao curado, dicionario, caractere-fora-do-pt) + RevisaoConcordanciaController + ResultadoConcordancia
++ ContagemCorretor. DetectorConcordanciaService NAO faz parte (vive em raspagemRevisao/3.1; grep confirma
+zero import da fatia 3.3). BASELINE VERDE: gradlew test --tests revisaoConcordancia.* rc=0 (pode-compilar 0).
+RECONHECIMENTO FEITO: li todo o main + tests da fatia; fila e SINGLE-THREAD (FilaExecucaoPipeline) => sem
+corrida nos contadores compartilhados do dicionario.
+CANDIDATOS REFUTADOS (disciplina regra 20 / "62 achados 17 refutados"):
+- veto de Comment SEM guarda -> REFUTADO: comentarioNaoEcorrigido (TelemetriaDaCadeiaDeCorretoresTest) cobre os 2 lados.
+- corrida nos contadores -> REFUTADA: fila newSingleThreadExecutor serializa.
+ACHADOS (2 caçadores independentes + minha auditoria, cada um VERIFICADO por trace):
+CORRIGIDOS (correcao pura, nao decisao de produto — A1+A2 RED->GREEN, suite completa verde, sem push):
+- [ALTO] `d61844c7` #2 genero grava "null" / NPE: ART_FEM_NO_PADRAO tinha muita/toda/pouca/certa/tanta
+  como gatilho SEM forma no flip (ART_FEM+ART_FEM_PLUR). flip.get=null -> "Tenho muita orgulho"->"Tenho
+  null orgulho" (minuscula, GRAVA) ou NPE (maiuscula). Lado masc ja excluia esses singulares. Fix: remove
+  os 5 + catraca gatilhosSemFlip(). Corrompia a fala que a tela deveria consertar.
+- [MEDIO] `e2a413bf` NOS_TONICO trata quebra de linha como fim de oracao: "para nos<quebra>ajudar" (objeto,
+  certo) recebia acento. Fix: quebra so e fim de oracao quando ENCERRA a fala. Quebra em 24,6% das falas.
+PENDENTES DE DIRECAO (FP que danifica fala correta, MAS o fix troca cobertura de correcao — a fatia calibra
+exclusao por MEDICAO no acervo, que exige o go do Paulo / a maquina dele; produto+acesso da regra 21):
+- [ALTO] #1 "e" conjuncao vira "é" apos isso/isto/aquilo OBJETO: "Faca isso e pronto" -> "Faca isso é pronto".
+  DEMONSTRATIVO_E assume "apos demonstrativo o e so pode ser é"; falso quando isso e OBJETO de imperativo
+  (Faca/Pegue/Deixa isso e ...). Frequente em dialogo. Fix conservador arrisca perder "que isso é" (sujeito
+  subordinado). RECOMENDO: medir FP/TP no acervo antes de escolher o recorte.
+- [ALTO-MEDIO] #3 "Ira" (nome, ex. Ira Gamagoori/Kill la Kill) e "ira" (colera) viram "Irá"/"irá":
+  IRA_VERBO CASE_INSENSITIVE sem guarda de maiuscula e com lookbehind incompleto (falta sem/por/tua/vossa/
+  toda). Renomeia personagem (o dano que a fatia MAIS teme) e quebra "sem ira"/"tua ira". Fix limpo possivel:
+  guarda de maiuscula (nao renomeia) + exigir INFINITIVO apos "ira" ("ira cometer" e sempre o verbo; nome/
+  colera antes de infinitivo e agramatical) — preserva o TP "so ira cometer". RECOMENDO fix + validacao acervo.
+- [MEDIO] #4 "não e" (negacao + conjuncao) vira "não é": "sim ou não e acabou"/"Levou um não e desistiu".
+  NAO_E assume que negacao nao coordena; falso quando "não" e substantivo/lista. FP mais raro. RECOMENDO
+  medir; talvez residual declarado.
+BAIXOS/COSMETICOS (nao corrigidos ainda):
+- [BAIXO] criarBackup: pasta plana no topo + basename+timestamp(ms) sobre Files.walk RECURSIVO. A 3.2
+  (RevisarLoreUseCase.criarBackup:474-481) espelha a subpasta de proposito (R1 082a3714). Timestamp evita
+  PERDA (backups unicos); residual = rastreabilidade recuperacao->origem ambigua p/ mesmo basename em subpastas.
+- [COSMETICO] doc drift: use case:237 e ContagemCorretor:8 dizem "QUATRO corretores" (sao CINCO; umaLinhaPorElo
+  assevera 5). Javadoc de palavrasComMaiuscula orfao (fica sobre abreFrase em CorretorAcentoDeDicionarioNaFalaService §6).
+FRONTEIRA DECLARADA (produto, nao defeito): DiagnosticoCorretorConcordanciaIT lista 7 classes que o detector
+PT-only acusa e a 3.3 NAO conserta de proposito (adjetivo anteposto/posposto, subst+predicativo, elas/eles
+plural, obliquo, plural nominal). Expandir = ampliacao de escopo, decisao do Paulo.
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: aguardar direcao do Paulo sobre #1/#3/#4 (medir no acervo vs fix conservador
+ja) e sobre os baixos/cosmeticos. Se ele mandar fixar: por achado A1+A2+commit; se medir: IT read-only sobre
+C:\animes (nao subir instancia na 8099 — Paulo roda o KRONOS). Push do KRONOS so com go (conferir origin/main..HEAD).
+NAO REPETIR: git checkout -- reverter mutacao APAGA tudo (cp); estatico nao recarrega no quarkusDev (reiniciar).
+
 ## ATUAL (2026-09-17) — 3.2 PRECISÃO DO DETECTOR (falso-positivo dominava as pendentes)
 TAREFA (Paulo): "vamos fazer isso!" (autorizou atacar a precisão do detector, após eu detalhar as
 434/873 pendentes do Zeta). PORTÃO: Paulo mandou "reler os canônicos e regerar o comprovante" →
