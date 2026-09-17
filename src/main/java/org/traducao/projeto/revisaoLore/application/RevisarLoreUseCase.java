@@ -85,11 +85,6 @@ public class RevisarLoreUseCase {
     private final AlcanceRevisaoLore alcance;
     private final ProtecaoLegendaAssService protecaoAss;
     private final CorretorLoreDeterministico corretorLore;
-    // Peer `lore`, dono da IDENTIDADE de obra: decide se a pasta apontada e da obra cujo contexto
-    // foi selecionado. A 3.2 SOBRESCREVE o .ass; sem esta guarda, escolher a obra errada no menu
-    // grava a lore errada por cima da legenda. A traducao ja protege o cache assim.
-    private final org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto;
-    private final org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto;
 
     /**
      * Estado de UMA execução de revisão (log de eventos + relógio da sessão).
@@ -184,9 +179,7 @@ public class RevisarLoreUseCase {
         RevisaoLoreAuditoriaCache auditoriaCache,
         AlcanceRevisaoLore alcance,
         ProtecaoLegendaAssService protecaoAss,
-        CorretorLoreDeterministico corretorLore,
-        org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto,
-        org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto
+        CorretorLoreDeterministico corretorLore
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -201,8 +194,6 @@ public class RevisarLoreUseCase {
         this.alcance = alcance;
         this.protecaoAss = protecaoAss;
         this.corretorLore = corretorLore;
-        this.gerenciadorContexto = gerenciadorContexto;
-        this.validadorObraContexto = validadorObraContexto;
     }
 
     /**
@@ -222,20 +213,6 @@ public class RevisarLoreUseCase {
         SessaoRevisao sessao = new SessaoRevisao();
 
         validarEntrada(pastaOriginal, pastaTraduzida, contextoId);
-
-        // GUARDA OBRA×CONTEXTO: a 3.2 SOBRESCREVE o .ass; escolher a obra errada no menu grava a
-        // lore errada por cima da legenda. A decisao mora no peer `lore` (o mesmo que protege o
-        // cache da traducao) e FALHA ABERTA (INDETERMINADO segue com aviso) — so bloqueia com PROVA
-        // POSITIVA de divergencia/ambiguidade, entao false-bloqueio e improvavel.
-        String obraDaPasta = obraDaPastaTraduzida(pastaTraduzida);
-        java.util.Set<String> reconhecedores = gerenciadorContexto.idsQueReconhecem(obraDaPasta);
-        Optional<String> bloqueioObra = avaliarBloqueioObraContexto(
-            validadorObraContexto, pastaTraduzida.toString(), obraDaPasta, contextoId, reconhecedores);
-        if (bloqueioObra.isPresent()) {
-            throw new RevisaoLoreException(bloqueioObra.get());
-        }
-        avisoObraNaoVerificada(validadorObraContexto, obraDaPasta, contextoId, reconhecedores)
-            .ifPresent(msg -> sessao.out(AnsiCores.YELLOW + "  [Aviso] " + msg + AnsiCores.RESET));
 
         StatusRevisaoLoreLlm status = revisorLoreLlm.verificarDisponibilidade();
         if (!status.modeloCarregado()) {
@@ -534,74 +511,6 @@ public class RevisarLoreUseCase {
         } catch (IOException e) {
             return a.toAbsolutePath().normalize().equals(b.toAbsolutePath().normalize());
         }
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: deriva o nome da OBRA a partir da pasta de legendas PT-BR selecionada,
-     * para a guarda perguntar ao catálogo de contextos se ela é da obra cujo contexto foi escolhido.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: usa a MESMA semântica de {@code ResolvedorCacheTraducao.
-     * animeAPartirDoArquivo} (a obra é a pasta-AVÓ do arquivo = a pasta-PAI da pasta de legendas),
-     * para os dois lados concordarem sobre o que é "a obra" de um caminho. Layout típico do acervo:
-     * {@code <obra>/traducao_ptbr/ep.ass} — a pasta PT é {@code traducao_ptbr} e a obra é o pai dela.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta sem pai (raiz) devolve o próprio nome da pasta; nulo
-     * devolve string vazia, que o validador trata como INDETERMINADO (falha aberta).
-     */
-    static String obraDaPastaTraduzida(Path pastaTraduzida) {
-        if (pastaTraduzida == null) {
-            return "";
-        }
-        Path pai = pastaTraduzida.getParent();
-        Path nome = pai != null ? pai.getFileName() : pastaTraduzida.getFileName();
-        return nome != null ? nome.toString() : "";
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: traduz o veredicto obra×contexto em BLOQUEIO — a mensagem a mostrar
-     * quando a pasta é, com PROVA POSITIVA, de outra obra (DIVERGENTE) ou de identidade não
-     * resolvível (AMBÍGUO). Nesses dois casos a 3.2 não pode sobrescrever a legenda com a lore
-     * selecionada.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: só bloqueia DIVERGENTE e AMBÍGUO; CASA e INDETERMINADO seguem
-     * (falha aberta — a mesma política da guarda da tradução, calibrada em produção). A decisão é
-     * do peer {@code lore}; aqui só se escolhe a mensagem.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} quando não
-     * há bloqueio.
-     */
-    static Optional<String> avaliarBloqueioObraContexto(
-            org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validador,
-            String caminho, String obra, String contextoId, java.util.Set<String> reconhecedores) {
-        return switch (validador.avaliar(obra, contextoId, reconhecedores)) {
-            case DIVERGENTE -> Optional.of(
-                validador.mensagemDeBloqueio(caminho, obra, contextoId, reconhecedores));
-            case AMBIGUO -> Optional.of(
-                validador.mensagemDeAmbiguidade(caminho, obra, contextoId, reconhecedores));
-            case CASA, INDETERMINADO -> Optional.empty();
-        };
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: quando a obra não é reconhecida por nenhum contexto (INDETERMINADO), a
-     * checagem foi PULADA — torna isso visível ao operador em vez de dar falsa impressão de que a
-     * pasta foi conferida. Distingue pasta genérica ("Season 05") de obra ainda sem lore, porque os
-     * consertos são opostos.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: só o desfecho INDETERMINADO gera aviso; CASA e os bloqueios não.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} sem aviso.
-     */
-    static Optional<String> avisoObraNaoVerificada(
-            org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validador,
-            String obra, String contextoId, java.util.Set<String> reconhecedores) {
-        if (validador.avaliar(obra, contextoId, reconhecedores)
-                != org.traducao.projeto.lore.domain.VeredictoObraContexto.INDETERMINADO) {
-            return Optional.empty();
-        }
-        return Optional.of(validador.pastaGenerica(obra)
-            ? validador.mensagemDePastaGenerica(obra, contextoId)
-            : validador.mensagemDeIndeterminacao(obra, contextoId));
     }
 
     /**

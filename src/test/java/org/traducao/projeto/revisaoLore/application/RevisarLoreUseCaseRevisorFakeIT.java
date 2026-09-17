@@ -33,12 +33,6 @@ class RevisarLoreUseCaseRevisorFakeIT {
     @Inject
     GerenciadorPromptRevisaoLore gerenciadorPromptRevisaoLore;
 
-    @Inject
-    org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto;
-
-    @Inject
-    org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto;
-
     private RevisorLoreLlmPort fake(StatusRevisaoLoreLlm status) {
         return new RevisorLoreLlmPort() {
             @Override
@@ -61,14 +55,11 @@ class RevisarLoreUseCaseRevisorFakeIT {
         Path pastaTraduzida = Files.createDirectory(tempDir.resolve("pt"));
 
         RevisorLoreLlmPort fakeIndisponivel = fake(new StatusRevisaoLoreLlm(true, false, "nenhum modelo carregado"));
-        // Colaboradores não usados até o portão de disponibilidade permanecem nulos; o gerenciador
-        // de prompts (validação de contexto), a guarda obra×contexto (pasta temp = INDETERMINADO,
-        // segue) e a porta LLM são exercitados. A obra da pasta temp não é reconhecida, então a
-        // guarda apenas avisa e deixa a sessão chegar ao portão de disponibilidade.
+        // Colaboradores não usados até o portão de disponibilidade permanecem nulos;
+        // apenas o gerenciador de prompts (validação de contexto) e a porta são exercitados.
         RevisarLoreUseCase useCase = new RevisarLoreUseCase(
             null, null, null, null, null,
-            fakeIndisponivel, gerenciadorPromptRevisaoLore, null, null, null, null, null, null,
-            gerenciadorContexto, validadorObraContexto);
+            fakeIndisponivel, gerenciadorPromptRevisaoLore, null, null, null, null, null, null);
 
         RevisaoLoreException excecao = assertThrows(RevisaoLoreException.class,
             () -> useCase.executar(pastaOriginal, pastaTraduzida, "eight_six", false));
