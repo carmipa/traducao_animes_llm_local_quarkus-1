@@ -1,5 +1,45 @@
 # CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
 
+## ATUAL (2026-09-17) — 3.2 REVISÃO DE LORE, PARTE 2 (auditoria adversarial da fatia `revisaoLore`)
+TAREFA (Paulo): "3.2 revisao de lore parte 2". Segunda passada adversarial da fatia 3.2 (a 3.1 teve
+`b26817dd`→`1b389b82`; a 3.2 só teve construção+correções). Rito COMPLETO: a fatia reescreve `.ass`
+do usuário (calibração §1 — dado persistente/sobrescrita).
+PORTÃO: rc=0, comprovante da sessão c0d93b16 (leitura integral 0/1/1b/21-25/medição/arquitetura/JQQ + vault + MEMORY).
+RECONHECIMENTO FEITO: li o núcleo — RevisarLoreUseCase(1426), DetectorTermosLoreService(838),
+AlcanceRevisaoLore, CorretorLoreDeterministico, ValidadorCandidatoLoreService, GerenciadorPromptRevisaoLore,
+RevisaoLoreController, RevisorLoreLlmAdapter, NormalizadorRespostaRevisaoLore; testes-chave e a guarda
+ArchUnit CatracaEscritaDeFalaVetaMusicaLoreTest.
+CONSERTOS FECHADOS (cada um: guarda A1 + mutação A2 provada + commit próprio):
+- `71205f69` ADV1: veto de resíduo barrava o sentinela legítimo `[[TAGn]]` da máscara → reprovava
+  a correção do LLM em ~24% das falas (com tag/`\N`). Fix: lookahead exclui `[[TAG<numero>]]`.
+- `5d8eeb6a` OP2: "Parar" não parava se a interrupção chegava durante a chamada ao LLM (janela
+  dominante). Fix: catch InterruptedException restaura o flag + break; seam `postarChat`.
+- `e283405f` OP1: read-timeout 180s dava até 362s de silêncio → cegava o pode-compilar.ps1 (90s) →
+  live reload sobre job vivo (Stink Bomb). Fix: revisao-lore.llm read-timeout→30s (2×30+2=62s<90s);
+  guarda nova congela max-bloqueio-por-fala < OciosoSegundos lendo as fontes.
+- `e8c6d0a1` completa OP1: RevisorLoreLlmCdiIT reflete 30s.
+- `5c4e2a06` cleanup: 2 ramos mortos no laço quente (modo LLM-preventivo removido 17/08) +
+  `contemPalavraInteira` morto + Javadocs órfãos/imports não usados (PT-only). 145 testes fatia, 0 falha.
+ACHADOS A APRESENTAR AO PAULO (não consertados — decisão/escopo):
+- BF1 [MÉDIA]: a 3.2 NÃO tem guarda obra×contexto (a tradução tem: GuardaContextoObraTraducao→
+  ObraDivergenteDoContextoException). Escolher a obra errada no menu → corretor/LLM usam a lore
+  errada e SOBRESCREVEM o `.ass`. Atenuações: backup por execução; cross-franquia falha fechada;
+  determinístico exige canônico no EN em grafia exata. Conserto = nova guarda BLOQUEANTE usando o
+  peer lore (ValidadorCompatibilidadeObraContexto já aceita obra por nome; animeAPartirDoArquivo é
+  trivial=pasta-avó, hoje só em ResolvedorCacheTraducao/fatia traducao). Precisa calibrar contra o
+  acervo (falso-bloqueio é pior que guarda nenhuma). É NOVO invariante → Plano Mestre próprio.
+- BF2 [MÉDIA-BAIXA]: guarda "CEGO" só dispara a 100% idêntico; pasta 119/120 não traduzida fecha
+  VERDE "CONCLUÍDO". Decisão de produto (o 17/08 tirou encaminhadas das pendências de propósito).
+RISCOS RESIDUAIS DECLARADOS (baixos): colisão de basename no walk recursivo EN + busca flat PT
+(layout atípico); normalizador getLast sem marcadores (backstopped pelo validador de escopo);
+nome do relatório JSON com precisão de segundo (só execuções SEM_ARQUIVOS).
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: suíte COMPLETA rodando (portão de fechamento). Se verde: entregar
+relatório completo ao Paulo + salvar memória + commit/push .claude/projects. NÃO rodar a 3.2 no
+acervo real sem go do Paulo (efeito de LLM sobre `.ass` persistente).
+NÃO REPETIR: git checkout -- reverter mutação APAGA tudo (restaurar por cópia). sed `s/180s/.../`
+sem âncora casou as 3 linhas read-timeout (tradutor+revisao+api) — usar número de linha. Estático
+não recarrega no quarkusDev (reiniciar).
+
 ## ATUAL (2026-09-16) — Revisão 3.1: ISOLAR o botão 1 (sem cascata Google)
 DECISÃO DE PAULO (produto, literal): "isola o botao 1 e deixa o 2 com o google apenas".
 O botão 1 "Traduzir o que faltou" era LLM→Google em cascata (16/08); agora é LLM local + dicionários
