@@ -305,6 +305,36 @@ class RevisarLoreUseCaseTest {
         assertFalse(RevisarLoreUseCase.primeiraDivergenciaEstrutural(en, pt, 500).isPresent());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a tela não pode fechar VERDE quando a pasta está predominantemente
+     * NÃO traduzida — mas ALGUMAS falas não traduzidas continuam verde (decisão de 17/08).
+     * <p>INVARIANTES DO DOMÍNIO: 100% idênticas = CEGO; maioria (mais da metade) = aviso; metade
+     * ou menos = sem aviso; nenhuma fala auditada = sem veredito.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fronteira errada (contar a metade como maioria, ou o
+     * verde a 99% não traduzido) reprova o teste.
+     */
+    @Test
+    void avisoDeFolhaNaoComparadaRespeitaAMaioria() {
+        // nenhuma fala auditada: sem veredito (nao infla o sinal)
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(0, 0).isEmpty());
+
+        // 100% identicas: CEGO
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 5).get().startsWith("CEGO"));
+
+        // maioria (mais da metade), mas nao 100%: aviso de pasta nao traduzida
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(120, 119).get().contains("MAIORIA"),
+            "119 de 120 nao traduzidas nao pode fechar verde CONCLUIDO");
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 3).get().contains("MAIORIA"));
+
+        // FRONTEIRA: exatamente metade NAO e maioria -> sem aviso (respeita 17/08: algumas ok)
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(4, 2).isEmpty(),
+            "metade exata nao e maioria; a decisao de 17/08 mantem algumas falas nao traduzidas em verde");
+        // minoria -> sem aviso
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 1).isEmpty());
+        // um acima da metade -> aviso
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(4, 3).get().contains("MAIORIA"));
+    }
+
     @Test
     void contexto86ExpoeMapaDeTerminologia() {
         Map<String, String> mapa = org.traducao.projeto.lore.LoreDeTeste.revisao("eight_six").correcoesTerminologia();

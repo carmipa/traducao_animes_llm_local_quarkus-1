@@ -306,17 +306,7 @@ public class RevisarLoreUseCase {
         // pendencia que nunca foi dela.
         int falasPendentes = falasSemResposta[0] + falasDescartadas[0];
 
-        // CEGUEIRA — regra 12: "nada a corrigir" e "nao comparei nada" NAO podem dar o mesmo
-        // sinal. Se TODA fala auditada saiu como identica ao original, a tela nao comparou coisa
-        // alguma: ou o par esta errado, ou a pasta apontada nao e a traducao. Sem esta linha o
-        // lote fecharia CONCLUIDO, em VERDE — que foi exatamente o defeito que a 3.1 pagou para
-        // eliminar com o CONCLUIDO_SEM_REFERENCIA, e que o item C de hoje reabriu aqui ao tirar
-        // as encaminhadas da conta de pendencias.
-        if (falasAuditadas[0] > 0 && falasEncaminhadasOpcao6[0] == falasAuditadas[0]) {
-            erros.add("CEGO: as " + falasAuditadas[0] + " falas auditadas estavam IDENTICAS ao "
-                + "original — nenhuma foi comparada de verdade. Confira se a 2a pasta e mesmo a "
-                + "traducao PT-BR e se ela corresponde a 1a. Nada foi gravado.");
-        }
+        avisoDeFolhaNaoComparada(falasAuditadas[0], falasEncaminhadasOpcao6[0]).ifPresent(erros::add);
         StatusRevisaoLore statusFinal = determinarStatus(semArquivos, cancelado[0], erros, falasPendentes);
 
         sessao.out("Arquivos analisados: " + arquivosAnalisados[0]);
@@ -403,6 +393,48 @@ public class RevisarLoreUseCase {
             return StatusRevisaoLore.CONCLUIDO_COM_PENDENCIAS;
         }
         return StatusRevisaoLore.CONCLUIDO;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: impede que a tela feche VERDE "CONCLUÍDO" quando a pasta apontada
+     * está, na verdade, não traduzida — o operador leria verde e publicaria legenda em inglês.
+     *
+     * <h2>Dois níveis, com a decisão de 17/08/2026 preservada</h2>
+     * As falas "encaminhadas à Opção 6" (PT idêntico ao EN = não traduzidas) saíram da conta de
+     * pendências de propósito: falta de tradução é trabalho da 3.1, não da 3.2, e contá-las fazia a
+     * tela fechar amarela por problema alheio. ALGUMAS falas não traduzidas continuam verde. Mas:
+     * <ul>
+     *   <li><b>100% idênticas</b> — a tela não comparou NADA (regra 12: "nada a corrigir" e "não
+     *       comparei nada" não podem dar o mesmo sinal): ou o par está errado, ou a 2ª pasta não é
+     *       a tradução. É o defeito que a 3.1 pagou para eliminar (CONCLUIDO_SEM_REFERENCIA);</li>
+     *   <li><b>maioria (mais da metade)</b> — a pasta está predominantemente NÃO traduzida. O
+     *       limite é a MAIORIA matemática ({@code encaminhadas*2 > auditadas}), não uma porcentagem
+     *       inventada (regra A8): mais falas em inglês do que a 3.2 conseguiu sequer auditar por
+     *       lore significa "pasta errada / não pronta", e verde ali engana.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem falas auditadas, sem veredito (não infla o sinal). O aviso
+     * entra em {@code erros}, o que torna o status CONCLUIDO_COM_PENDENCIAS (amarelo) — a cor honesta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} quando não
+     * há motivo de alerta.
+     */
+    static Optional<String> avisoDeFolhaNaoComparada(int falasAuditadas, int falasEncaminhadasOpcao6) {
+        if (falasAuditadas <= 0) {
+            return Optional.empty();
+        }
+        if (falasEncaminhadasOpcao6 == falasAuditadas) {
+            return Optional.of("CEGO: as " + falasAuditadas + " falas auditadas estavam IDENTICAS ao "
+                + "original — nenhuma foi comparada de verdade. Confira se a 2a pasta e mesmo a "
+                + "traducao PT-BR e se ela corresponde a 1a. Nada foi gravado.");
+        }
+        if (falasEncaminhadasOpcao6 * 2 > falasAuditadas) {
+            return Optional.of("A MAIORIA das falas (" + falasEncaminhadasOpcao6 + " de "
+                + falasAuditadas + ") esta IDENTICA ao original ingles — a pasta esta "
+                + "predominantemente NAO TRADUZIDA. Rode a Opcao 6 (traduzir) antes da Opcao 7. "
+                + "Verde na 3.2 significa 'lore conforme', nao 'tudo traduzido'.");
+        }
+        return Optional.empty();
     }
 
     /**
