@@ -310,10 +310,12 @@ public class CorretorConcordanciaGeneroService {
             return Optional.empty();
         }
         String r = pt;
-        r = flipPrimeiroGrupo(r, ART_MASC_COM_SUBST_FEM, FLIP_ART_M2F);
-        r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M);
-        r = flipDeterminantePlural(r, ART_MASC_PLUR_COM_SUBST_FEM, FLIP_ART_M2F);
-        r = flipDeterminantePlural(r, ART_FEM_PLUR_COM_SUBST_MASC, FLIP_ART_F2M);
+        // O conjunto passado é o do gênero do determinante ANTES do flip: se ele vier logo depois
+        // de outro determinante desse mesmo gênero, trocá-lo sozinho deixaria o de trás discordando.
+        r = flipPrimeiroGrupo(r, ART_MASC_COM_SUBST_FEM, FLIP_ART_M2F, DET_MASC_FLEX);
+        r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M, DET_FEM_FLEX);
+        r = flipDeterminantePlural(r, ART_MASC_PLUR_COM_SUBST_FEM, FLIP_ART_M2F, DET_MASC_FLEX);
+        r = flipDeterminantePlural(r, ART_FEM_PLUR_COM_SUBST_MASC, FLIP_ART_F2M, DET_FEM_FLEX);
         r = flipTerceiroGrupo(r, ELA_COM_ADJ_MASC, FLIP_ADJ_M2F);
         r = flipTerceiroGrupo(r, ELE_COM_ADJ_FEM, FLIP_ADJ_F2M);
         r = corrigirExpressaoIdiomatica(r);
@@ -327,21 +329,52 @@ public class CorretorConcordanciaGeneroService {
      * <p>INVARIANTES DO DOMÍNIO: só substitui o artigo mapeado; preserva a caixa inicial.
      * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
      */
-    private String flipPrimeiroGrupo(String texto, Pattern pat, Map<String, String> flip) {
+    private String flipPrimeiroGrupo(String texto, Pattern pat, Map<String, String> flip,
+                                     java.util.Set<String> mesmoGenero) {
         Matcher m = pat.matcher(texto);
         return m.replaceAll(res -> {
             String palavra = res.group(1);
-            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
+            if ((POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1)))
+                || precedidoPorDeterminanteDeMesmoGenero(texto, res.start(1), mesmoGenero)) {
                 // MEIA-CORREÇÃO É PIOR: em "a nossa orgulho" trocar só o possessivo devolve
                 // "a nosso orgulho", que acrescenta uma discordância nova entre artigo e
                 // possessivo. E o artigo não pode ser trocado junto porque o "a" também é
-                // preposição ("entreguei a meu pai" está certo). Então a fala inteira fica
-                // como está — a tela prefere não mexer a deixar a linha pior.
+                // preposição ("entreguei a meu pai" está certo). O mesmo vale para o
+                // quantificador de trás ("todas essas pensamentos"): trocar só "essas" deixaria
+                // "todas" discordando. Então a fala inteira fica como está — a tela prefere não
+                // mexer a deixar a linha pior.
                 return Matcher.quoteReplacement(res.group());
             }
             String novo = flip.get(palavra.toLowerCase());
             return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + res.group(2) + res.group(3));
         });
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se o determinante que começa em {@code inicio} vem logo depois de
+     * OUTRO determinante do mesmo gênero — o sinal de que trocá-lo deixaria o de trás discordando.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: olha só o token colado antes, tratando a quebra {@code \\N} do ASS
+     * como separador (o acervo tem {@code "todas\\Nessas"}). Não usa retrovisor de regex.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: início do texto, ou token anterior fora do conjunto,
+     * devolve {@code false} — a fala segue para a correção normal.
+     */
+    private boolean precedidoPorDeterminanteDeMesmoGenero(String texto, int inicio,
+                                                          java.util.Set<String> mesmoGenero) {
+        String prefixo = texto.substring(0, Math.max(0, inicio)).replace("\\N", " ").replace("\\n", " ");
+        int i = prefixo.length() - 1;
+        while (i >= 0 && Character.isWhitespace(prefixo.charAt(i))) {
+            i--;
+        }
+        int fim = i + 1;
+        while (i >= 0 && Character.isLetter(prefixo.charAt(i))) {
+            i--;
+        }
+        if (fim <= i + 1) {
+            return false;
+        }
+        return mesmoGenero.contains(prefixo.substring(i + 1, fim).toLowerCase());
     }
 
     /** Os determinantes possessivos, que só entram no flip quando não há artigo antes deles. */
@@ -373,6 +406,34 @@ public class CorretorConcordanciaGeneroService {
 
     private static final java.util.Set<String> ARTIGOS_SIMPLES = java.util.Set.of(
         "o", "a", "os", "as", "um", "uma", "uns", "umas");
+
+    /**
+     * Determinantes/quantificadores flexíveis em gênero, por lado. Servem à guarda de
+     * MEIA-CORREÇÃO: se o determinante a trocar vem logo depois de outro determinante do MESMO
+     * gênero (que concorda com ele HOJE), trocar só um deixaria o de trás discordando.
+     *
+     * <h2>A fala que estendeu a guarda (auditoria da 3.3 no acervo, 17/09/2026)</h2>
+     * No Zeta ep32: <i>"no meio de todas\Nessas pensamentos"</i>. A tela trocava {@code essas→esses}
+     * (certo, "pensamentos" é masculino) e deixava {@code todas} para trás — virava {@code "todas
+     * esses"}, movendo o desacordo em vez de resolvê-lo. É a mesma classe de {@code "a nossa
+     * orgulho"} (que a tela já não toca via {@link #precedidoPorArtigo}); só faltava cobrir
+     * {@code quantificador + determinante}. Decisão do Paulo: <b>abster-se</b> (a fala fica
+     * intocada, pendência honesta) em vez de fazer a meia-correção.
+     */
+    private static final java.util.Set<String> DET_FEM_FLEX = java.util.Set.of(
+        "a", "as", "uma", "umas", "da", "das", "na", "nas", "à", "às", "pela", "pelas", "numa", "numas",
+        "esta", "estas", "essa", "essas", "aquela", "aquelas",
+        "minha", "minhas", "sua", "suas", "nossa", "nossas",
+        "alguma", "algumas", "outra", "outras",
+        "toda", "todas", "muita", "muitas", "pouca", "poucas", "tanta", "tantas",
+        "varia", "varias", "vária", "várias");
+    private static final java.util.Set<String> DET_MASC_FLEX = java.util.Set.of(
+        "o", "os", "um", "uns", "do", "dos", "no", "nos", "ao", "aos", "pelo", "pelos", "num", "nuns",
+        "este", "estes", "esse", "esses", "aquele", "aqueles",
+        "meu", "meus", "seu", "seus", "nosso", "nossos",
+        "algum", "alguns", "outro", "outros",
+        "todo", "todos", "muito", "muitos", "pouco", "poucos", "tanto", "tantos",
+        "vario", "varios", "vário", "vários");
 
     /**
      * PROPÓSITO DE NEGÓCIO: troca a 3ª captura (adjetivo predicativo) pelo gênero oposto,
@@ -448,11 +509,13 @@ public class CorretorConcordanciaGeneroService {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
      */
-    private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip) {
+    private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip,
+                                          java.util.Set<String> mesmoGenero) {
         Matcher m = pat.matcher(texto);
         return m.replaceAll(res -> {
             String palavra = res.group(1);
-            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
+            if ((POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1)))
+                || precedidoPorDeterminanteDeMesmoGenero(texto, res.start(1), mesmoGenero)) {
                 return Matcher.quoteReplacement(res.group());
             }
             String novo = flip.get(palavra.toLowerCase());

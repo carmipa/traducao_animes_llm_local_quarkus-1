@@ -211,6 +211,32 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
+     * A guarda de MEIA-CORREÇÃO estendida ao QUANTIFICADOR upstream (auditoria da 3.3 no acervo,
+     * Zeta ep32, 17/09/2026): {@code "todas\Nessas pensamentos"} — trocar só {@code essas} deixaria
+     * {@code todas} discordando ({@code "todas esses"}). A tela ABSTÉM-SE (fica intocada), a mesma
+     * disciplina de {@code "a nossa orgulho"}. O {@code \N} entre as duas palavras é o caso real.
+     */
+    @Test
+    @DisplayName("meia-correcao: quantificador do mesmo genero antes do determinante -> nao toca")
+    void naoFazMeiaCorrecaoComQuantificadorUpstream() {
+        assertTrue(corretor.corrigir("Ele captou isso no meio de todas\\Nessas pensamentos em espiral.").isEmpty(),
+            "trocou 'essas' e deixou 'todas' discordando: virou 'todas esses' (meia-correcao)");
+        assertTrue(corretor.corrigir("Vi todas essas reforços.").isEmpty(),
+            "mesma classe sem a quebra");
+    }
+
+    /**
+     * O CONTRA-TESTE: sem o quantificador do mesmo gênero a correção continua; e quando o de trás é
+     * do gênero OPOSTO (já discordante), trocar o determinante ACERTA o sintagma inteiro.
+     */
+    @Test
+    @DisplayName("CONTROLE: sem quantificador upstream, ou com um do genero OPOSTO, continua corrigindo")
+    void quantificadorUpstreamNaoTravaCorrecaoLegitima() {
+        assertEquals(Optional.of("Vi esses pensamentos."), corretor.corrigir("Vi essas pensamentos."));
+        assertEquals(Optional.of("Vi todos esses pensamentos."), corretor.corrigir("Vi todos essas pensamentos."));
+    }
+
+    /**
      * Os POSSESSIVOS, que entraram junto: metade dos erros medidos tinha determinante possessivo,
      * e não artigo — {@code nossa orgulho}, {@code minha afeto}, {@code sua destino}.
      */
