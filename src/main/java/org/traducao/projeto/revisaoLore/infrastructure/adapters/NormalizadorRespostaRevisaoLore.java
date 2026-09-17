@@ -71,6 +71,11 @@ public class NormalizadorRespostaRevisaoLore {
                 return candidata;
             }
         }
+        // Sem marcadores para ancorar, a ultima linha util e a melhor aposta para a fala corrigida
+        // (o raciocinio <think>, a cerca markdown e os rotulos ja sairam). Se o modelo devolver uma
+        // NOTA curta como ultima linha (ex.: so o termo "Legion"), a rede final e o
+        // ValidadorCandidatoLoreService: ele rejeita a substituicao total que ENCURTA a fala
+        // (truncamento), entao o pior caso vira pendencia, nunca legenda apagada.
         return esperados.isEmpty() ? candidatas.getLast() : "";
     }
 
