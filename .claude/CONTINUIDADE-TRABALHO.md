@@ -1,6 +1,31 @@
 # CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
 
-## ATUAL (2026-09-17) — 3.2 REVISÃO DE LORE, PARTE 2 (auditoria adversarial da fatia `revisaoLore`)
+## ATUAL (2026-09-17) — 3.2 PRECISÃO DO DETECTOR (falso-positivo dominava as pendentes)
+TAREFA (Paulo): "vamos fazer isso!" (autorizou atacar a precisão do detector, após eu detalhar as
+434/873 pendentes do Zeta). PORTÃO: Paulo mandou "reler os canônicos e regerar o comprovante" →
+reli ENGENHARIA(1136)+REGRA-DO-DOCKER(2402)+1b integrais em blocos, regenerei; rc=0.
+CAUSA-RAIZ (calibrada no JSONL real do Zeta 17/09, 2292 falas acusadas): 100% das pendentes vêm da
+regra de nome próprio (`detectarNomesPropriosDivergentes`), e o grosso é DESCRITOR comum traduzido
+certo com o nome preservado (City→Cidade 32, Colony→Colônia 46, Gate→Porta 54, Operation→Operação
+28, Director→Diretor 24, Laboratory→Laboratório 16, Government→Governo 24, Excellency→Excelência,
+Sphere→Esfera, Forces→Forças, Clan→Clã, Beam→Feixe) + a sigla A.E.U.G.→AEUG (sem pontos, 72 = maior
+ofensor único). O ruído afogava os defeitos REAIS: Jupitris→Júpiter, Bosnia→Bósnia, Jamaican→Jerid.
+FEITO (`eef5bab7`, A1+A2+commit): DESCRITORES_LOCALIZAVEIS (mapa global SILENCIADOR — nunca acusa,
+NÃO iterado por detectarTermosTraduziveisEmIngles) ligado a traducaoAceitaParaTermo; acronimoPreservado
+(A.E.U.G.≡AEUG); federation ganha federal/federais. Fronteira A1: silencia só com o NOME preservado
+(nome trocado continua acusado). Mutação A2 nos dois mecanismos (mapa vazio→5 positivos caem;
+acrônimo off→só o do acrônimo cai). Medição (detector real, mesmo modo null-lore, velho vs novo):
++290 falas caladas de 2292; residual dominado pelos defeitos reais. Guarda: DescritorLocalizadoCalaAcusacaoTest.
+Suíte COMPLETA verde (BUILD SUCCESSFUL). Esqueleto regravado (439→440).
+RESIDUAIS DECLARADOS (não neste passo, com motivo): diferença só de CAIXA (Mobile→mobile, Laser→laser
+~56) — precisa case-insensitive na comparação-núcleo `pt.contains(nome)` (linha 395), blast radius
+maior (toda obra) → calibração própria; homógrafo Four (número×personagem Four Murasame) — silenciar
+cega a personagem; patente Commodore→Comodante — fora do escopo nome/local/termo da 3.2.
+PRÓXIMA AÇÃO: aguardar go do Paulo para (a) o residual de CAIXA como follow-up calibrado; (b) push do
+KRONOS (`git push`, conferir origin/main..HEAD); (c) rodar a 3.2 no acervo real (efeito de LLM sobre
+`.ass`, só com go). Parar o jar KRONOS (background bw80sfvqo) quando Paulo disser.
+
+## (2026-09-17) — 3.2 REVISÃO DE LORE, PARTE 2 (auditoria adversarial da fatia `revisaoLore`)
 TAREFA (Paulo): "3.2 revisao de lore parte 2". Segunda passada adversarial da fatia 3.2 (a 3.1 teve
 `b26817dd`→`1b389b82`; a 3.2 só teve construção+correções). Rito COMPLETO: a fatia reescreve `.ass`
 do usuário (calibração §1 — dado persistente/sobrescrita).
