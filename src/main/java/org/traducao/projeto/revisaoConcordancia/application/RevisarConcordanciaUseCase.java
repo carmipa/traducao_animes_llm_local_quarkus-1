@@ -234,9 +234,10 @@ public class RevisarConcordanciaUseCase {
                         novos.add(evento);
                         continue;
                     }
-                    // QUATRO corretores em cadeia. A ordem importa, e esta e a razao de cada
-                    // posicao: genero primeiro, porque decide por determinante e nao se importa
-                    // com acento; depois os tres de acento, do mais informado (POS tagger) para o
+                    // CINCO corretores em cadeia (ver a ordem causal em umaVolta): caractere
+                    // primeiro, porque o invisivel/macron quebra a fronteira de palavra que os
+                    // outros procuram; depois genero, que decide por determinante e nao se importa
+                    // com acento; e por fim os tres de acento, do mais informado (POS tagger) para o
                     // mais mecanico (dicionario), para que quem sabe mais tenha a primeira palavra
                     // sobre a mesma fala.
                     //

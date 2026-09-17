@@ -5,7 +5,7 @@ package org.traducao.projeto.revisaoConcordancia.domain;
  * viu e deixou como estavam, quantas explodiram na cara dele, e se ele sequer pôde rodar.
  *
  * <h2>Por que existe, e por que tem quatro números e não um</h2>
- * A tela 3.3 passou a ter quatro corretores em cadeia. Um total único diria <i>"78 falas
+ * A tela 3.3 passou a ter cinco corretores em cadeia. Um total único diria <i>"78 falas
  * corrigidas"</i> sem dizer de onde veio — e a próxima medição teria de adivinhar se o ganho foi
  * da lista de gênero, do POS tagger, dos padrões curados ou do dicionário.
  *
