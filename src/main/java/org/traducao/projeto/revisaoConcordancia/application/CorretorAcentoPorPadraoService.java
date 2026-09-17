@@ -74,19 +74,55 @@ public class CorretorAcentoPorPadraoService {
     private static final String FIM = FronteiraTermoAss.FIM;
 
     /**
-     * O {@code e} que é o verbo SER. Depois de demonstrativo ou interrogativo, {@code e} só pode
-     * ser {@code é} — exceto quando o que vem a seguir é outro demonstrativo, e aí é coordenação:
-     * <i>"Isso e aquilo"</i>. São 3 casos no acervo, e o lookahead negativo os preserva.
+     * Início de CLÁUSULA — o demonstrativo só é SUJEITO (e o {@code e} seguinte só é o verbo
+     * {@code é}) quando abre a oração: começo da fala, a quebra {@code \\N}, depois de pontuação,
+     * ou depois de um subordinador/coordenador ({@code que}, {@code porque}, {@code se}...).
+     *
+     * <p>Consumido como PREFIXO do casamento, e isso é seguro porque {@code aplicar} troca apenas o
+     * grupo {@code alvo} (o {@code e}); o prefixo casado nunca é reescrito.
+     */
+    private static final String ABRE_CLAUSULA =
+        "(?:^|\\\\N|[.!?;:,]|\\bque|\\bporque|\\bse|\\bquando|\\bcomo|\\bmas|\\bpois|\\bpor[ée]m"
+        + "|\\be|\\bou)\\s*";
+
+    /**
+     * O {@code e} que é o verbo SER. Depois de demonstrativo ou interrogativo que ABRE a cláusula,
+     * {@code e} só pode ser {@code é} — exceto quando o que vem a seguir é outro demonstrativo, e
+     * aí é coordenação: <i>"Isso e aquilo"</i> (3 casos no acervo, preservados pelo lookahead
+     * negativo).
+     *
+     * <h2>Por que exige INÍCIO DE CLÁUSULA (auditoria da 3.3, 17/09/2026)</h2>
+     * A versão anterior casava o demonstrativo em qualquer posição, e o {@code e} vira o verbo
+     * errado quando o demonstrativo é OBJETO de um verbo anterior:
+     * <pre>
+     *   "Faça isso e pronto."   virava   "Faça isso é pronto."   ERRADO (isso e OBJETO; e = conjuncao)
+     * </pre>
+     * Agora o demonstrativo tem de abrir a cláusula. {@code "Isso e rápido"} (começo) e
+     * {@code "Acho que isso e verdade"} (após {@code que}) seguem corrigidos; {@code "Faça isso e
+     * pronto"} (após verbo) não.
      */
     private static final Pattern DEMONSTRATIVO_E = Pattern.compile(
-        INICIO + "(?:Isso|Isto|Essa|Esse|Este|Esta|Aquilo|Qual|Quem|isso|isto|aquilo)"
+        ABRE_CLAUSULA + "(?:Isso|Isto|Essa|Esse|Este|Esta|Aquilo|Qual|Quem|isso|isto|aquilo)"
         + SEP + "(?<alvo>e)" + FIM
         + "(?!" + SEP + "(?:aquilo|aquele|aquela|isso|isto|essa|esse|este|esta)" + FIM + ")",
         Pattern.UNICODE_CASE);
 
-    /** {@code não e} é sempre {@code não é}: a negação não coordena com o que vem depois. */
+    /**
+     * {@code não e} é o verbo negado {@code não é} — exceto quando {@code não} é SUBSTANTIVO (uma
+     * recusa) e o {@code e} coordena.
+     *
+     * <h2>A guarda do artigo (auditoria da 3.3, 17/09/2026)</h2>
+     * A premissa "a negação não coordena com o que vem depois" é falsa quando {@code não} é nome:
+     * <pre>
+     *   "Levou um não e desistiu."   virava   "Levou um não é desistiu."   ERRADO ("um não" = recusa)
+     * </pre>
+     * O artigo antes ({@code um/o não}) denuncia o substantivo, e o lookbehind o barra.
+     *
+     * <p>Residual DECLARADO: {@code "sim ou não e acabou"} ({@code não} em lista) segue como está —
+     * é raro e ambíguo com {@code "ou não é"} (negação), que barrar {@code ou} destruiria.
+     */
     private static final Pattern NAO_E = Pattern.compile(
-        INICIO + "[Nn][ãa]o" + SEP + "(?<alvo>e)" + FIM,
+        INICIO + "(?<!\\bum\\s)(?<!\\bUm\\s)(?<!\\bo\\s)(?<!\\bO\\s)[Nn][ãa]o" + SEP + "(?<alvo>e)" + FIM,
         Pattern.UNICODE_CASE);
 
     /**
@@ -178,19 +214,39 @@ public class CorretorAcentoPorPadraoService {
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     /**
-     * {@code ira} sai do padrão do futuro e ganha guarda própria, porque é o ÚNICO da lista com
-     * homógrafo: {@code ira} substantivo é cólera, e <i>"a ira dele"</i> está correto sem acento.
+     * {@code ira} é o ÚNICO da lista com homógrafo TRIPLO, e por isso é o mais perigoso:
+     * <ul>
+     *   <li>verbo {@code irá} (futuro de ir): <i>"você so ira cometer"</i>;</li>
+     *   <li>substantivo {@code ira} (cólera): <i>"a ira dele"</i>, <i>"sem ira"</i>, <i>"tua ira"</i>;</li>
+     *   <li><b>nome próprio {@code Ira}</b> — ex.: Ira Gamagoori (Kill la Kill). Acentuá-lo é
+     *       RENOMEAR personagem, o dano que esta fatia mais teme.</li>
+     * </ul>
      *
-     * <p>O acervo tem hoje <b>0</b> ocorrências do substantivo e 3 do verbo. Zero medido não é
-     * zero garantido — tradução nova pode trazer a outra forma —, e o escudo custa nada: basta
-     * recusar quando vier logo depois de determinante ou preposição.
+     * <h2>Duas guardas, e por que juntas (auditoria da 3.3, 17/09/2026)</h2>
+     * A versão anterior era {@code CASE_INSENSITIVE} sem guarda de maiúscula e com lookbehind
+     * incompleto: acentuava {@code "Ira, espere!"} (nome), {@code "sem ira"} e {@code "tua ira me
+     * consome"} (cólera). Agora:
+     * <ol>
+     *   <li>o alvo casa <b>só a forma minúscula</b> ({@code (?-i:ira)}), então {@code "Ira"} nunca
+     *       é tocado — nem no meio da fala ({@code "Vi Ira cometer"});</li>
+     *   <li>e só quando <b>SEGUIDO DE INFINITIVO</b> ({@code ira} + separador + palavra terminada
+     *       em {@code -ar/-er/-ir}). {@code "ira cometer"} é sempre o verbo (futuro perifrástico);
+     *       {@code substantivo/nome} antes de infinitivo nu é agramatical, então a cólera
+     *       ({@code "sem ira."}, {@code "tua ira me consome"}) não casa.</li>
+     * </ol>
+     * Os lookbehinds de determinante/preposição continuam, para o caso raro de verbo de percepção
+     * ({@code "vi sua ira crescer"}). Preço declarado: o futuro NU ({@code "ele ira amanhã"},
+     * {@code "ira para casa"}) deixa de ser corrigido — acento faltando é legível; renomear
+     * personagem, não.
      */
     private static final Pattern IRA_VERBO = Pattern.compile(
         INICIO
-        + "(?<!\\ba\\s)(?<!\\bA\\s)(?<!\\bsua\\s)(?<!\\bSua\\s)(?<!\\bminha\\s)(?<!\\bMinha\\s)"
-        + "(?<!\\bnossa\\s)(?<!\\bNossa\\s)(?<!\\bcom\\s)(?<!\\bCom\\s)(?<!\\bde\\s)(?<!\\bDe\\s)"
-        + "(?<!\\bda\\s)(?<!\\bDa\\s)(?<!\\bna\\s)(?<!\\bNa\\s)(?<!\\bpela\\s)(?<!\\bmuita\\s)"
-        + "(?<alvo>ira)" + FIM,
+        + "(?<!\\ba\\s)(?<!\\bo\\s)(?<!\\bsua\\s)(?<!\\bminha\\s)(?<!\\bnossa\\s)(?<!\\btua\\s)"
+        + "(?<!\\bvossa\\s)(?<!\\bcom\\s)(?<!\\bsem\\s)(?<!\\bde\\s)(?<!\\bda\\s)(?<!\\bna\\s)"
+        + "(?<!\\bpor\\s)(?<!\\bpela\\s)(?<!\\bmuita\\s)(?<!\\bpouca\\s)(?<!\\btanta\\s)"
+        + "(?<!\\btoda\\s)(?<!\\baquela\\s)(?<!\\bessa\\s)(?<!\\besta\\s)"
+        + "(?<alvo>(?-i:ira))"
+        + "(?=" + SEP + "\\p{L}+(?:ar|er|ir)" + FIM + ")",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     private static final List<Regra> REGRAS = List.of(
         new Regra("e -> é (verbo ser apos demonstrativo)", DEMONSTRATIVO_E, "é"),
