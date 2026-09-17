@@ -331,50 +331,110 @@ public class CorretorConcordanciaGeneroService {
      */
     private String flipPrimeiroGrupo(String texto, Pattern pat, Map<String, String> flip,
                                      java.util.Set<String> mesmoGenero) {
-        Matcher m = pat.matcher(texto);
-        return m.replaceAll(res -> {
-            String palavra = res.group(1);
-            if ((POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1)))
-                || precedidoPorDeterminanteDeMesmoGenero(texto, res.start(1), mesmoGenero)) {
-                // MEIA-CORREÇÃO É PIOR: em "a nossa orgulho" trocar só o possessivo devolve
-                // "a nosso orgulho", que acrescenta uma discordância nova entre artigo e
-                // possessivo. E o artigo não pode ser trocado junto porque o "a" também é
-                // preposição ("entreguei a meu pai" está certo). O mesmo vale para o
-                // quantificador de trás ("todas essas pensamentos"): trocar só "essas" deixaria
-                // "todas" discordando. Então a fala inteira fica como está — a tela prefere não
-                // mexer a deixar a linha pior.
-                return Matcher.quoteReplacement(res.group());
-            }
-            String novo = flip.get(palavra.toLowerCase());
-            return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + res.group(2) + res.group(3));
-        });
+        return aplicarFlipComCadeia(texto, pat, flip, mesmoGenero);
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: diz se o determinante que começa em {@code inicio} vem logo depois de
-     * OUTRO determinante do mesmo gênero — o sinal de que trocá-lo deixaria o de trás discordando.
+     * PROPÓSITO DE NEGÓCIO: troca o determinante casado (grupo 1) pelo gênero oposto e, quando ele
+     * vem depois de um QUANTIFICADOR do mesmo gênero, troca o quantificador TAMBÉM — corrige a
+     * cadeia inteira, não meia.
      *
-     * <p>INVARIANTES DO DOMÍNIO: olha só o token colado antes, tratando a quebra {@code \\N} do ASS
-     * como separador (o acervo tem {@code "todas\\Nessas"}). Não usa retrovisor de regex.
+     * <h2>Três desfechos, decididos pelo que vem ANTES do determinante</h2>
+     * <ul>
+     *   <li><b>Nada / palavra neutra</b> (verbo, começo da fala): troca só o determinante — o caso
+     *       comum ({@code "Vi o menina"}).</li>
+     *   <li><b>QUANTIFICADOR do mesmo gênero</b> ({@code "todas essas pensamentos"}): troca os DOIS
+     *       ({@code "todos esses pensamentos"}). Achado na corrida do Paulo no Zeta ep32
+     *       (17/09/2026); ele autorizou corrigir a cadeia inteira.</li>
+     *   <li><b>Artigo/possessivo do mesmo gênero</b> ({@code "a nossa orgulho"}): ABSTÉM-SE. O
+     *       {@code a} também é preposição ({@code "entreguei a meu pai"}), então trocá-lo às cegas
+     *       arriscaria estragar; meia-correção é pior que não mexer.</li>
+     * </ul>
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: início do texto, ou token anterior fora do conjunto,
-     * devolve {@code false} — a fala segue para a correção normal.
+     * <p>INVARIANTES DO DOMÍNIO: as trocas são aplicadas de TRÁS para a frente, para uma não
+     * deslocar a posição da outra; a caixa inicial de cada palavra é preservada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual; nunca lança.
      */
-    private boolean precedidoPorDeterminanteDeMesmoGenero(String texto, int inicio,
-                                                          java.util.Set<String> mesmoGenero) {
-        String prefixo = texto.substring(0, Math.max(0, inicio)).replace("\\N", " ").replace("\\n", " ");
-        int i = prefixo.length() - 1;
-        while (i >= 0 && Character.isWhitespace(prefixo.charAt(i))) {
-            i--;
+    private String aplicarFlipComCadeia(String texto, Pattern pat, Map<String, String> flip,
+                                        java.util.Set<String> mesmoGenero) {
+        Matcher m = pat.matcher(texto);
+        java.util.List<int[]> alvos = new java.util.ArrayList<>();
+        java.util.List<String> novos = new java.util.ArrayList<>();
+        while (m.find()) {
+            String palavra = m.group(1);
+            int ini = m.start(1);
+            int fim = m.end(1);
+            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, ini)) {
+                continue;
+            }
+            int[] anterior = tokenAnteriorFlexivel(texto, ini);
+            if (anterior != null) {
+                String det = texto.substring(anterior[0], anterior[1]).toLowerCase();
+                if (mesmoGenero.contains(det)) {
+                    String detFlip = FLIP_QUANTIFICADOR.get(det);
+                    if (detFlip == null) {
+                        // Artigo/possessivo/demonstrativo do mesmo genero: nao da pra virar os dois
+                        // com seguranca (o "a" tambem e preposicao). Meia-correcao e pior: abstem-se.
+                        continue;
+                    }
+                    // Quantificador do mesmo genero: vira os DOIS (corrige a cadeia).
+                    alvos.add(anterior);
+                    novos.add(preservarCaixa(texto.substring(anterior[0], anterior[1]), detFlip));
+                }
+            }
+            alvos.add(new int[] {ini, fim});
+            novos.add(preservarCaixa(palavra, flip.get(palavra.toLowerCase())));
+        }
+        if (alvos.isEmpty()) {
+            return texto;
+        }
+        Integer[] ordem = new Integer[alvos.size()];
+        for (int i = 0; i < ordem.length; i++) {
+            ordem[i] = i;
+        }
+        java.util.Arrays.sort(ordem, (x, y) -> Integer.compare(alvos.get(y)[0], alvos.get(x)[0]));
+        StringBuilder sb = new StringBuilder(texto);
+        for (int idx : ordem) {
+            int[] p = alvos.get(idx);
+            sb.replace(p[0], p[1], novos.get(idx));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: posição {@code {start, end}} do token de letras imediatamente anterior
+     * a {@code inicio}, tratando a quebra {@code \\N} do ASS como separador (o acervo tem
+     * {@code "todas\\Nessas"}). As posições valem no texto ORIGINAL, para servirem à troca.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pula espaços e o marcador {@code \\N}/{@code \\n} (dois chars);
+     * função pura da string e da posição.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: início do texto ou sem token devolve {@code null}.
+     */
+    private static int[] tokenAnteriorFlexivel(String texto, int inicio) {
+        int i = inicio - 1;
+        boolean mudou = true;
+        while (mudou) {
+            mudou = false;
+            while (i >= 0 && Character.isWhitespace(texto.charAt(i))) {
+                i--;
+                mudou = true;
+            }
+            if (i >= 1 && texto.charAt(i - 1) == '\\'
+                && (texto.charAt(i) == 'N' || texto.charAt(i) == 'n')) {
+                i -= 2;
+                mudou = true;
+            }
         }
         int fim = i + 1;
-        while (i >= 0 && Character.isLetter(prefixo.charAt(i))) {
+        while (i >= 0 && Character.isLetter(texto.charAt(i))) {
             i--;
         }
         if (fim <= i + 1) {
-            return false;
+            return null;
         }
-        return mesmoGenero.contains(prefixo.substring(i + 1, fim).toLowerCase());
+        return new int[] {i + 1, fim};
     }
 
     /** Os determinantes possessivos, que só entram no flip quando não há artigo antes deles. */
@@ -434,6 +494,22 @@ public class CorretorConcordanciaGeneroService {
         "algum", "alguns", "outro", "outros",
         "todo", "todos", "muito", "muitos", "pouco", "poucos", "tanto", "tantos",
         "vario", "varios", "vário", "vários");
+
+    /**
+     * Os QUANTIFICADORES que, quando aparecem logo antes do determinante trocado, viram junto
+     * (correção da cadeia). É subconjunto de {@link #DET_FEM_FLEX}/{@link #DET_MASC_FLEX}: só os
+     * inequívocos. Ficam DE FORA o {@code muita/muito}, {@code pouca/pouco} e {@code tanta/tanto}
+     * no SINGULAR — ali são advérbio ({@code "muito criança"} está certo) e virá-los estragaria.
+     * Determinante que não está aqui (artigo, possessivo, demonstrativo) faz a tela abster-se.
+     */
+    private static final Map<String, String> FLIP_QUANTIFICADOR = Map.ofEntries(
+        Map.entry("toda", "todo"), Map.entry("todo", "toda"),
+        Map.entry("todas", "todos"), Map.entry("todos", "todas"),
+        Map.entry("muitas", "muitos"), Map.entry("muitos", "muitas"),
+        Map.entry("poucas", "poucos"), Map.entry("poucos", "poucas"),
+        Map.entry("tantas", "tantos"), Map.entry("tantos", "tantas"),
+        Map.entry("varias", "varios"), Map.entry("varios", "varias"),
+        Map.entry("várias", "vários"), Map.entry("vários", "várias"));
 
     /**
      * PROPÓSITO DE NEGÓCIO: troca a 3ª captura (adjetivo predicativo) pelo gênero oposto,
@@ -511,17 +587,10 @@ public class CorretorConcordanciaGeneroService {
      */
     private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip,
                                           java.util.Set<String> mesmoGenero) {
-        Matcher m = pat.matcher(texto);
-        return m.replaceAll(res -> {
-            String palavra = res.group(1);
-            if ((POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1)))
-                || precedidoPorDeterminanteDeMesmoGenero(texto, res.start(1), mesmoGenero)) {
-                return Matcher.quoteReplacement(res.group());
-            }
-            String novo = flip.get(palavra.toLowerCase());
-            String resto = res.group().substring(palavra.length());
-            return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + resto);
-        });
+        // O determinante e o grupo 1 no INICIO do casamento; o substantivo (nao-capturante) e o
+        // resto e fica intacto. A troca da cadeia (quantificador + determinante) e a mesma do
+        // singular, entao o motor e compartilhado.
+        return aplicarFlipComCadeia(texto, pat, flip, mesmoGenero);
     }
 
     /** Concatena singular e plural mantendo a ordem — os mapas de troca são índice a índice. */

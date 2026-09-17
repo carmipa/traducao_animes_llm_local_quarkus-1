@@ -211,23 +211,34 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
-     * A guarda de MEIA-CORREÇÃO estendida ao QUANTIFICADOR upstream (auditoria da 3.3 no acervo,
-     * Zeta ep32, 17/09/2026): {@code "todas\Nessas pensamentos"} — trocar só {@code essas} deixaria
-     * {@code todas} discordando ({@code "todas esses"}). A tela ABSTÉM-SE (fica intocada), a mesma
-     * disciplina de {@code "a nossa orgulho"}. O {@code \N} entre as duas palavras é o caso real.
+     * A CADEIA inteira é corrigida quando o de trás é QUANTIFICADOR (Paulo autorizou 17/09, depois
+     * de ver {@code "todas\Nessas pensamentos"} ficar intocado no Zeta ep32 — a versão que só
+     * abstinha deixava a fala ainda errada). Vira {@code "todos esses pensamentos"}: os dois de uma
+     * vez. O {@code \N} entre as palavras é o caso real do acervo.
      */
     @Test
-    @DisplayName("meia-correcao: quantificador do mesmo genero antes do determinante -> nao toca")
-    void naoFazMeiaCorrecaoComQuantificadorUpstream() {
-        assertTrue(corretor.corrigir("Ele captou isso no meio de todas\\Nessas pensamentos em espiral.").isEmpty(),
-            "trocou 'essas' e deixou 'todas' discordando: virou 'todas esses' (meia-correcao)");
-        assertTrue(corretor.corrigir("Vi todas essas reforços.").isEmpty(),
-            "mesma classe sem a quebra");
+    @DisplayName("cadeia: quantificador do mesmo genero antes do determinante vira JUNTO")
+    void corrigeCadeiaComQuantificadorUpstream() {
+        assertEquals(Optional.of("Ele captou isso no meio de todos\\Nesses pensamentos em espiral."),
+            corretor.corrigir("Ele captou isso no meio de todas\\Nessas pensamentos em espiral."),
+            "a cadeia 'todas essas' tinha de virar 'todos esses', nao ficar intocada nem meia-corrigida");
+        assertEquals(Optional.of("Vi todos esses reforços."), corretor.corrigir("Vi todas essas reforços."));
+    }
+
+    /**
+     * O ARTIGO/possessivo do mesmo gênero continua ABSTENDO — o {@code a} também é preposição
+     * ({@code "entreguei a meu pai"}), e virá-lo às cegas arriscaria estragar. Meia-correção é pior.
+     */
+    @Test
+    @DisplayName("artigo/possessivo do mesmo genero antes do determinante -> abstem (nao vira os dois)")
+    void abstemComArtigoOuPossessivoUpstream() {
+        assertTrue(corretor.corrigir("Essa e a nossa orgulho.").isEmpty(),
+            "virou 'o nosso orgulho' as cegas — o 'a' antes de possessivo tambem e preposicao");
     }
 
     /**
      * O CONTRA-TESTE: sem o quantificador do mesmo gênero a correção continua; e quando o de trás é
-     * do gênero OPOSTO (já discordante), trocar o determinante ACERTA o sintagma inteiro.
+     * do gênero OPOSTO (já discordante), trocar só o determinante ACERTA o sintagma inteiro.
      */
     @Test
     @DisplayName("CONTROLE: sem quantificador upstream, ou com um do genero OPOSTO, continua corrigindo")
