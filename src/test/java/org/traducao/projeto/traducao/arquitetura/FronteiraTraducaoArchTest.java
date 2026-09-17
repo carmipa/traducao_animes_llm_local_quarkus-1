@@ -115,13 +115,17 @@ class FronteiraTraducaoArchTest {
     // revisaoLore volte a acoplar-se à stack LLM compartilhada (porta, status, properties,
     // DTOs, adapter concreto e o gerenciador de contexto).
     private static final String PKG_REVISAO_LORE = RAIZ + ".revisaoLore";
+    // FASE E avancada em 2026-09-17 (ordem de Paulo): o GerenciadorContexto (catalogo de contextos,
+    // peer `lore`) DEIXOU de ser proibido para a revisaoLore. A guarda obra×contexto da 3.2 precisa
+    // de idsQueReconhecem(obra) para provar DIVERGENTE com seguranca (sem ele, bloquearia
+    // INDETERMINADO legitimo). A traducao ja consome o mesmo catalogo. Os tipos LLM da Traducao
+    // Local continuam proibidos — a revisaoLore tem a propria stack LLM.
     private static final Set<String> REVISAO_LORE_PROIBIDOS = Set.of(
         RAIZ + ".llm.domain.LlmPort",
         RAIZ + ".llm.domain.StatusLlm",
         RAIZ + ".traducao.infrastructure.config.LlmProperties",
         RAIZ + ".traducao.infrastructure.dtos.RecordsLlm",
-        LLM_ADAPTER,
-        RAIZ + ".lore.infrastructure.GerenciadorContexto"
+        LLM_ADAPTER
     );
 
     // Pacote do módulo de telemetria. Após a FASE C2 (TelemetriaController movido para
@@ -865,7 +869,7 @@ class FronteiraTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("revisaoLore não depende da stack LLM/contexto da Tradução Local (D-Lore)")
+    @DisplayName("revisaoLore não depende da stack LLM da Tradução Local (contexto liberado na FASE E)")
     void revisaoLoreNaoDependeDaStackLlmDeTraducao() {
         List<String> violacoes = new ArrayList<>();
         for (JavaClass classe : classesProducao) {
@@ -883,9 +887,10 @@ class FronteiraTraducaoArchTest {
             }
         }
         assertTrue(violacoes.isEmpty(),
-            () -> "revisaoLore não pode importar a stack LLM/contexto da Tradução Local "
-                + "(LlmPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsLlm/LlmClientAdapter/"
-                + "GerenciadorContexto). As demais entradas ficam para a FASE E. Violações:\n"
+            () -> "revisaoLore não pode importar a stack LLM da Tradução Local "
+                + "(LlmPort/StatusLlm/LlmProperties/JsonHttpClient/RecordsLlm/LlmClientAdapter) — ela "
+                + "tem a própria stack LLM. O GerenciadorContexto (catálogo de contextos) foi "
+                + "LIBERADO na FASE E (2026-09-17) para a guarda obra×contexto da 3.2. Violações:\n"
                 + String.join("\n", new TreeSet<>(violacoes)));
     }
 
