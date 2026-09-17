@@ -23,12 +23,11 @@ CONSERTOS FECHADOS (cada um: guarda A1 + mutação A2 provada + commit próprio)
 2ª LEVA — Paulo mandou "consertar e deixar perfeito" TODOS os restantes. FEITOS (A1+A2+commit):
 `bc73497a` R3 (nome JSON _SSS+catraca) · `082a3714` R1 (pareamento/backup por caminho relativo) ·
 `b145c675` R2 (validador barra truncamento que apagava a fala) · `0ae2cd26` BF2 (maioria não
-traduzida → amarelo, 17/08 preservado). BF1 `cd5df332` FOI REVERTIDA em `a2c1a5ee`: a guarda
-importava `lore.infrastructure.GerenciadorContexto`, que o `FronteiraTraducaoArchTest`
-(`revisaoLoreNaoDependeDaStackLlmDeTraducao`) PROÍBE nominalmente ("FASE E"). `idsQueReconhecem` só
-vem do GerenciadorContexto; sem ele não dá para provar DIVERGENTE (bloquearia INDETERMINADO
-legítimo). Não baixei a catraca nem avancei a FASE E — é decisão ARQUITETURAL de Paulo (regra 19).
-BF1 fica DIAGNOSTICADA e aguardando decisão de FASE E. Os 4 outros (R1/R2/R3/BF2) ficam. Achados abaixo:
+traduzida → amarelo, 17/08 preservado). **BF1 CONCLUÍDA:** `cd5df332` violou a fronteira FASE E →
+revertida `a2c1a5ee` → Paulo AUTORIZOU avançar a FASE E → `215b6a9e` restaura a BF1 e libera só o
+`GerenciadorContexto` na guarda `FronteiraTraducaoArchTest` (tipos LLM da tradução seguem proibidos).
+A guarda obra×contexto reusa a decisão calibrada do peer lore, FALHA ABERTA (só bloqueia
+DIVERGENTE/AMBIGUO). Não foi baixar a catraca — foi avanço de fase deliberado, documentado. Achados abaixo:
 - BF1 [MÉDIA]: a 3.2 NÃO tem guarda obra×contexto (a tradução tem: GuardaContextoObraTraducao→
   ObraDivergenteDoContextoException). Escolher a obra errada no menu → corretor/LLM usam a lore
   errada e SOBRESCREVEM o `.ass`. Atenuações: backup por execução; cross-franquia falha fechada;
