@@ -748,26 +748,21 @@ public class RevisarLoreUseCase {
                         continue;
                     }
                     if (mesmaFalaVisivel(revisada, textoPt)) {
-                        if (deteccao.suspeito()) {
-                            falasDescartadas[0]++;
-                    pendentesNoArquivo++;
-                            sessao.out(AnsiCores.YELLOW + marcadorFala
-                                + " pendente: LLM nao alterou a fala suspeita" + AnsiCores.RESET);
-                            registrarAuditoria(
-                                contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                                dialogoAtual, totalDialogos, "PENDENTE_SEM_MELHORIA", deteccao.motivos(),
-                                textoEn, textoPt, revisadaOpt.get(), textoPt,
-                                "Resposta manteve os indícios originais de lore"
-                            );
-                        } else {
-                            falasSemAlteracao[0]++;
-                            sessao.out(AnsiCores.DIM + marcadorFala + " conforme apos revisao LLM" + AnsiCores.RESET);
-                            registrarAuditoria(
-                                contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                                dialogoAtual, totalDialogos, "CONFORME", deteccao.motivos(),
-                                textoEn, textoPt, revisadaOpt.get(), textoPt, null
-                            );
-                        }
+                        // deteccao.suspeito() e sempre true aqui: a fala limpa ja saiu no
+                        // `if (!deteccao.suspeito())` acima (o LLM e ultimo recurso, so roda em
+                        // fala acusada). LLM que devolve a mesma fala suspeita = pendente. O ramo
+                        // "conforme apos revisao LLM" era inalcancavel — resto do modo preventivo
+                        // removido em 17/08/2026; ver LlmEmFalaSemIndicioDeLoreEInerteTest.
+                        falasDescartadas[0]++;
+                        pendentesNoArquivo++;
+                        sessao.out(AnsiCores.YELLOW + marcadorFala
+                            + " pendente: LLM nao alterou a fala suspeita" + AnsiCores.RESET);
+                        registrarAuditoria(
+                            contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
+                            dialogoAtual, totalDialogos, "PENDENTE_SEM_MELHORIA", deteccao.motivos(),
+                            textoEn, textoPt, revisadaOpt.get(), textoPt,
+                            "Resposta manteve os indícios originais de lore"
+                        );
                         novosEventos.add(evtTraduzido);
                         continue;
                     }
@@ -841,21 +836,11 @@ public class RevisarLoreUseCase {
                     }
                 }
 
-                if (deteccao.motivos().isEmpty()) {
-                    falasSemAlteracao[0]++;
-                    sessao.out(AnsiCores.YELLOW + marcadorFala
-                        + " conforme; proposta preventiva ignorada por não haver indício de lore"
-                        + AnsiCores.RESET);
-                    registrarAuditoria(
-                        contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                        dialogoAtual, totalDialogos, "CONFORME_PROPOSTA_PREVENTIVA_IGNORADA", deteccao.motivos(),
-                        textoEn, textoPt, revisadaOpt.get(), textoPt,
-                        "Alteracao proposta em fala sem motivo heuristico de lore"
-                    );
-                    novosEventos.add(evtTraduzido);
-                    continue;
-                }
-
+                // deteccao.motivos() nunca esta vazio aqui: a fala limpa ja saiu no
+                // `if (!deteccao.suspeito())` acima (suspeito <=> ha motivo, por construcao do
+                // detector). O ramo "CONFORME_PROPOSTA_PREVENTIVA_IGNORADA" era inalcancavel —
+                // resto do modo "LLM preventivo em fala limpa" removido em 17/08/2026, provado
+                // por LlmEmFalaSemIndicioDeLoreEInerteTest (o LLM nem e chamado em fala limpa).
                 novosEventos.add(evtTraduzido.comTexto(revisada));
                 houveModificacao = true;
                 corrigidasNoArquivo++;

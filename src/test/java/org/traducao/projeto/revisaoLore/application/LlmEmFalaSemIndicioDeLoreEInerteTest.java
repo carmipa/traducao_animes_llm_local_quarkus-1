@@ -171,12 +171,15 @@ class LlmEmFalaSemIndicioDeLoreEInerteTest {
         assertEquals(0, resultado.arquivosAlterados(), "nenhum arquivo devia ter sido reescrito");
         assertEquals(0, resultado.falasCorrigidas(), "nenhuma fala devia ter sido corrigida");
 
-        // O DISCRIMINADOR: o ramo que ignora proposta preventiva conta em falasSemAlteracao.
-        // Descarte por validador ou por portao de escopo contaria em falasDescartadas.
+        // O DISCRIMINADOR: a fala limpa fecha na saida antecipada `if (!deteccao.suspeito())`,
+        // que conta em falasSemAlteracao ANTES de qualquer chamada ao LLM. Descarte por validador
+        // ou por portao de escopo contaria em falasDescartadas. (O antigo "ramo preventivo" que
+        // fechava aqui foi removido em 17/08/2026 junto com o modo "LLM em fala limpa": como o
+        // LLM nem e chamado, ele nunca existiu na pratica.)
         assertEquals(1, resultado.falasSemAlteracao(),
-            "esperava a fala fechando como CONFORME (proposta preventiva ignorada). Se ela caiu em "
-                + "falasDescartadas=" + resultado.falasDescartadas() + ", a proposta morreu numa "
-                + "trava ANTERIOR e este teste nao provou o ramo preventivo");
+            "esperava a fala limpa fechando sem alteracao pela saida antecipada de fala nao-suspeita. "
+                + "Se ela caiu em falasDescartadas=" + resultado.falasDescartadas() + ", a proposta "
+                + "morreu numa trava e este teste nao provou que a fala limpa nem chega ao LLM");
         assertEquals(0, resultado.falasDescartadas(),
             "a proposta devia ter atravessado as travas anteriores e morrido no ramo preventivo");
 
