@@ -30,7 +30,10 @@ public class RevisaoLoreLlmProperties {
     private String model = "current";
     private int maxTokens = 2000;
     private Duration connectTimeout = Duration.ofSeconds(5);
-    private Duration readTimeout = Duration.ofSeconds(180);
+    // 30s por FALA (nao os 180s do tradutor, que traduz lotes): o pior caso de silencio do
+    // console e um bloqueio de fala = readTimeout x MAX_TENTATIVAS + pausa, e ele tem de caber
+    // sob o OciosoSegundos=90 do pode-compilar.ps1. Ver ConsoleDaRevisaoLoreNaoCegaOPortaoTest.
+    private Duration readTimeout = Duration.ofSeconds(30);
     private Duration pausaEntreTentativas = Duration.ofSeconds(2);
 
     public RevisaoLoreLlmProperties() {

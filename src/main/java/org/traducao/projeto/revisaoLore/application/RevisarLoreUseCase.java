@@ -96,8 +96,12 @@ public class RevisarLoreUseCase {
      * De quanto em quanto tempo o progresso reaparece no console quando não há nada a relatar.
      *
      * <p>São 20s contra os 90s que o {@code pode-compilar.ps1} usa como limite de ociosidade —
-     * folga de 4,5x. O pior caso medido de uma fala é uma chamada ao LLM com retentativa, na
-     * casa dos 20s; mesmo duas seguidas cabem dentro do limite do portão.
+     * folga de 4,5x. Mas o batimento só sai ENTRE falas, nunca durante a chamada bloqueante ao
+     * LLM: o pior caso de silêncio é o bloqueio de UMA fala, que é
+     * {@code read-timeout × MAX_TENTATIVAS + pausa}. Por isso o {@code read-timeout} da
+     * {@code revisao-lore.llm} é 30s (não os 180s do tradutor de lotes): 2×30+2 = 62s < 90s.
+     * A relação é congelada por {@code ConsoleDaRevisaoLoreNaoCegaOPortaoTest} — foi ela que
+     * derivou quando o timeout ficou em 180s (até 362s de silêncio) sem ninguém perceber.
      */
     private static final long INTERVALO_BATIMENTO_MS = 20_000L;
 
