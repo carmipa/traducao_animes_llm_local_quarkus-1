@@ -110,10 +110,26 @@ public class CorretorAcentoPorPadraoService {
     /**
      * {@code nos} pronome tônico, e SÓ no fim da oração. No meio ele quase sempre é objeto
      * ({@code para nos salvar}), e trocar ali estraga fala correta — medido na amostra.
+     *
+     * <h2>A quebra {@code \\N} NÃO é fim de oração (auditoria da 3.3, 17/09/2026)</h2>
+     * A versão anterior tratava qualquer {@code \\N} depois de {@code nos} como fim de oração
+     * ({@code ...|\\s*(?:\\N)|...}). Mas {@code \\N} é quebra VISUAL de linha do ASS, não
+     * fronteira de cláusula — e ela cai em 24,6% das falas do acervo, muitas vezes no MEIO da
+     * oração:
+     *
+     * <pre>
+     *   "Você veio para nos\\Najudar?"   virava   "Você veio para nós\\Najudar?"   ERRADO
+     * </pre>
+     *
+     * O {@code nos} de {@code "para nos ajudar"} é OBJETO (átono), correto sem acento; a quebra só
+     * separava as duas linhas visuais. Agora o {@code \\N} só conta como fim de oração quando
+     * ENCERRA a fala ({@code (?:\\s|\\N)*$}): {@code "Fica entre nos\\N"} (nada depois) segue
+     * acentuado, {@code "para nos\\Najudar"} não. É a mesma disciplina de {@code FronteiraTermoAss},
+     * onde {@code \\N} é separador de formato, não sinal de sintaxe.
      */
     private static final Pattern NOS_TONICO = Pattern.compile(
         INICIO + "(?:de|entre|por|para|com|contra|sobre|at[ée])" + SEP + "(?<alvo>nos)"
-        + "(?=\\s*[.,!?;:]|\\s*(?:\\\\N)|\\s*$)",
+        + "(?=\\s*[.,!?;:]|(?:\\s|\\\\N)*$)",
         Pattern.UNICODE_CASE);
 
     /**

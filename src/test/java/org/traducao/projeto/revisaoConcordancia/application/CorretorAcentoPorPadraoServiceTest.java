@@ -109,6 +109,39 @@ class CorretorAcentoPorPadraoServiceTest {
             "trocou o pronome obliquo por tonico: 'para nos salvar' esta correto");
     }
 
+    /**
+     * O DEFEITO DA AUDITORIA DA 3.3 (17/09/2026), lente de corrupcao estrutural: o {@code \\N} do
+     * ASS e quebra VISUAL de linha, nao fim de oracao. O lookahead de {@code NOS_TONICO} tratava a
+     * quebra como fim de oracao e acentuava o {@code nos} OBJETO no meio da clausula. Como 24,6%
+     * das falas do acervo tem {@code \\N}, o wrap cai depois de {@code nos} com frequencia.
+     *
+     * <pre>
+     *   "para nos\Najudar"  (para nos ajudar, pronome atono, CERTO)  virava  "para nós\Najudar"
+     * </pre>
+     */
+    @Test
+    @DisplayName("NEGATIVO: `nos` antes da quebra \\N e OBJETO — a quebra nao e fim de oracao")
+    void quebraNaoEfimDeOracaoParaNos() {
+        assertEquals(Optional.empty(), corretor.corrigir("Você veio para nos\\Najudar?"),
+            "tratou a quebra visual \\N como fim de oracao e acentuou o pronome OBJETO 'nos'");
+        assertEquals(Optional.empty(), corretor.corrigir("Ela desceu para nos\\Nsalvar a todos."),
+            "o verbo na linha seguinte prova que 'para nos salvar' e objeto, nao tonico");
+    }
+
+    /**
+     * O CONTRA-TESTE: o {@code nos} TONICO de verdade — no fim da oracao, com pontuacao, fim de
+     * fala, ou uma quebra que encerra a fala — continua sendo acentuado. Sem ele, apagar a regra
+     * inteira passaria no teste acima: guarda que reprova o certo e pior que guarda nenhuma.
+     */
+    @Test
+    @DisplayName("CONTROLE: `nos` tonico no fim da oracao continua sendo acentuado")
+    void nosTonicoNoFimContinuaSendoAcentuado() {
+        assertEquals(Optional.of("Fica entre nós."), corretor.corrigir("Fica entre nos."));
+        assertEquals(Optional.of("O segredo fica entre nós"), corretor.corrigir("O segredo fica entre nos"));
+        // A quebra que ENCERRA a fala (nada depois dela) e fim de oracao de verdade — continua acentuando.
+        assertEquals(Optional.of("Fica entre nós\\N"), corretor.corrigir("Fica entre nos\\N"));
+    }
+
     @Test
     @DisplayName("POSITIVO: `so` antes de palavra portuguesa e adverbio")
     void soAdverbio() {
