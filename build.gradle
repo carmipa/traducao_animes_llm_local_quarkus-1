@@ -124,7 +124,9 @@ test {
 
     // O worker de teste do Gradle nasce com 512m; a suíte completa (com os
     // @QuarkusTest subindo a aplicação) estoura o heap nesse padrão.
-    maxHeapSize = '1g'
+    // 1g ainda estoura na suíte de MEDICAO (kronos.medicao=true): as ITs carregam o acervo real
+    // e traduzem ao vivo. Configurável para não obrigar edição — default 1g na suíte normal.
+    maxHeapSize = System.getProperty('kronos.test.heap', '1g')
 
     // Redireciona a raiz dos artefatos operacionais do KRONOS (logs/,
     // relatorios/, cache/, backups/) para uma árvore descartável sob build/
