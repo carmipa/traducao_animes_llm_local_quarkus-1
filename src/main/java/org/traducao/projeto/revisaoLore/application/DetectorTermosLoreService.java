@@ -32,6 +32,7 @@ public class DetectorTermosLoreService {
     );
     private static final Map<String, List<String>> TRADUCOES_LITERAIS_SUSPEITAS = criarTraducoesLiteraisSuspeitas();
     private static final Map<String, List<String>> TERMOS_TRADUZIVEIS_ACEITOS = criarTermosTraduziveisAceitos();
+    private static final Map<String, List<String>> DESCRITORES_LOCALIZAVEIS = criarDescritoresLocalizaveis();
     private static final Set<String> TERMOS_LORE_SOLTEIROS_RELEVANTES = Set.of(
         "aeug", "titans", "anaheim", "apsalus", "sahalin", "sakhalin", "char", "amuro",
         "londo", "phenex", "unicorn", "narrative", "banshee", "legion", "handler",
@@ -392,7 +393,7 @@ public class DetectorTermosLoreService {
                     || traducaoAceitaParaTermo(nome, pt, equivalenciasDaObra)) {
                     continue;
                 }
-                if (pt.contains(nome)) {
+                if (pt.contains(nome) || acronimoPreservado(pt, nome)) {
                     continue;
                 }
                 if (contemNomeCompostoParcial(pt, nome)) {
@@ -402,6 +403,30 @@ public class DetectorTermosLoreService {
                 }
             }
         }
+    }
+
+    /** Sigla com os pontos ({@code A.E.U.G.}); a mesma sem pontos ({@code AEUG}) e o par tipico. */
+    private static final Pattern SIGLA_PONTUADA = Pattern.compile("(?:[A-Za-z]\\.){2,}[A-Za-z]?");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: {@code "A.E.U.G."} e {@code "AEUG"} são a MESMA sigla — os pontos são
+     * estilo de grafia, não lore. Antes disto, {@code A.E.U.G.} sozinho respondia por 72 pendências
+     * na corrida do Zeta (o maior ofensor único), porque {@code pt.contains("A.E.U.G.")} não achava
+     * {@code "AEUG"} escrito sem os pontos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só vale para o candidato que TEM a forma pontuada; a comparação é
+     * pela sigla inteira ({@link FronteiraTermoAss}), então uma sigla realmente ausente do PT
+     * continua acusada. É silenciador, nunca acusa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome que não é sigla pontuada devolve {@code false} e o
+     * fluxo segue como antes.
+     */
+    private boolean acronimoPreservado(String pt, String nome) {
+        if (!SIGLA_PONTUADA.matcher(nome).matches()) {
+            return false;
+        }
+        String semPontos = nome.replace(".", "");
+        return contemExpressaoInteira(pt.toLowerCase(Locale.ROOT), semPontos.toLowerCase(Locale.ROOT));
     }
 
     private boolean contemVarianteAproximada(String pt, String nome) {
@@ -706,13 +731,13 @@ public class DetectorTermosLoreService {
      */
     private boolean traducaoAceitaParaTermo(String nome, String pt, Map<String, List<String>> daObra) {
         String ptLower = pt.toLowerCase(Locale.ROOT);
-        // A obra vem PRIMEIRO: ela conhece a propria terminologia melhor que o mapa global.
-        List<String> declaradas = daObra == null ? null : daObra.get(nome.toLowerCase(Locale.ROOT));
-        if (declaradas != null && contemAlgumaExpressao(ptLower, declaradas)) {
-            return true;
-        }
-        List<String> aceitas = TERMOS_TRADUZIVEIS_ACEITOS.get(nome.toLowerCase(Locale.ROOT));
-        if (aceitas != null && contemAlgumaExpressao(ptLower, aceitas)) {
+        String chave = nome.toLowerCase(Locale.ROOT);
+        // A obra vem PRIMEIRO: ela conhece a propria terminologia melhor que o mapa global. Depois
+        // o catalogo global de faccoes/titulos, e por fim os DESCRITORES comuns de lingua
+        // (city->cidade, operation->operacao). Casar em qualquer um deles cala a acusacao.
+        if (aceitaPor(ptLower, daObra == null ? null : daObra.get(chave))
+            || aceitaPor(ptLower, TERMOS_TRADUZIVEIS_ACEITOS.get(chave))
+            || aceitaPor(ptLower, DESCRITORES_LOCALIZAVEIS.get(chave))) {
             return true;
         }
 
@@ -727,7 +752,7 @@ public class DetectorTermosLoreService {
             }
             List<String> variantes = daObra != null && daObra.containsKey(normalizada)
                 ? daObra.get(normalizada)
-                : TERMOS_TRADUZIVEIS_ACEITOS.get(normalizada);
+                : TERMOS_TRADUZIVEIS_ACEITOS.getOrDefault(normalizada, DESCRITORES_LOCALIZAVEIS.get(normalizada));
             boolean presenteOriginal = contemExpressaoInteira(ptLower, normalizada);
             boolean presenteTraduzida = variantes != null && contemAlgumaExpressao(ptLower, variantes);
             if (!presenteOriginal && !presenteTraduzida) {
@@ -735,6 +760,11 @@ public class DetectorTermosLoreService {
             }
         }
         return true;
+    }
+
+    /** Uma das variantes PT-BR desta lista aparece inteira no texto? Lista nula ou vazia = nao. */
+    private boolean aceitaPor(String ptLower, List<String> variantes) {
+        return variantes != null && contemAlgumaExpressao(ptLower, variantes);
     }
 
     private String normalizarTokenNome(String token) {
@@ -819,7 +849,7 @@ public class DetectorTermosLoreService {
             "federacao da terra",
             "federação da terra"
         ));
-        termos.put("federation", List.of("federacao", "federação"));
+        termos.put("federation", List.of("federacao", "federação", "federal", "federais"));
         termos.put("principality of zeon", List.of("principado de zeon"));
         termos.put("republic of zeon", List.of("republica de zeon", "república de zeon"));
         termos.put("universal century", List.of("seculo universal", "século universal"));
@@ -829,6 +859,62 @@ public class DetectorTermosLoreService {
         termos.put("princess", List.of("princesa"));
         termos.put("commander", List.of("comandante"));
         termos.put("ensign", List.of("alferes"));
+        return Map.copyOf(termos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: cataloga DESCRITORES comuns do inglês — substantivos e títulos que
+     * acompanham nomes próprios ({@code City}, {@code Laboratory}, {@code Operation},
+     * {@code Director}) — e sua tradução PT-BR de dicionário. Serve para CALAR a acusação quando o
+     * descritor foi localizado e o nome ao lado foi preservado: {@code "Von Braun City"} →
+     * {@code "Cidade Von Braun"} não é defeito de lore.
+     *
+     * <h2>Por que existe, medido na corrida do Zeta Gundam em 17/09/2026</h2>
+     * Das 394 falas que a tela deixou pendentes, 100% vinham da regra de nome próprio, e a maioria
+     * era descritor comum traduzido certo com o nome intacto:
+     * <pre>
+     *   Gate of Zedan       -> Porta de Zedan          54x   gate -> porta
+     *   Colony 30           -> Colonia 30              46x   colony -> colonia
+     *   Von Braun City      -> Cidade Von Braun        32x   city -> cidade
+     *   Operation Maelstrom -> Operacao Maelstrom      28x   operation -> operacao
+     *   Director Hayato     -> Diretor Hayato          24x   director -> diretor
+     *   Earth Fed. Gov.     -> Governo da Fed.         24x   government -> governo
+     *   Murasame Laboratory -> Laboratorio Murasame    16x   laboratory -> laboratorio
+     *   Excellency Jamitov  -> Excelencia Jamitov      14x   excellency -> excelencia
+     * </pre>
+     * Esse ruído afoga o achado REAL que estava no mesmo lote — {@code Jupitris}→{@code Jupiter},
+     * {@code Bosnia}→{@code Bosnia} (país), {@code Jamaican}→{@code Jerid} — que a tela precisa
+     * deixar visível.
+     *
+     * <h2>Diferença deliberada para {@link #TERMOS_TRADUZIVEIS_ACEITOS}</h2>
+     * Aquele mapa é BIDIRECIONAL: cala quando o termo foi traduzido E ACUSA quando um termo de
+     * facção ({@code Federation}) ficou em inglês. Este é SÓ silenciador: um descritor comum que
+     * ficou em inglês ({@code Colony Laser}) é decisão de completude de tradução (tela 3.1), não
+     * defeito de lore — acusá-lo aqui seria criar o falso positivo pelo outro lado. Por isso este
+     * mapa NÃO é iterado por {@code detectarTermosTraduziveisEmIngles}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: silencia apenas quando o NOME ao lado do descritor sobrevive no
+     * PT — {@code "Von Braun City"}→{@code "Cidade Von Brown"} continua acusado, porque
+     * {@code Braun} sumiu (ver {@link #traducaoAceitaParaTermo}). São substantivos genéricos de
+     * LÍNGUA, não lore de franquia: valem em qualquer obra e não pertencem a nenhum {@code
+     * lore.yaml} em particular. Chaves em inglês minúsculo; variantes com e sem diacrítico.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: o mapa final é imutável.
+     */
+    private static Map<String, List<String>> criarDescritoresLocalizaveis() {
+        Map<String, List<String>> termos = new LinkedHashMap<>();
+        termos.put("city", List.of("cidade"));
+        termos.put("colony", List.of("colônia", "colonia"));
+        termos.put("gate", List.of("porta"));
+        termos.put("laboratory", List.of("laboratório", "laboratorio"));
+        termos.put("operation", List.of("operação", "operacao"));
+        termos.put("director", List.of("diretor", "diretora"));
+        termos.put("government", List.of("governo"));
+        termos.put("excellency", List.of("excelência", "excelencia"));
+        termos.put("sphere", List.of("esfera"));
+        termos.put("forces", List.of("forças", "forcas"));
+        termos.put("clan", List.of("clã", "cla"));
+        termos.put("beam", List.of("feixe"));
         return Map.copyOf(termos);
     }
 }
