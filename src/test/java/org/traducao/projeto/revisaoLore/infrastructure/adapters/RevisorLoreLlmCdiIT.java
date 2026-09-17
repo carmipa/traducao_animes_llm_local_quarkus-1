@@ -49,7 +49,10 @@ class RevisorLoreLlmCdiIT {
         assertEquals("current", propriedades.model());
         assertEquals(2000, propriedades.maxTokens());
         assertEquals(Duration.ofSeconds(5), propriedades.connectTimeout());
-        assertEquals(Duration.ofSeconds(180), propriedades.readTimeout());
+        // 30s por FALA (nao os 180s do tradutor.llm, que traduz lotes): o bloqueio maximo de uma
+        // fala = read-timeout x MAX_TENTATIVAS + pausa tem de caber sob o OciosoSegundos=90 do
+        // pode-compilar.ps1, senao um LLM lento cega o portao. Ver ConsoleDaRevisaoLoreNaoCegaOPortaoTest.
+        assertEquals(Duration.ofSeconds(30), propriedades.readTimeout());
     }
 
     @Test
