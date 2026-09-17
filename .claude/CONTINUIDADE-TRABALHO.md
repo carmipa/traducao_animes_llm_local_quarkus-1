@@ -21,9 +21,18 @@ RESIDUAIS DECLARADOS (não neste passo, com motivo): diferença só de CAIXA (Mo
 ~56) — precisa case-insensitive na comparação-núcleo `pt.contains(nome)` (linha 395), blast radius
 maior (toda obra) → calibração própria; homógrafo Four (número×personagem Four Murasame) — silenciar
 cega a personagem; patente Commodore→Comodante — fora do escopo nome/local/termo da 3.2.
-PRÓXIMA AÇÃO: aguardar go do Paulo para (a) o residual de CAIXA como follow-up calibrado; (b) push do
-KRONOS (`git push`, conferir origin/main..HEAD); (c) rodar a 3.2 no acervo real (efeito de LLM sobre
-`.ass`, só com go). Parar o jar KRONOS (background bw80sfvqo) quando Paulo disser.
+DEPLOY: a corrida das 17:15 (432 pendentes) rodou o jar VELHO (build 13:11, anterior ao commit
+15:27 — provado por timestamp; `gradlew test` NÃO reconstrói o jar). Rebuildei (`quarkusBuild`, jar
+17:18) e reiniciei: parei bw80sfvqo, liberei a 8099, subi bt32jydeh (boot limpo 1.6s, prod, 200).
+javap confirma DESCRITORES_LOCALIZAVEIS/acronimoPreservado NO jar empacotado (o `strings` que falhou,
+não o build). Fix agora LIVE na 8099.
+DERRUBADO (Paulo 17/09): "para tudo que eu mesmo rodo" — houve colisão (Paulo tinha parado e rodado
+a 3.2 ele mesmo; eu tinha subido a minha). Matei bt32jydeh + varri java do quarkus-run.jar + 8099:
+LIVRE, nenhum java KRONOS vivo. **PAULO roda o KRONOS ele mesmo** — não subir instância em paralelo.
+O jar de produção (build/quarkus-app/quarkus-run.jar, 17:18) TEM a correção (javap confirmou). Quando
+Paulo rodar a 3.2 no Zeta com esse jar, os FP de descritor/sigla saem das pendências (432→?).
+PRÓXIMA AÇÃO: aguardar Paulo rodar e trazer o número; então medir o delta real 432→?. Depois, com go:
+(a) residual de CAIXA (Mobile/Laser) follow-up calibrado; (b) push do KRONOS.
 
 ## (2026-09-17) — 3.2 REVISÃO DE LORE, PARTE 2 (auditoria adversarial da fatia `revisaoLore`)
 TAREFA (Paulo): "3.2 revisao de lore parte 2". Segunda passada adversarial da fatia 3.2 (a 3.1 teve
