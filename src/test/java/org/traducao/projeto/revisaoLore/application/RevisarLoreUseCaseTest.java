@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -113,12 +114,62 @@ class RevisarLoreUseCaseTest {
         Path pastaBackup = tempDir.resolve("backup").toAbsolutePath().normalize();
         Files.writeString(legenda, "versao-original");
 
-        Path backup = RevisarLoreUseCase.criarBackup(legenda, pastaBackup);
+        Path backup = RevisarLoreUseCase.criarBackup(legenda, tempDir, pastaBackup);
         Files.writeString(legenda, "versao-alterada");
-        Path backupRepetido = RevisarLoreUseCase.criarBackup(legenda, pastaBackup);
+        Path backupRepetido = RevisarLoreUseCase.criarBackup(legenda, tempDir, pastaBackup);
 
         assertEquals(backup, backupRepetido);
         assertEquals("versao-original", Files.readString(backup));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o EN e varrido recursivamente; dois arquivos de mesmo nome em
+     * subpastas diferentes NAO podem compartilhar o mesmo par PT nem o mesmo backup — senao um
+     * apaga a legenda do outro em silencio.
+     * <p>INVARIANTES DO DOMÍNIO: o par PT e o backup espelham a subpasta relativa do EN.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pareamento por raiz (o defeito antigo) faria os dois
+     * apontarem para o mesmo destino — este teste reprova isso.
+     */
+    @Test
+    void basenamesIguaisEmSubpastasNaoColidem(@TempDir Path base) throws IOException {
+        Path en = Files.createDirectories(base.resolve("en"));
+        Path pt = Files.createDirectories(base.resolve("pt"));
+        Path pastaBackup = base.resolve("bkp").toAbsolutePath().normalize();
+        Path enS1 = Files.createDirectories(en.resolve("S1"));
+        Path enS2 = Files.createDirectories(en.resolve("S2"));
+        Files.writeString(enS1.resolve("ep01.ass"), "en-s1");
+        Files.writeString(enS2.resolve("ep01.ass"), "en-s2");
+        Path ptS1 = Files.createDirectories(pt.resolve("S1"));
+        Path ptS2 = Files.createDirectories(pt.resolve("S2"));
+        Path pt1 = ptS1.resolve("ep01_PT-BR.ass"); Files.writeString(pt1, "pt-s1");
+        Path pt2 = ptS2.resolve("ep01_PT-BR.ass"); Files.writeString(pt2, "pt-s2");
+
+        // PAREAMENTO: cada EN acha o PT da SUA subpasta, nao o da raiz nem o do irmao.
+        assertEquals(pt1, RevisarLoreUseCase.localizarArquivoTraduzido(enS1.resolve("ep01.ass"), en, pt));
+        assertEquals(pt2, RevisarLoreUseCase.localizarArquivoTraduzido(enS2.resolve("ep01.ass"), en, pt));
+
+        // BACKUP: espelha a subpasta, entao os dois backups sao distintos e nenhum apaga o outro.
+        Path b1 = RevisarLoreUseCase.criarBackup(pt1, pt, pastaBackup);
+        Path b2 = RevisarLoreUseCase.criarBackup(pt2, pt, pastaBackup);
+        assertNotEquals(b1, b2,
+            "dois arquivos de mesmo nome em subpastas diferentes nao podem ter o MESMO backup, "
+                + "senao o 2o backup (Files.notExists=false) nunca e salvo e a versao do 1o cobre a do 2o");
+        assertEquals("pt-s1", Files.readString(b1));
+        assertEquals("pt-s2", Files.readString(b2));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: no layout PLANO (arquivo direto na pasta, o caso comum do acervo),
+     * o pareamento por caminho relativo tem de dar exatamente o mesmo resultado de antes.
+     */
+    @Test
+    void layoutPlanoContinuaParenadoNaRaiz(@TempDir Path base) throws IOException {
+        Path en = Files.createDirectories(base.resolve("legendas_eng"));
+        Path pt = Files.createDirectories(base.resolve("traducao_ptbr"));
+        Files.writeString(en.resolve("ep01.ass"), "en");
+        Path alvo = pt.resolve("ep01_PT-BR.ass"); Files.writeString(alvo, "pt");
+
+        assertEquals(alvo, RevisarLoreUseCase.localizarArquivoTraduzido(en.resolve("ep01.ass"), en, pt));
     }
 
     /**
