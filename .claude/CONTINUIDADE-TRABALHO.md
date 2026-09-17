@@ -33,9 +33,13 @@ ACHADOS A APRESENTAR AO PAULO (não consertados — decisão/escopo):
 RISCOS RESIDUAIS DECLARADOS (baixos): colisão de basename no walk recursivo EN + busca flat PT
 (layout atípico); normalizador getLast sem marcadores (backstopped pelo validador de escopo);
 nome do relatório JSON com precisão de segundo (só execuções SEM_ARQUIVOS).
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: suíte COMPLETA rodando (portão de fechamento). Se verde: entregar
-relatório completo ao Paulo + salvar memória + commit/push .claude/projects. NÃO rodar a 3.2 no
-acervo real sem go do Paulo (efeito de LLM sobre `.ass` persistente).
+PORTÃO DE FECHAMENTO: suíte completa BUILD SUCCESSFUL (rc=0). A 1ª rodada teve 2 falhas: esqueleto
+(minha — teste novo subiu src/test 437→438; regravei a doc `045fa213`, catraca verde) e
+EfeitoDasInstrucoesDeRumoNoModeloIT (flaky de modelo em lore.domain, NÃO minha — passou no re-run).
+7 commits: 71205f69 5d8eeb6a e283405f e8c6d0a1 5c4e2a06 045fa213 6f6ce81c. KRONOS NÃO pushado (só com go).
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: aguarda decisão do Paulo — BF1 (guarda obra×contexto = Plano Mestre
+próprio, faço na ordem dele) e BF2 (produto). NÃO rodar a 3.2 no acervo real sem go (efeito de LLM
+sobre `.ass` persistente). Se Paulo pedir push do KRONOS, `git push` (conferir origin/main..HEAD).
 NÃO REPETIR: git checkout -- reverter mutação APAGA tudo (restaurar por cópia). sed `s/180s/.../`
 sem âncora casou as 3 linhas read-timeout (tradutor+revisao+api) — usar número de linha. Estático
 não recarrega no quarkusDev (reiniciar).
