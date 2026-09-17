@@ -335,6 +335,51 @@ class RevisarLoreUseCaseTest {
         assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(4, 3).get().contains("MAIORIA"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a 3.2 sobrescreve o .ass; escolher a obra errada no menu não pode
+     * gravar a lore errada por cima da legenda. A guarda bloqueia DIVERGENTE/AMBÍGUO e FALHA
+     * ABERTA (segue) em CASA/INDETERMINADO — a mesma política calibrada da guarda da tradução.
+     * <p>INVARIANTES DO DOMÍNIO: só bloqueio com PROVA POSITIVA; obra desconhecida segue com aviso.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: bloquear o legítimo, ou deixar passar a divergência,
+     * reprova o teste.
+     */
+    @Test
+    void guardaObraContextoBloqueiaDivergenciaMasSegueNoIndeterminado() {
+        var validador = new org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto();
+        String caminho = "/acervo/Gundam ZZ/traducao_ptbr"; // sem letra de drive (catraca da suite)
+
+        // CASA: a obra e reconhecida pelo contexto ativo -> segue (sem bloqueio).
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam ZZ", "gundam_zz", java.util.Set.of("gundam_zz")).isEmpty());
+
+        // DIVERGENTE: a pasta resolve para OUTRA obra do catalogo -> BLOQUEIA (prova positiva).
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam ZZ", "gundam_zeta", java.util.Set.of("gundam_zz")).isPresent(),
+            "obra reconhecida como gundam_zz sob contexto gundam_zeta e divergencia — tem de bloquear");
+
+        // AMBIGUO: duas obras reivindicam a pasta com a mesma especificidade -> BLOQUEIA.
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam", "gundam_zeta", java.util.Set.of("gundam_zeta", "gundam_zz")).isPresent());
+
+        // INDETERMINADO: nenhum contexto reconhece a obra -> NAO bloqueia (falha aberta), mas avisa.
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Obra Nova", "gundam_zeta", java.util.Set.of()).isEmpty(),
+            "obra que ninguem reconhece nao pode ser bloqueada — falha ABERTA, como a traducao");
+        assertTrue(RevisarLoreUseCase.avisoObraNaoVerificada(
+            validador, "Obra Nova", "gundam_zeta", java.util.Set.of()).isPresent(),
+            "indeterminado tem de AVISAR que a checagem foi pulada");
+        assertTrue(RevisarLoreUseCase.avisoObraNaoVerificada(
+            validador, "Gundam ZZ", "gundam_zz", java.util.Set.of("gundam_zz")).isEmpty(),
+            "quando casa, nao ha aviso de checagem pulada");
+    }
+
+    @Test
+    void obraDaPastaTraduzidaEhAPastaAvo() {
+        assertEquals("Gundam ZZ", RevisarLoreUseCase.obraDaPastaTraduzida(
+            java.nio.file.Path.of("animes", "Gundam ZZ", "traducao_ptbr")));
+        assertEquals("", RevisarLoreUseCase.obraDaPastaTraduzida(null));
+    }
+
     @Test
     void contexto86ExpoeMapaDeTerminologia() {
         Map<String, String> mapa = org.traducao.projeto.lore.LoreDeTeste.revisao("eight_six").correcoesTerminologia();
