@@ -252,7 +252,13 @@ revisao-lore:
     model: "current"
     max-tokens: 2000
     connect-timeout: 5s
-    read-timeout: 180s
+    # 30s, e NAO os 180s do tradutor.llm: a revisao chama o LLM por UMA fala curta,
+    # nao por um lote. O batimento do console so sai ENTRE falas, entao o pior caso
+    # de silencio e o bloqueio de uma fala = read-timeout x MAX_TENTATIVAS + pausa
+    # = 2x30+2 = 62s, que precisa caber sob o OciosoSegundos=90 do pode-compilar.ps1,
+    # senao um LLM lento cega o portao e libera live reload sobre o job vivo (o acidente
+    # Stink Bomb). A relacao e congelada por ConsoleDaRevisaoLoreNaoCegaOPortaoTest.
+    read-timeout: 30s
 
 remuxer:
   mkvmerge-path: mkvmerge
