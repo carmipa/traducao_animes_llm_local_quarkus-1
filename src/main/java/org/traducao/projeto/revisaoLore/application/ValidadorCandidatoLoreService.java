@@ -96,6 +96,18 @@ final class ValidadorCandidatoLoreService {
         if (inseridos.isEmpty()) {
             return Optional.of("proposta apenas remove conteúdo da fala");
         }
+        // Correção de termo PRESERVA o contexto ao redor (prefixo ou sufixo comum). Uma proposta
+        // que troca a fala INTEIRA por um trecho MENOR (nada preservado E mais curta) é truncamento,
+        // não correção de lore — é exatamente o que esta classe existe para impedir ("usar suspeita
+        // como autorização para reescrever toda a fala"). Ex.: "A Legião chegou" (3 tokens) → "Legion"
+        // (1) passava pelo teto de 4 tokens, o termo existe no EN e na lore, e a fala era APAGADA.
+        // Fala de UMA palavra só (o próprio termo, ex.: um cartaz "Legião") pode ser trocada inteira,
+        // por isso a exigência atual.size() > 1; substituição de mesmo tamanho ("Robô Móvel" →
+        // "Mobile Suit", 2→2) não é truncamento e continua passando.
+        if (atual.size() > 1 && prefixo == 0 && sufixo == 0 && inseridos.size() < removidos.size()) {
+            return Optional.of("proposta substitui a fala inteira por um trecho menor — "
+                + "truncamento, nao correcao pontual de termo");
+        }
         if (removidos.size() > MAX_TOKENS_ALTERADOS || inseridos.size() > MAX_TOKENS_ALTERADOS) {
             return Optional.of("proposta reescreve trecho amplo fora do escopo de lore");
         }

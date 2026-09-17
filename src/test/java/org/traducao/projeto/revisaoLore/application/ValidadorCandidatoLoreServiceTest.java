@@ -101,4 +101,40 @@ class ValidadorCandidatoLoreServiceTest {
             LORE
         ).isEmpty());
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: bloqueia a proposta que APAGA a fala trocando-a inteira por um termo
+     * mais curto — o LLM devolvendo só o nome ("Titans") no lugar da fala "Os Titãs vencem".
+     *
+     * <h2>Por que passava — e por que é corrupção</h2>
+     * A troca cabia no teto de 4 tokens (removidos=3, inseridos=1) e o termo "Titans" existe no EN e
+     * na lore, então os testes de sequência aprovavam. Nada preservava o contexto (prefixo=sufixo=0)
+     * e a fala inteira sumia — exatamente o que a classe existe para impedir. O normalizador escolher
+     * a última linha da resposta do LLM (uma nota com só o termo) alcançava esta forma.
+     */
+    @Test
+    void bloqueiaTruncamentoDaFalaInteiraPorUmTermo() {
+        assertFalse(ValidadorCandidatoLoreService.validar(
+            "The Titans win.",
+            "Os Titãs vencem.",
+            "Titans",
+            LORE
+        ).isEmpty(),
+            "trocar a fala inteira (3 tokens) por um termo curto (1) e truncamento, nao correcao de lore");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: A1 fronteira — quando a fala É só o termo (um cartaz "Phoenix"), trocá-la
+     * inteira por "Phenex" é a correção legítima, não truncamento. atual.size()==1 escapa a regra.
+     */
+    @Test
+    void aceitaFalaDeUmTermoTrocadaInteira() {
+        assertTrue(ValidadorCandidatoLoreService.validar(
+            "Phenex.",
+            "Phoenix.",
+            "Phenex.",
+            LORE
+        ).isEmpty(),
+            "fala de uma palavra so (o proprio termo) pode ser trocada inteira — nao e truncamento de conteudo");
+    }
 }
