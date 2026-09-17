@@ -54,11 +54,21 @@ estendida ao QUANTIFICADOR upstream. Zeta ep32 "todas\Nessas pensamentos" virava
 e deixava todas discordando). Fix: precedidoPorDeterminanteDeMesmoGenero (DET_FEM_FLEX/DET_MASC_FLEX, ciente
 do \N) — se o determinante vem depois de outro do MESMO genero, abstem-se. A1 (caso ep32 real + controle),
 suite verde. VALIDADO LIVE: ep32 agora "conforme" (0 mudancas). A corrida cheia do Zeta passa de 21 p/ 20.
-DEPLOY FEITO: quarkusBuild 19:54 (javap confirma precedidoPorDeterminanteDeMesmoGenero/DET_FEM_FLEX no jar);
-KRONOS RODANDO na 8099 (PID 26668, prod). Parei o 33712 antes (Paulo autorizou o rebuild). Prova viva 17/09:
-20 correcoes de genero legitimas no Zeta (o menina->a menina etc), 0 null, 0 padrao FP, dry-run grava 0.
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA, VALIDADA no acervo e DEPLOYADA (jar 19:54 na
-8099). Nada acionavel meu pendente. Falta so push do KRONOS (so com go; 13 commits a frente do remoto). NAO REPETIR: git checkout -- reverter mutacao APAGA
+9o FIX `dcf2ff15` (Paulo perguntou "por que teimou e nao corrigiu?" o ep32 — abster nao basta):
+CORRIGE A CADEIA em vez de abster-se. Quando o de tras e QUANTIFICADOR (plurais + toda/todo; muita/muito
+singular FORA=adverbio), vira os DOIS: "todas essas pensamentos"->"todos esses pensamentos".
+aplicarFlipComCadeia + tokenAnteriorFlexivel (ciente do \N) + FLIP_QUANTIFICADOR. Artigo/possessivo do mesmo
+genero CONTINUA abstendo ("a" e preposicao). A1 (cadeia com \N vira junto + artigo abstem + controles), suite verde.
+DEPLOY: quarkusBuild 20:44 (javap confirma aplicarFlipComCadeia/FLIP_QUANTIFICADOR/tokenAnteriorFlexivel);
+KRONOS na 8099 PID 23696. GRAVADO no ep32 REAL: dry-run confirmou 1 fala (todas\Nessas->todos\Nesses),
+aplicar 20:46 -> 50 revisados, 1 alterado, 1 corrigida, 1 backup (20260917_204501). Disco (cat -A): ep32
+agora "todos\Nesses pensamentos"; backup preserva "todas\Nessas"; 15 backups totais; os outros 20 estaveis
+(idempotente). Prova viva 17/09: 20 correcoes de genero legitimas no Zeta (o menina->a menina etc), 0 null,
+0 padrao FP, e agora a cadeia do ep32 fechada.
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 FECHADA, VALIDADA no acervo, DEPLOYADA (jar 20:44 na 8099) e o
+Zeta 100% aplicado (21 correcoes reais gravadas com backup). Nada acionavel meu pendente. Falta so push do
+KRONOS (so com go; 16 commits a frente do remoto). LICAO: abster-se e seguro, mas nem sempre o certo —
+quando da p/ corrigir a cadeia com seguranca, corrige. NAO REPETIR: git checkout -- reverter mutacao APAGA
 tudo (cp); estatico nao recarrega no quarkusDev (reiniciar); Paulo roda o KRONOS (nao subir na 8099);
 conferir o `[ ]` do checkpoint contra o CODIGO antes de chamar de aberto.
 
