@@ -104,8 +104,6 @@ class LlmEmFalaSemIndicioDeLoreEInerteTest {
     @Inject AlcanceRevisaoLore alcance;
     @Inject ProtecaoLegendaAssService protecaoAss;
     @Inject CorretorLoreDeterministico corretorLore;
-    @Inject org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto;
-    @Inject org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto;
 
     @Test
     @DisplayName("fala sem indicio de lore nao vai ao LLM, e nada e gravado nela")
@@ -148,8 +146,7 @@ class LlmEmFalaSemIndicioDeLoreEInerteTest {
         RevisarLoreUseCase useCase = new RevisarLoreUseCase(
             leitor, escritor, mascarador, detector, validador,
             llmQuePropoe, gerenciadorPromptRevisaoLore, telemetriaService,
-            logPersistencia, auditoriaCache, alcance, protecaoAss, corretorLore,
-            gerenciadorContexto, validadorObraContexto);
+            logPersistencia, auditoriaCache, alcance, protecaoAss, corretorLore);
 
         ResultadoRevisaoLore resultado = useCase.executar(pastaEn, pastaPt, CONTEXTO, true);
 
