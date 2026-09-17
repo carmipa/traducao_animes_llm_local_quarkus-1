@@ -31,8 +31,18 @@ a 3.2 ele mesmo; eu tinha subido a minha). Matei bt32jydeh + varri java do quark
 LIVRE, nenhum java KRONOS vivo. **PAULO roda o KRONOS ele mesmo** — não subir instância em paralelo.
 O jar de produção (build/quarkus-app/quarkus-run.jar, 17:18) TEM a correção (javap confirmou). Quando
 Paulo rodar a 3.2 no Zeta com esse jar, os FP de descritor/sigla saem das pendências (432→?).
-PRÓXIMA AÇÃO: aguardar Paulo rodar e trazer o número; então medir o delta real 432→?. Depois, com go:
-(a) residual de CAIXA (Mobile/Laser) follow-up calibrado; (b) push do KRONOS.
+RESULTADO REAL (Paulo rodou o jar novo 17:28, mesmos 50 arq/16809 falas): pendentes 432→262 (−170,
+−39%), sem-resposta 238→138, descartadas 194→124, **arquivos alterados 0** (silenciar não grava,
+confirmado na produção). No JSONL da corrida: A.E.U.G. 72→0, Colony 46→0, Von Braun City 26→0,
+Director Hayato 24→0, Murasame Laboratory 16→0, Operation Maelstrom 14→0, Gate 54→3 — FP de
+descritor/sigla eliminados. Sobrevivem os REAIS (Rosamia/Rosammy, Char, Jupitris, Titans, Jamaican,
+Bosnia, Scirocco, Siddeley) + residuais declarados (Mobile 18/Laser 8 = CAIXA; Four homógrafo;
+Commodore patente; Operation Apollo/Green Oasis = nome acentuado Apolo/Oásis). VALIDADO NO ESCOPO
+TESTADO com evidência de produção. Commit eef5bab7 (não pushado).
+PRÓXIMA AÇÃO (com go do Paulo, ele roda): (a) residual de CAIXA (Mobile/Laser, ~26 na produção) —
+comparação case-insensitive por PALAVRA INTEIRA (espelhar acronimoPreservado, não substring) no
+portão de preservação; calibrar no acervo (blast radius = toda obra). (b) push do KRONOS. (c) opcional:
+Apollo→Apolo, Green Oasis→Green Oásis (nome parcialmente acentuado) e patente como fatia própria.
 
 ## (2026-09-17) — 3.2 REVISÃO DE LORE, PARTE 2 (auditoria adversarial da fatia `revisaoLore`)
 TAREFA (Paulo): "3.2 revisao de lore parte 2". Segunda passada adversarial da fatia 3.2 (a 3.1 teve
