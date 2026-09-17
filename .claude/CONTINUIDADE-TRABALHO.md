@@ -20,7 +20,15 @@ CONSERTOS FECHADOS (cada um: guarda A1 + mutação A2 provada + commit próprio)
 - `e8c6d0a1` completa OP1: RevisorLoreLlmCdiIT reflete 30s.
 - `5c4e2a06` cleanup: 2 ramos mortos no laço quente (modo LLM-preventivo removido 17/08) +
   `contemPalavraInteira` morto + Javadocs órfãos/imports não usados (PT-only). 145 testes fatia, 0 falha.
-ACHADOS A APRESENTAR AO PAULO (não consertados — decisão/escopo):
+2ª LEVA — Paulo mandou "consertar e deixar perfeito" TODOS os restantes. FEITOS (A1+A2+commit):
+`bc73497a` R3 (nome JSON _SSS+catraca) · `082a3714` R1 (pareamento/backup por caminho relativo) ·
+`b145c675` R2 (validador barra truncamento que apagava a fala) · `0ae2cd26` BF2 (maioria não
+traduzida → amarelo, 17/08 preservado). BF1 `cd5df332` FOI REVERTIDA em `a2c1a5ee`: a guarda
+importava `lore.infrastructure.GerenciadorContexto`, que o `FronteiraTraducaoArchTest`
+(`revisaoLoreNaoDependeDaStackLlmDeTraducao`) PROÍBE nominalmente ("FASE E"). `idsQueReconhecem` só
+vem do GerenciadorContexto; sem ele não dá para provar DIVERGENTE (bloquearia INDETERMINADO
+legítimo). Não baixei a catraca nem avancei a FASE E — é decisão ARQUITETURAL de Paulo (regra 19).
+BF1 fica DIAGNOSTICADA e aguardando decisão de FASE E. Os 4 outros (R1/R2/R3/BF2) ficam. Achados abaixo:
 - BF1 [MÉDIA]: a 3.2 NÃO tem guarda obra×contexto (a tradução tem: GuardaContextoObraTraducao→
   ObraDivergenteDoContextoException). Escolher a obra errada no menu → corretor/LLM usam a lore
   errada e SOBRESCREVEM o `.ass`. Atenuações: backup por execução; cross-franquia falha fechada;
@@ -37,7 +45,10 @@ PORTÃO DE FECHAMENTO: suíte completa BUILD SUCCESSFUL (rc=0). A 1ª rodada tev
 (minha — teste novo subiu src/test 437→438; regravei a doc `045fa213`, catraca verde) e
 EfeitoDasInstrucoesDeRumoNoModeloIT (flaky de modelo em lore.domain, NÃO minha — passou no re-run).
 7 commits: 71205f69 5d8eeb6a e283405f e8c6d0a1 5c4e2a06 045fa213 6f6ce81c. KRONOS NÃO pushado (só com go).
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: aguarda decisão do Paulo — BF1 (guarda obra×contexto = Plano Mestre
+PORTÃO FINAL (2ª leva): suíte COMPLETA rodando de novo (a BF1 injetou 2 beans no use case — wiring
+CDI que os @QuarkusTest confirmam). 12 commits desta auditoria. KRONOS NÃO pushado (só com go);
+3.2 NÃO rodada no acervo real (efeito de LLM sobre `.ass`, só com go).
+PRÓXIMA AÇÃO (obsoleta) — aguarda decisão do Paulo — BF1 (guarda obra×contexto = Plano Mestre
 próprio, faço na ordem dele) e BF2 (produto). NÃO rodar a 3.2 no acervo real sem go (efeito de LLM
 sobre `.ass` persistente). Se Paulo pedir push do KRONOS, `git push` (conferir origin/main..HEAD).
 NÃO REPETIR: git checkout -- reverter mutação APAGA tudo (restaurar por cópia). sed `s/180s/.../`
