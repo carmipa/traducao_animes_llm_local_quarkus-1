@@ -413,8 +413,28 @@ public class RevisarConcordanciaUseCase {
         log.info(linhaColorida.replaceAll((char) 27 + "\\[[0-9;]*m", "").strip());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda a versão anterior de um arquivo antes de regravá-lo.
+     *
+     * <h2>Espelha a subpasta — a varredura é RECURSIVA (auditoria da 3.3, 17/09/2026)</h2>
+     * {@code revisarPasta} usa {@code Files.walk}, então dois arquivos de mesmo nome em subpastas
+     * diferentes ({@code S1/ep01.ass} e {@code S2/ep01.ass}, comum ao apontar uma pasta-mãe) caíam
+     * no MESMO diretório plano de backup, distintos só pelo carimbo de tempo — e a restauração não
+     * sabia de qual subpasta veio cada {@code .bak}. Agora a subpasta é espelhada dentro do backup,
+     * a mesma disciplina de {@code RevisarLoreUseCase.criarBackup} (cicatriz R1 da 3.2). O carimbo
+     * de tempo permanece, então a mesma origem regravada duas vezes também não colide.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o backup nunca escapa da pasta de backup (checagem de contenção).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de I/O propaga e o caso de uso preserva o original.
+     */
     private Path criarBackup(Path pasta, Path arquivo) throws IOException {
-        Path dirBackup = pasta.resolve(PASTA_BACKUP);
+        Path pastaBackup = pasta.resolve(PASTA_BACKUP);
+        Path relativo = arquivo.startsWith(pasta) ? pasta.relativize(arquivo) : arquivo.getFileName();
+        Path subPasta = relativo.getParent();
+        Path dirBackup = (subPasta != null ? pastaBackup.resolve(subPasta) : pastaBackup).normalize();
+        if (!dirBackup.startsWith(pastaBackup.normalize())) {
+            throw new IOException("caminho de backup escaparia da pasta: " + dirBackup);
+        }
         Files.createDirectories(dirBackup);
         String nome = arquivo.getFileName().toString();
         Path backup = dirBackup.resolve(nome + "." + LocalDateTime.now().format(TS) + ".bak");
