@@ -278,13 +278,13 @@ public class RevisarLoreUseCase {
                 sessao.out(AnsiCores.YELLOW + "  [Aviso] " + msg + AnsiCores.RESET);
             }
 
-            int totalFalasGlobais = contarDialogosAuditaveisNoLote(originais, pastaTraduzida);
+            int totalFalasGlobais = contarDialogosAuditaveisNoLote(originais, pastaOriginal, pastaTraduzida);
             sessao.out("Falas auditaveis no lote: " + totalFalasGlobais);
 
             for (int indiceArquivo = 0; indiceArquivo < originais.size(); indiceArquivo++) {
                 Path arqOriginal = originais.get(indiceArquivo);
                 processarArquivo(
-                    sessao, arqOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
+                    sessao, arqOriginal, pastaOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
                     revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, equivalenciasDaObra, nomesDaObra, pastaBackup,
                     indiceArquivo + 1, originais.size(), totalFalasGlobais,
                     arquivosAnalisados, arquivosAlterados, falasAuditadas, falasSinalizadas,
@@ -416,9 +416,15 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link RevisaoLoreException} e
      * bloqueia a escrita da nova legenda (o arquivo original permanece intacto).
      */
-    static Path criarBackup(Path arquivo, Path pastaBackup) {
-        Path backup = pastaBackup.resolve(arquivo.getFileName()).normalize();
-        if (!backup.startsWith(pastaBackup)) {
+    static Path criarBackup(Path arquivo, Path pastaTraduzida, Path pastaBackup) {
+        // Espelha a subpasta do PT dentro do backup. Se so o nome-base fosse usado, dois arquivos
+        // de mesmo nome em subpastas diferentes teriam o MESMO backup, e o segundo nunca seria
+        // salvo (Files.notExists = false) — perda silenciosa da versao anterior de um deles.
+        Path relativo = arquivo.startsWith(pastaTraduzida)
+            ? pastaTraduzida.relativize(arquivo)
+            : arquivo.getFileName();
+        Path backup = pastaBackup.resolve(relativo).normalize();
+        if (!backup.startsWith(pastaBackup.normalize())) {
             throw new RevisaoLoreException("Caminho de backup invalido para: " + arquivo);
         }
         try {
@@ -486,6 +492,7 @@ public class RevisarLoreUseCase {
     private void processarArquivo(
         SessaoRevisao sessao,
         Path arqOriginal,
+        Path pastaOriginal,
         Path pastaTraduzida,
         String contextoId,
         String nomePromptRevisao,
@@ -511,7 +518,7 @@ public class RevisarLoreUseCase {
         List<String> erros
     ) {
         String nomeOriginal = arqOriginal.getFileName().toString();
-        Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaTraduzida);
+        Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
         if (!Files.exists(arqTraduzido)) {
             String msg = "Sem par traduzido para: " + nomeOriginal;
             erros.add(msg);
@@ -861,7 +868,7 @@ public class RevisarLoreUseCase {
                     docTraduzido.quebraDeLinha(),
                     docTraduzido.comBom()
                 );
-                Path backup = criarBackup(arqTraduzido, pastaBackup);
+                Path backup = criarBackup(arqTraduzido, pastaTraduzida, pastaBackup);
                 escritor.escrever(arqTraduzido, revisado);
                 arquivosAlterados[0]++;
                 sessao.out(AnsiCores.GREEN + "  [Revisado] " + arqTraduzido.getFileName()
@@ -1086,18 +1093,28 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve o último candidato mesmo que
      * não exista, permitindo que o chamador produza o diagnóstico operacional.
      */
-    private Path localizarArquivoTraduzido(Path arqOriginal, Path pastaTraduzida) {
+    static Path localizarArquivoTraduzido(Path arqOriginal, Path pastaOriginal, Path pastaTraduzida) {
+        // Espelha a subpasta do EN dentro do PT. O EN e varrido com Files.walk RECURSIVO; se o PT
+        // fosse resolvido sempre na RAIZ, dois arquivos de mesmo nome em subpastas diferentes
+        // (`S1/ep01.ass`, `S2/ep01.ass`) apontariam para o MESMO PT — pareamento errado e backup
+        // colidindo. Parear pela subpasta relativa acerta o layout aninhado e, no caso plano
+        // (arquivo direto na raiz), a subpasta e vazia e o comportamento e identico ao anterior.
+        // Se o PT nao espelhar a estrutura, o par simplesmente nao e achado (pulado) — nunca
+        // mis-pareado.
+        Path relativo = pastaOriginal.relativize(arqOriginal);
+        Path subPasta = relativo.getParent();
+        Path destino = subPasta != null ? pastaTraduzida.resolve(subPasta) : pastaTraduzida;
         String nomeOriginal = arqOriginal.getFileName().toString();
         String nomeBase = nomeOriginal.substring(0, nomeOriginal.lastIndexOf('.'));
-        Path candidato = pastaTraduzida.resolve(nomeBase + "_PT-BR.ass");
+        Path candidato = destino.resolve(nomeBase + "_PT-BR.ass");
         if (Files.exists(candidato)) {
             return candidato;
         }
-        candidato = pastaTraduzida.resolve(nomeBase + "_PTBR.ass");
+        candidato = destino.resolve(nomeBase + "_PTBR.ass");
         if (Files.exists(candidato)) {
             return candidato;
         }
-        return pastaTraduzida.resolve(nomeOriginal);
+        return destino.resolve(nomeOriginal);
     }
 
     /**
@@ -1108,10 +1125,10 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: um par ilegível é ignorado na prévia e
      * será diagnosticado normalmente quando chegar sua vez de processamento.
      */
-    private int contarDialogosAuditaveisNoLote(List<Path> originais, Path pastaTraduzida) {
+    private int contarDialogosAuditaveisNoLote(List<Path> originais, Path pastaOriginal, Path pastaTraduzida) {
         int total = 0;
         for (Path arqOriginal : originais) {
-            Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaTraduzida);
+            Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
             if (!Files.exists(arqTraduzido)) {
                 continue;
             }
