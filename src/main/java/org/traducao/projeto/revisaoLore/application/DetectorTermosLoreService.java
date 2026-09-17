@@ -769,10 +769,6 @@ public class DetectorTermosLoreService {
         return expressoes.stream().anyMatch(expressao -> contemExpressaoInteira(textoLower, expressao));
     }
 
-    private boolean contemPalavraInteira(String textoLower, String palavraLower) {
-        return contemExpressaoInteira(textoLower, palavraLower);
-    }
-
     private boolean contemExpressaoInteira(String textoLower, String expressaoLower) {
         // Expressao de lore e multi-palavra ("capital tower"); partida pela quebra, deixava de
         // ser detectada. Ver FronteiraTermoAss.

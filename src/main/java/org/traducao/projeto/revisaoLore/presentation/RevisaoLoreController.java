@@ -176,13 +176,6 @@ public class RevisaoLoreController {
 
 
     /**
-     * PROPÓSITO DE NEGÓCIO: banner de fechamento da revisão de lore PT-only, deixando claro se
-     * foi dry-run (nada gravado) ou aplicado, e as contagens reais.
-     * <p>INVARIANTES DO DOMÍNIO: sempre imprime corrigidas/descartadas e o modo (dry-run/aplicado).
-     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não lança.
-     */
-
-    /**
      * PROPÓSITO DE NEGÓCIO: fecha o job com um banner cuja cor e título refletem
      * o desfecho REAL (concluído, com pendências, cancelado, sem arquivos),
      * substituindo o "[SUCESSO]" incondicional que mentia quando havia problemas.
@@ -225,16 +218,6 @@ public class RevisaoLoreController {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: sinaliza no console que a revisão de lore FALHOU por
-     * completo (LLM indisponível, pastas inválidas, erro inesperado) — nenhum
-     * arquivo foi processado.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: usado apenas no caminho de exceção; deixa claro
-     * que o status é {@link StatusRevisaoLore#FALHOU}.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}.
-     */
-    /**
      * PROPÓSITO DE NEGÓCIO: reconhece que os dois campos apontam para a mesma pasta.
      * <p>INVARIANTES DO DOMÍNIO: pergunta ao sistema de arquivos, que enxerga junction, link e
      * grafias diferentes do mesmo caminho; comparar texto deixaria passar {@code C:\a} contra
@@ -250,6 +233,16 @@ public class RevisaoLoreController {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: sinaliza no console que a revisão de lore FALHOU por
+     * completo (LLM indisponível, pastas inválidas, erro inesperado) — nenhum
+     * arquivo foi processado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usado apenas no caminho de exceção; deixa claro
+     * que o status é {@link StatusRevisaoLore#FALHOU}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}.
+     */
     private void imprimirFalha(String mensagem) {
         System.out.println("\n" + AnsiCores.RED + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.RED + "  [" + StatusRevisaoLore.FALHOU.rotulo().toUpperCase()

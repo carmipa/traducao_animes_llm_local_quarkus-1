@@ -5,10 +5,8 @@ import org.traducao.projeto.core.texto.FronteiraTermoAss;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -201,23 +199,5 @@ public class CorretorLoreDeterministico {
             .matcher(texto)
             .find();
     }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: variante PT-only (sem o inglês) da restauração de terminologia —
-     * para a revisão de lore quando só existe a legenda PT-BR. Sem o EN não há como desambiguar
-     * homógrafo de uma palavra ({@code Vazio}=Void vs {@code vazio}=empty); por isso aplica SÓ os
-     * termos INEQUÍVOCOS: forma-ruim MULTI-PALAVRA (contém espaço), improvável de colidir com
-     * palavra comum. Homógrafos de uma palavra ficam para o LLM PT-only.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: só aplica forma-ruim com espaço; fronteira de palavra;
-     * forma-ruim casa ignorando caixa; canônico inserido literalmente; nunca deixa pior.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: tradução vazia, mapa vazio ou nenhuma substituição
-     * aplicável devolve {@link Optional#empty()}; não lança.
-     *
-     * @param traducaoMascarada a fala PT já mascarada
-     * @param correcoesTerminologia mapa forma-ruim (PT) → canônico da obra ativa
-     * @return a fala corrigida quando houve alteração; caso contrário {@link Optional#empty()}
-     */
 
 }
