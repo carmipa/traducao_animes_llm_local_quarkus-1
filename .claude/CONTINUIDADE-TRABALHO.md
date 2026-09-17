@@ -25,33 +25,28 @@ CORRIGIDOS (correcao pura, nao decisao de produto — A1+A2 RED->GREEN, suite co
   os 5 + catraca gatilhosSemFlip(). Corrompia a fala que a tela deveria consertar.
 - [MEDIO] `e2a413bf` NOS_TONICO trata quebra de linha como fim de oracao: "para nos<quebra>ajudar" (objeto,
   certo) recebia acento. Fix: quebra so e fim de oracao quando ENCERRA a fala. Quebra em 24,6% das falas.
-PENDENTES DE DIRECAO (FP que danifica fala correta, MAS o fix troca cobertura de correcao — a fatia calibra
-exclusao por MEDICAO no acervo, que exige o go do Paulo / a maquina dele; produto+acesso da regra 21):
-- [ALTO] #1 "e" conjuncao vira "é" apos isso/isto/aquilo OBJETO: "Faca isso e pronto" -> "Faca isso é pronto".
-  DEMONSTRATIVO_E assume "apos demonstrativo o e so pode ser é"; falso quando isso e OBJETO de imperativo
-  (Faca/Pegue/Deixa isso e ...). Frequente em dialogo. Fix conservador arrisca perder "que isso é" (sujeito
-  subordinado). RECOMENDO: medir FP/TP no acervo antes de escolher o recorte.
-- [ALTO-MEDIO] #3 "Ira" (nome, ex. Ira Gamagoori/Kill la Kill) e "ira" (colera) viram "Irá"/"irá":
-  IRA_VERBO CASE_INSENSITIVE sem guarda de maiuscula e com lookbehind incompleto (falta sem/por/tua/vossa/
-  toda). Renomeia personagem (o dano que a fatia MAIS teme) e quebra "sem ira"/"tua ira". Fix limpo possivel:
-  guarda de maiuscula (nao renomeia) + exigir INFINITIVO apos "ira" ("ira cometer" e sempre o verbo; nome/
-  colera antes de infinitivo e agramatical) — preserva o TP "so ira cometer". RECOMENDO fix + validacao acervo.
-- [MEDIO] #4 "não e" (negacao + conjuncao) vira "não é": "sim ou não e acabou"/"Levou um não e desistiu".
-  NAO_E assume que negacao nao coordena; falso quando "não" e substantivo/lista. FP mais raro. RECOMENDO
-  medir; talvez residual declarado.
-BAIXOS/COSMETICOS (nao corrigidos ainda):
-- [BAIXO] criarBackup: pasta plana no topo + basename+timestamp(ms) sobre Files.walk RECURSIVO. A 3.2
-  (RevisarLoreUseCase.criarBackup:474-481) espelha a subpasta de proposito (R1 082a3714). Timestamp evita
-  PERDA (backups unicos); residual = rastreabilidade recuperacao->origem ambigua p/ mesmo basename em subpastas.
-- [COSMETICO] doc drift: use case:237 e ContagemCorretor:8 dizem "QUATRO corretores" (sao CINCO; umaLinhaPorElo
-  assevera 5). Javadoc de palavrasComMaiuscula orfao (fica sobre abreFrase em CorretorAcentoDeDicionarioNaFalaService §6).
-FRONTEIRA DECLARADA (produto, nao defeito): DiagnosticoCorretorConcordanciaIT lista 7 classes que o detector
-PT-only acusa e a 3.3 NAO conserta de proposito (adjetivo anteposto/posposto, subst+predicativo, elas/eles
-plural, obliquo, plural nominal). Expandir = ampliacao de escopo, decisao do Paulo.
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: aguardar direcao do Paulo sobre #1/#3/#4 (medir no acervo vs fix conservador
-ja) e sobre os baixos/cosmeticos. Se ele mandar fixar: por achado A1+A2+commit; se medir: IT read-only sobre
-C:\animes (nao subir instancia na 8099 — Paulo roda o KRONOS). Push do KRONOS so com go (conferir origin/main..HEAD).
-NAO REPETIR: git checkout -- reverter mutacao APAGA tudo (cp); estatico nao recarrega no quarkusDev (reiniciar).
+CORRIGIDOS 2a LEVA (Paulo: "vamos corrigir tudo", 17/09) — cada um A1 (dano + controle) + A2 + commit; suite COMPLETA verde:
+- [ALTO] `bb7c74b9` #1 DEMONSTRATIVO_E: "Faca isso e pronto" -> "Faca isso é pronto" (isso OBJETO de imperativo,
+  "e" conjuncao). Fix: demonstrativo tem de ABRIR a clausula (ABRE_CLAUSULA: inicio/pontuacao/quebra/subordinador).
+  Preco declarado: "tudo isso e" (sujeito apos quantificador) nao mais corrigido.
+- [ALTO] `bb7c74b9` #3 IRA_VERBO: "Ira, espere!" (personagem) -> "Irá"; "sem ira"/"tua ira" (colera) tambem.
+  Fix: alvo (?-i:ira) minusculo-only (nao renomeia "Ira") + exige INFINITIVO apos (ira cometer = sempre verbo).
+  Preco: futuro nu ("ira amanha") nao corrigido.
+- [MEDIO] `bb7c74b9` #4 NAO_E: "Levou um não e desistiu" -> "não é". Fix: barra "um/o não" (substantivo).
+  Residual DECLARADO: "sim ou não e acabou" (nao em lista, ambiguo com "ou não é").
+- [BAIXO] `56f502d4` criarBackup espelha a subpasta (R1 da 3.2) — sem colisao/ambiguidade de basename no walk
+  recursivo. Teste backupEspelhaSubpastaParaNaoColidirBasename.
+- [COSMETICO] `25978a60` "QUATRO"->CINCO corretores; `8cd64f18` javadoc orfao de palavrasComMaiuscula movido.
+FRONTEIRA DECLARADA (produto, NAO defeito, NAO tocada): DiagnosticoCorretorConcordanciaIT lista 7 classes que o
+detector PT-only acusa e a 3.3 NAO conserta de proposito (adjetivo anteposto/posposto, subst+predicativo,
+elas/eles plural, obliquo, plural nominal). Expandir = ampliacao de escopo, decisao futura do Paulo.
+7 COMMITS desta auditoria (NAO pushados): e2a413bf d61844c7 25978a60 d8b23516 bb7c74b9 56f502d4 8cd64f18.
+VALIDACAO NO ACERVO PENDENTE (do Paulo, quando ele rodar): #1 (quanto TP de "tudo isso e" se perde) e #3/#4
+sao conservadores por medicao-de-fatia; a suite prova a fronteira sintetica, o acervo prova o volume.
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA no escopo testado. Se Paulo rodar a 3.3 no acervo
+e um preco/residual pesar (ex.: "tudo isso e"), refinar o recorte. Push do KRONOS so com go (conferir
+origin/main..HEAD). NAO REPETIR: git checkout -- reverter mutacao APAGA tudo (cp); estatico nao recarrega no
+quarkusDev (reiniciar); Paulo roda o KRONOS (nao subir instancia paralela na 8099).
 
 ## ATUAL (2026-09-17) — 3.2 PRECISÃO DO DETECTOR (falso-positivo dominava as pendentes)
 TAREFA (Paulo): "vamos fazer isso!" (autorizou atacar a precisão do detector, após eu detalhar as
