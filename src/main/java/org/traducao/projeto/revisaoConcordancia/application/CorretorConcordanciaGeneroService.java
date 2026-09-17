@@ -163,10 +163,19 @@ public class CorretorConcordanciaGeneroService {
      * substantivo masculino) deixa de ser corrigido. No acervo inteiro, essa construção aparece
      * <b>zero</b> vez — a única ocorrência de {@code a} + substantivo masculino é {@code a Deus}.
      */
+    // Os quantificadores SINGULARES muita/toda/pouca/certa/tanta NAO entram, por dois motivos que
+    // se somam (auditoria da 3.3, 17/09/2026):
+    //   1. SIMETRIA: o lado masculino (ART_MASC) ja os exclui de proposito — no singular sao
+    //      adverbio/ambiguos ("Voce e muito crianca" esta CERTO), e so as formas de PLURAL entram
+    //      (ART_*_PLUR tem muitos/muitas, poucos/poucas). O lado feminino tinha de espelhar isso.
+    //   2. SEM FLIP: o mapa FLIP_ART_F2M vem de ART_FEM + ART_FEM_PLUR, que NAO tem esses
+    //      singulares. Como GATILHO sem forma no mapa, flip.get devolvia null -> a fala minuscula
+    //      recebia o literal "null" gravado por cima ("Tenho muita orgulho" -> "Tenho null orgulho")
+    //      e a capitalizada estourava NPE em preservarCaixa. A catraca gatilhosSemFlip() congela isso.
     private static final String[] ART_FEM_NO_PADRAO = {
         "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
         "minha", "sua", "nossa", "minhas", "suas", "nossas",
-        "alguma", "muita", "outra", "toda", "pouca", "certa", "tanta"};
+        "alguma", "outra"};
 
     /**
      * Os mesmos determinantes no PLURAL, índice a índice com os singulares acima.
@@ -466,6 +475,47 @@ public class CorretorConcordanciaGeneroService {
             m.put(de[i].toLowerCase(), para[i]);
         }
         return Map.copyOf(m);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: costura de testabilidade — devolve os determinantes que os PADRÕES
+     * podem casar mas o MAPA DE FLIP não sabe virar. A lista tem de ser vazia.
+     *
+     * <h2>O prejuízo que a originou (auditoria da 3.3, 17/09/2026)</h2>
+     * {@code ART_FEM_NO_PADRAO} carregava os quantificadores singulares {@code muita/toda/pouca/
+     * certa/tanta} como GATILHO, mas o mapa {@link #FLIP_ART_F2M} (feito de {@code ART_FEM} +
+     * {@code ART_FEM_PLUR}) não tem a forma masculina deles — e o lado masculino os exclui de
+     * propósito, por serem advérbio/ambíguos no singular. Com o gatilho sem flip, {@code flip.get}
+     * devolvia {@code null}: a fala minúscula recebia o literal {@code "null"} gravado por cima, e
+     * a capitalizada estourava {@link NullPointerException} em {@link #preservarCaixa}. Os dois
+     * DESTROEM a fala que a tela deveria consertar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: todo gatilho de determinante tem forma no flip correspondente.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura das listas estáticas; nunca lança.
+     */
+    static java.util.List<String> gatilhosSemFlip() {
+        java.util.List<String> orfaos = new java.util.ArrayList<>();
+        for (String d : ART_FEM_NO_PADRAO) {
+            if (!FLIP_ART_F2M.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_MASC) {
+            if (!FLIP_ART_M2F.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_MASC_PLUR) {
+            if (!FLIP_ART_M2F.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_FEM_PLUR) {
+            if (!FLIP_ART_F2M.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        return orfaos;
     }
 
     private static String preservarCaixa(String original, String substituto) {
