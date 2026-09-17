@@ -49,9 +49,16 @@ consertadas, 0 TP legitimo perdido.
 VIZINHO 3.1 (him/his objeto, achado #3 da 3.1): JA CONSERTADO desde 15/09 (mascApenasObjeto/femApenasObjeto
 em DetectorConcordanciaService:659-680 + teste vocativoFemininoComMasculinoObjetoOnlyNaoAcusa). O `[ ]` acima
 na secao 3.1 esta VELHO. Eu o reportei como aberto por confiar no checkpoint em vez do codigo (regra 8).
-PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA e VALIDADA no acervo. Nada acionavel meu
-pendente. Falta so o que e do Paulo: rebuild do jar (quarkusBuild+restart para os fixes ficarem LIVE) e push
-do KRONOS (so com go; 12 commits a frente do remoto). NAO REPETIR: git checkout -- reverter mutacao APAGA
+8o FIX (Paulo rodou o Zeta no acervo, achou 1 meia-correcao, autorizou): `c5510135` guarda de MEIA-CORRECAO
+estendida ao QUANTIFICADOR upstream. Zeta ep32 "todas\Nessas pensamentos" virava "todas esses" (trocava essas
+e deixava todas discordando). Fix: precedidoPorDeterminanteDeMesmoGenero (DET_FEM_FLEX/DET_MASC_FLEX, ciente
+do \N) — se o determinante vem depois de outro do MESMO genero, abstem-se. A1 (caso ep32 real + controle),
+suite verde. VALIDADO LIVE: ep32 agora "conforme" (0 mudancas). A corrida cheia do Zeta passa de 21 p/ 20.
+DEPLOY FEITO: quarkusBuild 19:54 (javap confirma precedidoPorDeterminanteDeMesmoGenero/DET_FEM_FLEX no jar);
+KRONOS RODANDO na 8099 (PID 26668, prod). Parei o 33712 antes (Paulo autorizou o rebuild). Prova viva 17/09:
+20 correcoes de genero legitimas no Zeta (o menina->a menina etc), 0 null, 0 padrao FP, dry-run grava 0.
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: auditoria 3.3 parte 2 FECHADA, VALIDADA no acervo e DEPLOYADA (jar 19:54 na
+8099). Nada acionavel meu pendente. Falta so push do KRONOS (so com go; 13 commits a frente do remoto). NAO REPETIR: git checkout -- reverter mutacao APAGA
 tudo (cp); estatico nao recarrega no quarkusDev (reiniciar); Paulo roda o KRONOS (nao subir na 8099);
 conferir o `[ ]` do checkpoint contra o CODIGO antes de chamar de aberto.
 
