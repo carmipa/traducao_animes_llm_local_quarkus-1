@@ -1,5 +1,23 @@
 # CONTINUIDADE — Auditoria ZZ + causa-raiz das pendentes
 
+## ATUAL (2026-09-18) — 3.3: LOG EM TELA do que muda (antes -> depois)
+TAREFA (Paulo, screenshot da 3.3 no ZZ): "o log nao e exibido em tela do que esta acontecendo ou
+sendo concertado como nos outros" — a 3.3 mostrava so a contagem por arquivo; a 3.1/3.2 mostram
+fala a fala. Depois: "reler os canonicos e regerar o comprovante com checar-portao.ps1 -Gerar".
+RITO DE INICIACAO CUMPRIDO (18/09): reli ENGENHARIA(1136)+REGRA-DO-DOCKER(2402, em blocos sem
+lacuna)+1b integrais; regenerei o comprovante. PORTAO ABERTO rc=0, sessao 0cfabb14, hashes e
+contagens conferidos (checar-memoria 0).
+FEITO (`dbbb6042`, feat): RevisarConcordanciaUseCase acumula mudancasArq (antes->depois so das
+falas que MUDARAM) e imprime na tela apos o resumo por arquivo; helper resumir() encurta mantendo
+inicio+fim e preserva o \N literal do ASS. So as que mudaram (a inalterada nao vira ruido — decisao
+medida da 3.2). Guarda: ConsoleDaRevisaoConcordanciaTest.mostraNaTelaAsFalasQueMudaram (afirma que
+"Vi o menina..."->"Vi a menina..." aparece E que a fala inalterada NAO aparece). gradlew test
+--tests "...revisaoConcordancia.*" = BUILD SUCCESSFUL (31s). NAO pushado; NAO deployado.
+PRÓXIMA AÇÃO EXECUTÁVEL EXATA: DEPLOY do fix so quando a instancia do Paulo na 8099 estiver LIVRE
+(quarkusBuild reconstroi o jar, depois reiniciar; `gradlew test` NAO reconstroi — Paulo roda o
+KRONOS, nao subir em paralelo). Ate la o jar vivo na 8099 ainda mostra so a contagem. Push do
+KRONOS (~18 commits a frente) so com go do Paulo. Vigia b8r5txo21 terminou sozinho (timeout, exit 0).
+
 ## ATUAL (2026-09-17) — 3.3 REVISÃO DE CONCORDÂNCIA, AUDITORIA PARTE 2 (fatia `revisaoConcordancia`)
 TAREFA (Paulo): "3.3. revisao de concordancia - parte 2 ... revisao e auditoria completa aqui! ja
 passamos por 3.1 e 3.2 e agora e aqui 3.3". Segunda passada adversarial da fatia determinística
