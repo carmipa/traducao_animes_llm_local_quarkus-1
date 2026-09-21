@@ -81,9 +81,21 @@ public final class PlanoDeClassificacao {
         }
         List<EventoLegenda> eventos = documento.eventos();
 
+        // As sílabas de fill do KFX são calculadas ANTES do conjunto comRomaji, porque uma
+        // sílaba solta engana a deteccao de original neste primeiro passe (que ainda nao tem o
+        // sinal silabaDeFraseIrma). Medido em 21/09/2026 no OPL2 do Unicorn: o fragmento "I" de
+        // "I know that all the lies..." e de "I wonder how long..." (a letra "i", que casa o
+        // padrao de silaba japonesa) saia ORIGINAL_JAPONES aqui e marcava o instante da frase
+        // como "tem original preservada" — a frase INGLESA no mesmo instante entao NAO empilhava
+        // o ingles original, e a abertura saia so em PT (2 de 16 frases). A original de verdade
+        // (romaji do ED) e FRASE, nunca fragmento, entao continua contando: o scar das 22/23
+        // linhas do ED single-layer segue protegido.
+        Set<Integer> silabas = posicoesDeSilaba(eventos);
+
         Set<String> comRomaji = new HashSet<>();
-        for (EventoLegenda ev : eventos) {
-            if (!classificavel(ev)) {
+        for (int i = 0; i < eventos.size(); i++) {
+            EventoLegenda ev = eventos.get(i);
+            if (!classificavel(ev) || silabas.contains(i)) {
                 continue;
             }
             ClasseLinhaKaraoke previa = classificador.classificar(
@@ -92,8 +104,6 @@ public final class PlanoDeClassificacao {
                 comRomaji.add(instanteDe(ev));
             }
         }
-
-        Set<Integer> silabas = posicoesDeSilaba(eventos);
 
         List<ClasseLinhaKaraoke> classes = new ArrayList<>(eventos.size());
         for (int i = 0; i < eventos.size(); i++) {

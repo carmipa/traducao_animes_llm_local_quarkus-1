@@ -142,6 +142,75 @@ class PlanoDeClassificacaoTest {
                 + "dos episodios 13-22 do Unicorn");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma SÍLABA de fill do KFX que por acaso parece romaji (a letra
+     * {@code "I"} → {@code "i"}, que casa o padrão de sílaba japonesa) NÃO pode marcar o instante
+     * como "tem original preservada" e roubar o empilhamento do inglês da frase que está no MESMO
+     * instante.
+     *
+     * <h2>O prejuízo que originou (medido 2026-09-21, Unicorn OPL2)</h2>
+     * As frases {@code "I know that all the lies..."} e {@code "I wonder how long..."} saíram só em
+     * PT na abertura (2 de 16), porque o fragmento {@code "I"} — que compartilha o instante exato da
+     * frase — era classificado {@code ORIGINAL_JAPONES} no PRÉ-PASSE (que ainda não tem o sinal de
+     * sílaba) e marcava o instante. A original de verdade (romaji do ED) é FRASE, nunca fragmento —
+     * ver {@link #originalPreservadaPorInstante} (o caso-controle SÃO que precisa continuar TRUE).
+     *
+     * <h2>Caso-controle de fronteira (A1)</h2>
+     * A sílaba romaji-aparente no mesmo instante NÃO marca (aqui, FALSE); a FRASE romaji real no
+     * mesmo instante MARCA (em {@link #originalPreservadaPorInstante}, TRUE). Os dois carregam o
+     * mesmo sinal superficial ("parece romaji"); a régua é ser sílaba de fill ou frase.
+     */
+    @Test
+    @DisplayName("silaba que parece romaji NAO marca original no instante (frase inglesa mantem o ingles)")
+    void silabaRomajiAparenteNaoMarcaOriginalNoInstante(@org.junit.jupiter.api.io.TempDir Path pasta)
+            throws IOException {
+        DocumentoLegenda doc = documento(pasta,
+            "Dialogue: 0,0:01:00.00,0:01:05.00,OPL2,,0,0,0,fx,{\\pos(640,60)}I know",
+            "Dialogue: 0,0:01:00.00,0:01:05.00,OPL2,,0,0,0,fx,{\\pos(560,60)}I",
+            "Dialogue: 0,0:01:02.00,0:01:05.00,OPL2,,0,0,0,fx,{\\pos(600,60)}know");
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador);
+
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(0),
+            "a frase inglesa e karaoke traduzivel (Effect=fx)");
+        assertFalse(plano.temOriginalPreservadaNoInstante(doc.eventos().get(0)),
+            "a silaba 'I' que parece romaji NAO pode marcar o instante — senao a frase inglesa perde "
+                + "o empilhamento do original e sai so em PT (o defeito das 2 frases da abertura OPL2)");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o outro lado da fronteira do fix #3 — a original ROMAJI de verdade,
+     * mesmo quando o karaokê a pinta em SÍLABAS, tem de continuar marcando o instante. O fix pula
+     * a SÍLABA (fragmento) do {@code comRomaji}, não a FRASE: a frase romaji inteira não é sílaba de
+     * ninguém, então preserva. Sem esta garantia, "consertar" o #3 excluindo demais reabriria o
+     * scar das 22/23 linhas do ED.
+     *
+     * <p>Aqui a frase romaji {@code "kimi no koe"} convive com suas sílabas ({@code ki},{@code mi},
+     * {@code no},{@code koe}, que reconstroem {@code kiminokoe}) e com uma camada inglesa no MESMO
+     * instante. A inglesa TEM de ver original preservada (a frase romaji), apesar de as sílabas
+     * serem puladas.
+     */
+    @Test
+    @DisplayName("fronteira #3: frase romaji com silabas KFX ainda marca o instante (nao sobre-exclui)")
+    void fraseRomajiComSilabasAindaMarcaOInstante(@org.junit.jupiter.api.io.TempDir Path pasta)
+            throws IOException {
+        DocumentoLegenda doc = documento(pasta,
+            "Dialogue: 0,0:01:00.00,0:01:05.00,OP - Romaji,,0,0,0,,kimi no koe",
+            "Dialogue: 0,0:01:00.00,0:01:05.00,OP - Romaji,,0,0,0,,ki",
+            "Dialogue: 0,0:01:01.00,0:01:05.00,OP - Romaji,,0,0,0,,mi",
+            "Dialogue: 0,0:01:02.00,0:01:05.00,OP - Romaji,,0,0,0,,no",
+            "Dialogue: 0,0:01:03.00,0:01:05.00,OP - Romaji,,0,0,0,,koe",
+            "Dialogue: 0,0:01:00.00,0:01:05.00,Camada2,,0,0,0,,your voice");
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador);
+
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(0),
+            "a FRASE romaji e a original — nao e silaba de ninguem");
+        assertTrue(plano.temOriginalPreservadaNoInstante(doc.eventos().get(5)),
+            "a camada inglesa no mesmo instante TEM de ver a original romaji preservada, mesmo com "
+                + "as silabas puladas — senao o fix #3 reabriria o scar 22/23 do ED");
+    }
+
     /** FALHA FECHADA: documento nulo e posição fora da faixa não podem virar exceção. */
     @Test
     @DisplayName("FALHA FECHADA: nulo e posicao invalida devolvem FORA_DE_MUSICA")
