@@ -14,6 +14,9 @@ import java.util.regex.Pattern;
  * @param inicio     campo Start (mantido como texto para não perder precisão)
  * @param fim        campo End
  * @param estilo     campo Style
+ * @param efeito     campo Effect (9º campo): carimbo do Kara Templater do Aegisub
+ *                   ({@code fx}, {@code Effector [fx]}) quando presente — evidência
+ *                   direta de karaokê que o nome do estilo e a tag {@code \k} podem não trazer
  * @param texto      campo Text (último campo, pode conter vírgulas)
  */
 public record EventoAss(
@@ -22,6 +25,7 @@ public record EventoAss(
     String inicio,
     String fim,
     String estilo,
+    String efeito,
     String texto
 ) {
 
@@ -45,7 +49,8 @@ public record EventoAss(
         } catch (NumberFormatException e) {
             camada = 0;
         }
-        return new EventoAss(linha, camada, campos[1].strip(), campos[2].strip(), campos[3].strip(), campos[9]);
+        return new EventoAss(linha, camada, campos[1].strip(), campos[2].strip(), campos[3].strip(),
+            campos[8].strip(), campos[9]);
     }
 
     /** Texto visível na tela: sem blocos {@code {...}} e com quebras viradas espaço. */

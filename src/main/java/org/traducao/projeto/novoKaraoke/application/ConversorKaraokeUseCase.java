@@ -249,10 +249,14 @@ public class ConversorKaraokeUseCase {
         resultado.setEventosTotais(eventos.size());
 
         // --- classifica eventos: musical (KFX/estilo de música) vs diálogo ---
-        // Musical = nome do estilo indica música OU tag \k crua. NÃO usar a
-        // assinatura de template (\t + alta densidade de tags): placas/letreiros
-        // animados têm a mesma assinatura e DEVEM sair byte-idênticos — é o
-        // mesmo alerta documentado no DetectorEfeitoKaraokeService.
+        // Musical = nome do estilo indica música OU tag \k crua OU o campo Effect
+        // carrega o carimbo "fx" do Kara Templater. NÃO usar a assinatura de template
+        // (\t + alta densidade de tags): placas/letreiros animados têm a mesma
+        // assinatura e DEVEM sair byte-idênticos — é o mesmo alerta documentado no
+        // DetectorEfeitoKaraokeService. O carimbo Effect="fx" é seguro onde a assinatura
+        // de template não é: diálogo e Signs têm o campo VAZIO (medido no Unicorn 2026-09-21),
+        // e a abertura OPL2 — que o nome não denuncia (op+letra derrota a fronteira) e que não
+        // tem \k — só entra por aqui. Sem isto, 155 eventos KFX por episódio saíam intactos.
         List<EventoAss> musicais = new ArrayList<>();
         List<EventoAss> dialogo = new ArrayList<>();
         // MEDIÇÃO DO QUE FOI RECUSADO, e não só do que foi feito: o defeito desta fatia é não
@@ -262,7 +266,8 @@ public class ConversorKaraokeUseCase {
         Map<String, Boolean> musicalPorEstilo = new LinkedHashMap<>();
         for (EventoAss evento : eventos) {
             boolean musical = detectorKaraoke.eEstiloDeMusica(evento.estilo())
-                || detectorKaraoke.temTagKaraoke(evento.texto());
+                || detectorKaraoke.temTagKaraoke(evento.texto())
+                || detectorKaraoke.efeitoDeclaraKaraoke(evento.efeito());
             eventosPorEstilo.merge(evento.estilo(), 1, Integer::sum);
             musicalPorEstilo.merge(evento.estilo(), musical, (a, b) -> a || b);
             if (musical) {

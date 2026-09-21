@@ -118,6 +118,53 @@ class ConversorKaraokeUseCaseTest {
         assertTrue(saida.contains("Dialogue: 0,0:00:19.00,0:00:20.00,Opening,,0,0,0,,{\\pos(100,80)}Ei"));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a abertura {@code OPL2} do Gundam Unicorn é karaokê — {@code Effect="fx"}
+     * em todas as linhas, {@code \pos} por sílaba, ZERO {@code \k} — mas o NOME {@code OPL2} não casa
+     * o padrão musical ({@code op} seguido de letra derrota a fronteira). Sem a evidência do campo
+     * Effect, os 155 eventos KFX por episódio saíam byte a byte, a animação inteira misturada à letra
+     * na tela. Caso real medido em 2026-09-21 no {@code C:\animes\ANIMES-TESTES}.
+     *
+     * <h2>Caso-controle de fronteira (A1)</h2>
+     * O MESMO arquivo traz um cartão {@code Sign} e diálogo {@code Default} com o campo Effect VAZIO.
+     * Eles NÃO podem ser arrastados pela nova evidência: o carimbo {@code fx} separa o karaokê do
+     * resto, ao contrário da assinatura de template ({@code \t} + densidade), que pegaria o letreiro
+     * animado. É o que torna o carimbo seguro na classificação inicial, onde a assinatura não seria.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Sem a evidência do Effect, o {@code assertTrue} da linha simples e o {@code assertFalse} de
+     * "sobrou OPL2" reprovam — o KFX teria passado intacto.
+     */
+    @Test
+    void aberturaOpl2ComEffectFxEhAchatadaMasEffectVazioFicaIntacto() throws Exception {
+        Path origem = tempDir.resolve("opl2.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            // OPL2: nome NAO casa o padrao musical, ZERO \k, so \pos, Effect=fx -> so entra por fx
+            + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\n"
+            + "Dialogue: 0,0:01:37.00,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(560,60)}Do\n"
+            + "Dialogue: 0,0:01:37.15,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(600,60)}you\n"
+            + "Dialogue: 0,0:01:37.24,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(640,60)}feel\n"
+            + "Dialogue: 0,0:01:37.61,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(700,60)}alone\n"
+            // CONTROLE: Effect VAZIO -> NAO pode ser arrastado pela nova evidencia
+            + "Dialogue: 0,0:07:02.61,0:07:05.00,Sign,,0,0,0,,{\\pos(960,540)}DEPARTURE 0096\n"
+            + "Dialogue: 0,0:00:00.52,0:00:02.00,Default,,0,0,0,,Fear not.\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Do you feel alone"),
+            () -> "a abertura OPL2 tinha de virar linha simples pelo carimbo Effect=fx:\n" + saida);
+        assertFalse(saida.contains("OPL2"),
+            () -> "nenhum evento/estilo OPL2 pode sobrar apos o achatamento:\n" + saida);
+        // CONTROLE de fronteira: Effect vazio nao vira musica e sai byte-identico
+        assertTrue(saida.contains("Sign,,0,0,0,,{\\pos(960,540)}DEPARTURE 0096"),
+            () -> "o cartao Sign de Effect VAZIO tinha de sair intacto:\n" + saida);
+        assertTrue(saida.contains("Default,,0,0,0,,Fear not."),
+            () -> "o dialogo de Effect VAZIO tinha de sair intacto:\n" + saida);
+    }
+
     @Test
     void kfxApenasSilabicoViraLinhaSimplesENaoArquivoGrande() throws Exception {
         Path origem = tempDir.resolve("kfx-silabico.ass");
