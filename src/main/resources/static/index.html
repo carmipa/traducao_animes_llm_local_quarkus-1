@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="trocaTipoLegenda/trocaTipoLegenda.css?v=4.0">
     <link rel="stylesheet" href="remuxer/remuxer.css?v=4.0">
     <link rel="stylesheet" href="renomearArquivos/renomearArquivos.css?v=4.0">
-    <link rel="stylesheet" href="novoKaraoke/novoKaraoke.css?v=1.0">
     <link rel="stylesheet" href="traducaoKaraoke/traducaoKaraoke.css?v=1.1">
     <link rel="icon" type="image/png" href="img/kronos_logo.png">
     <link rel="stylesheet" href="telemetria/telemetria.css?v=4.0">
@@ -169,26 +168,19 @@
                         <span class="nav-group-titulo">Karaokê</span>
                         <span class="material-symbols-outlined nav-group-seta">expand_more</span>
                     </button>
-                    <!-- ORDEM DELIBERADA: traduzir a letra, corrigir a letra, e SÓ ENTÃO
-                         simplificar. O Karaokê Simples apaga a animação KFX e é IRREVERSÍVEL
-                         para o arquivo de saída — por isso é o último do grupo. Até 05/08/2026
-                         ele era o "10.", primeiro do bloco, e o número dizia o oposto da regra
-                         que a gente segue na prática. -->
+                    <!-- TELA ÚNICA (21/09/2026): a 4.1 uniu "traduzir letras" e "achatar/limpar"
+                         (o antigo 4.3 Karaokê Simples) em duas passadas na mesma tela, na ordem
+                         em que se aplicam. A 4.2 Correção de Karaokê continua separada. -->
                     <div class="nav-group-itens">
                         <button class="nav-item" data-target="traducao-karaoke" id="btn-menu-traducao-karaoke"
-                            data-tooltip="Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa.">
+                            data-tooltip="Traduza as letras de música (romaji + PT-BR juntos) e depois achate/limpe a animação — duas passadas na mesma tela.">
                             <span class="material-symbols-outlined nav-icon">lyrics</span>
-                            <span>4.1 Tradução de Karaokê</span>
+                            <span>4.1 Karaokê</span>
                         </button>
                         <button class="nav-item" data-target="cura" id="btn-menu-cura"
                             data-tooltip="Corrija a legenda traduzida usando a original como referência segura.">
                             <span class="material-symbols-outlined nav-icon">music_note</span>
                             <span>4.2 Correção de Karaokê</span>
-                        </button>
-                        <button class="nav-item" data-target="novo-karaoke" id="btn-menu-novo-karaoke"
-                            data-tooltip="POR ÚLTIMO: converte karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original. Apaga a animação — gera pasta nova, mas não dá para desfazer no arquivo gerado.">
-                            <span class="material-symbols-outlined nav-icon">music_off</span>
-                            <span>4.3 Karaokê Simples</span>
                         </button>
                     </div>
                 </div>
@@ -501,18 +493,18 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- 4.1 -->
+                            <!-- 4.1 — tela única: traduzir + achatar (absorveu o antigo 4.3). -->
                             <div class="pipeline-card card-traducao-karaoke"
                                 onclick="document.getElementById('btn-menu-traducao-karaoke').click()"
-                                data-tooltip="Clique para traduzir letras de música mantendo o romaji original">
+                                data-tooltip="Clique para traduzir as letras e depois achatar/limpar a animação">
                                 <div class="card-glow-bg"></div>
                                 <div class="card-step-num">4.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">lyrics</span>
                                 </div>
-                                <h4>Tradução de Karaokê</h4>
-                                <p>Traduza as letras em inglês para PT-BR mantendo o japonês/romaji original junto na
-                                    tela.</p>
+                                <h4>Karaokê</h4>
+                                <p>Traduza as letras (romaji + PT-BR juntos) e depois achate/limpe a animação — duas
+                                    passadas na mesma tela.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
@@ -528,20 +520,6 @@
                                 <h4>Correção de Karaokê</h4>
                                 <p>Corrige a legenda PT-BR sem alterar a original, preservando estrutura, tempos e tags.
                                 </p>
-                                <span class="card-action-link">Acessar Painel →</span>
-                            </div>
-
-                            <!-- 4.3 — ÚLTIMO do bloco de propósito: apaga a animação KFX. -->
-                            <div class="pipeline-card card-novo-karaoke"
-                                onclick="document.getElementById('btn-menu-novo-karaoke').click()"
-                                data-tooltip="Clique para converter karaokê KFX em legenda simples">
-                                <div class="card-glow-bg"></div>
-                                <div class="card-step-num">4.3</div>
-                                <div class="card-icon-container">
-                                    <span class="material-symbols-outlined">music_off</span>
-                                </div>
-                                <h4>Karaokê Simples</h4>
-                                <p>Por último: converte karaokê KFX em linhas simples, no tempo original. Apaga a animação.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
@@ -1798,11 +1776,7 @@
                 <div class="panel" id="panel-renomear-arquivos">
                 </div>
 
-                <!-- 4.3 PAINEL DO KARAOKÊ SIMPLES (KFX → LEGENDA LIMPA) -->
-                <div class="panel" id="panel-novo-karaoke" data-modulo="novoKaraoke">
-                </div>
-
-                <!-- 4.1 PAINEL DA TRADUÇÃO DE KARAOKÊ (ROMAJI + PT-BR JUNTOS) -->
+                <!-- 4.1 PAINEL ÚNICO DO KARAOKÊ (TRADUZIR + ACHATAR — absorveu o antigo 4.3) -->
                 <div class="panel" id="panel-traducao-karaoke" data-modulo="traducaoKaraoke">
                 </div>
 
@@ -2210,10 +2184,6 @@
                                         data-titulo="4.2 Correção de Karaokê"><span
                                             class="material-symbols-outlined doc-item-icon">music_note</span>4.2 Correção de
                                         Karaokê</button>
-                                    <button class="doc-nav-item" data-pagina="etapa-4.3-karaoke-simples"
-                                        data-titulo="4.3 Karaokê Simples"><span
-                                            class="material-symbols-outlined doc-item-icon">music_off</span>4.3 Karaokê
-                                        Simples</button>
                                     <button class="doc-nav-item" data-pagina="etapa-5.1-remuxer"
                                         data-titulo="5.1 Remuxer"><span
                                             class="material-symbols-outlined doc-item-icon">layers</span>5.1 Remuxer</button>

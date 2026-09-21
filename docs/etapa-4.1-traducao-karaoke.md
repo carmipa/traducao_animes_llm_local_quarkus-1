@@ -1,12 +1,17 @@
-# 🎤 Módulo: Tradução de Karaokê (Romaji + PT-BR juntos)
+# 🎤 Módulo: Karaokê (Traduzir + Achatar — tela única)
 
-[← Karaokê Simples](etapa-4.3-karaoke-simples.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md)
+[← Revisão de Concordância](etapa-3.3-revisao-concordancia.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md)
 
 ---
 
+> **Tela única desde 21/09/2026.** O antigo **4.3 Karaokê Simples** (achatar/limpar) foi absorvido como o **Passo 2** desta mesma tela. As duas passadas são independentes e se aplicam na ordem **traduzir → achatar**; o backend das duas continua separado (`/api/traducao-karaoke/*` e `/api/novo-karaoke/*`), unido só na interface. Escolher a obra (ou **"sem lore"**) exibe a capa/lore e libera as passadas, no padrão de trava de lore das telas 3.x.
+
 ## Para que serve
 
-Painel **"11. Tradução de Karaokê"** da SPA (grupo **Karaokê**). Traduz as **letras de música** das legendas mantendo o japonês original junto na tela: a camada **romaji/japonesa é preservada intacta** e apenas a camada de **tradução em inglês** vai ao LLM, virando PT-BR nos mesmos tempos — resultado: romaji em cima, PT-BR embaixo, como fansub clássico.
+Painel **"4.1 Karaokê"** da SPA (grupo **Karaokê**). Duas passadas:
+
+- **Passo 1 — Traduzir:** traduz as **letras de música** mantendo o japonês original junto na tela — a camada **romaji/japonesa é preservada intacta** e apenas a camada de **tradução em inglês** vai ao LLM, virando PT-BR nos mesmos tempos.
+- **Passo 2 — Achatar / limpar:** remove a animação de karaokê (KFX) e entrega **uma linha limpa por frase** — romaji em cima, PT-BR embaixo. Existe porque a geometria animada (`\clip`, posição por sílaba) é feita para os glifos originais; a tradução tem tamanho diferente e **quebra nessa geometria**. Achatar depois de traduzir resolve a "zona" de romaji + inglês + PT sobrepostos.
 
 O problema central que o módulo resolve: **cantores japoneses misturam inglês no meio da letra** (*"kimi no heart ni fly away"*). Uma detecção ingênua de "linha em inglês" mandaria a letra original para o LLM e a destruiria. Aqui a classificação é **por evidência**, com viés de preservação.
 
@@ -152,22 +157,44 @@ No diálogo elas nunca fizeram mal, porque ali não existe camada japonesa. Aqui
 
 ---
 
+## Passo 2 — Achatar / Limpar (KFX → linha limpa; o antigo Karaokê Simples)
+
+Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** do Kara Templater do Aegisub — em **uma linha limpa por frase, no mesmo tempo do efeito original**. Sem LLM: só reagrupa e limpa. Na tela única, o Passo 2 aponta automaticamente para a saída do Passo 1 (`<entrada>-karaoke-ptbr`) — traduzir e depois achatar entrega romaji + PT limpo, sem a animação que quebra a tradução.
+
+| Classe | Papel |
+|--------|-------|
+| `ConversorKaraokeUseCase` (`application`, fatia `novoKaraoke`) | Agrupa fragmentos KFX em frases, reconstrói a linha limpa e reescreve o `.ass` |
+| `EventoAss` / `LinhaSimplesKaraoke` (`domain`) | Parse dos eventos ASS e a linha reconstruída (início, fim, texto) |
+| `ResultadoConversaoKaraoke` (`domain`) | Métricas por arquivo (eventos removidos, linhas criadas, preservados por segurança) |
+| `NovoKaraokePersistencia` (`infrastructure`) | Manifesto de auditoria em `logs/novo-karaoke/manifestos/` |
+| `NovoKaraokeController` (`presentation`) | Endpoints REST `/api/novo-karaoke/*` — simular e aplicar em background |
+
+**Garantias do achatamento:** entrada NUNCA alterada (saída em pasta destino obrigatoriamente diferente — vazia cria `legenda-simplificada` ao lado das legendas da obra); diálogo/placas/`Comment:` byte a byte; bloco KFX que não reconstrói com confiança é **mantido intacto** (viés de preservação); romaji preservado e empilhado ACIMA das outras camadas com `\N`; variantes divergentes da mesma frase deduplicadas por sobreposição + similaridade (romaji original vence texto pulverizado).
+
+---
+
 ## Endpoints REST
 
-| Endpoint | Payload | Canal SSE |
-|----------|---------|-----------|
-| `POST /api/traducao-karaoke/simular` | `{caminhoOrigem, contextoId}` | `traducao-karaoke` |
-| `POST /api/traducao-karaoke/aplicar` | `{caminhoOrigem, contextoId}` | `traducao-karaoke` |
+As duas passadas moram na mesma tela e logam no **mesmo console** (os dois canais SSE apontam para `console-traducao-karaoke`).
+
+| Passo | Endpoint | Payload | Canal SSE |
+|-------|----------|---------|-----------|
+| 1 Traduzir (dry-run) | `POST /api/traducao-karaoke/simular` | `{caminhoOrigem, contextoId}` | `traducao-karaoke` |
+| 1 Traduzir (aplicar) | `POST /api/traducao-karaoke/aplicar` | `{caminhoOrigem, contextoId}` | `traducao-karaoke` |
+| 2 Achatar (dry-run) | `POST /api/novo-karaoke/simular` | `{caminhoOrigem, caminhoDestino}` | `novo-karaoke` |
+| 2 Achatar (aplicar) | `POST /api/novo-karaoke/aplicar` | `{caminhoOrigem, caminhoDestino}` | `novo-karaoke` |
 
 ```json
-{ "caminhoOrigem": "C:/animes/86/legendas-karaoke-simples", "contextoId": "eight_six" }
+{ "caminhoOrigem": "C:/animes/86/86 Part 1/traducao_ptbr", "contextoId": "eight_six" }
 ```
+
+O Passo 1 traduz via fila do pipeline (LLM); o Passo 2 roda local (sem LLM). Ambos os "aplicar" acompanham a fila e tocam o aviso sonoro ao terminar.
 
 ---
 
 ## Pontos de atenção
 
-- O lugar natural do módulo é **depois do [Karaokê Simples](etapa-4.3-karaoke-simples.md)** (converte o KFX primeiro, traduz a letra depois) e **antes da [Correção de Karaoke](etapa-4.2-cura-tags.md)**.
+- O módulo vem **antes da [Correção de Karaoke](etapa-4.2-cura-tags.md)**. A ordem interna é **traduzir (Passo 1) e depois achatar (Passo 2)**: achatar por último remove a animação e deixa a linha legível.
 - Estilos rotulados decidem primeiro (`OP - Romaji` preserva, `OP - English` traduz) — a votação por evidência só entra em estilos ambíguos (`Song`, `Insert`).
 - Letra 100% em inglês **cantada no original** (ex.: *"One more time, one more chance"*) é preservada pelo desempate silábico — se ela estiver na camada de tradução com estilo rotulado `English`, é traduzida normalmente.
 
@@ -177,4 +204,4 @@ No diálogo elas nunca fizeram mal, porque ali não existe camada japonesa. Aqui
 
 | Anterior | Próximo |
 |----------|---------|
-| [← Karaokê Simples](etapa-4.3-karaoke-simples.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md) |
+| [← Revisão de Concordância](etapa-3.3-revisao-concordancia.md) | [Correção de Karaoke →](etapa-4.2-cura-tags.md) |
