@@ -48,6 +48,13 @@ import java.util.Set;
  */
 public final class PlanoDeClassificacao {
 
+    /**
+     * Folga em centésimos nos DOIS lados do casamento de instante entre o pedaço e a frase: o
+     * fill de karaokê adianta e atrasa a linha por frações (medido no OPL2 do Unicorn — 0,15s no
+     * início, 0,10s no fim). Um só valor para os dois lados, porque a assimetria era o defeito.
+     */
+    private static final long FOLGA_INSTANTE_CS = 100;
+
     private final List<ClasseLinhaKaraoke> classePorPosicao;
     private final Set<String> instantesComOriginalPreservada;
 
@@ -150,9 +157,18 @@ public final class PlanoDeClassificacao {
      *       continuavam cobertos — e no 86 Part 2 os 875 "cobertos" eram a letra {@code i}.</li>
      *   <li><b>Cópia de tipografia reconstrói a si mesma.</b> A segunda versão marcou 75,6% do
      *       Zeta, incluindo as frases inteiras de {@code Song JP}, porque a mesma linha desenhada
-     *       duas vezes "reconstruía" a frase sozinha. Por isso todo pedaço precisa ter MENOS de
-     *       duas palavras, e precisa haver pelo menos dois pedaços.</li>
+     *       duas vezes "reconstruía" a frase sozinha. Por isso todo pedaço precisa ter MENOS
+     *       palavras que a frase (a cópia da frase inteira tem o MESMO número e é barrada), e
+     *       precisa haver pelo menos dois pedaços.</li>
      * </ul>
+     *
+     * <p><b>Correção de 2026-09-21:</b> o corte era "MENOS de DUAS palavras" e abortava o grupo
+     * inteiro ao topar um pedaço de duas palavras — no {@code OPL2} do Unicorn o pedaço
+     * {@code "you are"} derrubava os 9 fragmentos de <i>"If you are holding holding onto fear"</i>,
+     * que iam ao LLM e viravam lixo ({@code hol}→"Olá", {@code on}→"começando", {@code dnt}→
+     * meta-resposta). O corte passou a ser "MENOS palavras que a frase", que barra a cópia da
+     * frase inteira (Zeta) e admite o pedaço de duas palavras (Unicorn). A concatenação exata
+     * continua sendo a prova.
      *
      * <p>Efeito medido com o critério final: Unicorn 2.562 de 3.280 fragmentos (78,1%), e
      * <b>ZERO</b> no Zeta, no 86 Part 1 e no 86 Part 2 — nenhuma obra saudável é tocada.
@@ -193,10 +209,19 @@ public final class PlanoDeClassificacao {
                 }
                 long ini = inicioCs(ev);
                 long fim = fimCs(ev);
-                // A folga de 1s no fim não é arbitrária: no OPL2 do Unicorn os pedaços terminam
-                // 0,10s depois da frase (39.90 contra 39.80). Exigir contenção estrita reprovava
-                // 100% deles por dez centésimos.
-                if (ini < iniFrase || ini > fimFrase || fim > fimFrase + 100) {
+                // A âncora do pareamento é o FIM, não o início. Todo pedaço do fill de karaokê
+                // termina JUNTO com a frase (fica aceso até a linha acabar), então casar pelo fim é
+                // o que reconhece o pedaço e, ao mesmo tempo, exclui o fill da frase VIZINHA.
+                // Medido em 21/09/2026 no OPL2 do Unicorn: em "We didnt see all its meaning" o
+                // primeiro pedaço ("We") começa 0,15s ANTES da frase (39.38 < 39.53) — ancorar no
+                // INÍCIO o excluía e os 8 fragmentos vazavam (dnt=>"Nao ha contexto", all=>"Eu sou a
+                // Audrey"). Mas ancorar no início com folga puxava o ÚLTIMO pedaço da frase anterior
+                // e poluía a reconstrução — medido, o leak subiu de 6 para 32. Pelo fim, "We"
+                // termina com a frase (44.79 ≈ 44.69, dentro da folga) e é incluído, enquanto
+                // "vive" (fim 39.23, o fill da frase anterior) fica a 5s do fim desta e é excluído.
+                // A folga de 1s absorve os centésimos de diferença entre o held e o fill.
+                if (ini > fimFrase
+                    || fim < fimFrase - FOLGA_INSTANTE_CS || fim > fimFrase + FOLGA_INSTANTE_CS) {
                     continue;
                 }
                 irmas.add(idIrma);
@@ -207,6 +232,7 @@ public final class PlanoDeClassificacao {
             irmas.sort(Comparator.comparingLong((Integer id) -> inicioCs(eventos.get(id)))
                 .thenComparingLong(id -> fimCs(eventos.get(id))));
 
+            int palavrasFrase = palavras(textoFrase);
             StringBuilder reconstruido = new StringBuilder();
             Set<String> jaVistos = new HashSet<>();
             int pedacos = 0;
@@ -214,7 +240,16 @@ public final class PlanoDeClassificacao {
             for (int id : irmas) {
                 EventoLegenda ev = eventos.get(id);
                 String visivel = visivelDe(ev);
-                if (palavras(visivel) >= 2) {
+                // O corte é "MENOS palavras que a frase", não "< 2 palavras". O fansub divide a
+                // letra em pedaços que às vezes têm duas palavras ("you are" no OPL2 do Unicorn),
+                // e o corte antigo abortava o grupo inteiro ao encontrá-los — os 9 pedaços de
+                // "If you are holding holding onto fear" ficavam sem veto e iam ao LLM como
+                // fragmento (medido 21/09/2026: hol=>"Olá", on=>"começando", dnt=>meta-resposta).
+                // O que o corte precisa barrar é a CÓPIA DE TIPOGRAFIA — a frase inteira desenhada
+                // duas vezes, que "reconstruía a si mesma" (Zeta Song JP): essa tem o MESMO número
+                // de palavras da frase, então >= palavrasFrase continua abortando-a. A prova forte
+                // segue sendo a concatenação exata abaixo, não o número de palavras do pedaço.
+                if (palavras(visivel) >= palavrasFrase) {
                     algumEhFrase = true;
                     break;
                 }
