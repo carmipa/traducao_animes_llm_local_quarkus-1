@@ -93,6 +93,9 @@ class MisturaKaraokeDiagnosticoIT {
         // fragmentos distintos (<=2 palavras) que iriam ao LLM
         Map<String, Integer> fragmentosDistintos = new LinkedHashMap<>();
         Map<String, long[]> porEstilo = new TreeMap<>();
+        // TRADUZIVEL com >=3 palavras, distinto, por estilo — para ver se romaji (que deveria ser
+        // preservado) esta sendo mandado a traducao (o "romaji que mistura ingles" do Paulo).
+        Map<String, java.util.LinkedHashSet<String>> traduzivelLongoPorEstilo = new TreeMap<>();
 
         long arquivos = 0;
         long ilegiveis = 0;
@@ -142,6 +145,10 @@ class MisturaKaraokeDiagnosticoIT {
                     if (palavras > 0 && palavras <= 2) {
                         String vis = visivel(ev.texto()).toLowerCase(Locale.ROOT);
                         fragmentosDistintos.merge(vis, 1, Integer::sum);
+                    } else if (palavras >= 3) {
+                        traduzivelLongoPorEstilo
+                            .computeIfAbsent(estilo, k -> new java.util.LinkedHashSet<>())
+                            .add(visivel(ev.texto()));
                     }
                 }
             }
@@ -185,6 +192,13 @@ class MisturaKaraokeDiagnosticoIT {
             .limit(40)
             .forEach(e -> sb.append(String.format(Locale.ROOT, "  %-34s empilha=%-8d troca=%d%n",
                 truncar(e.getKey(), 34), e.getValue()[1], e.getValue()[0])));
+
+        sb.append("\n--- (3) TRADUZIVEL >=3 palavras por estilo (romaji aqui = mistranslation) ---\n");
+        traduzivelLongoPorEstilo.forEach((est, textos) -> {
+            sb.append(String.format(Locale.ROOT, "  [%s] %d distintos:%n", est, textos.size()));
+            textos.stream().limit(6).forEach(t -> sb.append("      ")
+                .append(t.length() > 80 ? t.substring(0, 79) + "…" : t).append('\n'));
+        });
 
         escrever("mistura-karaoke-diagnostico.txt", sb.toString());
         System.out.println(sb);
