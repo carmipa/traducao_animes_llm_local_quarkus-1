@@ -165,6 +165,120 @@ class ConversorKaraokeUseCaseTest {
             () -> "o dialogo de Effect VAZIO tinha de sair intacto:\n" + saida);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando o Passo 1 (Tradução de Karaokê) já entregou o par bilíngue
+     * {@code original\Ntradução} num evento ÚNICO — o caso da abertura OPL2 do Unicorn, que é inglês
+     * ORIGINAL cantado, preservado em cima com o PT embaixo —, o achatamento tem de manter as DUAS
+     * linhas. Antes deste conserto, {@code textoVisivel()} trocava o {@code \N} por espaço e a saída
+     * colava "inglês PT" numa linha só (a mistura que o Paulo apontou em 21/09, medida no .ass real).
+     *
+     * <h2>Caso-controle de fronteira (A1)</h2>
+     * O par bilíngue num evento vira DUAS linhas ({@code \N} preservado); o KFX puro silábico (sem
+     * {@code \N}, coberto por {@code kfxApenasSilabicoViraLinhaSimplesENaoArquivoGrande}) continua UMA
+     * linha, sem {@code \N} INVENTADO. Os dois lados carregam o mesmo sinal superficial (evento
+     * musical achatável), e a régua é só a presença do {@code \N} deliberado.
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Se a saída voltar a usar o texto achatado (sem {@code \N}), o inglês e o PT colam numa linha.
+     */
+    @Test
+    void parBilingueNumEventoUnicoViraDuasLinhasComAQuebraPreservada() throws Exception {
+        Path origem = tempDir.resolve("opl2-bilingue.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            // frase OPL2 que JA traz original\Ntraducao (como sai do Passo 1) + silabas do KFX
+            + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\\NVocê se sente sozinho?\n"
+            + "Dialogue: 0,0:01:37.00,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(560,60)}Do\n"
+            + "Dialogue: 0,0:01:37.15,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(600,60)}you\n"
+            + "Dialogue: 0,0:01:37.24,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(640,60)}feel\n"
+            + "Dialogue: 0,0:01:37.61,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(700,60)}alone\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Do you feel alone\\NVocê se sente sozinho?"),
+            () -> "o par bilingue tinha de sair em DUAS linhas (\\N preservado), nao colado:\n" + saida);
+        assertFalse(saida.contains("Do you feel alone Você se sente sozinho?"),
+            () -> "o \\N nao pode virar espaco (ingles e PT colados numa linha):\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o outro lado da fronteira (A1) do fix #2 — a quebra {@code \N} de um
+     * verso MONOLÍNGUE (o fansub quebrou uma linha de letra em duas, mesma língua, SEM tradução PT
+     * do outro lado) NÃO é par bilíngue e tem de ACHATAR para uma linha, o comportamento histórico.
+     *
+     * <h2>O prejuízo que a revisão adversarial mediu (21/09/2026)</h2>
+     * Preservar toda quebra {@code \N} musical mudava a saída de 44 {@code Song JP} + 154 {@code ED - EN} +
+     * 13 {@code ED - Romaji} do acervo (verso de 1 linha virava 2) e poluía o contador
+     * {@code pareadas} da telemetria. Só o par {@code original\NtraduçãoPT} (a abertura OPL2) vira
+     * duas linhas — ver {@link #parBilingueNumEventoUnicoViraDuasLinhasComAQuebraPreservada}.
+     */
+    @Test
+    void versoMonolingueComQuebraAchataParaUmaLinha() throws Exception {
+        Path origem = tempDir.resolve("verso-monolingue.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        // ED - EN do Unicorn: ingles\Ningles (mesma lingua, sem PT) — o fansub quebrou o verso
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:22:16.00,0:22:20.00,OPL2,,0,0,0,fx,{\\pos(640,60)}Have a little break\\NWe are running through the lights\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Have a little break We are running through the lights"),
+            () -> "verso monolingue (ingles\\Ningles, sem PT) tinha de ACHATAR para uma linha:\n" + saida);
+        assertFalse(saida.contains("Have a little break\\NWe are running"),
+            () -> "verso monolingue nao pode virar 2 linhas — nao é par bilingue original\\NPT:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: par bilíngue em que a tradução PT é CORRETA mas SEM acento nenhum
+     * ({@code "E estou chamando seu nome novamente"}) tem de ser reconhecido e virar 2 linhas. O
+     * diacrítico sozinho não pega; a morfologia PT (gerúndio {@code -ndo}, advérbio {@code -mente}) e
+     * palavras inequívocas ({@code que}, {@code seu}, {@code estou}) pegam, sem colidir com o inglês.
+     * Medido no e2e de 21/09: 2 das 16 linhas da abertura colavam por falta desse sinal.
+     */
+    @Test
+    void parBilingueComTraducaoSemAcentoPreservaAsDuasLinhas() throws Exception {
+        Path origem = tempDir.resolve("opl2-sem-acento.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:02:04.00,0:02:09.00,OPL2,,0,0,0,fx,{\\pos(640,60)}And Im calling out your name again\\NE estou chamando seu nome novamente\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("And Im calling out your name again\\NE estou chamando seu nome novamente"),
+            () -> "PT sem acento (chamando/novamente/estou/seu) tinha de ser reconhecido e manter 2 linhas:\n" + saida);
+        assertFalse(saida.contains("name again E estou"),
+            () -> "o par nao pode colar numa linha so:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: uma quebra {@code \N} no FIM da fala (comum no fansub) NÃO pode virar
+     * uma linha VAZIA na tela. Medido pela revisão adversarial de 21/09 no {@code ED - EN} do
+     * Unicorn ({@code "...love I felt\N"}): o {@code .strip()} não remove {@code \N}, e a linha
+     * simples terminava em {@code \N} → linha em branco sob a letra. {@code normalizarQuebras} apara.
+     */
+    @Test
+    void quebraNoFimNaoViraLinhaVazia() throws Exception {
+        Path origem = tempDir.resolve("quebra-final.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:23:14.00,0:23:19.00,OPL2,,0,0,0,fx,{\\pos(640,60)}You do never know that love I felt\\N\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,You do never know that love I felt"),
+            () -> "a linha tinha de sair limpa:\n" + saida);
+        assertFalse(saida.contains("love I felt\\N"),
+            () -> "o \\N final foi aparado — nao pode sobrar quebra que renderiza linha vazia:\n" + saida);
+    }
+
     @Test
     void kfxApenasSilabicoViraLinhaSimplesENaoArquivoGrande() throws Exception {
         Path origem = tempDir.resolve("kfx-silabico.ass");

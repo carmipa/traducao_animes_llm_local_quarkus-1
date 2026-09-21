@@ -535,7 +535,8 @@ public class ConversorKaraokeUseCase {
                 if (atual != null && evento.inicioCs() - atual.fimCs <= GAP_MESMA_FRASE_CS) {
                     atual.absorver(evento);
                 } else {
-                    atual = new Grupo(entrada.getKey(), evento);
+                    // chave achatada p/ agrupar; saída preserva \N SÓ no par bilíngue (original\NPT)
+                    atual = new Grupo(entrada.getKey(), textoSaidaDoEvento(evento), evento);
                     grupos.add(atual);
                 }
             }
@@ -952,6 +953,124 @@ public class ConversorKaraokeUseCase {
             .strip();
     }
 
+    /** Proporção de sílaba japonesa acima da qual um lado é ROMAJI (mesma régua do detector). */
+    private static final int LIMIAR_ROMAJI_SAIDA = 70;
+    /**
+     * Diacríticos EXCLUSIVOS do português (e latinos), SEM os macrons do romaji Hepburn
+     * ({@code ā ī ū ē ō}): a presença de um destes num lado o marca como tradução PT, não original.
+     */
+    private static final Pattern DIACRITICO_PT = Pattern.compile("[çÇáàâãéêíóôõúüÁÀÂÃÉÊÍÓÔÕÚÜ]");
+    /**
+     * Português SEM acento, por sinais que NÃO colidem com inglês: morfologia (gerúndio {@code -ndo},
+     * advérbio {@code -mente}) e palavras-função inequívocas. Só é consultado DEPOIS de a proporção
+     * romaji separar romaji de não-romaji, então a colisão com sílaba japonesa ({@code seu}, {@code uma})
+     * não importa aqui — a decisão que resta é inglês × português. Nasceu porque traduções PT corretas
+     * sem acento ({@code "E estou chamando seu nome novamente"}) colavam com o inglês (medido no e2e 21/09).
+     */
+    private static final Pattern PT_SEM_ACENTO = Pattern.compile(
+        "(?i)\\b(que|nao|voce|voces|com|uma|muito|mais|porque|quando|entao|sempre|tambem|isso|"
+        + "seu|sua|meu|minha|estou|estao|sao|vamos|onde|aqui|agora|nunca|ainda|depois|mesmo|assim|"
+        + "sobre|entre|pela|pelo|dele|dela|nossa|nosso|para)\\b|\\w{2,}ndo\\b|\\w{3,}mente\\b");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o texto de SAÍDA da linha simples. Preserva a quebra {@code \N} SÓ
+     * quando ela separa a letra ORIGINAL da sua TRADUÇÃO em português (o par bilíngue
+     * {@code original\Ntradução} que o Passo 1 entrega num evento único — a abertura OPL2 do
+     * Unicorn). Verso MONOLÍNGUE quebrado pelo fansub ({@code romaji\Nromaji},
+     * {@code inglês\Ninglês} de {@code Song JP}/{@code ED}/{@code ED - EN}) ACHATA para uma linha —
+     * comportamento histórico do simplificador.
+     *
+     * <h2>Por que só o par bilíngue, e não todo {@code \N}</h2>
+     * A revisão adversarial de 21/09/2026 mediu: preservar todo {@code \N} musical mudava a saída de
+     * 44 {@code Song JP} + 154 {@code ED - EN} + 13 {@code ED - Romaji} do acervo (verso de 1 linha
+     * virava 2), poluía o contador {@code pareadas} da telemetria e — pior — um {@code \N} FINAL
+     * virava LINHA VAZIA. A regra do Paulo é {@code original} em cima, {@code PT} embaixo: quebra sem
+     * tradução do outro lado é layout do fansub, e o achatador existe para achatar.
+     *
+     * <h2>O discriminador de LÍNGUA (a 1ª heurística, só de pontuação PT, falhou nos dois sentidos)</h2>
+     * A 1ª tentativa comparava só {@link #pontuacaoPortugues} e, medida no e2e, colou 3 de 16 pares
+     * da abertura (tradução sem palavra da lista) e preservou verso romaji (a romaji {@code "no"}
+     * coincide com a função PT). Agora o par é reconhecido por LÍNGUA: (1) um lado ROMAJI
+     * (proporção ≥ {@value #LIMIAR_ROMAJI_SAIDA}) e o outro não ⇒ par; (2) os dois romaji ⇒ verso
+     * romaji ⇒ achata; (3) nenhum romaji ⇒ é par sse EXATAMENTE um lado tiver diacrítico português
+     * ({@link #DIACRITICO_PT}). Degradação declarada (regra 22): tradução PT sem acento nenhum achata
+     * (volta a 1 linha) — nunca vira linha errada nem vazia.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo/branco devolve o visível achatado; nunca lança.
+     */
+    private String textoSaidaDoEvento(EventoAss evento) {
+        String comQuebra = normalizarQuebras(limparArtefatosVisiveis(evento.textoComQuebra()));
+        if (!comQuebra.contains(QUEBRA_ASS)) {
+            return comQuebra;
+        }
+        String[] partes = comQuebra.split(java.util.regex.Pattern.quote(QUEBRA_ASS));
+        if (partes.length == 2 && ehParOriginalTraducao(partes[0], partes[1])) {
+            return comQuebra; // par bilingue original\NtraducaoPT: preserva as duas linhas
+        }
+        return limparArtefatosVisiveis(evento.textoVisivel()); // verso monolingue: achata (como antes)
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as duas metades de um {@code \N} são original + tradução (línguas
+     * DIFERENTES), e não um verso monolíngue quebrado?
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa a mesma proporção-romaji do detector para separar romaji de
+     * não-romaji, e o diacrítico/vocabulário PT para separar português de inglês. Verso na MESMA
+     * língua (romaji×romaji, inglês×inglês) devolve {@code false} e achata.
+     */
+    private boolean ehParOriginalTraducao(String a, String b) {
+        int romajiA = detectorKaraoke.proporcaoRomaji(a);
+        int romajiB = detectorKaraoke.proporcaoRomaji(b);
+        boolean aRomaji = romajiA >= LIMIAR_ROMAJI_SAIDA;
+        boolean bRomaji = romajiB >= LIMIAR_ROMAJI_SAIDA;
+        if (aRomaji != bRomaji) {
+            return true; // romaji original de um lado, tradução do outro
+        }
+        if (aRomaji) {
+            return false; // os dois romaji: verso romaji monolingue
+        }
+        return ehPortugues(a) != ehPortugues(b); // ingles×PT ⇒ par; ingles×ingles ⇒ verso
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: este lado é a TRADUÇÃO em português (e não a letra original em inglês)?
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o sinal é o DIACRÍTICO português ({@link #DIACRITICO_PT}), e só ele
+     * — NÃO uma lista de palavras. Português e romaji compartilham a estrutura consoante+vogal, e
+     * palavras-função PT colidem com o inglês: a lista {@link #pontuacaoPortugues} marcava o inglês
+     * {@code "Do you feel alone"} como português porque {@code "do"} está nela, e o par bilíngue
+     * colava numa linha (medido no e2e de 21/09). O acento resolve: o inglês não tem {@code ç/ã/õ},
+     * e o macron do romaji Hepburn ({@code ā/ī/ū/ē/ō}) ficou de fora do padrão de propósito.
+     *
+     * <p>DEGRADAÇÃO DECLARADA (regra 22): tradução PT sem acento E sem nenhum dos sinais de
+     * {@link #PT_SEM_ACENTO} (nem gerúndio, nem advérbio, nem palavra-função) devolve {@code false} e
+     * o par ACHATA para 1 linha (comportamento antigo) — nunca vira linha errada nem vazia.
+     */
+    private static boolean ehPortugues(String s) {
+        return DIACRITICO_PT.matcher(s).find() || PT_SEM_ACENTO.matcher(s).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: remove a quebra {@code \N} de BORDA (que renderiza linha vazia) e
+     * colapsa {@code \N} repetido em um só. Uma quebra no fim ({@code "...felt\N"}) é o defeito
+     * medido em 21/09 que fazia uma linha em branco aparecer sob a letra.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem {@code \N} devolve o texto limpo; nunca lança.
+     */
+    private static String normalizarQuebras(String texto) {
+        String r = texto.strip();
+        while (r.startsWith(QUEBRA_ASS)) {
+            r = r.substring(QUEBRA_ASS.length()).strip();
+        }
+        while (r.endsWith(QUEBRA_ASS)) {
+            r = r.substring(0, r.length() - QUEBRA_ASS.length()).strip();
+        }
+        while (r.contains(QUEBRA_ASS + QUEBRA_ASS)) {
+            r = r.replace(QUEBRA_ASS + QUEBRA_ASS, QUEBRA_ASS);
+        }
+        return r;
+    }
+
     /**
      * KFX letra-por-letra com camadas caractere+sílaba sobrepostas produz texto
      * "pulverizado" ("t e i k a n" / "d da a r re e"): maioria das palavras com
@@ -1122,14 +1241,22 @@ public class ConversorKaraokeUseCase {
 
     /** Grupo de eventos KFX da mesma frase (mesmo texto, janela contígua). */
     private static final class Grupo {
+        /** Chave de AGRUPAMENTO: texto achatado (sem {@code \N}), para casar sílabas e variantes. */
         private String texto;
+        /**
+         * Texto de SAÍDA: preserva o {@code \N} deliberado do evento (par bilíngue
+         * {@code original\Ntradução} entregue pelo Passo 1). O achatamento agrupa pela chave
+         * achatada, mas emite esta versão — senão colaria "inglês PT" numa linha só.
+         */
+        private String textoSaida;
         private long inicioCs;
         private long fimCs;
         private int eventos;
         private int variantes = 1;
 
-        private Grupo(String texto, EventoAss primeiro) {
+        private Grupo(String texto, String textoSaida, EventoAss primeiro) {
             this.texto = texto;
+            this.textoSaida = textoSaida;
             this.inicioCs = primeiro.inicioCs();
             this.fimCs = primeiro.fimCs();
             this.eventos = 1;
@@ -1145,6 +1272,7 @@ public class ConversorKaraokeUseCase {
         private void fundirVariante(Grupo outro) {
             if (outro.eventos > this.eventos) {
                 this.texto = outro.texto;
+                this.textoSaida = outro.textoSaida;
                 this.eventos = outro.eventos;
             }
             inicioCs = Math.min(inicioCs, outro.inicioCs);
@@ -1163,7 +1291,7 @@ public class ConversorKaraokeUseCase {
         }
 
         private LinhaSimplesKaraoke paraLinha() {
-            return new LinhaSimplesKaraoke(texto, inicioCs, fimCs, eventos, variantes);
+            return new LinhaSimplesKaraoke(textoSaida, inicioCs, fimCs, eventos, variantes);
         }
     }
 

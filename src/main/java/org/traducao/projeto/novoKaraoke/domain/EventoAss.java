@@ -63,6 +63,26 @@ public record EventoAss(
             .strip();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o texto sem as tags de animação, mas com a quebra {@code \N}
+     * DELIBERADA preservada. Existe porque a tradução de karaokê (Passo 1) entrega o par
+     * bilíngue — {@code original\Ntradução} — num evento ÚNICO, e o achatamento não pode
+     * fundir essas duas linhas numa só: {@link #textoVisivel()} troca {@code \N} por espaço
+     * (certo para AGRUPAR sílabas), e usá-lo na saída colava "inglês PT" numa linha só.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só remove o que é decoração ({@code {...}}, {@code \h}); a
+     * quebra {@code \N}/{@code \n} de linha é conteúdo e fica. NÃO inventa quebra onde não há.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem {@code \N} devolve o mesmo que
+     * {@link #textoVisivel()}; nunca lança.
+     */
+    public String textoComQuebra() {
+        return PADRAO_REMOVE_TAGS.matcher(texto)
+            .replaceAll("")
+            .replace("\\h", " ")
+            .strip();
+    }
+
     /** Início em centésimos de segundo, para ordenação/agrupamento (-1 se ilegível). */
     public long inicioCs() {
         return tempoParaCs(inicio);
