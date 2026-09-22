@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **492** |
-| classes em `src/test` | **441** |
+| classes em `src/test` | **442** |
 
 ---
 
@@ -898,7 +898,7 @@ core/
 
 ---
 
-## Testes — 441 classes
+## Testes — 442 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1259,11 +1259,12 @@ medicao/
 └── SpikeLanguageToolContraGoldSetIT.java
 ```
 
-#### `novoKaraoke` — 2 classes
+#### `novoKaraoke` — 3 classes
 
 ```text
 novoKaraoke/
 ├── application/
+│   ├── AchatadorAcervoSemLinhaVaziaIT.java
 │   └── ConversorKaraokeUseCaseTest.java
 └── presentation/
     └── DestinoPadraoKaraokeSimplesTest.java
