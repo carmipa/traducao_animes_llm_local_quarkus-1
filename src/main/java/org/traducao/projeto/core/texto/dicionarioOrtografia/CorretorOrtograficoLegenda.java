@@ -161,6 +161,19 @@ public class CorretorOrtograficoLegenda {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o dicionário de INGLÊS respondeu ao menos uma vez nesta execução? Existe
+     * para quem decide PORTUGUÊS × INGLÊS pela classificação: se o inglês está indisponível, o
+     * veredicto {@code RESIDUO_INGLES} nunca sai e a decisão fica cega para um dos lados — quem
+     * pergunta deve cair no próprio fallback em vez de confiar num resultado só de português.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o estado é preguiçoso (o hunspell só marca disponível após a
+     * primeira consulta), então isto só é confiável DEPOIS de {@link #classificarPalavras}.
+     */
+    public boolean inglesDisponivel() {
+        return ingles != null && ingles.disponivel();
+    }
+
+    /**
      * Compara ignorando caixa: o dicionário propõe a forma capitalizada ou não conforme a posição
      * na frase, e {@code "apsaras"} no meio da fala é o mesmo nome de {@code "Apsaras"}.
      */

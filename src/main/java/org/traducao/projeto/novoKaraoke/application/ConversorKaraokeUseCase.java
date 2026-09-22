@@ -275,9 +275,17 @@ public class ConversorKaraokeUseCase {
         Map<String, Integer> eventosPorEstilo = new LinkedHashMap<>();
         Map<String, Boolean> musicalPorEstilo = new LinkedHashMap<>();
         for (EventoAss evento : eventos) {
-            boolean musical = detectorKaraoke.eEstiloDeMusica(evento.estilo())
+            // IDEMPOTENCIA: a propria saida do achatador (estilo "Karaoke Simples", Effect vazio, sem
+            // \k) NAO pode ser reconhecida como musica e reprocessada — o nome contem "karaoke", que a
+            // substring de PadraoEstiloMusical casaria. Rodar o achatador duas vezes (ou o
+            // encadeamento de pasta apontar para uma saida ja achatada) tem de dar o MESMO resultado.
+            boolean jaSimplificado = NOME_ESTILO_SIMPLES.equals(evento.estilo())
+                && (evento.efeito() == null || evento.efeito().isBlank())
+                && !detectorKaraoke.temTagKaraoke(evento.texto());
+            boolean musical = !jaSimplificado
+                && (detectorKaraoke.eEstiloDeMusica(evento.estilo())
                 || detectorKaraoke.temTagKaraoke(evento.texto())
-                || detectorKaraoke.efeitoDeclaraKaraoke(evento.efeito());
+                || detectorKaraoke.efeitoDeclaraKaraoke(evento.efeito()));
             eventosPorEstilo.merge(evento.estilo(), 1, Integer::sum);
             musicalPorEstilo.merge(evento.estilo(), musical, (a, b) -> a || b);
             if (musical) {
@@ -386,6 +394,11 @@ public class ConversorKaraokeUseCase {
             pareadas++;
             // O ORIGINAL (romaji) deve ficar em cima. Proporção de sílaba japonesa é a mesma
             // régua que o detector já usa para separar romaji de karaokê em inglês.
+            // LIMITACAO DECLARADA (regra 22, auditoria 21/09/A3): este contador so mede a inversao
+            // ROMAJI×nao-romaji. Nao mede inversao ingles×PT (os dois pontuam ~0 romaji), e para os
+            // pares vindos de empilharCamadas a regua e a MESMA que os ordenou -> invertidas=0 por
+            // construcao (nao ha inversao possivel neles, entao 0 e a resposta CERTA, so nao e uma
+            // medida independente). Nao dispara AVISO falso; e telemetria, nao decisao de render.
             if (detectorKaraoke.proporcaoRomaji(partes[0]) < detectorKaraoke.proporcaoRomaji(partes[1])) {
                 invertidas++;
             }
@@ -1077,8 +1090,9 @@ public class ConversorKaraokeUseCase {
      * eventos musicais que trazem um {@code \N} — os únicos candidatos a par bilíngue. O custo do
      * hunspell é o arranque do processo, então juntar tudo num lote é o que a régra da medição pede.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: sem palavras devolve mapa vazio; qualquer erro do corretor
-     * é absorvido e devolve mapa vazio (a decisão cai no fallback do diacrítico). Nunca lança.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem palavras devolve mapa vazio; qualquer erro do corretor,
+     * OU o dicionário de INGLÊS indisponível (o idioma de DECISÃO — sem ele a distincao PT×EN fica
+     * cega para um lado), devolve mapa vazio e a decisão cai no fallback do diacrítico. Nunca lança.
      */
     private Map<String, VeredictoPalavra> classificarIdiomaDosPares(List<EventoAss> musicais) {
         java.util.LinkedHashSet<String> palavras = new java.util.LinkedHashSet<>();
@@ -1096,7 +1110,15 @@ public class ConversorKaraokeUseCase {
             return Map.of();
         }
         try {
-            return corretorOrtografico.classificarPalavras(palavras);
+            Map<String, VeredictoPalavra> classificadas = corretorOrtografico.classificarPalavras(palavras);
+            // Se o dicionario de INGLES nao respondeu (indisponivel), nenhuma palavra vira
+            // RESIDUO_INGLES e o lado ingles ficaria mudo — a decisao PT×EN seria pela metade
+            // (uma palavra inglesa valida tambem em pt_BR, como "idea"/"have", inclinaria o lado
+            // ingles para PT). Sem o idioma de decisao, o dicionario nao decide: cai no diacritico.
+            if (!corretorOrtografico.inglesDisponivel()) {
+                return Map.of();
+            }
+            return classificadas;
         } catch (RuntimeException ex) {
             log.warn("Classificacao de idioma indisponivel; achatador cai no fallback do diacritico", ex);
             return Map.of();
@@ -1111,7 +1133,10 @@ public class ConversorKaraokeUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: sem {@code \N} devolve o texto limpo; nunca lança.
      */
     private static String normalizarQuebras(String texto) {
-        String r = texto.strip();
+        // O soft-break \n (minusculo) do fansub NUNCA separa o par bilingue (o Passo 1 emite \N),
+        // entao e sempre quebra de verso monolingue -> vira espaco (restaura o comportamento antigo,
+        // que textoVisivel() dava; textoComQuebra() preserva \n de proposito e e aqui que se decide).
+        String r = texto.replace("\\n", " ").replaceAll("\\s{2,}", " ").strip();
         while (r.startsWith(QUEBRA_ASS)) {
             r = r.substring(QUEBRA_ASS.length()).strip();
         }

@@ -239,12 +239,14 @@ class ConversorKaraokeUseCaseTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: par bilíngue em que a tradução PT é CORRETA mas SEM acento nenhum
-     * ({@code "E estou chamando seu nome novamente"}) tem de ser reconhecido e virar 2 linhas. O
-     * diacrítico sozinho não pega; o DICIONÁRIO Hunspell reconhece {@code estou}/{@code chamando}/
-     * {@code seu}/{@code nome}/{@code novamente} como português e o inglês do outro lado como inglês.
-     * (No teste, o dublê {@code CorretorOrtograficoDeTeste} dá esses vereditos; em produção é o
-     * hunspell real.) Medido no e2e de 21/09: 2 das 16 linhas da abertura colavam por falta disso.
+     * PROPÓSITO DE NEGÓCIO: par bilíngue em que a tradução PT é acentuada-menos E por acaso
+     * DECOMPONÍVEL em sílabas japonesas ({@code "E estou chamando seu nome novamente"} pontua ~83%
+     * romaji: e/chamando/seu/nome/novamente casam CV). Aqui a decisão sai no ramo ROMAJI
+     * (proporcaoRomaji do PT >= 70 e o inglês < 70 => lados diferentes => par), NÃO no dicionário —
+     * a auditoria de 21/09 pegou este teste alegando o dicionário quando exercita o romaji. É um caso
+     * REAL (PT sem acento romaji-like tem de virar 2 linhas), e o ramo do DICIONÁRIO tem seu próprio
+     * guardião calibrado em {@link #parBilingueSemDiacriticoReconhecidoPeloDicionario} (Deixe a luz
+     * passar, ~25% dos dois lados, cai no dicionario).
      */
     @Test
     void parBilingueComTraducaoSemAcentoPreservaAsDuasLinhas() throws Exception {
@@ -340,6 +342,64 @@ class ConversorKaraokeUseCaseTest {
             () -> "a linha tinha de sair limpa:\n" + saida);
         assertFalse(saida.contains("love I felt\\N"),
             () -> "o \\N final foi aparado — nao pode sobrar quebra que renderiza linha vazia:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o achatador tem de ser IDEMPOTENTE — rodar duas vezes (ou o encadeamento
+     * de pasta apontar para uma saida ja achatada) da o MESMO resultado. Sem isto, a propria saida
+     * (estilo "Karaoke Simples") era re-classificada como musica: o nome contem "karaoke", que a
+     * substring do padrao musical casa. Achado da auditoria profunda de 21/09.
+     *
+     * <p>A2: sem a guarda jaSimplificado, a 2a passada reprocessa as linhas "Karaoke Simples" e o
+     * resultado diverge do da 1a — este teste reprova.
+     */
+    @Test
+    void achatadorEIdempotenteNaPropriaSaida() throws Exception {
+        Path origem = tempDir.resolve("idem.ass");
+        Path d1 = Files.createDirectory(tempDir.resolve("saida1"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\\NVocê se sente sozinho?\n"
+            + "Dialogue: 0,0:01:37.00,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(560,60)}Do\n"
+            + "Dialogue: 0,0:01:37.24,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(640,60)}feel\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, d1, true);
+        String pass1 = Files.readString(d1.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+
+        // 2a passada: a saida do achatador vira a ENTRADA
+        Path origem2 = tempDir.resolve("idem2.ass");
+        Path d2 = Files.createDirectory(tempDir.resolve("saida2"));
+        Files.writeString(origem2, pass1, StandardCharsets.UTF_8);
+        novoConversor().converterArquivo(origem2, d2, true);
+        String pass2 = Files.readString(d2.resolve(origem2.getFileName()), StandardCharsets.UTF_8);
+
+        assertTrue(pass1.contains("Karaoke Simples,,0,0,0,,Do you feel alone\\NVocê se sente sozinho?"),
+            () -> "1a passada devia achatar:\n" + pass1);
+        assertEquals(pass1, pass2,
+            () -> "achatar 2x tem de dar o MESMO resultado (idempotente):\n--pass1--\n" + pass1 + "\n--pass2--\n" + pass2);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o soft-break {@code \n} (minusculo) do fansub num verso monolingue tem
+     * de virar ESPACO (achatar), nao sobreviver literal na tela. textoComQuebra preserva {@code \n}
+     * como conteudo; e normalizarQuebras que o achata. Achado LATENTE da auditoria de 21/09 (0
+     * ocorrencias no acervo atual, mas defeito real no codigo).
+     */
+    @Test
+    void softBreakMinusculoViraEspacoNaoSobreviveLiteral() throws Exception {
+        Path origem = tempDir.resolve("soft-break.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:01:00.00,0:01:04.00,OPL2,,0,0,0,fx,{\\pos(640,60)}Feel the wave\\ncoming home tonight\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Feel the wave coming home tonight"),
+            () -> "o soft-break \\n tinha de virar espaco (verso monolingue achatado):\n" + saida);
+        assertFalse(saida.contains("wave\\ncoming"),
+            () -> "o \\n minusculo nao pode sobreviver literal na saida:\n" + saida);
     }
 
     @Test
@@ -545,6 +605,11 @@ class ConversorKaraokeUseCaseTest {
                 fora.put(p, VEREDITO.getOrDefault(p.toLowerCase(Locale.ROOT), VeredictoPalavra.DESCONHECIDA));
             }
             return fora;
+        }
+
+        @Override
+        public boolean inglesDisponivel() {
+            return true; // o duble "tem" o dicionario ingles: as classificacoes acima valem
         }
     }
 
