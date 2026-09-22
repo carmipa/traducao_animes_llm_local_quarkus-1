@@ -142,6 +142,25 @@ public class CorretorOrtograficoLegenda {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: expõe a classificação de idioma POR PALAVRA — o mesmo classificador de
+     * dicionário que sustenta a correção de acento — para quem só precisa saber a LÍNGUA, não
+     * corrigir. Nasceu para o achatador de karaokê (Passo 2) decidir se um par com {@code \N} é
+     * {@code original\Ntradução} (preserva as 2 linhas) ou verso monolíngue quebrado pelo fansub
+     * (achata para 1). Substitui a heurística de lista de palavras à mão, que colidia com o inglês
+     * ({@code do}/{@code no}/{@code so}); o dicionário decide por PONTUAÇÃO ({@code "Do you feel
+     * alone"} tem 3 palavras inglesas contra 1 portuguesa, entao e ingles).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: consulta em LOTE (o custo do hunspell é o arranque do processo, não
+     * a palavra); NÃO corrige nada. Dicionário indisponível devolve {@link VeredictoPalavra#NAO_VERIFICADO}
+     * para tudo, e cabe a quem chama tratar como "não sei" e cair no próprio fallback.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; entrada nula/vazia devolve mapa vazio.
+     */
+    public Map<String, VeredictoPalavra> classificarPalavras(java.util.Collection<String> palavras) {
+        return classificador.classificar(palavras);
+    }
+
+    /**
      * Compara ignorando caixa: o dicionário propõe a forma capitalizada ou não conforme a posição
      * na frase, e {@code "apsaras"} no meio da fala é o mesmo nome de {@code "Apsaras"}.
      */

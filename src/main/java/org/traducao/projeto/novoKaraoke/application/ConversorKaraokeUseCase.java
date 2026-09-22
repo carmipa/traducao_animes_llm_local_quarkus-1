@@ -15,6 +15,8 @@ import org.traducao.projeto.novoKaraoke.infrastructure.NovoKaraokePersistencia;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda;
+import org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -91,6 +93,14 @@ public class ConversorKaraokeUseCase {
 
     @Inject
     DetectorEfeitoKaraokeService detectorKaraoke;
+
+    /**
+     * Classificador de idioma por dicionário Hunspell (CORE), usado SÓ para decidir se um par com
+     * {@code \N} é {@code original\Ntradução} (preserva 2 linhas) ou verso monolíngue (achata). É o
+     * dicionário real do projeto, não uma lista de palavras à mão (ordem do Paulo, 21/09).
+     */
+    @Inject
+    CorretorOrtograficoLegenda corretorOrtografico;
 
     @Inject
     LogStreamService logStream;
@@ -294,8 +304,10 @@ public class ConversorKaraokeUseCase {
         for (EventoAss evento : musicais) {
             porEstilo.computeIfAbsent(evento.estilo(), k -> new ArrayList<>()).add(evento);
         }
+        // idioma dos pares (\N) classificado UMA vez por arquivo, pelo dicionario Hunspell.
+        Map<String, VeredictoPalavra> idioma = classificarIdiomaDosPares(musicais);
         for (Map.Entry<String, List<EventoAss>> entrada : porEstilo.entrySet()) {
-            processarEstiloMusical(entrada.getKey(), entrada.getValue(), linhasSimples, preservados, resultado);
+            processarEstiloMusical(entrada.getKey(), entrada.getValue(), linhasSimples, preservados, resultado, idioma);
         }
         linhasSimples = deduplicarLinhasSimples(linhasSimples, resultado);
         linhasSimples.sort(Comparator.comparingLong(LinhaSimplesKaraoke::inicioCs));
@@ -515,7 +527,8 @@ public class ConversorKaraokeUseCase {
         List<EventoAss> eventosEstilo,
         List<LinhaSimplesKaraoke> linhasSimples,
         List<EventoAss> preservados,
-        ResultadoConversaoKaraoke resultado
+        ResultadoConversaoKaraoke resultado,
+        Map<String, VeredictoPalavra> idioma
     ) {
         // agrupa candidatas por texto visível, separando repetições distantes (refrão)
         Map<String, List<EventoAss>> porTexto = new LinkedHashMap<>();
@@ -536,7 +549,7 @@ public class ConversorKaraokeUseCase {
                     atual.absorver(evento);
                 } else {
                     // chave achatada p/ agrupar; saída preserva \N SÓ no par bilíngue (original\NPT)
-                    atual = new Grupo(entrada.getKey(), textoSaidaDoEvento(evento), evento);
+                    atual = new Grupo(entrada.getKey(), textoSaidaDoEvento(evento, idioma), evento);
                     grupos.add(atual);
                 }
             }
@@ -960,17 +973,8 @@ public class ConversorKaraokeUseCase {
      * ({@code ā ī ū ē ō}): a presença de um destes num lado o marca como tradução PT, não original.
      */
     private static final Pattern DIACRITICO_PT = Pattern.compile("[çÇáàâãéêíóôõúüÁÀÂÃÉÊÍÓÔÕÚÜ]");
-    /**
-     * Português SEM acento, por sinais que NÃO colidem com inglês: morfologia (gerúndio {@code -ndo},
-     * advérbio {@code -mente}) e palavras-função inequívocas. Só é consultado DEPOIS de a proporção
-     * romaji separar romaji de não-romaji, então a colisão com sílaba japonesa ({@code seu}, {@code uma})
-     * não importa aqui — a decisão que resta é inglês × português. Nasceu porque traduções PT corretas
-     * sem acento ({@code "E estou chamando seu nome novamente"}) colavam com o inglês (medido no e2e 21/09).
-     */
-    private static final Pattern PT_SEM_ACENTO = Pattern.compile(
-        "(?i)\\b(que|nao|voce|voces|com|uma|muito|mais|porque|quando|entao|sempre|tambem|isso|"
-        + "seu|sua|meu|minha|estou|estao|sao|vamos|onde|aqui|agora|nunca|ainda|depois|mesmo|assim|"
-        + "sobre|entre|pela|pelo|dele|dela|nossa|nosso|para)\\b|\\w{2,}ndo\\b|\\w{3,}mente\\b");
+    /** Palavra (letras, com apóstrofo/hífen internos), para consultar idioma no dicionário. */
+    private static final Pattern PALAVRA = Pattern.compile("[\\p{L}][\\p{L}'\\-]*");
 
     /**
      * PROPÓSITO DE NEGÓCIO: o texto de SAÍDA da linha simples. Preserva a quebra {@code \N} SÓ
@@ -987,24 +991,19 @@ public class ConversorKaraokeUseCase {
      * virava LINHA VAZIA. A regra do Paulo é {@code original} em cima, {@code PT} embaixo: quebra sem
      * tradução do outro lado é layout do fansub, e o achatador existe para achatar.
      *
-     * <h2>O discriminador de LÍNGUA (a 1ª heurística, só de pontuação PT, falhou nos dois sentidos)</h2>
-     * A 1ª tentativa comparava só {@link #pontuacaoPortugues} e, medida no e2e, colou 3 de 16 pares
-     * da abertura (tradução sem palavra da lista) e preservou verso romaji (a romaji {@code "no"}
-     * coincide com a função PT). Agora o par é reconhecido por LÍNGUA: (1) um lado ROMAJI
-     * (proporção ≥ {@value #LIMIAR_ROMAJI_SAIDA}) e o outro não ⇒ par; (2) os dois romaji ⇒ verso
-     * romaji ⇒ achata; (3) nenhum romaji ⇒ é par sse EXATAMENTE um lado tiver diacrítico português
-     * ({@link #DIACRITICO_PT}). Degradação declarada (regra 22): tradução PT sem acento nenhum achata
-     * (volta a 1 linha) — nunca vira linha errada nem vazia.
+     * @param idioma classificação de idioma por palavra (dicionário Hunspell), montada em LOTE uma
+     *               vez por arquivo em {@link #classificarIdiomaDosPares}; vazio quando o dicionário
+     *               não está disponível, e aí a decisão cai no fallback do diacrítico.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: nulo/branco devolve o visível achatado; nunca lança.
      */
-    private String textoSaidaDoEvento(EventoAss evento) {
+    private String textoSaidaDoEvento(EventoAss evento, Map<String, VeredictoPalavra> idioma) {
         String comQuebra = normalizarQuebras(limparArtefatosVisiveis(evento.textoComQuebra()));
         if (!comQuebra.contains(QUEBRA_ASS)) {
             return comQuebra;
         }
         String[] partes = comQuebra.split(java.util.regex.Pattern.quote(QUEBRA_ASS));
-        if (partes.length == 2 && ehParOriginalTraducao(partes[0], partes[1])) {
+        if (partes.length == 2 && ehParOriginalTraducao(partes[0], partes[1], idioma)) {
             return comQuebra; // par bilingue original\NtraducaoPT: preserva as duas linhas
         }
         return limparArtefatosVisiveis(evento.textoVisivel()); // verso monolingue: achata (como antes)
@@ -1014,11 +1013,21 @@ public class ConversorKaraokeUseCase {
      * PROPÓSITO DE NEGÓCIO: as duas metades de um {@code \N} são original + tradução (línguas
      * DIFERENTES), e não um verso monolíngue quebrado?
      *
-     * <p>INVARIANTES DO DOMÍNIO: usa a mesma proporção-romaji do detector para separar romaji de
-     * não-romaji, e o diacrítico/vocabulário PT para separar português de inglês. Verso na MESMA
-     * língua (romaji×romaji, inglês×inglês) devolve {@code false} e achata.
+     * <h2>Como decide, e por que dicionário e não lista à mão</h2>
+     * (1) um lado ROMAJI (proporção ≥ {@value #LIMIAR_ROMAJI_SAIDA}) e o outro não ⇒ par; (2) os
+     * dois romaji ⇒ verso romaji ⇒ achata; (3) nenhum romaji ⇒ inglês × português, decidido pelo
+     * DICIONÁRIO Hunspell ({@link #classificarIdiomaDosPares}): é par sse EXATAMENTE um lado é
+     * PORTUGUÊS-dominante (mais palavras {@code PORTUGUES_OK}/{@code ACENTO_FALTANDO} que
+     * {@code RESIDUO_INGLES}). O dicionário decide por PONTUAÇÃO, resolvendo a colisão que derrubou
+     * a lista à mão: {@code "Do you feel alone"} tem 3 palavras inglesas contra 1 portuguesa
+     * ({@code do}), então é inglês; {@code "Deixe a luz passar"} tem 4 portuguesas, então é a
+     * tradução. Sem lista de palavras para manter (ordem do Paulo, 21/09).
+     *
+     * <p>FALLBACK (regra 22): dicionário indisponível (mapa sem veredicto para as palavras) cai no
+     * DIACRÍTICO português — pega a tradução acentuada (a maioria) e achata a PT sem acento nenhum
+     * (volta ao comportamento antigo); nunca vira linha errada nem vazia.
      */
-    private boolean ehParOriginalTraducao(String a, String b) {
+    private boolean ehParOriginalTraducao(String a, String b, Map<String, VeredictoPalavra> idioma) {
         int romajiA = detectorKaraoke.proporcaoRomaji(a);
         int romajiB = detectorKaraoke.proporcaoRomaji(b);
         boolean aRomaji = romajiA >= LIMIAR_ROMAJI_SAIDA;
@@ -1029,25 +1038,69 @@ public class ConversorKaraokeUseCase {
         if (aRomaji) {
             return false; // os dois romaji: verso romaji monolingue
         }
-        return ehPortugues(a) != ehPortugues(b); // ingles×PT ⇒ par; ingles×ingles ⇒ verso
+        // nenhum romaji: ingles (original) x portugues (traducao), pelo dicionario.
+        int[] ca = contarLinguaPeloDicionario(a, idioma);
+        int[] cb = contarLinguaPeloDicionario(b, idioma);
+        if (ca[0] + ca[1] + cb[0] + cb[1] == 0) {
+            // dicionario nao disse nada (indisponivel/todas desconhecidas): fallback diacritico
+            return DIACRITICO_PT.matcher(a).find() != DIACRITICO_PT.matcher(b).find();
+        }
+        boolean aPt = ca[0] > ca[1];
+        boolean bPt = cb[0] > cb[1];
+        return aPt != bPt; // exatamente um lado e portugues-dominante ⇒ par
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: este lado é a TRADUÇÃO em português (e não a letra original em inglês)?
+     * PROPÓSITO DE NEGÓCIO: conta, num lado do {@code \N}, quantas palavras o dicionário deu como
+     * PORTUGUÊS e quantas como INGLÊS. Devolve {@code [pt, en]}.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o sinal é o DIACRÍTICO português ({@link #DIACRITICO_PT}), e só ele
-     * — NÃO uma lista de palavras. Português e romaji compartilham a estrutura consoante+vogal, e
-     * palavras-função PT colidem com o inglês: a lista {@link #pontuacaoPortugues} marcava o inglês
-     * {@code "Do you feel alone"} como português porque {@code "do"} está nela, e o par bilíngue
-     * colava numa linha (medido no e2e de 21/09). O acento resolve: o inglês não tem {@code ç/ã/õ},
-     * e o macron do romaji Hepburn ({@code ā/ī/ū/ē/ō}) ficou de fora do padrão de propósito.
-     *
-     * <p>DEGRADAÇÃO DECLARADA (regra 22): tradução PT sem acento E sem nenhum dos sinais de
-     * {@link #PT_SEM_ACENTO} (nem gerúndio, nem advérbio, nem palavra-função) devolve {@code false} e
-     * o par ACHATA para 1 linha (comportamento antigo) — nunca vira linha errada nem vazia.
+     * <p>INVARIANTES DO DOMÍNIO: só consulta o mapa já classificado em lote — não chama o hunspell
+     * aqui (o custo é o arranque do processo, e ele já rodou uma vez por arquivo).
      */
-    private static boolean ehPortugues(String s) {
-        return DIACRITICO_PT.matcher(s).find() || PT_SEM_ACENTO.matcher(s).find();
+    private static int[] contarLinguaPeloDicionario(String lado, Map<String, VeredictoPalavra> idioma) {
+        int pt = 0;
+        int en = 0;
+        Matcher m = PALAVRA.matcher(lado);
+        while (m.find()) {
+            VeredictoPalavra v = idioma.get(m.group());
+            if (v == VeredictoPalavra.PORTUGUES_OK || v == VeredictoPalavra.ACENTO_FALTANDO) {
+                pt++;
+            } else if (v == VeredictoPalavra.RESIDUO_INGLES) {
+                en++;
+            }
+        }
+        return new int[] {pt, en};
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: classifica em LOTE (uma consulta por arquivo) o idioma das palavras dos
+     * eventos musicais que trazem um {@code \N} — os únicos candidatos a par bilíngue. O custo do
+     * hunspell é o arranque do processo, então juntar tudo num lote é o que a régra da medição pede.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem palavras devolve mapa vazio; qualquer erro do corretor
+     * é absorvido e devolve mapa vazio (a decisão cai no fallback do diacrítico). Nunca lança.
+     */
+    private Map<String, VeredictoPalavra> classificarIdiomaDosPares(List<EventoAss> musicais) {
+        java.util.LinkedHashSet<String> palavras = new java.util.LinkedHashSet<>();
+        for (EventoAss e : musicais) {
+            String t = normalizarQuebras(limparArtefatosVisiveis(e.textoComQuebra()));
+            if (!t.contains(QUEBRA_ASS)) {
+                continue;
+            }
+            Matcher m = PALAVRA.matcher(t);
+            while (m.find()) {
+                palavras.add(m.group());
+            }
+        }
+        if (palavras.isEmpty()) {
+            return Map.of();
+        }
+        try {
+            return corretorOrtografico.classificarPalavras(palavras);
+        } catch (RuntimeException ex) {
+            log.warn("Classificacao de idioma indisponivel; achatador cai no fallback do diacritico", ex);
+            return Map.of();
+        }
     }
 
     /**

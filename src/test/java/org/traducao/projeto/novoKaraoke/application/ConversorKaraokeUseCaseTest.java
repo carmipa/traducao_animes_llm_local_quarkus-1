@@ -4,12 +4,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda;
+import org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra;
 import org.traducao.projeto.novoKaraoke.domain.ports.TelemetriaKaraokePort;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -235,9 +241,10 @@ class ConversorKaraokeUseCaseTest {
     /**
      * PROPÓSITO DE NEGÓCIO: par bilíngue em que a tradução PT é CORRETA mas SEM acento nenhum
      * ({@code "E estou chamando seu nome novamente"}) tem de ser reconhecido e virar 2 linhas. O
-     * diacrítico sozinho não pega; a morfologia PT (gerúndio {@code -ndo}, advérbio {@code -mente}) e
-     * palavras inequívocas ({@code que}, {@code seu}, {@code estou}) pegam, sem colidir com o inglês.
-     * Medido no e2e de 21/09: 2 das 16 linhas da abertura colavam por falta desse sinal.
+     * diacrítico sozinho não pega; o DICIONÁRIO Hunspell reconhece {@code estou}/{@code chamando}/
+     * {@code seu}/{@code nome}/{@code novamente} como português e o inglês do outro lado como inglês.
+     * (No teste, o dublê {@code CorretorOrtograficoDeTeste} dá esses vereditos; em produção é o
+     * hunspell real.) Medido no e2e de 21/09: 2 das 16 linhas da abertura colavam por falta disso.
      */
     @Test
     void parBilingueComTraducaoSemAcentoPreservaAsDuasLinhas() throws Exception {
@@ -254,6 +261,62 @@ class ConversorKaraokeUseCaseTest {
             () -> "PT sem acento (chamando/novamente/estou/seu) tinha de ser reconhecido e manter 2 linhas:\n" + saida);
         assertFalse(saida.contains("name again E estou"),
             () -> "o par nao pode colar numa linha so:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o caso "para valer" que era o resíduo de 1/16 — par bilíngue em que a
+     * tradução PT é CURTA e SEM diacrítico ({@code "Deixe a luz passar"}). O que resolve não é uma
+     * lista de palavras à mão (colidiria com o inglês), e sim o DICIONÁRIO: {@code deixe}/{@code luz}/
+     * {@code passar} são português e {@code Let}/{@code light}/{@code shine}/{@code through} são
+     * inglês — a pontuação de cada lado decide. (Ordem do Paulo, 21/09: usar os dicionários do
+     * projeto, não léxico à mão.) O dublê dá esses vereditos; em produção é o hunspell real.
+     */
+    @Test
+    void parBilingueSemDiacriticoReconhecidoPeloDicionario() throws Exception {
+        Path origem = tempDir.resolve("opl2-sinal-ingles.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:02:18.00,0:02:21.00,OPL2,,0,0,0,fx,{\\pos(640,60)}Let light shine through\\NDeixe a luz passar\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Let light shine through\\NDeixe a luz passar"),
+            () -> "o dicionario (deixe/luz/passar=PT, let/light/through=EN) devia manter o par em 2 linhas:\n" + saida);
+        assertFalse(saida.contains("through Deixe"),
+            () -> "o par nao pode colar numa linha so:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: FALHA FECHADA do discriminador — dicionário INDISPONÍVEL (hunspell fora
+     * do ar) não pode quebrar o achatador. Cai no fallback do diacrítico: o par com acento
+     * ({@code "Você"}) ainda vira 2 linhas. É a garantia de que o achatador roda mesmo sem o
+     * dicionário, com degradação declarada (o PT sem acento aí achataria).
+     */
+    @Test
+    void semDicionarioDisponivelCaiNoFallbackDoDiacritico() throws Exception {
+        ConversorKaraokeUseCase conversor = new ConversorKaraokeUseCase();
+        conversor.detectorKaraoke = new DetectorEfeitoKaraokeService();
+        conversor.logStream = new LogStreamSilencioso();
+        conversor.telemetriaKaraoke = new TelemetriaKaraokeSilenciosa();
+        conversor.corretorOrtografico = new CorretorOrtograficoLegenda() {
+            @Override
+            public Map<String, VeredictoPalavra> classificarPalavras(Collection<String> palavras) {
+                return Map.of(); // dicionario indisponivel: nenhum veredicto
+            }
+        };
+        Path origem = tempDir.resolve("fallback.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:01:00.00,0:01:04.00,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\\NVocê se sente sozinho?\n",
+            StandardCharsets.UTF_8);
+
+        conversor.converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Do you feel alone\\NVocê se sente sozinho?"),
+            () -> "sem dicionario, o diacritico (ê) ainda preserva o par acentuado em 2 linhas:\n" + saida);
     }
 
     /**
@@ -446,7 +509,43 @@ class ConversorKaraokeUseCaseTest {
         conversor.detectorKaraoke = new DetectorEfeitoKaraokeService();
         conversor.logStream = new LogStreamSilencioso();
         conversor.telemetriaKaraoke = new TelemetriaKaraokeSilenciosa();
+        conversor.corretorOrtografico = new CorretorOrtograficoDeTeste();
         return conversor;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: dublê do classificador de idioma por dicionário. O hunspell real não
+     * está na máquina de teste, então o veredicto de cada palavra é dado por uma tabela conhecida —
+     * o suficiente para exercitar a decisão inglês×português do achatador de forma determinística.
+     * Palavra fora da tabela vira {@code DESCONHECIDA} (o mesmo que o dicionário faria com nome
+     * próprio/termo de lore).
+     */
+    private static final class CorretorOrtograficoDeTeste extends CorretorOrtograficoLegenda {
+        private static final Map<String, VeredictoPalavra> VEREDITO = new LinkedHashMap<>();
+        static {
+            String pt = "voce se sente sozinho pode me ouvir agora sua mente ainda esta tao distante presa "
+                + "terra muitas vezes esta machucando nao apenas uma vida prateleira somente pilotar novo "
+                + "ceu sempre assim machuca facas estou chamando seu nome novamente estiver preso medo "
+                + "soubesse cegos podem abrir deixe luz passar digo do da de que a e o os as com para "
+                + "eu sei todas mentiras tornaram pedra coracao pergunto quanto tempo vai sobreviver";
+            String en = "do you feel alone can hear now mind is so far away still on earth many times are "
+                + "hurting yourself cant be just life shelf its only that fly this new unicorn into the sky "
+                + "and every time hurt with knives im calling out your name again if holding onto fear i knew "
+                + "blind open let light shine through we say why stop all sacrifice know lies became stone in "
+                + "heart wonder how long gonna survive didnt see meaning have little break running lights "
+                + "take off my sought idol then breathe deep dress crown fall sound asleep";
+            for (String w : pt.split(" ")) VEREDITO.put(w, VeredictoPalavra.PORTUGUES_OK);
+            for (String w : en.split(" ")) VEREDITO.putIfAbsent(w, VeredictoPalavra.RESIDUO_INGLES);
+        }
+
+        @Override
+        public Map<String, VeredictoPalavra> classificarPalavras(Collection<String> palavras) {
+            Map<String, VeredictoPalavra> fora = new LinkedHashMap<>();
+            for (String p : palavras) {
+                fora.put(p, VEREDITO.getOrDefault(p.toLowerCase(Locale.ROOT), VeredictoPalavra.DESCONHECIDA));
+            }
+            return fora;
+        }
     }
 
     /**
