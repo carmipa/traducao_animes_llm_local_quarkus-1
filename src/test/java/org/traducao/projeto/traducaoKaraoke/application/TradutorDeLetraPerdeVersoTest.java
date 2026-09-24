@@ -102,7 +102,7 @@ class TradutorDeLetraPerdeVersoTest {
         String traduzido = tradutor(new LlmQueQuebraEmLinhas(List.of("Você se sente sozinho?", "Observação: tradução livre.")))
             .traduzirViaLlm("{\\fad(200,200)}Do you feel alone", avisos, new AtomicInteger(), "prompt");
         assertNull(traduzido, "duas linhas para um verso nao podem virar legenda");
-        assertTrue(avisos.stream().anyMatch(a -> a.contains("2 linha(s) para 1 verso")),
+        assertTrue(avisos.stream().anyMatch(a -> a.contains("2 linha(s) para 1 verso") && a.contains("Observação: tradução livre.")),
             () -> "a recusa tem de ficar registrada com as duas contagens (A7): " + avisos);
     }
 }

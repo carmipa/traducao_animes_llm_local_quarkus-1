@@ -277,7 +277,7 @@ public final class PlanoDeClassificacao {
             ini[i] = inicioCs(ev);
             fim[i] = fimCs(ev);
             candidatos.add(i);
-            porEstiloOrdemDeFim.computeIfAbsent(String.valueOf(ev.estilo()), k -> new ArrayList<>()).add(i);
+            porEstiloOrdemDeFim.computeIfAbsent(ev.estilo(), k -> new ArrayList<>()).add(i); // HashMap aceita chave nula: mesma semantica do Objects.equals antigo
         }
         for (List<Integer> doEstilo : porEstiloOrdemDeFim.values()) {
             doEstilo.sort(Comparator.comparingLong((Integer id) -> fim[id]));
@@ -293,7 +293,7 @@ public final class PlanoDeClassificacao {
             if (iniFrase < 0 || fimFrase < 0) {
                 continue;
             }
-            List<Integer> doEstilo = porEstiloOrdemDeFim.get(String.valueOf(eventos.get(idFrase).estilo()));
+            List<Integer> doEstilo = porEstiloOrdemDeFim.get(eventos.get(idFrase).estilo());
             List<Integer> irmas = new ArrayList<>();
                 // A âncora do pareamento é o FIM, não o início. Todo pedaço do fill de karaokê
                 // termina JUNTO com a frase (fica aceso até a linha acabar), então casar pelo fim é

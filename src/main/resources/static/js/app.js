@@ -26,7 +26,7 @@ import { initRenomearArquivos } from '../renomearArquivos/renomearArquivos.js?v=
 // 4.3 Karaokê Simples foi ABSORVIDO pela tela única 4.1 Karaokê em 21/09/2026: o achatamento virou
 // o Passo 2 da mesma tela (chama /api/novo-karaoke/* direto). O backend do achatador continua vivo;
 // só o módulo/tela frontend próprio deixou de existir. Ver traducaoKaraoke.js.
-import { initTraducaoKaraoke } from '../traducaoKaraoke/traducaoKaraoke.js?v=1.3';
+import { initTraducaoKaraoke } from '../traducaoKaraoke/traducaoKaraoke.js?v=1.4';
 import { initInicio } from '../inicio/inicio.js?v=1.0';
 import { inicializarI18n } from '../i18n/i18n.js?v=2.1';
 

@@ -14,8 +14,9 @@ import java.util.regex.Pattern;
  * {@code getFirst()} sem conferir quantas vieram. O aya transforma o {@code \N} do verso em quebra
  * de linha REAL (saída crua: {@code "Nós caminhamos...tempo.\nVocê nunca sabe o amor..."}), então o
  * segundo verso era descartado em silêncio — e às vezes sobrava um {@code \} solto, que a legenda
- * desenha literalmente na tela. No cache real do karaokê: 14 letras DISTINTAS de 2+ versos, 6
- * truncadas — {@code "Have a little break\NWe're running through the lights, out of breath"} virou
+ * desenha literalmente na tela. No cache real do karaokê, antes das retraduções: 9 letras
+ * distintas de 2+ versos, com 14 pares original→tradução, 7 deles truncados (em 6 das 9 letras) —
+ * {@code "Have a little break\NWe're running through the lights, out of breath"} virou
  * só "Faça uma pequena pausa" em 12 episódios do Unicorn, e {@code "God, what a judgement\NIs my
  * punishment"} virou "Deus, que julgamento! \" em 8.
  *
@@ -41,9 +42,11 @@ public final class VersosDaLetra {
 
     /**
      * Fração mínima do tamanho do original que uma tradução SEM quebra precisa ter para não ser
-     * suspeita de verso perdido. Medido no cache real do karaokê em 24/09/2026 (unidade: texto
-     * DISTINTO): 14 letras de 2+ versos; as 6 truncadas ficaram entre 0,33 e 0,73 do tamanho do
-     * original, e as 8 fusões legítimas dos versos numa frase entre 1,00 e 1,23.
+     * suspeita de verso perdido. Medido no cache real do karaokê em 24/09/2026 (unidade: PAR
+     * original→tradução distinto): 14 pares de 9 letras de 2+ versos; os 7 truncados ficaram entre
+     * 0,33 e 0,73 do tamanho do original, e as 7 fusões legítimas dos versos numa frase entre 1,00
+     * e 1,23. (Uma primeira versão deste texto chamou os 14 PARES de "letras" — corrigido pela
+     * revisão adversarial.)
      *
      * <p>LIMITAÇÃO DECLARADA (A8): o limiar foi escolhido olhando esse MESMO conjunto — não havia
      * amostra reservada. Por isso a suspeita nunca apaga nada: só faz retraduzir, e o custo de um

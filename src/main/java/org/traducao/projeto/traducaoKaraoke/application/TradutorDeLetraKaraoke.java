@@ -322,10 +322,14 @@ public class TradutorDeLetraKaraoke {
         Optional<String> unida = VersosDaLetra.unirResposta(linhas, versosEnviados);
         if (unida.isEmpty()) {
             int recebidas = linhas == null ? 0 : linhas.size();
+            // A7: guardar O QUE o modelo mandou, e não só as contagens — medido em 24/09/2026 (1
+            // recusa em 929 traduções), o manifesto dizia que houve recusa sem dizer de quê.
+            String recusada = linhas == null ? "" : String.join(" | ", linhas);
             avisos.add("Resposta com " + recebidas + " linha(s) para " + versosEnviados
-                + " verso(s); letra mantida: " + letra);
+                + " verso(s); letra mantida: " + letra + " | resposta recusada: " + recusada);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] resposta do LLM com " + recebidas
-                + " linha(s) para " + versosEnviados + " verso(s) — letra mantida no original: " + letra);
+                + " linha(s) para " + versosEnviados + " verso(s) — letra mantida no original: " + letra
+                + " | recusada: " + recusada);
             return null;
         }
         return unida.get();

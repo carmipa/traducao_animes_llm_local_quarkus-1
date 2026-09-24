@@ -414,7 +414,18 @@ public class ConversorKaraokeUseCase {
             resultado.adicionarAviso(aviso);
             logStream.publicarLog(CANAL_LOG, "   [BACKUP] " + aviso);
         }
-        Files.write(destino, conteudo);
+        // Grava num temporário e troca de uma vez: desde que o achatar entrou na fila, o botão
+        // Parar interrompe a thread, e um Files.write direto interrompido no meio deixaria o
+        // destino TRUNCADO (revisão adversarial de 24/09/2026). Com a troca atômica, o destino é
+        // o arquivo inteiro antigo ou o inteiro novo, nunca meio arquivo.
+        Path temporario = destino.resolveSibling(destino.getFileName() + ".gravando");
+        try {
+            Files.write(temporario, conteudo);
+            Files.move(temporario, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+        } finally {
+            Files.deleteIfExists(temporario);
+        }
     }
 
     /**

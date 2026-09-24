@@ -51,20 +51,25 @@ export async function initTraducaoKaraoke() {
  * PROPÓSITO DE NEGÓCIO: espera a fila do pipeline esvaziar, para a tela saber que a passada
  * REALMENTE terminou — o POST apenas ENFILEIRA, e o trabalho roda em segundo plano.
  *
- * INVARIANTES DO DOMÍNIO: só retorna quando a fila reporta "livre"; nunca lança.
- * COMPORTAMENTO EM CASO DE FALHA: avisa no console e retorna, para a tela não travar.
+ * INVARIANTES DO DOMÍNIO: devolve true SÓ quando a fila reporta "livre"; nunca lança.
+ * COMPORTAMENTO EM CASO DE FALHA: status HTTP de erro ou falha de rede devolvem false — a tela
+ * NÃO pode dizer "concluída" sem ter visto a fila livre (24/09/2026: o break no erro fazia isso).
  */
 async function acompanharConclusao() {
     try {
         for (;;) {
             const resposta = await fetch('/api/pipeline/status', { cache: 'no-store' });
-            if (!resposta.ok) break;
+            if (!resposta.ok) {
+                logNoConsole(CONSOLE_ID, `Não foi possível acompanhar a fila (HTTP ${resposta.status}).`, 'aviso');
+                return false;
+            }
             const dados = await resposta.json();
-            if (dados.mensagem === 'livre') break;
+            if (dados.mensagem === 'livre') return true;
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
     } catch (erro) {
         logNoConsole(CONSOLE_ID, `Não foi possível acompanhar o estado da fila: ${erro.message}`, 'aviso');
+        return false;
     }
 }
 
@@ -223,9 +228,12 @@ function vincularEventos() {
                 const estadoAviso = armarAvisoSonoro();
                 logNoConsole(CONSOLE_ID, mensagemDoAviso(estadoAviso),
                     estadoAviso === 'ARMADO' ? 'info' : 'aviso');
-                await acompanharConclusao();
-                logNoConsole(CONSOLE_ID, 'Passada concluída.', 'sucesso');
-                tocarAvisoSonoro();
+                if (await acompanharConclusao()) {
+                    logNoConsole(CONSOLE_ID, 'Passada concluída.', 'sucesso');
+                    tocarAvisoSonoro();
+                } else {
+                    logNoConsole(CONSOLE_ID, 'Fim da passada NÃO confirmado — confira o console acima e a pasta de saída antes de seguir.', 'aviso');
+                }
             }
         } catch (e) {
             logNoConsole(CONSOLE_ID, `Erro de rede: ${e.message}`, 'erro');
