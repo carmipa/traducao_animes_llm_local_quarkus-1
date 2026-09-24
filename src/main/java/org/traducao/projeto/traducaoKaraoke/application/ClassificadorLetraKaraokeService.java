@@ -382,6 +382,11 @@ public class ClassificadorLetraKaraokeService {
             .replace("'", "").replace("’", "");
     }
 
+    /** Há kana ou kanji no texto? Pergunta única desta fatia — o plano consulta aqui, não copia. */
+    static boolean temEscritaJaponesa(String texto) {
+        return texto != null && ESCRITA_JAPONESA_PATTERN.matcher(texto).find();
+    }
+
     static String extrairTextoVisivel(String texto) {
         if (texto == null) {
             return "";

@@ -88,6 +88,42 @@ public final class PlanoDeClassificacao {
      */
     public static PlanoDeClassificacao montar(DocumentoLegenda documento,
                                               ClassificadorLetraKaraokeService classificador) {
+        return montar(documento, classificador, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o mesmo plano, agora aplicando a regra de Paulo de 24/09/2026 para a
+     * camada ORIGINAL: <i>"a linha de cima mistura inglês e japonês e a de baixo é a que o texto
+     * todo é inglês da música e vira português"</i>.
+     *
+     * <h2>O que muda</h2>
+     * Uma linha que o classificador chamou de ORIGINAL (pelo NOME do estilo — {@code Song JP},
+     * {@code JP Song}, {@code ED-ROM} — ou pelo desempate silábico) mas cujo texto é todo inglês
+     * passa a ser traduzida. Sem romaji irmão no instante ela é a letra cantada e empilha
+     * {@code inglês\Nportuguês} (Zeta "I wanna have a pure time!", 0083 "Men of destiny!"); com
+     * romaji irmão ela é a tradução do fansub posta no estilo JP e é trocada no lugar (08th "I was
+     * watching you as you were watching the sun rise."). Linha que MISTURA as duas línguas
+     * ("Kagayaku my history", "Stay together sono toki") continua intacta.
+     *
+     * <h2>"Todo inglês", medido com os três dicionários</h2>
+     * Toda palavra reconhecida pelo português ou pelo inglês E ao menos DUAS que só o inglês
+     * reconhece. O rótulo ROMAJI não serve de prova: o {@code ja_ROMAJI} deixa {@code wa},
+     * {@code ga}, {@code shitemo}, {@code kawaranai} como DESCONHECIDA — então palavra que nenhum
+     * dos dois reconhece é tratada como possível japonês e barra a conversão. O piso de duas é o que
+     * barra "ai suru anata ni sou yo", em que o pt_BR aceita todas menos "yo". Medido no acervo em
+     * 24/09/2026: 523 linhas originais distintas, 105 convertidas, todas inglês na leitura, zero
+     * romaji. LIMITAÇÃO DECLARADA (A8): o piso foi escolhido olhando esse mesmo acervo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem corretor, ou com o dicionário inglês fora do ar, NADA muda —
+     * o plano sai idêntico ao da versão sem este parâmetro (falha fechada). A linha convertida sai
+     * das janelas de "original preservada", senão acharia a SI MESMA como irmã e trocaria o inglês
+     * cantado em vez de empilhar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro do corretor devolve o plano sem a conversão.
+     */
+    public static PlanoDeClassificacao montar(DocumentoLegenda documento,
+                                              ClassificadorLetraKaraokeService classificador,
+                                              org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretor) {
         if (documento == null || documento.eventos() == null) {
             return new PlanoDeClassificacao(List.of(), List.of());
         }
@@ -128,7 +164,7 @@ public final class PlanoDeClassificacao {
             long ini = inicioCs(ev);
             long fim = fimCs(ev);
             if (ini >= 0 && fim >= 0) {
-                janelasComRomaji.add(new long[] {ini, fim});
+                janelasComRomaji.add(new long[] {ini, fim, i});
             }
         }
 
@@ -143,7 +179,82 @@ public final class PlanoDeClassificacao {
                 new SinaisDeKaraoke(campoEfeitoDe(ev), instantesExatosComRomaji.contains(instanteExato(ev)),
                     silabas.contains(i))));
         }
+
+        Set<Integer> todaInglesa = originaisTodaInglesas(eventos, classes, silabas, corretor);
+        if (!todaInglesa.isEmpty()) {
+            for (int i : todaInglesa) {
+                classes.set(i, ClasseLinhaKaraoke.TRADUZIVEL_INGLES);
+            }
+            janelasComRomaji.removeIf(j -> todaInglesa.contains((int) j[2]));
+        }
         return new PlanoDeClassificacao(classes, janelasComRomaji);
+    }
+
+    /** Mínimo de palavras que SÓ o inglês reconhece — ver o Javadoc de {@link #montar(DocumentoLegenda, ClassificadorLetraKaraokeService, org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda)}. */
+    static final int MINIMO_PALAVRAS_INGLESAS = 2;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as posições das linhas ORIGINAL cujo texto é todo inglês (regra de
+     * Paulo de 24/09/2026), decididas pelos dicionários numa consulta em LOTE por arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem corretor, sem candidata, dicionário inglês fora do ar
+     * ou erro na consulta devolvem conjunto vazio — o plano fica como era.
+     */
+    private static Set<Integer> originaisTodaInglesas(
+            List<EventoLegenda> eventos, List<ClasseLinhaKaraoke> classes, Set<Integer> silabas,
+            org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretor) {
+        if (corretor == null) {
+            return Set.of();
+        }
+        java.util.Map<Integer, List<String>> candidatas = new java.util.LinkedHashMap<>();
+        Set<String> todasAsPalavras = new HashSet<>();
+        for (int i = 0; i < eventos.size(); i++) {
+            if (classes.get(i) != ClasseLinhaKaraoke.ORIGINAL_JAPONES || silabas.contains(i)) {
+                continue;
+            }
+            String visivel = visivelDe(eventos.get(i));
+            if (ClassificadorLetraKaraokeService.temEscritaJaponesa(visivel)) {
+                continue;
+            }
+            // Tokenização do DONO do dicionário (core) — a mesma do achatador, sem cópia.
+            List<String> palavras =
+                org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda.palavrasDe(visivel);
+            if (palavras.size() >= MINIMO_PALAVRAS_INGLESAS) {
+                candidatas.put(i, palavras);
+                todasAsPalavras.addAll(palavras);
+            }
+        }
+        if (candidatas.isEmpty()) {
+            return Set.of();
+        }
+        java.util.Map<String, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra> veredicto;
+        try {
+            veredicto = corretor.classificarPalavras(todasAsPalavras);
+        } catch (RuntimeException e) {
+            return Set.of();
+        }
+        if (!corretor.inglesDisponivel()) {
+            return Set.of();
+        }
+        Set<Integer> todaInglesa = new HashSet<>();
+        for (java.util.Map.Entry<Integer, List<String>> c : candidatas.entrySet()) {
+            int soIngles = 0;
+            boolean tudoReconhecido = true;
+            for (String p : c.getValue()) {
+                var v = veredicto.get(p);
+                if (v == org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.RESIDUO_INGLES) {
+                    soIngles++;
+                } else if (v != org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.PORTUGUES_OK
+                    && v != org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.ACENTO_FALTANDO) {
+                    tudoReconhecido = false; // desconhecida/romaji/outro idioma: pode ser japonês
+                    break;
+                }
+            }
+            if (tudoReconhecido && soIngles >= MINIMO_PALAVRAS_INGLESAS) {
+                todaInglesa.add(c.getKey());
+            }
+        }
+        return todaInglesa;
     }
 
     /**

@@ -60,6 +60,8 @@ public class CorretorOrtograficoLegenda {
      * de perguntar ao inglês, então {@code idea} nunca chega a ser rotulado como inglês.
      */
     private final DicionarioOrtograficoPort ingles;
+    /** O rótulo de romaji: sem ele, "a linha tem japonês?" não tem resposta (24/09/2026). */
+    private final DicionarioOrtograficoPort romaji;
     private final AtomicInteger corrigidas = new AtomicInteger();
     private final AtomicInteger naoVerificadas = new AtomicInteger();
 
@@ -81,6 +83,7 @@ public class CorretorOrtograficoLegenda {
     public CorretorOrtograficoLegenda() {
         this.portugues = new HunspellDicionarioAdapter("hunspell", "pt_BR");
         this.ingles = new HunspellDicionarioAdapter("hunspell", "en_US");
+        this.romaji = new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI");
         // O francês entrou em 14/08/2026, quando o acervo passou a ter obra traduzida A PARTIR
         // dele. Não é preciosismo: no primeiro run do Memories pela faixa francesa, o detector de
         // nome próprio acusou seis palavras e cinco eram francês comum (Dieu, Octobre, Juillet,
@@ -93,7 +96,7 @@ public class CorretorOrtograficoLegenda {
             ingles,
             new HunspellDicionarioAdapter("hunspell", "de_DE"),
             new HunspellDicionarioAdapter("hunspell", "fr_FR"),
-            new HunspellDicionarioAdapter("hunspell", "ja_ROMAJI"),
+            romaji,
             // O ESPANHOL entrou em 26/08/2026: 54 ocorrencias no acervo, todas caindo em
             // DESCONHECIDA junto com termo de franquia e nome de personagem. Nenhuma obra foi
             // traduzida a partir dele — quando aparece, e deriva do modelo.
@@ -125,6 +128,7 @@ public class CorretorOrtograficoLegenda {
         // não para separar idioma — teste sobre idioma usa o construtor real, e o Javadoc acima
         // diz isso desde que a costura nasceu.
         this.ingles = dicionario;
+        this.romaji = dicionario;
         this.classificador = new ClassificadorQuatroIdiomas(
             dicionario, dicionario, dicionario, dicionario, dicionario);
     }
@@ -171,6 +175,45 @@ public class CorretorOrtograficoLegenda {
      */
     public boolean inglesDisponivel() {
         return ingles != null && ingles.disponivel();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o dicionário de ROMAJI respondeu nesta execução? Quem decide "esta
+     * linha de letra tem japonês?" pelo veredicto {@link VeredictoPalavra#ROMAJI} precisa saber se
+     * a ausência do rótulo é "não há romaji" ou "não havia como rotular" (regra 23).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: preguiçoso como {@link #inglesDisponivel()} — só é confiável
+     * DEPOIS de {@link #classificarPalavras}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem o adaptador, {@code false}.
+     */
+    public boolean romajiDisponivel() {
+        return romaji != null && romaji.disponivel();
+    }
+
+    /** Palavra como o dicionário a consulta: letras, com apóstrofo ou hífen internos. */
+    private static final java.util.regex.Pattern PALAVRA_DO_DICIONARIO =
+        java.util.regex.Pattern.compile("[\\p{L}][\\p{L}'\\-]*");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: DONO ÚNICO de "quais palavras deste texto se perguntam ao dicionário".
+     * Nasceu em 24/09/2026 quando a mesma regex existia no achatador (novoKaraoke) e no plano da
+     * tradução de karaokê — a catraca de regra duplicada entre fatias reprovou a segunda cópia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: preserva a grafia (o veredicto é por forma exata) e a ordem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nulo devolve lista vazia.
+     */
+    public static java.util.List<String> palavrasDe(String texto) {
+        java.util.List<String> palavras = new java.util.ArrayList<>();
+        if (texto == null) {
+            return palavras;
+        }
+        java.util.regex.Matcher m = PALAVRA_DO_DICIONARIO.matcher(texto);
+        while (m.find()) {
+            palavras.add(m.group());
+        }
+        return palavras;
     }
 
     /**

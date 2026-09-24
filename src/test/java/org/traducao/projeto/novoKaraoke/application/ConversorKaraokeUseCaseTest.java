@@ -694,6 +694,50 @@ class ConversorKaraokeUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (24/09/2026, 08th E05): verso de uma palavra desenhado em DUAS camadas
+     * idênticas (contorno + preenchimento) é o mesmo verso — "itoshii" tem de ir para a linha limpa
+     * com a tradução, e não deixar o PT sozinho no topo.
+     */
+    @Test
+    void versoDeUmaPalavraEmDuasCamadasIdenticasTambemEntra() throws Exception {
+        Path origem = tempDir.resolve("itoshii.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:22:09.21,0:22:12.58,Song JP,,0,0,0,,{\\fs50\\an9\\fad(100,100)}itoshii\n"
+            + "Dialogue: 1,0:22:09.21,0:22:12.58,Song JP,,0,0,0,,{\\fs50\\fad(100,100)}itoshii\n"
+            + "Dialogue: 0,0:22:09.21,0:22:12.58,Song ENG,,0,0,0,,{\\fs40\\an9\\fad(100,100)}Meu amor mais querido...\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,itoshii\\NMeu amor mais querido..."),
+            () -> "a copia identica nao e companhia: o romaji tinha de sair com o PT embaixo:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (24/09/2026, 08th E05): a camada portuguesa vai para BAIXO mesmo quando
+     * "soa" romaji — "A que eu amo." (a-que-eu-a-mo, 75%) subia acima de "Love! Meguriaeta".
+     *
+     * <p>A1 — sem dicionário, a ordem continua pela proporção de romaji (comportamento anterior).
+     */
+    @Test
+    void camadaPortuguesaVaiParaBaixoMesmoSoandoRomaji() throws Exception {
+        Path origem = tempDir.resolve("ordem.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:23:35.18,0:23:39.81,Song ENG,,0,0,0,,{\\fad(100,100)}A que eu amo.\n"
+            + "Dialogue: 0,0:23:35.18,0:23:39.81,Song JP,,0,0,0,,{\\fad(100,100)}Love! Meguriaeta\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Love! Meguriaeta\\NA que eu amo."),
+            () -> "o original (mistura) em cima e o PT embaixo:\n" + saida);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO (F10, 24/09/2026): o destino padrão é o MESMO para toda pasta de origem
      * da obra. Achatar outra pasta depois regravava em silêncio a saída que tinha a música
      * traduzida (medido: linhas com PT na música 32 → 0, sem aviso). Agora o arquivo anterior
@@ -748,13 +792,14 @@ class ConversorKaraokeUseCaseTest {
                 + "eu sei todas mentiras tornaram pedra coracao pergunto quanto tempo vai sobreviver "
                 + "tire minha roupa coroa entao então posso adormecer profundamente "
                 // o pt_BR REAL aceita estas palavras inglesas (medido 24/09/2026) — o duble imita
-                + "can't escape sole fate não escapar destino quero estar nos seus braços você tremeu diante mim";
+                + "can't escape sole fate não escapar destino quero estar nos seus braços você tremeu diante mim "
+                + "que eu amo";
             String en = "do you feel alone can hear now mind is so far away still on earth many times are "
                 + "hurting yourself cant be just life shelf its only that fly this new unicorn into the sky "
                 + "and every time hurt with knives im calling out your name again if holding onto fear i knew "
                 + "blind open let light shine through we say why stop all sacrifice know lies became stone in "
                 + "heart wonder how long gonna survive didnt see meaning have little break running lights "
-                + "take off my sought idol then breathe deep dress crown fall sound asleep from";
+                + "take off my sought idol then breathe deep dress crown fall sound asleep from love";
             for (String w : pt.split(" ")) VEREDITO.put(w, VeredictoPalavra.PORTUGUES_OK);
             for (String w : en.split(" ")) VEREDITO.putIfAbsent(w, VeredictoPalavra.RESIDUO_INGLES);
         }

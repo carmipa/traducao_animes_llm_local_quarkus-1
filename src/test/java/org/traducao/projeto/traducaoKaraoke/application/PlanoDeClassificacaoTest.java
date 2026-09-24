@@ -143,6 +143,89 @@ class PlanoDeClassificacaoTest {
     }
 
     /**
+     * Dublê dos três dicionários com os veredictos MEDIDOS no real em 24/09/2026: o pt_BR aceita
+     * "anata", "suru", "sou", "ni", "I", "a", "time"; o romaji comum ("wa", "Kagayaku", "Asayake")
+     * sai DESCONHECIDA; "yo", "wanna", "pure", "have"... saem inglês.
+     */
+    private static final class TresDicionarios
+            extends org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda {
+        private final boolean inglesNoAr;
+        private final java.util.Map<String, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra> tabela =
+            new java.util.HashMap<>();
+
+        TresDicionarios(boolean inglesNoAr) {
+            this.inglesNoAr = inglesNoAr;
+            var pt = org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.PORTUGUES_OK;
+            var en = org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.RESIDUO_INGLES;
+            for (String p : "I a time ai suru anata ni sou mo anata o sun".split(" ")) tabela.put(p, pt);
+            for (String p : "wanna have pure yo was watching you as were the rise my history".split(" ")) tabela.put(p, en);
+        }
+
+        @Override
+        public java.util.Map<String, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra> classificarPalavras(
+                java.util.Collection<String> palavras) {
+            java.util.Map<String, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra> out = new java.util.HashMap<>();
+            for (String p : palavras) {
+                out.put(p, inglesNoAr
+                    ? tabela.getOrDefault(p, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.DESCONHECIDA)
+                    : org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.NAO_VERIFICADO);
+            }
+            return out;
+        }
+
+        @Override
+        public boolean inglesDisponivel() {
+            return inglesNoAr;
+        }
+    }
+
+    private DocumentoLegenda documentoF8(Path pasta) throws IOException {
+        return documento(pasta,
+            // 0: Zeta — ingles cantado SOZINHO na camada JP (sem romaji irmao no instante)
+            "Dialogue: 0,0:00:40.23,0:00:43.27,Song JP,,0,0,0,,I wanna have a pure time!",
+            // 1-2: 08th — romaji e a traducao inglesa, os DOIS no estilo JP, no mesmo instante
+            "Dialogue: 0,0:21:06.85,0:21:10.88,Song JP,,0,0,0,,Asayake wo mitsumeteru anata o",
+            "Dialogue: 0,0:21:06.85,0:21:10.88,Song JP,,0,0,0,,I was watching you as you were watching the sun rise.",
+            // 3: MISTURA ingles + japones — linha de cima, intacta
+            "Dialogue: 0,0:01:00.00,0:01:04.00,Song JP,,0,0,0,,Kagayaku my history",
+            // 4: romaji que o pt_BR aceita quase inteiro (so "yo" e ingles) — intacta
+            "Dialogue: 0,0:02:00.00,0:02:04.00,Song JP,,0,0,0,,ai suru anata ni sou yo");
+    }
+
+    @Test
+    @DisplayName("F8: linha toda ingles na camada JP vira traduzivel; mistura e romaji ficam intactos")
+    void linhaTodaInglesaViraPortuguesMisturaNao(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        DocumentoLegenda doc = documentoF8(pasta);
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador, new TresDicionarios(true));
+
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(0),
+            "Zeta: 'I wanna have a pure time!' e toda ingles — tem de virar portugues");
+        assertFalse(plano.temOriginalPreservadaNoInstante(doc.eventos().get(0)),
+            "sozinha, ela e a letra cantada: NAO pode achar a si mesma como irma — tem de EMPILHAR");
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(2),
+            "08th: a traducao inglesa posta no estilo JP tambem vira portugues");
+        assertTrue(plano.temOriginalPreservadaNoInstante(doc.eventos().get(2)),
+            "com o romaji irmao no instante, a traducao e TROCADA no lugar (romaji em cima)");
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(1), "o romaji do 08th fica intacto");
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(3),
+            "A1: linha que MISTURA ingles e japones e a de cima — intacta");
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(4),
+            "A1: romaji com 1 palavra que so o ingles reconhece NAO e 'toda ingles'");
+    }
+
+    @Test
+    @DisplayName("F8: sem dicionario ingles (ou sem corretor) o plano fica como era — falha fechada")
+    void semDicionarioNadaMuda(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        DocumentoLegenda doc = documentoF8(pasta);
+
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES,
+            PlanoDeClassificacao.montar(doc, classificador, new TresDicionarios(false)).classeNaPosicao(0));
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES,
+            PlanoDeClassificacao.montar(doc, classificador, null).classeNaPosicao(0));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO (F12, 24/09/2026): montar o plano de um arquivo GRANDE não pode prender a
      * fila do pipeline. O arquivo do Char's Counterattack tem 55.983 eventos; a busca de sílabas
      * comparava cada frase com todos os eventos, refazendo parse de tempo e limpeza de tags a cada

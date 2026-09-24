@@ -335,7 +335,7 @@ public class ConversorKaraokeUseCase {
         for (Map.Entry<String, List<EventoAss>> entrada : porEstilo.entrySet()) {
             processarEstiloMusical(entrada.getKey(), entrada.getValue(), linhasSimples, preservados, resultado, idioma);
         }
-        linhasSimples = deduplicarLinhasSimples(linhasSimples, resultado);
+        linhasSimples = deduplicarLinhasSimples(linhasSimples, resultado, idioma);
         linhasSimples.sort(Comparator.comparingLong(LinhaSimplesKaraoke::inicioCs));
         resultado.getLinhasCriadas().addAll(linhasSimples);
 
@@ -745,18 +745,28 @@ public class ConversorKaraokeUseCase {
      * cruzam). Uma varredura por início: cruza com um anterior se o maior fim visto até ali passa
      * do seu início; com um posterior se o próximo começa antes do seu fim. O(n log n) — o estilo de
      * KFX letra a letra tem dezenas de milhares de eventos, e comparar todos com todos travaria.
+     *
+     * <p>A CÓPIA de tipografia (mesmo texto, mesma janela — a camada de contorno e a de preenchimento
+     * do fansub) não conta como companhia: é o mesmo verso desenhado duas vezes. Medido em
+     * 24/09/2026 no 08th E05: "itoshii" e "Ikutsumono" vêm em layer 0 e 1 idênticas, cada cópia
+     * "acompanhava" a outra, o romaji não virava linha e a tradução ia sozinha para o topo.
      */
     private static java.util.Set<EventoAss> acompanhadosNaTela(List<EventoAss> doEstilo) {
-        List<EventoAss> ordenados = new ArrayList<>(doEstilo);
-        ordenados.sort(Comparator.comparingLong(EventoAss::inicioCs).thenComparingLong(EventoAss::fimCs));
+        java.util.Map<String, List<EventoAss>> copias = new LinkedHashMap<>();
+        for (EventoAss e : doEstilo) {
+            copias.computeIfAbsent(e.inicioCs() + "|" + e.fimCs() + "|" + e.textoVisivel(), k -> new ArrayList<>()).add(e);
+        }
+        List<List<EventoAss>> ordenados = new ArrayList<>(copias.values());
+        ordenados.sort(Comparator.comparingLong((List<EventoAss> g) -> g.getFirst().inicioCs())
+            .thenComparingLong(g -> g.getFirst().fimCs()));
         java.util.Set<EventoAss> acompanhados = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         long maiorFimAnterior = Long.MIN_VALUE;
         for (int i = 0; i < ordenados.size(); i++) {
-            EventoAss e = ordenados.get(i);
+            EventoAss e = ordenados.get(i).getFirst();
             boolean cruzaAnterior = maiorFimAnterior > e.inicioCs();
-            boolean cruzaPosterior = i + 1 < ordenados.size() && ordenados.get(i + 1).inicioCs() < e.fimCs();
+            boolean cruzaPosterior = i + 1 < ordenados.size() && ordenados.get(i + 1).getFirst().inicioCs() < e.fimCs();
             if (cruzaAnterior || cruzaPosterior) {
-                acompanhados.add(e);
+                acompanhados.addAll(ordenados.get(i));
             }
             maiorFimAnterior = Math.max(maiorFimAnterior, e.fimCs());
         }
@@ -908,7 +918,8 @@ public class ConversorKaraokeUseCase {
 
     private List<LinhaSimplesKaraoke> deduplicarLinhasSimples(
         List<LinhaSimplesKaraoke> linhas,
-        ResultadoConversaoKaraoke resultado
+        ResultadoConversaoKaraoke resultado,
+        Map<String, VeredictoPalavra> idioma
     ) {
         // camadas simultâneas (romaji em cima, tradução embaixo) raramente têm
         // janelas byte-idênticas — o agrupamento é por sobreposição de janela.
@@ -960,7 +971,7 @@ public class ConversorKaraokeUseCase {
                     melhor.inicioAss(), melhor.fimAss(), grupo.size(), resumir(melhor.texto())));
                 continue;
             }
-            LinhaSimplesKaraoke empilhada = empilharCamadas(representantes);
+            LinhaSimplesKaraoke empilhada = empilharCamadas(representantes, idioma);
             deduplicadas.add(empilhada);
             empilhadas++;
             logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
@@ -1027,7 +1038,7 @@ public class ConversorKaraokeUseCase {
      * <p>INVARIANTES DO DOMÍNIO: a janela resultante cobre as duas camadas (menor início, maior
      * fim); os contadores de origem são somados para a telemetria não perder eventos.
      */
-    private LinhaSimplesKaraoke empilharCamadas(List<LinhaSimplesKaraoke> camadas) {
+    private LinhaSimplesKaraoke empilharCamadas(List<LinhaSimplesKaraoke> camadas, Map<String, VeredictoPalavra> idioma) {
         List<LinhaSimplesKaraoke> ordenadas = new ArrayList<>(camadas);
         // A MAIS japonesa em cima — por PROPORÇÃO, não por sim/não.
         //
@@ -1046,8 +1057,13 @@ public class ConversorKaraokeUseCase {
         // criada justamente porque exigir 100% fazia o romaji desta obra vazar. Aqui não há
         // limiar: compara-se qual das camadas é MAIS romaji, que é a pergunta certa quando o
         // objetivo é ordenar duas linhas, não classificar uma.
-        ordenadas.sort(Comparator.comparingInt(
-            (LinhaSimplesKaraoke l) -> -detectorKaraoke.proporcaoRomaji(l.texto())));
+        //
+        // E, antes da proporcao, a CAMADA PORTUGUESA vai para baixo (24/09/2026): no 08th E05 a
+        // traducao "A que eu amo." soa 75% romaji (a-que-eu-a-mo) e subiu acima de "Love!
+        // Meguriaeta". Portugues = toda palavra reconhecida pelo pt_BR (o romaji fica DESCONHECIDA
+        // ou cai no ingles). Sem dicionario (mapa vazio) ninguem e portugues e vale so a proporcao.
+        ordenadas.sort(Comparator.comparingInt((LinhaSimplesKaraoke l) -> todaPortuguesa(l.texto(), idioma) ? 1 : 0)
+            .thenComparingInt(l -> -detectorKaraoke.proporcaoRomaji(l.texto())));
 
         StringBuilder texto = new StringBuilder();
         long inicio = Long.MAX_VALUE;
@@ -1113,8 +1129,6 @@ public class ConversorKaraokeUseCase {
      * ({@code ā ī ū ē ō}): a presença de um destes num lado o marca como tradução PT, não original.
      */
     private static final Pattern DIACRITICO_PT = Pattern.compile("[çÇáàâãéêíóôõúüÁÀÂÃÉÊÍÓÔÕÚÜ]");
-    /** Palavra (letras, com apóstrofo/hífen internos), para consultar idioma no dicionário. */
-    private static final Pattern PALAVRA = Pattern.compile("[\\p{L}][\\p{L}'\\-]*");
 
     /**
      * PROPÓSITO DE NEGÓCIO: o texto de SAÍDA da linha simples. Preserva a quebra {@code \N} SÓ
@@ -1197,6 +1211,28 @@ public class ConversorKaraokeUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a camada é a tradução portuguesa? Toda palavra reconhecida pelo pt_BR
+     * (PORTUGUES_OK/ACENTO_FALTANDO). Usada só para ORDENAR camadas — o pior erro possível aqui é a
+     * ordem, nunca apagar texto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio ou sem palavra devolve {@code false}.
+     */
+    private static boolean todaPortuguesa(String texto, Map<String, VeredictoPalavra> idioma) {
+        if (idioma == null || idioma.isEmpty()) {
+            return false;
+        }
+        int palavras = 0;
+        for (String palavra : CorretorOrtograficoLegenda.palavrasDe(texto)) {
+            VeredictoPalavra v = idioma.get(palavra);
+            if (v != VeredictoPalavra.PORTUGUES_OK && v != VeredictoPalavra.ACENTO_FALTANDO) {
+                return false;
+            }
+            palavras++;
+        }
+        return palavras > 0;
+    }
+
+    /**
      * Um verso é português? Romaji nunca é; senão decide o dicionário (mais palavras portuguesas
      * que inglesas) e, com o dicionário mudo para o verso, o diacrítico — os mesmos instrumentos,
      * na mesma ordem, de {@link #ehParOriginalTraducao}.
@@ -1275,9 +1311,8 @@ public class ConversorKaraokeUseCase {
     private static int[] contarLinguaPeloDicionario(String lado, Map<String, VeredictoPalavra> idioma) {
         int pt = 0;
         int en = 0;
-        Matcher m = PALAVRA.matcher(lado);
-        while (m.find()) {
-            VeredictoPalavra v = idioma.get(m.group());
+        for (String palavra : CorretorOrtograficoLegenda.palavrasDe(lado)) {
+            VeredictoPalavra v = idioma.get(palavra);
             if (v == VeredictoPalavra.PORTUGUES_OK || v == VeredictoPalavra.ACENTO_FALTANDO) {
                 pt++;
             } else if (v == VeredictoPalavra.RESIDUO_INGLES) {
@@ -1299,14 +1334,10 @@ public class ConversorKaraokeUseCase {
     private Map<String, VeredictoPalavra> classificarIdiomaDosPares(List<EventoAss> musicais) {
         java.util.LinkedHashSet<String> palavras = new java.util.LinkedHashSet<>();
         for (EventoAss e : musicais) {
+            // TODAS as letras musicais, e nao so as com quebra: desde 24/09/2026 o mesmo mapa
+            // tambem decide a ORDEM das camadas (portugues embaixo) em empilharCamadas.
             String t = normalizarQuebras(limparArtefatosVisiveis(e.textoComQuebra()));
-            if (!t.contains(QUEBRA_ASS)) {
-                continue;
-            }
-            Matcher m = PALAVRA.matcher(t);
-            while (m.find()) {
-                palavras.add(m.group());
-            }
+            palavras.addAll(CorretorOrtograficoLegenda.palavrasDe(t));
         }
         if (palavras.isEmpty()) {
             return Map.of();
