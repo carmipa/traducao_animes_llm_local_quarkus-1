@@ -9,6 +9,7 @@ import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.traducaoKaraoke.domain.VersosDaLetra;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -85,7 +86,33 @@ public class CacheDoArquivo {
                 "   [CACHE IGNORADO] cache antigo sem contexto/lore foi preservado; linhas serão retraduzidas e carimbadas.");
             return Map.of();
         }
-        return carga.mapa();
+        return semVersoPerdido(carga.mapa());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: deixa de REAPROVEITAR a tradução que ficou gravada com o defeito do
+     * verso perdido (24/09/2026) — sem isto a correção do tradutor nunca chegaria às letras já
+     * cacheadas, e "Faça uma pequena pausa" continuaria no lugar dos dois versos para sempre.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a decisão é de {@link VersosDaLetra#suspeitaDeVersoPerdido}. A
+     * suspeita NÃO apaga nada: a letra só volta ao LLM (A8). Cada descarte é publicado com o texto
+     * antigo, porque o cache é editável à mão e o operador precisa ver o que deixou de valer (A7).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mapa nulo ou vazio volta como veio.
+     */
+    Map<String, String> semVersoPerdido(Map<String, String> mapa) {
+        if (mapa == null || mapa.isEmpty()) {
+            return mapa;
+        }
+        Map<String, String> filtrado = new LinkedHashMap<>(mapa);
+        for (Map.Entry<String, String> entrada : mapa.entrySet()) {
+            if (VersosDaLetra.suspeitaDeVersoPerdido(entrada.getKey(), entrada.getValue())) {
+                filtrado.remove(entrada.getKey());
+                logStream.publicarLog(CANAL_LOG, "   [CACHE] retraduzindo letra com verso perdido: \""
+                    + entrada.getValue() + "\" (original: \"" + entrada.getKey() + "\")");
+            }
+        }
+        return filtrado;
     }
 
     /**
