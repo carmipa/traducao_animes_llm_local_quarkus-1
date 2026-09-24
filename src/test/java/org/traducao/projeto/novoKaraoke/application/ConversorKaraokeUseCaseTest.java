@@ -564,6 +564,159 @@ class ConversorKaraokeUseCaseTest {
         assertEquals(List.of("[DB]86_-_NCED01_(10bit)_Track2_PT-BR.ass"), processados);
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO (F4, 24/09/2026): o par bilíngue cujo ORIGINAL já vem quebrado em dois
+     * versos pelo fansub sai em DUAS linhas — os versos originais unidos em cima, o português
+     * embaixo. Antes só o caso de exatamente duas partes era reconhecido, e na tela do Unicorn E01
+     * (23:12) saía "...fall sound asleep Tire / minha roupa e coroa...", a frase portuguesa quebrada
+     * no meio pelo renderizador.
+     *
+     * <p>A1 — o mesmo sinal superficial (três partes com {@code \N}) em verso MONOLÍNGUE, e com o
+     * português EM CIMA, continua achatando: só a ordem original→português é par.
+     */
+    @Test
+    void parBilingueComOriginalEmDoisVersosViraDuasLinhas() throws Exception {
+        Path origem = tempDir.resolve("par-3-partes.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:23:09.95,0:23:14.92,ED,,0,0,0,fx,{\\fad(200,200)}Take off my dress and crown,\\Nthen I can fall sound asleep\\N{\\fad(200,200)}Tire minha roupa e coroa, então posso adormecer profundamente.\n"
+            + "Dialogue: 0,0:23:20.00,0:23:24.00,ED,,0,0,0,fx,{\\fad(200,200)}Have a little break\\NWe are running\\Nthrough the lights\n"
+            + "Dialogue: 0,0:23:30.00,0:23:34.00,ED,,0,0,0,fx,{\\fad(200,200)}Tire minha roupa e coroa\\NTake off my dress and crown\\Nthen I can fall sound asleep\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Take off my dress and crown, then I can fall sound asleep\\NTire minha roupa e coroa, então posso adormecer profundamente."),
+            () -> "original de dois versos + PT tinha de sair em DUAS linhas (original unido \\N PT):\n" + saida);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Have a little break We are running through the lights"),
+            () -> "A1: verso monolingue de tres partes tinha de continuar ACHATADO:\n" + saida);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Tire minha roupa e coroa Take off my dress and crown then I can fall sound asleep"),
+            () -> "A1: portugues EM CIMA nao e o par original\\NPT — continua achatado:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F4b, 24/09/2026): o pt_BR real aceita muita palavra inglesa ("Can't",
+     * "escape", "sole", "fate"), e a letra inglesa passava a "parecer portuguesa" por contagem — os
+     * dois lados davam português e o par saía colado numa linha (Unicorn E14, 23:01). Medido com o
+     * dicionário real sobre 217 pares do cache: 8 pares colados; com a regra da assimetria, 2.
+     *
+     * <p>A1 — o mesmo sinal (lado de cima com palavras aceitas pelo pt_BR) num verso português
+     * monolíngue, SEM palavra só-inglesa em cima, continua achatado.
+     */
+    @Test
+    void parComInglesQueOPtBrAceitaContinuaSendoPar() throws Exception {
+        Path origem = tempDir.resolve("par-cognatos.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:23:01.52,0:23:05.32,ED2,,0,0,0,fx,{\\fad(200,200)}Can't escape from my sole fate\\N{\\fad(200,200)}Não posso escapar do meu destino\n"
+            + "Dialogue: 0,0:23:10.00,0:23:14.00,ED2,,0,0,0,fx,{\\fad(200,200)}Quero estar nos seus braços\\NVocê tremeu diante de mim\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Can't escape from my sole fate\\NNão posso escapar do meu destino"),
+            () -> "ingles com palavras que o pt_BR aceita + PT tinha de sair em DUAS linhas:\n" + saida);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Quero estar nos seus braços Você tremeu diante de mim"),
+            () -> "A1: verso portugues monolingue (sem palavra so-inglesa em cima) continua achatado:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F7, 24/09/2026): quando a música REPETE uma linha, a camada de tradução
+     * traz a mesma frase em dois versos seguidos. Fundidas numa linha de 10 s, ela casava só com o
+     * primeiro verso romaji: na tela do Unicorn E01 (23:22) apareciam três linhas — o verso 1 e a
+     * tradução ainda acesos, e o verso 2 sem tradução embaixo.
+     *
+     * <p>A1 — as cópias CURTAS da animação (fade/wipe, centésimos) do mesmo texto continuam
+     * fundidas com o verso inteiro: uma linha só.
+     */
+    @Test
+    void mesmaFraseEmDoisVersosSeguidosNaoSeFunde() throws Exception {
+        Path origem = tempDir.resolve("verso-repetido.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:23:14.92,0:23:20.80,ED,,0,0,0,,{\\fad(200,200)}Kawaita kotoba no ame ga\n"
+            + "Dialogue: 0,0:23:20.80,0:23:24.84,ED,,0,0,0,,{\\fad(200,200)}Kagi o nakushi kaketa\n"
+            + "Dialogue: 0,0:23:14.92,0:23:20.80,ED - EN,,0,0,0,,{\\fad(200,200)}Você nunca sabe o amor que eu senti.\n"
+            + "Dialogue: 0,0:23:20.80,0:23:24.84,ED - EN,,0,0,0,,{\\fad(200,200)}Você nunca sabe o amor que eu senti.\n"
+            // A1: copias de fade de 5 cs do mesmo texto, coladas ao verso inteiro que vem depois
+            + "Dialogue: 0,0:24:00.00,0:24:00.05,ED - EN,,0,0,0,,{\\fad(200,200)}Uma flor desabrochou apenas para ser esmagada.\n"
+            + "Dialogue: 0,0:24:00.05,0:24:00.10,ED - EN,,0,0,0,,{\\fad(200,200)}Uma flor desabrochou apenas para ser esmagada.\n"
+            + "Dialogue: 0,0:24:00.10,0:24:04.00,ED - EN,,0,0,0,,{\\fad(200,200)}Uma flor desabrochou apenas para ser esmagada.\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("0:23:14.92,0:23:20.80,Karaoke Simples,,0,0,0,,Kawaita kotoba no ame ga\\NVocê nunca sabe o amor que eu senti."),
+            () -> "verso 1 tinha de sair com a SUA traducao, na SUA janela:\n" + saida);
+        assertTrue(saida.contains("0:23:20.80,0:23:24.84,Karaoke Simples,,0,0,0,,Kagi o nakushi kaketa\\NVocê nunca sabe o amor que eu senti."),
+            () -> "verso 2 tinha de sair com a traducao embaixo, nao sozinho:\n" + saida);
+        long flor = saida.lines().filter(l -> l.contains("Karaoke Simples") && l.contains("Uma flor")).count();
+        assertEquals(1, flor, () -> "A1: copias curtas da animacao + verso inteiro = UMA linha:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F9, 24/09/2026): o verso de UMA palavra que é a letra inteira do
+     * momento ({@code yasashikatta}, encerramento do Guilty Crown) entra na linha limpa com a sua
+     * tradução. Antes ficava no estilo original, animado e no canto, e o PT ia sozinho para o topo.
+     *
+     * <p>A1 — a SÍLABA solta de KFX (uma palavra, convivendo com a frase no mesmo estilo) continua
+     * fora: não vira linha própria.
+     */
+    @Test
+    void versoDeUmaPalavraSozinhoEntraNaLinhaLimpaMasSilabaNao() throws Exception {
+        Path origem = tempDir.resolve("uma-palavra.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 1,0:22:39.00,0:22:44.17,ED Roma L1,,0,0,0,,{\\blur3\\fad(200,2000)}yasashikatta\n"
+            + "Dialogue: 1,0:22:39.00,0:22:44.17,ED,,0,0,0,,{\\blur3\\fad(200,2000)}e gentilmente\n"
+            // A1: frase + silaba acesa junto (mesmo estilo), como o fill da OPL2
+            + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\n"
+            + "Dialogue: 0,0:01:37.61,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(700,60)}alone\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,yasashikatta\\Ne gentilmente"),
+            () -> "o verso de uma palavra tinha de ir para a linha limpa com o PT embaixo:\n" + saida);
+        assertFalse(saida.contains("ED Roma L1,,0,0,0,,{\\blur3\\fad(200,2000)}yasashikatta"),
+            () -> "o verso nao pode continuar animado no estilo original, separado da traducao:\n" + saida);
+        assertFalse(saida.lines().anyMatch(l -> l.contains("Karaoke Simples") && l.endsWith(",alone")),
+            () -> "A1: a silaba 'alone' acesa junto com a frase NAO vira linha propria:\n" + saida);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F10, 24/09/2026): o destino padrão é o MESMO para toda pasta de origem
+     * da obra. Achatar outra pasta depois regravava em silêncio a saída que tinha a música
+     * traduzida (medido: linhas com PT na música 32 → 0, sem aviso). Agora o arquivo anterior
+     * DIFERENTE é copiado para backup antes de ser regravado.
+     *
+     * <p>A1 — reexecutar a MESMA origem (conteúdo igual) não gera backup: nada de lixo a cada clique.
+     */
+    @Test
+    void regravarComConteudoDiferentePreservaOAnteriorEmBackup() throws Exception {
+        Path origem = tempDir.resolve("ep01.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\\NVocê se sente sozinho?\n",
+            StandardCharsets.UTF_8);
+        String anterior = "conteudo anterior, traduzido\n";
+        Files.writeString(destino.resolve("ep01.ass"), anterior, StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true, "20260924_120000");
+
+        Path copia = destino.resolve(ConversorKaraokeUseCase.PASTA_BACKUP).resolve("20260924_120000").resolve("ep01.ass");
+        assertTrue(Files.isRegularFile(copia), "o arquivo anterior diferente tinha de ir para o backup antes de regravar");
+        assertEquals(anterior, Files.readString(copia, StandardCharsets.UTF_8), "o backup tem de ter o conteudo ANTERIOR, byte a byte");
+
+        novoConversor().converterArquivo(origem, destino, true, "20260924_130000");
+        assertFalse(Files.exists(destino.resolve(ConversorKaraokeUseCase.PASTA_BACKUP).resolve("20260924_130000")),
+            "A1: regravar o MESMO conteudo nao pode gerar backup");
+    }
+
     private static ConversorKaraokeUseCase novoConversor() {
         ConversorKaraokeUseCase conversor = new ConversorKaraokeUseCase();
         conversor.detectorKaraoke = new DetectorEfeitoKaraokeService();
@@ -587,13 +740,16 @@ class ConversorKaraokeUseCaseTest {
                 + "terra muitas vezes esta machucando nao apenas uma vida prateleira somente pilotar novo "
                 + "ceu sempre assim machuca facas estou chamando seu nome novamente estiver preso medo "
                 + "soubesse cegos podem abrir deixe luz passar digo do da de que a e o os as com para "
-                + "eu sei todas mentiras tornaram pedra coracao pergunto quanto tempo vai sobreviver";
+                + "eu sei todas mentiras tornaram pedra coracao pergunto quanto tempo vai sobreviver "
+                + "tire minha roupa coroa entao então posso adormecer profundamente "
+                // o pt_BR REAL aceita estas palavras inglesas (medido 24/09/2026) — o duble imita
+                + "can't escape sole fate não escapar destino quero estar nos seus braços você tremeu diante mim";
             String en = "do you feel alone can hear now mind is so far away still on earth many times are "
                 + "hurting yourself cant be just life shelf its only that fly this new unicorn into the sky "
                 + "and every time hurt with knives im calling out your name again if holding onto fear i knew "
                 + "blind open let light shine through we say why stop all sacrifice know lies became stone in "
                 + "heart wonder how long gonna survive didnt see meaning have little break running lights "
-                + "take off my sought idol then breathe deep dress crown fall sound asleep";
+                + "take off my sought idol then breathe deep dress crown fall sound asleep from";
             for (String w : pt.split(" ")) VEREDITO.put(w, VeredictoPalavra.PORTUGUES_OK);
             for (String w : en.split(" ")) VEREDITO.putIfAbsent(w, VeredictoPalavra.RESIDUO_INGLES);
         }

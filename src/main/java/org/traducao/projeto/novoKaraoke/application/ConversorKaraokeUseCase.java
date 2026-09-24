@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -59,6 +60,17 @@ public class ConversorKaraokeUseCase {
 
     /** Gap acima deste valor separa duas ocorrências da mesma frase (refrão repetido). */
     private static final long GAP_MESMA_FRASE_CS = 1000; // 10s
+    /**
+     * Evento que fica na tela ao menos isto é um VERSO INTEIRO, não uma cópia de quadro da
+     * animação. Medido em 24/09/2026: as cópias de fade/wipe da abertura do 86 duram 5 a 12
+     * centésimos; os versos inteiros do ED e ED - EN do Unicorn E01, de 4,0 a 5,9 s. Só vale para
+     * frases de 2+ palavras — sílaba solta de KFX nunca chega a este agrupamento.
+     */
+    private static final long DURACAO_VERSO_INTEIRO_CS = 150;
+
+    private static boolean ehVersoInteiro(EventoAss evento) {
+        return evento.fimCs() - evento.inicioCs() >= DURACAO_VERSO_INTEIRO_CS;
+    }
     /** Gap usado quando só há fragmentos silábicos/frame-a-frame, sem linha inteira. */
     private static final long GAP_FRAGMENTOS_KFX_CS = 200; // 2s
     private static final long GAP_REPETICAO_FRAGMENTO_CS = 50;
@@ -145,13 +157,14 @@ public class ConversorKaraokeUseCase {
 
         List<ResultadoConversaoKaraoke> resultados = new ArrayList<>();
         int falhas = 0;
+        String carimboDaExecucao = carimboAgora();
         for (Path arquivo : arquivos) {
             if (Thread.currentThread().isInterrupted()) {
                 logStream.publicarLog(CANAL_LOG, "[INTERROMPIDO] Conversão cancelada; arquivos já gravados foram preservados.");
                 break;
             }
             try {
-                resultados.add(converterArquivo(arquivo, pastaDestino, gravar));
+                resultados.add(converterArquivo(arquivo, pastaDestino, gravar, carimboDaExecucao));
             } catch (Exception e) {
                 falhas++;
                 log.error("Falha ao converter {}", arquivo, e);
@@ -222,6 +235,11 @@ public class ConversorKaraokeUseCase {
     }
 
     ResultadoConversaoKaraoke converterArquivo(Path arquivo, Path pastaDestino, boolean gravar) throws IOException {
+        return converterArquivo(arquivo, pastaDestino, gravar, carimboAgora());
+    }
+
+    ResultadoConversaoKaraoke converterArquivo(Path arquivo, Path pastaDestino, boolean gravar,
+                                               String carimboDaExecucao) throws IOException {
         String nome = arquivo.getFileName().toString();
         logStream.publicarLog(CANAL_LOG, "");
         logStream.publicarLog(CANAL_LOG, ">> Processando: " + nome);
@@ -300,7 +318,7 @@ public class ConversorKaraokeUseCase {
             logStream.publicarLog(CANAL_LOG, "   Nenhum evento de karaokê/música detectado — arquivo copiado sem alterações.");
             resultado.setTamanhoNovoBytes(bytesOriginais.length);
             if (gravar) {
-                Files.write(pastaDestino.resolve(nome), bytesOriginais);
+                gravarPreservandoAnterior(pastaDestino.resolve(nome), bytesOriginais, carimboDaExecucao, resultado);
             }
             return resultado;
         }
@@ -343,7 +361,7 @@ public class ConversorKaraokeUseCase {
             } else {
                 gravavel = novosBytes;
             }
-            Files.write(destino, gravavel);
+            gravarPreservandoAnterior(destino, gravavel, carimboDaExecucao, resultado);
         }
 
         logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
@@ -356,6 +374,47 @@ public class ConversorKaraokeUseCase {
         publicarMedicao(nome, eventos.size(), dialogo.size() + preservados.size() + linhasSimples.size(),
             linhasSimples, eventosPorEstilo, musicalPorEstilo);
         return resultado;
+    }
+
+    /** Subpasta, DENTRO da pasta de destino, que guarda o arquivo anterior antes de regravá-lo. */
+    static final String PASTA_BACKUP = "backup_karaoke_simples";
+
+    private static String carimboAgora() {
+        return java.time.LocalDateTime.now()
+            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: grava a legenda achatada sem PERDER a que já estava no destino.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * O destino padrão ({@code legenda-simplificada}) é o MESMO para qualquer pasta de origem da
+     * obra. Achatar a {@code traducao_ptbr} depois de achatar a {@code traducao_ptbr-karaoke-ptbr}
+     * — engano plausível ao editar o campo do Passo 2 — regravou em silêncio o arquivo que tinha a
+     * música traduzida: o SHA mudou e as linhas com português na música caíram de 32 para 0, sem
+     * aviso e sem cópia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: arquivo existente com conteúdo DIFERENTE é copiado para
+     * {@code <destino>/}{@value #PASTA_BACKUP}{@code /<carimbo da execução>/} antes de ser
+     * regravado; conteúdo IGUAL (reexecução) não gera cópia. A subpasta de backup não é lida pela
+     * próxima execução (a listagem só pega arquivos do nível de cima). Falha ao copiar ABORTA a
+     * gravação daquele arquivo — o anterior continua lá, intacto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException}; o arquivo vira falha no
+     * resumo e os demais seguem.
+     */
+    private void gravarPreservandoAnterior(Path destino, byte[] conteudo, String carimbo,
+                                           ResultadoConversaoKaraoke resultado) throws IOException {
+        if (Files.isRegularFile(destino) && !java.util.Arrays.equals(Files.readAllBytes(destino), conteudo)) {
+            Path pastaBackup = destino.toAbsolutePath().getParent().resolve(PASTA_BACKUP).resolve(carimbo);
+            Files.createDirectories(pastaBackup);
+            Path copia = pastaBackup.resolve(destino.getFileName());
+            Files.copy(destino, copia, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            String aviso = "arquivo anterior DIFERENTE preservado antes de regravar: " + copia;
+            resultado.adicionarAviso(aviso);
+            logStream.publicarLog(CANAL_LOG, "   [BACKUP] " + aviso);
+        }
+        Files.write(destino, conteudo);
     }
 
     /**
@@ -545,9 +604,10 @@ public class ConversorKaraokeUseCase {
     ) {
         // agrupa candidatas por texto visível, separando repetições distantes (refrão)
         Map<String, List<EventoAss>> porTexto = new LinkedHashMap<>();
+        java.util.Set<EventoAss> acompanhados = acompanhadosNaTela(eventosEstilo);
         for (EventoAss evento : eventosEstilo) {
             String visivel = limparArtefatosVisiveis(evento.textoVisivel());
-            if (contarPalavras(visivel) >= 2) {
+            if (contarPalavras(visivel) >= 2 || versoDeUmaPalavraSozinho(evento, visivel, acompanhados)) {
                 porTexto.computeIfAbsent(visivel, k -> new ArrayList<>()).add(evento);
             }
         }
@@ -558,7 +618,12 @@ public class ConversorKaraokeUseCase {
             doTexto.sort(Comparator.comparingLong(EventoAss::inicioCs));
             Grupo atual = null;
             for (EventoAss evento : doTexto) {
-                if (atual != null && evento.inicioCs() - atual.fimCs <= GAP_MESMA_FRASE_CS) {
+                // Duas ocorrências INTEIRAS e seguidas da mesma frase são dois versos (a música
+                // repete a linha), não cópias da animação. Fundidas, a linha de 10 s casava com o
+                // primeiro verso romaji e o segundo aparecia SEM tradução, com o anterior ainda
+                // aceso — medido no ED do Unicorn E01 (23:14–23:24), 3 linhas na tela.
+                if (atual != null && evento.inicioCs() - atual.fimCs <= GAP_MESMA_FRASE_CS
+                        && !atual.repeteVersoInteiro(evento)) {
                     atual.absorver(evento);
                 } else {
                     // chave achatada p/ agrupar; saída preserva \N SÓ no par bilíngue (original\NPT)
@@ -634,6 +699,50 @@ public class ConversorKaraokeUseCase {
             resultado.adicionarAviso(aviso);
             logStream.publicarLog(CANAL_LOG, "   [AVISO] " + aviso);
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: um verso de UMA palavra que é a letra inteira daquele momento — o
+     * {@code "yasashikatta"} do encerramento do Guilty Crown — e não uma sílaba de KFX.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * Só frase de 2+ palavras virava linha simples. O verso de uma palavra ficava preservado no
+     * estilo original, animado e no canto da tela, enquanto a sua tradução ("e gentilmente") ia para
+     * a linha limpa no topo — os dois em lugares diferentes, ao contrário de todos os outros versos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige as três coisas — uma palavra, verso inteiro (dura ao menos
+     * {@link #DURACAO_VERSO_INTEIRO_CS}) e NENHUM outro evento do mesmo estilo na tela ao mesmo
+     * tempo. A sílaba de KFX falha na última: ela convive com a frase e com as outras sílabas (os
+     * fragmentos da OPL2 do Unicorn ficam acesos até a frase acabar).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto em branco devolve {@code false}. Nunca lança.
+     */
+    private static boolean versoDeUmaPalavraSozinho(EventoAss evento, String visivel, java.util.Set<EventoAss> acompanhados) {
+        return !visivel.isBlank() && contarPalavras(visivel) == 1 && ehVersoInteiro(evento)
+            && !acompanhados.contains(evento);
+    }
+
+    /**
+     * Os eventos do estilo que dividem a tela com OUTRO evento do mesmo estilo (janelas que se
+     * cruzam). Uma varredura por início: cruza com um anterior se o maior fim visto até ali passa
+     * do seu início; com um posterior se o próximo começa antes do seu fim. O(n log n) — o estilo de
+     * KFX letra a letra tem dezenas de milhares de eventos, e comparar todos com todos travaria.
+     */
+    private static java.util.Set<EventoAss> acompanhadosNaTela(List<EventoAss> doEstilo) {
+        List<EventoAss> ordenados = new ArrayList<>(doEstilo);
+        ordenados.sort(Comparator.comparingLong(EventoAss::inicioCs).thenComparingLong(EventoAss::fimCs));
+        java.util.Set<EventoAss> acompanhados = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        long maiorFimAnterior = Long.MIN_VALUE;
+        for (int i = 0; i < ordenados.size(); i++) {
+            EventoAss e = ordenados.get(i);
+            boolean cruzaAnterior = maiorFimAnterior > e.inicioCs();
+            boolean cruzaPosterior = i + 1 < ordenados.size() && ordenados.get(i + 1).inicioCs() < e.fimCs();
+            if (cruzaAnterior || cruzaPosterior) {
+                acompanhados.add(e);
+            }
+            maiorFimAnterior = Math.max(maiorFimAnterior, e.fimCs());
+        }
+        return acompanhados;
     }
 
     private List<GrupoFragmentos> reconstruirFragmentosKfx(String estilo, List<EventoAss> eventos) {
@@ -1019,7 +1128,70 @@ public class ConversorKaraokeUseCase {
         if (partes.length == 2 && ehParOriginalTraducao(partes[0], partes[1], idioma)) {
             return comQuebra; // par bilingue original\NtraducaoPT: preserva as duas linhas
         }
+        if (partes.length >= 3) {
+            Optional<String> par = parDeVersosMultiplos(partes, idioma);
+            if (par.isPresent()) {
+                return par.get();
+            }
+        }
         return limparArtefatosVisiveis(evento.textoVisivel()); // verso monolingue: achata (como antes)
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o par bilíngue quando o ORIGINAL (ou a tradução) tem mais de um verso —
+     * {@code "Take off my dress and crown,\Nthen I can fall sound asleep\NTire minha roupa..."}. Sai
+     * em DUAS linhas: os versos originais unidos em cima, os portugueses unidos embaixo.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * Só o caso de EXATAMENTE duas partes era reconhecido. Com o verso original já quebrado pelo
+     * fansub, o Passo 1 entregava três partes e o achatador colava inglês e português numa linha só —
+     * na tela do Unicorn E01 (23:12) e E14 (22:57, 23:01, 23:05): "...fall sound asleep Tire / minha
+     * roupa e coroa...", a frase portuguesa quebrada no meio pelo renderizador.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: cada parte é rotulada pelos MESMOS instrumentos do par de duas
+     * partes (proporção de romaji e dicionário). É par sse a sequência for "não-português" seguido de
+     * "português", com pelo menos uma parte de cada lado — qualquer outra ordem (português em cima,
+     * idiomas intercalados) NÃO é par e achata como antes. O caso de duas partes não passa por aqui.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sequência fora do padrão devolve {@link Optional#empty()} e
+     * o chamador achata. Nunca lança.
+     */
+    private Optional<String> parDeVersosMultiplos(String[] partes, Map<String, VeredictoPalavra> idioma) {
+        List<String> originais = new ArrayList<>();
+        List<String> portugueses = new ArrayList<>();
+        for (String parte : partes) {
+            String p = parte.strip();
+            if (p.isEmpty()) {
+                continue;
+            }
+            if (ehPortugues(p, idioma)) {
+                portugueses.add(p);
+            } else if (portugueses.isEmpty()) {
+                originais.add(p);
+            } else {
+                return Optional.empty(); // original DEPOIS de português: não é o par
+            }
+        }
+        if (originais.isEmpty() || portugueses.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(String.join(" ", originais) + QUEBRA_ASS + String.join(" ", portugueses));
+    }
+
+    /**
+     * Um verso é português? Romaji nunca é; senão decide o dicionário (mais palavras portuguesas
+     * que inglesas) e, com o dicionário mudo para o verso, o diacrítico — os mesmos instrumentos,
+     * na mesma ordem, de {@link #ehParOriginalTraducao}.
+     */
+    private boolean ehPortugues(String verso, Map<String, VeredictoPalavra> idioma) {
+        if (detectorKaraoke.proporcaoRomaji(verso) >= LIMIAR_ROMAJI_SAIDA) {
+            return false;
+        }
+        int[] c = contarLinguaPeloDicionario(verso, idioma);
+        if (c[0] + c[1] == 0) {
+            return DIACRITICO_PT.matcher(verso).find();
+        }
+        return c[0] > c[1];
     }
 
     /**
@@ -1029,9 +1201,12 @@ public class ConversorKaraokeUseCase {
      * <h2>Como decide, e por que dicionário e não lista à mão</h2>
      * (1) um lado ROMAJI (proporção ≥ {@value #LIMIAR_ROMAJI_SAIDA}) e o outro não ⇒ par; (2) os
      * dois romaji ⇒ verso romaji ⇒ achata; (3) nenhum romaji ⇒ inglês × português, decidido pelo
-     * DICIONÁRIO Hunspell ({@link #classificarIdiomaDosPares}): é par sse EXATAMENTE um lado é
+     * DICIONÁRIO Hunspell ({@link #classificarIdiomaDosPares}): é par quando EXATAMENTE um lado é
      * PORTUGUÊS-dominante (mais palavras {@code PORTUGUES_OK}/{@code ACENTO_FALTANDO} que
-     * {@code RESIDUO_INGLES}). O dicionário decide por PONTUAÇÃO, resolvendo a colisão que derrubou
+     * {@code RESIDUO_INGLES}) — ou, desde 24/09/2026, quando só o lado de CIMA tem palavra que apenas
+     * o inglês reconhece e o de baixo tem português (o pt_BR aceita "Can't"/"escape"/"fate" e fazia
+     * a letra inglesa parecer portuguesa; ver {@code MedicaoParBilingueAchatadorIT}). O dicionário
+     * decide por PONTUAÇÃO, resolvendo a colisão que derrubou
      * a lista à mão: {@code "Do you feel alone"} tem 3 palavras inglesas contra 1 portuguesa
      * ({@code do}), então é inglês; {@code "Deixe a luz passar"} tem 4 portuguesas, então é a
      * tradução. Sem lista de palavras para manter (ordem do Paulo, 21/09).
@@ -1060,7 +1235,16 @@ public class ConversorKaraokeUseCase {
         }
         boolean aPt = ca[0] > ca[1];
         boolean bPt = cb[0] > cb[1];
-        return aPt != bPt; // exatamente um lado e portugues-dominante ⇒ par
+        if (aPt != bPt) {
+            return true; // exatamente um lado e portugues-dominante ⇒ par
+        }
+        // O pt_BR aceita muita palavra inglesa ("Can't", "I", "escape", "sole", "fate" — medido
+        // em 24/09/2026 com o dicionario real), e a letra inglesa passa a "parecer portugues" por
+        // contagem: os dois lados davam portugues e o par era achatado numa linha so, ingles e PT
+        // colados. O sinal que sobra e a ASSIMETRIA: em cima ha palavra que SO o ingles reconhece,
+        // embaixo nenhuma, e embaixo ha portugues. Verso monolingue ingles tem palavra inglesa nos
+        // dois lados; monolingue portugues nao tem nenhuma em cima.
+        return ca[1] >= 1 && cb[1] == 0 && cb[0] >= 1;
     }
 
     /**
@@ -1331,6 +1515,8 @@ public class ConversorKaraokeUseCase {
         private long fimCs;
         private int eventos;
         private int variantes = 1;
+        /** Fim do último evento de VERSO INTEIRO absorvido; -1 quando só houve cópias curtas. */
+        private long fimUltimoVersoInteiro = -1;
 
         private Grupo(String texto, String textoSaida, EventoAss primeiro) {
             this.texto = texto;
@@ -1338,12 +1524,30 @@ public class ConversorKaraokeUseCase {
             this.inicioCs = primeiro.inicioCs();
             this.fimCs = primeiro.fimCs();
             this.eventos = 1;
+            marcarSeVersoInteiro(primeiro);
         }
 
         private void absorver(EventoAss evento) {
             inicioCs = Math.min(inicioCs, evento.inicioCs());
             fimCs = Math.max(fimCs, evento.fimCs());
             eventos++;
+            marcarSeVersoInteiro(evento);
+        }
+
+        private void marcarSeVersoInteiro(EventoAss evento) {
+            if (ehVersoInteiro(evento)) {
+                fimUltimoVersoInteiro = Math.max(fimUltimoVersoInteiro, evento.fimCs());
+            }
+        }
+
+        /**
+         * O evento é uma NOVA ocorrência inteira da mesma frase, e não mais uma cópia da animação?
+         * Só quando ele e uma ocorrência anterior do grupo são versos inteiros e ele começa depois
+         * que a anterior terminou — a música repetindo a linha.
+         */
+        private boolean repeteVersoInteiro(EventoAss evento) {
+            return ehVersoInteiro(evento) && fimUltimoVersoInteiro >= 0
+                && evento.inicioCs() >= fimUltimoVersoInteiro - MARGEM_COBERTURA_CS;
         }
 
         /** Funde uma variante divergente: vence o texto com mais eventos de origem. */
