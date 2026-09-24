@@ -1218,11 +1218,17 @@ public class ConversorKaraokeUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: mapa vazio ou sem palavra devolve {@code false}.
      */
     private static boolean todaPortuguesa(String texto, Map<String, VeredictoPalavra> idioma) {
-        if (idioma == null || idioma.isEmpty()) {
+        // Letra solta nao e palavra portuguesa: o pt_BR aceita "a", "e", "o", "t", "n", e o romaji
+        // PULVERIZADO do 86 Part 2 ("t e i k a n, s o r e m o...") passava por "todo portugues" e
+        // descia para baixo do ingles em 11 episodios — achado pela revisao do acervo, 24/09/2026.
+        if (idioma == null || idioma.isEmpty() || pareceTextoPulverizado(texto)) {
             return false;
         }
         int palavras = 0;
         for (String palavra : CorretorOrtograficoLegenda.palavrasDe(texto)) {
+            if (palavra.length() < 2) {
+                continue;
+            }
             VeredictoPalavra v = idioma.get(palavra);
             if (v != VeredictoPalavra.PORTUGUES_OK && v != VeredictoPalavra.ACENTO_FALTANDO) {
                 return false;

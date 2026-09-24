@@ -727,7 +727,11 @@ class ConversorKaraokeUseCaseTest {
         Path destino = Files.createDirectory(tempDir.resolve("saida"));
         Files.writeString(origem, cabecalho()
             + "Dialogue: 0,0:23:35.18,0:23:39.81,Song ENG,,0,0,0,,{\\fad(100,100)}A que eu amo.\n"
-            + "Dialogue: 0,0:23:35.18,0:23:39.81,Song JP,,0,0,0,,{\\fad(100,100)}Love! Meguriaeta\n",
+            + "Dialogue: 0,0:23:35.18,0:23:39.81,Song JP,,0,0,0,,{\\fad(100,100)}Love! Meguriaeta\n"
+            // A1 do acervo (86 Part 2): romaji PULVERIZADO letra a letra + a camada inglesa — o
+            // pt_BR aceita as letras soltas, e o romaji nao pode descer por isso
+            + "Dialogue: 0,0:22:20.86,0:22:25.99,Opening,,0,0,0,,{\\an8}t e i k a n, s o r e m o i m a\n"
+            + "Dialogue: 0,0:22:20.86,0:22:25.99,Opening,,0,0,0,,{\\an2}Resignation, maybe now it's all just empty ambition\n",
             StandardCharsets.UTF_8);
 
         novoConversor().converterArquivo(origem, destino, true);
@@ -735,6 +739,8 @@ class ConversorKaraokeUseCaseTest {
         String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
         assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Love! Meguriaeta\\NA que eu amo."),
             () -> "o original (mistura) em cima e o PT embaixo:\n" + saida);
+        assertTrue(saida.contains("t e i k a n, s o r e m o i m a\\NResignation"),
+            () -> "A1: romaji pulverizado continua EM CIMA (letra solta nao e portugues):\n" + saida);
     }
 
     /**
@@ -793,7 +799,7 @@ class ConversorKaraokeUseCaseTest {
                 + "tire minha roupa coroa entao então posso adormecer profundamente "
                 // o pt_BR REAL aceita estas palavras inglesas (medido 24/09/2026) — o duble imita
                 + "can't escape sole fate não escapar destino quero estar nos seus braços você tremeu diante mim "
-                + "que eu amo";
+                + "que eu amo t i k n s r m";
             String en = "do you feel alone can hear now mind is so far away still on earth many times are "
                 + "hurting yourself cant be just life shelf its only that fly this new unicorn into the sky "
                 + "and every time hurt with knives im calling out your name again if holding onto fear i knew "

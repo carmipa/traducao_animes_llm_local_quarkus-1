@@ -158,7 +158,7 @@ class PlanoDeClassificacaoTest {
             var pt = org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.PORTUGUES_OK;
             var en = org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.RESIDUO_INGLES;
             for (String p : "I a time ai suru anata ni sou mo anata o sun".split(" ")) tabela.put(p, pt);
-            for (String p : "wanna have pure yo was watching you as were the rise my history".split(" ")) tabela.put(p, en);
+            for (String p : "wanna have pure yo was watching you as were the rise my history Dreamer".split(" ")) tabela.put(p, en);
         }
 
         @Override
@@ -189,7 +189,11 @@ class PlanoDeClassificacaoTest {
             // 3: MISTURA ingles + japones — linha de cima, intacta
             "Dialogue: 0,0:01:00.00,0:01:04.00,Song JP,,0,0,0,,Kagayaku my history",
             // 4: romaji que o pt_BR aceita quase inteiro (so "yo" e ingles) — intacta
-            "Dialogue: 0,0:02:00.00,0:02:04.00,Song JP,,0,0,0,,ai suru anata ni sou yo");
+            "Dialogue: 0,0:02:00.00,0:02:04.00,Song JP,,0,0,0,,ai suru anata ni sou yo",
+            // 5: verso de UMA palavra so-inglesa (0083) — vira portugues
+            "Dialogue: 0,0:27:00.47,0:27:03.73,Song JP,,0,0,0,,Dreamer...",
+            // 6: verso de uma palavra ROMAJI (desconhecida para pt/en) — intacto
+            "Dialogue: 0,0:22:09.21,0:22:12.58,Song JP,,0,0,0,,itoshii");
     }
 
     @Test
@@ -212,6 +216,10 @@ class PlanoDeClassificacaoTest {
             "A1: linha que MISTURA ingles e japones e a de cima — intacta");
         assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(4),
             "A1: romaji com 1 palavra que so o ingles reconhece NAO e 'toda ingles'");
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(5),
+            "verso de uma palavra so-inglesa ('Dreamer...') tambem e todo ingles");
+        assertEquals(ClasseLinhaKaraoke.ORIGINAL_JAPONES, plano.classeNaPosicao(6),
+            "A1: verso de uma palavra ROMAJI ('itoshii') fica intacto");
     }
 
     @Test

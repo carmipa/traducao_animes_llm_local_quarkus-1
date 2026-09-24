@@ -106,8 +106,9 @@ public final class PlanoDeClassificacao {
      * ("Kagayaku my history", "Stay together sono toki") continua intacta.
      *
      * <h2>"Todo inglês", medido com os três dicionários</h2>
-     * Toda palavra reconhecida pelo português ou pelo inglês E ao menos DUAS que só o inglês
-     * reconhece. O rótulo ROMAJI não serve de prova: o {@code ja_ROMAJI} deixa {@code wa},
+     * Toda palavra reconhecida pelo português ou pelo inglês E (ao menos DUAS que só o inglês
+     * reconhece, OU todas elas só-inglesas — o verso de uma palavra "Dreamer...", "One,": 5 de 21
+     * linhas de uma palavra no acervo, todas inglês). O rótulo ROMAJI não serve de prova: o {@code ja_ROMAJI} deixa {@code wa},
      * {@code ga}, {@code shitemo}, {@code kawaranai} como DESCONHECIDA — então palavra que nenhum
      * dos dois reconhece é tratada como possível japonês e barra a conversão. O piso de duas é o que
      * barra "ai suru anata ni sou yo", em que o pt_BR aceita todas menos "yo". Medido no acervo em
@@ -219,7 +220,7 @@ public final class PlanoDeClassificacao {
             // Tokenização do DONO do dicionário (core) — a mesma do achatador, sem cópia.
             List<String> palavras =
                 org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda.palavrasDe(visivel);
-            if (palavras.size() >= MINIMO_PALAVRAS_INGLESAS) {
+            if (!palavras.isEmpty()) {
                 candidatas.put(i, palavras);
                 todasAsPalavras.addAll(palavras);
             }
@@ -250,7 +251,10 @@ public final class PlanoDeClassificacao {
                     break;
                 }
             }
-            if (tudoReconhecido && soIngles >= MINIMO_PALAVRAS_INGLESAS) {
+            // ">= 2 so-inglesas" OU "TODAS so-inglesas": a segunda cobre o verso de uma palavra
+            // ("Dreamer...", "Evergreen...", "One,") — medido no acervo: 5 de 21 linhas de uma
+            // palavra, todas ingles; romaji isolado sai DESCONHECIDA e nunca chega aqui.
+            if (tudoReconhecido && (soIngles >= MINIMO_PALAVRAS_INGLESAS || soIngles == c.getValue().size())) {
                 todaInglesa.add(c.getKey());
             }
         }
