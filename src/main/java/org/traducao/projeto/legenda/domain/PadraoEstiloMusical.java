@@ -108,4 +108,33 @@ public final class PadraoEstiloMusical {
         }
         return ABREVIACAO_MUSICAL.matcher(estilo).find();
     }
+
+    /**
+     * {@code OP}/{@code ED} grudado a no máximo uma letra e seguido de dígito: {@code OPL2},
+     * {@code EDA1}. É a forma que {@link #ABREVIACAO_MUSICAL} não alcança por construção (a letra
+     * grudada derrota a fronteira) e que {@code Edit} ou {@code Default} nunca têm.
+     */
+    private static final Pattern ABREVIACAO_GRUDADA_COM_NUMERO =
+        Pattern.compile("(?i)(?<!\\p{L})(op|ed)\\p{L}?\\d");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o nome do estilo SUGERE música, ainda que não a declare — pergunta
+     * FROUXA, que serve só para ALERTAR que a régua de {@link #nomeDeclaraMusica} pode estar
+     * estreita demais. Nunca decide se um evento é música.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * O alerta "[ SUSPEITO ] estilo não reconhecido como música" disparava para todo estilo com 5+
+     * eventos fora da música — o {@code Default} do diálogo e as {@code Signs} de todo arquivo. Na
+     * tela do Karaokê ele aparecia em cada episódio, e alarme que sempre toca ensina a ignorar o
+     * alarme no dia em que ele importa (foi um estilo {@code OPL2} que passou despercebido).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: é SUPERCONJUNTO de {@link #nomeDeclaraMusica} — o que declara
+     * também sugere. Continua decidindo só pelo NOME.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}/em branco devolve {@code false}.
+     */
+    public static boolean nomeSugereMusica(String estilo) {
+        return nomeDeclaraMusica(estilo)
+            || (estilo != null && ABREVIACAO_GRUDADA_COM_NUMERO.matcher(estilo).find());
+    }
 }
