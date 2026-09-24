@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -55,13 +54,26 @@ public final class PlanoDeClassificacao {
      */
     private static final long FOLGA_INSTANTE_CS = 100;
 
+    /**
+     * Folga, em centésimos, para duas camadas serem do MESMO momento da música — em cada ponta da
+     * janela (início e fim), separadamente.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * O pareamento era por instante EXATO. Na abertura do 86 E01 a camada romaji do verso termina
+     * em 22:54.48 e a inglesa em 22:54.60 — 12 centésimos —, então a inglesa "não tinha original
+     * preservada", empilhava {@code inglês\Nportuguês} e a tela mostrava romaji + inglês + português.
+     * Um verso dura segundos; dois versos DIFERENTES nunca têm as duas pontas a menos de meio segundo.
+     */
+    static final long FOLGA_PAR_DE_CAMADAS_CS = 50;
+
     private final List<ClasseLinhaKaraoke> classePorPosicao;
-    private final Set<String> instantesComOriginalPreservada;
+    /** Janelas [início, fim] em centésimos das camadas com a letra ORIGINAL preservada. */
+    private final List<long[]> janelasComOriginalPreservada;
 
     private PlanoDeClassificacao(List<ClasseLinhaKaraoke> classePorPosicao,
-                                 Set<String> instantesComOriginalPreservada) {
+                                 List<long[]> janelasComOriginalPreservada) {
         this.classePorPosicao = List.copyOf(classePorPosicao);
-        this.instantesComOriginalPreservada = Set.copyOf(instantesComOriginalPreservada);
+        this.janelasComOriginalPreservada = List.copyOf(janelasComOriginalPreservada);
     }
 
     /**
@@ -77,7 +89,7 @@ public final class PlanoDeClassificacao {
     public static PlanoDeClassificacao montar(DocumentoLegenda documento,
                                               ClassificadorLetraKaraokeService classificador) {
         if (documento == null || documento.eventos() == null) {
-            return new PlanoDeClassificacao(List.of(), Set.of());
+            return new PlanoDeClassificacao(List.of(), List.of());
         }
         List<EventoLegenda> eventos = documento.eventos();
 
@@ -92,7 +104,16 @@ public final class PlanoDeClassificacao {
         // linhas do ED single-layer segue protegido.
         Set<Integer> silabas = posicoesDeSilaba(eventos);
 
-        Set<String> comRomaji = new HashSet<>();
+        // Duas perguntas diferentes, com réguas diferentes de propósito:
+        //  - "há romaji no MESMO instante?" é EVIDÊNCIA DE MÚSICA para linhas cujo estilo não diz
+        //    nada. Continua exigindo o instante EXATO. Com folga, fala de DIÁLOGO que coincide com
+        //    um verso passava a ser tratada como letra e ia ao LLM — medido em 24/09/2026 no acervo:
+        //    "Como posso pilotar o Zeta Gundam..." (ZZ) e "Aina Sakhalin... Ela tem um namorado?"
+        //    (08th), as duas em português.
+        //  - "já existe a letra original preservada?" decide só EMPILHAR ou não uma linha que JÁ é
+        //    música, e aqui a folga é a correção (F6, ver FOLGA_PAR_DE_CAMADAS_CS).
+        Set<String> instantesExatosComRomaji = new HashSet<>();
+        List<long[]> janelasComRomaji = new ArrayList<>();
         for (int i = 0; i < eventos.size(); i++) {
             EventoLegenda ev = eventos.get(i);
             if (!classificavel(ev) || silabas.contains(i)) {
@@ -100,8 +121,14 @@ public final class PlanoDeClassificacao {
             }
             ClasseLinhaKaraoke previa = classificador.classificar(
                 ev.estilo(), ev.texto(), new SinaisDeKaraoke(campoEfeitoDe(ev), false));
-            if (previa == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
-                comRomaji.add(instanteDe(ev));
+            if (previa != ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
+                continue;
+            }
+            instantesExatosComRomaji.add(instanteExato(ev));
+            long ini = inicioCs(ev);
+            long fim = fimCs(ev);
+            if (ini >= 0 && fim >= 0) {
+                janelasComRomaji.add(new long[] {ini, fim});
             }
         }
 
@@ -113,10 +140,45 @@ public final class PlanoDeClassificacao {
                 continue;
             }
             classes.add(classificador.classificar(ev.estilo(), ev.texto(),
-                new SinaisDeKaraoke(campoEfeitoDe(ev), comRomaji.contains(instanteDe(ev)),
+                new SinaisDeKaraoke(campoEfeitoDe(ev), instantesExatosComRomaji.contains(instanteExato(ev)),
                     silabas.contains(i))));
         }
-        return new PlanoDeClassificacao(classes, comRomaji);
+        return new PlanoDeClassificacao(classes, janelasComRomaji);
+    }
+
+    /**
+     * {@code início,fim} do prefixo, como TEXTO — a chave da evidência de música por camada romaji
+     * simultânea. NÃO usar o prefixo inteiro: ele carrega o ESTILO, e camadas irmãs têm estilos
+     * diferentes por definição. Prefixo ilegível devolve vazio (sem irmã, lado que preserva).
+     */
+    private static String instanteExato(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null) {
+            return "";
+        }
+        String[] campos = evento.prefixo().split(",");
+        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: há uma camada original no MESMO momento da música que este evento —
+     * início e fim, cada um dentro de {@link #FOLGA_PAR_DE_CAMADAS_CS}?
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo ilegível devolve {@code false} — o evento é
+     * tratado como sem irmã, o lado que PRESERVA a original (empilha).
+     */
+    private static boolean temJanelaDoMesmoMomento(List<long[]> janelas, EventoLegenda evento) {
+        long ini = inicioCs(evento);
+        long fim = fimCs(evento);
+        if (ini < 0 || fim < 0) {
+            return false;
+        }
+        for (long[] j : janelas) {
+            if (Math.abs(j[0] - ini) <= FOLGA_PAR_DE_CAMADAS_CS
+                && Math.abs(j[1] - fim) <= FOLGA_PAR_DE_CAMADAS_CS) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** A decisão já tomada para o evento naquela posição do documento. */
@@ -136,7 +198,7 @@ public final class PlanoDeClassificacao {
      * episódios.
      */
     public boolean temOriginalPreservadaNoInstante(EventoLegenda evento) {
-        return evento != null && instantesComOriginalPreservada.contains(instanteDe(evento));
+        return evento != null && temJanelaDoMesmoMomento(janelasComOriginalPreservada, evento);
     }
 
     /** Quantos eventos o plano decidiu — para o resumo por arquivo. */
@@ -190,35 +252,49 @@ public final class PlanoDeClassificacao {
      * de fora — o lado que NÃO veta, preservando o viés de traduzir o que não se entendeu.
      */
     private static Set<Integer> posicoesDeSilaba(List<EventoLegenda> eventos) {
+        // Tempo, texto visível e número de palavras são calculados UMA vez por evento. A versão
+        // anterior refazia o parse do prefixo e a limpeza de tags a cada PAR de eventos e comparava
+        // cada frase com TODOS os candidatos: O(n²) com string no laço. Medido em 24/09/2026: o
+        // arquivo do Char's Counterattack tem 55.983 eventos, e a medição ficou 45 min de CPU presa
+        // aqui — na produção isso prenderia a fila ÚNICA do pipeline por horas. Agora as irmãs
+        // são buscadas por estilo e pela janela de FIM, com busca binária.
         Set<Integer> silabas = new HashSet<>();
+        int n = eventos.size();
+        String[] visivel = new String[n];
+        long[] ini = new long[n];
+        long[] fim = new long[n];
         List<Integer> candidatos = new ArrayList<>();
-        for (int i = 0; i < eventos.size(); i++) {
-            if (classificavel(eventos.get(i)) && !visivelDe(eventos.get(i)).isEmpty()) {
-                candidatos.add(i);
-            }
-        }
-        for (int idFrase : candidatos) {
-            EventoLegenda frase = eventos.get(idFrase);
-            String textoFrase = visivelDe(frase);
-            if (palavras(textoFrase) < 2) {
+        java.util.Map<String, List<Integer>> porEstiloOrdemDeFim = new java.util.HashMap<>();
+        for (int i = 0; i < n; i++) {
+            EventoLegenda ev = eventos.get(i);
+            if (!classificavel(ev)) {
                 continue;
             }
-            long iniFrase = inicioCs(frase);
-            long fimFrase = fimCs(frase);
+            visivel[i] = visivelDe(ev);
+            if (visivel[i].isEmpty()) {
+                continue;
+            }
+            ini[i] = inicioCs(ev);
+            fim[i] = fimCs(ev);
+            candidatos.add(i);
+            porEstiloOrdemDeFim.computeIfAbsent(String.valueOf(ev.estilo()), k -> new ArrayList<>()).add(i);
+        }
+        for (List<Integer> doEstilo : porEstiloOrdemDeFim.values()) {
+            doEstilo.sort(Comparator.comparingLong((Integer id) -> fim[id]));
+        }
+        for (int idFrase : candidatos) {
+            String textoFrase = visivel[idFrase];
+            int palavrasFrase = palavras(textoFrase);
+            if (palavrasFrase < 2) {
+                continue;
+            }
+            long iniFrase = ini[idFrase];
+            long fimFrase = fim[idFrase];
             if (iniFrase < 0 || fimFrase < 0) {
                 continue;
             }
+            List<Integer> doEstilo = porEstiloOrdemDeFim.get(String.valueOf(eventos.get(idFrase).estilo()));
             List<Integer> irmas = new ArrayList<>();
-            for (int idIrma : candidatos) {
-                if (idIrma == idFrase) {
-                    continue;
-                }
-                EventoLegenda ev = eventos.get(idIrma);
-                if (!Objects.equals(ev.estilo(), frase.estilo())) {
-                    continue;
-                }
-                long ini = inicioCs(ev);
-                long fim = fimCs(ev);
                 // A âncora do pareamento é o FIM, não o início. Todo pedaço do fill de karaokê
                 // termina JUNTO com a frase (fica aceso até a linha acabar), então casar pelo fim é
                 // o que reconhece o pedaço e, ao mesmo tempo, exclui o fill da frase VIZINHA.
@@ -230,26 +306,28 @@ public final class PlanoDeClassificacao {
                 // termina com a frase (44.79 ≈ 44.69, dentro da folga) e é incluído, enquanto
                 // "vive" (fim 39.23, o fill da frase anterior) fica a 5s do fim desta e é excluído.
                 // A folga de 1s absorve os centésimos de diferença entre o held e o fill.
-                if (ini > fimFrase
-                    || fim < fimFrase - FOLGA_INSTANTE_CS || fim > fimFrase + FOLGA_INSTANTE_CS) {
-                    continue;
+            int k = primeiroComFimAPartirDe(doEstilo, fim, fimFrase - FOLGA_INSTANTE_CS);
+            for (; k < doEstilo.size() && fim[doEstilo.get(k)] <= fimFrase + FOLGA_INSTANTE_CS; k++) {
+                int idIrma = doEstilo.get(k);
+                if (idIrma != idFrase && ini[idIrma] <= fimFrase) {
+                    irmas.add(idIrma);
                 }
-                irmas.add(idIrma);
             }
             if (irmas.size() < 2) {
                 continue;
             }
-            irmas.sort(Comparator.comparingLong((Integer id) -> inicioCs(eventos.get(id)))
-                .thenComparingLong(id -> fimCs(eventos.get(id))));
+            // Desempate pela posição no documento: é a ordem que a versão O(n²) produzia (ela
+            // coletava na ordem do arquivo e o sort é estável).
+            irmas.sort(Comparator.comparingLong((Integer id) -> ini[id])
+                .thenComparingLong(id -> fim[id])
+                .thenComparingInt(id -> id));
 
-            int palavrasFrase = palavras(textoFrase);
             StringBuilder reconstruido = new StringBuilder();
             Set<String> jaVistos = new HashSet<>();
             int pedacos = 0;
             boolean algumEhFrase = false;
             for (int id : irmas) {
-                EventoLegenda ev = eventos.get(id);
-                String visivel = visivelDe(ev);
+                String visivelIrma = visivel[id];
                 // O corte é "MENOS palavras que a frase", não "< 2 palavras". O fansub divide a
                 // letra em pedaços que às vezes têm duas palavras ("you are" no OPL2 do Unicorn),
                 // e o corte antigo abortava o grupo inteiro ao encontrá-los — os 9 pedaços de
@@ -259,15 +337,15 @@ public final class PlanoDeClassificacao {
                 // duas vezes, que "reconstruía a si mesma" (Zeta Song JP): essa tem o MESMO número
                 // de palavras da frase, então >= palavrasFrase continua abortando-a. A prova forte
                 // segue sendo a concatenação exata abaixo, não o número de palavras do pedaço.
-                if (palavras(visivel) >= palavrasFrase) {
+                if (palavras(visivelIrma) >= palavrasFrase) {
                     algumEhFrase = true;
                     break;
                 }
-                String chave = inicioCs(ev) + "|" + fimCs(ev) + "|" + visivel;
+                String chave = ini[id] + "|" + fim[id] + "|" + visivelIrma;
                 if (!jaVistos.add(chave)) {
                     continue; // cópia de tipografia: mesmo texto, mesmo instante
                 }
-                reconstruido.append(visivel);
+                reconstruido.append(visivelIrma);
                 pedacos++;
             }
             if (algumEhFrase || pedacos < 2) {
@@ -278,6 +356,21 @@ public final class PlanoDeClassificacao {
             }
         }
         return silabas;
+    }
+
+    /** Primeira posição da lista (ordenada por fim) cujo fim é >= {@code limite}. */
+    private static int primeiroComFimAPartirDe(List<Integer> ordemDeFim, long[] fim, long limite) {
+        int lo = 0;
+        int hi = ordemDeFim.size();
+        while (lo < hi) {
+            int meio = (lo + hi) >>> 1;
+            if (fim[ordemDeFim.get(meio)] < limite) {
+                lo = meio + 1;
+            } else {
+                hi = meio;
+            }
+        }
+        return lo;
     }
 
     private static String visivelDe(EventoLegenda ev) {
@@ -334,24 +427,6 @@ public final class PlanoDeClassificacao {
         }
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: {@code inicio,fim} do prefixo — a chave que identifica DUAS camadas
-     * simultâneas como sendo do mesmo momento da música.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: NÃO usar o prefixo inteiro. Ele carrega o ESTILO, e camadas
-     * irmãs têm estilos diferentes por definição ({@code OP - Romaji} e {@code OP - English}) —
-     * comparar o prefixo faria toda camada parecer solitária.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou curto devolve string vazia, e o evento é
-     * tratado como sem irmã — o lado que PRESERVA a original.
-     */
-    static String instanteDe(EventoLegenda evento) {
-        if (evento == null || evento.prefixo() == null) {
-            return "";
-        }
-        String[] campos = evento.prefixo().split(",");
-        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: o campo {@code Effect} da linha {@code Dialogue:} — o carimbo que o

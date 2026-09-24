@@ -143,6 +143,88 @@ class PlanoDeClassificacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (F12, 24/09/2026): montar o plano de um arquivo GRANDE não pode prender a
+     * fila do pipeline. O arquivo do Char's Counterattack tem 55.983 eventos; a busca de sílabas
+     * comparava cada frase com todos os eventos, refazendo parse de tempo e limpeza de tags a cada
+     * par, e ficou 45 min de CPU sem terminar. A fila é ÚNICA: travada ali, nenhuma outra operação
+     * roda.
+     *
+     * <p>O documento sintético tem 40.000 falas de diálogo num só estilo, todas com 2+ palavras (o
+     * pior caso da busca antiga) e fins espalhados como numa legenda real. O teto de 20 s é folgado
+     * para a versão indexada e inalcançável para a quadrática.
+     */
+    @Test
+    @DisplayName("F12: plano de 40 mil falas monta sem prender a fila (versao indexada, nao O(n^2))")
+    void planoDeArquivoGrandeNaoPrendeAFila(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        String[] linhas = new String[40_000];
+        for (int i = 0; i < linhas.length; i++) {
+            long ini = i * 150L;
+            linhas[i] = String.format(java.util.Locale.ROOT,
+                "Dialogue: 0,%s,%s,Default,,0,0,0,,{\\clip(601,835,1685,924)}Fala numero %d do filme",
+                tempo(ini), tempo(ini + 200), i);
+        }
+        DocumentoLegenda doc = documento(pasta, linhas);
+
+        PlanoDeClassificacao plano = org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(
+            java.time.Duration.ofSeconds(20), () -> PlanoDeClassificacao.montar(doc, classificador),
+            "montar o plano de 40 mil falas passou de 20 s — a busca de silabas voltou a ser quadratica");
+        assertEquals(40_000, plano.total());
+    }
+
+    private static String tempo(long centesimos) {
+        long h = centesimos / 360000;
+        long m = (centesimos / 6000) % 60;
+        long s = (centesimos / 100) % 60;
+        long cs = centesimos % 100;
+        return String.format(java.util.Locale.ROOT, "%d:%02d:%02d.%02d", h, m, s, cs);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO (F6, 24/09/2026): camadas do MESMO verso com as pontas a centésimos de
+     * distância são o mesmo momento. Na abertura do 86 E01 o romaji termina em 22:54.48 e o inglês
+     * em 22:54.60; com pareamento EXATO o inglês empilhava {@code inglês\Nportuguês} e a tela
+     * mostrava romaji + inglês + português.
+     *
+     * <p>A1 — o mesmo sinal (camada romaji perto no tempo) a mais de meio segundo nas pontas é OUTRO
+     * momento, e a camada única continua empilhando a original.
+     */
+    @Test
+    @DisplayName("F6: camadas com 12 cs de diferenca no fim sao o mesmo verso; a 60 cs nao sao")
+    void camadasComPontasPertoSaoOMesmoVerso(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        DocumentoLegenda doc = documento(pasta,
+            "Dialogue: 0,0:22:50.47,0:22:54.48,OP - Romaji,,0,0,0,,fuminijirareru dake no hana",
+            "Dialogue: 0,0:22:50.47,0:22:54.60,Camada2,,0,0,0,,A flower blooms only to be crushed",
+            "Dialogue: 0,0:23:00.00,0:23:04.00,OP - Romaji,,0,0,0,,boukan shiteiru zouhan shiteiru",
+            "Dialogue: 0,0:23:00.00,0:23:04.60,Camada2,,0,0,0,,Bystanding, revolting, willful ignorance");
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador);
+
+        assertTrue(plano.temOriginalPreservadaNoInstante(doc.eventos().get(1)),
+            "12 cs no fim: e o MESMO verso — o ingles nao pode empilhar sobre o romaji");
+        assertFalse(plano.temOriginalPreservadaNoInstante(doc.eventos().get(3)),
+            "A1: 60 cs no fim ja e outro momento — sem par, a original tem de empilhar");
+    }
+
+    /**
+     * A1 da folga do F6, achado no acervo em 24/09/2026: a folga vale para EMPILHAR, nunca como
+     * evidência de que uma linha é música. Uma fala de DIÁLOGO que coincide no tempo com um verso
+     * romaji (ZZ: "Como posso pilotar o Zeta Gundam se tenho medo de Newtypes?", 27 cs de diferença
+     * no fim) tem de continuar fora da música — senão iria ao LLM como letra.
+     */
+    @Test
+    @DisplayName("F6/A1: dialogo que coincide com verso romaji (27 cs) continua FORA da musica")
+    void folgaNaoTransformaDialogoEmMusica(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        DocumentoLegenda doc = documento(pasta,
+            "Dialogue: 0,0:10:00.00,0:10:04.27,OP - Romaji,,0,0,0,,Hontou no koto sa",
+            "Dialogue: 0,0:10:00.03,0:10:04.00,Dialogue,,0,0,0,,Como posso pilotar o Zeta Gundam se tenho medo de Newtypes?");
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador);
+
+        assertEquals(ClasseLinhaKaraoke.FORA_DE_MUSICA, plano.classeNaPosicao(1),
+            "fala de dialogo perto de um verso nao pode virar letra de musica");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: uma SÍLABA de fill do KFX que por acaso parece romaji (a letra
      * {@code "I"} → {@code "i"}, que casa o padrão de sílaba japonesa) NÃO pode marcar o instante
      * como "tem original preservada" e roubar o empilhamento do inglês da frase que está no MESMO
