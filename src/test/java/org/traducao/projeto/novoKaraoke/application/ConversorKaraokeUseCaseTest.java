@@ -674,12 +674,17 @@ class ConversorKaraokeUseCaseTest {
             + "Dialogue: 1,0:22:39.00,0:22:44.17,ED,,0,0,0,,{\\blur3\\fad(200,2000)}e gentilmente\n"
             // A1: frase + silaba acesa junto (mesmo estilo), como o fill da OPL2
             + "Dialogue: 0,0:01:37.00,0:01:39.80,OPL2,,0,0,0,fx,{\\pos(640,60)}Do you feel alone\n"
-            + "Dialogue: 0,0:01:37.61,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(700,60)}alone\n",
+            + "Dialogue: 0,0:01:37.61,0:01:39.90,OPL2,,0,0,0,fx,{\\pos(700,60)}alone\n"
+            // A1 do acervo (DanMachi S00E04): nota sustentada "m" do KFX, sozinha na tela, carimbo fx
+            + "Dialogue: 0,0:02:54.70,0:02:54.70,OP Romaji 2,,0,0,0,fx,{\\an5\\pos(1221,76.5)}a\n"
+            + "Dialogue: 1,0:02:54.70,0:03:02.79,OP Romaji 2,,0,0,0,fx,{\\an5\\pos(1260,76.5)\\blur7.5}m\n",
             StandardCharsets.UTF_8);
 
         novoConversor().converterArquivo(origem, destino, true);
 
         String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertFalse(saida.lines().anyMatch(l -> l.contains("Karaoke Simples") && l.endsWith(",m")),
+            () -> "A1: a letra 'm' sustentada do KFX (fx) nao pode virar linha limpa sozinha:\n" + saida);
         assertTrue(saida.contains("Karaoke Simples,,0,0,0,,yasashikatta\\Ne gentilmente"),
             () -> "o verso de uma palavra tinha de ir para a linha limpa com o PT embaixo:\n" + saida);
         assertFalse(saida.contains("ED Roma L1,,0,0,0,,{\\blur3\\fad(200,2000)}yasashikatta"),

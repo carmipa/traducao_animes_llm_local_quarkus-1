@@ -717,8 +717,15 @@ public class ConversorKaraokeUseCase {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto em branco devolve {@code false}. Nunca lança.
      */
-    private static boolean versoDeUmaPalavraSozinho(EventoAss evento, String visivel, java.util.Set<EventoAss> acompanhados) {
+    private boolean versoDeUmaPalavraSozinho(EventoAss evento, String visivel, java.util.Set<EventoAss> acompanhados) {
+        // Dois pisos achados pela revisão do acervo inteiro (24/09/2026): no DanMachi S00E04 a nota
+        // sustentada "m" de "Dream" (0:02:54.70–0:03:02.79) só existe na camada de brilho e as
+        // outras letras têm duração ZERO — ninguém divide a tela com ela, e a letra "m" sozinha
+        // virava linha limpa por 8 s. Evento carimbado pelo Kara Templater (Effect "fx") é
+        // maquinaria de sílaba, nunca verso inteiro; e uma letra só nunca é verso.
         return !visivel.isBlank() && contarPalavras(visivel) == 1 && ehVersoInteiro(evento)
+            && visivel.codePointCount(0, visivel.length()) >= 2
+            && !detectorKaraoke.efeitoDeclaraKaraoke(evento.efeito())
             && !acompanhados.contains(evento);
     }
 
