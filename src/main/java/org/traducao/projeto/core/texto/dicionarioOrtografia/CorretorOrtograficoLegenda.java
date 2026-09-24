@@ -195,12 +195,18 @@ public class CorretorOrtograficoLegenda {
     private static final java.util.regex.Pattern PALAVRA_DO_DICIONARIO =
         java.util.regex.Pattern.compile("[\\p{L}][\\p{L}'\\-]*");
 
+    /** {@code \N}, {@code \n} e {@code \h} do ASS: separadores, nunca a letra inicial da palavra seguinte. */
+    private static final java.util.regex.Pattern QUEBRA_OU_ESPACO_ASS = java.util.regex.Pattern.compile("\\\\[Nnh]");
+
     /**
      * PROPÓSITO DE NEGÓCIO: DONO ÚNICO de "quais palavras deste texto se perguntam ao dicionário".
      * Nasceu em 24/09/2026 quando a mesma regex existia no achatador (novoKaraoke) e no plano da
      * tradução de karaokê — a catraca de regra duplicada entre fatias reprovou a segunda cópia.
      *
-     * <p>INVARIANTES DO DOMÍNIO: preserva a grafia (o veredicto é por forma exata) e a ordem.
+     * <p>INVARIANTES DO DOMÍNIO: preserva a grafia (o veredicto é por forma exata) e a ordem. As
+     * quebras e o espaço fixo do ASS ({@code \N}, {@code \n}, {@code \h}) SEPARAM palavras: sem isso
+     * {@code "Dreamer...\NSonhador..."} dava a palavra {@code "NSonhador"} (DESCONHECIDA), o lado
+     * português do par ficava mudo e o achatador colava o par numa linha (0083, 27:00.47, 24/09/2026).
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: nulo devolve lista vazia.
      */
@@ -209,7 +215,7 @@ public class CorretorOrtograficoLegenda {
         if (texto == null) {
             return palavras;
         }
-        java.util.regex.Matcher m = PALAVRA_DO_DICIONARIO.matcher(texto);
+        java.util.regex.Matcher m = PALAVRA_DO_DICIONARIO.matcher(QUEBRA_OU_ESPACO_ASS.matcher(texto).replaceAll(" "));
         while (m.find()) {
             palavras.add(m.group());
         }

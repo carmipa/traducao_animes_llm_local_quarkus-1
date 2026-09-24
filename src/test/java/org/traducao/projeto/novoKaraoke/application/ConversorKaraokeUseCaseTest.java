@@ -596,6 +596,27 @@ class ConversorKaraokeUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (24/09/2026): par de UMA palavra de cada lado. O tokenizador lia
+     * {@code "\NSonhador"} como a palavra {@code "NSonhador"} (DESCONHECIDA), o lado português ficava
+     * mudo e o par saía colado — "Dreamer... Sonhador..." no 0083 (27:00.47), achado no teste real
+     * com o aya. Par de várias palavras escapava porque as outras palavras do lado ainda contavam.
+     */
+    @Test
+    void parDeUmaPalavraDeCadaLadoContinuaSendoPar() throws Exception {
+        Path origem = tempDir.resolve("par-uma-palavra.ass");
+        Path destino = Files.createDirectory(tempDir.resolve("saida"));
+        Files.writeString(origem, cabecalho()
+            + "Dialogue: 1,0:27:00.47,0:27:03.73,ED2,,0,0,0,,{\\fad(200,500)}Dreamer...\\N{\\fad(200,500)}Sonhador...\n",
+            StandardCharsets.UTF_8);
+
+        novoConversor().converterArquivo(origem, destino, true);
+
+        String saida = Files.readString(destino.resolve(origem.getFileName()), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Karaoke Simples,,0,0,0,,Dreamer...\\NSonhador..."),
+            () -> "par de uma palavra de cada lado tinha de sair em DUAS linhas:\n" + saida);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO (F4b, 24/09/2026): o pt_BR real aceita muita palavra inglesa ("Can't",
      * "escape", "sole", "fate"), e a letra inglesa passava a "parecer portuguesa" por contagem — os
      * dois lados davam português e o par saía colado numa linha (Unicorn E14, 23:01). Medido com o
@@ -799,13 +820,13 @@ class ConversorKaraokeUseCaseTest {
                 + "tire minha roupa coroa entao então posso adormecer profundamente "
                 // o pt_BR REAL aceita estas palavras inglesas (medido 24/09/2026) — o duble imita
                 + "can't escape sole fate não escapar destino quero estar nos seus braços você tremeu diante mim "
-                + "que eu amo t i k n s r m";
+                + "que eu amo t i k n s r m sonhador";
             String en = "do you feel alone can hear now mind is so far away still on earth many times are "
                 + "hurting yourself cant be just life shelf its only that fly this new unicorn into the sky "
                 + "and every time hurt with knives im calling out your name again if holding onto fear i knew "
                 + "blind open let light shine through we say why stop all sacrifice know lies became stone in "
                 + "heart wonder how long gonna survive didnt see meaning have little break running lights "
-                + "take off my sought idol then breathe deep dress crown fall sound asleep from love";
+                + "take off my sought idol then breathe deep dress crown fall sound asleep from love dreamer";
             for (String w : pt.split(" ")) VEREDITO.put(w, VeredictoPalavra.PORTUGUES_OK);
             for (String w : en.split(" ")) VEREDITO.putIfAbsent(w, VeredictoPalavra.RESIDUO_INGLES);
         }
