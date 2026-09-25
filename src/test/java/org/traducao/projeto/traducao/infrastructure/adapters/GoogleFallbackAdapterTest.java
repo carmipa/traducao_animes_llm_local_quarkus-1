@@ -38,6 +38,38 @@ class GoogleFallbackAdapterTest {
         }
     }
 
+    /** Achado da auditoria da 2.1: o catch genérico engolia o sinal de parada do operador. */
+    @Test
+    @DisplayName("interrupcao durante a chamada ao Google devolve o sinal de parada a thread")
+    void interrupcaoNaChamadaRestauraOSinalDeParada() {
+        GoogleFallbackAdapter adapter = new GoogleFallbackAdapter(new ObjectMapper()) {
+            @Override
+            protected RespostaHttp executarGet(String url) throws Exception {
+                throw new InterruptedException("Sair do operador");
+            }
+        };
+        try {
+            assertTrue(adapter.traduzir("Hello there").traducaoOpcional().isEmpty());
+            assertTrue(Thread.currentThread().isInterrupted(), "o sinal de parada nao pode ser consumido");
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    /** CASO-CONTROLE (A1): falha de rede comum não inventa sinal de parada. */
+    @Test
+    @DisplayName("falha de rede comum nao marca a thread como interrompida")
+    void falhaDeRedeNaoInterrompe() {
+        GoogleFallbackAdapter adapter = new GoogleFallbackAdapter(new ObjectMapper()) {
+            @Override
+            protected RespostaHttp executarGet(String url) throws Exception {
+                throw new java.io.IOException("timeout");
+            }
+        };
+        assertTrue(adapter.traduzir("Hello there").traducaoOpcional().isEmpty());
+        assertTrue(!Thread.interrupted(), "IOException nao e parada");
+    }
+
     /** Monta o JSON no formato do endpoint translate_a/single para um único segmento. */
     private static String jsonGoogle(String traducao) {
         return "[[[\"" + traducao + "\",\"orig\",null,null,10]],null,\"en\"]";

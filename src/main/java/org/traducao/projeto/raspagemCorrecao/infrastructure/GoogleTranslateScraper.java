@@ -88,7 +88,7 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
         for (int n = 1; ; n++) {
             Tentativa tentativa = tentarTraduzir(textoOriginal);
             boolean transitoria = tentativa.resultado().status() == StatusRaspagem.FALHA_TRANSITORIA;
-            if (!transitoria || n >= MAX_TENTATIVAS) {
+            if (!transitoria || n >= MAX_TENTATIVAS || Thread.currentThread().isInterrupted()) {
                 return tentativa.resultado();
             }
             long espera = tentativa.esperaSugeridaMs() > 0 ? tentativa.esperaSugeridaMs() : backoffComJitter();
@@ -176,6 +176,10 @@ public class GoogleTranslateScraper implements RecuperacaoExternaPort {
                 + query;
             resposta = executarGet(url);
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                // Restaura o sinal de parada; o laço de tentativas vê a flag e não repete.
+                Thread.currentThread().interrupt();
+            }
             log.error("Erro na comunicação com a API do Google Translate: {}", e.getMessage());
             return semEspera(ResultadoRaspagem.falhaTransitoria(textoOriginal));
         }
