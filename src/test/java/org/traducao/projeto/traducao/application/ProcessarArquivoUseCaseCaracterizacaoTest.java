@@ -99,6 +99,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     // Fallback online controlável pelos testes: por padrão DESLIGADO (pipeline 100%
     // local), preservando o comportamento das caracterizações existentes.
     private boolean fallbackOnlineAtivo = false;
+
+    // Modo "como a produção": agrupamento de frase partida ligado e lote de UMA fala, que é o que o
+    // application.yml usa. O padrão do harness (lote de 20, sem agrupamento) é o histórico das
+    // caracterizações existentes e continua valendo para elas.
+    private int tamanhoLoteTeste = 20;
+    private boolean agruparFraseTeste = false;
     private FallbackTraducaoMaquinaPort fallbackPort = portaFallback(original -> Optional.empty());
 
     /**
@@ -180,6 +186,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     private static final class FakeLlmPort implements LlmPort {
         private static final Pattern TOKEN = Pattern.compile("\\[\\[[^\\]]*\\]\\]");
         final AtomicInteger chamadas = new AtomicInteger();
+        /** Quantas falas cada chamada levou — é o que mostra se uma corrente foi formada. */
+        final List<Integer> tamanhosDeLote = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
         private final boolean interromperNaPrimeira;
         private final boolean comerMarcadores;
 
@@ -281,6 +289,7 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override
         public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
             int chamada = chamadas.incrementAndGet();
+            tamanhosDeLote.add(lote.linhasOriginais().size());
             if (chamada >= caiNaChamada) {
                 return new TraducaoLote(lote.idLote(), null, false, "Connection refused (dublê: LM Studio caiu)");
             }
@@ -990,6 +999,98 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             "verso de musica com o mesmo texto NAO herda — outro estilo:\n" + String.join("\n", linhas));
     }
 
+    private static final String METADE_1 = "We are going to wait right here for";
+    private static final String METADE_2 = "the others to come back home tonight.";
+
+    /**
+     * Achado da auditoria de 25/09/2026: a corrente de frase partida deduzia vizinhança da ORDEM
+     * DA LISTA DE PENDENTES. Aqui o "Yes." do meio é repetição de um anterior (sai da lista), e as
+     * duas metades ficavam coladas — viravam corrente sem serem vizinhas no documento.
+     */
+    @Test
+    @DisplayName("corrente: falas separadas por outra no documento NAO viram corrente")
+    void falasNaoVizinhasNaoViramCorrente() throws Exception {
+        tamanhoLoteTeste = 1;
+        agruparFraseTeste = true;
+        Path entrada = escreverAss("ep.ass", "Yes.", METADE_1, "Yes.", METADE_2);
+        FakeLlmPort llm = new FakeLlmPort();
+
+        montar(llm, new ConsoleUILoggerSilencioso()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(llm.tamanhosDeLote.stream().allMatch(n -> n == 1),
+            "nenhum lote pode juntar falas que nao sao vizinhas no documento: " + llm.tamanhosDeLote);
+    }
+
+    /** CASO-CONTROLE (A1): as mesmas metades, agora vizinhas de verdade, formam a corrente. */
+    @Test
+    @DisplayName("corrente: metades vizinhas de verdade continuam formando corrente")
+    void metadesVizinhasFormamCorrente() throws Exception {
+        tamanhoLoteTeste = 1;
+        agruparFraseTeste = true;
+        Path entrada = escreverAss("ep.ass", "Yes.", METADE_1, METADE_2);
+        FakeLlmPort llm = new FakeLlmPort();
+
+        montar(llm, new ConsoleUILoggerSilencioso()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(llm.tamanhosDeLote.contains(2),
+            "a frase partida vizinha tem de ir junta ao LLM: " + llm.tamanhosDeLote);
+    }
+
+    /**
+     * A corrente reprovada pela guarda de deslocamento é retraduzida fala a fala. Se ESSA passada
+     * falhar, a tradução agrupada — a que a guarda acabou de reprovar — era publicada, e o arquivo
+     * saía CONCLUIDO com texto no tempo de outra fala. Agora as falas ficam pendentes, com a causa.
+     */
+    @Test
+    @DisplayName("corrente reprovada cuja retraducao falha vira pendencia com causa, nao e publicada")
+    void correnteReprovadaSemRetraducaoViraPendencia() throws Exception {
+        tamanhoLoteTeste = 1;
+        agruparFraseTeste = true;
+        Path entrada = escreverAss("ep.ass", METADE_1, METADE_2);
+        // 1a chamada: a corrente (o dublê devolve 2 palavras por linha — a guarda reprova por escala);
+        // a partir da 2a, o servidor cai: a retradução individual falha.
+        FakeLlmPort llm = FakeLlmPort.queCaiNaChamada(2);
+
+        ResultadoTraducaoArquivo r = montar(llm, new ConsoleUILoggerSilencioso())
+            .processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(List.of(2), llm.tamanhosDeLote.subList(0, 1), "a corrente tem de ter ido junta");
+        assertEquals(StatusArquivoTraducao.PARCIAL, r.status(),
+            "a corrente reprovada nao pode sair como traducao concluida");
+        String gravado = Files.readString(raiz.resolve("saida").resolve("ep_PT-BR.parcial.ass"), StandardCharsets.UTF_8);
+        assertFalse(gravado.contains("fala traduzida"),
+            "a traducao que a guarda reprovou nao pode ser publicada:\n" + gravado);
+        assertTrue(telemetriaCaptor.ultima.errosOcorridos().stream()
+                .anyMatch(a -> a.contains("corrente de frase partida reprovada")),
+            "a causa tem de ser dita: " + telemetriaCaptor.ultima.errosOcorridos());
+    }
+
+    /**
+     * No caminho da PARADA a guarda de deslocamento não rodava: a corrente reprovada ia para o
+     * cache parcial e era reaproveitada na retomada. Agora ela não é salva.
+     */
+    @Test
+    @DisplayName("parada: corrente reprovada nao vai para o cache parcial")
+    void paradaNaoSalvaCorrenteReprovadaNoCache() throws Exception {
+        tamanhoLoteTeste = 1;
+        agruparFraseTeste = true;
+        Path entrada = escreverAss("ep.ass", METADE_1, METADE_2, "Hello there.");
+        FakeLlmPort llm = new FakeLlmPort(true);
+        try {
+            assertThrows(TraducaoParcialException.class,
+                () -> montar(llm, new ConsoleUILoggerSilencioso()).processar(entrada, false, gerenciadorMontado.snapshotAtivo()));
+        } finally {
+            Thread.interrupted();
+        }
+        Path cache;
+        try (var s = Files.walk(raiz)) {
+            cache = s.filter(p -> p.getFileName().toString().equals("ep.cache.json")).findFirst().orElse(null);
+        }
+        String conteudo = cache == null ? "" : Files.readString(cache, StandardCharsets.UTF_8);
+        assertFalse(conteudo.contains(METADE_1) && conteudo.contains("fala traduzida"),
+            "a corrente reprovada nao pode ir para o cache parcial:\n" + conteudo);
+    }
+
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }
@@ -1022,7 +1123,8 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             raiz.resolve("entrada").toString(),
             raiz.resolve("saida").toString(),
             raiz.resolve("cache").toString(),
-            20, List.of(), "en", "pt-BR");
+            tamanhoLoteTeste, List.of(), "en", "pt-BR");
+        props.setAgruparFrasePartida(agruparFraseTeste);
         LlmProperties llmProps = new LlmProperties(
             "http://127.0.0.1:1234/v1", "modelo-teste", 0.3, 2048,
             Duration.ofSeconds(5), Duration.ofSeconds(30));

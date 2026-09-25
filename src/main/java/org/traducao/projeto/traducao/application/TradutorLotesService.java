@@ -179,6 +179,27 @@ public class TradutorLotesService {
             String nomeArquivo, List<String> avisos, String promptCongelado,
             DesfechoDasFalas desfecho)
             throws InterruptedException, ExecutionException {
+        return traduzirPendentes(textosPendentes, textosDeduplicaveis, textosComQuebraIsolavel,
+            nomeArquivo, avisos, promptCongelado, desfecho, (anterior, seguinte) -> true);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução, sabendo quais pares de falas são VIZINHOS no documento
+     * — a única informação que permite formar corrente de frase partida sem juntar falas distantes.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a lista de pendentes NÃO é o documento: dela já saíram as falas
+     * vindas do cache, as repetidas e as mantidas por fonte em português. Com a do meio fora, as
+     * duas vizinhas dela ficavam coladas na lista e podiam virar corrente (achado da auditoria de
+     * 25/09/2026). Com {@code vizinhas}, só liga quem é vizinho de verdade.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: predicado que aceita tudo reproduz o comportamento anterior.
+     */
+    public Map<String, String> traduzirPendentes(
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            Set<String> textosComQuebraIsolavel,
+            String nomeArquivo, List<String> avisos, String promptCongelado,
+            DesfechoDasFalas desfecho, java.util.function.BiPredicate<String, String> vizinhas)
+            throws InterruptedException, ExecutionException {
         if (textosPendentes.isEmpty()) {
             return Map.of();
         }
@@ -298,7 +319,7 @@ public class TradutorLotesService {
         // Com a flag ligada, uma frase partida entre eventos consecutivos vira UM lote, para
         // o LLM enxergar a frase inteira; o resto continua fatiado pelo tamanho configurado.
         List<List<String>> chunksRepresentantes = propriedades.agruparFrasePartida()
-            ? detectorCorrente.agrupar(representantes, tamanhoLote)
+            ? detectorCorrente.agrupar(representantes, tamanhoLote, vizinhas)
             : fatiarPorTamanho(representantes, tamanhoLote);
         List<Lote> lotes = new ArrayList<>();
         for (List<String> chunkReps : chunksRepresentantes) {
@@ -316,6 +337,14 @@ public class TradutorLotesService {
             if (e.getLotesSalvos() != null) {
                 coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes,
                     mascaradoPorRepresentante, procedencia);
+            }
+            // A guarda de deslocamento também vale na PARADA: sem ela, uma corrente com o texto
+            // trocado de tempo ia para o cache parcial e era reaproveitada na retomada. Aqui não há
+            // retradução (o episódio está parando): a corrente reprovada simplesmente não é salva,
+            // e a próxima execução a traduz de novo.
+            if (propriedades.agruparFrasePartida()) {
+                correntesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal, mascaradoPorRepresentante)
+                    .forEach(mascaradoPorRepresentante::remove);
             }
             procedencia.transferirPara(desfecho, textosPendentes, representanteDeOriginal);
             Map<String, String> traducoesParciais = expandirParaCamadas(
@@ -377,6 +406,10 @@ public class TradutorLotesService {
             }
         }
 
+        void registrarCausa(String representante, String causa) {
+            causaPorRepresentante.put(representante, causa);
+        }
+
         void transferirPara(DesfechoDasFalas desfecho, Set<String> originais,
                 Map<String, String> representanteDeOriginal) {
             for (String original : originais) {
@@ -432,23 +465,8 @@ public class TradutorLotesService {
             List<List<String>> chunksRepresentantes, Map<String, String> textoMascaradoPorOriginal,
             Map<String, String> mascaradoPorRepresentante, String promptCongelado,
             ProcedenciaPorRepresentante procedencia) {
-        List<String> aRefazer = new ArrayList<>();
-        for (List<String> chunk : chunksRepresentantes) {
-            if (chunk.size() < 2) {
-                continue;
-            }
-            List<String> enviados = chunk.stream().map(textoMascaradoPorOriginal::get).toList();
-            List<String> recebidos = chunk.stream().map(mascaradoPorRepresentante::get).toList();
-            if (recebidos.stream().anyMatch(java.util.Objects::isNull)) {
-                continue;
-            }
-            GuardaCorrenteTraduzida.Veredito veredito = guardaCorrente.avaliar(enviados, recebidos);
-            if (!veredito.aceita()) {
-                log.warn("Corrente de {} falas reprovada pela guarda ({}); retraduzindo uma a uma.",
-                    chunk.size(), veredito.motivo());
-                aRefazer.addAll(chunk);
-            }
-        }
+        List<String> aRefazer = correntesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal,
+            mascaradoPorRepresentante);
         if (aRefazer.isEmpty()) {
             return;
         }
@@ -466,12 +484,52 @@ public class TradutorLotesService {
                 processarEpisodioUseCase.processarEpisodio(lotesIndividuais, promptCongelado);
             coletarMascaradoPorRepresentante(refeitos, chunksIndividuais, mascaradoPorRepresentante, procedencia);
         } catch (Exception e) {
-            log.warn("Segunda passada individual falhou ({}); mantendo a tradução agrupada.",
-                e.getMessage());
-            if (e instanceof InterruptedException) {
+            // A corrente foi REPROVADA por deslocar texto entre as linhas: publicá-la seria pôr na
+            // tela uma fala no tempo de outra. Até 25/09/2026 esta falha mantinha a tradução
+            // agrupada e o arquivo saía CONCLUIDO com o deslocamento dentro. Agora as falas viram
+            // pendência com a causa dita — o original fica, e a próxima execução tenta de novo.
+            log.warn("Segunda passada individual falhou ({}); {} fala(s) da corrente reprovada ficam pendentes.",
+                e.getMessage(), aRefazer.size());
+            for (String representante : aRefazer) {
+                mascaradoPorRepresentante.remove(representante);
+                procedencia.registrarCausa(representante, "corrente de frase partida reprovada pela guarda de"
+                    + " deslocamento e a retradução individual falhou (" + e.getMessage() + ")");
+            }
+            if (e instanceof InterruptedException
+                    || (e instanceof TraducaoParcialException p && p.interrompidaPeloUsuario())) {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz quais representantes pertencem a correntes (2+ falas) que a
+     * {@link GuardaCorrenteTraduzida} reprovou — o LLM deslocou conteúdo entre as linhas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: corrente com alguma fala sem tradução não é avaliada (não há o
+     * que comparar); grupo de uma fala nunca é corrente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem correntes reprovadas devolve lista vazia.
+     */
+    private List<String> correntesReprovadas(List<List<String>> chunksRepresentantes,
+            Map<String, String> textoMascaradoPorOriginal, Map<String, String> mascaradoPorRepresentante) {
+        List<String> reprovados = new ArrayList<>();
+        for (List<String> chunk : chunksRepresentantes) {
+            if (chunk.size() < 2) {
+                continue;
+            }
+            List<String> enviados = chunk.stream().map(textoMascaradoPorOriginal::get).toList();
+            List<String> recebidos = chunk.stream().map(mascaradoPorRepresentante::get).toList();
+            if (recebidos.stream().anyMatch(java.util.Objects::isNull)) {
+                continue;
+            }
+            GuardaCorrenteTraduzida.Veredito veredito = guardaCorrente.avaliar(enviados, recebidos);
+            if (!veredito.aceita()) {
+                log.warn("Corrente de {} falas reprovada pela guarda ({}).", chunk.size(), veredito.motivo());
+                reprovados.addAll(chunk);
+            }
+        }
+        return reprovados;
     }
 
     /**

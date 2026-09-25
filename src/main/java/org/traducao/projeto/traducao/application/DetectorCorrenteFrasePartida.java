@@ -32,10 +32,12 @@ import java.util.regex.Pattern;
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Lista nula ou vazia devolve lista vazia. A adjacência é assumida da ORDEM da lista
- * recebida: o chamador entrega os textos pendentes em ordem de documento. Se uma fala do
- * meio já veio do cache, ela não está na lista e a corrente simplesmente não é formada —
- * o agrupamento perde a oportunidade, nunca junta falas não adjacentes.
+ * Lista nula ou vazia devolve lista vazia. A ORDEM da lista não prova adjacência: a lista é a
+ * das falas pendentes, e dela saem as que vieram do cache, as repetidas e as mantidas por fonte
+ * em português. Até 25/09/2026 este comentário afirmava que isso "nunca junta falas não
+ * adjacentes" — era falso: com a fala do meio fora, as duas vizinhas ficavam coladas na lista. Por
+ * isso {@link #agrupar(List, int, java.util.function.BiPredicate)} recebe do chamador quem é
+ * vizinho no DOCUMENTO.
  */
 @Component
 public class DetectorCorrenteFrasePartida {
@@ -61,6 +63,25 @@ public class DetectorCorrenteFrasePartida {
      * @return grupos na ordem de entrada, cada um pronto para virar um {@code Lote}
      */
     public List<List<String>> agrupar(List<String> textos, int tamanhoLotePadrao) {
+        return agrupar(textos, tamanhoLotePadrao, (anterior, seguinte) -> true);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesmo agrupamento, ligando dois textos SÓ quando o chamador confirma
+     * que eles são vizinhos no documento.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a lista recebida é a das falas PENDENTES, não o documento — dela
+     * já saíram as falas vindas do cache, as repetidas e as mantidas por fonte em português. Sem o
+     * predicado, a vizinha de uma fala que saiu ficava colada na seguinte e podia virar corrente
+     * (achado da auditoria da 2.1, 25/09/2026). A heurística gramatical continua a mesma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: predicado nulo é tratado como "todos vizinhos" — o
+     * comportamento anterior.
+     */
+    public List<List<String>> agrupar(List<String> textos, int tamanhoLotePadrao,
+            java.util.function.BiPredicate<String, String> vizinhas) {
+        java.util.function.BiPredicate<String, String> saoVizinhas =
+            vizinhas != null ? vizinhas : (anterior, seguinte) -> true;
         List<List<String>> grupos = new ArrayList<>();
         if (textos == null || textos.isEmpty()) {
             return grupos;
@@ -71,7 +92,8 @@ public class DetectorCorrenteFrasePartida {
         // ligado[i] = o texto i é continuação gramatical do texto i-1.
         boolean[] ligado = new boolean[total];
         for (int i = 1; i < total; i++) {
-            ligado[i] = ehContinuacao(textos.get(i - 1), textos.get(i));
+            ligado[i] = saoVizinhas.test(textos.get(i - 1), textos.get(i))
+                && ehContinuacao(textos.get(i - 1), textos.get(i));
         }
 
         List<String> soltos = new ArrayList<>();

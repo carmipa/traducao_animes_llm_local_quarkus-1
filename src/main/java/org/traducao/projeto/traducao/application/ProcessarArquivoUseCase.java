@@ -488,10 +488,17 @@ public class ProcessarArquivoUseCase {
 
         Map<String, String> traducoesNovas;
         DesfechoDasFalas desfecho = new DesfechoDasFalas();
+        // Quem é VIZINHO no documento: pares de falas traduzíveis consecutivas. A corrente de frase
+        // partida só pode ligar esses — a lista de pendentes perdeu as falas vindas do cache, as
+        // repetidas e as mantidas por fonte em português, e nela vizinhas falsas ficam coladas.
+        Set<String> paresVizinhos = new HashSet<>();
+        for (int i = 1; i < eventosTraduziveis.size(); i++) {
+            paresVizinhos.add(eventosTraduziveis.get(i - 1).texto() + '\u0000' + eventosTraduziveis.get(i).texto());
+        }
         try {
             traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, textosDeduplicaveis,
                 textosComQuebraIsolavel, arquivoEntrada.getFileName().toString(), avisos, promptCongelado,
-                desfecho);
+                desfecho, (anterior, seguinte) -> paresVizinhos.contains(anterior + '\u0000' + seguinte));
         } catch (TraducaoParcialException e) {
             Map<String, String> traducoesParciais = e.getDicionarioParcial();
             if (traducoesParciais != null && !traducoesParciais.isEmpty()) {
