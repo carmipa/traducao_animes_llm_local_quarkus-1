@@ -46,6 +46,13 @@ public enum CausaRaizPendencia {
     /** A resposta veio com número de linhas divergente ou quebras/tags estruturalmente incompatíveis. */
     ESTRUTURA_DIVERGENTE,
     /**
+     * A tradução está em português limpo, mas o ORIGINAL prova que ela diz outra coisa: entidade
+     * trocada, locutor ou narração inventados, texto desproporcional ao original. Criada em
+     * 25/09/2026: até então essas reprovações do par caíam no {@link #ECO}, a causa oposta — o
+     * painel mandava procurar modelo que não traduziu onde havia modelo que inventou.
+     */
+    CONTEUDO_NAO_ANCORADO,
+    /**
      * O modelo falou SOBRE a tarefa em vez de executá-la — recusa, preâmbulo, meta-resposta,
      * recitação do prompt de sistema. Separada de {@link #RESIDUO} em 2026-09-09 porque as duas
      * pedem conserto oposto: recusa se ataca no PROMPT e no portão de recusa, resíduo se ataca

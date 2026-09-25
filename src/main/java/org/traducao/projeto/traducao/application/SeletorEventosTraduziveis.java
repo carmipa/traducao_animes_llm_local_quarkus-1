@@ -109,6 +109,43 @@ public class SeletorEventosTraduziveis {
      * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; documento sem falas de diálogo
      * devolve um mapa vazio.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: conta, por texto visível, em quantos INSTANTES DISTINTOS ele começa —
+     * a medida certa para "letreiro animado quadro a quadro". A contagem bruta de
+     * {@link #calcularFrequenciaTextoLimpo} não serve para isso: camadas de um MESMO cartão
+     * (contorno, sombra, preenchimento) começam juntas e contavam como repetição.
+     *
+     * <h2>O prejuízo que originou (auditoria de 25/09/2026)</h2>
+     * No 86 E01, "May 22nd, Stellar Year 2148" aparece em 2 cenas × 3 camadas = 6 linhas, bateu
+     * no limiar 5 e ficou em inglês na tela enquanto "May 20th" (3 camadas, 1 cena) era traduzido.
+     * Medido com esta classe sobre as 218.881 falas do acervo: os títulos realmente animados
+     * começam em 108 a 353 instantes distintos; os cartões de data, em 2 a 4.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mesma população de {@link #calcularFrequenciaTextoLimpo} (só
+     * diálogo com texto visível); o instante é o campo de início do evento.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; evento sem prefixo legível conta como um
+     * instante próprio — erra para o lado de contar mais, que é o lado seguro do typesetting.
+     */
+    public Map<String, Long> calcularInstantesDistintosPorTexto(DocumentoLegenda documento) {
+        Map<String, java.util.Set<String>> inicios = new HashMap<>();
+        for (EventoLegenda evento : documento.eventos()) {
+            if (!evento.isDialogo() || !evento.temTexto()) {
+                continue;
+            }
+            String textoLimpo = protecaoAss.textoVisivel(evento.texto());
+            if (textoLimpo.isEmpty()) {
+                continue;
+            }
+            String[] campos = evento.prefixo() != null ? evento.prefixo().split(",", 3) : new String[0];
+            String inicio = campos.length >= 2 ? campos[1] : "evento-" + evento.indice();
+            inicios.computeIfAbsent(textoLimpo, k -> new java.util.HashSet<>()).add(inicio);
+        }
+        Map<String, Long> contagem = new HashMap<>();
+        inicios.forEach((texto, conjunto) -> contagem.put(texto, (long) conjunto.size()));
+        return contagem;
+    }
+
     public Map<String, Long> calcularFrequenciaTextoLimpo(DocumentoLegenda documento) {
         Map<String, Long> frequencia = new HashMap<>();
         for (EventoLegenda evento : documento.eventos()) {
@@ -153,6 +190,21 @@ public class SeletorEventosTraduziveis {
      * {@link ProtecaoCamadas#VAZIA} — a decisão fica idêntica à da sobrecarga sem proteção.
      */
     public boolean isTraduzivel(EventoLegenda evento, Map<String, Long> frequenciaTextoLimpo, ProtecaoCamadas protecao) {
+        return isTraduzivel(evento, frequenciaTextoLimpo, frequenciaTextoLimpo, protecao);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma decisão, com a regra de letreiro animado medindo INSTANTES
+     * distintos ({@link #calcularInstantesDistintosPorTexto}) em vez de linhas repetidas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só a regra de letreiro animado usa {@code instantesDistintos}; o
+     * bloqueio de typesetting de alto risco continua usando a contagem bruta, sem mudança.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: passar a frequência bruta nos dois mapas reproduz
+     * exatamente a decisão anterior.
+     */
+    public boolean isTraduzivel(EventoLegenda evento, Map<String, Long> frequenciaTextoLimpo,
+            Map<String, Long> instantesDistintos, ProtecaoCamadas protecao) {
         if (!evento.isDialogo() || !evento.temTexto()) {
             return false;
         }
@@ -213,9 +265,11 @@ public class SeletorEventosTraduziveis {
         boolean temTagDeAnimacao = texto.contains("\\clip") || texto.contains("\\move")
             || texto.contains("\\pos") || texto.contains("\\fad") || texto.contains("\\t(");
         if (temTagDeAnimacao && texto.length() > 40 && textoLimpo.length() * 3 < texto.length()) {
-            if (repeticoes >= LIMIAR_REPETICAO_LETREIRO) {
-                log.debug("Bloqueando evento suspeito de letreiro animado (repetido {}x). Estilo: {} Texto: {}",
-                    repeticoes, evento.estilo(), textoLimpo);
+            // INSTANTES, não linhas: camadas de um mesmo cartão começam juntas e não são animação.
+            long instantes = instantesDistintos.getOrDefault(textoLimpo, 1L);
+            if (instantes >= LIMIAR_REPETICAO_LETREIRO) {
+                log.debug("Bloqueando evento suspeito de letreiro animado (em {} instantes). Estilo: {} Texto: {}",
+                    instantes, evento.estilo(), textoLimpo);
                 return false;
             }
         }

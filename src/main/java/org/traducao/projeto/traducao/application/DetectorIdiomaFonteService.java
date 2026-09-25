@@ -50,7 +50,13 @@ public class DetectorIdiomaFonteService {
         + "|for|not|it|its|we|they|he|she|will|would|can't|don't|i'm|it's|isn't|of|from|about"
         + "|my|his|him|her|our|them|be|been|go|get|got|here|there|now|when|where|who|how|why"
         + "|make|take|know|want|need|before|after|into|onto|over|just|than|then|does|did|back"
-        + "|down|up|out|off|said|only|one|two|but|if|let|way|day|god|hey|yeah|too|gonna|wanna|gotta)"
+        + "|down|up|out|off|said|only|one|two|but|if|let|way|day|god|hey|yeah|too|gonna|wanna|gotta"
+        // "had" entrou em 25/09/2026, e pelo dado, não pela lista: medido com esta classe sobre as
+        // 218.881 falas inglesas do acervo, UMA fala de diálogo saía como já-português — "I had a
+        // protégé, a young pilot named Lalah Sune." (Char's Counterattack). Nenhuma stopword da
+        // lista, e "protégé" dá os dois acentos em palavra minúscula que o ramo de diacríticos
+        // aceita. Publicada em inglês sem virar pendência. "had" não existe em português.
+        + "|had)"
         + FronteiraTermoAss.FIM);
 
     // Stopwords FRANCESAS sem colisão com português — presença ⇒ NÃO é português (manda traduzir).

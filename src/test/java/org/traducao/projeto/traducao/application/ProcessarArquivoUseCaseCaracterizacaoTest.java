@@ -140,7 +140,12 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      */
     private static final class TelemetriaCaptor implements TelemetriaTraducaoPort {
         TelemetriaTraducao ultima;
+        List<org.traducao.projeto.traducao.domain.FalaNaoTraduzida> naoTraduzidas;
         @Override public void registrarTraducao(TelemetriaTraducao t) { ultima = t; }
+        @Override public void registrarFalasNaoTraduzidas(Path arquivo, String obra,
+                List<org.traducao.projeto.traducao.domain.FalaNaoTraduzida> falas) {
+            naoTraduzidas = falas;
+        }
         @Override public void registrarAlucinacaoPrevenida() { /* não exercitado */ }
         @Override public void registrarRespostaTraducaoRejeitada() { /* não exercitado */ }
         @Override public void registrarFalhaTraducaoRecuperada() { /* não exercitado */ }
@@ -229,6 +234,45 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         private java.util.Map.Entry<String, String> respostaFixa;
 
+        /** Trecho do original cuja fala o dublê devolve PARTIDA em duas linhas. */
+        private String gatilhoPartir;
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: dublê do defeito MEDIDO em 25/09/2026 com o aya-expanse-8b: para
+         * "3, 2, 1, go!" o modelo devolveu QUATRO linhas em vez de uma. O pipeline descarta a
+         * resposta por contagem e mantém o original — e a pergunta do teste é o que o relatório
+         * diz sobre isso.
+         *
+         * <p>INVARIANTES DO DOMÍNIO: só a fala que contém {@code gatilho} sai partida, em todas as
+         * tentativas; as demais seguem o comportamento normal.
+         *
+         * <p>COMPORTAMENTO EM CASO DE FALHA: gatilho que não casa faz o dublê agir como o normal.
+         */
+        static FakeLlmPort queParteAFala(String gatilho) {
+            FakeLlmPort f = new FakeLlmPort(false, false);
+            f.gatilhoPartir = gatilho;
+            return f;
+        }
+
+        /** A partir desta chamada o dublê responde como servidor fora do ar. */
+        private int caiNaChamada = Integer.MAX_VALUE;
+
+        /**
+         * PROPÓSITO DE NEGÓCIO: dublê do LM Studio que CAI no meio do arquivo — responde o
+         * primeiro lote e, dali em diante, falha como conexão recusada (não como recusa 4xx).
+         *
+         * <p>INVARIANTES DO DOMÍNIO: a falha é de indisponibilidade ({@code recusaDaRequisicao ==
+         * false}), o caso em que o pipeline aborta o episódio em vez de pular a fala.
+         *
+         * <p>COMPORTAMENTO EM CASO DE FALHA: determinístico; toda chamada a partir de
+         * {@code chamada} falha igual.
+         */
+        static FakeLlmPort queCaiNaChamada(int chamada) {
+            FakeLlmPort f = new FakeLlmPort(false, false);
+            f.caiNaChamada = chamada;
+            return f;
+        }
+
         @Override
         public TraducaoLote traduzir(Lote lote) {
             return traduzir(lote, null, null);
@@ -237,8 +281,13 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         @Override
         public TraducaoLote traduzir(Lote lote, Double temperaturaOverride, String promptSistemaCongelado) {
             int chamada = chamadas.incrementAndGet();
+            if (chamada >= caiNaChamada) {
+                return new TraducaoLote(lote.idLote(), null, false, "Connection refused (dublê: LM Studio caiu)");
+            }
             List<String> saida = lote.linhasOriginais().stream()
-                .map(this::traduzirLinha)
+                .flatMap(l -> gatilhoPartir != null && l.contains(gatilhoPartir)
+                    ? java.util.stream.Stream.of("3, 2, 1,", "vai!")
+                    : java.util.stream.Stream.of(traduzirLinha(l)))
                 .toList();
             if (interromperNaPrimeira && chamada == 1) {
                 // Reproduz o clique em "Parar" logo após concluir o primeiro lote:
@@ -456,6 +505,341 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
 
         assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("ATENCAO")),
             "cache vazio com disco diferente do original E divergencia; console: " + logger.mensagens);
+    }
+
+    /**
+     * MEDIDO EM 25/09/2026, na primeira execucao da auditoria da 2.1 (0080 E01+E02, aya): as 4
+     * "divergencias" que a A6 acusou eram TODAS fabricadas pelo proprio pipeline. O cache guarda a
+     * traducao validada com o italico ("{\i1}Entendido.") e o arquivo recebe a mesma fala depois do
+     * RemovedorItalico ("Entendido."), que e a regra de 22/08. A A6 comparava os dois como se
+     * fossem a mesma coisa e acendia ATENCAO em toda execucao com italico.
+     */
+    @Test
+    @DisplayName("A6: italico removido na gravacao NAO e divergencia")
+    void a6ItalicoRemovidoNaGravacaoNaoEhDivergencia() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-sem-italico.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Entendido.\n",
+            StandardCharsets.UTF_8);
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "{\\i1}Roger.", "{\\i1}Entendido.", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().noneMatch(l -> l.contains("ATENCAO")),
+            "italico removido pela regra da saida nao e divergencia; console: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("nenhuma divergencia")),
+            "o placar limpo tem de ser DITO; console: " + logger.mensagens);
+    }
+
+    /**
+     * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: MESMO sinal superficial -- validado com italico e
+     * disco sem italico --, mas o texto visivel mudou. Tem de continuar acusando, senao o conserto
+     * teria cegado a guarda para tudo que passa por uma fala italica.
+     */
+    @Test
+    @DisplayName("A6 CASO-CONTROLE: italico removido E texto trocado continua acusado")
+    void a6ItalicoRemovidoComTextoTrocadoContinuaAcusado() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-sem-italico-trocado.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Negativo.\n",
+            StandardCharsets.UTF_8);
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "{\\i1}Roger.", "{\\i1}Entendido.", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("ATENCAO")),
+            "texto visivel diferente do validado e divergencia real; console: " + logger.mensagens);
+    }
+
+    /**
+     * A pendencia cujo ORIGINAL tinha italico: o cache grava vazio e o arquivo publica o original
+     * sem o italico ("{\i1}Get real!" -> "Get real!"). Medido no 0080 E01 em 25/09/2026 -- era a
+     * quarta "divergencia" falsa.
+     */
+    @Test
+    @DisplayName("A6: pendencia de original italico publicada sem italico NAO e divergencia")
+    void a6PendenciaDeOriginalItalicoNaoEhDivergencia() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        Path gravado = raiz.resolve("gravado-pendencia-italico.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Get real!\n",
+            StandardCharsets.UTF_8);
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", "{\\i1}Get real!", "", "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado);
+
+        assertTrue(logger.mensagens.stream().noneMatch(l -> l.contains("ATENCAO")),
+            "pendencia com o original preservado nao e divergencia; console: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("pendente(s) com o original preservado")),
+            "a pendencia tem de ser DECLARADA no placar; console: " + logger.mensagens);
+    }
+
+    /**
+     * Fala mantida porque a FONTE ja estava em portugues nunca foi ao LLM nem passou pela validacao
+     * -- entra no arquivo como veio. A A6 a reprovava como "modelo devolveu o texto original", uma
+     * frase falsa duas vezes: nao houve modelo e nao houve devolucao. Medido no controle da
+     * auditoria de 25/09/2026.
+     */
+    @Test
+    @DisplayName("A6: fala mantida por fonte ja em portugues NAO reprova como eco do modelo")
+    void a6FonteJaEmPortuguesNaoReprovaComoEco() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        String fonteEmPortugues = "Você não vai sair daqui agora.";
+        Path gravado = raiz.resolve("gravado-fonte-pt.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,," + fonteEmPortugues + "\n",
+            StandardCharsets.UTF_8);
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", fonteEmPortugues, fonteEmPortugues, "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado, Set.of(fonteEmPortugues));
+
+        assertTrue(logger.mensagens.stream().noneMatch(l -> l.contains("ATENCAO")),
+            "fala mantida por fonte ja no alvo nao e reprovacao; console: " + logger.mensagens);
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("fonte ja no idioma-alvo")
+                && l.contains("NAO VERIFICADA") && l.contains(fonteEmPortugues)),
+            "a manutencao tem de ser DECLARADA como nao verificada, com o exemplo; console: "
+                + logger.mensagens);
+    }
+
+    /**
+     * CASO-CONTROLE (A1) da anterior: a MESMA fala identica ao original, sem ter sido mantida por
+     * fonte ja em portugues, continua reprovando -- e a traducao que voltou igual, que o portao
+     * canonico existe para pegar.
+     */
+    @Test
+    @DisplayName("A6 CASO-CONTROLE: fala identica ao original que NAO veio da fonte-PT continua reprovada")
+    void a6FalaIdenticaForaDaFontePtContinuaReprovada() throws Exception {
+        LoggerCapturador logger = new LoggerCapturador();
+        ProcessarArquivoUseCase uc = montar(new FakeLlmPort(), logger);
+
+        String ingles = "Are you even listening to me?";
+        Path gravado = raiz.resolve("gravado-eco.ass");
+        Files.writeString(gravado, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,," + ingles + "\n",
+            StandardCharsets.UTF_8);
+        List<EntradaCache> validado = List.of(new EntradaCache(
+            0, "Default", ingles, ingles, "en", "pt-br"));
+
+        uc.conferirArquivoGravado(gravado, false, validado, Set.of());
+
+        assertTrue(logger.mensagens.stream().anyMatch(l -> l.contains("[ A6 ]") && l.contains("ATENCAO")),
+            "eco do ingles gravado como traducao tem de reprovar; console: " + logger.mensagens);
+    }
+
+    /**
+     * A7 — CAUSA E AUTORIA PRESERVADAS. Medido na auditoria de 25/09/2026: o aya devolveu quatro
+     * linhas para "3, 2, 1, go!", o pipeline descartou a resposta e manteve o original, e o relatório
+     * dizia "modelo devolveu o texto original sem tradução", com a pendência no balde ECO. O sistema
+     * atribuía ao modelo uma decisão que foi dele mesmo.
+     */
+    @Test
+    @DisplayName("A7: fala mantida por contagem de linhas divergente NAO e relatada como eco do modelo")
+    void falaMantidaPorContagemDivergenteNaoEhRelatadaComoEco() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "3, 2, 1, go!");
+
+        ResultadoTraducaoArquivo r = montar(FakeLlmPort.queParteAFala("go!"))
+            .processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(StatusArquivoTraducao.PARCIAL, r.status());
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        String aviso = tel.errosOcorridos().stream().filter(a -> a.contains("3, 2, 1, go!"))
+            .findFirst().orElseThrow(() -> new AssertionError("sem aviso da pendencia: " + tel.errosOcorridos()));
+        assertTrue(aviso.contains("linha(s), esperado 1") && aviso.contains("o sistema manteve o original"),
+            "o aviso tem de dizer a causa REAL e quem manteve o original; aviso: " + aviso);
+        assertFalse(aviso.contains("modelo devolveu o texto original"),
+            "o modelo NAO devolveu o original — respondeu duas linhas; aviso: " + aviso);
+        assertTrue(tel.pendenciasPorCausa().stream()
+                .anyMatch(p -> p.causaRaiz().equals("ESTRUTURA_DIVERGENTE")),
+            "o KPI tem de cair em ESTRUTURA_DIVERGENTE; KPI: " + tel.pendenciasPorCausa());
+        assertTrue(tel.pendenciasPorCausa().stream().noneMatch(p -> p.causaRaiz().equals("ECO")),
+            "nao houve eco; KPI: " + tel.pendenciasPorCausa());
+    }
+
+    /**
+     * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: MESMO desfecho visível (a fala fica em inglês e
+     * pendente), mas aqui o modelo REALMENTE devolveu o original. Tem de continuar sendo eco —
+     * senão o conserto teria apenas trocado um rótulo errado por outro.
+     */
+    @Test
+    @DisplayName("A7 CASO-CONTROLE: eco de verdade do modelo continua relatado como eco")
+    void ecoDeVerdadeContinuaRelatadoComoEco() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "KEEPME stays");
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        String aviso = tel.errosOcorridos().stream().filter(a -> a.contains("KEEPME stays"))
+            .findFirst().orElseThrow(() -> new AssertionError("sem aviso da pendencia: " + tel.errosOcorridos()));
+        assertTrue(aviso.contains("modelo devolveu o texto original"),
+            "eco verdadeiro tem de continuar dito como eco; aviso: " + aviso);
+        assertTrue(tel.pendenciasPorCausa().stream().anyMatch(p -> p.causaRaiz().equals("ECO")),
+            "o KPI do eco verdadeiro e ECO; KPI: " + tel.pendenciasPorCausa());
+    }
+
+    /**
+     * O carimbo do cabeçalho conta FALAS. Medido em 25/09/2026: o 0080 E01 dizia "407 fala(s) na
+     * origem" com 400 eventos, e o 86 E01 tinha 100 linhas a mais — linhas vazias, Comment e a
+     * seção [Aegisub Extradata] inteira, que o leitor guarda como evento para devolver o arquivo
+     * intacto. Todas saíam como "preservadas por regra do pipeline" no carimbo e no dataset.
+     */
+    @Test
+    @DisplayName("carimbo e dataset contam so FALAS, nao linhas vazias, Comment ou Extradata")
+    void carimboEDatasetContamSoFalas() throws Exception {
+        Path pasta = Files.createDirectories(raiz.resolve("AnimeTeste").resolve("legendas_originais"));
+        Path entrada = pasta.resolve("ep.ass");
+        Files.writeString(entrada, CABECALHO_ASS
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Hello there\n"
+            + "\n"
+            + "Comment: 0,0:00:03.00,0:00:04.00,Default,,0,0,0,,nota do typesetter\n"
+            + "Dialogue: 0,0:00:05.00,0:00:06.00,Default,,0,0,0,,How are you\n"
+            + "\n"
+            + "[Aegisub Extradata]\n"
+            + "Data: 1,_aegi_perspective_ambient_plane,e#56\n"
+            + "Data: 2,_aegi_perspective_ambient_plane,e#57\n",
+            StandardCharsets.UTF_8);
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        String gravado = Files.readString(raiz.resolve("saida").resolve("ep_PT-BR.ass"), StandardCharsets.UTF_8);
+        assertTrue(gravado.contains("2 fala(s) na origem, 2 traduzivel(is), 0 preservada(s)"),
+            "o carimbo tem de contar as 2 falas, nao as linhas do arquivo; cabecalho:\n"
+                + gravado.lines().limit(4).collect(java.util.stream.Collectors.joining("\n")));
+        assertTrue(gravado.contains("Data: 2,_aegi_perspective_ambient_plane,e#57"),
+            "a secao Extradata continua no arquivo, intacta");
+        assertNotNull(telemetriaCaptor.naoTraduzidas,
+            "o dataset de falas nao traduzidas nem foi entregue a porta — o teste abaixo seria vazio");
+        assertTrue(telemetriaCaptor.naoTraduzidas.isEmpty(),
+            "nenhuma fala foi preservada; linha vazia/Comment/Extradata nao sao falas: "
+                + telemetriaCaptor.naoTraduzidas);
+    }
+
+    /**
+     * A tela da 2.1 promete: "uma queda do LM Studio no meio deixa no cache o que já foi traduzido
+     * — a próxima execução recomeça de onde parou". Até 25/09/2026 a promessa era sustentada só
+     * por leitura de código; este teste a sustenta por execução.
+     */
+    @Test
+    @DisplayName("LM Studio que cai no meio do arquivo deixa o cache do que ja foi traduzido, e a retomada so faz o resto")
+    void quedaDoLlmNoMeioDeixaCacheERetomadaSoFazOResto() throws Exception {
+        String[] falas = new String[21];
+        for (int i = 0; i < falas.length; i++) {
+            falas[i] = "Line " + (char) ('A' + i / 26) + (char) ('A' + i % 26);
+        }
+        Path entrada = escreverAss("ep.ass", falas);
+
+        FakeLlmPort caiu = FakeLlmPort.queCaiNaChamada(2);
+        assertThrows(TraducaoParcialException.class,
+            () -> montar(caiu, new ConsoleUILoggerSilencioso()).processar(entrada, false, gerenciadorMontado.snapshotAtivo()),
+            "com o servidor fora do ar no 2o lote o arquivo nao pode ser publicado");
+        assertTrue(caiu.chamadas.get() >= 2, "o dublê tem de ter chegado a cair — senao nada foi medido");
+        assertFalse(Files.exists(raiz.resolve("saida").resolve("ep_PT-BR.ass")),
+            "nenhuma saida final com o episodio pela metade");
+
+        FakeLlmPort retomada = new FakeLlmPort();
+        ResultadoTraducaoArquivo r = montar(retomada, new ConsoleUILoggerSilencioso())
+            .processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(StatusArquivoTraducao.CONCLUIDO, r.status());
+        assertEquals(20, telemetriaCaptor.ultima.falasDoCache(),
+            "as 20 falas do lote que o LLM respondeu antes de cair tem de vir do CACHE");
+        assertEquals(1, retomada.chamadas.get(), "a retomada so chama o LLM para o que faltava");
+    }
+
+    /**
+     * A marca "interrompida pelo usuário" tem de chegar ao chamador mesmo depois de o flag da thread
+     * ser consumido no caminho. Aqui o logger é o NORMAL, com a barra de progresso que consome a
+     * interrupção — o mesmo que fez o "Sair" real de 25/09/2026 chegar ao controller como FALHOU.
+     */
+    @Test
+    @DisplayName("parada pedida chega ao chamador marcada, mesmo com o flag da thread consumido")
+    void paradaPedidaChegaMarcadaMesmoComFlagConsumido() throws Exception {
+        String[] falas = new String[21];
+        for (int i = 0; i < falas.length; i++) {
+            falas[i] = "Line " + (char) ('A' + i / 26) + (char) ('A' + i % 26);
+        }
+        Path entrada = escreverAss("ep.ass", falas);
+        try {
+            TraducaoParcialException ex = assertThrows(TraducaoParcialException.class,
+                () -> montar(new FakeLlmPort(true)).processar(entrada, false, gerenciadorMontado.snapshotAtivo()));
+            assertTrue(ex.interrompidaPeloUsuario(),
+                "a parada pedida tem de chegar MARCADA — o flag da thread nao e confiavel ate aqui");
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    private static ConsoleUILogger espiaoDe(List<String> ditas) {
+        return new ConsoleUILogger() {
+            @Override
+            public synchronized void log(String mensagem) {
+                ditas.add(mensagem);
+            }
+        };
+    }
+
+    /**
+     * MEDIDO NA AUDITORIA DE 25/09/2026: com a proteção LIGADA, reexecutar a 2.1 numa pasta cujo
+     * _PT-BR final já existe regravava o arquivo a partir do cache e desfazia, sem backup, a
+     * correção feita direto no .ass (Revisão de Lore, Concordância, edição manual — nenhuma delas
+     * escreve no cache). A pasta de backups tinha 507 itens antes e 507 depois.
+     *
+     * <p>O comportamento de REGENERAR continua (é o fluxo que a tela da 2.3 manda seguir); o que
+     * muda é que a versão anterior não se perde e o operador é avisado.
+     */
+    @Test
+    @DisplayName("reexecucao com protecao ligada preserva em backup a correcao feita no .ass e avisa")
+    void reexecucaoPreservaEmBackupACorrecaoFeitaNoAss() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
+        String publicado = Files.readString(finalPtBr, StandardCharsets.UTF_8);
+        Files.writeString(finalPtBr, publicado.replaceFirst(",,fala traduzida", ",,fala REVISADA A MAO"),
+            StandardCharsets.UTF_8);
+
+        List<String> ditas = new java.util.ArrayList<>();
+        montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(ditas.stream().anyMatch(l -> l.startsWith("[ ATENÇÃO ]") && l.contains("DIFERIA")),
+            "a correcao desfeita tem de ser DITA ao operador; console:\n" + String.join("\n", ditas));
+        String linhaBackup = ditas.stream().filter(l -> l.contains("[ BACKUP ]")).findFirst()
+            .orElseThrow(() -> new AssertionError("sem backup da versao anterior; console:\n" + String.join("\n", ditas)));
+        Path backup = Path.of(linhaBackup.substring(linhaBackup.indexOf("preservada em: ") + "preservada em: ".length()).trim());
+        assertTrue(Files.readString(backup, StandardCharsets.UTF_8).contains("fala REVISADA A MAO"),
+            "o backup tem de guardar a versao CORRIGIDA que ia ser perdida: " + backup);
+    }
+
+    /**
+     * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: MESMO sinal — o _PT-BR final já existe e a 2.1
+     * roda de novo —, mas nada foi mexido. Não pode gerar backup nem aviso: backup a cada
+     * reexecução enterraria o que importa, e aviso sem causa ensina a ignorar o aviso.
+     */
+    @Test
+    @DisplayName("reexecucao sem mudanca nao gera backup, nao avisa e nao regrava")
+    void reexecucaoSemMudancaNaoGeraBackupNemAviso() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        List<String> ditas = new java.util.ArrayList<>();
+        montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(ditas.stream().noneMatch(l -> l.contains("[ BACKUP ]") || l.startsWith("[ ATENÇÃO ]")),
+            "reexecucao identica nao pode gerar backup nem aviso; console:\n" + String.join("\n", ditas));
+        assertTrue(ditas.stream().anyMatch(l -> l.contains("conteúdo idêntico ao já publicado")),
+            "o 'nao regravei' tem de ser dito, nao presumido; console:\n" + String.join("\n", ditas));
     }
 
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
@@ -1564,6 +1948,57 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: se a heurística deixar de bloquear, o LLM
      * é chamado e "fala traduzida" aparece na saída — a suíte falha.
      */
+    private static final String CARTAO_86 = "{\\an2\\pos(960,930)\\fnNewCinemaB Std D\\fs80\\fsp2\\bord2"
+        + "\\1a&HFF&\\3a&H30&\\blur5\\fad(1500,0)\\b0\\fscx90}May 22nd, Stellar Year 2148";
+
+    private Path escreverCartaoEmInstantes(int... segundosDeInicio) throws IOException {
+        Path pasta = Files.createDirectories(raiz.resolve("AnimeTeste").resolve("legendas_originais"));
+        StringBuilder sb = new StringBuilder(CABECALHO_ASS);
+        for (int s : segundosDeInicio) {
+            for (int camada = 0; camada < 3; camada++) {
+                sb.append(String.format("Dialogue: %d,0:00:%02d.00,0:00:%02d.00,Signs,,0,0,0,,%s%n",
+                    camada, s, s + 3, CARTAO_86));
+            }
+        }
+        Path arquivo = pasta.resolve("ep.ass");
+        Files.writeString(arquivo, sb.toString(), StandardCharsets.UTF_8);
+        return arquivo;
+    }
+
+    /**
+     * MEDIDO NA AUDITORIA DE 25/09/2026: no 86 E01, "May 22nd, Stellar Year 2148" aparece em 2
+     * cenas × 3 camadas = 6 linhas, batia no limiar 5 de "letreiro animado" e ficava em inglês,
+     * enquanto "May 20th" (1 cena × 3 camadas) era traduzido. Camadas de um mesmo cartão começam
+     * juntas: não são animação quadro a quadro.
+     */
+    @Test
+    @DisplayName("cartao estatico em 2 cenas x 3 camadas E traduzido")
+    void cartaoEstaticoEmDuasCenasEhTraduzido() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        Path entrada = escreverCartaoEmInstantes(1, 20);
+
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        String conteudo = Files.readString(raiz.resolve("saida").resolve("ep_PT-BR.ass"), StandardCharsets.UTF_8);
+        assertTrue(llm.chamadas.get() > 0, "o cartao estatico tem de ir ao LLM");
+        assertFalse(conteudo.contains("May 22nd"), "nenhuma camada do cartao pode ficar em ingles:\n" + conteudo);
+    }
+
+    /**
+     * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: o MESMO texto e as mesmas tags, mas começando em
+     * 6 instantes distintos — animação quadro a quadro. Continua preservado.
+     */
+    @Test
+    @DisplayName("o mesmo cartao em 6 instantes distintos continua preservado como animacao")
+    void cartaoEmSeisInstantesContinuaPreservado() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        Path entrada = escreverCartaoEmInstantes(1, 5, 9, 13, 17, 21);
+
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(0, llm.chamadas.get(), "animacao quadro a quadro nao vai ao LLM");
+    }
+
     @Test
     void letreiroAnimadoRepetidoNaoEhTraduzido() throws Exception {
         FakeLlmPort llm = new FakeLlmPort();

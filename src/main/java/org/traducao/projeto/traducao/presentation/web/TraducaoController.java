@@ -251,11 +251,13 @@ public class TraducaoController {
                 // ativo global — do contrário uma troca de obra no meio do lote renomearia,
                 // no relatório, arquivos que foram traduzidos com a obra anterior.
                 String loreNome = contextoDoJob.nomeExibicao();
+                boolean parado = false;
                 for (int i = 0; i < arquivos.size(); i++) {
                     Path arquivo = arquivos.get(i);
                     if (Thread.currentThread().isInterrupted()) {
                         // Parada cooperativa: um arquivo anterior foi cancelado (flag setada).
                         // Não reprocessa os restantes nem os marca como falha.
+                        parado = true;
                         System.out.println("\n[PARADO] Tradução interrompida; " + (arquivos.size() - i)
                             + " arquivo(s) restante(s) não processado(s).");
                         break;
@@ -286,10 +288,29 @@ public class TraducaoController {
                         registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.BLOQUEADO, ex.getMessage());
                         System.out.println("[BLOQUEADO] " + arquivo.getFileName() + ": " + ex.getMessage());
                     } catch (org.traducao.projeto.traducao.domain.exceptions.TraducaoParcialException ex) {
+                        int salvas = ex.getDicionarioParcial() != null ? ex.getDicionarioParcial().size() : 0;
+                        // PARADA PEDIDA NÃO É FALHA. O episódio converte a interrupção cooperativa
+                        // em TraducaoParcialException para salvar o progresso, e o flag de
+                        // interrupção continua ligado — é ele que separa "o operador parou" de "o
+                        // LLM caiu". Até 25/09/2026 as duas saíam como [FALHA]/FALHOU, e o ramo
+                        // [PARADO] logo abaixo nunca era alcançado por este caminho: medido na
+                        // auditoria, um "Sair" no meio do Zeta E01 virou "[FALHOU] Traducao via LLM
+                        // finalizada" na tela e FALHOU na telemetria.
+                        //
+                        // A MARCA NA EXCEÇÃO é o sinal principal: o flag da thread é consumido no
+                        // caminho (barra de progresso, espera da escrita atômica) — a primeira
+                        // versão deste conserto lia só o flag, passou no teste de unidade e falhou
+                        // no "Sair" real, que chegou aqui com o flag limpo.
+                        if (ex.interrompidaPeloUsuario() || Thread.currentThread().isInterrupted()) {
+                            parado = true;
+                            System.out.println("[PARADO] " + arquivo.getFileName() + " interrompido pelo usuário ("
+                                + salvas + " linha(s) salvas no cache para retomar); "
+                                + (arquivos.size() - i - 1) + " arquivo(s) seguinte(s) não processado(s).");
+                            break;
+                        }
                         // Abortou antes de escrever a legenda de saída: é FALHA deste run
                         // (nenhum _PT-BR gerado), mesmo que N linhas tenham sido salvas no
                         // cache para retomar depois. Não pode contar como "ok" no lote.
-                        int salvas = ex.getDicionarioParcial() != null ? ex.getDicionarioParcial().size() : 0;
                         resultados.add(org.traducao.projeto.traducao.domain.ResultadoTraducaoArquivo.falha(arquivo.getFileName().toString(), loreNome));
                         registrarTelemetriaFalhaTraducao(arquivo, loreNome, org.traducao.projeto.traducao.domain.StatusArquivoTraducao.FALHOU, ex.getMessage());
                         System.out.println("[FALHA] " + arquivo.getFileName() + " abortado sem gerar saída (" + salvas + " linha(s) salvas no cache para retomar).");
@@ -297,6 +318,7 @@ public class TraducaoController {
                         // Cancelamento cooperativo (botão Parar / shutdown): não conta como falha
                         // do arquivo e encerra o lote — os restantes não são reprocessados.
                         Thread.currentThread().interrupt();
+                        parado = true;
                         System.out.println("[PARADO] " + arquivo.getFileName() + " interrompido pelo usuário.");
                         break;
                     } catch (Exception ex) {
@@ -311,8 +333,12 @@ public class TraducaoController {
                     System.out.println(tabelaTraducao);
                 }
 
-                org.traducao.projeto.traducao.domain.StatusLoteTraducao statusLote =
-                    org.traducao.projeto.traducao.domain.StatusLoteTraducao.consolidar(resultados);
+                // O lote PARADO pelo operador é CANCELADO, nunca FALHOU: o valor já existia no enum
+                // e nenhum caminho o produzia. Consolidar uma lista vazia (parada no 1º arquivo)
+                // devolvia FALHOU — o pior rótulo para quem só apertou "Sair".
+                org.traducao.projeto.traducao.domain.StatusLoteTraducao statusLote = parado
+                    ? org.traducao.projeto.traducao.domain.StatusLoteTraducao.CANCELADO
+                    : org.traducao.projeto.traducao.domain.StatusLoteTraducao.consolidar(resultados);
                 long okCount = resultados.stream().filter(r ->
                     r.status() == org.traducao.projeto.traducao.domain.StatusArquivoTraducao.CONCLUIDO).count();
                 long parcialCount = resultados.stream().filter(r ->

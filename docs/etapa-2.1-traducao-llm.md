@@ -71,11 +71,33 @@ sequenceDiagram
 ## Cache de tradução
 
 - **Formato:** JSON, lista de `EntradaCache(indice, estilo, original, traduzido, idiomaOriginal, idiomaTraduzido)`.
-- **Localização:** `cache/<espelha a pasta de entrada>/<nomeLegenda>.cache.json` — ex. `cache/86/86 Part1/[DB]86_-_01_..._ENG.cache.json`.
+- **Localização:** `cache/<pasta da obra>/<nomeLegenda>.cache.json` — a pasta da obra é a **avó** do arquivo (`<Obra>/legendas_extraidas_ass/ep.ass` → `cache/<Obra>/ep.cache.json`). Consequência medida em 25/09/2026: duas pastas com o mesmo nome de obra e o mesmo nome de arquivo **compartilham o cache** — uma cópia de teste precisa de nome de obra próprio para não ler nem gravar o cache real.
 - **Chave de lookup:** o **texto original**, não o índice — se a mesma frase aparecer em falas diferentes, a mesma tradução é reaproveitada (cada evento mantém seu próprio timestamp, então isso nunca afeta sincronismo).
 - **Editável manualmente:** o operador pode abrir o `.cache.json` e corrigir uma tradução na mão; na próxima execução, o valor corrigido é respeitado (não é sobrescrito, a menos que o texto original mude).
-- **Entradas de falha:** quando o LLM devolve o mesmo texto (não traduziu), a entrada é salva com `original == traduzido` — esse é o "fallback de falha" que os 3 fluxos de [Correção & Revisão](etapa-2.3-correcao-revisao.md) tratam de formas diferentes.
+- **Entradas de falha:** fala que termina pendente é salva com `traduzido` **vazio** (a legenda publica o original). Na execução seguinte ela volta ao LLM. Caches antigos podem ainda ter `original == traduzido`, que é o "fallback de falha" que os fluxos de [Correção & Revisão](etapa-2.3-correcao-revisao.md) tratam.
+- **Segunda opinião não entra no cache:** fala traduzida pelo `modelo-recuperacao` é publicada, mas não gravada — o carimbo de proveniência declara um modelo só.
 - **Proveniência (`ProvenienciaCache`):** cada arquivo de cache carrega um hash de proveniência (`contextoHash` = SHA-256 do prompt de sistema/lore, mais modelo e idiomas). Se a **lore ou o modelo mudam**, o cache anterior é **arquivado e não reusado** — a fala é retraduzida sob o contexto atual, em vez de servir uma tradução feita sob outra lore.
+
+---
+
+## Reexecução, parada e causa das pendências (auditoria de 25/09/2026)
+
+- **Reexecutar sobre uma pasta já traduzida** regenera o `_PT-BR` a partir do cache — é o que a
+  [2.3](etapa-2.3-correcao-revisao.md) manda fazer depois de corrigir o cache. Conteúdo **idêntico**
+  ao publicado não é regravado (`[ SAIDA ] conteúdo idêntico`). Conteúdo **diferente** só substitui
+  o publicado depois de um backup em `backups/traducao/`, com `[ ATENÇÃO ]` dizendo quantas linhas
+  mudaram. **Correções feitas direto no `.ass`** (Revisão de Lore, Concordância, edição manual) não
+  estão no cache: a reexecução as substitui, e elas ficam no backup.
+- **Parar:** "Sair" e queda do LM Studio no meio salvam no cache o que já foi traduzido; a próxima
+  execução recomeça de onde parou. Só processo morto à força perde o episódio em curso. A parada
+  pedida sai como `[PARADO]` / lote `CANCELADO`, não como falha.
+- **Causa da pendência:** quando o pipeline desiste de uma fala e mantém o original, o relatório diz
+  a causa real (`ESTRUTURA_DIVERGENTE` para contagem de linhas errada, `CONTEUDO_NAO_ANCORADO` para
+  entidade trocada, locutor inventado ou tradução desproporcional), e não "o modelo devolveu o
+  original". `ECO` fica só para eco de verdade.
+- **Conferência pós-gravação (A6):** relê o arquivo gravado. O itálico removido na saída não é
+  divergência; fala mantida porque a fonte já estava em português aparece como NÃO VERIFICADA, com
+  exemplos, porque não passou pelo LLM nem pela validação.
 
 ---
 
