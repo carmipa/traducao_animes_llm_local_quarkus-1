@@ -193,6 +193,11 @@ public class MapeadorMidiaService {
         if (nome.endsWith(".ass")) pontos += 20;
         if (nome.contains("forced") || nome.contains("signs") || nome.contains("songs")) pontos -= 60;
         if (nome.contains("full")) pontos += 10;
+        // A Tradução Local grava o "_PT-BR.parcial.ass" AO LADO do final quando uma reexecução
+        // termina com pendência e o final já existe. Com a mesma pontuação, o episódio ficava
+        // "ambíguo" e fora do remux (auditoria da 2.1, 25/09/2026). O parcial não é entrega:
+        // perde para o final, mas continua servindo quando é a única versão existente.
+        if (nome.contains(".parcial.")) pontos -= 50;
         return pontos;
     }
 

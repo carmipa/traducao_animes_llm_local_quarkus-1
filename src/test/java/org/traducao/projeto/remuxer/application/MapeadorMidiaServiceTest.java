@@ -189,4 +189,43 @@ class MapeadorMidiaServiceTest {
         assertEquals(1, plano.videosSemLegenda());
         assertTrue(plano.avisos().get(0).contains("auxiliar"));
     }
+
+    /**
+     * Auditoria da 2.1 (25/09/2026): reexecução com pendência grava o ".parcial" AO LADO do final.
+     * Com a mesma pontuação o episódio ficava ambíguo e fora do remux. O final tem de vencer.
+     */
+    @Test
+    void finalVenceParcialDoMesmoEpisodio(@TempDir Path tempDir) throws IOException {
+        Path videos = Files.createDirectory(tempDir.resolve("videos"));
+        Path legendas = Files.createDirectory(tempDir.resolve("legendas"));
+        Path saida = Files.createDirectory(tempDir.resolve("saida"));
+        Files.createFile(videos.resolve("Anime - S01E01.mkv"));
+        Files.createFile(videos.resolve("Anime - S01E02.mkv"));
+        Files.createFile(legendas.resolve("Anime - S01E01_PT-BR.ass"));
+        Files.createFile(legendas.resolve("Anime - S01E01_PT-BR.parcial.ass"));
+        Files.createFile(legendas.resolve("Anime - S01E02_PT-BR.ass"));
+
+        PlanoRemux plano = mapeador.construirPlano(videos, legendas, saida);
+
+        RemuxTarefa e01 = plano.tarefas().stream()
+            .filter(t -> t.caminhoVideo().getFileName().toString().contains("E01")).findFirst()
+            .orElseThrow(() -> new AssertionError("E01 ficou fora do plano: " + plano));
+        assertEquals("Anime - S01E01_PT-BR.ass", e01.caminhoLegenda().getFileName().toString());
+    }
+
+    /** CASO-CONTROLE (A1): o parcial SOZINHO continua sendo usado — a penalidade só desempata. */
+    @Test
+    void parcialSozinhoContinuaUsado(@TempDir Path tempDir) throws IOException {
+        Path videos = Files.createDirectory(tempDir.resolve("videos"));
+        Path legendas = Files.createDirectory(tempDir.resolve("legendas"));
+        Path saida = Files.createDirectory(tempDir.resolve("saida"));
+        Files.createFile(videos.resolve("Anime - S01E01.mkv"));
+        Files.createFile(videos.resolve("Anime - S01E02.mkv"));
+        Files.createFile(legendas.resolve("Anime - S01E01_PT-BR.parcial.ass"));
+        Files.createFile(legendas.resolve("Anime - S01E02_PT-BR.ass"));
+
+        PlanoRemux plano = mapeador.construirPlano(videos, legendas, saida);
+
+        assertEquals(2, plano.tarefas().size(), "os dois episodios entram no plano: " + plano);
+    }
 }
