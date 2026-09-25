@@ -791,35 +791,143 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
         };
     }
 
+    private Path finalPtBr() {
+        return raiz.resolve("saida").resolve("ep_PT-BR.ass");
+    }
+
+    private void editarNoArquivo(String de, String para) throws IOException {
+        String publicado = Files.readString(finalPtBr(), StandardCharsets.UTF_8);
+        assertTrue(publicado.contains(de), "o trecho a editar tem de existir no arquivo: " + de);
+        Files.writeString(finalPtBr(), publicado.replaceFirst(java.util.regex.Pattern.quote(de),
+            java.util.regex.Matcher.quoteReplacement(para)), StandardCharsets.UTF_8);
+    }
+
+    /** Corrige no cache a tradução de UM original, como a Correção de Cache (2.3) faz. */
+    private void corrigirNoCache(String original, String novaTraducao) throws IOException {
+        Path cache;
+        try (var s = Files.walk(raiz)) {
+            cache = s.filter(p -> p.getFileName().toString().equals("ep.cache.json")).findFirst()
+                .orElseThrow(() -> new AssertionError("cache do episodio nao encontrado sob " + raiz));
+        }
+        ObjectMapper json = new ObjectMapper();
+        JsonNode raizJson = json.readTree(cache.toFile());
+        int trocadas = 0;
+        java.util.Deque<JsonNode> pilha = new java.util.ArrayDeque<>(List.of(raizJson));
+        while (!pilha.isEmpty()) {
+            JsonNode no = pilha.pop();
+            if (no.isObject() && original.equals(no.path("original").asText(null))) {
+                ((com.fasterxml.jackson.databind.node.ObjectNode) no).put("traduzido", novaTraducao);
+                trocadas++;
+            }
+            no.forEach(pilha::push);
+        }
+        assertTrue(trocadas > 0, "nenhuma entrada do cache com original \"" + original + "\"");
+        json.writeValue(cache.toFile(), raizJson);
+    }
+
+    private void apagarRegistroDaPublicacao() throws IOException {
+        try (var s = Files.walk(raiz)) {
+            List<Path> bases = s.filter(p -> p.getParent() != null
+                && p.getParent().getFileName().toString().equals(".publicado")).toList();
+            assertFalse(bases.isEmpty(), "a publicacao anterior tinha de ter deixado o registro");
+            for (Path b : bases) {
+                Files.delete(b);
+            }
+        }
+    }
+
     /**
-     * MEDIDO NA AUDITORIA DE 25/09/2026: com a proteção LIGADA, reexecutar a 2.1 numa pasta cujo
-     * _PT-BR final já existe regravava o arquivo a partir do cache e desfazia, sem backup, a
-     * correção feita direto no .ass (Revisão de Lore, Concordância, edição manual — nenhuma delas
-     * escreve no cache). A pasta de backups tinha 507 itens antes e 507 depois.
-     *
-     * <p>O comportamento de REGENERAR continua (é o fluxo que a tela da 2.3 manda seguir); o que
-     * muda é que a versão anterior não se perde e o operador é avisado.
+     * MEDIDO NA AUDITORIA DE 25/09/2026: com a proteção LIGADA, reexecutar a 2.1 regravava o
+     * _PT-BR a partir do cache e desfazia a correção feita direto no .ass (3.2, 3.3, edição
+     * manual — nenhuma escreve no cache). Com a mesclagem de três vias a correção FICA.
      */
     @Test
-    @DisplayName("reexecucao com protecao ligada preserva em backup a correcao feita no .ass e avisa")
-    void reexecucaoPreservaEmBackupACorrecaoFeitaNoAss() throws Exception {
+    @DisplayName("mesclagem: correcao feita direto no arquivo sobrevive a reexecucao")
+    void correcaoFeitaNoArquivoSobreviveAReexecucao() throws Exception {
         Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
         montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
-        Path finalPtBr = raiz.resolve("saida").resolve("ep_PT-BR.ass");
-        String publicado = Files.readString(finalPtBr, StandardCharsets.UTF_8);
-        Files.writeString(finalPtBr, publicado.replaceFirst(",,fala traduzida", ",,fala REVISADA A MAO"),
-            StandardCharsets.UTF_8);
+        editarNoArquivo(",,fala traduzida", ",,fala REVISADA A MAO");
+
+        List<String> ditas = new java.util.ArrayList<>();
+        montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(Files.readString(finalPtBr(), StandardCharsets.UTF_8).contains("fala REVISADA A MAO"),
+            "a correcao feita no arquivo tem de continuar no arquivo; console:\n" + String.join("\n", ditas));
+        assertTrue(ditas.stream().anyMatch(l -> l.startsWith("[ MESCLA ]") && l.contains("1 fala(s) corrigida(s)")),
+            "a preservacao tem de ser DITA; console:\n" + String.join("\n", ditas));
+        // Só o arquivo mudou: é preservação, não conflito. Chamar de conflito ensinaria o operador
+        // a desconfiar de toda correção feita pela 3.2/3.3.
+        assertTrue(ditas.stream().noneMatch(l -> l.contains("CONFLITO")),
+            "edicao so no arquivo NAO e conflito; console:\n" + String.join("\n", ditas));
+        assertTrue(ditas.stream().noneMatch(l -> l.contains("ATENCAO")),
+            "a fala preservada nao e divergencia para a A6; console:\n" + String.join("\n", ditas));
+    }
+
+    /**
+     * O OUTRO fluxo legítimo, o da 2.3: o cache foi corrigido e a legenda não foi mexida. A
+     * reexecução tem de PUBLICAR a correção do cache — a mesclagem não pode confundi-la com edição.
+     */
+    @Test
+    @DisplayName("mesclagem: correcao feita no cache chega ao arquivo (fluxo da 2.3)")
+    void correcaoFeitaNoCacheChegaAoArquivo() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+        corrigirNoCache("Hello there", "Olá, tudo certo por aí");
+
+        List<String> ditas = new java.util.ArrayList<>();
+        montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertTrue(Files.readString(finalPtBr(), StandardCharsets.UTF_8).contains("Olá, tudo certo por aí"),
+            "a correcao do cache tem de chegar ao arquivo; console:\n" + String.join("\n", ditas));
+        assertTrue(ditas.stream().anyMatch(l -> l.startsWith("[ MESCLA ]") && l.contains("1 atualizada(s) pelo cache")),
+            "a atualizacao tem de ser DITA; console:\n" + String.join("\n", ditas));
+        assertTrue(ditas.stream().anyMatch(l -> l.contains("[ BACKUP ]")),
+            "substituir o publicado exige backup; console:\n" + String.join("\n", ditas));
+    }
+
+    /** Mudou no arquivo E no cache: mantém a do arquivo e diz que houve conflito, com exemplo. */
+    @Test
+    @DisplayName("mesclagem: conflito nos dois lados mantem o arquivo e avisa")
+    void conflitoNosDoisLadosMantemOArquivoEAvisa() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+        editarNoArquivo(",,fala traduzida", ",,fala REVISADA A MAO");
+        corrigirNoCache("Hello there", "Olá, tudo certo por aí");
+
+        List<String> ditas = new java.util.ArrayList<>();
+        montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        String gravado = Files.readString(finalPtBr(), StandardCharsets.UTF_8);
+        assertTrue(gravado.contains("fala REVISADA A MAO") && !gravado.contains("Olá, tudo certo por aí"),
+            "no conflito vale a correcao do arquivo; arquivo:\n" + gravado);
+        assertTrue(ditas.stream().anyMatch(l -> l.startsWith("[ MESCLA ]") && l.contains("CONFLITO")
+                && l.contains("Olá, tudo certo por aí")),
+            "o conflito tem de ser DITO com a versao do cache; console:\n" + String.join("\n", ditas));
+    }
+
+    /**
+     * SEM o registro da publicação anterior (arquivos publicados antes desta versão) não há como
+     * separar os dois casos: substitui pelo cache, com backup obrigatório e o aviso dos dois casos.
+     * É o comportamento que a auditoria mediu como a rede mínima.
+     */
+    @Test
+    @DisplayName("sem registro da publicacao anterior: substitui com backup e avisa")
+    void semRegistroDaPublicacaoSubstituiComBackupEAvisa() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "How are you");
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+        editarNoArquivo(",,fala traduzida", ",,fala REVISADA A MAO");
+        apagarRegistroDaPublicacao();
 
         List<String> ditas = new java.util.ArrayList<>();
         montar(new FakeLlmPort(), espiaoDe(ditas)).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
 
         assertTrue(ditas.stream().anyMatch(l -> l.startsWith("[ ATENÇÃO ]") && l.contains("DIFERIA")),
-            "a correcao desfeita tem de ser DITA ao operador; console:\n" + String.join("\n", ditas));
+            "sem base, a substituicao tem de ser DITA; console:\n" + String.join("\n", ditas));
         String linhaBackup = ditas.stream().filter(l -> l.contains("[ BACKUP ]")).findFirst()
             .orElseThrow(() -> new AssertionError("sem backup da versao anterior; console:\n" + String.join("\n", ditas)));
         Path backup = Path.of(linhaBackup.substring(linhaBackup.indexOf("preservada em: ") + "preservada em: ".length()).trim());
         assertTrue(Files.readString(backup, StandardCharsets.UTF_8).contains("fala REVISADA A MAO"),
-            "o backup tem de guardar a versao CORRIGIDA que ia ser perdida: " + backup);
+            "o backup tem de guardar a versao CORRIGIDA: " + backup);
     }
 
     /**

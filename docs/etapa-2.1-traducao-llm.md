@@ -82,12 +82,16 @@ sequenceDiagram
 
 ## Reexecução, parada e causa das pendências (auditoria de 25/09/2026)
 
-- **Reexecutar sobre uma pasta já traduzida** regenera o `_PT-BR` a partir do cache — é o que a
-  [2.3](etapa-2.3-correcao-revisao.md) manda fazer depois de corrigir o cache. Conteúdo **idêntico**
-  ao publicado não é regravado (`[ SAIDA ] conteúdo idêntico`). Conteúdo **diferente** só substitui
-  o publicado depois de um backup em `backups/traducao/`, com `[ ATENÇÃO ]` dizendo quantas linhas
-  mudaram. **Correções feitas direto no `.ass`** (Revisão de Lore, Concordância, edição manual) não
-  estão no cache: a reexecução as substitui, e elas ficam no backup.
+- **Reexecutar sobre uma pasta já traduzida faz mesclagem de três vias**, linha a linha, contra o
+  registro do que o cache gerou na publicação anterior (`cache/<obra>/.publicado/`):
+  linha que o arquivo não mudou recebe a do cache (é assim que a correção da
+  [2.3](etapa-2.3-correcao-revisao.md) chega); linha **corrigida direto no `.ass`** (Revisão de
+  Lore, Concordância, edição manual) e não mudada no cache é **mantida**; mudou dos dois lados é
+  conflito — mantém a do arquivo e avisa com exemplo (`[ MESCLA ]`). Conteúdo final idêntico ao
+  publicado não é regravado; qualquer substituição tem backup em `backups/traducao/`.
+- **Sem o registro** (legendas publicadas antes de 25/09/2026, ou linhas incluídas/removidas no
+  arquivo), não dá para separar os dois casos: a reexecução publica a versão do cache, com backup
+  obrigatório e `[ ATENÇÃO ]` explicando os dois cenários.
 - **Parar:** "Sair" e queda do LM Studio no meio salvam no cache o que já foi traduzido; a próxima
   execução recomeça de onde parou. Só processo morto à força perde o episódio em curso. A parada
   pedida sai como `[PARADO]` / lote `CANCELADO`, não como falha.
