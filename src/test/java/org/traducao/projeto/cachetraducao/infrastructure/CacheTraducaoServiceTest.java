@@ -450,4 +450,54 @@ class CacheTraducaoServiceTest {
                 + "nenhuma tradução se perdeu e o operador não paga pelo arrependimento");
         assertEquals(0, voltou.invalidadas());
     }
+
+    private String capturarSaida(Runnable acao) {
+        java.io.PrintStream original = System.out;
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(buffer, true, java.nio.charset.StandardCharsets.UTF_8));
+        try {
+            acao.run();
+        } finally {
+            System.setOut(original);
+        }
+        return buffer.toString(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    /** Achado D4 da auditoria da 2.1: corrigir à mão a PRIMEIRA ocorrência não pode sumir. */
+    @Test
+    void correcaoAMaoNaPrimeiraRepeticaoVenceEAvisa() {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Olá"), ent("Hi", "Oi"), ent("Hi", "Oi"), ent("Hi", "Oi")));
+
+        CacheTraducaoService.ResultadoCarga[] r = new CacheTraducaoService.ResultadoCarga[1];
+        String saida = capturarSaida(() -> r[0] = svc.carregar(f, prov("h1")));
+
+        assertEquals("Olá", r[0].mapa().get("Hi"));
+        assertTrue(saida.contains("[CACHE] ATENÇÃO: 1 fala(s)"), saida);
+    }
+
+    @Test
+    void empateEntreRepeticoesDivergentesUsaAUltimaEAvisa() {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Olá"), ent("Hi", "Oi")));
+
+        CacheTraducaoService.ResultadoCarga[] r = new CacheTraducaoService.ResultadoCarga[1];
+        String saida = capturarSaida(() -> r[0] = svc.carregar(f, prov("h1")));
+
+        assertEquals("Oi", r[0].mapa().get("Hi"));
+        assertTrue(saida.contains("[CACHE] ATENÇÃO"), saida);
+    }
+
+    /** Controle de fronteira (A1): a MESMA fala repetida com a MESMA tradução é o normal. */
+    @Test
+    void repeticaoComAMesmaTraducaoNaoAvisa() {
+        Path f = dir.resolve("ep.cache.json");
+        svc.salvar(f, prov("h1"), List.of(ent("Hi", "Oi"), ent("Hi", "Oi"), ent("Bye", "Tchau")));
+
+        CacheTraducaoService.ResultadoCarga[] r = new CacheTraducaoService.ResultadoCarga[1];
+        String saida = capturarSaida(() -> r[0] = svc.carregar(f, prov("h1")));
+
+        assertEquals("Oi", r[0].mapa().get("Hi"));
+        assertFalse(saida.contains("ATENÇÃO"), saida);
+    }
 }
