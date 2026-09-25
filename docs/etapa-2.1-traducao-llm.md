@@ -99,6 +99,10 @@ sequenceDiagram
   a causa real (`ESTRUTURA_DIVERGENTE` para contagem de linhas errada, `CONTEUDO_NAO_ANCORADO` para
   entidade trocada, locutor inventado ou tradução desproporcional), e não "o modelo devolveu o
   original". `ECO` fica só para eco de verdade.
+- **Quadros de transição:** as cópias de 0,08 s com `\clip` de uma fala (efeito de apagar) são
+  excluídas do LLM como letreiro animado; elas recebem a tradução da fala irmã **do mesmo estilo**,
+  com as próprias tags — a legenda não pisca mais português → inglês. Verso de música com o mesmo
+  texto não herda (outro estilo).
 - **Conferência pós-gravação (A6):** relê o arquivo gravado. O itálico removido na saída não é
   divergência; fala mantida porque a fonte já estava em português aparece como NÃO VERIFICADA, com
   exemplos, porque não passou pelo LLM nem pela validação.

@@ -159,6 +159,10 @@ public class ProcessarArquivoUseCase {
         return texto != null && HOMOGRAFO_SOLTO.matcher(texto).find();
     }
 
+    /** Tags só no começo e texto visível sem tag depois: o formato de um quadro de transição. */
+    private static final java.util.regex.Pattern PREFIXO_DE_TAGS_E_TEXTO =
+        java.util.regex.Pattern.compile("^((?:\\{[^}]*\\})+)([^{]+)$");
+
     private static String instanteDe(EventoLegenda evento) {
         if (evento == null || evento.prefixo() == null) {
             return "";
@@ -868,9 +872,38 @@ public class ProcessarArquivoUseCase {
         List<FalaNaoTraduzida> naoTraduzidas = new ArrayList<>();
         int falasItalicoRemovido = 0;
         int falasItalicoPreservado = 0;
+        // QUADROS DE TRANSIÇÃO herdam a tradução da fala irmã. Um "wipe" de legenda é a mesma fala
+        // repetida em cópias de 0,08 s com \clip; o seletor as exclui como typesetting de alto
+        // risco, e elas saíam em inglês logo depois da fala em português — a legenda PISCAVA
+        // (medido em 25/09/2026: 71 quadros em 31 episódios do acervo, 13 de diálogo e 27 de
+        // título do Zeta). A cópia recebe a tradução da irmã SEM tags do MESMO estilo e mesmo
+        // texto, com as próprias tags de prefixo. Mesmo estilo de propósito: verso de música com o
+        // mesmo texto de um diálogo não pode herdar tradução — música não é trabalho desta tela.
+        Map<String, String> traducaoDaIrma = new HashMap<>();
+        for (EventoLegenda irma : documento.eventos()) {
+            if (!irma.isDialogo() || !irma.temTexto() || irma.texto().indexOf('{') >= 0
+                    || !seletorEventos.isTraduzivel(irma, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas)) {
+                continue;
+            }
+            String validada = traducoesValidadas.get(irma.texto());
+            String semItalicoIrma = validada == null ? null : removedorItalico.remover(validada);
+            if (semItalicoIrma != null && !semItalicoIrma.isBlank() && semItalicoIrma.indexOf('{') < 0) {
+                traducaoDaIrma.putIfAbsent(irma.estilo() + '\u0000' + irma.texto(), semItalicoIrma);
+            }
+        }
+        int quadrosHerdados = 0;
         for (EventoLegenda evento : documento.eventos()) {
             String instante = instanteDe(evento);
             if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas)) {
+                java.util.regex.Matcher soPrefixo = evento.isDialogo() && evento.temTexto()
+                    ? PREFIXO_DE_TAGS_E_TEXTO.matcher(evento.texto()) : null;
+                String herdada = soPrefixo != null && soPrefixo.matches()
+                    ? traducaoDaIrma.get(evento.estilo() + '\u0000' + soPrefixo.group(2)) : null;
+                if (herdada != null) {
+                    eventosFinais.add(evento.comTexto(soPrefixo.group(1) + herdada));
+                    quadrosHerdados++;
+                    continue;
+                }
                 eventosFinais.add(evento);
                 // Só FALA entra no dataset de falas não traduzidas. O leitor devolve como evento
                 // também a linha vazia, o Comment e a seção [Aegisub Extradata] inteira — no 86
@@ -959,6 +992,10 @@ public class ProcessarArquivoUseCase {
             carimbo.add("traduziu: " + naOrigem + " fala(s) na origem, " + traduziveis
                 + " traduzivel(is), " + (naOrigem - traduziveis)
                 + " preservada(s) por regra do pipeline (musica, karaoke, estilo ignorado)");
+            if (quadrosHerdados > 0) {
+                carimbo.add("quadros de transicao: " + quadrosHerdados
+                    + " copia(s) com \\clip receberam a traducao da fala irma (contadas entre as preservadas)");
+            }
             carimbo.add("lore: " + contexto.nomeExibicao() + " (" + contexto.id() + ")");
             if (!falhasDistintas.isEmpty()) {
                 carimbo.add("pendentes: " + falhasDistintas.size()

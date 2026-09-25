@@ -950,6 +950,46 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             "o 'nao regravei' tem de ser dito, nao presumido; console:\n" + String.join("\n", ditas));
     }
 
+    /**
+     * MEDIDO NO ZETA E24 (auditoria de 25/09/2026): a fala "Shree Klime, age 18." tem cópias de
+     * 0,08 s com \clip (efeito de apagar). O seletor exclui as cópias como typesetting, e a
+     * legenda piscava português → inglês no fim da fala. As cópias herdam a tradução da irmã.
+     * O caso-controle no mesmo arquivo: verso de MÚSICA com o mesmo texto não herda.
+     */
+    @Test
+    @DisplayName("quadros de transicao herdam a traducao da fala irma do mesmo estilo; musica nao herda")
+    void quadrosDeTransicaoHerdamTraducaoDaIrma() throws Exception {
+        // As QUATRO cópias reais do Zeta E24: com a fala são 5 instantes distintos, que é o que faz
+        // o seletor tratá-las como letreiro animado. A primeira versão deste teste tinha 2 cópias,
+        // ficava abaixo do limiar, as cópias iam ao LLM direto — e o teste passava com a herança
+        // DESLIGADA (mutação sobreviveu, 25/09/2026).
+        String clip1 = "{\\clip(m 890 1075 l 888 946 260 829 116 992)}Shree Klime, age 18.";
+        String clip2 = "{\\clip(m 755.75 1074.625 l 755.75 944 310.5 911.125 169.125 1024)}Shree Klime, age 18.";
+        String clip3 = "{\\clip(m 644 1071 l 645 840 167 814 81 988)}Shree Klime, age 18.";
+        String clip4 = "{\\clip(m 513 1072 l 516 867 242 857 147 991)}Shree Klime, age 18.";
+        Path pasta = Files.createDirectories(raiz.resolve("AnimeTeste").resolve("legendas_originais"));
+        Path entrada = pasta.resolve("ep.ass");
+        Files.writeString(entrada, CABECALHO_ASS
+            + "Dialogue: 0,0:05:43.49,0:05:45.70,Default,,0,0,0,,Shree Klime, age 18.\n"
+            + "Dialogue: 0,0:05:45.70,0:05:45.78,Default,,0,0,0,," + clip1 + "\n"
+            + "Dialogue: 0,0:05:45.78,0:05:45.87,Default,,0,0,0,," + clip2 + "\n"
+            + "Dialogue: 0,0:05:45.87,0:05:45.95,Default,,0,0,0,," + clip3 + "\n"
+            + "Dialogue: 0,0:05:45.95,0:05:46.03,Default,,0,0,0,," + clip4 + "\n"
+            + "Dialogue: 0,0:07:00.00,0:07:00.08,Song ENG,,0,0,0,," + clip1 + "\n",
+            StandardCharsets.UTF_8);
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        List<String> linhas = Files.readAllLines(raiz.resolve("saida").resolve("ep_PT-BR.ass"), StandardCharsets.UTF_8);
+        assertTrue(linhas.stream().anyMatch(l -> l.contains("0:05:45.70") && l.endsWith("}fala traduzida")
+                && l.contains("\\clip(m 890")),
+            "a copia com clip tem de herdar a traducao mantendo o proprio clip:\n" + String.join("\n", linhas));
+        assertTrue(linhas.stream().anyMatch(l -> l.contains("0:05:45.78") && l.endsWith("}fala traduzida")),
+            "a segunda copia tambem:\n" + String.join("\n", linhas));
+        assertTrue(linhas.stream().anyMatch(l -> l.contains("Song ENG") && l.endsWith("Shree Klime, age 18.")),
+            "verso de musica com o mesmo texto NAO herda — outro estilo:\n" + String.join("\n", linhas));
+    }
+
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }
