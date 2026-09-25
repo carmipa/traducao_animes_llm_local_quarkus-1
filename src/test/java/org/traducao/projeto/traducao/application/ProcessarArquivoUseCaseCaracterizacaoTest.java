@@ -679,6 +679,42 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * Achado D8 da auditoria da 2.1: a categoria da pendência vinha do estilo do PRIMEIRO evento
+     * com aquele texto — e esse evento podia ser um Comment, que nunca é traduzido. O letreiro
+     * pendente caía no balde DIALOGO do KPI.
+     */
+    @Test
+    @DisplayName("D8: categoria da pendencia vem do evento TRADUZIVEL, nao do Comment de mesmo texto")
+    void categoriaDaPendenciaIgnoraOCommentDeMesmoTexto() throws Exception {
+        Path entrada = raiz.resolve("ep.ass");
+        Files.writeString(entrada, CABECALHO_ASS
+            + "Comment: 0,0:00:00.50,0:00:01.00,Default,,0,0,0,,KEEPME sign\n"
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Sign,,0,0,0,,KEEPME sign\n", StandardCharsets.UTF_8);
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertEquals(List.of("LETREIRO"), tel.pendenciasPorCausa().stream().map(p -> p.categoria()).toList(),
+            "KPI: " + tel.pendenciasPorCausa());
+    }
+
+    /** CASO-CONTROLE (A1) do anterior: o Comment em estilo de letreiro não empresta a categoria. */
+    @Test
+    @DisplayName("D8 CASO-CONTROLE: Comment em estilo Sign nao faz o dialogo virar letreiro")
+    void commentEmEstiloDeLetreiroNaoMudaODialogo() throws Exception {
+        Path entrada = raiz.resolve("ep.ass");
+        Files.writeString(entrada, CABECALHO_ASS
+            + "Comment: 0,0:00:00.50,0:00:01.00,Sign,,0,0,0,,KEEPME talk\n"
+            + "Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,KEEPME talk\n", StandardCharsets.UTF_8);
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        TelemetriaTraducao tel = telemetriaCaptor.ultima;
+        assertEquals(List.of("DIALOGO"), tel.pendenciasPorCausa().stream().map(p -> p.categoria()).toList(),
+            "KPI: " + tel.pendenciasPorCausa());
+    }
+
+    /**
      * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: MESMO desfecho visível (a fala fica em inglês e
      * pendente), mas aqui o modelo REALMENTE devolveu o original. Tem de continuar sendo eco —
      * senão o conserto teria apenas trocado um rótulo errado por outro.

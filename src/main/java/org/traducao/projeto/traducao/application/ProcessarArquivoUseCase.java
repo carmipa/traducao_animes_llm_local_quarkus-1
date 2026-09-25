@@ -453,9 +453,10 @@ public class ProcessarArquivoUseCase {
             uiLogger.log("[ INFO ] " + info);
         }
 
-        // Estilo por texto (reusado no dedup e no KPI de pendência).
+        // Estilo por texto (reusado no dedup e no KPI de pendência). Só evento TRADUZÍVEL: um
+        // Comment com o mesmo texto emprestava o estilo dele à fala (achado D8, 25/09/2026).
         Map<String, String> estiloPorTexto = new HashMap<>();
-        for (EventoLegenda evento : documento.eventos()) {
+        for (EventoLegenda evento : eventosTraduziveis) {
             if (evento.temTexto()) {
                 estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
             }
