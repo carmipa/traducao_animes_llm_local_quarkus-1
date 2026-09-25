@@ -227,7 +227,7 @@ class GeradorLoreYamlIT {
                 ordenado.sort(String::compareTo);
                 pares.add(ordenado);
             }
-            pares.sort(Comparator.comparing(par -> par.get(0) + ' ' + par.get(1)));
+            pares.sort(Comparator.comparing(par -> par.get(0) + '\u0000' + par.get(1)));
             m.put("paresInconfundiveis", pares);
         }
         if (!p.correcoesTerminologia().isEmpty()) {
