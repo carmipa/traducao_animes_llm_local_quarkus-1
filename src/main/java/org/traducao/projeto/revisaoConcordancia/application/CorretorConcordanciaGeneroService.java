@@ -163,10 +163,19 @@ public class CorretorConcordanciaGeneroService {
      * substantivo masculino) deixa de ser corrigido. No acervo inteiro, essa construção aparece
      * <b>zero</b> vez — a única ocorrência de {@code a} + substantivo masculino é {@code a Deus}.
      */
+    // Os quantificadores SINGULARES muita/toda/pouca/certa/tanta NAO entram, por dois motivos que
+    // se somam (auditoria da 3.3, 17/09/2026):
+    //   1. SIMETRIA: o lado masculino (ART_MASC) ja os exclui de proposito — no singular sao
+    //      adverbio/ambiguos ("Voce e muito crianca" esta CERTO), e so as formas de PLURAL entram
+    //      (ART_*_PLUR tem muitos/muitas, poucos/poucas). O lado feminino tinha de espelhar isso.
+    //   2. SEM FLIP: o mapa FLIP_ART_F2M vem de ART_FEM + ART_FEM_PLUR, que NAO tem esses
+    //      singulares. Como GATILHO sem forma no mapa, flip.get devolvia null -> a fala minuscula
+    //      recebia o literal "null" gravado por cima ("Tenho muita orgulho" -> "Tenho null orgulho")
+    //      e a capitalizada estourava NPE em preservarCaixa. A catraca gatilhosSemFlip() congela isso.
     private static final String[] ART_FEM_NO_PADRAO = {
         "uma", "esta", "essa", "aquela", "da", "na", "à", "pela", "numa",
         "minha", "sua", "nossa", "minhas", "suas", "nossas",
-        "alguma", "muita", "outra", "toda", "pouca", "certa", "tanta"};
+        "alguma", "outra"};
 
     /**
      * Os mesmos determinantes no PLURAL, índice a índice com os singulares acima.
@@ -301,10 +310,12 @@ public class CorretorConcordanciaGeneroService {
             return Optional.empty();
         }
         String r = pt;
-        r = flipPrimeiroGrupo(r, ART_MASC_COM_SUBST_FEM, FLIP_ART_M2F);
-        r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M);
-        r = flipDeterminantePlural(r, ART_MASC_PLUR_COM_SUBST_FEM, FLIP_ART_M2F);
-        r = flipDeterminantePlural(r, ART_FEM_PLUR_COM_SUBST_MASC, FLIP_ART_F2M);
+        // O conjunto passado é o do gênero do determinante ANTES do flip: se ele vier logo depois
+        // de outro determinante desse mesmo gênero, trocá-lo sozinho deixaria o de trás discordando.
+        r = flipPrimeiroGrupo(r, ART_MASC_COM_SUBST_FEM, FLIP_ART_M2F, DET_MASC_FLEX);
+        r = flipPrimeiroGrupo(r, ART_FEM_COM_SUBST_MASC, FLIP_ART_F2M, DET_FEM_FLEX);
+        r = flipDeterminantePlural(r, ART_MASC_PLUR_COM_SUBST_FEM, FLIP_ART_M2F, DET_MASC_FLEX);
+        r = flipDeterminantePlural(r, ART_FEM_PLUR_COM_SUBST_MASC, FLIP_ART_F2M, DET_FEM_FLEX);
         r = flipTerceiroGrupo(r, ELA_COM_ADJ_MASC, FLIP_ADJ_M2F);
         r = flipTerceiroGrupo(r, ELE_COM_ADJ_FEM, FLIP_ADJ_F2M);
         r = corrigirExpressaoIdiomatica(r);
@@ -318,21 +329,112 @@ public class CorretorConcordanciaGeneroService {
      * <p>INVARIANTES DO DOMÍNIO: só substitui o artigo mapeado; preserva a caixa inicial.
      * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
      */
-    private String flipPrimeiroGrupo(String texto, Pattern pat, Map<String, String> flip) {
+    private String flipPrimeiroGrupo(String texto, Pattern pat, Map<String, String> flip,
+                                     java.util.Set<String> mesmoGenero) {
+        return aplicarFlipComCadeia(texto, pat, flip, mesmoGenero);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: troca o determinante casado (grupo 1) pelo gênero oposto e, quando ele
+     * vem depois de um QUANTIFICADOR do mesmo gênero, troca o quantificador TAMBÉM — corrige a
+     * cadeia inteira, não meia.
+     *
+     * <h2>Três desfechos, decididos pelo que vem ANTES do determinante</h2>
+     * <ul>
+     *   <li><b>Nada / palavra neutra</b> (verbo, começo da fala): troca só o determinante — o caso
+     *       comum ({@code "Vi o menina"}).</li>
+     *   <li><b>QUANTIFICADOR do mesmo gênero</b> ({@code "todas essas pensamentos"}): troca os DOIS
+     *       ({@code "todos esses pensamentos"}). Achado na corrida do Paulo no Zeta ep32
+     *       (17/09/2026); ele autorizou corrigir a cadeia inteira.</li>
+     *   <li><b>Artigo/possessivo do mesmo gênero</b> ({@code "a nossa orgulho"}): ABSTÉM-SE. O
+     *       {@code a} também é preposição ({@code "entreguei a meu pai"}), então trocá-lo às cegas
+     *       arriscaria estragar; meia-correção é pior que não mexer.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: as trocas são aplicadas de TRÁS para a frente, para uma não
+     * deslocar a posição da outra; a caixa inicial de cada palavra é preservada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual; nunca lança.
+     */
+    private String aplicarFlipComCadeia(String texto, Pattern pat, Map<String, String> flip,
+                                        java.util.Set<String> mesmoGenero) {
         Matcher m = pat.matcher(texto);
-        return m.replaceAll(res -> {
-            String palavra = res.group(1);
-            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
-                // MEIA-CORREÇÃO É PIOR: em "a nossa orgulho" trocar só o possessivo devolve
-                // "a nosso orgulho", que acrescenta uma discordância nova entre artigo e
-                // possessivo. E o artigo não pode ser trocado junto porque o "a" também é
-                // preposição ("entreguei a meu pai" está certo). Então a fala inteira fica
-                // como está — a tela prefere não mexer a deixar a linha pior.
-                return Matcher.quoteReplacement(res.group());
+        java.util.List<int[]> alvos = new java.util.ArrayList<>();
+        java.util.List<String> novos = new java.util.ArrayList<>();
+        while (m.find()) {
+            String palavra = m.group(1);
+            int ini = m.start(1);
+            int fim = m.end(1);
+            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, ini)) {
+                continue;
             }
-            String novo = flip.get(palavra.toLowerCase());
-            return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + res.group(2) + res.group(3));
-        });
+            int[] anterior = tokenAnteriorFlexivel(texto, ini);
+            if (anterior != null) {
+                String det = texto.substring(anterior[0], anterior[1]).toLowerCase();
+                if (mesmoGenero.contains(det)) {
+                    String detFlip = FLIP_QUANTIFICADOR.get(det);
+                    if (detFlip == null) {
+                        // Artigo/possessivo/demonstrativo do mesmo genero: nao da pra virar os dois
+                        // com seguranca (o "a" tambem e preposicao). Meia-correcao e pior: abstem-se.
+                        continue;
+                    }
+                    // Quantificador do mesmo genero: vira os DOIS (corrige a cadeia).
+                    alvos.add(anterior);
+                    novos.add(preservarCaixa(texto.substring(anterior[0], anterior[1]), detFlip));
+                }
+            }
+            alvos.add(new int[] {ini, fim});
+            novos.add(preservarCaixa(palavra, flip.get(palavra.toLowerCase())));
+        }
+        if (alvos.isEmpty()) {
+            return texto;
+        }
+        Integer[] ordem = new Integer[alvos.size()];
+        for (int i = 0; i < ordem.length; i++) {
+            ordem[i] = i;
+        }
+        java.util.Arrays.sort(ordem, (x, y) -> Integer.compare(alvos.get(y)[0], alvos.get(x)[0]));
+        StringBuilder sb = new StringBuilder(texto);
+        for (int idx : ordem) {
+            int[] p = alvos.get(idx);
+            sb.replace(p[0], p[1], novos.get(idx));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: posição {@code {start, end}} do token de letras imediatamente anterior
+     * a {@code inicio}, tratando a quebra {@code \\N} do ASS como separador (o acervo tem
+     * {@code "todas\\Nessas"}). As posições valem no texto ORIGINAL, para servirem à troca.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: pula espaços e o marcador {@code \\N}/{@code \\n} (dois chars);
+     * função pura da string e da posição.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: início do texto ou sem token devolve {@code null}.
+     */
+    private static int[] tokenAnteriorFlexivel(String texto, int inicio) {
+        int i = inicio - 1;
+        boolean mudou = true;
+        while (mudou) {
+            mudou = false;
+            while (i >= 0 && Character.isWhitespace(texto.charAt(i))) {
+                i--;
+                mudou = true;
+            }
+            if (i >= 1 && texto.charAt(i - 1) == '\\'
+                && (texto.charAt(i) == 'N' || texto.charAt(i) == 'n')) {
+                i -= 2;
+                mudou = true;
+            }
+        }
+        int fim = i + 1;
+        while (i >= 0 && Character.isLetter(texto.charAt(i))) {
+            i--;
+        }
+        if (fim <= i + 1) {
+            return null;
+        }
+        return new int[] {i + 1, fim};
     }
 
     /** Os determinantes possessivos, que só entram no flip quando não há artigo antes deles. */
@@ -364,6 +466,50 @@ public class CorretorConcordanciaGeneroService {
 
     private static final java.util.Set<String> ARTIGOS_SIMPLES = java.util.Set.of(
         "o", "a", "os", "as", "um", "uma", "uns", "umas");
+
+    /**
+     * Determinantes/quantificadores flexíveis em gênero, por lado. Servem à guarda de
+     * MEIA-CORREÇÃO: se o determinante a trocar vem logo depois de outro determinante do MESMO
+     * gênero (que concorda com ele HOJE), trocar só um deixaria o de trás discordando.
+     *
+     * <h2>A fala que estendeu a guarda (auditoria da 3.3 no acervo, 17/09/2026)</h2>
+     * No Zeta ep32: <i>"no meio de todas\Nessas pensamentos"</i>. A tela trocava {@code essas→esses}
+     * (certo, "pensamentos" é masculino) e deixava {@code todas} para trás — virava {@code "todas
+     * esses"}, movendo o desacordo em vez de resolvê-lo. É a mesma classe de {@code "a nossa
+     * orgulho"} (que a tela já não toca via {@link #precedidoPorArtigo}); só faltava cobrir
+     * {@code quantificador + determinante}. Decisão do Paulo: <b>abster-se</b> (a fala fica
+     * intocada, pendência honesta) em vez de fazer a meia-correção.
+     */
+    private static final java.util.Set<String> DET_FEM_FLEX = java.util.Set.of(
+        "a", "as", "uma", "umas", "da", "das", "na", "nas", "à", "às", "pela", "pelas", "numa", "numas",
+        "esta", "estas", "essa", "essas", "aquela", "aquelas",
+        "minha", "minhas", "sua", "suas", "nossa", "nossas",
+        "alguma", "algumas", "outra", "outras",
+        "toda", "todas", "muita", "muitas", "pouca", "poucas", "tanta", "tantas",
+        "varia", "varias", "vária", "várias");
+    private static final java.util.Set<String> DET_MASC_FLEX = java.util.Set.of(
+        "o", "os", "um", "uns", "do", "dos", "no", "nos", "ao", "aos", "pelo", "pelos", "num", "nuns",
+        "este", "estes", "esse", "esses", "aquele", "aqueles",
+        "meu", "meus", "seu", "seus", "nosso", "nossos",
+        "algum", "alguns", "outro", "outros",
+        "todo", "todos", "muito", "muitos", "pouco", "poucos", "tanto", "tantos",
+        "vario", "varios", "vário", "vários");
+
+    /**
+     * Os QUANTIFICADORES que, quando aparecem logo antes do determinante trocado, viram junto
+     * (correção da cadeia). É subconjunto de {@link #DET_FEM_FLEX}/{@link #DET_MASC_FLEX}: só os
+     * inequívocos. Ficam DE FORA o {@code muita/muito}, {@code pouca/pouco} e {@code tanta/tanto}
+     * no SINGULAR — ali são advérbio ({@code "muito criança"} está certo) e virá-los estragaria.
+     * Determinante que não está aqui (artigo, possessivo, demonstrativo) faz a tela abster-se.
+     */
+    private static final Map<String, String> FLIP_QUANTIFICADOR = Map.ofEntries(
+        Map.entry("toda", "todo"), Map.entry("todo", "toda"),
+        Map.entry("todas", "todos"), Map.entry("todos", "todas"),
+        Map.entry("muitas", "muitos"), Map.entry("muitos", "muitas"),
+        Map.entry("poucas", "poucos"), Map.entry("poucos", "poucas"),
+        Map.entry("tantas", "tantos"), Map.entry("tantos", "tantas"),
+        Map.entry("varias", "varios"), Map.entry("varios", "varias"),
+        Map.entry("várias", "vários"), Map.entry("vários", "várias"));
 
     /**
      * PROPÓSITO DE NEGÓCIO: troca a 3ª captura (adjetivo predicativo) pelo gênero oposto,
@@ -439,17 +585,12 @@ public class CorretorConcordanciaGeneroService {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: sem casamento devolve o texto igual.
      */
-    private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip) {
-        Matcher m = pat.matcher(texto);
-        return m.replaceAll(res -> {
-            String palavra = res.group(1);
-            if (POSSESSIVOS.contains(palavra.toLowerCase()) && precedidoPorArtigo(texto, res.start(1))) {
-                return Matcher.quoteReplacement(res.group());
-            }
-            String novo = flip.get(palavra.toLowerCase());
-            String resto = res.group().substring(palavra.length());
-            return Matcher.quoteReplacement(preservarCaixa(palavra, novo) + resto);
-        });
+    private String flipDeterminantePlural(String texto, Pattern pat, Map<String, String> flip,
+                                          java.util.Set<String> mesmoGenero) {
+        // O determinante e o grupo 1 no INICIO do casamento; o substantivo (nao-capturante) e o
+        // resto e fica intacto. A troca da cadeia (quantificador + determinante) e a mesma do
+        // singular, entao o motor e compartilhado.
+        return aplicarFlipComCadeia(texto, pat, flip, mesmoGenero);
     }
 
     /** Concatena singular e plural mantendo a ordem — os mapas de troca são índice a índice. */
@@ -466,6 +607,47 @@ public class CorretorConcordanciaGeneroService {
             m.put(de[i].toLowerCase(), para[i]);
         }
         return Map.copyOf(m);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: costura de testabilidade — devolve os determinantes que os PADRÕES
+     * podem casar mas o MAPA DE FLIP não sabe virar. A lista tem de ser vazia.
+     *
+     * <h2>O prejuízo que a originou (auditoria da 3.3, 17/09/2026)</h2>
+     * {@code ART_FEM_NO_PADRAO} carregava os quantificadores singulares {@code muita/toda/pouca/
+     * certa/tanta} como GATILHO, mas o mapa {@link #FLIP_ART_F2M} (feito de {@code ART_FEM} +
+     * {@code ART_FEM_PLUR}) não tem a forma masculina deles — e o lado masculino os exclui de
+     * propósito, por serem advérbio/ambíguos no singular. Com o gatilho sem flip, {@code flip.get}
+     * devolvia {@code null}: a fala minúscula recebia o literal {@code "null"} gravado por cima, e
+     * a capitalizada estourava {@link NullPointerException} em {@link #preservarCaixa}. Os dois
+     * DESTROEM a fala que a tela deveria consertar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: todo gatilho de determinante tem forma no flip correspondente.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura das listas estáticas; nunca lança.
+     */
+    static java.util.List<String> gatilhosSemFlip() {
+        java.util.List<String> orfaos = new java.util.ArrayList<>();
+        for (String d : ART_FEM_NO_PADRAO) {
+            if (!FLIP_ART_F2M.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_MASC) {
+            if (!FLIP_ART_M2F.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_MASC_PLUR) {
+            if (!FLIP_ART_M2F.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        for (String d : ART_FEM_PLUR) {
+            if (!FLIP_ART_F2M.containsKey(d.toLowerCase())) {
+                orfaos.add(d);
+            }
+        }
+        return orfaos;
     }
 
     private static String preservarCaixa(String original, String substituto) {

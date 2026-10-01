@@ -229,4 +229,22 @@ class ConsoleDaRevisaoConcordanciaTest {
         assertEquals(antes, Files.readString(arquivo, StandardCharsets.UTF_8),
             "o original foi mexido mesmo sem backup");
     }
+
+    /**
+     * Pedido do Paulo (18/09/2026): a tela tem de mostrar O QUE mudou, fala a fala (antes → depois),
+     * como a 3.1 e a 3.2 — não só a contagem por arquivo. E SÓ as falas que mudaram: a inalterada
+     * não vira ruído (a 3.2 mediu 94,8% do console em "auditando"/"limpo").
+     */
+    @Test
+    @DisplayName("mostra na tela a fala que mudou (antes -> depois), e so as que mudaram")
+    void mostraNaTelaAsFalasQueMudaram(@TempDir Path dir) throws IOException {
+        escreverAss(dir.resolve("ep05_PT-BR.ass"), "Vi o menina no parque.", "O menino chegou cedo.");
+
+        String console = consoleDe(dir, false);
+
+        assertTrue(console.contains("Vi o menina no parque.  ->  Vi a menina no parque."),
+            "a tela tinha de mostrar a fala que mudou, antes -> depois. Console:\n" + console);
+        assertFalse(console.contains("• O menino chegou cedo"),
+            "fala inalterada nao pode virar ruido na tela — so as que mudaram aparecem. Console:\n" + console);
+    }
 }

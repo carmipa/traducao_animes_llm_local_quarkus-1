@@ -34,10 +34,13 @@ class GoogleTranslateScraperTest {
         }
 
         @Override
-        protected GoogleTranslateScraper.RespostaHttp executarGet(String url) throws IOException {
+        protected GoogleTranslateScraper.RespostaHttp executarGet(String url) throws IOException, InterruptedException {
             Object r = porTentativa.apply(chamadas.incrementAndGet());
             if (r instanceof IOException io) {
                 throw io;
+            }
+            if (r instanceof InterruptedException ie) {
+                throw ie;
             }
             return (GoogleTranslateScraper.RespostaHttp) r;
         }
@@ -160,5 +163,27 @@ class GoogleTranslateScraperTest {
         ResultadoRaspagem r = s.traduzir("Hello");
         assertEquals(StatusRaspagem.SUCESSO, r.status());
         assertEquals(5000L, s.ultimaEsperaMs); // usou o Retry-After, não o backoff
+    }
+
+    /** Achado da auditoria da 2.1: a parada virava falha transitória e as tentativas seguiam. */
+    @Test
+    void interrupcaoNaoRepeteTentativaERestauraOSinal() {
+        ScraperFalso s = new ScraperFalso(n -> new InterruptedException("Sair do operador"));
+        try {
+            assertEquals(StatusRaspagem.FALHA_TRANSITORIA, s.traduzir("Hello").status());
+            assertEquals(1, s.chamadas.get(), "parada nao pode gerar nova tentativa");
+            assertEquals(true, Thread.currentThread().isInterrupted(), "o sinal de parada nao pode ser consumido");
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    /** CASO-CONTROLE (A1): falha de rede comum continua sendo repetida. */
+    @Test
+    void falhaDeRedeComumContinuaRepetindo() {
+        ScraperFalso s = new ScraperFalso(n -> new IOException("timeout"));
+        s.traduzir("Hello");
+        assertEquals(true, s.chamadas.get() > 1, "IOException tem de ser repetida; chamadas=" + s.chamadas.get());
+        assertEquals(false, Thread.interrupted());
     }
 }

@@ -159,7 +159,7 @@ Audita pares original ↔ traduzido com as 5 regras de anomalia (karaokê danifi
 
 ### `POST /api/novo-karaoke/simular`
 ### `POST /api/novo-karaoke/aplicar`
-Converte karaokê KFX (milhares de eventos por sílaba/frame) em legendas simples — uma linha limpa por frase, no tempo original. Simulação não grava nada. Ver [Karaokê Simples](etapa-4.3-karaoke-simples.md).
+Converte karaokê KFX (milhares de eventos por sílaba/frame) em legendas simples — uma linha limpa por frase, no tempo original. Simulação não grava nada. É o **Passo 2 (Achatar)** da tela única de Karaokê. Ver [Karaokê](etapa-4.1-traducao-karaoke.md).
 
 ```json
 { "caminhoOrigem": "C:/animes/86/legendas-ptbr", "caminhoDestino": "C:/animes/86/legendas-karaoke-simples" }

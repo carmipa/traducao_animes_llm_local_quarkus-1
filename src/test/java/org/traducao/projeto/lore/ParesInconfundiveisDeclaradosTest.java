@@ -92,7 +92,12 @@ class ParesInconfundiveisDeclaradosTest {
             Set.of("Four", "Fa"),
             Set.of("Four", "Qum"),
             Set.of("Four", "Ple"),
-            Set.of("Four", "Chara")),
+            Set.of("Four", "Chara"),
+            // MEDIDO EM 2026-09-14, retraduzindo o episodio 1 do ZZ do ZERO: o cartao de nome
+            // "QUATTRO BAJEENA" saiu "Four Murasame!" — e ja tinha saido "Four Murasame." na
+            // versao anterior. O par existia no Zeta e NAO aqui, entao a guarda ficava cega
+            // justo na obra onde o defeito foi medido, duas vezes.
+            Set.of("Four", "Quattro")),
         "guilty_crown", Set.of(
             Set.of("Inori", "Crow")),
         // Três pares para UM personagem, e cada um guarda uma direção diferente do mesmo

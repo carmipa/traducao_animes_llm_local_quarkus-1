@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **492** |
-| classes em `src/test` | **430** |
+| classes em `src/main` | **494** |
+| classes em `src/test` | **449** |
 
 ---
 
@@ -36,9 +36,9 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 ```mermaid
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
-    G1["<b>Tradução</b><br/>traducao (78)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
+    G1["<b>Tradução</b><br/>traducao (79)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
-    G3["<b>Karaokê</b><br/>traducaoKaraoke (22)<br/>novoKaraoke (11)"]:::fatia
+    G3["<b>Karaokê</b><br/>traducaoKaraoke (23)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
@@ -215,7 +215,7 @@ auditorConteudoLegendas/
 
 ### Tradução
 
-#### `traducao` — 78 classes
+#### `traducao` — 79 classes
 
 ```text
 traducao/
@@ -224,6 +224,7 @@ traducao/
 │   ├── ClassificadorPendenciaTelemetria.java
 │   ├── ContextoCongeladoDaExecucao.java
 │   ├── DescarteItalicoUltimoRecurso.java
+│   ├── DesfechoDasFalas.java
 │   ├── DetectorCorrenteFrasePartida.java
 │   ├── DetectorIdiomaFonteService.java
 │   ├── EnforcadorGlossarioFala.java
@@ -521,7 +522,7 @@ revisaoConcordancia/
 
 ### Karaokê
 
-#### `traducaoKaraoke` — 22 classes
+#### `traducaoKaraoke` — 23 classes
 
 ```text
 traducaoKaraoke/
@@ -543,7 +544,8 @@ traducaoKaraoke/
 │   ├── SinaisDeKaraoke.java
 │   ├── StatusExecucaoKaraoke.java
 │   ├── TelemetriaKaraoke.java
-│   └── TraducaoKaraokeException.java
+│   ├── TraducaoKaraokeException.java
+│   └── VersosDaLetra.java
 ├── infrastructure/
 │   ├── ImportadorManifestoKaraoke.java
 │   ├── TelemetriaKaraokeDataset.java
@@ -898,7 +900,7 @@ core/
 
 ---
 
-## Testes — 430 classes
+## Testes — 449 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -945,7 +947,7 @@ apiDadosAnime/
         └── ApiDadosAnimeHttpPropertiesIT.java
 ```
 
-#### `arquitetura` — 29 classes
+#### `arquitetura` — 30 classes
 
 ```text
 arquitetura/
@@ -963,6 +965,7 @@ arquitetura/
 ├── CatracaFerramentaDeAcervoVetaMusicaTest.java
 ├── CatracaFerramentaDeMedicaoTest.java
 ├── CatracaFichaDaOperacaoTest.java
+├── CatracaFonteSemByteNuloTest.java
 ├── CatracaFronteiraQuebraAssTest.java
 ├── CatracaHarnessDeMedicaoTest.java
 ├── CatracaMenuPadronizadoTest.java
@@ -1037,7 +1040,7 @@ config/
 └── ModoExecucaoDispatcherTest.java
 ```
 
-#### `core` — 29 classes
+#### `core` — 31 classes
 
 ```text
 core/
@@ -1048,6 +1051,7 @@ core/
 ├── io/
 │   ├── DiretorioBaseKronosTest.java
 │   ├── FaxinaLogExecucaoTest.java
+│   ├── GuardaCaminhoEntradaTest.java
 │   ├── GuardaRaizNavegacaoTest.java
 │   └── GuardaSaidaComoEntradaTest.java
 ├── presentation/
@@ -1067,6 +1071,7 @@ core/
 │   │   ├── MedicaoReparoDeDiacriticoIT.java
 │   │   ├── MedicaoSugestaoParaPalavraQuebradaIT.java
 │   │   ├── PalavraDeTresLetrasTest.java
+│   │   ├── PalavrasDeSeparaQuebraAssTest.java
 │   │   ├── PortaoDeIdiomaEcandidataUnicaTest.java
 │   │   ├── ReparoDeTerminacaoAoTest.java
 │   │   └── RomajiRotulaMasNaoIsentaTest.java
@@ -1141,7 +1146,7 @@ llm/
     └── FronteiraLlmArchTest.java
 ```
 
-#### `lore` — 38 classes
+#### `lore` — 41 classes
 
 ```text
 lore/
@@ -1151,8 +1156,11 @@ lore/
 ├── arquitetura/
 │   └── FronteiraContextoArchTest.java
 ├── domain/
+│   ├── EfeitoDasInstrucoesDeRumoNoModeloIT.java
 │   ├── HierarquiaExcecaoContextoTest.java
 │   ├── IdentidadeObraTest.java
+│   ├── InstrucaoProaNoPromptTest.java
+│   ├── InstrucaoRumoDeRelogioNoPromptTest.java
 │   └── SnapshotContextoTest.java
 ├── eightsix/
 │   └── SpearheadMinusculoContinuaTraduzidoTest.java
@@ -1210,7 +1218,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 38 classes
+#### `medicao` — 39 classes
 
 ```text
 medicao/
@@ -1246,6 +1254,7 @@ medicao/
 ├── MedicaoResiduoNoAcervoIT.java
 ├── MedicaoTermoPerdidoIT.java
 ├── MineracaoGlossarioIT.java
+├── MisturaKaraokeDiagnosticoIT.java
 ├── NomesConfirmadosPeloCorpus.java
 ├── ProvenienciaAindaValeIT.java
 ├── ReparoDeFalaRealMutadaIT.java
@@ -1254,17 +1263,20 @@ medicao/
 └── SpikeLanguageToolContraGoldSetIT.java
 ```
 
-#### `novoKaraoke` — 2 classes
+#### `novoKaraoke` — 5 classes
 
 ```text
 novoKaraoke/
 ├── application/
-│   └── ConversorKaraokeUseCaseTest.java
+│   ├── AchatadorAcervoSemLinhaVaziaIT.java
+│   ├── ConversorKaraokeUseCaseTest.java
+│   └── MedicaoParBilingueAchatadorIT.java
 └── presentation/
+    ├── AchatarEntraNaFilaTest.java
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 35 classes
+#### `qualidadeTraducao` — 37 classes
 
 ```text
 qualidadeTraducao/
@@ -1273,6 +1285,7 @@ qualidadeTraducao/
 │   │   ├── DetectorNomeProprioTraduzidoTest.java
 │   │   ├── ExtratorCandidatosNomeProprioTest.java
 │   │   └── MedicaoNomeProprioAcervoIT.java
+│   ├── AcentoDoFuturoComOriginalTest.java
 │   ├── ConectivoDeDiscursoNaoEhLocutorInventadoTest.java
 │   ├── CorretorHomografoComOriginalTest.java
 │   ├── DetectorTraducaoIdenticaServiceTest.java
@@ -1280,6 +1293,7 @@ qualidadeTraducao/
 │   ├── EnforcadorTermosLoreTest.java
 │   ├── ImaDoNomeFourNaoComeOsVizinhosTest.java
 │   ├── IsoladorQuebraDialogoTest.java
+│   ├── LeituraDeInstrumentoNaoEhLocutorInventadoTest.java
 │   ├── LoreAtivaFake.java
 │   ├── MascaradorLinhaSemLetraTest.java
 │   ├── MascaradorTagsTest.java
@@ -1321,7 +1335,7 @@ raspagemCorrecao/
     └── GoogleTranslateScraperTest.java
 ```
 
-#### `raspagemRevisao` — 41 classes
+#### `raspagemRevisao` — 42 classes
 
 ```text
 raspagemRevisao/
@@ -1360,6 +1374,7 @@ raspagemRevisao/
 │   ├── RevisarLegendasCacheIntegracaoTest.java
 │   ├── RevisarLegendasCacheSeguroTest.java
 │   ├── RevisarLegendasContextoTest.java
+│   ├── RevisarLegendasFragmentoCrossEventoTest.java
 │   ├── RevisarLegendasProtecaoMassaTest.java
 │   ├── RevisorPtOnlyServiceTest.java
 │   ├── RevisorPtOnlyUseCaseTest.java
@@ -1412,7 +1427,7 @@ revisaoConcordancia/
     └── TelemetriaDaCadeiaDeCorretoresTest.java
 ```
 
-#### `revisaoLore` — 26 classes
+#### `revisaoLore` — 29 classes
 
 ```text
 revisaoLore/
@@ -1421,6 +1436,7 @@ revisaoLore/
 │   ├── ContrasteDeNomesNaoEhFormaRuimTest.java
 │   ├── CorrecaoPreservaTudoMenosOTermoTest.java
 │   ├── CorretorLoreDeterministicoTest.java
+│   ├── DescritorLocalizadoCalaAcusacaoTest.java
 │   ├── DetectorTermosLoreServiceTest.java
 │   ├── EquivalenciaDaObraCalaAcusacaoTest.java
 │   ├── EscopoDaRevisaoLoreTest.java
@@ -1441,10 +1457,12 @@ revisaoLore/
     ├── adapters/
     │   ├── NormalizadorRespostaRevisaoLoreTest.java
     │   ├── RevisorLoreLlmAdapterCaracterizacaoTest.java
+    │   ├── RevisorLoreLlmAdapterInterrupcaoTest.java
     │   ├── RevisorLoreLlmCdiIT.java
     │   ├── RevisorLoreLlmDisponibilidadeTest.java
     │   └── ServidorLlmDeTeste.java
-    └── RevisaoLoreAuditoriaCacheTest.java
+    ├── RevisaoLoreAuditoriaCacheTest.java
+    └── RevisaoLoreLogPersistenciaTest.java
 ```
 
 #### `telemetria` — 14 classes
@@ -1467,7 +1485,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 62 classes
+#### `traducao` — 63 classes
 
 ```text
 traducao/
@@ -1541,7 +1559,8 @@ traducao/
     │   ├── CatracaSlotsReservadosLoreTest.java
     │   ├── ConsoleRedirectorNaoEmpilhaTest.java
     │   ├── ConsoleRedirectorTest.java
-    │   └── LogStreamServiceTest.java
+    │   ├── LogStreamServiceTest.java
+    │   └── ParadaDoOperadorNaoEhFalhaTest.java
     └── TradutorCLIAlucinacaoCaracterizacaoTest.java
 ```
 
@@ -1558,7 +1577,7 @@ traducaoCorrige/
     └── ResultadoManutencaoCacheTest.java
 ```
 
-#### `traducaoKaraoke` — 15 classes
+#### `traducaoKaraoke` — 17 classes
 
 ```text
 traducaoKaraoke/
@@ -1573,10 +1592,12 @@ traducaoKaraoke/
 │   ├── RegistroDaExecucaoDatasetTest.java
 │   ├── SilabaDeFraseIrmaTest.java
 │   ├── TemperaturaDeterministicaKaraokeTest.java
+│   ├── TradutorDeLetraPerdeVersoTest.java
 │   └── TraduzirKaraokeUseCaseTest.java
 ├── domain/
 │   ├── AcentosLetraKaraokeTest.java
-│   └── GradienteKaraokeTest.java
+│   ├── GradienteKaraokeTest.java
+│   └── VersosDaLetraTest.java
 └── infrastructure/
     ├── ImportadorManifestoKaraokeTest.java
     └── TelemetriaKaraokeDatasetTest.java

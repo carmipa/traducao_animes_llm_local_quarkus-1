@@ -77,7 +77,7 @@ Diferente dos jobs longos, a auditoria responde o relatório **na própria requi
 
 ## Pontos de atenção
 
-- A auditoria **nunca altera arquivos** — é 100% leitura; a correção é feita pelos módulos de [Correção](etapa-2.3-correcao-revisao.md), [Correção de Karaoke](etapa-4.2-cura-tags.md) e [Karaokê Simples](etapa-4.3-karaoke-simples.md).
+- A auditoria **nunca altera arquivos** — é 100% leitura; a correção é feita pelos módulos de [Correção](etapa-2.3-correcao-revisao.md), [Correção de Karaoke](etapa-4.2-cura-tags.md) e [Karaokê](etapa-4.1-traducao-karaoke.md).
 - A `RegraDanoKaraoke` nasceu do caso real do 86 (Eighty-Six): a faixa original havia sido destruída pela tradução automática de romaji — ver [Memória de Decisões da IA](ref-memoria-decisoes-ia.md).
 - Rode a auditoria **duas vezes** no ciclo: após a extração (linha de base do release) e após a tradução (diff de anomalias introduzidas).
 

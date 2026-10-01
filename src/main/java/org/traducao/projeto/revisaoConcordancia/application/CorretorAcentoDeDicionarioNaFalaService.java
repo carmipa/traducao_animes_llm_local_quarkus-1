@@ -195,46 +195,6 @@ public class CorretorAcentoDeDicionarioNaFalaService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: TODA palavra que começa com maiúscula é intocável para este corretor.
-     *
-     * <h2>Por que a régua ficou tão larga, e o que foi medido para chegar nela</h2>
-     * A regra anterior protegia só a capitalizada <b>no meio</b> da fala. Em 24/08/2026 a leitura
-     * dos 1.156 pares que o acervo produziria mostrou que isso não basta — nome de personagem abre
-     * frase o tempo todo:
-     *
-     * <pre>
-     *   Artemis -> Ártemis   ~19 falas   DanMachi     "Ártemis..." sozinha na linha
-     *   Astrea  -> Ástrea      8 falas   DanMachi     "Ástrea Record."
-     *   Ingues  -> Ingués      8 falas   Macross II   "Senhor Imperador Ingués"
-     *   Cardeas -> Cárdeas     6 falas   Unicorn      "Cárdeas Vist."
-     *   Cleo    -> Cléo        4 falas   Break Blade  "Cléo, minha filha..."
-     *   Orario  -> Orário      1 fala    DanMachi     e a CIDADE da obra
-     *   Loquis, Demeter, Virus                        deuses e termo de lore
-     * </pre>
-     *
-     * <p>Contra isso, o que a régua larga CUSTA no acervo inteiro: <b>três</b> falas de
-     * {@code Parabens→Parabéns}. Quarenta e oito nomes salvos por três acentos perdidos, e o
-     * acento perdido continua legível enquanto o nome trocado vira outro personagem.
-     *
-     * <h2>Duas hipóteses mais finas foram MEDIDAS e morreram antes de virar código</h2>
-     * <ul>
-     *   <li><i>"só corrige se a forma minúscula for portuguesa"</i> — o hunspell aceita
-     *       {@code cárdeas}, {@code ástrea} e {@code ingués} em minúscula. Barraria 2 nomes de 5.</li>
-     *   <li><i>"protege quem está no meio da frase"</i> — era a regra antiga, e o acervo mostrou
-     *       nome abrindo frase em cinco obras.</li>
-     * </ul>
-     *
-     * <p>Também some daqui um BUG: a versão anterior lia o token anterior com {@code (\S*)\s*}
-     * <b>dentro da mesma regex</b>, e o casamento anterior já tinha consumido esse token. Em
-     * {@code "Você viu a Lady Artemis"}, {@code Lady} casava primeiro, e {@code Artemis} vinha com
-     * prefixo VAZIO — lido como início de frase e deixado desprotegido, mesmo estando no meio.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: só olha o texto recebido; tags {@code {...}} e a quebra
-     * {@code \N} não entram.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve conjunto vazio; nunca lança.
-     */
-    /**
      * PROPÓSITO DE NEGÓCIO: diz se a palavra que começa em {@code posicao} <b>abre uma frase</b>.
      *
      * <h2>O bug que este método corrige</h2>
@@ -264,6 +224,41 @@ public class CorretorAcentoDeDicionarioNaFalaService {
             || anterior == '"' || anterior == '\u2014' || anterior == '-';
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: TODA palavra que começa com maiúscula é intocável para este corretor.
+     *
+     * <h2>Por que a régua ficou tão larga, e o que foi medido para chegar nela</h2>
+     * A regra anterior protegia só a capitalizada <b>no meio</b> da fala. Em 24/08/2026 a leitura
+     * dos 1.156 pares que o acervo produziria mostrou que isso não basta — nome de personagem abre
+     * frase o tempo todo:
+     *
+     * <pre>
+     *   Artemis -> Ártemis   ~19 falas   DanMachi     "Ártemis..." sozinha na linha
+     *   Astrea  -> Ástrea      8 falas   DanMachi     "Ástrea Record."
+     *   Ingues  -> Ingués      8 falas   Macross II   "Senhor Imperador Ingués"
+     *   Cardeas -> Cárdeas     6 falas   Unicorn      "Cárdeas Vist."
+     *   Cleo    -> Cléo        4 falas   Break Blade  "Cléo, minha filha..."
+     *   Orario  -> Orário      1 fala    DanMachi     e a CIDADE da obra
+     *   Loquis, Demeter, Virus                        deuses e termo de lore
+     * </pre>
+     *
+     * <p>Contra isso, o que a régua larga CUSTA no acervo inteiro: <b>três</b> falas de
+     * {@code Parabens→Parabéns}. Quarenta e oito nomes salvos por três acentos perdidos, e o
+     * acento perdido continua legível enquanto o nome trocado vira outro personagem.
+     *
+     * <h2>Duas hipóteses mais finas foram MEDIDAS e morreram antes de virar código</h2>
+     * <ul>
+     *   <li><i>"só corrige se a forma minúscula for portuguesa"</i> — o hunspell aceita
+     *       {@code cárdeas}, {@code ástrea} e {@code ingués} em minúscula. Barraria 2 nomes de 5.</li>
+     *   <li><i>"protege quem está no meio da frase"</i> — era a regra antiga, e o acervo mostrou
+     *       nome abrindo frase em cinco obras.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só olha o texto recebido; tags {@code {...}} e a quebra
+     * {@code \N} não entram.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve conjunto vazio; nunca lança.
+     */
     static Set<String> palavrasComMaiuscula(String texto) {
         Set<String> fora = new LinkedHashSet<>();
         if (texto == null) {

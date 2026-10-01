@@ -57,6 +57,21 @@ public class ProcessarEpisodioUseCase {
         ThreadLocal.withInitial(ArrayList::new);
 
     /**
+     * Texto MASCARADO enviado → causa REAL, para cada fala em que este caso de uso desistiu e
+     * devolveu o original. Mesmo escopo e mesmo ciclo de vida de {@link #SEGUNDA_OPINIAO_DO_LOTE}.
+     *
+     * <p>O PORQUÊ: devolver o original é decisão DO PIPELINE, não resposta do modelo. Sem o
+     * registro, o portão final só enxergava "saída idêntica à entrada" e relatava "o modelo
+     * devolveu o texto original sem tradução", com a pendência contada como ECO. Medido em
+     * 25/09/2026: "3, 2, 1, go!" foi descartada porque o aya respondeu QUATRO linhas para uma, e
+     * nos logs do acervo havia dezenas de abandonos por contagem de linhas, resíduo, entidade
+     * trocada e desproporção — todos publicados como eco. É a A7: a causa e a autoria da
+     * alteração não podem ser atribuídas à origem.
+     */
+    private static final ThreadLocal<java.util.Map<String, String>> CAUSAS_DO_LOTE =
+        ThreadLocal.withInitial(java.util.LinkedHashMap::new);
+
+    /**
      * Quantas falas seguidas podem terminar RECUSADAS pelo servidor antes de o episódio ser
      * abortado. Uma fala patológica isolada gasta 1; o servidor recusando tudo (modelo não
      * carregado, requisição inválida por configuração) gasta este número e para.
@@ -159,18 +174,23 @@ public class ProcessarEpisodioUseCase {
             if (Thread.currentThread().isInterrupted()) {
                 uiLogger.log("[ STOP ] Tradução interrompida pelo usuário — salvando progresso parcial.");
                 throw new TraducaoParcialException(
-                    "Tradução interrompida pelo usuário.", resultado, null);
+                    "Tradução interrompida pelo usuário.", resultado, null)
+                    .marcarInterrompidaPeloUsuario();
             }
             try {
                 TraducaoLote tl = traduzirEValidar(lote, promptSistemaCongelado, disjuntor);
                 resultado.add(tl);
             } catch (Exception e) {
                 // Aborta e guarda as traduções parciais que passaram!
-                throw new TraducaoParcialException(
-                    e.getMessage(), 
-                    resultado, 
+                TraducaoParcialException parcial = new TraducaoParcialException(
+                    e.getMessage(),
+                    resultado,
                     e
                 );
+                // A interrupção pode chegar DURANTE a requisição ao LLM: o adaptador desiste e
+                // restaura o flag. Lido AQUI, antes de qualquer camada consumi-lo.
+                throw Thread.currentThread().isInterrupted()
+                    ? parcial.marcarInterrompidaPeloUsuario() : parcial;
             }
         }
 
@@ -202,6 +222,7 @@ public class ProcessarEpisodioUseCase {
         // TraducaoLote é montado. ThreadLocal porque os lotes rodam em paralelo — uma coleção
         // de instância misturaria a segunda opinião de um episódio com a de outro.
         SEGUNDA_OPINIAO_DO_LOTE.set(new ArrayList<>());
+        CAUSAS_DO_LOTE.set(new java.util.LinkedHashMap<>());
         try {
             List<String> traduzidas = traduzirComDivisao(lote, promptSistemaCongelado, disjuntor);
 
@@ -210,7 +231,7 @@ public class ProcessarEpisodioUseCase {
             uiLogger.passoConcluido(1);
 
             return new TraducaoLote(lote.idLote(), traduzidas, true, null,
-                SEGUNDA_OPINIAO_DO_LOTE.get());
+                SEGUNDA_OPINIAO_DO_LOTE.get(), false, CAUSAS_DO_LOTE.get());
         } catch (TradutorException | AlucinacaoDetectadaException e) {
             log.error("Falha crítica no lote {}: {}", lote.idLote(), e.getMessage());
             uiLogger.log("[ FAIL ] ERRO CRÍTICO no Lote " + lote.idLote() + ": " + e.getMessage());
@@ -221,6 +242,7 @@ public class ProcessarEpisodioUseCase {
             // deixado para trás vaza para a próxima execução — que herdaria a segunda
             // opinião de um episódio que nem está mais rodando.
             SEGUNDA_OPINIAO_DO_LOTE.remove();
+            CAUSAS_DO_LOTE.remove();
         }
     }
 
@@ -359,6 +381,10 @@ public class ProcessarEpisodioUseCase {
         if (ultimaFalha instanceof MarcadorCorrompidoException marcador && marcador.tentativa() != null) {
             return List.of(marcador.tentativa());
         }
+        // A causa vai JUNTO com o original devolvido: sem ela, o portão final só vê "saída igual
+        // à entrada" e relata um eco que o modelo não produziu. Ver CAUSAS_DO_LOTE.
+        CAUSAS_DO_LOTE.get().put(original, ultimaFalha != null && ultimaFalha.getMessage() != null
+            ? ultimaFalha.getMessage() : "motivo desconhecido");
         return List.of(original);
     }
 

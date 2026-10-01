@@ -147,6 +147,14 @@ public class TraduzirKaraokeUseCase {
     @Inject
     TraducaoKaraokePersistencia persistencia;
 
+    /**
+     * Os três dicionários (português, inglês, romaji) decidem se uma linha da camada ORIGINAL é
+     * toda inglês e deve virar português (regra de Paulo, 24/09/2026). Nulo em teste de unidade: o
+     * plano sai como antes.
+     */
+    @Inject
+    org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretorOrtografico;
+
     @ConfigProperty(name = "tradutor.idioma-original")
     Optional<String> idiomaOriginal;
 
@@ -387,7 +395,7 @@ public class TraduzirKaraokeUseCase {
         // 3,95 milhões de classificações onde 1,98 milhão basta. E o ganho maior nem é esse:
         // mexer no critério de música deixou de exigir tocar num método que também grava cache e
         // escreve arquivo. Ver PlanoDeClassificacao, inclusive quanto à ORDEM dos dois passes.
-        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(documento, classificador);
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(documento, classificador, corretorOrtografico);
 
         List<EventoLegenda> eventos = documento.eventos();
         for (int posicao = 0; posicao < eventos.size(); posicao++) {

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
+import org.traducao.projeto.legenda.domain.PadraoEstiloMusical;
 import org.traducao.projeto.novoKaraoke.domain.MedicaoEstiloKaraoke;
 import org.traducao.projeto.novoKaraoke.domain.ports.TelemetriaKaraokePort;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
@@ -72,7 +73,10 @@ public class TelemetriaKaraokeAdapter implements TelemetriaKaraokePort {
                     + " eventos entraram e saíram — a simplificação não fundiu NADA neste arquivo.");
             }
             for (MedicaoEstiloKaraoke m : porEstilo) {
-                if (m.suspeitoDeReguaEstreita()) {
+                // Só estilo cujo NOME sugere música: sem este filtro o Default do diálogo e as
+                // Signs disparavam em todo arquivo (medido 24/09/2026 na tela do Karaokê) — o
+                // alarme que sempre toca é o que ninguém lê quando importa.
+                if (m.suspeitoDeReguaEstreita() && PadraoEstiloMusical.nomeSugereMusica(m.estilo())) {
                     estilosSuspeitos++;
                     alerta("[ SUSPEITO ] " + arquivo + ": estilo \"" + m.estilo() + "\" tem "
                         + m.eventos() + " eventos e NÃO foi reconhecido como música — régua de nome"

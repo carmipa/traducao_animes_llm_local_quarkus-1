@@ -71,11 +71,41 @@ sequenceDiagram
 ## Cache de tradução
 
 - **Formato:** JSON, lista de `EntradaCache(indice, estilo, original, traduzido, idiomaOriginal, idiomaTraduzido)`.
-- **Localização:** `cache/<espelha a pasta de entrada>/<nomeLegenda>.cache.json` — ex. `cache/86/86 Part1/[DB]86_-_01_..._ENG.cache.json`.
+- **Localização:** `cache/<pasta da obra>/<nomeLegenda>.cache.json` — a pasta da obra é a **avó** do arquivo (`<Obra>/legendas_extraidas_ass/ep.ass` → `cache/<Obra>/ep.cache.json`). Consequência medida em 25/09/2026: duas pastas com o mesmo nome de obra e o mesmo nome de arquivo **compartilham o cache** — uma cópia de teste precisa de nome de obra próprio para não ler nem gravar o cache real.
 - **Chave de lookup:** o **texto original**, não o índice — se a mesma frase aparecer em falas diferentes, a mesma tradução é reaproveitada (cada evento mantém seu próprio timestamp, então isso nunca afeta sincronismo).
 - **Editável manualmente:** o operador pode abrir o `.cache.json` e corrigir uma tradução na mão; na próxima execução, o valor corrigido é respeitado (não é sobrescrito, a menos que o texto original mude).
-- **Entradas de falha:** quando o LLM devolve o mesmo texto (não traduziu), a entrada é salva com `original == traduzido` — esse é o "fallback de falha" que os 3 fluxos de [Correção & Revisão](etapa-2.3-correcao-revisao.md) tratam de formas diferentes.
+- **Entradas de falha:** fala que termina pendente é salva com `traduzido` **vazio** (a legenda publica o original). Na execução seguinte ela volta ao LLM. Caches antigos podem ainda ter `original == traduzido`, que é o "fallback de falha" que os fluxos de [Correção & Revisão](etapa-2.3-correcao-revisao.md) tratam.
+- **Segunda opinião não entra no cache:** fala traduzida pelo `modelo-recuperacao` é publicada, mas não gravada — o carimbo de proveniência declara um modelo só.
 - **Proveniência (`ProvenienciaCache`):** cada arquivo de cache carrega um hash de proveniência (`contextoHash` = SHA-256 do prompt de sistema/lore, mais modelo e idiomas). Se a **lore ou o modelo mudam**, o cache anterior é **arquivado e não reusado** — a fala é retraduzida sob o contexto atual, em vez de servir uma tradução feita sob outra lore.
+
+---
+
+## Reexecução, parada e causa das pendências (auditoria de 25/09/2026)
+
+- **Reexecutar sobre uma pasta já traduzida faz mesclagem de três vias**, linha a linha, contra o
+  registro do que o cache gerou na publicação anterior (`cache/<obra>/.publicado/`):
+  linha que o arquivo não mudou recebe a do cache (é assim que a correção da
+  [2.3](etapa-2.3-correcao-revisao.md) chega); linha **corrigida direto no `.ass`** (Revisão de
+  Lore, Concordância, edição manual) e não mudada no cache é **mantida**; mudou dos dois lados é
+  conflito — mantém a do arquivo e avisa com exemplo (`[ MESCLA ]`). Conteúdo final idêntico ao
+  publicado não é regravado; qualquer substituição tem backup em `backups/traducao/`.
+- **Sem o registro** (legendas publicadas antes de 25/09/2026, ou linhas incluídas/removidas no
+  arquivo), não dá para separar os dois casos: a reexecução publica a versão do cache, com backup
+  obrigatório e `[ ATENÇÃO ]` explicando os dois cenários.
+- **Parar:** "Sair" e queda do LM Studio no meio salvam no cache o que já foi traduzido; a próxima
+  execução recomeça de onde parou. Só processo morto à força perde o episódio em curso. A parada
+  pedida sai como `[PARADO]` / lote `CANCELADO`, não como falha.
+- **Causa da pendência:** quando o pipeline desiste de uma fala e mantém o original, o relatório diz
+  a causa real (`ESTRUTURA_DIVERGENTE` para contagem de linhas errada, `CONTEUDO_NAO_ANCORADO` para
+  entidade trocada, locutor inventado ou tradução desproporcional), e não "o modelo devolveu o
+  original". `ECO` fica só para eco de verdade.
+- **Quadros de transição:** as cópias de 0,08 s com `\clip` de uma fala (efeito de apagar) são
+  excluídas do LLM como letreiro animado; elas recebem a tradução da fala irmã **do mesmo estilo**,
+  com as próprias tags — a legenda não pisca mais português → inglês. Verso de música com o mesmo
+  texto não herda (outro estilo).
+- **Conferência pós-gravação (A6):** relê o arquivo gravado. O itálico removido na saída não é
+  divergência; fala mantida porque a fonte já estava em português aparece como NÃO VERIFICADA, com
+  exemplos, porque não passou pelo LLM nem pela validação.
 
 ---
 

@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -48,13 +47,33 @@ import java.util.Set;
  */
 public final class PlanoDeClassificacao {
 
+    /**
+     * Folga em centésimos nos DOIS lados do casamento de instante entre o pedaço e a frase: o
+     * fill de karaokê adianta e atrasa a linha por frações (medido no OPL2 do Unicorn — 0,15s no
+     * início, 0,10s no fim). Um só valor para os dois lados, porque a assimetria era o defeito.
+     */
+    private static final long FOLGA_INSTANTE_CS = 100;
+
+    /**
+     * Folga, em centésimos, para duas camadas serem do MESMO momento da música — em cada ponta da
+     * janela (início e fim), separadamente.
+     *
+     * <h2>O prejuízo que originou, medido em 24/09/2026</h2>
+     * O pareamento era por instante EXATO. Na abertura do 86 E01 a camada romaji do verso termina
+     * em 22:54.48 e a inglesa em 22:54.60 — 12 centésimos —, então a inglesa "não tinha original
+     * preservada", empilhava {@code inglês\Nportuguês} e a tela mostrava romaji + inglês + português.
+     * Um verso dura segundos; dois versos DIFERENTES nunca têm as duas pontas a menos de meio segundo.
+     */
+    static final long FOLGA_PAR_DE_CAMADAS_CS = 50;
+
     private final List<ClasseLinhaKaraoke> classePorPosicao;
-    private final Set<String> instantesComOriginalPreservada;
+    /** Janelas [início, fim] em centésimos das camadas com a letra ORIGINAL preservada. */
+    private final List<long[]> janelasComOriginalPreservada;
 
     private PlanoDeClassificacao(List<ClasseLinhaKaraoke> classePorPosicao,
-                                 Set<String> instantesComOriginalPreservada) {
+                                 List<long[]> janelasComOriginalPreservada) {
         this.classePorPosicao = List.copyOf(classePorPosicao);
-        this.instantesComOriginalPreservada = Set.copyOf(instantesComOriginalPreservada);
+        this.janelasComOriginalPreservada = List.copyOf(janelasComOriginalPreservada);
     }
 
     /**
@@ -69,24 +88,86 @@ public final class PlanoDeClassificacao {
      */
     public static PlanoDeClassificacao montar(DocumentoLegenda documento,
                                               ClassificadorLetraKaraokeService classificador) {
+        return montar(documento, classificador, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o mesmo plano, agora aplicando a regra de Paulo de 24/09/2026 para a
+     * camada ORIGINAL: <i>"a linha de cima mistura inglês e japonês e a de baixo é a que o texto
+     * todo é inglês da música e vira português"</i>.
+     *
+     * <h2>O que muda</h2>
+     * Uma linha que o classificador chamou de ORIGINAL (pelo NOME do estilo — {@code Song JP},
+     * {@code JP Song}, {@code ED-ROM} — ou pelo desempate silábico) mas cujo texto é todo inglês
+     * passa a ser traduzida. Sem romaji irmão no instante ela é a letra cantada e empilha
+     * {@code inglês\Nportuguês} (Zeta "I wanna have a pure time!", 0083 "Men of destiny!"); com
+     * romaji irmão ela é a tradução do fansub posta no estilo JP e é trocada no lugar (08th "I was
+     * watching you as you were watching the sun rise."). Linha que MISTURA as duas línguas
+     * ("Kagayaku my history", "Stay together sono toki") continua intacta.
+     *
+     * <h2>"Todo inglês", medido com os três dicionários</h2>
+     * Toda palavra reconhecida pelo português ou pelo inglês E (ao menos DUAS que só o inglês
+     * reconhece, OU todas elas só-inglesas — o verso de uma palavra "Dreamer...", "One,": 5 de 21
+     * linhas de uma palavra no acervo, todas inglês). O rótulo ROMAJI não serve de prova: o {@code ja_ROMAJI} deixa {@code wa},
+     * {@code ga}, {@code shitemo}, {@code kawaranai} como DESCONHECIDA — então palavra que nenhum
+     * dos dois reconhece é tratada como possível japonês e barra a conversão. O piso de duas é o que
+     * barra "ai suru anata ni sou yo", em que o pt_BR aceita todas menos "yo". Medido no acervo em
+     * 24/09/2026: 523 linhas originais distintas, 105 convertidas, todas inglês na leitura, zero
+     * romaji. LIMITAÇÃO DECLARADA (A8): o piso foi escolhido olhando esse mesmo acervo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem corretor, ou com o dicionário inglês fora do ar, NADA muda —
+     * o plano sai idêntico ao da versão sem este parâmetro (falha fechada). A linha convertida sai
+     * das janelas de "original preservada", senão acharia a SI MESMA como irmã e trocaria o inglês
+     * cantado em vez de empilhar.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro do corretor devolve o plano sem a conversão.
+     */
+    public static PlanoDeClassificacao montar(DocumentoLegenda documento,
+                                              ClassificadorLetraKaraokeService classificador,
+                                              org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretor) {
         if (documento == null || documento.eventos() == null) {
-            return new PlanoDeClassificacao(List.of(), Set.of());
+            return new PlanoDeClassificacao(List.of(), List.of());
         }
         List<EventoLegenda> eventos = documento.eventos();
 
-        Set<String> comRomaji = new HashSet<>();
-        for (EventoLegenda ev : eventos) {
-            if (!classificavel(ev)) {
+        // As sílabas de fill do KFX são calculadas ANTES do conjunto comRomaji, porque uma
+        // sílaba solta engana a deteccao de original neste primeiro passe (que ainda nao tem o
+        // sinal silabaDeFraseIrma). Medido em 21/09/2026 no OPL2 do Unicorn: o fragmento "I" de
+        // "I know that all the lies..." e de "I wonder how long..." (a letra "i", que casa o
+        // padrao de silaba japonesa) saia ORIGINAL_JAPONES aqui e marcava o instante da frase
+        // como "tem original preservada" — a frase INGLESA no mesmo instante entao NAO empilhava
+        // o ingles original, e a abertura saia so em PT (2 de 16 frases). A original de verdade
+        // (romaji do ED) e FRASE, nunca fragmento, entao continua contando: o scar das 22/23
+        // linhas do ED single-layer segue protegido.
+        Set<Integer> silabas = posicoesDeSilaba(eventos);
+
+        // Duas perguntas diferentes, com réguas diferentes de propósito:
+        //  - "há romaji no MESMO instante?" é EVIDÊNCIA DE MÚSICA para linhas cujo estilo não diz
+        //    nada. Continua exigindo o instante EXATO. Com folga, fala de DIÁLOGO que coincide com
+        //    um verso passava a ser tratada como letra e ia ao LLM — medido em 24/09/2026 no acervo:
+        //    "Como posso pilotar o Zeta Gundam..." (ZZ) e "Aina Sakhalin... Ela tem um namorado?"
+        //    (08th), as duas em português.
+        //  - "já existe a letra original preservada?" decide só EMPILHAR ou não uma linha que JÁ é
+        //    música, e aqui a folga é a correção (F6, ver FOLGA_PAR_DE_CAMADAS_CS).
+        Set<String> instantesExatosComRomaji = new HashSet<>();
+        List<long[]> janelasComRomaji = new ArrayList<>();
+        for (int i = 0; i < eventos.size(); i++) {
+            EventoLegenda ev = eventos.get(i);
+            if (!classificavel(ev) || silabas.contains(i)) {
                 continue;
             }
             ClasseLinhaKaraoke previa = classificador.classificar(
                 ev.estilo(), ev.texto(), new SinaisDeKaraoke(campoEfeitoDe(ev), false));
-            if (previa == ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
-                comRomaji.add(instanteDe(ev));
+            if (previa != ClasseLinhaKaraoke.ORIGINAL_JAPONES) {
+                continue;
+            }
+            instantesExatosComRomaji.add(instanteExato(ev));
+            long ini = inicioCs(ev);
+            long fim = fimCs(ev);
+            if (ini >= 0 && fim >= 0) {
+                janelasComRomaji.add(new long[] {ini, fim, i});
             }
         }
-
-        Set<Integer> silabas = posicoesDeSilaba(eventos);
 
         List<ClasseLinhaKaraoke> classes = new ArrayList<>(eventos.size());
         for (int i = 0; i < eventos.size(); i++) {
@@ -96,10 +177,123 @@ public final class PlanoDeClassificacao {
                 continue;
             }
             classes.add(classificador.classificar(ev.estilo(), ev.texto(),
-                new SinaisDeKaraoke(campoEfeitoDe(ev), comRomaji.contains(instanteDe(ev)),
+                new SinaisDeKaraoke(campoEfeitoDe(ev), instantesExatosComRomaji.contains(instanteExato(ev)),
                     silabas.contains(i))));
         }
-        return new PlanoDeClassificacao(classes, comRomaji);
+
+        Set<Integer> todaInglesa = originaisTodaInglesas(eventos, classes, silabas, corretor);
+        if (!todaInglesa.isEmpty()) {
+            for (int i : todaInglesa) {
+                classes.set(i, ClasseLinhaKaraoke.TRADUZIVEL_INGLES);
+            }
+            janelasComRomaji.removeIf(j -> todaInglesa.contains((int) j[2]));
+        }
+        return new PlanoDeClassificacao(classes, janelasComRomaji);
+    }
+
+    /** Mínimo de palavras que SÓ o inglês reconhece — ver o Javadoc de {@link #montar(DocumentoLegenda, ClassificadorLetraKaraokeService, org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda)}. */
+    static final int MINIMO_PALAVRAS_INGLESAS = 2;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as posições das linhas ORIGINAL cujo texto é todo inglês (regra de
+     * Paulo de 24/09/2026), decididas pelos dicionários numa consulta em LOTE por arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem corretor, sem candidata, dicionário inglês fora do ar
+     * ou erro na consulta devolvem conjunto vazio — o plano fica como era.
+     */
+    private static Set<Integer> originaisTodaInglesas(
+            List<EventoLegenda> eventos, List<ClasseLinhaKaraoke> classes, Set<Integer> silabas,
+            org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda corretor) {
+        if (corretor == null) {
+            return Set.of();
+        }
+        java.util.Map<Integer, List<String>> candidatas = new java.util.LinkedHashMap<>();
+        Set<String> todasAsPalavras = new HashSet<>();
+        for (int i = 0; i < eventos.size(); i++) {
+            if (classes.get(i) != ClasseLinhaKaraoke.ORIGINAL_JAPONES || silabas.contains(i)) {
+                continue;
+            }
+            String visivel = visivelDe(eventos.get(i));
+            if (ClassificadorLetraKaraokeService.temEscritaJaponesa(visivel)) {
+                continue;
+            }
+            // Tokenização do DONO do dicionário (core) — a mesma do achatador, sem cópia.
+            List<String> palavras =
+                org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda.palavrasDe(visivel);
+            if (!palavras.isEmpty()) {
+                candidatas.put(i, palavras);
+                todasAsPalavras.addAll(palavras);
+            }
+        }
+        if (candidatas.isEmpty()) {
+            return Set.of();
+        }
+        java.util.Map<String, org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra> veredicto;
+        try {
+            veredicto = corretor.classificarPalavras(todasAsPalavras);
+        } catch (RuntimeException e) {
+            return Set.of();
+        }
+        if (!corretor.inglesDisponivel()) {
+            return Set.of();
+        }
+        Set<Integer> todaInglesa = new HashSet<>();
+        for (java.util.Map.Entry<Integer, List<String>> c : candidatas.entrySet()) {
+            int soIngles = 0;
+            boolean tudoReconhecido = true;
+            for (String p : c.getValue()) {
+                var v = veredicto.get(p);
+                if (v == org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.RESIDUO_INGLES) {
+                    soIngles++;
+                } else if (v != org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.PORTUGUES_OK
+                    && v != org.traducao.projeto.core.texto.dicionarioOrtografia.VeredictoPalavra.ACENTO_FALTANDO) {
+                    tudoReconhecido = false; // desconhecida/romaji/outro idioma: pode ser japonês
+                    break;
+                }
+            }
+            // ">= 2 so-inglesas" OU "TODAS so-inglesas": a segunda cobre o verso de uma palavra
+            // ("Dreamer...", "Evergreen...", "One,") — medido no acervo: 5 de 21 linhas de uma
+            // palavra, todas ingles; romaji isolado sai DESCONHECIDA e nunca chega aqui.
+            if (tudoReconhecido && (soIngles >= MINIMO_PALAVRAS_INGLESAS || soIngles == c.getValue().size())) {
+                todaInglesa.add(c.getKey());
+            }
+        }
+        return todaInglesa;
+    }
+
+    /**
+     * {@code início,fim} do prefixo, como TEXTO — a chave da evidência de música por camada romaji
+     * simultânea. NÃO usar o prefixo inteiro: ele carrega o ESTILO, e camadas irmãs têm estilos
+     * diferentes por definição. Prefixo ilegível devolve vazio (sem irmã, lado que preserva).
+     */
+    private static String instanteExato(EventoLegenda evento) {
+        if (evento == null || evento.prefixo() == null) {
+            return "";
+        }
+        String[] campos = evento.prefixo().split(",");
+        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: há uma camada original no MESMO momento da música que este evento —
+     * início e fim, cada um dentro de {@link #FOLGA_PAR_DE_CAMADAS_CS}?
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo ilegível devolve {@code false} — o evento é
+     * tratado como sem irmã, o lado que PRESERVA a original (empilha).
+     */
+    private static boolean temJanelaDoMesmoMomento(List<long[]> janelas, EventoLegenda evento) {
+        long ini = inicioCs(evento);
+        long fim = fimCs(evento);
+        if (ini < 0 || fim < 0) {
+            return false;
+        }
+        for (long[] j : janelas) {
+            if (Math.abs(j[0] - ini) <= FOLGA_PAR_DE_CAMADAS_CS
+                && Math.abs(j[1] - fim) <= FOLGA_PAR_DE_CAMADAS_CS) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** A decisão já tomada para o evento naquela posição do documento. */
@@ -119,7 +313,7 @@ public final class PlanoDeClassificacao {
      * episódios.
      */
     public boolean temOriginalPreservadaNoInstante(EventoLegenda evento) {
-        return evento != null && instantesComOriginalPreservada.contains(instanteDe(evento));
+        return evento != null && temJanelaDoMesmoMomento(janelasComOriginalPreservada, evento);
     }
 
     /** Quantos eventos o plano decidiu — para o resumo por arquivo. */
@@ -150,9 +344,18 @@ public final class PlanoDeClassificacao {
      *       continuavam cobertos — e no 86 Part 2 os 875 "cobertos" eram a letra {@code i}.</li>
      *   <li><b>Cópia de tipografia reconstrói a si mesma.</b> A segunda versão marcou 75,6% do
      *       Zeta, incluindo as frases inteiras de {@code Song JP}, porque a mesma linha desenhada
-     *       duas vezes "reconstruía" a frase sozinha. Por isso todo pedaço precisa ter MENOS de
-     *       duas palavras, e precisa haver pelo menos dois pedaços.</li>
+     *       duas vezes "reconstruía" a frase sozinha. Por isso todo pedaço precisa ter MENOS
+     *       palavras que a frase (a cópia da frase inteira tem o MESMO número e é barrada), e
+     *       precisa haver pelo menos dois pedaços.</li>
      * </ul>
+     *
+     * <p><b>Correção de 2026-09-21:</b> o corte era "MENOS de DUAS palavras" e abortava o grupo
+     * inteiro ao topar um pedaço de duas palavras — no {@code OPL2} do Unicorn o pedaço
+     * {@code "you are"} derrubava os 9 fragmentos de <i>"If you are holding holding onto fear"</i>,
+     * que iam ao LLM e viravam lixo ({@code hol}→"Olá", {@code on}→"começando", {@code dnt}→
+     * meta-resposta). O corte passou a ser "MENOS palavras que a frase", que barra a cópia da
+     * frase inteira (Zeta) e admite o pedaço de duas palavras (Unicorn). A concatenação exata
+     * continua sendo a prova.
      *
      * <p>Efeito medido com o critério final: Unicorn 2.562 de 3.280 fragmentos (78,1%), e
      * <b>ZERO</b> no Zeta, no 86 Part 1 e no 86 Part 2 — nenhuma obra saudável é tocada.
@@ -164,65 +367,100 @@ public final class PlanoDeClassificacao {
      * de fora — o lado que NÃO veta, preservando o viés de traduzir o que não se entendeu.
      */
     private static Set<Integer> posicoesDeSilaba(List<EventoLegenda> eventos) {
+        // Tempo, texto visível e número de palavras são calculados UMA vez por evento. A versão
+        // anterior refazia o parse do prefixo e a limpeza de tags a cada PAR de eventos e comparava
+        // cada frase com TODOS os candidatos: O(n²) com string no laço. Medido em 24/09/2026: o
+        // arquivo do Char's Counterattack tem 55.983 eventos, e a medição ficou 45 min de CPU presa
+        // aqui — na produção isso prenderia a fila ÚNICA do pipeline por horas. Agora as irmãs
+        // são buscadas por estilo e pela janela de FIM, com busca binária.
         Set<Integer> silabas = new HashSet<>();
+        int n = eventos.size();
+        String[] visivel = new String[n];
+        long[] ini = new long[n];
+        long[] fim = new long[n];
         List<Integer> candidatos = new ArrayList<>();
-        for (int i = 0; i < eventos.size(); i++) {
-            if (classificavel(eventos.get(i)) && !visivelDe(eventos.get(i)).isEmpty()) {
-                candidatos.add(i);
-            }
-        }
-        for (int idFrase : candidatos) {
-            EventoLegenda frase = eventos.get(idFrase);
-            String textoFrase = visivelDe(frase);
-            if (palavras(textoFrase) < 2) {
+        java.util.Map<String, List<Integer>> porEstiloOrdemDeFim = new java.util.HashMap<>();
+        for (int i = 0; i < n; i++) {
+            EventoLegenda ev = eventos.get(i);
+            if (!classificavel(ev)) {
                 continue;
             }
-            long iniFrase = inicioCs(frase);
-            long fimFrase = fimCs(frase);
+            visivel[i] = visivelDe(ev);
+            if (visivel[i].isEmpty()) {
+                continue;
+            }
+            ini[i] = inicioCs(ev);
+            fim[i] = fimCs(ev);
+            candidatos.add(i);
+            porEstiloOrdemDeFim.computeIfAbsent(ev.estilo(), k -> new ArrayList<>()).add(i); // HashMap aceita chave nula: mesma semantica do Objects.equals antigo
+        }
+        for (List<Integer> doEstilo : porEstiloOrdemDeFim.values()) {
+            doEstilo.sort(Comparator.comparingLong((Integer id) -> fim[id]));
+        }
+        for (int idFrase : candidatos) {
+            String textoFrase = visivel[idFrase];
+            int palavrasFrase = palavras(textoFrase);
+            if (palavrasFrase < 2) {
+                continue;
+            }
+            long iniFrase = ini[idFrase];
+            long fimFrase = fim[idFrase];
             if (iniFrase < 0 || fimFrase < 0) {
                 continue;
             }
+            List<Integer> doEstilo = porEstiloOrdemDeFim.get(eventos.get(idFrase).estilo());
             List<Integer> irmas = new ArrayList<>();
-            for (int idIrma : candidatos) {
-                if (idIrma == idFrase) {
-                    continue;
+                // A âncora do pareamento é o FIM, não o início. Todo pedaço do fill de karaokê
+                // termina JUNTO com a frase (fica aceso até a linha acabar), então casar pelo fim é
+                // o que reconhece o pedaço e, ao mesmo tempo, exclui o fill da frase VIZINHA.
+                // Medido em 21/09/2026 no OPL2 do Unicorn: em "We didnt see all its meaning" o
+                // primeiro pedaço ("We") começa 0,15s ANTES da frase (39.38 < 39.53) — ancorar no
+                // INÍCIO o excluía e os 8 fragmentos vazavam (dnt=>"Nao ha contexto", all=>"Eu sou a
+                // Audrey"). Mas ancorar no início com folga puxava o ÚLTIMO pedaço da frase anterior
+                // e poluía a reconstrução — medido, o leak subiu de 6 para 32. Pelo fim, "We"
+                // termina com a frase (44.79 ≈ 44.69, dentro da folga) e é incluído, enquanto
+                // "vive" (fim 39.23, o fill da frase anterior) fica a 5s do fim desta e é excluído.
+                // A folga de 1s absorve os centésimos de diferença entre o held e o fill.
+            int k = primeiroComFimAPartirDe(doEstilo, fim, fimFrase - FOLGA_INSTANTE_CS);
+            for (; k < doEstilo.size() && fim[doEstilo.get(k)] <= fimFrase + FOLGA_INSTANTE_CS; k++) {
+                int idIrma = doEstilo.get(k);
+                if (idIrma != idFrase && ini[idIrma] <= fimFrase) {
+                    irmas.add(idIrma);
                 }
-                EventoLegenda ev = eventos.get(idIrma);
-                if (!Objects.equals(ev.estilo(), frase.estilo())) {
-                    continue;
-                }
-                long ini = inicioCs(ev);
-                long fim = fimCs(ev);
-                // A folga de 1s no fim não é arbitrária: no OPL2 do Unicorn os pedaços terminam
-                // 0,10s depois da frase (39.90 contra 39.80). Exigir contenção estrita reprovava
-                // 100% deles por dez centésimos.
-                if (ini < iniFrase || ini > fimFrase || fim > fimFrase + 100) {
-                    continue;
-                }
-                irmas.add(idIrma);
             }
             if (irmas.size() < 2) {
                 continue;
             }
-            irmas.sort(Comparator.comparingLong((Integer id) -> inicioCs(eventos.get(id)))
-                .thenComparingLong(id -> fimCs(eventos.get(id))));
+            // Desempate pela posição no documento: é a ordem que a versão O(n²) produzia (ela
+            // coletava na ordem do arquivo e o sort é estável).
+            irmas.sort(Comparator.comparingLong((Integer id) -> ini[id])
+                .thenComparingLong(id -> fim[id])
+                .thenComparingInt(id -> id));
 
             StringBuilder reconstruido = new StringBuilder();
             Set<String> jaVistos = new HashSet<>();
             int pedacos = 0;
             boolean algumEhFrase = false;
             for (int id : irmas) {
-                EventoLegenda ev = eventos.get(id);
-                String visivel = visivelDe(ev);
-                if (palavras(visivel) >= 2) {
+                String visivelIrma = visivel[id];
+                // O corte é "MENOS palavras que a frase", não "< 2 palavras". O fansub divide a
+                // letra em pedaços que às vezes têm duas palavras ("you are" no OPL2 do Unicorn),
+                // e o corte antigo abortava o grupo inteiro ao encontrá-los — os 9 pedaços de
+                // "If you are holding holding onto fear" ficavam sem veto e iam ao LLM como
+                // fragmento (medido 21/09/2026: hol=>"Olá", on=>"começando", dnt=>meta-resposta).
+                // O que o corte precisa barrar é a CÓPIA DE TIPOGRAFIA — a frase inteira desenhada
+                // duas vezes, que "reconstruía a si mesma" (Zeta Song JP): essa tem o MESMO número
+                // de palavras da frase, então >= palavrasFrase continua abortando-a. A prova forte
+                // segue sendo a concatenação exata abaixo, não o número de palavras do pedaço.
+                if (palavras(visivelIrma) >= palavrasFrase) {
                     algumEhFrase = true;
                     break;
                 }
-                String chave = inicioCs(ev) + "|" + fimCs(ev) + "|" + visivel;
+                String chave = ini[id] + "|" + fim[id] + "|" + visivelIrma;
                 if (!jaVistos.add(chave)) {
                     continue; // cópia de tipografia: mesmo texto, mesmo instante
                 }
-                reconstruido.append(visivel);
+                reconstruido.append(visivelIrma);
                 pedacos++;
             }
             if (algumEhFrase || pedacos < 2) {
@@ -233,6 +471,21 @@ public final class PlanoDeClassificacao {
             }
         }
         return silabas;
+    }
+
+    /** Primeira posição da lista (ordenada por fim) cujo fim é >= {@code limite}. */
+    private static int primeiroComFimAPartirDe(List<Integer> ordemDeFim, long[] fim, long limite) {
+        int lo = 0;
+        int hi = ordemDeFim.size();
+        while (lo < hi) {
+            int meio = (lo + hi) >>> 1;
+            if (fim[ordemDeFim.get(meio)] < limite) {
+                lo = meio + 1;
+            } else {
+                hi = meio;
+            }
+        }
+        return lo;
     }
 
     private static String visivelDe(EventoLegenda ev) {
@@ -289,24 +542,6 @@ public final class PlanoDeClassificacao {
         }
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: {@code inicio,fim} do prefixo — a chave que identifica DUAS camadas
-     * simultâneas como sendo do mesmo momento da música.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: NÃO usar o prefixo inteiro. Ele carrega o ESTILO, e camadas
-     * irmãs têm estilos diferentes por definição ({@code OP - Romaji} e {@code OP - English}) —
-     * comparar o prefixo faria toda camada parecer solitária.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo nulo ou curto devolve string vazia, e o evento é
-     * tratado como sem irmã — o lado que PRESERVA a original.
-     */
-    static String instanteDe(EventoLegenda evento) {
-        if (evento == null || evento.prefixo() == null) {
-            return "";
-        }
-        String[] campos = evento.prefixo().split(",");
-        return campos.length >= 3 ? campos[1] + "," + campos[2] : "";
-    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: o campo {@code Effect} da linha {@code Dialogue:} — o carimbo que o

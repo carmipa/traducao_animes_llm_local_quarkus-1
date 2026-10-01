@@ -189,4 +189,47 @@ class MapeadorMidiaServiceTest {
         assertEquals(1, plano.videosSemLegenda());
         assertTrue(plano.avisos().get(0).contains("auxiliar"));
     }
+
+    /**
+     * Auditoria da 2.1 (25/09/2026): reexecução com pendência grava o ".parcial" AO LADO do final.
+     * Com a mesma pontuação o episódio ficava ambíguo e fora do remux. O final tem de vencer.
+     */
+    @Test
+    void finalVenceParcialDoMesmoEpisodio(@TempDir Path tempDir) throws IOException {
+        Path videos = Files.createDirectory(tempDir.resolve("videos"));
+        Path legendas = Files.createDirectory(tempDir.resolve("legendas"));
+        Path saida = Files.createDirectory(tempDir.resolve("saida"));
+        // Nomes DIFERENTES do vídeo, como no acervo: o pareamento cai no do episódio, que é onde o
+        // final e o parcial empatavam. Com nomes iguais ao vídeo o parcial nem vira candidato, e o
+        // teste passaria sem a correção (medido: a primeira versão deste teste passava).
+        Files.createFile(videos.resolve("86-Eighty-Six-Eps01-Ptbr_PTBR.mkv"));
+        Files.createFile(videos.resolve("86-Eighty-Six-Eps02-Ptbr_PTBR.mkv"));
+        Files.createFile(legendas.resolve("[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.ass"));
+        Files.createFile(legendas.resolve("[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.parcial.ass"));
+        Files.createFile(legendas.resolve("[DB]86_-_02_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.ass"));
+
+        PlanoRemux plano = mapeador.construirPlano(videos, legendas, saida);
+
+        RemuxTarefa e01 = plano.tarefas().stream()
+            .filter(t -> t.caminhoVideo().getFileName().toString().contains("Eps01")).findFirst()
+            .orElseThrow(() -> new AssertionError("Eps01 ficou fora do plano: " + plano));
+        assertEquals("[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.ass",
+            e01.caminhoLegenda().getFileName().toString());
+    }
+
+    /** CASO-CONTROLE (A1): o parcial SOZINHO continua sendo usado — a penalidade só desempata. */
+    @Test
+    void parcialSozinhoContinuaUsado(@TempDir Path tempDir) throws IOException {
+        Path videos = Files.createDirectory(tempDir.resolve("videos"));
+        Path legendas = Files.createDirectory(tempDir.resolve("legendas"));
+        Path saida = Files.createDirectory(tempDir.resolve("saida"));
+        Files.createFile(videos.resolve("86-Eighty-Six-Eps01-Ptbr_PTBR.mkv"));
+        Files.createFile(videos.resolve("86-Eighty-Six-Eps02-Ptbr_PTBR.mkv"));
+        Files.createFile(legendas.resolve("[DB]86_-_01_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.parcial.ass"));
+        Files.createFile(legendas.resolve("[DB]86_-_02_(Dual Audio_10bit_BD1080p_x265)_Track6_PT-BR.ass"));
+
+        PlanoRemux plano = mapeador.construirPlano(videos, legendas, saida);
+
+        assertEquals(2, plano.tarefas().size(), "os dois episodios entram no plano: " + plano);
+    }
 }

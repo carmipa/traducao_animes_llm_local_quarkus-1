@@ -210,6 +210,35 @@ public class ResolvedorArtefatosRevisao {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: distingue a legenda PUBLICÁVEL (`_PT-BR.ass`) do artefato de STAGING
+     * `.parcial.ass`, que a Tradução grava quando o episódio ficou com pendências.
+     * <p>INVARIANTES DO DOMÍNIO: `.parcial` é intermediário — não é entrega e não entra na revisão.
+     * Sem esta distinção, o `.parcial` casava {@link #eLegendaTraduzida} (contém `_pt-br`) e a 3.1
+     * revisava o mesmo episódio DUAS vezes; pior, no `.parcial` o cache EN não é achado
+     * (`..._PT-BR.parcial_ENG.cache.json` não existe) e a sincronização caía em silêncio. Medido no
+     * Unicorn em 2026-09-15: "Arquivos analisados: 32" para 22 episódios.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome nulo/vazio devolve {@code false} (não é parcial).
+     */
+    public boolean eLegendaParcial(Path arquivo) {
+        String nome = arquivo.getFileName().toString().toLowerCase();
+        return nome.contains(".parcial.");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o predicado ÚNICO do lote da revisão — o arquivo é uma legenda traduzida
+     * publicável a revisar? É o que o {@code RevisarLegendasUseCase} filtra, extraído para cá para
+     * ter guarda própria (antes vivia inline como dois filtros e o `.parcial` escapava).
+     * <p>INVARIANTES DO DOMÍNIO: extensão suportada E traduzida (`_PT-BR`) E NÃO parcial. As três
+     * condições juntas; tirar a última reabre o processamento em dobro do `.parcial`.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     */
+    public boolean eArquivoARevisar(Path arquivo) {
+        return temExtensaoSuportada(arquivo)
+            && eLegendaTraduzida(arquivo)
+            && !eLegendaParcial(arquivo);
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: nomes de cache que valem tentar diretamente, do mais provável ao menos.
      * <p>INVARIANTES DO DOMÍNIO: sem repetição e em ordem estável — a ordem É a política de
      * desempate.

@@ -345,7 +345,7 @@ export function initRevisao() {
                 await enviarRevisao(
                     '/api/revisar-legendas-concordancia',
                     payload,
-                    'Traduzindo o que faltou — 1ª etapa: LLM local; o Google entra só no que ela não resolver...'
+                    'Traduzindo o que faltou — LLM local + dicionários, sem Google. O que o modelo não resolver fica pendente...'
                 );
             } catch (err) {
                 logNoConsole('console-revisao', `Erro: ${err.message}`, 'erro');
@@ -377,7 +377,7 @@ export function initRevisao() {
             await enviarRevisao(
                 '/api/revisar-legendas',
                 payload,
-                'Só a 2ª etapa (Google), sem o LLM local — fala com tag inline tende a ficar pendente...'
+                'Só o Google (passada isolada), sem o LLM local — fala com tag inline tende a ficar pendente...'
             );
         } catch (err) {
             logNoConsole('console-revisao', `Erro: ${err.message}`, 'erro');

@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="trocaTipoLegenda/trocaTipoLegenda.css?v=4.0">
     <link rel="stylesheet" href="remuxer/remuxer.css?v=4.0">
     <link rel="stylesheet" href="renomearArquivos/renomearArquivos.css?v=4.0">
-    <link rel="stylesheet" href="novoKaraoke/novoKaraoke.css?v=1.0">
     <link rel="stylesheet" href="traducaoKaraoke/traducaoKaraoke.css?v=1.1">
     <link rel="icon" type="image/png" href="img/kronos_logo.png">
     <link rel="stylesheet" href="telemetria/telemetria.css?v=4.0">
@@ -169,26 +168,19 @@
                         <span class="nav-group-titulo">Karaokê</span>
                         <span class="material-symbols-outlined nav-group-seta">expand_more</span>
                     </button>
-                    <!-- ORDEM DELIBERADA: traduzir a letra, corrigir a letra, e SÓ ENTÃO
-                         simplificar. O Karaokê Simples apaga a animação KFX e é IRREVERSÍVEL
-                         para o arquivo de saída — por isso é o último do grupo. Até 05/08/2026
-                         ele era o "10.", primeiro do bloco, e o número dizia o oposto da regra
-                         que a gente segue na prática. -->
+                    <!-- TELA ÚNICA (21/09/2026): a 4.1 uniu "traduzir letras" e "achatar/limpar"
+                         (o antigo 4.3 Karaokê Simples) em duas passadas na mesma tela, na ordem
+                         em que se aplicam. A 4.2 Correção de Karaokê continua separada. -->
                     <div class="nav-group-itens">
                         <button class="nav-item" data-target="traducao-karaoke" id="btn-menu-traducao-karaoke"
-                            data-tooltip="Traduza as letras de música para PT-BR mantendo o romaji original junto na tela — tolerante a inglês misturado na letra japonesa.">
+                            data-tooltip="Traduza as letras de música (romaji + PT-BR juntos) e depois achate/limpe a animação — duas passadas na mesma tela.">
                             <span class="material-symbols-outlined nav-icon">lyrics</span>
-                            <span>4.1 Tradução de Karaokê</span>
+                            <span>4.1 Karaokê</span>
                         </button>
                         <button class="nav-item" data-target="cura" id="btn-menu-cura"
                             data-tooltip="Corrija a legenda traduzida usando a original como referência segura.">
                             <span class="material-symbols-outlined nav-icon">music_note</span>
                             <span>4.2 Correção de Karaokê</span>
-                        </button>
-                        <button class="nav-item" data-target="novo-karaoke" id="btn-menu-novo-karaoke"
-                            data-tooltip="POR ÚLTIMO: converte karaokê KFX (milhares de eventos por sílaba) em legendas simples e limpas, no mesmo tempo do efeito original. Apaga a animação — gera pasta nova, mas não dá para desfazer no arquivo gerado.">
-                            <span class="material-symbols-outlined nav-icon">music_off</span>
-                            <span>4.3 Karaokê Simples</span>
                         </button>
                     </div>
                 </div>
@@ -501,18 +493,18 @@
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
-                            <!-- 4.1 -->
+                            <!-- 4.1 — tela única: traduzir + achatar (absorveu o antigo 4.3). -->
                             <div class="pipeline-card card-traducao-karaoke"
                                 onclick="document.getElementById('btn-menu-traducao-karaoke').click()"
-                                data-tooltip="Clique para traduzir letras de música mantendo o romaji original">
+                                data-tooltip="Clique para traduzir as letras e depois achatar/limpar a animação">
                                 <div class="card-glow-bg"></div>
                                 <div class="card-step-num">4.1</div>
                                 <div class="card-icon-container">
                                     <span class="material-symbols-outlined">lyrics</span>
                                 </div>
-                                <h4>Tradução de Karaokê</h4>
-                                <p>Traduza as letras em inglês para PT-BR mantendo o japonês/romaji original junto na
-                                    tela.</p>
+                                <h4>Karaokê</h4>
+                                <p>Traduza as letras (romaji + PT-BR juntos) e depois achate/limpe a animação — duas
+                                    passadas na mesma tela.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
@@ -528,20 +520,6 @@
                                 <h4>Correção de Karaokê</h4>
                                 <p>Corrige a legenda PT-BR sem alterar a original, preservando estrutura, tempos e tags.
                                 </p>
-                                <span class="card-action-link">Acessar Painel →</span>
-                            </div>
-
-                            <!-- 4.3 — ÚLTIMO do bloco de propósito: apaga a animação KFX. -->
-                            <div class="pipeline-card card-novo-karaoke"
-                                onclick="document.getElementById('btn-menu-novo-karaoke').click()"
-                                data-tooltip="Clique para converter karaokê KFX em legenda simples">
-                                <div class="card-glow-bg"></div>
-                                <div class="card-step-num">4.3</div>
-                                <div class="card-icon-container">
-                                    <span class="material-symbols-outlined">music_off</span>
-                                </div>
-                                <h4>Karaokê Simples</h4>
-                                <p>Por último: converte karaokê KFX em linhas simples, no tempo original. Apaga a animação.</p>
                                 <span class="card-action-link">Acessar Painel →</span>
                             </div>
 
@@ -956,7 +934,7 @@
                         </ol>
                         <p class="op-escopo">
                             <span class="material-symbols-outlined">inventory</span>
-                            <span>A legenda só é reescrita no fim, com o arquivo inteiro pronto. Uma queda no meio deixa o cache do que já foi traduzido — a próxima execução recomeça de onde parou, não do zero.</span>
+                            <span>A legenda só é reescrita no fim, com o arquivo inteiro pronto. Sair pelo botão ou uma queda do LM Studio no meio deixa no cache o que já foi traduzido — a próxima execução recomeça de onde parou. Só o processo morto à força (falta de energia, encerrado pelo Gerenciador de Tarefas) perde o episódio em curso; os episódios anteriores já estão gravados.</span>
                         </p>
                     </div>
 
@@ -1425,20 +1403,21 @@
                             <li class="op-linha">
                                 <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
                                 <div class="op-texto">
-                                    <span class="op-titulo">1 — Traduzir o que faltou (LLM local, com Google na sequência)</span>
+                                    <span class="op-titulo">1 — Traduzir o que faltou (LLM local + dicionários)</span>
                                     <span class="op-desc"><strong>É esta que você roda.</strong> Acha as falas que ficaram
-                                        em inglês e as traduz com o modelo local, que conhece a lore. Quando o modelo não
-                                        resolve, a mesma fala desce sozinha para o Google — sem você precisar clicar de
-                                        novo. Os dicionários ajustam a proposta que volta, e toda proposta passa por um
-                                        portão que a descarta quando não melhora a legenda.</span>
+                                        em inglês e as traduz com o modelo local, que conhece a lore. Os dicionários
+                                        ajustam a proposta que volta, e toda proposta passa por um portão que a descarta
+                                        quando não melhora a legenda. Quando o modelo não resolve, a fala fica
+                                        <strong>pendente</strong> — o Google <strong>não</strong> entra aqui, para não
+                                        re-traduzir por cima do que já estava certo. Para o Google, use o botão 2.</span>
                                     <span class="op-selos">
                                         <span class="op-selo op-selo-escreve">grava nos .ass</span>
                                         <span class="op-selo op-selo-llm">LLM local</span>
-                                        <span class="op-selo op-selo-rede">usa o Google se o LLM falhar</span>
+                                        <span class="op-selo op-selo-seguro">sem Google</span>
                                     </span>
                                 </div>
                                 <button type="button" class="btn btn-primary btn-purple" id="btn-revisao-concordancia"
-                                    data-tooltip="LLM local como 1ª etapa e Google como 2ª, numa ação só">
+                                    data-tooltip="LLM local + dicionários, sem Google. O que o modelo não resolver fica pendente.">
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
                                         stroke-width="2" fill="none">
                                         <path d="M12 20h9"></path>
@@ -1452,10 +1431,13 @@
                                 <span class="op-marca"><span class="material-symbols-outlined">language</span></span>
                                 <div class="op-texto">
                                     <span class="op-titulo">2 — Só o Google (quando o LLM está desligado)</span>
-                                    <span class="op-desc">A 2ª etapa isolada, para quando o LM Studio não está no ar. Sem o
-                                        modelo local não há cascata, e <strong>fala com tag inline</strong>
-                                        (<code>{\i1}…{\i0}</code>) costuma voltar como <code>TAG_CORROMPIDA</code> e ficar
-                                        pendente — medido no Guilty Crown: 5 falas que a opção 1 resolveu.</span>
+                                    <span class="op-desc">A passada do Google, <strong>isolada</strong> — não passa pelo LLM
+                                        local. Rode-a quando o LM Studio não estiver no ar. Ela re-traduz o inglês inteiro,
+                                        então numa fala <strong>parcialmente</strong> traduzida substitui o que já estava
+                                        certo — por isso é escolha explícita, não a continuação do botão 1. E
+                                        <strong>fala com tag inline</strong> (<code>{\i1}…{\i0}</code>) costuma voltar como
+                                        <code>TAG_CORROMPIDA</code> e ficar pendente — medido no Guilty Crown: 5 falas que
+                                        a opção 1 resolveu.</span>
                                     <span class="op-selos">
                                         <span class="op-selo op-selo-escreve">grava nos .ass</span>
                                         <span class="op-selo op-selo-rede">precisa de internet</span>
@@ -1794,11 +1776,7 @@
                 <div class="panel" id="panel-renomear-arquivos">
                 </div>
 
-                <!-- 4.3 PAINEL DO KARAOKÊ SIMPLES (KFX → LEGENDA LIMPA) -->
-                <div class="panel" id="panel-novo-karaoke" data-modulo="novoKaraoke">
-                </div>
-
-                <!-- 4.1 PAINEL DA TRADUÇÃO DE KARAOKÊ (ROMAJI + PT-BR JUNTOS) -->
+                <!-- 4.1 PAINEL ÚNICO DO KARAOKÊ (TRADUZIR + ACHATAR — absorveu o antigo 4.3) -->
                 <div class="panel" id="panel-traducao-karaoke" data-modulo="traducaoKaraoke">
                 </div>
 
@@ -2206,10 +2184,6 @@
                                         data-titulo="4.2 Correção de Karaokê"><span
                                             class="material-symbols-outlined doc-item-icon">music_note</span>4.2 Correção de
                                         Karaokê</button>
-                                    <button class="doc-nav-item" data-pagina="etapa-4.3-karaoke-simples"
-                                        data-titulo="4.3 Karaokê Simples"><span
-                                            class="material-symbols-outlined doc-item-icon">music_off</span>4.3 Karaokê
-                                        Simples</button>
                                     <button class="doc-nav-item" data-pagina="etapa-5.1-remuxer"
                                         data-titulo="5.1 Remuxer"><span
                                             class="material-symbols-outlined doc-item-icon">layers</span>5.1 Remuxer</button>

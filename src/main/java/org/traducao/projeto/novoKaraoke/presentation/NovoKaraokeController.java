@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traducao.projeto.novoKaraoke.application.ConversorKaraokeUseCase;
 import org.traducao.projeto.novoKaraoke.domain.NovoKaraokeException;
+import org.traducao.projeto.core.execucao.FilaExecucaoPipeline;
 import org.traducao.projeto.core.io.GuardaCaminhoEntrada;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 
@@ -19,9 +20,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Endpoints do módulo Karaokê Simples. Operação puramente local (sem LLM,
- * sem estado global do pipeline), por isso roda async fora da fila — mesmo
- * padrão do módulo de Renomear Arquivos.
+ * Endpoints do Passo 2 (achatar) da tela única de Karaokê. A SIMULAÇÃO é read-only e roda async
+ * fora da fila; a GRAVAÇÃO entra na {@link FilaExecucaoPipeline}, a mesma do Passo 1, para a tela
+ * saber quando terminou e para o achatar nunca ler a tradução pela metade (24/09/2026).
  */
 @Path("/api/novo-karaoke")
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,6 +47,9 @@ public class NovoKaraokeController {
     @Inject
     GuardaCaminhoEntrada guardaCaminho;
 
+    @Inject
+    FilaExecucaoPipeline filaExecucao;
+
     @POST
     @Path("/simular")
     public Response simular(NovoKaraokeRequest request) {
@@ -65,7 +69,7 @@ public class NovoKaraokeController {
         }
         java.nio.file.Path origem = Paths.get(request.caminhoOrigem());
         java.nio.file.Path destino = resolverDestino(origem, request.caminhoDestino());
-        CompletableFuture.runAsync(() -> {
+        Runnable trabalho = () -> {
             try {
                 if (gravar) {
                     conversor.aplicar(origem, destino);
@@ -79,9 +83,24 @@ public class NovoKaraokeController {
                 logStream.publicarLog(ConversorKaraokeUseCase.CANAL_LOG,
                     "[ERRO FATAL] Falha durante a conversão: " + e.getMessage());
             }
+        };
+        if (!gravar) {
+            // Simulação é read-only: segue fora da fila, como a do Passo 1.
+            CompletableFuture.runAsync(trabalho);
+            return Response.ok(Map.of("mensagem",
+                "Simulação de karaokê iniciada. Acompanhe o progresso no console abaixo.")).build();
+        }
+        // A GRAVAÇÃO entra na MESMA fila do Passo 1 (tradução). Medido em 24/09/2026 na tela única:
+        // fora da fila, a tela dizia "Passada concluída" no mesmo segundo do clique (ela espera a
+        // fila, que estava vazia) e o achatamento só rodava 8 s depois — e nada impedia achatar a
+        // saída do Passo 1 enquanto ele ainda a escrevia. Na fila FIFO de um trabalhador, o achatar
+        // sempre lê a saída TERMINADA da tradução enfileirada antes dele.
+        filaExecucao.submeter(() -> {
+            logStream.definirCanalAtual(ConversorKaraokeUseCase.CANAL_LOG);
+            trabalho.run();
         });
         return Response.ok(Map.of("mensagem",
-            (gravar ? "Conversão" : "Simulação") + " de karaokê iniciada. Acompanhe o progresso no console abaixo.")).build();
+            "Achatamento de karaokê enviado para a fila do pipeline. Acompanhe o progresso no console abaixo.")).build();
     }
 
     /**

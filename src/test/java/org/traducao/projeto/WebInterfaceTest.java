@@ -219,24 +219,19 @@ class WebInterfaceTest {
         // ainda não foram escritos.
         verificarNumeracaoPorGrupo(html);
 
-        int itemNovoKaraoke = html.indexOf("data-target=\"novo-karaoke\"");
         int itemTraducaoKaraoke = html.indexOf("data-target=\"traducao-karaoke\"");
         int itemCura = html.indexOf("data-target=\"cura\"");
         org.junit.jupiter.api.Assertions.assertTrue(
-            itemNovoKaraoke > grupoKaraoke && itemNovoKaraoke < grupoFinalizacao
-                && itemTraducaoKaraoke > grupoKaraoke && itemTraducaoKaraoke < grupoFinalizacao
+            itemTraducaoKaraoke > grupoKaraoke && itemTraducaoKaraoke < grupoFinalizacao
                 && itemCura > grupoKaraoke && itemCura < grupoFinalizacao,
-            "Karaokê Simples, Tradução de Karaokê e Correção de Karaokê devem ficar no grupo Karaokê"
+            "Tradução de Karaokê e Correção de Karaokê devem ficar no grupo Karaokê"
         );
-        // Decisão 2026-08-05 (revoga a de 2026-07-09): o Karaokê Simples é o ÚLTIMO
-        // do grupo. Ele apaga a animação KFX e o resultado não se desfaz, então tudo
-        // que precisa da letra — traduzir e corrigir — roda ANTES. Na ordem anterior
-        // ele era o primeiro (10.), e o número dizia o contrário da regra seguida na
-        // prática. Esta asserção existe para a ordem não voltar sozinha.
+        // TELA ÚNICA (21/09/2026): o antigo 4.3 Karaokê Simples (achatar, destrutivo) foi absorvido
+        // como Passo 2 da 4.1 Karaokê — a mesma tela traduz e depois achata. O grupo Karaokê agora
+        // tem só 4.1 Karaokê e 4.2 Correção de Karaokê, nesta ordem.
         org.junit.jupiter.api.Assertions.assertTrue(
-            itemTraducaoKaraoke < itemCura && itemCura < itemNovoKaraoke,
-            "O Karaokê Simples é DESTRUTIVO e tem de ser o último do grupo Karaokê: "
-                + "traduzir (4.1) e corrigir (4.2) vêm antes de simplificar (4.3)"
+            itemTraducaoKaraoke < itemCura,
+            "4.1 Karaokê (traduzir + achatar) vem antes de 4.2 Correção de Karaokê"
         );
         org.junit.jupiter.api.Assertions.assertTrue(
             html.contains("data-modulo=\"traducaoKaraoke\""),
@@ -301,11 +296,12 @@ class WebInterfaceTest {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: garante que a opção 10 entregue o formulário e o console
-     * usados para acompanhar a tradução de karaokê em tempo real no navegador.
+     * PROPÓSITO DE NEGÓCIO: garante que a tela única 4.1 Karaokê entregue o formulário e o console
+     * usados para acompanhar as duas passadas (traduzir e achatar) em tempo real no navegador.
      *
-     * INVARIANTES DO DOMÍNIO: o HTML deve conter o terminal dedicado e o orquestrador
-     * deve rotear o canal SSE {@code traducao-karaoke} exclusivamente para ele.
+     * INVARIANTES DO DOMÍNIO: o HTML deve conter o terminal dedicado e o orquestrador deve rotear
+     * o canal SSE {@code traducao-karaoke} para ele (desde 21/09/2026 o canal {@code novo-karaoke}
+     * do achatamento também aponta para o mesmo console — as duas passadas dividem um terminal).
      *
      * COMPORTAMENTO EM CASO DE FALHA: qualquer recurso ausente, resposta HTTP inválida
      * ou contrato de roteamento removido faz o teste falhar antes da publicação.
@@ -317,7 +313,7 @@ class WebInterfaceTest {
             .then()
             .statusCode(200)
             .contentType(containsString("html"))
-            .body(containsString("Tradução de Karaokê"))
+            .body(containsString("Karaokê"))
             .body(containsString("id=\"traducao-karaoke-contexto\""))
             .body(containsString("id=\"traducao-karaoke-entrada\""))
             .body(containsString("id=\"console-traducao-karaoke\""));

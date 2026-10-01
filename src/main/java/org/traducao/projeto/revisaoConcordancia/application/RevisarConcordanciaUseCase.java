@@ -211,6 +211,8 @@ public class RevisarConcordanciaUseCase {
                 DocumentoLegenda documento = leitor.ler(arquivo);
                 List<EventoLegenda> novos = new ArrayList<>(documento.eventos().size());
                 int corrigidasArq = 0;
+                // O que a tela vai MOSTRAR de cada arquivo: so as falas que mudaram (antes->depois).
+                List<String> mudancasArq = new ArrayList<>();
 
                 // AQUECIMENTO, uma vez por arquivo. Sem ele o elo do dicionario custava 80 ms POR
                 // FALA — um processo externo para cada fala que trouxesse uma palavra inedita —
@@ -234,9 +236,10 @@ public class RevisarConcordanciaUseCase {
                         novos.add(evento);
                         continue;
                     }
-                    // QUATRO corretores em cadeia. A ordem importa, e esta e a razao de cada
-                    // posicao: genero primeiro, porque decide por determinante e nao se importa
-                    // com acento; depois os tres de acento, do mais informado (POS tagger) para o
+                    // CINCO corretores em cadeia (ver a ordem causal em umaVolta): caractere
+                    // primeiro, porque o invisivel/macron quebra a fronteira de palavra que os
+                    // outros procuram; depois genero, que decide por determinante e nao se importa
+                    // com acento; e por fim os tres de acento, do mais informado (POS tagger) para o
                     // mais mecanico (dicionario), para que quem sabe mais tenha a primeira palavra
                     // sobre a mesma fala.
                     //
@@ -285,6 +288,7 @@ public class RevisarConcordanciaUseCase {
                     if (!depois.equals(antes)) {
                         corrigidasArq++;
                         novos.add(evento.comTexto(depois));
+                        mudancasArq.add(resumir(antes) + "  ->  " + resumir(depois));
                     } else {
                         novos.add(evento);
                     }
@@ -315,6 +319,14 @@ public class RevisarConcordanciaUseCase {
                     imprimir(AnsiCores.YELLOW + "  [Pendente] " + arquivo.getFileName()
                         + " (" + corrigidasArq + " fala(s) mudariam — nada gravado, simulacao)"
                         + AnsiCores.RESET);
+                }
+                // O QUE mudou, na tela — pedido do Paulo (18/09/2026): a 3.3 mostrava só a contagem
+                // por arquivo, enquanto a 3.1 e a 3.2 mostram fala a fala. O detalhe (antes -> depois)
+                // ia só para o log do servidor em nível DEBUG e nunca chegava à interface. Aqui
+                // aparecem SÓ as falas que mudaram — as inalteradas continuam fora, que é a decisão
+                // medida da 3.2 (94,8% do console era ruído "auditando"/"limpo").
+                for (String mudanca : mudancasArq) {
+                    imprimir(AnsiCores.DIM + "      • " + mudanca + AnsiCores.RESET);
                 }
             } catch (IOException | RuntimeException e) {
                 imprimir(AnsiCores.RED + "  [Erro]     " + arquivo.getFileName()
@@ -412,8 +424,50 @@ public class RevisarConcordanciaUseCase {
         log.info(linhaColorida.replaceAll((char) 27 + "\\[[0-9;]*m", "").strip());
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: encurta a fala para caber na linha da tela, mantendo início e fim (onde
+     * a correção de gênero/acento quase sempre está) e sem esconder a quebra {@code \N} — o operador
+     * precisa enxergar o texto REAL do arquivo, não uma versão limpa.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só encurta acima do teto; a quebra {@code \N} do ASS é mantida
+     * literal, para o operador reconhecer a fala no arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo devolve string vazia; nunca lança.
+     */
+    private static String resumir(String fala) {
+        if (fala == null) {
+            return "";
+        }
+        String t = fala.strip();
+        int teto = 80;
+        if (t.length() <= teto) {
+            return t;
+        }
+        return t.substring(0, 40) + " … " + t.substring(t.length() - 37);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda a versão anterior de um arquivo antes de regravá-lo.
+     *
+     * <h2>Espelha a subpasta — a varredura é RECURSIVA (auditoria da 3.3, 17/09/2026)</h2>
+     * {@code revisarPasta} usa {@code Files.walk}, então dois arquivos de mesmo nome em subpastas
+     * diferentes ({@code S1/ep01.ass} e {@code S2/ep01.ass}, comum ao apontar uma pasta-mãe) caíam
+     * no MESMO diretório plano de backup, distintos só pelo carimbo de tempo — e a restauração não
+     * sabia de qual subpasta veio cada {@code .bak}. Agora a subpasta é espelhada dentro do backup,
+     * a mesma disciplina de {@code RevisarLoreUseCase.criarBackup} (cicatriz R1 da 3.2). O carimbo
+     * de tempo permanece, então a mesma origem regravada duas vezes também não colide.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o backup nunca escapa da pasta de backup (checagem de contenção).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de I/O propaga e o caso de uso preserva o original.
+     */
     private Path criarBackup(Path pasta, Path arquivo) throws IOException {
-        Path dirBackup = pasta.resolve(PASTA_BACKUP);
+        Path pastaBackup = pasta.resolve(PASTA_BACKUP);
+        Path relativo = arquivo.startsWith(pasta) ? pasta.relativize(arquivo) : arquivo.getFileName();
+        Path subPasta = relativo.getParent();
+        Path dirBackup = (subPasta != null ? pastaBackup.resolve(subPasta) : pastaBackup).normalize();
+        if (!dirBackup.startsWith(pastaBackup.normalize())) {
+            throw new IOException("caminho de backup escaparia da pasta: " + dirBackup);
+        }
         Files.createDirectories(dirBackup);
         String nome = arquivo.getFileName().toString();
         Path backup = dirBackup.resolve(nome + "." + LocalDateTime.now().format(TS) + ".bak");

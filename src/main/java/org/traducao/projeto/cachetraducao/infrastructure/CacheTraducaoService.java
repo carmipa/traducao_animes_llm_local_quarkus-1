@@ -171,7 +171,7 @@ public class CacheTraducaoService {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, EntradaCache.class));
                 log.warn("Cache sem proveniencia em {} — assumindo compativel nesta migracao; sera versionado a partir de agora.",
                     arquivoCache);
-                return new ResultadoCarga(montarMapa(entradas), 0, true);
+                return new ResultadoCarga(montarMapa(entradas, arquivoCache), 0, true);
             } catch (IllegalArgumentException e) {
                 preservarCorrompido(arquivoCache);
                 return ResultadoCarga.vazio();
@@ -195,7 +195,7 @@ public class CacheTraducaoService {
                 if (permitirReusoEntreModelos
                     && provenienciaAtual.divergeSomenteNoModelo(doc.proveniencia())) {
                     arquivarGeracao(arquivoCache, doc.proveniencia());
-                    Map<String, String> herdado = montarMapa(entradas);
+                    Map<String, String> herdado = montarMapa(entradas, arquivoCache);
                     String modeloAnterior = doc.proveniencia().modeloLlm();
                     log.warn("REUSO ENTRE MODELOS autorizado em {}: {} entrada(s) de \"{}\" "
                             + "reaproveitada(s) por \"{}\". O cache resultante sera carimbado como "
@@ -211,7 +211,7 @@ public class CacheTraducaoService {
                     arquivoCache, entradas.size());
                 return new ResultadoCarga(new HashMap<>(), entradas.size(), false);
             }
-            Map<String, String> mapa = montarMapa(entradas);
+            Map<String, String> mapa = montarMapa(entradas, arquivoCache);
             log.info("Cache carregado de {} ({} entradas reaproveitaveis, contexto {}, modelo {})",
                 arquivoCache, mapa.size(),
                 doc.proveniencia() != null ? doc.proveniencia().contextoId() : "?",
@@ -268,7 +268,7 @@ public class CacheTraducaoService {
         try {
             List<EntradaCache> entradas = objectMapper.readValue(arquivoCache.toFile(),
                 objectMapper.getTypeFactory().constructCollectionType(List.class, EntradaCache.class));
-            Map<String, String> mapa = montarMapa(entradas);
+            Map<String, String> mapa = montarMapa(entradas, arquivoCache);
             log.info("Cache carregado de {} ({} entradas reaproveitaveis)", arquivoCache, mapa.size());
             return mapa;
         } catch (IOException e) {
@@ -303,15 +303,60 @@ public class CacheTraducaoService {
         }
     }
 
-    private Map<String, String> montarMapa(List<EntradaCache> entradas) {
+    /**
+     * PROPÓSITO DE NEGÓCIO: transforma as entradas gravadas (uma por EVENTO) no mapa
+     * original → tradução que o tradutor reaproveita. A mesma fala aparece em vários eventos,
+     * então repetição com a MESMA tradução é o normal.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: repetição com traduções DIFERENTES só nasce de edição à mão
+     * no JSON (o tradutor grava uma tradução por texto). Até 25/09/2026 vencia a última, em
+     * silêncio: quem corrigia a PRIMEIRA ocorrência perdia a correção sem saber. Agora: com
+     * duas traduções de frequências diferentes, vence a MENOS frequente — a editada; em
+     * empate ou com três ou mais, vence a última, como antes. Toda divergência é avisada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista nula devolve mapa vazio; entrada com tradução
+     * vazia é ignorada.
+     */
+    private Map<String, String> montarMapa(List<EntradaCache> entradas, Path arquivoCache) {
         Map<String, String> mapa = new HashMap<>();
         if (entradas == null) {
             return mapa;
         }
+        Map<String, Map<String, Integer>> contagem = new java.util.LinkedHashMap<>();
         for (EntradaCache entrada : entradas) {
             if (entrada.traduzido() != null && !entrada.traduzido().isBlank()) {
                 mapa.put(entrada.original(), entrada.traduzido());
+                contagem.computeIfAbsent(entrada.original(), k -> new java.util.LinkedHashMap<>())
+                    .merge(entrada.traduzido(), 1, Integer::sum);
             }
+        }
+        int divergentes = 0;
+        String exemplo = null;
+        for (Map.Entry<String, Map<String, Integer>> e : contagem.entrySet()) {
+            Map<String, Integer> traducoes = e.getValue();
+            if (traducoes.size() < 2) {
+                continue;
+            }
+            divergentes++;
+            if (traducoes.size() == 2) {
+                List<Map.Entry<String, Integer>> par = List.copyOf(traducoes.entrySet());
+                int a = par.get(0).getValue();
+                int b = par.get(1).getValue();
+                if (a != b) {
+                    mapa.put(e.getKey(), a < b ? par.get(0).getKey() : par.get(1).getKey());
+                }
+            }
+            if (exemplo == null) {
+                exemplo = "\"" + e.getKey() + "\" -> " + traducoes.keySet() + " (usada: \""
+                    + mapa.get(e.getKey()) + "\")";
+            }
+        }
+        if (divergentes > 0) {
+            log.warn("Cache {} tem {} fala(s) com traducoes DIVERGENTES entre as repeticoes. Ex.: {}",
+                arquivoCache, divergentes, exemplo);
+            System.out.println("[CACHE] ATENÇÃO: " + divergentes + " fala(s) com traduções diferentes "
+                + "nas repetições de " + arquivoCache.getFileName() + " — vale a editada (a menos "
+                + "frequente); no empate, a última. Ex.: " + exemplo);
         }
         return mapa;
     }

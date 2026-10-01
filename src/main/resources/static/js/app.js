@@ -23,8 +23,10 @@ import { initTelemetria } from '../telemetria/telemetria.js?v=3.1';
 import { initDocumentacao } from '../documentacao/documentacao.js?v=3.0';
 import { initSobre } from '../sobre/sobre.js?v=3.0';
 import { initRenomearArquivos } from '../renomearArquivos/renomearArquivos.js?v=3.0';
-import { initNovoKaraoke } from '../novoKaraoke/novoKaraoke.js?v=1.0';
-import { initTraducaoKaraoke } from '../traducaoKaraoke/traducaoKaraoke.js?v=1.1';
+// 4.3 Karaokê Simples foi ABSORVIDO pela tela única 4.1 Karaokê em 21/09/2026: o achatamento virou
+// o Passo 2 da mesma tela (chama /api/novo-karaoke/* direto). O backend do achatador continua vivo;
+// só o módulo/tela frontend próprio deixou de existir. Ver traducaoKaraoke.js.
+import { initTraducaoKaraoke } from '../traducaoKaraoke/traducaoKaraoke.js?v=1.4';
 import { initInicio } from '../inicio/inicio.js?v=1.0';
 import { inicializarI18n } from '../i18n/i18n.js?v=2.1';
 
@@ -82,18 +84,14 @@ const CONFIG_SECOES = {
         subtitulo: "Correção determinística de gênero (o menina → a menina) na legenda PT-BR, sem inglês nem LLM"
     },
 
-    // --- 4. KARAOKÊ --- (o simplificador é o 4.3 porque APAGA a animação: vem por último)
+    // --- 4. KARAOKÊ --- (tela única desde 21/09/2026: traduzir + achatar em duas passadas)
     "traducao-karaoke": {
-        titulo: "4.1 Tradução de Karaokê",
-        subtitulo: "Letras de música em PT-BR com o japonês/romaji original preservado junto na tela"
+        titulo: "4.1 Karaokê",
+        subtitulo: "Traduzir as letras (romaji + PT-BR juntos) e depois achatar a animação — duas passadas na mesma tela"
     },
     cura: {
         titulo: "4.2 Correção de Karaokê",
         subtitulo: "Corrige a legenda PT-BR usando a original como referência imutável"
-    },
-    "novo-karaoke": {
-        titulo: "4.3 Karaokê Simples",
-        subtitulo: "Conversão de karaokê KFX em legendas simples e limpas, preservando o tempo original"
     },
 
     // --- 5. FINALIZAÇÃO ---
@@ -253,7 +251,6 @@ async function inicializarModulos() {
     initAnalise();
     initExtracao();
     await initAuditorConteudo();
-    await initNovoKaraoke();
     await initTraducaoKaraoke();
     initTraducao();
     initTraducaoSemLore();
@@ -320,7 +317,11 @@ function conectarFluxoLugsSSE() {
         'cura': 'console-cura',
         'remuxer': 'console-remuxer',
         'renomear-arquivos': 'console-renomear-arquivos',
-        'novo-karaoke': 'console-novo-karaoke',
+        // TELA ÚNICA DE KARAOKÊ (21/09/2026): as duas passadas logam no MESMO console. O backend do
+        // achatador publica no canal 'novo-karaoke'; a tradução, em 'traducao-karaoke'. Os dois
+        // canais apontam para o console da tela unificada. Faltar uma entrada aqui deixa a passada
+        // MUDA sem erro (cicatriz registrada acima).
+        'novo-karaoke': 'console-traducao-karaoke',
         'traducao-karaoke': 'console-traducao-karaoke'
     };
 
@@ -1038,7 +1039,6 @@ function inicializarMetadadosDinamicos() {
         { inputId: 'revisao-lore-entrada-original', selectId: 'revisao-lore-contexto', bannerId: 'meta-banner-revisao-lore' },
         { inputId: 'troca-tipo-legenda-entrada', selectId: 'troca-tipo-legenda-contexto', bannerId: 'meta-banner-troca-tipo-legenda' },
         { inputId: 'limpanome-entrada', selectId: 'renomear-arquivos-contexto', bannerId: 'meta-banner-limpanome' },
-        { inputId: 'novo-karaoke-entrada', selectId: 'novo-karaoke-contexto', bannerId: 'meta-banner-novo-karaoke' },
         { inputId: 'traducao-karaoke-entrada', selectId: 'traducao-karaoke-contexto', bannerId: 'meta-banner-traducao-karaoke' },
         { inputId: 'revisao-concordancia-entrada', selectId: 'revisao-concordancia-contexto', bannerId: 'meta-banner-revisao-concordancia' }
     ];
@@ -1075,7 +1075,7 @@ function inicializarMetadadosDinamicos() {
 
     // Popula automaticamente todos os selects de contexto dos módulos auxiliares.
     const popularContextos = () => {
-        carregarContextosAuxiliares(['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'], () => {
+        carregarContextosAuxiliares(['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'], () => {
             mapeamentoFormularios.forEach(atualizarItem);
         });
     };
@@ -1084,7 +1084,6 @@ function inicializarMetadadosDinamicos() {
     document.addEventListener('revisao-lore:painel-carregado', popularContextos);
     document.addEventListener('troca-tipo-legenda:painel-carregado', popularContextos);
     document.addEventListener('renomear-arquivos:painel-carregado', popularContextos);
-    document.addEventListener('novo-karaoke:painel-carregado', popularContextos);
     // A Tradução de Karaokê disparava o evento desde sempre, mas ninguém repopulava o
     // seletor dela: o painel é injetado depois do carregamento inicial, então o combo de
     // lore ficava vazio. Achado ao pendurar a trava de lore, que depende desse seletor.
@@ -1202,7 +1201,7 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
         // traducao-karaoke-contexto NÃO é auxiliar: o contexto alimenta o prompt
         // do LLM (lore), então recebe a obra padrão pré-selecionada, como o
         // select da Tradução Local.
-        const todosSelects = ['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'novo-karaoke-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'];
+        const todosSelects = ['extracao-contexto', 'auditor-conteudo-contexto', 'remuxer-contexto', 'analise-contexto', 'traducao-contexto', 'correcao-contexto', 'revisao-contexto', 'cura-contexto', 'revisao-lore-contexto', 'troca-tipo-legenda-contexto', 'renomear-arquivos-contexto', 'traducao-karaoke-contexto', 'revisao-concordancia-contexto'];
         todosSelects.forEach(id => {
             const select = document.getElementById(id);
             if (!select) return;
@@ -1217,7 +1216,7 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
             // operação, não de motor — o remux publica um arquivo definitivo, de gigabytes, com
             // nome derivado da legenda; começar o lote sem ter dito de qual obra se trata é o
             // caminho curto para publicar a temporada errada numa pasta e só descobrir depois.
-            const ehAuxiliar = (id === 'extracao-contexto' || id === 'auditor-conteudo-contexto' || id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'novo-karaoke-contexto' || id === 'revisao-concordancia-contexto');
+            const ehAuxiliar = (id === 'extracao-contexto' || id === 'auditor-conteudo-contexto' || id === 'analise-contexto' || id === 'correcao-contexto' || id === 'cura-contexto' || id === 'troca-tipo-legenda-contexto' || id === 'renomear-arquivos-contexto' || id === 'revisao-concordancia-contexto');
             const ehRevisaoLore = (id === 'revisao-lore-contexto');
             select.innerHTML = '';
 
@@ -1245,6 +1244,20 @@ async function carregarContextosAuxiliares(idsSelects, onComplete) {
                 optSemObra.textContent = '— Sem obra (seguir sem capa/lore) —';
                 optSemObra.dataset.liberaTrava = 'true';
                 select.appendChild(optSemObra);
+            }
+
+            // TELA ÚNICA DE KARAOKÊ (4.1): a fuga "sem lore" existe para o Passo 2 (achatar), que
+            // NÃO usa lore — inclusive para voltar depois e só limpar uma pasta já traduzida, sem
+            // reescolher a obra. É liberaTrava com value VAZIO (não 'sem_lore'): o endpoint de
+            // tradução do karaokê exige um contexto que exista no backend, e 'sem_lore' não é um
+            // ProvedorContexto registrado (só o endpoint da 2.2 o trata). O Passo 1 (traduzir) exige
+            // obra real — a validação no traducaoKaraoke.js recusa traduzir sem lore com mensagem clara.
+            if (id === 'traducao-karaoke-contexto') {
+                const optSemLore = document.createElement('option');
+                optSemLore.value = '';
+                optSemLore.textContent = '— Sem lore (apenas achatar) —';
+                optSemLore.dataset.liberaTrava = 'true';
+                select.appendChild(optSemLore);
             }
 
             const fonteContextos = ehRevisaoLore && Array.isArray(contextosRevisaoLore) && contextosRevisaoLore.length > 0

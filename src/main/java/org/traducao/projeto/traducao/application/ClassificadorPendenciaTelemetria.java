@@ -76,8 +76,18 @@ public class ClassificadorPendenciaTelemetria {
         if (m.contains("truncad")) {
             return CausaRaizPendencia.RESPOSTA_TRUNCADA;
         }
-        if (m.contains("divergent") || m.contains("quebras de linha") || m.contains("tags ass/ssa")) {
+        // "retornou N linha(s), esperado M" é a DivergenciaLinhasException: o modelo fundiu ou
+        // partiu falas. Até 25/09/2026 esta mensagem nunca chegava aqui — o pipeline devolvia o
+        // original e o portão final relatava eco —, por isso o balde existia e ficava vazio.
+        if (m.contains("divergent") || m.contains("quebras de linha") || m.contains("tags ass/ssa")
+                || m.contains("linha(s), esperado")) {
             return CausaRaizPendencia.ESTRUTURA_DIVERGENTE;
+        }
+        // As três reprovações de PAR do validador: a tradução é português limpo, mas o original
+        // prova que ela diz outra coisa. Sem balde próprio caíam no ECO, a causa oposta.
+        if (m.contains("entidade trocada") || m.contains("locutor/narração inventado")
+                || m.contains("locutor/narracao inventado") || m.contains("desproporcional")) {
+            return CausaRaizPendencia.CONTEUDO_NAO_ANCORADO;
         }
         // O modelo falando SOBRE a tarefa vem antes do resíduo: as duas coisas apareciam com o
         // mesmo rótulo e pedem conserto oposto. "Meta-resposta" entra aqui porque é a mensagem

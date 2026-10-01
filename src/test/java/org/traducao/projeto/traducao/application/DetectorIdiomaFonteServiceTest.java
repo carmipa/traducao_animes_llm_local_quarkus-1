@@ -108,4 +108,23 @@ class DetectorIdiomaFonteServiceTest {
         assertTrue(detector.jaNoIdiomaAlvo("A força nacional será derrotada.", PT));
         assertTrue(detector.jaNoIdiomaAlvo("Ninguém será derrotado hoje à noite.", PT));
     }
+
+    /**
+     * MEDIDO em 25/09/2026 com esta classe sobre as 218.881 falas inglesas do acervo: esta foi a
+     * UNICA fala de dialogo dada como ja-portugues — publicada em ingles sem virar pendencia. O
+     * emprestimo "protégé" da os dois acentos em palavra minuscula que o ramo de diacriticos aceita.
+     */
+    @Test
+    void inglesComEmprestimoAcentuadoNaoEhPortugues() {
+        assertFalse(detector.jaNoIdiomaAlvo("{\\i1}I had a protégé, a young pilot\\Nnamed Lalah Sune.", PT));
+    }
+
+    /**
+     * CASO-CONTROLE DE FRONTEIRA (A1) da anterior: o MESMO sinal — acentos em palavra minuscula,
+     * nenhuma stopword portuguesa — numa fala que e portugues. Tem de continuar reconhecida.
+     */
+    @Test
+    void portuguesSoPorDiacriticosContinuaReconhecido() {
+        assertTrue(detector.jaNoIdiomaAlvo("Café quente só amanhã cedo.", PT));
+    }
 }

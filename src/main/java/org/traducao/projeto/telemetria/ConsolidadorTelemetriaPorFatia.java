@@ -181,7 +181,7 @@ public class ConsolidadorTelemetriaPorFatia {
         limpa.put("registradoEm", instante);
 
         String fatia = FatiaTelemetria.de(tipo);
-        String chave = tipo + " " + instante + " " + detalhe;
+        String chave = tipo + "\u0000" + instante + "\u0000" + detalhe;
         porFatia.computeIfAbsent(fatia, f -> new LinkedHashMap<>()).putIfAbsent(chave, limpa);
     }
 

@@ -178,6 +178,11 @@ public class GoogleFallbackAdapter implements FallbackTraducaoMaquinaPort {
             }
             corpo = resposta.corpo();
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                // O catch genérico consumia o sinal de parada: o Sair do operador virava "Google
+                // indisponível" e o laço seguia para a próxima fala (achado da auditoria da 2.1).
+                Thread.currentThread().interrupt();
+            }
             log.warn("Fallback Google: falha de comunicação ({}) — fala mantida pendente.", e.getMessage());
             return ResultadoFallback.recusada(ProvedorFallback.GOOGLE, StatusFallback.PROVEDOR_INDISPONIVEL, "falha de comunicacao: " + e.getMessage());
         }

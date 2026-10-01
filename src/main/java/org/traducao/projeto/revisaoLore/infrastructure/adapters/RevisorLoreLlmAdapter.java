@@ -206,7 +206,7 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
         List<String> marcadoresEsperados = normalizador.extrairMarcadores(traducaoMascarada);
         for (int tentativa = 1; tentativa <= MAX_TENTATIVAS_REVISAO; tentativa++) {
             try {
-                RespostaLlm resposta = httpClient.post("/chat/completions", request, RespostaLlm.class);
+                RespostaLlm resposta = postarChat(request);
 
                 if (resposta == null || resposta.choices() == null || resposta.choices().isEmpty()) {
                     log.warn("Resposta LLM sem choices (tentativa {}/{}; modelo={}).",
@@ -250,6 +250,18 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
                         break;
                     }
                 }
+            } catch (InterruptedException e) {
+                // Parada cooperativa: o botao "Parar" faz future.cancel(true), que interrompe esta
+                // thread. HttpClient.send lanca InterruptedException (JDK) e LIMPA o flag; a chamada
+                // ao LLM e a janela dominante (ate read-timeout por tentativa). Sem restaurar o flag
+                // aqui, o catch (Exception) abaixo engolia a interrupcao, dormia a pausa, RE-TENTAVA
+                // a POST, e de volta ao laco Thread.isInterrupted() dava false — o job seguia
+                // sobrescrevendo `.ass` DEPOIS de o operador mandar parar. Restaura o flag e encerra:
+                // a parada cooperativa do RevisarLoreUseCase volta a disparar no proximo ponto seguro.
+                Thread.currentThread().interrupt();
+                log.warn("Revisao de lore interrompida durante a chamada ao LLM (tentativa {}/{}).",
+                    tentativa, MAX_TENTATIVAS_REVISAO);
+                break;
             } catch (Exception e) {
                 log.warn("Falha na chamada LLM (tentativa {}/{}): {}",
                     tentativa, MAX_TENTATIVAS_REVISAO, e.getMessage());
@@ -264,6 +276,21 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: seam de transporte — a única chamada de rede da revisão, isolada num
+     * método sobrescrevível para o teste exercitar a política de tentativa/interrupção sem subir
+     * um servidor HTTP (Receita A §5 da arquitetura).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: propaga a {@link InterruptedException} do {@code HttpClient.send}
+     * sem engoli-la — o laço chamador é quem decide encerrar a parada cooperativa.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: repassa {@link HttpClientException} (status HTTP),
+     * {@link java.io.IOException} (rede/timeout) e {@link InterruptedException} ao chamador.
+     */
+    protected RespostaLlm postarChat(ChatRequest request) throws java.io.IOException, InterruptedException {
+        return httpClient.post("/chat/completions", request, RespostaLlm.class);
     }
 
     /**

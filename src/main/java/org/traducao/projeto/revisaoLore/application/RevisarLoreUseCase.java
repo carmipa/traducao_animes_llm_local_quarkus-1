@@ -85,6 +85,11 @@ public class RevisarLoreUseCase {
     private final AlcanceRevisaoLore alcance;
     private final ProtecaoLegendaAssService protecaoAss;
     private final CorretorLoreDeterministico corretorLore;
+    // Peer `lore`, dono da IDENTIDADE de obra: decide se a pasta apontada e da obra cujo contexto
+    // foi selecionado. A 3.2 SOBRESCREVE o .ass; sem esta guarda, escolher a obra errada no menu
+    // grava a lore errada por cima da legenda. A traducao ja protege o cache assim.
+    private final org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto;
+    private final org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto;
 
     /**
      * Estado de UMA execução de revisão (log de eventos + relógio da sessão).
@@ -96,8 +101,12 @@ public class RevisarLoreUseCase {
      * De quanto em quanto tempo o progresso reaparece no console quando não há nada a relatar.
      *
      * <p>São 20s contra os 90s que o {@code pode-compilar.ps1} usa como limite de ociosidade —
-     * folga de 4,5x. O pior caso medido de uma fala é uma chamada ao LLM com retentativa, na
-     * casa dos 20s; mesmo duas seguidas cabem dentro do limite do portão.
+     * folga de 4,5x. Mas o batimento só sai ENTRE falas, nunca durante a chamada bloqueante ao
+     * LLM: o pior caso de silêncio é o bloqueio de UMA fala, que é
+     * {@code read-timeout × MAX_TENTATIVAS + pausa}. Por isso o {@code read-timeout} da
+     * {@code revisao-lore.llm} é 30s (não os 180s do tradutor de lotes): 2×30+2 = 62s < 90s.
+     * A relação é congelada por {@code ConsoleDaRevisaoLoreNaoCegaOPortaoTest} — foi ela que
+     * derivou quando o timeout ficou em 180s (até 362s de silêncio) sem ninguém perceber.
      */
     private static final long INTERVALO_BATIMENTO_MS = 20_000L;
 
@@ -175,7 +184,9 @@ public class RevisarLoreUseCase {
         RevisaoLoreAuditoriaCache auditoriaCache,
         AlcanceRevisaoLore alcance,
         ProtecaoLegendaAssService protecaoAss,
-        CorretorLoreDeterministico corretorLore
+        CorretorLoreDeterministico corretorLore,
+        org.traducao.projeto.lore.infrastructure.GerenciadorContexto gerenciadorContexto,
+        org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validadorObraContexto
     ) {
         this.leitor = leitor;
         this.escritor = escritor;
@@ -190,6 +201,8 @@ public class RevisarLoreUseCase {
         this.alcance = alcance;
         this.protecaoAss = protecaoAss;
         this.corretorLore = corretorLore;
+        this.gerenciadorContexto = gerenciadorContexto;
+        this.validadorObraContexto = validadorObraContexto;
     }
 
     /**
@@ -209,6 +222,20 @@ public class RevisarLoreUseCase {
         SessaoRevisao sessao = new SessaoRevisao();
 
         validarEntrada(pastaOriginal, pastaTraduzida, contextoId);
+
+        // GUARDA OBRA×CONTEXTO: a 3.2 SOBRESCREVE o .ass; escolher a obra errada no menu grava a
+        // lore errada por cima da legenda. A decisao mora no peer `lore` (o mesmo que protege o
+        // cache da traducao) e FALHA ABERTA (INDETERMINADO segue com aviso) — so bloqueia com PROVA
+        // POSITIVA de divergencia/ambiguidade, entao false-bloqueio e improvavel.
+        String obraDaPasta = obraDaPastaTraduzida(pastaTraduzida);
+        java.util.Set<String> reconhecedores = gerenciadorContexto.idsQueReconhecem(obraDaPasta);
+        Optional<String> bloqueioObra = avaliarBloqueioObraContexto(
+            validadorObraContexto, pastaTraduzida.toString(), obraDaPasta, contextoId, reconhecedores);
+        if (bloqueioObra.isPresent()) {
+            throw new RevisaoLoreException(bloqueioObra.get());
+        }
+        avisoObraNaoVerificada(validadorObraContexto, obraDaPasta, contextoId, reconhecedores)
+            .ifPresent(msg -> sessao.out(AnsiCores.YELLOW + "  [Aviso] " + msg + AnsiCores.RESET));
 
         StatusRevisaoLoreLlm status = revisorLoreLlm.verificarDisponibilidade();
         if (!status.modeloCarregado()) {
@@ -274,13 +301,13 @@ public class RevisarLoreUseCase {
                 sessao.out(AnsiCores.YELLOW + "  [Aviso] " + msg + AnsiCores.RESET);
             }
 
-            int totalFalasGlobais = contarDialogosAuditaveisNoLote(originais, pastaTraduzida);
+            int totalFalasGlobais = contarDialogosAuditaveisNoLote(originais, pastaOriginal, pastaTraduzida);
             sessao.out("Falas auditaveis no lote: " + totalFalasGlobais);
 
             for (int indiceArquivo = 0; indiceArquivo < originais.size(); indiceArquivo++) {
                 Path arqOriginal = originais.get(indiceArquivo);
                 processarArquivo(
-                    sessao, arqOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
+                    sessao, arqOriginal, pastaOriginal, pastaTraduzida, contextoId, nomePromptRevisao,
                     revisarTodasFalas, promptSistemaRevisaoLore, loreCanonica, equivalenciasDaObra, nomesDaObra, pastaBackup,
                     indiceArquivo + 1, originais.size(), totalFalasGlobais,
                     arquivosAnalisados, arquivosAlterados, falasAuditadas, falasSinalizadas,
@@ -302,17 +329,7 @@ public class RevisarLoreUseCase {
         // pendencia que nunca foi dela.
         int falasPendentes = falasSemResposta[0] + falasDescartadas[0];
 
-        // CEGUEIRA — regra 12: "nada a corrigir" e "nao comparei nada" NAO podem dar o mesmo
-        // sinal. Se TODA fala auditada saiu como identica ao original, a tela nao comparou coisa
-        // alguma: ou o par esta errado, ou a pasta apontada nao e a traducao. Sem esta linha o
-        // lote fecharia CONCLUIDO, em VERDE — que foi exatamente o defeito que a 3.1 pagou para
-        // eliminar com o CONCLUIDO_SEM_REFERENCIA, e que o item C de hoje reabriu aqui ao tirar
-        // as encaminhadas da conta de pendencias.
-        if (falasAuditadas[0] > 0 && falasEncaminhadasOpcao6[0] == falasAuditadas[0]) {
-            erros.add("CEGO: as " + falasAuditadas[0] + " falas auditadas estavam IDENTICAS ao "
-                + "original — nenhuma foi comparada de verdade. Confira se a 2a pasta e mesmo a "
-                + "traducao PT-BR e se ela corresponde a 1a. Nada foi gravado.");
-        }
+        avisoDeFolhaNaoComparada(falasAuditadas[0], falasEncaminhadasOpcao6[0]).ifPresent(erros::add);
         StatusRevisaoLore statusFinal = determinarStatus(semArquivos, cancelado[0], erros, falasPendentes);
 
         sessao.out("Arquivos analisados: " + arquivosAnalisados[0]);
@@ -402,6 +419,48 @@ public class RevisarLoreUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: impede que a tela feche VERDE "CONCLUÍDO" quando a pasta apontada
+     * está, na verdade, não traduzida — o operador leria verde e publicaria legenda em inglês.
+     *
+     * <h2>Dois níveis, com a decisão de 17/08/2026 preservada</h2>
+     * As falas "encaminhadas à Opção 6" (PT idêntico ao EN = não traduzidas) saíram da conta de
+     * pendências de propósito: falta de tradução é trabalho da 3.1, não da 3.2, e contá-las fazia a
+     * tela fechar amarela por problema alheio. ALGUMAS falas não traduzidas continuam verde. Mas:
+     * <ul>
+     *   <li><b>100% idênticas</b> — a tela não comparou NADA (regra 12: "nada a corrigir" e "não
+     *       comparei nada" não podem dar o mesmo sinal): ou o par está errado, ou a 2ª pasta não é
+     *       a tradução. É o defeito que a 3.1 pagou para eliminar (CONCLUIDO_SEM_REFERENCIA);</li>
+     *   <li><b>maioria (mais da metade)</b> — a pasta está predominantemente NÃO traduzida. O
+     *       limite é a MAIORIA matemática ({@code encaminhadas*2 > auditadas}), não uma porcentagem
+     *       inventada (regra A8): mais falas em inglês do que a 3.2 conseguiu sequer auditar por
+     *       lore significa "pasta errada / não pronta", e verde ali engana.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: sem falas auditadas, sem veredito (não infla o sinal). O aviso
+     * entra em {@code erros}, o que torna o status CONCLUIDO_COM_PENDENCIAS (amarelo) — a cor honesta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} quando não
+     * há motivo de alerta.
+     */
+    static Optional<String> avisoDeFolhaNaoComparada(int falasAuditadas, int falasEncaminhadasOpcao6) {
+        if (falasAuditadas <= 0) {
+            return Optional.empty();
+        }
+        if (falasEncaminhadasOpcao6 == falasAuditadas) {
+            return Optional.of("CEGO: as " + falasAuditadas + " falas auditadas estavam IDENTICAS ao "
+                + "original — nenhuma foi comparada de verdade. Confira se a 2a pasta e mesmo a "
+                + "traducao PT-BR e se ela corresponde a 1a. Nada foi gravado.");
+        }
+        if (falasEncaminhadasOpcao6 * 2 > falasAuditadas) {
+            return Optional.of("A MAIORIA das falas (" + falasEncaminhadasOpcao6 + " de "
+                + falasAuditadas + ") esta IDENTICA ao original ingles — a pasta esta "
+                + "predominantemente NAO TRADUZIDA. Rode a Opcao 6 (traduzir) antes da Opcao 7. "
+                + "Verde na 3.2 significa 'lore conforme', nao 'tudo traduzido'.");
+        }
+        return Optional.empty();
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: preserva a legenda PT-BR anterior antes de a revisão
      * de lore sobrescrever o arquivo, evitando perda por correção equivocada.
      *
@@ -412,9 +471,15 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: lança {@link RevisaoLoreException} e
      * bloqueia a escrita da nova legenda (o arquivo original permanece intacto).
      */
-    static Path criarBackup(Path arquivo, Path pastaBackup) {
-        Path backup = pastaBackup.resolve(arquivo.getFileName()).normalize();
-        if (!backup.startsWith(pastaBackup)) {
+    static Path criarBackup(Path arquivo, Path pastaTraduzida, Path pastaBackup) {
+        // Espelha a subpasta do PT dentro do backup. Se so o nome-base fosse usado, dois arquivos
+        // de mesmo nome em subpastas diferentes teriam o MESMO backup, e o segundo nunca seria
+        // salvo (Files.notExists = false) — perda silenciosa da versao anterior de um deles.
+        Path relativo = arquivo.startsWith(pastaTraduzida)
+            ? pastaTraduzida.relativize(arquivo)
+            : arquivo.getFileName();
+        Path backup = pastaBackup.resolve(relativo).normalize();
+        if (!backup.startsWith(pastaBackup.normalize())) {
             throw new RevisaoLoreException("Caminho de backup invalido para: " + arquivo);
         }
         try {
@@ -472,6 +537,74 @@ public class RevisarLoreUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: deriva o nome da OBRA a partir da pasta de legendas PT-BR selecionada,
+     * para a guarda perguntar ao catálogo de contextos se ela é da obra cujo contexto foi escolhido.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa a MESMA semântica de {@code ResolvedorCacheTraducao.
+     * animeAPartirDoArquivo} (a obra é a pasta-AVÓ do arquivo = a pasta-PAI da pasta de legendas),
+     * para os dois lados concordarem sobre o que é "a obra" de um caminho. Layout típico do acervo:
+     * {@code <obra>/traducao_ptbr/ep.ass} — a pasta PT é {@code traducao_ptbr} e a obra é o pai dela.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta sem pai (raiz) devolve o próprio nome da pasta; nulo
+     * devolve string vazia, que o validador trata como INDETERMINADO (falha aberta).
+     */
+    static String obraDaPastaTraduzida(Path pastaTraduzida) {
+        if (pastaTraduzida == null) {
+            return "";
+        }
+        Path pai = pastaTraduzida.getParent();
+        Path nome = pai != null ? pai.getFileName() : pastaTraduzida.getFileName();
+        return nome != null ? nome.toString() : "";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: traduz o veredicto obra×contexto em BLOQUEIO — a mensagem a mostrar
+     * quando a pasta é, com PROVA POSITIVA, de outra obra (DIVERGENTE) ou de identidade não
+     * resolvível (AMBÍGUO). Nesses dois casos a 3.2 não pode sobrescrever a legenda com a lore
+     * selecionada.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só bloqueia DIVERGENTE e AMBÍGUO; CASA e INDETERMINADO seguem
+     * (falha aberta — a mesma política da guarda da tradução, calibrada em produção). A decisão é
+     * do peer {@code lore}; aqui só se escolhe a mensagem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} quando não
+     * há bloqueio.
+     */
+    static Optional<String> avaliarBloqueioObraContexto(
+            org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validador,
+            String caminho, String obra, String contextoId, java.util.Set<String> reconhecedores) {
+        return switch (validador.avaliar(obra, contextoId, reconhecedores)) {
+            case DIVERGENTE -> Optional.of(
+                validador.mensagemDeBloqueio(caminho, obra, contextoId, reconhecedores));
+            case AMBIGUO -> Optional.of(
+                validador.mensagemDeAmbiguidade(caminho, obra, contextoId, reconhecedores));
+            case CASA, INDETERMINADO -> Optional.empty();
+        };
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando a obra não é reconhecida por nenhum contexto (INDETERMINADO), a
+     * checagem foi PULADA — torna isso visível ao operador em vez de dar falsa impressão de que a
+     * pasta foi conferida. Distingue pasta genérica ("Season 05") de obra ainda sem lore, porque os
+     * consertos são opostos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só o desfecho INDETERMINADO gera aviso; CASA e os bloqueios não.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método puro; devolve {@link Optional#empty()} sem aviso.
+     */
+    static Optional<String> avisoObraNaoVerificada(
+            org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto validador,
+            String obra, String contextoId, java.util.Set<String> reconhecedores) {
+        if (validador.avaliar(obra, contextoId, reconhecedores)
+                != org.traducao.projeto.lore.domain.VeredictoObraContexto.INDETERMINADO) {
+            return Optional.empty();
+        }
+        return Optional.of(validador.pastaGenerica(obra)
+            ? validador.mensagemDePastaGenerica(obra, contextoId)
+            : validador.mensagemDeIndeterminacao(obra, contextoId));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: revisa um par EN/PT-BR, preservando falas que não
      * podem ser corrigidas com segurança e acumulando métricas da sessão.
      * <p>INVARIANTES DO DOMÍNIO: o par precisa ter estrutura alinhada; somente
@@ -482,6 +615,7 @@ public class RevisarLoreUseCase {
     private void processarArquivo(
         SessaoRevisao sessao,
         Path arqOriginal,
+        Path pastaOriginal,
         Path pastaTraduzida,
         String contextoId,
         String nomePromptRevisao,
@@ -507,7 +641,7 @@ public class RevisarLoreUseCase {
         List<String> erros
     ) {
         String nomeOriginal = arqOriginal.getFileName().toString();
-        Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaTraduzida);
+        Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
         if (!Files.exists(arqTraduzido)) {
             String msg = "Sem par traduzido para: " + nomeOriginal;
             erros.add(msg);
@@ -744,26 +878,21 @@ public class RevisarLoreUseCase {
                         continue;
                     }
                     if (mesmaFalaVisivel(revisada, textoPt)) {
-                        if (deteccao.suspeito()) {
-                            falasDescartadas[0]++;
-                    pendentesNoArquivo++;
-                            sessao.out(AnsiCores.YELLOW + marcadorFala
-                                + " pendente: LLM nao alterou a fala suspeita" + AnsiCores.RESET);
-                            registrarAuditoria(
-                                contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                                dialogoAtual, totalDialogos, "PENDENTE_SEM_MELHORIA", deteccao.motivos(),
-                                textoEn, textoPt, revisadaOpt.get(), textoPt,
-                                "Resposta manteve os indícios originais de lore"
-                            );
-                        } else {
-                            falasSemAlteracao[0]++;
-                            sessao.out(AnsiCores.DIM + marcadorFala + " conforme apos revisao LLM" + AnsiCores.RESET);
-                            registrarAuditoria(
-                                contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                                dialogoAtual, totalDialogos, "CONFORME", deteccao.motivos(),
-                                textoEn, textoPt, revisadaOpt.get(), textoPt, null
-                            );
-                        }
+                        // deteccao.suspeito() e sempre true aqui: a fala limpa ja saiu no
+                        // `if (!deteccao.suspeito())` acima (o LLM e ultimo recurso, so roda em
+                        // fala acusada). LLM que devolve a mesma fala suspeita = pendente. O ramo
+                        // "conforme apos revisao LLM" era inalcancavel — resto do modo preventivo
+                        // removido em 17/08/2026; ver LlmEmFalaSemIndicioDeLoreEInerteTest.
+                        falasDescartadas[0]++;
+                        pendentesNoArquivo++;
+                        sessao.out(AnsiCores.YELLOW + marcadorFala
+                            + " pendente: LLM nao alterou a fala suspeita" + AnsiCores.RESET);
+                        registrarAuditoria(
+                            contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
+                            dialogoAtual, totalDialogos, "PENDENTE_SEM_MELHORIA", deteccao.motivos(),
+                            textoEn, textoPt, revisadaOpt.get(), textoPt,
+                            "Resposta manteve os indícios originais de lore"
+                        );
                         novosEventos.add(evtTraduzido);
                         continue;
                     }
@@ -837,21 +966,11 @@ public class RevisarLoreUseCase {
                     }
                 }
 
-                if (deteccao.motivos().isEmpty()) {
-                    falasSemAlteracao[0]++;
-                    sessao.out(AnsiCores.YELLOW + marcadorFala
-                        + " conforme; proposta preventiva ignorada por não haver indício de lore"
-                        + AnsiCores.RESET);
-                    registrarAuditoria(
-                        contextoId, nomePromptRevisao, revisarTodasFalas, arqTraduzido, i + 1,
-                        dialogoAtual, totalDialogos, "CONFORME_PROPOSTA_PREVENTIVA_IGNORADA", deteccao.motivos(),
-                        textoEn, textoPt, revisadaOpt.get(), textoPt,
-                        "Alteracao proposta em fala sem motivo heuristico de lore"
-                    );
-                    novosEventos.add(evtTraduzido);
-                    continue;
-                }
-
+                // deteccao.motivos() nunca esta vazio aqui: a fala limpa ja saiu no
+                // `if (!deteccao.suspeito())` acima (suspeito <=> ha motivo, por construcao do
+                // detector). O ramo "CONFORME_PROPOSTA_PREVENTIVA_IGNORADA" era inalcancavel —
+                // resto do modo "LLM preventivo em fala limpa" removido em 17/08/2026, provado
+                // por LlmEmFalaSemIndicioDeLoreEInerteTest (o LLM nem e chamado em fala limpa).
                 novosEventos.add(evtTraduzido.comTexto(revisada));
                 houveModificacao = true;
                 corrigidasNoArquivo++;
@@ -872,7 +991,7 @@ public class RevisarLoreUseCase {
                     docTraduzido.quebraDeLinha(),
                     docTraduzido.comBom()
                 );
-                Path backup = criarBackup(arqTraduzido, pastaBackup);
+                Path backup = criarBackup(arqTraduzido, pastaTraduzida, pastaBackup);
                 escritor.escrever(arqTraduzido, revisado);
                 arquivosAlterados[0]++;
                 sessao.out(AnsiCores.GREEN + "  [Revisado] " + arqTraduzido.getFileName()
@@ -1097,18 +1216,28 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: devolve o último candidato mesmo que
      * não exista, permitindo que o chamador produza o diagnóstico operacional.
      */
-    private Path localizarArquivoTraduzido(Path arqOriginal, Path pastaTraduzida) {
+    static Path localizarArquivoTraduzido(Path arqOriginal, Path pastaOriginal, Path pastaTraduzida) {
+        // Espelha a subpasta do EN dentro do PT. O EN e varrido com Files.walk RECURSIVO; se o PT
+        // fosse resolvido sempre na RAIZ, dois arquivos de mesmo nome em subpastas diferentes
+        // (`S1/ep01.ass`, `S2/ep01.ass`) apontariam para o MESMO PT — pareamento errado e backup
+        // colidindo. Parear pela subpasta relativa acerta o layout aninhado e, no caso plano
+        // (arquivo direto na raiz), a subpasta e vazia e o comportamento e identico ao anterior.
+        // Se o PT nao espelhar a estrutura, o par simplesmente nao e achado (pulado) — nunca
+        // mis-pareado.
+        Path relativo = pastaOriginal.relativize(arqOriginal);
+        Path subPasta = relativo.getParent();
+        Path destino = subPasta != null ? pastaTraduzida.resolve(subPasta) : pastaTraduzida;
         String nomeOriginal = arqOriginal.getFileName().toString();
         String nomeBase = nomeOriginal.substring(0, nomeOriginal.lastIndexOf('.'));
-        Path candidato = pastaTraduzida.resolve(nomeBase + "_PT-BR.ass");
+        Path candidato = destino.resolve(nomeBase + "_PT-BR.ass");
         if (Files.exists(candidato)) {
             return candidato;
         }
-        candidato = pastaTraduzida.resolve(nomeBase + "_PTBR.ass");
+        candidato = destino.resolve(nomeBase + "_PTBR.ass");
         if (Files.exists(candidato)) {
             return candidato;
         }
-        return pastaTraduzida.resolve(nomeOriginal);
+        return destino.resolve(nomeOriginal);
     }
 
     /**
@@ -1119,10 +1248,10 @@ public class RevisarLoreUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: um par ilegível é ignorado na prévia e
      * será diagnosticado normalmente quando chegar sua vez de processamento.
      */
-    private int contarDialogosAuditaveisNoLote(List<Path> originais, Path pastaTraduzida) {
+    private int contarDialogosAuditaveisNoLote(List<Path> originais, Path pastaOriginal, Path pastaTraduzida) {
         int total = 0;
         for (Path arqOriginal : originais) {
-            Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaTraduzida);
+            Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
             if (!Files.exists(arqTraduzido)) {
                 continue;
             }

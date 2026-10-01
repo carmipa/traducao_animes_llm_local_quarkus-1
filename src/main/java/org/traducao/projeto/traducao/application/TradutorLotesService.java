@@ -158,6 +158,48 @@ public class TradutorLotesService {
             Set<String> textosComQuebraIsolavel,
             String nomeArquivo, List<String> avisos, String promptCongelado)
             throws InterruptedException, ExecutionException {
+        return traduzirPendentes(textosPendentes, textosDeduplicaveis, textosComQuebraIsolavel,
+            nomeArquivo, avisos, promptCongelado, new DesfechoDasFalas());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução em lotes, devolvendo também, fala por fala, o que o
+     * pipeline DECIDIU — causa real de cada original mantido e quais falas vieram da segunda
+     * opinião — em {@code desfecho}, que o chamador cria e lê.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o mapa de traduções devolvido é o mesmo da sobrecarga sem
+     * desfecho; {@code desfecho} só acrescenta procedência, nunca muda tradução.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: no caminho parcial o desfecho é preenchido ANTES de a
+     * {@link TraducaoParcialException} ser relançada, para o cache parcial também respeitá-lo.
+     */
+    public Map<String, String> traduzirPendentes(
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            Set<String> textosComQuebraIsolavel,
+            String nomeArquivo, List<String> avisos, String promptCongelado,
+            DesfechoDasFalas desfecho)
+            throws InterruptedException, ExecutionException {
+        return traduzirPendentes(textosPendentes, textosDeduplicaveis, textosComQuebraIsolavel,
+            nomeArquivo, avisos, promptCongelado, desfecho, (anterior, seguinte) -> true);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma tradução, sabendo quais pares de falas são VIZINHOS no documento
+     * — a única informação que permite formar corrente de frase partida sem juntar falas distantes.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a lista de pendentes NÃO é o documento: dela já saíram as falas
+     * vindas do cache, as repetidas e as mantidas por fonte em português. Com a do meio fora, as
+     * duas vizinhas dela ficavam coladas na lista e podiam virar corrente (achado da auditoria de
+     * 25/09/2026). Com {@code vizinhas}, só liga quem é vizinho de verdade.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: predicado que aceita tudo reproduz o comportamento anterior.
+     */
+    public Map<String, String> traduzirPendentes(
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            Set<String> textosComQuebraIsolavel,
+            String nomeArquivo, List<String> avisos, String promptCongelado,
+            DesfechoDasFalas desfecho, java.util.function.BiPredicate<String, String> vizinhas)
+            throws InterruptedException, ExecutionException {
         if (textosPendentes.isEmpty()) {
             return Map.of();
         }
@@ -277,7 +319,7 @@ public class TradutorLotesService {
         // Com a flag ligada, uma frase partida entre eventos consecutivos vira UM lote, para
         // o LLM enxergar a frase inteira; o resto continua fatiado pelo tamanho configurado.
         List<List<String>> chunksRepresentantes = propriedades.agruparFrasePartida()
-            ? detectorCorrente.agrupar(representantes, tamanhoLote)
+            ? detectorCorrente.agrupar(representantes, tamanhoLote, vizinhas)
             : fatiarPorTamanho(representantes, tamanhoLote);
         List<Lote> lotes = new ArrayList<>();
         for (List<String> chunkReps : chunksRepresentantes) {
@@ -286,31 +328,104 @@ public class TradutorLotesService {
         }
 
         uiLogger.iniciarLotes(lotes.size(), nomeArquivo);
+        ProcedenciaPorRepresentante procedencia = new ProcedenciaPorRepresentante(textoMascaradoPorOriginal);
         List<TraducaoLote> resultados;
         try {
             resultados = processarEpisodioUseCase.processarEpisodio(lotes, promptCongelado);
         } catch (TraducaoParcialException e) {
             Map<String, String> mascaradoPorRepresentante = new HashMap<>();
             if (e.getLotesSalvos() != null) {
-                coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes, mascaradoPorRepresentante);
+                coletarMascaradoPorRepresentante(e.getLotesSalvos(), chunksRepresentantes,
+                    mascaradoPorRepresentante, procedencia);
             }
+            // A guarda de deslocamento também vale na PARADA: sem ela, uma corrente com o texto
+            // trocado de tempo ia para o cache parcial e era reaproveitada na retomada. Aqui não há
+            // retradução (o episódio está parando): a corrente reprovada simplesmente não é salva,
+            // e a próxima execução a traduz de novo.
+            if (propriedades.agruparFrasePartida()) {
+                correntesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal, mascaradoPorRepresentante)
+                    .forEach(mascaradoPorRepresentante::remove);
+            }
+            procedencia.transferirPara(desfecho, textosPendentes, representanteDeOriginal);
             Map<String, String> traducoesParciais = expandirParaCamadas(
                 textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto,
                 quebrasPorOriginal, semTagsPorOriginal, avisos);
-            throw new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
+            TraducaoParcialException relancada =
+                new TraducaoParcialException(e.getMessage(), traducoesParciais, e.getCause());
+            throw e.interrompidaPeloUsuario() ? relancada.marcarInterrompidaPeloUsuario() : relancada;
         } finally {
             uiLogger.finalizar();
         }
 
         Map<String, String> mascaradoPorRepresentante = new HashMap<>();
-        coletarMascaradoPorRepresentante(resultados, chunksRepresentantes, mascaradoPorRepresentante);
+        coletarMascaradoPorRepresentante(resultados, chunksRepresentantes, mascaradoPorRepresentante, procedencia);
         if (propriedades.agruparFrasePartida()) {
             retraduzirCorrentesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal,
-                mascaradoPorRepresentante, promptCongelado);
+                mascaradoPorRepresentante, promptCongelado, procedencia);
         }
+        procedencia.transferirPara(desfecho, textosPendentes, representanteDeOriginal);
         return expandirParaCamadas(
             textosPendentes, representanteDeOriginal, mascaradoPorRepresentante, tagsPorTexto,
             quebrasPorOriginal, semTagsPorOriginal, avisos);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: acumula, por REPRESENTANTE, o que o episódio decidiu sobre cada fala
+     * enviada — causa de ter mantido o original e tradução vinda da segunda opinião — e no fim
+     * repassa isso a cada fala original que o representante cobre (camadas deduplicadas incluídas).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a última coleta vence — a retradução individual de uma corrente
+     * reprovada SUBSTITUI o desfecho da passada agrupada, inclusive apagando uma causa que a nova
+     * passada não confirmou. O casamento é pelo texto MASCARADO, que é exatamente o que o episódio
+     * recebeu no lote.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: representante sem registro fica sem causa e fora da
+     * segunda opinião — ausência nunca é inventada.
+     */
+    private static final class ProcedenciaPorRepresentante {
+        private final Map<String, String> textoMascaradoPorOriginal;
+        private final Map<String, String> causaPorRepresentante = new HashMap<>();
+        private final Set<String> segundaOpiniaoPorRepresentante = new java.util.HashSet<>();
+
+        ProcedenciaPorRepresentante(Map<String, String> textoMascaradoPorOriginal) {
+            this.textoMascaradoPorOriginal = textoMascaradoPorOriginal;
+        }
+
+        void registrar(String representante, TraducaoLote lote) {
+            String mascarado = textoMascaradoPorOriginal.get(representante);
+            String causa = mascarado != null ? lote.causasDoOriginalMantido().get(mascarado) : null;
+            if (causa != null) {
+                causaPorRepresentante.put(representante, causa);
+            } else {
+                causaPorRepresentante.remove(representante);
+            }
+            if (mascarado != null && lote.mascaradosSegundaOpiniao().contains(mascarado)) {
+                segundaOpiniaoPorRepresentante.add(representante);
+            } else {
+                segundaOpiniaoPorRepresentante.remove(representante);
+            }
+        }
+
+        void registrarCausa(String representante, String causa) {
+            causaPorRepresentante.put(representante, causa);
+        }
+
+        void transferirPara(DesfechoDasFalas desfecho, Set<String> originais,
+                Map<String, String> representanteDeOriginal) {
+            for (String original : originais) {
+                String rep = representanteDeOriginal.get(original);
+                if (rep == null) {
+                    continue;
+                }
+                String causa = causaPorRepresentante.get(rep);
+                if (causa != null) {
+                    desfecho.registrarOriginalMantido(original, causa);
+                }
+                if (segundaOpiniaoPorRepresentante.contains(rep)) {
+                    desfecho.registrarSegundaOpiniao(original);
+                }
+            }
+        }
     }
 
     /**
@@ -348,24 +463,10 @@ public class TradutorLotesService {
      */
     private void retraduzirCorrentesReprovadas(
             List<List<String>> chunksRepresentantes, Map<String, String> textoMascaradoPorOriginal,
-            Map<String, String> mascaradoPorRepresentante, String promptCongelado) {
-        List<String> aRefazer = new ArrayList<>();
-        for (List<String> chunk : chunksRepresentantes) {
-            if (chunk.size() < 2) {
-                continue;
-            }
-            List<String> enviados = chunk.stream().map(textoMascaradoPorOriginal::get).toList();
-            List<String> recebidos = chunk.stream().map(mascaradoPorRepresentante::get).toList();
-            if (recebidos.stream().anyMatch(java.util.Objects::isNull)) {
-                continue;
-            }
-            GuardaCorrenteTraduzida.Veredito veredito = guardaCorrente.avaliar(enviados, recebidos);
-            if (!veredito.aceita()) {
-                log.warn("Corrente de {} falas reprovada pela guarda ({}); retraduzindo uma a uma.",
-                    chunk.size(), veredito.motivo());
-                aRefazer.addAll(chunk);
-            }
-        }
+            Map<String, String> mascaradoPorRepresentante, String promptCongelado,
+            ProcedenciaPorRepresentante procedencia) {
+        List<String> aRefazer = correntesReprovadas(chunksRepresentantes, textoMascaradoPorOriginal,
+            mascaradoPorRepresentante);
         if (aRefazer.isEmpty()) {
             return;
         }
@@ -381,14 +482,54 @@ public class TradutorLotesService {
         try {
             List<TraducaoLote> refeitos =
                 processarEpisodioUseCase.processarEpisodio(lotesIndividuais, promptCongelado);
-            coletarMascaradoPorRepresentante(refeitos, chunksIndividuais, mascaradoPorRepresentante);
+            coletarMascaradoPorRepresentante(refeitos, chunksIndividuais, mascaradoPorRepresentante, procedencia);
         } catch (Exception e) {
-            log.warn("Segunda passada individual falhou ({}); mantendo a tradução agrupada.",
-                e.getMessage());
-            if (e instanceof InterruptedException) {
+            // A corrente foi REPROVADA por deslocar texto entre as linhas: publicá-la seria pôr na
+            // tela uma fala no tempo de outra. Até 25/09/2026 esta falha mantinha a tradução
+            // agrupada e o arquivo saía CONCLUIDO com o deslocamento dentro. Agora as falas viram
+            // pendência com a causa dita — o original fica, e a próxima execução tenta de novo.
+            log.warn("Segunda passada individual falhou ({}); {} fala(s) da corrente reprovada ficam pendentes.",
+                e.getMessage(), aRefazer.size());
+            for (String representante : aRefazer) {
+                mascaradoPorRepresentante.remove(representante);
+                procedencia.registrarCausa(representante, "corrente de frase partida reprovada pela guarda de"
+                    + " deslocamento e a retradução individual falhou (" + e.getMessage() + ")");
+            }
+            if (e instanceof InterruptedException
+                    || (e instanceof TraducaoParcialException p && p.interrompidaPeloUsuario())) {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz quais representantes pertencem a correntes (2+ falas) que a
+     * {@link GuardaCorrenteTraduzida} reprovou — o LLM deslocou conteúdo entre as linhas.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: corrente com alguma fala sem tradução não é avaliada (não há o
+     * que comparar); grupo de uma fala nunca é corrente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem correntes reprovadas devolve lista vazia.
+     */
+    private List<String> correntesReprovadas(List<List<String>> chunksRepresentantes,
+            Map<String, String> textoMascaradoPorOriginal, Map<String, String> mascaradoPorRepresentante) {
+        List<String> reprovados = new ArrayList<>();
+        for (List<String> chunk : chunksRepresentantes) {
+            if (chunk.size() < 2) {
+                continue;
+            }
+            List<String> enviados = chunk.stream().map(textoMascaradoPorOriginal::get).toList();
+            List<String> recebidos = chunk.stream().map(mascaradoPorRepresentante::get).toList();
+            if (recebidos.stream().anyMatch(java.util.Objects::isNull)) {
+                continue;
+            }
+            GuardaCorrenteTraduzida.Veredito veredito = guardaCorrente.avaliar(enviados, recebidos);
+            if (!veredito.aceita()) {
+                log.warn("Corrente de {} falas reprovada pela guarda ({}).", chunk.size(), veredito.motivo());
+                reprovados.addAll(chunk);
+            }
+        }
+        return reprovados;
     }
 
     /**
@@ -402,7 +543,8 @@ public class TradutorLotesService {
      * representantes ficam sem tradução e as camadas correspondentes serão puladas.
      */
     private void coletarMascaradoPorRepresentante(
-            List<TraducaoLote> lotes, List<List<String>> chunksRepresentantes, Map<String, String> destino) {
+            List<TraducaoLote> lotes, List<List<String>> chunksRepresentantes, Map<String, String> destino,
+            ProcedenciaPorRepresentante procedencia) {
         for (TraducaoLote tl : lotes) {
             int k = tl.idLote() - 1;
             if (k < 0 || k >= chunksRepresentantes.size()) {
@@ -415,6 +557,7 @@ public class TradutorLotesService {
             }
             for (int j = 0; j < chunkReps.size(); j++) {
                 destino.put(chunkReps.get(j), linhas.get(j));
+                procedencia.registrar(chunkReps.get(j), tl);
             }
         }
     }

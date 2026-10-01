@@ -1,33 +1,32 @@
                     <div class="glass-card">
-                        <h2>Tradução de Karaokê (Romaji + PT-BR juntos)</h2>
-                        <p class="card-desc">Traduza as <strong>letras de música</strong> das legendas mantendo o japonês original na tela: a camada romaji/japonesa é preservada intacta — <strong>mesmo quando o cantor mistura inglês no meio da letra</strong> — e somente a camada de tradução em inglês vai ao LLM, virando PT-BR nos mesmos tempos. Diálogos, placas e efeitos KFX não são tocados. Os arquivos de entrada nunca são alterados: a saída vai para a pasta irmã <code>&lt;entrada&gt;-karaoke-ptbr</code>, com cache editável e manifesto de auditoria.</p>
+                        <h2>Karaokê — Traduzir e Limpar (Romaji + PT-BR)</h2>
+                        <p class="card-desc">Uma tela, <strong>duas passadas na ordem</strong>: primeiro <strong>traduz</strong> as letras de música para PT-BR mantendo o japonês/romaji original; depois <strong>achata</strong> (limpa) a animação de karaokê e entrega uma linha limpa — romaji em cima, PT-BR embaixo. Escolha a obra (ou <em>sem lore</em>) para exibir a capa e a lore e liberar as opções. Os arquivos de entrada nunca são alterados; cada passada grava em pasta irmã com manifesto de auditoria.</p>
 
                         <div class="anime-meta-banner hidden" id="meta-banner-traducao-karaoke"></div>
 
+                        <!-- CARTÃO DE ALVO ATIVO (op-alvo): o mesmo componente das telas 3.x. Mantém à
+                             vista a lore escolhida e a pasta que será lida/reescrita — a cicatriz de
+                             06/08/2026 (uma execução apontou para pasta de SAÍDA e sobrescreveu 17 arquivos). -->
+                        <div class="op-alvo op-alvo-acervo" id="traducao-karaoke-alvo">
+                            <span class="material-symbols-outlined op-alvo-icone">my_location</span>
+                            <span class="op-alvo-texto" id="traducao-karaoke-alvo-texto"></span>
+                        </div>
+
                         <form id="form-traducao-karaoke" class="standard-form">
                             <div class="form-group">
-                                <label for="traducao-karaoke-contexto">Obra / Contexto: <span class="help-icon" data-tooltip="Selecione a obra para usar a lore correta no prompt do LLM e carregar capa e metadados via API.">?</span></label>
+                                <label for="traducao-karaoke-contexto">Obra / Contexto: <span class="help-icon" data-tooltip="Escolha a obra para usar a lore correta no prompt do LLM e carregar a capa. 'Sem lore' libera só o Passo 2 (achatar): traduzir exige a obra, porque a lore alimenta o LLM. A escolha libera os campos abaixo.">?</span></label>
                                 <select id="traducao-karaoke-contexto">
                                     <option value="" disabled selected>Carregando contextos...</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="traducao-karaoke-entrada">Pasta com as Legendas (.ass) que Deseja Traduzir: <span class="help-icon" data-tooltip="Pasta com as legendas cujas letras de música serão traduzidas. Ideal: a saída do Karaokê Simples. A pasta de destino é criada automaticamente ao lado, com o sufixo -karaoke-ptbr.">?</span></label>
+                                <label for="traducao-karaoke-entrada">Pasta com as Legendas (.ass): <span class="help-icon" data-tooltip="Pasta das legendas cujas letras serão traduzidas. Ideal: a saída da tradução do diálogo (traducao_ptbr). A tradução grava ao lado, com o sufixo -karaoke-ptbr.">?</span></label>
                                 <div class="input-with-button">
-                                    <input type="text" id="traducao-karaoke-entrada" placeholder="Ex: C:\animes\86\legendas-karaoke-simples" required>
+                                    <input type="text" id="traducao-karaoke-entrada" placeholder="Ex: C:\animes\86\86 Part 1\traducao_ptbr" required>
                                     <button type="button" class="btn-procurar" data-target="traducao-karaoke-entrada" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
                                 </div>
                             </div>
-
                             <div class="correcao-actions">
-                                <button type="button" class="btn btn-secondary btn-yellow" id="btn-traducao-karaoke-simular" data-tooltip="Classifica linha a linha (letra original JP/romaji, inglês traduzível, já em PT) SEM chamar o LLM e sem gravar nada. Use para conferir a classificação antes de traduzir.">
-                                    <span class="material-symbols-outlined btn-icon">science</span>
-                                    <span>Simular (Dry-Run)</span>
-                                </button>
-                                <button type="submit" class="btn btn-primary btn-green" id="btn-traducao-karaoke-aplicar" data-tooltip="Entra na fila do pipeline e traduz via LLM as letras em inglês, preservando o romaji. Originais intocados; manifesto em logs/traducao-karaoke.">
-                                    <span class="material-symbols-outlined btn-icon">lyrics</span>
-                                    <span>Traduzir Letras</span>
-                                </button>
                                 <button type="button" class="btn btn-secondary btn-clear-form" data-form="form-traducao-karaoke" data-tooltip="Limpa todos os campos e oculta o cartão do anime">
                                     <span class="material-symbols-outlined btn-icon">delete_sweep</span>
                                     <span>Limpar Campos</span>
@@ -39,41 +38,59 @@
     <div class="glass-card op-caixa">
         <div class="op-caixa-cabecalho">
             <span class="material-symbols-outlined op-caixa-icone">lyrics</span>
-            <h3>Como uma linha de música é decidida</h3>
-            <span class="op-caixa-etiqueta">viés de preservação</span>
+            <h3>Duas passadas, nesta ordem: traduza, depois limpe</h3>
+            <span class="op-caixa-etiqueta">aplique uma, depois a outra</span>
         </div>
-        <p class="op-caixa-desc">Mantém o <strong>romaji/japonês intacto</strong> e manda ao LLM só a camada de <strong>tradução em inglês</strong> — romaji em cima, PT-BR embaixo, como fansub clássico.</p>
+        <p class="op-caixa-desc">Cada passo é <strong>independente</strong> e grava em pasta própria. O caminho normal é <strong>traduzir</strong> (Passo 1) e depois <strong>achatar</strong> (Passo 2) a saída da tradução, deixando a letra legível sem a animação que quebra a tradução na tela.</p>
         <ol class="op-lista">
             <li class="op-linha">
-                <span class="op-marca"><span class="material-symbols-outlined">do_not_touch</span></span>
+                <span class="op-num">1</span>
                 <div class="op-texto">
-                    <span class="op-titulo">Camada japonesa / romaji — nunca traduz</span>
-                    <span class="op-desc">Reconhecida pelo estilo (<code>Romaji</code>, <code>JP</code>, <code>ROM</code>) e pela própria escrita. Sai da execução sem ser tocada.</span>
+                    <span class="op-titulo">Traduzir letras <span class="op-selo op-selo-llm">LM Studio local</span></span>
+                    <span class="op-desc">Manda ao LLM só a camada em <strong>inglês</strong>, preservando o japonês/romaji. Usa a lore da obra escolhida (ou traduz cru em <em>sem lore</em>). Grava em <code>&lt;entrada&gt;-karaoke-ptbr</code>.</span>
                     <span class="op-selos">
-                        <span class="op-selo op-selo-seguro">não vai ao LLM</span>
-                    </span>
-                </div>
-            </li>
-            <li class="op-linha">
-                <span class="op-marca"><span class="material-symbols-outlined">psychology</span></span>
-                <div class="op-texto">
-                    <span class="op-titulo">Camada em inglês — vai ao LLM</span>
-                    <span class="op-desc">É a que vira PT-BR, nos mesmos tempos da original.</span>
-                    <span class="op-selos">
-                        <span class="op-selo op-selo-escreve">grava nos .ass</span>
-                        <span class="op-selo op-selo-llm">LM Studio local</span>
+                        <span class="op-selo op-selo-seguro">romaji intacto</span>
+                        <span class="op-selo op-selo-escreve">grava -karaoke-ptbr</span>
                         <span class="op-selo op-selo-rede">precisa do LM Studio no ar</span>
                     </span>
+                    <div class="correcao-actions">
+                        <button type="button" class="btn btn-secondary btn-yellow" id="btn-traducao-karaoke-simular" data-tooltip="Classifica linha a linha (romaji/JP preservado, inglês traduzível) SEM chamar o LLM e sem gravar. Confira a classificação antes de traduzir.">
+                            <span class="material-symbols-outlined btn-icon">science</span>
+                            <span>Simular (Dry-Run)</span>
+                        </button>
+                        <button type="submit" form="form-traducao-karaoke" class="btn btn-primary btn-green" id="btn-traducao-karaoke-aplicar" data-tooltip="Entra na fila do pipeline e traduz via LLM as letras em inglês, preservando o romaji. Originais intocados.">
+                            <span class="material-symbols-outlined btn-icon">lyrics</span>
+                            <span>Traduzir Letras</span>
+                        </button>
+                    </div>
                 </div>
             </li>
             <li class="op-linha">
-                <span class="op-marca"><span class="material-symbols-outlined">balance</span></span>
+                <span class="op-num">2</span>
                 <div class="op-texto">
-                    <span class="op-titulo">Quando há dúvida, o original vence</span>
-                    <span class="op-desc">Cantor japonês mistura inglês no meio da letra — <em>“kimi no heart ni fly away”</em>. Uma detecção ingênua de “linha em inglês” mandaria a letra original ao modelo e a destruiria. Aqui a decisão é por <strong>evidência</strong>, e no empate o romaji ganha.</span>
+                    <span class="op-titulo">Achatar / limpar <span class="op-selo op-selo-seguro">sem LLM</span></span>
+                    <span class="op-desc"><strong>Por que achatar:</strong> o karaokê animado (clip, posição por sílaba) é desenhado para os glifos originais. A tradução tem tamanho diferente e <strong>quebra nessa geometria</strong> — vira a "zona" de romaji + inglês + PT sobrepostos. Achatar remove a animação e deixa uma linha limpa: romaji em cima, PT-BR embaixo. Achata a <strong>saída do Passo 1</strong> (editável abaixo).</span>
+                    <div class="form-group">
+                        <label for="traducao-karaoke-achatar-origem">Pasta a achatar: <span class="help-icon" data-tooltip="Preenchida automaticamente com a saída da tradução (-karaoke-ptbr). Pode editar para achatar outra pasta já traduzida.">?</span></label>
+                        <div class="input-with-button">
+                            <input type="text" id="traducao-karaoke-achatar-origem" placeholder="Preenche sozinho após escolher a pasta acima (…-karaoke-ptbr)">
+                            <button type="button" class="btn-procurar" data-target="traducao-karaoke-achatar-origem" data-type="pasta"><span class="material-symbols-outlined btn-inline-icon">folder_open</span>Procurar...</button>
+                        </div>
+                    </div>
                     <span class="op-selos">
-                        <span class="op-selo op-selo-seguro">na dúvida, preserva</span>
+                        <span class="op-selo op-selo-seguro">não toca a entrada</span>
+                        <span class="op-selo op-selo-escreve">grava 'legenda-simplificada'</span>
                     </span>
+                    <div class="correcao-actions">
+                        <button type="button" class="btn btn-secondary btn-yellow" id="btn-traducao-karaoke-achatar-simular" data-tooltip="Mostra linha a linha o que seria limpo, sem gravar (Dry-Run).">
+                            <span class="material-symbols-outlined btn-icon">science</span>
+                            <span>Simular (Dry-Run)</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-purple" id="btn-traducao-karaoke-achatar-aplicar" data-tooltip="Grava a legenda limpa em pasta nova (legenda-simplificada). Original intocado; apaga a animação — não dá para desfazer no arquivo gerado.">
+                            <span class="material-symbols-outlined btn-icon">music_off</span>
+                            <span>Achatar / Limpar</span>
+                        </button>
+                    </div>
                 </div>
             </li>
         </ol>
@@ -82,7 +99,7 @@
 
                     <div class="glass-card console-card">
                         <div class="console-header">
-                            <h3>Log da Tradução (classificação linha a linha)</h3>
+                            <h3>Log do Karaokê (tradução e limpeza, linha a linha)</h3>
                             <div class="console-actions">
                                 <button class="btn-toggle-console" data-target="console-traducao-karaoke" data-tooltip="Alternar altura expandida do console"><span class="material-symbols-outlined console-action-icon">unfold_more</span>Expandir</button>
                                 <button class="btn-copy-console" data-target="console-traducao-karaoke" data-tooltip="Copiar conteúdo do console"><span class="material-symbols-outlined console-action-icon">content_copy</span>Copiar</button>

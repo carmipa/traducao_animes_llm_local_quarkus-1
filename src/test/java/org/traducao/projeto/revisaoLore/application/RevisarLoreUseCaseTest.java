@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -113,12 +114,62 @@ class RevisarLoreUseCaseTest {
         Path pastaBackup = tempDir.resolve("backup").toAbsolutePath().normalize();
         Files.writeString(legenda, "versao-original");
 
-        Path backup = RevisarLoreUseCase.criarBackup(legenda, pastaBackup);
+        Path backup = RevisarLoreUseCase.criarBackup(legenda, tempDir, pastaBackup);
         Files.writeString(legenda, "versao-alterada");
-        Path backupRepetido = RevisarLoreUseCase.criarBackup(legenda, pastaBackup);
+        Path backupRepetido = RevisarLoreUseCase.criarBackup(legenda, tempDir, pastaBackup);
 
         assertEquals(backup, backupRepetido);
         assertEquals("versao-original", Files.readString(backup));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o EN e varrido recursivamente; dois arquivos de mesmo nome em
+     * subpastas diferentes NAO podem compartilhar o mesmo par PT nem o mesmo backup — senao um
+     * apaga a legenda do outro em silencio.
+     * <p>INVARIANTES DO DOMÍNIO: o par PT e o backup espelham a subpasta relativa do EN.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pareamento por raiz (o defeito antigo) faria os dois
+     * apontarem para o mesmo destino — este teste reprova isso.
+     */
+    @Test
+    void basenamesIguaisEmSubpastasNaoColidem(@TempDir Path base) throws IOException {
+        Path en = Files.createDirectories(base.resolve("en"));
+        Path pt = Files.createDirectories(base.resolve("pt"));
+        Path pastaBackup = base.resolve("bkp").toAbsolutePath().normalize();
+        Path enS1 = Files.createDirectories(en.resolve("S1"));
+        Path enS2 = Files.createDirectories(en.resolve("S2"));
+        Files.writeString(enS1.resolve("ep01.ass"), "en-s1");
+        Files.writeString(enS2.resolve("ep01.ass"), "en-s2");
+        Path ptS1 = Files.createDirectories(pt.resolve("S1"));
+        Path ptS2 = Files.createDirectories(pt.resolve("S2"));
+        Path pt1 = ptS1.resolve("ep01_PT-BR.ass"); Files.writeString(pt1, "pt-s1");
+        Path pt2 = ptS2.resolve("ep01_PT-BR.ass"); Files.writeString(pt2, "pt-s2");
+
+        // PAREAMENTO: cada EN acha o PT da SUA subpasta, nao o da raiz nem o do irmao.
+        assertEquals(pt1, RevisarLoreUseCase.localizarArquivoTraduzido(enS1.resolve("ep01.ass"), en, pt));
+        assertEquals(pt2, RevisarLoreUseCase.localizarArquivoTraduzido(enS2.resolve("ep01.ass"), en, pt));
+
+        // BACKUP: espelha a subpasta, entao os dois backups sao distintos e nenhum apaga o outro.
+        Path b1 = RevisarLoreUseCase.criarBackup(pt1, pt, pastaBackup);
+        Path b2 = RevisarLoreUseCase.criarBackup(pt2, pt, pastaBackup);
+        assertNotEquals(b1, b2,
+            "dois arquivos de mesmo nome em subpastas diferentes nao podem ter o MESMO backup, "
+                + "senao o 2o backup (Files.notExists=false) nunca e salvo e a versao do 1o cobre a do 2o");
+        assertEquals("pt-s1", Files.readString(b1));
+        assertEquals("pt-s2", Files.readString(b2));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: no layout PLANO (arquivo direto na pasta, o caso comum do acervo),
+     * o pareamento por caminho relativo tem de dar exatamente o mesmo resultado de antes.
+     */
+    @Test
+    void layoutPlanoContinuaParenadoNaRaiz(@TempDir Path base) throws IOException {
+        Path en = Files.createDirectories(base.resolve("legendas_eng"));
+        Path pt = Files.createDirectories(base.resolve("traducao_ptbr"));
+        Files.writeString(en.resolve("ep01.ass"), "en");
+        Path alvo = pt.resolve("ep01_PT-BR.ass"); Files.writeString(alvo, "pt");
+
+        assertEquals(alvo, RevisarLoreUseCase.localizarArquivoTraduzido(en.resolve("ep01.ass"), en, pt));
     }
 
     /**
@@ -252,6 +303,81 @@ class RevisarLoreUseCaseTest {
         DocumentoLegenda pt = doc(List.of(ptEvt));
 
         assertFalse(RevisarLoreUseCase.primeiraDivergenciaEstrutural(en, pt, 500).isPresent());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a tela não pode fechar VERDE quando a pasta está predominantemente
+     * NÃO traduzida — mas ALGUMAS falas não traduzidas continuam verde (decisão de 17/08).
+     * <p>INVARIANTES DO DOMÍNIO: 100% idênticas = CEGO; maioria (mais da metade) = aviso; metade
+     * ou menos = sem aviso; nenhuma fala auditada = sem veredito.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fronteira errada (contar a metade como maioria, ou o
+     * verde a 99% não traduzido) reprova o teste.
+     */
+    @Test
+    void avisoDeFolhaNaoComparadaRespeitaAMaioria() {
+        // nenhuma fala auditada: sem veredito (nao infla o sinal)
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(0, 0).isEmpty());
+
+        // 100% identicas: CEGO
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 5).get().startsWith("CEGO"));
+
+        // maioria (mais da metade), mas nao 100%: aviso de pasta nao traduzida
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(120, 119).get().contains("MAIORIA"),
+            "119 de 120 nao traduzidas nao pode fechar verde CONCLUIDO");
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 3).get().contains("MAIORIA"));
+
+        // FRONTEIRA: exatamente metade NAO e maioria -> sem aviso (respeita 17/08: algumas ok)
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(4, 2).isEmpty(),
+            "metade exata nao e maioria; a decisao de 17/08 mantem algumas falas nao traduzidas em verde");
+        // minoria -> sem aviso
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(5, 1).isEmpty());
+        // um acima da metade -> aviso
+        assertTrue(RevisarLoreUseCase.avisoDeFolhaNaoComparada(4, 3).get().contains("MAIORIA"));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a 3.2 sobrescreve o .ass; escolher a obra errada no menu não pode
+     * gravar a lore errada por cima da legenda. A guarda bloqueia DIVERGENTE/AMBÍGUO e FALHA
+     * ABERTA (segue) em CASA/INDETERMINADO — a mesma política calibrada da guarda da tradução.
+     * <p>INVARIANTES DO DOMÍNIO: só bloqueio com PROVA POSITIVA; obra desconhecida segue com aviso.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: bloquear o legítimo, ou deixar passar a divergência,
+     * reprova o teste.
+     */
+    @Test
+    void guardaObraContextoBloqueiaDivergenciaMasSegueNoIndeterminado() {
+        var validador = new org.traducao.projeto.lore.application.ValidadorCompatibilidadeObraContexto();
+        String caminho = "/acervo/Gundam ZZ/traducao_ptbr"; // sem letra de drive (catraca da suite)
+
+        // CASA: a obra e reconhecida pelo contexto ativo -> segue (sem bloqueio).
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam ZZ", "gundam_zz", java.util.Set.of("gundam_zz")).isEmpty());
+
+        // DIVERGENTE: a pasta resolve para OUTRA obra do catalogo -> BLOQUEIA (prova positiva).
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam ZZ", "gundam_zeta", java.util.Set.of("gundam_zz")).isPresent(),
+            "obra reconhecida como gundam_zz sob contexto gundam_zeta e divergencia — tem de bloquear");
+
+        // AMBIGUO: duas obras reivindicam a pasta com a mesma especificidade -> BLOQUEIA.
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Gundam", "gundam_zeta", java.util.Set.of("gundam_zeta", "gundam_zz")).isPresent());
+
+        // INDETERMINADO: nenhum contexto reconhece a obra -> NAO bloqueia (falha aberta), mas avisa.
+        assertTrue(RevisarLoreUseCase.avaliarBloqueioObraContexto(
+            validador, caminho, "Obra Nova", "gundam_zeta", java.util.Set.of()).isEmpty(),
+            "obra que ninguem reconhece nao pode ser bloqueada — falha ABERTA, como a traducao");
+        assertTrue(RevisarLoreUseCase.avisoObraNaoVerificada(
+            validador, "Obra Nova", "gundam_zeta", java.util.Set.of()).isPresent(),
+            "indeterminado tem de AVISAR que a checagem foi pulada");
+        assertTrue(RevisarLoreUseCase.avisoObraNaoVerificada(
+            validador, "Gundam ZZ", "gundam_zz", java.util.Set.of("gundam_zz")).isEmpty(),
+            "quando casa, nao ha aviso de checagem pulada");
+    }
+
+    @Test
+    void obraDaPastaTraduzidaEhAPastaAvo() {
+        assertEquals("Gundam ZZ", RevisarLoreUseCase.obraDaPastaTraduzida(
+            java.nio.file.Path.of("animes", "Gundam ZZ", "traducao_ptbr")));
+        assertEquals("", RevisarLoreUseCase.obraDaPastaTraduzida(null));
     }
 
     @Test

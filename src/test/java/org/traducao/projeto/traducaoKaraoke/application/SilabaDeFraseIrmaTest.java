@@ -197,4 +197,89 @@ class SilabaDeFraseIrmaTest {
         assertNotEquals(ClasseLinhaKaraoke.EFEITO_KFX, plano.classeNaPosicao(2),
             "a segunda copia tambem foi aceita");
     }
+
+    /**
+     * A1 (caso-controle de FRONTEIRA, 2026-09-21): o fansub divide a letra em pedaços que às
+     * vezes têm DUAS palavras ({@code "you are"}), e o corte antigo "MENOS de duas palavras"
+     * abortava o grupo inteiro ao topá-los — os 9 fragmentos de
+     * <i>"If you are holding holding onto fear"</i> iam ao LLM e viravam lixo. Medido no cache
+     * real do Unicorn ep01 (aya, 20/08): {@code hol}→"Olá", {@code on}→"começando",
+     * {@code dnt}→meta-resposta, {@code all}→"Eu sou a Audrey" (alucinação de lore).
+     *
+     * <p>Este é o par de fronteira: um pedaço de duas palavras que É pedaço legítimo da letra
+     * (aprovar como sílaba) convive com a cópia da frase inteira, que NÃO é
+     * ({@code copiaDeTipografiaNaoEhSilaba} acima cobre esse lado). O corte que separa os dois é
+     * "MENOS palavras que a frase", não "menos de duas".
+     *
+     * <p>A2: sob o corte antigo esta asserção REPROVA — a presença de {@code "you are"} disparava
+     * {@code algumEhFrase} e todos os pedaços saíam como {@code TRADUZIVEL_INGLES}.
+     */
+    @Test
+    @DisplayName("pedaço de DUAS palavras (you are) não aborta o grupo — os 9 fragmentos viram sílaba")
+    void pedacoDeDuasPalavrasAindaEhSilaba() {
+        List<EventoLegenda> eventos = List.of(
+            evento("0:02:10.46", "0:02:14.47", ESTILO, "{\\bord0}If you are holding holding onto fear"),
+            evento("0:02:10.46", "0:02:14.47", ESTILO, "{\\pos(469,1050)}If"),
+            evento("0:02:10.65", "0:02:14.47", ESTILO, "{\\pos(614,1050)}you are"),
+            evento("0:02:10.99", "0:02:14.47", ESTILO, "{\\pos(778,1050)}hol"),
+            evento("0:02:11.67", "0:02:14.47", ESTILO, "{\\pos(888,1050)}ding"),
+            evento("0:02:12.28", "0:02:14.47", ESTILO, "{\\pos(1012,1050)}hol"),
+            evento("0:02:13.06", "0:02:14.47", ESTILO, "{\\pos(1122,1050)}ding"),
+            evento("0:02:13.75", "0:02:14.47", ESTILO, "{\\pos(1237,1050)}on"),
+            evento("0:02:14.11", "0:02:14.47", ESTILO, "{\\pos(1305,1050)}to"),
+            evento("0:02:14.20", "0:02:14.47", ESTILO, "{\\pos(1415,1050)}fear"));
+
+        PlanoDeClassificacao plano = planoDe(eventos);
+
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(0),
+            "a LETRA inteira parou de ser traduzida — a musica fica em ingles na tela");
+        for (int i = 1; i < eventos.size(); i++) {
+            assertEquals(ClasseLinhaKaraoke.EFEITO_KFX, plano.classeNaPosicao(i),
+                "o fragmento " + i + " ainda vai ao LLM: e assim que 'hol' vira 'Olá'");
+        }
+    }
+
+    /**
+     * A1 (caso-controle de FRONTEIRA no INSTANTE, 2026-09-21): o fill de karaokê ADIANTA a linha —
+     * o primeiro pedaço começa uma fração antes da frase. Medido no OPL2 do Unicorn ep01:
+     * <i>"We didnt see all its meaning"</i> começa em 0:02:39.53, mas o pedaço {@code We} começa
+     * em 0:02:39.38 (0,15s antes). O corte antigo só tinha folga no FIM, excluía o {@code We}, a
+     * reconstrução ficava incompleta e os 8 fragmentos vazavam ({@code dnt}→"Não há contexto",
+     * {@code all}→"Eu sou a Audrey", {@code ning}→"Nenhum.").
+     *
+     * <p>O lado NEGATIVO da fronteira: o último pedaço da frase ANTERIOR ({@code vive}, que termina
+     * em 0:02:39.23, antes desta frase começar) NÃO pode entrar como irmão — a sobreposição
+     * ({@code fim >= iniFrase}) o barra. Se entrasse, poluiria a reconstrução e o grupo inteiro
+     * voltaria a vazar.
+     */
+    @Test
+    @DisplayName("fill que ADIANTA a linha ainda é sílaba; o pedaço da frase anterior não entra")
+    void folgaNoInicioEhRespeitadaESemVizinho() {
+        List<EventoLegenda> eventos = List.of(
+            // Fim da frase ANTERIOR: 'vive' termina antes desta frase comecar — nao pode entrar.
+            evento("0:02:38.53", "0:02:39.23", ESTILO, "{\\pos(900,1050)}vive"),
+            // A frase e seus 8 pedacos; 'We' comeca 0,15s ANTES da frase (39.38 < 39.53).
+            evento("0:02:39.53", "0:02:44.69", ESTILO, "{\\bord0}We didnt see all its meaning"),
+            evento("0:02:39.38", "0:02:44.79", ESTILO, "{\\pos(591,1050)}We"),
+            evento("0:02:40.40", "0:02:44.79", ESTILO, "{\\pos(650,1050)}di"),
+            evento("0:02:40.96", "0:02:44.79", ESTILO, "{\\pos(758,1050)}dnt"),
+            evento("0:02:41.31", "0:02:44.79", ESTILO, "{\\pos(860,1050)}see"),
+            evento("0:02:41.99", "0:02:44.79", ESTILO, "{\\pos(975,1050)}all"),
+            evento("0:02:42.58", "0:02:44.79", ESTILO, "{\\pos(1068,1050)}its"),
+            evento("0:02:42.85", "0:02:44.79", ESTILO, "{\\pos(1180,1050)}mea"),
+            evento("0:02:43.40", "0:02:44.79", ESTILO, "{\\pos(1309,1050)}ning"));
+
+        PlanoDeClassificacao plano = planoDe(eventos);
+
+        // A prova de que 'vive' (frase anterior) NAO poluiu a reconstrucao de "We didnt" e que os
+        // 8 fragmentos abaixo saem EFEITO_KFX. Se 'vive' tivesse entrado como irmao, a concatenacao
+        // nao casaria e todos voltariam a vazar como TRADUZIVEL. A classe do proprio 'vive' (pos 0)
+        // nao e o ponto: isolado, sem a frase dele, ele cai pelo estilo, e isso e outro caso.
+        assertEquals(ClasseLinhaKaraoke.TRADUZIVEL_INGLES, plano.classeNaPosicao(1),
+            "a frase inteira precisa continuar traduzivel");
+        for (int i = 2; i < eventos.size(); i++) {
+            assertEquals(ClasseLinhaKaraoke.EFEITO_KFX, plano.classeNaPosicao(i),
+                "o fragmento " + i + " voltou a vazar por causa do 'We' adiantado ou do 'vive' vizinho");
+        }
+    }
 }

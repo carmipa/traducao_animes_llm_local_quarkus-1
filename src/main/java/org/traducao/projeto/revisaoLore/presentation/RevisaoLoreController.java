@@ -153,6 +153,10 @@ public class RevisaoLoreController {
         filaExecucao.submeter(() -> {
             logStreamService.definirCanalAtual("revisao-lore");
             long inicioMs = System.currentTimeMillis();
+            // Achado 0 (2026-09-16): a revisão de lore sobrescreve a pasta traduzida no lugar.
+            // Aviso não-bloqueante quando ela é um baseline de comparação; o backup é a rede.
+            guardaCaminho.avisoRevisaoSobrescreveBaseline(req.diretorioTraduzido())
+                .ifPresent(msg -> System.out.println(AnsiCores.YELLOW + msg + AnsiCores.RESET));
             try {
                 ResultadoRevisaoLore resultado = revisarLoreUseCase.executar(
                     pastaOriginal, pastaTraduzida, req.contextoId(), revisarTodas);
@@ -170,13 +174,6 @@ public class RevisaoLoreController {
             "mensagem", "Revisao de lore iniciada no servidor. Acompanhe os logs em tempo real."));
     }
 
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: banner de fechamento da revisão de lore PT-only, deixando claro se
-     * foi dry-run (nada gravado) ou aplicado, e as contagens reais.
-     * <p>INVARIANTES DO DOMÍNIO: sempre imprime corrigidas/descartadas e o modo (dry-run/aplicado).
-     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}; não lança.
-     */
 
     /**
      * PROPÓSITO DE NEGÓCIO: fecha o job com um banner cuja cor e título refletem
@@ -221,16 +218,6 @@ public class RevisaoLoreController {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: sinaliza no console que a revisão de lore FALHOU por
-     * completo (LLM indisponível, pastas inválidas, erro inesperado) — nenhum
-     * arquivo foi processado.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: usado apenas no caminho de exceção; deixa claro
-     * que o status é {@link StatusRevisaoLore#FALHOU}.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}.
-     */
-    /**
      * PROPÓSITO DE NEGÓCIO: reconhece que os dois campos apontam para a mesma pasta.
      * <p>INVARIANTES DO DOMÍNIO: pergunta ao sistema de arquivos, que enxerga junction, link e
      * grafias diferentes do mesmo caminho; comparar texto deixaria passar {@code C:\a} contra
@@ -246,6 +233,16 @@ public class RevisaoLoreController {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: sinaliza no console que a revisão de lore FALHOU por
+     * completo (LLM indisponível, pastas inválidas, erro inesperado) — nenhum
+     * arquivo foi processado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usado apenas no caminho de exceção; deixa claro
+     * que o status é {@link StatusRevisaoLore#FALHOU}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só escreve em {@code System.out}.
+     */
     private void imprimirFalha(String mensagem) {
         System.out.println("\n" + AnsiCores.RED + LINHA + AnsiCores.RESET);
         System.out.println(AnsiCores.RED + "  [" + StatusRevisaoLore.FALHOU.rotulo().toUpperCase()

@@ -69,8 +69,11 @@ class CorrecaoViaLlmChegaAoArquivoTest {
     /**
      * Escopa as alternativas a este teste; um dublê global mudaria a suíte inteira.
      *
-     * <p>O tradutor externo entrou aqui em 2026-08-16 junto com a CASCATA: quando o LLM recusa, a
-     * 2ª etapa é o Google — e sem o dublê este teste passaria a bater na REDE de verdade.
+     * <p>O tradutor externo entrou aqui em 2026-08-16 junto com a cascata LLM→Google. A cascata foi
+     * REVERTIDA em 2026-09-16 (Paulo, "isola o botão 1 e deixa o 2 com o Google apenas"): o Google
+     * agora é uma passada SEPARADA (modo {@code GOOGLE}, botão "Só o Google"), não a 2ª etapa do
+     * botão LLM. O dublê continua necessário porque {@link #falaCorrigidaNaoVoltaComItalico} exercita
+     * essa passada Google, e sem ele o teste bateria na REDE de verdade.
      */
     public static class PerfilComLlmDublado implements QuarkusTestProfile {
         @Override
@@ -154,14 +157,6 @@ class CorrecaoViaLlmChegaAoArquivoTest {
         return pastaPt;
     }
 
-    /**
-     * PROPÓSITO DE NEGÓCIO: monta o par completo — legenda PT, cache E a legenda INGLESA em
-     * disco. O {@link #montar} comum não escreve a inglesa, e sem ela o ESPELHO (que tira a
-     * estrutura do original) nunca roda: o teste ficaria verde por não exercitar o caminho.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: propaga {@link IOException} — pasta temporária que não
-     * escreve é falha do teste, não cenário de domínio.
-     */
     /** Roda a revisão em modo LLM e devolve o arquivo de saída, se houve gravação. */
     private Optional<String> revisar(Path temp, Path pastaPt) throws IOException {
         Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
@@ -172,28 +167,18 @@ class CorrecaoViaLlmChegaAoArquivoTest {
             ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
             : Optional.empty();
     }
-    private Path montarComLegendaInglesa(Path temp, List<Fala> falas) throws IOException {
-        Path pastaPt = montar(temp, falas);
-        Path pastaEn = Files.createDirectory(temp.resolve("en"));
-        StringBuilder ass = new StringBuilder(CABECALHO);
-        for (int i = 0; i < falas.size(); i++) {
-            ass.append("Dialogue: 0,0:00:0").append(i).append(".00,0:00:09.00,Default,,0,0,0,,")
-               .append(falas.get(i).ingles()).append(10);
-        }
-        Files.writeString(pastaEn.resolve("show_ENG.ass"), ass.toString(), StandardCharsets.UTF_8);
-        return pastaPt;
-    }
 
-    /** Roda a revisão com a legenda inglesa em disco, para o espelho ter de onde copiar. */
-    private Optional<String> revisarComEspelho(Path temp, Path pastaPt) throws IOException {
+    /** A passada "Só o Google" (modo GOOGLE, sem LLM). Referência EN vem do cache, como em revisar. */
+    private Optional<String> revisarSoGoogle(Path temp, Path pastaPt) throws IOException {
         Path pastaSaida = Files.createDirectory(temp.resolve("saida"));
-        useCase.executar(pastaPt, temp.resolve("en"), temp.resolve("cache"), pastaSaida,
-            ModoRevisaoLegendas.LLM_CONCORDANCIA, "danmachi", ModoReferenciaRevisao.AMBOS);
+        useCase.executar(pastaPt, null, temp.resolve("cache"), pastaSaida,
+            ModoRevisaoLegendas.GOOGLE, "danmachi", ModoReferenciaRevisao.AMBOS);
         Path destino = pastaSaida.resolve("show_PT-BR.ass");
         return Files.exists(destino)
             ? Optional.of(Files.readString(destino, StandardCharsets.UTF_8))
             : Optional.empty();
     }
+
     /**
      * PROPÓSITO DE NEGÓCIO: quando a rota por metade desiste, ela DIZ por quê no log — senão o
      * operador lê o motivo do OUTRO caminho e conclui errado.
@@ -274,17 +259,22 @@ class CorrecaoViaLlmChegaAoArquivoTest {
     }
 
     /**
-     * A CASCATA ponta a ponta, e o controle que separa "o pipeline não chamou" de "o pipeline
-     * chamou e o modelo não resolveu": o LLM responde sem alterar, e a fala <b>não vira pendência
-     * silenciosa</b> — ela desce para a 2ª etapa, que é o Google.
+     * BOTÃO 1 ISOLADO (Paulo, 2026-09-16: "isola o botão 1 e deixa o 2 com o Google apenas"): a
+     * passada "Traduzir o que faltou" é do LLM local + dicionários. Quando o LLM não resolve, a fala
+     * fica <b>PENDENTE</b> e preservada — o Google <b>NÃO</b> é acionado na mesma passada.
      *
-     * <p>É a promessa da tela depois da decisão de Paulo (2026-08-16): uma fala que faltou traduzir
-     * <b>não sai daqui sem tradução</b>. Antes disso o desfecho aqui era "preservada e pendente",
-     * porque só existia uma etapa por botão.
+     * <h2>Por que a reversão da cascata de 16/08</h2>
+     * O Google retraduz o inglês INTEIRO a partir do original, e numa fala PARCIALMENTE traduzida
+     * isso SUBSTITUIRIA o que o tradutor já acertou. Paulo pediu para separar os dois: o Google só
+     * roda quando o operador escolhe explicitamente o botão "Só o Google" (modo {@code GOOGLE}), que
+     * {@link #falaCorrigidaNaoVoltaComItalico} cobre. Aqui provo o outro lado: sem cascata.
+     *
+     * <p>O controle que separa "o pipeline não chamou o modelo" de "chamou e não resolveu" continua:
+     * o LLM responde sem alterar (foi consultado), e o desfecho é pendência honesta, não silêncio.
      */
     @Test
-    @DisplayName("cascata: LLM não resolve, a fala desce para o Google e sai traduzida")
-    void quandoOLlmNaoResolveACascataEntregaAFalaAoGoogle(@TempDir Path temp) throws IOException {
+    @DisplayName("botão 1 isolado: LLM não resolve, a fala fica PENDENTE e o Google NÃO é chamado")
+    void botao1LlmNaoResolveFicaPendenteSemGoogle(@TempDir Path temp) throws IOException {
         llm.responderSemAlterar();
         Path pastaPt = montar(temp, List.of(
             new Fala("Get out of there!", "Get out of there!")));
@@ -293,13 +283,14 @@ class CorrecaoViaLlmChegaAoArquivoTest {
 
         assertTrue(llm.chamadas() >= 1,
             "o modelo TEM de ter sido consultado — senão este não é o controle que eu penso que é");
-        assertEquals(1, tradutorExterno.chamadas(),
-            "o LLM recusou: a fala tinha de descer para a 2ª etapa em vez de virar pendência");
+        assertEquals(0, tradutorExterno.chamadas(),
+            "botão 1 é LLM+dicionários: o Google NÃO pode ser acionado na mesma passada (Paulo 2026-09-16). "
+                + "Foram ao Google: " + tradutorExterno.pedidos());
         String texto = saida.orElse(Files.readString(
             pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
-        assertFalse(texto.contains("Get out of there!"),
-            "a fala não podia continuar em inglês depois das duas etapas:\n" + texto);
-        assertEquals(1, contarDialogos(texto), "a fala não pode sumir na cascata");
+        assertTrue(texto.contains("Get out of there!"),
+            "sem o Google, a fala que o LLM não resolveu fica preservada (pendente honesto):\n" + texto);
+        assertEquals(1, contarDialogos(texto), "a fala não pode sumir");
     }
 
     /**
@@ -307,14 +298,22 @@ class CorrecaoViaLlmChegaAoArquivoTest {
      *
      * <h2>A cicatriz, medida na corrida real do 0080 em 22/08/2026</h2>
      * A tela limpou 144 falas naquela corrida e UMA voltou suja — exatamente a que foi
-     * corrigida. A linha 10 do ep01 estava em inglês, teve o itálico removido pelo preparador,
-     * desceu para o Google por estar em inglês, e voltou com a tag do ORIGINAL colada:
+     * corrigida. Uma fala em inglês teve o itálico removido pelo preparador, foi ao Google por
+     * estar em inglês, e voltou com a tag do ORIGINAL colada:
      * <pre>
-     * referência EN : {\i1}We'll land at 1500 hours, as planned.
-     * PT corrigido  : {\i1}Aterraremos às 15h00, conforme planeado.   &lt;- o itálico VOLTOU
+     * referência EN : {\i1}Get out of there!
+     * PT corrigido  : {\i1}Saia daí!   &lt;- o itálico VOLTOU
      * </pre>
-     * Uma varredura no disco depois da corrida encontrou essa única linha com itálico nos seis
+     * Uma varredura no disco depois da corrida encontrou a única linha com itálico nos seis
      * arquivos — o instrumento independente confirmou o que o log já dizia.
+     *
+     * <h2>Agora pela passada "Só o Google" (Paulo, 2026-09-16)</h2>
+     * A cascata LLM→Google foi revertida. A fala totalmente em inglês é o caso do botão "Só o
+     * Google" (modo {@code GOOGLE}), e é ele que reproduz o defeito: o dublê do tradutor externo
+     * devolve a tradução com o prefixo {@code {\i1}} colado, exatamente como o Google real fez no
+     * 0080. Se a regra final não tirar o itálico, ele chega ao {@code .ass}. Trocado o exemplo do
+     * "We'll land..." (que dependia da legenda inglesa em disco) por uma fala detectada pelo cache,
+     * sem mudar a invariante testada.
      *
      * <p>INVARIANTES DO DOMÍNIO: LLM, Google e determinístico desembocam todos em
      * {@code DecisaoFala.Corrigir}, e é por isso que a regra mora lá e não em cada caminho.
@@ -325,25 +324,23 @@ class CorrecaoViaLlmChegaAoArquivoTest {
     @Test
     @DisplayName("a fala corrigida nao volta com o italico que a regra tirou")
     void falaCorrigidaNaoVoltaComItalico(@TempDir Path temp) throws IOException {
-        // O CAMINHO EXATO da corrida do 0080: o LLM NAO resolve e a fala desce para o Google,
-        // que recompoe a estrutura a partir do original EN — e e de la que o italico voltava.
-        // Com llm.ensinar() o teste passava com E sem a correcao, porque o preparador ja tinha
-        // tirado o italico antes de o modelo ver a fala. So a mutacao mostrou isso.
-        llm.responderSemAlterar();
-        Path pastaPt = montarComLegendaInglesa(temp, List.of(
-            new Fala("{\\i1}We'll land at 1500 hours, as planned.",
-                "{\\i1}We'll land at 1500 hours, as planned.")));
+        // Passada "Só o Google" (modo GOOGLE): a fala inteira em inglês vai ao tradutor externo, que
+        // recompoe a estrutura a partir do original EN — e e de la que o italico voltava. O dublê
+        // devolve "{\\i1}" + traducao (como o Google real), entao so a regra final de Corrigir tira
+        // o italico. Com o texto ja em portugues o defeito nao apareceria: a fala precisa DESCER.
+        Path pastaPt = montar(temp, List.of(
+            new Fala("{\\i1}Get out of there!", "{\\i1}Get out of there!")));
 
-        Optional<String> saida = revisarComEspelho(temp, pastaPt);
+        Optional<String> saida = revisarSoGoogle(temp, pastaPt);
 
         String texto = saida.orElse(Files.readString(
             pastaPt.resolve("show_PT-BR.ass"), StandardCharsets.UTF_8));
-        assertFalse(texto.contains("We'll land"),
+        assertFalse(texto.contains("Get out of there"),
             "a fala tinha de sair do ingles:" + texto);
         assertFalse(texto.contains("{\\i1}"),
             "o italico nao pode voltar na fala corrigida: " + texto);
         assertEquals(1, tradutorExterno.chamadas(),
-            "o teste só vale se a fala DESCEU para o Google — é lá que o itálico voltava");
+            "o teste só vale se a fala foi ao Google — é lá que o itálico voltava");
         assertEquals(1, contarDialogos(texto), "a fala não pode sumir");
     }
     /**

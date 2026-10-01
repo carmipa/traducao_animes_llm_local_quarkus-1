@@ -13,6 +13,7 @@ import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaExceptio
 import org.traducao.projeto.qualidadeTraducao.domain.MarcadorPerdidoException;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.VersosDaLetra;
 
 import java.util.List;
 import java.util.Optional;
@@ -169,8 +170,12 @@ public class TradutorDeLetraKaraoke {
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — linha mantida sem tradução.");
             return null;
         }
+        String unida = unirVersos(resposta.linhasTraduzidas(), VersosDaLetra.contar(original), avisos, original);
+        if (unida == null) {
+            return null;
+        }
         try {
-            String traduzido = mascarador.desmascarar(resposta.linhasTraduzidas().getFirst(), mascarado.tags());
+            String traduzido = mascarador.desmascarar(unida, mascarado.tags());
             validador.validarFala(traduzido);
             return traduzido;
         } catch (MarcadorPerdidoException e) {
@@ -228,7 +233,11 @@ public class TradutorDeLetraKaraoke {
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — letra mantida.");
             return null;
         }
-        String traduzido = resposta.linhasTraduzidas().getFirst();
+        String traduzido = unirVersos(resposta.linhasTraduzidas(),
+            VersosDaLetra.contar(semTags.textoLimpo()), avisos, semTags.textoLimpo());
+        if (traduzido == null) {
+            return null;
+        }
         try {
             validador.validarFala(traduzido);
         } catch (AlucinacaoDetectadaException e) {
@@ -277,7 +286,11 @@ public class TradutorDeLetraKaraoke {
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — letra mantida.");
             return null;
         }
-        String traduzido = resposta.linhasTraduzidas().getFirst();
+        // O gradiente veta \N na decomposição: aqui a letra é sempre de UM verso.
+        String traduzido = unirVersos(resposta.linhasTraduzidas(), 1, avisos, gradiente.textoVisivel());
+        if (traduzido == null) {
+            return null;
+        }
         try {
             validador.validarFala(traduzido);
         } catch (AlucinacaoDetectadaException e) {
@@ -290,5 +303,35 @@ public class TradutorDeLetraKaraoke {
             return null;
         }
         return gradiente.recompor(traduzido);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: transforma a resposta do LLM no texto da letra sem perder verso. Até
+     * 24/09/2026 os três caminhos pegavam só a PRIMEIRA linha da resposta, e o segundo verso de
+     * letras como "Have a little break\NWe're running through the lights" sumia em silêncio.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a regra é de {@link VersosDaLetra#unirResposta} — 1 linha passa,
+     * N linhas só quando N é o número de versos enviados. A recusa fica REGISTRADA com as duas
+     * contagens (A7): o operador vê que a letra ficou em inglês porque a resposta não batia, e
+     * não por falha do servidor.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contagem que não bate devolve {@code null} e registra
+     * aviso — a linha fica no idioma original. Nunca lança.
+     */
+    private String unirVersos(List<String> linhas, int versosEnviados, List<String> avisos, String letra) {
+        Optional<String> unida = VersosDaLetra.unirResposta(linhas, versosEnviados);
+        if (unida.isEmpty()) {
+            int recebidas = linhas == null ? 0 : linhas.size();
+            // A7: guardar O QUE o modelo mandou, e não só as contagens — medido em 24/09/2026 (1
+            // recusa em 929 traduções), o manifesto dizia que houve recusa sem dizer de quê.
+            String recusada = linhas == null ? "" : String.join(" | ", linhas);
+            avisos.add("Resposta com " + recebidas + " linha(s) para " + versosEnviados
+                + " verso(s); letra mantida: " + letra + " | resposta recusada: " + recusada);
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] resposta do LLM com " + recebidas
+                + " linha(s) para " + versosEnviados + " verso(s) — letra mantida no original: " + letra
+                + " | recusada: " + recusada);
+            return null;
+        }
+        return unida.get();
     }
 }

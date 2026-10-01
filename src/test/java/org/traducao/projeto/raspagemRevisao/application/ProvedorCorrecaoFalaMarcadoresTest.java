@@ -15,6 +15,9 @@ import org.traducao.projeto.raspagemCorrecao.application.ProtetorTermosLoreServi
 import org.traducao.projeto.raspagemRevisao.domain.ContextoRevisao;
 import org.traducao.projeto.raspagemRevisao.domain.ModoRevisaoLegendas;
 import org.traducao.projeto.raspagemRevisao.domain.PoliticaRetraducao;
+import org.traducao.projeto.raspagemRevisao.domain.ResultadoRecuperacaoExterna;
+import org.traducao.projeto.raspagemRevisao.domain.StatusRecuperacaoExterna;
+import org.traducao.projeto.raspagemRevisao.domain.ports.RecuperacaoExternaRevisaoPort;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Regressões do contrato assimétrico: o inglês referencia; somente o PT define a estrutura. */
 class ProvedorCorrecaoFalaMarcadoresTest {
@@ -105,6 +109,70 @@ class ProvedorCorrecaoFalaMarcadoresTest {
         assertEquals(1, contarQuebras(obtida.texto()));
         assertEquals("Atualmente no Argama, temos os pilotos do GM da Mont Blanc...",
             obtida.texto().replace("\\N", " "));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda de 2026-09-15 — FALHA_TRANSITORIA do Google é RETENTÁVEL, não é
+     * "não rende". Medido no Unicorn: "Google sem alteração aplicável (FALHA_TRANSITORIA); mantido"
+     * abandonava a fala no run e a marcava para não repetir, como se fosse desfecho permanente — só
+     * porque o Google piscou.
+     *
+     * <p>CASO-CONTROLE (A1): os dois lados têm o MESMO sinal superficial (uma {@code Recusada}, a
+     * fala mantida). O que os separa: transitório NÃO marca "não insistir" e faz um retry (2
+     * chamadas ao provedor); permanente marca e não retenta. Trocar {@code !transitoria} de volta
+     * por {@code true} — o defeito antigo — faz a primeira metade falhar.
+     */
+    @Test
+    void falhaTransitoriaDoGoogleNaoVetaEPermanenteVeta() {
+        RecuperacaoExternaFake transit =
+            new RecuperacaoExternaFake(StatusRecuperacaoExterna.FALHA_TRANSITORIA);
+        ProvedorCorrecaoFala.Resultado rt = provedorComGoogle(transit).obter(
+            ModoRevisaoLegendas.GOOGLE, "The pilot returned.", "The pilot returned.",
+            List.of(PoliticaRetraducao.NAO_TRADUZIDA), SEM_LORE);
+        ProvedorCorrecaoFala.Resultado.Recusada recusaT = assertInstanceOf(
+            ProvedorCorrecaoFala.Resultado.Recusada.class, rt, rt.toString());
+        assertFalse(recusaT.registrarSemAlteracao(),
+            "transitorio NAO pode marcar 'nao insistir' — a fala e retentavel");
+        assertEquals("GOOGLE_FALHA_TRANSITORIA", recusaT.codigo());
+        assertEquals(2, transit.chamadas, "transitorio faz 1 retry antes de desistir");
+
+        RecuperacaoExternaFake permanente =
+            new RecuperacaoExternaFake(StatusRecuperacaoExterna.RESPOSTA_INVALIDA);
+        ProvedorCorrecaoFala.Resultado rp = provedorComGoogle(permanente).obter(
+            ModoRevisaoLegendas.GOOGLE, "The pilot returned.", "The pilot returned.",
+            List.of(PoliticaRetraducao.NAO_TRADUZIDA), SEM_LORE);
+        ProvedorCorrecaoFala.Resultado.Recusada recusaP = assertInstanceOf(
+            ProvedorCorrecaoFala.Resultado.Recusada.class, rp, rp.toString());
+        assertTrue(recusaP.registrarSemAlteracao(), "permanente mantem 'nao insistir'");
+        assertEquals("GOOGLE_SEM_ALTERACAO", recusaP.codigo());
+        assertEquals(1, permanente.chamadas, "permanente NAO retenta");
+    }
+
+    private ProvedorCorrecaoFala provedorComGoogle(RecuperacaoExternaFake google) {
+        return new ProvedorCorrecaoFala(
+            new LlmCapturador(), google, new ProtetorTermosLoreService(), new MascaradorTags(),
+            new IsoladorQuebraDialogo(), new ValidadorTraducaoService(LORE_VAZIA),
+            new ProtecaoLegendaAssService(),
+            new RevisorPtOnlyService(
+                new org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns(),
+                new CorretorDeterministicoConcordanciaService(),
+                new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda()));
+    }
+
+    /** Provedor externo de mentira: devolve o status configurado e conta as chamadas (prova o retry). */
+    private static final class RecuperacaoExternaFake implements RecuperacaoExternaRevisaoPort {
+        private final StatusRecuperacaoExterna status;
+        private int chamadas;
+
+        private RecuperacaoExternaFake(StatusRecuperacaoExterna status) {
+            this.status = status;
+        }
+
+        @Override
+        public ResultadoRecuperacaoExterna traduzir(String textoOriginal) {
+            chamadas++;
+            return new ResultadoRecuperacaoExterna(status, textoOriginal);
+        }
     }
 
     private LlmCapturador executar(String original, String traducao) {

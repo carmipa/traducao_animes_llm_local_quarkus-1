@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -209,6 +211,43 @@ class CorretorConcordanciaGeneroServiceTest {
     }
 
     /**
+     * A CADEIA inteira é corrigida quando o de trás é QUANTIFICADOR (Paulo autorizou 17/09, depois
+     * de ver {@code "todas\Nessas pensamentos"} ficar intocado no Zeta ep32 — a versão que só
+     * abstinha deixava a fala ainda errada). Vira {@code "todos esses pensamentos"}: os dois de uma
+     * vez. O {@code \N} entre as palavras é o caso real do acervo.
+     */
+    @Test
+    @DisplayName("cadeia: quantificador do mesmo genero antes do determinante vira JUNTO")
+    void corrigeCadeiaComQuantificadorUpstream() {
+        assertEquals(Optional.of("Ele captou isso no meio de todos\\Nesses pensamentos em espiral."),
+            corretor.corrigir("Ele captou isso no meio de todas\\Nessas pensamentos em espiral."),
+            "a cadeia 'todas essas' tinha de virar 'todos esses', nao ficar intocada nem meia-corrigida");
+        assertEquals(Optional.of("Vi todos esses reforços."), corretor.corrigir("Vi todas essas reforços."));
+    }
+
+    /**
+     * O ARTIGO/possessivo do mesmo gênero continua ABSTENDO — o {@code a} também é preposição
+     * ({@code "entreguei a meu pai"}), e virá-lo às cegas arriscaria estragar. Meia-correção é pior.
+     */
+    @Test
+    @DisplayName("artigo/possessivo do mesmo genero antes do determinante -> abstem (nao vira os dois)")
+    void abstemComArtigoOuPossessivoUpstream() {
+        assertTrue(corretor.corrigir("Essa e a nossa orgulho.").isEmpty(),
+            "virou 'o nosso orgulho' as cegas — o 'a' antes de possessivo tambem e preposicao");
+    }
+
+    /**
+     * O CONTRA-TESTE: sem o quantificador do mesmo gênero a correção continua; e quando o de trás é
+     * do gênero OPOSTO (já discordante), trocar só o determinante ACERTA o sintagma inteiro.
+     */
+    @Test
+    @DisplayName("CONTROLE: sem quantificador upstream, ou com um do genero OPOSTO, continua corrigindo")
+    void quantificadorUpstreamNaoTravaCorrecaoLegitima() {
+        assertEquals(Optional.of("Vi esses pensamentos."), corretor.corrigir("Vi essas pensamentos."));
+        assertEquals(Optional.of("Vi todos esses pensamentos."), corretor.corrigir("Vi todos essas pensamentos."));
+    }
+
+    /**
      * Os POSSESSIVOS, que entraram junto: metade dos erros medidos tinha determinante possessivo,
      * e não artigo — {@code nossa orgulho}, {@code minha afeto}, {@code sua destino}.
      */
@@ -297,5 +336,49 @@ class CorretorConcordanciaGeneroServiceTest {
         assertEquals(Optional.of("Aquele garoto poderia ser um Newtype."),
             corretor.corrigir("Aquela garoto poderia ser um Newtype."));
         assertEquals(Optional.of("Vi a menina no parque."), corretor.corrigir("Vi o menina no parque."));
+    }
+
+    /**
+     * A CATRACA que impede a classe do defeito de voltar: todo determinante que os padrões casam
+     * tem de ter forma no mapa de flip. Achado da auditoria da 3.3 (17/09/2026): os
+     * quantificadores singulares {@code muita/toda/pouca/certa/tanta} eram gatilho sem flip, e
+     * {@code flip.get} devolvia {@code null}.
+     */
+    @Test
+    @DisplayName("CATRACA: nenhum gatilho de determinante fica sem forma no mapa de flip")
+    void nenhumGatilhoFicaSemFlip() {
+        assertEquals(java.util.List.of(), CorretorConcordanciaGeneroService.gatilhosSemFlip(),
+            "gatilho de determinante sem flip injeta o literal 'null' ou estoura NPE na fala do "
+                + "usuario — a tela GRAVA por cima. Ou tire o gatilho do padrao, ou adicione a "
+                + "forma dele ao mapa de flip.");
+    }
+
+    /**
+     * O lado do usuario do mesmo defeito: a fala NUNCA pode receber o literal {@code "null"} nem
+     * fazer a correcao explodir. Estas sao as formas que a auditoria pegou, minusculas (injetavam
+     * {@code "null"}) e capitalizadas (estouravam {@link NullPointerException}).
+     */
+    @Test
+    @DisplayName("gatilho sem flip NUNCA injeta 'null' nem lanca — 'muita/toda/pouca/certa/tanta' + masc")
+    void quantificadorSingularNaoInjetaNullNemLanca() {
+        for (String fala : java.util.List.of(
+                "Tenho muita orgulho disso.", "Muita orgulho.", "Toda reforço chegou.",
+                "certa respeito por eles", "pouca respeito", "tanta orgulho")) {
+            Optional<String> r = assertDoesNotThrow(() -> corretor.corrigir(fala),
+                "corrigir lancou em vez de tratar a fala: '" + fala + "'");
+            String saida = r.orElse(fala);
+            assertFalse(saida.contains("null"),
+                "injetou o literal 'null' na fala do usuario: '" + fala + "' -> '" + saida + "'");
+        }
+    }
+
+    /**
+     * O CONTROLE POSITIVO da catraca acima: um quantificador que TEM flip continua corrigindo, e
+     * o gênero determinante segue funcionando. Sem ele, remover o gatilho por inteiro passaria.
+     */
+    @Test
+    @DisplayName("CONTROLE: quantificador mapeado continua corrigindo — 'alguma reforço' vira 'algum reforço'")
+    void quantificadorMapeadoContinuaCorrigindo() {
+        assertEquals(Optional.of("algum reforço"), corretor.corrigir("alguma reforço"));
     }
 }

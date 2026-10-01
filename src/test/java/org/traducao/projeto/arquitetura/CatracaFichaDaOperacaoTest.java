@@ -77,12 +77,14 @@ class CatracaFichaDaOperacaoTest {
         Map.entry("troca-tipo-legenda", "casca: o conteúdo vem de trocaTipoLegenda.html"),
         Map.entry("auditor-conteudo", "casca: o conteúdo vem de auditorConteudoLegendas.html"),
         Map.entry("renomear-arquivos", "casca: o conteúdo vem de renomearArquivos.html"),
-        Map.entry("novo-karaoke", "casca: o conteúdo vem de novoKaraoke.html"),
+        // 4.3 Karaokê Simples (novo-karaoke) foi absorvido pela tela única 4.1 em 21/09/2026: o
+        // painel e o arquivo próprio deixaram de existir; a ficha do achatamento vive agora na
+        // op-caixa da traducaoKaraoke.html (Passo 2).
         Map.entry("traducao-karaoke", "casca: o conteúdo vem de traducaoKaraoke.html"));
 
     /** Telas de arquivo próprio que também carregam ficha. */
     private static final Set<String> ARQUIVOS_PROPRIOS = Set.of(
-        "auditorConteudoLegendas", "novoKaraoke", "renomearArquivos",
+        "auditorConteudoLegendas", "renomearArquivos",
         "revisaoConcordancia", "revisaoLore", "traducaoKaraoke", "trocaTipoLegenda");
 
     private record Ficha(String tela, String html) {}

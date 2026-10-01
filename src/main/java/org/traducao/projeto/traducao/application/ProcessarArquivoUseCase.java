@@ -159,6 +159,10 @@ public class ProcessarArquivoUseCase {
         return texto != null && HOMOGRAFO_SOLTO.matcher(texto).find();
     }
 
+    /** Tags só no começo e texto visível sem tag depois: o formato de um quadro de transição. */
+    private static final java.util.regex.Pattern PREFIXO_DE_TAGS_E_TEXTO =
+        java.util.regex.Pattern.compile("^((?:\\{[^}]*\\})+)([^{]+)$");
+
     private static String instanteDe(EventoLegenda evento) {
         if (evento == null || evento.prefixo() == null) {
             return "";
@@ -398,6 +402,7 @@ public class ProcessarArquivoUseCase {
         }
 
         Map<String, Long> frequenciaTextoLimpo = seletorEventos.calcularFrequenciaTextoLimpo(documento);
+        Map<String, Long> instantesPorTexto = seletorEventos.calcularInstantesDistintosPorTexto(documento);
         // Pre-passe do peer legenda: quais linhas sao a camada ORIGINAL do karaoke (romaji). E uma
         // propriedade do DOCUMENTO — duas linhas no mesmo tempo —, por isso calculada uma vez aqui,
         // no mesmo molde da frequencia de texto. Com a flag desligada devolve protecao vazia e a
@@ -410,7 +415,7 @@ public class ProcessarArquivoUseCase {
             protecaoCamadas.paresEncontrados(), protecaoCamadas.paresIndecisos(),
             protecaoCamadas.indicesPreservados().size());
         List<EventoLegenda> eventosTraduziveis = documento.eventos().stream()
-            .filter(evento -> seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas))
+            .filter(evento -> seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas))
             .toList();
         log.info("{} fala(s) traduzível(eis) encontrada(s) em {}", eventosTraduziveis.size(), arquivoEntrada.getFileName());
 
@@ -448,9 +453,10 @@ public class ProcessarArquivoUseCase {
             uiLogger.log("[ INFO ] " + info);
         }
 
-        // Estilo por texto (reusado no dedup e no KPI de pendência).
+        // Estilo por texto (reusado no dedup e no KPI de pendência). Só evento TRADUZÍVEL: um
+        // Comment com o mesmo texto emprestava o estilo dele à fala (achado D8, 25/09/2026).
         Map<String, String> estiloPorTexto = new HashMap<>();
-        for (EventoLegenda evento : documento.eventos()) {
+        for (EventoLegenda evento : eventosTraduziveis) {
             if (evento.temTexto()) {
                 estiloPorTexto.putIfAbsent(evento.texto(), evento.estilo());
             }
@@ -482,9 +488,18 @@ public class ProcessarArquivoUseCase {
         }
 
         Map<String, String> traducoesNovas;
+        DesfechoDasFalas desfecho = new DesfechoDasFalas();
+        // Quem é VIZINHO no documento: pares de falas traduzíveis consecutivas. A corrente de frase
+        // partida só pode ligar esses — a lista de pendentes perdeu as falas vindas do cache, as
+        // repetidas e as mantidas por fonte em português, e nela vizinhas falsas ficam coladas.
+        Set<String> paresVizinhos = new HashSet<>();
+        for (int i = 1; i < eventosTraduziveis.size(); i++) {
+            paresVizinhos.add(eventosTraduziveis.get(i - 1).texto() + '\u0000' + eventosTraduziveis.get(i).texto());
+        }
         try {
             traducoesNovas = tradutorLotes.traduzirPendentes(textosPendentes, textosDeduplicaveis,
-                textosComQuebraIsolavel, arquivoEntrada.getFileName().toString(), avisos, promptCongelado);
+                textosComQuebraIsolavel, arquivoEntrada.getFileName().toString(), avisos, promptCongelado,
+                desfecho, (anterior, seguinte) -> paresVizinhos.contains(anterior + '\u0000' + seguinte));
         } catch (TraducaoParcialException e) {
             Map<String, String> traducoesParciais = e.getDicionarioParcial();
             if (traducoesParciais != null && !traducoesParciais.isEmpty()) {
@@ -502,9 +517,10 @@ public class ProcessarArquivoUseCase {
 
                 List<EntradaCache> entradasCacheParcial = new ArrayList<>();
                 for (EventoLegenda evento : documento.eventos()) {
-                    if (seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
+                    if (seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas)) {
                         String txtFinal = parciaisValidadas.get(evento.texto());
-                        if (txtFinal != null) {
+                        if (txtFinal != null
+                                && !desfecho.traduzidasPorSegundaOpiniao().contains(evento.texto())) {
                             entradasCacheParcial.add(new EntradaCache(
                                 evento.indice(), evento.estilo(), evento.texto(), txtFinal,
                                 propriedades.idiomaOriginal(), propriedades.idiomaTraduzido()));
@@ -642,6 +658,14 @@ public class ProcessarArquivoUseCase {
         for (String original : falhasDistintas) {
             telemetriaTraducao.registrarFallbackMantido();
             String motivoFalha = motivoPorFalha.get(original);
+            // A7: quando foi o PIPELINE que desistiu e manteve o original, a causa é a dele, não
+            // o "devolveu o texto original" que o portão final deduz da saída idêntica. A
+            // corrupção de marcador já tem registro próprio e precedência, por isso fica fora.
+            String causaRegistrada = desfecho.causaDoOriginalMantido().get(original);
+            if (causaRegistrada != null && !falasComTagCorrompida.contains(original)) {
+                motivoFalha = "o LLM não produziu tradução aceitável nas tentativas ("
+                    + causaRegistrada + ") e o sistema manteve o original";
+            }
             String aviso = "Fala pendente após tentativas do LLM: " + motivoFalha + ". Original: " + original;
             log.warn(aviso);
             uiLogger.log("[ WARN ] " + aviso);
@@ -856,13 +880,49 @@ public class ProcessarArquivoUseCase {
         List<FalaNaoTraduzida> naoTraduzidas = new ArrayList<>();
         int falasItalicoRemovido = 0;
         int falasItalicoPreservado = 0;
+        // QUADROS DE TRANSIÇÃO herdam a tradução da fala irmã. Um "wipe" de legenda é a mesma fala
+        // repetida em cópias de 0,08 s com \clip; o seletor as exclui como typesetting de alto
+        // risco, e elas saíam em inglês logo depois da fala em português — a legenda PISCAVA
+        // (medido em 25/09/2026: 71 quadros em 31 episódios do acervo, 13 de diálogo e 27 de
+        // título do Zeta). A cópia recebe a tradução da irmã SEM tags do MESMO estilo e mesmo
+        // texto, com as próprias tags de prefixo. Mesmo estilo de propósito: verso de música com o
+        // mesmo texto de um diálogo não pode herdar tradução — música não é trabalho desta tela.
+        Map<String, String> traducaoDaIrma = new HashMap<>();
+        for (EventoLegenda irma : documento.eventos()) {
+            if (!irma.isDialogo() || !irma.temTexto() || irma.texto().indexOf('{') >= 0
+                    || !seletorEventos.isTraduzivel(irma, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas)) {
+                continue;
+            }
+            String validada = traducoesValidadas.get(irma.texto());
+            String semItalicoIrma = validada == null ? null : removedorItalico.remover(validada);
+            if (semItalicoIrma != null && !semItalicoIrma.isBlank() && semItalicoIrma.indexOf('{') < 0) {
+                traducaoDaIrma.putIfAbsent(irma.estilo() + '\u0000' + irma.texto(), semItalicoIrma);
+            }
+        }
+        int quadrosHerdados = 0;
         for (EventoLegenda evento : documento.eventos()) {
             String instante = instanteDe(evento);
-            if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, protecaoCamadas)) {
+            if (!seletorEventos.isTraduzivel(evento, frequenciaTextoLimpo, instantesPorTexto, protecaoCamadas)) {
+                java.util.regex.Matcher soPrefixo = evento.isDialogo() && evento.temTexto()
+                    ? PREFIXO_DE_TAGS_E_TEXTO.matcher(evento.texto()) : null;
+                String herdada = soPrefixo != null && soPrefixo.matches()
+                    ? traducaoDaIrma.get(evento.estilo() + '\u0000' + soPrefixo.group(2)) : null;
+                if (herdada != null) {
+                    eventosFinais.add(evento.comTexto(soPrefixo.group(1) + herdada));
+                    quadrosHerdados++;
+                    continue;
+                }
                 eventosFinais.add(evento);
-                naoTraduzidas.add(new FalaNaoTraduzida(evento.indice(), instante, evento.estilo(),
-                    FalaNaoTraduzida.Motivo.PRESERVADA_POR_REGRA,
-                    "seletor: musica, karaoke, romaji protegido ou estilo em estilos-ignorados"));
+                // Só FALA entra no dataset de falas não traduzidas. O leitor devolve como evento
+                // também a linha vazia, o Comment e a seção [Aegisub Extradata] inteira — no 86
+                // E01 eram 100 linhas assim, registradas como "preservada por regra: música,
+                // karaokê..." (medido em 25/09/2026). Não eram falas nem foram preservadas por
+                // regra nenhuma de tradução.
+                if (evento.isDialogo()) {
+                    naoTraduzidas.add(new FalaNaoTraduzida(evento.indice(), instante, evento.estilo(),
+                        FalaNaoTraduzida.Motivo.PRESERVADA_POR_REGRA,
+                        "seletor: musica, karaoke, romaji protegido ou estilo em estilos-ignorados"));
+                }
                 continue;
             }
             if (!traducoesValidadas.containsKey(evento.texto())) {
@@ -914,18 +974,43 @@ public class ProcessarArquivoUseCase {
         // classificadas como residuo de traducao que eram letra de musica.
         //
         // So ASS: o SRT nao tem cabecalho para comentario, e inventar um quebraria o formato.
+        // O DESTINO E RESOLVIDO ANTES DO CARIMBO porque o carimbo FALA SOBRE ELE. Enquanto a
+        // ordem era a inversa, a frase "arquivo publicado como parcial" era escrita sempre que
+        // houvesse pendencia — inclusive nas retraducoes, que publicam o arquivo FINAL mesmo
+        // com pendencia (ResolvedorSaidaLegenda.selecionar, protecaoLiberada). Medido em
+        // 2026-09-09 no DanMachi S01E01: o arquivo em disco era "..._PT-BR.ass", final, e o
+        // cabecalho dele afirmava ser parcial. Como a regra de auditoria do projeto diz que
+        // ".parcial nao e entrega", o carimbo mentiroso ensina a DESCARTAR uma entrega valida.
+        // A condicao nao e recalculada aqui: ela e CONSULTADA no caminho que o resolvedor
+        // escolheu, para nao existir uma segunda implementacao da mesma decisao.
+        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
+        Path arquivoSaida = resolvedorSaida.selecionar(
+            arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
+        boolean publicadoComoParcial = !arquivoSaida.equals(arquivoSaidaFinal);
+
         String cabecalhoFinal = documento.cabecalho();
         if (!ehSrt) {
-            int naOrigem = documento.eventos().size();
+            // FALAS, não linhas: o documento também guarda como evento a linha vazia, o Comment e
+            // a seção [Aegisub Extradata]. Contá-los inflava "preservadas por regra" — 7 no 0080
+            // E01, 100 no 86 E01, medido em 25/09/2026 —, e o carimbo existe justamente para
+            // ninguém ter de recalcular isso por fora.
+            int naOrigem = (int) documento.eventos().stream().filter(EventoLegenda::isDialogo).count();
             int traduziveis = entradasCache.size();
             List<String> carimbo = new ArrayList<>();
             carimbo.add("traduziu: " + naOrigem + " fala(s) na origem, " + traduziveis
                 + " traduzivel(is), " + (naOrigem - traduziveis)
                 + " preservada(s) por regra do pipeline (musica, karaoke, estilo ignorado)");
+            if (quadrosHerdados > 0) {
+                carimbo.add("quadros de transicao: " + quadrosHerdados
+                    + " copia(s) com \\clip receberam a traducao da fala irma (contadas entre as preservadas)");
+            }
             carimbo.add("lore: " + contexto.nomeExibicao() + " (" + contexto.id() + ")");
             if (!falhasDistintas.isEmpty()) {
                 carimbo.add("pendentes: " + falhasDistintas.size()
-                    + " fala(s) mantida(s) no original — arquivo publicado como parcial");
+                    + " fala(s) mantida(s) no original — "
+                    + (publicadoComoParcial
+                        ? "arquivo publicado como parcial"
+                        : "arquivo publicado como FINAL assim mesmo, por retraducao autorizada"));
             }
             cabecalhoFinal = CarimboCabecalhoLegenda.aplicar(cabecalhoFinal, carimbo);
         }
@@ -933,23 +1018,20 @@ public class ProcessarArquivoUseCase {
         DocumentoLegenda documentoFinal = new DocumentoLegenda(
             cabecalhoFinal, eventosFinais, documento.quebraDeLinha(), documento.comBom());
 
-        Path arquivoSaidaFinal = resolvedorSaida.resolverSaidaFinal(arquivoEntrada, pastasExecucao.diretorioSaida());
-        Path arquivoSaida = resolvedorSaida.selecionar(
-            arquivoSaidaFinal, !falhasDistintas.isEmpty(), permitirRetraducao);
-        Path backupSobrescrita = null;
-        if (permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal) && Files.exists(arquivoSaidaFinal)) {
-            backupSobrescrita = politicaBackup.criarBackupAntesSobrescrita(arquivoSaidaFinal);
-        }
-        if (ehSrt) {
-            escritorSrt.escrever(arquivoSaida, documentoFinal);
-        } else {
-            escritor.escrever(arquivoSaida, documentoFinal);
-        }
+        // Registro do que o cache gerou nesta publicação: é a BASE da mesclagem de três vias da
+        // próxima reexecução. Mora ao lado do cache da obra, fora da pasta de saída — nada ali pode
+        // ser confundido com legenda pelo remux.
+        Path basePublicada = arquivoCache.getParent().resolve(".publicado")
+            .resolve(arquivoSaida.getFileName().toString());
+        ResultadoPublicacao publicacao = publicar(arquivoSaida, documentoFinal, ehSrt,
+            permitirRetraducao && arquivoSaida.equals(arquivoSaidaFinal), avisos, basePublicada);
+        Path backupSobrescrita = publicacao.backup();
         // A6 DO ADITIVO: a aprovação tem de alcançar a ÚLTIMA transformação, e a última aqui é a
         // gravação. Tudo o que este método valida acontece ANTES da terminologia, da normalização
         // de aspas, do carimbo de cabeçalho e da serialização — e a auditoria de 09/09 apontou
         // exatamente isso: "os ensaios não comprovaram o fluxo completo até a gravação do .ass".
-        conferirArquivoGravado(arquivoSaida, ehSrt, entradasCache);
+        conferirArquivoGravado(arquivoSaida, ehSrt, entradasCache, jaNoIdiomaAlvo.keySet(),
+            publicacao.preservadasDoArquivo());
 
         // Substituição atômica da geração: só AQUI o cache ativo deixa de ser o anterior.
         // preservarAnterior fica falso quando a retradução já copiou esta mesma geração no
@@ -959,7 +1041,16 @@ public class ProcessarArquivoUseCase {
         telemetriaTraducao.registrarFalasNaoTraduzidas(
             arquivoSaida, resolvedorCache.animeAPartirDoArquivo(arquivoEntrada), naoTraduzidas);
 
-        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasCache,
+        // SEGUNDA OPINIÃO NÃO VAI PARA O CACHE: o carimbo de proveniência declara UM modelo para o
+        // arquivo inteiro, e guardar ali a tradução do modelo de recuperação faria a execução
+        // seguinte reusá-la como se o principal a tivesse produzido. A promessa existia desde
+        // 11/08/2026 em ProcessarEpisodioUseCase e não tinha consumidor — medido em 25/09/2026.
+        List<EntradaCache> entradasParaCache = desfecho.traduzidasPorSegundaOpiniao().isEmpty()
+            ? entradasCache
+            : entradasCache.stream()
+                .filter(e -> !desfecho.traduzidasPorSegundaOpiniao().contains(e.original()))
+                .toList();
+        politicaBackup.salvarCacheDaExecucao(arquivoCache, proveniencia, entradasParaCache,
             permitirRetraducao && !cacheAnteriorJaPreservado);
 
         long tempoTotalMs = System.currentTimeMillis() - inicioMs;
@@ -1012,6 +1103,256 @@ public class ProcessarArquivoUseCase {
         return arquivo.getFileName().toString().toLowerCase().endsWith(".srt");
     }
 
+    private void escreverLegenda(Path destino, DocumentoLegenda documento, boolean ehSrt) {
+        if (ehSrt) {
+            escritorSrt.escrever(destino, documento);
+        } else {
+            escritor.escrever(destino, documento);
+        }
+    }
+
+    /**
+     * O que a publicação fez: o backup da versão anterior (quando houve substituição) e os índices
+     * das falas mantidas do arquivo — corrigidas nele por outra tela ou à mão —, que a conferência
+     * pós-gravação não pode tratar como divergência.
+     */
+    record ResultadoPublicacao(Path backup, Set<Integer> preservadasDoArquivo) {
+        static final ResultadoPublicacao NADA = new ResultadoPublicacao(null, Set.of());
+    }
+
+    /** Resultado da mesclagem de três vias. */
+    private record Mescla(DocumentoLegenda documento, Set<Integer> preservadas, int atualizadas,
+            int conflitos, boolean cabecalhoPreservado, String exemploConflito) {}
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: publica a legenda PT-BR sem destruir o que foi corrigido nela depois da
+     * última publicação, e sem deixar de entregar o que foi corrigido no cache.
+     *
+     * <h2>O prejuízo que originou (auditoria de 25/09/2026)</h2>
+     * A Tradução Local regenera a legenda a partir do CACHE. As telas que corrigem a legenda depois
+     * dela — Revisão de Lore, Concordância, a correção de tags, a troca de fonte e o Aegisub —
+     * escrevem direto no {@code .ass} e não tocam no cache. Reexecutar a 2.1 com a proteção LIGADA
+     * regravava o {@code _PT-BR} e desfazia essas correções sem backup (medido no 0080 E02). E
+     * reexecutar é justamente o que a tela da 2.3 manda fazer para publicar o cache corrigido — os
+     * dois fluxos legítimos colidiam no mesmo arquivo.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>MESCLAGEM DE TRÊS VIAS por linha, com a BASE = o que o cache gerou na publicação
+     *       anterior (gravada a cada publicação em {@code cache/<obra>/.publicado/}): linha que o
+     *       arquivo não mudou recebe a do cache (fluxo da 2.3); linha que o arquivo mudou e o cache
+     *       não é MANTIDA (correção humana ou de outra tela); linha mudada nos dois lados é conflito,
+     *       mantida a do arquivo e avisada.</li>
+     *   <li>Sem base, ou com o arquivo estruturalmente diferente (linhas incluídas ou removidas), não
+     *       há como separar os dois casos: substitui pelo cache COM backup obrigatório e aviso.</li>
+     *   <li>Conteúdo final idêntico ao publicado não é regravado — uma reexecução sem mudança
+     *       produz o arquivo byte a byte igual, então não há backup por ruído.</li>
+     *   <li>Toda substituição é precedida de backup; falha no backup aborta a publicação.</li>
+     *   <li>Retradução liberada é substituição PEDIDA: não mescla, faz backup e publica o cache.</li>
+     * </ul>
+     *
+     * <h2>Comportamento em caso de falha</h2>
+     * Falha ao gerar, comparar ou fazer backup lança {@link ArquivoLegendaException} antes de o
+     * destino ser tocado. Falha ao ler a base ou o arquivo para mesclar degrada para a substituição
+     * com backup (declarada no console). Falha ao gravar a base só é avisada — a legenda já foi
+     * publicada, e a próxima reexecução cai no caminho sem base.
+     */
+    private ResultadoPublicacao publicar(Path destino, DocumentoLegenda gerado, boolean ehSrt,
+            boolean substituicaoPedida, List<String> avisos, Path base) {
+        if (!Files.exists(destino)) {
+            escreverLegenda(destino, gerado, ehSrt);
+            registrarBase(base, gerado, ehSrt);
+            return ResultadoPublicacao.NADA;
+        }
+        Mescla mescla = substituicaoPedida ? null : mesclar(destino, gerado, ehSrt, base);
+        DocumentoLegenda aPublicar = mescla != null ? mescla.documento() : gerado;
+        Path backup = publicarPreservandoAnterior(destino, aPublicar, ehSrt, substituicaoPedida, avisos,
+            mescla != null);
+        registrarBase(base, gerado, ehSrt);
+        return new ResultadoPublicacao(backup, mescla != null ? mescla.preservadas() : Set.of());
+    }
+
+    private Mescla mesclar(Path destino, DocumentoLegenda gerado, boolean ehSrt, Path base) {
+        if (base == null || !Files.isRegularFile(base)) {
+            uiLogger.log("[ MESCLA ] " + destino.getFileName() + ": sem registro da publicação anterior"
+                + " — não dá para separar correção feita no arquivo de correção feita no cache.");
+            return null;
+        }
+        DocumentoLegenda noArquivo;
+        DocumentoLegenda publicadoAntes;
+        try {
+            noArquivo = ehSrt ? leitorSrt.ler(destino) : leitor.ler(destino);
+            publicadoAntes = ehSrt ? leitorSrt.ler(base) : leitor.ler(base);
+        } catch (RuntimeException naoDeu) {
+            uiLogger.log("[ MESCLA ] " + destino.getFileName() + ": não consegui ler o arquivo ou a base ("
+                + naoDeu.getMessage() + ") — mesclagem NÃO feita.");
+            return null;
+        }
+        List<EventoLegenda> d = noArquivo.eventos();
+        List<EventoLegenda> b = publicadoAntes.eventos();
+        List<EventoLegenda> n = gerado.eventos();
+        if (d.size() != b.size() || b.size() != n.size()) {
+            uiLogger.log("[ MESCLA ] " + destino.getFileName() + ": o arquivo tem " + d.size()
+                + " linha(s) de evento e a publicação anterior tinha " + b.size()
+                + " — estrutura mudou, mesclagem linha a linha NÃO é segura.");
+            return null;
+        }
+        List<EventoLegenda> saida = new ArrayList<>(n.size());
+        Set<Integer> preservadas = new java.util.LinkedHashSet<>();
+        int atualizadas = 0;
+        int conflitos = 0;
+        String exemplo = null;
+        for (int i = 0; i < n.size(); i++) {
+            String kd = chaveDaLinha(d.get(i));
+            String kb = chaveDaLinha(b.get(i));
+            String kn = chaveDaLinha(n.get(i));
+            if (kd.equals(kb)) {
+                saida.add(n.get(i));
+                if (!kn.equals(kb)) {
+                    atualizadas++;
+                }
+            } else if (kn.equals(kb) || kn.equals(kd)) {
+                saida.add(d.get(i));
+                if (!kn.equals(kd)) {
+                    preservadas.add(d.get(i).indice());
+                }
+            } else {
+                saida.add(d.get(i));
+                preservadas.add(d.get(i).indice());
+                conflitos++;
+                if (exemplo == null && d.get(i).temTexto() && n.get(i).temTexto()) {
+                    exemplo = "no arquivo: \"" + recortar(d.get(i).texto())
+                        + "\" | o cache gera agora: \"" + recortar(n.get(i).texto()) + "\"";
+                }
+            }
+        }
+        String hd = noArquivo.cabecalho();
+        String hb = publicadoAntes.cabecalho();
+        String hn = gerado.cabecalho();
+        boolean cabecalhoPreservado = !hd.equals(hb) && !hd.equals(hn);
+        String cabecalho = cabecalhoPreservado ? hd : hn;
+
+        if (!preservadas.isEmpty() || atualizadas > 0 || cabecalhoPreservado) {
+            String resumo = destino.getFileName() + ": " + preservadas.size()
+                + " fala(s) corrigida(s) direto no arquivo mantida(s) (o cache não as conhece), "
+                + atualizadas + " atualizada(s) pelo cache"
+                + (conflitos > 0 ? ", " + conflitos + " CONFLITO(s) — mudou no arquivo E no cache;"
+                    + " mantida a do arquivo" + (exemplo != null ? ". Ex.: " + exemplo : "") : "")
+                + (cabecalhoPreservado ? "; cabeçalho editado no arquivo (estilos/fonte) mantido" : "")
+                + ".";
+            log.info("[ MESCLA ] {}", resumo);
+            uiLogger.log("[ MESCLA ] " + resumo);
+        }
+        return new Mescla(new DocumentoLegenda(cabecalho, saida, gerado.quebraDeLinha(), gerado.comBom()),
+            preservadas, atualizadas, conflitos, cabecalhoPreservado, exemplo);
+    }
+
+    private static String chaveDaLinha(EventoLegenda evento) {
+        return evento.prefixo() + '\u0000' + (evento.texto() == null ? "" : evento.texto());
+    }
+
+    private static String recortar(String texto) {
+        return texto.length() > 60 ? texto.substring(0, 60) + "…" : texto;
+    }
+
+    private void registrarBase(Path base, DocumentoLegenda gerado, boolean ehSrt) {
+        if (base == null) {
+            return;
+        }
+        try {
+            Files.createDirectories(base.getParent());
+            escreverLegenda(base, gerado, ehSrt);
+        } catch (RuntimeException | java.io.IOException naoDeu) {
+            log.warn("Registro da publicação {} não gravado: {}", base, naoDeu.getMessage());
+            uiLogger.log("[ MESCLA ] registro da publicação NÃO gravado (" + naoDeu.getMessage()
+                + ") — a próxima reexecução não conseguirá preservar correções feitas no arquivo.");
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: substitui a legenda existente pelo conteúdo já decidido, com backup
+     * obrigatório quando ela muda e sem tocar no arquivo quando é idêntica.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: backup antes de qualquer substituição; troca atômica; conteúdo
+     * idêntico não é regravado; sem mesclagem ({@code mesclado == false}) a diferença é avisada com
+     * os dois casos possíveis, porque aí o sistema não sabe separar correção do cache de correção
+     * feita no arquivo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha ao gerar, comparar ou fazer backup lança
+     * {@link ArquivoLegendaException} antes de o destino ser tocado; o temporário é sempre apagado.
+     *
+     * @return o caminho do backup criado, ou {@code null} quando nada precisou ser substituído
+     */
+    private Path publicarPreservandoAnterior(Path destino, DocumentoLegenda documento, boolean ehSrt,
+            boolean substituicaoPedida, List<String> avisos, boolean mesclado) {
+        Path gerado;
+        try {
+            gerado = Files.createTempFile(destino.toAbsolutePath().getParent(),
+                destino.getFileName().toString(), ".gerando.tmp");
+        } catch (java.io.IOException e) {
+            throw new ArquivoLegendaException("Não consegui preparar a nova versão de " + destino, e);
+        }
+        try {
+            escreverLegenda(gerado, documento, ehSrt);
+            boolean identico = Files.mismatch(gerado, destino) == -1L;
+            if (identico && !substituicaoPedida) {
+                uiLogger.log("[ SAIDA ] " + destino.getFileName()
+                    + ": conteúdo idêntico ao já publicado — mantido sem regravar.");
+                return null;
+            }
+            Path backup = politicaBackup.criarBackupAntesSobrescrita(destino);
+            if (!identico && !substituicaoPedida && !mesclado) {
+                // Decodificação TOLERANTE: o arquivo anterior pode ter sido salvo por outro programa
+                // com byte inválido, e o aviso nunca pode ser o motivo de a publicação falhar.
+                List<String> antes = new String(Files.readAllBytes(destino),
+                    java.nio.charset.StandardCharsets.UTF_8).lines().toList();
+                List<String> depois = new String(Files.readAllBytes(gerado),
+                    java.nio.charset.StandardCharsets.UTF_8).lines().toList();
+                int diferentes = Math.abs(antes.size() - depois.size());
+                String exemplo = null;
+                for (int i = 0; i < Math.min(antes.size(), depois.size()); i++) {
+                    if (!antes.get(i).equals(depois.get(i))) {
+                        diferentes++;
+                        if (exemplo == null && antes.get(i).startsWith("Dialogue:")) {
+                            exemplo = "no arquivo: \"" + textoDaLinha(antes.get(i))
+                                + "\" → agora: \"" + textoDaLinha(depois.get(i)) + "\"";
+                        }
+                    }
+                }
+                // Os DOIS casos legítimos que produzem esta diferença pedem reações opostas, e o
+                // aviso tem de dizer os dois: se foi o cache que mudou (Correção de Cache, 2.3), a
+                // diferença É a correção chegando; se foi a legenda corrigida direto no .ass, a
+                // correção acabou de ser substituída. Sem o registro da publicação anterior, o
+                // sistema não sabe qual dos dois aconteceu.
+                String aviso = "A legenda já publicada " + destino.getFileName() + " DIFERIA do que o cache"
+                    + " gera em " + diferentes + " linha(s) e foi substituída pela versão do cache; a anterior"
+                    + " está no backup. Se você corrigiu o cache (Correção de Cache), é a correção chegando."
+                    + " Se a legenda tinha sido corrigida direto no .ass (Revisão de Lore, Concordância,"
+                    + " edição manual), essa correção está no backup e não no arquivo."
+                    + (exemplo != null ? " Exemplo: " + exemplo : "");
+                log.warn("{} Backup: {}", aviso, backup);
+                uiLogger.log("[ ATENÇÃO ] " + aviso + " Backup: " + backup);
+                avisos.add(aviso);
+            }
+            org.traducao.projeto.core.util.ArquivoAtomicoUtil.substituirAtomico(gerado, destino);
+            return backup;
+        } catch (java.io.IOException e) {
+            throw new ArquivoLegendaException("Falha ao publicar " + destino + " preservando a versão anterior", e);
+        } finally {
+            try {
+                Files.deleteIfExists(gerado);
+            } catch (java.io.IOException ignorada) {
+                log.warn("Temporário {} não pôde ser apagado", gerado);
+            }
+        }
+    }
+
+    private static String textoDaLinha(String linhaAss) {
+        String[] campos = linhaAss.split(",", 10);
+        String texto = campos.length == 10 ? campos[9] : linhaAss;
+        return texto.length() > 60 ? texto.substring(0, 60) + "…" : texto;
+    }
+
     /**
      * PROPÓSITO DE NEGÓCIO: relê a legenda que acabou de ser GRAVADA e confere que o que está no
      * disco é o que a validação aprovou. É a única verificação deste fluxo que acontece depois de
@@ -1051,6 +1392,46 @@ public class ProcessarArquivoUseCase {
     // conferencia com um arquivo montado a mao e um cache montado a mao, que e o unico jeito
     // de VER a A6 acusando divergencia sem depender de um escritor defeituoso de verdade.
     void conferirArquivoGravado(Path arquivoSaida, boolean ehSrt, List<EntradaCache> entradasCache) {
+        conferirArquivoGravado(arquivoSaida, ehSrt, entradasCache, Set.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a mesma conferência pós-gravação, sabendo quais falas foram MANTIDAS
+     * porque a fonte já estava no idioma-alvo — as únicas que entram no arquivo sem terem passado
+     * nem pelo LLM nem pelo portão canônico.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O esperado no disco é o validado DEPOIS da regra de saída do itálico: o cache guarda o
+     *       que foi validado e o arquivo recebe {@link RemovedorItalico#remover}. Comparar os dois
+     *       sem a mesma regra fabricava divergência em toda fala itálica — medido em 25/09/2026, 4
+     *       de 4 alarmes do 0080 eram isso. A regra é CONSULTADA, não reimplementada.</li>
+     *   <li>Fala mantida por fonte já no alvo é declarada NÃO VERIFICADA, com exemplos, e não
+     *       reprovada: o portão canônico só sabe dizer que ela é idêntica ao original, o que é
+     *       verdade por construção e não prova nada sobre o idioma. Reprová-la com "o modelo
+     *       devolveu o texto original" era falso duas vezes — não houve modelo nem devolução.
+     *       Calá-la seria pior: foi a A6 que mostrou "Uma, wait!" saindo em inglês.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: igual à sobrecarga de três argumentos.
+     *
+     * @param mantidasPorFonteNoAlvo originais que o detector de idioma da fonte deu por já
+     *        traduzidos e que por isso não foram ao LLM
+     */
+    void conferirArquivoGravado(Path arquivoSaida, boolean ehSrt, List<EntradaCache> entradasCache,
+            Set<String> mantidasPorFonteNoAlvo) {
+        conferirArquivoGravado(arquivoSaida, ehSrt, entradasCache, mantidasPorFonteNoAlvo, Set.of());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a mesma conferência, sabendo quais falas a mesclagem de três vias
+     * MANTEVE do arquivo (corrigidas nele por outra tela ou à mão). Elas diferem do validado por
+     * decisão, não por defeito: são declaradas no placar e não viram divergência.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: igual à sobrecarga de quatro argumentos.
+     */
+    void conferirArquivoGravado(Path arquivoSaida, boolean ehSrt, List<EntradaCache> entradasCache,
+            Set<String> mantidasPorFonteNoAlvo, Set<Integer> preservadasDoArquivo) {
         if (entradasCache.isEmpty()) {
             uiLogger.log("   [ A6 ] nada a conferir no arquivo gravado: nenhuma fala traduzida nesta execucao");
             return;
@@ -1073,11 +1454,22 @@ public class ProcessarArquivoUseCase {
         int divergentes = 0;
         int reprovadosAgora = 0;
         int pendentesPreservadas = 0;
+        List<String> naoVerificadasFonteNoAlvo = new ArrayList<>();
+        int preservadasDaEdicao = 0;
         for (EntradaCache entrada : entradasCache) {
+            if (preservadasDoArquivo.contains(entrada.indice())) {
+                preservadasDaEdicao++;
+                continue;
+            }
             String gravado = noDisco.get(entrada.indice());
             if (gravado == null) {
                 divergentes++;
                 log.warn("A6: fala {} foi traduzida e NAO esta no arquivo gravado", entrada.indice());
+                continue;
+            }
+            if (mantidasPorFonteNoAlvo.contains(entrada.original())
+                    && gravado.equals(removedorItalico.remover(entrada.original()))) {
+                naoVerificadasFonteNoAlvo.add(gravado);
                 continue;
             }
             // PENDENTE NAO E DIVERGENCIA, e confundir os dois faz esta guarda gritar em todo
@@ -1094,12 +1486,12 @@ public class ProcessarArquivoUseCase {
             // motivo, em vez de uma traducao que nao existe.
             boolean pendenteComOriginalPreservado =
                 (entrada.traduzido() == null || entrada.traduzido().isBlank())
-                    && gravado.equals(entrada.original());
+                    && gravado.equals(removedorItalico.remover(entrada.original()));
             if (pendenteComOriginalPreservado) {
                 pendentesPreservadas++;
                 continue;
             }
-            if (!gravado.equals(entrada.traduzido())) {
+            if (!gravado.equals(removedorItalico.remover(entrada.traduzido()))) {
                 divergentes++;
                 log.warn("A6: o disco divergiu do que foi validado na fala {}.\n  validado: \"{}\"\n  no disco: \"{}\"",
                     entrada.indice(), entrada.traduzido(), gravado);
@@ -1120,6 +1512,17 @@ public class ProcessarArquivoUseCase {
         String pendentes = pendentesPreservadas > 0
             ? ", " + pendentesPreservadas + " pendente(s) com o original preservado (estado esperado)"
             : "";
+        if (preservadasDaEdicao > 0) {
+            pendentes += ", " + preservadasDaEdicao + " mantida(s) da correção feita no arquivo (mesclagem)";
+        }
+        if (!naoVerificadasFonteNoAlvo.isEmpty()) {
+            pendentes += ", " + naoVerificadasFonteNoAlvo.size()
+                + " mantida(s) por fonte ja no idioma-alvo, NAO VERIFICADA(s) — nao passaram pelo LLM"
+                + " nem pela validacao; confira se sao mesmo portugues: "
+                + naoVerificadasFonteNoAlvo.stream().limit(3)
+                    .map(t -> "\"" + (t.length() > 60 ? t.substring(0, 60) + "…" : t) + "\"")
+                    .collect(java.util.stream.Collectors.joining(", "));
+        }
         if (divergentes == 0 && reprovadosAgora == 0) {
             uiLogger.log("   [ A6 ] arquivo gravado conferido: " + entradasCache.size()
                 + " fala(s) relida(s) do disco, nenhuma divergencia" + pendentes);

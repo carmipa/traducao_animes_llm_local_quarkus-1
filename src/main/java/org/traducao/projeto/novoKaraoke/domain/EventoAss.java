@@ -14,6 +14,9 @@ import java.util.regex.Pattern;
  * @param inicio     campo Start (mantido como texto para não perder precisão)
  * @param fim        campo End
  * @param estilo     campo Style
+ * @param efeito     campo Effect (9º campo): carimbo do Kara Templater do Aegisub
+ *                   ({@code fx}, {@code Effector [fx]}) quando presente — evidência
+ *                   direta de karaokê que o nome do estilo e a tag {@code \k} podem não trazer
  * @param texto      campo Text (último campo, pode conter vírgulas)
  */
 public record EventoAss(
@@ -22,6 +25,7 @@ public record EventoAss(
     String inicio,
     String fim,
     String estilo,
+    String efeito,
     String texto
 ) {
 
@@ -45,7 +49,8 @@ public record EventoAss(
         } catch (NumberFormatException e) {
             camada = 0;
         }
-        return new EventoAss(linha, camada, campos[1].strip(), campos[2].strip(), campos[3].strip(), campos[9]);
+        return new EventoAss(linha, camada, campos[1].strip(), campos[2].strip(), campos[3].strip(),
+            campos[8].strip(), campos[9]);
     }
 
     /** Texto visível na tela: sem blocos {@code {...}} e com quebras viradas espaço. */
@@ -54,6 +59,26 @@ public record EventoAss(
             .replaceAll("")
             .replace("\\N", " ")
             .replace("\\n", " ")
+            .replace("\\h", " ")
+            .strip();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o texto sem as tags de animação, mas com a quebra {@code \N}
+     * DELIBERADA preservada. Existe porque a tradução de karaokê (Passo 1) entrega o par
+     * bilíngue — {@code original\Ntradução} — num evento ÚNICO, e o achatamento não pode
+     * fundir essas duas linhas numa só: {@link #textoVisivel()} troca {@code \N} por espaço
+     * (certo para AGRUPAR sílabas), e usá-lo na saída colava "inglês PT" numa linha só.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só remove o que é decoração ({@code {...}}, {@code \h}); a
+     * quebra {@code \N}/{@code \n} de linha é conteúdo e fica. NÃO inventa quebra onde não há.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto sem {@code \N} devolve o mesmo que
+     * {@link #textoVisivel()}; nunca lança.
+     */
+    public String textoComQuebra() {
+        return PADRAO_REMOVE_TAGS.matcher(texto)
+            .replaceAll("")
             .replace("\\h", " ")
             .strip();
     }

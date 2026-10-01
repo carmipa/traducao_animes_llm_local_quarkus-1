@@ -180,4 +180,21 @@ class PadraoEstiloMusicalTest {
         assertFalse(PadraoEstiloMusical.nomeDeclaraMusica("Roman"),
             "'Roman' sozinho nao e romaji — o remendo nao pode alargar tanto");
     }
+
+    /**
+     * F11 (24/09/2026): a pergunta FROUXA do alerta "[ SUSPEITO ]". Tem de sugerir musica no nome
+     * que a regua estrita nao alcanca ({@code OPL2}, {@code EDA1}) e NAO no diálogo e nas placas,
+     * que disparavam o alerta em todo arquivo (A1 — o mesmo sinal "estilo nao reconhecido com 5+
+     * eventos" dos dois lados).
+     */
+    @Test
+    void nomeSugereMusicaPegaOplDoisMasNaoDialogo() {
+        assertTrue(PadraoEstiloMusical.nomeSugereMusica("OPL2"), "OPL2: op grudado + digito sugere musica");
+        assertTrue(PadraoEstiloMusical.nomeSugereMusica("EDA1"), "EDA1 tambem");
+        assertTrue(PadraoEstiloMusical.nomeSugereMusica("ED_S2"), "o que declara tambem sugere");
+        for (String dialogo : new String[] {"Default", "Signs", "Dialogue", "Italics", "Edit", "Top", "Flashback"}) {
+            assertFalse(PadraoEstiloMusical.nomeSugereMusica(dialogo), dialogo + " nao sugere musica");
+        }
+        assertFalse(PadraoEstiloMusical.nomeSugereMusica(null));
+    }
 }

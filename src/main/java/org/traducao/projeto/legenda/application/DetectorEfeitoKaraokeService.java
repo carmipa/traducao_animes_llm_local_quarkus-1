@@ -91,6 +91,43 @@ public class DetectorEfeitoKaraokeService {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: o campo {@code Effect} (9º da linha {@code Dialogue:}) declara karaokê
+     * — é o carimbo que o Kara Templater do Aegisub grava nas linhas que GERA. Evidência mais barata
+     * e confiável que nome de estilo ou tag {@code \k}: quando o campo está preenchido, ele acerta.
+     *
+     * <h2>O prejuízo que originou, medido em 2026-09-21</h2>
+     * A abertura {@code OPL2} do Gundam Unicorn (155 eventos por episódio) tem {@code Effect="fx"},
+     * {@code \pos} em todos e <b>zero</b> {@code \k}. O nome {@code OPL2} não casa o padrão musical
+     * ({@code op} seguido de letra derrota a fronteira), então o Karaokê Simples a classificava como
+     * DIÁLOGO e a copiava byte a byte — a animação KFX inteira sobrevivia na tela, misturada à letra.
+     * A Tradução de Karaokê já reconhecia essa mesma abertura por este critério (via
+     * {@code SinaisDeKaraoke.efeitoDeclaraKaraoke}); o simplificador não.
+     *
+     * <p>DUPLICAÇÃO CONSCIENTE DECLARADA: a mesma regra vive em
+     * {@code traducaoKaraoke.domain.SinaisDeKaraoke.efeitoDeclaraKaraoke()}. Não foram unificadas
+     * porque {@code SinaisDeKaraoke} é um record de DOMÍNIO puro e não pode alcançar este serviço de
+     * aplicação sem inverter a dependência (domínio → aplicação de outro peer). A regra é uma
+     * expressão de quatro literais inline (não {@code Pattern.compile} nem constante {@code String}),
+     * abaixo do radar da {@code CatracaRegraDuplicadaEntreFatiasTest} e barata de manter em sincronia;
+     * as palavras usadas ({@code fx}/{@code karaoke}/{@code template}) não são NOME de estilo, então
+     * também não entra na {@code CatracaPadraoMusicalTemDonoUnicoTest}, que é do nome do estilo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: comparado em minúsculas e por conteúdo, porque o Kara Templater
+     * escreve tanto {@code fx} quanto {@code Effector [fx]}. Estilos de DIÁLOGO e {@code Signs}
+     * medidos no Unicorn têm o campo VAZIO, então este critério não os arrasta — ao contrário da
+     * assinatura de template ({@code \t} + densidade), que pega letreiro animado.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null} ou em branco devolve {@code false}; nunca lança.
+     */
+    public boolean efeitoDeclaraKaraoke(String campoEfeito) {
+        if (campoEfeito == null || campoEfeito.isBlank()) {
+            return false;
+        }
+        String x = campoEfeito.toLowerCase(java.util.Locale.ROOT);
+        return x.equals("fx") || x.contains("[fx]") || x.contains("karaoke") || x.contains("template");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: estilo cujo NOME indica música (Opening, Ending, Song, Karaoke...).
      * Delimita o que é bloco musical mesmo quando o evento individual tem poucas tags — ex.:
      * linha inteira de tradução da letra com apenas {@code \pos}.

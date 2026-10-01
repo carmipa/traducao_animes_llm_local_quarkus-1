@@ -109,6 +109,42 @@ class CadeiaCorrecaoFalaTest {
     }
 
     /**
+     * #1 (2026-09-15): FRAGMENTO de frase partida ENTRE eventos NÃO vai ao provedor. Medido no
+     * Unicorn ep22: {@code "...that affects"}, traduzido isolado, virou {@code "afeta profundamente"}
+     * — o LLM COMPLETOU a frase cortada com conteúdo inventado. Erro fluente é o pior desfecho:
+     * lê-se certo e muda o sentido.
+     *
+     * <p>CASO-CONTROLE (A1): a MESMA fala (NAO_TRADUZIDA), com o flag e sem ele. Com o flag: pendente,
+     * evidência {@code FRAGMENTO_CROSS_EVENTO}, ZERO chamadas à rede (gate antes do provedor). Sem o
+     * flag: segue o fluxo e alcança a rede, como antes. Tirar o gate do {@code decidir} faz a primeira
+     * metade falhar.
+     */
+    @Test
+    void fragmentoCrossEventoFicaPendenteSemTocarARede() {
+        String en = "Today, I learned a secret that affects";
+        CadeiaCorrecaoFala.FalaSuspeita frag = new CadeiaCorrecaoFala.FalaSuspeita(
+            fala(en), en, en, true,
+            new ResultadoDeteccaoConcordancia(true, List.of(PoliticaRetraducao.NAO_TRADUZIDA)),
+            true);
+        CadeiaCorrecaoFala.Tentativa comFlag = cadeia.decidir(
+            new SessaoRevisaoArquivo(), frag, "ep22.ass", ModoRevisaoLegendas.GOOGLE, SEM_LORE);
+
+        assertInstanceOf(DecisaoFala.Pendente.class, comFlag.decisao(),
+            "fragmento cortado nao pode ser 'corrigido' — completa-lo e fabricar o complemento");
+        assertTrue(comFlag.evidencias().stream()
+                .anyMatch(e -> "FRAGMENTO_CROSS_EVENTO".equals(e.resultado())),
+            "a evidencia tem de nomear a causa, senao a fala pendente some do relatorio");
+        assertEquals(0, tradutorExterno.chamadas(),
+            "o gate e ANTES do provedor: a rota que fabrica nem e alcancada");
+
+        tradutorExterno.reiniciar();
+        CadeiaCorrecaoFala.Tentativa semFlag = decidir(new SessaoRevisaoArquivo(), en, en);
+        assertTrue(tradutorExterno.chamadas() >= 1
+                || semFlag.decisao() instanceof DecisaoFala.Corrigir,
+            "sem o flag, a MESMA fala nao e gateada — segue o fluxo normal ate a rede");
+    }
+
+    /**
      * A segunda fonte: a mesma frase, de novo, no mesmo arquivo. A rede é consultada UMA vez.
      * É o que torna suportável um episódio cheio de bordões repetidos.
      */
@@ -227,44 +263,40 @@ class CadeiaCorrecaoFalaTest {
     }
 
     /**
-     * A CASCATA, que é a razão de ser da tela depois da decisão de Paulo (2026-08-16): a 3.1 existe
-     * para que uma fala que faltou traduzir <b>não saia daqui sem tradução</b>. O LLM é a 1ª etapa
-     * porque conhece a lore; o Google é a 2ª e só entra quando a 1ª não resolveu.
-     *
-     * <p>Antes disto eram dois botões, e a garantia dependia de o operador lembrar a ordem — a lente
-     * de boa-fé chama isso de interface que permite errar.
+     * SEM CASCATA (Paulo, 2026-09-16): a passada "Traduzir o que faltou" (LLM_CONCORDANCIA) é do LLM
+     * local + dicionários. Se o LLM não resolve, a fala fica PENDENTE — o Google NÃO é acionado aqui.
+     * Ele é uma passada SEPARADA (botão "Só o Google"), escolha explícita do operador, para o Google
+     * nunca TROCAR o que já foi traduzido numa fala parcial. Reverte a cascata de 16/08.
      */
     @Test
-    void quandoOLlmNaoResolveACascataChamaOGoogle() {
+    void llmConcordanciaNaoCaiNoGoogle_llmNaoResolveFicaPendente() {
         llm.responderSemAlterar();
 
         CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
             new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
             "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
 
-        assertEquals(1, tradutorExterno.chamadas(),
-            "o LLM recusou: a fala tinha de seguir para a 2ª etapa em vez de virar pendência");
-        assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
+        assertInstanceOf(DecisaoFala.Pendente.class, tentativa.decisao(),
+            "sem cascata, o LLM que não resolve deixa a fala pendente");
+        assertEquals(0, tradutorExterno.chamadas(),
+            "o Google não é acionado na passada do LLM — é passada separada (botão Só o Google)");
     }
 
     /**
-     * O rótulo tem de dizer QUEM resolveu. Numa cascata é fácil o texto vir do Google e a evidência
-     * sair como {@code CORRIGIDA_LLM}, porque o modo pedido continua sendo o do botão — e aí toda
-     * comparação futura entre provedores nasce mentindo.
+     * O rótulo tem de dizer QUEM resolveu. Na passada "Só o Google" (modo GOOGLE, sem LLM antes), a
+     * correção é do Google e a evidência sai {@code CORRIGIDA_GOOGLE} — o rótulo distingue o que
+     * custou rede, e mentir nele contamina a comparação entre provedores.
      */
     @Test
-    void correcaoVindaDoGoogleNaCascataNaoEhRotuladaComoLlm() {
-        llm.responderSemAlterar();
-
+    void passadaSoGoogleRotulaCorrigidaGoogle() {
         CadeiaCorrecaoFala.Tentativa tentativa = cadeia.decidir(
             new SessaoRevisaoArquivo(), suspeita("Get out of there!", "Get out of there!"),
-            "ep01.ass", ModoRevisaoLegendas.LLM_CONCORDANCIA, SEM_LORE);
+            "ep01.ass", ModoRevisaoLegendas.GOOGLE, SEM_LORE);
 
+        assertInstanceOf(DecisaoFala.Corrigir.class, tentativa.decisao());
         assertTrue(tentativa.evidencias().stream()
                 .anyMatch(e -> "CORRIGIDA_GOOGLE".equals(e.resultado())),
-            "quem corrigiu foi o Google; rotular como LLM contamina o dataset de comparação");
-        assertTrue(tentativa.evidencias().stream()
-                .anyMatch(e -> "LLM_SEM_ALTERACAO".equals(e.resultado())),
-            "a recusa da 1ª etapa também é evidência: sem ela ninguém sabe que o LLM foi tentado");
+            "quem corrigiu foi o Google; o rótulo tem de dizer isso");
+        assertEquals(0, llm.chamadas(), "a passada Só o Google não chama o LLM antes");
     }
 }

@@ -17,6 +17,23 @@ class DetectorEfeitoKaraokeServiceTest {
     private static final String KARAOKE_INGLES = "But no matter how bad a fight we'd have";
 
     @Test
+    void efeitoFxDeclaraKaraokeMasCampoVazioNao() {
+        // A abertura OPL2 do Gundam Unicorn carrega Effect="fx" em todas as 155 linhas (medido
+        // 2026-09-21) — é o carimbo do Kara Templater. É o UNICO sinal que a denuncia: o nome "OPL2"
+        // nao casa o padrao musical e nao ha \k.
+        assertTrue(detector.efeitoDeclaraKaraoke("fx"));
+        assertTrue(detector.efeitoDeclaraKaraoke("Effector [fx]"));
+        assertTrue(detector.efeitoDeclaraKaraoke("karaoke"));
+        assertTrue(detector.efeitoDeclaraKaraoke("template"));
+        // CASO-CONTROLE de fronteira (A1): dialogo e Signs tem o campo VAZIO — o legitimo que NAO
+        // pode ser arrastado. "fx" avulso dentro de outra palavra tambem nao conta.
+        assertFalse(detector.efeitoDeclaraKaraoke(""));
+        assertFalse(detector.efeitoDeclaraKaraoke("   "));
+        assertFalse(detector.efeitoDeclaraKaraoke(null));
+        assertFalse(detector.efeitoDeclaraKaraoke("banner"));
+    }
+
+    @Test
     void preservaRomajiQuandoEstiloSeparaOMarcadorPorSublinhado() {
         // Estilo real do ED do Guilty Crown. Com fronteira \b o sublinhado é caractere de palavra,
         // então "ED_S2_roma" NÃO casava e as 29 linhas de romaji do ED/OP foram traduzidas.

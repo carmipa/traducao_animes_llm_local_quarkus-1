@@ -1,6 +1,7 @@
 package org.traducao.projeto.llm.domain;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * PROPÓSITO DE NEGÓCIO: resultado da tradução de um {@link Lote} pelo LLM — as linhas
@@ -34,6 +35,11 @@ import java.util.List;
  * @param mensagemErro diagnóstico quando {@code sucesso} é {@code false}
  * @param mascaradosSegundaOpiniao textos MASCARADOS cuja tradução veio de outro modelo
  * @param recusaDaRequisicao {@code true} quando o servidor respondeu e RECUSOU este pedido
+ * @param causasDoOriginalMantido texto MASCARADO enviado → causa real, para cada fala em que o
+ *        PIPELINE desistiu e devolveu o original. Sem isto, a fala chegava ao relatório como
+ *        "o modelo devolveu o texto original" — o sistema atribuindo à origem uma decisão dele
+ *        mesmo (A7). Medido na auditoria de 25/09/2026: "3, 2, 1, go!" foi descartada porque o
+ *        modelo devolveu QUATRO linhas para uma, e o relatório dizia eco.
  */
 public record TraducaoLote(
     int idLote,
@@ -41,17 +47,32 @@ public record TraducaoLote(
     boolean sucesso,
     String mensagemErro,
     List<String> mascaradosSegundaOpiniao,
-    boolean recusaDaRequisicao
+    boolean recusaDaRequisicao,
+    Map<String, String> causasDoOriginalMantido
 ) {
 
     /**
-     * PROPÓSITO DE NEGÓCIO: garante que a lista de segunda opinião nunca seja nula nem
-     * mutável — quem consome decide o que cachear com base nela, e um {@code null} ali
-     * viraria {@code NullPointerException} no meio da gravação do cache.
+     * PROPÓSITO DE NEGÓCIO: garante que a lista de segunda opinião e o mapa de causas nunca
+     * sejam nulos nem mutáveis — quem consome decide o que cachear e o que relatar com base
+     * neles, e um {@code null} ali viraria {@code NullPointerException} no meio da gravação.
      */
     public TraducaoLote {
         mascaradosSegundaOpiniao = mascaradosSegundaOpiniao == null
             ? List.of() : List.copyOf(mascaradosSegundaOpiniao);
+        causasDoOriginalMantido = causasDoOriginalMantido == null
+            ? Map.of() : Map.copyOf(causasDoOriginalMantido);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: forma sem causas de manutenção — a de quem não desiste de fala
+     * nenhuma (o adaptador HTTP e os dublês de teste).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: equivale a declarar mapa de causas vazio.
+     */
+    public TraducaoLote(int idLote, List<String> linhasTraduzidas, boolean sucesso, String mensagemErro,
+            List<String> mascaradosSegundaOpiniao, boolean recusaDaRequisicao) {
+        this(idLote, linhasTraduzidas, sucesso, mensagemErro, mascaradosSegundaOpiniao,
+            recusaDaRequisicao, Map.of());
     }
 
     /**

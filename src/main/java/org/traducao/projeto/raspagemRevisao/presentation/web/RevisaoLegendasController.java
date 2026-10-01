@@ -2,6 +2,7 @@ package org.traducao.projeto.raspagemRevisao.presentation.web;
 
 import org.traducao.projeto.raspagemRevisao.domain.ModoReferenciaRevisao;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;
+import org.traducao.projeto.core.io.GuardaCaminhoEntrada;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,16 +51,30 @@ public class RevisaoLegendasController {
     private final RevisarLegendasUseCase revisarLegendasUseCase;
     private final GerenciadorContexto gerenciadorContexto;
     private final LlmPort llmPort;
+    private final GuardaCaminhoEntrada guardaCaminho;
 
     public RevisaoLegendasController(
             PipelineWebSupport pipelineWebSupport,
             RevisarLegendasUseCase revisarLegendasUseCase,
             GerenciadorContexto gerenciadorContexto,
-            LlmPort llmPort) {
+            LlmPort llmPort,
+            GuardaCaminhoEntrada guardaCaminho) {
         this.pipelineWebSupport = pipelineWebSupport;
         this.revisarLegendasUseCase = revisarLegendasUseCase;
         this.gerenciadorContexto = gerenciadorContexto;
         this.llmPort = llmPort;
+        this.guardaCaminho = guardaCaminho;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: imprime, no início do job (já com o canal SSE ligado), o aviso de que a
+     * revisão vai sobrescrever no lugar uma pasta que é baseline de comparação (Achado 0). Não
+     * bloqueia — só torna o dano visível, porque o console só é ligado dentro do job, então avisar
+     * antes de enfileirar não chegaria à tela.
+     */
+    private void avisarSeBaseline(String entrada) {
+        guardaCaminho.avisoRevisaoSobrescreveBaseline(entrada)
+            .ifPresent(msg -> System.out.println(AnsiCores.YELLOW + msg + AnsiCores.RESET));
     }
 
     /**
@@ -77,7 +92,7 @@ public class RevisaoLegendasController {
                 "Contexto desconhecido: \"" + req.contextoId() + "\"."));
         }
 
-        Optional<Path> pathPtOpt = parseCaminhoSeguro(req.entrada(), "legendas traduzidas");
+        Optional<Path> pathPtOpt = parseCaminhoSeguro(req.entrada());
         if (pathPtOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(
                 "Caminho inválido para legendas traduzidas. Informe apenas a pasta (ex.: E:\\animes\\legendas_ptbr), "
@@ -87,7 +102,7 @@ public class RevisaoLegendasController {
 
         final Path pathEnFinal;
         if (req.saida() != null && !req.saida().isBlank()) {
-            Optional<Path> pathEnOpt = parseCaminhoSeguro(req.saida(), "legendas originais em inglês");
+            Optional<Path> pathEnOpt = parseCaminhoSeguro(req.saida());
             if (pathEnOpt.isEmpty()) {
                 return ResponseEntity.badRequest().body(new RespostaPadrao(
                     "Caminho inválido para legendas em inglês. Informe apenas a pasta, sem colar logs da interface."));
@@ -112,6 +127,7 @@ public class RevisaoLegendasController {
         }
 
         pipelineWebSupport.submeterJobComRelatorio("revisao", "Revisão de Legendas Traduzidas", () -> {
+            avisarSeBaseline(req.entrada());
             try {
                 ResultadoRevisaoLegendas resultado = revisarLegendasUseCase.executar(
                     pathPt, pathEnUso, cacheDir, null,
@@ -142,7 +158,7 @@ public class RevisaoLegendasController {
                 "Contexto desconhecido: \"" + req.contextoId() + "\"."));
         }
 
-        Optional<Path> pathPtOpt = parseCaminhoSeguro(req.entrada(), "legendas traduzidas");
+        Optional<Path> pathPtOpt = parseCaminhoSeguro(req.entrada());
         if (pathPtOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(
                 "Caminho inválido para legendas traduzidas. Informe apenas a pasta (ex.: E:\\animes\\legendas_ptbr), "
@@ -152,7 +168,7 @@ public class RevisaoLegendasController {
 
         final Path pathEnFinal;
         if (req.saida() != null && !req.saida().isBlank()) {
-            Optional<Path> pathEnOpt = parseCaminhoSeguro(req.saida(), "legendas originais em inglês");
+            Optional<Path> pathEnOpt = parseCaminhoSeguro(req.saida());
             if (pathEnOpt.isEmpty()) {
                 return ResponseEntity.badRequest().body(new RespostaPadrao(
                     "Caminho inválido para legendas em inglês. Informe apenas a pasta, sem colar logs da interface."));
@@ -177,6 +193,7 @@ public class RevisaoLegendasController {
         }
 
         pipelineWebSupport.submeterJobComRelatorio("revisao", "Revisão de Concordância PT-BR (LLM)", () -> {
+            avisarSeBaseline(req.entrada());
             try {
                 StatusLlm status = llmPort.verificarDisponibilidade();
                 if (!status.modeloCarregado()) {
@@ -261,7 +278,7 @@ public class RevisaoLegendasController {
      * <p>COMPORTAMENTO EM CASO DE FALHA: caminho inválido/ausente resulta em
      * {@link Optional#empty()}, levando o endpoint a responder HTTP 400.
      */
-    private Optional<Path> parseCaminhoSeguro(String valor, String rotulo) {
+    private Optional<Path> parseCaminhoSeguro(String valor) {
         Path p = pipelineWebSupport.normalizarCaminho(valor);
         return Optional.ofNullable(p);
     }

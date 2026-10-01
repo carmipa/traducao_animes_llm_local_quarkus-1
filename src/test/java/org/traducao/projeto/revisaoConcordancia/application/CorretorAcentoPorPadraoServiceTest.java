@@ -47,6 +47,36 @@ class CorretorAcentoPorPadraoServiceTest {
         assertEquals(Optional.empty(), corretor.corrigir("Isso e aquilo..."));
     }
 
+    /**
+     * O DANO da auditoria da 3.3 (17/09/2026): DEMONSTRATIVO_E assumia que apos isso/isto/aquilo o
+     * {@code e} so pode ser o verbo {@code é}. Falso quando o demonstrativo e OBJETO de um verbo
+     * (imperativo): {@code "Faca isso e pronto"} (faca isso E pronto) virava {@code "Faca isso é
+     * pronto"}. Comum em dialogo.
+     */
+    @Test
+    @DisplayName("NEGATIVO: `isso e` apos verbo (objeto) e CONJUNCAO, nao o verbo ser")
+    void demonstrativoObjetoNaoViraVerbo() {
+        assertEquals(Optional.empty(), corretor.corrigir("Faça isso e pronto."),
+            "'isso' e OBJETO do imperativo 'Faca'; o 'e' e conjuncao, nao o verbo ser");
+        assertEquals(Optional.empty(), corretor.corrigir("Pegue isso e vá."));
+        assertEquals(Optional.empty(), corretor.corrigir("Deixa isso e vem."));
+    }
+
+    /**
+     * O CONTRA-TESTE do anterior: o demonstrativo SUJEITO (no inicio da clausula — comeco da fala,
+     * apos pontuacao, ou apos subordinador) continua virando o verbo. Sem ele, exigir clausula
+     * fecharia a regra inteira.
+     */
+    @Test
+    @DisplayName("CONTROLE: demonstrativo SUJEITO (inicio de clausula) continua virando verbo")
+    void demonstrativoSujeitoContinuaVirandoVerbo() {
+        assertEquals(Optional.of("Isso é rápido."), corretor.corrigir("Isso e rápido."));
+        assertEquals(Optional.of("Acho que isso é verdade."),
+            corretor.corrigir("Acho que isso e verdade."));
+        assertEquals(Optional.of("Bom dia. Isso é urgente."),
+            corretor.corrigir("Bom dia. Isso e urgente."));
+    }
+
     @Test
     @DisplayName("POSITIVO: `nao e` e sempre `nao é`")
     void naoMaisE() {
@@ -54,6 +84,21 @@ class CorretorAcentoPorPadraoServiceTest {
             corretor.corrigir("Não e uma ideia ruim."));
         assertEquals(Optional.of("Isso não é saudável."),
             corretor.corrigir("Isso não e saudável."));
+    }
+
+    /**
+     * O DANO da auditoria da 3.3 (17/09/2026): {@code "não e"} vira {@code "não é"} tambem quando
+     * {@code não} e SUBSTANTIVO (uma recusa) e o {@code e} coordena: {@code "Levou um não e
+     * desistiu"} -> {@code "Levou um não é desistiu"}. Guarda pelo artigo antes ({@code um/o não}).
+     * Residual declarado: {@code "sim ou não e acabou"} (não em lista) segue como esta — raro e
+     * ambiguo com {@code "ou não é"}.
+     */
+    @Test
+    @DisplayName("NEGATIVO: 'um não'/'o não' (substantivo) + conjuncao 'e' nao vira verbo")
+    void naoSubstantivoNaoViraVerbo() {
+        assertEquals(Optional.empty(), corretor.corrigir("Levou um não e desistiu."),
+            "'um não' e substantivo (uma recusa); o 'e' e conjuncao");
+        assertEquals(Optional.empty(), corretor.corrigir("Deu o não e foi embora."));
     }
 
     @Test
@@ -109,6 +154,39 @@ class CorretorAcentoPorPadraoServiceTest {
             "trocou o pronome obliquo por tonico: 'para nos salvar' esta correto");
     }
 
+    /**
+     * O DEFEITO DA AUDITORIA DA 3.3 (17/09/2026), lente de corrupcao estrutural: o {@code \\N} do
+     * ASS e quebra VISUAL de linha, nao fim de oracao. O lookahead de {@code NOS_TONICO} tratava a
+     * quebra como fim de oracao e acentuava o {@code nos} OBJETO no meio da clausula. Como 24,6%
+     * das falas do acervo tem {@code \\N}, o wrap cai depois de {@code nos} com frequencia.
+     *
+     * <pre>
+     *   "para nos\Najudar"  (para nos ajudar, pronome atono, CERTO)  virava  "para nós\Najudar"
+     * </pre>
+     */
+    @Test
+    @DisplayName("NEGATIVO: `nos` antes da quebra \\N e OBJETO — a quebra nao e fim de oracao")
+    void quebraNaoEfimDeOracaoParaNos() {
+        assertEquals(Optional.empty(), corretor.corrigir("Você veio para nos\\Najudar?"),
+            "tratou a quebra visual \\N como fim de oracao e acentuou o pronome OBJETO 'nos'");
+        assertEquals(Optional.empty(), corretor.corrigir("Ela desceu para nos\\Nsalvar a todos."),
+            "o verbo na linha seguinte prova que 'para nos salvar' e objeto, nao tonico");
+    }
+
+    /**
+     * O CONTRA-TESTE: o {@code nos} TONICO de verdade — no fim da oracao, com pontuacao, fim de
+     * fala, ou uma quebra que encerra a fala — continua sendo acentuado. Sem ele, apagar a regra
+     * inteira passaria no teste acima: guarda que reprova o certo e pior que guarda nenhuma.
+     */
+    @Test
+    @DisplayName("CONTROLE: `nos` tonico no fim da oracao continua sendo acentuado")
+    void nosTonicoNoFimContinuaSendoAcentuado() {
+        assertEquals(Optional.of("Fica entre nós."), corretor.corrigir("Fica entre nos."));
+        assertEquals(Optional.of("O segredo fica entre nós"), corretor.corrigir("O segredo fica entre nos"));
+        // A quebra que ENCERRA a fala (nada depois dela) e fim de oracao de verdade — continua acentuando.
+        assertEquals(Optional.of("Fica entre nós\\N"), corretor.corrigir("Fica entre nos\\N"));
+    }
+
     @Test
     @DisplayName("POSITIVO: `so` antes de palavra portuguesa e adverbio")
     void soAdverbio() {
@@ -153,6 +231,28 @@ class CorretorAcentoPorPadraoServiceTest {
             "acentuou 'ira' substantivo — 'a ira dele' esta correto sem acento");
         assertEquals(Optional.empty(), corretor.corrigir("Ele falou com ira."),
             "acentuou 'ira' depois de preposicao — continua sendo o substantivo");
+    }
+
+    /**
+     * O DANO NOVO da auditoria da 3.3 (17/09/2026): {@code ira} e homografo TRIPLO. A versao
+     * anterior RENOMEAVA o personagem {@code Ira} (ex.: Ira Gamagoori) e acentuava a colera
+     * ({@code sem ira}, {@code tua ira}). Agora o alvo casa so a forma minuscula e so antes de
+     * infinitivo.
+     */
+    @Test
+    @DisplayName("NEGATIVO: nome 'Ira' e colera 'ira' nao viram verbo — homografo triplo")
+    void iraNomeEColeraNaoViramVerbo() {
+        // Nome proprio (maiuscula): nunca tocado, nem no comeco nem no meio da fala.
+        assertEquals(Optional.empty(), corretor.corrigir("Ira, espere!"),
+            "renomeou o personagem 'Ira' para 'Ira' com acento");
+        assertEquals(Optional.empty(), corretor.corrigir("Obrigado, Ira."));
+        assertEquals(Optional.empty(), corretor.corrigir("Vi Ira cometer o crime."),
+            "nome no meio da fala, seguido de infinitivo, foi renomeado");
+        // Substantivo colera (minuscula), nao seguido de infinitivo.
+        assertEquals(Optional.empty(), corretor.corrigir("Ele falou sem ira."),
+            "acentuou a colera 'ira' depois de 'sem'");
+        assertEquals(Optional.empty(), corretor.corrigir("Tua ira me consome."),
+            "acentuou a colera 'ira' depois de 'tua'");
     }
 
     /**

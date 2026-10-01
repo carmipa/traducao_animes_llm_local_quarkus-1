@@ -25,9 +25,8 @@ final class ValidadorCandidatoLoreService {
     private static final int MAX_TOKENS_ALTERADOS = 4;
 
     /**
-     * Resto de transporte que NUNCA pode chegar à legenda entregue: o sentinela de mascaramento
-     * ({@code [[...]]}, incluindo {@code [[TAGn]]}), negrito de markdown e token de template de
-     * chat.
+     * Resto de transporte que NUNCA pode chegar à legenda entregue: colchete duplo alucinado
+     * ({@code [[palavras]]}), negrito de markdown e token de template de chat.
      *
      * <p>Nada disso é texto de legenda — é encanamento do pipeline e do modelo. A tokenização
      * desta classe olha PALAVRAS e por isso é cega a eles: {@code "[[Anti Bodies]]"} tokeniza
@@ -37,9 +36,20 @@ final class ValidadorCandidatoLoreService {
      * o Guilty Crown ep07 recebeu {@code "É só questão de tempo até que as [[Anti Bodies]] sejam
      * retiradas."} — os colchetes apareceriam na tela do espectador. Uma linha em 128 mil
      * entregues, achada varrendo o acervo depois da escrita.
+     *
+     * <p><b>EXCEÇÃO ESTREITA — o sentinela LEGÍTIMO {@code [[TAG<número>]]} não é resíduo.</b>
+     * {@link #validar} é chamado com a proposta MASCARADA (RevisarLoreUseCase:802-803), porque o
+     * diff de tokens exige a atual e a proposta na mesma régua — a quebra {@code \\N} e as tags da
+     * fala viram {@code [[TAGn]]} nos dois lados. Esse marcador é sempre desmascarado ANTES de
+     * gravar e nunca chega à legenda; barrá-lo aqui reprovava a correção CERTA do LLM em toda fala
+     * com tag ou {@code \\N} (~24% do acervo), inflando {@code descartadas}/{@code pendentes} com um
+     * diagnóstico falso ("resíduo {@code [[TAG0]]}"). A alucinação {@code [[Anti Bodies]]} não casa
+     * {@code [[TAG<número>]]} e continua barrada; um {@code [[TAGword]]} mal-formado também. Um
+     * marcador com índice inexistente já teria sido barrado antes, na desmascaração
+     * ({@code MarcadorPerdidoException}), então o que sobra mascarado aqui corresponde a tag real.
      */
     private static final Pattern RESIDUO_DE_TRANSPORTE =
-        Pattern.compile("\\[\\[[^\\]]*\\]\\]|\\*\\*|__|<\\|[^|<>]{1,40}\\|>|```");
+        Pattern.compile("\\[\\[(?!TAG\\d+\\]\\])[^\\]]*\\]\\]|\\*\\*|__|<\\|[^|<>]{1,40}\\|>|```");
 
     private ValidadorCandidatoLoreService() {
     }
@@ -85,6 +95,18 @@ final class ValidadorCandidatoLoreService {
 
         if (inseridos.isEmpty()) {
             return Optional.of("proposta apenas remove conteúdo da fala");
+        }
+        // Correção de termo PRESERVA o contexto ao redor (prefixo ou sufixo comum). Uma proposta
+        // que troca a fala INTEIRA por um trecho MENOR (nada preservado E mais curta) é truncamento,
+        // não correção de lore — é exatamente o que esta classe existe para impedir ("usar suspeita
+        // como autorização para reescrever toda a fala"). Ex.: "A Legião chegou" (3 tokens) → "Legion"
+        // (1) passava pelo teto de 4 tokens, o termo existe no EN e na lore, e a fala era APAGADA.
+        // Fala de UMA palavra só (o próprio termo, ex.: um cartaz "Legião") pode ser trocada inteira,
+        // por isso a exigência atual.size() > 1; substituição de mesmo tamanho ("Robô Móvel" →
+        // "Mobile Suit", 2→2) não é truncamento e continua passando.
+        if (atual.size() > 1 && prefixo == 0 && sufixo == 0 && inseridos.size() < removidos.size()) {
+            return Optional.of("proposta substitui a fala inteira por um trecho menor — "
+                + "truncamento, nao correcao pontual de termo");
         }
         if (removidos.size() > MAX_TOKENS_ALTERADOS || inseridos.size() > MAX_TOKENS_ALTERADOS) {
             return Optional.of("proposta reescreve trecho amplo fora do escopo de lore");

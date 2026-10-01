@@ -98,8 +98,19 @@ public class CadeiaCorrecaoFala {
         String originalEn,
         String traducaoAtual,
         boolean temOriginalEn,
-        ResultadoDeteccaoConcordancia auditoria
+        ResultadoDeteccaoConcordancia auditoria,
+        boolean fragmentoCrossEvento
     ) {
+        /**
+         * PROPÓSITO DE NEGÓCIO: compat para quem não computa a vizinhança (testes e chamadas que não
+         * têm o documento inteiro). Assume {@code fragmentoCrossEvento=false} — o comportamento de
+         * sempre. Só o {@code RevisarLegendasUseCase}, que enxerga os eventos vizinhos, informa o
+         * flag verdadeiro.
+         */
+        public FalaSuspeita(EventoLegenda evento, String originalEn, String traducaoAtual,
+                            boolean temOriginalEn, ResultadoDeteccaoConcordancia auditoria) {
+            this(evento, originalEn, traducaoAtual, temOriginalEn, auditoria, false);
+        }
     }
 
     /**
@@ -200,47 +211,39 @@ public class CadeiaCorrecaoFala {
                     originalEn, traducaoAtual, null)));
         }
 
+        // #1 (2026-09-15): FRAGMENTO de frase partida ENTRE eventos. Aqui já é falha-de-tradução
+        // (passou pela porta de escopo acima), então a rota espelho/segmento retraduziria a linha
+        // INTEIRA a partir do inglês — e, num pedaço cortado ("...that affects"), o LLM COMPLETA a
+        // frase com conteúdo inventado ("afeta profundamente"). Erro fluente é o pior desfecho: lê-se
+        // certo e muda o sentido. Inglês honesto vale mais. Preserva a fala em vez de fabricar.
+        if (fala.fragmentoCrossEvento()) {
+            avisos.add("     " + AnsiCores.DIM + "Fragmento de frase partida entre eventos: preservado "
+                + "sem traduzir isolado, para não inventar o complemento." + AnsiCores.RESET);
+            return new Tentativa(
+                new DecisaoFala.Pendente(avisos),
+                List.of(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
+                    "FRAGMENTO_CROSS_EVENTO", auditoria.motivos(),
+                    "A fala continua no evento seguinte; traduzida isolada, o LLM completaria a frase "
+                        + "com conteúdo inventado. Preservada em inglês (pendente honesto).",
+                    originalEn, traducaoAtual, null)));
+        }
+
         // 3ª fonte: a única que custa. Só chega aqui o que as duas anteriores não resolveram.
         ProvedorCorrecaoFala.Resultado candidata = provedorCorrecao.obter(
             modo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
 
-        // CASCATA (Paulo, 2026-08-16): o LLM é a 1ª etapa porque conhece a lore; o Google é a 2ª,
-        // e SÓ quando a 1ª não resolveu. Antes eram dois botões, e "não sai daqui sem tradução"
-        // dependia de o operador lembrar a ordem — o que a regra da boa-fé chama de interface que
-        // permite errar. O Google se protege sozinho: motivo que não seja falha objetiva volta
-        // como GOOGLE_NAO_ACIONADO, porque tradutor sem lore devolve nome próprio traduzido.
-        // Qual provedor REALMENTE produziu o texto. Sem isto, uma fala resolvida pelo Google depois
-        // de o LLM recusar sairia rotulada como CORRIGIDA_LLM no relatório e no dataset — o rótulo
-        // existe justamente para distinguir o que custou rede de quem, e mentir nele contamina toda
-        // comparação futura entre provedores.
+        // SEM CASCATA para o Google (Paulo, 2026-09-16): a passada "Traduzir o que faltou"
+        // (LLM_CONCORDANCIA) é do LLM local + dicionários. Se o LLM não resolve, a fala fica PENDENTE —
+        // o Google NÃO é acionado aqui. Ele é uma passada SEPARADA (botão "Só o Google", modo GOOGLE),
+        // escolha explícita do operador, porque o Google retraduz o inglês inteiro e SUBSTITUIRIA o que
+        // já foi traduzido numa fala parcial. Isola os dois botões. Reverte a cascata de 16/08.
+        // `modoEfetivo` segue servindo ao rótulo CORRIGIDA_LLM vs CORRIGIDA_GOOGLE — o botão Só o Google
+        // chama esta cadeia em modo GOOGLE, e aí o provedor já é o Google, sem LLM antes.
         ModoRevisaoLegendas modoEfetivo = modo;
-        boolean primeiraPediuMemoria = false;
-        if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada primeira
-            && modo == ModoRevisaoLegendas.LLM_CONCORDANCIA) {
-            // NÃO reusar primeira.mensagem() aqui: ela é VERMELHA, e vermelho é desfecho de falha.
-            // Numa cascata a 1ª etapa não resolver é passagem de bastão, não erro — Paulo viu a
-            // linha vermelha no console de 16/08 numa fala que o Google corrigiu logo em seguida,
-            // e ler "erro" onde houve sucesso é o alarme falso que faz desligar o alarme.
-            // O motivo continua inteiro no relatório, via DetalheRevisao logo abaixo.
-            avisos.add("     " + AnsiCores.DIM + "1ª etapa (LLM) não resolveu"
-                + (primeira.detalhe() == null ? "" : ": " + primeira.detalhe())
-                + " — passando para o Google." + AnsiCores.RESET);
-            if (primeira.codigo() != null) {
-                evidencias.add(new DetalheRevisao(nomeArquivo, evento.indice(), evento.estilo(),
-                    primeira.codigo(), auditoria.motivos(), primeira.detalhe(),
-                    originalEn, traducaoAtual, primeira.proposta()));
-            }
-            // A memória NÃO é gravada aqui: se o Google resolver, marcar "não rende" agora
-            // impediria a próxima ocorrência de aproveitar a correção que existe.
-            primeiraPediuMemoria = primeira.registrarSemAlteracao();
-            modoEfetivo = ModoRevisaoLegendas.GOOGLE;
-            candidata = provedorCorrecao.obter(
-                modoEfetivo, originalEn, traducaoAtual, auditoria.motivos(), contexto);
-        }
 
         if (candidata instanceof ProvedorCorrecaoFala.Resultado.Recusada recusada) {
             avisos.add(recusada.mensagem());
-            if (recusada.registrarSemAlteracao() || primeiraPediuMemoria) {
+            if (recusada.registrarSemAlteracao()) {
                 sessao.registrarSemAlteracao(textoMascOriginal);
             }
             if (recusada.codigo() != null) {
