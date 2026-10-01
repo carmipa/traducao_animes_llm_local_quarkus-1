@@ -71,3 +71,6 @@ backups/
 # arquivo NASCE a cada vez que se sobe o modo dev e aparece como nao-rastreado no `git status`
 # de quem so quis rodar a aplicacao. Mesma familia de logs/ — runtime, nunca fonte.
 console-web.log
+
+# Anotacoes locais das sessoes de trabalho com IA: ficam so na maquina do autor (repositorio publico).
+.claude/
