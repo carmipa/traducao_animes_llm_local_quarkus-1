@@ -145,6 +145,53 @@ class ValidadorSentidoDaFalaTest {
         assertDoesNotThrow(() -> comRegistro.validarPar(original, traduzido));
     }
 
+    @ParameterizedTest(name = "[{index}] reparo de polaridade: {0} | {1} -> {2}")
+    @DisplayName("polaridade invertida com 'Sim' na abertura: o reparo devolve 'Não' e o resultado passa no portão")
+    // os 5 casos do acervo (75.856 pares distintos), mais caixa, gagueira, tag e marcador
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "No.|Sim.|Não.",
+        "No... it's too late for that. It's selfish.|Sim... é tarde demais para isso. É egoísta.|Não... é tarde demais para isso. É egoísta.",
+        "No... It's just that after all these battles, the men are exhausted.|Sim... É que, após todas essas batalhas, os homens estão exaustos.|Não... É que, após todas essas batalhas, os homens estão exaustos.",
+        "No, I'd also like to believe it.|Sim, também gostaria de acreditar nisso.|Não, também gostaria de acreditar nisso.",
+        "No... There are still men who even now call it that.|Sim... Ainda há homens que até agora a chamam assim.|Não... Ainda há homens que até agora a chamam assim.",
+        "N-No.|S-Sim.|N-Não.",
+        "NO!|SIM!|NÃO!",
+        "{\\i1}No... There are still men{\\i0}|{\\i1}Sim... Ainda há homens{\\i0}|{\\i1}Não... Ainda há homens{\\i0}",
+        "[[TAG0]]No.|[[TAG0]]Sim.|[[TAG0]]Não."
+    })
+    void polaridadeComSimNaAberturaEhReparada(String original, String traduzido, String esperado) {
+        org.junit.jupiter.api.Assertions.assertEquals(esperado, validador.repararPar(original, traduzido));
+        assertDoesNotThrow(() -> validador.validarPar(original, esperado));
+    }
+
+    @ParameterizedTest(name = "[{index}] sem reparo: {0} -> {1}")
+    @DisplayName("A1 do reparo: mesmo sinal sem defeito, ou defeito sem conserto seguro — nada muda")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "No way!|Claro que não!",
+        "No problem.|Sim, sem problema.",
+        "Yes.|Sim.",
+        "No.|Simples assim.",
+        "No... it's too late.|Claro... é tarde demais.",
+        "A rat?!|Que porco colorido!",
+        "\"His\"?|Dele."
+    })
+    void semDefeitoOuSemConsertoSeguroNaoRepara(String original, String traduzido) {
+        org.junit.jupiter.api.Assertions.assertNull(validador.repararPar(original, traduzido));
+    }
+
+    @Test
+    @DisplayName("duas trocas na mesma fala: o reparo desfaz as duas e o resultado passa no portão")
+    void duasTrocasNaMesmaFalaSaoDesfeitas() {
+        String original = "Uraki! Keith! What the hell are you doing?!";
+        String traduzido = "Kou! Chuck! O que diabos vocês estão fazendo?!";
+        String esperado = "Uraki! Keith! O que diabos vocês estão fazendo?!";
+        org.junit.jupiter.api.Assertions.assertEquals(esperado, comRegistro.repararTrocaDeEntidade(original, traduzido));
+        org.junit.jupiter.api.Assertions.assertEquals(esperado, comRegistro.repararPar(original, traduzido));
+        assertDoesNotThrow(() -> comRegistro.validarPar(original, esperado));
+        // troca e polaridade na mesma fala: os dois reparos compõem
+        org.junit.jupiter.api.Assertions.assertEquals("Não, Uraki.", comRegistro.repararPar("No, Uraki.", "Sim, Kou."));
+    }
+
     @Test
     @DisplayName("detector de eco: o envelope só sai quando a FONTE não citava")
     void envelopeDeAspasSoSaiQuandoAFonteNaoCitava() {

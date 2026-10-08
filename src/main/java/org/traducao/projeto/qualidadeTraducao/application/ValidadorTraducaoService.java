@@ -333,6 +333,15 @@ public class ValidadorTraducaoService {
         "^\\W*(?:s-)?(?:sim|claro|certo|isso|ok|tudo bem|entendido|com certeza)\\b",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
 
+    /**
+     * A única afirmativa que o reparo de polaridade troca: a palavra "Sim" na abertura (gagueira
+     * "S-Sim" inclusive), depois de tags ASS e marcadores. Grupos: 1 o que vem antes, 2 a letra da
+     * gagueira, 3 a palavra.
+     */
+    private static final Pattern SIM_NA_ABERTURA = Pattern.compile(
+        "^((?:\\{[^}]*\\}|\\[\\[TAG\\d+\\]\\]|[^\\p{L}\\p{N}])*)(?:(s)-)?(sim)(?![\\p{L}\\p{N}])",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
     /** Qualquer negação na tradução absolve: "Claro que não!" é a resposta certa a "No way!". */
     private static final Pattern NEGACAO_NA_TRADUCAO = Pattern.compile(
         "\\b(?:não|nao|nem|nunca|jamais|nenhum|nenhuma|nada|ninguém|ninguem)\\b",
@@ -1026,29 +1035,95 @@ public class ValidadorTraducaoService {
      * selecionada — sobre trabalho pronto, em lote.
      *
      * <p>INVARIANTES DO DOMÍNIO: a regra é a mesma da sobrecarga sem pares; só a origem da
-     * declaração muda. Conjunto vazio devolve {@code null} sem examinar nada.
+     * declaração muda. Conjunto vazio devolve {@code null} sem examinar nada. Desfaz TODAS as
+     * trocas da fala, uma por par: até 08/10/2026 parava na primeira, e a fala com duas trocas
+     * ({@code "Uraki! Keith!"} vertido como {@code "Kou! Chuck!"}, medido no 0083) saía do reparo
+     * ainda com a segunda, era reprovada pela revalidação e ficava pendente em inglês.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: pares nulos são tratados como vazio; nunca lança.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pares nulos são tratados como vazio; nunca lança. Sem
+     * troca detectável devolve {@code null}.
      *
      * @param pares pares inconfundíveis da obra DONA daquele texto
      */
     public String repararTrocaDeEntidade(String original, String traduzido, Set<List<String>> pares) {
-        if (pares == null) {
+        if (pares == null || traduzido == null) {
             return null;
         }
+        String atual = traduzido;
         for (List<String> par : pares) {
             if (par == null || par.size() != 2) {
                 continue;
             }
-            String reparado = reverter(original, traduzido, par.get(0), par.get(1));
+            String reparado = reverter(original, atual, par.get(0), par.get(1));
             if (reparado == null) {
-                reparado = reverter(original, traduzido, par.get(1), par.get(0));
+                reparado = reverter(original, atual, par.get(1), par.get(0));
             }
             if (reparado != null) {
-                return reparado;
+                atual = reparado;
             }
         }
-        return null;
+        return atual.equals(traduzido) ? null : atual;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: desfaz, sem nova chamada ao modelo, os defeitos de par que o portão
+     * sabe CONSERTAR por saber exatamente o que está errado — a entidade trocada e a resposta com
+     * a polaridade invertida. Sem isto, o modelo que insiste no mesmo defeito nas três temperaturas
+     * faz a fala sair em INGLÊS: medido na retradução dirigida de 08/10/2026, 22 falas com
+     * {@code "Kou"} no lugar de {@code "Uraki"} (e {@code "Chuck"}/{@code "Lena"}) e 4 com
+     * {@code "Sim..."} no lugar de {@code "No..."} terminaram assim, todas com o resto da tradução
+     * correto. O reparo da consolidação final (29/07) não alcançava esses casos desde que a
+     * validação de par entrou na tentativa (09/09): a tentativa esgotada já devolvia o original.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Só conserta o que o próprio portão acusaria, pela mesma condição: troca de entidade
+     *       ({@link #repararTrocaDeEntidade(String, String)}) e polaridade invertida
+     *       ({@link #polaridadeInvertida}). Pergunta perdida NÃO tem reparo — o mesmo sinal cobre
+     *       a pergunta que só perdeu o "?" e a fala que o modelo respondeu em vez de traduzir
+     *       ("A rat?!" → "Que porco colorido!"); trocar o ponto final por "?" publicaria a
+     *       segunda.</li>
+     *   <li>A polaridade só se conserta quando a tradução ABRE com a palavra "Sim" (com gagueira
+     *       {@code "S-Sim"}, depois de tags e marcadores): ela vira {@code "Não"} na mesma caixa e
+     *       o resto da fala fica intacto. Outras afirmativas ("Claro", "Certo") seguem
+     *       reprovadas. Critério declarado antes da medição: nos 75.856 pares distintos dos
+     *       caches do acervo, 5 polaridades invertidas, as 5 abrindo com "Sim", as 5 corretas
+     *       depois do reparo (lidas uma a uma).</li>
+     *   <li>Devolve o texto; NÃO decide se ele é aceitável. Quem chama submete o reparado ao
+     *       MESMO portão — reparo que entra sem revalidar é porta dos fundos.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nada a reparar (ou entrada nula) devolve {@code null};
+     * nunca lança.
+     */
+    public String repararPar(String original, String traduzido) {
+        if (original == null || traduzido == null) {
+            return null;
+        }
+        String atual = traduzido;
+        String semTroca = repararTrocaDeEntidade(original, atual);
+        if (semTroca != null) {
+            atual = semTroca;
+        }
+        if (polaridadeInvertida(visivel(original), visivel(atual))) {
+            Matcher m = SIM_NA_ABERTURA.matcher(atual);
+            if (m.find()) {
+                String gagueira = m.group(2) == null ? "" : comCaixaDe(m.group(2), "n") + "-";
+                atual = m.group(1) + gagueira + comCaixaDe(m.group(3), "não") + atual.substring(m.end());
+            }
+        }
+        return atual.equals(traduzido) ? null : atual;
+    }
+
+    /** Devolve {@code base} com a caixa de {@code achado}: "SIM" → "NÃO", "Sim" → "Não", "sim" → "não". */
+    private static String comCaixaDe(String achado, String base) {
+        if (achado.length() > 1 && achado.chars().allMatch(Character::isUpperCase)) {
+            return base.toUpperCase(java.util.Locale.ROOT);
+        }
+        if (Character.isUpperCase(achado.charAt(0))) {
+            return Character.toUpperCase(base.charAt(0)) + base.substring(1);
+        }
+        return base;
     }
 
     /** Devolve a tradução com {@code ausente} trocado por {@code presente}, ou null se não é troca. */

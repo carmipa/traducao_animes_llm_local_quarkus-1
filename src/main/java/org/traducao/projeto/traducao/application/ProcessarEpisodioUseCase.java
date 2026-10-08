@@ -463,10 +463,54 @@ public class ProcessarEpisodioUseCase {
             // SEGURO COM O TEXTO MASCARADO, e isso foi MEDIDO antes de escrever a linha, não
             // suposto: 114.329 pares do acervo julgados nas duas formas, com e sem máscara,
             // deram 84 reprovações em cada uma e ZERO vereditos divergentes.
-            validador.validarPar(mascaradoOriginal.get(i), linha);
+            linha = validarParOuReparar(lote, mascaradoOriginal.get(i), linha);
             saneadas.add(linha);
         }
 
         return saneadas;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o portão de par dentro da tentativa, com o conserto determinístico ANTES
+     * de gastar outra chamada ao modelo. Desde 09/09/2026 a validação de par roda aqui, e com isso o
+     * reparo da consolidação final (troca de entidade, 29/07) deixou de alcançar a tradução nova:
+     * o modelo que insiste no mesmo defeito esgota as três temperaturas e a fala sai em INGLÊS.
+     * Medido na retradução dirigida de 08/10/2026: 26 falas assim ("Kou, fique comigo." para
+     * "Uraki, you're with me."; "Sim... é tarde demais" para "No... it's too late"), todas certas
+     * no resto.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O reparo só vem de {@link ValidadorTraducaoService#repararPar}, que conserta apenas o
+     *       que o portão sabe consertar; o resultado passa de novo pelas DUAS validações
+     *       ({@code validarFala} e {@code validarPar}). Se ainda reprovar, a reprovação nova sobe e
+     *       vira outra tentativa — o reparo nunca é porta dos fundos.</li>
+     *   <li>A7: o candidato do modelo, o texto reparado e o motivo vão para o log e para o console
+     *       ({@code [REPARADA]}), e a telemetria conta a resposta rejeitada E a fala recuperada —
+     *       o mesmo par de contadores da retentativa.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem reparo possível, relança a
+     * {@link AlucinacaoDetectadaException} original; reparo que não passa lança a da revalidação.
+     */
+    private String validarParOuReparar(Lote lote, String original, String linha) {
+        try {
+            validador.validarPar(original, linha);
+            return linha;
+        } catch (AlucinacaoDetectadaException reprovada) {
+            String reparada = validador.repararPar(original, linha);
+            if (reparada == null) {
+                throw reprovada;
+            }
+            validador.validarFala(reparada, original);
+            validador.validarPar(original, reparada);
+            telemetriaTraducao.registrarRespostaTraducaoRejeitada();
+            telemetriaTraducao.registrarFalhaTraducaoRecuperada();
+            String aviso = "Lote " + lote.idLote() + ": fala reparada na tentativa (" + reprovada.getMessage()
+                + "): \"" + linha + "\" -> \"" + reparada + "\". Original: " + original;
+            log.info(aviso);
+            uiLogger.log("[REPARADA] " + aviso);
+            return reparada;
+        }
     }
 }
