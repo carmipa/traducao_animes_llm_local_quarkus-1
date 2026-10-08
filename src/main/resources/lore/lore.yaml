@@ -2002,6 +2002,13 @@ obras:
    # ocorrem em nenhuma das 16.120 falas ja traduzidas. O ganho e nas traducoes FUTURAS.
    # "Canela" e homografo da parte do corpo em portugues, e e segura pelo MECANISMO, nao por
    # sorte: so dispara com "Shin" MAIUSCULO no ingles; a canela do corpo la e "shin" minusculo.
+   # CODINOME NO RADIO (08/10/2026): "Handler One" e o indicativo da Lena nas comunicacoes, e a
+   # obra o usa de proposito. MEDIDO nos caches do acervo: 14 falas com EN "Handler One"
+   # publicadas so com "Lena" ("Handler One to Pleiades:" -> "Lena para Pleiades:"). O reparo
+   # do portao devolve o indicativo ("Handler One para Pleiades:").
+   paresInconfundiveis:
+    -  - Handler One
+       - Lena
    correcoesTerminologia:
      Canela: Shin                        # [UNIAO 15/08] homografo — protegido pela caixa
      Carrasco: Undertaker                # 1
@@ -3271,6 +3278,16 @@ obras:
     - Zeon
     - Zeons   # [03/09] usado na legenda, ausente da lore
     - Zephyranthes
+   # REGISTRO SOCIAL (08/10/2026), mesma classe dos pares do 08th: a obra chama o piloto pelo
+   # SOBRENOME no radio e na narracao, e o modelo trocava pelo prenome. MEDIDO nos caches do
+   # acervo: 39 falas com EN "Uraki" publicadas "Kou" ("Uraki, you're with me." -> "Kou, voce
+   # esta comigo.") e 26 com EN "Keith" publicadas "Chuck". Nenhuma no sentido inverso. O
+   # reparo do portao devolve o termo do original ("Desista, Keith.").
+   paresInconfundiveis:
+    -  - Uraki
+       - Kou
+    -  - Keith
+       - Chuck
    traducoesObrigatorias:
      Universal Century: Século Universal
    correcoesTerminologia:

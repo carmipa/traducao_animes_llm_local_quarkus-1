@@ -111,6 +111,40 @@ class ValidadorSentidoDaFalaTest {
         assertDoesNotThrow(() -> validador.validarPar("\"Deliberately\"?", "\"Deliberadamente\"?"));
     }
 
+    /** Os pares de REGISTRO SOCIAL declarados em 08/10 na lore do 0083 e do 86, com os casos medidos. */
+    private final ValidadorTraducaoService comRegistro = new ValidadorTraducaoService(LoreAtivaFake.comPares(
+        java.util.List.of("Uraki", "Kou"), java.util.List.of("Keith", "Chuck"), java.util.List.of("Handler One", "Lena")));
+
+    @ParameterizedTest(name = "[{index}] registro trocado: {0} -> {1} (reparo: {2})")
+    @DisplayName("registro social trocado: reprova e o reparo devolve o termo do original")
+    @CsvSource(delimiter = '|', value = {
+        "Uraki, you're with me.|Kou, você está comigo.|Uraki, você está comigo.",
+        "Keith! Uraki!|Keith! Kou!|Keith! Uraki!",
+        "Give it up, Keith.|Desista, Chuck.|Desista, Keith.",
+        "Handler One to Pleiades:|Lena para Plêiades:|Handler One para Plêiades:",
+        "Handler One.|Lena.|Handler One."
+    })
+    void registroSocialTrocadoReprovaERepara(String original, String traduzido, String reparadoEsperado) {
+        AlucinacaoDetectadaException e = assertThrows(AlucinacaoDetectadaException.class,
+            () -> comRegistro.validarPar(original, traduzido));
+        assertTrue(e.getMessage().startsWith("Entidade trocada"), e.getMessage());
+        org.junit.jupiter.api.Assertions.assertEquals(reparadoEsperado,
+            comRegistro.repararTrocaDeEntidade(original, traduzido));
+    }
+
+    @ParameterizedTest(name = "[{index}] registro preservado: {0} -> {1}")
+    @DisplayName("A1 do registro: o mesmo nome no original, tratamento preservado — passa")
+    @CsvSource(delimiter = '|', value = {
+        "Kou!|Kou!",
+        "Uraki! Above you!|Uraki! Acima de você!",
+        "Kou Uraki, reporting.|Kou Uraki, apresentando-se.",
+        "Handler One to Undertaker:|Lena (Handler One) para Shin (Undertaker):",
+        "Thank you, Nina.|Obrigado, Nina."
+    })
+    void registroPreservadoPassa(String original, String traduzido) {
+        assertDoesNotThrow(() -> comRegistro.validarPar(original, traduzido));
+    }
+
     @Test
     @DisplayName("detector de eco: o envelope só sai quando a FONTE não citava")
     void envelopeDeAspasSoSaiQuandoAFonteNaoCitava() {

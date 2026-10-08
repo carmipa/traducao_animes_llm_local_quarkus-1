@@ -106,7 +106,15 @@ class ParesInconfundiveisDeclaradosTest {
         "gundam_08ms", Set.of(
             Set.of("Sanders", "Ceifador"),   // tratamento do esquadrão não vira apelido
             Set.of("Reaper", "Sanders"),     // apelido não vira nome ("Sniper 2!" saiu "Sanders!")
-            Set.of("Sanders", "Shinigami"))  // e o japonês não vaza para a legenda PT
+            Set.of("Sanders", "Shinigami")), // e o japonês não vaza para a legenda PT
+        // MEDIDO EM 2026-10-08 nos caches do acervo, mesma classe do 08th (registro social):
+        // 39 falas EN "Uraki" -> PT "Kou" e 26 EN "Keith" -> PT "Chuck"; nenhuma no inverso.
+        "gundam_0083", Set.of(
+            Set.of("Uraki", "Kou"),
+            Set.of("Keith", "Chuck")),
+        // MEDIDO EM 2026-10-08: 14 falas com o indicativo de radio "Handler One" trocado por "Lena".
+        "eight_six", Set.of(
+            Set.of("Handler One", "Lena"))
     );
 
     @Inject
