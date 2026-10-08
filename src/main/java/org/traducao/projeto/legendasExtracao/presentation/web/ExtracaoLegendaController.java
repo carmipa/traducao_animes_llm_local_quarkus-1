@@ -100,7 +100,22 @@ public class ExtracaoLegendaController {
                     System.out.print("\u001B[36m" + tabela + "\u001B[0m");
                 }
 
-                if (rel.getArquivosDetectados() == 0) {
+                if (rel.isInterrompidoPeloOperador()) {
+                    // Parada não é sucesso nem falha: antes caía no ramo SUCESSO com centenas de
+                    // "Falhas de Processamento" que eram só os vídeos que a parada não deixou rodar.
+                    System.out.println("\n\u001B[33m========================================================================\u001B[0m");
+                    System.out.println("\u001B[33m  ⏹ [PARADO] EXTRAÇÃO INTERROMPIDA PELO OPERADOR\u001B[0m");
+                    System.out.println("\u001B[33m========================================================================\u001B[0m");
+                    System.out.println("\u001B[36m  • Faixas Extraídas antes da parada : " + rel.getLegendasExtraidas() + " [" + formato.name() + "]\u001B[0m");
+                    System.out.println("\u001B[33m  • Vídeos não processados           : " + rel.getNaoProcessadosPorParada() + "\u001B[0m");
+                    if (rel.getFalhasInesperadas() > 0) {
+                        System.out.println("\u001B[31m  • Falhas reais antes da parada     : " + rel.getFalhasInesperadas() + "\u001B[0m");
+                    }
+                    System.out.println("\u001B[33m  💡 Rode de novo para continuar: o que já foi extraído é preservado (JÁ EXISTE).\u001B[0m");
+                    System.out.println("\u001B[33m========================================================================\n\u001B[0m");
+                    log.info("[PARADO] Extração interrompida pelo operador. Extraídas: {}, não processados: {}",
+                        rel.getLegendasExtraidas(), rel.getNaoProcessadosPorParada());
+                } else if (rel.getArquivosDetectados() == 0) {
                     System.out.println("\n\u001B[33m========================================================================\u001B[0m");
                     System.out.println("\u001B[33m  ⚠️ [AVISO] NENHUM ARQUIVO DE VÍDEO SUPORTADO FOI ENCONTRADO!\u001B[0m");
                     System.out.println("\u001B[33m========================================================================\u001B[0m");

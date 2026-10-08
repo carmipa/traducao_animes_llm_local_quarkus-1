@@ -27,6 +27,8 @@ public class RelatorioExtracao {
     private int arquivosJaExistentes = 0;
     private int falhasInesperadas = 0;
     private int timeouts = 0;
+    private boolean interrompidoPeloOperador = false;
+    private int naoProcessadosPorParada = 0;
 
     private final List<ItemExtracao> itens = new ArrayList<>();
     private final FormatoLegenda formatoAlvo;
@@ -78,6 +80,25 @@ public class RelatorioExtracao {
     public int getArquivosJaExistentes() { return arquivosJaExistentes; }
     public int getFalhasInesperadas() { return falhasInesperadas; }
     public int getTimeouts() { return timeouts; }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: registra que o operador parou o lote (Parar/Sair) e quantos vídeos
+     * ficaram sem processar — que NÃO são falha. Antes, cada vídeo restante virava "[FALHA] Falha
+     * ao invocar mkvmerge" e o banner dizia SUCESSO com "Falhas de Processamento: 334" (auditoria
+     * de 08/10/2026, E4).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: registra uma vez; a contagem é não negativa e não entra em
+     * {@code falhasInesperadas}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: valor negativo vira zero.
+     */
+    public void registrarParada(int naoProcessados) {
+        this.interrompidoPeloOperador = true;
+        this.naoProcessadosPorParada = Math.max(0, naoProcessados);
+    }
+
+    public boolean isInterrompidoPeloOperador() { return interrompidoPeloOperador; }
+    public int getNaoProcessadosPorParada() { return naoProcessadosPorParada; }
     public FormatoLegenda getFormatoAlvo() { return formatoAlvo; }
 
     public List<ItemExtracao> getItens() {

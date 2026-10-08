@@ -97,6 +97,13 @@ public class ExtrairLegendaUseCase {
         int total = videos.size();
         int indice = 0;
         for (Path video : videos) {
+            // Parada do operador (Parar/Sair): o adaptador religa a flag de interrupção depois de
+            // converter o InterruptedException. Sem conferir aqui, cada vídeo restante falhava na
+            // hora no Process.waitFor e virava FALHA (auditoria de 08/10/2026, E4).
+            if (Thread.currentThread().isInterrupted()) {
+                pararPeloOperador(relatorio, total - indice, indice, total);
+                break;
+            }
             indice++;
             relatorio.registrarDetectado();
             String nomeVideo = video.getFileName().toString();
@@ -130,6 +137,12 @@ public class ExtrairLegendaUseCase {
                 System.out.printf("   [TIMEOUT] %s — ao identificar faixas%n", nomeVideo);
                 log.error("Timeout ao identificar faixas em {}: {}", nomeVideo, e.getMessage());
             } catch (ExtratorException e) {
+                if (Thread.currentThread().isInterrupted()) {
+                    // A "falha" é a parada chegando no meio deste vídeo: ele conta como não
+                    // processado, junto com os que faltam.
+                    pararPeloOperador(relatorio, total - indice + 1, indice - 1, total);
+                    break;
+                }
                 relatorio.registrarFalha();
                 relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), null, e.getMessage()));
                 System.out.printf("   [FALHA] %s — %s%n", nomeVideo, e.getMessage());
@@ -146,11 +159,14 @@ public class ExtrairLegendaUseCase {
         // (itensDetectados) e extraídas com sucesso (itensCorrigidos); formato,
         // falhas e timeouts vão no detalhe para o painel exibir a íntegra.
         String detalheTelemetria = String.format(
-            "%s | %s | faixas: %d, extraídas: %d, sem faixa: %d, já existiam: %d, falhas: %d, timeouts: %d",
+            "%s | %s | faixas: %d, extraídas: %d, sem faixa: %d, já existiam: %d, falhas: %d, timeouts: %d%s",
             pastaVideos.toAbsolutePath(), formato.name(),
             relatorio.getFaixasEncontradas(), relatorio.getLegendasExtraidas(),
             relatorio.getArquivosSemLegenda(), relatorio.getArquivosJaExistentes(),
-            relatorio.getFalhasInesperadas(), relatorio.getTimeouts());
+            relatorio.getFalhasInesperadas(), relatorio.getTimeouts(),
+            relatorio.isInterrompidoPeloOperador()
+                ? ", PARADO pelo operador: " + relatorio.getNaoProcessadosPorParada() + " não processado(s)"
+                : "");
 
         telemetriaService.registrarOperacao(TelemetriaService.criarOperacao(
             "Extracao de Legendas (" + formato.name() + ")",
@@ -162,6 +178,24 @@ public class ExtrairLegendaUseCase {
         ));
 
         return relatorio;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: encerra o lote quando o operador pede a parada, registrando os vídeos
+     * restantes como NÃO PROCESSADOS — não como falha — para que relatório, telemetria e banner
+     * digam o que aconteceu.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não toca em arquivo; a flag de interrupção continua ligada para
+     * quem chamou (a fila) enxergar o cancelamento.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contagem negativa vira zero no relatório; nunca lança.
+     */
+    private void pararPeloOperador(RelatorioExtracao relatorio, int naoProcessados, int processados, int total) {
+        relatorio.registrarParada(naoProcessados);
+        System.out.printf("   [PARADO] Extração interrompida pelo operador: %d de %d vídeo(s) processado(s); "
+            + "%d não processado(s) — os arquivos destes não foram tocados.%n", processados, total, naoProcessados);
+        log.info("Extração interrompida pelo operador: {} de {} processados, {} não processados",
+            processados, total, naoProcessados);
     }
 
     /**
@@ -212,6 +246,10 @@ public class ExtrairLegendaUseCase {
             log.error("Timeout ao extrair {} (Track {}): {}", nomeVideo, faixa.id(), e.getMessage());
         } catch (ExtratorException e) {
             limparParcial(caminhoTemp);
+            if (Thread.currentThread().isInterrupted()) {
+                // Parada do operador no meio da extração: não é falha; o laço contabiliza.
+                throw e;
+            }
             relatorio.registrarFalha();
             relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), faixa.id(), e.getMessage()));
             System.out.printf("   [FALHA] %s (Track %d) — %s%n", nomeVideo, faixa.id(), e.getMessage());

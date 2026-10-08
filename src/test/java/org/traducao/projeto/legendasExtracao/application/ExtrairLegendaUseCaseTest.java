@@ -97,6 +97,76 @@ class ExtrairLegendaUseCaseTest {
         return videos;
     }
 
+    /** Adaptador que no 2º vídeo falha como o MkvToolNixAdapter real: com ou sem a parada religando a flag. */
+    private static final class AdaptadorQueFalhaNoSegundo implements ExtratorVideoPort {
+        private final boolean comParada;
+        private int chamadas = 0;
+
+        AdaptadorQueFalhaNoSegundo(boolean comParada) { this.comParada = comParada; }
+
+        @Override public boolean suporta(Path v) { return v.toString().endsWith(".mkv"); }
+        @Override public void validarInfraestrutura() { }
+        @Override public List<FaixaLegenda> identificarFaixas(Path v) {
+            if (++chamadas == 2) {
+                if (comParada) {
+                    Thread.currentThread().interrupt();
+                }
+                throw new ExtratorException("Falha ao invocar mkvmerge para identificar: " + v);
+            }
+            return List.of(faixaAss());
+        }
+        @Override public void extrairTrilha(Path v, int trackId, Path caminhoSaida) {
+            try {
+                Files.writeString(caminhoSaida, "[Script Info]\n[Events]\nDialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,Oi");
+            } catch (IOException e) {
+                throw new ExtratorException("io", e);
+            }
+        }
+    }
+
+    private static Path prepararVideos(Path base, int n) throws IOException {
+        Path videos = Files.createDirectory(base.resolve("lote"));
+        for (int i = 1; i <= n; i++) {
+            Files.writeString(videos.resolve(String.format("Ep%02d.mkv", i)), "fake");
+        }
+        return videos;
+    }
+
+    /**
+     * E4 da auditoria de 08/10/2026 (reproduzido: 400 MKV, Parar aos 6 s -> 66 OK, 334 "FALHA"
+     * e banner SUCESSO): a parada do operador não é falha. O CONTROLE (A1) é a MESMA exceção sem
+     * a parada: aí é falha de verdade e o lote segue.
+     */
+    @Test
+    void paradaDoOperadorNaoViraFalhaEmCascata(@TempDir Path base) throws IOException {
+        Path videos = prepararVideos(base, 5);
+        try {
+            RelatorioExtracao rel = new ExtrairLegendaUseCase(
+                List.of(new AdaptadorQueFalhaNoSegundo(true)), List.of(new ExtratorAssStrategy()), new TelemetriaSpy())
+                .executar(videos, base.resolve("out"), FormatoLegenda.ASS);
+
+            assertEquals(0, rel.getFalhasInesperadas(), "parada contada como falha");
+            assertTrue(rel.isInterrompidoPeloOperador(), "a parada tem de ficar registrada");
+            assertEquals(1, rel.getLegendasExtraidas());
+            assertEquals(4, rel.getNaoProcessadosPorParada(), "o 2o (interrompido) e os 3 seguintes");
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void controleFalhaSemParadaContinuaSendoFalhaEOLoteSegue(@TempDir Path base) throws IOException {
+        Path videos = prepararVideos(base, 5);
+
+        RelatorioExtracao rel = new ExtrairLegendaUseCase(
+            List.of(new AdaptadorQueFalhaNoSegundo(false)), List.of(new ExtratorAssStrategy()), new TelemetriaSpy())
+            .executar(videos, base.resolve("out"), FormatoLegenda.ASS);
+
+        assertEquals(1, rel.getFalhasInesperadas(), "falha real continua sendo falha");
+        assertFalse(rel.isInterrompidoPeloOperador());
+        assertEquals(4, rel.getLegendasExtraidas(), "o lote segue depois de uma falha real");
+    }
+
     @Test
     void extraiValidaEMoveParaFinal(@TempDir Path base) throws IOException {
         Path videos = prepararVideo(base);
