@@ -64,6 +64,49 @@ class RegraDanoKaraokeTest {
         assertEquals(AnomaliaConteudo.TipoSeveridade.WARNING, anomalias.get(0).severidade());
     }
 
+    // Auditoria de 08/10/2026, A9: a camada que o fansub declara inglesa é a que a 4.1 traduz de
+    // propósito. "Take me home tonight" passa por romaji pelo conteúdo (take, me, home), e a regra
+    // acusava CRITICAL — 110 linhas "Song ENG" do 86 no acervo.
+    @Test
+    void camadaDeclaradaInglesaTraduzidaNaoEDano() throws IOException {
+        DocumentoLegenda original = doc("o-en.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,ED - EN,,0,0,0,,Take me home tonight");
+        DocumentoLegenda traduzido = doc("t-en.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,ED - EN,,0,0,0,,Leve-me para casa esta noite");
+
+        assertTrue(regra.auditar(original, traduzido).isEmpty());
+    }
+
+    // Fronteira (A1): o MESMO estilo inglês, mas a linha tem escrita japonesa — o japonês vence o
+    // nome do estilo, e mexer nele continua CRITICAL.
+    @Test
+    void escritaJaponesaEmEstiloInglesContinuaProtegida() throws IOException {
+        DocumentoLegenda original = doc("o-jp.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,ED - EN,,0,0,0,,君の名は");
+        DocumentoLegenda traduzido = doc("t-jp.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,ED - EN,,0,0,0,,Seu nome");
+
+        List<AnomaliaConteudo> anomalias = regra.auditar(original, traduzido);
+
+        assertEquals(1, anomalias.size());
+        assertEquals(AnomaliaConteudo.TipoSeveridade.CRITICAL, anomalias.get(0).severidade());
+    }
+
+    // A camada inglesa sai da proteção, não da vigilância: alucinação continua acusada nela.
+    @Test
+    void camadaInglesaAindaAcusaExpansaoAnormal() throws IOException {
+        DocumentoLegenda original = doc("o-exp.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,Song ENG,,0,0,0,,Take me home tonight");
+        DocumentoLegenda traduzido = doc("t-exp.ass",
+            "Dialogue: 0,0:01:00.00,0:01:03.00,Song ENG,,0,0,0,,Leve-me para casa esta noite, meu amor, "
+                + "porque a estrada é longa e o céu está escuro sobre todos nós");
+
+        List<AnomaliaConteudo> anomalias = regra.auditar(original, traduzido);
+
+        assertEquals(1, anomalias.size(), anomalias.toString());
+        assertEquals(AnomaliaConteudo.TipoSeveridade.WARNING, anomalias.get(0).severidade());
+    }
+
     private DocumentoLegenda doc(String nome, String linhaDialogo) throws IOException {
         Path arquivo = tempDir.resolve(nome);
         Files.writeString(arquivo, """

@@ -249,6 +249,33 @@ public class DetectorEfeitoKaraokeService {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: diz se a linha é a camada de TRADUÇÃO da letra declarada pelo
+     * fansub — estilo que se declara inglês ({@code ED - EN}, {@code Song ENG}), sem se declarar
+     * japonês/romaji e sem escrita japonesa no texto. É a camada que a Tradução de Karaokê (4.1)
+     * traduz por decisão (regra de Paulo: "jamais mexe no japonês, só no inglês"). Quem compara
+     * original e traduzido precisa disto: {@link #devePreservarKaraokeOriginal} decide pelo
+     * CONTEÚDO, e letra inglesa silabável ("Take me home tonight": take, me, home) passa por
+     * romaji — a auditoria acusava CRITICAL em 110 linhas {@code Song ENG} do 86 (auditoria de
+     * 08/10/2026, A9).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: não altera {@link #devePreservarKaraokeOriginal}, que os outros
+     * consumidores (tradução, correção, achatamento) continuam usando como sempre. O nome inglês
+     * vem do dono único ({@link PadraoEstiloMusical#nomeDeclaraIngles}); japonês declarado ou
+     * escrito vence o nome inglês.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: estilo ou texto nulo devolve {@code false}; nunca lança.
+     */
+    public boolean ehCamadaInglesaDeclarada(String estilo, String texto) {
+        if (!PadraoEstiloMusical.nomeDeclaraIngles(estilo) || texto == null) {
+            return false;
+        }
+        if (ESTILO_JAPONES_ROMAJI_PATTERN.matcher(estilo).find()) {
+            return false;
+        }
+        return !ESCRITA_JAPONESA_PATTERN.matcher(extrairTextoVisivel(texto)).find();
+    }
+
+    /**
      * Heurística determinística de romaji: todas as palavras (mínimo 2, com ao
      * menos 6 letras somadas) precisam se decompor em sílabas japonesas.
      * Fecha o buraco real do 86 T1: a linha de ED "fuminijirareru dake no

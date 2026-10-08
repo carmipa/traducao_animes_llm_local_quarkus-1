@@ -137,4 +137,29 @@ public final class PadraoEstiloMusical {
         return nomeDeclaraMusica(estilo)
             || (estilo != null && ABREVIACAO_GRUDADA_COM_NUMERO.matcher(estilo).find());
     }
+
+    /**
+     * O fansub rotula a camada de tradução da letra: {@code OP - English}, {@code ED - EN},
+     * {@code Song ENG}, {@code Tradução}. Veio da 4.1 ({@code ClassificadorLetraKaraokeService}),
+     * que decide por ele, sem mudar uma letra do padrão.
+     */
+    private static final Pattern NOME_DECLARA_INGLES =
+        Pattern.compile("(?i)\\b(english|eng|en|translation|tradu[cç][aã]o)\\b");
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: fonte ÚNICA da pergunta "o NOME do estilo declara a camada em
+     * inglês (a tradução da letra)?". Até 08/10/2026 só a Tradução de Karaokê (4.1) a fazia, e
+     * a auditoria (1.4) não tinha como perguntar sem depender de outra fatia: acusava CRITICAL
+     * "romaji alterado" em 110 linhas {@code Song ENG} do 86 que a 4.1 traduz de propósito
+     * (auditoria de 08/10/2026, A9, medido no acervo).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: decide só pelo NOME; o padrão é o mesmo que a 4.1 sempre usou
+     * (fronteira {@code \b}), para a decisão dela não mudar. Um {@code true} não diz que a linha
+     * é música nem que não tem japonês — quem combina os sinais é quem pergunta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}/em branco devolve {@code false}.
+     */
+    public static boolean nomeDeclaraIngles(String estilo) {
+        return estilo != null && !estilo.isBlank() && NOME_DECLARA_INGLES.matcher(estilo).find();
+    }
 }

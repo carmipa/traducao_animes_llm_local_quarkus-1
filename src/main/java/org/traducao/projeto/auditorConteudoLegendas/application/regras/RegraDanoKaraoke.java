@@ -14,9 +14,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Detecta dano de tradução em karaokê/música comparando cada evento traduzido
- * com o original. Usa o {@link DetectorEfeitoKaraokeService} como fonte única
- * de verdade, a mesma régua da tradução, correção e revisão.
+ * PROPÓSITO DE NEGÓCIO: detecta dano de tradução em karaokê/música comparando cada evento
+ * traduzido com o original. Usa o {@link DetectorEfeitoKaraokeService} como fonte única de
+ * verdade, a mesma régua da tradução, correção e revisão.
+ *
+ * <p>INVARIANTES DO DOMÍNIO: letra japonesa/romaji alterada é CRITICAL; a camada que o fansub
+ * declara inglesa ({@code ED - EN}, {@code Song ENG}) é tratada como música traduzível — é a
+ * que a Tradução de Karaokê (4.1) traduz por decisão —, e nela só expansão anormal e tag
+ * {@code \k} perdida são acusadas.
+ *
+ * <p>COMPORTAMENTO EM CASO DE FALHA: evento sem par ou sem texto é ignorado; nunca lança.
  */
 @ApplicationScoped
 public class RegraDanoKaraoke implements RegraAuditoriaConteudo {
@@ -49,8 +56,14 @@ public class RegraDanoKaraoke implements RegraAuditoriaConteudo {
             }
 
             String textoOrig = eventoOrig.texto();
-            boolean protegido = detectorKaraoke.devePreservarKaraokeOriginal(eventoOrig.estilo(), textoOrig);
-            boolean musicaTraduzivel = detectorKaraoke.eKaraokeOuMusicaTraduzivel(eventoOrig.estilo(), textoOrig);
+            // A camada que o fansub declara inglesa é a que a 4.1 traduz de propósito: não é
+            // romaji, ainda que as palavras se decomponham em sílabas (auditoria de 08/10, A9).
+            boolean camadaInglesa = detectorKaraoke.ehCamadaInglesaDeclarada(eventoOrig.estilo(), textoOrig)
+                && detectorKaraoke.temIndicadorDeMusica(eventoOrig.estilo(), textoOrig);
+            boolean protegido = !camadaInglesa
+                && detectorKaraoke.devePreservarKaraokeOriginal(eventoOrig.estilo(), textoOrig);
+            boolean musicaTraduzivel = camadaInglesa
+                || detectorKaraoke.eKaraokeOuMusicaTraduzivel(eventoOrig.estilo(), textoOrig);
             if (!protegido && !musicaTraduzivel) {
                 continue;
             }

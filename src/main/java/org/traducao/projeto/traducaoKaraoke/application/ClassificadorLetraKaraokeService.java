@@ -2,6 +2,7 @@ package org.traducao.projeto.traducaoKaraoke.application;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
+import org.traducao.projeto.legenda.domain.PadraoEstiloMusical;
 import org.traducao.projeto.traducaoKaraoke.domain.ClasseLinhaKaraoke;
 import org.traducao.projeto.traducaoKaraoke.domain.SinaisDeKaraoke;
 
@@ -33,8 +34,6 @@ public class ClassificadorLetraKaraokeService {
     // "rom" cobre abreviações reais de fansub como o estilo "ED-ROM" (86).
     private static final Pattern ESTILO_JAPONES_ROMAJI_PATTERN = Pattern.compile(
         "(?i)\\b(rom|romaji|jp|jpn|japanese|japones|japon[eê]s|kana|kanji)\\b");
-    private static final Pattern ESTILO_INGLES_PATTERN = Pattern.compile(
-        "(?i)\\b(english|eng|en|translation|tradu[cç][aã]o)\\b");
     // Mesma decomposição silábica Hepburn do DetectorEfeitoKaraokeService.
     private static final Pattern PALAVRA_ROMAJI_PATTERN = Pattern.compile(
         "^(?:n|(?:([kgsztdnhbpmyrwfjv])\\1?|sh|ch|ts|ky|gy|ny|hy|my|ry|by|py)?[aeiou])+$");
@@ -281,7 +280,9 @@ public class ClassificadorLetraKaraokeService {
         if (estilo != null && ESTILO_JAPONES_ROMAJI_PATTERN.matcher(estilo).find()) {
             return ClasseLinhaKaraoke.ORIGINAL_JAPONES;
         }
-        boolean estiloDizIngles = estilo != null && ESTILO_INGLES_PATTERN.matcher(estilo).find();
+        // Dono único desde 08/10/2026: a auditoria (1.4) faz a mesma pergunta e precisa da MESMA
+        // resposta — com duas, ela acusava como dano o que esta classe traduz de propósito.
+        boolean estiloDizIngles = PadraoEstiloMusical.nomeDeclaraIngles(estilo);
 
         String[] palavras = normalizar(visivel).split("[^a-z]+");
         if (pareceJaPortugues(visivel, palavras)) {
