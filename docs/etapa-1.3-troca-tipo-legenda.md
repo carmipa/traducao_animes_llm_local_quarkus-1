@@ -103,6 +103,22 @@ estilos que tiver — limite declarado.
 **O achatamento em si é feature, não defeito** — quem confundiu os dois fui eu, ao ler o resultado
 antes do código. O bug era só o voto por contagem.
 
+## O que o achatamento NÃO toca: composição tipográfica
+
+Linha cujo "texto" não é para ser lido fica no estilo dela, com o bloco de override intacto — tirar o
+bloco expõe o desenho ou a textura como texto comum no estilo base:
+
+| Composição | Como é reconhecida (no bloco líder) | O que aparecia na tela quando era achatada |
+|---|---|---|
+| Desenho vetorial | último `\p<n>` com `n > 0` | `m -720 -540 l 720 -540 ...` (até uma máscara preta de tela cheia) |
+| Textura com recorte | `\clip`/`\iclip` **e** `\fn` | `ABCDEF`, `ccccc` |
+| Textura sem recorte | `\fn` **e** texto que é só a repetição de 1–4 letras | `ccccc`, `abcdabcd` |
+
+`\clip` sozinho ou `\fn` sozinho com texto real (letra de música, placa) continuam sendo achatados. O
+dano era real: o Patlabor sem lore, achatado em 06/08 pelo código antigo, tinha 14.357 linhas de lixo
+no `Default` em 6 episódios — reparado em 08/10/2026 linha a linha a partir do backup de antes do
+achatamento (`backups/achatar_estilos_20260806_170047`), sem tocar nas demais linhas.
+
 ---
 
 ## Endpoints REST
