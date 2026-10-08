@@ -15,15 +15,24 @@ public class ExtratorPgsStrategy implements ExtratorStrategy {
         return formato == FormatoLegenda.PGS;
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: escolhe a faixa PGS de diálogo completo.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: faixa que se declara reduzida (forced, sign/song) só é escolhida
+     * se não houver outra (ver {@link FaixaDeLetreiro}) — o 86 tem 25 MKV com a PGS "Signs" antes
+     * da completa; entre as restantes vence a default ou a por/eng, senão a primeira.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem faixa PGS, {@link Optional#empty()}; nunca lança.
+     */
     @Override
     public Optional<FaixaLegenda> selecionarMelhorFaixa(List<FaixaLegenda> faixasDisponiveis) {
-        List<FaixaLegenda> candidatas = faixasDisponiveis.stream()
+        List<FaixaLegenda> candidatas = FaixaDeLetreiro.semLetreiros(faixasDisponiveis.stream()
                 .filter(f -> {
                     String c = f.codec().toUpperCase();
                     String cid = f.codecId().toUpperCase();
                     return c.contains("PGS") || cid.contains("PGS") || cid.contains("S_HDMV/PGS");
                 })
-                .toList();
+                .toList());
 
         // Para PGS, geralmente pega a primeira encontrada ou a marcada como default
         for (FaixaLegenda f : candidatas) {

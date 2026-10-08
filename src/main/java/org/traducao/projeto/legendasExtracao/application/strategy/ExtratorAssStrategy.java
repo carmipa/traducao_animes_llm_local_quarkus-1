@@ -58,13 +58,9 @@ public class ExtratorAssStrategy implements ExtratorStrategy {
         // 1. Descartar o que se ANUNCIA como faixa reduzida. Feito ANTES de qualquer outra
         //    regra: sem isto, a heurística de posição escolhe a faixa de letreiros sempre que
         //    ela vier por último, que é justamente o layout do Break Blade.
-        List<FaixaLegenda> principais = candidatas.stream()
-                .filter(f -> !ehFaixaDeLetreiro(f))
-                .toList();
-
         // 2. Se sobrou alguma, é entre elas que se decide. Se NÃO sobrou nenhuma, o contêiner
         //    só tem faixa reduzida — devolver a melhor delas é melhor que devolver nada.
-        List<FaixaLegenda> alvo = principais.isEmpty() ? candidatas : principais;
+        List<FaixaLegenda> alvo = FaixaDeLetreiro.semLetreiros(candidatas);
 
         // 3. Palavra-chave que declara faixa completa.
         for (FaixaLegenda f : alvo) {
@@ -78,26 +74,6 @@ public class ExtratorAssStrategy implements ExtratorStrategy {
         // 4. Sem declaração, a última costuma ser a completa — agora sobre um conjunto já
         //    limpo das faixas de letreiro.
         return Optional.of(alvo.getLast());
-    }
-
-    /**
-     * PROPÓSITO DE NEGÓCIO: reconhece a faixa reduzida que acompanha lançamento dublado —
-     * traduz só placa, cartaz e letra de música, e nunca o diálogo.
-     *
-     * <p>INVARIANTES DO DOMÍNIO: decide pelo que a faixa DECLARA (nome e flag {@code forced}),
-     * nunca pelo tamanho ou pela posição. {@code forced} entra porque faixa forçada é, por
-     * convenção do formato, exatamente o subconjunto que aparece sobre áudio dublado.
-     *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: nome nulo devolve {@code false} — na dúvida a faixa
-     * permanece candidata, porque excluir demais é o defeito pior aqui.
-     */
-    private boolean ehFaixaDeLetreiro(FaixaLegenda faixa) {
-        if (faixa.isForced()) {
-            return true;
-        }
-        String n = nomeNormalizado(faixa);
-        return n.contains("sign") || n.contains("song") || n.contains("forced")
-            || n.contains("letreiro") || n.contains("s&s");
     }
 
     private String nomeNormalizado(FaixaLegenda faixa) {
