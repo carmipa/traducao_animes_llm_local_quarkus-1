@@ -7,6 +7,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.core.presentation.ui.AnsiCores;
 import org.traducao.projeto.traducaoCorrige.application.LimparCacheUseCase;
 
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
+
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -35,7 +37,7 @@ public class CorretorCacheCLI implements ExecucaoCli {
         System.out.println(AnsiCores.CYAN + "==========================================================" + AnsiCores.RESET);
 
         String entradaUsuario = diretorioEntrada.orElse(null);
-        Path diretorioCache = Path.of(entradaUsuario != null && !entradaUsuario.isBlank() ? entradaUsuario : "cache");
+        Path diretorioCache = DiretorioBaseKronos.resolver(entradaUsuario != null && !entradaUsuario.isBlank() ? entradaUsuario : "cache");
 
         limparCacheUseCase.executar(diretorioCache);
         

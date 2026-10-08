@@ -6,6 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.traducao.projeto.cachetraducao.domain.EntradaCache;
 import org.traducao.projeto.cachetraducao.domain.ProvenienciaCache;
 import org.traducao.projeto.cachetraducao.infrastructure.CacheTraducaoService;
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
@@ -62,11 +63,24 @@ public class CacheDoArquivo {
     @ConfigProperty(name = "tradutor.diretorio-cache")
     Optional<String> diretorioCache;
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: onde mora o cache de letras de UM arquivo de karaokê.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o caminho é ancorado em {@link DiretorioBaseKronos} — um
+     * diretório de cache RELATIVO (o padrão {@code cache}) fica sob a raiz operacional efetiva,
+     * um ABSOLUTO configurado passa intocado. Em produção a raiz é o diretório corrente e o
+     * resultado é o de sempre. Sem a âncora, a suíte e qualquer execução com
+     * {@code -Dkronos.dir.base} liam e REGRAVAVAM {@code ./cache/karaoke} real — medido em
+     * 08/10/2026: uma tradução de teste isolada regravou 3 caches reais e criou 2.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome sem extensão ASS/SSA vira base do arquivo como
+     * está; caminho sintaticamente inválido propaga {@link java.nio.file.InvalidPathException}.
+     */
     public Path arquivoDe(Path arquivo) {
         String nome = arquivo.getFileName().toString();
         String base = nome.replaceFirst("(?i)\\.(ass|ssa)$", "");
-        String dirCache = diretorioCache.orElse("cache");
-        return Path.of(dirCache, SUBPASTA, base + ".cache.json");
+        String dirCache = diretorioCache.filter(s -> !s.isBlank()).orElse("cache");
+        return DiretorioBaseKronos.resolver(dirCache, SUBPASTA, base + ".cache.json");
     }
 
     public Map<String, String> carregar(

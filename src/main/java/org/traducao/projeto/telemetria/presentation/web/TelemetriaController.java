@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.traducao.projeto.core.io.DiretorioBaseKronos;
 import org.traducao.projeto.core.presentation.web.RespostaPadrao;
 import org.traducao.projeto.telemetria.TelemetriaResumo;
 import org.traducao.projeto.telemetria.TelemetriaService;
@@ -168,7 +169,9 @@ public class TelemetriaController {
      */
     @GetMapping("/telemetria")
     public ResponseEntity<TelemetriaResumo> obterTelemetria() {
-        Path pastaCache = Path.of(diretorioCache != null && !diretorioCache.isBlank()
+        // Ancorado em DiretorioBaseKronos como os demais caminhos operacionais: sob -Dkronos.dir.base
+        // (suite, medicao isolada) o resumo le o cache da raiz efetiva, nunca o ./cache real.
+        Path pastaCache = DiretorioBaseKronos.resolver(diretorioCache != null && !diretorioCache.isBlank()
                 ? diretorioCache : "cache");
         return ResponseEntity.ok(telemetriaService.gerarResumo(pastaCache));
     }

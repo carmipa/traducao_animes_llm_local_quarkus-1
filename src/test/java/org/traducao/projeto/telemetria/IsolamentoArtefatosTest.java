@@ -127,4 +127,96 @@ class IsolamentoArtefatosTest {
         assertEquals(absoluto.normalize(), comAbsoluto.resolverDiretorioSaida().normalize(),
             "caminho absoluto de saída informado pelo usuário não pode ser reancorado");
     }
+
+    private static final java.util.regex.Pattern LITERAL_OPERACIONAL =
+        java.util.regex.Pattern.compile("\"(?:cache|logs|relatorios|backups)\"");
+    private static final java.util.regex.Pattern VARIAVEL_DE_CACHE =
+        java.util.regex.Pattern.compile("^\\s*(?:dirCache|diretorioCache)\\b");
+
+    /**
+     * Verdadeiro quando algum {@code Path.of(...)} do código monta caminho operacional cru: os
+     * ARGUMENTOS dele (lidos até o parêntese que fecha, não até o fim do statement) contêm um literal
+     * da árvore versionada, ou começam por variável de diretório de cache. Ler até o fim do
+     * statement acusava {@code executar(Path.of(pastaPt), DiretorioBaseKronos.resolver("cache"))}.
+     */
+    private static boolean montaCaminhoOperacionalCru(String codigo) {
+        int i = codigo.indexOf("Path.of(");
+        while (i >= 0) {
+            int inicio = i + "Path.of(".length();
+            int nivel = 1;
+            int j = inicio;
+            while (j < codigo.length() && nivel > 0) {
+                char c = codigo.charAt(j);
+                if (c == '(') {
+                    nivel++;
+                } else if (c == ')') {
+                    nivel--;
+                }
+                j++;
+            }
+            String argumentos = codigo.substring(inicio, Math.max(inicio, j - 1));
+            if (LITERAL_OPERACIONAL.matcher(argumentos).find() || VARIAVEL_DE_CACHE.matcher(argumentos).find()) {
+                return true;
+            }
+            i = codigo.indexOf("Path.of(", j);
+        }
+        return false;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: catraca da CLASSE de falha que já custou dois danos reais — a suíte
+     * esvaziando 28 caches de produção ({@code TradutorProperties}) e, em 08/10/2026, uma medição
+     * isolada regravando o cache real do karaokê ({@code CacheDoArquivo}). Varre o código de
+     * produção e reprova qualquer {@code Path.of} que monte {@code cache}/{@code logs}/
+     * {@code relatorios}/{@code backups} sem passar por {@link DiretorioBaseKronos}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: a varredura junta o statement inteiro (o {@code Path.of} pode
+     * quebrar linha) e ignora comentários; o próprio {@code DiretorioBaseKronos} é o único dono
+     * autorizado a montar a raiz.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: calibração antes de varrer — a regex TEM de casar as duas
+     * formas doentes reais e NÃO pode casar a forma ancorada nem um {@code Path.of} de caminho do
+     * usuário; zero arquivos lidos reprova (alvo vazio não é aprovação).
+     */
+    @Test
+    void nenhumCaminhoOperacionalNasceComPathOfCruNoCodigoDeProducao() throws IOException {
+        assertTrue(montaCaminhoOperacionalCru(
+            "Path diretorioCache = Path.of(entradaUsuario != null && !entradaUsuario.isBlank() ? entradaUsuario : \"cache\");"),
+            "calibração: a forma doente das CLIs tem de casar");
+        assertTrue(montaCaminhoOperacionalCru("return Path.of(dirCache, SUBPASTA, base + \".cache.json\");"),
+            "calibração: a forma doente do CacheDoArquivo tem de casar");
+        assertFalse(montaCaminhoOperacionalCru(
+            "return DiretorioBaseKronos.resolver(dirCache, SUBPASTA, base + \".cache.json\");"),
+            "calibração: a forma ancorada não pode casar");
+        assertFalse(montaCaminhoOperacionalCru("Path entrada = Path.of(request.caminhoOrigem());"),
+            "calibração: caminho escolhido pelo usuário não é caminho operacional");
+        assertFalse(montaCaminhoOperacionalCru(
+            "executar(Path.of(pastaPt), null, DiretorioBaseKronos.resolver(\"cache\"), null)"),
+            "calibração: literal FORA dos argumentos do Path.of não é violação (fronteira medida em 08/10)");
+
+        Path raizFontes = Path.of("src", "main", "java");
+        java.util.List<String> violacoes = new java.util.ArrayList<>();
+        int lidos = 0;
+        try (java.util.stream.Stream<Path> arquivos = Files.walk(raizFontes)) {
+            for (Path arquivo : (Iterable<Path>) arquivos.filter(p -> p.toString().endsWith(".java"))::iterator) {
+                if (arquivo.getFileName().toString().equals("DiretorioBaseKronos.java")) {
+                    continue;
+                }
+                lidos++;
+                String semComentarios = Files.readString(arquivo)
+                    .replaceAll("(?s)/\\*.*?\\*/", " ")
+                    .replaceAll("(?m)//.*$", " ");
+                for (String statement : semComentarios.split(";")) {
+                    if (montaCaminhoOperacionalCru(statement)) {
+                        violacoes.add(raizFontes.relativize(arquivo) + ": " + statement.strip().replaceAll("\\s+", " "));
+                    }
+                }
+            }
+        }
+        // Piso medido em 08/10/2026: 494 fontes. Abaixo de 400 a varredura não leu a árvore.
+        assertTrue(lidos > 400, "alvo vazio não é aprovação: arquivos .java lidos = " + lidos);
+        assertTrue(violacoes.isEmpty(),
+            "caminho operacional montado com Path.of cru (use DiretorioBaseKronos.resolver):\n  "
+                + String.join("\n  ", violacoes));
+    }
 }
