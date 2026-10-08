@@ -90,6 +90,38 @@ public final class TempoEventoUtil {
         return combinar(parsearInstante(lados[0]), parsearInstante(lados[1]));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece o marcador de capítulo que fansub grava como
+     * {@code Dialogue} — {@code {OP Start}}, {@code {Episode}}, {@code {ED}}, às vezes com
+     * Name {@code chptr} —, de duração zero de propósito: não é fala, é índice de capítulo
+     * para o player. Até 08/10/2026 cada um virava ERROR "Timestamp Inválido" e WARNING
+     * "Diálogo Vazio", em todo release real (5 por arquivo no 0080 E02), e "limpo" ficava
+     * inalcançável (auditoria de 08/10/2026, A8).
+     * <p>Medido no acervo em 08/10/2026 (738 .ass, 2.124.707 falas, 32.296 de duração zero):
+     * o predicado aceita 4.512 — 72 marcadores e notas do fansub ({@code {ED}}, {@code {OP
+     * Start}}, {@code {name check}}) e 4.440 quadros de efeito só de tags; todos invisíveis
+     * por construção. Recusa as 27.726 com texto visível: 27.720 sílabas de KFX (todas em
+     * estilo de música, DanMachi e cópias de teste) e 6 falas comuns de duração zero, que
+     * são o defeito que a regra existe para pegar.
+     * <p>INVARIANTES DO DOMÍNIO: exige os DOIS sinais juntos — início igual ao fim (nem
+     * negativo, nem ilegível) E texto feito só de blocos {@code {...}}, sem nada visível.
+     * Fala com texto visível e duração zero, ou linha vazia com duração, continuam defeito.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: evento nulo, sem texto ou com tempo ilegível não é
+     * marcador; nunca lança.
+     */
+    public static boolean ehMarcadorSemFala(EventoLegenda evento) {
+        if (evento == null || evento.texto() == null || evento.texto().isBlank()) {
+            return false;
+        }
+        Diagnostico d = diagnosticar(evento);
+        boolean duracaoZero = d.status() == StatusTempo.FIM_ANTES_INICIO && d.inicioMs() == d.fimMs();
+        if (!duracaoZero) {
+            return false;
+        }
+        // Texto não vazio que some inteiro ao tirar os blocos {...}: só havia blocos.
+        return evento.texto().replaceAll("\\{[^}]*}", "").isBlank();
+    }
+
     private static Diagnostico combinar(Instante inicio, Instante fim) {
         if (inicio.status() == StatusInstante.ILEGIVEL || fim.status() == StatusInstante.ILEGIVEL) {
             return new Diagnostico(StatusTempo.ILEGIVEL, 0, 0);

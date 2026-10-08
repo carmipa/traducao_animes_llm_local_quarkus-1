@@ -16,7 +16,9 @@ import java.util.List;
  * costuma indicar corrupção de timestamps na legenda.
  *
  * <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com tempo legível são
- * avaliados; a comparação usa milissegundos absolutos.
+ * avaliados; a comparação usa milissegundos absolutos. O marcador de capítulo do
+ * fansub (duração zero de propósito, texto só de blocos {@code {...}}) não é fala e
+ * fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala}.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: evento sem tempo interpretável é ignorado
  * (a regra {@link RegraTagOverrideNaoFechada} e as demais cobrem outros danos).
@@ -33,7 +35,7 @@ public class RegraTimestampInvalido implements RegraAuditoriaArquivoUnico {
     public List<AnomaliaConteudo> auditar(DocumentoLegenda documento) {
         List<AnomaliaConteudo> anomalias = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo()) {
+            if (!evento.isDialogo() || TempoEventoUtil.ehMarcadorSemFala(evento)) {
                 continue;
             }
             TempoEventoUtil.Diagnostico d = TempoEventoUtil.diagnosticar(evento);

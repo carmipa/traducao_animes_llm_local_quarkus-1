@@ -378,6 +378,37 @@ class AuditorConteudoIntegridadeTest {
         }
     }
 
+    // 22 — auditoria de 08/10/2026, A8: marcador de capítulo do fansub (linhas reais do 0080 E02,
+    // com e sem Name chptr) não é fala — nem timestamp inválido, nem diálogo vazio.
+    @Test
+    void marcadorDeCapituloNaoEDefeito(@TempDir Path dir) throws IOException {
+        Path a = ass(dir, "capitulos.ass",
+            "Dialogue: 0,0:00:01.15,0:00:01.15,OP,,0,0,0,,{OP Start}",
+            dlg("0:00:02.00", "0:00:04.00", "Hello"),
+            "Dialogue: 0,0:01:44.08,0:01:44.08,OP,chptr,0,0,0,,{Episode}");
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.ORIGINAL, a, null);
+
+        assertTrue(r.isLimpo(), r.getAnomalias().toString());
+    }
+
+    // 23 — fronteira (A1): cada sinal do marcador SOZINHO continua defeito. Duração zero com
+    // texto visível é fala que não aparece; texto só de tags com duração é fala perdida.
+    @Test
+    void duracaoZeroComFalaOuLinhaVaziaComDuracaoContinuamAcusadas(@TempDir Path dir) throws IOException {
+        Path a = ass(dir, "fronteira.ass",
+            dlg("0:00:01.15", "0:00:01.15", "{\\i1}Hello{\\i0}"),
+            dlg("0:00:02.00", "0:00:04.00", "{\\an8}"),
+            dlg("0:00:05.00", "0:00:04.00", "{OP Start}"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.ORIGINAL, a, null);
+
+        long timestamp = r.getAnomalias().stream().filter(x -> x.regra().startsWith("Timestamp")).count();
+        long vazio = r.getAnomalias().stream().filter(x -> x.regra().equals("Evento de Diálogo Vazio")).count();
+        assertEquals(2, timestamp, "duração zero com fala E fim antes do início: " + r.getAnomalias());
+        assertEquals(2, vazio, "só tags com duração E fim antes do início: " + r.getAnomalias());
+    }
+
     // 14 —
     @Test
     void testeNaoGravaEmRelatoriosOperacional(@TempDir Path dir) throws IOException {

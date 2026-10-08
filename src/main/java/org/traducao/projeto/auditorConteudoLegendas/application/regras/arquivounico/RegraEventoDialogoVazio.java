@@ -3,6 +3,7 @@ package org.traducao.projeto.auditorConteudoLegendas.application.regras.arquivou
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaArquivoUnico;
+import org.traducao.projeto.auditorConteudoLegendas.domain.TempoEventoUtil;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
 
@@ -16,7 +17,8 @@ import java.util.List;
  *
  * <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} são avaliados; o texto
  * visível é o que sobra após remover blocos {@code {...}}, {@code \N}, {@code \h}
- * e espaços.
+ * e espaços. O marcador de capítulo do fansub (duração zero, só blocos {@code {...}})
+ * não é fala perdida e fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala}.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: eventos que não são diálogo ou sem campo de
  * texto são ignorados; a regra nunca lança.
@@ -33,7 +35,7 @@ public class RegraEventoDialogoVazio implements RegraAuditoriaArquivoUnico {
     public List<AnomaliaConteudo> auditar(DocumentoLegenda documento) {
         List<AnomaliaConteudo> anomalias = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo() || !evento.temTexto()) {
+            if (!evento.isDialogo() || !evento.temTexto() || TempoEventoUtil.ehMarcadorSemFala(evento)) {
                 continue;
             }
             if (textoVisivel(evento.texto()).isEmpty()) {
