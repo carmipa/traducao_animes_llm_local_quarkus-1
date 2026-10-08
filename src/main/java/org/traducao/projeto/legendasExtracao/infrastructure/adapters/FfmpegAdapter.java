@@ -128,16 +128,47 @@ public class FfmpegAdapter implements ExtratorVideoPort {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: nomeia o formato de saída do ffmpeg pela extensão FINAL do destino.
+     * A extração grava num temporário {@code X_TrackN.ass.part}, e o ffmpeg escolhe o formato pela
+     * extensão: com ".part" ele respondia "Unable to choose an output format" e TODA extração por
+     * ffmpeg (.mp4/.mov/.avi/.ts/.m2ts...) falhava desde 15/07 (auditoria de 08/10/2026, E3).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: ignora um sufixo ".part"; "ass"/"ssa" -> {@code ass}, "srt" ->
+     * {@code srt}, "sup" -> {@code sup}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: extensão desconhecida devolve {@code null} — o comando
+     * vai sem {@code -f}, como antes, e o próprio ffmpeg reporta o erro.
+     */
+    static String formatoDeSaida(Path caminhoSaida) {
+        String nome = caminhoSaida.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
+        if (nome.endsWith(".part")) {
+            nome = nome.substring(0, nome.length() - ".part".length());
+        }
+        int ponto = nome.lastIndexOf('.');
+        String ext = ponto < 0 ? "" : nome.substring(ponto + 1);
+        return switch (ext) {
+            case "ass", "ssa" -> "ass";
+            case "srt" -> "srt";
+            case "sup" -> "sup";
+            default -> null;
+        };
+    }
+
     @Override
     public void extrairTrilha(Path videoPath, int streamIndex, Path caminhoSaida) {
-        List<String> cmd = List.of(
+        List<String> cmd = new java.util.ArrayList<>(List.of(
             ffmpegPath,
             "-y", "-v", "error",
             "-i", videoPath.toAbsolutePath().toString(),
             "-map", "0:" + streamIndex,
-            "-c:s", "copy",
-            caminhoSaida.toAbsolutePath().toString()
-        );
+            "-c:s", "copy"));
+        String formato = formatoDeSaida(caminhoSaida);
+        if (formato != null) {
+            cmd.add("-f");
+            cmd.add(formato);
+        }
+        cmd.add(caminhoSaida.toAbsolutePath().toString());
 
         try {
             ProcessoExternoUtil.Resultado resultado = ProcessoExternoUtil.executar(cmd, TIMEOUT_EXTRACAO, true);

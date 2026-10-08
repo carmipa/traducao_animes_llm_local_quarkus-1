@@ -85,4 +85,41 @@ class FfmpegAdapterTest {
         assertTrue(a.suporta(Path.of("a.mov")));
         assertFalse(a.suporta(Path.of("a.mkv")));
     }
+
+    /**
+     * E3 da auditoria de 08/10/2026 (reproduzido na aplicacao): a extracao grava em "X_TrackN.ass.part"
+     * e o ffmpeg, sem -f, respondia "Unable to choose an output format" -- toda extracao por ffmpeg
+     * falhava. Usa o ffmpeg REAL: o defeito so existe no comportamento do binario. Sem ffmpeg, o
+     * teste sai como NAO VERIFICADO (assumption), nunca como aprovado.
+     */
+    @Test
+    void extraiFaixaAssParaTemporarioPartComOFfmpegReal(@org.junit.jupiter.api.io.TempDir java.nio.file.Path dir)
+            throws Exception {
+        boolean temFfmpeg;
+        try {
+            temFfmpeg = new ProcessBuilder("ffmpeg", "-version").redirectErrorStream(true).start().waitFor() == 0;
+        } catch (java.io.IOException e) {
+            temFfmpeg = false;
+        }
+        org.junit.jupiter.api.Assumptions.assumeTrue(temFfmpeg, "ffmpeg ausente: NAO VERIFICADO");
+        java.nio.file.Path ass = java.nio.file.Files.writeString(dir.resolve("s.ass"), String.join("\n",
+            "[Script Info]", "ScriptType: v4.00+", "", "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, "
+                + "Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, "
+                + "MarginR, MarginV, Encoding",
+            "Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1",
+            "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:00:00.50,0:00:01.50,Default,,0,0,0,,Hello there", ""));
+        java.nio.file.Path video = dir.resolve("v.mkv");
+        int rc = new ProcessBuilder("ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=160x120:d=2",
+            "-i", ass.toString(), "-map", "0", "-map", "1", "-c:v", "mpeg4", "-c:s", "ass", video.toString())
+            .redirectErrorStream(true).start().waitFor();
+        org.junit.jupiter.api.Assumptions.assumeTrue(rc == 0, "nao consegui montar o video de teste: NAO VERIFICADO");
+        java.nio.file.Path saida = dir.resolve("v_Track1.ass.part");
+
+        new FfmpegAdapter(new ExtratorProperties(), new ObjectMapper()).extrairTrilha(video, 1, saida);
+
+        assertTrue(java.nio.file.Files.readString(saida).contains("Hello there"),
+            "a faixa ASS tem de ser extraida para o temporario .part");
+    }
 }
