@@ -473,11 +473,14 @@ public class DetectorTraducaoIdenticaService {
      *
      * <p>INVARIANTES DO DOMÍNIO: só retira UM par de borda (retas com exatamente duas aspas, ou
      * curvas de abertura e fechamento), e só quando o original NÃO estava envolto — fonte que já
-     * citava mantém as aspas, que são legítimas. Mesmo critério de envelope do normalizador.
+     * citava mantém as aspas, que são legítimas. Mesmo critério de envelope do normalizador. Visível
+     * no pacote porque a reprovação do exemplo do prompt copiado ({@code ValidadorTraducaoService})
+     * compara do mesmo jeito: em 08/10/2026 o modelo devolveu '"Psyco Gundam?"' para "Z-G...?", o
+     * portão comparou com as aspas, o normalizador as tirou, e a fala vazada foi publicada.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto curto ou sem envelope volta intacto; nunca lança.
      */
-    private static String semEnvelopeDeAspasQueOOriginalNaoTem(String original, String traduzido) {
+    static String semEnvelopeDeAspasQueOOriginalNaoTem(String original, String traduzido) {
         if (envoltoPorAspas(original) || !envoltoPorAspas(traduzido)) {
             return traduzido;
         }

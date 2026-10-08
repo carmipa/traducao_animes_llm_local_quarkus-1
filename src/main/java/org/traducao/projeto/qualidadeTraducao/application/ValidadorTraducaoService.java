@@ -1185,12 +1185,15 @@ public class ValidadorTraducaoService {
      * devolve {@code null}; nunca lança. Devolve o termo que o original não tem.
      */
     private String exemploDoPromptCopiado(String original, String traduzido) {
-        Set<String> ensDoExemplo = exemplosDoPrompt().get(normalizarExemplo(traduzido));
+        // Como a fala SERÁ PUBLICADA: o normalizador de aspas tira, depois do portão, o envelope que
+        // o original não tem. Sem isto '"Psyco Gundam?"' passava aqui e saía "Psyco Gundam?".
+        String publicada = DetectorTraducaoIdenticaService.semEnvelopeDeAspasQueOOriginalNaoTem(original, traduzido);
+        Set<String> ensDoExemplo = exemplosDoPrompt().get(normalizarExemplo(publicada));
         if (ensDoExemplo == null || ensDoExemplo.contains(normalizarExemplo(original))) {
             return null;
         }
         for (String termo : loreAtiva.termosProtegidosAtivos()) {
-            if (contemTermoIgnorandoCaixa(traduzido, termo) && !contemTermoIgnorandoCaixa(original, termo)) {
+            if (contemTermoIgnorandoCaixa(publicada, termo) && !contemTermoIgnorandoCaixa(original, termo)) {
                 return termo;
             }
         }

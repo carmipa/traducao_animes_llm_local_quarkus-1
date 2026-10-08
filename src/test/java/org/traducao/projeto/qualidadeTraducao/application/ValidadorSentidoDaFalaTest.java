@@ -236,7 +236,10 @@ class ValidadorSentidoDaFalaTest {
         "G3?!|Psyco Gundam?",
         "Catl?|Psyco Gundam?",
         "Z-G...?|Psyco Gundam?",
-        "{\\i1}...sami...|Four..."
+        "{\\i1}...sami...|Four...",
+        // o modelo devolve entre aspas e o normalizador as tira DEPOIS do portão (jar, 08/10/2026)
+        "Z-G...?|\"Psyco Gundam?\"",
+        "Catl?|“Psyco Gundam?”"
     })
     void exemploDoPromptCopiadoReprova(String original, String traduzido) {
         AlucinacaoDetectadaException e = assertThrows(AlucinacaoDetectadaException.class,
