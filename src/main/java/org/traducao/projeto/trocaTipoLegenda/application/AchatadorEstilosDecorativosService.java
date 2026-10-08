@@ -85,6 +85,8 @@ public class AchatadorEstilosDecorativosService {
     private static final Pattern RECORTE = Pattern.compile("\\\\i?clip\\(");
     /** Troca de fonte inline. */
     private static final Pattern FONTE_INLINE = Pattern.compile("\\\\fn");
+    /** Glifo de textura repetido: a mesma unidade de 1 a 4 letras, 3 vezes ou mais, e nada mais. */
+    private static final Pattern TEXTURA_DE_GLIFOS = Pattern.compile("^([A-Za-z]{1,4})\\1{2,}$");
 
     private final AuditoriaFontesService auditoriaFontes;
     private final ClassificadorCamadaMusicalPort classificadorCamadas;
@@ -280,8 +282,13 @@ public class AchatadorEstilosDecorativosService {
      * </ul>
      * Custo medido e aceito (viés de preservação de ferramenta destrutiva): 715 linhas com
      * {@code \clip} + {@code \fn} que são texto real ficam no visual original em vez de achatadas.
-     * Lacuna declarada: 527 texturas {@code \fnGrain} SEM {@code \clip} não são reconhecidas —
-     * separá-las exigiria adivinhar pelo conteúdo.
+     * <ul>
+     *   <li>Textura sem recorte: troca de fonte inline E texto visível que é só a repetição de uma
+     *       unidade de 1 a 4 letras ({@code ccccc}, {@code ABCDABCDABCD}). Fechou em 08/10/2026 a
+     *       lacuna das 527 {@code \fnGrain} sem {@code \clip} do Patlabor ep05, que o achatamento
+     *       ainda transformava em "ccccc" no Default. Medido no acervo inteiro: o padrão casa 29.607
+     *       linhas e são só {@code ccccc} e {@code ABCDABCDABCD} — nenhuma palavra.</li>
+     * </ul>
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem bloco líder devolve {@code false}
      * (a linha segue a regra normal de fonte).
@@ -303,7 +310,14 @@ public class AchatadorEstilosDecorativosService {
         if (ultimoModo > 0) {
             return true;
         }
-        return RECORTE.matcher(bloco).find() && FONTE_INLINE.matcher(bloco).find();
+        if (!FONTE_INLINE.matcher(bloco).find()) {
+            return false;
+        }
+        if (RECORTE.matcher(bloco).find()) {
+            return true;
+        }
+        String visivel = texto.replaceAll("\\{[^}]*}", "").replace("\\N", "").replace("\\h", "").strip();
+        return TEXTURA_DE_GLIFOS.matcher(visivel).matches();
     }
 
     /**

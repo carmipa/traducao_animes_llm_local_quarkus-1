@@ -349,6 +349,8 @@ class AchatadorEstilosDecorativosServiceTest {
             "Dialogue: 0,0:00:30.00,0:00:33.00,Signs,,0,0,0,,{\\clip(0,0,1920,540)\\pos(960,300)}A flower blooms",
             "Dialogue: 0,0:00:40.00,0:00:43.00,Signs,,0,0,0,,{\\fnAlthea\\pos(960,300)}Maritime Safety Agency",
             "Dialogue: 0,0:00:50.00,0:00:53.00,Signs,,0,0,0,,{\\p1\\p0\\pos(9,9)}Linha real",
+            "Dialogue: 2,0:00:55.00,0:00:56.00,Signs,,0,0,0,,{=83}{\\alpha&H00&\\fnGrain\\b1\\pos(865.44,484.71)}ccccc",
+            "Dialogue: 0,0:00:57.00,0:00:58.00,Signs,,0,0,0,,{\\fnAlthea\\pos(960,300)}Hahaha",
             "");
         Path arquivo = dir.resolve("patlabor.ass");
         Files.writeString(arquivo, ass, StandardCharsets.UTF_8);
@@ -369,6 +371,12 @@ class AchatadorEstilosDecorativosServiceTest {
         assertEquals("Default", ev.get(5).estilo(),
             "CONTROLE: \\p1 desligado por \\p0 no proprio bloco lider — o texto e real, continua achatando");
         assertEquals("Linha real", ev.get(5).texto());
+
+        // Textura \fnGrain SEM \clip (527 linhas no Patlabor ep05 viravam "ccccc" no Default).
+        assertEquals("Signs", ev.get(6).estilo(), "textura de glifo repetido sem \\clip tem de ficar no estilo dela");
+        assertTrue(ev.get(6).texto().startsWith("{=83}{\\alpha"), ev.get(6).texto());
+        assertEquals("Default", ev.get(7).estilo(),
+            "CONTROLE: fonte inline com palavra que so PARECE repeticao (Ha/ha) e placa real, continua achatando");
     }
 
     /**
