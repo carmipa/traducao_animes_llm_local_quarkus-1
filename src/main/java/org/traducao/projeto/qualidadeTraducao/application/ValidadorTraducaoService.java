@@ -342,6 +342,15 @@ public class ValidadorTraducaoService {
         "^((?:\\{[^}]*\\}|\\[\\[TAG\\d+\\]\\]|[^\\p{L}\\p{N}])*)(?:(s)-)?(sim)(?![\\p{L}\\p{N}])",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
+    /** Exemplo de tradução escrito no prompt: {@code "EN" fica "PT"} (também "vira", "->" e "→"). */
+    private static final Pattern EXEMPLO_DO_PROMPT = Pattern.compile(
+        "\"([^\"\\n]{2,200})\"\\s*(?:fica|vira|->|→)\\s*\"([^\"\\n]{2,200})\"");
+
+    /** Os exemplos extraídos do último prompt visto; o prompt muda só quando a obra ativa muda. */
+    private record ExemplosDoPrompt(String prompt, java.util.Map<String, Set<String>> ensPorPt) { }
+
+    private volatile ExemplosDoPrompt exemplosEmMemoria;
+
     /** Pergunta-eco: o original visível é SÓ um trecho entre aspas seguido de "?"; grupo 1, as reticências. */
     private static final Pattern PERGUNTA_ECO_ENTRE_ASPAS = Pattern.compile(
         "^\\s*[\"'“‘][^\"“”]{1,40}[\"'”’]\\s*(\\.\\.\\.|…)?\\s*\\?\\s*$");
@@ -586,6 +595,12 @@ public class ValidadorTraducaoService {
         String trocado = trocaDeEntidade(original, traduzido);
         if (trocado != null) {
             throw new AlucinacaoDetectadaException(trocado);
+        }
+
+        String termoDoExemplo = exemploDoPromptCopiado(original, traduzido);
+        if (termoDoExemplo != null) {
+            throw new AlucinacaoDetectadaException("Exemplo do prompt copiado: a tradução repete um exemplo da lore e traz \""
+                + termoDoExemplo + "\", que o original não tem: \"" + traduzido + "\" (original: \"" + original + "\")");
         }
 
         if (PADRAO_META_DE_PAR.matcher(traduzido).find()) {
@@ -1140,6 +1155,81 @@ public class ValidadorTraducaoService {
             }
         }
         return atual.equals(traduzido) ? null : atual;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reprova a fala em que o modelo devolveu um EXEMPLO do prompt da obra no lugar
+     * de traduzir. O prompt do Zeta e do ZZ ensina a grafia do Psyco Gundam com frases inteiras
+     * ({@code "As you wish, but I'll entrust the Psyco Gundam to you." fica "Como quiser, mas vou
+     * confiar o Psyco Gundam a você."}), e o modelo as copia para falas sem relação: medido nos caches
+     * em 08/10/2026, "All right, do as you wish." publicada como "Como quiser, mas vou confiar o Psyco
+     * Gundam a você.", "...through the armor of a mobile suit, like a Newtype?" como "Você precisa sair
+     * do cockpit do Psyco Gundam! Rápido!" e "G3?!", "Catl?", "Z-G...?" como "Psyco Gundam?".
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Exige as três coisas: a fala é igual (sem tags, caixa, espaço e pontuação final) ao PT de
+     *       um exemplo {@code "EN" fica/vira/-> "PT"} do prompt ATIVO; o original NÃO é o EN daquele
+     *       exemplo; e a fala traz um termo protegido da obra que o original não tem. A terceira é a
+     *       que separa vazamento de coincidência: "Não aguento mais isso!" para "I can't take this
+     *       anymore!" repete um exemplo e está certa.</li>
+     *   <li>Critério declarado e medido antes do código, nos 130.817 pares dos caches com o prompt de
+     *       cada obra: 26 falas iguais a exemplo com outro original; a regra reprova 8, as 8 defeito
+     *       real, e deixa passar 18 — 16 legítimas e 2 falsos negativos declarados: "A Gundam?!" →
+     *       "Psyco Gundam?" (o original já diz Gundam) e "Open up, Four!" → "Abra os olhos, Four!".</li>
+     *   <li>Sem conserto determinístico: o conteúdo foi inventado. A reprovação vira outra tentativa;
+     *       esgotada, a fala sai pendente.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem prompt ativo, sem exemplo igual ou sem termo estranho
+     * devolve {@code null}; nunca lança. Devolve o termo que o original não tem.
+     */
+    private String exemploDoPromptCopiado(String original, String traduzido) {
+        Set<String> ensDoExemplo = exemplosDoPrompt().get(normalizarExemplo(traduzido));
+        if (ensDoExemplo == null || ensDoExemplo.contains(normalizarExemplo(original))) {
+            return null;
+        }
+        for (String termo : loreAtiva.termosProtegidosAtivos()) {
+            if (contemTermoIgnorandoCaixa(traduzido, termo) && !contemTermoIgnorandoCaixa(original, termo)) {
+                return termo;
+            }
+        }
+        return null;
+    }
+
+    /** Os exemplos do prompt ativo (PT normalizado → ENs normalizados), recalculados só quando o prompt muda. */
+    private java.util.Map<String, Set<String>> exemplosDoPrompt() {
+        String prompt = loreAtiva.obterLoreAtiva();
+        if (prompt == null || prompt.isBlank()) {
+            return java.util.Map.of();
+        }
+        ExemplosDoPrompt guardados = exemplosEmMemoria;
+        if (guardados != null && guardados.prompt().equals(prompt)) {
+            return guardados.ensPorPt();
+        }
+        java.util.Map<String, Set<String>> ensPorPt = new java.util.HashMap<>();
+        Matcher m = EXEMPLO_DO_PROMPT.matcher(prompt);
+        while (m.find()) {
+            String pt = normalizarExemplo(m.group(2));
+            if (!pt.isEmpty()) {
+                ensPorPt.computeIfAbsent(pt, k -> new java.util.HashSet<>()).add(normalizarExemplo(m.group(1)));
+            }
+        }
+        java.util.Map<String, Set<String>> imutavel = new java.util.HashMap<>();
+        ensPorPt.forEach((pt, ens) -> imutavel.put(pt, Set.copyOf(ens)));
+        exemplosEmMemoria = new ExemplosDoPrompt(prompt, java.util.Map.copyOf(imutavel));
+        return exemplosEmMemoria.ensPorPt();
+    }
+
+    /** Sem tags, sem {@code \N}, caixa baixa, espaço colapsado e sem a pontuação final. */
+    private static String normalizarExemplo(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        String semTags = PADRAO_MARCADOR.matcher(PADRAO_BLOCO_ASS.matcher(texto).replaceAll("")).replaceAll("")
+            .replace("\\N", " ");
+        return semTags.replaceAll("\\s+", " ").strip().toLowerCase(java.util.Locale.ROOT)
+            .replaceAll("[\\s.!?…]+$", "");
     }
 
     /** Devolve {@code base} com a caixa de {@code achado}: "SIM" → "NÃO", "Sim" → "Não", "sim" → "não". */

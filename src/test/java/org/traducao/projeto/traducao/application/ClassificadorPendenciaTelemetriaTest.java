@@ -134,6 +134,9 @@ class ClassificadorPendenciaTelemetriaTest {
             "Polaridade invertida: o original responde que não e a tradução responde que sim: \"Sim.\" (original: \"No.\")"));
         assertEquals(CausaRaizPendencia.CONTEUDO_NAO_ANCORADO, classificador.causaDeMotivoFinal(
             "Pergunta perdida: o original pergunta e a tradução afirma: \"Nosso\" (original: \"'Our\"?\")"));
+        assertEquals(CausaRaizPendencia.CONTEUDO_NAO_ANCORADO, classificador.causaDeMotivoFinal(
+            "Exemplo do prompt copiado: a tradução repete um exemplo da lore e traz \"Gundam\", que o original não"
+                + " tem: \"Psyco Gundam?\" (original: \"G3?!\")"));
     }
 
     @Test

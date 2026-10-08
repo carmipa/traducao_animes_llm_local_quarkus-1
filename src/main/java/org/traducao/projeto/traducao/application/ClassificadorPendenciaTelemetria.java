@@ -87,7 +87,8 @@ public class ClassificadorPendenciaTelemetria {
         // prova que ela diz outra coisa. Sem balde próprio caíam no ECO, a causa oposta.
         if (m.contains("entidade trocada") || m.contains("locutor/narração inventado")
                 || m.contains("locutor/narracao inventado") || m.contains("desproporcional")
-                || m.contains("polaridade invertida") || m.contains("pergunta perdida")) {
+                || m.contains("polaridade invertida") || m.contains("pergunta perdida")
+                || m.contains("exemplo do prompt copiado")) {
             return CausaRaizPendencia.CONTEUDO_NAO_ANCORADO;
         }
         // O modelo falando SOBRE a tarefa vem antes do resíduo: as duas coisas apareciam com o

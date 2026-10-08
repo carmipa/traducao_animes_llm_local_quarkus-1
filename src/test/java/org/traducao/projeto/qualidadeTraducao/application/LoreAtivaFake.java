@@ -26,14 +26,34 @@ public final class LoreAtivaFake implements LoreAtivaPort {
 
     private final Set<String> termos;
     private final Set<java.util.List<String>> pares;
+    private final String lore;
 
     private LoreAtivaFake(Set<String> termos) {
         this(termos, Set.of());
     }
 
     private LoreAtivaFake(Set<String> termos, Set<java.util.List<String>> pares) {
+        this(termos, pares, LORE_NEUTRA);
+    }
+
+    private LoreAtivaFake(Set<String> termos, Set<java.util.List<String>> pares, String lore) {
         this.termos = termos;
         this.pares = pares;
+        this.lore = lore;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: cenário com o PROMPT da obra (e seus exemplos de tradução) e os termos
+     * protegidos, para provar a reprovação do exemplo do prompt copiado para outra fala.
+     * <p>INVARIANTES DO DOMÍNIO: o prompt é devolvido como veio, como a porta real faz com o prompt
+     * do {@code lore.yaml}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: não lança.
+     *
+     * @param prompt texto do prompt ativo, com os exemplos {@code "EN" fica "PT"}
+     * @param termosProtegidos termos canônicos da obra
+     */
+    public static LoreAtivaFake comPrompt(String prompt, String... termosProtegidos) {
+        return new LoreAtivaFake(Set.of(termosProtegidos), Set.of(), prompt);
     }
 
     /**
@@ -78,7 +98,7 @@ public final class LoreAtivaFake implements LoreAtivaPort {
 
     @Override
     public String obterLoreAtiva() {
-        return LORE_NEUTRA;
+        return lore;
     }
 
     @Override

@@ -214,6 +214,52 @@ class ValidadorSentidoDaFalaTest {
         org.junit.jupiter.api.Assertions.assertEquals("Não, Uraki.", comRegistro.repararPar("No, Uraki.", "Sim, Kou."));
     }
 
+    /** O trecho de exemplos do prompt do Zeta (Psyco Gundam e Four) e um exemplo de reescrita de gênero. */
+    private static final String PROMPT_ZETA = String.join("\n",
+        "- \"Psyco Gundam\" é um mobile armor gigante: \"Psyco Gundam?\" fica \"Psyco Gundam?\", \"As you wish, but"
+            + " I'll entrust the Psyco Gundam to you.\" fica \"Como quiser, mas vou confiar o Psyco Gundam a você.\", \"You"
+            + " must get out of the Psyco Gundam's cockpit! Hurry!\" fica \"Você precisa sair do cockpit do Psyco Gundam!"
+            + " Rápido!\".",
+        "- \"Four\" é o NOME dela: \"Four!\" fica \"Four!\", \"Open your eyes, Four!\" fica \"Abra os olhos, Four!\".",
+        "  \"I'm tired of this\" -> \"Não aguento mais isso\"");
+
+    private final ValidadorTraducaoService comPromptZeta = new ValidadorTraducaoService(
+        LoreAtivaFake.comPrompt(PROMPT_ZETA, "Gundam", "Four", "Kamille", "Psycommu"));
+
+    @ParameterizedTest(name = "[{index}] RUIM exemplo copiado: {0} -> {1}")
+    @DisplayName("exemplo do prompt devolvido para outra fala, com termo que o original não tem — reprova")
+    // os casos medidos nos caches do Zeta e do ZZ (08/10/2026)
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "All right, do as you wish.|Como quiser, mas vou confiar o Psyco Gundam a você.",
+        "As it turns out, I should have\\Nvisited them instead!|Como quiser, mas vou confiar\\No Psyco Gundam a você!",
+        "...through the armor of a mobile suit,\\Nlike a Newtype?|Você precisa sair do cockpit\\Ndo Psyco Gundam! Rápido!",
+        "G3?!|Psyco Gundam?",
+        "Catl?|Psyco Gundam?",
+        "Z-G...?|Psyco Gundam?",
+        "{\\i1}...sami...|Four..."
+    })
+    void exemploDoPromptCopiadoReprova(String original, String traduzido) {
+        AlucinacaoDetectadaException e = assertThrows(AlucinacaoDetectadaException.class,
+            () -> comPromptZeta.validarPar(original, traduzido));
+        assertTrue(e.getMessage().startsWith("Exemplo do prompt copiado"), e.getMessage());
+    }
+
+    @ParameterizedTest(name = "[{index}] BOM igual a exemplo: {0} -> {1}")
+    @DisplayName("A1: a mesma fala de exemplo, legítima — o próprio exemplo, termo já no original, ou sem termo da lore")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "Psyco Gundam?|Psyco Gundam?",
+        "PSYCO GUNDAM|Psyco Gundam?",
+        "The Psyco Gundam!|Psyco Gundam!",
+        "It's Four!|Four!",
+        "Number Four.|Four.",
+        "I can't take this anymore!|Não aguento mais isso!",
+        "A Gundam?!|Psyco Gundam?"
+    })
+    void falaIgualAExemploLegitimaPassa(String original, String traduzido) {
+        // a última linha é o falso negativo declarado: o original já diz "Gundam"
+        assertDoesNotThrow(() -> comPromptZeta.validarPar(original, traduzido));
+    }
+
     @Test
     @DisplayName("detector de eco: o envelope só sai quando a FONTE não citava")
     void envelopeDeAspasSoSaiQuandoAFonteNaoCitava() {
