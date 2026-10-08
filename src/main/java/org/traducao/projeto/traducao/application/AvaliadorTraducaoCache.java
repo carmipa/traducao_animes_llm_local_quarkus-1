@@ -102,8 +102,11 @@ public class AvaliadorTraducaoCache {
      * original só é reusada quando a lore manda mantê-la; caso contrário exige passar na
      * validação de resíduo.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: fala que a validação acusa como ainda não
-     * traduzida ({@link AlucinacaoDetectadaException}) devolve {@code false}.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala que a validação reprova
+     * ({@link AlucinacaoDetectadaException}) devolve {@code false}, e o log leva o MOTIVO da
+     * reprovação. Até 08/10/2026 ele dizia sempre "parece conter fala ainda não traduzida", e a
+     * prova no jar da reprovação de exemplo do prompt copiado ("Como quiser, mas vou confiar o
+     * Psyco Gundam a você." para "All right, do as you wish.") saiu atribuída a outra causa.
      */
     public boolean isCacheReaproveitavel(String original, String traduzido) {
         if (traduzido == null || traduzido.isBlank()) {
@@ -132,7 +135,7 @@ public class AvaliadorTraducaoCache {
             validador.validarPar(original, traduzido);
             return true;
         } catch (AlucinacaoDetectadaException e) {
-            log.warn("Cache ignorado porque parece conter fala ainda nao traduzida: {}", traduzido);
+            log.warn("Cache ignorado pela validacao ({}): {}", e.getMessage(), traduzido);
             return false;
         }
     }
