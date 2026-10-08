@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -323,8 +324,9 @@ public class NormalizadorAcentosComuns {
 
     /**
      * {@code que} TÔNICO — a terceira forma da classe "nunca é válida sem acento": o {@code que}
-     * imediatamente antes de {@code ?} ou {@code !} é sempre tônico em português ("O quê?!", "Por
-     * quê?", "Quê?"). Entre ele e a pontuação só podem estar espaço, tag ASS, aspas e reticências.
+     * pronome logo antes de {@code ?} ou {@code !} ("O quê?!", "Por quê?", "Quê?"). Entre ele e a
+     * pontuação só podem estar espaço, tag ASS, aspas e reticências. O padrão acha o CANDIDATO; quem
+     * decide é a palavra anterior ({@link #tonicoPelaPalavraAnterior}).
      *
      * <p>MEDIDO em 08/10/2026 pelo LanguageTool de produção sobre a legenda entregue: 579 falas
      * com {@code QUE_QUÊ} e 128 com {@code POR_QUE_PORQUE} no acervo, e nenhum corretor do
@@ -334,6 +336,23 @@ public class NormalizadorAcentosComuns {
     private static final Pattern QUE_TONICO = Pattern.compile(
         INICIO_DE_TERMO + "(que)(?=(?:\\s|\\{[^}]*}|[\"'”’»….])*[?!])",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    /**
+     * As únicas palavras que, logo antes do {@code que}, o fazem pronome tônico no acervo. Medido em
+     * 08/10/2026 chamando esta regra sobre as 219.586 falas do acervo: das 760 que ela mudaria sem
+     * filtro, 753 tinham "o que" (634), "por que" (119), "para que" (2) ou o {@code que} abrindo a
+     * frase; as 7 restantes eram conjunção ou "ter que" cortados pela pontuação — "Tenho que!",
+     * "Nós temos que!", "Quando foi que...?!", "quer dizer que...!", "aqueles que...!", "sempre tem
+     * que...?!" — e o acento as estragaria. "Mas que?" e afins ficam de fora: falso negativo
+     * declarado, preferível a acentuar conjunção.
+     */
+    private static final Set<String> ANTES_DO_QUE_TONICO = Set.of("o", "por", "para", "pra");
+
+    /** Espaço, tag ASS, quebra {@code \N} e marcador {@code [[TAGn]]} no fim do texto. */
+    private static final Pattern FIM_NEUTRO = Pattern.compile("(?:\\s|\\{[^}]*}|\\\\[Nn]|\\[\\[TAG\\d+]])+$");
+
+    /** A palavra no fim do texto. */
+    private static final Pattern ULTIMA_PALAVRA = Pattern.compile("(\\p{L}+)$");
 
     /**
      * PROPÓSITO DE NEGÓCIO: devolve o texto com os acentos repostos nas formas do dicionário.
@@ -363,8 +382,10 @@ public class NormalizadorAcentosComuns {
      * um dono, sem cópia entre fatias.
      *
      * <p>INVARIANTES DO DOMÍNIO: só troca o {@code que} que é palavra inteira (com a fronteira do
-     * ASS) e vem logo antes de {@code ?}/{@code !}; preserva a caixa ("Que?!" vira "Quê?!",
-     * "QUE?!" vira "QUÊ?!"); "Por que não?", "O que é isso?" e "porque?" não mudam.
+     * ASS), vem logo antes de {@code ?}/{@code !} E é pronome — depois de "o", "por", "para",
+     * "pra" ou abrindo a frase; preserva a caixa ("Que?!" vira "Quê?!", "QUE?!" vira "QUÊ?!");
+     * "Por que não?", "O que é isso?", "porque?" e a conjunção cortada ("Tenho que!", "foi
+     * que...?!") não mudam.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}/vazio volta como veio; texto sem o padrão
      * volta byte a byte igual; nunca lança.
@@ -376,10 +397,38 @@ public class NormalizadorAcentosComuns {
         Matcher m = QUE_TONICO.matcher(texto);
         StringBuilder sb = new StringBuilder(texto.length());
         while (m.find()) {
-            m.appendReplacement(sb, Matcher.quoteReplacement(aplicarCaixa(m.group(1), "quê")));
+            String que = m.group(1);
+            String troca = tonicoPelaPalavraAnterior(texto.substring(0, m.start(1))) ? aplicarCaixa(que, "quê") : que;
+            m.appendReplacement(sb, Matcher.quoteReplacement(troca));
         }
         m.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: decide se o {@code que} candidato é o pronome tônico pela palavra que o
+     * antecede — a única pista que separa "O que?!" (pronome) de "Tenho que!" (locução verbal) com a
+     * mesma pontuação depois.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: ignora espaço, tag, {@code \N} e marcador antes de olhar; texto
+     * vazio ou terminado em pontuação é abertura de frase ("Que?!", "Oh? Que?") e conta como
+     * tônico; terminado em palavra, só conta se a palavra estiver em {@link #ANTES_DO_QUE_TONICO};
+     * terminado em dígito não conta.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; na dúvida devolve {@code false} (não acentua).
+     */
+    private static boolean tonicoPelaPalavraAnterior(String antes) {
+        // a quebra \N é separador: sem trocá-la por espaço, "agora?\NO que?" lê a palavra "NO"
+        String semFim = FIM_NEUTRO.matcher(antes.replace("\\N", " ").replace("\\n", " ")).replaceAll("");
+        if (semFim.isEmpty()) {
+            return true;
+        }
+        char ultimo = semFim.charAt(semFim.length() - 1);
+        if (!Character.isLetterOrDigit(ultimo)) {
+            return true;
+        }
+        Matcher palavra = ULTIMA_PALAVRA.matcher(semFim);
+        return palavra.find() && ANTES_DO_QUE_TONICO.contains(palavra.group(1).toLowerCase(Locale.ROOT));
     }
 
     /**

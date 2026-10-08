@@ -193,6 +193,26 @@ class NormalizadorAcentosComunsTest {
     }
 
     @Test
+    @DisplayName("A1 do 'quê': a mesma pontuação depois de conjunção ou 'ter que' cortados não acentua")
+    void queConjuncaoCortadaNaoGanhaCircunflexo() {
+        // os 6 casos reais do acervo (08/10/2026) que a regra sem a palavra anterior estragaria
+        assertEquals("Tenho que! Tenho que!", norm.normalizar("Tenho que! Tenho que!"));
+        assertEquals("Nós temos que!", norm.normalizar("Nós temos que!"));
+        assertEquals("Quando foi que...?!", norm.normalizar("Quando foi que...?!"));
+        assertEquals("O que espera aqueles que...!", norm.normalizar("O que espera aqueles que...!"));
+        assertEquals("Por que você sempre tem que...?!", norm.normalizar("Por que você sempre tem que...?!"));
+        // a mesma fala com o pronome E a conjunção: só o pronome muda
+        assertEquals("O quê? Você quer dizer que...!", norm.normalizar("O que? Você quer dizer que...!"));
+        // o pronome continua acentuado depois de "para"/"pra", abrindo frase após pontuação e após \N
+        assertEquals("Para quê?", norm.normalizar("Para que?"));
+        assertEquals("Pra quê?!", norm.normalizar("Pra que?!"));
+        assertEquals("Oh? Quê?", norm.normalizar("Oh? Que?"));
+        assertEquals("- Quê?!", norm.normalizar("- Que?!"));
+        assertEquals("E agora?\\NO quê?", norm.normalizar("E agora?\\NO que?"));
+        assertEquals("Ele disse o\\Nquê?", norm.normalizar("Ele disse o\\Nque?"));
+    }
+
+    @Test
     @DisplayName("NAO toca palavra que ja esta certa nem nome proprio")
     void naoTocaPalavraCorreta() {
         String s = "O tenente Sera teve a ideia com apoio do pai";
