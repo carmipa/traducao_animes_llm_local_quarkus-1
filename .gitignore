@@ -73,4 +73,16 @@ backups/
 console-web.log
 
 # Anotacoes locais das sessoes de trabalho com IA: ficam so na maquina do autor (repositorio publico).
+# Vale para qualquer assistente, nao so o que estava em uso quando a linha nasceu.
 .claude/
+.gemini/
+.cursor/
+.windsurf/
+.continue/
+.aider*
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+LEITURA-REGRA*
+EPOCA-*.txt
+CONTINUIDADE-TRABALHO*
