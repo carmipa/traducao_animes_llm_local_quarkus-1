@@ -61,7 +61,7 @@ sequenceDiagram
 ```
 
 - **Dry-run primeiro, sempre**: a simulação lista cada `antes → depois` sem tocar em nada.
-- **Undo garantido sem sujar a mídia**: ao aplicar, um manifesto `kronos_undo_renomeacao_<hash>.json` é salvo em `logs/renomear-arquivos/undo/` dentro do projeto; "Reverter" o lê e desfaz os `move` (o manifesto só é apagado se a reversão terminar sem erros).
+- **Undo garantido sem sujar a mídia**: ao aplicar, um manifesto `kronos_undo_renomeacao_<hash>.json` é salvo em `logs/renomear-arquivos/undo/` dentro do projeto; "Reverter" o lê e desfaz os `move` (o manifesto só é apagado se a reversão terminar sem erros). Aplicar de novo na mesma pasta **não apaga** o desfazer anterior: ele vai para uma pilha (`kronos_undo_renomeacao_<hash>.pilha-NNNN.json`), e cada "Reverter" completo devolve o anterior — reverter duas vezes volta ao nome de antes da primeira aplicação (antes de 08/10/2026 a segunda aplicação sobrescrevia o manifesto e o nome original se perdia).
 - Conflitos (destino já existe) são **pulados com erro logado** — nunca sobrescreve.
 - Cada arquivo renomeado incrementa a métrica `arquivosSanitizados` na [Telemetria](modulo-telemetria.md).
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.renomearArquivos.domain.OperacaoRenomeacao;
+import org.traducao.projeto.renomearArquivos.domain.ResultadoRenomeacao;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.telemetria.OperacaoTelemetria;
 import org.traducao.projeto.core.presentation.web.LogStreamService;
@@ -69,6 +70,9 @@ class RenomeadorUseCaseTest {
     void tearDown() throws IOException {
         if (renomeadorUseCase != null && tempDir != null) {
             Files.deleteIfExists(renomeadorUseCase.resolverArquivoUndo(tempDir));
+            for (Path guardado : renomeadorUseCase.pilhaDeManifestos(tempDir)) {
+                Files.deleteIfExists(guardado);
+            }
         }
         Files.walk(tempDir)
             .sorted((a, b) -> b.compareTo(a))
@@ -354,6 +358,59 @@ class RenomeadorUseCaseTest {
         assertTrue(Files.exists(arquivoOriginal));
         assertFalse(Files.exists(arquivoRenomeado));
         assertFalse(Files.exists(manifestoProjeto));
+        // Controle (A1): uma aplicação só, desfeita — não sobra pilha fantasma para um segundo
+        // desfazer "voltar" a algo que nunca existiu.
+        assertTrue(renomeadorUseCase.pilhaDeManifestos(tempDir).isEmpty());
+        assertEquals("SEM_MANIFESTO", renomeadorUseCase.reverterRenomeacao(tempDir).status());
+    }
+
+    // Auditoria de 08/10/2026, R1 (real no 86 Part 2): a segunda aplicação apagava o desfazer
+    // da primeira, e o nome original de antes da primeira se perdia. Desfazer duas vezes tem de
+    // voltar ao nome original, passo a passo.
+    @Test
+    void segundaAplicacaoNaoApagaODesfazerDaPrimeira() throws IOException {
+        Path original = tempDir.resolve("[Grp] Show - 01 [1080p].mkv");
+        Path depoisDaPrimeira = tempDir.resolve("Show - S01E01.mkv");
+        Path depoisDaSegunda = tempDir.resolve("Show - S02E01.mkv");
+        Files.createFile(original);
+
+        renomeadorUseCase.aplicarRenomeacao(tempDir, "Show", 1);
+        assertTrue(Files.exists(depoisDaPrimeira));
+        renomeadorUseCase.aplicarRenomeacao(tempDir, "Show", 2);
+        assertTrue(Files.exists(depoisDaSegunda));
+
+        renomeadorUseCase.reverterRenomeacao(tempDir);
+        assertTrue(Files.exists(depoisDaPrimeira), "o primeiro desfazer volta à primeira aplicação");
+        // Estado consistente já ao fim do primeiro desfazer: o da primeira aplicação é o vigente.
+        assertTrue(Files.exists(renomeadorUseCase.resolverArquivoUndo(tempDir)));
+        assertTrue(renomeadorUseCase.pilhaDeManifestos(tempDir).isEmpty());
+
+        ResultadoRenomeacao segundo = renomeadorUseCase.reverterRenomeacao(tempDir);
+        assertTrue(Files.exists(original), "o segundo desfazer volta ao nome original: " + segundo.mensagem());
+        assertFalse(Files.exists(depoisDaPrimeira));
+
+        assertEquals("SEM_MANIFESTO", renomeadorUseCase.reverterRenomeacao(tempDir).status());
+    }
+
+    // Falha operacional: processo interrompido entre apagar o manifesto concluído e desempilhar o
+    // anterior — o vigente some e o anterior fica só na pilha. A reversão seguinte o recupera em
+    // vez de responder "não há o que desfazer".
+    @Test
+    void reversaoRecuperaODesfazerQueFicouSoNaPilha() throws IOException {
+        Path original = tempDir.resolve("[Grp] Show - 01 [1080p].mkv");
+        Files.createFile(original);
+        renomeadorUseCase.aplicarRenomeacao(tempDir, "Show", 1);
+        renomeadorUseCase.aplicarRenomeacao(tempDir, "Show", 2);
+        renomeadorUseCase.reverterRenomeacao(tempDir);
+
+        Path vigente = renomeadorUseCase.resolverArquivoUndo(tempDir);
+        Path naPilha = vigente.resolveSibling(vigente.getFileName().toString().replace(".json", ".pilha-0001.json"));
+        Files.move(vigente, naPilha);
+
+        renomeadorUseCase.reverterRenomeacao(tempDir);
+
+        assertTrue(Files.exists(original));
+        assertTrue(renomeadorUseCase.pilhaDeManifestos(tempDir).isEmpty());
     }
 
     /**

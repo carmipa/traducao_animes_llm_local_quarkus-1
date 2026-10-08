@@ -179,7 +179,9 @@ public class RenomeadorUseCase {
 
     /**
      * PROPÓSITO DE NEGÓCIO: desfaz a última aplicação conhecida para a pasta,
-     * inclusive retomando uma reversão que tenha sido interrompida.
+     * inclusive retomando uma reversão que tenha sido interrompida. Desfeita por
+     * inteiro, a aplicação anterior volta a ser a desfazível: desfazer de novo
+     * volta mais um passo, até o nome original.
      *
      * <p>INVARIANTES DO DOMÍNIO: o manifesto deve pertencer à mesma pasta; itens
      * já revertidos são reconhecidos; conflitos nunca sobrescrevem originais.
@@ -217,7 +219,19 @@ public class RenomeadorUseCase {
         }
 
         Path arquivoUndo = resolverArquivoUndo(pasta);
+        // O manifesto da aplicação ANTERIOR é empilhado antes de o desta ser gravado. Sem isso a
+        // segunda aplicação o sobrescrevia, e o nome original de antes da primeira se perdia
+        // para sempre (auditoria de 08/10/2026, R1; real no 86 Part 2). Falha ao empilhar
+        // aborta tudo: perder o desfazer anterior é pior que não renomear.
+        if (!empilharManifestoVigente(pasta)) {
+            String mensagem = "Aplicação abortada: não foi possível preservar o desfazer da aplicação anterior; nenhuma mídia foi alterada.";
+            logStream.publicarLog("renomear-arquivos", "[ERRO FATAL] " + mensagem);
+            registrarTelemetria("Renomear Arquivos", "FALHOU", inicioMs, plano, 0, 1);
+            publicarFinal("Renomear Arquivos (aplicação)", inicioMs, "FALHOU", 0, 1);
+            return resultado("APLICACAO", "FALHOU", plano, 0, 1, plano.itens().size(), mensagem, List.of());
+        }
         if (!salvarManifesto(pasta, plano.itens())) {
+            desempilharManifestoAnterior(pasta);
             String mensagem = "Aplicação abortada: não foi possível preparar o manifesto de reversão; nenhuma mídia foi alterada.";
             logStream.publicarLog("renomear-arquivos", "[ERRO FATAL] " + mensagem);
             registrarTelemetria("Renomear Arquivos", "FALHOU", inicioMs, plano, 0, 1);
@@ -254,6 +268,7 @@ public class RenomeadorUseCase {
 
         if (aplicados.isEmpty()) {
             apagarManifesto(arquivoUndo);
+            desempilharManifestoAnterior(pasta);
         } else if (!salvarManifesto(pasta, aplicados)) {
             logStream.publicarLog("renomear-arquivos",
                 "[ATENÇÃO] Não foi possível compactar o manifesto; o plano preventivo completo foi preservado e continua reversível.");
@@ -285,6 +300,11 @@ public class RenomeadorUseCase {
         long inicioMs = System.currentTimeMillis();
         Path arquivoUndo = resolverArquivoUndo(pasta);
         logStream.publicarLog("renomear-arquivos", "Iniciando REVERSÃO segura em: " + pasta);
+        if (!Files.isRegularFile(arquivoUndo)) {
+            // Processo interrompido entre apagar o manifesto concluído e desempilhar o anterior:
+            // a pilha ainda guarda o desfazer — recupera em vez de dizer que não há o que desfazer.
+            desempilharManifestoAnterior(pasta);
+        }
         if (!Files.isRegularFile(arquivoUndo)) {
             String mensagem = "Manifesto de reversão não encontrado para esta pasta.";
             publicarFinal("Renomear Arquivos (reversão)", inicioMs, "SEM_MANIFESTO", 0, 0);
@@ -340,6 +360,10 @@ public class RenomeadorUseCase {
         if (pendentes.isEmpty()) {
             apagarManifesto(arquivoUndo);
             logStream.publicarLog("renomear-arquivos", "Manifesto removido: todos os itens estão nos nomes originais.");
+            if (desempilharManifestoAnterior(pasta)) {
+                logStream.publicarLog("renomear-arquivos",
+                    "A aplicação anterior a esta volta a poder ser desfeita: desfaça de novo para voltar mais um passo.");
+            }
         } else if (!salvarManifesto(pasta, pendentes)) {
             logStream.publicarLog("renomear-arquivos", "[ATENÇÃO] Falha ao atualizar pendências; o manifesto anterior foi preservado.");
         }
@@ -771,6 +795,103 @@ public class RenomeadorUseCase {
      */
     Path resolverArquivoUndo(Path pasta) {
         return PASTA_UNDO_PROJETO.resolve(PREFIXO_ARQUIVO_UNDO + hashPasta(pasta) + ".json");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: lista os manifestos de aplicações ANTERIORES da pasta, guardados para
+     * que desfazer repetido volte passo a passo ao nome original — até 08/10/2026 só o da última
+     * aplicação existia, e a segunda aplicação apagava o desfazer da primeira (auditoria R1).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mesmo diretório e mesmo hash do manifesto vigente, sufixo
+     * {@code .pilha-NNNN.json}; ordem crescente = mais antigo primeiro; o topo é o último.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: diretório ausente ou ilegível devolve lista vazia.
+     */
+    List<Path> pilhaDeManifestos(Path pasta) {
+        String prefixo = PREFIXO_ARQUIVO_UNDO + hashPasta(pasta) + ".pilha-";
+        if (!Files.isDirectory(PASTA_UNDO_PROJETO)) {
+            return List.of();
+        }
+        try (Stream<Path> arquivos = Files.list(PASTA_UNDO_PROJETO)) {
+            return arquivos
+                .filter(p -> {
+                    String nome = p.getFileName().toString();
+                    return nome.startsWith(prefixo) && nome.endsWith(".json");
+                })
+                .sorted()
+                .toList();
+        } catch (IOException e) {
+            log.warn("Não foi possível listar a pilha de desfazer de {}: {}", pasta, e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: guarda o manifesto vigente da pasta na pilha antes de uma nova
+     * aplicação gravar o dela.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: número sequencial acima do topo (zero à esquerda, para a ordem
+     * de nome ser a ordem cronológica); movimento no mesmo diretório, sem cópia.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve {@code false} sem apagar nada — quem chama
+     * aborta a aplicação. Sem manifesto vigente, não há o que empilhar: {@code true}.
+     */
+    private boolean empilharManifestoVigente(Path pasta) {
+        Path vigente = resolverArquivoUndo(pasta);
+        if (!Files.isRegularFile(vigente)) {
+            return true;
+        }
+        List<Path> pilha = pilhaDeManifestos(pasta);
+        int proximo = pilha.isEmpty() ? 1 : numeroNaPilha(pilha.get(pilha.size() - 1)) + 1;
+        Path destino = PASTA_UNDO_PROJETO.resolve(
+            PREFIXO_ARQUIVO_UNDO + hashPasta(pasta) + String.format(Locale.ROOT, ".pilha-%04d.json", proximo));
+        try {
+            Files.move(vigente, destino);
+            logStream.publicarLog("renomear-arquivos",
+                "Desfazer da aplicação anterior guardado (" + (pilha.size() + 1) + " na pilha).");
+            return true;
+        } catch (IOException e) {
+            log.error("Falha ao empilhar o manifesto de {} em {}", pasta, destino, e);
+            logStream.publicarLog("renomear-arquivos", "[ERRO] Falha ao guardar o desfazer anterior: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve ao lugar de manifesto vigente o desfazer da aplicação
+     * anterior, quando a atual foi toda desfeita (ou nem chegou a mover nada).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só age sem manifesto vigente — nunca sobrescreve um.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: falha de movimento fica registrada e o manifesto
+     * continua na pilha, de onde a próxima reversão o recupera; devolve {@code false}.
+     */
+    private boolean desempilharManifestoAnterior(Path pasta) {
+        Path vigente = resolverArquivoUndo(pasta);
+        List<Path> pilha = pilhaDeManifestos(pasta);
+        if (pilha.isEmpty() || Files.exists(vigente)) {
+            return false;
+        }
+        Path topo = pilha.get(pilha.size() - 1);
+        try {
+            Files.move(topo, vigente);
+            return true;
+        } catch (IOException e) {
+            log.error("Falha ao desempilhar {} para {}", topo, vigente, e);
+            logStream.publicarLog("renomear-arquivos",
+                "[AVISO] O desfazer anterior continua guardado na pilha e volta na próxima reversão: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static int numeroNaPilha(Path arquivo) {
+        String nome = arquivo.getFileName().toString();
+        String numero = nome.substring(nome.lastIndexOf(".pilha-") + ".pilha-".length(), nome.length() - ".json".length());
+        try {
+            return Integer.parseInt(numero);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /**
