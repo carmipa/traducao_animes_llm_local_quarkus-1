@@ -87,7 +87,7 @@ sequenceDiagram
 <nomeOriginalDoVideoSemExtensao>_Track<idDaFaixa>.<extensão>
 ```
 
-Exemplo: `Episodio01_Track3.ass`. A pasta de saída padrão é `<pastaVideos>/legendas_extraidas_<formato>/` — uma pasta **plana** (não replica subpastas). Se a varredura recursiva encontrar dois vídeos com o **mesmo nome** em subpastas diferentes (ex.: `Season01/Episodio01.mkv` e `Season02/Episodio01.mkv`), o segundo sobrescreve o arquivo extraído do primeiro — nomeie os episódios de forma única entre temporadas, ou extraia temporada por temporada em pastas de saída separadas.
+Exemplo: `Episodio01_Track3.ass`. A pasta de saída padrão é `<pastaVideos>/legendas_extraidas_<formato>/` — uma pasta **plana** (não replica subpastas). Se a varredura recursiva encontrar dois vídeos com o **mesmo nome** em subpastas diferentes (ex.: `Season01/Episodio01.mkv` e `Season02/Episodio01.mkv`), o segundo **não é extraído**: o console marca `[COLISÃO]` e conta como falha (antes de 08/10/2026 ele aparecia como "Já existe (preservado)", que soava como reexecução inofensiva). Nomeie os episódios de forma única entre temporadas, ou extraia temporada por temporada em pastas de saída separadas.
 
 ---
 

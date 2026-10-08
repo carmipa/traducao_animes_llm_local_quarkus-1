@@ -133,7 +133,12 @@ public class ExtracaoLegendaController {
                     if (rel.getFalhasInesperadas() > 0) {
                         System.out.println("\u001B[31m  • Falhas de Processamento     : " + rel.getFalhasInesperadas() + "\u001B[0m");
                     }
-                    System.out.println("\u001B[33m  💡 Dica: Verifique se o vídeo possui legendas em outro formato (ex: PGS ou SRT) ou se a legenda está queimada na imagem (Hardsub).\u001B[0m");
+                    if (rel.getSemFaixaComTextoNaoSuportado() > 0) {
+                        System.out.println("\u001B[33m  💡 " + rel.getSemFaixaComTextoNaoSuportado() + " vídeo(s) TÊM legenda de texto, "
+                            + "mas em formato que a extração ainda não converte (mov_text do MP4, WebVTT) — não é hardsub.\u001B[0m");
+                    } else {
+                        System.out.println("\u001B[33m  💡 Dica: Verifique se o vídeo possui legendas em outro formato (ex: PGS ou SRT) ou se a legenda está queimada na imagem (Hardsub).\u001B[0m");
+                    }
                     System.out.println("\u001B[33m========================================================================\n\u001B[0m");
                     log.warn("[ALERTA] Extração finalizada sem faixas geradas. 0 de {} vídeos possuíam faixa {}", rel.getArquivosDetectados(), formato.name());
                 } else {

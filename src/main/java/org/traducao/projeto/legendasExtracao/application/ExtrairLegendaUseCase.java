@@ -96,6 +96,9 @@ public class ExtrairLegendaUseCase {
 
         int total = videos.size();
         int indice = 0;
+        // Destino -> vídeo que o gerou NESTA execução: a saída é plana, e dois vídeos de mesmo nome
+        // em subpastas (S01/Ep01 e S02/Ep01) dão o mesmo destino (auditoria de 08/10/2026, E6).
+        java.util.Map<Path, String> geradoPor = new java.util.HashMap<>();
         for (Path video : videos) {
             // Parada do operador (Parar/Sair): o adaptador religa a flag de interrupção depois de
             // converter o InterruptedException. Sem conferir aqui, cada vídeo restante falhava na
@@ -124,12 +127,22 @@ public class ExtrairLegendaUseCase {
                 if (faixaAlvo.isEmpty()) {
                     relatorio.registrarSemLegenda();
                     relatorio.adicionarItem(ItemExtracao.semFaixa(nomeVideo, formato.name()));
-                    System.out.printf("   [SEM FAIXA %s] %s%n", formato.name(), nomeVideo);
+                    Optional<FaixaLegenda> textoNaoConvertido = faixas.stream()
+                        .filter(ExtrairLegendaUseCase::ehTextoQueAExtracaoNaoConverte).findFirst();
+                    if (textoNaoConvertido.isPresent()) {
+                        relatorio.registrarSemFaixaComTextoNaoSuportado();
+                        System.out.printf("   [SEM FAIXA %s] %s — há legenda de TEXTO em %s, formato que a extração "
+                            + "ainda não converte (não é hardsub)%n", formato.name(), nomeVideo,
+                            textoNaoConvertido.get().codec());
+                    } else {
+                        System.out.printf("   [SEM FAIXA %s] %s%n", formato.name(), nomeVideo);
+                    }
                     log.warn("Nenhuma faixa {} encontrada no vídeo: {}", formato, nomeVideo);
                     continue;
                 }
 
-                extrairFaixaSelecionada(adaptador, video, nomeVideo, faixaAlvo.get(), formato, pastaSaida, relatorio);
+                extrairFaixaSelecionada(adaptador, video, nomeVideo, faixaAlvo.get(), formato, pastaSaida, relatorio,
+                    geradoPor, pastaVideos.relativize(video).toString());
             } catch (ExtracaoTimeoutException e) {
                 relatorio.registrarTimeout();
                 relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), null,
@@ -181,6 +194,23 @@ public class ExtrairLegendaUseCase {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: reconhece legenda de TEXTO num codec que a extração ainda não converte,
+     * para que o vídeo sem faixa do formato pedido não seja apresentado como "hardsub" quando
+     * tem legenda.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mov_text/tx3g (MP4) e WebVTT/wvtt, olhando codec e codec id sem
+     * diferenciar maiúsculas. Não decide extração — só a mensagem.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: codec nulo conta como vazio; nunca lança.
+     */
+    static boolean ehTextoQueAExtracaoNaoConverte(FaixaLegenda faixa) {
+        String c = ((faixa.codec() == null ? "" : faixa.codec()) + " "
+            + (faixa.codecId() == null ? "" : faixa.codecId())).toLowerCase(java.util.Locale.ROOT);
+        return c.contains("mov_text") || c.contains("mov text") || c.contains("tx3g")
+            || c.contains("webvtt") || c.contains("wvtt");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: encerra o lote quando o operador pede a parada, registrando os vídeos
      * restantes como NÃO PROCESSADOS — não como falha — para que relatório, telemetria e banner
      * digam o que aconteceu.
@@ -214,11 +244,26 @@ public class ExtrairLegendaUseCase {
      */
     private void extrairFaixaSelecionada(
             ExtratorVideoPort adaptador, Path video, String nomeVideo, FaixaLegenda faixa,
-            FormatoLegenda formato, Path pastaSaida, RelatorioExtracao relatorio) {
+            FormatoLegenda formato, Path pastaSaida, RelatorioExtracao relatorio,
+            java.util.Map<Path, String> geradoPor, String videoRelativo) {
 
         String nomeBase = nomeVideo.replaceFirst("[.][^.]+$", "");
         String arquivoSaida = nomeBase + "_Track" + faixa.id() + "." + formato.getExtensaoSaida();
         Path caminhoFinal = pastaSaida.resolve(arquivoSaida);
+
+        String origemNestaExecucao = geradoPor.get(caminhoFinal);
+        if (origemNestaExecucao != null) {
+            // O destino foi gerado AGORA por outro vídeo de mesmo nome: não é "já existia, preservado"
+            // (o que soa como reexecução inofensiva) — é uma legenda que NÃO foi extraída.
+            relatorio.registrarFalha();
+            relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), faixa.id(),
+                "Colisão: " + arquivoSaida + " já foi gerado nesta execução a partir de " + origemNestaExecucao));
+            System.out.printf("   [COLISÃO] %s -> %s já foi gerado nesta execução por %s; a legenda deste vídeo "
+                + "NÃO foi extraída. Extraia cada temporada numa pasta de saída própria.%n",
+                videoRelativo, arquivoSaida, origemNestaExecucao);
+            log.warn("Colisão de nome na saída plana: {} e {} geram {}", origemNestaExecucao, videoRelativo, arquivoSaida);
+            return;
+        }
 
         if (Files.exists(caminhoFinal)) {
             relatorio.registrarJaExiste();
@@ -236,6 +281,7 @@ public class ExtrairLegendaUseCase {
             ValidadorSaidaExtracao.validar(caminhoTemp, formato);
             moverParaFinal(caminhoTemp, caminhoFinal);
             relatorio.registrarExtraido();
+            geradoPor.put(caminhoFinal, videoRelativo);
             relatorio.adicionarItem(ItemExtracao.sucesso(nomeVideo, formato.name(), faixa.id(), arquivoSaida));
             System.out.printf("   [OK] %s -> %s (Track %d)%n", nomeVideo, arquivoSaida, faixa.id());
         } catch (ExtracaoTimeoutException e) {

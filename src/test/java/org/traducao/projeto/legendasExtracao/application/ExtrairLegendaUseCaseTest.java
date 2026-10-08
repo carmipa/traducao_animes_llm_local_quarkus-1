@@ -167,6 +167,44 @@ class ExtrairLegendaUseCaseTest {
         assertEquals(4, rel.getLegendasExtraidas(), "o lote segue depois de uma falha real");
     }
 
+    /**
+     * E6 da auditoria de 08/10/2026 (reproduzido): S01/Ep01.mkv e S02/Ep01.mkv dão o mesmo destino
+     * na saída plana; o segundo aparecia como "Já existe (preservado)" e o lote dizia SUCESSO 1 de 2.
+     * A colisão desta execução é falha nomeada. (O arquivo que já existia ANTES continua sendo
+     * "Já existe" — controle em naoSobrescreveArquivoExistente.)
+     */
+    @Test
+    void colisaoDeNomeNaMesmaExecucaoEFalhaNomeada(@TempDir Path base) throws IOException {
+        Path videos = Files.createDirectory(base.resolve("serie"));
+        Files.createDirectories(videos.resolve("S01"));
+        Files.createDirectories(videos.resolve("S02"));
+        Files.writeString(videos.resolve("S01").resolve("Ep01.mkv"), "fake");
+        Files.writeString(videos.resolve("S02").resolve("Ep01.mkv"), "fake");
+
+        RelatorioExtracao rel = useCase(List.of(faixaAss()), Modo.SUCESSO, new TelemetriaSpy())
+            .executar(videos, base.resolve("out"), FormatoLegenda.ASS);
+
+        assertEquals(1, rel.getLegendasExtraidas());
+        assertEquals(0, rel.getArquivosJaExistentes(), "a colisao nao pode aparecer como 'ja existe (preservado)'");
+        assertEquals(1, rel.getFalhasInesperadas(), "a legenda do 2o video NAO foi extraida: e falha");
+        assertTrue(rel.getItens().stream().anyMatch(i -> i.detalhe() != null && i.detalhe().startsWith("Colisão")),
+            "o item tem de nomear a colisao: " + rel.getItens());
+    }
+
+    /** E5: vídeo com legenda de TEXTO em mov_text não é "sem legenda/hardsub". Controle: só PGS (imagem). */
+    @Test
+    void legendaDeTextoNaoConvertidaEContadaAParte(@TempDir Path base) throws IOException {
+        FaixaLegenda movText = new FaixaLegenda(2, "subtitle", "mov_text", "mov_text", "eng", "", true, false);
+        RelatorioExtracao rel = useCase(List.of(movText), Modo.SUCESSO, new TelemetriaSpy())
+            .executar(prepararVideo(base), base.resolve("out"), FormatoLegenda.ASS);
+        assertEquals(1, rel.getArquivosSemLegenda());
+        assertEquals(1, rel.getSemFaixaComTextoNaoSuportado(), "mov_text e legenda de texto, nao hardsub");
+
+        RelatorioExtracao controle = useCase(List.of(faixaPgs()), Modo.SUCESSO, new TelemetriaSpy())
+            .executar(prepararVideos(base, 1), base.resolve("out2"), FormatoLegenda.ASS);
+        assertEquals(0, controle.getSemFaixaComTextoNaoSuportado(), "CONTROLE: PGS e imagem, nao conta como texto");
+    }
+
     @Test
     void extraiValidaEMoveParaFinal(@TempDir Path base) throws IOException {
         Path videos = prepararVideo(base);

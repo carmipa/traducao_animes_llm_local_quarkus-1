@@ -28,6 +28,7 @@ public class RelatorioExtracao {
     private int falhasInesperadas = 0;
     private int timeouts = 0;
     private boolean interrompidoPeloOperador = false;
+    private int semFaixaComTextoNaoSuportado = 0;
     private int naoProcessadosPorParada = 0;
 
     private final List<ItemExtracao> itens = new ArrayList<>();
@@ -96,6 +97,18 @@ public class RelatorioExtracao {
         this.interrompidoPeloOperador = true;
         this.naoProcessadosPorParada = Math.max(0, naoProcessados);
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: conta os vídeos sem faixa do formato pedido que TÊM legenda de texto
+     * num formato que a extração não converte (mov_text do MP4, WebVTT) — para a tela não mandar
+     * procurar "hardsub" onde há legenda (auditoria de 08/10/2026, E5).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: subconjunto de {@code arquivosSemLegenda}; não é falha.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: só incrementa; nunca lança.
+     */
+    public void registrarSemFaixaComTextoNaoSuportado() { semFaixaComTextoNaoSuportado++; }
+    public int getSemFaixaComTextoNaoSuportado() { return semFaixaComTextoNaoSuportado; }
 
     public boolean isInterrompidoPeloOperador() { return interrompidoPeloOperador; }
     public int getNaoProcessadosPorParada() { return naoProcessadosPorParada; }
