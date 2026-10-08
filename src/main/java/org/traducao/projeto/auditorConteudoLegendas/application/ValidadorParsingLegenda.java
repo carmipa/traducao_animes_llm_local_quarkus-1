@@ -1,7 +1,9 @@
 package org.traducao.projeto.auditorConteudoLegendas.application;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
+import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +19,9 @@ import java.util.List;
  * auditada era silenciosamente descartada e o arquivo saía "limpo".
  *
  * <p>INVARIANTES DO DOMÍNIO: é 100% leitura e nunca altera os leitores de legenda
- * compartilhados pelo pipeline; reporta apenas o que só é visível no texto cru.
+ * compartilhados pelo pipeline; reporta apenas o que só é visível no texto cru, decodificado
+ * pelo MESMO caminho do leitor de produção (senão acusa defeito num arquivo que o pipeline lê
+ * bem — o .ass UTF-16 virava "sem [Events]").
  * A validação de sintaxe de tempo fica com {@code RegraTimestampInvalido}.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ilegível gera uma anomalia crítica em
@@ -25,6 +29,19 @@ import java.util.List;
  */
 @ApplicationScoped
 public class ValidadorParsingLegenda {
+
+    private final LeitorLegendaAss leitorLegendaAss;
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: recebe o leitor ASS de produção para decodificar o arquivo cru do
+     * mesmo jeito que o pipeline — o validador CONSULTA a decodificação, não a copia.
+     * <p>INVARIANTES DO DOMÍNIO: dependência obrigatória.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: o contêiner de injeção falha na inicialização sem ela.
+     */
+    @Inject
+    public ValidadorParsingLegenda(LeitorLegendaAss leitorLegendaAss) {
+        this.leitorLegendaAss = leitorLegendaAss;
+    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: devolve as anomalias de parsing do arquivo indicado.
@@ -36,7 +53,7 @@ public class ValidadorParsingLegenda {
         String prefixo = papel == null || papel.isBlank() ? "" : "[" + papel + "] ";
         String conteudo;
         try {
-            conteudo = lerBruto(arquivo);
+            conteudo = lerBruto(arquivo, formato);
         } catch (IOException e) {
             return List.of(new AnomaliaConteudo(AnomaliaConteudo.TipoSeveridade.CRITICAL,
                 getNome(), prefixo + "Arquivo não pôde ser lido para validação de parsing: " + e.getMessage(),
@@ -178,7 +195,14 @@ public class ValidadorParsingLegenda {
         return limpa.length() <= 80 ? limpa : limpa.substring(0, 80) + "…";
     }
 
-    private String lerBruto(Path arquivo) throws IOException {
+    /**
+     * ASS/SSA: a decodificação do leitor de produção (UTF-16 pelo BOM incluso). SRT: UTF-8, como
+     * o {@code LeitorLegendaSrt}, que não conhece outro encoding.
+     */
+    private String lerBruto(Path arquivo, String formato) throws IOException {
+        if ("ASS".equals(formato) || "SSA".equals(formato)) {
+            return leitorLegendaAss.lerTexto(arquivo);
+        }
         byte[] bytes = Files.readAllBytes(arquivo);
         try {
             return new String(bytes, StandardCharsets.UTF_8);

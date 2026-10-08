@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
+import org.traducao.projeto.auditorConteudoLegendas.domain.AuditoriaException;
 import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
 
@@ -12,8 +13,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -338,6 +341,41 @@ class AuditorConteudoIntegridadeTest {
         RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.TRADUZIDO, null, umaFala);
 
         assertTrue(r.isLimpo(), r.getAnomalias().toString());
+    }
+
+    private Path assUtf16(Path dir, String nome, String conteudo) throws IOException {
+        Path p = dir.resolve(nome);
+        Files.write(p, ("﻿" + conteudo).getBytes(StandardCharsets.UTF_16LE));
+        return p;
+    }
+
+    // 20 — auditoria de 08/10/2026, A5: .ass em UTF-16 (comum em BD antigo) que a produção lê
+    // sem erro não pode ser acusado de "sem [Events]" pela validação de parsing.
+    @Test
+    void assUtf16LegivelNaoEAcusadoDeSemEvents(@TempDir Path dir) throws IOException {
+        Path a = assUtf16(dir, "utf16.ass", CABECALHO + dlg("0:00:01.00", "0:00:03.00", "Olá") + "\n");
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.ORIGINAL, a, null);
+
+        assertFalse(temDescricao(r, "sem a seção [Events]"), r.getAnomalias().toString());
+        assertTrue(r.isLimpo(), r.getAnomalias().toString());
+    }
+
+    // 21 — fronteira (A1): o defeito real continua recusado, no MESMO encoding e em UTF-8. Quem
+    // recusa um .ass sem [Events] é o leitor de produção, antes do validador: a auditoria falha
+    // alto em vez de devolver relatório.
+    @Test
+    void assSemEventsContinuaRecusadoEmQualquerEncoding(@TempDir Path dir) throws IOException {
+        String semEvents = "[Script Info]\nScriptType: v4.00+\n\n[V4+ Styles]\n";
+        Path utf16 = assUtf16(dir, "sem-utf16.ass", semEvents);
+        Path utf8 = dir.resolve("sem-utf8.ass");
+        Files.writeString(utf8, semEvents, StandardCharsets.UTF_8);
+
+        for (Path p : List.of(utf16, utf8)) {
+            AuditoriaException e = assertThrows(AuditoriaException.class,
+                () -> useCase.auditar(ModoAuditoria.ORIGINAL, p, null), p.getFileName().toString());
+            assertTrue(e.getMessage().contains("[Events]"), e.getMessage());
+        }
     }
 
     // 14 —

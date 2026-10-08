@@ -41,6 +41,20 @@ public class LeitorLegendaAss {
 
     private static final char BOM = '﻿';
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega o texto do arquivo decodificado EXATAMENTE como
+     * {@link #ler(Path)} o decodifica, para quem precisa examinar o texto cru (a validação de
+     * parsing da auditoria) sem reimplementar a detecção de encoding. Até 08/10/2026 a
+     * auditoria lia sempre como UTF-8 e acusava "sem [Events]" num .ass UTF-16 que a produção
+     * lê sem erro (auditoria de 08/10/2026, A5).
+     * <p>INVARIANTES DO DOMÍNIO: mesma decodificação de {@code ler}: UTF-16 pelo BOM, UTF-8
+     * estrito, Windows-1252 como último recurso; o BOM pode vir no primeiro caractere.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura propaga {@link IOException}.
+     */
+    public String lerTexto(Path arquivo) throws IOException {
+        return decodificar(Files.readAllBytes(arquivo), arquivo);
+    }
+
     public DocumentoLegenda ler(Path arquivo) {
         String conteudo;
         try {
