@@ -122,12 +122,41 @@ public class GuardaCaminhoEntrada {
      * @param caminho o texto exatamente como veio da interface
      */
     public Optional<Recusa> conferirDiretorio(String rotulo, String caminho) {
+        return conferir(rotulo, caminho, false);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesma recusa na porta, para as telas que aceitam PASTA OU ARQUIVO de
+     * vídeo (a 1.1 Análise de Mídia promete os dois na tela, na documentação e no MCP).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: aceita diretório existente ou arquivo comum existente; tudo o
+     * mais é recusado com o mesmo motivo de {@link #conferirDiretorio(String, String)}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve a {@link Recusa}; nunca lança.
+     */
+    public Optional<Recusa> conferirDiretorioOuArquivo(String rotulo, String caminho) {
+        return conferir(rotulo, caminho, true);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: regra única por trás das duas portas públicas — recusa caminho vazio,
+     * inválido ou inexistente antes do enfileiramento.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: aspas envolventes saem antes de validar; arquivo só é aceito
+     * quando {@code aceitaArquivo}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: devolve a {@link Recusa} com motivo e mensagem; nunca lança.
+     */
+    private Optional<Recusa> conferir(String rotulo, String caminho, boolean aceitaArquivo) {
         if (caminho == null || caminho.isBlank()) {
             return Optional.of(new Recusa(Motivo.NAO_INFORMADO,
                 rotulo + " não foi informada."));
         }
 
-        String limpo = caminho.trim();
+        // O "Copiar como caminho" do Explorer põe aspas; quem consome o caminho depois
+        // (PipelineWebSupport.normalizarCaminho) já as tira, mas a guarda validava o texto
+        // com aspas e recusava como "caminho inválido" (auditoria de 08/10/2026, achado E7).
+        String limpo = semAspasEnvolventes(caminho.trim());
         Path alvo;
         try {
             alvo = Path.of(limpo);
@@ -139,12 +168,35 @@ public class GuardaCaminhoEntrada {
         if (Files.isDirectory(alvo)) {
             return Optional.empty();
         }
+        if (aceitaArquivo && Files.isRegularFile(alvo)) {
+            return Optional.empty();
+        }
         if (Files.exists(alvo)) {
             return Optional.of(new Recusa(Motivo.NAO_E_DIRETORIO,
                 rotulo + ": " + limpo + " existe, mas é um arquivo. Informe a PASTA que o contém."));
         }
         return Optional.of(new Recusa(Motivo.NAO_ENCONTRADO,
             rotulo + ": a pasta " + limpo + " não existe" + orientacao(limpo) + "."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: tira o par de aspas que envolve o caminho inteiro, como o Explorer
+     * do Windows entrega ao copiar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só remove quando a MESMA aspa (dupla ou simples) abre e fecha o
+     * texto; aspas no meio do caminho ficam, e o caminho continua sendo recusado se for inválido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto curto demais ou sem o par devolve o próprio texto.
+     */
+    static String semAspasEnvolventes(String texto) {
+        if (texto.length() >= 2) {
+            char primeiro = texto.charAt(0);
+            char ultimo = texto.charAt(texto.length() - 1);
+            if ((primeiro == '"' || primeiro == '\'') && primeiro == ultimo) {
+                return texto.substring(1, texto.length() - 1).trim();
+            }
+        }
+        return texto;
     }
 
     /**

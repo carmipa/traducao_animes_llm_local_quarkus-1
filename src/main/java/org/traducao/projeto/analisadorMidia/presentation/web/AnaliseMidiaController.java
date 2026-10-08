@@ -79,7 +79,7 @@ public class AnaliseMidiaController {
 
         // ANTES do submeter: depois da fila a resposta já saiu como "iniciada" e a recusa só
         // viveria no log. A checagem existente acontece DENTRO do job — tarde demais para a tela.
-        var recusa = guardaCaminho.conferirDiretorio("A pasta de mídia de entrada", req.entrada());
+        var recusa = guardaCaminho.conferirDiretorioOuArquivo("A pasta ou arquivo de mídia de entrada", req.entrada());
         if (recusa.isPresent()) {
             return ResponseEntity.badRequest().body(new RespostaPadrao(recusa.get().mensagem()));
         }
