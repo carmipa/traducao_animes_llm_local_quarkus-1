@@ -2,6 +2,7 @@ package org.traducao.projeto.revisaoConcordancia.application;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.core.texto.FronteiraTermoAss;
+import org.traducao.projeto.qualidadeTraducao.application.NormalizadorAcentosComuns;
 
 import java.util.List;
 import java.util.Optional;
@@ -284,6 +285,10 @@ public class CorretorAcentoPorPadraoService {
         for (Regra regra : REGRAS) {
             atual = aplicar(atual, regra);
         }
+        // O "que" tônico antes de ?/! tem dono no peer de qualidade (a 2.1 o aplica na fala nova);
+        // aqui a mesma regra alcança o acervo já gravado — 579 "O que?!" e 128 "Por que?" medidos
+        // em 08/10/2026 que nenhum elo tocava. Chamada, não cópia.
+        atual = NormalizadorAcentosComuns.acentuarQueTonico(atual);
         return atual.equals(texto) ? Optional.empty() : Optional.of(atual);
     }
 

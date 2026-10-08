@@ -322,6 +322,20 @@ public class NormalizadorAcentosComuns {
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     /**
+     * {@code que} TÔNICO — a terceira forma da classe "nunca é válida sem acento": o {@code que}
+     * imediatamente antes de {@code ?} ou {@code !} é sempre tônico em português ("O quê?!", "Por
+     * quê?", "Quê?"). Entre ele e a pontuação só podem estar espaço, tag ASS, aspas e reticências.
+     *
+     * <p>MEDIDO em 08/10/2026 pelo LanguageTool de produção sobre a legenda entregue: 579 falas
+     * com {@code QUE_QUÊ} e 128 com {@code POR_QUE_PORQUE} no acervo, e nenhum corretor do
+     * pipeline as tocava. {@code porque?} (uma palavra) fica de fora pela fronteira — a forma
+     * certa seria "por quê?", duas palavras, e isso não é reposição de acento.
+     */
+    private static final Pattern QUE_TONICO = Pattern.compile(
+        INICIO_DE_TERMO + "(que)(?=(?:\\s|\\{[^}]*}|[\"'”’»….])*[?!])",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    /**
      * PROPÓSITO DE NEGÓCIO: devolve o texto com os acentos repostos nas formas do dicionário.
      * <p>INVARIANTES DO DOMÍNIO: só troca formas do dicionário curado, por fronteira de palavra,
      * preservando a caixa; nada mais é tocado.
@@ -339,7 +353,33 @@ public class NormalizadorAcentosComuns {
             m.appendReplacement(sb, Matcher.quoteReplacement(aplicarCaixa(achado, base)));
         }
         m.appendTail(sb);
-        return aplicarTerminacaoCao(sb.toString());
+        return acentuarQueTonico(aplicarTerminacaoCao(sb.toString()));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: repõe o circunflexo do {@code que} tônico — "O que?!" vira "O quê?!",
+     * "Por que?" vira "Por quê?". Pública e estática porque é a MESMA regra para a fala recém
+     * traduzida (via {@link #normalizar}) e para a revisão do acervo já gravado (3.3): uma regra,
+     * um dono, sem cópia entre fatias.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só troca o {@code que} que é palavra inteira (com a fronteira do
+     * ASS) e vem logo antes de {@code ?}/{@code !}; preserva a caixa ("Que?!" vira "Quê?!",
+     * "QUE?!" vira "QUÊ?!"); "Por que não?", "O que é isso?" e "porque?" não mudam.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code null}/vazio volta como veio; texto sem o padrão
+     * volta byte a byte igual; nunca lança.
+     */
+    public static String acentuarQueTonico(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return texto;
+        }
+        Matcher m = QUE_TONICO.matcher(texto);
+        StringBuilder sb = new StringBuilder(texto.length());
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement(aplicarCaixa(m.group(1), "quê")));
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     /**

@@ -280,4 +280,15 @@ class CorretorAcentoPorPadraoServiceTest {
         assertEquals(Optional.empty(), corretor.corrigir("   "));
         assertEquals(Optional.empty(), corretor.corrigir("Uma fala perfeitamente correta."));
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a 3.3 alcança o "que" tônico do acervo já gravado chamando a regra do
+     * peer de qualidade (08/10/2026) — não uma cópia dela. "Por que não?" é o controle de mesmo sinal.
+     */
+    @Test
+    void queTonicoDoAcervoGanhaCircunflexoPelaRegraDoPeer() {
+        assertEquals(Optional.of("O quê?! Você acabou falhando?"), corretor.corrigir("O que?! Você acabou falhando?"));
+        assertEquals(Optional.of("Por quê?"), corretor.corrigir("Por que?"));
+        assertEquals(Optional.empty(), corretor.corrigir("Por que não?"));
+    }
 }

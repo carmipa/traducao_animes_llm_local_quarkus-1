@@ -167,6 +167,31 @@ class NormalizadorAcentosComunsTest {
      * {@code tenente} não levam acento nenhum — foram 301 falsos positivos na
      * minha primeira medição, e entrar com eles no mapa corromperia o texto.
      */
+    /**
+     * PROPÓSITO DE NEGÓCIO: o "que" tônico (08/10/2026) — 579 "O que?!" e 128 "Por que?" medidos
+     * no acervo pelo LanguageTool de produção. Os casos RUIM são do acervo; os de controle carregam
+     * o MESMO "que" e não mudam (A1).
+     */
+    @Test
+    @DisplayName("que tonico antes de ? ou ! ganha circunflexo; o que nao e tonico fica")
+    void queTonicoAntesDePerguntaGanhaCircunflexo() {
+        assertEquals("O quê?!", norm.normalizar("O que?!"));
+        assertEquals("Por quê?", norm.normalizar("Por que?"));
+        assertEquals("Agora o quê?", norm.normalizar("Agora o que?"));
+        assertEquals("Quê?!", norm.normalizar("Que?!"));
+        assertEquals("QUÊ?!", norm.normalizar("QUE?!"));
+        assertEquals("E agora, o quê...?", norm.normalizar("E agora, o que...?"));
+        assertEquals("{\\i1}O quê{\\i0}?", norm.normalizar("{\\i1}O que{\\i0}?"));
+        assertEquals("Sei lá o quê!", norm.normalizar("Sei lá o que!"));
+        // controles: mesmo "que", não tônico — não muda
+        assertEquals("Por que não?", norm.normalizar("Por que não?"));
+        assertEquals("O que é isso?", norm.normalizar("O que é isso?"));
+        assertEquals("Eu sei que você vem.", norm.normalizar("Eu sei que você vem."));
+        assertEquals("porque?", norm.normalizar("porque?"));
+        assertEquals("Porque sim!", norm.normalizar("Porque sim!"));
+        assertEquals("Porquê?", norm.normalizar("Porquê?"));
+    }
+
     @Test
     @DisplayName("NAO toca palavra que ja esta certa nem nome proprio")
     void naoTocaPalavraCorreta() {
