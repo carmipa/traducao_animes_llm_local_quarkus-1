@@ -2389,6 +2389,30 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
      * Se a execução prosseguir, o cache nasce carimbado com a lore errada e o dano só aparece
      * depois, na legenda publicada — que foi exatamente como o incidente passou despercebido.
      */
+    /**
+     * L3 da auditoria de 08/10/2026 (reproduzido em execução): com a lore de OUTRA obra e a caixa
+     * "ignorar lore existente", o portão era dispensado, a obra era traduzida com a terminologia
+     * errada e a saída definitiva regravada. A dispensa só vale para a tradução sem lore. O
+     * CONTROLE (A1) é o mesmo arquivo com o contexto {@code sem_lore} e a caixa: esse passa.
+     */
+    @Test
+    void dispensaDoPortaoSoValeParaTraducaoSemLore() throws Exception {
+        FakeLlmPort llm = new FakeLlmPort();
+        ProcessarArquivoUseCase uc = montar(llm);
+        gerenciadorMontado.definirContextoAtivo("caracterizacao");
+        Path entrada = escreverAssEmObra("ObraAlheia", "ep.ass", "Hello there", "How are you");
+
+        assertThrows(ObraDivergenteDoContextoException.class,
+            () -> uc.processar(entrada, false, gerenciadorMontado.snapshotAtivo(), true),
+            "lore de outra obra com a caixa marcada tem de ser BLOQUEADA");
+        assertEquals(0, llm.chamadas.get(), "nenhuma fala pode chegar ao LLM sob a lore errada");
+
+        org.traducao.projeto.lore.domain.SnapshotContexto semLore = new org.traducao.projeto.lore.domain.SnapshotContexto(
+            "sem_lore", "Sem lore", "Traduza sem lore.", "", Set.of(), java.util.Map.of(), Set.of(), java.util.Map.of());
+        uc.processar(entrada, false, semLore, true);
+        assertTrue(llm.chamadas.get() > 0, "CONTROLE: sem lore com a caixa marcada traduz normalmente");
+    }
+
     @Test
     void obraDivergenteDoContextoAtivoBloqueiaAntesDoLlmESemEscreverNada() throws Exception {
         FakeLlmPort llm = new FakeLlmPort();

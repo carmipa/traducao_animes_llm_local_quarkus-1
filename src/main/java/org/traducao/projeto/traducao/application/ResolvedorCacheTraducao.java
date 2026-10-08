@@ -115,7 +115,7 @@ public class ResolvedorCacheTraducao {
         String base = nome.substring(0, nome.length() - extensao.length());
         String animeNome = animeAPartirDoArquivo(entrada);
         Path pastaObra = pastasExecucao.diretorioCache().resolve(animeNome);
-        if (ProvenienciaCache.SUBPASTA_SEM_LORE.equals(contextoId)) {
+        if (org.traducao.projeto.lore.domain.ProvedorContexto.ID_SEM_LORE.equals(contextoId)) {
             pastaObra = pastaObra.resolve(ProvenienciaCache.SUBPASTA_SEM_LORE);
         }
         return pastaObra.resolve(base + ".cache.json");

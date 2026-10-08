@@ -287,6 +287,8 @@ public class ProcessarArquivoUseCase {
      * <p>INVARIANTES DO DOMÍNIO: a dispensa não é silenciosa — registra {@code [ AVISO ]} em log
      * e console com a obra e o contexto ativo, para que a decisão apareça no relatório da
      * execução. Nenhuma outra blindagem é afetada: tags, alucinação, numérico e eco continuam.
+     * A dispensa só é aceita com o contexto {@code sem_lore}; com qualquer outro ela é recusada
+     * (com aviso) e o portão confere normalmente.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: idêntico ao da sobrecarga de três argumentos.
      *
@@ -305,13 +307,25 @@ public class ProcessarArquivoUseCase {
         // Portão determinístico ANTES de ler a legenda, de chamar o LLM e de escrever cache:
         // arquivo cuja obra é reconhecida por outro contexto é BLOQUEADO aqui. Roda por
         // arquivo (a pasta de entrada pode misturar obras) contra o MESMO snapshot do job.
-        if (ignorarLoreExistente) {
+        // A dispensa vale SÓ para o contexto sem lore. Antes ela valia para qualquer contexto: um
+        // POST com a lore de OUTRA obra e a caixa marcada passava, gravava o cache com a lore
+        // errada e regravava a saída definitiva, sob um aviso que dizia "tradução sem lore"
+        // (auditoria de 08/10/2026, achado L3; o mesmo pedido sem a caixa era BLOQUEADO).
+        boolean dispensaValida = ignorarLoreExistente
+            && org.traducao.projeto.lore.domain.ProvedorContexto.ID_SEM_LORE.equals(contextoDoJob.id());
+        if (dispensaValida) {
             String aviso = "Portão de obra DISPENSADO por escolha explícita (tradução sem lore): "
                 + arquivoEntrada + " — contexto ativo \"" + contextoDoJob.id()
                 + "\". A terminologia da obra, se existir, NÃO será aplicada.";
             log.warn(aviso);
             uiLogger.log("[ AVISO ] " + aviso);
         } else {
+            if (ignorarLoreExistente) {
+                String aviso = "Dispensa do portão de obra RECUSADA: ela só vale para a tradução sem lore, "
+                    + "e o contexto pedido é \"" + contextoDoJob.id() + "\". O portão confere normalmente.";
+                log.warn(aviso);
+                uiLogger.log("[ AVISO ] " + aviso);
+            }
             guardaContextoObra.verificar(arquivoEntrada, contextoDoJob);
         }
         // Ponte para o consumidor legado que ainda lê a lore por ThreadLocal (ver
