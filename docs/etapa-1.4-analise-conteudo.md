@@ -14,7 +14,7 @@ O card de entrada tem uma barra de abas que escolhe o **escopo** da análise:
 
 | Aba | Modo | Arquivos | Regras aplicadas |
 |-----|------|----------|------------------|
-| **Ambas (comparar)** | `AMBAS` | original + traduzido | 5 regras **comparativas** (par original ↔ traduzido) |
+| **Ambas (comparar)** | `AMBAS` | original + traduzido | 6 regras **comparativas** (par original ↔ traduzido) + as de arquivo único nos dois lados |
 | **Só Original (EN)** | `ORIGINAL` | só o original | 6 regras de **arquivo único** (estruturais + tempo) |
 | **Só Traduzida (PT-BR)** | `TRADUZIDO` | só o traduzido | 6 regras de **arquivo único** (estruturais + tempo) |
 
@@ -29,6 +29,7 @@ As regras de arquivo único não dependem de referência: tags `{}` não fechada
 | Classe | Papel |
 |--------|-------|
 | `AuditorConteudoUseCase` (`application`) | Orquestra as regras sobre cada par original ↔ traduzido e monta o relatório |
+| `RegraIntegridadePareamento` (`application/regras`) | Confere se o par descreve as mesmas falas; com fala a mais/a menos, aponta **onde o par se desfaz** (alinhando pelo tempo) com as duas falas daquele ponto |
 | `RegraDanoKaraoke` (`application/regras`) | Detecta letra de música original (romaji/JP) destruída ou traduzida indevidamente |
 | `RegraEfeitoVazado` (`application/regras`) | Tags de efeito ASS vazando como texto visível na tela |
 | `RegraAlucinacaoQuebraLinha` (`application/regras`) | Quebras `\N` inventadas ou removidas pelo LLM |
@@ -79,6 +80,7 @@ Diferente dos jobs longos, a auditoria responde o relatório **na própria requi
 
 - A auditoria **nunca altera arquivos** — é 100% leitura; a correção é feita pelos módulos de [Correção](etapa-2.3-correcao-revisao.md), [Correção de Karaoke](etapa-4.2-cura-tags.md) e [Karaokê](etapa-4.1-traducao-karaoke.md).
 - A `RegraDanoKaraoke` nasceu do caso real do 86 (Eighty-Six): a faixa original havia sido destruída pela tradução automática de romaji — ver [Memória de Decisões da IA](ref-memoria-decisoes-ia.md).
+- **Pareamento deslocado.** As regras comparativas pareiam evento a evento **pela posição**. Quando original e traduzido não têm o mesmo número de eventos (fala apagada, inventada, ou Comentário só de um lado), a posição k de um lado deixa de ser a fala k do outro: só a integridade do pareamento roda, ela aponta o ponto em que o par se desfaz, e as demais saem **nomeadas** na anomalia *Regras Comparativas Puladas* — antes elas rodavam e acusavam centenas de falas trocadas que não existiam (auditoria de 08/10/2026).
 - Rode a auditoria **duas vezes** no ciclo: após a extração (linha de base do release) e após a tradução (diff de anomalias introduzidas).
 
 ---

@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.ModoAuditoria;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RelatorioAuditoriaConteudo;
 
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -213,6 +215,100 @@ class AuditorConteudoIntegridadeTest {
         String json = Files.readString(Path.of(r.getCaminhoRelatorioJson()), StandardCharsets.UTF_8);
         assertTrue(json.contains("\"modo\""));
         assertTrue(json.contains("AMBAS"));
+    }
+
+    // Episódio em miniatura com uma linha de efeito pesado no meio: é o desenho que, com o
+    // pareamento deslocado, fazia a regra de efeito vazado acusar falas trocadas.
+    private String[] episodioOriginal() {
+        return new String[] {
+            dlg("0:00:01.00", "0:00:03.00", "{\\pos(10,10)}Sign"),
+            dlg("0:00:04.00", "0:00:06.00", "Hello there"),
+            dlg("0:00:07.00", "0:00:09.00", "But there are dreams"),
+            dlg("0:00:10.00", "0:00:12.00", "{\\pos(20,20)}OK"),
+            dlg("0:00:13.00", "0:00:15.00", "Goodbye my friend")
+        };
+    }
+
+    private AnomaliaConteudo contagemDeFalas(RelatorioAuditoriaConteudo r) {
+        return r.getAnomalias().stream()
+            .filter(a -> a.regra().contains("Integridade do Pareamento")
+                && a.descricao().startsWith("Quantidade de diálogos difere"))
+            .findFirst().orElseThrow(() -> new AssertionError("sem a anomalia de contagem: " + r.getAnomalias()));
+    }
+
+    // 15 — auditoria de 08/10/2026, A2/A3: a fala apagada no MEIO é a apontada (com os dois
+    // lados), e as regras fala a fala não acusam o deslocamento como falas trocadas.
+    @Test
+    void falaApagadaNoMeioEApontadaEPareamentoDeslocadoNaoViraRuido(@TempDir Path dir) throws IOException {
+        Path o = ass(dir, "o.ass", episodioOriginal());
+        Path t = ass(dir, "t.ass",
+            dlg("0:00:01.00", "0:00:03.00", "{\\pos(10,10)}Sign"),
+            dlg("0:00:04.00", "0:00:06.00", "Olá"),
+            dlg("0:00:10.00", "0:00:12.00", "{\\pos(20,20)}OK"),
+            dlg("0:00:13.00", "0:00:15.00", "Adeus, meu amigo"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.AMBAS, o, t);
+
+        AnomaliaConteudo contagem = contagemDeFalas(r);
+        assertNotNull(contagem.eventoOriginal());
+        assertNotNull(contagem.eventoTraduzido(), "sem o lado traduzido a tela chama de 'da fonte'");
+        assertEquals("But there are dreams", contagem.eventoOriginal().texto(),
+            "tem de apontar a fala apagada, não a última do episódio");
+        assertTrue(contagem.descricao().contains("fala nº 3"), contagem.descricao());
+        assertTrue(contagem.descricao().contains("[0:00:07.00]"), contagem.descricao());
+
+        assertFalse(temRegra(r, "Efeito Visual Vazado"),
+            "regra fala a fala rodou sobre pareamento deslocado: " + r.getAnomalias());
+        assertTrue(r.getAnomalias().stream().anyMatch(a -> a.regra().equals("Regras Comparativas Puladas")
+            && a.descricao().contains("Efeito Visual Vazado")), "a omissão tem de ser declarada");
+    }
+
+    // 16 — fronteira (A1): o MESMO sinal (contagem de falas difere), mas com a estrutura
+    // intacta — o tradutor comentou a fala. A posição continua comparável: as regras fala a
+    // fala rodam, nada é declarado pulado, e cada anomalia leva os dois eventos.
+    @Test
+    void falaComentadaMantemAPosicaoEAsRegrasContinuamRodando(@TempDir Path dir) throws IOException {
+        Path o = ass(dir, "o.ass", episodioOriginal());
+        Path t = ass(dir, "t.ass",
+            dlg("0:00:01.00", "0:00:03.00", "{\\pos(10,10)}Sign"),
+            dlg("0:00:04.00", "0:00:06.00", "Olá"),
+            "Comment: 0,0:00:07.00,0:00:09.00,Default,,0,0,0,,Mas há sonhos",
+            dlg("0:00:10.00", "0:00:12.00", "{\\pos(20,20)}OK"),
+            dlg("0:00:13.00", "0:00:15.00", "Adeus, meu amigo"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.AMBAS, o, t);
+
+        assertFalse(temRegra(r, "Regras Comparativas Puladas"), r.getAnomalias().toString());
+        assertFalse(temRegra(r, "Efeito Visual Vazado"), "posição alinhada não produz falso vazamento");
+        assertEquals("But there are dreams", contagemDeFalas(r).eventoOriginal().texto());
+
+        AnomaliaConteudo ausente = r.getAnomalias().stream()
+            .filter(a -> a.descricao().contains("sem correspondente no traduzido"))
+            .findFirst().orElseThrow();
+        assertNotNull(ausente.eventoOriginal());
+        assertNotNull(ausente.eventoTraduzido(), "o lado traduzido (o Comentário) tem de ir junto");
+        assertEquals("Comment", ausente.eventoTraduzido().tipoLinha());
+    }
+
+    // 17 — controle (A1): par legítimo, estrutura igual, efeitos preservados — limpo e com
+    // todas as regras comparativas executadas.
+    @Test
+    void parLegitimoRodaTodasAsRegrasESaiLimpo(@TempDir Path dir) throws IOException {
+        Path o = ass(dir, "o.ass", episodioOriginal());
+        Path t = ass(dir, "t.ass",
+            dlg("0:00:01.00", "0:00:03.00", "{\\pos(10,10)}Sign"),
+            dlg("0:00:04.00", "0:00:06.00", "Olá"),
+            dlg("0:00:07.00", "0:00:09.00", "Mas há sonhos"),
+            dlg("0:00:10.00", "0:00:12.00", "{\\pos(20,20)}OK"),
+            dlg("0:00:13.00", "0:00:15.00", "Adeus, meu amigo"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.AMBAS, o, t);
+
+        assertTrue(r.isLimpo(), r.getAnomalias().toString());
+        RelatorioAuditoriaConteudo comPuladas = useCase.auditar(ModoAuditoria.AMBAS, o,
+            ass(dir, "t2.ass", dlg("0:00:01.00", "0:00:03.00", "{\\pos(10,10)}Sign")));
+        assertTrue(r.getRegrasExecutadas() > comPuladas.getRegrasExecutadas(),
+            "par íntegro executa mais regras que o par deslocado");
     }
 
     // 14 —

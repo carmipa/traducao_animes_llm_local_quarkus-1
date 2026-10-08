@@ -100,8 +100,9 @@ public class AuditorConteudoUseCase {
      * PROPÓSITO DE NEGÓCIO: executa a análise comparativa (original ↔ traduzido) e
      * devolve todos os dados necessários para tela, exportação e telemetria.
      * <p>INVARIANTES DO DOMÍNIO: o formato informado no relatório é obtido do
-     * próprio caminho validado e determina o leitor usado; todas as regras
-     * comparativas são executadas.
+     * próprio caminho validado e determina o leitor usado; as regras comparativas
+     * são executadas quando os dois lados têm o mesmo número de eventos — sem isso,
+     * só a integridade do pareamento roda, e as demais saem nomeadas como puladas.
      * <p>COMPORTAMENTO EM CASO DE FALHA: encapsula falhas inesperadas em
      * {@link AuditoriaException}; falhas de domínio preservam sua mensagem.
      */
@@ -153,11 +154,36 @@ public class AuditorConteudoUseCase {
             // Bug 2 — índice ASS (posicional) ≠ índice SRT (número do bloco): comparar
             // por índice entre formatos diferentes associa falas erradas. Bloqueamos.
             if (formatosComparaveis(formatoOriginal, formatoTraduzido)) {
+                // Mesma lógica do bloqueio ASS↔SRT, um degrau abaixo: com uma linha a mais ou a
+                // menos, a posição k de um lado não é a fala k do outro. Rodar as regras fala a
+                // fala aí produzia 379 "efeitos vazados" num par cujo único defeito era UMA fala
+                // apagada (auditoria de 08/10/2026, A2) — o defeito real afogado em ruído.
+                boolean pareamentoPorPosicaoConfiavel =
+                    docOriginal.eventos().size() == docTraduzido.eventos().size();
+                List<String> puladas = new ArrayList<>();
                 for (RegraAuditoriaConteudo regra : regras) {
+                    if (!pareamentoPorPosicaoConfiavel && regra.dependeDoPareamentoPorPosicao()) {
+                        puladas.add(regra.getNome());
+                        continue;
+                    }
                     regrasExecutadas++;
                     List<AnomaliaConteudo> encontradas = regra.auditar(docOriginal, docTraduzido);
                     log.debug("Regra '{}' encontrou {} anomalia(s)", regra.getNome(), encontradas.size());
                     anomalias.addAll(encontradas);
+                }
+                if (!puladas.isEmpty()) {
+                    log.warn("Regras comparativas puladas ({} x {} eventos): {}",
+                        docOriginal.eventos().size(), docTraduzido.eventos().size(), puladas);
+                    anomalias.add(new AnomaliaConteudo(
+                        AnomaliaConteudo.TipoSeveridade.WARNING,
+                        "Regras Comparativas Puladas",
+                        "Original e traduzido não têm o mesmo número de eventos ("
+                            + docOriginal.eventos().size() + " × " + docTraduzido.eventos().size()
+                            + "): as regras que comparam fala a fala pareiam por posição e acusariam "
+                            + "falas trocadas que não existem. Não foram executadas: "
+                            + String.join("; ", puladas) + ".",
+                        null, null,
+                        "Corrija o ponto apontado pela Integridade do Pareamento e audite de novo."));
                 }
             } else {
                 anomalias.add(new AnomaliaConteudo(
