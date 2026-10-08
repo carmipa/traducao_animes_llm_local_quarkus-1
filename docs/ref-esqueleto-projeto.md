@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **494** |
-| classes em `src/test` | **449** |
+| classes em `src/main` | **495** |
+| classes em `src/test` | **451** |
 
 ---
 
@@ -35,7 +35,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 
 ```mermaid
 graph TB
-    G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (24)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
+    G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (25)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (79)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (23)<br/>novoKaraoke (11)"]:::fatia
@@ -99,7 +99,7 @@ analisadorMidia/
     └── AnalisadorMidiaCLI.java
 ```
 
-#### `legendasExtracao` — 24 classes
+#### `legendasExtracao` — 25 classes
 
 ```text
 legendasExtracao/
@@ -108,7 +108,8 @@ legendasExtracao/
 │   │   ├── ExtratorAssStrategy.java
 │   │   ├── ExtratorPgsStrategy.java
 │   │   ├── ExtratorSrtStrategy.java
-│   │   └── ExtratorStrategy.java
+│   │   ├── ExtratorStrategy.java
+│   │   └── FaixaDeLetreiro.java
 │   ├── ExtrairLegendaUseCase.java
 │   └── ValidadorSaidaExtracao.java
 ├── domain/
@@ -900,7 +901,7 @@ core/
 
 ---
 
-## Testes — 449 classes
+## Testes — 451 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -914,7 +915,7 @@ O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aq
 └── WebInterfaceTest.java
 ```
 
-#### `analisadorMidia` — 8 classes
+#### `analisadorMidia` — 9 classes
 
 ```text
 analisadorMidia/
@@ -930,6 +931,8 @@ analisadorMidia/
 │   └── adapters/
 │       └── FfprobeAdapterTest.java
 └── presentation/
+    ├── web/
+    │   └── AnaliseMidiaControllerBannerTest.java
     └── AnalisadorMidiaCLITest.java
 ```
 
@@ -1119,13 +1122,14 @@ legenda/
     └── LeitorEscritorSrtTest.java
 ```
 
-#### `legendasExtracao` — 7 classes
+#### `legendasExtracao` — 8 classes
 
 ```text
 legendasExtracao/
 ├── application/
 │   ├── strategy/
-│   │   └── ExtratorAssStrategyTest.java
+│   │   ├── ExtratorAssStrategyTest.java
+│   │   └── ExtratorSrtPgsLetreiroTest.java
 │   ├── ExtrairLegendaUseCaseTest.java
 │   └── ValidadorSaidaExtracaoTest.java
 ├── infrastructure/
