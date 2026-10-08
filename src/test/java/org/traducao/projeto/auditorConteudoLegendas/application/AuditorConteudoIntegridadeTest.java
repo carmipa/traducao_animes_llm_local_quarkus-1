@@ -311,6 +311,35 @@ class AuditorConteudoIntegridadeTest {
             "par íntegro executa mais regras que o par deslocado");
     }
 
+    // 18 — auditoria de 08/10/2026, A4: arquivo sem fala nenhuma não é "limpo" — nada foi
+    // auditado. Nos dois modos e nos dois lados.
+    @Test
+    void arquivoSemFalaNaoSaiLimpo(@TempDir Path dir) throws IOException {
+        Path vazio = srt(dir, "vazio.srt", "");
+        Path soComentario = ass(dir, "so-comentario.ass", "Comment: 0,0:00:01.00,0:00:03.00,Default,,0,0,0,,nota");
+        Path umaFala = srt(dir, "uma.srt", "1\n00:00:01,000 --> 00:00:03,000\nOlá\n");
+
+        RelatorioAuditoriaConteudo soTraduzido = useCase.auditar(ModoAuditoria.TRADUZIDO, null, vazio);
+        assertFalse(soTraduzido.isLimpo(), "um .srt de 0 bytes não pode sair limpo");
+        assertTrue(temRegra(soTraduzido, "Nenhuma Fala Auditada"));
+
+        assertTrue(temRegra(useCase.auditar(ModoAuditoria.ORIGINAL, soComentario, null), "Nenhuma Fala Auditada"));
+
+        RelatorioAuditoriaConteudo ambas = useCase.auditar(ModoAuditoria.AMBAS, umaFala, vazio);
+        assertTrue(ambas.getAnomalias().stream().anyMatch(a -> a.regra().equals("Nenhuma Fala Auditada")
+            && a.descricao().contains("traduzido")), ambas.getAnomalias().toString());
+    }
+
+    // 19 — controle (A1), a fronteira do mesmo sinal: UMA fala basta para auditar de verdade.
+    @Test
+    void arquivoComUmaFalaEAuditadoNormalmente(@TempDir Path dir) throws IOException {
+        Path umaFala = srt(dir, "uma.srt", "1\n00:00:01,000 --> 00:00:03,000\nOlá\n");
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.TRADUZIDO, null, umaFala);
+
+        assertTrue(r.isLimpo(), r.getAnomalias().toString());
+    }
+
     // 14 —
     @Test
     void testeNaoGravaEmRelatoriosOperacional(@TempDir Path dir) throws IOException {

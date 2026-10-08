@@ -136,6 +136,9 @@ public class AuditorConteudoUseCase {
             List<AnomaliaConteudo> anomalias = new ArrayList<>();
             int regrasExecutadas = 0;
 
+            anomalias.addAll(semFalasAuditadas(docOriginal, "original"));
+            anomalias.addAll(semFalasAuditadas(docTraduzido, "traduzido"));
+
             // Bug 5 — integridade de parsing dos dois arquivos brutos.
             anomalias.addAll(validadorParsing.validar(caminhoOriginal, formatoOriginal, "original"));
             for (AnomaliaConteudo a : validadorParsing.validar(caminhoTraduzido, formatoTraduzido, "traduzido")) {
@@ -255,7 +258,7 @@ public class AuditorConteudoUseCase {
 
             DocumentoLegenda documento = lerLegenda(caminho, formato);
 
-            List<AnomaliaConteudo> anomalias = new ArrayList<>();
+            List<AnomaliaConteudo> anomalias = new ArrayList<>(semFalasAuditadas(documento, papel));
             int regrasExecutadas = 0;
 
             // Bug 5 — integridade de parsing do arquivo bruto.
@@ -325,6 +328,30 @@ public class AuditorConteudoUseCase {
 
     private String familiaFormato(String formato) {
         return "SRT".equals(formato) ? "SRT" : "ASS";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: impede que um arquivo sem nenhuma fala saia "limpo". Toda regra
+     * percorre as falas; com zero falas nenhuma acusa nada, e um .srt de 0 bytes era
+     * declarado limpo — "não achei nada" e "não tinha o que achar" com a mesma cara
+     * (auditoria de 08/10/2026, A4, reproduzido).
+     * <p>INVARIANTES DO DOMÍNIO: zero eventos {@code Dialogue} ⇒ uma anomalia ERROR sem
+     * evento; uma fala basta para não disparar.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: documento nulo conta como sem falas; não lança.
+     */
+    private List<AnomaliaConteudo> semFalasAuditadas(DocumentoLegenda documento, String papel) {
+        boolean temFala = documento != null
+            && documento.eventos().stream().anyMatch(e -> e != null && e.isDialogo());
+        if (temFala) {
+            return List.of();
+        }
+        return List.of(new AnomaliaConteudo(
+            AnomaliaConteudo.TipoSeveridade.ERROR,
+            "Nenhuma Fala Auditada",
+            "O arquivo " + papel + " não tem nenhuma fala (Dialogue) legível: nada foi auditado, e a "
+                + "ausência de outras anomalias aqui NÃO quer dizer arquivo limpo.",
+            null, null,
+            "Confira se o arquivo está vazio ou truncado, ou se a extração escolheu a faixa certa."));
     }
 
     /**
