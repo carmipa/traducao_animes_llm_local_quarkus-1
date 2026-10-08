@@ -6,7 +6,7 @@
 
 import { initAnalise } from '../analise/analise.js?v=4.0';
 import { initExtracao } from '../extracao/extracao.js?v=3.0';
-import { initAuditorConteudo } from '../auditorConteudoLegendas/auditorConteudoLegendas.js?v=3.9';
+import { initAuditorConteudo } from '../auditorConteudoLegendas/auditorConteudoLegendas.js?v=4.0';
 import { initTraducao } from '../traducao/traducao.js?v=3.2';
 import { initTraducaoSemLore } from '../traducaoSemLore/traducaoSemLore.js?v=1.0';
 import { initCorrecao } from '../correcao/correcao.js?v=3.1';
