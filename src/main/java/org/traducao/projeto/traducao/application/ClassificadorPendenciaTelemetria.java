@@ -86,7 +86,8 @@ public class ClassificadorPendenciaTelemetria {
         // As três reprovações de PAR do validador: a tradução é português limpo, mas o original
         // prova que ela diz outra coisa. Sem balde próprio caíam no ECO, a causa oposta.
         if (m.contains("entidade trocada") || m.contains("locutor/narração inventado")
-                || m.contains("locutor/narracao inventado") || m.contains("desproporcional")) {
+                || m.contains("locutor/narracao inventado") || m.contains("desproporcional")
+                || m.contains("polaridade invertida") || m.contains("pergunta perdida")) {
             return CausaRaizPendencia.CONTEUDO_NAO_ANCORADO;
         }
         // O modelo falando SOBRE a tarefa vem antes do resíduo: as duas coisas apareciam com o

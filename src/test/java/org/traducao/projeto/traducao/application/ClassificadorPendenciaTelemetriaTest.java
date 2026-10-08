@@ -122,6 +122,20 @@ class ClassificadorPendenciaTelemetriaTest {
             .findFirst().orElseThrow().quantidade());
     }
 
+    /**
+     * As duas reprovações de SENTIDO de 08/10/2026 são conteúdo não ancorado (português limpo que
+     * o original desmente), nunca eco: sem a palavra-chave no classificador, uma fala com a
+     * polaridade invertida apareceria na telemetria como "o modelo devolveu o original" — a causa
+     * oposta, que manda procurar o defeito no lugar errado.
+     */
+    @Test
+    void sentidoInvertidoEPerguntaPerdidaSaoConteudoNaoAncorado() {
+        assertEquals(CausaRaizPendencia.CONTEUDO_NAO_ANCORADO, classificador.causaDeMotivoFinal(
+            "Polaridade invertida: o original responde que não e a tradução responde que sim: \"Sim.\" (original: \"No.\")"));
+        assertEquals(CausaRaizPendencia.CONTEUDO_NAO_ANCORADO, classificador.causaDeMotivoFinal(
+            "Pergunta perdida: o original pergunta e a tradução afirma: \"Nosso\" (original: \"'Our\"?\")"));
+    }
+
     @Test
     void consolidaListaVaziaDevolveVazia() {
         assertEquals(List.of(), classificador.consolidar(List.of()));

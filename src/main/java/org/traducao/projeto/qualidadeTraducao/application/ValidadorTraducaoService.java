@@ -49,6 +49,9 @@ public class ValidadorTraducaoService {
 
     private final LoreAtivaPort loreAtiva;
 
+    /** Mesmo critério de eco do portão final, sobre a MESMA porta de lore (nome legítimo fica igual). */
+    private final DetectorTraducaoIdenticaService detectorIdentica;
+
     private static final String INICIO_DE_TERMO = FronteiraTermoAss.INICIO;
 
     /**
@@ -60,6 +63,7 @@ public class ValidadorTraducaoService {
      */
     public ValidadorTraducaoService(LoreAtivaPort loreAtiva) {
         this.loreAtiva = loreAtiva;
+        this.detectorIdentica = new DetectorTraducaoIdenticaService(loreAtiva);
     }
 
     // Regras robustas importadas do pipeline Python, ampliadas após observar em
@@ -301,6 +305,61 @@ public class ValidadorTraducaoService {
     /** Razão tradução/original a partir da qual o excedente deixa de ser expansão natural do PT-BR. */
     private static final double FATOR_DESPROPORCAO = 2.5;
 
+    // ---------------------------------------------------------------------------------
+    // SENTIDO DA FALA (08/10/2026): duas reprovações de PAR que só o original prova — a resposta
+    // com a polaridade INVERTIDA e a pergunta que virou AFIRMAÇÃO. O português sai limpo nas
+    // duas, e por isso nenhuma regra de saída as via. Critério declarado e medido ANTES de virar
+    // código, sobre os 66.857 pares dos caches do acervo:
+    //   polaridade — 10 casos, 10 erros reais ("No." -> "Sim." cinco vezes no 0083;
+    //                "No... it's too late for that." -> "Sim... é tarde demais" no Unicorn);
+    //   pergunta   — 20 casos, 19 reais ("A rat?!" -> "Que porco colorido!", "Ensign Reccoa is?"
+    //                -> "Reccoa é uma tenente.", "3:30? Only 30 minutes left!" com a pergunta
+    //                cortada); o 20º é pergunta indireta aceitável.
+    // Fora do ajuste, nas 1.300 falas traduzidas do zero em 08/10: 1 caso, real ("'Our'?" ->
+    // "Nosso"). Falso negativo declarado: "Like this?!" -> "Como quiser!" escapa porque a
+    // tradução abre com "Como" — a exclusão de interrogativo é larga de propósito (A8: a
+    // reprovação vira outra tentativa, e o esgotamento republica o INGLÊS; errar para mais aqui
+    // custa uma fala em inglês na tela).
+    // ---------------------------------------------------------------------------------
+
+    /** O original ABRE com resposta negativa — fora as locuções em que "no" não nega nada. */
+    private static final Pattern NEGATIVA_NO_INICIO_EN = Pattern.compile(
+        "^\\W*(?:n-)?(?:no|nah|nope|negative)\\b(?!\\s+(?:problem|worries|doubt|kidding|way|matter|one"
+            + "|wonder|more|longer|need|sweat|offense|thanks)\\b)",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+    /** A tradução ABRE com resposta afirmativa (com gagueira "S-Sim" inclusive). */
+    private static final Pattern AFIRMATIVA_NO_INICIO_PT = Pattern.compile(
+        "^\\W*(?:s-)?(?:sim|claro|certo|isso|ok|tudo bem|entendido|com certeza)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+    /** Qualquer negação na tradução absolve: "Claro que não!" é a resposta certa a "No way!". */
+    private static final Pattern NEGACAO_NA_TRADUCAO = Pattern.compile(
+        "\\b(?:não|nao|nem|nunca|jamais|nenhum|nenhuma|nada|ninguém|ninguem)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+    /**
+     * Pergunta que o PT legítimo pode verter SEM "?": retórica de forma imperativa ("Would you
+     * calm down?!" -> "Acalme-se!"), auxiliar negativo retórico ("Didn't I tell you...?!"),
+     * suposição ("I suppose...?") e "I wonder" (vertido como "Eu me pergunto...").
+     */
+    private static final Pattern PERGUNTA_RETORICA_EN = Pattern.compile(
+        "^\\W*(?:would|will|could|can|won'?t)\\s+you\\b|^\\W*why\\s+don'?t\\s+you\\b|\\bI\\s+wonder\\b"
+            + "|^\\W*(?:didn'?t|don'?t|won'?t|wouldn'?t|can'?t|couldn'?t|isn'?t|aren'?t|wasn'?t|weren'?t"
+            + "|haven'?t|hasn'?t|shouldn'?t|doesn'?t)\\b|^\\W*I\\s+(?:suppose|take\\s+it|guess)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+    /** Pergunta de confirmação no fim (", right?", ", can we?", ", can you, Judau?"): cair é estilo. */
+    private static final Pattern PERGUNTA_DE_CONFIRMACAO_EN = Pattern.compile(
+        ",\\s*(?:right|remember|okay|ok|huh|eh|yes|no|(?:can|could|will|would|do|does|did|is|are|was|were"
+            + "|have|has|should|shall)(?:n'?t)?\\s+(?:i|you|he|she|it|we|they))(?:\\s*,\\s*\\w+)?\\W*\\?[!?]*\\W*$",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+    /** A tradução já abre como pergunta ("Por que você...!"): perdeu só a pontuação. */
+    private static final Pattern INTERROGATIVO_NO_INICIO_PT = Pattern.compile(
+        "^\\W*(?:por\\s+qu[eê]|o\\s+qu[eê]|quem|onde|quando|como|qual|quais|quant[oa]s?)\\b",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
     // Prefixo "<algo>:" no início da fala — o formato que o modelo usa ao narrar quem fala
     // ("Inori: \"Você me ama, Shu?\"") em vez de traduzir. O limite de 30 caracteres antes dos
     // dois-pontos separa nome de personagem de uma oração inteira que legitimamente termina
@@ -493,6 +552,17 @@ public class ValidadorTraducaoService {
             return;
         }
 
+        // ECO DENTRO DA TENTATIVA (08/10/2026). A cópia do original só era julgada no portão final,
+        // DEPOIS do laço de temperaturas — então o modelo ecoar "Damn it!" nunca virava outra
+        // tentativa. E o portão comparava com aspas: '"Damn it!"' passava como "diferente", o
+        // normalizador de aspas (que roda depois do portão) as tirava, e o inglês ia para a tela
+        // como tradução — medido no 86 ep 1 em 08/10 (A6 acusou as 2 falas no arquivo gravado).
+        // Aqui o detector já compara sem o envelope de aspas, e a mesma mensagem do portão final.
+        if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
+            throw new AlucinacaoDetectadaException("modelo devolveu o texto original sem tradução: \""
+                + traduzido + "\"");
+        }
+
         String trocado = trocaDeEntidade(original, traduzido);
         if (trocado != null) {
             throw new AlucinacaoDetectadaException(trocado);
@@ -517,6 +587,18 @@ public class ValidadorTraducaoService {
             throw new AlucinacaoDetectadaException(
                 "Locutor/narração inventado, ausente no original: \"" + traduzido
                     + "\" (original: \"" + original + "\")");
+        }
+
+        if (polaridadeInvertida(original, traduzido)) {
+            throw new AlucinacaoDetectadaException(
+                "Polaridade invertida: o original responde que não e a tradução responde que sim: \""
+                    + traduzido + "\" (original: \"" + original + "\")");
+        }
+
+        if (perguntaPerdida(original, traduzido)) {
+            throw new AlucinacaoDetectadaException(
+                "Pergunta perdida: o original pergunta e a tradução afirma: \""
+                    + traduzido + "\" (original: \"" + original + "\")");
         }
 
         if (traduzido.length() >= COMPRIMENTO_MINIMO_PARA_DESPROPORCAO
@@ -675,6 +757,45 @@ public class ValidadorTraducaoService {
             grupos.add(m.group());
         }
         return grupos;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reprova a resposta com a POLARIDADE INVERTIDA — o personagem diz que
+     * não e a legenda diz que sim. O português sai impecável ("Sim... é tarde demais para isso."),
+     * então só o original prova o defeito, e ele inverte a cena.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige as três coisas — o original ABRE com resposta negativa
+     * ({@code No}/{@code Nah}/{@code Nope}/{@code Negative}, fora "no problem", "no way" e afins),
+     * a tradução ABRE com afirmativa, e a tradução NÃO tem negação nenhuma ("Claro que não!" é a
+     * resposta certa a "No way!"). Trabalha sobre o texto visível já sem tags.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; texto vazio devolve {@code false}.
+     */
+    private static boolean polaridadeInvertida(String original, String traduzido) {
+        return NEGATIVA_NO_INICIO_EN.matcher(original).find()
+            && AFIRMATIVA_NO_INICIO_PT.matcher(traduzido).find()
+            && !NEGACAO_NA_TRADUCAO.matcher(traduzido).find();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reprova a pergunta que virou afirmação — "A rat?!" publicado como
+     * "Que porco colorido!", "Ensign Reccoa is?" como "Reccoa é uma tenente." (o modelo
+     * RESPONDEU em vez de traduzir). É a forma mais comum de o LLM sair do papel de tradutor.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o original tem "?" e a tradução não tem nenhum, EXCETO quando o
+     * PT legítimo pode mesmo dispensar a interrogação — pergunta retórica/imperativa, auxiliar
+     * negativo retórico, suposição, "I wonder", pergunta de confirmação no fim, ou tradução que
+     * já abre com interrogativo. As exclusões vieram dos falsos positivos LIDOS no acervo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; sem "?" no original devolve {@code false}.
+     */
+    private static boolean perguntaPerdida(String original, String traduzido) {
+        if (original.indexOf('?') < 0 || traduzido.indexOf('?') >= 0) {
+            return false;
+        }
+        return !PERGUNTA_RETORICA_EN.matcher(original).find()
+            && !PERGUNTA_DE_CONFIRMACAO_EN.matcher(original).find()
+            && !INTERROGATIVO_NO_INICIO_PT.matcher(traduzido).find();
     }
 
     private boolean temLocutorInventado(String original, String traduzido) {

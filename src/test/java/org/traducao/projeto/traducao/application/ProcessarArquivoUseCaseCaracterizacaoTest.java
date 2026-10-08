@@ -332,6 +332,15 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
                 out.append("fala traduzida");
                 houveTexto = true;
             }
+            // Dublê REALISTA para pergunta (08/10/2026): desde a guarda de pergunta perdida, uma
+            // tradução que responde "fala traduzida" a "Where is Captain Bright?" é reprovada como
+            // o modelo afirmando em vez de perguntar — que é exatamente o defeito real. O dublê
+            // pergunta quando o original pergunta.
+            if (houveTexto && TOKEN.matcher(mascarada).replaceAll("").contains("?")
+                    && !out.toString().contains("?")) {
+                int fim = out.lastIndexOf("fala traduzida") + "fala traduzida".length();
+                out.insert(fim, "?");
+            }
             return houveTexto ? out.toString() : mascarada;
         }
 

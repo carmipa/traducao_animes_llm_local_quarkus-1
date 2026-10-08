@@ -458,11 +458,43 @@ public class DetectorTraducaoIdenticaService {
             return false;
         }
         String o = normalizar(original);
-        String t = normalizar(traduzido);
+        String t = semEnvelopeDeAspasQueOOriginalNaoTem(o, normalizar(traduzido));
         if (o.isEmpty() || !o.equals(t)) {
             return false;
         }
         return !deveManterIdentico(original);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: compara o eco como a fala SERÁ PUBLICADA. O normalizador de aspas da
+     * Tradução Local tira, DEPOIS do portão, o par de aspas que envolve a fala quando o original
+     * não o tinha; sem isto '"Damn it!"' passava aqui como "diferente" e ia para a tela como
+     * "Damn it!" — medido no 86 ep 1 em 08/10/2026.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só retira UM par de borda (retas com exatamente duas aspas, ou
+     * curvas de abertura e fechamento), e só quando o original NÃO estava envolto — fonte que já
+     * citava mantém as aspas, que são legítimas. Mesmo critério de envelope do normalizador.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto curto ou sem envelope volta intacto; nunca lança.
+     */
+    private static String semEnvelopeDeAspasQueOOriginalNaoTem(String original, String traduzido) {
+        if (envoltoPorAspas(original) || !envoltoPorAspas(traduzido)) {
+            return traduzido;
+        }
+        return traduzido.substring(1, traduzido.length() - 1).strip();
+    }
+
+    private static boolean envoltoPorAspas(String s) {
+        if (s == null || s.length() < 2) {
+            return false;
+        }
+        char a = s.charAt(0);
+        char b = s.charAt(s.length() - 1);
+        if (a == '"' && b == '"') {
+            return s.chars().filter(c -> c == '"').count() == 2;
+        }
+        return a == '“' && b == '”'
+            && s.chars().filter(c -> c == '“').count() == 1 && s.chars().filter(c -> c == '”').count() == 1;
     }
 
     private String normalizar(String texto) {
