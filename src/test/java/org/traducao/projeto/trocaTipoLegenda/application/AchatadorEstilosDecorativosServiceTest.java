@@ -419,6 +419,56 @@ class AchatadorEstilosDecorativosServiceTest {
             "CONTROLE: com o Default em uso ele continua sendo a base, e a placa vai para ele");
     }
 
+    // Achado ao reverificar o T2 EM EXECUÇÃO (08/10/2026): sem o Default, a base era eleita pela
+    // SOMA das durações, e as camadas sobrepostas do karaokê somavam mais que o diálogo — no
+    // DanMachi Sword Oratoria as 15.482 linhas do "ED - Romaji" (90 s de encerramento) venciam as
+    // 298 falas, e o diálogo era achatado PARA o estilo do karaokê. A base é a UNIÃO do tempo no ar.
+    @Test
+    void camadasSobrepostasDeKaraokeNaoVencemODialogoNaEleicaoDaBase(@TempDir Path dir) throws IOException {
+        StringBuilder eventos = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            eventos.append(String.format("Dialogue: 0,0:00:%02d.00,0:00:%02d.00,Dungeons,,0,0,0,,Fala %d%n",
+                i * 5, i * 5 + 4, i));
+        }
+        // 300 camadas de 3 s empilhadas no mesmo trecho de 20 s: soma 900 s, união 20 s.
+        for (int i = 0; i < 300; i++) {
+            int ini = 60 + (i % 17);
+            eventos.append(String.format("Dialogue: 0,0:01:%02d.00,0:01:%02d.00,ED - Romaji,,0,0,0,,{\\fad(80,0)}hana%n",
+                ini, ini + 3));
+        }
+        eventos.append("Dialogue: 0,0:00:51.00,0:00:52.00,Signs,,0,0,0,,{\\pos(960,200)}Orario\n");
+        Path arquivo = dir.resolve("kfx.ass");
+        Files.writeString(arquivo, String.join("\n",
+            "[Script Info]", "ScriptType: v4.00+", "", "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+                + "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+                + "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+            "Style: Dungeons,CarrefourMetis,78,&H00FFFFFF,&HFF0000FF,&H00441111,&H00000000,-1,0,0,0,"
+                + "85,100,0.75,0,1,5,0,2,200,200,42,1",
+            "Style: ED - Romaji,Constantia,50,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,0,8,10,10,10,1",
+            "Style: Signs,Althea,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,0,5,10,10,10,1",
+            "", "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text")
+            + "\n" + eventos, StandardCharsets.UTF_8);
+
+        AchatadorEstilosDecorativosService.Resultado r = achatador.achatar(leitor.ler(arquivo));
+
+        assertEquals("Dungeons", r.estiloBase(), "a base tem de ser o estilo do diálogo");
+        assertTrue(r.documento().eventos().stream().noneMatch(e -> e.texto().startsWith("Fala") && !"Dungeons".equals(e.estilo())),
+            "nenhuma fala de diálogo pode ir para o estilo do karaokê");
+    }
+
+    @Test
+    void tempoDeTelaEAUniaoDosIntervalos() {
+        assertEquals(25L, AchatadorEstilosDecorativosService.uniaoEmCentesimos(
+            new java.util.ArrayList<>(java.util.List.of(new long[] {20, 30}, new long[] {0, 10}, new long[] {5, 15}))));
+        assertEquals(30L, AchatadorEstilosDecorativosService.uniaoEmCentesimos(
+            new java.util.ArrayList<>(java.util.List.of(new long[] {0, 10}, new long[] {10, 20}, new long[] {25, 35}))),
+            "CONTROLE: intervalos que só se encostam ou são disjuntos somam como antes");
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);

@@ -162,7 +162,7 @@ public class AchatadorEstilosDecorativosService {
             decorativosAchatados, falasAchatadas, silabasDescartadas);
         DocumentoLegenda saida = new DocumentoLegenda(
             cabecalho, novos, documento.quebraDeLinha(), documento.comBom());
-        return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados), silabasDescartadas);
+        return new Resultado(saida, falasAchatadas, List.copyOf(decorativosAchatados), silabasDescartadas, estiloBase);
     }
 
 
@@ -331,7 +331,8 @@ public class AchatadorEstilosDecorativosService {
      * <p>INVARIANTES DO DOMÍNIO: prefere {@code Default} quando presente no cabeçalho E usado
      * por alguma fala {@code Dialogue} — declarado e vazio, é resto de template e não conta.
      * Na ausência dele, vence o estilo com MAIOR TEMPO DE TELA entre as falas
-     * {@code Dialogue} com fonte declarada — nunca o mais numeroso. Contagem de eventos
+     * {@code Dialogue} com fonte declarada — nunca o mais numeroso —, medido como a UNIÃO dos
+     * intervalos em que o estilo está no ar (camadas simultâneas contam uma vez). Contagem de eventos
      * só decide quando nenhuma duração pôde ser lida (legenda sem colunas Start/End ou
      * com tempos ilegíveis), e aí o critério antigo volta como último recurso.
      *
@@ -364,7 +365,7 @@ public class AchatadorEstilosDecorativosService {
         int colunaInicio = indiceColuna(documento.cabecalho(), "Start");
         int colunaFim = indiceColuna(documento.cabecalho(), "End");
 
-        Map<String, Long> tempoDeTela = new LinkedHashMap<>();
+        Map<String, List<long[]>> intervalos = new LinkedHashMap<>();
         Map<String, Integer> frequencia = new LinkedHashMap<>();
         for (EventoLegenda evento : documento.eventos()) {
             if (!evento.isDialogo() || evento.estilo() == null
@@ -372,8 +373,18 @@ public class AchatadorEstilosDecorativosService {
                 continue;
             }
             frequencia.merge(evento.estilo(), 1, Integer::sum);
-            tempoDeTela.merge(evento.estilo(), duracaoEmCentesimos(evento, colunaInicio, colunaFim), Long::sum);
+            long[] intervalo = intervaloEmCentesimos(evento, colunaInicio, colunaFim);
+            if (intervalo != null) {
+                intervalos.computeIfAbsent(evento.estilo(), e -> new ArrayList<>()).add(intervalo);
+            }
         }
+        // Tempo de tela é a UNIÃO dos intervalos do estilo, não a soma das linhas. Somar contava
+        // cada camada sobreposta de KFX como tempo próprio: no DanMachi Sword Oratoria as 15.482
+        // linhas do "ED - Romaji" (90 s de encerramento, dezenas de camadas por sílaba) somavam
+        // mais que as 298 falas do diálogo, e o diálogo era achatado PARA o estilo do karaokê
+        // (auditoria de 08/10/2026, achado ao reverificar o T2 em execução; 44 arquivos do acervo).
+        Map<String, Long> tempoDeTela = new LinkedHashMap<>();
+        intervalos.forEach((estilo, lista) -> tempoDeTela.put(estilo, uniaoEmCentesimos(lista)));
 
         String porTempoDeTela = tempoDeTela.entrySet().stream()
             .filter(entrada -> entrada.getValue() > 0L)
@@ -411,31 +422,61 @@ public class AchatadorEstilosDecorativosService {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: mede quanto tempo uma fala fica no ar, para que a eleição do
-     * estilo base pese presença na tela em vez de número de linhas.
+     * PROPÓSITO DE NEGÓCIO: diz quando uma fala está no ar, para que a eleição do estilo base
+     * pese presença na tela em vez de número de linhas.
      *
-     * <p>INVARIANTES DO DOMÍNIO: resultado em centésimos de segundo e nunca negativo —
-     * fim anterior ao início vale {@code 0}. Não interpreta o conteúdo da fala nem altera
-     * o evento.
+     * <p>INVARIANTES DO DOMÍNIO: {@code {início, fim}} em centésimos de segundo, com fim depois
+     * do início. Não interpreta o conteúdo da fala nem altera o evento.
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: coluna ausente, prefixo fora do formato ou tempo
-     * ilegível devolvem {@code 0}, o que faz o estilo apenas não somar tempo — nunca lança
-     * e nunca derruba a eleição inteira por causa de uma linha malformada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: coluna ausente, prefixo fora do formato, tempo ilegível
+     * ou duração zero/negativa devolvem {@code null}, o que faz a fala apenas não contar tempo —
+     * nunca lança e nunca derruba a eleição inteira por causa de uma linha malformada.
      */
-    private long duracaoEmCentesimos(EventoLegenda evento, int colunaInicio, int colunaFim) {
+    private long[] intervaloEmCentesimos(EventoLegenda evento, int colunaInicio, int colunaFim) {
         if (colunaInicio < 0 || colunaFim < 0) {
-            return 0L;
+            return null;
         }
         String[] campos = camposDoPrefixo(evento);
         if (campos == null || colunaInicio >= campos.length || colunaFim >= campos.length) {
-            return 0L;
+            return null;
         }
         long inicio = emCentesimos(campos[colunaInicio]);
         long fim = emCentesimos(campos[colunaFim]);
-        if (inicio < 0L || fim < 0L) {
+        if (inicio < 0L || fim <= inicio) {
+            return null;
+        }
+        return new long[] {inicio, fim};
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quanto tempo, de fato, o estilo está na tela — com dez camadas
+     * simultâneas, o mesmo segundo conta uma vez.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: soma dos trechos depois de fundir os intervalos que se tocam ou
+     * se sobrepõem; nunca negativo. Para intervalos disjuntos é igual à soma das durações.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista vazia devolve {@code 0}; não altera a lista
+     * recebida além de ordená-la.
+     */
+    static long uniaoEmCentesimos(List<long[]> intervalos) {
+        if (intervalos == null || intervalos.isEmpty()) {
             return 0L;
         }
-        return Math.max(0L, fim - inicio);
+        intervalos.sort((a, b) -> Long.compare(a[0], b[0]));
+        long total = 0L;
+        long inicio = intervalos.get(0)[0];
+        long fim = intervalos.get(0)[1];
+        for (int i = 1; i < intervalos.size(); i++) {
+            long[] atual = intervalos.get(i);
+            if (atual[0] <= fim) {
+                fim = Math.max(fim, atual[1]);
+            } else {
+                total += fim - inicio;
+                inicio = atual[0];
+                fim = atual[1];
+            }
+        }
+        return total + (fim - inicio);
     }
 
     /**
@@ -593,13 +634,21 @@ public class AchatadorEstilosDecorativosService {
      * achatada produzia uma linha branca por sílaba sobre o vídeo. O original continua
      * recuperável pelo backup que {@code AchatarEstilosUseCase} grava antes de gravar.
      *
+     * <p>{@code estiloBase} é o estilo que RECEBEU as falas achatadas — o console o mostra;
+     * até 08/10/2026 imprimia "-> Default" fixo, mesmo quando a base eleita era outra.
+     *
      * <p>COMPORTAMENTO EM CASO DE FALHA: quando nada muda, {@code documento} é o de
-     * entrada, os contadores são {@code 0} e a lista é vazia.
+     * entrada, os contadores são {@code 0}, a lista é vazia e {@code estiloBase} é nulo.
      */
     public record Resultado(DocumentoLegenda documento, int falasAchatadas,
-                            List<String> estilosDecorativos, int silabasDescartadas) {
+                            List<String> estilosDecorativos, int silabasDescartadas, String estiloBase) {
         public Resultado {
             estilosDecorativos = estilosDecorativos == null ? List.of() : List.copyOf(estilosDecorativos);
+        }
+
+        public Resultado(DocumentoLegenda documento, int falasAchatadas,
+                         List<String> estilosDecorativos, int silabasDescartadas) {
+            this(documento, falasAchatadas, estilosDecorativos, silabasDescartadas, null);
         }
 
         public boolean houveAchatamento() {

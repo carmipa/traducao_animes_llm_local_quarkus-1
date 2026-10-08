@@ -127,7 +127,7 @@ public class AchatarEstilosUseCase {
                     ? "; " + r.silabasDescartadas() + " sílaba(s) de karaokê descartada(s)"
                     : "";
                 console.sucesso("  [ACHATADO] " + arq.getFileName() + ": " + r.falasAchatadas()
-                    + " fala(s); estilos " + r.estilosDecorativos() + " -> Default" + silabas + ".");
+                    + " fala(s); estilos " + r.estilosDecorativos() + " -> " + r.estiloBase() + silabas + ".");
             } catch (Exception e) {
                 console.erro("  [ERRO] Falha ao achatar " + arq.getFileName() + ": " + e.getMessage());
                 log.error("Erro ao achatar estilos de {}", arq, e);
