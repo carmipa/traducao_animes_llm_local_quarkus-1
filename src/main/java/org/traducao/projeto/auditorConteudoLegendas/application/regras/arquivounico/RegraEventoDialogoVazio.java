@@ -18,7 +18,9 @@ import java.util.List;
  * <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} são avaliados; o texto
  * visível é o que sobra após remover blocos {@code {...}}, {@code \N}, {@code \h}
  * e espaços. O marcador de capítulo do fansub (duração zero, só blocos {@code {...}})
- * não é fala perdida e fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala}.
+ * não é fala perdida e fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala} —, nem a
+ * nota só de comentário e o portador de efeito de karaokê
+ * ({@link TempoEventoUtil#ehLinhaSemFalaDeProposito}).
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: eventos que não são diálogo ou sem campo de
  * texto são ignorados; a regra nunca lança.
@@ -35,7 +37,8 @@ public class RegraEventoDialogoVazio implements RegraAuditoriaArquivoUnico {
     public List<AnomaliaConteudo> auditar(DocumentoLegenda documento) {
         List<AnomaliaConteudo> anomalias = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo() || !evento.temTexto() || TempoEventoUtil.ehMarcadorSemFala(evento)) {
+            if (!evento.isDialogo() || !evento.temTexto() || TempoEventoUtil.ehMarcadorSemFala(evento)
+                || TempoEventoUtil.ehLinhaSemFalaDeProposito(evento)) {
                 continue;
             }
             if (textoVisivel(evento.texto()).isEmpty()) {

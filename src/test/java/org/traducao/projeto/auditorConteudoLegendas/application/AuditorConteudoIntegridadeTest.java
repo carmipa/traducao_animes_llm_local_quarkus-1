@@ -392,6 +392,49 @@ class AuditorConteudoIntegridadeTest {
         assertTrue(r.isLimpo(), r.getAnomalias().toString());
     }
 
+    // 22b — A8, medido no acervo: o quadro de KFX que o template grava com duração zero (sílaba
+    // do encerramento do 86, estilo de música) é invisível de propósito, não timestamp inválido.
+    // A fronteira — a mesma duração zero com fala em estilo de diálogo — é o teste 23.
+    @Test
+    void quadroDeKaraokeDeDuracaoZeroNaoETimestampInvalido(@TempDir Path dir) throws IOException {
+        Path a = ass(dir, "kfx.ass",
+            "Dialogue: 0,0:01:00.56,0:01:00.56,Ending,,0,0,0,,{=56}{\\fad(80,0)\\pos(60,40)\\blur0.6\\bord3}One,",
+            dlg("0:00:02.00", "0:00:04.00", "Hello"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.ORIGINAL, a, null);
+
+        assertFalse(temRegra(r, "Timestamp"), r.getAnomalias().toString());
+    }
+
+    // 22c — A8, medido no acervo: portador de efeito do karaokê (só tags, estilo de música — linha
+    // real da abertura do 86) e nota do fansub só de comentário não são fala perdida.
+    @Test
+    void portadorDeEfeitoENotaDoFansubNaoSaoDialogoVazio(@TempDir Path dir) throws IOException {
+        Path a = ass(dir, "portador.ass",
+            "Dialogue: 0,0:00:10.00,0:00:12.00,Opening,,0,0,0,,{\\fad(200,0)\\blur0.6\\pos(664.765625,30)\\c&H000F0E0E&}",
+            "Dialogue: 0,0:00:20.00,0:00:22.00,main,,0,0,0,,{Intro}",
+            dlg("0:00:30.00", "0:00:32.00", "Hello"));
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.ORIGINAL, a, null);
+
+        assertFalse(temRegra(r, "Diálogo Vazio"), r.getAnomalias().toString());
+    }
+
+    // 22d — o controle que cobre a isenção acima: no par, a letra que TINHA texto e ficou só com
+    // as tags na tradução é verso apagado — e só a comparação consegue ver isso.
+    @Test
+    void versoApagadoNaTraducaoEAcusadoPeloPar(@TempDir Path dir) throws IOException {
+        Path o = ass(dir, "o.ass",
+            "Dialogue: 0,0:00:10.00,0:00:12.00,Opening,,0,0,0,,{\\fad(200,0)\\pos(10,10)}Fly me to the moon");
+        Path t = ass(dir, "t.ass",
+            "Dialogue: 0,0:00:10.00,0:00:12.00,Opening,,0,0,0,,{\\fad(200,0)\\pos(10,10)}");
+
+        RelatorioAuditoriaConteudo r = useCase.auditar(ModoAuditoria.AMBAS, o, t);
+
+        assertTrue(r.getAnomalias().stream().anyMatch(a -> a.severidade() == AnomaliaConteudo.TipoSeveridade.ERROR
+            && a.descricao().contains("apagado")), r.getAnomalias().toString());
+    }
+
     // 23 — fronteira (A1): cada sinal do marcador SOZINHO continua defeito. Duração zero com
     // texto visível é fala que não aparece; texto só de tags com duração é fala perdida.
     @Test
@@ -406,7 +449,9 @@ class AuditorConteudoIntegridadeTest {
         long timestamp = r.getAnomalias().stream().filter(x -> x.regra().startsWith("Timestamp")).count();
         long vazio = r.getAnomalias().stream().filter(x -> x.regra().equals("Evento de Diálogo Vazio")).count();
         assertEquals(2, timestamp, "duração zero com fala E fim antes do início: " + r.getAnomalias());
-        assertEquals(2, vazio, "só tags com duração E fim antes do início: " + r.getAnomalias());
+        // A nota {OP Start} com fim antes do início é defeito de TEMPO (acima), não fala perdida:
+        // só a linha de diálogo que ficou só com tag ({\an8}) é "diálogo vazio".
+        assertEquals(1, vazio, "só tags com duração em estilo de diálogo: " + r.getAnomalias());
     }
 
     // 14 —

@@ -1,6 +1,7 @@
 package org.traducao.projeto.auditorConteudoLegendas.domain;
 
 import org.traducao.projeto.legenda.domain.EventoLegenda;
+import org.traducao.projeto.legenda.domain.PadraoEstiloMusical;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,8 +102,9 @@ public final class TempoEventoUtil {
      * o predicado aceita 4.512 — 72 marcadores e notas do fansub ({@code {ED}}, {@code {OP
      * Start}}, {@code {name check}}) e 4.440 quadros de efeito só de tags; todos invisíveis
      * por construção. Recusa as 27.726 com texto visível: 27.720 sílabas de KFX (todas em
-     * estilo de música, DanMachi e cópias de teste) e 6 falas comuns de duração zero, que
-     * são o defeito que a regra existe para pegar.
+     * estilo de música: 26.742 no DanMachi e 978 no 86) — essas são do
+     * {@link #ehQuadroMusicalDeDuracaoZero} — e 6 falas comuns de duração zero, que são o
+     * defeito que a regra existe para pegar.
      * <p>INVARIANTES DO DOMÍNIO: exige os DOIS sinais juntos — início igual ao fim (nem
      * negativo, nem ilegível) E texto feito só de blocos {@code {...}}, sem nada visível.
      * Fala com texto visível e duração zero, ou linha vazia com duração, continuam defeito.
@@ -120,6 +122,54 @@ public final class TempoEventoUtil {
         }
         // Texto não vazio que some inteiro ao tirar os blocos {...}: só havia blocos.
         return evento.texto().replaceAll("\\{[^}]*}", "").isBlank();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece o quadro de efeito de karaokê (KFX) que o template do
+     * fansub grava com duração zero — sílaba que aparece e some na animação, invisível de
+     * propósito. Cada um virava ERROR "Timestamp Inválido": 978 no 86 e 26.742 no DanMachi, e
+     * a abertura de cada episódio tornava "limpo" inalcançável (auditoria de 08/10/2026, A8,
+     * medido no acervo).
+     * <p>INVARIANTES DO DOMÍNIO: duração exatamente zero E estilo que declara música, perguntado
+     * ao dono único ({@link PadraoEstiloMusical#nomeDeclaraMusica}). Medido: as 27.720 linhas de
+     * duração zero com texto em estilo de música são todas KFX; as 6 de duração zero fora de
+     * música são fala comum e continuam acusadas. Risco declarado: letra de música cujo tempo
+     * se corrompesse para duração zero exata deixaria de ser acusada (0 no acervo).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: evento nulo ou tempo ilegível devolve {@code false};
+     * nunca lança.
+     */
+    public static boolean ehQuadroMusicalDeDuracaoZero(EventoLegenda evento) {
+        if (evento == null || !PadraoEstiloMusical.nomeDeclaraMusica(evento.estilo())) {
+            return false;
+        }
+        Diagnostico d = diagnosticar(evento);
+        return d.status() == StatusTempo.FIM_ANTES_INICIO && d.inicioMs() == d.fimMs();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece a linha sem fala que NÃO é fala perdida, qualquer que seja
+     * a duração: a nota do fansub feita só de comentário ({@code {Intro}}, {@code {OP}}, sem
+     * nenhuma tag de override) e o portador de efeito de karaokê (só tags, em estilo de música —
+     * o brilho, o borrão, a moldura da sílaba). Medido no acervo em 08/10/2026: 41.146 linhas
+     * assim viravam WARNING "Diálogo Vazio" — 12.188 só na abertura do 86 —, afogando o
+     * relatório (auditoria de 08/10/2026, A8).
+     * <p>INVARIANTES DO DOMÍNIO: texto não vazio feito só de blocos {@code {...}}; e (nenhum bloco
+     * com barra invertida) ou (estilo que declara música, perguntado ao dono único). Fala de
+     * diálogo que perdeu o texto e ficou só com tags continua acusada. A letra que perde o
+     * texto na tradução é pega pela comparação (RegraDanoKaraoke) no modo Ambas; no modo de
+     * arquivo único ela fica indistinguível do portador — limite declarado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: evento ou texto nulo devolve {@code false}; nunca lança.
+     */
+    public static boolean ehLinhaSemFalaDeProposito(EventoLegenda evento) {
+        if (evento == null || evento.texto() == null || evento.texto().isBlank()) {
+            return false;
+        }
+        String texto = evento.texto();
+        if (!texto.replaceAll("\\{[^}]*}", "").isBlank()) {
+            return false;
+        }
+        boolean soComentario = !texto.contains("\\");
+        return soComentario || PadraoEstiloMusical.nomeDeclaraMusica(evento.estilo());
     }
 
     private static Diagnostico combinar(Instante inicio, Instante fim) {

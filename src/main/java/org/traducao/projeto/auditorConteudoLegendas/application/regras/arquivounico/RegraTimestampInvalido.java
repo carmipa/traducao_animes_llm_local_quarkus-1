@@ -18,7 +18,8 @@ import java.util.List;
  * <p>INVARIANTES DO DOMÍNIO: só eventos {@code Dialogue} com tempo legível são
  * avaliados; a comparação usa milissegundos absolutos. O marcador de capítulo do
  * fansub (duração zero de propósito, texto só de blocos {@code {...}}) não é fala e
- * fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala}.
+ * fica de fora — ver {@link TempoEventoUtil#ehMarcadorSemFala} —, e o quadro de KFX de
+ * duração zero em estilo de música também ({@link TempoEventoUtil#ehQuadroMusicalDeDuracaoZero}).
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: evento sem tempo interpretável é ignorado
  * (a regra {@link RegraTagOverrideNaoFechada} e as demais cobrem outros danos).
@@ -35,7 +36,8 @@ public class RegraTimestampInvalido implements RegraAuditoriaArquivoUnico {
     public List<AnomaliaConteudo> auditar(DocumentoLegenda documento) {
         List<AnomaliaConteudo> anomalias = new ArrayList<>();
         for (EventoLegenda evento : documento.eventos()) {
-            if (!evento.isDialogo() || TempoEventoUtil.ehMarcadorSemFala(evento)) {
+            if (!evento.isDialogo() || TempoEventoUtil.ehMarcadorSemFala(evento)
+                || TempoEventoUtil.ehQuadroMusicalDeDuracaoZero(evento)) {
                 continue;
             }
             TempoEventoUtil.Diagnostico d = TempoEventoUtil.diagnosticar(evento);

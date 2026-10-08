@@ -3,6 +3,7 @@ package org.traducao.projeto.auditorConteudoLegendas.application.regras;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.traducao.projeto.auditorConteudoLegendas.domain.AnomaliaConteudo;
 import org.traducao.projeto.auditorConteudoLegendas.domain.RegraAuditoriaConteudo;
+import org.traducao.projeto.auditorConteudoLegendas.domain.TempoEventoUtil;
 import org.traducao.projeto.legenda.application.DetectorEfeitoKaraokeService;
 import org.traducao.projeto.legenda.domain.DocumentoLegenda;
 import org.traducao.projeto.legenda.domain.EventoLegenda;
@@ -21,7 +22,9 @@ import java.util.stream.Collectors;
  * <p>INVARIANTES DO DOMÍNIO: letra japonesa/romaji alterada é CRITICAL; a camada que o fansub
  * declara inglesa ({@code ED - EN}, {@code Song ENG}) é tratada como música traduzível — é a
  * que a Tradução de Karaokê (4.1) traduz por decisão —, e nela só expansão anormal e tag
- * {@code \k} perdida são acusadas.
+ * {@code \k} perdida são acusadas. Linha com texto no original que ficou só de tags/comentário
+ * na tradução é ERROR (verso ou fala apagado) — o controle que cobre o que a regra de arquivo
+ * único deixou de acusar.
  *
  * <p>COMPORTAMENTO EM CASO DE FALHA: evento sem par ou sem texto é ignorado; nunca lança.
  */
@@ -56,6 +59,23 @@ public class RegraDanoKaraoke implements RegraAuditoriaConteudo {
             }
 
             String textoOrig = eventoOrig.texto();
+            // Controle compensatório (auditoria de 08/10, A8): a regra de arquivo único deixou de
+            // acusar a linha só de tags em estilo de música e a nota só de comentário, porque no
+            // ORIGINAL elas são o portador de efeito e a nota do fansub. Com o par na mão dá para
+            // separar: se o original tinha texto, a tradução apagou o verso/a fala.
+            if (TempoEventoUtil.ehLinhaSemFalaDeProposito(eventoTrad)
+                && !extrairTextoVisivelAss(textoOrig).isEmpty()) {
+                anomalias.add(new AnomaliaConteudo(
+                    AnomaliaConteudo.TipoSeveridade.ERROR,
+                    getNome(),
+                    "A linha tinha texto visível no original e ficou só com tags/comentário na tradução "
+                        + "(verso ou fala apagado).",
+                    eventoOrig,
+                    eventoTrad,
+                    "Restaure o texto da linha a partir do original e traduza de novo."
+                ));
+                continue;
+            }
             // A camada que o fansub declara inglesa é a que a 4.1 traduz de propósito: não é
             // romaji, ainda que as palavras se decomponham em sílabas (auditoria de 08/10, A9).
             boolean camadaInglesa = detectorKaraoke.ehCamadaInglesaDeclarada(eventoOrig.estilo(), textoOrig)
