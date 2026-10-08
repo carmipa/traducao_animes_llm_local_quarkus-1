@@ -173,10 +173,32 @@ class ValidadorSentidoDaFalaTest {
         "No.|Simples assim.",
         "No... it's too late.|Claro... é tarde demais.",
         "A rat?!|Que porco colorido!",
-        "\"His\"?|Dele."
+        "\"Inori is my\" what ?|Inori é a minha voz.",
+        "\"She\"?|Ela é a capitã da nave inimiga.",
+        "\"She\"?|Ela?",
+        "Ensign Reccoa is?|Reccoa é uma tenente."
     })
     void semDefeitoOuSemConsertoSeguroNaoRepara(String original, String traduzido) {
         org.junit.jupiter.api.Assertions.assertNull(validador.repararPar(original, traduzido));
+    }
+
+    @ParameterizedTest(name = "[{index}] pergunta-eco: {0} | {1} -> {2}")
+    @DisplayName("pergunta-eco entre aspas que perdeu o '?': o reparo devolve a interrogação e o resultado passa")
+    // os 8 casos dos caches do acervo (75.856 pares distintos), mais tag no fim
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "\"Deliberately\"?|De forma deliberada.|De forma deliberada?",
+        "\"She\"?|Ela.|Ela?",
+        "\"His\"?|Dele.|Dele?",
+        "\"Genomic Resonance Gauge\"?|Medidor de Genomic Resonance.|Medidor de Genomic Resonance?",
+        "\"President Ouma\"...?|Presidente Ouma|Presidente Ouma...?",
+        "\"This time\"?|Desta vez.|Desta vez?",
+        "'Our\"?|Nosso|Nosso?",
+        "\"Ronah girl\"?|Menina Ronah|Menina Ronah?",
+        "\"She\"?|{\\i1}Ela.{\\i0}|{\\i1}Ela?{\\i0}"
+    })
+    void perguntaEcoEntreAspasEhReparada(String original, String traduzido, String esperado) {
+        org.junit.jupiter.api.Assertions.assertEquals(esperado, validador.repararPar(original, traduzido));
+        assertDoesNotThrow(() -> validador.validarPar(original, esperado));
     }
 
     @Test

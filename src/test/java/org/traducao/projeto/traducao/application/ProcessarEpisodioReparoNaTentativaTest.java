@@ -86,7 +86,8 @@ class ProcessarEpisodioReparoNaTentativaTest {
         "Uraki! Keith! What the hell are you doing?!|Kou! Chuck! O que diabos vocês estão fazendo?!|Uraki! Keith! O que diabos vocês estão fazendo?!",
         "Handler One to Pleiades:|Lena para Plêiades:|Handler One para Plêiades:",
         "No... it's too late for that. It's selfish.|Sim... é tarde demais para isso. É egoísta.|Não... é tarde demais para isso. É egoísta.",
-        "No.|Sim.|Não."
+        "No.|Sim.|Não.",
+        "\"She\"?|Ela.|Ela?"
     })
     void defeitoComConsertoSaiConsertado(String original, String candidato, String esperado) throws Exception {
         LlmTeimoso llm = new LlmTeimoso(candidato);

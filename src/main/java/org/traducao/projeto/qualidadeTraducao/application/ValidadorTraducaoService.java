@@ -342,6 +342,17 @@ public class ValidadorTraducaoService {
         "^((?:\\{[^}]*\\}|\\[\\[TAG\\d+\\]\\]|[^\\p{L}\\p{N}])*)(?:(s)-)?(sim)(?![\\p{L}\\p{N}])",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
+    /** Pergunta-eco: o original visível é SÓ um trecho entre aspas seguido de "?"; grupo 1, as reticências. */
+    private static final Pattern PERGUNTA_ECO_ENTRE_ASPAS = Pattern.compile(
+        "^\\s*[\"'“‘][^\"“”]{1,40}[\"'”’]\\s*(\\.\\.\\.|…)?\\s*\\?\\s*$");
+
+    /** A eco é curta: tradução maior que isto não é eco, é outra coisa, e não se repara. */
+    private static final int MAX_PALAVRAS_PERGUNTA_ECO = 4;
+
+    /** Pontuação final da fala e, no grupo 1, o que vem depois dela sem aparecer (tags, marcadores). */
+    private static final Pattern FIM_DA_FALA = Pattern.compile(
+        "[\\s.!…]*((?:\\{[^}]*\\}|\\[\\[TAG\\d+\\]\\]|\\s)*)$");
+
     /** Qualquer negação na tradução absolve: "Claro que não!" é a resposta certa a "No way!". */
     private static final Pattern NEGACAO_NA_TRADUCAO = Pattern.compile(
         "\\b(?:não|nao|nem|nunca|jamais|nenhum|nenhuma|nada|ninguém|ninguem)\\b",
@@ -1078,11 +1089,16 @@ public class ValidadorTraducaoService {
      * <h2>Invariantes do domínio</h2>
      * <ul>
      *   <li>Só conserta o que o próprio portão acusaria, pela mesma condição: troca de entidade
-     *       ({@link #repararTrocaDeEntidade(String, String)}) e polaridade invertida
-     *       ({@link #polaridadeInvertida}). Pergunta perdida NÃO tem reparo — o mesmo sinal cobre
-     *       a pergunta que só perdeu o "?" e a fala que o modelo respondeu em vez de traduzir
-     *       ("A rat?!" → "Que porco colorido!"); trocar o ponto final por "?" publicaria a
-     *       segunda.</li>
+     *       ({@link #repararTrocaDeEntidade(String, String)}), polaridade invertida
+     *       ({@link #polaridadeInvertida}) e, da pergunta perdida, SÓ a pergunta-eco entre aspas.
+     *       O resto da pergunta perdida não tem reparo — o mesmo sinal cobre a pergunta que só
+     *       perdeu o "?" e a fala que o modelo respondeu em vez de traduzir ("A rat?!" → "Que porco
+     *       colorido!"); trocar o ponto final por "?" publicaria a segunda.</li>
+     *   <li>A pergunta-eco é o original que é SÓ um trecho entre aspas seguido de "?"
+     *       ({@code "\"She\"?"}) e a tradução sem "?" com até {@value #MAX_PALAVRAS_PERGUNTA_ECO}
+     *       palavras: o ponto final (ou nada) vira "?", com as reticências do original. Critério
+     *       declarado antes da medição: nos 75.856 pares, 8 casos ("Ela." → "Ela?", "Desta vez." →
+     *       "Desta vez?", "Presidente Ouma" → "Presidente Ouma...?"), os 8 certos depois do reparo.</li>
      *   <li>A polaridade só se conserta quando a tradução ABRE com a palavra "Sim" (com gagueira
      *       {@code "S-Sim"}, depois de tags e marcadores): ela vira {@code "Não"} na mesma caixa e
      *       o resto da fala fica intacto. Outras afirmativas ("Claro", "Certo") seguem
@@ -1110,6 +1126,17 @@ public class ValidadorTraducaoService {
             if (m.find()) {
                 String gagueira = m.group(2) == null ? "" : comCaixaDe(m.group(2), "n") + "-";
                 atual = m.group(1) + gagueira + comCaixaDe(m.group(3), "não") + atual.substring(m.end());
+            }
+        }
+        String originalVisivel = visivel(original);
+        String atualVisivel = visivel(atual);
+        Matcher eco = PERGUNTA_ECO_ENTRE_ASPAS.matcher(originalVisivel);
+        if (eco.matches() && perguntaPerdida(originalVisivel, atualVisivel)
+            && atualVisivel.split("\\s+").length <= MAX_PALAVRAS_PERGUNTA_ECO) {
+            Matcher fim = FIM_DA_FALA.matcher(atual);
+            if (fim.find()) {
+                String reticencias = eco.group(1) == null ? "" : "...";
+                atual = atual.substring(0, fim.start()) + reticencias + "?" + fim.group(1);
             }
         }
         return atual.equals(traduzido) ? null : atual;
