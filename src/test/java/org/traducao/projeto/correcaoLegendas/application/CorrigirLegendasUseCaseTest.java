@@ -106,6 +106,63 @@ class CorrigirLegendasUseCaseTest {
         assertEquals(1, corretor.chamadas, "Karaokê protegido não deve passar pelo LLM de cura");
     }
 
+    /**
+     * K1 da auditoria de 08/10/2026: com a original "Ep01_eng.ass", o candidato de par gerado por
+     * {@code replace("_ENG", ...)} era o PRÓPRIO nome dela, achado "ao lado" — a original era
+     * pareada consigo mesma e regravada (o espaço final sumia, e com obra escolhida receberia
+     * português). O lado legítimo (A1) é o mesmo par: a traduzida de verdade tem de ser curada.
+     */
+    @Test
+    void originalNuncaEGravadaEOParDeVerdadeECurado() throws IOException {
+        Path pastaOriginal = Files.createDirectories(tempDir.resolve("orig"));
+        Path pastaTraduzida = Files.createDirectories(tempDir.resolve("pt"));
+        Path original = pastaOriginal.resolve("Ep01_eng.ass");
+        Path traduzido = pastaTraduzida.resolve("Ep01_PT-BR.ass");
+        Files.writeString(original, ass("{\\an8}Hello there. ", "Bye."));
+        Files.writeString(traduzido, ass("Olá.", "Tchau."));
+        byte[] originalAntes = Files.readAllBytes(original);
+
+        CorrigirLegendasUseCase useCase = novoUseCase();
+        useCase.corrigirPasta(pastaOriginal, pastaTraduzida, null);
+
+        org.junit.jupiter.api.Assertions.assertArrayEquals(originalAntes, Files.readAllBytes(original),
+            "a ORIGINAL foi regravada: " + Files.readString(original));
+        assertTrue(Files.readString(traduzido).contains("{\\an8}Olá."),
+            "o par de verdade tem de receber a tag da original: " + Files.readString(traduzido));
+    }
+
+    /** K1, lado sem par: original sozinha vira "sem par" e não é tocada. */
+    @Test
+    void originalSemParViraSemParENaoETocada() throws IOException {
+        Path pastaOriginal = Files.createDirectories(tempDir.resolve("orig2"));
+        Path pastaTraduzida = Files.createDirectories(tempDir.resolve("pt2"));
+        Path original = pastaOriginal.resolve("Ep02_eng.ass");
+        Files.writeString(original, ass("{\\an8}Hello there. ", "Bye."));
+        byte[] originalAntes = Files.readAllBytes(original);
+
+        var resultado = novoUseCase().corrigirPasta(pastaOriginal, pastaTraduzida, null);
+
+        org.junit.jupiter.api.Assertions.assertArrayEquals(originalAntes, Files.readAllBytes(original),
+            "a original sem par foi regravada");
+        assertEquals(1, resultado.semPar(), "original sem traducao tem de contar como sem par");
+    }
+
+    private CorrigirLegendasUseCase novoUseCase() {
+        return new CorrigirLegendasUseCase(
+            new LeitorLegendaAss(),
+            new EscritorLegendaAss(),
+            new SanitizadorTagsService(),
+            new CorretorFake(),
+            new GerenciadorContexto(List.of(new ContextoFake())),
+            new TelemetriaFake(),
+            new LogPersistenciaFake(),
+            new DetectorEfeitoKaraokeService(),
+            new PoliticaEstiloMusical(List.of("Song JP")),
+            new MascaradorTags(),
+            new ProtecaoLegendaAssService()
+        );
+    }
+
     private String ass(String primeiraFala, String segundaFala) {
         return assComEstiloPrimeiraFala("Default", primeiraFala, segundaFala);
     }

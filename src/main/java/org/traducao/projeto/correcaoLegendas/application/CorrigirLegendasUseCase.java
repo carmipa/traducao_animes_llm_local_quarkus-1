@@ -213,6 +213,14 @@ public class CorrigirLegendasUseCase {
             out(eventos, "WARN", nomeOriginal, "Sem legenda traduzida pareada para " + nomeOriginal, AnsiCores.YELLOW);
             return;
         }
+        // Segunda camada do invariante "a original nunca é gravada": mesmo que o pareamento mude e
+        // volte a devolver a própria original, ela não chega ao escritor.
+        if (mesmoArquivo(arqTraduzido, arqOriginal)) {
+            semPar[0]++;
+            out(eventos, "WARN", nomeOriginal, "Par recusado: o arquivo traduzido encontrado e' a propria "
+                + "original (" + nomeOriginal + "). A original nunca e' gravada.", AnsiCores.YELLOW);
+            return;
+        }
 
         try {
             DocumentoLegenda docOriginal = leitor.ler(arqOriginal);
@@ -425,24 +433,54 @@ public class CorrigirLegendasUseCase {
         candidatos.add(nomeBase.replace("_en", "_PTBR") + ".ass");
 
         for (String candidato : candidatos) {
+            // Um replace que não muda nada ("_ENG" em "Ep01_eng") devolve o PRÓPRIO nome da original,
+            // e o passo "ao lado" o encontrava: a original era pareada consigo mesma e regravada
+            // (auditoria de 08/10/2026, achado K1). Candidato igual à original nunca é par.
+            if (candidato.equalsIgnoreCase(nomeOriginal)) {
+                continue;
+            }
             // 1. Ao lado do próprio original (pastas mistas EN+PT).
             Path aoLado = arqOriginal.resolveSibling(candidato);
-            if (Files.exists(aoLado)) {
+            if (Files.exists(aoLado) && !mesmoArquivo(aoLado, arqOriginal)) {
                 return aoLado;
             }
             // 2. Raiz da pasta traduzida (layout plano, comportamento original).
             Path naRaiz = pastaTraduzida.resolve(candidato);
-            if (Files.exists(naRaiz)) {
+            if (Files.exists(naRaiz) && !mesmoArquivo(naRaiz, arqOriginal)) {
                 return naRaiz;
             }
             // 3. Qualquer subpasta da pasta traduzida, via índice pré-computado.
             List<Path> nomeIgual = indiceTraduzidas.get(candidato.toLowerCase());
-            if (nomeIgual != null && !nomeIgual.isEmpty()) {
-                return nomeIgual.get(0);
+            if (nomeIgual != null) {
+                for (Path p : nomeIgual) {
+                    if (!mesmoArquivo(p, arqOriginal)) {
+                        return p;
+                    }
+                }
             }
         }
 
         return pastaTraduzida.resolve(nomeBase + "_PT-BR.ass");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se dois caminhos apontam para o MESMO arquivo, para que a legenda
+     * original — referência imutável — nunca seja tomada como o arquivo traduzido a gravar.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: usa a identidade do sistema de arquivos ({@code isSameFile}),
+     * que resolve maiúsculas no Windows, links e caminhos relativos.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: se a identidade não puder ser lida, compara os caminhos
+     * absolutos normalizados sem diferenciar maiúsculas — e na dúvida trata como o mesmo arquivo
+     * só quando o caminho coincide, nunca por semelhança de nome.
+     */
+    private static boolean mesmoArquivo(Path a, Path b) {
+        try {
+            return Files.isSameFile(a, b);
+        } catch (IOException e) {
+            return a.toAbsolutePath().normalize().toString()
+                .equalsIgnoreCase(b.toAbsolutePath().normalize().toString());
+        }
     }
 
     /**
