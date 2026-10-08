@@ -371,6 +371,54 @@ class AchatadorEstilosDecorativosServiceTest {
         assertEquals("Linha real", ev.get(5).texto());
     }
 
+    /**
+     * T2 da auditoria de 08/10/2026: fiel ao DanMachi Sword Oratoria S01E01 — {@code Default}
+     * declarado (Arial 30, canto superior direito) mas SEM nenhuma fala, e o diálogo em
+     * {@code Dungeons}. O Default vazio vencia a eleição e o diálogo inteiro ia para o canto
+     * superior direito. O CONTROLE (A1) é o mesmo arquivo com UMA fala no Default: aí ele é usado
+     * e continua sendo a base.
+     */
+    @Test
+    @DisplayName("Default declarado e sem fala nao e' base; Default usado continua sendo")
+    void defaultSemFalaNaoVenceABase(@TempDir Path dir) throws IOException {
+        String cabecalho = String.join("\n",
+            "[Script Info]",
+            "ScriptType: v4.00+",
+            "",
+            "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+                + "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+                + "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+            "Style: Default,Arial,30,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,3,3,9,15,15,15,1",
+            "Style: Dungeons,CarrefourMetis,78,&H00FFFFFF,&HFF0000FF,&H00441111,&H00000000,-1,0,0,0,"
+                + "85,100,0.75,0,1,5,0,2,200,200,42,1",
+            "Style: Signs,Althea,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,0,5,10,10,10,1",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
+        String dialogo = String.join("\n",
+            "Dialogue: 0,0:00:10.00,0:00:14.00,Dungeons,,0,0,0,,Bell, cuidado!",
+            "Dialogue: 0,0:00:15.00,0:00:19.00,Dungeons,,0,0,0,,Eu vou voltar.",
+            "Dialogue: 0,0:00:20.00,0:00:21.00,Signs,,0,0,0,,{\\pos(960,200)}Orario");
+
+        Path semUso = dir.resolve("sem_uso.ass");
+        Files.writeString(semUso, cabecalho + "\n" + dialogo + "\n", StandardCharsets.UTF_8);
+        var ev = achatador.achatar(leitor.ler(semUso)).documento().eventos();
+        assertEquals("Dungeons", ev.get(0).estilo(),
+            "o dialogo foi parar no estilo \"" + ev.get(0).estilo() + "\"; o Default vazio nao pode ser base");
+        assertEquals("Dungeons", ev.get(2).estilo(), "a placa vai para a base real (Dungeons)");
+
+        Path comUso = dir.resolve("com_uso.ass");
+        Files.writeString(comUso, cabecalho + "\n"
+            + "Dialogue: 0,0:00:05.00,0:00:06.00,Default,,0,0,0,,Fala no Default\n" + dialogo + "\n",
+            StandardCharsets.UTF_8);
+        var evControle = achatador.achatar(leitor.ler(comUso)).documento().eventos();
+        assertEquals("Default", evControle.get(3).estilo(),
+            "CONTROLE: com o Default em uso ele continua sendo a base, e a placa vai para ele");
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);

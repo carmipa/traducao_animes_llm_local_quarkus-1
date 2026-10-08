@@ -30,8 +30,9 @@ import java.util.regex.Pattern;
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>O estilo BASE é o {@code Default} quando existe no cabeçalho; na sua
- *       ausência, o estilo usado pela maior parte das falas {@code Dialogue}. Se
+ *   <li>O estilo BASE é o {@code Default} quando existe no cabeçalho E alguma fala o usa; na
+ *       ausência (ou se ele está vazio), o estilo com mais tempo de tela entre as falas
+ *       {@code Dialogue}. Se
  *       nenhum estilo base com fonte conhecida puder ser determinado, o documento
  *       volta INALTERADO (viés de preservação).</li>
  *   <li>Uma fala só é achatada quando é {@code Dialogue}, seu estilo NÃO é o base,
@@ -327,7 +328,8 @@ public class AchatadorEstilosDecorativosService {
      * PROPÓSITO DE NEGÓCIO: elege o estilo de diálogo principal (a "fonte da verdade"
      * de legibilidade) usado como alvo do achatamento.
      *
-     * <p>INVARIANTES DO DOMÍNIO: prefere {@code Default} quando presente no cabeçalho.
+     * <p>INVARIANTES DO DOMÍNIO: prefere {@code Default} quando presente no cabeçalho E usado
+     * por alguma fala {@code Dialogue} — declarado e vazio, é resto de template e não conta.
      * Na ausência dele, vence o estilo com MAIOR TEMPO DE TELA entre as falas
      * {@code Dialogue} com fonte declarada — nunca o mais numeroso. Contagem de eventos
      * só decide quando nenhuma duração pôde ser lida (legenda sem colunas Start/End ou
@@ -349,8 +351,13 @@ public class AchatadorEstilosDecorativosService {
      * {@code null}, sinalizando a {@link #achatar} para preservar o documento.
      */
     private String determinarEstiloBase(DocumentoLegenda documento, Map<String, String> fontesPorEstilo) {
+        // O Default só é preferido quando alguma fala Dialogue o USA. Declarado e vazio, ele é
+        // resto de template: no DanMachi Sword Oratoria é Arial 30 no canto superior direito
+        // (Alignment 9), com 0 falas, e as 298 do diálogo em "Dungeons" iam parar lá; no ZZ (46
+        // episódios) é Arial 60 sem contorno, também sem uso. Auditoria de 08/10/2026, achado T2.
         for (AuditoriaFonteInfo info : auditoriaFontes.analisarCabecalho(documento.cabecalho())) {
-            if (info.estilo().equalsIgnoreCase(ESTILO_BASE_PREFERIDO)) {
+            if (info.estilo().equalsIgnoreCase(ESTILO_BASE_PREFERIDO)
+                && estiloTemFala(documento, info.estilo())) {
                 return info.estilo();
             }
         }
@@ -380,6 +387,27 @@ public class AchatadorEstilosDecorativosService {
             .max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey)
             .orElse(null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se um estilo declarado no cabeçalho é de fato usado por alguma
+     * fala, para que um estilo de template vazio não seja eleito como base do achatamento.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só conta linhas {@code Dialogue}; comparação de nome sem
+     * diferenciar maiúsculas, como no resto da classe.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: lista de eventos ou estilo nulos devolvem {@code false}.
+     */
+    private static boolean estiloTemFala(DocumentoLegenda documento, String estilo) {
+        if (documento.eventos() == null || estilo == null) {
+            return false;
+        }
+        for (EventoLegenda evento : documento.eventos()) {
+            if (evento != null && evento.isDialogo() && estilo.equalsIgnoreCase(evento.estilo())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
