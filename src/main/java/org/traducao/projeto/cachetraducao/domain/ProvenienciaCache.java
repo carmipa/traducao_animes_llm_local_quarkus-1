@@ -51,6 +51,16 @@ public record ProvenienciaCache(
     public static final int SCHEMA_ATUAL = 1;
 
     /**
+     * Subpasta, dentro da pasta da obra no cache, onde mora o cache da tradução SEM lore (2.2).
+     * Endereço próprio porque a 2.2 grava com outra proveniência: no MESMO arquivo da 2.1 ela
+     * despejava o cache com lore (e as correções da 2.3) do caminho ativo, e a base de mescla
+     * {@code .publicado}, derivada da pasta do cache, também era sobrescrita (auditoria de
+     * 08/10/2026, achados L1 e L2). Leitores recursivos do cache da tradução definitiva (3.1,
+     * manutenção 2.3) excluem esta subpasta.
+     */
+    public static final String SUBPASTA_SEM_LORE = "sem_lore";
+
+    /**
      * PROPÓSITO DE NEGÓCIO: a forma de SEMPRE — proveniência sem herança, que é o caso normal.
      *
      * <p>INVARIANTES DO DOMÍNIO: existe para que acrescentar {@code modeloHerdado} não obrigue os

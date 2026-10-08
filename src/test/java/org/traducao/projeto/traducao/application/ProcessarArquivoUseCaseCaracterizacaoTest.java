@@ -1127,6 +1127,40 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
             "a corrente reprovada nao pode ir para o cache parcial:\n" + conteudo);
     }
 
+    /**
+     * L1 e L2 da auditoria de 08/10/2026 (reproduzidos em execução com LLM falso): a 2.2 gravava o
+     * cache sem lore no MESMO arquivo da 2.1. O cache com lore (e a correção feita nele pela 2.3)
+     * saía do caminho ativo, a 2.1 seguinte retraduzia tudo e a correção não chegava ao _PT-BR; a
+     * base de mescla {@code .publicado}, derivada da pasta do cache, também era sobrescrita.
+     */
+    @Test
+    @DisplayName("L1/L2: traducao sem lore nao toca o cache nem a base de mescla da traducao com lore")
+    void traducaoSemLoreNaoDespejaCacheNemBaseDaTraducaoComLore() throws Exception {
+        Path entrada = escreverAss("ep.ass", "Hello there", "Where is Captain Bright?");
+        Path cacheComLore = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        Path baseComLore = raiz.resolve("cache").resolve("AnimeTeste").resolve(".publicado").resolve("ep_PT-BR.ass");
+
+        montar(new FakeLlmPort()).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+        String cacheEditado = Files.readString(cacheComLore, StandardCharsets.UTF_8)
+            .replace("\"traduzido\" : \"fala traduzida\"", "\"traduzido\" : \"CORRECAO DA 2.3\"");
+        assertTrue(cacheEditado.contains("CORRECAO DA 2.3"), "o ensaio precisa conseguir editar o cache");
+        Files.writeString(cacheComLore, cacheEditado, StandardCharsets.UTF_8);
+        byte[] baseAntes = Files.readAllBytes(baseComLore);
+
+        org.traducao.projeto.lore.domain.SnapshotContexto semLore = new org.traducao.projeto.lore.domain.SnapshotContexto(
+            "sem_lore", "Sem lore", "Traduza sem lore.", "", Set.of(), java.util.Map.of(), Set.of(), java.util.Map.of());
+        montar(new FakeLlmPort()).processar(entrada, false, semLore, true);
+
+        String cacheDepois = Files.readString(cacheComLore, StandardCharsets.UTF_8);
+        assertTrue(cacheDepois.contains("\"caracterizacao\"") && cacheDepois.contains("CORRECAO DA 2.3"),
+            "o cache COM lore foi despejado pela 2.2:\n" + cacheDepois);
+        org.junit.jupiter.api.Assertions.assertArrayEquals(baseAntes, Files.readAllBytes(baseComLore),
+            "a base de mescla da 2.1 foi sobrescrita pela 2.2");
+        Path cacheSemLore = raiz.resolve("cache").resolve("AnimeTeste").resolve("sem_lore").resolve("ep.cache.json");
+        assertTrue(Files.exists(cacheSemLore), "o cache sem lore tem de existir no endereco proprio");
+        assertTrue(Files.readString(cacheSemLore, StandardCharsets.UTF_8).contains("\"sem_lore\""));
+    }
+
     private ProcessarArquivoUseCase montar(FakeLlmPort llm) {
         return montar(llm, new ConsoleUILogger());
     }

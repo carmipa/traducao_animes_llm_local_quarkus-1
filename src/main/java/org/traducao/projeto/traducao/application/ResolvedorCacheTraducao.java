@@ -93,11 +93,32 @@ public class ResolvedorCacheTraducao {
      * reconhecível usa {@code "Desconhecido"} como anime.
      */
     public Path resolverArquivoCache(Path entrada) {
+        return resolverArquivoCache(entrada, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: mesmo endereço do cache do episódio, separando a tradução SEM lore
+     * (2.2) da tradução com lore (2.1), para que rodar uma nunca substitua o banco bilíngue da
+     * outra.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: contexto {@code sem_lore} grava em
+     * {@code <diretorioCache>/<anime>/sem_lore/<base>.cache.json}; qualquer outro contexto (ou
+     * nenhum) mantém o endereço de sempre — o acervo já traduzido continua sendo encontrado.
+     * A base de mescla {@code .publicado} e as gerações arquivadas ficam ao lado do cache, então
+     * se separam junto.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura, sem I/O; contexto nulo é o caminho comum.
+     */
+    public Path resolverArquivoCache(Path entrada, String contextoId) {
         String nome = entrada.getFileName().toString();
         String extensao = resolvedorSaida.extensaoLegenda(nome);
         String base = nome.substring(0, nome.length() - extensao.length());
         String animeNome = animeAPartirDoArquivo(entrada);
-        return pastasExecucao.diretorioCache().resolve(animeNome).resolve(base + ".cache.json");
+        Path pastaObra = pastasExecucao.diretorioCache().resolve(animeNome);
+        if (ProvenienciaCache.SUBPASTA_SEM_LORE.equals(contextoId)) {
+            pastaObra = pastaObra.resolve(ProvenienciaCache.SUBPASTA_SEM_LORE);
+        }
+        return pastaObra.resolve(base + ".cache.json");
     }
 
     /**

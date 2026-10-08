@@ -87,6 +87,9 @@ public class ResolvedorArtefatosRevisao {
             try (Stream<Path> stream = Files.walk(cacheDir)) {
                 return stream
                     .filter(Files::isRegularFile)
+                    // O cache da tradução SEM lore (2.2) tem o MESMO nome do da definitiva e mora
+                    // em subpasta própria; a revisão é da definitiva e não pode escolhê-lo.
+                    .filter(p -> !estaNaSubpastaSemLore(cacheDir, p))
                     .filter(p -> correspondeCache(p.getFileName().toString(), baseMidia, codigoEpisodio))
                     .sorted()
                     .findFirst()
@@ -97,6 +100,31 @@ public class ResolvedorArtefatosRevisao {
         }
 
         return cacheDir.resolve(baseMidia + "_ENG" + SUFIXO_CACHE);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece o cache da tradução SEM lore (2.2), que não pode servir de
+     * referência para revisar a tradução definitiva.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: olha só os segmentos ABAIXO da raiz da busca, para que uma raiz
+     * que por acaso se chame "sem_lore" não esconda tudo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo fora da raiz devolve {@code false} (o filtro de
+     * correspondência decide).
+     */
+    private static boolean estaNaSubpastaSemLore(Path raiz, Path arquivo) {
+        Path r = raiz.toAbsolutePath().normalize();
+        Path a = arquivo.toAbsolutePath().normalize();
+        if (!a.startsWith(r)) {
+            return false;
+        }
+        for (Path segmento : r.relativize(a)) {
+            if (org.traducao.projeto.cachetraducao.domain.ProvenienciaCache.SUBPASTA_SEM_LORE
+                    .equalsIgnoreCase(segmento.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

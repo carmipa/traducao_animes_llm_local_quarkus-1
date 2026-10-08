@@ -266,7 +266,10 @@ public class CacheManutencaoService {
         if (!arquivo.startsWith(raiz)) return true;
         for (Path segmento : raiz.relativize(arquivo)) {
             String nome = segmento.toString();
-            if ("karaoke".equalsIgnoreCase(nome) || "auditoria".equalsIgnoreCase(nome)) return true;
+            if ("karaoke".equalsIgnoreCase(nome) || "auditoria".equalsIgnoreCase(nome)
+                || org.traducao.projeto.cachetraducao.domain.ProvenienciaCache.SUBPASTA_SEM_LORE.equalsIgnoreCase(nome)) {
+                return true;
+            }
         }
         return false;
     }

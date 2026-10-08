@@ -348,7 +348,7 @@ public class ProcessarArquivoUseCase {
         log.info("Lendo arquivo de legenda: {}", arquivoEntrada);
         DocumentoLegenda documento = ehSrt ? leitorSrt.ler(arquivoEntrada) : leitor.ler(arquivoEntrada);
 
-        Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada);
+        Path arquivoCache = resolvedorCache.resolverArquivoCache(arquivoEntrada, contexto.id());
         ProvenienciaCache proveniencia = resolvedorCache.provenienciaDe(contexto);
         boolean cacheAnteriorJaPreservado = false;
         if (permitirRetraducao && Files.exists(arquivoCache)) {

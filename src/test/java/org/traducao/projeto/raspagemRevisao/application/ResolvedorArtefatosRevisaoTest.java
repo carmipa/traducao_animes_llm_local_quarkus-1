@@ -124,6 +124,30 @@ class ResolvedorArtefatosRevisaoTest {
 
     private final ResolvedorArtefatosRevisao resolvedor = new ResolvedorArtefatosRevisao();
 
+    /**
+     * L1 da auditoria de 08/10/2026, ponta da 3.1: o cache da tradução sem lore (2.2) mora em
+     * {@code <obra>/sem_lore/} com o MESMO nome do cache da definitiva. A revisão é da definitiva e
+     * nunca pode escolhê-lo — nem quando ele é o único que existe. O CONTROLE (A1) é o cache da
+     * definitiva ao lado: esse tem de ser achado.
+     */
+    @Test
+    @DisplayName("a revisao nunca usa o cache da traducao sem lore; o da definitiva continua sendo achado")
+    void revisaoIgnoraCacheSemLore(@org.junit.jupiter.api.io.TempDir java.nio.file.Path dir) throws java.io.IOException {
+        java.nio.file.Path cacheRaiz = dir.resolve("cache");
+        java.nio.file.Path pastaSemLore = java.nio.file.Files.createDirectories(cacheRaiz.resolve("Gundam ZZ").resolve("sem_lore"));
+        java.nio.file.Path semLore = java.nio.file.Files.writeString(
+            pastaSemLore.resolve("Gundam ZZ S01E03_Track3.cache.json"), "{}");
+        java.nio.file.Path legendaPt = dir.resolve("Gundam ZZ S01E03_Track3_PT-BR.ass");
+
+        org.junit.jupiter.api.Assertions.assertNotEquals(semLore, resolvedor.resolverArquivoCache(legendaPt, cacheRaiz),
+            "a revisao da definitiva escolheu o cache da traducao sem lore");
+
+        java.nio.file.Path definitiva = java.nio.file.Files.writeString(
+            cacheRaiz.resolve("Gundam ZZ").resolve("Gundam ZZ S01E03_Track3.cache.json"), "{}");
+        assertEquals(definitiva, resolvedor.resolverArquivoCache(legendaPt, cacheRaiz),
+            "CONTROLE: o cache da definitiva tem de continuar sendo achado");
+    }
+
     // ---------- normalização de nomes ----------
 
     @Test

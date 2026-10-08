@@ -120,4 +120,23 @@ class CacheManutencaoServiceTest {
         assertEquals(1, arquivos.size());
         assertEquals("episodio.cache.json", arquivos.getFirst().getFileName().toString());
     }
+
+    /**
+     * L1 da auditoria de 08/10/2026: o cache da tradução sem lore (2.2) mora em
+     * {@code <obra>/sem_lore/} e a manutenção (2.3) trabalha sobre a definitiva — ele não entra.
+     * O cache da definitiva, ao lado, continua listado (controle).
+     */
+    @Test
+    void listagemNaoMisturaCacheDaTraducaoSemLore() throws Exception {
+        Path raiz = temp.resolve("cache-sem-lore");
+        Files.createDirectories(raiz.resolve("anime").resolve("sem_lore"));
+        Files.writeString(raiz.resolve("anime/sem_lore/episodio.cache.json"), "[]");
+        Files.writeString(raiz.resolve("anime/episodio.cache.json"), "[]");
+
+        var arquivos = service.listarCachesTraducaoBase(raiz);
+
+        assertEquals(1, arquivos.size(), "listou: " + arquivos);
+        assertEquals("anime", arquivos.getFirst().getParent().getFileName().toString(),
+            "o cache listado tem de ser o da definitiva, nao o da traducao sem lore");
+    }
 }
