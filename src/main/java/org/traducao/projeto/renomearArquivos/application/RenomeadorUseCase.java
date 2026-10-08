@@ -71,6 +71,14 @@ public class RenomeadorUseCase {
         "(?i)\\b(?:season|temporada|temp(?:orada)?|s)\\s*[-_. ]?(\\d{1,2})\\b");
     private static final Pattern CONTEUDO_ESPECIAL_PATTERN = Pattern.compile(
         "(?i)(?:^|[\\s._\\-\\[(])(?:NC(?:OP|ED)\\d*|OVA|OAD|SP\\d*|PV\\d*|Menu|Preview|Special)(?=$|[\\s._\\-\\])(])");
+    // Temporada 00 é a convenção de tracker para ESPECIAL. Sem isto o "S00E01" virava "S01E01" e
+    // tomava o lugar do episódio 1 real: no ZZ o especial de 58 MB ficou com o nome do E01 (1.038 MB),
+    // e o 08th MS Team perdeu o E13 para o S00E13 (auditoria de 08/10/2026, achado R2).
+    private static final Pattern TEMPORADA_ZERO_PATTERN = Pattern.compile("(?i)\\bS0{1,2}[\\s._]?E\\d{1,4}");
+    // Depois do SxxEyy: "-5", ".5", "_5" (meio episódio) ou "-E04" (arquivo com dois episódios). O
+    // número do SxxEyy NÃO é o episódio inteiro, e renomear como tal tomava o nome do episódio real:
+    // no 0083 o "S01E03-5" virou "S01E03" e o E03 de verdade ficou de fora.
+    private static final Pattern SUB_EPISODIO_PATTERN = Pattern.compile("(?i)[-_.]E?\\d{1,2}(?!\\d)");
     private static final Pattern CARACTERE_CONTROLE = Pattern.compile("[\\p{Cc}]");
     private static final Pattern TRAVERSAL_CAMINHO = Pattern.compile("(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)");
     private static final Pattern SEPARADOR_EDITORIAL_INVALIDO_WINDOWS = Pattern.compile("\\s*[:/\\\\|]+\\s*");
@@ -504,10 +512,19 @@ public class RenomeadorUseCase {
      * apenas pelo fallback são marcados como não explícitos.
      */
     private EpisodioDetectado extrairEpisodio(String nome) {
-        String semExtensao = nome.replaceAll("(?:\\.[A-Za-z0-9]{1,5})+$", "");
+        // Só a ÚLTIMA extensão sai. A regex anterior, "(?:\.[A-Za-z0-9]{1,5})+$", removia todo segmento
+        // curto do fim: "Show.Name.05.mkv" virava "Show" (episódio perdido) e "Gundam.0083.Stardust.
+        // Memory.05.mkv" deixava o 0083 ganhar o fallback (auditoria de 08/10/2026, achado R7). O que
+        // ela engolia por acaso (versão "v2", ano "2023") sai agora no ruído do fallback, nomeado.
+        String semExtensao = nome.replaceFirst("\\.[A-Za-z0-9]{1,5}$", "");
         String semBrackets = semExtensao.replaceAll("\\[.*?\\]", " ").trim();
         Matcher seasonEp = SEASON_EPISODE_PATTERN.matcher(semBrackets);
-        if (seasonEp.find()) return new EpisodioDetectado(formatarNumero(seasonEp.group(2)), true);
+        if (seasonEp.find()) {
+            if (SUB_EPISODIO_PATTERN.matcher(semBrackets).region(seasonEp.end(), semBrackets.length()).lookingAt()) {
+                return new EpisodioDetectado(null, false);
+            }
+            return new EpisodioDetectado(formatarNumero(seasonEp.group(2)), true);
+        }
         Matcher separador = EPISODE_SEPARATOR_PATTERN.matcher(semBrackets);
         if (separador.find()) return new EpisodioDetectado(formatarNumero(separador.group(1)), true);
         Matcher rotulo = EPISODE_LABEL_PATTERN.matcher(semBrackets);
@@ -520,7 +537,7 @@ public class RenomeadorUseCase {
             // "AAC2 0" e o "0" solto vence o fallback como falso episódio 00.
             .replaceAll("(?i)\\b(?:AAC|AC-?3|E-?AC-?3|DDP?|DTS(?:[-. ]?HD)?(?:[-. ]?MA)?|TrueHD|FLAC|Opus|MP3|PCM)[\\s._]?\\d?(?:[._]\\d)?\\b", " ")
             .replaceAll("[_.-]+", " ")
-            .replaceAll("(?i)\\b(1080p|720p|2160p|4k|BD|BDRip|WEBRip|WEB\\s*DL|Dual\\s*Audio|Multi\\s*Audio|10bit|8bit|HEVC|AV1|x264|x265|Track\\s*\\d+|PTBR|PT\\s*BR)\\b", " ")
+            .replaceAll("(?i)\\b(1080p|720p|2160p|4k|BD|BDRip|WEBRip|WEB\\s*DL|Dual\\s*Audio|Multi\\s*Audio|10bit|8bit|HEVC|AV1|x264|x265|Track\\s*\\d+|PTBR|PT\\s*BR|v\\d{1,2}|(?:19|20)\\d{2})\\b", " ")
             .replaceAll("\\s+", " ").trim();
         Matcher fallback = EPISODE_FALLBACK.matcher(semRuido);
         String ultimo = null;
@@ -913,7 +930,7 @@ public class RenomeadorUseCase {
      * <p>COMPORTAMENTO EM CASO DE FALHA: ausência de marcador devolve falso.
      */
     private boolean ehConteudoEspecial(String nome) {
-        return CONTEUDO_ESPECIAL_PATTERN.matcher(nome).find();
+        return CONTEUDO_ESPECIAL_PATTERN.matcher(nome).find() || TEMPORADA_ZERO_PATTERN.matcher(nome).find();
     }
 
     /**

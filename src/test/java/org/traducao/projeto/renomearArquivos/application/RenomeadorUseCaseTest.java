@@ -81,6 +81,64 @@ class RenomeadorUseCaseTest {
             });
     }
 
+    /** Mapa nome original -> nome novo do que a simulação planejou renomear. */
+    private java.util.Map<String, String> plano(String padrao) {
+        java.util.Map<String, String> mapa = new java.util.TreeMap<>();
+        for (OperacaoRenomeacao.ItemRenomeado item : renomeadorUseCase.simularRenomeacao(tempDir, padrao)) {
+            mapa.put(item.nomeOriginal(), item.nomeNovo());
+        }
+        return mapa;
+    }
+
+    /**
+     * R2 da auditoria de 08/10/2026, fiel ao acervo: no ZZ o especial S00E01 virou "S01E01" e o
+     * episódio 1 real ficou com o nome antigo; no 0083 o "S01E03-5" tomou o nome do E03. Os
+     * CONTROLES (A1) carregam o mesmo sinal — traço ou ponto colado ao SxxEyy — e são episódio
+     * inteiro: " - Titulo" com espaço e ".1080p" têm de continuar sendo renomeados.
+     */
+    @Test
+    void especialEMeioEpisodioNaoTomamONomeDoEpisodioReal() throws IOException {
+        for (String nome : new String[] {"Show.S00E01.mkv", "Show.S01E01.mkv", "Show.S01E02.mkv",
+            "Show.S01E03-5.mkv", "Show.S01E03.mkv", "Show.S01E05.5.mkv", "Show.S01E06-E07.mkv",
+            "Show.S01E08 - Titulo.mkv", "Show.S01E09.1080p.mkv"}) {
+            Files.createFile(tempDir.resolve(nome));
+        }
+
+        java.util.Map<String, String> plano = plano("Show");
+
+        assertEquals("Show - S01E01.mkv", plano.get("Show.S01E01.mkv"), "o E01 real tem de receber o nome; plano: " + plano);
+        assertEquals("Show - S01E03.mkv", plano.get("Show.S01E03.mkv"), "o E03 real tem de receber o nome; plano: " + plano);
+        assertFalse(plano.containsKey("Show.S00E01.mkv"), "o especial S00 nao pode virar episodio regular");
+        assertFalse(plano.containsKey("Show.S01E03-5.mkv"), "meio episodio nao e' o episodio inteiro");
+        assertFalse(plano.containsKey("Show.S01E05.5.mkv"), "E05.5 nao e' o E05");
+        assertFalse(plano.containsKey("Show.S01E06-E07.mkv"), "arquivo com dois episodios e' ambiguo");
+        assertEquals("Show - S01E08.mkv", plano.get("Show.S01E08 - Titulo.mkv"), "CONTROLE: ' - Titulo' com espaco e' episodio inteiro");
+        assertEquals("Show - S01E09.mkv", plano.get("Show.S01E09.1080p.mkv"), "CONTROLE: '.1080p' nao e' meio episodio");
+    }
+
+    /**
+     * R7 da auditoria de 08/10/2026: a remoção de extensão comia todo segmento curto do fim, e
+     * "Show.Name.05.mkv" perdia o episódio; no "Gundam.0083.Stardust.Memory.05.mkv" o 0083 ganhava.
+     * CONTROLES do que a regex antiga engolia por acaso e não pode voltar a virar episódio: a
+     * versão "v2" e o ano "2023".
+     */
+    @Test
+    void soAUltimaExtensaoSaiENumeroDoEpisodioSobrevive() throws IOException {
+        for (String nome : new String[] {"Gundam.0083.Stardust.Memory.05.mkv", "Gundam.0083.Stardust.Memory.06.mkv",
+            "Serie.Ano.07.2023.mkv", "Serie.Ano.08.2023.mkv", "Outra 09.v2.mkv", "Outra 10.v2.mkv"}) {
+            Files.createFile(tempDir.resolve(nome));
+        }
+
+        java.util.Map<String, String> plano = plano("Show");
+
+        assertEquals("Show - S01E05.mkv", plano.get("Gundam.0083.Stardust.Memory.05.mkv"), "plano: " + plano);
+        assertEquals("Show - S01E06.mkv", plano.get("Gundam.0083.Stardust.Memory.06.mkv"), "plano: " + plano);
+        assertEquals("Show - S01E07.mkv", plano.get("Serie.Ano.07.2023.mkv"), "CONTROLE: o ano nao pode ser o episodio");
+        assertEquals("Show - S01E08.mkv", plano.get("Serie.Ano.08.2023.mkv"), "CONTROLE: o ano nao pode ser o episodio");
+        assertEquals("Show - S01E09.mkv", plano.get("Outra 09.v2.mkv"), "CONTROLE: a versao v2 nao pode ser o episodio");
+        assertEquals("Show - S01E10.mkv", plano.get("Outra 10.v2.mkv"), "CONTROLE: a versao v2 nao pode ser o episodio");
+    }
+
     @Test
     void testSimularRenomeacao() throws IOException {
         Path arquivo1 = tempDir.resolve("[SubsPlease] Anime Teste - 01 (1080p).mkv");
