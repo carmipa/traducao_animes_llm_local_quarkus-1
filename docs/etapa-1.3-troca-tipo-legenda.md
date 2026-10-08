@@ -81,9 +81,20 @@ episodio 2:  298 falas contra 297 quadros  ->  UMA linha de diferenca
   -> nos outros 47 episodios o defeito nao apareceu POR UM FIO
 ```
 
-Hoje a eleição prefere `Default` quando ele existe no cabeçalho; na ausência dele, vence o estilo
-com **maior tempo de tela** entre as falas `Dialogue` com fonte declarada. Por tempo, a separação é
-de **duas ordens de grandeza** (6 s de logo contra ~10 min de diálogo) e não depende de sorte.
+Hoje a eleição prefere `Default` quando ele existe no cabeçalho **e alguma fala o usa** (declarado
+e vazio é resto de template — no DanMachi Sword Oratoria é Arial 30 no canto superior direito); na
+ausência dele, vence o estilo com **maior tempo de tela** entre as falas `Dialogue` com fonte
+declarada. Por tempo, a separação é de **duas ordens de grandeza** (6 s de logo contra ~10 min de
+diálogo) e não depende de sorte.
+
+**Tempo de tela é a UNIÃO dos intervalos**, não a soma das linhas (08/10/2026). Somar contava cada
+camada sobreposta de karaokê como tempo próprio: no DanMachi Sword Oratoria as 15.482 linhas do
+`ED - Romaji` (90 s de encerramento) somavam mais que as 298 falas do diálogo, e o diálogo era
+achatado **para o estilo do karaokê**. Com a união, o mesmo segundo conta uma vez; para quadros
+disjuntos (o logo do Zeta) a união é igual à soma. O console diz para qual estilo as falas foram
+(`[ACHATADO] ... -> Dungeons`) — até 08/10 imprimia `-> Default` fixo, qualquer que fosse a base.
+Faixa só de letreiros/músicas, sem estilo de diálogo, continua com base arbitrária entre os
+estilos que tiver — limite declarado.
 
 > Contagem de eventos ainda decide, mas só como **último recurso** — quando nenhuma duração pôde
 > ser lida (legenda sem colunas `Start`/`End`, ou com tempos ilegíveis). Critério que só funciona
