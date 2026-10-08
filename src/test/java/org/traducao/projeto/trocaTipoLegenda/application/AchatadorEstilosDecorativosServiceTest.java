@@ -315,6 +315,62 @@ class AchatadorEstilosDecorativosServiceTest {
             "o quadro do logo perde o \\pos e o \\fs ao ser achatado");
     }
 
+    /**
+     * T1 da auditoria de 08/10/2026: fiel ao Patlabor Early Days ep03, onde o achatamento de
+     * 06/08 entregou 363 linhas de lixo — máscara {@code \p1} e textura {@code \clip}+{@code \fn}
+     * viraram fala no Default. Os três controles de FRONTEIRA (A1) carregam o mesmo sinal
+     * superficial (recorte, fonte inline, {@code \pos} que começa com "p") e têm de continuar
+     * sendo achatados, senão a regra só provou que enxerga, não que discrimina.
+     */
+    @Test
+    @DisplayName("desenho \\p1 e textura \\clip+\\fn nao viram texto; recorte, fonte inline e \\pos sozinhos continuam achatando")
+    void desenhoETexturaNaoViramTextoNoDefault(@TempDir Path dir) throws IOException {
+        String ass = String.join("\n",
+            "[Script Info]",
+            "ScriptType: v4.00+",
+            "",
+            "[V4+ Styles]",
+            "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+                + "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+                + "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+            "Style: Default,Gandhi Sans,70,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,"
+                + "100,100,0,0,1,2,1,2,0,0,30,1",
+            "Style: Mask,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,0,0,7,0,0,0,1",
+            "Style: Signs,Althea,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,"
+                + "100,100,0,0,1,2,0,5,10,10,10,1",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:00:10.00,0:00:12.00,Default,,0,0,0,,Ola mundo",
+            "Dialogue: 1,0:00:20.00,0:00:21.00,Mask,,0,0,0,,{=6}{\\an7\\pos(155.69,96.85)\\p1\\bord0}"
+                + "m -144.93 -22.09 l 145.28 -22.09 145.28 22.05",
+            "Dialogue: 2,0:00:20.00,0:00:21.00,Signs,,0,0,0,,{\\clip(10,10,50,50)\\fnsplatter\\pos(865,484)}ABCDEF",
+            "Dialogue: 0,0:00:30.00,0:00:33.00,Signs,,0,0,0,,{\\clip(0,0,1920,540)\\pos(960,300)}A flower blooms",
+            "Dialogue: 0,0:00:40.00,0:00:43.00,Signs,,0,0,0,,{\\fnAlthea\\pos(960,300)}Maritime Safety Agency",
+            "Dialogue: 0,0:00:50.00,0:00:53.00,Signs,,0,0,0,,{\\p1\\p0\\pos(9,9)}Linha real",
+            "");
+        Path arquivo = dir.resolve("patlabor.ass");
+        Files.writeString(arquivo, ass, StandardCharsets.UTF_8);
+
+        AchatadorEstilosDecorativosService.Resultado r = achatador.achatar(leitor.ler(arquivo));
+        var ev = r.documento().eventos();
+
+        assertEquals("Mask", ev.get(1).estilo(), "a mascara \\p1 tem de ficar no estilo dela");
+        assertTrue(ev.get(1).texto().startsWith("{=6}{\\an7"),
+            "o bloco do desenho tem de ficar intacto, senao as coordenadas viram texto: " + ev.get(1).texto());
+        assertEquals("Signs", ev.get(2).estilo(), "a textura \\clip+\\fn tem de ficar no estilo dela");
+        assertEquals("{\\clip(10,10,50,50)\\fnsplatter\\pos(865,484)}ABCDEF", ev.get(2).texto());
+
+        assertEquals("Default", ev.get(3).estilo(), "CONTROLE: \\clip SEM troca de fonte e letra real, continua achatando");
+        assertEquals("A flower blooms", ev.get(3).texto());
+        assertEquals("Default", ev.get(4).estilo(), "CONTROLE: fonte inline SEM \\clip e placa real, continua achatando");
+        assertEquals("Maritime Safety Agency", ev.get(4).texto());
+        assertEquals("Default", ev.get(5).estilo(),
+            "CONTROLE: \\p1 desligado por \\p0 no proprio bloco lider — o texto e real, continua achatando");
+        assertEquals("Linha real", ev.get(5).texto());
+    }
+
     private DocumentoLegenda lerAss(Path dir) throws IOException {
         Path arquivo = dir.resolve("unicorn.ass");
         Files.writeString(arquivo, ASS, StandardCharsets.UTF_8);

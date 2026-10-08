@@ -43,6 +43,9 @@ import java.util.regex.Pattern;
  *       tempos, camadas e demais colunas são preservados. O cabeçalho
  *       ({@code [V4+ Styles]}) não é alterado — os estilos decorativos ficam inertes
  *       por deixarem de ser referenciados.</li>
+ *   <li>Desenho vetorial ({@code \p1}) e textura de glifos ({@code \clip} + {@code \fn}) nunca são
+ *       achatados: o "texto" deles não é para ser lido, e sem o bloco líder vira lixo visível
+ *       (ver {@link #ehComposicaoTipografica(String)}).</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -74,6 +77,13 @@ public class AchatadorEstilosDecorativosService {
      * para vestir de volta a tradução que voltou do LLM sem tag nenhuma.
      */
     private static final Pattern OVERRIDE_LIDER = Pattern.compile("^(?:\\{[^}]*\\})+");
+
+    /** Modo de desenho vetorial do ASS: {@code \p1} liga, {@code \p0} desliga. {@code \pos} não casa. */
+    private static final Pattern MODO_DESENHO = Pattern.compile("\\\\p(\\d+)");
+    /** Recorte vetorial de quadro ({@code \clip}/{@code \iclip}). */
+    private static final Pattern RECORTE = Pattern.compile("\\\\i?clip\\(");
+    /** Troca de fonte inline. */
+    private static final Pattern FONTE_INLINE = Pattern.compile("\\\\fn");
 
     private final AuditoriaFontesService auditoriaFontes;
     private final ClassificadorCamadaMusicalPort classificadorCamadas;
@@ -240,8 +250,59 @@ public class AchatadorEstilosDecorativosService {
         if (estiloNorm.equals(estiloBase.toLowerCase(Locale.ROOT)) || ESTILOS_PROTEGIDOS.contains(estiloNorm)) {
             return false;
         }
+        if (ehComposicaoTipografica(evento.texto())) {
+            return false;
+        }
         String fonteEstilo = fontesPorEstilo.get(estiloNorm);
         return fonteEstilo != null && !fonteEstilo.equalsIgnoreCase(fonteBase);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reconhece a linha cujo "texto" não é para ser LIDO — desenho vetorial
+     * ou textura feita com glifos — e que por isso não pode ser achatada: tirar o bloco líder
+     * expõe as coordenadas ou os glifos como texto comum na base.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Patlabor Early Days ep03 (achatado em 06/08/2026): 158 máscaras {@code \p1}
+     * ({@code m -144.93 -22.09 l 145.28 ...}) e 205 texturas ({@code \clip} + {@code \fnsplatter},
+     * texto {@code ABCDEF}) viraram fala no Default — 363 linhas de lixo na entrega
+     * {@code traducao_ptbr_sem_lore}, e 445 somando os 6 arquivos da obra. Medido no acervo em
+     * 08/10/2026: 435.567 linhas de desenho {@code \p}; das 16.011 linhas com fonte de textura
+     * (splatter, Grain), 15.484 trazem {@code \clip}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só olha o bloco LÍDER (o que o achatamento removeria).
+     * <ul>
+     *   <li>Desenho: o último {@code \p<n>} do bloco líder com {@code n > 0}.</li>
+     *   <li>Textura: {@code \clip}/{@code \iclip} JUNTO de troca de fonte inline. {@code \clip}
+     *       sozinho NÃO basta — no acervo, 75.225 linhas recortadas sem troca de fonte são letra de
+     *       música e título reais, e continuam sendo achatadas.</li>
+     * </ul>
+     * Custo medido e aceito (viés de preservação de ferramenta destrutiva): 715 linhas com
+     * {@code \clip} + {@code \fn} que são texto real ficam no visual original em vez de achatadas.
+     * Lacuna declarada: 527 texturas {@code \fnGrain} SEM {@code \clip} não são reconhecidas —
+     * separá-las exigiria adivinhar pelo conteúdo.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou sem bloco líder devolve {@code false}
+     * (a linha segue a regra normal de fonte).
+     */
+    static boolean ehComposicaoTipografica(String texto) {
+        if (texto == null) {
+            return false;
+        }
+        java.util.regex.Matcher lider = OVERRIDE_LIDER.matcher(texto);
+        if (!lider.find()) {
+            return false;
+        }
+        String bloco = lider.group();
+        java.util.regex.Matcher desenho = MODO_DESENHO.matcher(bloco);
+        int ultimoModo = 0;
+        while (desenho.find()) {
+            ultimoModo = Integer.parseInt(desenho.group(1));
+        }
+        if (ultimoModo > 0) {
+            return true;
+        }
+        return RECORTE.matcher(bloco).find() && FONTE_INLINE.matcher(bloco).find();
     }
 
     /**
