@@ -287,4 +287,27 @@ class FfprobeAdapterTest {
         assertEquals(0, r.legendas().get(0).indexRelativo());
         assertEquals(5, r.legendas().get(5).indexRelativo());
     }
+
+    /**
+     * M2 da auditoria de 08/10/2026: com "-v quiet" a falha do ffprobe saia como
+     * "ffprobe falhou com codigo 1. Erro: " -- causa vazia, arquivo corrompido indistinguivel de
+     * sem permissao. O requisito (A3) e a falha CARREGAR a causa; o teste usa o ffprobe real sobre
+     * um arquivo que nao e video, e sai como NAO VERIFICADO (assumption) se o ffprobe nao existir.
+     */
+    @Test
+    void falhaDoFfprobeRealCarregaACausa(@org.junit.jupiter.api.io.TempDir Path dir) throws Exception {
+        boolean temFfprobe;
+        try {
+            temFfprobe = new ProcessBuilder("ffprobe", "-version").redirectErrorStream(true).start().waitFor() == 0;
+        } catch (java.io.IOException e) {
+            temFfprobe = false;
+        }
+        org.junit.jupiter.api.Assumptions.assumeTrue(temFfprobe, "ffprobe ausente: NAO VERIFICADO");
+        Path falso = java.nio.file.Files.writeString(dir.resolve("x.mkv"), "isto nao e um video");
+
+        AnalisadorException erro = assertThrows(AnalisadorException.class, () -> new FfprobeAdapter().analisarMidia(falso));
+
+        String causa = erro.getMessage().substring(erro.getMessage().indexOf("Erro:") + "Erro:".length()).strip();
+        assertTrue(!causa.isEmpty(), "a falha do ffprobe saiu sem causa: \"" + erro.getMessage() + "\"");
+    }
 }

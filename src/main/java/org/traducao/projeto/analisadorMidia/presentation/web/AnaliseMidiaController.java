@@ -95,10 +95,12 @@ public class AnaliseMidiaController {
                 Path pathSaida = pipelineWebSupport.normalizarCaminho(req.saida());
                 ResultadoAnaliseLote resultadoLote = analisarMidiaUseCase.executar(pathEntrada, pathSaida);
                 publicarResultadoAnalise(resultadoLote);
-                System.out.println("\n\u001B[32m========================================================================\u001B[0m");
-                System.out.println("\u001B[32m  🎉 [SUCESSO] ANÁLISE DE MÍDIA FINALIZADA COM SUCESSO!\u001B[0m");
-                System.out.println("\u001B[32m========================================================================\n\u001B[0m");
-                log.info("[SUCESSO] Análise de mídia finalizada.");
+                String banner = bannerFinal(resultadoLote.resultados().size(), resultadoLote.falhas().size());
+                String cor = banner.startsWith("  🎉") ? "\u001B[32m" : banner.startsWith("  ⚠") ? "\u001B[33m" : "\u001B[31m";
+                System.out.println("\n" + cor + "========================================================================\u001B[0m");
+                System.out.println(cor + banner + "\u001B[0m");
+                System.out.println(cor + "========================================================================\n\u001B[0m");
+                log.info("{}", banner.strip());
             } catch (Exception e) {
                 log.error("Erro na análise de mídia em background", e);
                 System.out.println("\u001B[31m[ERRO] Falha na análise: " + e.getMessage() + "\u001B[0m");
@@ -106,6 +108,32 @@ public class AnaliseMidiaController {
         });
 
         return ResponseEntity.ok(new RespostaPadrao("Análise de mídia iniciada no servidor."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: escolhe a frase final da análise conforme o desfecho REAL, para que o
+     * operador não leia "sucesso" num lote em que nada foi analisado.
+     *
+     * <h2>O prejuízo que originou</h2>
+     * Auditoria de 08/10/2026 (M1): uma pasta com um único "vídeo" inválido imprimia "Analisados:
+     * 0 | Falhas: 1" seguido de "🎉 [SUCESSO] ANÁLISE DE MÍDIA FINALIZADA COM SUCESSO!" — e a tela
+     * transforma toda linha "[SUCESSO]" em toast verde.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: "[SUCESSO]" só sem falha nenhuma; com falha e algum analisado,
+     * "[ATENÇÃO]"; sem nenhum analisado, "[FALHA]". O banner nunca omite a contagem de falhas.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: contagens negativas são tratadas como zero; nunca lança.
+     */
+    static String bannerFinal(int analisados, int falhas) {
+        int a = Math.max(0, analisados);
+        int f = Math.max(0, falhas);
+        if (f == 0) {
+            return "  🎉 [SUCESSO] ANÁLISE DE MÍDIA FINALIZADA COM SUCESSO! (" + a + " arquivo(s))";
+        }
+        if (a > 0) {
+            return "  ⚠️ [ATENÇÃO] ANÁLISE CONCLUÍDA COM FALHAS: " + a + " analisado(s), " + f + " falha(s).";
+        }
+        return "  ❌ [FALHA] NENHUMA MÍDIA FOI ANALISADA: " + f + " falha(s).";
     }
 
     /**

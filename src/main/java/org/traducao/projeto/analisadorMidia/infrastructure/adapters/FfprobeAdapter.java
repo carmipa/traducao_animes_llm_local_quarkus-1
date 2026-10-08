@@ -82,15 +82,29 @@ public class FfprobeAdapter {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: monta o comando do ffprobe da análise de mídia.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: nível de log {@code error}, nunca {@code quiet}. Com
+     * {@code -v quiet} o stderr sai vazio e a falha virava "ffprobe falhou com código 1. Erro: "
+     * sem causa — arquivo corrompido, sem permissão e formato inválido ficavam indistinguíveis
+     * (auditoria de 08/10/2026, M2). O JSON continua no stdout; o stderr só carrega erro.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: função pura; não lança.
+     */
+    static List<String> comandoFfprobe(Path caminhoVideo) {
+        return List.of(
+            "ffprobe", "-v", "error", "-print_format", "json",
+            "-show_format", "-show_streams", "-show_chapters",
+            caminhoVideo.toAbsolutePath().toString()
+        );
+    }
+
+    /**
      * Executa o ffprobe e devolve o JSON cru. Isolado num método {@code protected}
      * para os testes substituírem o processo externo (sem ffprobe real).
      */
     protected String executarFfprobeJson(Path caminhoVideo) {
-        List<String> cmd = List.of(
-            "ffprobe", "-v", "quiet", "-print_format", "json",
-            "-show_format", "-show_streams", "-show_chapters",
-            caminhoVideo.toAbsolutePath().toString()
-        );
+        List<String> cmd = comandoFfprobe(caminhoVideo);
 
         try {
             log.debug("Executando: {}", String.join(" ", cmd));

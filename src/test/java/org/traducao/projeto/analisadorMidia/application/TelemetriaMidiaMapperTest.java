@@ -58,6 +58,23 @@ class TelemetriaMidiaMapperTest {
         assertEquals(40.0, lt.diferencaFimSegundos(), 0.001);
     }
 
+    /**
+     * Desdobramento do M4 (auditoria de 08/10/2026): com a 1.1 aceitando arquivo único, a entrada
+     * É o próprio arquivo, e {@code relativize(x, x)} dá "" — toda análise de arquivo único cairia
+     * na mesma chave vazia do dataset de mídias. A chave tem de ser o nome do arquivo, sem a raiz.
+     */
+    @Test
+    void entradaIgualAoArquivoNaoGeraChaveVazia(@TempDir Path dir) {
+        Path video = dir.resolve("Ep01.mkv");
+        ContainerInfo container = new ContainerInfo("matroska", 1024L * 1024, 60.0, 0L, "enc");
+        AuditoriaResultado resultado = new AuditoriaResultado(
+            video, "Ep01.mkv", container, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        MidiaTelemetria tel = mapper.mapear(resultado, video, "2026-10-08T00:00:00Z");
+
+        assertEquals("Ep01.mkv", tel.nomeArquivo(), "a chave da midia ficou \"" + tel.nomeArquivo() + "\"");
+    }
+
     @Test
     void semTrilhaDeVideoUsaValoresPadrao(@TempDir Path entrada) {
         Path video = entrada.resolve("B.mkv");

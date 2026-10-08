@@ -28,8 +28,11 @@ public class TelemetriaMidiaMapper {
     /**
      * PROPÓSITO DE NEGÓCIO: monta o {@link MidiaTelemetria} de uma mídia a partir
      * do resultado da auditoria, relativizando o caminho à {@code entrada}.
-     * <p>INVARIANTES DO DOMÍNIO: nomeArquivo relativo (privacidade); métricas de
-     * vídeo vêm da primeira faixa quando existir.
+     * <p>INVARIANTES DO DOMÍNIO: nomeArquivo relativo (privacidade) e nunca vazio — com entrada
+     * igual ao próprio arquivo vale o nome simples; métricas de vídeo vêm da primeira faixa
+     * quando existir. Lacuna declarada (auditoria de 08/10/2026, M3): duas mídias DIFERENTES com
+     * o mesmo caminho relativo, analisadas em lotes separados, ainda dividem a chave; distinguir
+     * exige chave interna persistida e muda o formato do dataset público (0 ocorrência medida).
      * <p>COMPORTAMENTO EM CASO DE FALHA: exceção na relativização é engolida e o
      * nome simples do arquivo é usado como fallback.
      */
@@ -40,6 +43,12 @@ public class TelemetriaMidiaMapper {
                 .relativize(resultado.caminhoArquivo().toAbsolutePath()).toString();
         } catch (Exception ignored) {
             // Mantém o nome simples do arquivo como fallback de privacidade.
+        }
+        // Entrada = o próprio arquivo (análise de arquivo único, aceita desde 08/10/2026):
+        // relativize(x, x) dá "" e toda análise de arquivo único cairia na MESMA chave vazia,
+        // apagando a anterior no dataset de mídias. O nome simples identifica a mídia.
+        if (nomeRelativo.isBlank()) {
+            nomeRelativo = resultado.caminhoArquivo().getFileName().toString();
         }
 
         double tamanhoMB = resultado.container().tamanhoBytes() / (1024.0 * 1024.0);
