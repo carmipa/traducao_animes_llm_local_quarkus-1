@@ -118,7 +118,10 @@ public class DetectorTraducaoIdenticaService {
         "east", "division", "point", "sand",
         // vocabulário militar corrente da mesma família das medidas
         "captain", "sergeant", "commander", "sir", "enemy",
-        "target", "retreat", "advance", "hold", "cover", "watch", "listen", "look"
+        "target", "retreat", "advance", "hold", "cover", "watch", "listen", "look",
+        // medidas em 08/10/2026: "Mom?!" voltou do modelo como "Mom?!!" e a régua o absolvia como
+        // nome; nos caches, 0 de 59 falas curtas com mom/dad estão publicadas idênticas ao inglês
+        "mom", "dad"
     );
 
     /**
@@ -449,9 +452,25 @@ public class DetectorTraducaoIdenticaService {
     }
 
     /**
-     * true quando a "tradução" só repete o original em inglês (ignorando tags ASS
-     * e quebras de linha) e isso não é um caso legítimo de nome/número/termo de
-     * lore — ou seja, a fala provavelmente nunca foi traduzida de fato.
+     * PROPÓSITO DE NEGÓCIO: diz quando a "tradução" só repete o original em inglês — a fala nunca foi
+     * traduzida de fato — e isso não é um caso legítimo de nome, número ou termo de lore.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Ignora tags ASS, quebras de linha, o envelope de aspas que o original não tem e, desde
+     *       08/10/2026, a PONTUAÇÃO FINAL: "A pursuer?!" devolvido como "A pursuer?!!" é eco. Apareceu
+     *       quando o parêntese inventado passou a ser recusado: "A pursuer?! (Perseguidor?!)" virou o
+     *       inglês com um "!" a mais, e passava como traduzida.</li>
+     *   <li>A absolvição continua sendo {@link #deveManterIdentico} sobre o original. Medido com a lore
+     *       real nos 28 pares dos caches que só mudam a pontuação final: a comparação nova acusa 1
+     *       ("A pursuer?!") e os outros 27 seguem absolvidos — nomes ("Judau?!" → "Judau?") e termos
+     *       ("Titans?!" → "Titans?!!").</li>
+     *   <li>Original que é SÓ pontuação ("..." → "...!") fica igual ao vazio do outro lado, e quem o
+     *       absolve é o próprio {@link #deveManterIdentico} (um caractere visível ou menos).</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumento nulo, original vazio ou textos diferentes devolvem
+     * {@code false}; nunca lança.
      */
     public boolean pareceNaoTraduzida(String original, String traduzido) {
         if (original == null || traduzido == null) {
@@ -459,10 +478,18 @@ public class DetectorTraducaoIdenticaService {
         }
         String o = normalizar(original);
         String t = semEnvelopeDeAspasQueOOriginalNaoTem(o, normalizar(traduzido));
-        if (o.isEmpty() || !o.equals(t)) {
+        if (o.isEmpty() || !(o.equals(t) || mesmoTextoSoComOutraPontuacaoFinal(o, t))) {
             return false;
         }
         return !deveManterIdentico(original);
+    }
+
+    private static final Pattern PONTUACAO_FINAL = Pattern.compile("[\\s?!.…]+$");
+
+    /** "A pursuer?!" e "A pursuer?!!": o mesmo texto, só a pontuação final trocada. */
+    private static boolean mesmoTextoSoComOutraPontuacaoFinal(String original, String traduzido) {
+        return PONTUACAO_FINAL.matcher(original).replaceAll("")
+            .equals(PONTUACAO_FINAL.matcher(traduzido).replaceAll(""));
     }
 
     /**

@@ -349,4 +349,27 @@ class DetectorTraducaoIdenticaServiceTest {
             assertFalse(detector.deveManterIdentico(recusa), "deve recusar falsa interjeição/traduzível: " + recusa);
         }
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o eco que só muda a pontuação final continua sendo eco. Medido em 08/10/2026:
+     * recusado o parêntese inventado, "A pursuer?! (Perseguidor?!)" voltou como "A pursuer?!!" e passava
+     * como traduzida; "Mom?! (Mãe?!)" voltou como "Mom?!!" e a régua absolvia "Mom" como nome.
+     * <p>INVARIANTES DO DOMÍNIO: A1 — o mesmo sinal (só a pontuação final mudou) em nome ou termo segue
+     * absolvido: são os casos reais dos caches ("Judau?!" → "Judau?", "Reccoa...!" → "Reccoa!"). Original
+     * feito só de pontuação não vira eco de nada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: eco aceito, ou nome acusado, reprova o teste.
+     */
+    @Test
+    void ecoComOutraPontuacaoFinalContinuaEco() {
+        assertTrue(detector.pareceNaoTraduzida("A pursuer?!", "A pursuer?!!"), "eco com '!' a mais");
+        assertTrue(detector.pareceNaoTraduzida("Damn it!", "Damn it!!"), "eco com '!' a mais");
+        assertTrue(detector.pareceNaoTraduzida("Mom?!", "Mom?!!"), "mom é inglês traduzível, não nome");
+        assertTrue(detector.pareceNaoTraduzida("Dad!", "Dad."), "dad é inglês traduzível, não nome");
+
+        assertFalse(detector.pareceNaoTraduzida("Judau?!", "Judau?"));
+        assertFalse(detector.pareceNaoTraduzida("Reccoa...!", "Reccoa!"));
+        assertFalse(detector.pareceNaoTraduzida("Kamille?!", "Kamille?"));
+        assertFalse(detector.pareceNaoTraduzida("...", "...!"));
+        assertFalse(detector.pareceNaoTraduzida("A pursuer?!", "Um perseguidor?!"));
+    }
 }
