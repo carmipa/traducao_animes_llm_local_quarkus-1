@@ -221,6 +221,10 @@ test {
      // aqui o -D ficaria na JVM do Gradle, a catraca continuaria em modo comparacao e o
      // "regravei" teria a mesma cara de "nao mudou nada" — a cicatriz documentada acima.
      'kronos.esqueleto.regravar',
+     // 'kronos.lore.manifesto.regravar' manda o ManifestoCompletoLoreIT regravar o manifesto
+     // COMPLETO da lore (obra x lado x campo) a partir do catalogo vivo. Mesmo motivo da linha de
+     // cima: sem a chave aqui, "regravei" e "so comparei" teriam a mesma cara.
+     'kronos.lore.manifesto.regravar',
      'correcao-cache.reforco-terminologia-aplicar-habilitado'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
