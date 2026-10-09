@@ -3,14 +3,24 @@ package org.traducao.projeto.lore.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.traducao.projeto.lore.domain.ProvedorContexto;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 
 import java.util.List;
 
 /**
- * PROPÓSITO DE NEGÓCIO: entrega ao resto do sistema a lista de obras com lore. Desde 2026-08-15
- * ela vem do ARQUIVO ÚNICO ({@code /lore/lore.yaml}), e não mais de 78 classes Java
- * descobertas por CDI — ordem de Paulo: <i>"todas as lores devem ficar em um único arquivo"</i>.
+ * PROPÓSITO DE NEGÓCIO: entrega ao resto do sistema a lista de obras com lore. Desde 2026-10-09
+ * ela vem dos arquivos SQL por obra ({@code /lore/esquema.sql}, {@code /lore/obras.lst} e
+ * {@code /lore/obras/<id>.sql}), carregados num SQLite em memória no arranque pelo
+ * {@link CatalogoLoreSqlite}. De 2026-08-15 a 2026-10-09 vinha do arquivo único
+ * {@code /lore/lore.yaml}, e antes disso de 78 classes Java descobertas por CDI.
+ *
+ * <h2>A troca de 2026-10-09</h2>
+ * Mudou só a fonte, de novo. O {@code lore.yaml} tinha 1 MB, e anexar ou corrigir a lore de uma obra
+ * exigia abri-lo inteiro; agora cada obra é um arquivo de ~13 KB. A equivalência foi provada antes da
+ * troca com os dois leitores vivos ({@code EquivalenciaCatalogoSqliteYamlTest}: zero divergência em
+ * 69 + 69 obras), e o {@code ManifestoCompletoLoreIT} congela obra a obra, lado a lado e campo a
+ * campo o que este bean entrega. O hash do prompt é o mesmo {@code contextoHash} do cache, então o
+ * acervo já traduzido continua sendo aproveitado.
  *
  * <h2>O que mudou, e o que NÃO mudou</h2>
  * Mudou só a FONTE. O contrato é o mesmo {@link ProvedorContexto}, e os 26 consumidores em 8
@@ -27,9 +37,11 @@ import java.util.List;
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>O catálogo é lido UMA vez, na construção do bean. Nenhum I/O por chamada.</li>
- *   <li><b>Falha FECHADA.</b> Arquivo ausente, ilegível, sem obras, com id repetido ou com obra
- *       sem prompt faz o {@link CatalogoLoreYaml} lançar, e a aplicação NÃO SOBE. É deliberado:
+ *   <li>O catálogo é lido UMA vez, na construção do bean, e o banco é fechado em seguida. Nenhum
+ *       I/O nem chamada nativa por chamada.</li>
+ *   <li><b>Falha FECHADA.</b> Arquivo ausente, ilegível, sem obras, com id repetido, com obra sem
+ *       prompt, com instrução que não seja inserção de literais ou que escreva outra obra faz o
+ *       {@link CatalogoLoreSqlite} lançar, e a aplicação NÃO SOBE. É deliberado:
  *       catálogo de lore silenciosamente vazio faria o pipeline traduzir sem lore nenhuma e
  *       gravar o resultado — o dano apareceria na legenda, semanas depois, e não no boot.</li>
  * </ul>
@@ -41,7 +53,7 @@ import java.util.List;
 @Configuration
 public class ContextoBeansConfig {
 
-    private final CatalogoLoreYaml catalogo = new CatalogoLoreYaml();
+    private final CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
 
     /**
      * PROPÓSITO DE NEGÓCIO: expõe as obras do arquivo único ao {@code GerenciadorContexto} e a
