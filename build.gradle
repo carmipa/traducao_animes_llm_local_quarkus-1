@@ -84,6 +84,20 @@ dependencies {
         exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
     }
     implementation 'org.languagetool:portuguese-pos-dict:0.12'
+
+    // LORE EM SQLITE (plano-mestre de 09/10/2026, FASE 0). A lore sai do lore.yaml unico para um
+    // arquivo SQL por obra, carregado num SQLite EM MEMORIA no arranque e fechado em seguida: o
+    // caminho quente da traducao continua lendo objetos imutaveis, sem chamada nativa no meio do job.
+    //
+    // Versao EXATA, publicada no Central em 26/08/2026, sem dependencia transitiva de execucao
+    // (slf4j e opcional). O jar traz o nativo de todos os sistemas (~12 MB) e o extrai para o
+    // java.io.tmpdir na primeira conexao — 163 ms medidos neste notebook; a carga das 69 obras do
+    // prototipo levou mais 36,7 ms.
+    //
+    // ARMADILHA MEDIDA, e a razao de o carregador nao usar Statement.execute: com tres instrucoes
+    // num execute so a PRIMEIRA roda, e as outras somem SEM ERRO. executeUpdate roda todas. Quem
+    // carregar arquivo SQL com execute perde a lore em silencio — ver SqliteEmMemoriaNoJava25Test.
+    implementation 'org.xerial:sqlite-jdbc:3.53.4.0'
 }
 
 /**
@@ -106,6 +120,22 @@ ext.TETOS_XML_DO_LANGUAGETOOL = [
     '-Djdk.xml.entityExpansionLimit=200000'
 ]
 
+/**
+ * Libera o System.load do sqlite-jdbc no Java 25 (JEP 472, acesso nativo restrito).
+ *
+ * Sem a flag o driver funciona, mas o JVM escreve no stderr, medido em 09/10/2026:
+ *   "WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed
+ *    module ... Restricted methods will be blocked in a future release unless native access is
+ *    enabled"
+ * Ou seja: hoje e ruido, num JDK futuro e a lore inteira deixando de carregar no arranque.
+ *
+ * Vale aqui para os dois JVMs que o Gradle lanca (teste e quarkusDev). O jar executavel recebe o
+ * equivalente pelo MANIFESTO (Enable-Native-Access, em application.properties), que cobre todo
+ * `java -jar quarkus-run.jar` — o Dockerfile e qualquer lancador — sem depender de cada um lembrar
+ * da flag.
+ */
+ext.ACESSO_NATIVO_DO_SQLITE = ['--enable-native-access=ALL-UNNAMED']
+
 group = 'org.traducao.projeto'
 version = '1.0.0-SNAPSHOT'
 
@@ -121,6 +151,13 @@ compileJava {
 
 test {
     jvmArgs TETOS_XML_DO_LANGUAGETOOL
+
+    // Na suite, o AVISO de acesso nativo vira FALHA (deny): e o comportamento que um JDK futuro vai
+    // ter por padrao, antecipado aqui para que perder a liberacao reprove o build em vez de passar
+    // como uma linha de WARNING no console. Medido em 09/10/2026: so com o deny, o teste do SQLite
+    // reprova com IllegalCallerException no System.load; com a liberacao junto, passa.
+    jvmArgs '--illegal-native-access=deny'
+    jvmArgs ACESSO_NATIVO_DO_SQLITE
 
     // O worker de teste do Gradle nasce com 512m; a suíte completa (com os
     // @QuarkusTest subindo a aplicação) estoura o heap nesse padrão.
@@ -225,6 +262,10 @@ quarkusDev {
     // ela falha fechada e declara isso, o sintoma seria a tela dizendo "nao verifiquei" para
     // sempre, sem ninguem entender por que. Motivo completo na constante.
     args.addAll(TETOS_XML_DO_LANGUAGETOOL)
+
+    // Lore em SQLite: sem isto o quarkusDev imprime o aviso de System.load restrito no arranque
+    // (medido em 09/10/2026). Motivo completo na constante.
+    args.addAll(ACESSO_NATIVO_DO_SQLITE)
 
     // CARIMBO DA EXECUCAO: da nome unico ao log desta subida (ver application.yml e
     // core.io.FaxinaLogExecucao). Sem ele todas as execucoes escreveriam no MESMO arquivo, e
