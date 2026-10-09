@@ -169,7 +169,7 @@ class FronteiraContextoArchTest {
     }
 
     @Test
-    @DisplayName("contexto.infrastructure é congelado NOMINALMENTE (E7b): GerenciadorContexto, ContextoBeansConfig e CatalogoLoreYaml")
+    @DisplayName("contexto.infrastructure é congelado NOMINALMENTE (E7b): GerenciadorContexto, ContextoBeansConfig e os leitores da lore")
     void infraestruturaCongeladaNominalmente() {
         TreeSet<String> infra = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -192,11 +192,15 @@ class FronteiraContextoArchTest {
         // A catraca funcionou como devia e vale registrar: ela reprovou a classe nova ANTES de
         // qualquer commit, obrigando a declaração em vez de deixar o pacote crescer sozinho. É
         // exatamente para isso que o congelamento é NOMINAL e não "infrastructure liberado".
+        //
+        // CatalogoLoreSqlite entrou em 2026-10-09 (plano da lore em SQLite, fase 3), também deliberado
+        // e pelo mesmo motivo: é o leitor da lore, agora em arquivos SQL por obra. Os dois leitores
+        // CONVIVEM só até a fase 5, que apaga o CatalogoLoreYaml e tira o nome desta lista.
         assertEquals(
-            new TreeSet<>(List.of("CatalogoLoreYaml", "ContextoBeansConfig", "GerenciadorContexto")), infra,
-            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto, ContextoBeansConfig "
-                + "e CatalogoLoreYaml (sem liberação genérica de infrastructure; qualquer quarta "
-                + "classe reprova). Encontrado: " + infra);
+            new TreeSet<>(List.of("CatalogoLoreSqlite", "CatalogoLoreYaml", "ContextoBeansConfig", "GerenciadorContexto")), infra,
+            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto, ContextoBeansConfig, "
+                + "CatalogoLoreYaml e CatalogoLoreSqlite (sem liberação genérica de infrastructure; qualquer "
+                + "quinta classe reprova). Encontrado: " + infra);
     }
 
     @Test

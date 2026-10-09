@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **496** |
-| classes em `src/test` | **462** |
+| classes em `src/main` | **497** |
+| classes em `src/test` | **464** |
 
 ---
 
@@ -41,7 +41,7 @@ graph TB
     G3["<b>Karaokê</b><br/>traducaoKaraoke (24)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
-    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
+    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (25)<br/>qualidadeTraducao (16)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
     G1 --> PEERS
@@ -773,7 +773,7 @@ llm/
     └── TraducaoLote.java
 ```
 
-#### `lore` — 24 classes
+#### `lore` — 25 classes
 
 ```text
 lore/
@@ -793,6 +793,7 @@ lore/
 ├── infrastructure/
 │   ├── config/
 │   │   └── ContextoBeansConfig.java
+│   ├── CatalogoLoreSqlite.java
 │   ├── CatalogoLoreYaml.java
 │   └── GerenciadorContexto.java
 ├── macross/
@@ -902,7 +903,7 @@ core/
 
 ---
 
-## Testes — 462 classes
+## Testes — 464 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1151,7 +1152,7 @@ llm/
     └── FronteiraLlmArchTest.java
 ```
 
-#### `lore` — 44 classes
+#### `lore` — 46 classes
 
 ```text
 lore/
@@ -1183,6 +1184,7 @@ lore/
 │   ├── TerminologiaF91FormasMedidasTest.java
 │   └── TerminologiaUnicornFormasMedidasTest.java
 ├── infrastructure/
+│   ├── CatalogoLoreSqliteCasosTest.java
 │   ├── GerenciadorContextoReconhecimentoObraTest.java
 │   └── SqliteEmMemoriaNoJava25Test.java
 ├── revisao/
@@ -1196,6 +1198,7 @@ lore/
 ├── CatracaCicatrizNoLoreYamlTest.java
 ├── CatracaTerminologiaDeLoreUnificadaTest.java
 ├── CorrecaoFaEMobileSuitTest.java
+├── EquivalenciaCatalogoSqliteYamlTest.java
 ├── EquivalenciaLoreYamlIT.java
 ├── EquivalenciasChegamDoYamlIT.java
 ├── GeradorLoreSqlIT.java
