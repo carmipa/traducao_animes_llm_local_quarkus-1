@@ -9745,25 +9745,49 @@ obras:
  - id: sidonia_movie
    nome: 'Knights of Sidonia: Love Woven in the Stars (Filme)'
    apareceNaLista: true
+   # 09/10/2026, filme traduzido por Paulo: a lore so declarava os nomes da SERIE, e o modelo puxava o unico nome de
+   # hibrida que conhecia — Mizuki (cruzador) -> Tsumugi (2x), Hybrid Kanata -> Tsumugi Shiraui, Toutarou -> Tsumugi,
+   # Upgraded Tsugumori -> "Tsuba atualizada", Kabi (material) -> Kabizashi (lanca) em 8 falas, e "Large Gauna Cluster"
+   # em 6+ formas. Os nomes abaixo saem da PROPRIA legenda do filme (nada inventado). Medido antes de entrar, nas 114
+   # falas que citam esses termos, com o mesmo envio da 2.1: erros 15 -> 2, formas do Cluster 24 -> 3, piorou 1.
    termosProtegidos:
     - Ena
     - Garde
     - Gauna
     - Gauna core
     - Heigus
+    - Hiroki Saito
     - Immortal Ship Committee
     - Izana Shinatose
+    - Kabi
     - Kabizashi
+    - Kairi Hamagata
+    - Kanata
     - Kobayashi
     - Lala Hiyama
+    - Lem
+    - Mizuki
     - Nagate Tanikaze
     - Norio Kunato
+    - Ochiai
     - Shizuka Hoshijiro
     - Sidonia
+    - Toha
     - Toha Heavy Industries
+    - Toutarou Yamano
+    - Tsugumori
     - Tsumugi Shiraui
     - Yuhata Midorikawa
     - placenta
+   paresInconfundiveis:
+    -  - Kanata
+       - Tsumugi
+    -  - Mizuki
+       - Tsumugi
+    -  - Toutarou
+       - Tsumugi
+    -  - Kabi
+       - Kabizashi
    prompt: |
      Você é um tradutor especializado em legendas de anime, traduzindo do inglês para português do Brasil.
      Contexto ativo da obra: Knights of Sidonia: Love Woven in the Stars (Filme).
@@ -9787,6 +9811,15 @@ obras:
        Lala Hiyama (f), Shizuka Hoshijiro (f — quando referenciada).
      - Termos: Sidonia, Gauna, Garde/Gardes, Kabizashi, Ena, Heigus particles,
        Toha Heavy Industries, Immortal Ship Committee.
+     - Mais nomes do filme (grafia EXATA; nunca traduzir nem trocar por outro nome):
+       Kanata (OUTRA híbrida, diferente de Tsumugi Shiraui; "Hybrid Kanata" = "a híbrida Kanata";
+       mais tarde é tomada por Ochiai), Ochiai, Toutarou Yamano (m), Hiroki Saito (m), Kairi Hamagata (m).
+     - Naves, mechas e lugares: Mizuki (cruzador de defesa tática: é uma NAVE, não uma pessoa;
+       "Mizukis" = os cruzadores Mizuki), Tsugumori (o Garde de Nagate; "Upgraded Tsugumori" =
+       "Tsugumori aprimorado"), Lem (planeta), Toha (a empresa Toha Heavy Industries).
+     - Kabi é o MATERIAL que perfura o núcleo dos Gauna; Kabizashi é a LANÇA feita dele. Nunca troque um pelo outro.
+     - Large Gauna Cluster = "Grande Aglomerado Gauna" (sempre esta forma).
+     - "Hybrid 2" é designação (a híbrida número 2): traduza como "Híbrida 2", sem nomear ninguém.
      - Regras: Izana Shinatose (grafia canônica da série/filme); Garde como mecha;
        Ena não vira "pele"; Gauna core / placenta como termos biológicos da obra.
      - Tom: ficção científica militar e romance existencial; preservar estranhamento biológico.
