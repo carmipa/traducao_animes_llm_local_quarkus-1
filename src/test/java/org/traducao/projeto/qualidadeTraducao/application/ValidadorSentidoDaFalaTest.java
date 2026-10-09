@@ -282,7 +282,7 @@ class ValidadorSentidoDaFalaTest {
         "That means you're mine.|{\\i1}Isso significa que você é minha(o).{\\i0}"
     })
     void parenteseInventadoEhAcusado(String original, String traduzido) {
-        String motivo = validador.parenteseInventado(original, traduzido);
+        String motivo = validador.alternativaInventada(original, traduzido);
         assertTrue(motivo != null && motivo.startsWith("Parêntese que o original não tem"), String.valueOf(motivo));
     }
 
@@ -294,7 +294,48 @@ class ValidadorSentidoDaFalaTest {
         "{\\pos(10,20)}Welcome!|{\\pos(10,20)}Seja bem-vinda!"
     })
     void parenteseLegitimoOuAusenteNaoEhAcusado(String original, String traduzido) {
-        org.junit.jupiter.api.Assertions.assertNull(validador.parenteseInventado(original, traduzido));
+        org.junit.jupiter.api.Assertions.assertNull(validador.alternativaInventada(original, traduzido));
+    }
+
+    /**
+     * Os 9 casos de BARRA medidos nos caches em 08/10/2026 (texto visível), todos alternativa de gênero
+     * que o prompt proíbe. A barra entrou porque, com o parêntese acusado, o modelo trocava "estranho(a)"
+     * por "estranho/a" na retentativa — o mesmo defeito escapando por outra grafia.
+     */
+    @ParameterizedTest(name = "[{index}] barra inventada: {0} -> {1}")
+    @DisplayName("alternativa de gênero com barra que o original não tem é acusada (casos medidos)")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "I'm telling you that I'm tired.|Estou dizendo a vocês que estou cansada/o.",
+        "I'm just tired.|Estou só cansada/o.",
+        "I was so stupid.|Eu fui tão estúpido/estupida.",
+        "The captain of the first unit I was attached to.|O capitão da primeira unidade a que fui designado/a.",
+        "Nice to meet you.|Prazer em conhecê-lo/a.",
+        "...who this intense pain is for.|Quem é que essa dor intensa é para ele/ela.",
+        "Dear, I can't find a towel anywhere.|Querido/a, não consigo encontrar toalha em lugar nenhum.",
+        "You little—|Você pequenino/a—",
+        "You really are weird.|Você realmente é estranho/a."
+    })
+    void barraDeGeneroInventadaEhAcusada(String original, String traduzido) {
+        String motivo = validador.alternativaInventada(original, traduzido);
+        assertTrue(motivo != null && motivo.startsWith("Alternativa de gênero com barra"), String.valueOf(motivo));
+    }
+
+    /**
+     * A1 da barra: o MESMO sinal (barra entre letras que o original não tem) em tradução certa. O
+     * primeiro é o caso legítimo medido nos caches; os outros são as barras que o português usa de
+     * verdade. Original COM barra também não acusa.
+     */
+    @ParameterizedTest(name = "[{index}] barra legítima: {0} -> {1}")
+    @DisplayName("A1: barra que não é alternativa de gênero, ou que o original já tinha — nada acusado")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "There's one unit! Can't confirm IFF!|Há uma unidade! Não consigo confirmar a identificação amigo/inimigo!",
+        "We're going 300 kph!|Estamos a 300 km/h!",
+        "Bring the map, the radio, or both.|Traga o mapa e/ou o rádio.",
+        "Yes/No?|Sim/Não?",
+        "He/She will come.|Ele/Ela virá."
+    })
+    void barraLegitimaNaoEhAcusada(String original, String traduzido) {
+        org.junit.jupiter.api.Assertions.assertNull(validador.alternativaInventada(original, traduzido));
     }
 
     @Test

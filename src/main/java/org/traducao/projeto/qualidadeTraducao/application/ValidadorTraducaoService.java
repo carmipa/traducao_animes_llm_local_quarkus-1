@@ -1235,37 +1235,93 @@ public class ValidadorTraducaoService {
             .replaceAll("[\\s.!?…]+$", "");
     }
 
+    /** Par de palavras separadas por barra, sem espaço: "cansada/o", "conhecê-lo/a", "ele/ela", "amigo/inimigo". */
+    private static final Pattern PALAVRAS_COM_BARRA = Pattern.compile("(\\p{L}+)/(\\p{L}+)");
+
+    /** Terminação de gênero ou número que vem sozinha depois da barra: "designado/a", "cansada/o", "-lo/a". */
+    private static final Set<String> TERMINACAO_ALTERNATIVA = Set.of("o", "a", "os", "as");
+
+    /** Pronomes e artigos que se alternam por gênero inteiros: "ele/ela", "o/a", "dele/dela". */
+    private static final Set<String> PALAVRAS_DE_GENERO = Set.of(
+        "o", "a", "os", "as", "ele", "ela", "eles", "elas", "dele", "dela", "deles", "delas",
+        "um", "uma", "uns", "umas", "seu", "sua", "seus", "suas", "meu", "minha", "meus", "minhas");
+
     /**
-     * PROPÓSITO DE NEGÓCIO: acusa o parêntese que a tradução INVENTOU. Medido nos caches do acervo
-     * em 08/10/2026: 95 traduções distintas com parêntese que o original não tem, e praticamente
-     * todas defeito — a alternativa de gênero que o próprio prompt proíbe ("cansado(a)",
-     * "bem-vindo(a)", "Bomba(s)", ~70 casos) e a glosa ou nota do modelo ("(com tom sarcástico)",
-     * "Móbil Space (ou Mecha)", "A pursuer?! (Perseguidor?!)", "G3?! (G3?!)", ~25). Discutível, um:
-     * "O Sistema Destruidor Newtype (NT-D)".
+     * PROPÓSITO DE NEGÓCIO: acusa a alternativa ou a nota que a tradução INVENTOU — o que o prompt
+     * proíbe com todas as letras: "nunca ofereça duas alternativas de gênero na mesma palavra, nem com
+     * barra nem com terminação entre parênteses: legenda não tem nota editorial". Medido nos caches do
+     * acervo em 08/10/2026:
+     * <ul>
+     *   <li>PARÊNTESE: 95 traduções distintas com parêntese que o original não tem, e praticamente
+     *       todas defeito — a alternativa de gênero ("cansado(a)", "bem-vindo(a)", "Bomba(s)", ~70) e
+     *       a glosa ou nota do modelo ("(com tom sarcástico)", "Móbil Space (ou Mecha)", "A pursuer?!
+     *       (Perseguidor?!)", "G3?! (G3?!)", ~25). Discutível, um: "O Sistema Destruidor Newtype
+     *       (NT-D)".</li>
+     *   <li>BARRA: 10 traduções distintas com barra entre letras que o original não tem; 9 são a
+     *       alternativa de gênero ("Estou só cansada/o.", "Prazer em conhecê-lo/a.", "Eu fui tão
+     *       estúpido/estupida.", "...para ele/ela.", "Querido/a") e 1 é legítima ("identificação
+     *       amigo/inimigo" para IFF). A regra acusa as 9 e deixa passar a legítima. Foi a mesma
+     *       medição que ajustou a regra — não há amostra separada; limitação declarada.</li>
+     * </ul>
+     * A barra entrou depois de o parêntese ser acusado: na retentativa o modelo trocava
+     * "estranho(a)" por "estranho/a", o mesmo defeito com outra grafia.
      *
      * <h2>Invariantes do domínio</h2>
      * <ul>
-     *   <li>Compara o texto VISÍVEL: parêntese em tag ASS não conta; parêntese que o original já
-     *       tinha não é invenção.</li>
+     *   <li>Compara o texto VISÍVEL: parêntese em tag ASS não conta; parêntese ou barra que o
+     *       original já tinha não é invenção.</li>
+     *   <li>A barra só acusa ALTERNATIVA: terminação o/a/os/as sozinha depois dela, pronome ou artigo
+     *       dos dois lados, ou a mesma palavra trocando só o/a no fim (acento ignorado). "amigo/inimigo",
+     *       "km/h" e "e/ou" passam.</li>
      *   <li>NÃO entra em {@link #validarPar}: não é reprovação definitiva. Quem chama pede outra
      *       tentativa ao modelo e, na última, aceita — publicar "cansado(a)" é melhor que publicar o
      *       inglês, e não há conserto determinístico seguro (escolher o gênero masculino é o fallback
      *       que a regra de concordância proíbe).</li>
      * </ul>
      *
-     * <p>COMPORTAMENTO EM CASO DE FALHA: argumento nulo ou sem parêntese inventado devolve
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumento nulo ou sem alternativa inventada devolve
      * {@code null}; nunca lança. Devolve a descrição do defeito, para log e para a reprovação.
      */
-    public String parenteseInventado(String original, String traduzido) {
+    public String alternativaInventada(String original, String traduzido) {
         if (original == null || traduzido == null) {
             return null;
         }
         String o = visivel(original);
         String t = visivel(traduzido);
-        if (t.indexOf('(') < 0 || o.indexOf('(') >= 0) {
-            return null;
+        if (t.indexOf('(') >= 0 && o.indexOf('(') < 0) {
+            return "Parêntese que o original não tem: \"" + t + "\" (original: \"" + o + "\")";
         }
-        return "Parêntese que o original não tem: \"" + t + "\" (original: \"" + o + "\")";
+        if (o.indexOf('/') < 0) {
+            Matcher m = PALAVRAS_COM_BARRA.matcher(t);
+            while (m.find()) {
+                if (ehAlternativaDeGenero(m.group(1), m.group(2))) {
+                    return "Alternativa de gênero com barra que o original não tem: \"" + t
+                        + "\" (original: \"" + o + "\")";
+                }
+            }
+        }
+        return null;
+    }
+
+    /** "cansada" + "o", "ele" + "ela", "estúpido" + "estupida": as duas formas de gênero da mesma palavra. */
+    private static boolean ehAlternativaDeGenero(String antes, String depois) {
+        String a = semAcento(antes).toLowerCase(java.util.Locale.ROOT);
+        String d = semAcento(depois).toLowerCase(java.util.Locale.ROOT);
+        if (TERMINACAO_ALTERNATIVA.contains(d) && (a.endsWith("o") || a.endsWith("a")
+                || a.endsWith("os") || a.endsWith("as"))) {
+            return true;
+        }
+        if (PALAVRAS_DE_GENERO.contains(a) && PALAVRAS_DE_GENERO.contains(d) && !a.equals(d)) {
+            return true;
+        }
+        return a.length() >= 3 && a.length() == d.length()
+            && a.substring(0, a.length() - 1).equals(d.substring(0, d.length() - 1))
+            && "oa".indexOf(a.charAt(a.length() - 1)) >= 0 && "oa".indexOf(d.charAt(d.length() - 1)) >= 0
+            && a.charAt(a.length() - 1) != d.charAt(d.length() - 1);
+    }
+
+    private static String semAcento(String texto) {
+        return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 
     /** Devolve {@code base} com a caixa de {@code achado}: "SIM" → "NÃO", "Sim" → "Não", "sim" → "não". */

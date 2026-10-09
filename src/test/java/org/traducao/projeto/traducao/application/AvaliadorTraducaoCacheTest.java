@@ -92,6 +92,9 @@ class AvaliadorTraducaoCacheTest {
         assertFalse(avaliador.isCacheReaproveitavel("A pursuer?!", "A pursuer?! (Perseguidor?!)"));
         assertTrue(avaliador.isCacheReaproveitavel("Ready (for real)?", "Pronto (de verdade)?"));
         assertTrue(avaliador.isCacheReaproveitavel("I'm relieved.", "Que alívio."));
+        // a barra de gênero é a mesma alternativa; a barra que não é alternativa segue reaproveitada
+        assertFalse(avaliador.isCacheReaproveitavel("I'm just tired.", "Estou só cansada/o."));
+        assertTrue(avaliador.isCacheReaproveitavel("We're going 300 kph!", "Estamos a 300 km/h!"));
     }
 
     /**

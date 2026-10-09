@@ -402,7 +402,7 @@ public class ProcessarEpisodioUseCase {
      * tempo e a saída parcial é o desfecho correto.
      *
      * @param ultimaTentativa {@code true} quando não haverá outra chamada para esta fala — aí o
-     *        parêntese inventado é aceito em vez de reprovado (ver {@link #conferirParentese})
+     *        alternativa inventada é aceita em vez de reprovada (ver {@link #conferirAlternativaInventada})
      */
     private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride,
             String promptSistemaCongelado, String modeloOverride, DisjuntorRecusas disjuntor,
@@ -468,7 +468,7 @@ public class ProcessarEpisodioUseCase {
             // suposto: 114.329 pares do acervo julgados nas duas formas, com e sem máscara,
             // deram 84 reprovações em cada uma e ZERO vereditos divergentes.
             linha = validarParOuReparar(lote, mascaradoOriginal.get(i), linha);
-            linha = conferirParentese(lote, mascaradoOriginal.get(i), linha, ultimaTentativa);
+            linha = conferirAlternativaInventada(lote, mascaradoOriginal.get(i), linha, ultimaTentativa);
             saneadas.add(linha);
         }
 
@@ -520,33 +520,35 @@ public class ProcessarEpisodioUseCase {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: pede outra tentativa ao modelo quando a tradução traz parêntese que o
-     * original não tem — "cansado(a)", "(com tom sarcástico)", "A pursuer?! (Perseguidor?!)", 95
-     * casos nos caches em 08/10/2026 (ver {@link ValidadorTraducaoService#parenteseInventado}).
+     * PROPÓSITO DE NEGÓCIO: pede outra tentativa ao modelo quando a tradução traz alternativa ou nota
+     * que o original não tem — "cansado(a)", "cansada/o", "(com tom sarcástico)", "A pursuer?!
+     * (Perseguidor?!)": 95 casos de parêntese e 9 de barra nos caches em 08/10/2026 (ver
+     * {@link ValidadorTraducaoService#alternativaInventada}).
      *
      * <h2>Invariantes do domínio</h2>
      * <ul>
-     *   <li>Fora da última tentativa, reprova: a próxima temperatura costuma devolver a forma
-     *       única.</li>
-     *   <li>Na última, ACEITA e registra: a fala sai com o parêntese, nunca em inglês. Não há
+     *   <li>Fora da última tentativa, reprova: a próxima temperatura às vezes devolve a forma única.
+     *       Medido na 2.1 de 08/10 sobre o acervo, o aya mantém o "(a)" em cerca de dois terços das
+     *       falas; e dizer a ele o motivo da recusa não ajudou (40 de 91 limpas com a dica, 46 sem).</li>
+     *   <li>Na última, ACEITA e registra: a fala sai com a alternativa, nunca em inglês. Não há
      *       conserto determinístico seguro, e o inglês seria o desfecho pior para quem assiste.</li>
      * </ul>
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: fora da última tentativa lança
      * {@link AlucinacaoDetectadaException} com a descrição; na última devolve a linha como veio, com
-     * aviso {@code [ PARENTESE ]} no log e no console.
+     * aviso {@code [ ALTERNATIVA ]} no log e no console.
      */
-    private String conferirParentese(Lote lote, String original, String linha, boolean ultimaTentativa) {
-        String parentese = validador.parenteseInventado(original, linha);
-        if (parentese == null) {
+    private String conferirAlternativaInventada(Lote lote, String original, String linha, boolean ultimaTentativa) {
+        String alternativa = validador.alternativaInventada(original, linha);
+        if (alternativa == null) {
             return linha;
         }
         if (!ultimaTentativa) {
-            throw new AlucinacaoDetectadaException(parentese);
+            throw new AlucinacaoDetectadaException(alternativa);
         }
-        String aviso = "Lote " + lote.idLote() + ": parêntese mantido na última tentativa (" + parentese + ")";
+        String aviso = "Lote " + lote.idLote() + ": alternativa mantida na última tentativa (" + alternativa + ")";
         log.warn(aviso);
-        uiLogger.log("[ PARENTESE ] " + aviso);
+        uiLogger.log("[ ALTERNATIVA ] " + aviso);
         return linha;
     }
 }

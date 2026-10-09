@@ -106,6 +106,17 @@ sequenceDiagram
 - **Conferência pós-gravação (A6):** relê o arquivo gravado. O itálico removido na saída não é
   divergência; fala mantida porque a fonte já estava em português aparece como NÃO VERIFICADA, com
   exemplos, porque não passou pelo LLM nem pela validação.
+- **Portão depois da última transformação (08/10/2026):** a terminologia, as aspas, os acentos, o
+  dicionário e o homógrafo mexem na fala DEPOIS do portão. Antes de gravar, cada fala transformada é
+  conferida de novo; se a transformação a deixou reprovável e a versão que o portão aprovou passa,
+  volta a aprovada (`[ DESFEITA ]`, e o placar `[ PORTAO POS-TRANSFORMACAO ]` sai sempre). Era o que
+  a A6 acusava sem poder agir: em 17/09, a troca de termo composto apagava o `\N` de dentro do termo
+  ("Quin\NMantha") e duas falas iam ao ar numa linha só. A troca agora devolve a quebra no lugar.
+- **Alternativa inventada (08/10/2026):** "cansado(a)", "cansada/o", "Bomba(s)" ou nota do modelo
+  ("(com tom sarcástico)") que o original não tem fazem a tentativa pedir outra temperatura. Na
+  última tentativa a fala é aceita como veio (`[ ALTERNATIVA ]`) — nunca vira inglês. No cache, a
+  entrada assim volta ao modelo a cada execução. Medido: o aya mantém o "(a)" em boa parte das
+  falas, e dizer a ele o motivo da recusa não ajudou.
 
 ---
 

@@ -133,12 +133,13 @@ public class AvaliadorTraducaoCache {
             // Crown seriam reaproveitadas do cache para sempre, porque são PT-BR impecável e
             // passam em toda regra que olhe apenas a saída.
             validador.validarPar(original, traduzido);
-            // Parêntese inventado ("cansado(a)", glosa do modelo) não reprova a fala, mas a manda de
-            // volta ao modelo: é assim que as 95 entradas medidas em 08/10/2026 se consertam na
-            // próxima execução. Se o modelo insistir, a tentativa final aceita (nunca vira inglês).
-            String parentese = validador.parenteseInventado(original, traduzido);
-            if (parentese != null) {
-                log.warn("Cache ignorado pela validacao ({}): {}", parentese, traduzido);
+            // Alternativa inventada ("cansado(a)", "cansada/o", glosa do modelo) não reprova a fala,
+            // mas a manda de volta ao modelo: é assim que as entradas medidas em 08/10/2026 se
+            // consertam na próxima execução. Se o modelo insistir, a tentativa final aceita (nunca
+            // vira inglês) — e a entrada volta ao modelo de novo na execução seguinte.
+            String alternativa = validador.alternativaInventada(original, traduzido);
+            if (alternativa != null) {
+                log.warn("Cache ignorado pela validacao ({}): {}", alternativa, traduzido);
                 return false;
             }
             return true;

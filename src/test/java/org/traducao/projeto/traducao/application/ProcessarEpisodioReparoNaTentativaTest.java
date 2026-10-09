@@ -154,6 +154,18 @@ class ProcessarEpisodioReparoNaTentativaTest {
     }
 
     @org.junit.jupiter.api.Test
+    @DisplayName("parêntese trocado por barra na retentativa é o mesmo defeito: reprovado de novo")
+    void parenteseTrocadoPorBarraNaoEscapa() throws Exception {
+        // Medido no experimento de 08/10: recusado o "estranho(a)", o aya devolveu "estranho/a".
+        LlmEmSequencia llm = new LlmEmSequencia("Você é estranho(a).", "Você é estranho/a.", "Você é muito esquisito.");
+        TelemetriaFake telemetria = new TelemetriaFake();
+
+        assertEquals(List.of("Você é muito esquisito."), traduzirCom(llm, telemetria, "You really are weird."));
+        assertEquals(3, llm.chamadas.get());
+        assertEquals(2, telemetria.rejeitadas.get());
+    }
+
+    @org.junit.jupiter.api.Test
     @DisplayName("parêntese inventado até a última tentativa: publica com o parêntese, NUNCA o inglês")
     void parenteseNaUltimaTentativaEhAceito() throws Exception {
         LlmEmSequencia llm = new LlmEmSequencia("Estou aliviado(a).");
