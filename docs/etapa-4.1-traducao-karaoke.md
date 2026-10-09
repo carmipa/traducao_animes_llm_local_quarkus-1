@@ -157,6 +157,60 @@ No diálogo elas nunca fizeram mal, porque ali não existe camada japonesa. Aqui
 
 ---
 
+## O que mudou em 09/10/2026 — a tag no meio da frase e a linha fatiada
+
+Na 4.1 aplicada ao acervo inteiro em 09/10/2026, **70 das 71 recusas em 12 obras** eram do Guilty
+Crown: três frases do OP_S2, em 10 episódios, todas pelo mascarador.
+
+| frase | forma | o que acontecia |
+|-------|-------|-----------------|
+| `that your eyes were given to you to {\c…}acknowledge others,` | cor trocando no meio da frase | tradução **certa** descartada por marcador perdido |
+| `N{\3c…}o{\3c…}t{…}i{…}c{…}e` | gradiente de 6 blocos (o `GradienteKaraoke` exige 10) | o modelo recebia letras soltas entre marcadores e pedia contexto em 3 linhas |
+| `r{\3c…}e{…}l{…}y` | gradiente de 4 blocos | "Relatório recebido. Início da transmissão." |
+
+### 5. Segundo tiro sem marcador (`TagsNoMeioDaLetra`)
+
+Quando o mascarador falha por **marcador perdido** ou **linhas a mais**, a frase vai ao modelo
+**limpa** e as tags do original voltam recolocadas: posição proporcional, encaixada no mesmo tipo
+de fronteira que ocupava (tag que abria palavra volta abrindo palavra — a cor nunca troca no meio
+de "pa|ra"). Onde o mascarador acerta, nada muda: a tag continua onde o próprio modelo a pôs.
+
+O portão deste tiro é **mais estrito** que o dos outros caminhos — `validarFala` **e**
+`validarPar`. Sem o segundo, a invenção ("Relatório recebido…", 4 → 41 caracteres) e o eco
+("rely" → "rely") passariam; as duas mutações foram vistas reprovando. Vetos: `\k`, `\N`, desenho.
+
+### 6. A linha fatiada dentro do romaji não empilha
+
+O fansub partiu "that your eyes…" em **cinco eventos** dentro de **um** romaji de 5,4 s (o efeito
+de pulsar). O pareamento de camadas olhava as duas pontas (folga de 0,5 s, F6 de 24/09) e nenhuma
+fatia casava — as cinco empilhariam `inglês\Nportuguês` com o romaji já na tela. Agora o evento
+**contido** na janela da camada original também conta como o mesmo momento; o que vaza da janela
+continua empilhando.
+
+Medido pelo plano de produção sobre o acervo (`MedicaoCamadaOriginalNoInstanteIT`, foto antes ×
+depois por identidade do evento): **50 de 14.375** linhas traduzíveis mudam de decisão — todas as
+fatias do Guilty Crown, nenhuma outra.
+
+### Resultado no acervo
+
+Guilty Crown regravado em 09/10/2026 (cache e saída com backup conferido): **inglês restante 70 →
+0** em 683 linhas de música; diferença para a saída anterior = exatamente as 70 linhas do OP_S2,
+mesmos eventos e tempos. Cada frase saiu igual nos 10 episódios:
+
+```
+that your eyes were given to you to acknowledge others,  =>  que os seus olhos foram dados a você para reconhecer os outros,
+Notice                                                     =>  Notem.
+rely                                                       =>  rely\NConfie.   (sem romaji naquele instante: empilha, como desenhado)
+```
+
+> **Leitura do resumo:** o "LLM: N" do relatório conta toda linha que não veio do cache — inclusive
+> a repetida no mesmo arquivo e a reaproveitada de outra camada (`[CAMADA]`), que não chamam o
+> modelo. Na rodada do Guilty Crown foram 99 no resumo = 50 originais distintos que foram ao
+> modelo (cada um em dois tiros: 100 chamadas; são as 50 entradas novas do cache) + 25 repetições
+> no mesmo arquivo + 24 reaproveitamentos de camada.
+
+---
+
 ## Passo 2 — Achatar / Limpar (KFX → linha limpa; o antigo Karaokê Simples)
 
 Converte karaokê KFX de fansub — **milhares de eventos por sílaba/letra/frame** do Kara Templater do Aegisub — em **uma linha limpa por frase, no mesmo tempo do efeito original**. Sem LLM: só reagrupa e limpa. Na tela única, o Passo 2 aponta automaticamente para a saída do Passo 1 (`<entrada>-karaoke-ptbr`) — traduzir e depois achatar entrega romaji + PT limpo, sem a animação que quebra a tradução.
