@@ -4,3 +4,8 @@
 # além de divergir byte-a-byte entre as máquinas. Pinar LF mantém os arquivos
 # como texto diffável e idênticos em qualquer sistema.
 cache/** text eol=lf
+
+# Lore: o prompt de cada obra vira o contextoHash do cache (SHA-256 do texto CRU). O YAML normalizava a
+# quebra de linha na leitura; o literal SQL NAO normaliza. Um core.autocrlf=true enfiaria \r no prompt,
+# trocaria o hash e jogaria fora o cache da obra inteira. LF fixo aqui, e o esquema ainda recusa \r.
+src/main/resources/lore/** text eol=lf

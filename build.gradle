@@ -225,6 +225,9 @@ test {
      // COMPLETO da lore (obra x lado x campo) a partir do catalogo vivo. Mesmo motivo da linha de
      // cima: sem a chave aqui, "regravei" e "so comparei" teriam a mesma cara.
      'kronos.lore.manifesto.regravar',
+     // 'kronos.lore.sql.regravar' manda o GeradorLoreSqlIT PROMOVER os arquivos SQL da lore para
+     // src/main/resources/lore/. Sem ela o teste so compara — e reprova se o versionado divergir.
+     'kronos.lore.sql.regravar',
      'correcao-cache.reforco-terminologia-aplicar-habilitado'].each { chave ->
         if (System.getProperty(chave) != null) {
             systemProperty chave, System.getProperty(chave)
