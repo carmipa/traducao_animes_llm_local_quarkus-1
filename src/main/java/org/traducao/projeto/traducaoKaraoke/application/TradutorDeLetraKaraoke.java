@@ -13,43 +13,49 @@ import org.traducao.projeto.qualidadeTraducao.domain.AlucinacaoDetectadaExceptio
 import org.traducao.projeto.qualidadeTraducao.domain.MarcadorPerdidoException;
 import org.traducao.projeto.telemetria.TelemetriaService;
 import org.traducao.projeto.traducaoKaraoke.domain.GradienteKaraoke;
+import org.traducao.projeto.traducaoKaraoke.domain.TagsNoMeioDaLetra;
 import org.traducao.projeto.traducaoKaraoke.domain.VersosDaLetra;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * PROPÃSITO DE NEGÃCIO: leva UMA linha de letra ao LLM e devolve a traduÃ§Ã£o vestida com a
- * moldura original. Ã o dono dos TRÃS caminhos de envio, e a ordem entre eles nÃ£o Ã© preferÃªncia:
- * cada um nasceu de um prejuÃ­zo medido.
+ * PROPÓSITO DE NEGÓCIO: leva UMA linha de letra ao LLM e devolve a tradução vestida com a
+ * moldura original. É o dono dos TRÊS caminhos de envio, e a ordem entre eles não é preferência:
+ * cada um nasceu de um prejuízo medido.
  *
- * <h2>Os trÃªs caminhos, e o que cada um custou para existir</h2>
+ * <h2>Os três caminhos, e o que cada um custou para existir</h2>
  * <ol>
- *   <li><b>Gradiente</b> â karaokÃª pintado letra a letra. Guilty Crown, 07/08/2026: 28 de 31
+ *   <li><b>Gradiente</b> — karaokê pintado letra a letra. Guilty Crown, 07/08/2026: 28 de 31
  *       recusas eram marcador intercalado que nenhum modelo devolve na ordem.</li>
- *   <li><b>Texto puro</b> â tags sÃ³ na borda. 08th MS Team, 08/08/2026: 1.258 de 1.258 avisos
- *       pelo mesmo motivo, com portuguÃªs perfeito sendo descartado.</li>
- *   <li><b>Mascarador</b> â o caminho antigo, sÃ³ para o que nÃ£o couber nos dois primeiros.</li>
+ *   <li><b>Texto puro</b> — tags só na borda. 08th MS Team, 08/08/2026: 1.258 de 1.258 avisos
+ *       pelo mesmo motivo, com português perfeito sendo descartado.</li>
+ *   <li><b>Mascarador</b> — o caminho antigo, só para o que não couber nos dois primeiros.</li>
+ *   <li><b>Refeita sem marcador</b> — SEGUNDO tiro, só quando o mascarador falha por marcador
+ *       perdido ou por linhas a mais. Guilty Crown, 09/10/2026: 70 de 71 recusas do acervo eram
+ *       tag no meio da frase, uma delas com tradução certa descartada ("que os seus olhos foram
+ *       dados a você para reconhecer os outros,"). Ver {@link TagsNoMeioDaLetra}.</li>
  * </ol>
  *
  * <h2>Por que isto saiu do use case</h2>
- * Eram 780 bytecodes e CINCO dependÃªncias ({@code llmPort}, {@code mascarador},
+ * Eram 780 bytecodes e CINCO dependências ({@code llmPort}, {@code mascarador},
  * {@code validador}, {@code telemetriaService}, {@code logStream}) dentro de um objeto que
- * tambÃ©m classificava, gravava cache e escrevia arquivo. Aqui a mesma lÃ³gica Ã© testÃ¡vel sem
+ * também classificava, gravava cache e escrevia arquivo. Aqui a mesma lógica é testável sem
  * disco, sem cache e sem manifesto.
  *
- * <h2>Invariantes do domÃ­nio</h2>
+ * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>Falha, resposta invÃ¡lida ou alucinaÃ§Ã£o devolvem {@code null} â a linha fica no idioma
- *       original e um aviso Ã© registrado. NUNCA derruba o arquivo.</li>
- *   <li>A moldura devolvida Ã© a do ORIGINAL, nunca a que o modelo imaginou.</li>
- *   <li>O {@code sequencialLote} Ã© o contador LOCAL da execuÃ§Ã£o, recebido por parÃ¢metro â nunca
- *       campo de instÃ¢ncia, para nÃ£o ser perturbado por execuÃ§Ã£o concorrente deste bean.</li>
+ *   <li>Falha, resposta inválida ou alucinação devolvem {@code null} — a linha fica no idioma
+ *       original e um aviso é registrado. NUNCA derruba o arquivo.</li>
+ *   <li>A moldura devolvida é a do ORIGINAL, nunca a que o modelo imaginou.</li>
+ *   <li>O {@code sequencialLote} é o contador LOCAL da execução, recebido por parâmetro — nunca
+ *       campo de instância, para não ser perturbado por execução concorrente deste bean.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Nunca lanÃ§a. Todo caminho de erro devolve {@code null} e escreve o motivo em {@code avisos}.
+ * Nunca lança. Todo caminho de erro devolve {@code null} e escreve o motivo em {@code avisos}.
  */
 @ApplicationScoped
 public class TradutorDeLetraKaraoke {
@@ -84,9 +90,13 @@ public class TradutorDeLetraKaraoke {
      * {@code temperature: 0} no YAML não teria efeito nenhum. O override da porta não passa por
      * essa coerção e é contrato declarado — é o ponto certo.
      *
-     * <p>INVARIANTES DO DOMÍNIO: o karaokê é TIRO ÚNICO — não existe retentativa nesta classe,
-     * então fixar a temperatura não desliga nenhuma rota de recuperação. Se um dia houver
-     * retentativa aqui, ela precisará de override próprio, e este comentário é o aviso.
+     * <p>INVARIANTES DO DOMÍNIO: não existe retentativa com a MESMA entrada nesta classe, então
+     * fixar a temperatura não desliga nenhuma rota de recuperação. O segundo tiro de
+     * {@link #traduzirSemMarcador} (09/10/2026) não é retentativa nesse sentido: ele manda uma
+     * ENTRADA DIFERENTE — a frase limpa no lugar da mascarada —, e é a entrada, não a
+     * amostragem, que muda a resposta. Por isso usa esta mesma temperatura, e a mesma letra
+     * continua saindo igual em todos os episódios. Retentativa com a mesma entrada precisaria
+     * de override próprio, e este comentário é o aviso.
      */
     static final Double TEMPERATURA_DETERMINISTICA = 0.0d;
 
@@ -117,7 +127,9 @@ public class TradutorDeLetraKaraoke {
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: falha de comunicação, resposta inválida ou
      * {@link AlucinacaoDetectadaException} devolve {@code null} (mantém a linha original) e
-     * registra um aviso — nunca propaga para derrubar o arquivo.
+     * registra um aviso — nunca propaga para derrubar o arquivo. No caminho do mascarador,
+     * marcador perdido e linhas a mais não devolvem {@code null} de imediato: passam antes pelo
+     * segundo tiro de {@link #traduzirSemMarcador}, e só a falha dele mantém a linha.
      */
     String traduzirViaLlm(String original, List<String> avisos, AtomicInteger sequencialLote,
                                   String promptSistemaCongelado) {
@@ -170,9 +182,12 @@ public class TradutorDeLetraKaraoke {
             logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida — linha mantida sem tradução.");
             return null;
         }
-        String unida = unirVersos(resposta.linhasTraduzidas(), VersosDaLetra.contar(original), avisos, original);
+        // Os avisos desta tentativa ficam de lado ate se saber se o segundo tiro a salva: se
+        // salvar, "linha mantida" seria MENTIRA no manifesto (A7) — a linha saiu traduzida.
+        List<String> recusaDoMascarador = new ArrayList<>();
+        String unida = unirVersos(resposta.linhasTraduzidas(), VersosDaLetra.contar(original), recusaDoMascarador, original);
         if (unida == null) {
-            return null;
+            return traduzirSemMarcador(original, recusaDoMascarador, avisos, sequencialLote, promptSistemaCongelado);
         }
         try {
             String traduzido = mascarador.desmascarar(unida, mascarado.tags());
@@ -183,10 +198,10 @@ public class TradutorDeLetraKaraoke {
             // e so nao repetiu o marcador. Mostrar a TRADUCAO RECUSADA e o que permite ao
             // operador ver, na hora, que perdeu trabalho bom — e nao lixo.
             telemetriaService.registrarAlucinacaoPrevenida();
-            avisos.add("Marcador perdido (" + e.getMessage() + "); linha mantida: " + original);
+            recusaDoMascarador.add("Marcador perdido (" + e.getMessage() + "); linha mantida: " + original);
             logStream.publicarLog(CANAL_LOG, "   [MARCADOR PERDIDO] traducao DESCARTADA por falta de tag: \""
                 + e.traducaoRecusada() + "\"");
-            return null;
+            return traduzirSemMarcador(original, recusaDoMascarador, avisos, sequencialLote, promptSistemaCongelado);
         } catch (AlucinacaoDetectadaException e) {
             telemetriaService.registrarAlucinacaoPrevenida();
             avisos.add("Alucinação detectada (" + e.getMessage() + "); linha mantida: " + original);
@@ -303,6 +318,88 @@ public class TradutorDeLetraKaraoke {
             return null;
         }
         return gradiente.recompor(traduzido);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: dá à linha com tag no MEIO um segundo tiro quando o mascarador falha
+     * — a frase vai ao modelo LIMPA, sem marcador para perder, e as tags do original voltam
+     * recolocadas por {@link TagsNoMeioDaLetra}. É o que tira do inglês as três frases do OP_S2 do
+     * Guilty Crown medidas em 09/10/2026 (70 das 71 recusas do acervo).
+     *
+     * <p>INVARIANTES DO DOMÍNIO:
+     * <ul>
+     *   <li>Só roda DEPOIS do mascarador e só nas duas falhas em que a máscara é a causa
+     *       provável (marcador perdido, linhas a mais). Onde o mascarador acerta, a tag continua
+     *       onde o próprio modelo a pôs — a posição proporcional daqui é aproximação, e não
+     *       substitui alinhamento melhor.</li>
+     *   <li>Portão MAIS estrito que o dos outros caminhos: além de {@code validarFala}, passa por
+     *       {@code validarPar} contra a frase original. Este tiro existe justamente para linhas em
+     *       que o modelo já se perdeu ("rely" virou "Relatório recebido. Início da transmissão."),
+     *       e a resposta fluente sem âncora — eco, meta-resposta, texto desproporcional — só o
+     *       par enxerga.</li>
+     *   <li>A7: o desfecho fica escrito. Salva, a linha ganha um aviso de "refeita sem marcador"
+     *       com o motivo da recusa anterior e o resultado; perdida, os avisos das DUAS tentativas
+     *       vão ao manifesto, e nenhum deles diz que o modelo não respondeu.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: linha fora do recorte (sem tag, {@code \k}, {@code \N},
+     * desenho), falha de comunicação, resposta com linhas a mais ou reprovação em qualquer dos
+     * dois portões devolvem {@code null} — a linha fica no original, como antes deste caminho
+     * existir. Nunca lança e nunca devolve linha meio montada.
+     */
+    String traduzirSemMarcador(String original, List<String> recusaDoMascarador, List<String> avisos,
+                               AtomicInteger sequencialLote, String promptSistemaCongelado) {
+        Optional<TagsNoMeioDaLetra> moldura = TagsNoMeioDaLetra.decompor(original);
+        if (moldura.isEmpty()) {
+            avisos.addAll(recusaDoMascarador);
+            return null;
+        }
+        String frase = moldura.get().textoVisivel().strip();
+        logStream.publicarLog(CANAL_LOG, "   [SEM MARCADOR] refazendo com a frase limpa; as tags voltam recolocadas: "
+            + frase);
+        List<String> recusaDoSegundoTiro = new ArrayList<>();
+        TraducaoLote resposta;
+        try {
+            resposta = llmPort.traduzir(
+                new Lote(sequencialLote.incrementAndGet(), List.of(frase)),
+                TEMPERATURA_DETERMINISTICA,
+                promptSistemaCongelado);
+        } catch (Exception e) {
+            avisos.addAll(recusaDoMascarador);
+            avisos.add("Falha de comunicação com o LLM no segundo tiro; letra mantida: " + frase);
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM falhou no segundo tiro (mantida): " + e.getMessage());
+            return null;
+        }
+        if (resposta == null || !resposta.sucesso()
+            || resposta.linhasTraduzidas() == null || resposta.linhasTraduzidas().isEmpty()) {
+            avisos.addAll(recusaDoMascarador);
+            avisos.add("LLM não retornou tradução no segundo tiro; letra mantida: " + frase);
+            logStream.publicarLog(CANAL_LOG, "   [AVISO] LLM sem resposta válida no segundo tiro — letra mantida.");
+            return null;
+        }
+        // O recorte veta \N: aqui a letra e sempre de UM verso.
+        String traduzido = unirVersos(resposta.linhasTraduzidas(), 1, recusaDoSegundoTiro, frase);
+        if (traduzido == null) {
+            avisos.addAll(recusaDoMascarador);
+            avisos.addAll(recusaDoSegundoTiro);
+            return null;
+        }
+        try {
+            validador.validarFala(traduzido);
+            validador.validarPar(frase, traduzido);
+        } catch (AlucinacaoDetectadaException e) {
+            telemetriaService.registrarAlucinacaoPrevenida();
+            avisos.addAll(recusaDoMascarador);
+            avisos.add("Segundo tiro reprovado (" + e.getMessage() + "); letra mantida: " + frase);
+            logStream.publicarLog(CANAL_LOG,
+                "   [AVISO] segundo tiro reprovado — letra mantida sem tradução: " + e.getMessage());
+            return null;
+        }
+        String recomposta = moldura.get().recompor(traduzido);
+        String motivo = recusaDoMascarador.isEmpty() ? "mascarador falhou" : recusaDoMascarador.getFirst();
+        avisos.add("Refeita sem marcador (" + motivo + "); traduzida: " + frase + " => " + traduzido);
+        logStream.publicarLog(CANAL_LOG, "   [SEM MARCADOR] traduzida: " + frase + "  =>  " + traduzido);
+        return recomposta;
     }
 
     /**

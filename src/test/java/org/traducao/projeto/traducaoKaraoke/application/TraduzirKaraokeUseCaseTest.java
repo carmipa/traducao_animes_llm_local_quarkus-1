@@ -521,4 +521,70 @@ class TraduzirKaraokeUseCaseTest {
             "");
         Files.writeString(destino, conteudo, StandardCharsets.UTF_8);
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: A6 do segundo tiro sem marcador — a linha do OP_S2 do Guilty Crown que
+     * a 4.1 de 09/10/2026 deixou em inglês (tag de cor no meio da frase, marcador perdido) tem de
+     * chegar ao ARQUIVO GRAVADO traduzida e com a moldura do original, e ao CACHE do jeito que foi
+     * para o arquivo. A prova unitária do tradutor não alcança a gravação; esta alcança.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o romaji da mesma música sai intacto; a entrada não muda.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: a asserção mostra o arquivo gravado.
+     */
+    @Test
+    void linhaComTagNoMeioChegaTraduzidaAoArquivoGravadoEAoCache() throws IOException {
+        String prefixo = "{\\fad(0,0)\\blur4.5\\3c&H4331EA&}";
+        String original = prefixo + "that your eyes were given to you to {\\c&HEAEEEB&}acknowledge others,";
+        String romaji = "{\\fad(0,0)\\blur4.5\\3c&H4331EA&\\c&HEAEEEB&}Sono me wa tagai wo mitomeru tame,";
+        String esperado = prefixo + "que os seus olhos foram dados a você para {\\c&HEAEEEB&}reconhecer os outros,";
+        // Linhas cruas do OP_S2 do episodio 13, com a forma do arquivo real: a linha do meio e uma
+        // FATIA (2:01.26-2:01.89) dentro do romaji (2:01.22-2:06.64). Foi esta fixture que mostrou
+        // que o pareamento por pontas empilhava "ingles\Nportugues" sobre o romaji — ver
+        // PlanoDeClassificacaoTest.fatiaDentroDoRomajiEOMesmoMomento. As vizinhas provam que as
+        // linhas que ja funcionavam continuam trocando no lugar.
+        Files.writeString(pastaEntrada.resolve(NOME_ARQUIVO), String.join("\r\n",
+            "[Script Info]",
+            "Title: Teste",
+            "",
+            "[Events]",
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
+            "Dialogue: 0,0:01:39.03,0:01:47.20,OP_S2_roma,,0,0,0,,{\\c&H5846A6&\\blur4.5\\fad(100,75)}Houkai no shinfonii ga narihibiite",
+            "Dialogue: 0,0:01:50.12,0:01:58.26,OP_S2_roma,,0,0,0,,{\\c&H4E3CC8&\\blur4.5\\fad(100,300)}Furu ame wa maru de namida no neiro",
+            "Dialogue: 0,0:02:01.22,0:02:06.64,OP_S2_roma,,0,0,0,," + romaji,
+            "Dialogue: 0,0:02:06.64,0:02:11.98,OP_S2_roma,,0,0,0,,{\\blur4.5\\fad(100,150)}Sono koe wa omoi wo tsutaeru tame",
+            "Dialogue: 0,0:01:39.03,0:01:47.20,OP_S2,,0,0,0,,{\\c&H5846A6&\\blur4.5\\fad(100,75)}The reality of the destruction around us fills our mind",
+            "Dialogue: 0,0:01:50.12,0:01:58.26,OP_S2,,0,0,0,,{\\c&H4E3CC8&\\blur4.5\\fad(100,300)}The raging rain sounds like a storm of tears",
+            "Dialogue: 0,0:02:01.26,0:02:01.89,OP_S2,,0,0,0,," + original,
+            "Dialogue: 0,0:02:06.64,0:02:11.98,OP_S2,,0,0,0,,{\\blur4.5\\fad(100,150)}that your voice was given to you to tell others how you feel",
+            ""), StandardCharsets.UTF_8);
+        // O aya, medido: devolve a traducao certa e esquece o marcador; com a frase limpa, a mesma.
+        usarLlm(new LlmPortFake() {
+            @Override
+            public TraducaoLote traduzir(Lote lote) {
+                chamadasTraduzir++;
+                String entrada = lote.linhasOriginais().getFirst();
+                return new TraducaoLote(lote.idLote(), List.of(entrada.contains("eyes")
+                    ? "que os seus olhos foram dados a você para reconhecer os outros,"
+                    : "Tradução simulada"), true, null);
+            }
+        });
+
+        ResultadoTraducaoKaraoke r = useCase.aplicar(pastaEntrada, CONTEXTO_08TH).getFirst();
+
+        String saida = Files.readString(
+            TraduzirKaraokeUseCase.resolverPastaSaida(pastaEntrada).resolve(NOME_ARQUIVO), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("OP_S2,,0,0,0,," + esperado), () -> "a linha tinha de chegar ao arquivo GRAVADO traduzida "
+            + "e com a moldura do original. Avisos: " + r.avisos() + "\n" + saida);
+        assertTrue(saida.contains(romaji), "o romaji da mesma musica nao pode mudar");
+        assertEquals(4, r.traduzidas(), () -> "as quatro linhas inglesas, a do meio inclusive. Avisos: " + r.avisos());
+        assertEquals(0, r.mantidasSemTraducao(), () -> "Avisos: " + r.avisos());
+        assertTrue(r.avisos().stream().anyMatch(a -> a.startsWith("Refeita sem marcador")),
+            () -> "A7: o manifesto tem de registrar o segundo tiro: " + r.avisos());
+        String cache = Files.readString(tempDir.resolve("cache").resolve("karaoke")
+            .resolve("Anime Teste - S01E01.cache.json"), StandardCharsets.UTF_8);
+        assertTrue(cache.contains("reconhecer os outros"), () -> "o cache tem de guardar o que foi para o arquivo: " + cache);
+        assertTrue(Files.readString(pastaEntrada.resolve(NOME_ARQUIVO), StandardCharsets.UTF_8).contains(original),
+            "a entrada nao pode mudar");
+    }
 }

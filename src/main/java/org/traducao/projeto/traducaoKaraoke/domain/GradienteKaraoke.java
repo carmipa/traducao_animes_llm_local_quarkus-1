@@ -52,7 +52,13 @@ public record GradienteKaraoke(List<String> tags, String textoVisivel, String or
     public static final int MINIMO_BLOCOS = 10;
 
     private static final Pattern BLOCO_TAGS = Pattern.compile("\\{[^}]*\\}");
-    private static final Pattern TAG_TIMING_KARAOKE = Pattern.compile("\\\\[kK][fo]?\\d");
+    /**
+     * Visível no pacote porque {@link TagsNoMeioDaLetra} veta pela MESMA regra: timing de sílaba
+     * amarra a tag ao áudio nos dois caminhos. Uma cópia aqui ao lado divergiria na primeira
+     * correção de um dos lados — a cicatriz de 03/08/2026 contada em
+     * {@code CatracaRegraDuplicadaEntreFatiasTest}.
+     */
+    static final Pattern TAG_TIMING_KARAOKE = Pattern.compile("\\\\[kK][fo]?\\d");
     private static final Pattern TAG_TRANSFORMACAO = Pattern.compile("\\\\t\\(");
 
     public GradienteKaraoke {

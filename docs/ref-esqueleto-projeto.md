@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **495** |
-| classes em `src/test` | **456** |
+| classes em `src/main` | **496** |
+| classes em `src/test` | **459** |
 
 ---
 
@@ -38,7 +38,7 @@ graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (25)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
     G1["<b>Tradução</b><br/>traducao (79)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
-    G3["<b>Karaokê</b><br/>traducaoKaraoke (23)<br/>novoKaraoke (11)"]:::fatia
+    G3["<b>Karaokê</b><br/>traducaoKaraoke (24)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
     PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
@@ -523,7 +523,7 @@ revisaoConcordancia/
 
 ### Karaokê
 
-#### `traducaoKaraoke` — 23 classes
+#### `traducaoKaraoke` — 24 classes
 
 ```text
 traducaoKaraoke/
@@ -544,6 +544,7 @@ traducaoKaraoke/
 │   ├── ResultadoTraducaoKaraoke.java
 │   ├── SinaisDeKaraoke.java
 │   ├── StatusExecucaoKaraoke.java
+│   ├── TagsNoMeioDaLetra.java
 │   ├── TelemetriaKaraoke.java
 │   ├── TraducaoKaraokeException.java
 │   └── VersosDaLetra.java
@@ -901,7 +902,7 @@ core/
 
 ---
 
-## Testes — 456 classes
+## Testes — 459 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1222,7 +1223,7 @@ mcp/
 └── KronosMcpToolsTest.java
 ```
 
-#### `medicao` — 39 classes
+#### `medicao` — 40 classes
 
 ```text
 medicao/
@@ -1238,6 +1239,7 @@ medicao/
 ├── MedicaoAlcanceDa33NoAcervoIT.java
 ├── MedicaoAnomaliaIntroduzidaIT.java
 ├── MedicaoAuditoriaAcervoIT.java
+├── MedicaoCamadaOriginalNoInstanteIT.java
 ├── MedicaoCamadaRepetidaIT.java
 ├── MedicaoCartazNoAlcanceDaLoreIT.java
 ├── MedicaoConcordanciaAcervoPtIT.java
@@ -1585,7 +1587,7 @@ traducaoCorrige/
     └── ResultadoManutencaoCacheTest.java
 ```
 
-#### `traducaoKaraoke` — 18 classes
+#### `traducaoKaraoke` — 20 classes
 
 ```text
 traducaoKaraoke/
@@ -1602,10 +1604,12 @@ traducaoKaraoke/
 │   ├── SilabaDeFraseIrmaTest.java
 │   ├── TemperaturaDeterministicaKaraokeTest.java
 │   ├── TradutorDeLetraPerdeVersoTest.java
+│   ├── TradutorDeLetraSemMarcadorTest.java
 │   └── TraduzirKaraokeUseCaseTest.java
 ├── domain/
 │   ├── AcentosLetraKaraokeTest.java
 │   ├── GradienteKaraokeTest.java
+│   ├── TagsNoMeioDaLetraTest.java
 │   └── VersosDaLetraTest.java
 └── infrastructure/
     ├── ImportadorManifestoKaraokeTest.java

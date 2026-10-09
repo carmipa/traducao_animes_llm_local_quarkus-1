@@ -275,8 +275,22 @@ public final class PlanoDeClassificacao {
     }
 
     /**
-     * PROPÓSITO DE NEGÓCIO: há uma camada original no MESMO momento da música que este evento —
-     * início e fim, cada um dentro de {@link #FOLGA_PAR_DE_CAMADAS_CS}?
+     * PROPÓSITO DE NEGÓCIO: há uma camada original na tela durante TODO este evento? Responde de
+     * duas formas, e as duas significam "a letra original já aparece, não empilhe":
+     * <ul>
+     *   <li><b>mesmo momento</b> — início e fim, cada um dentro de {@link #FOLGA_PAR_DE_CAMADAS_CS}
+     *       (o F6 de 24/09/2026);</li>
+     *   <li><b>fatia</b> — o evento cabe INTEIRO dentro da janela da camada original, com a mesma
+     *       folga em cada ponta. Guilty Crown, OP_S2, 09/10/2026: o fansub partiu "that your eyes
+     *       were given to you to acknowledge others," em CINCO eventos curtos (o efeito de pulsar)
+     *       dentro de UM romaji de 5,4 s. Pelas pontas nenhuma fatia casava, e as cinco empilhariam
+     *       o inglês sobre o português com o romaji já na tela — três camadas, o defeito do F6.</li>
+     * </ul>
+     *
+     * <p>INVARIANTES DO DOMÍNIO: evento que só ENCOSTA na janela (começa antes ou termina depois
+     * dela além da folga) continua sem irmã — a original não cobre o evento inteiro, e trocar no
+     * lugar apagaria a letra da tela no trecho descoberto. É o lado do prejuízo do Unicorn (22 de
+     * 23 linhas sumindo), e por isso é o lado que a dúvida escolhe.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo ilegível devolve {@code false} — o evento é
      * tratado como sem irmã, o lado que PRESERVA a original (empilha).
@@ -288,8 +302,11 @@ public final class PlanoDeClassificacao {
             return false;
         }
         for (long[] j : janelas) {
-            if (Math.abs(j[0] - ini) <= FOLGA_PAR_DE_CAMADAS_CS
-                && Math.abs(j[1] - fim) <= FOLGA_PAR_DE_CAMADAS_CS) {
+            boolean mesmoMomento = Math.abs(j[0] - ini) <= FOLGA_PAR_DE_CAMADAS_CS
+                && Math.abs(j[1] - fim) <= FOLGA_PAR_DE_CAMADAS_CS;
+            boolean fatia = ini >= j[0] - FOLGA_PAR_DE_CAMADAS_CS
+                && fim <= j[1] + FOLGA_PAR_DE_CAMADAS_CS;
+            if (mesmoMomento || fatia) {
                 return true;
             }
         }

@@ -297,6 +297,39 @@ class PlanoDeClassificacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO (09/10/2026): a linha inglesa FATIADA dentro de um romaji só é o mesmo
+     * momento. Linhas cruas do OP_S2 do Guilty Crown E13: o romaji vai de 2:01.22 a 2:06.64 e o
+     * inglês "that your eyes..." foi partido em cinco eventos dentro dele, para o efeito de pulsar.
+     * Pelo pareamento de pontas nenhuma fatia casava, e as cinco empilhariam o inglês sobre o
+     * português com o romaji na tela. Medido no acervo pelo plano de produção: as 50 fatias (5 em
+     * 10 episódios) e NENHUMA outra das 14.375 linhas traduzíveis mudam de decisão.
+     *
+     * <p>A1 — o mesmo sinal (inglês sobreposto ao romaji) sem estar CONTIDO: começa dentro da janela
+     * e termina 1 s depois dela. A original não cobre o evento inteiro, e trocar no lugar apagaria a
+     * letra no trecho descoberto — continua empilhando.
+     */
+    @Test
+    @DisplayName("fatia dentro do romaji e o mesmo momento; o que vaza da janela nao e")
+    void fatiaDentroDoRomajiEOMesmoMomento(@org.junit.jupiter.api.io.TempDir Path pasta) throws IOException {
+        DocumentoLegenda doc = documento(pasta,
+            "Dialogue: 0,0:02:01.22,0:02:06.64,OP_S2_roma,,0,0,0,,{\\fad(0,0)}Sono me wa tagai wo mitomeru tame,",
+            "Dialogue: 0,0:02:01.26,0:02:01.89,OP_S2,,0,0,0,,{\\fad(0,0)}that your eyes were given to you to {\\c&HEAEEEB&}acknowledge others,",
+            "Dialogue: 0,0:02:03.18,0:02:04.10,OP_S2,,0,0,0,,{\\fad(0,0)}that your eyes were given to you to {\\c&H39383C&}acknowledge others,",
+            "Dialogue: 0,0:02:05.97,0:02:06.64,OP_S2,,0,0,0,,{\\fad(0,0)}that your eyes were given to you to {\\c&HEAEEEB&}acknowledge others,",
+            "Dialogue: 0,0:02:05.97,0:02:07.64,OP_S2,,0,0,0,,{\\fad(0,0)}that your voice was given to you to tell others");
+
+        PlanoDeClassificacao plano = PlanoDeClassificacao.montar(doc, classificador);
+
+        for (int i = 1; i <= 3; i++) {
+            int fatia = i;
+            assertTrue(plano.temOriginalPreservadaNoInstante(doc.eventos().get(fatia)),
+                () -> "fatia " + fatia + " esta inteira dentro do romaji: o ingles nao pode empilhar");
+        }
+        assertFalse(plano.temOriginalPreservadaNoInstante(doc.eventos().get(4)),
+            "A1: termina 1 s depois do romaji — a original nao cobre o evento, tem de empilhar");
+    }
+
+    /**
      * A1 da folga do F6, achado no acervo em 24/09/2026: a folga vale para EMPILHAR, nunca como
      * evidência de que uma linha é música. Uma fala de DIÁLOGO que coincide no tempo com um verso
      * romaji (ZZ: "Como posso pilotar o Zeta Gundam se tenho medo de Newtypes?", 27 cs de diferença
