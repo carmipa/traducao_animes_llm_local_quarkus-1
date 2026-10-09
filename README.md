@@ -31,7 +31,7 @@ O **KRONOS CORE** é uma plataforma de automação para **tradução industrial 
 - 🔍 **Auditoria técnica de mídia** (ffprobe) com classificação de traduzibilidade das legendas (texto vs. bitmap)
 - ✂️ **Extração em lote** de faixas de legenda (ASS/SRT/PGS) de MKV/MP4/qualquer contêiner comum
 - 🔎 **Análise de Conteúdo de legendas** — 5 regras de auditoria contra anomalias de LLM, efeitos vazados e karaokê danificado, antes e depois da tradução
-- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (**69 obras** no `lore.yaml`)
+- 🌐 **Tradução por LLM 100% local** (LM Studio) com cache persistente e lore por anime (**69 obras**, um arquivo SQL por obra)
 - 🩹 **Três fluxos de correção/revisão** (LLM, Google Translate, heurística de concordância PT-BR)
 - 🧵 **Restauração estrutural de tags ASS** corrompidas por alucinação de IA (Aegisub/Kara Templater)
 - 📖 **Revisão de Lore** pós-tradução — nomes, locais e termos de mundo validados contra a lore oficial da obra, com trilha de auditoria por fala
@@ -84,7 +84,7 @@ histórico justamente porque numeração que não acompanha a ordem vira mentira
 | **4.3** 🎵 | [**Karaokê Simples**](docs/etapa-4.3-karaoke-simples.md) | Converte karaokê KFX em linhas simples, no tempo original. **Destrutivo — último do bloco** |
 | **5.1** 📦 | [**Remuxer**](docs/etapa-5.1-remuxer.md) | Combina vídeo + legenda em MKV final |
 | **5.2** 🧹 | [**Renomear Arquivos**](docs/etapa-5.2-renomear-arquivos.md) | Renomeação em lote para o padrão `Nome - S01E01`, com dry-run e undo |
-| 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **69 obras** no `lore.yaml` (68 aparecem na lista da UI) |
+| 🎭 | [**Contextos & Lore**](docs/modulo-contextos-lore.md) | Sistema de lore por anime — **69 obras**, um arquivo SQL por obra (68 aparecem na lista da UI) |
 | 📊 | [**Telemetria**](docs/modulo-telemetria.md) | Rastreamento de operações e métricas de JVM em tempo real |
 | ⚡ | [**Desempenho do Pipeline**](docs/ref-desempenho.md) | Onde o tempo é gasto, por operação e por elo — medido sobre o acervo real, com caso-controle do relógio |
 | 🎬 | [**Metadados de Anime**](docs/modulo-metadados-anime.md) | Integração Jikan/MAL e TMDB para pôster/sinopse na UI |

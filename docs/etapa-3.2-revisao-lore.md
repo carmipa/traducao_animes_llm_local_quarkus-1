@@ -45,43 +45,41 @@ O roster preservava **zero**: "Uraki", "Kamille", "Inori", "Banagher" não estav
 de posição os salvava, por acaso. A prosa parece boa e é armadilha: traz 19 palavras de
 **instrução** do prompt (`ajustar`, `adjetivos`, `traduza`, `mantenha`, `terra`, `guerra`).
 
-**Consequência prática: acrescentar nome no `lore.yaml` passa a render.**
+**Consequência prática: acrescentar nome na lore passa a render.**
 
 > A primeira versão da ligação comparava por **igualdade exata**, e o catálogo guarda o nome
 > COMPLETO ("Banagher Links", "Kou Uraki") enquanto a fala usa a palavra isolada: **19
 > protagonistas ficaram invisíveis, em silêncio**. Com expansão em palavras, 19 → 1. Custo medido e
 > declarado: 467 palavras novas, 17 genéricas (4%) — "forces", "team", "group", "fleet" —, cujo
-> remédio é equivalência no YAML, não exceção no código.
+> remédio é equivalência na lore, não exceção no código.
 
 ---
 
-## O `lore.yaml` é o produto
+## A lore é o produto
 
-A lore saiu do Java e virou **dado**. O arquivo é gerado dos provedores reais por
-`GeradorLoreYamlIT` — **nunca digitado** — e a geração só escreve depois de provar ida e volta,
-campo a campo.
+A lore saiu do Java e virou **dado** — de 15/08 a 09/10/2026 no `lore.yaml`, e desde então num
+arquivo SQL por obra (`src/main/resources/lore/obras/<id>.sql`), carregado num SQLite em memória no
+arranque. Formato, regras e como anexar: [Contextos & Lore](modulo-contextos-lore.md).
 
 ```
-src/main/resources/lore/lore.yaml ......... 15.101 linhas
+medido em 09/10/2026
 
-seção  obras:     69 obras   (68 aparecem na lista da UI; 1 oculta)
-                  2.192 termos protegidos · 2.048 correções de terminologia
-                  30 apelidos de pasta · 9 pares inconfundíveis
-seção  revisao:   69 obras   ·  2.103 correções de terminologia
-                  43 equivalências aceitas
+obras ....................... 70  (69 com tradução, 68 na lista da UI; 69 com revisão)
+termos protegidos ........... 2.316
+correções de terminologia ... 2.115  (uma vez por obra, lidas pelos dois lados)
+equivalências aceitas ....... 85 formas
 ```
 
-Os dois blocos que decidem o comportamento da tela:
+As duas tabelas que decidem o comportamento da tela:
 
-| bloco | significado | efeito |
+| tabela | significado | efeito |
 |---|---|---|
-| `correcoesTerminologia` | a forma está **errada** e existe uma canônica | **escreve** na legenda |
-| `equivalenciasAceitas` | a tradução está **certa** e a tela precisa **calar** | não escreve, e para de acusar |
+| `correcao_terminologia` | a forma está **errada** e existe uma canônica | **escreve** na legenda |
+| `equivalencia_aceita` | a tradução está **certa** e a tela precisa **calar** | não escreve, e para de acusar |
 
-> **Por que YAML e não JSON:** o arquivo carrega **cicatrizes** — comentários que são medição real,
-> migrados à mão das classes Java. Regenerar com o gerador produz **zero comentário**; copiar o
-> gerado por cima **apaga toda a cicatriz**. A guarda `CatracaCicatrizNoLoreYamlTest` faz isso
-> reprovar o build em vez de passar em silêncio.
+> **A cicatriz vai junto do dado:** cada arquivo de obra carrega, em comentário `--`, a medição que
+> justificou cada entrada. A guarda `CatracaCicatrizNaLoreSqlTest` reprova o build se esses
+> comentários diminuírem — nenhuma outra guarda veria, porque comentário não é dado.
 
 ---
 
@@ -277,7 +275,7 @@ retraduzir nada.
 
 | guarda | o que impede |
 |---|---|
-| `CatracaCicatrizNoLoreYamlTest` | regenerar o YAML apagar as cicatrizes medidas |
+| `CatracaCicatrizNaLoreSqlTest` | a cicatriz da lore (medição escrita em comentário) ser apagada |
 | `CatracaTerminologiaDeLoreUnificadaTest` | as listas de terminologia divergirem entre si |
 | `CatracaEscritaDeFalaVetaMusicaLoreTest` | a fatia escrever em fala de estilo musical |
 | `CatracaTokenDeControleEmTodaPortaLlmTest` | token de template vazar para a legenda |
@@ -290,7 +288,7 @@ retraduzir nada.
 ## Aberto e declarado
 
 - **~1.241 pendências** nas sete obras trabalhadas — e são **curadoria de catálogo**, não defeito de
-  código: cada uma é uma decisão sobre o `lore.yaml`.
+  código: cada uma é uma decisão sobre a lore.
 - `traduzirArquivo` com 403 linhas e `processarArquivo` com 348 — refatoração **sem defeito
   aberto**, registrada para não virar lacuna silenciosa.
 - A **proteção de acento nunca foi exercitada numa tradução real**: o acervo foi traduzido antes

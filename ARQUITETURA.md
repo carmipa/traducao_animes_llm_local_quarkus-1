@@ -53,6 +53,10 @@ pastas de obra no cache, 553 arquivos de cache, 122.307 entradas, 90 MB.
 > ficou treze dias sem revisão e cada número dela estava errado hoje. A lore, em particular,
 > deixou de ser classe Java e virou dado (`lore.yaml`), então "contar classes" nem mede mais a
 > mesma coisa — por isso a contagem passou a ser perguntada à produção (`/api/contextos`).
+>
+> Desde 09/10/2026 a lore não é mais o `lore.yaml`: é um arquivo SQL por obra em
+> `src/main/resources/lore/obras/`, carregado num SQLite em memória no arranque. Ver
+> [Contextos & Lore](docs/modulo-contextos-lore.md).
 
 ---
 

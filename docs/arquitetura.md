@@ -17,7 +17,7 @@ O **KRONOS CORE** é uma plataforma monolítica modular construída sobre o **Qu
 > | classes / linhas em `src/main` | **471** / **63.049** | `find … -name '*.java'` |
 > | classes / linhas em `src/test` | **366** / **61.513** | idem — o teste pesa quase tanto quanto o código |
 > | controllers REST | **21** | anotações `@RestController` |
-> | obras de lore | **69** no `lore.yaml`, **68** na lista da UI | 1 obra é oculta (`apareceNaLista: false`); a UI foi perguntada em `/api/contextos` |
+> | obras de lore | **69** (um arquivo SQL por obra desde 09/10/2026), **68** na lista da UI | 1 obra é oculta (`apareceNaLista: false`); a UI foi perguntada em `/api/contextos` |
 > | guardas executáveis | **36** | 26 `Catraca*Test` + 10 `Fronteira*ArchTest`, somando 138 testes |
 > | suíte completa | **2.006** testes em **362** classes | `gradlew test --rerun-tasks`: 0 falhas, 35 pulados |
 >
@@ -32,8 +32,9 @@ A arquitetura passou por uma refatoração longa (FASES A–I) que substituiu o 
 
 > **O peer `contexto` virou `lore`.** O guarda dele ainda se chama `FronteiraContextoArchTest` — o
 > nome é legado, o alvo é `org.traducao.projeto.lore`. E o peso saiu do Java: as 93 classes de
-> contexto viraram **24 classes + um `lore.yaml` de 15.101 linhas**, gerado dos provedores reais
-> por `GeradorLoreYamlIT` e nunca digitado à mão. Ver [3.2 Revisão de Lore](etapa-3.2-revisao-lore.md).
+> contexto viraram **24 classes + a lore como dado**: um `lore.yaml` de 15.101 linhas até
+> 09/10/2026 e, desde então, um arquivo SQL por obra em `src/main/resources/lore/obras/`. Ver
+> [Contextos & Lore](modulo-contextos-lore.md) e [3.2 Revisão de Lore](etapa-3.2-revisao-lore.md).
 
 Abaixo de tudo, `core` (fila de execução, I/O atômico, kernel web/SSE, mecânica de fronteira do formato ASS) e `config` (bootstrap de modo) são **infra transversal** — e o `core` é proibido, por regra permanente, de depender de qualquer fatia funcional.
 
@@ -104,7 +105,7 @@ graph TB
         direction LR
         LEG["legenda<br/>modelo + I/O .ass/.srt"]
         CACHE["cachetraducao<br/>DONO ÚNICO do cache"]
-        CTX["lore<br/>69 obras · lore.yaml"]
+        CTX["lore<br/>69 obras · SQL por obra"]
         QUAL["qualidadeTraducao<br/>máscara de tags + validação"]
         LLM["llm<br/>contrato LlmPort neutro"]
     end
@@ -388,7 +389,7 @@ org.traducao.projeto/
 │  ── Peers (importáveis por qualquer fatia; superfície congelada por tipo exato) ──
 ├── legenda/                ← Modelo puro (DocumentoLegenda/EventoLegenda) + Leitor/Escritor .ass/.srt
 ├── cachetraducao/          ← DONO ÚNICO do cache: CacheTraducaoService, EntradaCache, ProvenienciaCache
-├── lore/                   ← 69 obras no lore.yaml + terminologia canonica (ex-peer "contexto")
+├── lore/                   ← 69 obras (resources/lore/obras/*.sql) + terminologia canonica (ex-peer "contexto")
 ├── qualidadeTraducao/      ← MascaradorTags, ValidadorTraducaoService (anti-alucinação), ProtecaoLegendaAssService
 ├── llm/                    ← Contrato neutro do LLM: LlmPort, Lote, TraducaoLote, StatusLlm
 │

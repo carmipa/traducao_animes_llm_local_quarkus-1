@@ -121,7 +121,7 @@ catraca é cega fora do próprio prefixo — foi por isso que precisaram ser qua
 | `CatracaBordaAssincronaConfereCaminhoTest` | 2 | Tela responder *"iniciado"* para trabalho que não tem como acontecer |
 | `CatracaTelaDestrutivaNasceEmDryRunTest` | 2 | Tela que reescreve o acervo abrir com "gravar" como padrão |
 
-### Catracas de lore (5 guardas, 15 testes)
+### Catracas de lore (6 guardas, 19 testes)
 
 | Guarda | Testes | O que impede |
 |--------|-------:|--------------|
@@ -129,7 +129,8 @@ catraca é cega fora do próprio prefixo — foi por isso que precisaram ser qua
 | `CatracaTerminologiaDeLoreUnificadaTest` | 4 | Quem traduz e quem revisa enxergarem terminologias diferentes |
 | `CatracaSlotsReservadosLoreTest` | 3 | A dívida de obras sem lore ficar invisível — o id resolveria para nada e o operador não veria |
 | `CatracaCorretorIndependeDeLoreTest` | 3 | A tradução **sem lore** receber correções determinísticas diferentes da tradução com lore — o que tornaria toda comparação entre as duas inválida |
-| `CatracaCicatrizNoLoreYamlTest` | 1 | A cicatriz do `lore.yaml` (medição escrita em comentário) ser apagada por quem regenerar o arquivo e copiar por cima |
+| `CatracaCicatrizNaLoreSqlTest` | 2 | A cicatriz da lore (medição escrita em comentário `--` nos arquivos SQL) ser apagada. Conta fora de literal, sem os comentários `[gerado]`, com piso 673 |
+| `CatracaParidadeDaLoreTest` | 3 | O que é cópia entre obras divergir numa obra só: os 52 pares do núcleo UC nas 23 obras Gundam e as linhas do prompt-base em todos os prompts |
 
 ### Catracas de arquitetura e formato (7 guardas, 19 testes)
 
