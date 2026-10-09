@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   ";" e "--" ....... dentro do literal não cortam nem comentam; fora, separam e comentam
  *   apóstrofo ........ dentro de comentário não abre literal
  *   INSERT ........... de literais, em várias tuplas, passa; com função, subconsulta ou ON CONFLICT reprova
- *   id ............... do próprio arquivo passa; de outra obra reprova (L4)
+ *   id ............... do próprio arquivo passa; de outra obra reprova
  *   quebra de linha .. LF passa; CRLF reprova
  * </pre>
  *
@@ -110,7 +110,7 @@ class CatalogoLoreSqliteCasosTest {
     }
 
     @Test
-    @DisplayName("arquivo que escreve linha de outra obra reprova (L4)")
+    @DisplayName("arquivo que escreve linha de outra obra reprova")
     void linhaDeOutraObra() {
         String b = "INSERT INTO obra VALUES ('teste_b');\n"
             + "INSERT INTO lore_traducao VALUES ('teste_b', 'Obra B', 1, 'Traduza.');\n";
@@ -142,7 +142,7 @@ class CatalogoLoreSqliteCasosTest {
     }
 
     @Test
-    @DisplayName("obra listada e sem arquivo reprova (L5)")
+    @DisplayName("obra listada e sem arquivo reprova")
     void listadaEAusente() {
         reprova("teste_a\nteste_c\n", Map.of("teste_a", OBRA_LEGITIMA), "/lore/obras/teste_c.sql (listado em obras.lst)");
     }
@@ -203,12 +203,12 @@ class CatalogoLoreSqliteCasosTest {
     }
 
     /**
-     * L7: o catálogo materializado não guarda conexão nem fonte de dados. Confere os campos da classe
+     * O catálogo materializado não guarda conexão nem fonte de dados. Confere os campos da classe
      * e dos tipos aninhados — banco que sobrevivesse à construção poria código nativo no meio da
      * tradução.
      */
     @Test
-    @DisplayName("nenhum campo guarda conexão (L7)")
+    @DisplayName("nenhum campo guarda conexão")
     void naoGuardaConexao() {
         List<Class<?>> tipos = Stream.concat(Stream.of(CatalogoLoreSqlite.class),
             Stream.of(CatalogoLoreSqlite.class.getDeclaredClasses())).toList();
@@ -223,11 +223,11 @@ class CatalogoLoreSqliteCasosTest {
     }
 
     /**
-     * L5, a metade que o carregador não vê: arquivo presente em {@code obras/} e fora da lista. No jar
+     * Lista e pasta: a metade que o carregador não vê, arquivo presente em {@code obras/} e fora da lista. No jar
      * não dá para listar a pasta, então quem acusa é este teste, sobre a árvore versionada.
      */
     @Test
-    @DisplayName("todo arquivo em src/main/resources/lore/obras está em obras.lst, e vice-versa (L5)")
+    @DisplayName("todo arquivo em src/main/resources/lore/obras está em obras.lst, e vice-versa")
     void pastaIgualALista() throws IOException {
         Path raiz = Path.of("src", "main", "resources", "lore");
         Set<String> lista = new TreeSet<>(CatalogoLoreSqlite.lista(Files.readString(raiz.resolve("obras.lst"), StandardCharsets.UTF_8)));

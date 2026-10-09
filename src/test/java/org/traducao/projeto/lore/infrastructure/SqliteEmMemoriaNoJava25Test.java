@@ -183,7 +183,7 @@ class SqliteEmMemoriaNoJava25Test {
     }
 
     /**
-     * A proteção do hash do prompt (invariante L1 do plano). O YAML normalizava a quebra de linha; o
+     * A proteção do hash do prompt. O YAML normalizava a quebra de linha; o
      * literal SQL não normaliza, e um {@code \r} enfiado pelo {@code autocrlf} trocaria o
      * {@code contextoHash} e jogaria fora o cache da obra. Os dois lados carregam o mesmo sinal — uma
      * quebra de linha no meio do prompt — e só o {@code \r} separa.
@@ -223,8 +223,8 @@ class SqliteEmMemoriaNoJava25Test {
     }
 
     /**
-     * O banco não sobrevive à conexão. É a base da invariante L7 (o caminho quente da tradução não
-     * segura banco nenhum): fechar a conexão depois de materializar devolve tudo.
+     * O banco não sobrevive à conexão. É o que garante que o caminho quente da
+     * tradução não segura banco nenhum: fechar a conexão depois de materializar devolve tudo.
      */
     @Test
     @DisplayName("o banco em memória morre com a conexão")
