@@ -1,4 +1,4 @@
--- [gerado] ESQUEMA DA LORE DO KRONOS — gerado por GeradorLoreSqlIT a partir do catálogo vivo.
+-- [gerado] ESQUEMA DA LORE DO KRONOS — gerado em 2026-10-09 a partir do antigo lore.yaml; desde então, editado à mão.
 -- [gerado] Ordem de carga: este arquivo, depois cada id de obras.lst (obras/<id>.sql), numa transação.
 -- [gerado] Os comentários sem a marca [gerado] são CICATRIZ migrada do lore.yaml, com a medição que a criou.
 

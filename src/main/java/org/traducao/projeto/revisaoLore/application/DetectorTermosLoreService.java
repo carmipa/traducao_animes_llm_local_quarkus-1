@@ -708,7 +708,7 @@ public class DetectorTermosLoreService {
 
     private boolean temIndicadorLoreSolteiro(String original, String normalizada, String loreLower,
             Set<String> nomesDaObra) {
-        // Os NOMES que a obra declara valem por si: sao a lista curada do lore.yaml, a mesma que
+        // Os NOMES que a obra declara valem por si: sao a lista curada da lore da obra, a mesma que
         // a traducao usa. O roster abaixo continua, porque traz vocabulario de FRANQUIA que nao e
         // nome de obra nenhuma em particular.
         if (nomesDaObra.contains(normalizada)) {
@@ -896,8 +896,8 @@ public class DetectorTermosLoreService {
      * <p>INVARIANTES DO DOMÍNIO: silencia apenas quando o NOME ao lado do descritor sobrevive no
      * PT — {@code "Von Braun City"}→{@code "Cidade Von Brown"} continua acusado, porque
      * {@code Braun} sumiu (ver {@link #traducaoAceitaParaTermo}). São substantivos genéricos de
-     * LÍNGUA, não lore de franquia: valem em qualquer obra e não pertencem a nenhum {@code
-     * lore.yaml} em particular. Chaves em inglês minúsculo; variantes com e sem diacrítico.
+     * LÍNGUA, não lore de franquia: valem em qualquer obra e não pertencem à lore de nenhuma
+     * obra em particular. Chaves em inglês minúsculo; variantes com e sem diacrítico.
      *
      * <p>COMPORTAMENTO EM CASO DE FALHA: o mapa final é imutável.
      */

@@ -9,7 +9,7 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.lore.domain.ProvedorContexto;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.raspagemRevisao.application.FiltroAuditoriaLinha;
@@ -87,7 +87,7 @@ class MedicaoNomeCompostoSemPrimeiroNomeIT {
         }
         assertTrue(motor.getAllActiveRules().size() > 100, "motor sem regras: nao verificado");
 
-        CatalogoLoreYaml catalogo = new CatalogoLoreYaml();
+        CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
         FiltroAuditoriaLinha filtro = new FiltroAuditoriaLinha(
             new MascaradorTags(), new PoliticaEstiloMusical(List.of()),
             new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
@@ -215,7 +215,7 @@ class MedicaoNomeCompostoSemPrimeiroNomeIT {
         }
     }
 
-    private static ProvedorContexto casar(CatalogoLoreYaml catalogo, String nomePasta) {
+    private static ProvedorContexto casar(CatalogoLoreSqlite catalogo, String nomePasta) {
         String alvo = nomePasta.toLowerCase(Locale.ROOT);
         ProvedorContexto melhor = null;
         int tamanho = 0;

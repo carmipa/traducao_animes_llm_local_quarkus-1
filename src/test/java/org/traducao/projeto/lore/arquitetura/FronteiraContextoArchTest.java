@@ -193,14 +193,14 @@ class FronteiraContextoArchTest {
         // qualquer commit, obrigando a declaração em vez de deixar o pacote crescer sozinho. É
         // exatamente para isso que o congelamento é NOMINAL e não "infrastructure liberado".
         //
-        // CatalogoLoreSqlite entrou em 2026-10-09 (plano da lore em SQLite, fase 3), também deliberado
-        // e pelo mesmo motivo: é o leitor da lore, agora em arquivos SQL por obra. Os dois leitores
-        // CONVIVEM só até a fase 5, que apaga o CatalogoLoreYaml e tira o nome desta lista.
+        // CatalogoLoreSqlite entrou em 2026-10-09 (plano da lore em SQLite), também deliberado e pelo
+        // mesmo motivo: é o leitor da lore, agora em arquivos SQL por obra. Os dois leitores conviveram
+        // durante a migração; na fase 5 o CatalogoLoreYaml foi apagado com o lore.yaml e saiu desta lista.
         assertEquals(
-            new TreeSet<>(List.of("CatalogoLoreSqlite", "CatalogoLoreYaml", "ContextoBeansConfig", "GerenciadorContexto")), infra,
-            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto, ContextoBeansConfig, "
-                + "CatalogoLoreYaml e CatalogoLoreSqlite (sem liberação genérica de infrastructure; qualquer "
-                + "quinta classe reprova). Encontrado: " + infra);
+            new TreeSet<>(List.of("CatalogoLoreSqlite", "ContextoBeansConfig", "GerenciadorContexto")), infra,
+            "contexto.infrastructure deve conter EXATAMENTE GerenciadorContexto, ContextoBeansConfig "
+                + "e CatalogoLoreSqlite (sem liberação genérica de infrastructure; qualquer quarta "
+                + "classe reprova). Encontrado: " + infra);
     }
 
     @Test
@@ -241,7 +241,7 @@ class FronteiraContextoArchTest {
         assertEquals(5, lores,
             "contexto.lore deve conter exatamente 5 classes. Eram 82 ate 2026-08-15, quando as 69 "
                 + "obras do CDI e os 9 mapas de terminologia que elas consumiam viraram o ARQUIVO "
-                + "UNICO /lore/lore.yaml (ordem de Paulo: 'todas as lores devem ficar em "
+                + "UNICO de lore (lore.yaml; desde 2026-10-09, um arquivo SQL por obra em /lore/obras/) (ordem de Paulo: 'todas as lores devem ficar em "
                 + "um unico arquivo'). Sobraram 4, e o motivo de cada uma e o mesmo: elas NAO estao "
                 + "no arquivo.\n"
                 + "  ContextoMacross7Filmes / MacrossFrontierFilmes / MacrossDeltaFilmes -- as 3 "

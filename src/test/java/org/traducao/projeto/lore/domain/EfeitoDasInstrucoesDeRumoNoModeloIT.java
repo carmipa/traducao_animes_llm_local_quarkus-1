@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -171,7 +171,7 @@ class EfeitoDasInstrucoesDeRumoNoModeloIT {
      * catálogo ou a linha não é encontrada.
      */
     private String[] comESemAInstrucao(String obraId, String... trechosDasLinhas) {
-        ProvedorContexto obra = new CatalogoLoreYaml().obras().stream()
+        ProvedorContexto obra = new CatalogoLoreSqlite().obras().stream()
             .filter(o -> obraId.equals(o.getId())).findFirst().orElse(null);
         if (obra == null) {
             return null;

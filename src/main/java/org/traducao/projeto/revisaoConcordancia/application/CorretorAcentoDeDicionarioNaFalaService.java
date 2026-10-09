@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * protegeu os três casos sem depender de catálogo nenhum.
  *
  * <h2>E o filtro por lore seria PIOR aqui, também medido</h2>
- * Usar o {@code lore.yaml} como lista de intocáveis custa 16 correções legítimas — {@code mao},
+ * Usar a lore (o {@code lore.yaml}, na época da medição) como lista de intocáveis custa 16 correções legítimas — {@code mao},
  * {@code satelite}, {@code crianca}, {@code lider}, {@code canhao}, {@code heroi} — porque o
  * arquivo de lore tem prosa, e essas palavras aparecem no meio dela. Ganho: zero, já que a
  * capitalização sozinha barra os nomes.

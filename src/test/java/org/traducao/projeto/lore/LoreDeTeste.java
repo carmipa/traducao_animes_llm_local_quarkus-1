@@ -1,7 +1,7 @@
 package org.traducao.projeto.lore;
 
 import org.traducao.projeto.lore.domain.ProvedorContexto;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,12 +9,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * PROPÓSITO DE NEGÓCIO: dá aos testes a obra de lore pelo ID, agora que a lore vive no arquivo
- * único e não em 78 classes Java. Substitui o {@code new ContextoX()} que os testes usavam.
+ * PROPÓSITO DE NEGÓCIO: dá aos testes a obra de lore pelo ID, agora que a lore vive em arquivos
+ * SQL por obra e não em 78 classes Java. Substitui o {@code new ContextoX()} que os testes usavam.
  *
  * <h2>Por que um resolvedor, e não cada teste lendo o arquivo</h2>
- * São 13 arquivos de teste que amarravam classe concreta. Espalhar {@code new CatalogoLoreYaml()}
- * por 13 lugares significaria treze leituras do mesmo YAML por execução e treze cópias da mesma
+ * São 13 arquivos de teste que amarravam classe concreta. Espalhar {@code new CatalogoLoreSqlite()}
+ * por 13 lugares significaria treze cargas da mesma lore por execução e treze cópias da mesma
  * decisão. Aqui o catálogo é lido UMA vez por JVM de teste.
  *
  * <p>E há um ganho que não é de desempenho: os testes passam a exercitar <b>a mesma fonte que a
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
- * Arquivo ausente ou defeituoso propaga a exceção do {@link CatalogoLoreYaml}, que falha
+ * Arquivo ausente ou defeituoso propaga a exceção do {@link CatalogoLoreSqlite}, que falha
  * fechado — o mesmo comportamento da produção.
  */
 public final class LoreDeTeste {
@@ -42,7 +42,7 @@ public final class LoreDeTeste {
 
     private static Map<String, ProvedorContexto> carregar() {
         Map<String, ProvedorContexto> m = new LinkedHashMap<>();
-        for (ProvedorContexto p : new CatalogoLoreYaml().obras()) {
+        for (ProvedorContexto p : new CatalogoLoreSqlite().obras()) {
             m.put(p.getId(), p);
         }
         return m;
@@ -58,7 +58,7 @@ public final class LoreDeTeste {
     public static ProvedorContexto obra(String id) {
         ProvedorContexto p = POR_ID.get(id);
         if (p == null) {
-            fail("Obra de lore \"" + id + "\" não existe no arquivo único ("
+            fail("Obra de lore \"" + id + "\" não existe na lore (obras.lst; "
                 + POR_ID.size() + " obras carregadas). Se ela foi renomeada, o teste precisa "
                 + "saber — este resolvedor não adivinha.");
         }
@@ -80,7 +80,7 @@ public final class LoreDeTeste {
 
     private static Map<String, org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> carregarRevisao() {
         Map<String, org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> m = new LinkedHashMap<>();
-        for (var p : new CatalogoLoreYaml().obrasRevisao()) {
+        for (var p : new CatalogoLoreSqlite().obrasRevisao()) {
             m.put(p.getId(), p);
         }
         return m;
@@ -95,7 +95,7 @@ public final class LoreDeTeste {
     public static org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore revisao(String id) {
         var p = REVISAO_POR_ID.get(id);
         if (p == null) {
-            fail("Obra de REVISÃO de lore \"" + id + "\" não existe no arquivo único ("
+            fail("Obra de REVISÃO de lore \"" + id + "\" não existe na lore (obras.lst; "
                 + REVISAO_POR_ID.size() + " carregadas).");
         }
         return p;

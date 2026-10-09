@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **497** |
-| classes em `src/test` | **464** |
+| classes em `src/main` | **496** |
+| classes em `src/test` | **459** |
 
 ---
 
@@ -41,7 +41,7 @@ graph TB
     G3["<b>Karaokê</b><br/>traducaoKaraoke (24)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
-    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (25)<br/>qualidadeTraducao (16)"]:::peer
+    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
     G1 --> PEERS
@@ -773,7 +773,7 @@ llm/
     └── TraducaoLote.java
 ```
 
-#### `lore` — 25 classes
+#### `lore` — 24 classes
 
 ```text
 lore/
@@ -794,7 +794,6 @@ lore/
 │   ├── config/
 │   │   └── ContextoBeansConfig.java
 │   ├── CatalogoLoreSqlite.java
-│   ├── CatalogoLoreYaml.java
 │   └── GerenciadorContexto.java
 ├── macross/
 │   ├── ContextoMacross7Filmes.java
@@ -903,7 +902,7 @@ core/
 
 ---
 
-## Testes — 464 classes
+## Testes — 459 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1152,7 +1151,7 @@ llm/
     └── FronteiraLlmArchTest.java
 ```
 
-#### `lore` — 46 classes
+#### `lore` — 42 classes
 
 ```text
 lore/
@@ -1195,14 +1194,10 @@ lore/
 ├── BaselineTerminologiaLoreIT.java
 ├── CatalogoIdentidadeObraTest.java
 ├── CatracaAgregadorasForaDoCdiTest.java
-├── CatracaCicatrizNoLoreYamlTest.java
+├── CatracaCicatrizNaLoreSqlTest.java
 ├── CatracaTerminologiaDeLoreUnificadaTest.java
 ├── CorrecaoFaEMobileSuitTest.java
-├── EquivalenciaCatalogoSqliteYamlTest.java
-├── EquivalenciaLoreYamlIT.java
-├── EquivalenciasChegamDoYamlIT.java
-├── GeradorLoreSqlIT.java
-├── GeradorLoreYamlIT.java
+├── EquivalenciasChegamDaLoreIT.java
 ├── LoreDeTeste.java
 ├── ManifestoCompletoLoreIT.java
 ├── MedicaoDivergenciaEntreCatalogosDeLoreIT.java
@@ -1288,7 +1283,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 38 classes
+#### `qualidadeTraducao` — 37 classes
 
 ```text
 qualidadeTraducao/
@@ -1310,7 +1305,6 @@ qualidadeTraducao/
 │   ├── MascaradorLinhaSemLetraTest.java
 │   ├── MascaradorTagsTest.java
 │   ├── MedicaoDiscursoCitadoAindaRecusadoIT.java
-│   ├── MedicaoEfeitoDaUniaoDeLoreIT.java
 │   ├── MedicaoErroFluenteIT.java
 │   ├── MedicaoLocutorInventadoNoAcervoIT.java
 │   ├── MedicaoTermoDeLorePerdidoIT.java

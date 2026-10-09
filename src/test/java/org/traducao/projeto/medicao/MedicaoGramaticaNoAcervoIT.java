@@ -99,8 +99,8 @@ class MedicaoGramaticaNoAcervoIT {
         ProtecaoLegendaAssService protecao = new ProtecaoLegendaAssService();
         LeitorLegendaAss leitor = new LeitorLegendaAss();
 
-        org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml catalogo =
-            new org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml();
+        org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite catalogo =
+            new org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite();
         List<Path> pastas = AlcanceDaMedicao.pastasDeTraducao();
         assertFalse(pastas.isEmpty(), "instrumento cego: nenhuma pasta de traducao");
 
@@ -233,7 +233,7 @@ class MedicaoGramaticaNoAcervoIT {
 
     /** Os termos protegidos da obra, casando a pasta pela {@code apelidosPasta} da lore. */
     private static Set<String> termosDaObra(
-        org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml catalogo, String nomePasta) {
+        org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite catalogo, String nomePasta) {
         String alvo = nomePasta.toLowerCase(Locale.ROOT);
         Set<String> melhor = Set.of();
         int tamanho = 0;

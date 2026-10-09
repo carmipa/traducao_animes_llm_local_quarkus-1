@@ -232,8 +232,70 @@ public final class CatalogoLoreSqlite {
             s.executeUpdate(i.texto());
         } catch (SQLException e) {
             throw new IllegalStateException("O SQLite recusou " + arquivo + ", linha " + i.linha() + ": "
-                + e.getMessage() + " — em: " + recorte(i.texto()), e);
+                + e.getMessage() + conflitoDeTerminologia(c, i, e) + " — em: " + recorte(i.texto()), e);
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando a mesma forma-ruim chega duas vezes à terminologia de uma obra,
+     * diz qual canônico JÁ estava lá. São duas verdades sobre o mesmo termo, e sem os dois valores
+     * na mensagem não se sabe qual cadastro está errado.
+     * <p>INVARIANTES DO DOMÍNIO: só age em violação de chave de {@code correcao_terminologia}; lê os
+     * literais da instrução recusada, sem executar nada dela.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer imprevisto devolve texto vazio — o diagnóstico
+     * extra nunca esconde a recusa original.
+     */
+    private static String conflitoDeTerminologia(Connection c, Instrucao i, SQLException e) {
+        if (!String.valueOf(e.getMessage()).contains("correcao_terminologia.forma_ruim")) {
+            return "";
+        }
+        try {
+            Matcher m = INSERCAO.matcher(i.texto());
+            if (!m.lookingAt()) {
+                return "";
+            }
+            List<String> v = literaisDaPrimeiraTupla(i.texto().substring(m.end()));
+            if (v.size() < 3) {
+                return "";
+            }
+            try (PreparedStatement p = c.prepareStatement(
+                "SELECT canonico FROM correcao_terminologia WHERE obra_id = ? AND forma_ruim = ?")) {
+                p.setString(1, v.get(0));
+                p.setString(2, v.get(1));
+                try (ResultSet r = p.executeQuery()) {
+                    return r.next() ? " (TERMINOLOGIA EM CONFLITO na obra \"" + v.get(0) + "\": a forma \"" + v.get(1)
+                        + "\" já aponta para \"" + r.getString(1) + "\" e esta linha quer \"" + v.get(2)
+                        + "\" — duas verdades sobre o mesmo termo; corrija o arquivo)" : "";
+                }
+            }
+        } catch (RuntimeException | SQLException outro) {
+            return "";
+        }
+    }
+
+    /** Os valores de texto e número da primeira tupla, com o {@code ''} já desfeito. */
+    static List<String> literaisDaPrimeiraTupla(String tuplas) {
+        List<String> valores = new ArrayList<>();
+        int i = pular(tuplas, 0);
+        if (i >= tuplas.length() || tuplas.charAt(i) != '(') {
+            return valores;
+        }
+        i = pular(tuplas, i + 1);
+        while (i < tuplas.length()) {
+            int fim = valor(tuplas, i);
+            if (fim < 0) {
+                return valores;
+            }
+            String bruto = tuplas.substring(i, fim);
+            valores.add(bruto.startsWith("'") ? bruto.substring(1, bruto.length() - 1).replace("''", "'") : bruto);
+            i = pular(tuplas, fim);
+            if (i < tuplas.length() && tuplas.charAt(i) == ',') {
+                i = pular(tuplas, i + 1);
+            } else {
+                return valores;
+            }
+        }
+        return valores;
     }
 
     private static long linhasDeOutras(Connection c, String id) throws SQLException {

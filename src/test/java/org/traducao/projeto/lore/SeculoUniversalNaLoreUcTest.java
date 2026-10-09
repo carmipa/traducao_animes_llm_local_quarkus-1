@@ -3,7 +3,7 @@ package org.traducao.projeto.lore;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.traducao.projeto.lore.domain.ProvedorContexto;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 import org.traducao.projeto.qualidadeTraducao.application.EnforcadorTermosLore;
 
 import java.util.List;
@@ -48,7 +48,7 @@ class SeculoUniversalNaLoreUcTest {
         "gundam_0080", "gundam_0083", "gundam_08ms", "gundam_cca", "gundam_f91",
         "gundam_nt", "gundam_unicorn", "gundam_zeta", "gundam_zz");
 
-    private final CatalogoLoreYaml catalogo = new CatalogoLoreYaml();
+    private final CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
     private final EnforcadorTermosLore enforcador = new EnforcadorTermosLore();
 
     private ProvedorContexto obra(String id) {

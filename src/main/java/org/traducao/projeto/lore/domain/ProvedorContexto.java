@@ -88,8 +88,8 @@ public interface ProvedorContexto {
      *       prontidão achou 7 falas do Unicorn publicadas como {@code "Universal Century 0096."}
      *       </li>
      *   <li>{@code "Side Four"} devia sair {@code "Lado Quatro"} sem que {@code "Four"} sozinho
-     *       (Four Murasame, personagem) fosse tocado. Está declarado como lacuna no próprio
-     *       {@code lore.yaml}.</li>
+     *       (Four Murasame, personagem) fosse tocado. Está declarado como lacuna na própria
+     *       lore das obras UC ({@code lore/obras/<id>.sql}).</li>
      * </ul>
      * {@code correcoesTerminologia} não servia: ele só age quando o ORIGINAL contém o canônico,
      * e o canônico aqui é português — que nunca aparece no inglês.

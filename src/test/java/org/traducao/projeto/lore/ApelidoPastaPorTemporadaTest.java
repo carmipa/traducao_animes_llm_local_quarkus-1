@@ -142,7 +142,7 @@ class ApelidoPastaPorTemporadaTest {
     @Test
     @DisplayName("catraca: obras sem apelidosPasta so podem DIMINUIR")
     void obrasSemApelidoSoDiminuem() {
-        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml();
+        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite();
         java.util.List<String> sem = catalogo.obras().stream()
             .filter(o -> o.apelidosPasta().isEmpty())
             .map(org.traducao.projeto.lore.domain.ProvedorContexto::getId)

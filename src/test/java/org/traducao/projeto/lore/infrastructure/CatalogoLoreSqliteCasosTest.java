@@ -148,6 +148,22 @@ class CatalogoLoreSqliteCasosTest {
     }
 
     @Test
+    @DisplayName("obras.lst sem nenhuma obra reprova, em vez de subir catálogo vazio")
+    void listaVazia() {
+        reprova("\n# só comentário\n\n", Map.of("teste_a", OBRA_LEGITIMA), "obras.lst não lista nenhuma obra");
+    }
+
+    @Test
+    @DisplayName("esquema ausente reprova")
+    void esquemaAusente() {
+        Map<String, String> arquivos = new HashMap<>();
+        arquivos.put("obras.lst", "teste_a\n");
+        arquivos.put("obras/teste_a.sql", OBRA_LEGITIMA);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new CatalogoLoreSqlite(arquivos::get));
+        assertTrue(e.getMessage().contains("/lore/esquema.sql"), () -> "recusou pela causa errada: " + e.getMessage());
+    }
+
+    @Test
     @DisplayName("só INSERT de literais: DROP, UPDATE, PRAGMA, ATTACH, ON CONFLICT, função e tabela de fora reprovam")
     void soInsertDeLiterais() {
         List<String> proibidas = List.of(

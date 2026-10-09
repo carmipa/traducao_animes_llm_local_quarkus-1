@@ -110,7 +110,7 @@ class ImaDoNomeFourNaoComeOsVizinhosTest {
      * <p>COMPORTAMENTO EM CASO DE FALHA: {@link IllegalStateException} nomeando a obra ausente.
      */
     private static Set<List<String>> paresDeclaradosEmProducao() {
-        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml();
+        var catalogo = new org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite();
         Set<List<String>> uniao = new java.util.LinkedHashSet<>();
         for (String obra : List.of("gundam_zz", "gundam_zeta")) {
             var provedor = catalogo.obras().stream()

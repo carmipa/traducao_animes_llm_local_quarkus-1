@@ -8,7 +8,7 @@ import org.traducao.projeto.legenda.domain.EventoLegenda;
 import org.traducao.projeto.legenda.domain.PoliticaEstiloMusical;
 import org.traducao.projeto.legenda.infrastructure.LeitorLegendaAss;
 import org.traducao.projeto.lore.domain.ProvedorContexto;
-import org.traducao.projeto.lore.infrastructure.CatalogoLoreYaml;
+import org.traducao.projeto.lore.infrastructure.CatalogoLoreSqlite;
 import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 import org.traducao.projeto.qualidadeTraducao.application.ProtecaoLegendaAssService;
 import org.traducao.projeto.qualidadeTraducao.application.ValidadorTraducaoService;
@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <ul>
  *   <li>Só reporta nome que aparece no texto PT <b>já traduzido</b> e cuja fala o validador
  *       REPROVA. Nome que não causa dano não vira ruído na lista.</li>
- *   <li>A lore de cada obra é a REAL, carregada do {@code lore.yaml} e casada pela
+ *   <li>A lore de cada obra é a REAL, carregada dos arquivos SQL da lore ({@code lore/obras/<id>.sql}) e casada pela
  *       {@code apelidosPasta} — não é lista minha.</li>
  *   <li>NÃO escreve nada. Lê e imprime a lista para julgamento humano: incluir termo na lore é
  *       decisão, e termo errado ali protege palavra comum de ser traduzida.</li>
@@ -91,7 +91,7 @@ class MedicaoNomeProprioAusenteNaLoreIT {
     void medeNomesAusentes() throws IOException {
         assertTrue(Files.isDirectory(ACERVO), "acervo inacessivel em " + ACERVO);
 
-        CatalogoLoreYaml catalogo = new CatalogoLoreYaml();
+        CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
         FiltroAuditoriaLinha filtro = new FiltroAuditoriaLinha(
             new MascaradorTags(), new PoliticaEstiloMusical(List.of()),
             new DetectorEfeitoKaraokeService(), new ProtecaoLegendaAssService());
@@ -194,7 +194,7 @@ class MedicaoNomeProprioAusenteNaLoreIT {
     }
 
     /** Casa a pasta com a obra pela {@code apelidosPasta} da própria lore. */
-    private static ProvedorContexto casarObra(CatalogoLoreYaml catalogo, String nomePasta) {
+    private static ProvedorContexto casarObra(CatalogoLoreSqlite catalogo, String nomePasta) {
         String alvo = nomePasta.toLowerCase(Locale.ROOT);
         ProvedorContexto melhor = null;
         int melhorTamanho = 0;

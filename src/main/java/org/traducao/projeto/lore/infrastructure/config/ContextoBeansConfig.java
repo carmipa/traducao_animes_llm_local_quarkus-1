@@ -18,7 +18,7 @@ import java.util.List;
  * Mudou só a fonte, de novo. O {@code lore.yaml} tinha 1 MB, e anexar ou corrigir a lore de uma obra
  * exigia abri-lo inteiro; agora cada obra é um arquivo de ~13 KB. A equivalência foi provada antes da
  * troca com os dois leitores vivos ({@code EquivalenciaCatalogoSqliteYamlTest}: zero divergência em
- * 69 + 69 obras), e o {@code ManifestoCompletoLoreIT} congela obra a obra, lado a lado e campo a
+ * 69 + 69 obras; aposentado junto com o YAML), e o {@code ManifestoCompletoLoreIT} congela obra a obra, lado a lado e campo a
  * campo o que este bean entrega. O hash do prompt é o mesmo {@code contextoHash} do cache, então o
  * acervo já traduzido continua sendo aproveitado.
  *
@@ -56,9 +56,9 @@ public class ContextoBeansConfig {
     private final CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
 
     /**
-     * PROPÓSITO DE NEGÓCIO: expõe as obras do arquivo único ao {@code GerenciadorContexto} e a
+     * PROPÓSITO DE NEGÓCIO: expõe as obras da lore ao {@code GerenciadorContexto} e a
      * quem injeta {@code List<ProvedorContexto>}.
-     * <p>INVARIANTES DO DOMÍNIO: lista imutável, na ordem do arquivo; nunca vazia.
+     * <p>INVARIANTES DO DOMÍNIO: lista imutável, por id; nunca vazia.
      * <p>COMPORTAMENTO EM CASO DE FALHA: a leitura já ocorreu na construção; aqui não lança.
      */
     @Bean
