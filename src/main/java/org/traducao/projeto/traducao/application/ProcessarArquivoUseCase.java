@@ -495,10 +495,23 @@ public class ProcessarArquivoUseCase {
         Map<String, String> jaNoIdiomaAlvo = new HashMap<>();
         LinkedHashSet<String> textosPendentes = new LinkedHashSet<>();
         int cacheSuspeito = 0;
+        int cacheReparado = 0;
         for (String textoOriginal : textosTraduziveisDistintos) {
             String cacheado = cacheExistente.get(textoOriginal);
+            String reparadoDoCache;
             if (cacheado != null && avaliadorCache.isCacheReaproveitavel(textoOriginal, cacheado)) {
                 cacheReaproveitavel.put(textoOriginal, cacheado);
+            } else if (cacheado != null
+                    && (reparadoDoCache = avaliadorCache.repararCacheSePossivel(textoOriginal, cacheado)) != null) {
+                // Defeito de par com conserto conhecido: conserta a entrada em vez de retraduzir a fala
+                // inteira (o modelo insistia no defeito e piorava o resto). A7: candidato, reparo e
+                // original ficam no log e no console.
+                cacheReaproveitavel.put(textoOriginal, reparadoDoCache);
+                cacheReparado++;
+                String aviso = "entrada de cache reparada sem chamar o modelo: \"" + cacheado + "\" -> \""
+                    + reparadoDoCache + "\". Original: " + textoOriginal;
+                log.info(aviso);
+                uiLogger.log("[REPARADA] " + aviso);
             } else if (detectorIdiomaFonte.jaNoIdiomaAlvo(textoOriginal, propriedades.idiomaTraduzido())) {
                 jaNoIdiomaAlvo.put(textoOriginal, textoOriginal);
             } else {
@@ -508,8 +521,8 @@ public class ProcessarArquivoUseCase {
                 textosPendentes.add(textoOriginal);
             }
         }
-        log.info("{} fala(s) distinta(s) reaproveitada(s) do cache, {} suspeita(s), {} pendente(s) de tradução",
-            cacheReaproveitavel.size(), cacheSuspeito, textosPendentes.size());
+        log.info("{} fala(s) distinta(s) reaproveitada(s) do cache ({} reparada(s)), {} suspeita(s), {} pendente(s) de tradução",
+            cacheReaproveitavel.size(), cacheReparado, cacheSuspeito, textosPendentes.size());
         uiLogger.registrarFalasCache(cacheReaproveitavel.size());
         if (!jaNoIdiomaAlvo.isEmpty()) {
             // Mensagem INFORMATIVA (não entra em 'avisos', que sinaliza pendência e marcaria o

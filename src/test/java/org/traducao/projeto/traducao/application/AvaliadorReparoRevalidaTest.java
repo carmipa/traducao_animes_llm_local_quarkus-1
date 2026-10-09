@@ -89,4 +89,52 @@ class AvaliadorReparoRevalidaTest {
     void semTrocaNaoHaReparo() {
         assertNull(avaliador().repararSePossivel("Answer me, Four!", "Responda-me, Four!"));
     }
+
+    private static AvaliadorTraducaoCache avaliador0083() {
+        var lore = LoreAtivaFake.comPares(List.of("Uraki", "Kou"), List.of("Keith", "Chuck"));
+        return new AvaliadorTraducaoCache(
+            new MascaradorTags(),
+            new DetectorTraducaoIdenticaService(new LoreVazia()),
+            new ValidadorTraducaoService(lore),
+            new VerificadorIdentificadorNumerico(LoreAtivaFake.vazia()),
+            new RemovedorItalico(),
+            new RestauradorFalaIdenticaSemItalico(new MascaradorTags(),
+                new DetectorTraducaoIdenticaService(new LoreVazia()),
+                new DescarteItalicoUltimoRecurso(), new LoreVazia()));
+    }
+
+    /**
+     * Entradas REAIS do cache do 0083 (09/10/2026) e de polaridade do Unicorn: o reaproveitamento as
+     * recusa, e o conserto da entrada devolve a fala com só o defeito desfeito — o resto, que estava
+     * certo, fica como estava (o modelo, chamado de novo, trocava "Core Fighter" por "Lutador
+     * Central").
+     */
+    @Test
+    @DisplayName("entrada de cache com defeito de par consertável é consertada, o resto intacto")
+    void entradaDeCacheComDefeitoConsertavelEhConsertada() {
+        var av = avaliador0083();
+        assertEquals("Desista, Keith.", av.repararCacheSePossivel("Give it up, Keith.", "Desista, Chuck."));
+        assertEquals("Keith, veja isso! Este\\Ntem um Core Fighter!",
+            av.repararCacheSePossivel("Keith, check this out!\\NThis one's got a Core Fighter!",
+                "Chuck, veja isso! Este\\Ntem um Core Fighter!"));
+        assertEquals("Uraki! Keith! Formação Três!",
+            av.repararCacheSePossivel("Uraki! Keith! Formation Three!", "Kou! Chuck! Formação Três!"));
+        assertEquals("Não... é tarde demais.", av.repararCacheSePossivel("No... it's too late.", "Sim... é tarde demais."));
+    }
+
+    /**
+     * A1: o mesmo sinal (entrada recusada pelo reaproveitamento) sem conserto seguro, ou com OUTRO
+     * defeito além do consertado — vai ao modelo como antes. E entrada sã não é "consertada".
+     */
+    @Test
+    @DisplayName("A1: sem conserto, conserto que ainda reprova, ou entrada sã — nada é consertado")
+    void entradaSemConsertoSeguroNaoEhConsertada() {
+        var av = avaliador0083();
+        assertNull(av.repararCacheSePossivel("I'm relieved.", "Estou aliviado(a)."), "alternativa vai ao modelo");
+        assertNull(av.repararCacheSePossivel("Give it up, Keith.", "Desista, Chuck(a)."),
+            "o nome se conserta, a alternativa continua: o portão reprova o conserto");
+        assertNull(av.repararCacheSePossivel("Give it up, Keith.", "Desista, Keith."), "entrada sã");
+        assertNull(av.repararCacheSePossivel("Give it up, Keith.", null));
+        assertNull(av.repararCacheSePossivel("Give it up, Keith.", "  "));
+    }
 }

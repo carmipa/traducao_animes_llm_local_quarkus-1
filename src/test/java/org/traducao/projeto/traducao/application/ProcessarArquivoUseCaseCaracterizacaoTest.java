@@ -2380,6 +2380,42 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a entrada de cache recusada por um defeito de par com conserto conhecido
+     * (aqui a polaridade: "Sim..." para "No...") é CONSERTADA no reaproveitamento, sem chamar o
+     * modelo. Medido na 2.1 do 0083 em 09/10/2026: mandada ao modelo, a fala voltava com o mesmo
+     * defeito (consertado na tentativa) e o RESTO piorado ("Core Fighter" virou "Lutador Central").
+     *
+     * <p>INVARIANTES DO DOMÍNIO: zero chamadas ao modelo; o arquivo gravado traz a fala consertada
+     * e o cache regravado também — a próxima execução reaproveita sem consertar de novo (A6: a
+     * prova lê os dois arquivos do disco).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem o conserto, o modelo é chamado (1 chamada) e a saída
+     * traz a fala do modelo falso, não "Não... é tarde demais.".
+     */
+    @Test
+    void cacheComPolaridadeInvertidaEhConsertadoSemChamarOModelo() throws Exception {
+        Path entrada = escreverAss("ep.ass", "No... it's too late.");
+        Path cachePath = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        Files.createDirectories(cachePath.getParent());
+        ProvenienciaCache prov = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "caracterizacao",
+            ProvenienciaCache.hashDe("Traduza fielmente para PT-BR."),
+            "modelo-teste", "en", "pt-BR");
+        new CacheTraducaoService(new ObjectMapper()).salvar(cachePath, prov,
+            List.of(new EntradaCache(0, "Default", "No... it's too late.", "Sim... é tarde demais.", "en", "pt-BR")));
+
+        FakeLlmPort llm = new FakeLlmPort();
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        assertEquals(0, llm.chamadas.get(), "o conserto da entrada de cache nao chama o modelo");
+        String gravado = Files.readString(raiz.resolve("saida").resolve("ep_PT-BR.ass"), StandardCharsets.UTF_8);
+        assertTrue(gravado.contains("Não... é tarde demais."), gravado);
+        assertFalse(gravado.contains("Sim... é tarde demais."), "o defeito nao pode chegar ao arquivo");
+        assertTrue(Files.readString(cachePath, StandardCharsets.UTF_8).contains("Não... é tarde demais."),
+            "o cache regravado guarda a fala consertada");
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO (guarda obra×contexto — DIVERGÊNCIA BLOQUEIA): um arquivo que mora
      * numa pasta reconhecida por OUTRO contexto não pode ser traduzido com a lore selecionada.
      * É a reprodução direta do incidente medido nesta árvore: 15 caches de Gundam 0083 gravados

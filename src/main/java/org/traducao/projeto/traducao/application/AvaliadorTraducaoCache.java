@@ -174,6 +174,38 @@ public class AvaliadorTraducaoCache {
      * válida devolve {@code null}.
      */
     /**
+     * PROPÓSITO DE NEGÓCIO: conserta a ENTRADA DE CACHE que o reaproveitamento recusou por um defeito
+     * de par com conserto conhecido — entidade trocada ("Desista, Chuck." para "Give it up, Keith.")
+     * ou polaridade ("Sim... é tarde demais" para "No... it's too late") — em vez de mandá-la de
+     * volta ao modelo. Medido na 2.1 do 0083 em 09/10/2026: recusada a entrada, o aya traduzia a
+     * fala inteira de novo, insistia no "Chuck" (consertado na tentativa) e piorava o resto: "Este
+     * tem um Core Fighter!" virou "Este tem um Lutador Central!" e "Desista" virou "Abande-o".
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>O conserto é o MESMO da tentativa ({@code ValidadorTraducaoService#repararPar}), e o
+     *       resultado passa pelo MESMO portão de reaproveitamento ({@link #isCacheReaproveitavel}).
+     *       Entrada com outro defeito além do consertado ("Chuck(a)") é recusada e vai ao modelo como
+     *       antes — o reparo nunca é porta dos fundos.</li>
+     *   <li>Só conserta o que o portão sabe consertar; alternativa inventada, eco e exemplo do prompt
+     *       continuam indo ao modelo.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: entrada nula ou vazia, sem conserto, ou cujo conserto não
+     * passa no portão devolve {@code null}; nunca lança.
+     */
+    public String repararCacheSePossivel(String original, String cacheado) {
+        if (original == null || cacheado == null || cacheado.isBlank()) {
+            return null;
+        }
+        String reparado = validador.repararPar(original, cacheado);
+        if (reparado == null || reparado.equals(cacheado)) {
+            return null;
+        }
+        return isCacheReaproveitavel(original, reparado) ? reparado : null;
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: última tentativa antes de descartar — desfaz uma troca de entidade e
      * submete o resultado ao MESMO portão que acabou de reprovar. Só devolve texto que passa
      * limpo; qualquer outro desfecho é {@code null} e a fala segue pendente.
