@@ -27,7 +27,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | peers | **5** |
 | infra transversal | **2** |
 | classes em `src/main` | **495** |
-| classes em `src/test` | **455** |
+| classes em `src/test` | **456** |
 
 ---
 
@@ -901,7 +901,7 @@ core/
 
 ---
 
-## Testes — 455 classes
+## Testes — 456 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1490,7 +1490,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 65 classes
+#### `traducao` — 66 classes
 
 ```text
 traducao/
@@ -1514,6 +1514,7 @@ traducao/
 │   ├── MontadorTelemetriaTraducaoTest.java
 │   ├── NormalizadorAspasServiceTest.java
 │   ├── NormalizadorCartaoDataServiceTest.java
+│   ├── PortaoPosTransformacaoTest.java
 │   ├── ProcessarArquivoUseCaseCaracterizacaoTest.java
 │   ├── ProcessarArquivoUseCaseGuardTest.java
 │   ├── ProcessarEpisodioReparoNaTentativaTest.java

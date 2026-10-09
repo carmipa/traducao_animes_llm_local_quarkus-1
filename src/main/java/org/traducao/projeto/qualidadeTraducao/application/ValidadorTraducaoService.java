@@ -1235,6 +1235,39 @@ public class ValidadorTraducaoService {
             .replaceAll("[\\s.!?…]+$", "");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: acusa o parêntese que a tradução INVENTOU. Medido nos caches do acervo
+     * em 08/10/2026: 95 traduções distintas com parêntese que o original não tem, e praticamente
+     * todas defeito — a alternativa de gênero que o próprio prompt proíbe ("cansado(a)",
+     * "bem-vindo(a)", "Bomba(s)", ~70 casos) e a glosa ou nota do modelo ("(com tom sarcástico)",
+     * "Móbil Space (ou Mecha)", "A pursuer?! (Perseguidor?!)", "G3?! (G3?!)", ~25). Discutível, um:
+     * "O Sistema Destruidor Newtype (NT-D)".
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Compara o texto VISÍVEL: parêntese em tag ASS não conta; parêntese que o original já
+     *       tinha não é invenção.</li>
+     *   <li>NÃO entra em {@link #validarPar}: não é reprovação definitiva. Quem chama pede outra
+     *       tentativa ao modelo e, na última, aceita — publicar "cansado(a)" é melhor que publicar o
+     *       inglês, e não há conserto determinístico seguro (escolher o gênero masculino é o fallback
+     *       que a regra de concordância proíbe).</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumento nulo ou sem parêntese inventado devolve
+     * {@code null}; nunca lança. Devolve a descrição do defeito, para log e para a reprovação.
+     */
+    public String parenteseInventado(String original, String traduzido) {
+        if (original == null || traduzido == null) {
+            return null;
+        }
+        String o = visivel(original);
+        String t = visivel(traduzido);
+        if (t.indexOf('(') < 0 || o.indexOf('(') >= 0) {
+            return null;
+        }
+        return "Parêntese que o original não tem: \"" + t + "\" (original: \"" + o + "\")";
+    }
+
     /** Devolve {@code base} com a caixa de {@code achado}: "SIM" → "NÃO", "Sim" → "Não", "sim" → "não". */
     private static String comCaixaDe(String achado, String base) {
         if (achado.length() > 1 && achado.chars().allMatch(Character::isUpperCase)) {
@@ -1252,7 +1285,8 @@ public class ValidadorTraducaoService {
             return null;
         }
         return Pattern.compile(INICIO_DE_TERMO + FronteiraTermoAss.corpo(ausente) + "(?![\\p{L}\\p{N}])")
-            .matcher(traduzido).replaceAll(Matcher.quoteReplacement(presente));
+            .matcher(traduzido).replaceAll(r -> Matcher.quoteReplacement(
+                FronteiraTermoAss.substituirPreservandoQuebra(r.group(), presente)));
     }
 
     /**

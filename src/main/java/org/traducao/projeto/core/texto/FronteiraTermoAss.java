@@ -67,7 +67,58 @@ public final class FronteiraTermoAss {
      */
     public static final String SEPARADOR_INTERNO = "(?:\\s|\\\\N)+";
 
+    private static final Pattern SEPARADOR = Pattern.compile(SEPARADOR_INTERNO);
+
     private FronteiraTermoAss() {
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: troca um termo casado por {@link #corpo(String)} pelo seu substituto
+     * SEM perder a quebra de linha que a legenda tinha dentro dele. O corpo aceita {@code \N} entre
+     * as palavras justamente para achar "Mobile\NSuit"; trocar o trecho casado inteiro por
+     * "Mobile Suit" apagava a quebra, e a fala passava a reprovar no portão de estrutura depois de
+     * já aprovada. Medido no log de 17/09/2026: "We can grab some\Nnormal suits..." e "They hated his
+     * mobile suit,\Nand they hated Tag!" publicadas numa linha só, acusadas pela releitura A6.
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Sem {@code \N} no trecho casado, devolve o substituto como veio — nada muda para o caso
+     *       comum.</li>
+     *   <li>A quebra volta na MESMA posição entre palavras: "trajes\Nnormais" trocado por
+     *       "Normal Suits" vira "Normal\NSuits".</li>
+     *   <li>O número de quebras nunca diminui: se o substituto tem menos palavras que o casado, as
+     *       quebras que sobraram vão para o fim do termo.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: argumento nulo devolve o substituto; nunca lança.
+     *
+     * @param casado o trecho que o padrão do termo casou na legenda
+     * @param substituto a forma que entra no lugar
+     */
+    public static String substituirPreservandoQuebra(String casado, String substituto) {
+        if (casado == null || substituto == null || substituto.isBlank() || !casado.contains("\\N")) {
+            return substituto;
+        }
+        java.util.List<Boolean> quebraEmCadaSeparador = new java.util.ArrayList<>();
+        java.util.regex.Matcher m = SEPARADOR.matcher(casado);
+        while (m.find()) {
+            quebraEmCadaSeparador.add(m.group().contains("\\N"));
+        }
+        String[] palavras = substituto.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder(palavras[0]);
+        long quebrasUsadas = 0;
+        for (int i = 1; i < palavras.length; i++) {
+            boolean quebra = i - 1 < quebraEmCadaSeparador.size() && quebraEmCadaSeparador.get(i - 1);
+            sb.append(quebra ? "\\N" : " ").append(palavras[i]);
+            if (quebra) {
+                quebrasUsadas++;
+            }
+        }
+        long quebrasDoCasado = quebraEmCadaSeparador.stream().filter(Boolean::booleanValue).count();
+        for (long i = quebrasUsadas; i < quebrasDoCasado; i++) {
+            sb.append("\\N");
+        }
+        return sb.toString();
     }
 
     /**

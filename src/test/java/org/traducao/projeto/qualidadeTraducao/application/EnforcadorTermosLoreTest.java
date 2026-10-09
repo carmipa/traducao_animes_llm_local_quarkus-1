@@ -87,6 +87,26 @@ class EnforcadorTermosLoreTest {
         "Cavaleiro da Morte", "Undertaker");
 
     @Test
+    @DisplayName("restaurar termo partido pela quebra mantem a quebra (log de 17/09: a fala saiu numa linha so)")
+    void restauracaoPreservaQuebraDentroDoTermo() {
+        String r = enforcador.reforcar("Deploy the Mobile\\NSuit.", "Lance o traje\\Nmóvel.",
+            Map.of("traje móvel", "Mobile Suit"));
+        assertEquals("Lance o Mobile\\NSuit.", r);
+        // controle: sem quebra, a restauracao de sempre
+        assertEquals("Lance o Mobile Suit.",
+            enforcador.reforcar("Deploy the Mobile Suit.", "Lance o traje móvel.", Map.of("traje móvel", "Mobile Suit")));
+    }
+
+    @Test
+    @DisplayName("traduzir termo obrigatorio partido pela quebra mantem a quebra")
+    void traducaoObrigatoriaPreservaQuebraDentroDoTermo() {
+        assertEquals("Século\\NUniversal 0096.", enforcador.traduzirObrigatorios(
+            "Universal\\NCentury 0096.", "Universal\\NCentury 0096.", Map.of("Universal Century", "Século Universal")));
+        assertEquals("Século Universal 0096.", enforcador.traduzirObrigatorios(
+            "Universal Century 0096.", "Universal Century 0096.", Map.of("Universal Century", "Século Universal")));
+    }
+
+    @Test
     @DisplayName("restaura Legião->Legion quando o original tem Legion")
     void restauraLegion() {
         String r = enforcador.reforcar("The Legion's out in full force again.",

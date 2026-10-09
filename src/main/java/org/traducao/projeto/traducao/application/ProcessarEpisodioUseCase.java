@@ -265,7 +265,7 @@ public class ProcessarEpisodioUseCase {
         }
 
         try {
-            return traduzirERevalidarBruto(lote, null, promptSistemaCongelado, null, disjuntor);
+            return traduzirERevalidarBruto(lote, null, promptSistemaCongelado, null, disjuntor, false);
         } catch (DivergenciaLinhasException | AlucinacaoDetectadaException
                 | RequisicaoRecusadaPeloLlmException e) {
             int total = lote.linhasOriginais().size();
@@ -310,8 +310,8 @@ public class ProcessarEpisodioUseCase {
             try {
                 Double temperatura = TEMPERATURA_POR_TENTATIVA[
                     Math.min(tentativa - 1, TEMPERATURA_POR_TENTATIVA.length - 1)];
-                List<String> traducao =
-                    traduzirERevalidarBruto(lote, temperatura, promptSistemaCongelado, null, disjuntor);
+                List<String> traducao = traduzirERevalidarBruto(lote, temperatura, promptSistemaCongelado, null,
+                    disjuntor, tentativa == 1 + MAX_TENTATIVAS_LINHA_UNICA);
                 if (houveRespostaRejeitada) {
                     telemetriaTraducao.registrarFalhaTraducaoRecuperada();
                 }
@@ -333,7 +333,7 @@ public class ProcessarEpisodioUseCase {
         if (modeloRecuperacao != null && !modeloRecuperacao.isBlank()) {
             try {
                 List<String> recuperada = traduzirERevalidarBruto(
-                    lote, null, promptSistemaCongelado, modeloRecuperacao, disjuntor);
+                    lote, null, promptSistemaCongelado, modeloRecuperacao, disjuntor, true);
                 telemetriaTraducao.registrarFalhaTraducaoRecuperada();
                 // Marca o ORIGINAL para o cache não guardar tradução de outro modelo sob o
                 // carimbo do principal. Ver SEGUNDA_OPINIAO_DO_LOTE.
@@ -400,9 +400,13 @@ public class ProcessarEpisodioUseCase {
      * absorvem — a fala fica pendente e o episódio continua. Qualquer outra falha continua
      * sendo {@link TradutorException}, que aborta: com o servidor fora do ar, insistir só gasta
      * tempo e a saída parcial é o desfecho correto.
+     *
+     * @param ultimaTentativa {@code true} quando não haverá outra chamada para esta fala — aí o
+     *        parêntese inventado é aceito em vez de reprovado (ver {@link #conferirParentese})
      */
     private List<String> traduzirERevalidarBruto(Lote lote, Double temperaturaOverride,
-            String promptSistemaCongelado, String modeloOverride, DisjuntorRecusas disjuntor) {
+            String promptSistemaCongelado, String modeloOverride, DisjuntorRecusas disjuntor,
+            boolean ultimaTentativa) {
         TraducaoLote resultado = llmPort.traduzir(lote, temperaturaOverride, promptSistemaCongelado, modeloOverride);
 
         if (!resultado.sucesso() || resultado.linhasTraduzidas() == null) {
@@ -464,6 +468,7 @@ public class ProcessarEpisodioUseCase {
             // suposto: 114.329 pares do acervo julgados nas duas formas, com e sem máscara,
             // deram 84 reprovações em cada uma e ZERO vereditos divergentes.
             linha = validarParOuReparar(lote, mascaradoOriginal.get(i), linha);
+            linha = conferirParentese(lote, mascaradoOriginal.get(i), linha, ultimaTentativa);
             saneadas.add(linha);
         }
 
@@ -512,5 +517,36 @@ public class ProcessarEpisodioUseCase {
             uiLogger.log("[REPARADA] " + aviso);
             return reparada;
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: pede outra tentativa ao modelo quando a tradução traz parêntese que o
+     * original não tem — "cansado(a)", "(com tom sarcástico)", "A pursuer?! (Perseguidor?!)", 95
+     * casos nos caches em 08/10/2026 (ver {@link ValidadorTraducaoService#parenteseInventado}).
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Fora da última tentativa, reprova: a próxima temperatura costuma devolver a forma
+     *       única.</li>
+     *   <li>Na última, ACEITA e registra: a fala sai com o parêntese, nunca em inglês. Não há
+     *       conserto determinístico seguro, e o inglês seria o desfecho pior para quem assiste.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fora da última tentativa lança
+     * {@link AlucinacaoDetectadaException} com a descrição; na última devolve a linha como veio, com
+     * aviso {@code [ PARENTESE ]} no log e no console.
+     */
+    private String conferirParentese(Lote lote, String original, String linha, boolean ultimaTentativa) {
+        String parentese = validador.parenteseInventado(original, linha);
+        if (parentese == null) {
+            return linha;
+        }
+        if (!ultimaTentativa) {
+            throw new AlucinacaoDetectadaException(parentese);
+        }
+        String aviso = "Lote " + lote.idLote() + ": parêntese mantido na última tentativa (" + parentese + ")";
+        log.warn(aviso);
+        uiLogger.log("[ PARENTESE ] " + aviso);
+        return linha;
     }
 }

@@ -108,11 +108,17 @@ class EnforcadorTermosLoreQuebraAssTest {
      * não está no texto. Caso real do ep44, o único {@code Quin Mantha} do run: ficou em 66,7%
      * de preservação nas DUAS gerações, antes e depois de a quebra virar fronteira, porque o
      * furo era este outro.
+     *
+     * <p>O ESPERADO MUDOU em 08/10/2026, e não para afrouxar: até então ele era "a Quin Mantha", a
+     * saída antiga, que trocava o trecho casado inteiro e APAGAVA a quebra. O original tem uma quebra;
+     * a legenda sem ela reprova no portão de estrutura ("quebras de linha divergentes do original") —
+     * foram 2 falas assim no log de 17/09, acusadas pela releitura A6 depois de gravadas. O termo
+     * continua alcançado; agora a quebra volta no mesmo lugar ({@code FronteiraTermoAss}).
      */
     @Test
-    @DisplayName("termo COMPOSTO partido pela quebra: \"Quin\\NMantha\" é alcançado")
+    @DisplayName("termo COMPOSTO partido pela quebra: \"Quin\\NMantha\" é alcançado e a quebra fica")
     void termoCompostoPartidoPelaQuebra() {
-        assertEquals("Você acha que pode deter a Quin Mantha jogando coisas nela?!",
+        assertEquals("Você acha que pode deter a Quin\\NMantha jogando coisas nela?!",
             enforcador.reforcar("You think you can stop the Quin\\NMantha by throwing things at it?!",
                 "Você acha que pode deter a Rainha\\NMansa jogando coisas nela?!", MAPA_ZZ));
 

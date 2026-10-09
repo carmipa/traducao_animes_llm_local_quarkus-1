@@ -212,6 +212,12 @@ class ValidadorSentidoDaFalaTest {
         assertDoesNotThrow(() -> comRegistro.validarPar(original, esperado));
         // troca e polaridade na mesma fala: os dois reparos compõem
         org.junit.jupiter.api.Assertions.assertEquals("Não, Uraki.", comRegistro.repararPar("No, Uraki.", "Sim, Kou."));
+        // termo composto partido pela quebra: o reparo devolve a quebra no mesmo lugar e passa no portao
+        ValidadorTraducaoService comZz = new ValidadorTraducaoService(LoreAtivaFake.comPares(
+            java.util.List.of("Zeta Gundam", "ZZ Gundam")));
+        String reparado = comZz.repararPar("Zeta\\NGundam, launching!", "ZZ\\NGundam, partindo!");
+        org.junit.jupiter.api.Assertions.assertEquals("Zeta\\NGundam, partindo!", reparado);
+        assertDoesNotThrow(() -> comZz.validarPar("Zeta\\NGundam, launching!", reparado));
     }
 
     /** O trecho de exemplos do prompt do Zeta (Psyco Gundam e Four) e um exemplo de reescrita de gênero. */
@@ -261,6 +267,34 @@ class ValidadorSentidoDaFalaTest {
     void falaIgualAExemploLegitimaPassa(String original, String traduzido) {
         // a última linha é o falso negativo declarado: o original já diz "Gundam"
         assertDoesNotThrow(() -> comPromptZeta.validarPar(original, traduzido));
+    }
+
+    @ParameterizedTest(name = "[{index}] parêntese inventado: {0} -> {1}")
+    @DisplayName("parêntese que o original não tem é acusado (casos medidos nos caches em 08/10)")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "I'm relieved.|Estou aliviado(a).",
+        "Welcome!|Bem-vindo(a)!",
+        "Bombs?!|Bomba(s)?!",
+        "\"You need something,\" my ass!|\"Você precisa de algo?!\" (com tom sarcástico)",
+        "A pursuer?!|A pursuer?! (Perseguidor?!)",
+        "G3?!|G3?! (G3?!)",
+        "Mobile Suit|Móbil Space (ou Mecha)",
+        "That means you're mine.|{\\i1}Isso significa que você é minha(o).{\\i0}"
+    })
+    void parenteseInventadoEhAcusado(String original, String traduzido) {
+        String motivo = validador.parenteseInventado(original, traduzido);
+        assertTrue(motivo != null && motivo.startsWith("Parêntese que o original não tem"), String.valueOf(motivo));
+    }
+
+    @ParameterizedTest(name = "[{index}] parêntese legítimo ou ausente: {0} -> {1}")
+    @DisplayName("A1: o mesmo parêntese, quando o original já tinha, ou tradução sem parêntese — nada acusado")
+    @CsvSource(delimiter = '|', quoteCharacter = '`', value = {
+        "The NT-D (Newtype Destroyer).|O NT-D (Destruidor de Newtypes).",
+        "I'm relieved.|Que alívio.",
+        "{\\pos(10,20)}Welcome!|{\\pos(10,20)}Seja bem-vinda!"
+    })
+    void parenteseLegitimoOuAusenteNaoEhAcusado(String original, String traduzido) {
+        org.junit.jupiter.api.Assertions.assertNull(validador.parenteseInventado(original, traduzido));
     }
 
     @Test

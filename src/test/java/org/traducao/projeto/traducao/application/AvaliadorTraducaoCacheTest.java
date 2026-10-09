@@ -80,6 +80,21 @@ class AvaliadorTraducaoCacheTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: entrada de cache com parêntese que o original não tem ("cansado(a)", glosa
+     * do modelo) volta ao modelo em vez de ser reaproveitada — é o caminho que conserta as 95 entradas
+     * medidas em 08/10/2026 na próxima execução.
+     * <p>INVARIANTES DO DOMÍNIO: parêntese que o original já tinha não é invenção e segue reaproveitado.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reaproveitar a entrada com parêntese inventado reprova.
+     */
+    @Test
+    void parenteseInventadoNoCacheVoltaAoModelo() {
+        assertFalse(avaliador.isCacheReaproveitavel("I'm relieved.", "Estou aliviado(a)."));
+        assertFalse(avaliador.isCacheReaproveitavel("A pursuer?!", "A pursuer?! (Perseguidor?!)"));
+        assertTrue(avaliador.isCacheReaproveitavel("Ready (for real)?", "Pronto (de verdade)?"));
+        assertTrue(avaliador.isCacheReaproveitavel("I'm relieved.", "Que alívio."));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: quando a tradução é idêntica ao original, o reuso só ocorre se o
      * {@link DetectorTraducaoIdenticaService} autorizar (nome próprio) — não para palavra
      * conversacional em inglês.

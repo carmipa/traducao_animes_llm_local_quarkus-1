@@ -88,6 +88,20 @@ class FronteiraTermoAssTest {
     }
 
     @Test
+    @DisplayName("troca de termo partido pela quebra devolve a quebra no mesmo lugar")
+    void trocaPreservaAQuebraDentroDoTermo() {
+        assertEquals("Normal\\NSuits", FronteiraTermoAss.substituirPreservandoQuebra("trajes\\Nnormais", "Normal Suits"));
+        assertEquals("Mobile\\NSuit", FronteiraTermoAss.substituirPreservandoQuebra("Mobile\\NSuit", "Mobile Suit"));
+        assertEquals("Século\\NUniversal", FronteiraTermoAss.substituirPreservandoQuebra("Universal \\N Century", "Século Universal"));
+        assertEquals("Zeta Gundam\\NMk II", FronteiraTermoAss.substituirPreservandoQuebra("ZZ Gundam\\NMk II", "Zeta Gundam Mk II"));
+        // substituto com MENOS palavras: a quebra nao some, vai para o fim do termo
+        assertEquals("Axis\\N", FronteiraTermoAss.substituirPreservandoQuebra("o\\NEixo", "Axis"));
+        // sem quebra no casado: o substituto passa como veio
+        assertEquals("Mobile Suit", FronteiraTermoAss.substituirPreservandoQuebra("traje movel", "Mobile Suit"));
+        assertEquals("Mobile Suit", FronteiraTermoAss.substituirPreservandoQuebra(null, "Mobile Suit"));
+    }
+
+    @Test
     @DisplayName("termo nulo ou em branco nao casa com nada")
     void degradaSemLancar() {
         assertEquals("", FronteiraTermoAss.corpo(null));

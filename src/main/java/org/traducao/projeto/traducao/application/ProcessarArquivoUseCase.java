@@ -159,6 +159,59 @@ public class ProcessarArquivoUseCase {
         return texto != null && HOMOGRAFO_SOLTO.matcher(texto).find();
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: põe o portão na fronteira certa — DEPOIS da última transformação e antes
+     * de gravar. O portão valida a fala e em seguida ela ainda passa pelo termo obrigatório, pelo
+     * reforço de terminologia, pelas aspas, pelo acento, pelo dicionário, pelo homógrafo e pelo
+     * glossário. Quando uma dessas etapas deixava a fala reprovável, a releitura A6 só registrava,
+     * com o arquivo já gravado. Medido no log desde 17/09/2026, 8 casos:
+     * <pre>
+     *   "We can grab some\Nnormal suits..."  -> a troca de termo comeu a quebra (2 casos)
+     *   "Damn it!", "Uma, wait!"             -> a retirada das aspas deixou o inglês (4 casos)
+     *   "Z-G...?", "Catl?"                   -> a retirada das aspas deixou o exemplo do prompt (2 casos)
+     * </pre>
+     *
+     * <h2>Invariantes do domínio</h2>
+     * <ul>
+     *   <li>Desfazer volta à versão que o PORTÃO aprovou, não ao original em inglês: nos casos da
+     *       quebra, o português sem a quebra é melhor que o inglês, e a versão aprovada é melhor que
+     *       os dois.</li>
+     *   <li>Só desfaz quando a transformada reprova E a aprovada passa no mesmo critério agora.
+     *       Fala que já entrou reprovável por outra porta (fonte já no idioma-alvo, original
+     *       preservado) não é tocada aqui.</li>
+     *   <li>Fala pendente (vazia) e fala que a transformação não mudou não são examinadas.</li>
+     * </ul>
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; mapas nulos devolvem lista vazia. Devolve um
+     * aviso por fala desfeita, com a aprovada, a transformada e o motivo (A7).
+     *
+     * @param validadas o mapa original → tradução DEPOIS das transformações; é corrigido no lugar
+     * @param aprovadas o mapa original → tradução como o portão aprovou
+     * @param motivoFalha o critério do portão final (motivo da reprovação, ou {@code null})
+     */
+    static List<String> desfazerTransformacoesQueReprovam(Map<String, String> validadas,
+            Map<String, String> aprovadas, java.util.function.BiFunction<String, String, String> motivoFalha) {
+        List<String> avisos = new ArrayList<>();
+        if (validadas == null || aprovadas == null || motivoFalha == null) {
+            return avisos;
+        }
+        for (Map.Entry<String, String> traducao : validadas.entrySet()) {
+            String transformada = traducao.getValue();
+            String aprovada = aprovadas.get(traducao.getKey());
+            if (transformada == null || transformada.isBlank() || aprovada == null || transformada.equals(aprovada)) {
+                continue;
+            }
+            String motivo = motivoFalha.apply(traducao.getKey(), transformada);
+            if (motivo != null && motivoFalha.apply(traducao.getKey(), aprovada) == null) {
+                traducao.setValue(aprovada);
+                avisos.add("Transformação desfeita: a fala aprovada pelo portão \"" + aprovada + "\" virou \""
+                    + transformada + "\", que reprova (" + motivo + "). Publicada a aprovada. Original: "
+                    + traducao.getKey());
+            }
+        }
+        return avisos;
+    }
+
     /** Tags só no começo e texto visível sem tag depois: o formato de um quadro de transição. */
     private static final java.util.regex.Pattern PREFIXO_DE_TAGS_E_TEXTO =
         java.util.regex.Pattern.compile("^((?:\\{[^}]*\\})+)([^{]+)$");
@@ -714,6 +767,9 @@ public class ProcessarArquivoUseCase {
         // ingles; o reforco logo abaixo restaura o que o modelo traduziu e nao devia.
         // Decisao do Paulo em 22/08/2026, sobre as 7 falas do Unicorn publicadas como
         // "Universal Century 0096.".
+        // Fotografia do que o PORTÃO aprovou, antes de qualquer transformação: é a versão que volta
+        // se uma transformação abaixo deixar a fala reprovável (ver desfazerTransformacoesQueReprovam).
+        Map<String, String> aprovadasPeloPortao = new HashMap<>(traducoesValidadas);
         Map<String, String> obrigatorias = contexto.traducoesObrigatorias();
         if (!obrigatorias.isEmpty()) {
             int trocadas = 0;
@@ -830,6 +886,18 @@ public class ProcessarArquivoUseCase {
                 traducao.setValue(normalizado);
             }
         }
+
+        // O PORTÃO NA FRONTEIRA CERTA: depois da última transformação e antes de gravar. A A6
+        // (conferirArquivoGravado) acusava fala que passou no portão e reprova no arquivo, mas só
+        // registrava — o arquivo já estava gravado. Medido no log: 8 casos desde 17/09/2026.
+        List<String> desfeitas = desfazerTransformacoesQueReprovam(
+            traducoesValidadas, aprovadasPeloPortao, avaliadorCache::motivoFalhaFinal);
+        desfeitas.forEach(aviso -> {
+            log.warn(aviso);
+            uiLogger.log("[ DESFEITA ] " + aviso);
+        });
+        uiLogger.log("[ PORTAO POS-TRANSFORMACAO ] " + desfeitas.size()
+            + " fala(s) devolvida(s) à versão aprovada, de " + aprovadasPeloPortao.size() + " conferida(s).");
 
         // O DICIONÁRIO DIZ O QUE FEZ, em TRÊS estados — e o terceiro é o que faltava.
         //

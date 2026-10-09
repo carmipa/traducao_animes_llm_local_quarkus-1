@@ -200,8 +200,11 @@ public class EnforcadorTermosLore {
             if (contarCanonico(original, termoEn) == 0) {
                 continue; // o inglês não trazia o termo: não há o que traduzir
             }
+            // A quebra \N dentro do termo volta no mesmo lugar (FronteiraTermoAss): trocar o
+            // trecho casado inteiro pela forma fixa punha a fala numa linha só.
             resultado = padraoFormaRuim(termoEn).matcher(resultado)
-                .replaceAll(java.util.regex.Matcher.quoteReplacement(formaPt));
+                .replaceAll(r -> java.util.regex.Matcher.quoteReplacement(
+                    FronteiraTermoAss.substituirPreservandoQuebra(r.group(), formaPt)));
         }
         return resultado;
     }
@@ -317,7 +320,9 @@ public class EnforcadorTermosLore {
         StringBuilder sb = new StringBuilder(texto.length());
         int ultimo = 0;
         for (int[] o : escolhidas) {
-            sb.append(texto, ultimo, o[0]).append(canonico);
+            // A quebra \N dentro do termo casado volta no mesmo lugar (FronteiraTermoAss).
+            sb.append(texto, ultimo, o[0])
+                .append(FronteiraTermoAss.substituirPreservandoQuebra(texto.substring(o[0], o[1]), canonico));
             ultimo = o[1];
         }
         sb.append(texto, ultimo, texto.length());

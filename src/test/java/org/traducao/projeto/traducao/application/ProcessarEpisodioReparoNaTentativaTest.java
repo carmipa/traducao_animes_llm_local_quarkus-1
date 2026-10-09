@@ -117,6 +117,53 @@ class ProcessarEpisodioReparoNaTentativaTest {
         assertEquals(0, telemetria.recuperadas.get(), "manter o original não é recuperação");
     }
 
+    /** Responde em sequência, uma resposta por chamada, repetindo a última quando acabar. */
+    private static final class LlmEmSequencia implements LlmPort {
+        private final List<String> respostas;
+        final AtomicInteger chamadas = new AtomicInteger();
+
+        LlmEmSequencia(String... respostas) {
+            this.respostas = List.of(respostas);
+        }
+
+        @Override public TraducaoLote traduzir(Lote lote) {
+            int i = Math.min(chamadas.getAndIncrement(), respostas.size() - 1);
+            return new TraducaoLote(lote.idLote(), List.of(respostas.get(i)), true, null);
+        }
+        @Override public StatusLlm verificarDisponibilidade() { return new StatusLlm(true, true, "ok"); }
+        @Override public Optional<String> revisarConcordancia(String a, String b, List<String> c) { return Optional.empty(); }
+        @Override public Optional<String> corrigirTraducao(String a, String b, String c) { return Optional.empty(); }
+    }
+
+    private static List<String> traduzirCom(LlmPort llm, TelemetriaFake telemetria, String original) throws Exception {
+        ProcessarEpisodioUseCase useCase = new ProcessarEpisodioUseCase(llm,
+            new ValidadorTraducaoService(LoreAtivaFake.vazia()), new ConsoleUILogger(), telemetria,
+            new MascaradorTags(), new ReparadorMarcadoresLlm(new MascaradorTags()));
+        return useCase.processarEpisodio(List.of(new Lote(1, List.of(original))), null).getFirst().linhasTraduzidas();
+    }
+
+    @org.junit.jupiter.api.Test
+    @DisplayName("parêntese inventado: outra tentativa, e a forma única do modelo é a publicada")
+    void parenteseInventadoPedeOutraTentativa() throws Exception {
+        LlmEmSequencia llm = new LlmEmSequencia("Estou aliviado(a).", "Estou aliviado(a).", "Que alívio.");
+        TelemetriaFake telemetria = new TelemetriaFake();
+
+        assertEquals(List.of("Que alívio."), traduzirCom(llm, telemetria, "I'm relieved."));
+        assertEquals(3, llm.chamadas.get());
+        assertEquals(2, telemetria.rejeitadas.get());
+    }
+
+    @org.junit.jupiter.api.Test
+    @DisplayName("parêntese inventado até a última tentativa: publica com o parêntese, NUNCA o inglês")
+    void parenteseNaUltimaTentativaEhAceito() throws Exception {
+        LlmEmSequencia llm = new LlmEmSequencia("Estou aliviado(a).");
+        TelemetriaFake telemetria = new TelemetriaFake();
+
+        assertEquals(List.of("Estou aliviado(a)."), traduzirCom(llm, telemetria, "I'm relieved."),
+            "o inglês seria o desfecho pior para quem assiste");
+        assertEquals(3, llm.chamadas.get());
+    }
+
     @ParameterizedTest(name = "[{index}] legítima: {0} -> {1}")
     @DisplayName("A1: tradução certa com o mesmo sinal passa intacta, sem reparo nem rejeição")
     @CsvSource(delimiter = '|', value = {
