@@ -313,6 +313,56 @@ class TraduzirKaraokeUseCaseTest {
         assertEquals("ATENÇÃO", TraduzirKaraokeUseCase.rotuloDoBanner(StatusExecucaoKaraoke.COMPLETA, 0, 1));
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: a palavra inventada pelo modelo ({@code Açãoaria}, Break Blade 1, teste
+     * ponta a ponta de 09/10/2026) vai ao manifesto e ao resumo do arquivo, e a letra continua
+     * TRADUZIDA no arquivo gravado — recusar a devolveria ao inglês.
+     * <p>INVARIANTES DO DOMÍNIO: verificação depois da última transformação (o arquivo é relido);
+     * sem dicionário, o resumo diz NÃO VERIFICADO (contra-teste no mesmo método).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: sem hunspell instalado, o caso real PULA.
+     */
+    @Test
+    void palavraInventadaVaiAoManifestoEaTraducaoSegue() throws IOException {
+        List<String> console = new java.util.ArrayList<>();
+        useCase.logStream = new LogStreamService() {
+            @Override
+            public void publicarLog(String canal, String mensagem) {
+                console.add(mensagem);
+            }
+        };
+        usarLlm(new LlmPortFake() {
+            @Override
+            public TraducaoLote traduzir(Lote lote) {
+                chamadasTraduzir++;
+                return new TraducaoLote(lote.idLote(), List.of("Açãoaria em todos os meus sentimentos."), true, null);
+            }
+        });
+
+        useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
+        assertTrue(console.stream().anyMatch(l -> l.contains("fora do dicionário: NÃO VERIFICADO")),
+            () -> "sem dicionario o resumo tem de dizer NAO VERIFICADO: " + console);
+
+        // A segunda execucao reaproveita a letra do CACHE: a conferencia vale para ela tambem.
+        console.clear();
+        useCase.corretorOrtografico = new org.traducao.projeto.core.texto.dicionarioOrtografia.CorretorOrtograficoLegenda();
+        List<ResultadoTraducaoKaraoke> resultados = useCase.aplicar(pastaEntrada, CONTEXTO_08TH);
+        org.junit.jupiter.api.Assumptions.assumeFalse(
+            console.stream().anyMatch(l -> l.contains("fora do dicionário: NÃO VERIFICADO")),
+            "hunspell ausente — NÃO VERIFICADO");
+
+        assertTrue(resultados.getFirst().avisos().stream()
+                .anyMatch(a -> a.startsWith("Palavra fora do dicionario [Açãoaria]")),
+            () -> "a palavra inventada nao chegou ao manifesto: " + resultados.getFirst().avisos());
+        assertTrue(console.stream().anyMatch(l -> l.contains("fora do dicionário: 1")),
+            () -> "o resumo do arquivo nao contou a letra: " + console);
+        String saida = Files.readString(TraduzirKaraokeUseCase.resolverPastaSaida(pastaEntrada)
+            .resolve(NOME_ARQUIVO), StandardCharsets.UTF_8);
+        assertTrue(saida.contains("Açãoaria em todos os meus sentimentos."),
+            "a traducao foi recusada — a letra voltaria ao ingles");
+        assertFalse(saida.contains("OP - English,,0,0,0,,Even if the world ends tomorrow"),
+            "a letra ficou em ingles");
+    }
+
     @Test
     void aplicarTraduzCamadaInglesaEPreservaRomajiEDialogo() throws IOException {
         List<ResultadoTraducaoKaraoke> resultados = useCase.aplicar(pastaEntrada, CONTEXTO_08TH);

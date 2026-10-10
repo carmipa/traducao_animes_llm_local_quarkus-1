@@ -404,6 +404,9 @@ public class TraduzirKaraokeUseCase {
         // apareceriam para quem lesse o .ass — e apareceram mesmo, semanas depois.
         int acentosRepostos = 0;
         List<String> avisos = new ArrayList<>();
+        // Original -> traducao QUE VAI PARA O ARQUIVO (depois do acento), do LLM ou do cache. E
+        // sobre ela que a palavra inventada e procurada, depois da ultima transformacao (A6).
+        Map<String, String> traduzidasNoArquivo = new java.util.LinkedHashMap<>();
 
         // Traduções desta execução, deduplicadas por texto original (refrão
         // repetido gasta uma chamada de LLM só).
@@ -525,6 +528,7 @@ public class TraduzirKaraokeUseCase {
                     if (!comAcento.equals(traduzido)) {
                         acentosRepostos++;
                     }
+                    traduzidasNoArquivo.putIfAbsent(original, comAcento);
                     eventosFinais.add(evento.comTexto(
                         montador.comOriginalPreservada(evento, comAcento, plano)));
                     if (veioDoCache) {
@@ -539,6 +543,20 @@ public class TraduzirKaraokeUseCase {
             }
         }
 
+        // PALAVRA INVENTADA PELO MODELO ("Açãoaria", "Anjel", "desfezera"): vai ao manifesto e ao
+        // console, e a traducao SEGUE — o ensaio de 09/10/2026 mostrou que refazer nao conserta
+        // (1 de 4) e recusar devolveria a letra ao ingles. Ver PalavrasForaDoDicionario.
+        PalavrasForaDoDicionario.Verificacao foraDoDicionario =
+            PalavrasForaDoDicionario.verificar(corretorOrtografico, traduzidasNoArquivo);
+        for (Map.Entry<String, List<String>> achado : foraDoDicionario.porLetra().entrySet()) {
+            String traduzida = traduzidasNoArquivo.get(achado.getKey());
+            avisos.add("Palavra fora do dicionario " + achado.getValue() + "; traducao mantida para revisao: "
+                + RegistroDaExecucao.visivelResumido(achado.getKey()) + " => "
+                + RegistroDaExecucao.visivelResumido(traduzida));
+            logStream.publicarLog(CANAL_LOG, "   [FORA DO DICIONÁRIO] " + achado.getValue() + " em: "
+                + RegistroDaExecucao.visivelResumido(traduzida));
+        }
+
         String nomeDestino = null;
         if (gravar) {
             Path destino = pastaDestino.resolve(nome);
@@ -550,13 +568,16 @@ public class TraduzirKaraokeUseCase {
         }
 
         logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
-            "   Resumo: %d evento(s) | KFX preservado: %d | letra original: %d | já PT: %d | traduzível: %d (LLM %d, cache %d, sem tradução %d) | acento reposto: %s",
+            "   Resumo: %d evento(s) | KFX preservado: %d | letra original: %d | já PT: %d | traduzível: %d (LLM %d, cache %d, sem tradução %d) | acento reposto: %s | fora do dicionário: %s",
             documento.eventos().size(), kfx, originais, jaPt, paraTraduzir, traduzidas, doCache, semTraducao,
             // Três estados, nunca dois: sem hunspell, "0 corrigidas" e "não pude verificar" são
             // coisas diferentes e não podem imprimir o mesmo sinal.
             !montador.dicionarioDisponivel()
                 ? acentosRepostos + " (dicionário AUSENTE — NÃO VERIFICADO)"
-                : String.valueOf(acentosRepostos)));
+                : String.valueOf(acentosRepostos),
+            foraDoDicionario.verificado()
+                ? String.valueOf(foraDoDicionario.porLetra().size())
+                : "NÃO VERIFICADO"));
 
         // O que estava no cache e NAO foi usado some na regravacao — e some certo, porque a regua
         // de evidencia positiva tornou inalcançavel o que o classificador antigo criou por engano
