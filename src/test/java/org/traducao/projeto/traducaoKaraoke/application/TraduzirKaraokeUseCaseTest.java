@@ -281,6 +281,38 @@ class TraduzirKaraokeUseCaseTest {
         assertTrue(desfecho.falhas().isEmpty(), "nenhum arquivo falhou nesta legenda de teste");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: pasta só com SRT (o Reconguista do teste ponta a ponta de 09/10/2026)
+     * não tem camada de karaokê. Até então a 4.1 criava a pasta de destino VAZIA e fechava com
+     * "[SUCESSO]", que lê como "fiz o karaokê".
+     * <p>INVARIANTES DO DOMÍNIO: nenhuma pasta criada; o console explica o SRT; o banner diz NADA A
+     * FAZER; com legenda .ass o banner continua SUCESSO (contra-teste no mesmo método).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta vazia criada, ou SUCESSO sem arquivo, reprova.
+     */
+    @Test
+    void pastaSoComSrtNaoCriaDestinoNemDizSucesso() throws IOException {
+        Path soSrt = Files.createDirectories(tempDir.resolve("traducao_srt"));
+        Files.writeString(soSrt.resolve("filme_PT-BR.srt"), "1\r\n00:00:01,000 --> 00:00:02,000\r\nOla\r\n");
+        List<String> console = new java.util.ArrayList<>();
+        useCase.logStream = new LogStreamService() {
+            @Override
+            public void publicarLog(String canal, String mensagem) {
+                console.add(mensagem);
+            }
+        };
+
+        assertTrue(useCase.aplicar(soSrt, CONTEXTO_08TH).isEmpty());
+
+        assertFalse(Files.exists(TraduzirKaraokeUseCase.resolverPastaSaida(soSrt)),
+            "a pasta de destino nao pode nascer vazia");
+        assertTrue(console.stream().anyMatch(l -> l.contains("1 legenda(s) .srt")), () -> "sem o aviso do SRT: " + console);
+        assertTrue(console.stream().anyMatch(l -> l.startsWith("[NADA A FAZER]")), () -> "banner errado: " + console);
+        assertTrue(console.stream().noneMatch(l -> l.startsWith("[SUCESSO]")), () -> "SUCESSO sem arquivo: " + console);
+
+        assertEquals("SUCESSO", TraduzirKaraokeUseCase.rotuloDoBanner(StatusExecucaoKaraoke.COMPLETA, 1, 0));
+        assertEquals("ATENÇÃO", TraduzirKaraokeUseCase.rotuloDoBanner(StatusExecucaoKaraoke.COMPLETA, 0, 1));
+    }
+
     @Test
     void aplicarTraduzCamadaInglesaEPreservaRomajiEDialogo() throws IOException {
         List<ResultadoTraducaoKaraoke> resultados = useCase.aplicar(pastaEntrada, CONTEXTO_08TH);

@@ -194,7 +194,7 @@ public class TraduzirKaraokeUseCase {
             throw new TraducaoKaraokeException("A pasta informada não existe ou não é um diretório: " + pastaOrigem);
         }
         Path pastaDestino = resolverPastaSaida(pastaOrigem);
-        logStream.publicarLog(CANAL_LOG, "Pasta de destino (criada automaticamente): " + pastaDestino);
+        logStream.publicarLog(CANAL_LOG, "Pasta de destino: " + pastaDestino);
 
         List<ResultadoTraducaoKaraoke> resultados = new ArrayList<>();
         List<FalhaArquivoKaraoke> falhas = new ArrayList<>();
@@ -210,6 +210,22 @@ public class TraduzirKaraokeUseCase {
         boolean houveLinhaCorrigivel = false;
 
         try {
+            List<Path> arquivos = listarLegendas(pastaOrigem);
+            if (arquivos.isEmpty()) {
+                // Sem .ass/.ssa nao ha o que fazer — e a pasta de destino NAO e criada: ate 09/10/2026
+                // ela nascia vazia ao lado da traducao, e o console fechava com [SUCESSO]. No teste
+                // ponta a ponta daquele dia isso aconteceu com o Reconguista, que so tem legenda SRT.
+                logStream.publicarLog(CANAL_LOG, "Nenhum arquivo .ass/.ssa encontrado na pasta.");
+                long srts = contarSrt(pastaOrigem);
+                if (srts > 0) {
+                    logStream.publicarLog(CANAL_LOG, "[AVISO] A pasta tem " + srts + " legenda(s) .srt. SRT nao tem "
+                        + "estilo nem efeito, entao nao ha camada de karaoke para traduzir: a letra, se houver, "
+                        + "ja foi traduzida como fala comum pela Traducao Local.");
+                }
+                return List.of();
+            }
+            logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
+
             if (gravar) {
                 try {
                     Files.createDirectories(pastaDestino);
@@ -217,13 +233,6 @@ public class TraduzirKaraokeUseCase {
                     throw new TraducaoKaraokeException("Não foi possível criar a pasta de destino: " + pastaDestino, e);
                 }
             }
-
-            List<Path> arquivos = listarLegendas(pastaOrigem);
-            if (arquivos.isEmpty()) {
-                logStream.publicarLog(CANAL_LOG, "Nenhum arquivo .ass/.ssa encontrado na pasta.");
-                return List.of();
-            }
-            logStream.publicarLog(CANAL_LOG, "Arquivos de legenda encontrados: " + arquivos.size());
 
             if (gravar) {
                 StatusLlm statusLlm = llmPort.verificarDisponibilidade();
@@ -283,7 +292,7 @@ public class TraduzirKaraokeUseCase {
             logStream.publicarLog(CANAL_LOG, "==============================================================");
             logStream.publicarLog(CANAL_LOG, String.format(Locale.ROOT,
                 "[%s] %s %s: %d arquivo(s), %d falha(s) | letras originais preservadas: %d | traduzíveis: %d (LLM: %d, cache: %d)",
-                status == StatusExecucaoKaraoke.COMPLETA && falhas.isEmpty() ? "SUCESSO" : "ATENÇÃO",
+                rotuloDoBanner(status, resultados.size(), falhas.size()),
                 modo, status.name().toLowerCase(Locale.ROOT), resultados.size(), falhas.size(),
                 preservadas, musicas, traduzidas, doCache));
             for (FalhaArquivoKaraoke f : falhas) {
@@ -304,6 +313,36 @@ public class TraduzirKaraokeUseCase {
             }
         }
         return resultados;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: escolhe a palavra que abre o banner final, para "não havia nada a
+     * fazer" não sair como "[SUCESSO]" — o mesmo silêncio ambíguo que o {@link StatusExecucaoKaraoke}
+     * existe para evitar, agora no console.
+     * <p>INVARIANTES DO DOMÍNIO: SUCESSO só com execução completa, sem falha e com ao menos um
+     * arquivo processado; zero arquivos e zero falhas numa execução completa é NADA A FAZER.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: qualquer outro caso é ATENÇÃO; nunca lança.
+     */
+    static String rotuloDoBanner(StatusExecucaoKaraoke status, int arquivos, int falhas) {
+        if (status == StatusExecucaoKaraoke.COMPLETA && falhas == 0) {
+            return arquivos > 0 ? "SUCESSO" : "NADA A FAZER";
+        }
+        return "ATENÇÃO";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: conta as legendas SRT da pasta para explicar ao operador por que a
+     * tradução de karaokê não tem o que fazer nela.
+     * <p>INVARIANTES DO DOMÍNIO: só a própria pasta, sem descer em subpastas; só leitura.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: erro de leitura conta zero — a mensagem de aviso é que
+     * deixa de sair, nunca a execução.
+     */
+    private static long contarSrt(Path pasta) {
+        try (var arquivos = Files.list(pasta)) {
+            return arquivos.filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".srt")).count();
+        } catch (IOException e) {
+            return 0;
+        }
     }
 
     /**
