@@ -18,6 +18,12 @@ import java.util.regex.Pattern;
  * é <i>ressonância</i>), o pt_BR reprovou, e o de_DE aceitou. Se o alemão pudesse aprovar, um erro
  * real teria passado — e quanto mais dicionários, mais chances disso.
  *
+ * <p>Correção factual de 09/10/2026: o de_DE nunca aceitou {@code Resonância}. O adaptador
+ * conversava em UTF-8 com um dicionário ISO8859-1 e toda palavra com acento saía partida e
+ * "conhecida" — {@link VeredictoPalavra#TERMO_ALEMAO} para a invenção {@code Açãoaria} também.
+ * Consertado no {@link HunspellDicionarioAdapter}; a ordem continua certa pelo motivo que ela
+ * declara, só o exemplo era artefato.
+ *
  * <h2>Um processo por idioma, por LOTE</h2>
  * São no máximo três chamadas ao hunspell para um episódio inteiro, não uma por palavra: o custo é
  * o arranque do processo. Medido: 7.432 formas em 12,6 s. E o japonês nem consulta nada — kana e

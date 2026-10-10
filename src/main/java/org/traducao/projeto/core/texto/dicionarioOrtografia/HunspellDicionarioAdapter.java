@@ -43,6 +43,9 @@ import java.util.concurrent.TimeUnit;
  *   <li>Só responde o que o hunspell marcou com {@code &} (desconhecida com sugestão) ou {@code #}
  *       (desconhecida sem sugestão). Linha em branco e {@code *}/{@code +}/{@code -} são aceites.</li>
  *   <li>Timeout curto: um verificador travado não pode segurar a tradução de um episódio.</li>
+ *   <li>Conversa com o processo na codificação que o {@code .aff} do dicionário declara, e palavra
+ *       que o dicionário não pôde ver INTEIRA nunca sai como conhecida — ver
+ *       {@link #resolverDicionario()}.</li>
  * </ul>
  *
  * <h2>Comportamento em caso de falha</h2>
@@ -127,14 +130,51 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
     private final String idioma;
     private volatile Boolean disponivel;
 
+    /**
+     * Onde o dicionário mora e em que codificação ele conversa — resolvidos uma vez, na primeira
+     * consulta. Ver {@link #resolverDicionario()}.
+     */
+    private volatile DicionarioResolvido resolvido;
+
+    /** O aviso de dicionário sem {@code .aff} localizado sai uma vez só por adaptador. */
+    private final java.util.concurrent.atomic.AtomicBoolean avisouSemAff =
+        new java.util.concurrent.atomic.AtomicBoolean();
+
+    /**
+     * O que o adaptador passa ao processo: o alvo do {@code -d} e a codificação do diálogo.
+     *
+     * @param alvo      caminho completo sem extensão quando o {@code .aff} foi achado (o hunspell
+     *                  carrega EXATAMENTE o arquivo cuja codificação foi lida), ou o nome do idioma
+     * @param charset   codificação em que o processo lê a entrada e escreve a saída
+     * @param nomeNoAff o nome da codificação como o {@code .aff} a declara, repassado no {@code -i}
+     * @param achouAff  se a codificação veio do {@code .aff} ou é a suposição UTF-8
+     */
+    record DicionarioResolvido(String alvo, java.nio.charset.Charset charset, String nomeNoAff,
+                               boolean achouAff) {
+    }
+
     public HunspellDicionarioAdapter() {
         this("hunspell", "pt_BR");
     }
 
     HunspellDicionarioAdapter(String executavel, String idioma) {
+        this(executavel, idioma, null);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: costura para o teste exercitar a REDE do byte ilegível — o caminho de
+     * quando o {@code .aff} não é achado e a codificação é suposta. Sem ela, nesta máquina o
+     * {@code .aff} é sempre achado e a rede nunca rodaria em teste.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: {@code null} usa {@link #pastasDeBusca()}, a ordem do hunspell.
+     */
+    HunspellDicionarioAdapter(String executavel, String idioma, java.util.List<java.nio.file.Path> pastas) {
         this.executavel = executavel;
         this.idioma = idioma;
+        this.pastasInjetadas = pastas;
     }
+
+    private final java.util.List<java.nio.file.Path> pastasInjetadas;
 
     /**
      * PROPÓSITO DE NEGÓCIO: pergunta ao hunspell, de uma vez, quais das formas ele não conhece.
@@ -228,9 +268,24 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
      */
     private java.util.Map<String, Set<String>> consultarProcesso(Collection<String> palavras) {
         consultasAoProcesso.incrementAndGet();
-        Set<String> candidatas = new LinkedHashSet<>(palavras);
+        DicionarioResolvido dic = resolverDicionario();
+        // Palavra que a codificacao do dicionario nao representa nao existe nele: o macron de
+        // "opçāo" num dicionario Latin-1. Mandada assim mesmo, o codificador troca a letra por '?',
+        // o hunspell ve "opç" e "o", nenhuma linha devolvida se chama "opçāo" — e ela passava
+        // por CONHECIDA. Fica desconhecida sem perguntar.
+        java.nio.charset.CharsetEncoder codificador = dic.charset().newEncoder();
+        java.util.Map<String, Set<String>> irrepresentaveis = new java.util.LinkedHashMap<>();
+        Set<String> candidatas = new LinkedHashSet<>();
+        for (String palavra : palavras) {
+            if (codificador.canEncode(palavra)) {
+                candidatas.add(palavra);
+            } else {
+                irrepresentaveis.put(palavra, Set.of());
+            }
+        }
         try {
-            ProcessBuilder pb = new ProcessBuilder(executavel, "-a", "-d", idioma, "-i", "UTF-8");
+            ProcessBuilder pb = new ProcessBuilder(
+                executavel, "-a", "-d", dic.alvo(), "-i", dic.nomeNoAff());
             pb.redirectErrorStream(true);
             Process p = pb.start();
 
@@ -241,12 +296,24 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
             // ele está DEPOIS. Com 4.688 formas de um episódio a saída passa de 200 KB, muito
             // além do buffer.
             java.util.Map<String, Set<String>> achados = new java.util.concurrent.ConcurrentHashMap<>();
+            java.util.concurrent.atomic.AtomicBoolean ilegivel = new java.util.concurrent.atomic.AtomicBoolean();
+            // O cabecalho "@(#) International Ispell..." so sai quando o dicionario CARREGOU. Sem
+            // ele, a saida e a mensagem de erro do hunspell — e nenhuma linha "&"/"#" nela.
+            java.util.concurrent.atomic.AtomicBoolean carregou = new java.util.concurrent.atomic.AtomicBoolean();
+            java.util.concurrent.atomic.AtomicReference<String> primeiraLinha = new java.util.concurrent.atomic.AtomicReference<>();
             Thread leitor = new Thread(() -> {
                 try (BufferedReader leitura = new BufferedReader(
-                        new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                        new InputStreamReader(p.getInputStream(), dic.charset()))) {
                     String linha;
                     while ((linha = leitura.readLine()) != null) {
+                        primeiraLinha.compareAndSet(null, linha);
+                        if (linha.startsWith("@(#)")) {
+                            carregou.set(true);
+                        }
                         String palavra = palavraDaLinha(linha);
+                        if (palavra != null && palavra.indexOf('�') >= 0) {
+                            ilegivel.set(true);
+                        }
                         if (palavra != null && candidatas.contains(palavra)) {
                             achados.put(palavra, sugestoesDaLinha(linha));
                         }
@@ -259,7 +326,7 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
             leitor.start();
 
             try (BufferedWriter escrita = new BufferedWriter(
-                    new OutputStreamWriter(p.getOutputStream(), StandardCharsets.UTF_8))) {
+                    new OutputStreamWriter(p.getOutputStream(), dic.charset()))) {
                 for (String palavra : candidatas) {
                     // '^' força o modo -a a tratar a linha inteira como uma entrada só.
                     escrita.write("^" + palavra);
@@ -277,7 +344,34 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
                 disponivel = false;
                 return java.util.Map.of();
             }
+            if (p.exitValue() != 0 || !carregou.get()) {
+                // DICIONARIO AUSENTE (medido em 09/10/2026 com "-d xx_YY"): o binario existe, sai
+                // com 1 e escreve so "Can't open affix or dictionary files". Antes deste ponto o
+                // adaptador se declarava DISPONIVEL e nao acusava palavra nenhuma — todo o idioma
+                // passava por conhecido, e numa maquina sem o de_DE toda palavra virava alema.
+                if (disponivel == null) {
+                    log.warn("Dicionário {} não carregou (saída {}: {}). Nada foi verificado neste idioma.",
+                        idioma, p.exitValue(), primeiraLinha.get());
+                }
+                disponivel = false;
+                return java.util.Map.of();
+            }
             disponivel = true;
+            if (ilegivel.get()) {
+                // Rede de segurança para quando a codificação é SUPOSTA (o .aff não foi achado) e
+                // está errada: a saída voltou com byte que não decodifica, a palavra foi partida
+                // pelo caminho e a linha devolvida não casa com nenhuma candidata. Toda candidata
+                // com letra fora do ASCII é suspeita de ter sido partida — desconhecida, nunca
+                // conhecida por omissão.
+                log.warn("hunspell ({}) respondeu em codificação diferente de {}: palavras com acento "
+                    + "deste lote ficam como DESCONHECIDAS, não verificadas.", idioma, dic.charset());
+                for (String palavra : candidatas) {
+                    if (!achados.containsKey(palavra) && palavra.chars().anyMatch(c -> c > 0x7F)) {
+                        achados.put(palavra, Set.of());
+                    }
+                }
+            }
+            achados.putAll(irrepresentaveis);
             return achados;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -292,6 +386,182 @@ public class HunspellDicionarioAdapter implements DicionarioOrtograficoPort {
             disponivel = false;
             return java.util.Map.of();
         }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: descobre em que codificação o dicionário deste idioma conversa, lendo a
+     * linha {@code SET} do próprio {@code .aff}, e passa a apontar o {@code -d} para AQUELE arquivo.
+     *
+     * <h2>O prejuízo que obrigou a existir, medido em 09/10/2026</h2>
+     * O adaptador mandava {@code -i UTF-8} para todo idioma e lia a resposta em UTF-8. O
+     * {@code de_DE.aff} desta máquina declara {@code SET ISO8859-1}, e o hunspell 1.7.0 do Windows
+     * conversa na codificação do dicionário: {@code Açãoaria} chegava como {@code AÃ§Ã£oaria},
+     * saía partida em {@code "A?"}, {@code "?"} e {@code "oaria"}, nenhuma linha devolvida se
+     * chamava {@code Açãoaria} — e ela passava por palavra ALEMÃ conhecida. Toda palavra com acento
+     * que o português recusava virava {@link VeredictoPalavra#TERMO_ALEMAO} ("preservar"),
+     * inclusive a invenção do modelo na letra do Break Blade ({@code "I'd act on all of my
+     * feelings" => "Açãoaria em todos os meus sentimentos."}). E o alemão de verdade também
+     * quebrava: {@code Straße} saía {@code "Stra?"}. Conversando em Latin-1, as três respostas
+     * acertam: {@code Açãoaria} e {@code Resonância} desconhecidas, {@code Straße} e
+     * {@code Walküre} conhecidas.
+     *
+     * <h2>Por que ler o .aff, e não perguntar ao hunspell</h2>
+     * O {@code -D} desta versão lista o caminho de busca e não diz qual arquivo carregou, e o
+     * {@code -i} não converte nada. A única fonte da codificação é a linha {@code SET} do arquivo
+     * — e, achado o arquivo, o {@code -d} recebe o caminho dele, então o dicionário carregado é
+     * EXATAMENTE o que foi lido, nunca outro de mesmo nome achado antes no caminho de busca.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: resolve uma vez por adaptador; procura na ordem do próprio
+     * hunspell ({@code .}, {@code DICPATH}, a pasta padrão da plataforma); {@code .aff} sem
+     * {@code SET} é ISO8859-1, que é o padrão do hunspell.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: {@code .aff} não achado, ilegível ou com codificação que
+     * o Java não conhece cai na suposição UTF-8 (o comportamento anterior), com aviso UMA vez — e a
+     * rede do byte ilegível em {@link #consultarProcesso} impede que a suposição errada aprove
+     * palavra partida.
+     */
+    private DicionarioResolvido resolverDicionario() {
+        DicionarioResolvido atual = resolvido;
+        if (atual != null) {
+            return atual;
+        }
+        java.util.Optional<java.nio.file.Path> aff = localizarAff(idioma,
+            pastasInjetadas != null ? pastasInjetadas : pastasDeBusca());
+        DicionarioResolvido novo;
+        if (aff.isPresent()) {
+            String nome = codificacaoDoAff(aff.get());
+            java.nio.charset.Charset cs = charsetJava(nome);
+            String arquivo = aff.get().toString();
+            String alvo = arquivo.substring(0, arquivo.length() - ".aff".length());
+            novo = cs == null
+                ? new DicionarioResolvido(alvo, StandardCharsets.UTF_8, "UTF-8", false)
+                : new DicionarioResolvido(alvo, cs, nome, true);
+        } else {
+            novo = new DicionarioResolvido(idioma, StandardCharsets.UTF_8, "UTF-8", false);
+        }
+        if (!novo.achouAff() && avisouSemAff.compareAndSet(false, true)) {
+            log.warn("Dicionário {}: .aff não localizado ou codificação desconhecida — suposta UTF-8. "
+                + "Palavra com acento que voltar ilegível fica DESCONHECIDA.", idioma);
+        }
+        resolvido = novo;
+        return novo;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: as pastas onde o hunspell procura dicionário, na ordem dele — a
+     * medida em 09/10/2026 com {@code hunspell -D}: diretório corrente, {@code DICPATH}, e a
+     * pasta padrão da plataforma.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nunca lança; variável ausente só encurta a lista.
+     */
+    static java.util.List<java.nio.file.Path> pastasDeBusca() {
+        java.util.List<java.nio.file.Path> pastas = new java.util.ArrayList<>();
+        pastas.add(java.nio.file.Path.of("."));
+        String dicpath = System.getenv("DICPATH");
+        if (dicpath != null) {
+            for (String p : dicpath.split(java.io.File.pathSeparator)) {
+                if (!p.isBlank()) {
+                    pastas.add(java.nio.file.Path.of(p.strip()));
+                }
+            }
+        }
+        if (java.io.File.separatorChar == '\\') {
+            pastas.add(java.nio.file.Path.of("C:\\Hunspell"));
+        } else {
+            pastas.add(java.nio.file.Path.of("/usr/share/hunspell"));
+            pastas.add(java.nio.file.Path.of("/usr/share/myspell"));
+            pastas.add(java.nio.file.Path.of("/usr/share/myspell/dicts"));
+        }
+        return pastas;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o primeiro {@code <idioma>.aff} que existe nas pastas, na ordem dada.
+     * Idioma que já é caminho (tem separador) é usado como está.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: vazio quando nenhum existe; nunca lança.
+     */
+    static java.util.Optional<java.nio.file.Path> localizarAff(String idioma,
+                                                                java.util.List<java.nio.file.Path> pastas) {
+        if (idioma == null || idioma.isBlank()) {
+            return java.util.Optional.empty();
+        }
+        try {
+            if (idioma.contains("/") || idioma.contains("\\")) {
+                java.nio.file.Path direto = java.nio.file.Path.of(idioma + ".aff");
+                return java.nio.file.Files.isRegularFile(direto)
+                    ? java.util.Optional.of(direto.toAbsolutePath())
+                    : java.util.Optional.empty();
+            }
+            for (java.nio.file.Path pasta : pastas) {
+                java.nio.file.Path aff = pasta.resolve(idioma + ".aff");
+                if (java.nio.file.Files.isRegularFile(aff)) {
+                    return java.util.Optional.of(aff.toAbsolutePath());
+                }
+            }
+        } catch (RuntimeException e) {
+            return java.util.Optional.empty();
+        }
+        return java.util.Optional.empty();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o nome da codificação que o {@code .aff} declara na linha {@code SET}.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: lê em ISO-8859-1, que decodifica qualquer byte — a linha
+     * {@code SET} é ASCII em toda codificação que o hunspell aceita. Sem {@code SET}, o padrão do
+     * hunspell: {@code ISO8859-1}. A marca de ordem de bytes do UTF-8 no início do arquivo é
+     * descartada antes de procurar: o {@code pt_BR.aff} desta máquina abre com ela, colada no
+     * {@code SET UTF-8} da linha 1 — sem o descarte a linha não casava, o português era lido como
+     * Latin-1 e {@code fatidico} perdia a sugestão {@code fatídico} (a suíte pegou, 09/10/2026).
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: arquivo ilegível devolve {@code null}.
+     */
+    static String codificacaoDoAff(java.nio.file.Path aff) {
+        try (BufferedReader leitura = java.nio.file.Files.newBufferedReader(aff, StandardCharsets.ISO_8859_1)) {
+            String linha;
+            boolean primeira = true;
+            while ((linha = leitura.readLine()) != null) {
+                if (primeira && linha.startsWith("ï»¿")) {
+                    linha = linha.substring(3);
+                }
+                primeira = false;
+                String limpa = linha.strip();
+                if (limpa.startsWith("SET ") || limpa.startsWith("SET\t")) {
+                    String nome = limpa.substring(4).strip();
+                    return nome.isEmpty() ? "ISO8859-1" : nome.split("\\s+")[0];
+                }
+            }
+            return "ISO8859-1";
+        } catch (java.io.IOException | RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: traduz o nome que o hunspell usa ({@code ISO8859-1},
+     * {@code microsoft-cp1251}) para o {@link java.nio.charset.Charset} do Java.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: nome nulo ou desconhecido devolve {@code null} — quem
+     * chama cai na suposição declarada, nunca numa codificação inventada.
+     */
+    static java.nio.charset.Charset charsetJava(String nomeNoAff) {
+        if (nomeNoAff == null || nomeNoAff.isBlank()) {
+            return null;
+        }
+        String nome = nomeNoAff.strip();
+        java.util.List<String> tentativas = java.util.List.of(
+            nome,
+            nome.replaceFirst("(?i)^ISO8859-", "ISO-8859-"),
+            nome.replaceFirst("(?i)^microsoft-cp", "windows-"));
+        for (String t : tentativas) {
+            try {
+                return java.nio.charset.Charset.forName(t);
+            } catch (RuntimeException ignorado) {
+                // Tenta a próxima grafia.
+            }
+        }
+        return null;
     }
 
     /**

@@ -16,7 +16,8 @@ package org.traducao.projeto.core.texto.dicionarioOrtografia;
  *   <li>Só o português DECIDE se está errado. Os demais idiomas ROTULAM o que já não é português
  *       — mudam a AÇÃO, nunca o veredito. A cicatriz é medida: {@code Resonância} (grafia errada;
  *       o certo é <i>ressonância</i>) foi reprovada pelo pt_BR e ACEITA pelo alemão. Se o alemão
- *       pudesse aprovar, o erro passaria.</li>
+ *       pudesse aprovar, o erro passaria. (09/10/2026: a "aceitação" era o adaptador conversando
+ *       em UTF-8 com o de_DE, que é ISO8859-1 — ver {@link HunspellDicionarioAdapter}.)</li>
  *   <li>{@link #NAO_VERIFICADO} existe e não é sinônimo de {@link #PORTUGUES_OK} — é o estado 2
  *       da guarda de três estados aplicado a cada palavra.</li>
  * </ul>

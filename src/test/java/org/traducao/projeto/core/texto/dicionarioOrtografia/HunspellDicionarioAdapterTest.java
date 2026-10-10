@@ -91,6 +91,30 @@ class HunspellDicionarioAdapterTest {
                 + "'não olhei' vira 'está limpo' no relatório, que é o defeito da regra 12.");
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: o binário existe mas o DICIONÁRIO não — a máquina sem o {@code de_DE},
+     * por exemplo. O hunspell sai com 1 e escreve só "Can't open affix or dictionary files"; até
+     * 09/10/2026 o adaptador se declarava disponível e não acusava nada, então o idioma inteiro
+     * passava por conhecido. O controle positivo ({@code pt_BR} instalado acusa a palavra inventada)
+     * fica no mesmo método: sem ele, "indisponível" aqui poderia ser só hunspell ausente.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: hunspell ausente PULA — NÃO VERIFICADO.
+     */
+    @Test
+    @DisplayName("dicionario ausente com o binario presente: INDISPONIVEL, nunca 'tudo conhecido'")
+    void dicionarioAusenteNaoAprovaNada() {
+        var controle = new HunspellDicionarioAdapter("hunspell", "pt_BR");
+        Set<String> doControle = controle.desconhecidas(List.of("xyzabcdef"));
+        Assumptions.assumeTrue(controle.disponivel() && doControle.contains("xyzabcdef"),
+            "hunspell/pt_BR ausente — NÃO VERIFICADO");
+
+        var semDicionario = new HunspellDicionarioAdapter("hunspell", "xx_INEXISTENTE");
+        Set<String> r = semDicionario.desconhecidas(List.of("xyzabcdef", "casa"));
+        assertFalse(semDicionario.disponivel(),
+            "dicionario que nao carregou se declarou disponivel — todo o idioma passaria por conhecido");
+        assertTrue(r.isEmpty(), "sem dicionario nao se acusa nada (e nada se aprova: disponivel=false)");
+    }
+
     @Test
     @DisplayName("antes de qualquer consulta, o adaptador é INDISPONÍVEL")
     void semNenhumaConsultaAindaEhIndisponivel() {
@@ -111,7 +135,7 @@ class HunspellDicionarioAdapterTest {
     void comHunspellInstaladoSeparaOqueExisteDoQueNao() {
         var adapter = new HunspellDicionarioAdapter("hunspell", "pt_BR");
         Set<String> r = adapter.desconhecidas(List.of(
-            "organizacao", "observacao", "inutil", "xyzabcdef",
+            "organizacao", "observacao", "inutil", "xyzabcdef", "Resonância",
             "organização", "observação", "inútil", "vamos", "estamos", "criança"));
 
         Assumptions.assumeTrue(adapter.disponivel(),
@@ -121,6 +145,10 @@ class HunspellDicionarioAdapterTest {
         assertTrue(r.contains("organizacao"), "forma sem acento tem de ser acusada");
         assertTrue(r.contains("inutil"), "forma sem acento tem de ser acusada");
         assertTrue(r.contains("xyzabcdef"), "palavra inventada tem de ser acusada");
+        // O MESMO sinal de 'criança' (letra fora do ASCII), do lado errado: se o dialogo com o
+        // processo estiver na codificacao errada, a palavra volta partida e passa por conhecida.
+        assertTrue(r.contains("Resonância"),
+            "grafia errada com acento passou: o dialogo com o pt_BR esta na codificacao errada");
         // CONTROLE NEGATIVO: o que existe não pode ser acusado — é o alarme falso que
         // desmoralizaria a correção inteira.
         assertFalse(r.contains("organização"), "alarme falso: forma correta acusada");
@@ -226,6 +254,104 @@ class HunspellDicionarioAdapterTest {
             "2.400 formas foram ao hunspell em " + chamadas + " chamada(s). Sem lote, um arquivo "
                 + "grande leva junto TODAS as palavras dele: foi o que travou a passada da 3.3 "
                 + "por 15 minutos no CCA (2.743 formas), com um unico aviso no log.");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a codificação vem da linha {@code SET} do {@code .aff}, e o padrão do
+     * hunspell quando ela falta é ISO8859-1 — é isso que faz o adaptador conversar com o
+     * {@code de_DE} na língua dele.
+     */
+    @Test
+    @DisplayName("a codificacao do dicionario vem da linha SET do .aff; sem SET, ISO8859-1")
+    void codificacaoVemDoAff(@org.junit.jupiter.api.io.TempDir Path pasta) throws Exception {
+        Path latino = Files.writeString(pasta.resolve("xx_LA.aff"), "# cabecalho\nSET ISO8859-1\nTRY esian\n",
+            StandardCharsets.ISO_8859_1);
+        Path utf = Files.writeString(pasta.resolve("xx_UT.aff"), "SET UTF-8\n", StandardCharsets.UTF_8);
+        Path semSet = Files.writeString(pasta.resolve("xx_SS.aff"), "TRY abc\n", StandardCharsets.UTF_8);
+        Path comBom = Files.writeString(pasta.resolve("xx_BO.aff"), "﻿SET UTF-8\nFLAG long\n", StandardCharsets.UTF_8);
+
+        assertEquals("ISO8859-1", HunspellDicionarioAdapter.codificacaoDoAff(latino));
+        assertEquals("UTF-8", HunspellDicionarioAdapter.codificacaoDoAff(utf));
+        assertEquals("UTF-8", HunspellDicionarioAdapter.codificacaoDoAff(comBom),
+            "o pt_BR.aff real abre com BOM colado no SET: sem descarta-lo o portugues vira Latin-1 "
+                + "e 'fatidico' perde a sugestao 'fatídico'");
+        assertEquals("ISO8859-1", HunspellDicionarioAdapter.codificacaoDoAff(semSet),
+            "sem SET o hunspell usa ISO8859-1; supor UTF-8 aqui repetiria o defeito do de_DE");
+        assertEquals(StandardCharsets.ISO_8859_1, HunspellDicionarioAdapter.charsetJava("ISO8859-1"));
+        assertEquals(StandardCharsets.UTF_8, HunspellDicionarioAdapter.charsetJava("UTF-8"));
+        assertEquals(java.nio.charset.Charset.forName("windows-1251"),
+            HunspellDicionarioAdapter.charsetJava("microsoft-cp1251"));
+        assertEquals(null, HunspellDicionarioAdapter.charsetJava("CODIFICACAO-INVENTADA"),
+            "nome desconhecido nao vira codificacao inventada: quem chama cai na suposicao declarada");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o {@code .aff} achado é o da PRIMEIRA pasta da ordem de busca — a
+     * mesma ordem do hunspell —, para a codificação lida ser a do arquivo que ele carregaria.
+     */
+    @Test
+    @DisplayName("o .aff localizado e o da primeira pasta da ordem de busca")
+    void localizaNaOrdemDeBusca(@org.junit.jupiter.api.io.TempDir Path raiz) throws Exception {
+        Path primeira = Files.createDirectories(raiz.resolve("a"));
+        Path segunda = Files.createDirectories(raiz.resolve("b"));
+        Files.writeString(segunda.resolve("zz_ZZ.aff"), "SET UTF-8\n");
+        assertEquals(segunda.resolve("zz_ZZ.aff").toAbsolutePath(),
+            HunspellDicionarioAdapter.localizarAff("zz_ZZ", List.of(primeira, segunda)).orElseThrow());
+        Files.writeString(primeira.resolve("zz_ZZ.aff"), "SET ISO8859-1\n");
+        assertEquals(primeira.resolve("zz_ZZ.aff").toAbsolutePath(),
+            HunspellDicionarioAdapter.localizarAff("zz_ZZ", List.of(primeira, segunda)).orElseThrow());
+        assertTrue(HunspellDicionarioAdapter.localizarAff("nn_NN", List.of(primeira, segunda)).isEmpty());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fronteira do defeito de 09/10/2026, no hunspell real. O sinal que
+     * enganava era LETRA FORA DO ASCII: com o diálogo em UTF-8, o {@code de_DE} (ISO8859-1)
+     * partia a palavra e o adaptador a dava por conhecida. Os dois lados carregam o mesmo sinal —
+     * a invenção do modelo ({@code Açãoaria}) e o erro de grafia ({@code Resonância}) têm de sair
+     * desconhecidos, e o alemão de verdade com {@code ß} e trema ({@code Straße},
+     * {@code Walküre}) tem de sair conhecido.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: hunspell ou {@code de_DE} ausentes PULAM por
+     * {@link Assumptions} — NÃO VERIFICADO.
+     */
+    @Test
+    @DisplayName("de_DE em ISO8859-1: invencao com acento e desconhecida, alemao com trema e conhecido")
+    void dicionarioLatinoNaoAprovaPalavraPartida() {
+        var adapter = new HunspellDicionarioAdapter("hunspell", "de_DE");
+        Set<String> r = adapter.desconhecidas(List.of("Açãoaria", "Resonância", "opçāo", "Straße", "Walküre", "Haus"));
+        Assumptions.assumeTrue(adapter.disponivel(), "hunspell/de_DE ausente — NÃO VERIFICADO");
+        Assumptions.assumeTrue(!r.contains("Haus"), "de_DE nao reconhece nem 'Haus' — dicionario errado, NÃO VERIFICADO");
+
+        assertTrue(r.contains("Açãoaria"),
+            "a invencao do modelo na letra do Break Blade passou como alema conhecida");
+        assertTrue(r.contains("Resonância"), "grafia errada de ressonancia passou como alema conhecida");
+        assertTrue(r.contains("opçāo"),
+            "o macron nao existe em ISO8859-1: a palavra nao pode estar no dicionario");
+        assertFalse(r.contains("Straße"), "alarme falso: alemao legitimo com ß acusado");
+        assertFalse(r.contains("Walküre"), "alarme falso: alemao legitimo com trema acusado");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a REDE para quando o {@code .aff} não é achado (outra máquina, outra
+     * pasta) e a codificação suposta (UTF-8) está errada. O hunspell carrega o {@code de_DE} pelo
+     * nome e conversa em ISO8859-1; a resposta volta com byte ilegível. Aí toda palavra com acento
+     * do lote fica desconhecida — o lado conservador: o alemão legítimo perde o rótulo, mas a
+     * invenção do modelo não ganha rótulo de "preservar".
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: hunspell ou {@code de_DE} ausentes PULAM — NÃO VERIFICADO.
+     */
+    @Test
+    @DisplayName("sem o .aff, resposta ilegivel deixa a palavra com acento desconhecida, nunca conhecida")
+    void semAffRespostaIlegivelNaoAprova(@org.junit.jupiter.api.io.TempDir Path vazia) {
+        var adapter = new HunspellDicionarioAdapter("hunspell", "de_DE", List.of(vazia));
+        Set<String> r = adapter.desconhecidas(List.of("Açãoaria", "Straße", "Haus"));
+        Assumptions.assumeTrue(adapter.disponivel(), "hunspell/de_DE ausente — NÃO VERIFICADO");
+        Assumptions.assumeTrue(!r.contains("Haus"), "de_DE nao reconhece 'Haus' — NÃO VERIFICADO");
+
+        assertTrue(r.contains("Açãoaria"),
+            "codificacao suposta errada e a palavra partida passou por CONHECIDA — a rede nao pegou");
+        assertTrue(r.contains("Straße"),
+            "lado conservador: sem poder ler a resposta, nem o alemao com ß sai como conhecido");
     }
 }
 

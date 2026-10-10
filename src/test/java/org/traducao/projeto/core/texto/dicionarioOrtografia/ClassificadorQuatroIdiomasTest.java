@@ -15,9 +15,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * e que nenhum idioma ausente vira aprovação.
  *
  * <h2>A cicatriz que este teste guarda</h2>
- * {@code Resonância} está errada (o certo é <i>ressonância</i>), o pt_BR reprova e o de_DE ACEITA.
- * Medido em 13/08/2026. Se o alemão pudesse aprovar, esse erro passaria — e cada dicionário novo
+ * {@code Resonância} está errada (o certo é <i>ressonância</i>), o pt_BR reprova e, em 13/08/2026,
+ * o de_DE pareceu ACEITAR. Se o alemão pudesse aprovar, esse erro passaria — e cada dicionário novo
  * multiplicaria a chance. Por isso a hierarquia é testada, não só documentada.
+ *
+ * <h2>Correção factual de 09/10/2026</h2>
+ * O alemão nunca aceitou {@code Resonância}: o adaptador conversava em UTF-8 com um dicionário
+ * ISO8859-1, a palavra saía partida e passava por conhecida. Conversando na codificação do
+ * dicionário, ela é desconhecida em alemão também. A hierarquia continua valendo — o que mudou é
+ * que o rótulo {@link VeredictoPalavra#TERMO_ALEMAO} deixou de ser dado a toda palavra com acento.
  */
 @DisplayName("classificador de 4 idiomas: só o português decide")
 class ClassificadorQuatroIdiomasTest {
@@ -95,5 +101,30 @@ class ClassificadorQuatroIdiomasTest {
             "dicionários ausentes — NÃO VERIFICADO");
         assertTrue(r.get("Resonância") != VeredictoPalavra.PORTUGUES_OK,
             "ERRO REAL APROVADO: 'Resonância' está errada (é ressonância) e passou como português");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o rótulo de alemão é para alemão. Até 09/10/2026 toda palavra com
+     * acento que o português recusava saía {@link VeredictoPalavra#TERMO_ALEMAO} ("preservar") —
+     * inclusive a invenção do modelo na letra do Break Blade, {@code Açãoaria}. O mesmo sinal (letra
+     * fora do ASCII) tem de separar a invenção do alemão legítimo com {@code ß}.
+     */
+    @Test
+    @DisplayName("palavra inventada com acento nao vira termo alemao; alemao com ß continua alemao")
+    void inventadaComAcentoNaoViraAlemao() {
+        var alemao = new HunspellDicionarioAdapter("hunspell", "de_DE");
+        var c = new ClassificadorQuatroIdiomas(
+            new HunspellDicionarioAdapter("hunspell", "pt_BR"),
+            new HunspellDicionarioAdapter("hunspell", "en_US"),
+            alemao);
+        Map<String, VeredictoPalavra> r = c.classificar(List.of("Açãoaria", "Straße", "criança"));
+
+        Assumptions.assumeTrue(r.get("criança") == VeredictoPalavra.PORTUGUES_OK,
+            "hunspell/pt_BR ausente — NÃO VERIFICADO");
+        Assumptions.assumeTrue(alemao.disponivel(), "de_DE ausente — NÃO VERIFICADO");
+        assertEquals(VeredictoPalavra.DESCONHECIDA, r.get("Açãoaria"),
+            "a invencao do modelo foi rotulada como alema e seria PRESERVADA");
+        assertEquals(VeredictoPalavra.TERMO_ALEMAO, r.get("Straße"),
+            "alemao legitimo com ß perdeu o rotulo");
     }
 }
