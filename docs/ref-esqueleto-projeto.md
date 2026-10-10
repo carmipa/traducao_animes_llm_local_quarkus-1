@@ -36,12 +36,12 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 ```mermaid
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (25)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
-    G1["<b>Tradução</b><br/>traducao (79)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
+    G1["<b>Tradução</b><br/>traducao (78)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (24)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
     G5["<b>Sistema</b><br/>telemetria (22)<br/>mapaProjeto (6)<br/>apiDadosAnime (9)<br/>mcp (1)<br/>sistema (2)"]:::fatia
-    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (16)"]:::peer
+    PEERS["<b>🧱 peers</b><br/><i>importáveis por qualquer fatia</i><br/>cachetraducao (5)<br/>legenda (15)<br/>llm (4)<br/>lore (24)<br/>qualidadeTraducao (17)"]:::peer
     BASE["<b>⚙️ infra transversal</b><br/>config (2)<br/>core (33)"]:::base
     G0 --> PEERS
     G1 --> PEERS
@@ -216,7 +216,7 @@ auditorConteudoLegendas/
 
 ### Tradução
 
-#### `traducao` — 79 classes
+#### `traducao` — 78 classes
 
 ```text
 traducao/
@@ -238,7 +238,6 @@ traducao/
 │   ├── ProcessarArquivoUseCase.java
 │   ├── ProcessarEpisodioUseCase.java
 │   ├── RecuperarPendenciaFallbackService.java
-│   ├── ReparadorMarcadoresLlm.java
 │   ├── ResolvedorCacheTraducao.java
 │   ├── ResolvedorSaidaLegenda.java
 │   ├── RestauradorFalaIdenticaSemItalico.java
@@ -809,7 +808,7 @@ lore/
     └── CorrecoesTerminologiaMacrossRevisao.java
 ```
 
-#### `qualidadeTraducao` — 16 classes
+#### `qualidadeTraducao` — 17 classes
 
 ```text
 qualidadeTraducao/
@@ -826,6 +825,7 @@ qualidadeTraducao/
 │   ├── NormalizadorAcentosComuns.java
 │   ├── ProtecaoLegendaAssService.java
 │   ├── RemovedorItalico.java
+│   ├── ReparadorMarcadoresLlm.java
 │   └── ValidadorTraducaoService.java
 └── domain/
     ├── AlucinacaoDetectadaException.java
@@ -1284,7 +1284,7 @@ novoKaraoke/
     └── DestinoPadraoKaraokeSimplesTest.java
 ```
 
-#### `qualidadeTraducao` — 37 classes
+#### `qualidadeTraducao` — 38 classes
 
 ```text
 qualidadeTraducao/
@@ -1316,6 +1316,7 @@ qualidadeTraducao/
 │   ├── QuebraDentroDoNomeNaoInventaTrocaTest.java
 │   ├── RecusaAmbiguaPrecisaDoOriginalTest.java
 │   ├── RemovedorItalicoTest.java
+│   ├── ReparadorMarcadoresLlmTest.java
 │   ├── TerminacaoCedilhaSemTilTest.java
 │   ├── ValidadorNaoCondenaNomeDaObraTest.java
 │   ├── ValidadorParTraducaoTest.java
@@ -1493,7 +1494,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 66 classes
+#### `traducao` — 65 classes
 
 ```text
 traducao/
@@ -1525,7 +1526,6 @@ traducao/
 │   ├── ProcessarEpisodioUseCaseRecusaDoLlmTest.java
 │   ├── ProvenienciaNuncaGravaCurrentTest.java
 │   ├── RecuperarPendenciaFallbackServiceTest.java
-│   ├── ReparadorMarcadoresLlmTest.java
 │   ├── ResolvedorCacheTraducaoProvenienciaTest.java
 │   ├── RestauradorFalaIdenticaSemItalicoTest.java
 │   ├── SegundaOpiniaoModeloRecuperacaoTest.java
