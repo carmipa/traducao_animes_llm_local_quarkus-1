@@ -37,7 +37,7 @@ import java.util.List;
  *
  * <h2>Invariantes do domínio</h2>
  * <ul>
- *   <li>O catálogo é lido UMA vez, na construção do bean, e o banco é fechado em seguida. Nenhum
+ *   <li>O catálogo é lido UMA vez, no primeiro {@code @Bean} pedido (no boot), e o banco é fechado em seguida. Nenhum
  *       I/O nem chamada nativa por chamada.</li>
  *   <li><b>Falha FECHADA.</b> Arquivo ausente, ilegível, sem obras, com id repetido, com obra sem
  *       prompt, com instrução que não seja inserção de literais ou que escreva outra obra faz o
@@ -53,7 +53,21 @@ import java.util.List;
 @Configuration
 public class ContextoBeansConfig {
 
-    private final CatalogoLoreSqlite catalogo = new CatalogoLoreSqlite();
+    /**
+     * Sob demanda, e não no inicializador do campo. O proxy que o CDI cria para esta classe chama
+     * o construtor dela, e o inicializador rodava junto: o boot montava o catálogo DUAS vezes
+     * (medido em 09/10/2026 no jar: duas linhas "Lore carregada de SQL", 267 ms + 85 ms). Os
+     * métodos {@code @Bean} só executam na instância real, então aqui ele é montado uma vez, no
+     * mesmo momento de antes — a falha fechada no boot não muda.
+     */
+    private CatalogoLoreSqlite catalogo;
+
+    private synchronized CatalogoLoreSqlite catalogo() {
+        if (catalogo == null) {
+            catalogo = new CatalogoLoreSqlite();
+        }
+        return catalogo;
+    }
 
     /**
      * PROPÓSITO DE NEGÓCIO: expõe as obras da lore ao {@code GerenciadorContexto} e a
@@ -63,7 +77,7 @@ public class ContextoBeansConfig {
      */
     @Bean
     public List<ProvedorContexto> todosProvedoresContexto() {
-        return catalogo.obras();
+        return catalogo().obras();
     }
 
     /**
@@ -80,6 +94,6 @@ public class ContextoBeansConfig {
      */
     @Bean
     public List<org.traducao.projeto.lore.domain.ProvedorPromptRevisaoLore> todosProvedoresRevisaoLore() {
-        return catalogo.obrasRevisao();
+        return catalogo().obrasRevisao();
     }
 }
