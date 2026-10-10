@@ -640,10 +640,9 @@ public class RevisarLoreUseCase {
         boolean[] cancelado,
         List<String> erros
     ) {
-        String nomeOriginal = arqOriginal.getFileName().toString();
         Path arqTraduzido = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
         if (!Files.exists(arqTraduzido)) {
-            String msg = "Sem par traduzido para: " + nomeOriginal;
+            String msg = motivoDoParAusente(arqOriginal, pastaOriginal, pastaTraduzida);
             erros.add(msg);
             sessao.out(AnsiCores.YELLOW + "  [Pulado] " + msg + AnsiCores.RESET);
             return;
@@ -1238,6 +1237,43 @@ public class RevisarLoreUseCase {
             return candidato;
         }
         return destino.resolve(nomeOriginal);
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz ao operador POR QUE o arquivo inglês ficou sem revisão, separando
+     * "não existe tradução" de "a tradução existe, mas terminou PARCIAL". Os dois davam a mesma
+     * frase, "Sem par traduzido", e no teste ponta a ponta de 09/10/2026 três de quatro obras
+     * terminaram parciais na 2.1 (Sidonia filme 9 pendentes, Reconguista 19, Patlabor): a 3.2 dizia
+     * que faltava o arquivo que estava ali na pasta, e o operador ia procurar o defeito no lugar
+     * errado.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: o {@code .parcial} NUNCA é revisado. É a mesma decisão da 3.3
+     * ("tradução incompleta, não é entrega"), e aqui há um motivo a mais: a 3.2 grava só no
+     * arquivo, e a 2.1 publica a versão final a partir do cache e da base {@code .publicado} do
+     * nome FINAL — a correção feita no {@code .parcial} sumiria em silêncio na publicação seguinte.
+     * A mensagem nomeia o arquivo parcial e o caminho que funciona (publicar a final pela 2.1 e
+     * rodar a 3.2 de novo). As convenções de nome são as mesmas de
+     * {@link #localizarArquivoTraduzido}: {@code _PT-BR} e {@code _PTBR}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: método de leitura pura do disco; nunca lança. Sem parcial,
+     * devolve a mensagem antiga, que continua verdadeira.
+     *
+     * @return a mensagem do aviso, sempre começando pelo nome do arquivo inglês
+     */
+    static String motivoDoParAusente(Path arqOriginal, Path pastaOriginal, Path pastaTraduzida) {
+        String nomeOriginal = arqOriginal.getFileName().toString();
+        Path ausente = localizarArquivoTraduzido(arqOriginal, pastaOriginal, pastaTraduzida);
+        String nomeBase = nomeOriginal.substring(0, nomeOriginal.lastIndexOf('.'));
+        for (String sufixo : List.of("_PT-BR.parcial.ass", "_PTBR.parcial.ass")) {
+            Path parcial = ausente.resolveSibling(nomeBase + sufixo);
+            if (Files.exists(parcial)) {
+                return nomeOriginal + ": a traducao esta PARCIAL (" + parcial.getFileName()
+                    + ") — traducao incompleta nao e entrega e a 3.2 nao a revisa: a correcao "
+                    + "ficaria so no .parcial e sumiria quando a 2.1 publicar a final. Resolva as "
+                    + "pendencias (ou publique pela 2.1 com 'permitir retraducao') e rode a 3.2 de novo.";
+            }
+        }
+        return "Sem par traduzido para: " + nomeOriginal;
     }
 
     /**

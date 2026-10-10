@@ -173,6 +173,38 @@ class RevisarLoreUseCaseTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: "a tradução não existe" e "a tradução existe mas terminou PARCIAL" dão
+     * consertos diferentes, e até 09/10/2026 saíam com a mesma frase ("Sem par traduzido"). O teste
+     * ponta a ponta daquele dia teve 3 de 4 obras parciais na 2.1, e a 3.2 negava o arquivo que
+     * estava na pasta.
+     * <p>INVARIANTES DO DOMÍNIO: os três lados da fronteira, com o mesmo sinal de entrada (não há
+     * {@code _PT-BR.ass}): só o parcial → mensagem de PARCIAL nomeando o arquivo; nada → a frase
+     * antiga; final E parcial → o final é o par, e o parcial não atrapalha.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: mensagem trocada ou par errado reprova o teste.
+     */
+    @Test
+    void parcialNaoEConfundidoComTraducaoAusente(@TempDir Path base) throws IOException {
+        Path en = Files.createDirectories(base.resolve("legendas_eng"));
+        Path pt = Files.createDirectories(base.resolve("traducao_ptbr"));
+        Path original = en.resolve("ep01.ass");
+        Files.writeString(original, "en");
+
+        assertEquals("Sem par traduzido para: ep01.ass",
+            RevisarLoreUseCase.motivoDoParAusente(original, en, pt));
+
+        Files.writeString(pt.resolve("ep01_PT-BR.parcial.ass"), "pt-parcial");
+        String motivo = RevisarLoreUseCase.motivoDoParAusente(original, en, pt);
+        assertTrue(motivo.startsWith("ep01.ass: a traducao esta PARCIAL (ep01_PT-BR.parcial.ass)"), motivo);
+        assertFalse(motivo.contains("Sem par"), motivo);
+        assertFalse(Files.exists(RevisarLoreUseCase.localizarArquivoTraduzido(original, en, pt)),
+            "o .parcial NUNCA vira par da 3.2: a correcao sumiria na publicacao seguinte da 2.1");
+
+        Path fin = pt.resolve("ep01_PT-BR.ass");
+        Files.writeString(fin, "pt-final");
+        assertEquals(fin, RevisarLoreUseCase.localizarArquivoTraduzido(original, en, pt));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: garante que o dataset canônico permita localizar
      * execuções incompletas sem depender do relatório detalhado.
      * <p>INVARIANTES DO DOMÍNIO: status, pendências, sem-resposta, descartes e
