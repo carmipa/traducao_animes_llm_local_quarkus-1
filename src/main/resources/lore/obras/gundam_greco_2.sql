@@ -86,6 +86,18 @@ INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Uniforme Normal', '
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Uniformes Normais', 'Normal Suits');
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Velho Tipo', 'Oldtype');
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Velhos Tipos', 'Oldtypes');
+-- 09/10/2026: as faccoes ficam com o nome em ingles, como o prompt desta obra as declara (Capital
+-- Tower, Capital Guard, Capital Army, Ameria). termo_protegido nao obriga o modelo; esta correcao sim.
+-- Medido no Reconguista I (teste ponta a ponta): Torre Capital x10, Torre da Capital x4, Guarda
+-- Capital x2, Exercito da Capital x15, Exercito Capital x2, Exercito Ameriano x5, Exercito de Ameria x2.
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Exército Ameriano', 'Amerian Army');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Exército Capital', 'Capital Army');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Exército da Capital', 'Capital Army');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Exército de Ameria', 'Amerian Army');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Guarda Capital', 'Capital Guard');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Guarda da Capital', 'Capital Guard');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Torre Capital', 'Capital Tower');
+INSERT INTO correcao_terminologia VALUES ('gundam_greco_2', 'Torre da Capital', 'Capital Tower');
 INSERT INTO lore_traducao VALUES ('gundam_greco_2', 'Gundam: Reconguista in G II - Bellri''s Fierce Charge', 1,
 'Você é um tradutor especializado em legendas de anime, traduzindo do inglês para português do Brasil.
 Contexto ativo da obra: Gundam Reconguista in G II: Bellri''s Fierce Charge.

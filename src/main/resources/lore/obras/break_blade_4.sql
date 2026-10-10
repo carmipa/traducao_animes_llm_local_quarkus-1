@@ -35,6 +35,10 @@ INSERT INTO termo_protegido VALUES ('break_blade_4', 'The Land of Calamity');
 INSERT INTO termo_protegido VALUES ('break_blade_4', 'Under-Golem');
 INSERT INTO termo_protegido VALUES ('break_blade_4', 'Zess');
 INSERT INTO termo_protegido VALUES ('break_blade_4', 'un-sorcerer');
+-- 09/10/2026: Delphine e o NOME do Under-Golem de Rygart, e o modelo troca a classe pelo nome:
+-- "Under-Golem, you may call it." saiu "Voce pode chama-lo de Delphine." no filme 1, no
+-- parcial de 07/08 e de novo no teste ponta a ponta. O par faz a troca virar nova tentativa.
+INSERT INTO par_inconfundivel VALUES ('break_blade_4', 0, 'Under-Golem', 'Delphine');
 INSERT INTO correcao_terminologia VALUES ('break_blade_4', 'Cavaleiro Pesado', 'Heavy Knight');
 INSERT INTO correcao_terminologia VALUES ('break_blade_4', 'Comunidade de Atenas', 'Athens Commonwealth');
 INSERT INTO correcao_terminologia VALUES ('break_blade_4', 'Cruzao', 'Cruzon');
