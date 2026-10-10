@@ -89,17 +89,29 @@ class OracaoNaoEhRotuloDeFalanteTest {
     }
 
     /**
-     * O LIMITE CONHECIDO, escrito para não virar surpresa: {@code "Rygart exclamou:"} tem duas
-     * palavras e é tradução correta de {@code "Rygart boasted,"}, então continua recusado. Não
-     * dá para liberar pela forma — {@code "Haruhime disse:"} é idêntico em forma e é invenção.
-     * Um falso-positivo em 112 pares medidos.
+     * O LIMITE QUE CAIU (09/10/2026): {@code "Rygart exclamou:"} tem duas palavras e é tradução
+     * correta de {@code "Rygart boasted,"}, e era recusado. Não dá para liberar pela forma —
+     * {@code "Haruhime disse:"} é idêntico em forma e é invenção. O que separa é o original ter o
+     * MESMO nome seguido de verbo de elocução. A medição que autorizou veio junto, como este teste
+     * exigia: as 116 recusas reais do console, antes e depois ({@code MedicaoRecusaLocutorNoLogIT}).
+     * Os dois lados da fronteira estão aqui, com o mesmo sinal (nome + verbo de elocução).
      */
     @Test
-    @DisplayName("limite declarado: nome + verbo de elocução com 2 palavras ainda cai")
-    void oLimiteQuePermanece() {
-        assertThrows(RuntimeException.class, () -> validador.validarPar(
-                "Rygart boasted, \"Tonight's the night!\"", "Rygart exclamou: \"Esta é a noite!\""),
-            "se este teste mudar, a regra passou a aceitar nome+verbo — e a medicao que "
-                + "autoriza precisa vir junto, porque 'Haruhime disse' tem a mesma forma");
+    @DisplayName("nome + verbo de elocução: aceito quando o original diz o mesmo, recusado quando inventa")
+    void nomeEVerboDeElocucaoAncoradoNoOriginal() {
+        assertDoesNotThrow(() -> validador.validarPar(
+            "Rygart boasted, \"Tonight's the night!\"", "Rygart exclamou: \"Esta é a noite!\""));
+        assertDoesNotThrow(() -> validador.validarPar(
+            "Chuchumy says welcome home.", "Chuchumy diz: \"Que bom que você voltou.\""),
+            "Reconguista I, teste ponta a ponta de 09/10/2026: recusada, a fala voltava ao ingles");
+        assertThrows(RuntimeException.class,
+            () -> validador.validarPar("Haruhime View", "\"Haruhime disse:\""),
+            "CONTROLE: o nome esta no original, o verbo nao — continua invencao");
+        assertThrows(RuntimeException.class,
+            () -> validador.validarPar("Where's Syr?", "Bell disse: Onde está a Syr?"),
+            "CONTROLE: nem o nome esta no original");
+        assertThrows(RuntimeException.class,
+            () -> validador.validarPar("Chuchumy is here.", "Chuchumy diz: Estou aqui."),
+            "CONTROLE: o nome esta no original sem verbo de elocucao — o 'diz' foi inventado");
     }
 }

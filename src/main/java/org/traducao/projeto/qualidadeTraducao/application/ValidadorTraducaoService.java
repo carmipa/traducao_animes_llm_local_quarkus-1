@@ -858,11 +858,12 @@ public class ValidadorTraducaoService {
         // pior possivel: recusada a traducao correta, a fala volta para o INGLES na legenda.
         // Foram 11 falas na retraducao de 21/08, 11 de 11 falso-positivo.
         //
-        // LIMITE DECLARADO, e ele e conhecido: "Rygart exclamou:" tem DUAS palavras e e
-        // traducao correta de "Rygart boasted,", entao continua recusado. Nao da para liberar
-        // pela forma — "Haruhime disse:" tem a mesma forma e e invencao de verdade, nascida de
-        // "Haruhime View". O que separa as duas e o verbo existir no ORIGINAL, e a allowlist
-        // acima ja cobre esse caminho quando o sujeito e pronome. Um falso-positivo em 112.
+        // O LIMITE DECLARADO ATE 09/10/2026: "Rygart exclamou:" tem DUAS palavras e e traducao
+        // correta de "Rygart boasted,", e era recusado. Nao da para liberar pela forma —
+        // "Haruhime disse:" tem a mesma forma e e invencao de verdade, nascida de "Haruhime View".
+        // O que separa as duas e o verbo existir no ORIGINAL logo depois do nome: ver
+        // ehDiscursoRelatadoDoOriginal, que caiu o limite depois de medido contra as 116 recusas
+        // reais do console (MedicaoRecusaLocutorNoLogIT).
         if (contarPalavras(m.group(1)) >= MINIMO_PALAVRAS_ORACAO) {
             return false;
         }
@@ -872,8 +873,53 @@ public class ValidadorTraducaoService {
         if (PADRAO_PREFIXO_LOCUTOR.matcher(original).matches()) {
             return false;
         }
+        if (ehDiscursoRelatadoDoOriginal(m.group(1), original)) {
+            return false;
+        }
         boolean temConteudoDepois = !m.group(2).trim().isEmpty();
         return temConteudoDepois || !prefixoVemDoOriginal(m.group(1), original);
+    }
+
+    /** Prefixo de DUAS palavras: um nome e um verbo de elocução em português ("Rygart exclamou"). */
+    private static final Pattern NOME_E_VERBO_DE_ELOCUCAO_PT = Pattern.compile(
+        "^\\s*[\"'“]?(\\p{L}[\\p{L}'’-]*)\\s+(?:diz|disse|dizia|fala|falou|exclama|exclamou|grita|gritou|"
+            + "pergunta|perguntou|responde|respondeu|sussurra|sussurrou|berra|berrou|anuncia|anunciou|"
+            + "declara|declarou|conta|contou|afirma|afirmou)\\s*$",
+        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    /** Verbos de elocução do inglês que, logo depois do MESMO nome, ancoram o discurso relatado. */
+    private static final String VERBO_DE_ELOCUCAO_EN = "(?:says|said|asks|asked|boasts|boasted|exclaims|"
+        + "exclaimed|shouts|shouted|yells|yelled|tells|told|replies|replied|answers|answered|whispers|"
+        + "whispered|cries|cried|announces|announced|declares|declared|screams|screamed)";
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: aceita o discurso relatado que o ORIGINAL já tem — {@code "Rygart
+     * boasted, ..."} vira {@code "Rygart exclamou: ..."} e {@code "Chuchumy says welcome home."}
+     * vira {@code "Chuchumy diz: ..."}, porque o português pede dois-pontos onde o inglês usa
+     * vírgula ou nada. Recusadas, essas falas voltavam ao INGLÊS na legenda.
+     *
+     * <h2>A medição que autorizou (09/10/2026)</h2>
+     * As 116 recusas distintas por locutor inventado do {@code console-web.log} real, passadas de
+     * novo pelo validador antes e depois desta regra ({@code MedicaoRecusaLocutorNoLogIT}): a regra
+     * só vira as 2 do {@code Rygart boasted} (corretas) e nenhuma invenção. Mais o caso do teste
+     * ponta a ponta de 09/10 ({@code Chuchumy says welcome home.}, Reconguista I).
+     *
+     * <p>INVARIANTES DO DOMÍNIO: exige as DUAS âncoras — o nome do prefixo seguido, no original, de
+     * um verbo de elocução inglês. {@code "Haruhime disse:"} nascido de {@code "Haruhime View"} tem
+     * o nome e não tem o verbo, e continua recusado; {@code "Bell disse: ..."} nascido de
+     * {@code "Where's Syr?"} não tem nem o nome.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: prefixo fora da forma nome + verbo devolve {@code false}
+     * (a regra de cima decide); nunca lança.
+     */
+    private static boolean ehDiscursoRelatadoDoOriginal(String prefixo, String original) {
+        java.util.regex.Matcher m = NOME_E_VERBO_DE_ELOCUCAO_PT.matcher(prefixo);
+        if (!m.matches()) {
+            return false;
+        }
+        return Pattern.compile("(?<!\\p{L})" + Pattern.quote(m.group(1)) + "\\s+" + VERBO_DE_ELOCUCAO_EN
+                + "(?!\\p{L})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+            .matcher(original).find();
     }
 
     /**
