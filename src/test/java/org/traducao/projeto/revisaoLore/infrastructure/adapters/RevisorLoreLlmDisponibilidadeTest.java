@@ -1,5 +1,8 @@
 package org.traducao.projeto.revisaoLore.infrastructure.adapters;
 
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +36,8 @@ class RevisorLoreLlmDisponibilidadeTest {
     }
 
     private RevisorLoreLlmAdapter adapter(RevisaoLoreLlmProperties props) {
-        return new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore());
+        return new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore(),
+            new ReparadorMarcadoresLlm(new MascaradorTags()));
     }
 
     @Test

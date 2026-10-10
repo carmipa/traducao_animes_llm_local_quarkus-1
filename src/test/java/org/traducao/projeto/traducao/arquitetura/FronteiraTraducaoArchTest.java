@@ -425,6 +425,11 @@ class FronteiraTraducaoArchTest {
         // do LLM e o recolocam deterministicamente, sem manter duas implementações da regra.
         RAIZ + ".qualidadeTraducao.application.IsoladorQuebraDialogo",
         RAIZ + ".qualidadeTraducao.application.MascaradorTags",
+        // ReparadorMarcadoresLlm movido de traducao.application em 09/10/2026: a Revisão de Lore
+        // descartava a resposta do modelo que só perdeu o [[TAGn]] de borda (57 de 123 falas
+        // sinalizadas no filme de Sidonia, no teste ponta a ponta), porque o reparo morava nesta
+        // fatia e a outra não podia importá-lo. Mecânica do formato do MascaradorTags, ao lado dele.
+        RAIZ + ".qualidadeTraducao.application.ReparadorMarcadoresLlm",
         // NormalizadorAcentosComuns movido de traducao.application para o peer: fecha o arco
         // proibido raspagemRevisao.RevisorPtOnlyService -> traducao (INBOUND voltou a 0).
         RAIZ + ".qualidadeTraducao.application.NormalizadorAcentosComuns",

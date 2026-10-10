@@ -1,7 +1,6 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.springframework.stereotype.Component;
-import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 
 import java.util.List;
 import java.util.Optional;

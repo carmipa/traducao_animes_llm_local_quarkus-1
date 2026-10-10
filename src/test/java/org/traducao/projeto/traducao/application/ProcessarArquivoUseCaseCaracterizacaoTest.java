@@ -1,5 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.traducao.projeto.core.io.DiretorioBaseKronos;

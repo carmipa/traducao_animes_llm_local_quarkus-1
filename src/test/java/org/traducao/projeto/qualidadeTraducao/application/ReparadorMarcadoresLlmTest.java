@@ -1,8 +1,7 @@
-package org.traducao.projeto.traducao.application;
+package org.traducao.projeto.qualidadeTraducao.application;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
 
 import java.util.Optional;
 

@@ -1,5 +1,8 @@
 package org.traducao.projeto.revisaoLore.infrastructure.adapters;
 
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +44,8 @@ class RevisorLoreLlmAdapterInterrupcaoTest {
     void interrupcaoDuranteChamadaLlmRestauraFlagEEncerra() {
         AtomicInteger chamadas = new AtomicInteger();
         RevisorLoreLlmAdapter adapter = new RevisorLoreLlmAdapter(
-            new RevisaoLoreLlmProperties(), new ObjectMapper(), new NormalizadorRespostaRevisaoLore()) {
+            new RevisaoLoreLlmProperties(), new ObjectMapper(), new NormalizadorRespostaRevisaoLore(),
+            new ReparadorMarcadoresLlm(new MascaradorTags())) {
             @Override
             protected RespostaLlm postarChat(ChatRequest request) throws InterruptedException {
                 chamadas.incrementAndGet();

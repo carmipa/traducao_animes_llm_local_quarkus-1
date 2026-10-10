@@ -1,5 +1,8 @@
 package org.traducao.projeto.revisaoLore.infrastructure.adapters;
 
+import org.traducao.projeto.qualidadeTraducao.application.MascaradorTags;
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +36,8 @@ class RevisorLoreLlmAdapterCaracterizacaoTest {
         props.setBaseUrl(baseUrl);
         props.setModel("modelo-x");
         props.setPausaEntreTentativas(Duration.ofMillis(1));
-        return new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore());
+        return new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore(),
+            new ReparadorMarcadoresLlm(new MascaradorTags()));
     }
 
     private String respostaChat(String content) throws Exception {
@@ -105,13 +109,43 @@ class RevisorLoreLlmAdapterCaracterizacaoTest {
         }
     }
 
+    /**
+     * O marcador perdido no MEIO da fala não tem posição recuperável: o reparo recusa e a resposta
+     * continua descartada, como antes de 09/10/2026.
+     */
     @Test
-    @DisplayName("Sem linha que preserve os marcadores esperados, devolve vazio")
+    @DisplayName("Marcador do MEIO perdido continua sem linha utilizável (vazio)")
     void semLinhaUtilizavel() throws Exception {
         try (ServidorLlmDeTeste srv = new ServidorLlmDeTeste()) {
-            srv.enfileirarChat(200, respostaChat("explicacao sem tags"));
-            Optional<String> r = adapter(srv.baseUrl()).revisar("S", "[[TAG0]]x", "[[TAG0]]y", List.of("[[TAG0]]"));
+            srv.enfileirarChat(200, respostaChat("Shin chegou agora"));
+            Optional<String> r = adapter(srv.baseUrl()).revisar("S", "Shin[[TAG0]]arrived now",
+                "Shin[[TAG0]]chegou agora", List.of("[[TAG0]]"));
             assertTrue(r.isEmpty());
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a resposta certa que só esqueceu o marcador de BORDA deixa de ser
+     * jogada fora. No teste ponta a ponta de 09/10/2026, 57 de 123 falas sinalizadas no filme de
+     * Sidonia morreram assim ("Atenas e Orlando ambos intervieram com..." sem o [[TAG0]]).
+     * <p>INVARIANTES DO DOMÍNIO: o marcador volta na posição do PT atual; o texto do modelo não
+     * muda; o modelo que devolve a própria fala atual sem o marcador continua sendo eco (vazio).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reparo ausente ou eco aceito reprova o teste.
+     */
+    @Test
+    @DisplayName("Marcador de BORDA esquecido é reposto; eco da fala atual continua recusado")
+    void reparaMarcadorDeBordaEsquecido() throws Exception {
+        try (ServidorLlmDeTeste srv = new ServidorLlmDeTeste()) {
+            srv.enfileirarChat(200, respostaChat("Kanata chegou."));
+            Optional<String> r = adapter(srv.baseUrl()).revisar("S", "[[TAG0]]Kanata arrived.",
+                "[[TAG0]]Canata chegou.", List.of("nome"));
+            assertEquals(Optional.of("[[TAG0]]Kanata chegou."), r);
+        }
+        try (ServidorLlmDeTeste srv = new ServidorLlmDeTeste()) {
+            srv.enfileirarChat(200, respostaChat("Canata chegou."));
+            Optional<String> r = adapter(srv.baseUrl()).revisar("S", "[[TAG0]]Kanata arrived.",
+                "[[TAG0]]Canata chegou.", List.of("nome"));
+            assertTrue(r.isEmpty(), "a propria fala atual sem o marcador e eco, nao revisao: " + r);
         }
     }
 
@@ -145,7 +179,8 @@ class RevisorLoreLlmAdapterCaracterizacaoTest {
             RevisaoLoreLlmProperties props = new RevisaoLoreLlmProperties();
             props.setBaseUrl(srv.baseUrl());
             props.setPausaEntreTentativas(Duration.ofSeconds(30)); // pausa longa: interromper durante ela
-            RevisorLoreLlmAdapter adapter = new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore());
+            RevisorLoreLlmAdapter adapter = new RevisorLoreLlmAdapter(props, mapper, new NormalizadorRespostaRevisaoLore(),
+            new ReparadorMarcadoresLlm(new MascaradorTags()));
 
             final boolean[] interrompidaAoFinal = {false};
             final Optional<?>[] resultado = new Optional<?>[]{null};

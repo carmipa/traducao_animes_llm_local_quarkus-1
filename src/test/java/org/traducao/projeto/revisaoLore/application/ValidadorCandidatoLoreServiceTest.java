@@ -48,6 +48,31 @@ class ValidadorCandidatoLoreServiceTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: fronteira do reparo de marcador na 3.2 (09/10/2026). Desde que o
+     * adaptador repõe o {@code [[TAGn]]} de borda esquecido, uma EXPLICAÇÃO de uma linha também
+     * volta com o marcador — o mesmo sinal da revisão legítima. Quem separa as duas é este
+     * validador, e este teste prova que ele separa com o marcador presente nos dois lados.
+     * <p>INVARIANTES DO DOMÍNIO: a correção certa com marcador reposto passa; a explicação com
+     * marcador reposto é recusada.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: explicação aceita, ou correção certa recusada, reprova.
+     */
+    @Test
+    void explicacaoComMarcadorRepostoContinuaRecusada() {
+        assertTrue(ValidadorCandidatoLoreService.validar(
+            "[[TAG0]]Our mission is to capture the elusive Phenex.",
+            "[[TAG0]]Nossa missão é capturar este Phoenix.",
+            "[[TAG0]]Nossa missão é capturar este Phenex.",
+            LORE
+        ).isEmpty());
+        assertFalse(ValidadorCandidatoLoreService.validar(
+            "[[TAG0]]Our mission is to capture the elusive Phenex.",
+            "[[TAG0]]Nossa missão é capturar este Phoenix.",
+            "[[TAG0]]O termo correto aqui é Phenex, conforme a lore da obra.",
+            LORE
+        ).isEmpty());
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO: bloqueia tradução destrutiva de tecnologia oficial.
      * <p>INVARIANTES DO DOMÍNIO: quadro psicológico não é termo da lore nem EN.
      * <p>COMPORTAMENTO EM CASO DE FALHA: aceitação insegura reprova o teste.

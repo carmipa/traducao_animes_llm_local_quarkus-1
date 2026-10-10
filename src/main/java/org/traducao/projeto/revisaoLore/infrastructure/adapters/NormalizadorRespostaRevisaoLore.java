@@ -43,22 +43,7 @@ public class NormalizadorRespostaRevisaoLore {
      * preserva os marcadores esperados.
      */
     public String normalizarLinhaUnica(String texto, List<String> marcadoresEsperados) {
-        if (texto == null || texto.isBlank()) {
-            return "";
-        }
-        String normalizado = texto.replace("\r\n", "\n").replace('\r', '\n').strip();
-        normalizado = BLOCO_RACIOCINIO.matcher(normalizado).replaceAll("").strip();
-        if (normalizado.startsWith("```") && normalizado.endsWith("```")) {
-            normalizado = removerCercaMarkdown(normalizado).strip();
-        }
-
-        List<String> candidatas = normalizado.lines()
-            .map(String::strip)
-            .filter(linha -> !linha.isBlank())
-            .filter(linha -> !linha.equalsIgnoreCase("<think>") && !linha.equalsIgnoreCase("</think>"))
-            .map(linha -> PREFIXO_RESPOSTA.matcher(linha).replaceFirst("").strip())
-            .filter(linha -> !linha.isBlank())
-            .toList();
+        List<String> candidatas = candidatas(texto);
         if (candidatas.isEmpty()) {
             return "";
         }
@@ -77,6 +62,45 @@ public class NormalizadorRespostaRevisaoLore {
         // ValidadorCandidatoLoreService: ele rejeita a substituicao total que ENCURTA a fala
         // (truncamento), entao o pior caso vira pendencia, nunca legenda apagada.
         return esperados.isEmpty() ? candidatas.getLast() : "";
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: entrega a última linha útil da resposta, já limpa, para quem vai tentar
+     * repor um marcador {@code [[TAGn]]} que o modelo esqueceu. É a mesma linha que
+     * {@link #normalizarLinhaUnica} escolheria se não houvesse marcador a exigir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: aplica a mesma limpeza (raciocínio, cerca Markdown, rótulo) e não
+     * decide nada sobre marcadores — só escolhe a linha.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo, vazio ou sem linha útil devolve {@code ""}.
+     */
+    public String ultimaLinhaUtil(String texto) {
+        List<String> candidatas = candidatas(texto);
+        return candidatas.isEmpty() ? "" : candidatas.getLast();
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: reduz a resposta do LLM às linhas que podem ser a fala, tirando
+     * raciocínio, cerca Markdown e rótulos.
+     * <p>INVARIANTES DO DOMÍNIO: preserva a ordem das linhas; nunca concatena linhas.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto nulo ou vazio devolve lista vazia.
+     */
+    private List<String> candidatas(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return List.of();
+        }
+        String normalizado = texto.replace("\r\n", "\n").replace('\r', '\n').strip();
+        normalizado = BLOCO_RACIOCINIO.matcher(normalizado).replaceAll("").strip();
+        if (normalizado.startsWith("```") && normalizado.endsWith("```")) {
+            normalizado = removerCercaMarkdown(normalizado).strip();
+        }
+        return normalizado.lines()
+            .map(String::strip)
+            .filter(linha -> !linha.isBlank())
+            .filter(linha -> !linha.equalsIgnoreCase("<think>") && !linha.equalsIgnoreCase("</think>"))
+            .map(linha -> PREFIXO_RESPOSTA.matcher(linha).replaceFirst("").strip())
+            .filter(linha -> !linha.isBlank())
+            .toList();
     }
 
     /**

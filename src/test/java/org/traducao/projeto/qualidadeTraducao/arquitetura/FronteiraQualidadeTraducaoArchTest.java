@@ -111,7 +111,7 @@ class FronteiraQualidadeTraducaoArchTest {
     }
 
     @Test
-    @DisplayName("inventário nominal EXATO por FQN: exatamente os dezesseis proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
+    @DisplayName("inventário nominal EXATO por FQN: exatamente os dezessete proprietários top-level do peer qualidadeTraducao (identidade de obra saiu para o peer contexto)")
     void inventarioNominalExato() {
         TreeSet<String> topLevelsFqn = new TreeSet<>();
         for (JavaClass classe : classesProducao) {
@@ -137,6 +137,12 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_APPLICATION + ".EnforcadorTermosLore",
                 PKG_QT_APPLICATION + ".IsoladorQuebraDialogo",
                 PKG_QT_APPLICATION + ".MascaradorTags",
+                // DÉCIMO SÉTIMO, 09/10/2026. Veio de traducao.application pelo mesmo critério do
+                // EnforcadorTermosLore: a Revisão de Lore tem cliente LLM próprio e jogava fora a
+                // resposta que só perdeu o [[TAGn]] de borda (57 de 123 sinalizadas no filme de
+                // Sidonia), enquanto a tradução já sabia repô-lo. Opera sobre o formato do
+                // MascaradorTags, que é deste peer; duas fatias o consomem.
+                PKG_QT_APPLICATION + ".ReparadorMarcadoresLlm",
                 PKG_QT_APPLICATION + ".NormalizadorAcentosComuns",
                 // DÉCIMO SEXTO, 03/09/2026. Paulo assistiu ao Gundam ZZ e disse que a tradução
                 // estava "emporcalhada"; medindo o acervo, 566 falas tinham `e` no lugar de `é`
@@ -179,7 +185,7 @@ class FronteiraQualidadeTraducaoArchTest {
                 PKG_QT_NOME_PROPRIO + ".DetectorNomeProprioTraduzido",
                 PKG_QT_NOME_PROPRIO + ".ExtratorCandidatosNomeProprio",
                 PKG_QT_NOME_PROPRIO + ".VeredictoNomeProprio")), topLevelsFqn,
-            "qualidadeTraducao deve conter EXATAMENTE os dezesseis proprietários top-level homologados, por FQN "
+            "qualidadeTraducao deve conter EXATAMENTE os dezessete proprietários top-level homologados, por FQN "
                 + "(o nested MascaradorTags$Mascarado normaliza para MascaradorTags e não é um nono top-level). "
                 + "GuardaObraContextoService/VeredictoObraContexto NÃO voltam: identidade de obra é do peer contexto. "
                 + "Encontrado: " + topLevelsFqn);

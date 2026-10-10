@@ -1,5 +1,7 @@
 package org.traducao.projeto.traducao.application;
 
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.traducao.projeto.lore.domain.PromptRevisaoLore;
+import org.traducao.projeto.qualidadeTraducao.application.ReparadorMarcadoresLlm;
 import org.traducao.projeto.revisaoLore.domain.StatusRevisaoLoreLlm;
 import org.traducao.projeto.revisaoLore.domain.ports.RevisorLoreLlmPort;
 import org.traducao.projeto.revisaoLore.infrastructure.config.RevisaoLoreLlmProperties;
@@ -35,7 +36,9 @@ import java.util.Optional;
  *       de {@link PromptRevisaoLore}, com temperatura fixa de revisão (0.15).</li>
  *   <li>No máximo {@value #MAX_TENTATIVAS_REVISAO} tentativas; erro HTTP permanente
  *       (4xx exceto 408/429) não é repetido.</li>
- *   <li>Só publica uma linha que preserve todos os marcadores {@code [[TAGn]]}.</li>
+ *   <li>Só publica uma linha que preserve todos os marcadores {@code [[TAGn]]}. Marcador de
+ *       BORDA esquecido pelo modelo é reposto pelo {@link ReparadorMarcadoresLlm}, o mesmo da
+ *       tradução; marcador do meio, inventado, duplicado ou eco continuam recusados.</li>
  *   <li>Nenhuma responsabilidade de tradução de lotes ou correção gramatical vive aqui.</li>
  * </ul>
  *
@@ -56,17 +59,20 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
     private final RevisaoLoreLlmProperties propriedades;
     private final ObjectMapper objectMapper;
     private final NormalizadorRespostaRevisaoLore normalizador;
+    private final ReparadorMarcadoresLlm reparadorMarcadores;
     private final RevisaoLoreHttpClient httpClient;
     private final long pausaEntreTentativasMs;
 
     public RevisorLoreLlmAdapter(
         RevisaoLoreLlmProperties propriedades,
         ObjectMapper objectMapper,
-        NormalizadorRespostaRevisaoLore normalizador
+        NormalizadorRespostaRevisaoLore normalizador,
+        ReparadorMarcadoresLlm reparadorMarcadores
     ) {
         this.propriedades = propriedades;
         this.objectMapper = objectMapper;
         this.normalizador = normalizador;
+        this.reparadorMarcadores = reparadorMarcadores;
         this.httpClient = new RevisaoLoreHttpClient(
             propriedades.connectTimeout(), propriedades.baseUrl(), propriedades.readTimeout(), objectMapper);
         this.pausaEntreTentativasMs = propriedades.pausaEntreTentativas().toMillis();
@@ -231,6 +237,21 @@ public class RevisorLoreLlmAdapter implements RevisorLoreLlmPort {
                 String normalizado = normalizador.normalizarLinhaUnica(texto, marcadoresEsperados);
                 if (!normalizado.isBlank()) {
                     return Optional.of(normalizado);
+                }
+                // O modelo costuma revisar BEM e só não repetir o [[TAGn]] de borda (itálico ou
+                // posição que envolve a fala inteira). No filme de Sidonia, 57 de 123 falas
+                // sinalizadas morreram aqui no teste de 09/10/2026. O reparo é o MESMO da tradução
+                // e só repõe marcador de borda; marcador do meio, inventado ou eco continuam
+                // recusados. O sentido da proposta não é julgado aqui: o ValidadorCandidatoLore
+                // continua exigindo troca curta com termo do original e da lore.
+                if (!marcadoresEsperados.isEmpty()) {
+                    String ultima = normalizador.ultimaLinhaUtil(texto);
+                    Optional<String> reparada = reparadorMarcadores.reparar(traducaoMascarada, ultima);
+                    if (reparada.isPresent()) {
+                        log.info("Marcador [[TAGn]] reparado na revisao de lore: \"{}\" -> \"{}\"",
+                            ultima, reparada.get());
+                        return reparada;
+                    }
                 }
                 log.warn("Resposta LLM recebida, mas sem linha final utilizável (tentativa {}/{}; "
                         + "modelo={}; marcadores esperados={}; resposta={}).",
