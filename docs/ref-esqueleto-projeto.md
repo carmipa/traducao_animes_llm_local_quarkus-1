@@ -26,8 +26,8 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 | fatias funcionais | **20** |
 | peers | **5** |
 | infra transversal | **2** |
-| classes em `src/main` | **496** |
-| classes em `src/test` | **460** |
+| classes em `src/main` | **497** |
+| classes em `src/test` | **461** |
 
 ---
 
@@ -36,7 +36,7 @@ gradlew test --tests "*CatracaEsqueletoDoProjetoAtualizadoTest*" -Dkronos.esquel
 ```mermaid
 graph TB
     G0["<b>Preparação</b><br/>analisadorMidia (21)<br/>legendasExtracao (25)<br/>trocaTipoLegenda (24)<br/>auditorConteudoLegendas (25)"]:::fatia
-    G1["<b>Tradução</b><br/>traducao (78)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
+    G1["<b>Tradução</b><br/>traducao (79)<br/>traducaoCorrige (17)<br/>raspagemCorrecao (11)<br/>correcaoLegendas (12)"]:::fatia
     G2["<b>Qualidade</b><br/>raspagemRevisao (55)<br/>revisaoLore (23)<br/>revisaoConcordancia (9)"]:::fatia
     G3["<b>Karaokê</b><br/>traducaoKaraoke (24)<br/>novoKaraoke (11)"]:::fatia
     G4["<b>Finalização</b><br/>remuxer (15)<br/>renomearArquivos (6)"]:::fatia
@@ -216,7 +216,7 @@ auditorConteudoLegendas/
 
 ### Tradução
 
-#### `traducao` — 78 classes
+#### `traducao` — 79 classes
 
 ```text
 traducao/
@@ -229,6 +229,7 @@ traducao/
 │   ├── DetectorCorrenteFrasePartida.java
 │   ├── DetectorIdiomaFonteService.java
 │   ├── EnforcadorGlossarioFala.java
+│   ├── FalaDeLocutores.java
 │   ├── GuardaContextoObraTraducao.java
 │   ├── GuardaCorrenteTraduzida.java
 │   ├── MontadorTelemetriaTraducao.java
@@ -902,7 +903,7 @@ core/
 
 ---
 
-## Testes — 460 classes
+## Testes — 461 classes
 
 O teste pesa quase tanto quanto o código. As `Catraca*` e `Fronteira*` moram aqui.
 
@@ -1494,7 +1495,7 @@ telemetria/
 └── TelemetriaServiceRevisaoLoreTest.java
 ```
 
-#### `traducao` — 65 classes
+#### `traducao` — 66 classes
 
 ```text
 traducao/
@@ -1509,6 +1510,7 @@ traducao/
 │   ├── DetectorIdiomaFonteServiceTest.java
 │   ├── EnforcadorGlossarioFalaTest.java
 │   ├── ExemploDoPromptCopiadoComLoreRealTest.java
+│   ├── FalaDeLocutoresTest.java
 │   ├── FonteFrancesaNaoEhPortuguesTest.java
 │   ├── GlossarioNaoDevolveOriginalEmInglesTest.java
 │   ├── GuardaCorrenteTraduzidaTest.java

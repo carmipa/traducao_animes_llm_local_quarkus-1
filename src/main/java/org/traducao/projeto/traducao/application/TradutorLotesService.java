@@ -200,6 +200,122 @@ public class TradutorLotesService {
             String nomeArquivo, List<String> avisos, String promptCongelado,
             DesfechoDasFalas desfecho, java.util.function.BiPredicate<String, String> vizinhas)
             throws InterruptedException, ExecutionException {
+        // FALA DE LOCUTORES ("- A\N- B"): separa o texto de cada locutor ANTES do caminho de
+        // sempre e remonta DEPOIS, com o travessão original e a quebra entre eles. Ver
+        // FalaDeLocutores. Só diálogo: as camadas deduplicáveis são música e karaokê.
+        Map<String, FalaDeLocutores> locutores = new LinkedHashMap<>();
+        LinkedHashSet<String> expandidos = new LinkedHashSet<>();
+        for (String original : textosPendentes) {
+            Optional<FalaDeLocutores> fala = textosDeduplicaveis.contains(original)
+                ? Optional.empty() : FalaDeLocutores.decompor(original);
+            if (fala.isPresent()) {
+                locutores.put(original, fala.get());
+                expandidos.addAll(fala.get().textos());
+            } else {
+                expandidos.add(original);
+            }
+        }
+        if (locutores.isEmpty()) {
+            return traduzirSemLocutores(textosPendentes, textosDeduplicaveis, textosComQuebraIsolavel,
+                nomeArquivo, avisos, promptCongelado, desfecho, vizinhas);
+        }
+        // O trecho de um locutor não está no documento: não pode virar corrente de frase partida
+        // com fala nenhuma. O que coincide com uma fala de verdade continua sendo ela.
+        Set<String> trechos = new java.util.HashSet<>();
+        locutores.values().forEach(f -> trechos.addAll(f.textos()));
+        trechos.removeAll(textosPendentes);
+        java.util.function.BiPredicate<String, String> vizinhasReais =
+            (anterior, seguinte) -> !trechos.contains(anterior) && !trechos.contains(seguinte)
+                && vizinhas.test(anterior, seguinte);
+        DesfechoDasFalas desfechoDosTrechos = new DesfechoDasFalas();
+        try {
+            Map<String, String> traduzidos = traduzirSemLocutores(expandidos, textosDeduplicaveis,
+                textosComQuebraIsolavel, nomeArquivo, avisos, promptCongelado, desfechoDosTrechos, vizinhasReais);
+            return remontarLocutores(textosPendentes, locutores, traduzidos, desfechoDosTrechos, desfecho);
+        } catch (TraducaoParcialException e) {
+            Map<String, String> parciais = remontarLocutores(textosPendentes, locutores,
+                e.getDicionarioParcial() != null ? e.getDicionarioParcial() : Map.of(),
+                desfechoDosTrechos, desfecho);
+            TraducaoParcialException relancada = new TraducaoParcialException(e.getMessage(), parciais, e.getCause());
+            throw e.interrompidaPeloUsuario() ? relancada.marcarInterrompidaPeloUsuario() : relancada;
+        }
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: devolve ao chamador o mapa e o desfecho em termos das falas que ELE
+     * pediu, remontando cada fala de locutores a partir da tradução dos seus trechos.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: fala comum passa como veio (tradução, causa e segunda opinião);
+     * fala de locutores só entra no mapa com TODOS os trechos traduzidos — senão fica pendente,
+     * com a causa do trecho que falhou dentro da sua (o classificador de pendência lê esse texto);
+     * se algum trecho veio da segunda opinião, a fala inteira é marcada como tal.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: trecho sem tradução e sem causa registrada gera uma causa
+     * explícita, nunca uma pendência muda.
+     */
+    private Map<String, String> remontarLocutores(Set<String> textosPendentes,
+            Map<String, FalaDeLocutores> locutores, Map<String, String> traduzidos,
+            DesfechoDasFalas desfechoDosTrechos, DesfechoDasFalas desfecho) {
+        Map<String, String> resultado = new LinkedHashMap<>();
+        Map<String, String> causas = desfechoDosTrechos.causaDoOriginalMantido();
+        Set<String> segundaOpiniao = desfechoDosTrechos.traduzidasPorSegundaOpiniao();
+        for (String original : textosPendentes) {
+            FalaDeLocutores fala = locutores.get(original);
+            if (fala == null) {
+                String traducao = traduzidos.get(original);
+                if (traducao != null) {
+                    resultado.put(original, traducao);
+                }
+                if (causas.containsKey(original)) {
+                    desfecho.registrarOriginalMantido(original, causas.get(original));
+                }
+                if (segundaOpiniao.contains(original)) {
+                    desfecho.registrarSegundaOpiniao(original);
+                }
+                continue;
+            }
+            // Trecho com causa registrada é trecho em que o pipeline DESISTIU — e, desistindo, ele
+            // devolve o próprio inglês como "tradução". Montar com ele publicaria a fala meio em
+            // inglês ("- This way.\N- Certo."), que o portão final não vê como eco porque a linha
+            // inteira não é idêntica. Conta como sem tradução.
+            List<String> partes = new ArrayList<>(fala.textos().size());
+            fala.textos().forEach(trecho -> partes.add(causas.containsKey(trecho) ? null : traduzidos.get(trecho)));
+            Optional<String> montada = fala.recompor(partes);
+            if (montada.isPresent()) {
+                resultado.put(original, montada.get());
+            } else {
+                String faltou = fala.textos().stream()
+                    .filter(trecho -> causas.containsKey(trecho)
+                        || traduzidos.get(trecho) == null || traduzidos.get(trecho).isBlank())
+                    .findFirst().orElse(fala.textos().getFirst());
+                String causaDoTrecho = causas.get(faltou);
+                desfecho.registrarOriginalMantido(original, "fala de dois ou mais locutores: o trecho \""
+                    + faltou + "\" ficou sem traducao"
+                    + (causaDoTrecho != null ? " (" + causaDoTrecho + ")" : ""));
+            }
+            if (fala.textos().stream().anyMatch(segundaOpiniao::contains)) {
+                desfecho.registrarSegundaOpiniao(original);
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o caminho de tradução de sempre — mascara, fatia, traduz e desmascara
+     * — para falas que já chegam sem locutores misturados.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: os mesmos de {@link #traduzirPendentes}; as chaves do mapa e do
+     * desfecho são os textos recebidos.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: conjunto vazio devolve {@code Map.of()}; cancelamento
+     * propaga {@link TraducaoParcialException} com o progresso parcial já desmascarado.
+     */
+    private Map<String, String> traduzirSemLocutores(
+            LinkedHashSet<String> textosPendentes, Set<String> textosDeduplicaveis,
+            Set<String> textosComQuebraIsolavel,
+            String nomeArquivo, List<String> avisos, String promptCongelado,
+            DesfechoDasFalas desfecho, java.util.function.BiPredicate<String, String> vizinhas)
+            throws InterruptedException, ExecutionException {
         if (textosPendentes.isEmpty()) {
             return Map.of();
         }

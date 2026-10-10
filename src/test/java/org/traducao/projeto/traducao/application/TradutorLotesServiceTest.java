@@ -47,6 +47,8 @@ class TradutorLotesServiceTest {
         int chamadas = 0;
         TraducaoParcialException aLancar = null;
         Function<Lote, List<String>> tradutor = l -> l.linhasOriginais().stream().map(s -> "T:" + s).toList();
+        /** Mascarado enviado → causa de o pipeline ter desistido (e devolvido o original). */
+        Function<Lote, Map<String, String>> causas = l -> Map.of();
 
         FakeEpisodio() { super(null, null, null, null, null, null); }
 
@@ -56,7 +58,9 @@ class TradutorLotesServiceTest {
             lotesRecebidos.addAll(lotes);
             if (aLancar != null) { throw aLancar; }
             List<TraducaoLote> r = new ArrayList<>();
-            for (Lote l : lotes) { r.add(new TraducaoLote(l.idLote(), tradutor.apply(l), true, null)); }
+            for (Lote l : lotes) {
+                r.add(new TraducaoLote(l.idLote(), tradutor.apply(l), true, null, List.of(), false, causas.apply(l)));
+            }
             return r;
         }
     }
@@ -182,6 +186,60 @@ class TradutorLotesServiceTest {
             .mapToLong(l -> l.linhasOriginais().size()).sum();
         assertEquals(2, linhasEnviadas,
             "fala com tag no MEIO nao pode deduplicar com fala de estrutura diferente");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a fala de dois locutores vai ao modelo como dois textos comuns e volta
+     * montada com o travessão de cada um e a quebra entre eles. No teste ponta a ponta de
+     * 09/10/2026 ela foi a maior causa de fala em inglês: o modelo recebia "- This way. - Right."
+     * como uma linha e devolvia duas.
+     * <p>INVARIANTES DO DOMÍNIO: o modelo nunca recebe travessão nem quebra desses trechos; a fala
+     * comum ao lado segue como sempre.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: trecho enviado com travessão, ou fala montada torta, reprova.
+     */
+    @Test
+    void falaDeLocutoresVaiPorTrechoEVoltaMontada() throws Exception {
+        String locutores = "- This way.\\N- Right.";
+        Map<String, String> dicionario = Map.of("This way.", "Por aqui.", "Right.", "- Certo.", "Alone.", "Sozinho.");
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream().map(dicionario::get).toList();
+        TradutorLotesService s = servico(props(1), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+
+        Map<String, String> r = s.traduzirPendentes(pendentes(locutores, "Alone."), Set.of(), Set.of(locutores),
+            "ep.srt", new ArrayList<>(), null);
+
+        List<String> enviados = ep.lotesRecebidos.stream().flatMap(l -> l.linhasOriginais().stream()).toList();
+        assertEquals(List.of("This way.", "Right.", "Alone."), enviados);
+        assertEquals("- Por aqui.\\N- Certo.", r.get(locutores));
+        assertEquals("Sozinho.", r.get("Alone."));
+        assertEquals(2, r.size(), "os trechos nao podem vazar como falas no mapa devolvido: " + r.keySet());
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: quando o pipeline desiste de UM trecho, ele devolve o inglês daquele
+     * trecho; montar com isso publicaria a fala meio em inglês, que o portão final não pega porque a
+     * linha inteira não é idêntica. A fala inteira fica pendente, com a causa do trecho dentro.
+     * <p>INVARIANTES DO DOMÍNIO: a causa registrada nomeia o trecho e carrega a causa original
+     * (o classificador de pendência lê esse texto).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: fala meio traduzida no mapa, ou pendência sem causa, reprova.
+     */
+    @Test
+    void trechoAbandonadoDeixaAFalaInteiraPendenteComCausa() throws Exception {
+        String locutores = "- This way.\\N- Right.";
+        FakeEpisodio ep = new FakeEpisodio();
+        ep.tradutor = l -> l.linhasOriginais().stream().map(t -> t.equals("Right.") ? "Right." : "Por aqui.").toList();
+        ep.causas = l -> l.linhasOriginais().contains("Right.")
+            ? Map.of("Right.", "Lote 2 retornou 2 linha(s), esperado 1") : Map.of();
+        TradutorLotesService s = servico(props(1), ep, new FakeUiLogger(), new FakeProtecao(), new FakeTelemetria());
+        DesfechoDasFalas desfecho = new DesfechoDasFalas();
+
+        Map<String, String> r = s.traduzirPendentes(pendentes(locutores), Set.of(), Set.of(locutores),
+            "ep.srt", new ArrayList<>(), null, desfecho);
+
+        assertNull(r.get(locutores), "fala meio em ingles nao pode ser publicada: " + r.get(locutores));
+        String causa = desfecho.causaDoOriginalMantido().get(locutores);
+        assertTrue(causa != null && causa.contains("\"Right.\"") && causa.contains("linha(s), esperado"),
+            "a causa tem de nomear o trecho e carregar a causa dele: " + causa);
     }
 
     private TradutorLotesService servico(TradutorProperties props, FakeEpisodio ep,
