@@ -191,4 +191,23 @@ class AvaliadorTraducaoCacheTest {
         assertNotNull(avaliador.motivoFalhaFinal("{\\i1}Space.", "{\\i1}{\\b1}Espaço."),
             "tag INVENTADA pelo modelo tem de reprovar");
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a entrada de cache da fala de dois locutores que perdeu a separação
+     * (141 de 165 no cache real em 09/10/2026) não é reaproveitada — volta ao modelo por locutor.
+     * <p>INVARIANTES DO DOMÍNIO: a certa continua reaproveitada; o portão FINAL não recusa a torta,
+     * porque recusar ali devolveria a fala ao inglês (mesmo desenho da alternativa inventada).
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reaproveitar a torta, recusar a certa, ou o portão final
+     * passar a recusar a torta, reprova.
+     */
+    @Test
+    void falaDeLocutoresTortaNaoEhReaproveitadaMasNaoViraIngles() {
+        String original = "- Why did you dodge?\\N- Yes.";
+        assertFalse(avaliador.isCacheReaproveitavel(original, "Por que você\\Ndesviou? - Sim."),
+            "a entrada torta do Reconguista foi reaproveitada");
+        assertTrue(avaliador.isCacheReaproveitavel(original, "- Por que você desviou?\\N- Sim."),
+            "CONTROLE: a tradução que manteve os locutores tem de ser reaproveitada");
+        assertNull(avaliador.motivoFalhaFinal(original, "Por que você\\Ndesviou? - Sim."),
+            "o portão final não pode recusar por isto: a fala voltaria ao inglês");
+    }
 }

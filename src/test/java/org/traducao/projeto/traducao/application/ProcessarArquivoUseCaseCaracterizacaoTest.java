@@ -2418,6 +2418,62 @@ class ProcessarArquivoUseCaseCaracterizacaoTest {
     }
 
     /**
+     * PROPÓSITO DE NEGÓCIO: a entrada de cache da fala de dois locutores que perdeu a separação
+     * ("Por que você\Ndesviou? - Sim.", Reconguista I, 09/10/2026) volta ao modelo POR LOCUTOR e o
+     * arquivo sai com um travessão e uma linha por locutor.
+     * <p>INVARIANTES DO DOMÍNIO: a prova lê o arquivo gravado (A6); a antiga torta não chega a ele.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: reaproveitar a torta reprova.
+     */
+    @Test
+    void cacheDeLocutoresTortoEhRefeitoPorLocutor() throws Exception {
+        Path entrada = escreverAss("ep.ass", "- Why did you dodge?\\N- Yes.");
+        semearCacheDeUmaFala("- Why did you dodge?\\N- Yes.", "Por que você\\Ndesviou? - Sim.");
+
+        FakeLlmPort llm = new FakeLlmPort();
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        String gravado = Files.readString(raiz.resolve("saida").resolve("ep_PT-BR.ass"), StandardCharsets.UTF_8);
+        assertTrue(gravado.contains("- fala traduzida?\\N- fala traduzida"), gravado);
+        assertFalse(gravado.contains("desviou? - Sim."), "a entrada torta do cache chegou ao arquivo");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o lado de lá da mesma fronteira — a refação por locutor NÃO fecha (o
+     * modelo parte a fala de um locutor em duas linhas, todas as tentativas). Sem o recuo, a fala
+     * iria ao inglês; com ele, sai a tradução antiga do cache, que é português.
+     * <p>INVARIANTES DO DOMÍNIO: nunca inglês quando havia português aprovado pelo portão final.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: o arquivo gravado com o original em inglês reprova.
+     */
+    @Test
+    void refacaoPorLocutorQueNaoFechaRecuaParaOCacheEnaoParaOIngles() throws Exception {
+        Path entrada = escreverAss("ep.ass", "- Why did you dodge?\\N- Yes.");
+        semearCacheDeUmaFala("- Why did you dodge?\\N- Yes.", "Por que você\\Ndesviou? - Sim.");
+
+        FakeLlmPort llm = FakeLlmPort.queParteAFala("Yes");
+        montar(llm).processar(entrada, false, gerenciadorMontado.snapshotAtivo());
+
+        Path saida = raiz.resolve("saida");
+        String gravado;
+        try (var arquivos = Files.list(saida)) {
+            Path arquivo = arquivos.filter(p -> p.getFileName().toString().startsWith("ep_PT-BR")).findFirst().orElseThrow();
+            gravado = Files.readString(arquivo, StandardCharsets.UTF_8);
+        }
+        assertTrue(gravado.contains("Por que você\\Ndesviou? - Sim."), gravado);
+        assertFalse(gravado.contains("Why did you dodge?"), "a fala voltou ao ingles");
+    }
+
+    private void semearCacheDeUmaFala(String original, String traduzido) throws IOException {
+        Path cachePath = raiz.resolve("cache").resolve("AnimeTeste").resolve("ep.cache.json");
+        Files.createDirectories(cachePath.getParent());
+        ProvenienciaCache prov = new ProvenienciaCache(
+            ProvenienciaCache.SCHEMA_ATUAL, "caracterizacao",
+            ProvenienciaCache.hashDe("Traduza fielmente para PT-BR."),
+            "modelo-teste", "en", "pt-BR");
+        new CacheTraducaoService(new ObjectMapper()).salvar(cachePath, prov,
+            List.of(new EntradaCache(0, "Default", original, traduzido, "en", "pt-BR")));
+    }
+
+    /**
      * PROPÓSITO DE NEGÓCIO (guarda obra×contexto — DIVERGÊNCIA BLOQUEIA): um arquivo que mora
      * numa pasta reconhecida por OUTRO contexto não pode ser traduzido com a lore selecionada.
      * É a reprodução direta do incidente medido nesta árvore: 15 caches de Gundam 0083 gravados

@@ -116,6 +116,15 @@ public class AvaliadorTraducaoCache {
             log.warn("Cache ignorado porque as tags divergem do original: {}", traduzido);
             return false;
         }
+        // LOCUTORES (09/10/2026): a entrada traduzida como linha inteira antes de FalaDeLocutores
+        // existir perdeu o travessao do 1o locutor e partiu a fala no meio ("Por que voce\Ndesviou?
+        // - Sim."). Medido no cache real: 141 das 165 falas de varios locutores. Recusada aqui, a
+        // fala volta ao modelo POR LOCUTOR e sai remontada com os travessoes originais.
+        String locutores = FalaDeLocutores.locutoresPerdidos(original, traduzido);
+        if (locutores != null) {
+            log.warn("Cache ignorado ({}): {}", locutores, traduzido);
+            return false;
+        }
         if (normalizarParaComparacao(original).equals(normalizarParaComparacao(traduzido))) {
             return detectorIdentica.deveManterIdentico(original);
         }
@@ -237,6 +246,9 @@ public class AvaliadorTraducaoCache {
         if (!preservaEstruturaIgnorandoItalico(original, traduzido)) {
             return "tags ASS/SSA ou quebras de linha divergentes do original";
         }
+        // Locutores perdidos NAO reprovam aqui, de proposito (mesmo desenho da alternativa
+        // inventada): este e o portao final, e recusar a fala torta a devolveria ao INGLES. Quem
+        // recusa e o reaproveitamento do cache, que manda a fala ao modelo POR LOCUTOR.
         if (detectorIdentica.pareceNaoTraduzida(original, traduzido)) {
             return "modelo devolveu o texto original sem tradução";
         }

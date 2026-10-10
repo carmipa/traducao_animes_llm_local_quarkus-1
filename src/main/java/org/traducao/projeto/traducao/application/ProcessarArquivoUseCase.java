@@ -494,6 +494,11 @@ public class ProcessarArquivoUseCase {
         // ao LLM (evita eco/recusa) e são mantidas como estão. Mapa original->original.
         Map<String, String> jaNoIdiomaAlvo = new HashMap<>();
         LinkedHashSet<String> textosPendentes = new LinkedHashSet<>();
+        // RECUO (09/10/2026): a entrada recusada SO por ter perdido a separacao dos locutores vai ao
+        // modelo por locutor; se essa refacao terminar pendente, publica-se a traducao antiga (em
+        // portugues, torta) e nao o ingles. Medido no Reconguista I: 63 entradas recusadas, 1 com o
+        // trecho "G..." alucinado ("Bellri Zenam: Vamos la, G-Self!") ia virar ingles na tela.
+        Map<String, String> recuoDoCache = new HashMap<>();
         int cacheSuspeito = 0;
         int cacheReparado = 0;
         for (String textoOriginal : textosTraduziveisDistintos) {
@@ -517,6 +522,10 @@ public class ProcessarArquivoUseCase {
             } else {
                 if (cacheado != null) {
                     cacheSuspeito++;
+                    if (FalaDeLocutores.locutoresPerdidos(textoOriginal, cacheado) != null
+                            && avaliadorCache.motivoFalhaFinal(textoOriginal, cacheado) == null) {
+                        recuoDoCache.put(textoOriginal, cacheado);
+                    }
                 }
                 textosPendentes.add(textoOriginal);
             }
@@ -586,6 +595,13 @@ public class ProcessarArquivoUseCase {
                 log.info("Salvando {} traducoes parciais no cache antes de abortar o episodio", traducoesParciais.size());
                 Map<String, String> combinadasParciais = new HashMap<>(cacheReaproveitavel);
                 combinadasParciais.putAll(traducoesParciais);
+                // O recuo vale tambem aqui: a fala de locutores sem refacao fica com a do cache.
+                recuoDoCache.forEach((original, antiga) -> {
+                    String atual = combinadasParciais.get(original);
+                    if (atual == null || atual.isBlank()) {
+                        combinadasParciais.put(original, antiga);
+                    }
+                });
                 Map<String, String> parciaisValidadas = new HashMap<>();
                 for (Map.Entry<String, String> parcial : combinadasParciais.entrySet()) {
                     String motivo = avaliadorCache.motivoFalhaFinal(parcial.getKey(), parcial.getValue());
@@ -676,6 +692,20 @@ public class ProcessarArquivoUseCase {
                     + " o texto. Publicado o original. Original: " + original;
                 log.info(aviso);
                 uiLogger.log("[RESTAURADA] " + aviso);
+                continue;
+            }
+            // Terceiro resgate: a fala de locutores cuja entrada de cache foi recusada so pela
+            // separacao torta, e cuja refacao por locutor nao fechou. A antiga e portugues e passou
+            // no portao final; o ingles seria pior. A7: o motivo da refacao e a antiga vao ao log.
+            String antigaDoCache = recuoDoCache.get(original);
+            if (antigaDoCache != null) {
+                traducoesValidadas.put(original, antigaDoCache);
+                String causaDaRefacao = desfecho.causaDoOriginalMantido().getOrDefault(original, motivoFalha);
+                String aviso = "Refacao por locutor nao fechou (" + causaDaRefacao + "); mantida a traducao"
+                    + " anterior do cache, com a separacao dos locutores torta: \"" + antigaDoCache
+                    + "\". Original: " + original;
+                log.warn(aviso);
+                uiLogger.log("[RECUO] " + aviso);
                 continue;
             }
             // Uma falha conhecida nunca volta ao banco como se fosse tradução.

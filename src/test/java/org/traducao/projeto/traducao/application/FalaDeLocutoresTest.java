@@ -81,4 +81,25 @@ class FalaDeLocutoresTest {
         FalaDeLocutores fala = FalaDeLocutores.decompor("- Who?\\N- Me.\\N- Go!").orElseThrow();
         assertEquals(Optional.of("- Quem?\\N- Eu.\\N- Vai!"), fala.recompor(List.of("Quem?", "Eu.", "Vai!")));
     }
+
+    /**
+     * Fronteira da recusa do CACHE (09/10/2026): os dois lados têm o mesmo sinal — original de dois
+     * locutores. A tradução que manteve um travessão e uma linha por locutor passa; a que perdeu o
+     * travessão do 1º e partiu a fala no meio (o cache do Reconguista I) é acusada.
+     */
+    @Test
+    @DisplayName("locutores perdidos: acusa a tradução torta e poupa a que manteve a separação")
+    void locutoresPerdidosSeparaTortaDaCerta() {
+        assertEquals(null, FalaDeLocutores.locutoresPerdidos("- Go over there.\\N- Sorry.", "- Vá até lá.\\N- Desculpe."));
+        assertEquals(null, FalaDeLocutores.locutoresPerdidos("- Luin!\\N- Bell!", "- Luin!\\N- Bell!"),
+            "nomes iguais ao original mantêm a separação");
+        assertTrue(FalaDeLocutores.locutoresPerdidos("- Why did you dodge?\\N- Yes.", "Por que você\\Ndesviou? - Sim.") != null,
+            "o 1º travessão sumiu e a quebra caiu no meio da fala");
+        assertTrue(FalaDeLocutores.locutoresPerdidos("- Everyone!\\N- Capital Guard!", "- Todos! -\\NCapital Guard!") != null,
+            "o 2º locutor ficou sem travessão");
+        assertTrue(FalaDeLocutores.locutoresPerdidos("- Four of them?\\N- Aye, but two more.", "Quatro? Sim, mas mais duas.") != null,
+            "os dois locutores viraram uma linha só");
+        assertEquals(null, FalaDeLocutores.locutoresPerdidos("Just one speaker\\Nin two lines.", "Um só locutor\\Nem duas linhas."),
+            "fala que não é de locutores não é julgada");
+    }
 }

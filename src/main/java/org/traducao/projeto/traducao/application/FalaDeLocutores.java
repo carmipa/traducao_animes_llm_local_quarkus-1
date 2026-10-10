@@ -124,4 +124,56 @@ final class FalaDeLocutores {
     List<String> textos() {
         return textos;
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: diz se uma tradução da fala de vários locutores MANTEVE a separação — um
+     * segmento por locutor, cada um com travessão e texto. É o que separa {@code "- Vá até lá.\N-
+     * Desculpe."} (certa) de {@code "Por que você\Ndesviou? - Sim."} (o 1º travessão sumiu e a quebra
+     * caiu no meio da fala), que estava no cache do Reconguista I: 64 das 99 falas de dois locutores
+     * na legenda gravada em 09/10/2026, todas traduzidas como linha inteira antes desta classe existir.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: mesma regra de segmento de {@link #decompor}; a quantidade de
+     * segmentos tem de ser a do original. Não olha o conteúdo — isso é dos outros portões.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: tradução nula devolve {@code false}.
+     *
+     * @param traducao a fala traduzida, com {@code \N}
+     * @return {@code true} quando cada locutor continua no seu segmento
+     */
+    boolean preservadaEm(String traducao) {
+        if (traducao == null) {
+            return false;
+        }
+        String[] partes = traducao.split("\\\\N", -1);
+        if (partes.length != textos.size()) {
+            return false;
+        }
+        for (String parte : partes) {
+            Matcher m = SEGMENTO.matcher(parte);
+            if (!m.matches() || m.group(2).codePoints().noneMatch(Character::isLetterOrDigit)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o motivo legível quando a tradução perdeu a separação dos locutores. Quem
+     * o usa é o reaproveitamento do cache ({@code AvaliadorTraducaoCache#isCacheReaproveitavel}): a
+     * entrada torta volta ao modelo por locutor. O portão FINAL não recusa por isto — recusar ali
+     * devolveria a fala ao inglês.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: só fala de locutores reconhecida por {@link #decompor} é julgada.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: original que não é fala de locutores, ou tradução que manteve
+     * a separação, devolve {@code null}. Nunca lança.
+     */
+    static String locutoresPerdidos(String original, String traducao) {
+        Optional<FalaDeLocutores> fala = decompor(original);
+        if (fala.isEmpty() || fala.get().preservadaEm(traducao)) {
+            return null;
+        }
+        return "fala de " + fala.get().textos().size()
+            + " locutores: a traducao perdeu a separacao (um travessao e uma linha por locutor)";
+    }
 }
