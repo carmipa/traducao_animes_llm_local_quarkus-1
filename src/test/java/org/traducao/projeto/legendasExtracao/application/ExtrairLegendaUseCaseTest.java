@@ -154,6 +154,28 @@ class ExtrairLegendaUseCaseTest {
         }
     }
 
+    /**
+     * PROPÓSITO DE NEGÓCIO: vídeo sem faixa do formato pedido (o filme de Macross Delta, só PGS, no
+     * teste ponta a ponta de 09/10/2026) não deixa pasta de saída VAZIA para trás. O contra-teste no
+     * mesmo método: com faixa, a pasta nasce e recebe a legenda.
+     * <p>COMPORTAMENTO EM CASO DE FALHA: pasta vazia criada, ou pasta ausente quando há legenda, reprova.
+     */
+    @Test
+    void semFaixaDoFormatoNaoCriaPastaVazia(@TempDir Path base) throws IOException {
+        Path videos = prepararVideo(base);
+        Path saida = base.resolve("legendas_extraidas_ass");
+
+        RelatorioExtracao semFaixa = useCase(List.of(faixaPgs()), Modo.SUCESSO, new TelemetriaSpy())
+            .executar(videos, saida, FormatoLegenda.ASS);
+        assertEquals(0, semFaixa.getLegendasExtraidas());
+        assertFalse(Files.exists(saida), "sem legenda para gravar, a pasta de saida nao pode nascer");
+
+        RelatorioExtracao comFaixa = useCase(List.of(faixaAss()), Modo.SUCESSO, new TelemetriaSpy())
+            .executar(videos, saida, FormatoLegenda.ASS);
+        assertEquals(1, comFaixa.getLegendasExtraidas());
+        assertTrue(Files.exists(saida.resolve("Ep01_Track2.ass")), "com faixa, a legenda tem de estar na pasta");
+    }
+
     @Test
     void controleFalhaSemParadaContinuaSendoFalhaEOLoteSegue(@TempDir Path base) throws IOException {
         Path videos = prepararVideos(base, 5);

@@ -82,11 +82,10 @@ public class ExtrairLegendaUseCase {
                 : (Files.isDirectory(pastaVideos) 
                     ? pastaVideos.resolve("legendas_extraidas_" + formato.name().toLowerCase())
                     : (pastaVideos.getParent() != null ? pastaVideos.getParent().resolve("legendas_extraidas_" + formato.name().toLowerCase()) : Path.of("legendas_extraidas_" + formato.name().toLowerCase())));
-        try {
-            Files.createDirectories(pastaSaida);
-        } catch (IOException e) {
-            throw new ExtratorException("Falha ao criar pasta de saída: " + pastaSaida, e);
-        }
+        // A pasta de saída só nasce quando há legenda para gravar (extrairFaixaSelecionada). Até
+        // 09/10/2026 ela era criada aqui, antes de olhar os vídeos: o MKV do filme de Macross Delta,
+        // que só tem PGS, deixou uma legendas_extraidas_ass VAZIA ao lado — e a pasta vazia parece
+        // "extraí e não sobrou nada" para quem passa por ela depois.
 
         List<Path> videos = encontrarVideos(pastaVideos);
 
@@ -270,6 +269,18 @@ public class ExtrairLegendaUseCase {
             relatorio.adicionarItem(ItemExtracao.jaExiste(nomeVideo, formato.name(), faixa.id(), arquivoSaida));
             System.out.printf("   [JÁ EXISTE] %s -> %s%n", nomeVideo, arquivoSaida);
             log.warn("Arquivo de saída já existe; extração ignorada para não sobrescrever: {}", caminhoFinal);
+            return;
+        }
+
+        try {
+            Files.createDirectories(pastaSaida);
+        } catch (IOException e) {
+            // Falha de UM vídeo, como as outras: o lote segue e o item registra o motivo.
+            relatorio.registrarFalha();
+            relatorio.adicionarItem(ItemExtracao.falha(nomeVideo, formato.name(), faixa.id(),
+                "Falha ao criar pasta de saída: " + pastaSaida));
+            System.out.printf("   [FALHA] %s — não foi possível criar a pasta de saída %s%n", nomeVideo, pastaSaida);
+            log.error("Falha ao criar a pasta de saída {}: {}", pastaSaida, e.getMessage());
             return;
         }
 
