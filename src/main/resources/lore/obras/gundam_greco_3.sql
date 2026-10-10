@@ -1,4 +1,7 @@
 -- [gerado] obra gundam_greco_3
+-- FORA DO ESCOPO (10/10/2026): Paulo ja tem legenda PT-BR dos 5 filmes de Reconguista in G; a obra nao se traduz.
+-- Esta lore foi gerada em lote em 15/07/2026 e nunca foi curada: nao serve de referencia de nome
+-- nem de faccao (a legenda PT-BR usa Torre/Guarda/Exercito da Capital). Fica no catalogo sem uso.
 INSERT INTO obra VALUES ('gundam_greco_3');
 INSERT INTO termo_protegido VALUES ('gundam_greco_3', 'Aida Rayhunton');
 INSERT INTO termo_protegido VALUES ('gundam_greco_3', 'Aida Surugan');
@@ -86,18 +89,6 @@ INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Uniforme Normal', '
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Uniformes Normais', 'Normal Suits');
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Velho Tipo', 'Oldtype');
 INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Velhos Tipos', 'Oldtypes');
--- 09/10/2026: as faccoes ficam com o nome em ingles, como o prompt desta obra as declara (Capital
--- Tower, Capital Guard, Capital Army, Ameria). termo_protegido nao obriga o modelo; esta correcao sim.
--- Medido no Reconguista I (teste ponta a ponta): Torre Capital x10, Torre da Capital x4, Guarda
--- Capital x2, Exercito da Capital x15, Exercito Capital x2, Exercito Ameriano x5, Exercito de Ameria x2.
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Exército Ameriano', 'Amerian Army');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Exército Capital', 'Capital Army');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Exército da Capital', 'Capital Army');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Exército de Ameria', 'Amerian Army');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Guarda Capital', 'Capital Guard');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Guarda da Capital', 'Capital Guard');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Torre Capital', 'Capital Tower');
-INSERT INTO correcao_terminologia VALUES ('gundam_greco_3', 'Torre da Capital', 'Capital Tower');
 INSERT INTO lore_traducao VALUES ('gundam_greco_3', 'Gundam: Reconguista in G III - Legacy from Space', 1,
 'Você é um tradutor especializado em legendas de anime, traduzindo do inglês para português do Brasil.
 Contexto ativo da obra: Gundam Reconguista in G III: Legacy from Space.
