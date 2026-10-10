@@ -134,8 +134,9 @@ public class RevisaoLoreController {
             return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
         }
 
-        Path pastaOriginal = Path.of(req.diretorioOriginal().trim());
-        Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());
+        // Os MESMOS caminhos que a guarda conferiu (sem aspas, relativo sob a raiz operacional).
+        Path pastaOriginal = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioOriginal());
+        Path pastaTraduzida = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioTraduzido());
 
         // ANTES do submeter(), pela mesma razao da guarda de caminho acima: depois da fila a
         // resposta HTTP ja saiu como "revisao iniciada" e a recusa so existiria no log. O caso de

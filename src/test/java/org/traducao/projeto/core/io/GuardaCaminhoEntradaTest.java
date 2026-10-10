@@ -77,4 +77,36 @@ class GuardaCaminhoEntradaTest {
         assertFalse(guarda.avisoRevisaoSobrescreveBaseline("").isPresent());
         assertFalse(guarda.avisoRevisaoSobrescreveBaseline(null).isPresent());
     }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o caminho que a operação usa é o MESMO que a guarda conferiu — sem as
+     * aspas do Explorer e, quando relativo, sob a raiz operacional (09/10/2026: três controllers
+     * faziam {@code Path.of} cru, e na suíte {@code "cache"} virava o cache real).
+     */
+    @Test
+    void caminhoDaInterfaceTiraAspasEAncoraORelativo(@org.junit.jupiter.api.io.TempDir java.nio.file.Path dir) {
+        String absoluto = dir.toAbsolutePath().toString();
+        assertTrue(GuardaCaminhoEntrada.caminhoDaInterface("  \"" + absoluto + "\" ").equals(dir.toAbsolutePath()),
+            "aspas e espacos tem de sair; absoluto passa intocado");
+        assertTrue(GuardaCaminhoEntrada.caminhoDaInterface("cache").equals(DiretorioBaseKronos.resolver("cache")),
+            "relativo fica sob a raiz operacional, como no PipelineWebSupport.normalizarCaminho");
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: a recusa de traduzir a partir da pasta de SAÍDA (cicatriz de 06/08:
+     * 17 arquivos limpos sobrescritos) vale para o caminho colado do Explorer, com aspas. Até
+     * 09/10/2026 as aspas faziam o {@code Path.of} lançar, e a exceção era lida como "nada a
+     * recusar". CONTROLE (A1): a pasta de ENTRADA de verdade, com as mesmas aspas, passa.
+     */
+    @Test
+    void pastaDeSaidaEntreAspasContinuaRecusada(@org.junit.jupiter.api.io.TempDir java.nio.file.Path dir) {
+        String saida = "\"" + dir.resolve("traducao_ptbr").toAbsolutePath() + "\"";
+        String entrada = "\"" + dir.resolve("legendas_extraidas_ass").toAbsolutePath() + "\"";
+        assertTrue(guarda.conferirEntradaNaoEhSaidaDeTraducao(saida, null).isPresent(),
+            "a pasta de saida colada com aspas passou como entrada de traducao");
+        assertFalse(guarda.conferirEntradaNaoEhSaidaDeTraducao(entrada, null).isPresent(),
+            "CONTROLE: a entrada legitima com as mesmas aspas foi recusada");
+        assertTrue(guarda.avisoRevisaoSobrescreveBaseline("\"" + dir.resolve("traducao_aya") + "\"").isPresent(),
+            "o aviso de baseline sumia com o caminho entre aspas");
+    }
 }

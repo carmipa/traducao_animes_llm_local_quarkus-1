@@ -159,7 +159,7 @@ public class GuardaCaminhoEntrada {
         String limpo = semAspasEnvolventes(caminho.trim());
         Path alvo;
         try {
-            alvo = Path.of(limpo);
+            alvo = caminhoDaInterface(caminho);
         } catch (InvalidPathException e) {
             return Optional.of(new Recusa(Motivo.CAMINHO_INVALIDO,
                 rotulo + ": o texto informado não forma um caminho válido neste sistema (" + limpo + ")."));
@@ -177,6 +177,39 @@ public class GuardaCaminhoEntrada {
         }
         return Optional.of(new Recusa(Motivo.NAO_ENCONTRADO,
             rotulo + ": a pasta " + limpo + " não existe" + orientacao(limpo) + "."));
+    }
+
+    /**
+     * PROPÓSITO DE NEGÓCIO: o {@link Path} que a operação vai usar, montado do texto da tela do
+     * MESMO jeito que esta guarda o confere — dono único dessa conversão para as rotas que recebem
+     * pasta da interface.
+     *
+     * <h2>O prejuízo que obrigou a existir, medido em 09/10/2026</h2>
+     * Três controllers faziam {@code Path.of(texto.trim())} depois de a guarda aprovar o texto:
+     * <ul>
+     *   <li>sem tirar as aspas que a guarda tira: o "Copiar como caminho" do Explorer passava na
+     *       guarda e quebrava no {@code Path.of} ({@code "} não é caractere de caminho no
+     *       Windows);</li>
+     *   <li>sem ancorar o relativo na raiz operacional ({@link DiretorioBaseKronos}), como o
+     *       {@code PipelineWebSupport.normalizarCaminho} já fazia: na suíte, {@code "cache"} virava
+     *       o cache REAL da árvore de trabalho, e o job da 3.3 sobre ele prendia a fila por mais de
+     *       30 s ({@code ApiEndpointsTest.telemetriaExportarRetornaArquivoJson}).</li>
+     * </ul>
+     * E dentro desta própria classe, {@link #conferirEntradaNaoEhSaidaDeTraducao} e
+     * {@link #avisoRevisaoSobrescreveBaseline} recebiam o texto com aspas, caíam na
+     * {@link InvalidPathException} e respondiam "nada a recusar" — o caminho colado do Explorer
+     * pulava a recusa de traduzir a partir da pasta de SAÍDA.
+     *
+     * <p>INVARIANTES DO DOMÍNIO: tira espaços e o par de aspas envolvente; caminho absoluto passa
+     * intocado; relativo fica sob a raiz operacional — em produção a raiz é o diretório corrente e
+     * o resultado é idêntico a {@code Path.of(texto)}.
+     *
+     * <p>COMPORTAMENTO EM CASO DE FALHA: texto que não forma caminho propaga
+     * {@link InvalidPathException}; nulo propaga {@link NullPointerException}. Quem chama depois de
+     * {@link #conferirDiretorio} já recebeu a recusa para esses casos.
+     */
+    public static Path caminhoDaInterface(String caminho) {
+        return DiretorioBaseKronos.resolver(semAspasEnvolventes(caminho.trim()));
     }
 
     /**
@@ -239,14 +272,14 @@ public class GuardaCaminhoEntrada {
         }
         Path pastaEntrada;
         try {
-            pastaEntrada = Path.of(entrada.trim()).toAbsolutePath().normalize();
+            pastaEntrada = caminhoDaInterface(entrada).toAbsolutePath().normalize();
         } catch (InvalidPathException e) {
             return Optional.empty();
         }
 
         if (saida != null && !saida.isBlank()) {
             try {
-                Path pastaSaida = Path.of(saida.trim()).toAbsolutePath().normalize();
+                Path pastaSaida = caminhoDaInterface(saida).toAbsolutePath().normalize();
                 if (pastaEntrada.equals(pastaSaida)) {
                     return Optional.of(new Recusa(Motivo.SAIDA_COMO_ENTRADA,
                         "A pasta de entrada e a de saída são a MESMA (" + pastaEntrada + "). "
@@ -302,7 +335,7 @@ public class GuardaCaminhoEntrada {
         }
         Path pasta;
         try {
-            pasta = Path.of(entrada.trim()).toAbsolutePath().normalize();
+            pasta = caminhoDaInterface(entrada).toAbsolutePath().normalize();
         } catch (InvalidPathException e) {
             return Optional.empty();
         }

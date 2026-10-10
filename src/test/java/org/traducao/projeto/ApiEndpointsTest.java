@@ -465,10 +465,14 @@ class ApiEndpointsTest {
      * afirmar — contexto válido enfileira —, não afrouxado.
      */
     @Test
-    void revisarLoreIniciaComContextoValido() {
+    void revisarLoreIniciaComContextoValido(@TempDir Path raiz) throws Exception {
+        // Pastas temporarias, nao "cache"/"logs" relativos: ver revisarConcordanciaIniciaComDiretorio.
+        String original = Files.createDirectories(raiz.resolve("legendas_eng")).toString().replace('\\', '/');
+        String traduzida = Files.createDirectories(raiz.resolve("traducao_ptbr")).toString().replace('\\', '/');
         given()
             .contentType("application/json")
-            .body("{\"diretorioOriginal\":\"cache\",\"diretorioTraduzido\":\"logs\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
+            .body("{\"diretorioOriginal\":\"" + original + "\",\"diretorioTraduzido\":\"" + traduzida
+                + "\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
             .when().post("/api/revisar-lore")
             .then()
             .statusCode(200)
@@ -476,10 +480,13 @@ class ApiEndpointsTest {
     }
 
     @Test
-    void revisarLoreComAsDuasPastasIguaisRetornaBadRequest() {
+    void revisarLoreComAsDuasPastasIguaisRetornaBadRequest(@TempDir Path pasta) {
+        // A MESMA pasta temporaria nos dois campos; "cache" relativo so existia por acaso na raiz.
+        String mesma = pasta.toString().replace('\\', '/');
         given()
             .contentType("application/json")
-            .body("{\"diretorioOriginal\":\"cache\",\"diretorioTraduzido\":\"cache\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
+            .body("{\"diretorioOriginal\":\"" + mesma + "\",\"diretorioTraduzido\":\"" + mesma
+                + "\",\"contextoId\":\"danmachi\",\"revisarTodasFalas\":false}")
             .when().post("/api/revisar-lore")
             .then()
             .statusCode(400)
@@ -500,11 +507,33 @@ class ApiEndpointsTest {
             .body("erro", containsString("traduzidas"));
     }
 
+    /**
+     * Pasta TEMPORÁRIA, e não {@code "cache"}. Até 09/10/2026 este teste mandava o relativo
+     * {@code "cache"}, que o controller resolvia contra o diretório corrente: na árvore de trabalho
+     * era o cache REAL, e o job da 3.3 sobre ele prendia a fila por mais de 30 s — derrubando
+     * {@link #telemetriaExportarRetornaArquivoJson()} ("a fila não esvaziou em 30s").
+     */
     @Test
-    void revisarConcordanciaIniciaComDiretorio() {
+    void revisarConcordanciaIniciaComDiretorio(@TempDir Path pasta) {
         given()
             .contentType("application/json")
-            .body("{\"diretorioTraduzido\":\"cache\",\"aplicar\":false}")
+            .body("{\"diretorioTraduzido\":\"" + pasta.toString().replace('\\', '/') + "\",\"aplicar\":false}")
+            .when().post("/api/revisar-concordancia")
+            .then()
+            .statusCode(200)
+            .body("mensagem", containsString("Revisao de concordancia iniciada"));
+    }
+
+    /**
+     * O "Copiar como caminho" do Explorer põe aspas. A guarda as tirava e aprovava; o controller
+     * fazia {@code Path.of} com as aspas, que não são caractere de caminho no Windows — a rota
+     * respondia erro depois de a porta ter dito que o caminho estava certo.
+     */
+    @Test
+    void revisarConcordanciaAceitaCaminhoEntreAspasDoExplorer(@TempDir Path pasta) {
+        given()
+            .contentType("application/json")
+            .body("{\"diretorioTraduzido\":\"\\\"" + pasta.toString().replace('\\', '/') + "\\\"\",\"aplicar\":false}")
             .when().post("/api/revisar-concordancia")
             .then()
             .statusCode(200)

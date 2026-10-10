@@ -77,7 +77,8 @@ public class RevisaoConcordanciaController {
             return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
         }
 
-        Path pastaTraduzida = Path.of(req.diretorioTraduzido().trim());
+        // O MESMO caminho que a guarda conferiu (sem aspas, relativo sob a raiz operacional).
+        Path pastaTraduzida = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioTraduzido());
         boolean aplicar = req.aplicar();
 
         filaExecucao.submeter(() -> {

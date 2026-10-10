@@ -54,7 +54,7 @@ public class TrocaTipoLegendaController {
                 "erro", "Pasta com as legendas originais/traduzidas não informada."));
         }
 
-        Path diretorio = Path.of(req.diretorioLegendas().trim());
+        Path diretorio = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioLegendas());
 
         try {
             // Executamos de forma síncrona na thread pool do pipeline para garantir
@@ -89,7 +89,7 @@ public class TrocaTipoLegendaController {
             return ResponseEntity.badRequest().body(Map.of("erro", recusa.get().mensagem()));
         }
 
-        Path diretorio = Path.of(req.diretorioLegendas().trim());
+        Path diretorio = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioLegendas());
         boolean forcarArial = req.deveForcarArial();
 
         // Submete à fila única em segundo plano (assíncrono) para gravação física
@@ -134,7 +134,7 @@ public class TrocaTipoLegendaController {
             return ResponseEntity.badRequest().body(Map.of("erro", recusaAchatar.get().mensagem()));
         }
 
-        Path diretorio = Path.of(req.diretorioLegendas().trim());
+        Path diretorio = org.traducao.projeto.core.io.GuardaCaminhoEntrada.caminhoDaInterface(req.diretorioLegendas());
 
         // Mesma fila única/segundo plano da troca de fontes: grava in-place com
         // backup e loga no console SSE do canal troca-tipo-legenda em tempo real.
